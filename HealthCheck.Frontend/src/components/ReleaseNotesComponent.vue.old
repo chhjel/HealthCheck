@@ -1,0 +1,273 @@
+<!-- src/components/ReleaseNotesComponent.vue -->
+<template>
+    <div>
+        <div class="mt-4"></div>
+        <h3 
+          class="title" 
+          v-if="releaseNotes.DeployedInVersion != null && releaseNotes.DeployedInVersion != undefined">
+            v{{releaseNotes.DeployedInVersion}}
+            <span 
+              v-if="deployedDateString.length > 0"
+              class="gray-text caption ml-1">{{deployedDateString}}</span>
+        </h3>
+        <span class="grey-text lighten-1" v-if="showNotes">{{releaseNotes.Note}}</span>
+        
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn flat icon v-on="on" class="ma-0">
+              <v-icon small @click="setClipboard">far fa-clipboard</v-icon>
+            </v-btn>
+          </template>
+          <span>Put release notes on clipboard</span>
+        </v-tooltip>
+
+        <v-list>
+          <template v-for="(item, index) in items">
+            <v-divider :key="'rnc-d-'+index" :inset="true"></v-divider>
+
+            <v-list-tile
+              :key="'rnc-listitem-'+index"
+              :href="item.DefaultUrl"
+              :class="{ notClickable: (item.DefaultUrl == null) }">
+
+              <v-list-tile-avatar>
+                <v-icon>{{item.Icon}}</v-icon>
+              </v-list-tile-avatar>
+
+              <v-list-tile-content>
+                <v-list-tile-title>{{ item.Title }}</v-list-tile-title>
+              </v-list-tile-content>
+              
+              <v-list-tile-action>
+                <v-btn icon ripple @click.stop.prevent="onItemDetailsClicked(item)">
+                  <v-icon color="info">info</v-icon>
+                </v-btn>
+              </v-list-tile-action>
+            </v-list-tile>
+          </template>
+        </v-list>
+
+        <span class="grey-text lighten-1" v-if="showRemarks">
+          <div v-for="(item, index) in remarks"
+              :key="'rnc-remark-'+index"
+              class="pl-4 ml-5">
+              
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-icon small class="mr-2" v-on="on">fas fa-exclamation</v-icon>
+                  <span v-if="!item.SourcePullRequestUrl">{{item.Text}}</span>
+                  <a v-if="item.SourcePullRequestUrl" :href="item.SourcePullRequestUrl">{{item.Text}}</a>
+                </template>
+                <span>From PR #{{ item.SourcePullRequestNumber }}</span>
+              </v-tooltip>
+          </div>
+        </span>
+
+        <item-details-dialog-component 
+          ref="detailsDialog" 
+          :item="currentDetailsItem"
+          :texts="texts" />
+    </div>
+</template>
+
+<script lang="ts">
+import { Vue, Component, Prop } from "vue-property-decorator";
+import ReleaseNotes from '../models/ReleaseNotesJson/ReleaseNotes';
+import ReleaseNotesItem from '../models/ReleaseNotesJson/ReleaseNotesItem';
+import ItemDetailsDialogComponent from './ItemDetailsDialogComponent.vue';
+import ReleaseNoteItemViewModel from '../models/ReleaseNoteItemViewModel';
+import Remark from '../models/Remark'
+import LocalizedTexts from '../models/LocalizedTexts';
+
+@Component({
+    components: {
+        ItemDetailsDialogComponent
+    }
+})
+export default class ReleaseNotesComponent extends Vue {
+    @Prop({ required: true })
+    releaseNotes!: ReleaseNotes;
+    @Prop({ required: true })
+    texts!: LocalizedTexts;
+
+    currentDetailsItem: ReleaseNoteItemViewModel | null = null;
+
+    mounted(): void {
+    }
+
+    get deployedDateString(): string
+    {
+      if (this.releaseNotes.DeployedAt == null || this.releaseNotes.DeployedAt == undefined) return "";
+      
+      let date = new Date(this.releaseNotes.DeployedAt);
+      if (date.getFullYear() < 2000) return "";
+
+      let locale = this.texts.datetime_locale || "en-us";
+      return `${date.getDate()}. ${date.toLocaleString(locale, { month: "long" })} ${date.toTimeString().split(' ')[0]}`;
+    }
+
+    get items(): Array<ReleaseNoteItemViewModel>
+    {
+      return this.createGroupedItems(this.releaseNotes.Items);
+    }
+
+    get showNotes(): boolean
+    {
+      var value = this.texts.show_notes;
+      return (value == undefined || value == null || value == true);
+    }
+
+    get showRemarks(): boolean
+    {
+      var value = this.texts.show_remarks;
+      return (value == undefined || value == null || value == true) && this.remarks.length > 0;
+    }
+
+    get remarks(): Array<Remark>
+    {
+      return this.releaseNotes.Items
+        .filter(x => x.Remarks != null && x.Remarks != undefined && x.Remarks.trim().length > 0)
+        .map(x => {
+          return {
+            Text: x.Remarks,
+            SourcePullRequestNumber: x.PullRequestNumber || -1,
+            SourcePullRequestUrl: x.PullRequestUrl
+          };
+        });
+    }
+
+    createGroupedItems(items: Array<ReleaseNotesItem>): Array<ReleaseNoteItemViewModel>
+    {
+      const itemsByJiraIssue = this.releaseNotes.Items.reduce((ubc, u) => ({
+        ...ubc,
+        [u.JiraIssueId || ""]: [ ...((ubc as any)[(u as any).JiraIssueId || ""] || []), u ],
+      }), {});
+
+      let results: Array<ReleaseNoteItemViewModel> = [];
+      let titleResolver = this.getItemTitle;
+      let urlResolver = this.getItemDefaultUrl;
+      let iconResolver = this.getItemIcon;
+
+      Object.keys(itemsByJiraIssue).map(function(key, index) {
+        let changes = (itemsByJiraIssue as any)[key] as Array<ReleaseNotesItem>;
+        
+        if (key === "")
+        {
+            changes.filter(x => titleResolver(x) !== "").forEach(change => {
+              results.push({
+                Title: titleResolver(change),
+                DefaultUrl: urlResolver(change),
+                Icon: iconResolver(change),
+                JiraIssueId: change.JiraIssueId,
+                Changes: [change]
+              });
+            });
+        }
+        else
+        {
+          results.push({
+            Title: titleResolver(changes[0]),
+            DefaultUrl: urlResolver(changes[0]),
+            Icon: iconResolver(changes[0]),
+            JiraIssueId: changes[0].JiraIssueId,
+            Changes: changes
+          });
+        }
+      });
+
+      return results;
+    }
+
+    setClipboard(): void {
+      // ToDo: show snackbar alert
+      let el = this.createClipboardSourceElement();
+      this.selectElementText(el);
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    }
+
+    createClipboardSourceElement(): HTMLDivElement {
+      var el = document.createElement('div');
+      el.setAttribute('readonly', '');
+      (el as any).style = {position: 'absolute', left: '-9999px'};
+
+      var list = document.createElement('ul');
+      el.appendChild(list);
+
+      this.items.forEach(item => {
+        var listItem = document.createElement('li');
+        list.appendChild(listItem);
+
+        var link = document.createElement('a');
+        link.innerHTML = item.Title;
+        link.href = item.DefaultUrl || "";
+        listItem.appendChild(link);
+      });
+
+      document.body.appendChild(el);
+      return el;
+    }
+
+    selectElementText(element: HTMLElement): void {
+      if ((document as any).selection) { // IE
+          var range = (document.body as any).createTextRange();
+          range.moveToElementText(element);
+          range.select();
+      } else if (window.getSelection) {
+          let range = document.createRange();
+          range.selectNode(element);
+          window.getSelection().removeAllRanges();
+          window.getSelection().addRange(range);
+      }
+    }
+
+    //////////////////////////////////////////
+    //////////////// LIST ITEM //////////////
+    ////////////////////////////////////////
+    getItemTitle(item: ReleaseNotesItem | null): string
+    {
+      if (item == null) return "";
+
+      let potentials: (string | null)[] = [
+        item.HasJiraIssueId ? `${item.JiraIssueId} - ${item.JiraIssueTitle}` 
+          + (item.HasPullRequestNumber ? ` (#${item.PullRequestNumber})` : '') : null,
+        item.HasPullRequestNumber ? `${item.PullRequestTitle} (#${item.PullRequestNumber})` : null,
+        item.CommitShortMessageClean,
+        item.CommitMessage
+      ];
+      return potentials.filter((x: (string | null)) => x != null && x != undefined)[0] || "";
+    }
+
+    getItemDefaultUrl(item: ReleaseNotesItem): string | null
+    {
+        let potentials: (string | null)[] = [
+          item.HasJiraIssueId ? item.JiraIssueUrl : null,
+          item.HasPullRequestNumber ? item.PullRequestUrl : null,
+        ];
+        return potentials.filter((x: (string | null)) => x != null && x != undefined)[0] || null;
+    }
+
+    getItemIcon(item: ReleaseNotesItem): string
+    {
+      if (item.HasJiraIssueId) return "fab fa-jira";
+      else if(item.HasPullRequestNumber) return "fab fa-github";
+      else return "fa-circle";
+    }
+
+    ///////////////////////////////////////////////
+    //////////////// ITEM DETAILS ////////////////
+    /////////////////////////////////////////////
+    onItemDetailsClicked(item: ReleaseNoteItemViewModel): void
+    {
+      this.currentDetailsItem = item;
+      (this.$refs.detailsDialog as any).showDialog();
+    }
+
+}
+</script>
+
+<style scoped>
+.notClickable .v-list__tile .v-list__tile__content {
+  cursor: default !important;
+}
+</style>

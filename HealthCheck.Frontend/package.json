@@ -1,0 +1,35 @@
+{
+  "name": "healthcheck-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack --watch --mode=development",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": {
+    "name": "ChristianH",
+    "url": "https://github.com/chhjel"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "style-loader": "^0.23.1",
+    "vue": "^2.6.9",
+    "vue-class-component": "^7.0.1",
+    "vue-property-decorator": "^8.0.0",
+    "vue-router": "^3.0.2",
+    "vuetify": "^1.5.6"
+  },
+  "devDependencies": {
+    "css-loader": "^2.1.1",
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.3.3333",
+    "vue-loader": "^15.7.0",
+    "vue-template-compiler": "^2.6.9",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0"
+  }
+}
