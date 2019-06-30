@@ -63,25 +63,25 @@ namespace HealthCheck.Core.TestManagers
             {
             }
 
-            [RuntimeTest(ParameterDescriptions = new[] { "a desc", "b", "c" })]
+            [RuntimeTest(Name = "TestMethodA", ParameterDescriptions = new[] { "a desc", "b", "c" })]
             public TestResult TestMethodA(string stringArg = "wut", bool boolArg = true, int intArg = 123)
             {
                 return TestResult.CreateSuccess($"Success! [{stringArg}, {boolArg}, {intArg}]");
             }
 
-            [RuntimeTest]
+            [RuntimeTest(Name = "TestMethodB")]
             public TestResult TestMethodB()
             {
                 return new TestResult();
             }
 
-            [RuntimeTest]
+            [RuntimeTest(Name = "InvalidMethodA")]
             public bool InvalidMethodA() => true;
 
-            [RuntimeTest]
+            [RuntimeTest(Name = "InvalidMethodB")]
             public void InvalidMethodB() { }
 
-            [RuntimeTest]
+            [RuntimeTest(Name = "InvalidMethodC")]
             public TestResult InvalidMethodC(string a, string b) => TestResult.CreateSuccess($"{a}, {b}");
 
             public TestResult NotATestMethod() => new TestResult();

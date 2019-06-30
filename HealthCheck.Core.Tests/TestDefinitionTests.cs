@@ -94,13 +94,13 @@ namespace HealthCheck.Core.TestManagers
         [RuntimeTestClass(Id = "TestSetId", Description = "Some test set", Name = "Dev test set")]
         public class TestClass
         {
-            [RuntimeTest]
+            [RuntimeTest(Name = "TestMethodWithoutParameters")]
             public TestResult TestMethodWithoutParameters()
             {
                 return new TestResult();
             }
 
-            [RuntimeTest(ParameterDescriptions = new[] { "a desc", "b", "c" })]
+            [RuntimeTest(Name = "TestMethodWithParameters", ParameterDescriptions = new[] { "a desc", "b", "c" })]
             public TestResult TestMethodWithParameters(string stringArg = "wut", bool boolArg = true, int intArg = 123)
             {
                 return new TestResult()
