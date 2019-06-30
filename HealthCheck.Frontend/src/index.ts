@@ -12,7 +12,7 @@ Vue.use(Vuetify, {
       primary: "#12436D",
       secondary: "#4C2E5F",
       accent: "#12436D",
-      error: "#BF3735"
+      error: "#de4a4a"
     }
 });
 
