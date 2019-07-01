@@ -1,0 +1,47 @@
+<!-- src/components/paremeter_inputs/TestParametersComponent.vue -->
+<template>
+    <div>
+        <v-container grid-list-lg class="parameter-container">
+        <v-layout row wrap>
+            <v-flex xs12 sm12 md6 lg3
+                v-for="(parameter, index) in test.Parameters"
+                :key="`test-${test.Id}-parameter`+index"
+                class="parameter-block">
+                <parameter-input-component :parameter="parameter" />
+            </v-flex>
+        </v-layout>
+        </v-container>
+    </div>
+</template>
+
+<script lang="ts">
+import { Vue, Component, Prop } from "vue-property-decorator";
+import TestViewModel from '../../models/TestViewModel';
+import ParameterInputComponent from './ParameterInputComponent.vue';
+
+@Component({
+    components: {
+      // Parameter input components
+      ParameterInputComponent
+    }
+})
+export default class TestParametersComponent extends Vue {
+    @Prop({ required: true })
+    test!: TestViewModel;
+
+    mounted(): void {
+    }
+}
+</script>
+
+<style scoped>
+.parameter-container {
+  padding-left: 32px;
+  background-color: white;
+  margin-top: 10px;
+}
+.parameter-block {
+  padding-right: 40px !important;
+  padding-left: 0 !important;
+}
+</style>

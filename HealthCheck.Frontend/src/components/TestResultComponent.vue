@@ -1,0 +1,100 @@
+<!-- src/components/TestResultComponent.vue -->
+<template>
+    <div>
+        <v-icon :color="testResultIconColor"
+          class="mr-1">{{testResultIcon}}</v-icon>
+        
+        <div class="result-message">{{this.testResult.Message}}</div>
+
+        <!-- DATA DUMPS -->
+        <v-expansion-panel v-if="showTestResultData" class="mt-2">
+          <v-expansion-panel-content>
+            <template v-slot:header>
+              <div>{{ testResultDataTitle }}</div>
+            </template>
+            <v-card>
+              <v-card-text>
+                <test-result-data-component 
+                  v-for="(data, index) in testResult.Data"
+                  :key="`test-${testResult.TestId}-result-data`+index"
+                  :data="data" />
+              </v-card-text>
+            </v-card>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+    </div>
+</template>
+
+<script lang="ts">
+import { Vue, Component, Prop } from "vue-property-decorator";
+import TestResultViewModel from "../models/TestResultViewModel";
+import TestResultDataComponent from './TestResultDataComponent.vue';
+
+@Component({
+    components: {
+      TestResultDataComponent
+    }
+})
+export default class TestResultComponent extends Vue {
+    @Prop({ required: true })
+    testResult!: TestResultViewModel;
+
+    mounted(): void {
+    }
+
+    get showTestResultData(): boolean {
+      return this.testResult!.Data != null && this.testResult!.Data!.length > 0;
+    }
+
+    get testResultIcon(): string
+    {
+      if (this.testResult == null) return "";
+      else if (this.testResult.StatusCode == 0) return "check_circle";
+      else if (this.testResult.StatusCode == 1) return "warning";
+      else if (this.testResult.StatusCode == 2) return "error";
+      else return "";
+    }
+
+    get testResultIconColor(): string
+    {
+      if (this.testResult == null) return "";
+      else if (this.testResult.StatusCode == 0) return "green";
+      else if (this.testResult.StatusCode == 1) return "orange";
+      else if (this.testResult.StatusCode == 2) return "red";
+      else return "";
+    }
+
+    get testResultDataTitle(): string
+    {
+      if (!this.showTestResultData) return "";
+
+      let prefix = "View ";
+
+      let datas = this.testResult!.Data;
+      let datasWithTitles = datas.filter(x => x.Title != null && x.Title.length > 0);
+      let maxNamedToShow = 3;
+      let namedToShowCount = (datasWithTitles.length < maxNamedToShow) ? datasWithTitles.length : maxNamedToShow;
+      let remainingCount = (datas.length - namedToShowCount);
+
+      if (namedToShowCount > 0) {
+        var title = `${prefix} ` + datasWithTitles.slice(0, namedToShowCount).map(x => `'${x.Title}'`).join(", ");
+        if (remainingCount > 0) {
+          title += ` + ${remainingCount} other` + (remainingCount == 1 ? "" : "s");
+        }
+        return title;
+      }
+      else
+      {
+        return `${prefix} ${remainingCount} data` + (remainingCount == 1 ? "" : "s");
+      }
+    }
+
+}
+</script>
+
+<style scoped>
+.result-message {
+  font-size: 18px;
+  display: inline;
+}
+</style>
