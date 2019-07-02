@@ -1,13 +1,63 @@
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Exceptions;
+using HealthCheck.Core.Tests.Helpers;
+using System;
 using System.Linq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace HealthCheck.Core.TestManagers
 {
     public class TestDiscovererTests
     {
+        public ITestOutputHelper Output { get; }
+
+        public TestDiscovererTests(ITestOutputHelper output)
+        {
+            Output = output;
+        }
+
+        [Fact]
+        public void DiscoverTestDefinitions_WithRoles_ReturnsOnlyTestsWithGivenRoles()
+        {
+            var discoverer = new TestDiscoverer()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+
+            var userRoles = AccessRoles.WebAdmins;
+            var tests = discoverer.DiscoverTestDefinitions(userRoles)
+                .SelectMany(x => x.Tests);
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodForSysAdmins));
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodA));
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodB));
+        }
+
+        [Fact]
+        public void DiscoverTestDefinitions_WithDifferentRolesObject_GivesException()
+        {
+            var discoverer = new TestDiscoverer()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+
+            var userRoles = WrongEnumA.Something;
+            Assert.Throws<InvalidAccessRolesDefinitionException>(() =>
+            {
+                try
+                {
+                    discoverer.DiscoverTestDefinitions(userRoles);
+                }
+                catch (Exception ex)
+                {
+                    Output.WriteLine(ex.Message);
+                    throw;
+                }
+            });
+        }
+        private enum WrongEnumA { Something = 1, Etc = 2 }
+
         [Fact]
         public void DiscoverTestDefinitions_WithTwoTests_FindsTests()
         {
@@ -61,6 +111,12 @@ namespace HealthCheck.Core.TestManagers
         {
             public TestClass()
             {
+            }
+
+            [RuntimeTest(Name = "TestMethodForSysAdmins", RolesWithAccess = AccessRoles.SystemAdmins)]
+            public TestResult TestMethodForSysAdmins()
+            {
+                return TestResult.CreateSuccess($"Success!");
             }
 
             [RuntimeTest(Name = "TestMethodA", ParameterDescriptions = new[] { "a desc", "b", "c" })]

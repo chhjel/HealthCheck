@@ -104,7 +104,7 @@ export default class HealthCheckPageComponent extends Vue {
         this.testSetDataLoadInProgress = true;
         this.testSetDataLoadFailed = false;
 
-        let url = `/HealthCheck/GetTests`;
+        let url = `/HealthCheck/GetTests${window.location.search}`;
         fetch(url, {
             credentials: 'include',
             method: "GET",

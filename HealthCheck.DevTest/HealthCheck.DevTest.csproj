@@ -163,6 +163,12 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="_TestImplementation\RuntimeTestAccessRole.cs" />
+    <Compile Include="_TestImplementation\Tests\TestsForAdminsWithOneForGuests.cs" />
+    <Compile Include="_TestImplementation\Tests\TestsWithWebAdminRequirements.cs" />
+    <Compile Include="_TestImplementation\Tests\TestsWithSysAdminRequirements.cs" />
+    <Compile Include="_TestImplementation\Tests\SomeServiceIntegrationTests.cs" />
+    <Compile Include="_TestImplementation\Tests\SomeRandomTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\HelpPage\HelpPage.css" />

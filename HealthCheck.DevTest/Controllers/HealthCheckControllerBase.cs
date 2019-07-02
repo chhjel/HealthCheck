@@ -1,7 +1,7 @@
 ﻿using HealthCheck.Core.Entities;
-using HealthCheck.Core.Enums;
 using HealthCheck.Core.TestManagers;
 using HealthCheck.Core.Util;
+using HealthCheck.Core.Attributes;
 using HealthCheck.Web.Core.Factories;
 using HealthCheck.Web.Core.ViewModels;
 using Newtonsoft.Json;
@@ -20,6 +20,13 @@ namespace HealthCheck.DevTest.Controllers
         private readonly TestViewModelsFactory _testViewModelsFactory = new TestViewModelsFactory();
         private readonly TestRunner _testRunner = new TestRunner();
         private readonly StringConverter _stringConverter = new StringConverter();
+
+
+        /// <summary>
+        /// Should return a custom enum flag object with the roles of the current user. Must match the type used in <see cref="RuntimeTestAttribute.RolesWithAccess"/>.
+        /// <para>Returns null by default to allow all test.</para>
+        /// </summary>
+        protected virtual object GetRequestAccessRoles() => null;
 
         private const string Q = "\"";
         public virtual ActionResult Index()
@@ -115,11 +122,12 @@ namespace HealthCheck.DevTest.Controllers
                 return _testCache;
             }
 
+            var userRoles = GetRequestAccessRoles();
             _testCache = new TestDiscoverer()
             {
                 AssemblyContainingTests = GetType().Assembly
             }
-            .DiscoverTestDefinitions();
+            .DiscoverTestDefinitions(onlyTestsAllowedToBeManuallyExecuted: true, userRolesEnum: userRoles);
 
             return _testCache;
         }

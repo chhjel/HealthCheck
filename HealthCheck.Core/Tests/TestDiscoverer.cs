@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Exceptions;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,9 +53,21 @@ namespace HealthCheck.Core.TestManagers
             => AssemblyContainingTests ?? Assembly.GetEntryAssembly();
 
         /// <summary>
+        /// Discover tests, only returning ones that have any of the given roles.
+        /// </summary>
+        public List<TestClassDefinition> DiscoverTestDefinitions<TAccessRolesEnum>(TAccessRolesEnum userRoles,
+            bool includeInvalidTests = false,
+            bool onlyTestsAllowedToBeManuallyExecuted = false)
+            where TAccessRolesEnum : Enum
+            => DiscoverTestDefinitions(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRoles);
+
+        /// <summary>
         /// Discover tests.
         /// </summary>
-        public List<TestClassDefinition> DiscoverTestDefinitions(bool includeInvalidTests = false)
+        public List<TestClassDefinition> DiscoverTestDefinitions(
+            bool includeInvalidTests = false,
+            bool onlyTestsAllowedToBeManuallyExecuted = false,
+            object userRolesEnum = null)
         {
             var assembly = GetAssembly();
             if (assembly == null)
@@ -70,9 +83,6 @@ namespace HealthCheck.Core.TestManagers
             var testDefinitions = new List<TestClassDefinition>();
             foreach (var classType in testClassTypes)
             {
-                // todo check that we have empty constructor
-                //var constructor = classType.GetConstructor(new Type[0]);
-
                 var testClassAttribute = classType.GetCustomAttribute<RuntimeTestClassAttribute>(inherit: true);
                 var classDef = new TestClassDefinition(classType, testClassAttribute);
                 var testMethods = classType.GetMethods()
@@ -84,18 +94,62 @@ namespace HealthCheck.Core.TestManagers
                     var testAttribute = testMethod.GetCustomAttribute<RuntimeTestAttribute>();
                     var testDef = new TestDefinition(testMethod, testAttribute, classDef);
 
+                    // Check for invalid tests
                     if (!includeInvalidTests && !testDef.Validate().IsValid)
+                    {
+                        continue;
+                    }
+
+                    // Check for tests not allowed to be executed manually
+                    if (onlyTestsAllowedToBeManuallyExecuted && !testDef.AllowManualExecution)
+                    {
+                        continue;
+                    }
+
+                    // Exclude tests that are outside the given roles if any
+                    if (!IsTestIncludedForRoles(testDef, userRolesEnum))
                     {
                         continue;
                     }
 
                     classDef.Tests.Add(testDef);
                 }
-                testDefinitions.Add(classDef);
+
+                // Only include test set if it has any tests
+                if (classDef.Tests.Any())
+                {
+                    testDefinitions.Add(classDef);
+                }
             }
             return testDefinitions;
         }
 
-        // Validate
+        private bool IsTestIncludedForRoles(TestDefinition test, object roles)
+        {
+            // No access set => allow
+            if (test.RolesWithAccess == null)
+            {
+                return true;
+            }
+            
+            // Check for invalid setup
+            if (!EnumUtils.IsEnumFlagOfType(test.RolesWithAccess, new[] { typeof(int), typeof(byte) }))
+            {
+                throw new InvalidAccessRolesDefinitionException($"Access role set on test '{test.Name}' is either missing a [Flags] attribute or does not have the underlying type int or byte.");
+            }
+            else if(roles != null && roles.GetType() != test.RolesWithAccess.GetType())
+            {
+                throw new InvalidAccessRolesDefinitionException($"Different access role types used on '{test.Name}' and in the discover tests call. " +
+                    $"({test.RolesWithAccess.GetType().Name} and {roles.GetType().Name})");
+            }
+            
+            // Test requires roles, but user has none => don't allow.
+            if (roles == null)
+            {
+                return false;
+            }
+
+            return EnumUtils.EnumFlagHasAnyFlagsSet(roles, test.RolesWithAccess);
+        }
     }
 }

@@ -33,7 +33,18 @@ namespace HealthCheck.Core.Entities
         /// <summary>
         /// If true the test in this class will be executed in parallel by default.
         /// </summary>
-        public bool AllowParallelExecution { get; set; }
+        public bool DefaultAllowParallelExecution { get; set; }
+
+        /// <summary>
+        /// If enabled the test in this class can be executed from the ui manually.
+        /// </summary>
+        public bool DefaultAllowManualExecution { get; set; }
+
+        /// <summary>
+        /// Default roles that are allowed access to the tests in this class.
+        /// <para>Either a custom enum flags value or null.</para>
+        /// </summary>
+        public object DefaultRolesWithAccess { get; set; }
 
         /// <summary>
         /// Test methods defined within this class.
@@ -49,7 +60,9 @@ namespace HealthCheck.Core.Entities
             Id = testClassAttribute.Id ?? ClassType.FullName;
             Name = testClassAttribute.Name ?? ClassType.Name.AddSpaceBetweenCapitalLetters();
             Description = testClassAttribute.Description;
-            AllowParallelExecution = testClassAttribute.AllowParallelExecution;
+            DefaultAllowParallelExecution = testClassAttribute.DefaultAllowParallelExecution;
+            DefaultAllowManualExecution = testClassAttribute.DefaultAllowManualExecution;
+            DefaultRolesWithAccess = testClassAttribute.DefaultRolesWithAccess;
         }
     }
 }

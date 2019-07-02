@@ -37,10 +37,15 @@ namespace HealthCheck.Core.Entities
         /// </summary>
         public bool? AllowParallelExecution { get; set; }
 
-        ///// <summary>
-        ///// Optional boolean value to override config for this test. If enabled the test can be executed from the ui manually.
-        ///// </summary>
-        //public object AllowManualExecution { get; set; }
+        /// <summary>
+        /// If enabled the test in this class can be executed from the ui manually by default.
+        /// </summary>
+        public bool AllowManualExecution { get; set; } = true;
+
+        /// <summary>
+        /// Roles that can access this test method.
+        /// </summary>
+        public object RolesWithAccess { get; set; }
 
         /// <summary>
         /// Test method.
@@ -63,6 +68,8 @@ namespace HealthCheck.Core.Entities
             Name = testAttribute.Name ?? Method.Name.AddSpaceBetweenCapitalLetters();
             Description = testAttribute.Description;
             AllowParallelExecution = (testAttribute.AllowParallelExecution is bool allowParallelExecution && allowParallelExecution);
+            AllowManualExecution = (testAttribute.AllowManualExecution is bool allowManualExecution ? allowManualExecution : parentClass.DefaultAllowManualExecution);
+            RolesWithAccess =  testAttribute.RolesWithAccess ?? parentClass.DefaultRolesWithAccess;
 
             SetId();
             InitParameters(testAttribute);

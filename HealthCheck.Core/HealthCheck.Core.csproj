@@ -58,6 +58,7 @@
     <Compile Include="Enums\TestResultStatus.cs" />
     <Compile Include="Exceptions\ConversionFailedException.cs" />
     <Compile Include="Exceptions\ConversionHandlerNotFoundException.cs" />
+    <Compile Include="Exceptions\InvalidAccessRolesDefinitionException.cs" />
     <Compile Include="Exceptions\InvalidTestDefinitionException.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Tests\TestRunner.cs" />
     <Compile Include="Util\AssemblyUtil.cs" />
     <Compile Include="Util\DumpHelper.cs" />
+    <Compile Include="Util\EnumUtils.cs" />
     <Compile Include="Util\StringConverter.cs" />
   </ItemGroup>
   <ItemGroup>

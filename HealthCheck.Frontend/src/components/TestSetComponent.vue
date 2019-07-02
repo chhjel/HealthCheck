@@ -1,8 +1,6 @@
 <!-- src/components/TestSetComponent.vue -->
 <template>
     <div>
-        <div class="mt-3"></div>
-        
         <h2 class="display-3">{{ testSet.Name }}</h2>
         <div class="subheading">{{ testSet.Description }}</div>
         <div class="mb-4"></div>
@@ -12,8 +10,8 @@
             :key="'test'+index"
             :test="test"
             class="mb-2" />
-
-        <div class="mb-5"></div>
+        
+        <div class="mb-4"></div>
     </div>
 </template>
 

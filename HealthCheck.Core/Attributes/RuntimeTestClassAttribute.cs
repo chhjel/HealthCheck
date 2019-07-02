@@ -26,11 +26,18 @@ namespace HealthCheck.Core.Attributes
         /// <summary>
         /// If true the test in this class will be executed in parallel by default.
         /// </summary>
-        public bool AllowParallelExecution { get; set; }
+        public bool DefaultAllowParallelExecution { get; set; }
 
-        ///// <summary>
-        ///// If enabled the test in this class can be executed from the ui manually by default.
-        ///// </summary>
-        //public bool AllowManualExecution { get; set; }
+        /// <summary>
+        /// If enabled the test in this class can be executed from the ui manually by default.
+        /// <para>True by default.</para>
+        /// </summary>
+        public bool DefaultAllowManualExecution { get; set; } = true;
+
+        /// <summary>
+        /// Default roles that are allowed access to the tests in this class.
+        /// <para>Must be an enum flags value.</para>
+        /// </summary>
+        public object DefaultRolesWithAccess { get; set; }
     }
 }

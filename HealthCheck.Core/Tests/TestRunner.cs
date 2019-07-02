@@ -22,7 +22,7 @@ namespace HealthCheck.Core.TestManagers
             {
                 var classInstance = Activator.CreateInstance(testClass.ClassType);
 
-                var defaultAllowsParallel = testClass.AllowParallelExecution == true;
+                var defaultAllowsParallel = testClass.DefaultAllowParallelExecution == true;
                 var testsThatCanRunInParallel = testClass.Tests
                     .Where(x =>
                         (defaultAllowsParallel
