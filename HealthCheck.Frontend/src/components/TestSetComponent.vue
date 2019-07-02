@@ -28,9 +28,6 @@ import TestComponent from './TestComponent.vue';
 export default class TestSetComponent extends Vue {
     @Prop({ required: true })
     testSet!: TestSetViewModel;
-
-    mounted(): void {
-    }
 }
 </script>
 

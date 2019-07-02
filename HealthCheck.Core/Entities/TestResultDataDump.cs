@@ -1,4 +1,6 @@
-﻿namespace HealthCheck.Core.Entities
+﻿using HealthCheck.Core.Enums;
+
+namespace HealthCheck.Core.Entities
 {
     /// <summary>
     /// Result from a test.
@@ -16,8 +18,8 @@
         public string Data { get; set; }
 
         /// <summary>
-        /// True if data was serialized to json.
+        /// Type of data.
         /// </summary>
-        public bool IsJson { get; set; }
+        public TestResultDataDumpType Type { get; set; }
     }
 }

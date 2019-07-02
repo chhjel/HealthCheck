@@ -1,5 +1,7 @@
+import { TestResultDataDumpType } from "./TestResultDataDumpType";
+
 export default interface TestResultDataDumpViewModel {
     Title: string | null;
     Data: string;
-    IsJson: boolean;
+    Type: TestResultDataDumpType;
 }

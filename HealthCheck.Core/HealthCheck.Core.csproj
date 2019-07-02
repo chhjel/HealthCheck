@@ -55,6 +55,7 @@
     <Compile Include="Entities\TestParameter.cs" />
     <Compile Include="Entities\TestResult.cs" />
     <Compile Include="Entities\TestResultDataDump.cs" />
+    <Compile Include="Enums\TestResultDataDumpType.cs" />
     <Compile Include="Enums\TestResultStatus.cs" />
     <Compile Include="Exceptions\ConversionFailedException.cs" />
     <Compile Include="Exceptions\ConversionHandlerNotFoundException.cs" />

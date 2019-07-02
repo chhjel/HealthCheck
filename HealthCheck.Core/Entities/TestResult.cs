@@ -71,6 +71,7 @@ namespace HealthCheck.Core.Entities
         public static TestResult CreateError(string message)
             => Create(TestResultStatus.Error, message);
 
+        #region Method-chaining
         /// <summary>
         /// Include a serialized version of the given object in the result data.
         /// </summary>
@@ -81,22 +82,48 @@ namespace HealthCheck.Core.Entities
             {
                 Title = dump.Title,
                 Data = dump.Data,
-                IsJson = true
+                Type = TestResultDataDumpType.Json
             });
             return this;
         }
 
         /// <summary>
-        /// Include the given text content in the result data.
+        /// Include the given content in the result data.
         /// </summary>
-        public TestResult AddData(string data, string title = null)
+        public TestResult AddData(string data, string title = null, TestResultDataDumpType type = TestResultDataDumpType.PlainText)
         {
             Data.Add(new TestResultDataDump()
             {
                 Title = title,
-                Data = data
+                Data = data,
+                Type = type
             });
             return this;
         }
+
+        /// <summary>
+        /// Include the given html in the result data.
+        /// </summary>
+        public TestResult AddTextData(string html, string title = null)
+            => AddData(html, title, TestResultDataDumpType.PlainText);
+
+        /// <summary>
+        /// Include the given html in the result data.
+        /// </summary>
+        public TestResult AddHtmlData(string html, string title = null)
+            => AddData(html, title, TestResultDataDumpType.Html);
+
+        /// <summary>
+        /// Include the given xml in the result data.
+        /// </summary>
+        public TestResult AddXmlData(string xml, string title = null)
+            => AddData(xml, title, TestResultDataDumpType.Xml);
+
+        /// <summary>
+        /// Include the given json in the result data.
+        /// </summary>
+        public TestResult AddJsonData(string json, string title = null)
+            => AddData(json, title, TestResultDataDumpType.Json);
+        #endregion
     }
 }

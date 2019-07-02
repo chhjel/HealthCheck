@@ -7,7 +7,9 @@
         <div class="result-message">{{this.testResult.Message}}</div>
 
         <!-- DATA DUMPS -->
-        <v-expansion-panel v-if="showTestResultData" class="mt-2">
+        <v-expansion-panel class="mt-2"
+          v-if="showTestResultData"
+          v-model="dataExpandedState">
           <v-expansion-panel-content>
             <template v-slot:header>
               <div>{{ testResultDataTitle }}</div>
@@ -26,9 +28,9 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import TestResultViewModel from "../models/TestResultViewModel";
-import TestResultDataComponent from './TestResultDataComponent.vue';
+import TestResultDataComponent from './result_data/TestResultDataComponent.vue';
 
 @Component({
     components: {
@@ -38,10 +40,31 @@ import TestResultDataComponent from './TestResultDataComponent.vue';
 export default class TestResultComponent extends Vue {
     @Prop({ required: true })
     testResult!: TestResultViewModel;
+    @Prop({ required: true })
+    expandDataOnLoad!: boolean;
 
+    dataExpandedState: number = -1;
+
+    //////////////////
+    //  LIFECYCLE  //
+    ////////////////
     mounted(): void {
+      if (this.expandDataOnLoad == true) {
+        this.dataExpandedState = 0;
+      }
+    }
+    
+    /////////////////
+    //  WATCHERS  //
+    ///////////////
+    @Watch("dataExpandedState")
+    onDataExpandedStateChanged(value:number, oldValue:number): void {
+      this.$emit("dataExpandedStateChanged", (value == 0));
     }
 
+    ////////////////
+    //  GETTERS  //
+    //////////////
     get showTestResultData(): boolean {
       return this.testResult!.Data != null && this.testResult!.Data!.length > 0;
     }

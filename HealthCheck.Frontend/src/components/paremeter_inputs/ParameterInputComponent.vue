@@ -8,7 +8,6 @@
                 @click="toggleDescription">help</v-icon>
         </div>
 
-        <!-- <v-expand-transition> -->
         <div v-show="showDescription" class="parameter-description">
             {{ parameter.Description }}
         </div>

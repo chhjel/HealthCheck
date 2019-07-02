@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Entities;
+using HealthCheck.Core.Enums;
 
 namespace HealthCheck.Web.Core.ViewModels
 {
@@ -20,6 +21,6 @@ namespace HealthCheck.Web.Core.ViewModels
         /// <summary>
         /// True if data was serialized to json.
         /// </summary>
-        public bool IsJson { get; set; }
+        public TestResultDataDumpType Type { get; set; }
     }
 }

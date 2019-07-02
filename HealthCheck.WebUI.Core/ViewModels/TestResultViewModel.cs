@@ -21,6 +21,11 @@ namespace HealthCheck.Web.Core.ViewModels
         public int StatusCode { get; set; }
 
         /// <summary>
+        /// Result status.
+        /// </summary>
+        public TestResultStatus Status { get; set; }
+
+        /// <summary>
         /// Error/warning/success message.
         /// </summary>
         public string Message { get; set; }

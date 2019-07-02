@@ -50,6 +50,8 @@
           <test-result-component 
             v-if="showTestResult" 
             :testResult="testResult"
+            :expandDataOnLoad="resultDataExpandedState"
+            v-on:dataExpandedStateChanged="onDataExpandedStateChanged"
             class="mt-1 mr-4"  />
       </div>
 
@@ -79,10 +81,11 @@ export default class TestComponent extends Vue {
     testInProgress: boolean = false;
     testExecutionFailed: boolean = false;
     testExecutionErrorMessage: string = "";
+    resultDataExpandedState: boolean = false;
 
-    mounted(): void {
-    }
-
+    ////////////////
+    //  GETTERS  //
+    //////////////
     get statusBorderStyle(): any
     {
       let borderWidth = 5;
@@ -114,6 +117,17 @@ export default class TestComponent extends Vue {
       return !this.testExecutionFailed && this.testResult != null && !this.testInProgress; 
     }
 
+    ///////////////////////
+    //  EVENT HANDLERS  //
+    /////////////////////
+    onDataExpandedStateChanged(expanded: boolean): void
+    {
+      this.resultDataExpandedState = expanded;
+    }
+
+    ////////////////
+    //  METHODS  //
+    //////////////
     getInputComponentNameFromType(typeName: string): string
     {
       let componentName = `ParameterInputType${typeName}Component`;
@@ -135,7 +149,7 @@ export default class TestComponent extends Vue {
         this.testExecutionFailed = false;
 
         let payload = this.generatePayload(); 
-        let url = `/HealthCheck/ExecuteTest`;
+        let url = `/HealthCheck/ExecuteTest${window.location.search}`;
 
         fetch(url, {
             credentials: 'include',

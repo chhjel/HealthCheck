@@ -4,7 +4,7 @@ using System;
 namespace HealthCheck.Core.Attributes
 {
     /// <summary>
-    /// Marks this method as a test that can be executed at runtime.
+    /// Decorate methods with this attribute to mark them as a test that can be executed at runtime.
     /// <para>Method must be static.</para>
     /// <para>Method must return a <see cref="TestResult"/> (use the TestResult.Create.. methods).</para>
     /// <para>Method can have parameters but they must have default values.</para>

@@ -87,6 +87,7 @@ namespace HealthCheck.Web.Core.Factories
             {
                 TestId = testResult.Test.Id,
                 StatusCode = (int)testResult.Status,
+                Status = testResult.Status,
                 Message = testResult.Message,
                 Data = dumps
             };
@@ -103,7 +104,7 @@ namespace HealthCheck.Web.Core.Factories
             {
                 Title = dataDump.Title,
                 Data = dataDump.Data,
-                IsJson = dataDump.IsJson
+                Type = dataDump.Type
             };
 
             return vm;

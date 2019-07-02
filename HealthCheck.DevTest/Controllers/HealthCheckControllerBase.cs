@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Hosting;
 using System.Web.Mvc;
+using Newtonsoft.Json.Converters;
 
 namespace HealthCheck.DevTest.Controllers
 {
@@ -112,7 +113,16 @@ namespace HealthCheck.DevTest.Controllers
         }
 
         private ActionResult CreateJsonResult(object obj)
-            => Content(JsonConvert.SerializeObject(obj, Formatting.Indented), "application/json");
+        {
+            var settings = new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented
+            };
+            settings.Converters.Add(new StringEnumConverter());
+
+            var json = JsonConvert.SerializeObject(obj, settings);
+            return Content(json, "application/json");
+        }
 
         private List<TestClassDefinition> _testCache;
         private List<TestClassDefinition> GetTestDefinitions()

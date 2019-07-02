@@ -32,6 +32,17 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         }
 
         [RuntimeTest(
+            Name = "Html result test",
+            ParameterNames = new[] { "H-number", "Text" },
+            ParameterDescriptions = new[] { "What h-tag to return.", "Text in the h-tag" }
+        )]
+        public TestResult SomeFancyTest(int hNumber = 3, string text = "Title")
+        {
+            return TestResult.CreateSuccess($"Success")
+                .AddHtmlData($"This is the h-tag you ordered: <h{hNumber}>{text}</h{hNumber}>");
+        }
+
+        [RuntimeTest(
             Name = "Custom name for this one",
             Description = "Fancy fancy description",
             ParameterNames = new[] { "Id number" },

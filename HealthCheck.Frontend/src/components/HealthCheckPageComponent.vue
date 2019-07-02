@@ -95,11 +95,17 @@ export default class HealthCheckPageComponent extends Vue {
     testSetDataLoadFailed: boolean = false;
     testSetDataFailedErrorMessage: string = "";
 
+    //////////////////
+    //  LIFECYCLE  //
+    ////////////////
     mounted(): void
     {
         this.initTestSets();
     }
 
+    ////////////////
+    //  METHODS  //
+    //////////////
     initTestSets(): void {
         this.testSetDataLoadInProgress = true;
         this.testSetDataLoadFailed = false;
