@@ -4,7 +4,10 @@ using System.Threading.Tasks;
 
 namespace HealthCheck.DevTest._TestImplementation.Tests
 {
-    [RuntimeTestClass(DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins)]
+    [RuntimeTestClass(
+        DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins,
+        Icon = RuntimeTestConstants.Icons.Face
+    )]
     public class TestsWithWebAdminRequirements
     {
         [RuntimeTest]

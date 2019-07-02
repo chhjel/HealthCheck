@@ -4,7 +4,11 @@ using System.Threading.Tasks;
 
 namespace HealthCheck.DevTest._TestImplementation.Tests
 {
-    [RuntimeTestClass]
+    [RuntimeTestClass(
+        GroupName = RuntimeTestConstants.Group.Test,
+        DefaultRolesWithAccess = RuntimeTestAccessRole.SystemAdmins,
+        Icon = RuntimeTestConstants.Icons.AspectRatio
+    )]
     public class SomeServiceIntegrationTests
     {
         [RuntimeTest]

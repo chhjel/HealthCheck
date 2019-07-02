@@ -9,7 +9,7 @@ namespace HealthCheck.Core.Attributes
     public class RuntimeTestClassAttribute : Attribute
     {
         /// <summary>
-        /// Test set id.
+        /// Test set id. Defaults to the full class typename if empty.
         /// </summary>
         public string Id { get; set; }
 
@@ -39,5 +39,20 @@ namespace HealthCheck.Core.Attributes
         /// <para>Must be an enum flags value.</para>
         /// </summary>
         public object DefaultRolesWithAccess { get; set; }
+
+        /// <summary>
+        /// Optional group name.
+        /// </summary>
+        public string GroupName { get; set; }
+
+        /// <summary>
+        /// Optional icon name override. Get name from https://material.io/tools/icons/.
+        /// </summary>
+        public string Icon { get; set; }
+
+        /// <summary>
+        /// Order of the set in the ui lists, higher value = higher up.
+        /// </summary>
+        public int UIOrder { get; set; }
     }
 }

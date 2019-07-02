@@ -20,6 +20,11 @@ namespace HealthCheck.Core.TestManagers
         public Assembly AssemblyContainingTests { get; set; }
 
         /// <summary>
+        /// Optional config for test set groups.
+        /// </summary>
+        public TestSetGroupOptions GroupOptions { get; set; } = new TestSetGroupOptions();
+
+        /// <summary>
         /// Create a new <see cref="TestDiscoverer"/>.
         /// </summary>
         public TestDiscoverer() {}

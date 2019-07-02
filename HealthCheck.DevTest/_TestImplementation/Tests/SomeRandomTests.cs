@@ -7,7 +7,10 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
 {
     [RuntimeTestClass(
         Name = "Some fancy tests",
-        Description = "Some fancy description"
+        Description = "Some fancy description",
+        DefaultRolesWithAccess = RuntimeTestAccessRole.SystemAdmins,
+        GroupName = RuntimeTestConstants.Group.Test,
+        Icon = RuntimeTestConstants.Icons.Dashboard
     )]
     public class SomeRandomTests
     {

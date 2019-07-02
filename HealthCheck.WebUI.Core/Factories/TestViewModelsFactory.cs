@@ -28,6 +28,9 @@ namespace HealthCheck.Web.Core.Factories
                 Id = testClassDefinition.Id,
                 Name = testClassDefinition.Name,
                 Description = testClassDefinition.Description,
+                GroupName = testClassDefinition.GroupName,
+                Icon = testClassDefinition.Icon,
+                UIOrder = testClassDefinition.UIOrder,
                 Tests = new List<TestViewModel>()
             };
 

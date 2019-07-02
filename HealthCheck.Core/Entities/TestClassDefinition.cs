@@ -47,6 +47,21 @@ namespace HealthCheck.Core.Entities
         public object DefaultRolesWithAccess { get; set; }
 
         /// <summary>
+        /// Optional group name.
+        /// </summary>
+        public string GroupName { get; set; }
+
+        /// <summary>
+        /// Optional icon name override. Get name from https://material.io/tools/icons/.
+        /// </summary>
+        public string Icon { get; set; }
+
+        /// <summary>
+        /// Order of the set in the ui lists, higher value = higher up.
+        /// </summary>
+        public int UIOrder { get; set; }
+
+        /// <summary>
         /// Test methods defined within this class.
         /// </summary>
         public List<TestDefinition> Tests { get; set; } = new List<TestDefinition>();
@@ -63,6 +78,9 @@ namespace HealthCheck.Core.Entities
             DefaultAllowParallelExecution = testClassAttribute.DefaultAllowParallelExecution;
             DefaultAllowManualExecution = testClassAttribute.DefaultAllowManualExecution;
             DefaultRolesWithAccess = testClassAttribute.DefaultRolesWithAccess;
+            GroupName = testClassAttribute.GroupName;
+            Icon = testClassAttribute.Icon;
+            UIOrder = testClassAttribute.UIOrder;
         }
     }
 }
