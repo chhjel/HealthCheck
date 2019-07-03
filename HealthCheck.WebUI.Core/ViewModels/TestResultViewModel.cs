@@ -31,6 +31,11 @@ namespace HealthCheck.Web.Core.ViewModels
         public string Message { get; set; }
 
         /// <summary>
+        /// Full stack trace of exception if any.
+        /// </summary>
+        public string StackTrace { get; set; }
+
+        /// <summary>
         /// Any extra data.
         /// </summary>
         public List<TestResultDataDumpViewModel> Data { get; set; } = new List<TestResultDataDumpViewModel>();

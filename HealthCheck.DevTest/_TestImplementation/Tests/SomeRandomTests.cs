@@ -45,6 +45,20 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
                 .AddHtmlData($"This is the h-tag you ordered: <h{hNumber}>{text}</h{hNumber}>");
         }
 
+        [RuntimeTest]
+        public async Task<TestResult> TestThatThrowsException()
+        {
+            await Task.Delay(100);
+            throw new System.ArgumentOutOfRangeException("nonExistentArgument");
+        }
+
+        [RuntimeTest]
+        public async Task<TestResult> TestThatReturnsErrorWithExceptionStackTrace()
+        {
+            await Task.Delay(100);
+            return TestResult.CreateError("Result with exception included", new System.ArgumentOutOfRangeException("nonExistentArgument"));
+        }
+
         [RuntimeTest(
             Name = "Custom name for this one",
             Description = "Fancy fancy description",

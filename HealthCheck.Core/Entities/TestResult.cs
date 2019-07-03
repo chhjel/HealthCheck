@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Enums;
 using HealthCheck.Core.Util;
+using System;
 using System.Collections.Generic;
 
 namespace HealthCheck.Core.Entities
@@ -20,6 +21,11 @@ namespace HealthCheck.Core.Entities
         public string Message { get; set; }
 
         /// <summary>
+        /// Full stack trace of exception if any.
+        /// </summary>
+        public string StackTrace { get; set; }
+
+        /// <summary>
         /// The test that was executed.
         /// </summary>
         public TestDefinition Test { get; set; }
@@ -35,20 +41,27 @@ namespace HealthCheck.Core.Entities
         public object Tag { get; set; }
 
         /// <summary>
-        /// Create a new test success or error result depending on the given boolean value.
-        /// </summary>
-        /// <param name="success">True for success, false for failure.</param>
-        /// <param name="message">Success or error message.</param>
-        public static TestResult Create(bool success, string message)
-            => Create(success ? TestResultStatus.Success : TestResultStatus.Error, message);
-
-        /// <summary>
         /// Create a new test result with the given status.
         /// </summary>
         /// <param name="status">Test status.</param>
-        /// <param name="message">Message text.</param>
-        public static TestResult Create(TestResultStatus status, string message)
-            => new TestResult() { Status = status, Message = message };
+        /// <param name="message">Message text. If null exception message will be used if any.</param>
+        /// <param name="exception">Exception if any to get stack trace from.</param>
+        public static TestResult Create(TestResultStatus status, string message, Exception exception = null)
+            => new TestResult()
+            {
+                Status = status,
+                Message = message ?? exception?.Message,
+                StackTrace = exception?.ToString()
+            };
+
+        /// <summary>
+        /// Create a new test success or error result depending on the given boolean value.
+        /// </summary>
+        /// <param name="success">True for success, false for failure.</param>
+        /// <param name="message">Success or error message. If null exception message will be used if any.</param>
+        /// <param name="exception">Exception if any to get stack trace from.</param>
+        public static TestResult Create(bool success, string message, Exception exception = null)
+            => Create(success ? TestResultStatus.Success : TestResultStatus.Error, message, exception);
 
         /// <summary>
         /// Create a new successful test result.
@@ -60,16 +73,18 @@ namespace HealthCheck.Core.Entities
         /// <summary>
         /// Create a new warning test result.
         /// </summary>
-        /// <param name="message">Message text with some extra details about the warning.</param>
-        public static TestResult CreateWarning(string message)
-            => Create(TestResultStatus.Warning, message);
+        /// <param name="message">Message text with some extra details about the warning. If null exception message will be used if any.</param>
+        /// <param name="exception">Exception if any to get stack trace from.</param>
+        public static TestResult CreateWarning(string message, Exception exception = null)
+            => Create(TestResultStatus.Warning, message, exception);
 
         /// <summary>
         /// Create a new failed test result.
         /// </summary>
-        /// <param name="message">Error text describing what went wrong.</param>
-        public static TestResult CreateError(string message)
-            => Create(TestResultStatus.Error, message);
+        /// <param name="message">Error text describing what went wrong. If null exception message will be used if any.</param>
+        /// <param name="exception">Exception if any to get stack trace from.</param>
+        public static TestResult CreateError(string message, Exception exception = null)
+            => Create(TestResultStatus.Error, message, exception);
 
         #region Method-chaining
         /// <summary>

@@ -13,6 +13,12 @@ namespace HealthCheck.Core.TestManagers
     public class TestRunner
     {
         /// <summary>
+        /// Include exception stacktraces in test results.
+        /// <para>False by default.</para>
+        /// </summary>
+        public bool IncludeExceptionStackTraces { get; set; }
+
+        /// <summary>
         /// Execute all the tests in the given test classes.
         /// </summary>
         public async Task<List<TestResult>> ExecuteTests(List<TestClassDefinition> testClasses)
@@ -61,10 +67,30 @@ namespace HealthCheck.Core.TestManagers
             object[] parameters = null,
             object testClassInstance = null)
         {
-            var instance = testClassInstance ?? Activator.CreateInstance(test.ParentClass.ClassType);
-            var result = await test.ExecuteTest(instance, parameters);
-            result.Test = test;
-            return result;
+            try
+            {
+                var instance = testClassInstance ?? Activator.CreateInstance(test.ParentClass.ClassType);
+                var result = await test.ExecuteTest(instance, parameters);
+
+                // Post-process result
+                result.Test = test;
+                if (!IncludeExceptionStackTraces)
+                {
+                    result.StackTrace = null;
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return new TestResult()
+                {
+                    Test = test,
+                    Status = Enums.TestResultStatus.Error,
+                    Message = $"Failed to execute test with the exception: {ex.Message}",
+                    StackTrace = IncludeExceptionStackTraces ? ex.ToString() : null
+                };
+            }
         }
     }
 }

@@ -20,7 +20,7 @@ namespace HealthCheck.Core.TestManagers
         public Assembly AssemblyContainingTests { get; set; }
 
         /// <summary>
-        /// Optional config for test set groups.
+        /// Optional config for test set groups. Use the GroupOptions.SetOptionsFor method to add config for a group.
         /// </summary>
         public TestSetGroupOptions GroupOptions { get; set; } = new TestSetGroupOptions();
 

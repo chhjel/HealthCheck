@@ -92,6 +92,7 @@ namespace HealthCheck.Web.Core.Factories
                 StatusCode = (int)testResult.Status,
                 Status = testResult.Status,
                 Message = testResult.Message,
+                StackTrace = testResult.StackTrace,
                 Data = dumps
             };
 

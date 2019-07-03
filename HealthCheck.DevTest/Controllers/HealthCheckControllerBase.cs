@@ -13,15 +13,41 @@ using System.Threading.Tasks;
 using System.Web.Hosting;
 using System.Web.Mvc;
 using Newtonsoft.Json.Converters;
+using System.Reflection;
 
 namespace HealthCheck.DevTest.Controllers
 {
     public abstract class HealthCheckControllerBase : Controller
     {
-        private readonly TestViewModelsFactory _testViewModelsFactory = new TestViewModelsFactory();
-        private readonly TestRunner _testRunner = new TestRunner();
-        private readonly StringConverter _stringConverter = new StringConverter();
+        // ToDo wrap in page options & include endpoint urls. urls in constructor since they're required.
+        public string PageTitle { get; set; } = "Healt Check";
+        public string JavascriptUrl { get; set; } = "/HealthCheck/GetScript";
 
+        private readonly TestRunner _testRunner = new TestRunner();
+        private readonly TestDiscoverer _testDiscoverer = new TestDiscoverer();
+        private readonly TestViewModelsFactory _testViewModelsFactory = new TestViewModelsFactory();
+        private readonly StringConverter _stringConverter = new StringConverter();
+        private const string Q = "\"";
+
+        public HealthCheckControllerBase()
+        {
+            _testDiscoverer = new TestDiscoverer()
+            {
+                AssemblyContainingTests = GetAssemblyContainingTests() ?? GetType().Assembly
+            };
+
+            Config(_testRunner, _testDiscoverer);
+        }
+
+        /// <summary>
+        /// Return assembly containing tests here.
+        /// </summary>
+        protected abstract Assembly GetAssemblyContainingTests();
+
+        /// <summary>
+        /// Set any options on the test managers here.
+        /// </summary>
+        protected virtual void Config(TestRunner testRunner, TestDiscoverer testDiscoverer) {}
 
         /// <summary>
         /// Should return a custom enum flag object with the roles of the current user. Must match the type used in <see cref="RuntimeTestAttribute.RolesWithAccess"/>.
@@ -29,16 +55,17 @@ namespace HealthCheck.DevTest.Controllers
         /// </summary>
         protected virtual object GetRequestAccessRoles() => null;
 
-        private const string Q = "\"";
+        /// <summary>
+        /// Returns the page html.
+        /// </summary>
         public virtual ActionResult Index()
         {
             //if (Config.AccessCheck?.Invoke(Request) == false || CurrentReleaseJson == null) return HttpNotFound();
-            var javascriptUrl = "/HealthCheck/GetScript";
-
             return Content($@"
 <!doctype html>
 <html>
 <head>
+    <title>{PageTitle}</title>
     <meta name={Q}robots{Q} content={Q}noindex{Q}>
     <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
     <link href={Q}https://cdn.jsdelivr.net/npm/vuetify@1/dist/vuetify.min.css{Q} rel={Q}stylesheet{Q} />
@@ -49,7 +76,7 @@ namespace HealthCheck.DevTest.Controllers
 <body>
     <div id={Q}app{Q}></div>
 
-    <script src={Q}{javascriptUrl}{Q}></script>
+    <script src={Q}{JavascriptUrl}{Q}></script>
 </body>
 </html>");
         }
@@ -69,6 +96,8 @@ namespace HealthCheck.DevTest.Controllers
         [HttpPost]
         public async Task<ActionResult> ExecuteTest(ExecuteTestInputData data)
         {
+            // ToDo check access | return CreateError no access
+
             if (data == null || data.TestId == null)
             {
                 return CreateJsonResult(TestResultViewModel.CreateError("No test id was given."));
@@ -124,22 +153,10 @@ namespace HealthCheck.DevTest.Controllers
             return Content(json, "application/json");
         }
 
-        private List<TestClassDefinition> _testCache;
         private List<TestClassDefinition> GetTestDefinitions()
         {
-            if (_testCache != null)
-            {
-                return _testCache;
-            }
-
             var userRoles = GetRequestAccessRoles();
-            _testCache = new TestDiscoverer()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            }
-            .DiscoverTestDefinitions(onlyTestsAllowedToBeManuallyExecuted: true, userRolesEnum: userRoles);
-
-            return _testCache;
+            return _testDiscoverer.DiscoverTestDefinitions(onlyTestsAllowedToBeManuallyExecuted: true, userRolesEnum: userRoles);
         }
 
         private TestDefinition GetTest(string testId)
