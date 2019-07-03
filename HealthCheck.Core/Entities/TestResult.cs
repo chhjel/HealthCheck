@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Enums;
+﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Enums;
 using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
@@ -89,10 +90,11 @@ namespace HealthCheck.Core.Entities
         #region Method-chaining
         /// <summary>
         /// Include a serialized version of the given object in the result data.
+        /// <para>new NewtonsoftJsonSerializer() can be used from HealthCheck.WebUI.Core.</para>
         /// </summary>
-        public TestResult AddSerializedData(object data, string title = null)
+        public TestResult AddSerializedData(object data, IDumpJsonSerializer serializer, string title = null)
         {
-            var dump = data.Dump(title);
+            var dump = data.Dump(serializer, title);
             Data.Add(new TestResultDataDump()
             {
                 Title = dump.Title,

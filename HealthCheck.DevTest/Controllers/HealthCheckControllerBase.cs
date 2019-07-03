@@ -7,94 +7,112 @@ using HealthCheck.Web.Core.ViewModels;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web.Hosting;
 using System.Web.Mvc;
 using Newtonsoft.Json.Converters;
 using System.Reflection;
+using System.Web.Routing;
+using System.Web;
+using HealthCheck.Web.Core.Models;
 
 namespace HealthCheck.DevTest.Controllers
 {
-    public abstract class HealthCheckControllerBase : Controller
+    /// <summary>
+    /// Base controller for the ui.
+    /// </summary>
+    /// <typeparam name="TAccessRole">Maybe{EnumType} used for access roles.</typeparam>
+    public abstract class HealthCheckControllerBase<TAccessRole>: Controller
+        where TAccessRole: Enum
     {
-        // ToDo wrap in page options & include endpoint urls. urls in constructor since they're required.
-        public string PageTitle { get; set; } = "Healt Check";
-        public string JavascriptUrl { get; set; } = "/HealthCheck/GetScript";
+        protected TestRunner _testRunner = new TestRunner();
+        protected TestDiscoverer _testDiscoverer = new TestDiscoverer();
+        protected readonly StringConverter _stringConverter = new StringConverter();
 
-        private readonly TestRunner _testRunner = new TestRunner();
-        private readonly TestDiscoverer _testDiscoverer = new TestDiscoverer();
+        private Assembly AssemblyContainingTests { get; }
         private readonly TestViewModelsFactory _testViewModelsFactory = new TestViewModelsFactory();
-        private readonly StringConverter _stringConverter = new StringConverter();
         private const string Q = "\"";
 
-        public HealthCheckControllerBase()
+        public HealthCheckControllerBase(Assembly assemblyContainingTests)
         {
-            _testDiscoverer = new TestDiscoverer()
-            {
-                AssemblyContainingTests = GetAssemblyContainingTests() ?? GetType().Assembly
-            };
-
-            Config(_testRunner, _testDiscoverer);
+            AssemblyContainingTests = assemblyContainingTests;
         }
 
         /// <summary>
-        /// Return assembly containing tests here.
+        /// Get front-end options.
         /// </summary>
-        protected abstract Assembly GetAssemblyContainingTests();
+        protected abstract FrontEndOptionsViewModel GetFrontEndOptions();
 
         /// <summary>
-        /// Set any options on the test managers here.
+        /// Get page options.
         /// </summary>
-        protected virtual void Config(TestRunner testRunner, TestDiscoverer testDiscoverer) {}
+        protected abstract PageOptions GetPageOptions();
+
+        /// <summary>
+        /// Set any options on the test managers here. Method is invoked from BeginExecute.
+        /// </summary>
+        protected virtual void SetOptionalOptions(HttpRequestBase request, TestRunner testRunner, TestDiscoverer testDiscoverer) {}
 
         /// <summary>
         /// Should return a custom enum flag object with the roles of the current user. Must match the type used in <see cref="RuntimeTestAttribute.RolesWithAccess"/>.
         /// <para>Returns null by default to allow all test.</para>
         /// </summary>
-        protected virtual object GetRequestAccessRoles() => null;
+        protected virtual Maybe<TAccessRole> GetRequestAccessRoles(HttpRequestBase request) => null;
 
         /// <summary>
         /// Returns the page html.
         /// </summary>
         public virtual ActionResult Index()
-        {
-            //if (Config.AccessCheck?.Invoke(Request) == false || CurrentReleaseJson == null) return HttpNotFound();
+        { 
+            var frontEndOptions = GetFrontEndOptions();
+            frontEndOptions.Validate();
+
+            var pageOptions = GetPageOptions();
+            pageOptions.Validate();
+
+            var defaultAssets = !pageOptions.IncludeDefaultAssetLinks ? "" : $@"
+    <link href={Q}https://cdn.jsdelivr.net/npm/vuetify@1/dist/vuetify.min.css{Q} rel={Q}stylesheet{Q} />
+    <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel={Q}stylesheet{Q} />
+    <link href={Q}https://use.fontawesome.com/releases/v5.7.2/css/all.css{Q} rel={Q}stylesheet{Q} integrity={Q}sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr{Q} crossorigin={Q}anonymous{Q}>";
+
+            var noIndexMeta = pageOptions.IncludeNoIndex ? $"<meta name={Q}robots{Q} content={Q}noindex{Q}>" : "";
+
             return Content($@"
 <!doctype html>
 <html>
 <head>
-    <title>{PageTitle}</title>
-    <meta name={Q}robots{Q} content={Q}noindex{Q}>
+    <title>{pageOptions.PageTitle}</title>
+    {pageOptions.CustomHeadHtml}
+    {noIndexMeta}
     <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
-    <link href={Q}https://cdn.jsdelivr.net/npm/vuetify@1/dist/vuetify.min.css{Q} rel={Q}stylesheet{Q} />
-    <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel={Q}stylesheet{Q} />
-    <link href={Q}https://use.fontawesome.com/releases/v5.7.2/css/all.css{Q} rel={Q}stylesheet{Q} integrity={Q}sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr{Q} crossorigin={Q}anonymous{Q}>
+    {defaultAssets}
 </head>
 
 <body>
     <div id={Q}app{Q}></div>
 
-    <script src={Q}{JavascriptUrl}{Q}></script>
+    <script>
+        window.healthCheckOptions = {JsonConvert.SerializeObject(frontEndOptions)};
+    </script>
+    <script src={Q}{pageOptions.JavaScriptUrl}{Q}></script>
 </body>
 </html>");
         }
 
-        public FileResult GetScript()
-        {
-            var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheckfrontend.js");
-            return new FileStreamResult(new FileStream(filepath, FileMode.Open), "content-disposition");
-        }
-
-        public ActionResult GetTests()
+        /// <summary>
+        /// Get tests to show in the UI.
+        /// </summary>
+        public virtual ActionResult GetTests()
         {
             var viewModel = _testViewModelsFactory.CreateViewModel(GetTestDefinitions());
             return CreateJsonResult(viewModel);
         }
 
+        /// <summary>
+        /// Execute the given test.
+        /// </summary>
         [HttpPost]
-        public async Task<ActionResult> ExecuteTest(ExecuteTestInputData data)
+        public virtual async Task<ActionResult> ExecuteTest(ExecuteTestInputData data)
         {
             // ToDo check access | return CreateError no access
 
@@ -123,23 +141,16 @@ namespace HealthCheck.DevTest.Controllers
             }
         }
 
-        public class ExecuteTestInputData
+        private List<TestClassDefinition> GetTestDefinitions()
         {
-            public string TestId { get; set; }
-            public List<string> Parameters { get; set; }
-
-            public object[] GetParametersWithConvertedTypes(Type[] types, StringConverter stringConverter)
-            {
-                var objects = new object[types.Length];
-                for(int i = 0; i < objects.Length; i++)
-                {
-                    var type = types[i];
-                    var convertedObject = stringConverter.ConvertStringTo(type, Parameters[i]);
-                    objects[i] = convertedObject;
-                }
-                return objects;
-            }
+            var userRolesMaybe = GetRequestAccessRoles(Request);
+            var userRoles = userRolesMaybe.HasValue ? (object)userRolesMaybe.Value : null;
+            return _testDiscoverer.DiscoverTestDefinitions(onlyTestsAllowedToBeManuallyExecuted: true, userRolesEnum: userRoles);
         }
+
+        private TestDefinition GetTest(string testId)
+            => GetTestDefinitions().SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == testId);
+
 
         private ActionResult CreateJsonResult(object obj)
         {
@@ -153,13 +164,17 @@ namespace HealthCheck.DevTest.Controllers
             return Content(json, "application/json");
         }
 
-        private List<TestClassDefinition> GetTestDefinitions()
+        protected override IAsyncResult BeginExecute(RequestContext requestContext, AsyncCallback callback, object state)
         {
-            var userRoles = GetRequestAccessRoles();
-            return _testDiscoverer.DiscoverTestDefinitions(onlyTestsAllowedToBeManuallyExecuted: true, userRolesEnum: userRoles);
+            _testDiscoverer = new TestDiscoverer()
+            {
+                AssemblyContainingTests = AssemblyContainingTests
+            };
+
+            var request = requestContext?.HttpContext?.Request;
+            SetOptionalOptions(request, _testRunner, _testDiscoverer);
+            return base.BeginExecute(requestContext, callback, state);
         }
 
-        private TestDefinition GetTest(string testId)
-            => GetTestDefinitions().SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == testId);
     }
 }

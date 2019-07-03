@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Serializers;
 using RuntimeCodeTest.Core.Models;
 using System;
 using System.Reflection;
@@ -15,62 +16,23 @@ namespace HealthCheck.Core.Util
         /// Dump the value of an object to the given list.
         /// </summary>
         /// <param name="obj">Object to dump</param>
+        /// <param name="serializer">Json serializer implementation</param>
         /// <param name="title">Title of the dump</param>
-        /// <param name="ignoreErrors">Ignore any properties that fail serialization</param>
-        public static DataDump Dump<T>(this T obj, string title = null, bool ignoreErrors = true)
+        public static DataDump Dump<T>(this T obj, IDumpJsonSerializer serializer, string title = null)
         {
-            var data = CreateDumpData(obj, ignoreErrors);
+            serializer = serializer ?? new DumpNullJsonSerializer();
+            var data = CreateDumpData(obj, serializer);
             return CreateDump<T>(obj?.GetType(), title, data);
         }
-
-        /// <summary>
-        /// Dump the value of an object to the given list.
-        /// </summary>
-        /// <param name="obj">Object to dump</param>
-        /// <param name="title">Title of the dump</param>
-        /// <param name="converters">Any custom <see cref="JsonConverter"></see>s to use.</param>
-        public static DataDump Dump<T>(this T obj, String title = null, params JsonConverter[] converters)
-        {
-            var data = CreateDumpData(obj, false, converters);
-            return CreateDump<T>(obj?.GetType(), title, data);
-        }
-
-        /// <summary>
-        /// Dump the value of an object to the given list.
-        /// </summary>
-        /// <param name="obj">Object to dump</param>
-        /// <param name="dumpConverter">Custom conversion of object to string.</param>
-        /// <param name="title">Title of the dump</param>
-        public static DataDump Dump<T>(this T obj, Func<T, string> dumpConverter, string title = null)
-        {
-            var data = dumpConverter(obj);
-            return CreateDump<T>(obj?.GetType(), title, data);
-        }
-
-        private static string CreateDumpData<T>(this T obj, bool ignoreErrors, params JsonConverter[] converters)
+        
+        private static string CreateDumpData<T>(T obj, IDumpJsonSerializer serializer)
         {
             if (obj == null)
             {
                 return null;
             }
 
-            var settings = new JsonSerializerSettings()
-            {
-                Formatting = Formatting.Indented,
-                Error = (sender, e) =>
-                {
-                    if (ignoreErrors) {
-                        sender = null;
-                        e.ErrorContext.Handled = true;
-                    }
-                }
-            };
-
-            foreach (var converter in converters)
-            {
-                settings.Converters.Add(converter);
-            }
-            return JsonConvert.SerializeObject(obj, settings);
+            return serializer?.Serialize(obj) ?? "";
         }
 
         private static DataDump CreateDump<T>(Type type, string title, string data)

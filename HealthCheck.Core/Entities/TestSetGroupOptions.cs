@@ -1,6 +1,10 @@
-﻿namespace HealthCheck.Core.Entities
+﻿using System;
+
+namespace HealthCheck.Core.Entities
 {
-    // ToDo set things and include in viewmodel. Move to web.core project.
+    /// <summary>
+    /// Options for test set groups. ToDo move to web.core
+    /// </summary>
     public class TestSetGroupOptions
     {
         /// <summary>
@@ -9,6 +13,7 @@
         public TestSetGroupOptions SetOptionsFor(string groupName, int uiOrder, string iconName)
         {
             // ToDo
+            Console.WriteLine($"{groupName} | {uiOrder} | {iconName}");
             return this;
         }
     }

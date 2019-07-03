@@ -1,34 +1,68 @@
-﻿using System.Reflection;
+﻿using System.IO;
+using System.Web;
+using System.Web.Hosting;
+using System.Web.Mvc;
 using HealthCheck.Core.TestManagers;
+using HealthCheck.Core.Util;
 using HealthCheck.DevTest._TestImplementation;
+using HealthCheck.Web.Core.Models;
+using HealthCheck.Web.Core.ViewModels;
 
 namespace HealthCheck.DevTest.Controllers
 {
-    public class HealthCheckController : HealthCheckControllerBase
+    public class HealthCheckController : HealthCheckControllerBase<RuntimeTestAccessRole>
     {
-        protected override Assembly GetAssemblyContainingTests() => GetType().Assembly;
+        public HealthCheckController()
+            : base(assemblyContainingTests: typeof(HealthCheckController).Assembly) {}
 
-        protected override void Config(TestRunner testRunner, TestDiscoverer testDiscoverer)
+
+        protected override FrontEndOptionsViewModel GetFrontEndOptions()
         {
-            testRunner.IncludeExceptionStackTraces = true;
+            return new FrontEndOptionsViewModel()
+            {
+                ExecuteTestEndpoint = "/HealthCheck/ExecuteTest",
+                GetTestsEndpoint = "/HealthCheck/GetTests",
+                ApplicationTitle = "Site Status"
+            };
+        }
+
+        protected override PageOptions GetPageOptions()
+        {
+            return new PageOptions()
+            {
+                JavaScriptUrl = "/HealthCheck/GetScript",
+                PageTitle = "Dev Checks"
+            };
+        }
+
+        protected override void SetOptionalOptions(HttpRequestBase request, TestRunner testRunner, TestDiscoverer testDiscoverer)
+        {
+            var requestRoles = GetRequestAccessRoles(request);
+            testRunner.IncludeExceptionStackTraces = requestRoles.HasValue && requestRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);
             testDiscoverer.GroupOptions
                 .SetOptionsFor(RuntimeTestConstants.Group.Test, uiOrder: -100, iconName: RuntimeTestConstants.Icons.Face);
         }
 
-        protected override object GetRequestAccessRoles()
+        protected override Maybe<RuntimeTestAccessRole> GetRequestAccessRoles(HttpRequestBase request)
         {
             var roles = RuntimeTestAccessRole.Guest;
 
-            if (Request.QueryString["webadmin"] != null)
+            if (request.QueryString["webadmin"] != null)
             {
                 roles |= RuntimeTestAccessRole.WebAdmins;
             }
-            if (Request.QueryString["sysadmin"] != null)
+            if (request.QueryString["sysadmin"] != null)
             {
                 roles |= RuntimeTestAccessRole.SystemAdmins;
             }
 
-            return roles;
+            return new Maybe<RuntimeTestAccessRole>(roles);
+        }
+
+        public FileResult GetScript()
+        {
+            var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheckfrontend.js");
+            return new FileStreamResult(new FileStream(filepath, FileMode.Open), "content-disposition");
         }
     }
 }

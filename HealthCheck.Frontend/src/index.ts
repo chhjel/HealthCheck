@@ -20,10 +20,12 @@ let v = new Vue({
     el: "#app",
     template: `
     <div>
-        <health-check-page-component />
+        <health-check-page-component :options="options" />
     </div>
     `,
-    data: {},
+    data: {
+        options: (window as any).healthCheckOptions,
+    },
     components: {
         HealthCheckPageComponent
     }

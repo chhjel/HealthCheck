@@ -77,6 +77,11 @@ export default class TestComponent extends Vue {
     @Prop({ required: true })
     test!: TestViewModel;
 
+    @Prop({ required: true })
+    executeTestEndpoint!: string;
+    @Prop({ required: true })
+    inludeQueryStringInApiCalls!: string;
+
     testResult: TestResultViewModel | null = null;
     testInProgress: boolean = false;
     testExecutionFailed: boolean = false;
@@ -148,8 +153,9 @@ export default class TestComponent extends Vue {
         this.testInProgress = true;
         this.testExecutionFailed = false;
 
-        let payload = this.generatePayload(); 
-        let url = `/HealthCheck/ExecuteTest${window.location.search}`;
+        let payload = this.generatePayload();
+        let queryStringIfEnabled = this.inludeQueryStringInApiCalls ? window.location.search : '';
+        let url = `${this.executeTestEndpoint}${queryStringIfEnabled}`;
 
         fetch(url, {
             credentials: 'include',

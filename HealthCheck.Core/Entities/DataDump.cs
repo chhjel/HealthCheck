@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace RuntimeCodeTest.Core.Models
+﻿namespace RuntimeCodeTest.Core.Models
 {
     /// <summary>
     /// Represents a dump of data.

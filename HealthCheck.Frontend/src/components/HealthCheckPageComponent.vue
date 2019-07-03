@@ -74,7 +74,7 @@
             <!-- TOOLBAR -->
             <v-toolbar  clipped-left class="hidden-sm-and-up">
                 <v-toolbar-side-icon @click.stop="drawerState = !drawerState"></v-toolbar-side-icon>
-                <v-toolbar-title>Health Check</v-toolbar-title>
+                <v-toolbar-title>{{ options.ApplicationTitle }}</v-toolbar-title>
             </v-toolbar>
 
             <!-- CONTENT -->
@@ -92,7 +92,11 @@
                                 v-if="testSetDataLoadInProgress"
                                 indeterminate color="green"></v-progress-circular>
 
-                            <test-set-component v-if="activeSet != null" :testSet="activeSet" />
+                            <test-set-component
+                                v-if="activeSet != null"
+                                :testSet="activeSet"
+                                :executeTestEndpoint="options.ExecuteTestEndpoint"
+                                :inludeQueryStringInApiCalls="options.InludeQueryStringInApiCalls" />
                         </v-flex>
                     </v-layout>
                 </v-container>
@@ -108,6 +112,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
+import FrontEndOptionsViewModel from '../models/FrontEndOptionsViewModel';
 import TestSetViewModel from '../models/TestSetViewModel';
 import TestSetGroupViewModel from '../models/TestSetGroupViewModel';
 import TestSetComponent from './TestSetComponent.vue';
@@ -119,6 +124,9 @@ import LinqUtils from '../util/LinqUtils';
     }
 })
 export default class HealthCheckPageComponent extends Vue {
+    @Prop({ required: true })
+    options!: FrontEndOptionsViewModel;
+    
     // UI STATE
     drawerState: boolean = true;
 
@@ -171,7 +179,8 @@ export default class HealthCheckPageComponent extends Vue {
         this.testSetDataLoadInProgress = true;
         this.testSetDataLoadFailed = false;
 
-        let url = `/HealthCheck/GetTests${window.location.search}`;
+        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
+        let url = `${this.options.GetTestsEndpoint}${queryStringIfEnabled}`;
         fetch(url, {
             credentials: 'include',
             method: "GET",

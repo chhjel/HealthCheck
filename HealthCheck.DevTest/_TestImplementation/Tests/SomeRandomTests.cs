@@ -1,7 +1,9 @@
 ﻿using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Entities;
+using HealthCheck.WebUI.Core.Serializers;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace HealthCheck.DevTest._TestImplementation.Tests
 {
@@ -88,7 +90,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
 
             var warningText = string.Join(" ", Enumerable.Range(1, 24).Select(x => $"Some more warnings here."));
             var result = TestResult.CreateWarning($"This is a warning! Input was ({id}, {key}, {days}, {reverse}). {warningText}");
-            result.AddSerializedData(result);
+            result.AddSerializedData(result, new NewtonsoftJsonSerializer());
             result.AddData("Some extra detail item here. Etc etc.");
             result.AddData("Has something: true\nHasSomething else: false", "Property with id: 12456426");
 
