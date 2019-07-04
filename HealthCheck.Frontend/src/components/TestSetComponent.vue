@@ -7,7 +7,7 @@
 
         <test-component
             v-for="(test, index) in testSet.Tests"
-            :key="'test'+index"
+            :key="`set-${testSet.Id}-test-${index}`"
             :test="test"
             :executeTestEndpoint="executeTestEndpoint"
             :inludeQueryStringInApiCalls="inludeQueryStringInApiCalls"

@@ -4,7 +4,11 @@
         <v-icon :color="testResultIconColor"
           class="mr-1">{{testResultIcon}}</v-icon>
         
-        <div class="result-message">{{this.testResult.Message}}</div>
+        <div class="result-message">{{ this.testResult.Message }}</div>
+
+        <div v-if="hasStackTrace" class="mt-4">
+          <code>{{ this.testResult.StackTrace }}</code>
+        </div>
 
         <!-- DATA DUMPS -->
         <v-expansion-panel class="mt-2"
@@ -65,6 +69,10 @@ export default class TestResultComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get hasStackTrace(): boolean {
+      return this.testResult!.StackTrace != null && this.testResult!.StackTrace!.length > 0;
+    }
+
     get showTestResultData(): boolean {
       return this.testResult!.Data != null && this.testResult!.Data!.length > 0;
     }

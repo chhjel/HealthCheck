@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Entities;
 using HealthCheck.WebUI.Core.Serializers;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
@@ -57,8 +58,15 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         [RuntimeTest]
         public async Task<TestResult> TestThatReturnsErrorWithExceptionStackTrace()
         {
-            await Task.Delay(100);
-            return TestResult.CreateError("Result with exception included", new System.ArgumentOutOfRangeException("nonExistentArgument"));
+            try
+            {
+                await Task.Delay(100);
+                throw new System.ArgumentOutOfRangeException("nonExistentArgument");
+            }
+            catch (Exception ex)
+            {
+                return TestResult.CreateError("Result with exception included", ex);
+            }
         }
 
         [RuntimeTest(
