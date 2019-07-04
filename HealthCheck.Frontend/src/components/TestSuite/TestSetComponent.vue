@@ -3,11 +3,13 @@
     <div>
         <h2 class="display-3">{{ testSet.Name }}</h2>
         <div class="subheading">{{ testSet.Description }}</div>
+
+        <v-text-field v-model="testFilterText" />
         <div class="mb-4"></div>
 
         <test-component
-            v-for="(test, index) in testSet.Tests"
-            :key="`set-${testSet.Id}-test-${index}`"
+            v-for="(test) in filteredTests"
+            :key="`set-${testSet.Id}-test-${test.Id}`"
             :test="test"
             :executeTestEndpoint="executeTestEndpoint"
             :inludeQueryStringInApiCalls="inludeQueryStringInApiCalls"
@@ -20,6 +22,7 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 import TestSetViewModel from '../../models/TestSetViewModel';
+import TestViewModel from '../../models/TestViewModel';
 import TestComponent from './TestComponent.vue';
 
 @Component({
@@ -35,6 +38,14 @@ export default class TestSetComponent extends Vue {
     executeTestEndpoint!: string;
     @Prop({ required: true })
     inludeQueryStringInApiCalls!: string;
+
+    testFilterText: string = "";
+
+    get filteredTests(): Array<TestViewModel>
+    {
+        return this.testSet.Tests
+            .filter(x => x.Name.toLowerCase().indexOf(this.testFilterText.toLowerCase().trim()) != -1);
+    }
 }
 </script>
 

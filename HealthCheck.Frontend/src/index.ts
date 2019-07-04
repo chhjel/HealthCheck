@@ -9,9 +9,9 @@ Vue.use(Vuetify, {
         customProperties: true
     },
     theme: {
-      primary: "#12436D",
-      secondary: "#4C2E5F",
-      accent: "#12436D",
+      primary: "#6908b9",
+      secondary: "#3c0777",
+      accent: "#6908b9",
       error: "#de4a4a"
     }
 });

@@ -79,7 +79,7 @@ export default class ParameterInputComponent extends Vue {
 .parameter-name {
     display: inline-block;
     font-size: 16px;
-    color: #000;
+    color: var(--v-secondary-base);
     font-weight: 600;
 }
 .parameter-description {

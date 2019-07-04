@@ -2,14 +2,14 @@
 <template>
     <div>
         <v-container grid-list-lg class="parameter-container">
-        <v-layout row wrap>
-            <v-flex xs12 sm12 md6 lg3
-                v-for="(parameter, index) in test.Parameters"
-                :key="`test-${test.Id}-parameter`+index"
-                class="parameter-block">
-                <parameter-input-component :parameter="parameter" />
-            </v-flex>
-        </v-layout>
+          <v-layout row wrap>
+              <v-flex xs12 sm12 md6 lg3
+                  v-for="(parameter, index) in test.Parameters"
+                  :key="`test-${test.Id}-parameter`+index"
+                  class="parameter-block">
+                  <parameter-input-component :parameter="parameter" />
+              </v-flex>
+          </v-layout>
         </v-container>
     </div>
 </template>
@@ -37,8 +37,6 @@ export default class TestParametersComponent extends Vue {
 <style scoped>
 .parameter-container {
   padding-left: 32px;
-  background-color: white;
-  margin-top: 10px;
 }
 .parameter-block {
   padding-right: 40px !important;

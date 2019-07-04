@@ -1,8 +1,6 @@
 <!-- src/components/TestComponent.vue -->
 <template>
     <div>
-      <div class="mt-2"></div>
-
       <div class="test-item"
         :style="statusBorderStyle">
           <!-- HEADER -->
@@ -54,8 +52,6 @@
             v-on:dataExpandedStateChanged="onDataExpandedStateChanged"
             class="mt-1 mr-4"  />
       </div>
-
-      <div class="mb-6"></div>
     </div>
 </template>
 
@@ -94,9 +90,10 @@ export default class TestComponent extends Vue {
     get statusBorderStyle(): any
     {
       let borderWidth = 5;
-      let borderStyle = "none";
+      let defaultBorderStyle = `1px solid var(--v-primary-base)`;
+      let borderStyle = defaultBorderStyle;
 
-      if (this.testResult == null) borderStyle = "none";
+      if (this.testResult == null) borderStyle = defaultBorderStyle;
       else if (this.testResult!.StatusCode == 0) borderStyle = `${borderWidth}px solid #4caf50`;
       else if (this.testResult!.StatusCode == 1) borderStyle = `${borderWidth}px solid orange`;
       else if (this.testResult!.StatusCode == 2) borderStyle = `${borderWidth}px solid red`;
@@ -195,8 +192,7 @@ export default class TestComponent extends Vue {
 
 <style scoped>
 .test-item {
-  /* border: 2px solid #c4c4c4; */
-  background-color: #E6F2E7;
+  border: 1px solid var(--v-primary-base);
   padding: 12px 48px 24px 48px;
 }
 .test-header {
