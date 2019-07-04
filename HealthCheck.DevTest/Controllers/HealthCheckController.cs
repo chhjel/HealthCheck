@@ -16,6 +16,7 @@ namespace HealthCheck.DevTest.Controllers
             : base(assemblyContainingTests: typeof(HealthCheckController).Assembly) {}
 
 
+        #region Overrides
         protected override FrontEndOptionsViewModel GetFrontEndOptions()
         {
             return new FrontEndOptionsViewModel()
@@ -58,6 +59,7 @@ namespace HealthCheck.DevTest.Controllers
 
             return new Maybe<RuntimeTestAccessRole>(roles);
         }
+        #endregion
 
         public FileResult GetScript()
         {
