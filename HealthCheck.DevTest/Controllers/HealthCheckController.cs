@@ -18,23 +18,19 @@ namespace HealthCheck.DevTest.Controllers
 
         #region Overrides
         protected override FrontEndOptionsViewModel GetFrontEndOptions()
-        {
-            return new FrontEndOptionsViewModel()
+            => new FrontEndOptionsViewModel()
             {
                 ExecuteTestEndpoint = "/HealthCheck/ExecuteTest",
                 GetTestsEndpoint = "/HealthCheck/GetTests",
                 ApplicationTitle = "Site Status"
             };
-        }
 
         protected override PageOptions GetPageOptions()
-        {
-            return new PageOptions()
+            => new PageOptions()
             {
                 JavaScriptUrl = "/HealthCheck/GetScript",
                 PageTitle = "Dev Checks"
             };
-        }
 
         protected override void SetOptionalOptions(HttpRequestBase request, TestRunner testRunner, TestDiscoverer testDiscoverer)
         {

@@ -62,6 +62,8 @@ namespace HealthCheck.DevTest.Controllers
         /// </summary>
         public virtual ActionResult Index()
         {
+            if (!Enabled) return HttpNotFound();
+
             var frontEndOptions = GetFrontEndOptions();
             var pageOptions = GetPageOptions();
             var html = Helper.CreateViewHtml(frontEndOptions, pageOptions);
@@ -73,6 +75,8 @@ namespace HealthCheck.DevTest.Controllers
         /// </summary>
         public virtual ActionResult GetTests()
         {
+            if (!Enabled) return HttpNotFound();
+
             var viewModel = Helper.GetTestDefinitionsViewModel();
             return CreateJsonResult(viewModel);
         }
@@ -83,7 +87,7 @@ namespace HealthCheck.DevTest.Controllers
         [HttpPost]
         public virtual async Task<ActionResult> ExecuteTest(ExecuteTestInputData data)
         {
-            // ToDo check access | return CreateError no access
+            if (!Enabled) return HttpNotFound();
 
             var result = await Helper.ExecuteTest(data);
             return CreateJsonResult(result);
