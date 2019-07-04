@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import TestSetViewModel from '../models/TestSetViewModel';
+import TestSetViewModel from '../../models/TestSetViewModel';
 import TestComponent from './TestComponent.vue';
 
 @Component({

@@ -115,7 +115,7 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 import FrontEndOptionsViewModel from '../models/FrontEndOptionsViewModel';
 import TestSetViewModel from '../models/TestSetViewModel';
 import TestSetGroupViewModel from '../models/TestSetGroupViewModel';
-import TestSetComponent from './TestSetComponent.vue';
+import TestSetComponent from './TestSuite/TestSetComponent.vue';
 import LinqUtils from '../util/LinqUtils';
 
 @Component({

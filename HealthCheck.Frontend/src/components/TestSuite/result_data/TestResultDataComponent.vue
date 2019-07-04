@@ -16,8 +16,8 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import TestViewModel from '../../models/TestViewModel';
-import TestResultDataDumpViewModel from "../../models/TestResultDataDumpViewModel";
+import TestViewModel from '../../../models/TestViewModel';
+import TestResultDataDumpViewModel from "../../../models/TestResultDataDumpViewModel";
 // Parameter input components
 import UnknownDataTypeComponent from './UnknownDataTypeComponent.vue';
 import TestResultPlainTextDataComponent from './data_types/TestResultPlainTextDataComponent.vue';

@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import TestParameterViewModel from '../../models/TestParameterViewModel';
+import TestParameterViewModel from '../../../models/TestParameterViewModel';
 // Parameter input components
 import UnknownParameterInputComponent from './UnknownParameterInputComponent.vue';
 import ParameterInputTypeInt32Component from './input_types/ParameterInputTypeInt32Component.vue';
