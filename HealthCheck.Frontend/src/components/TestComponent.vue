@@ -174,7 +174,7 @@ export default class TestComponent extends Vue {
         .catch((e) => {
             this.testInProgress = false;
             this.testExecutionFailed = true;
-            this.testExecutionErrorMessage = `Failed to execute test the following error. ${e}.`;
+            this.testExecutionErrorMessage = `Failed to execute test with the following error. ${e}.`;
         });
     }
 
