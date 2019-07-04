@@ -7,7 +7,7 @@
         <div class="result-message">{{ this.testResult.Message }}</div>
 
         <div v-if="hasStackTrace" class="mt-4">
-          <code>{{ this.testResult.StackTrace }}</code>
+          <code class="pa-2">{{ this.testResult.StackTrace }}</code>
         </div>
 
         <!-- DATA DUMPS -->
