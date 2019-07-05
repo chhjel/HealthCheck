@@ -4,12 +4,11 @@ using HealthCheck.WebUI.Serializers;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web.Mvc;
 
 namespace HealthCheck.DevTest._TestImplementation.Tests
 {
     [RuntimeTestClass(
-        Name = "Some fancy tests",
+        Name = "Some fancy tests in .Net Core",
         Description = "Some fancy description",
         DefaultRolesWithAccess = RuntimeTestAccessRole.SystemAdmins,
         GroupName = RuntimeTestConstants.Group.Test,

@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.TestManagers;
+﻿#if NETFULL
+using HealthCheck.Core.TestManagers;
 using HealthCheck.Core.Util;
 using HealthCheck.Core.Attributes;
 using HealthCheck.Web.Core.ViewModels;
@@ -11,12 +12,13 @@ using System.Reflection;
 using System.Web.Routing;
 using System.Web;
 using HealthCheck.Web.Core.Models;
-using HealthCheck.WebUI.Core;
+using HealthCheck.WebUI;
+using HealthCheck.WebUI.Util;
 
-namespace HealthCheck.DevTest.Controllers
+namespace HealthCheck.WebUI.Abstractions
 {
     /// <summary>
-    /// Base controller for the ui.
+    /// Base controller for the ui and api.
     /// </summary>
     /// <typeparam name="TAccessRole">Maybe{EnumType} used for access roles.</typeparam>
     public abstract class HealthCheckControllerBase<TAccessRole>: Controller
@@ -30,6 +32,9 @@ namespace HealthCheck.DevTest.Controllers
 
         private readonly HealthCheckControllerHelper<TAccessRole> Helper = new HealthCheckControllerHelper<TAccessRole>();
 
+        /// <summary>
+        /// Base controller for the ui and api.
+        /// </summary>
         public HealthCheckControllerBase(Assembly assemblyContainingTests)
         {
             Helper.TestDiscoverer.AssemblyContainingTests = assemblyContainingTests ?? throw new ArgumentNullException("An assembly to retrieve tests from must be provided.");
@@ -105,12 +110,15 @@ namespace HealthCheck.DevTest.Controllers
             return Content(json, "application/json");
         }
 
+        /// <summary>
+        /// Calls SetOptionalOptions.
+        /// </summary>
         protected override IAsyncResult BeginExecute(RequestContext requestContext, AsyncCallback callback, object state)
         {
             var request = requestContext?.HttpContext?.Request;
             SetOptionalOptions(request, Helper.TestRunner, Helper.TestDiscoverer);
             return base.BeginExecute(requestContext, callback, state);
         }
-
     }
 }
+#endif

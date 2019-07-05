@@ -90,7 +90,7 @@ namespace HealthCheck.Core.Entities
         #region Method-chaining
         /// <summary>
         /// Include a serialized version of the given object in the result data.
-        /// <para>new NewtonsoftJsonSerializer() can be used from HealthCheck.WebUI.Core.</para>
+        /// <para>new NewtonsoftJsonSerializer() can be used from HealthCheck.WebUI.</para>
         /// </summary>
         public TestResult AddSerializedData(object data, IDumpJsonSerializer serializer, string title = null)
         {

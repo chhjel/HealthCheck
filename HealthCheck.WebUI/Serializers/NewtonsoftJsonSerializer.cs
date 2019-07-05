@@ -1,7 +1,7 @@
 ﻿using HealthCheck.Core.Abstractions;
 using Newtonsoft.Json;
 
-namespace HealthCheck.WebUI.Core.Serializers
+namespace HealthCheck.WebUI.Serializers
 {
     /// <summary>
     /// Serializes dumps using Newtonsoft, ignoring any errors.

@@ -133,7 +133,6 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\HealthCheckControllerBase.cs" />
     <Compile Include="Controllers\DevController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -164,9 +163,9 @@
       <Project>{df551db9-32a9-4519-b19c-2f306a486448}</Project>
       <Name>HealthCheck.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\HealthCheck.WebUI.Core\HealthCheck.WebUI.Core.csproj">
+    <ProjectReference Include="..\HealthCheck.WebUI\HealthCheck.WebUI.csproj">
       <Project>{2a641f75-5d28-4bf1-9019-8286fcbd6ac5}</Project>
-      <Name>HealthCheck.WebUI.Core</Name>
+      <Name>HealthCheck.WebUI</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

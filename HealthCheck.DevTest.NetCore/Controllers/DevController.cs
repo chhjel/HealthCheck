@@ -1,23 +1,27 @@
-﻿using System.IO;
-using System.Web;
-using System.Web.Hosting;
-using System.Web.Mvc;
-using HealthCheck.Core.TestManagers;
+﻿using HealthCheck.Core.TestManagers;
 using HealthCheck.Core.Util;
 using HealthCheck.DevTest._TestImplementation;
 using HealthCheck.Web.Core.Models;
 using HealthCheck.Web.Core.ViewModels;
 using HealthCheck.WebUI.Abstractions;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.IO;
 
-namespace HealthCheck.DevTest.Controllers
+namespace HealthCheck.DevTest.NetCore.Controllers
 {
+    [Route("/")]
     public class DevController : HealthCheckControllerBase<RuntimeTestAccessRole>
     {
-        private const string EndpointBase = "/dev";
+        private readonly IHostingEnvironment _env;
+        private const string EndpointBase = "/";
 
-        public DevController()
-            : base(assemblyContainingTests: typeof(DevController).Assembly) {}
-
+        public DevController(IHostingEnvironment env)
+            : base(assemblyContainingTests: typeof(DevController).Assembly)
+        {
+            _env = env;
+        }
 
         #region Overrides
         protected override FrontEndOptionsViewModel GetFrontEndOptions()
@@ -29,11 +33,11 @@ namespace HealthCheck.DevTest.Controllers
         protected override PageOptions GetPageOptions()
             => new PageOptions()
             {
-                JavaScriptUrl = $"{EndpointBase}/GetScript",
+                JavaScriptUrl = $"{EndpointBase.TrimEnd('/')}/GetScript",
                 PageTitle = "Dev Checks"
             };
 
-        protected override void SetOptionalOptions(HttpRequestBase request, TestRunner testRunner, TestDiscoverer testDiscoverer)
+        protected override void SetOptionalOptions(HttpRequest request, TestRunner testRunner, TestDiscoverer testDiscoverer)
         {
             var requestRoles = GetRequestAccessRoles(request);
             testRunner.IncludeExceptionStackTraces = requestRoles.HasValue && requestRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);
@@ -41,15 +45,15 @@ namespace HealthCheck.DevTest.Controllers
                 .SetOptionsFor(RuntimeTestConstants.Group.Test, uiOrder: -100, iconName: RuntimeTestConstants.Icons.Face);
         }
 
-        protected override Maybe<RuntimeTestAccessRole> GetRequestAccessRoles(HttpRequestBase request)
+        protected override Maybe<RuntimeTestAccessRole> GetRequestAccessRoles(HttpRequest request)
         {
             var roles = RuntimeTestAccessRole.Guest;
 
-            if (request.QueryString["webadmin"] != null)
+            if (request.Query.ContainsKey("webadmin"))
             {
                 roles |= RuntimeTestAccessRole.WebAdmins;
             }
-            if (request.QueryString["sysadmin"] != null)
+            if (request.Query.ContainsKey("sysadmin"))
             {
                 roles |= RuntimeTestAccessRole.SystemAdmins;
             }
@@ -58,10 +62,11 @@ namespace HealthCheck.DevTest.Controllers
         }
         #endregion
 
+        [Route("GetScript")]
         public FileResult GetScript()
         {
-            var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheckfrontend.js");
-            return new FileStreamResult(new FileStream(filepath, FileMode.Open), "content-disposition");
+            var filepath = Path.GetFullPath(Path.Combine(_env.WebRootPath, @"..\..\HealthCheck.Frontend\dist\healthcheckfrontend.js"));
+            return new FileStreamResult(new FileStream(filepath, FileMode.Open), "text/javascript");
         }
     }
 }
