@@ -10,25 +10,25 @@ using HealthCheck.Web.Core.ViewModels;
 
 namespace HealthCheck.DevTest.Controllers
 {
-    public class HealthCheckController : HealthCheckControllerBase<RuntimeTestAccessRole>
+    public class DevController : HealthCheckControllerBase<RuntimeTestAccessRole>
     {
-        public HealthCheckController()
-            : base(assemblyContainingTests: typeof(HealthCheckController).Assembly) {}
+        private const string EndpointBase = "/dev";
+
+        public DevController()
+            : base(assemblyContainingTests: typeof(DevController).Assembly) {}
 
 
         #region Overrides
         protected override FrontEndOptionsViewModel GetFrontEndOptions()
-            => new FrontEndOptionsViewModel()
+            => new FrontEndOptionsViewModel(EndpointBase)
             {
-                ExecuteTestEndpoint = "/HealthCheck/ExecuteTest",
-                GetTestsEndpoint = "/HealthCheck/GetTests",
                 ApplicationTitle = "Site Status"
             };
 
         protected override PageOptions GetPageOptions()
             => new PageOptions()
             {
-                JavaScriptUrl = "/HealthCheck/GetScript",
+                JavaScriptUrl = $"{EndpointBase}/GetScript",
                 PageTitle = "Dev Checks"
             };
 

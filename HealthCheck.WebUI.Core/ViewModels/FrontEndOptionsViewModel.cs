@@ -20,13 +20,25 @@ namespace HealthCheck.Web.Core.ViewModels
 
         /// <summary>
         /// Url to the endpoint that returns tests.
+        /// <para>Is set from the constructor relative to the provided baseApiEndpoint.</para>
         /// </summary>
         public string GetTestsEndpoint { get; set; }
 
         /// <summary>
         /// Url to the endpoint that executes tests.
+        /// <para>Is set from the constructor relative to the provided baseApiEndpoint.</para>
         /// </summary>
         public string ExecuteTestEndpoint { get; set; }
+
+        /// <summary>
+        /// Create a new <see cref="FrontEndOptionsViewModel"/>.
+        /// </summary>
+        /// <param name="baseApiEndpoint"></param>
+        public FrontEndOptionsViewModel(string baseApiEndpoint)
+        {
+            ExecuteTestEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/ExecuteTest";
+            GetTestsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetTests";
+        }
 
         /// <summary>
         /// Validates values and throws <see cref="ConfigValidationException"/> if things are missing.
