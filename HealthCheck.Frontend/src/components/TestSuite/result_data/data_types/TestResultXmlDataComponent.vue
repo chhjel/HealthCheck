@@ -1,13 +1,8 @@
 <!-- src/components/result_data/data_types/TestResultXmlDataComponent.vue -->
 <template>
     <div>
-        <v-textarea
-          :label="data.Title"
-          :value="data.Data"
-          readonly
-          :rows="rowCount"
-          class="data-textarea"
-        ></v-textarea>
+      <div>{{data.Title}}</div>
+      <highlight-code lang="xml" :code="data.Data"></highlight-code>
     </div>
 </template>
 
@@ -24,11 +19,6 @@ export default class TestResultXmlDataComponent extends Vue {
     data!: TestResultDataDumpViewModel;
 
     mounted(): void {
-    }
-
-    get rowCount(): number {
-      let lineCount = this.data.Data.split(/\r\n|\r|\n/).length;
-      return Math.min(10, lineCount);
     }
 }
 </script>

@@ -1,13 +1,8 @@
 <!-- src/components/result_data/data_types/TestResultJsonDataComponent.vue -->
 <template>
     <div>
-        <v-textarea
-          :label="data.Title"
-          :value="data.Data"
-          readonly
-          :rows="rowCount"
-          class="data-textarea"
-        ></v-textarea>
+      <div>{{data.Title}}</div>
+      <highlight-code lang="json" :code="data.Data"></highlight-code>
     </div>
 </template>
 
