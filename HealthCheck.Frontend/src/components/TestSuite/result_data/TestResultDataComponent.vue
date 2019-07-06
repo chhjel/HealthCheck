@@ -8,9 +8,25 @@
         </component>
 
         <v-card-actions>
-          <v-btn flat color="secondary-darken2">Copy</v-btn>
+          <v-btn flat color="secondary-darken2" @click="putDataOnCLipboard">Copy</v-btn>
           <v-btn flat color="secondary-darken2">Fullscreen</v-btn>
+          // ToDo move snackbar here
         </v-card-actions>
+        
+        <input type="hidden" ref="copyValue" :value="data.Data">
+        <v-snackbar
+          v-model="showCopyAlert"
+          :timeout="5000"
+          :color="copyAlertColor"
+          :top="true"
+        >
+          {{ copyAlertText }}
+          <v-btn
+            flat
+            @click="showCopyAlert = false">
+            Close
+          </v-btn>
+        </v-snackbar>
     </div>
 </template>
 
@@ -41,6 +57,10 @@ export default class TestResultDataComponent extends Vue {
     @Prop({ required: true })
     data!: TestResultDataDumpViewModel;
 
+    showCopyAlert: boolean = false;
+    copyAlertText: string = "";
+    copyAlertColor: string = "success";
+
     mounted(): void {
     }
 
@@ -60,6 +80,32 @@ export default class TestResultDataComponent extends Vue {
     get rowCount(): number {
       let lineCount = this.data.Data.split(/\r\n|\r|\n/).length;
       return Math.min(10, lineCount);
+    }
+    
+    putDataOnCLipboard(): void {
+      let copySourceElement = this.$refs.copyValue as HTMLInputElement;
+      copySourceElement.setAttribute('type', 'text');
+      copySourceElement.select()
+
+      try {
+        let successful = document.execCommand('copy');
+        if (successful) {
+          this.ShowCopyAlert('Data successfully put on clipboard.', successful);
+        } else {
+          this.ShowCopyAlert('Oops, unable to copy :(', successful);
+        }
+      } catch (err) {
+        this.ShowCopyAlert('Oops, unable to copy :(', false);
+      }
+
+      copySourceElement.setAttribute('type', 'hidden')
+      window.getSelection().removeAllRanges()
+    }
+
+    ShowCopyAlert(msg: string, isSuccess: boolean): void {
+      this.showCopyAlert = true;
+      this.copyAlertText = msg;
+      this.copyAlertColor = (isSuccess) ? "success" : "error";
     }
 }
 </script>
