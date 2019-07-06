@@ -16,7 +16,7 @@ namespace HealthCheck.Core.Entities
         /// </summary>
         /// <param name="groupName">Target group</param>
         /// <param name="uiOrder">Order in the list. Higher value = higher up. Default is 0 for named groups and -1 for the 'Other' group.</param>
-        /// <param name="iconName">Name of the icon to use from https://material.io/tools/icons.</param>
+        /// <param name="iconName">Name of the icon to use from https://material.io/tools/icons. Constants for all icons are available in the class HealthCheck.WebUI.Util.WebIcons</param>
         public TestSetGroupsOptions SetOptionsFor(string groupName, int uiOrder, string iconName)
         {
             var entry = Options.ContainsKey(groupName) ? Options[groupName] : new TestSetGroupOptions();
