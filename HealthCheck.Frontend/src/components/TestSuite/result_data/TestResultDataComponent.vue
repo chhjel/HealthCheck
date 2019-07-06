@@ -24,6 +24,7 @@ import TestResultPlainTextDataComponent from './data_types/TestResultPlainTextDa
 import TestResultXmlDataComponent from './data_types/TestResultXmlDataComponent.vue';
 import TestResultJsonDataComponent from './data_types/TestResultJsonDataComponent.vue';
 import TestResultHtmlDataComponent from './data_types/TestResultHtmlDataComponent.vue';
+import TestResultImageUrlsDataComponent from './data_types/TestResultImageUrlsDataComponent.vue';
 
 @Component({
     components: {
@@ -32,7 +33,8 @@ import TestResultHtmlDataComponent from './data_types/TestResultHtmlDataComponen
       TestResultPlainTextDataComponent,
       TestResultXmlDataComponent,
       TestResultJsonDataComponent,
-      TestResultHtmlDataComponent
+      TestResultHtmlDataComponent,
+      TestResultImageUrlsDataComponent
     }
 })
 export default class TestResultDataComponent extends Vue {

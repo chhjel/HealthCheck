@@ -141,6 +141,12 @@ namespace HealthCheck.Core.Entities
         /// </summary>
         public TestResult AddJsonData(string json, string title = null)
             => AddData(json, title, TestResultDataDumpType.Json);
+
+        /// <summary>
+        /// Include the given image urls in the result data.
+        /// </summary>
+        public TestResult AddImageUrlsData(IEnumerable<string> urls, string title = null)
+            => AddData(string.Join("\n", urls ?? new string[0]), title, TestResultDataDumpType.ImageUrls);
         #endregion
     }
 }

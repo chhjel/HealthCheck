@@ -26,10 +26,6 @@ export default class TestResultXmlDataComponent extends Vue {
     mounted(): void {
     }
 
-    get hasTitle(): boolean {
-      return this.data.Title != null && this.data.Title.length > 0;
-    }
-
     get rowCount(): number {
       let lineCount = this.data.Data.split(/\r\n|\r|\n/).length;
       return Math.min(10, lineCount);

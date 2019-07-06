@@ -4,7 +4,6 @@ using HealthCheck.WebUI.Serializers;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web.Mvc;
 
 namespace HealthCheck.DevTest._TestImplementation.Tests
 {
@@ -17,6 +16,13 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
     )]
     public class SomeRandomTests
     {
+        [RuntimeTest]
+        public TestResult ImageResultTest(int width = 640, int height = 480, int count = 10)
+        {
+            return TestResult.CreateSuccess($"Images has been served.")
+                .AddImageUrlsData(Enumerable.Range(1, count).Select(x => $"{"https://"}loremflickr.com/{width}/{height}?v={x}"), $"{count} images from https://loremflickr.com");
+        }
+
         [RuntimeTest(
             Name = "Get data from X",
             Description = "Retrieve some data from some service.",

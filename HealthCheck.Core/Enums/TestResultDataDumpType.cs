@@ -23,6 +23,11 @@
         /// <summary>
         /// Html data.
         /// </summary>
-        Html
+        Html,
+
+        /// <summary>
+        /// Image urls. Separate with newlines if done manually.
+        /// </summary>
+        ImageUrls
     }
 }
