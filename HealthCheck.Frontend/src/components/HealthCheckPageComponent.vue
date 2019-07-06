@@ -238,9 +238,11 @@ export default class HealthCheckPageComponent extends Vue {
                 Name: (key === "null") ? null : key,
                 Sets: items.sort((a,b) => a.UIOrder - b.UIOrder),
                 Icon: null,
-                UIOrder: 0,
+                UIOrder: (key === "null") ? 1 : 0,
             }
-        }).forEach(x => this.testSetGroups.push(x));
+        })
+        .sort((a,b) => a.UIOrder - b.UIOrder)
+        .forEach(x => this.testSetGroups.push(x));
 
         // Give nameless group a name if any other groups exist
         if (this.testSetGroups.length > 1 && this.groupWithoutName != null) {
