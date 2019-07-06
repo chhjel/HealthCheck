@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Entities;
+using HealthCheck.WebUI.Extensions;
 using HealthCheck.WebUI.Serializers;
 using System;
 using System.Linq;
@@ -17,10 +18,16 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
     public class SomeRandomTests
     {
         [RuntimeTest]
-        public TestResult ImageResultTest(int width = 640, int height = 480, int count = 10)
+        public TestResult TestAllDataDumpTypes(int imageWidth = 640, int imageHeight = 480, int imageCount = 10)
         {
+            var objectToSerialize = TestResult.CreateWarning($"Some random json object");
+
             return TestResult.CreateSuccess($"Images has been served.")
-                .AddImageUrlsData(Enumerable.Range(1, count).Select(x => $"{"https://"}loremflickr.com/{width}/{height}?v={x}"), $"{count} images from https://loremflickr.com");
+                .AddImageUrlsData(Enumerable.Range(1, imageCount).Select(x => $"{"https://"}loremflickr.com/{imageWidth}/{imageHeight}?v={x}"), $"{imageCount} images from https://loremflickr.com")
+                .AddHtmlData($"Some <b>html</b> here!<br /><a href='https://www.google.com'>some link</a>", "Some html")
+                .AddSerializedData(objectToSerialize, "Serialized object data")
+                .AddTextData("Some text data", "Text title")
+                .AddXmlData("<test><el test=\"asd\">Some Value</el></test>", "Xml test");
         }
 
         [RuntimeTest(

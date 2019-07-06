@@ -1,16 +1,19 @@
 <!-- src/components/result_data/data_types/TestResultImageUrlsDataComponent.vue -->
 <template>
     <div>
-      <v-carousel>
+      <v-carousel 
+        :cycle="false"
+        :hide-delimiters="!showControls"
+        :hide-controls="!showControls">
         <v-carousel-item
           v-for="(url,index) in urls"
           :key="`result-data-item-${index}-${url}`"
           :src="url"
-          @click.native="showTitle = !showTitle"
+          @click.native="showControls = !showControls"
         >
-          <div class="details" v-if="showTitle">
+          <div class="details" v-if="showControls">
             <div class="details-title">
-              <a :href="url">Image {{index+1}}/{{urls.length}}: {{url}}</a>
+              <a :href="url" target="_blank">Image {{index+1}}/{{urls.length}}: {{url}}</a>
             </div>
             <div style="clear: both;"></div>
           </div>
@@ -32,7 +35,7 @@ export default class TestResultImageUrlsDataComponent extends Vue {
     @Prop({ required: true })
     data!: TestResultDataDumpViewModel;
 
-    showTitle: boolean = true;
+    showControls: boolean = true;
 
     mounted(): void {
     }

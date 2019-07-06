@@ -90,7 +90,7 @@ namespace HealthCheck.Core.Entities
         #region Method-chaining
         /// <summary>
         /// Include a serialized version of the given object in the result data.
-        /// <para>new NewtonsoftJsonSerializer() can be used from HealthCheck.WebUI.</para>
+        /// <para>If using HealthCheck.WebUI the NewtonsoftJsonSerializer() or just use the AddSerializedData(object data, string title=null) extension method from HealthCheck.WebUI.</para>
         /// </summary>
         public TestResult AddSerializedData(object data, IDumpJsonSerializer serializer, string title = null)
         {
@@ -121,8 +121,8 @@ namespace HealthCheck.Core.Entities
         /// <summary>
         /// Include the given html in the result data.
         /// </summary>
-        public TestResult AddTextData(string html, string title = null)
-            => AddData(html, title, TestResultDataDumpType.PlainText);
+        public TestResult AddTextData(string text, string title = null)
+            => AddData(text, title, TestResultDataDumpType.PlainText);
 
         /// <summary>
         /// Include the given html in the result data.
