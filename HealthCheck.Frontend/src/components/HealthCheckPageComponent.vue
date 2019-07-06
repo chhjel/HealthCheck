@@ -87,7 +87,7 @@
             </v-navigation-drawer>
             
             <!-- TOOLBAR -->
-            <v-toolbar  clipped-left class="hidden-md-and-up">
+            <v-toolbar  clipped-left class="hidden-lg-and-up">
                 <v-toolbar-side-icon @click.stop="drawerState = !drawerState"></v-toolbar-side-icon>
                 <v-toolbar-title>{{ options.ApplicationTitle }}</v-toolbar-title>
             </v-toolbar>
