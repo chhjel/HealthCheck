@@ -25,48 +25,61 @@
                             </v-list-tile>
                         </template>
 
-                        <!-- <v-text-field /> -->
+                        <v-text-field v-model="testSetFilterText" />
 
                         <!-- GROUPS IF ANY -->
                         <v-list-group
                             no-action
                             sub-group
                             value="true"
-                            v-for="(group, groupIndex) in groupsWithNames"
-                                :key="`testset-menu-group-${groupIndex}`">
+                            v-for="(group) in groupsWithNames"
+                                :key="`testset-menu-group-${group.Id}`">
                             <template v-slot:activator>
                                 <v-list-tile>
+                                    <v-icon v-text="getTestSetGroupIcon(group)"></v-icon>
                                     <v-list-tile-title v-text="group.Name"></v-list-tile-title>
-                                    <v-list-tile-action>
-                                        <v-icon v-text="getTestSetGroupIcon(group)"></v-icon>
-                                    </v-list-tile-action>
+                                    <v-badge class="mr-2" v-if="showFilterCounts">
+                                        <template v-slot:badge>
+                                            <span>{{ getGroupFilterMatchCount(group) }}</span>
+                                        </template>
+                                    </v-badge>
                                 </v-list-tile>
                             </template>
 
                             <v-list-tile ripple
-                                v-for="(set, setIndex) in group.Sets"
-                                :key="`testset-menu-group-${groupIndex}-set-${setIndex}`"
+                                v-for="(set) in filterTestSets(group.Sets)"
+                                :key="`testset-menu-group-${group.Id}-set-${set.Id}`"
                                 @click="setActiveSet(set)">
-                                <v-list-tile-action class="ml-4" v-if="testSetHasIcon(set)">
-                                    <v-icon v-text="getTestSetIcon(set)"></v-icon>
-                                </v-list-tile-action>
-                                <v-list-tile-title 
+                                <v-icon 
+                                    v-text="getTestSetIcon(set)" 
+                                    v-if="testSetHasIcon(set)"></v-icon>
+                                <v-list-tile-title
                                     v-text="set.Name"
                                     :class="getTestSetTitleClass(set)"></v-list-tile-title>
+                                <v-badge class="mr-2" v-if="showFilterCounts">
+                                    <template v-slot:badge>
+                                        <span>{{ getSetFilterMatchCount(set) }}</span>
+                                    </template>
+                                </v-badge>
                             </v-list-tile>
                         </v-list-group>
 
                         <!-- WHEN NO GROUPS -->
                         <v-list-tile ripple
-                            v-for="(set, index) in testSetsWhenThereIsNoNamedGroups"
-                            :key="'testset-menu-'+index"
+                            v-for="(set) in filterTestSets(testSetsWhenThereIsNoNamedGroups)"
+                            :key="`testset-menu-${set.Id}`"
                             @click="setActiveSet(set)">
-                            <v-list-tile-action class="ml-4" v-if="testSetHasIcon(set)">
-                                <v-icon v-text="getTestSetIcon(set)"></v-icon>
-                            </v-list-tile-action>
+                            <v-icon
+                                v-text="getTestSetIcon(set)"
+                                v-if="testSetHasIcon(set)"></v-icon>
                             <v-list-tile-title 
                                 v-text="set.Name"
                                 :class="getTestSetTitleClass(set)"></v-list-tile-title>
+                            <v-badge class="mr-2" v-if="showFilterCounts">
+                                <template v-slot:badge>
+                                    <span>{{ getSetFilterMatchCount(set) }}</span>
+                                </template>
+                            </v-badge>
                         </v-list-tile>
 
                     </v-list-group>
@@ -131,6 +144,7 @@ export default class HealthCheckPageComponent extends Vue {
     
     // UI STATE
     drawerState: boolean = true;
+    testSetFilterText: string = "";
 
     testSetGroups: Array<TestSetGroupViewModel> = new Array<TestSetGroupViewModel>();
     activeSet: TestSetViewModel | null = null;
@@ -174,6 +188,10 @@ export default class HealthCheckPageComponent extends Vue {
         return this.testSetGroups.map(x => x.Sets).reduce((a, b) => a.concat(b));
     }
 
+    get showFilterCounts(): boolean {
+        return this.testSetFilterText.length > 0;
+    }
+
     ////////////////
     //  METHODS  //
     //////////////
@@ -212,9 +230,11 @@ export default class HealthCheckPageComponent extends Vue {
             }
         }
 
-        // ToDo group order and icons. Add group definition?
+        let groupIndex = -1;
         LinqUtils.GroupByInto(testSets, "GroupName", (key, items) => {
+            groupIndex++;
             return {
+                Id: `g${groupIndex}`,
                 Name: (key === "null") ? null : key,
                 Sets: items.sort((a,b) => a.UIOrder - b.UIOrder),
                 Icon: null,
@@ -229,6 +249,24 @@ export default class HealthCheckPageComponent extends Vue {
 
         this.testSetDataLoadInProgress = false;
         this.setInitialActiveTestSet();
+    }
+
+    filterTestSets(sets: Array<TestSetViewModel>) : Array<TestSetViewModel> {
+        return sets.filter(x => this.testSetFilterMatches(x));
+    }
+
+    testSetFilterMatches(set: TestSetViewModel): boolean {
+        return set.Name.toLowerCase().indexOf(this.testSetFilterText.toLowerCase().trim()) != -1
+            || set.Tests.some(x => x.Name.toLowerCase().indexOf(this.testSetFilterText.toLowerCase().trim()) != -1);
+    }
+
+    getGroupFilterMatchCount(group: TestSetGroupViewModel): number {
+        const initialValue = 0;
+        return group.Sets.reduce((sum, obj) => sum + this.getSetFilterMatchCount(obj), initialValue);
+    }
+
+    getSetFilterMatchCount(set: TestSetViewModel): number {
+        return set.Tests.filter(x => x.Name.toLowerCase().indexOf(this.testSetFilterText.toLowerCase().trim()) != -1).length;
     }
 
     testSetHasIcon(set: TestSetViewModel): boolean

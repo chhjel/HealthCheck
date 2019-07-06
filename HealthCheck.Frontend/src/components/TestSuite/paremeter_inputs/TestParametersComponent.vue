@@ -21,7 +21,6 @@ import ParameterInputComponent from './ParameterInputComponent.vue';
 
 @Component({
     components: {
-      // Parameter input components
       ParameterInputComponent
     }
 })
