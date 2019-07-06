@@ -6,7 +6,8 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
 {
     [RuntimeTestClass(
         DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins | RuntimeTestAccessRole.SystemAdmins,
-        UIOrder = -50
+        UIOrder = 100,
+        GroupName = RuntimeTestConstants.Group.BottomGroup
     )]
     public class TestsForAdminsWithOneForGuests
     {
@@ -36,6 +37,51 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         {
             await Task.Delay(1100);
             return TestResult.CreateSuccess($"Success, it took about a second.");
+        }
+    }
+
+    [RuntimeTestClass(
+        DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins | RuntimeTestAccessRole.SystemAdmins,
+        UIOrder = 50,
+        GroupName = RuntimeTestConstants.Group.BottomGroup
+    )]
+    public class TestSetA
+    {
+        [RuntimeTest]
+        public async Task<TestResult> TestServiceX()
+        {
+            await Task.Delay(1200);
+            return TestResult.CreateSuccess($"Success, used 1200ms!");
+        }
+    }
+
+    [RuntimeTestClass(
+        DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins | RuntimeTestAccessRole.SystemAdmins,
+        UIOrder = 0,
+        GroupName = RuntimeTestConstants.Group.BottomGroup
+    )]
+    public class TestSetB
+    {
+        [RuntimeTest]
+        public async Task<TestResult> TestServiceX()
+        {
+            await Task.Delay(1200);
+            return TestResult.CreateSuccess($"Success, used 1200ms!");
+        }
+    }
+
+    [RuntimeTestClass(
+        DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins | RuntimeTestAccessRole.SystemAdmins,
+        UIOrder = -50,
+        GroupName = RuntimeTestConstants.Group.BottomGroup
+    )]
+    public class TestSetC
+    {
+        [RuntimeTest]
+        public async Task<TestResult> TestServiceX()
+        {
+            await Task.Delay(1200);
+            return TestResult.CreateSuccess($"Success, used 1200ms!");
         }
     }
 }

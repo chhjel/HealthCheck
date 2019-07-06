@@ -1,20 +1,23 @@
-﻿using System;
-
-namespace HealthCheck.Core.Entities
+﻿namespace HealthCheck.Core.Entities
 {
     /// <summary>
-    /// Options for test set groups. ToDo move to web.core
+    /// Options for a test set group.
     /// </summary>
     public class TestSetGroupOptions
     {
         /// <summary>
-        /// Set a groups option by group name.
+        /// Name of group to set options for.
         /// </summary>
-        public TestSetGroupOptions SetOptionsFor(string groupName, int uiOrder, string iconName)
-        {
-            // ToDo
-            Console.WriteLine($"{groupName} | {uiOrder} | {iconName}");
-            return this;
-        }
+        public string GroupName { get; set; }
+
+        /// <summary>
+        /// Icon override.
+        /// </summary>
+        public string Icon { get; set; }
+
+        /// <summary>
+        /// Order in the list.
+        /// </summary>
+        public int UIOrder { get; set; }
     }
 }

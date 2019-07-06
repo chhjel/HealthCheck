@@ -22,7 +22,7 @@ namespace HealthCheck.Core.TestManagers
         /// <summary>
         /// Optional config for test set groups. Use the GroupOptions.SetOptionsFor method to add config for a group.
         /// </summary>
-        public TestSetGroupOptions GroupOptions { get; set; } = new TestSetGroupOptions();
+        public TestSetGroupsOptions GroupOptions { get; set; } = new TestSetGroupsOptions();
 
         /// <summary>
         /// Create a new <see cref="TestDiscoverer"/>.

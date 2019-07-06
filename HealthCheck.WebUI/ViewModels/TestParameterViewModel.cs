@@ -1,6 +1,6 @@
 ﻿using HealthCheck.Core.Entities;
 
-namespace HealthCheck.Web.Core.ViewModels
+namespace HealthCheck.WebUI.ViewModels
 {
     /// <summary>
     /// View model for a <see cref="TestParameter"/>.

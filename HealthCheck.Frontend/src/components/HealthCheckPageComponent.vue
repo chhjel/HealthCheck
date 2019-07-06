@@ -130,6 +130,7 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 import FrontEndOptionsViewModel from '../models/FrontEndOptionsViewModel';
 import TestSetViewModel from '../models/TestSetViewModel';
 import TestSetGroupViewModel from '../models/TestSetGroupViewModel';
+import TestsDataViewModel from  '../models/TestsDataViewModel';
 import TestSetComponent from './TestSuite/TestSetComponent.vue';
 import LinqUtils from '../util/LinqUtils';
 
@@ -211,7 +212,7 @@ export default class HealthCheckPageComponent extends Vue {
             })
         })
         .then(response => response.json())
-        .then((testSets: Array<TestSetViewModel>) => this.onTestSetDataRetrieved(testSets))
+        .then((testsData: TestsDataViewModel) => this.onTestSetDataRetrieved(testsData))
         .catch((e) => {
             this.testSetDataLoadInProgress = false;
             this.testSetDataLoadFailed = true;
@@ -220,9 +221,9 @@ export default class HealthCheckPageComponent extends Vue {
         });
     }
 
-    onTestSetDataRetrieved(testSets: Array<TestSetViewModel>): void {
+    onTestSetDataRetrieved(testsData: TestsDataViewModel): void {
         // Init default value
-        for(let set of testSets) {
+        for(let set of testsData.TestSets) {
             for(let test of set.Tests) {
                 for(let param of test.Parameters) {
                     param.Value = param.DefaultValue;
@@ -231,23 +232,32 @@ export default class HealthCheckPageComponent extends Vue {
         }
 
         let groupIndex = -1;
-        LinqUtils.GroupByInto(testSets, "GroupName", (key, items) => {
+        LinqUtils.GroupByInto(testsData.TestSets, "GroupName", (key, items) => {
             groupIndex++;
             return {
                 Id: `g${groupIndex}`,
                 Name: (key === "null") ? null : key,
-                Sets: items.sort((a,b) => a.UIOrder - b.UIOrder),
+                Sets: items.sort((a,b) => b.UIOrder - a.UIOrder),
                 Icon: null,
-                UIOrder: (key === "null") ? 1 : 0,
+                UIOrder: (key === "null") ? -1 : 0,
             }
         })
-        .sort((a,b) => a.UIOrder - b.UIOrder)
         .forEach(x => this.testSetGroups.push(x));
 
         // Give nameless group a name if any other groups exist
         if (this.testSetGroups.length > 1 && this.groupWithoutName != null) {
             this.groupWithoutName.Name = "Other";
+            
+            this.testSetGroups.forEach(group => {
+                let groupOptions = testsData.GroupOptions.filter(x => x.GroupName == group.Name)[0];
+                if (groupOptions != null) {
+                    group.Icon = groupOptions.Icon;
+                    group.UIOrder = groupOptions.UIOrder;
+                }
+            });
         }
+
+        this.testSetGroups = this.testSetGroups.sort((a,b) => b.UIOrder - a.UIOrder)
 
         this.testSetDataLoadInProgress = false;
         this.setInitialActiveTestSet();
@@ -288,7 +298,7 @@ export default class HealthCheckPageComponent extends Vue {
 
     getTestSetGroupIcon(group: TestSetGroupViewModel): string
     {
-        return "extension";
+        return group.Icon || "extension";
     }
 
     urlParameterCurrentSet: string = "set";

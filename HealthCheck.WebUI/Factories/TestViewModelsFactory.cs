@@ -1,11 +1,12 @@
 ﻿using HealthCheck.Core.Entities;
 using HealthCheck.Core.Util;
-using HealthCheck.Web.Core.ViewModels;
+using HealthCheck.WebUI.ViewModels;
 using RuntimeCodeTest.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HealthCheck.Web.Core.Factories
+namespace HealthCheck.WebUI.Factories
 {
     /// <summary>
     /// View model object factory for test objects.
@@ -112,6 +113,19 @@ namespace HealthCheck.Web.Core.Factories
             };
 
             return vm;
+        }
+
+        /// <summary>
+        /// Create a list of <see cref="GroupOptionsViewModel"/> from the given <see cref="TestSetGroupsOptions"/>.
+        /// </summary>
+        public List<GroupOptionsViewModel> CreateViewModel(TestSetGroupsOptions groupOptions)
+        {
+            return groupOptions.GetOptions().Select(x => new GroupOptionsViewModel()
+            {
+                GroupName = x.GroupName,
+                Icon = x.Icon,
+                UIOrder = x.UIOrder
+            }).ToList();
         }
     }
 

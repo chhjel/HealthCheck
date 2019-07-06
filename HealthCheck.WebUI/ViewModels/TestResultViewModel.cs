@@ -2,7 +2,7 @@
 using HealthCheck.Core.Enums;
 using System.Collections.Generic;
 
-namespace HealthCheck.Web.Core.ViewModels
+namespace HealthCheck.WebUI.ViewModels
 {
     /// <summary>
     /// View model for a <see cref="TestResult"/>.

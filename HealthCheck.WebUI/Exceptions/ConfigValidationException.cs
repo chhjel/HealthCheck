@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HealthCheck.Web.Core.Exceptions
+namespace HealthCheck.WebUI.Exceptions
 {
     /// <summary>
     /// Thrown if the FrontEndOptionsViewModel does not validate.

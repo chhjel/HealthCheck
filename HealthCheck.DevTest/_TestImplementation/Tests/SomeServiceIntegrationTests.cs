@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace HealthCheck.DevTest._TestImplementation.Tests
 {
     [RuntimeTestClass(
-        GroupName = RuntimeTestConstants.Group.Test,
+        GroupName = RuntimeTestConstants.Group.AdminStuff,
         DefaultRolesWithAccess = RuntimeTestAccessRole.SystemAdmins,
         Icon = RuntimeTestConstants.Icons.AspectRatio
     )]

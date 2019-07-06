@@ -1,7 +1,7 @@
 ﻿using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 
-namespace HealthCheck.Web.Core.ViewModels
+namespace HealthCheck.WebUI.ViewModels
 {
     /// <summary>
     /// View model for <see cref="TestResultDataDump"/>

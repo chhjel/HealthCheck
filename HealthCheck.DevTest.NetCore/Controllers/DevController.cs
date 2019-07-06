@@ -1,8 +1,8 @@
 ﻿using HealthCheck.Core.TestManagers;
 using HealthCheck.Core.Util;
 using HealthCheck.DevTest._TestImplementation;
-using HealthCheck.Web.Core.Models;
-using HealthCheck.Web.Core.ViewModels;
+using HealthCheck.WebUI.Models;
+using HealthCheck.WebUI.ViewModels;
 using HealthCheck.WebUI.Abstractions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -42,7 +42,7 @@ namespace HealthCheck.DevTest.NetCore.Controllers
             var requestRoles = GetRequestAccessRoles(request);
             testRunner.IncludeExceptionStackTraces = requestRoles.HasValue && requestRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);
             testDiscoverer.GroupOptions
-                .SetOptionsFor(RuntimeTestConstants.Group.Test, uiOrder: -100, iconName: RuntimeTestConstants.Icons.Face);
+                .SetOptionsFor(RuntimeTestConstants.Group.AdminStuff, uiOrder: -100, iconName: RuntimeTestConstants.Icons.Face);
         }
 
         protected override Maybe<RuntimeTestAccessRole> GetRequestAccessRoles(HttpRequest request)

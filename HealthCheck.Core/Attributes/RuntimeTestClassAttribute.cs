@@ -52,6 +52,7 @@ namespace HealthCheck.Core.Attributes
 
         /// <summary>
         /// Order of the set in the ui lists, higher value = higher up.
+        /// <para>If groups are used this is the order within its group.</para>
         /// </summary>
         public int UIOrder { get; set; }
     }

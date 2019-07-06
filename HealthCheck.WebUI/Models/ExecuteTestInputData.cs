@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace HealthCheck.Web.Core.Models
+namespace HealthCheck.WebUI.Models
 {
     /// <summary>
     /// Input data type for the execute test endpoint.

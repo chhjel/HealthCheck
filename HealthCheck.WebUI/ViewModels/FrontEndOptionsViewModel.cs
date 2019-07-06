@@ -1,6 +1,6 @@
-﻿using HealthCheck.Web.Core.Exceptions;
+﻿using HealthCheck.WebUI.Exceptions;
 
-namespace HealthCheck.Web.Core.ViewModels
+namespace HealthCheck.WebUI.ViewModels
 {
     /// <summary>
     /// Various front-end options for the web interface.

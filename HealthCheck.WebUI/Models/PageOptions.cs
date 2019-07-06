@@ -1,6 +1,6 @@
-﻿using HealthCheck.Web.Core.Exceptions;
+﻿using HealthCheck.WebUI.Exceptions;
 
-namespace HealthCheck.Web.Core.Models
+namespace HealthCheck.WebUI.Models
 {
     /// <summary>
     /// Various options for the page content.

@@ -4,7 +4,8 @@
     {
         public static class Group
         {
-            public const string Test = "Admin stuff";
+            public const string AdminStuff = "Admin stuff";
+            public const string BottomGroup = "Bottom group";
         }
 
         public static class Icons

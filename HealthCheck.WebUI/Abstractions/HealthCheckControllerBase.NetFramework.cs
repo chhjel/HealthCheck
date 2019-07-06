@@ -2,7 +2,7 @@
 using HealthCheck.Core.TestManagers;
 using HealthCheck.Core.Util;
 using HealthCheck.Core.Attributes;
-using HealthCheck.Web.Core.ViewModels;
+using HealthCheck.WebUI.ViewModels;
 using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
@@ -11,7 +11,7 @@ using Newtonsoft.Json.Converters;
 using System.Reflection;
 using System.Web.Routing;
 using System.Web;
-using HealthCheck.Web.Core.Models;
+using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI;
 using HealthCheck.WebUI.Util;
 

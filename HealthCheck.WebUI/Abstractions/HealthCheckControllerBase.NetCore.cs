@@ -2,14 +2,14 @@
 using HealthCheck.Core.TestManagers;
 using HealthCheck.Core.Util;
 using HealthCheck.Core.Attributes;
-using HealthCheck.Web.Core.ViewModels;
+using HealthCheck.WebUI.ViewModels;
 using HealthCheck.WebUI.Util;
 using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Converters;
 using System.Reflection;
-using HealthCheck.Web.Core.Models;
+using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;

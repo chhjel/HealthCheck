@@ -1,10 +1,10 @@
 ﻿using HealthCheck.Core.Entities;
 using HealthCheck.Core.TestManagers;
 using HealthCheck.Core.Util;
-using HealthCheck.Web.Core.Exceptions;
-using HealthCheck.Web.Core.Factories;
-using HealthCheck.Web.Core.Models;
-using HealthCheck.Web.Core.ViewModels;
+using HealthCheck.WebUI.Exceptions;
+using HealthCheck.WebUI.Factories;
+using HealthCheck.WebUI.Models;
+using HealthCheck.WebUI.ViewModels;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -48,16 +48,21 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Get viewmodel for test sets data.
         /// </summary>
-        public List<TestSetViewModel> GetTestDefinitionsViewModel()
-            => ViewModelsFactory.CreateViewModel(GetTestDefinitions());
+        public TestsDataViewModel GetTestDefinitionsViewModel()
+        {
+            var model = new TestsDataViewModel()
+            {
+                TestSets = ViewModelsFactory.CreateViewModel(GetTestDefinitions()),
+                GroupOptions = ViewModelsFactory.CreateViewModel(TestDiscoverer.GroupOptions),
+            };
+            return model;
+        }
 
         /// <summary>
         /// Execute the given test and return a result view model.
         /// </summary>
         public async Task<TestResultViewModel> ExecuteTest(ExecuteTestInputData data)
         {
-            // ToDo check access | return CreateError no access
-
             if (data == null || data.TestId == null)
             {
                 return TestResultViewModel.CreateError("No test id was given.");

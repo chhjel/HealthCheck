@@ -1,7 +1,7 @@
 ﻿using HealthCheck.Core.Entities;
 using System.Collections.Generic;
 
-namespace HealthCheck.Web.Core.ViewModels
+namespace HealthCheck.WebUI.ViewModels
 {
     /// <summary>
     /// View model for a <see cref="TestDefinition"/>.
