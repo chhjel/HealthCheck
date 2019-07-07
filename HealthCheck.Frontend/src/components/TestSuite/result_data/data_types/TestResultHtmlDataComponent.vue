@@ -16,6 +16,8 @@ import TestResultDataDumpViewModel from "../../../../models/TestResultDataDumpVi
 export default class TestResultHtmlDataComponent extends Vue {
     @Prop({ required: true })
     data!: TestResultDataDumpViewModel;
+    @Prop({ required: true })
+    fullscreen!: boolean;
 
     mounted(): void {
     }

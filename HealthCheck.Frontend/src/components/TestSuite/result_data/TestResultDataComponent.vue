@@ -4,14 +4,43 @@
         <component
             :class="`data-dump data-dump-${data.Type.toLowerCase()}`"
             :data="data"
+            :fullscreen="showFullscreen"
             :is="getDataComponentNameFromType(data.Type)">
         </component>
 
         <v-card-actions>
           <v-btn flat color="secondary-darken2" @click="putDataOnCLipboard">Copy</v-btn>
-          <v-btn flat color="secondary-darken2">Fullscreen</v-btn>
-          // ToDo move snackbar here
+
+          <v-dialog
+            v-model="showFullscreen"
+            @keydown.esc="showFullscreen = false"
+            fullscreen hide-overlay transition="dialog-transition">
+            <template v-slot:activator="{ on }">
+              <v-btn flat color="secondary-darken2" v-on="on">Fullscreen</v-btn>
+            </template>
+            <v-card>
+              <!-- DIALOG TOOLBAR -->
+              <v-toolbar dark color="primary">
+                <v-btn icon dark @click="showFullscreen = false">
+                  <v-icon>close</v-icon>
+                </v-btn>
+                <v-toolbar-title>{{data.Title}}</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-toolbar-items>
+                  <v-btn dark flat @click="showFullscreen = false">Close</v-btn>
+                </v-toolbar-items>
+              </v-toolbar>
+              <!-- DIALOG CONTENTS -->
+              <component
+                  :class="`data-dump data-dump-${data.Type.toLowerCase()}`"
+                  :data="data"
+                  :fullscreen="showFullscreen"
+                  :is="getDataComponentNameFromType(data.Type)">
+              </component>
+            </v-card>
+          </v-dialog>
         </v-card-actions>
+        <!-- <div v-if="showCopyAlert">{{ copyAlertText }}</div> -->
         
         <textarea style="display:none;" ref="copyValue" :value="data.Data" />
         <v-snackbar
@@ -60,6 +89,7 @@ export default class TestResultDataComponent extends Vue {
     showCopyAlert: boolean = false;
     copyAlertText: string = "";
     copyAlertColor: string = "success";
+    showFullscreen: boolean = false;
 
     mounted(): void {
     }

@@ -2,6 +2,7 @@
 <template>
     <div>
       <v-carousel 
+        :height="'100%'"
         :cycle="false"
         :hide-delimiters="!showControls"
         :hide-controls="!showControls">
@@ -34,6 +35,8 @@ import TestResultDataDumpViewModel from "../../../../models/TestResultDataDumpVi
 export default class TestResultImageUrlsDataComponent extends Vue {
     @Prop({ required: true })
     data!: TestResultDataDumpViewModel;
+    @Prop({ required: true })
+    fullscreen!: boolean;
 
     showControls: boolean = true;
 
@@ -64,5 +67,11 @@ export default class TestResultImageUrlsDataComponent extends Vue {
 }
 .details-icon {
   float: right;
+}
+</style>
+
+<style>
+.v-dialog .data-dump-imageurls {
+    height: calc(100vh - 64px);
 }
 </style>

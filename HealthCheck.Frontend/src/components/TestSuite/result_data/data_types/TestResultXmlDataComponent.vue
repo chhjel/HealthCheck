@@ -1,7 +1,7 @@
 <!-- src/components/result_data/data_types/TestResultXmlDataComponent.vue -->
 <template>
     <div>
-      <div>{{data.Title}}</div>
+      <div v-if="!fullscreen">{{data.Title}}</div>
       <highlight-code lang="xml" :code="data.Data"></highlight-code>
     </div>
 </template>
@@ -17,6 +17,8 @@ import TestResultDataDumpViewModel from "../../../../models/TestResultDataDumpVi
 export default class TestResultXmlDataComponent extends Vue {
     @Prop({ required: true })
     data!: TestResultDataDumpViewModel;
+    @Prop({ required: true })
+    fullscreen!: boolean;
 
     mounted(): void {
     }
