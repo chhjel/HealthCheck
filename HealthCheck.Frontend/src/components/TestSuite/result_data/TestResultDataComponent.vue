@@ -27,6 +27,9 @@
                 <v-toolbar-title>{{data.Title}}</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-toolbar-items>
+                  <v-btn dark flat @click="putDataOnCLipboard">Put data on clipboard</v-btn>
+                </v-toolbar-items>
+                <v-toolbar-items>
                   <v-btn dark flat @click="showFullscreen = false">Close</v-btn>
                 </v-toolbar-items>
               </v-toolbar>
