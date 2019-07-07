@@ -30,7 +30,6 @@ namespace HealthCheck.WebUI.Factories
                 Name = testClassDefinition.Name,
                 Description = testClassDefinition.Description,
                 GroupName = testClassDefinition.GroupName,
-                Icon = testClassDefinition.Icon,
                 UIOrder = testClassDefinition.UIOrder,
                 Tests = new List<TestViewModel>()
             };
@@ -123,7 +122,6 @@ namespace HealthCheck.WebUI.Factories
             return groupOptions.GetOptions().Select(x => new GroupOptionsViewModel()
             {
                 GroupName = x.GroupName,
-                Icon = x.Icon,
                 UIOrder = x.UIOrder
             }).ToList();
         }

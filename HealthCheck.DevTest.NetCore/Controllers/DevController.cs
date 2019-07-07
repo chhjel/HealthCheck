@@ -42,7 +42,7 @@ namespace HealthCheck.DevTest.NetCore.Controllers
             var requestRoles = GetRequestAccessRoles(request);
             testRunner.IncludeExceptionStackTraces = requestRoles.HasValue && requestRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);
             testDiscoverer.GroupOptions
-                .SetOptionsFor(RuntimeTestConstants.Group.AdminStuff, uiOrder: -100, iconName: RuntimeTestConstants.Icons.Face);
+                .SetOptionsFor(RuntimeTestConstants.Group.AdminStuff, uiOrder: -100);
         }
 
         protected override Maybe<RuntimeTestAccessRole> GetRequestAccessRoles(HttpRequest request)

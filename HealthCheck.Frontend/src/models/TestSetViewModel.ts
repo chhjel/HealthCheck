@@ -5,7 +5,6 @@ export default interface TestSetViewModel {
     Name: string;
     Description: string;
     GroupName: string| null;
-    Icon: string | null;
     UIOrder: number;
     Tests: Array<TestViewModel>;
 }

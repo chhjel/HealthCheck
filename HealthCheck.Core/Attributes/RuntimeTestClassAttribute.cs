@@ -46,11 +46,6 @@ namespace HealthCheck.Core.Attributes
         public string GroupName { get; set; }
 
         /// <summary>
-        /// Optional icon name override. Get name from https://material.io/tools/icons/.
-        /// </summary>
-        public string Icon { get; set; }
-
-        /// <summary>
         /// Order of the set in the ui lists, higher value = higher up.
         /// <para>If groups are used this is the order within its group.</para>
         /// </summary>

@@ -11,8 +11,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         Name = "Some fancy tests in .Net Core",
         Description = "Some fancy description",
         DefaultRolesWithAccess = RuntimeTestAccessRole.SystemAdmins,
-        GroupName = RuntimeTestConstants.Group.AdminStuff,
-        Icon = RuntimeTestConstants.Icons.Dashboard
+        GroupName = RuntimeTestConstants.Group.AdminStuff
     )]
     public class SomeRandomTests
     {

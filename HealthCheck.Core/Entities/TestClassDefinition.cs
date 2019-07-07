@@ -52,11 +52,6 @@ namespace HealthCheck.Core.Entities
         public string GroupName { get; set; }
 
         /// <summary>
-        /// Optional icon name override. Get name from https://material.io/tools/icons/.
-        /// </summary>
-        public string Icon { get; set; }
-
-        /// <summary>
         /// Order of the set in the ui lists, higher value = higher up.
         /// </summary>
         public int UIOrder { get; set; }
@@ -79,7 +74,6 @@ namespace HealthCheck.Core.Entities
             DefaultAllowManualExecution = testClassAttribute.DefaultAllowManualExecution;
             DefaultRolesWithAccess = testClassAttribute.DefaultRolesWithAccess;
             GroupName = testClassAttribute.GroupName;
-            Icon = testClassAttribute.Icon;
             UIOrder = testClassAttribute.UIOrder;
         }
     }

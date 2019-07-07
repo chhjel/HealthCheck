@@ -6,8 +6,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
 {
     [RuntimeTestClass(
         GroupName = RuntimeTestConstants.Group.AdminStuff,
-        DefaultRolesWithAccess = RuntimeTestAccessRole.SystemAdmins,
-        Icon = RuntimeTestConstants.Icons.AspectRatio
+        DefaultRolesWithAccess = RuntimeTestAccessRole.SystemAdmins
     )]
     public class SomeServiceIntegrationTests
     {

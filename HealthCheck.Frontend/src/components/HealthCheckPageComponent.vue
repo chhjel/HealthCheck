@@ -250,7 +250,6 @@ export default class HealthCheckPageComponent extends Vue {
             this.testSetGroups.forEach(group => {
                 let groupOptions = testsData.GroupOptions.filter(x => x.GroupName == group.Name)[0];
                 if (groupOptions != null) {
-                    group.Icon = groupOptions.Icon;
                     group.UIOrder = groupOptions.UIOrder;
                 }
             });

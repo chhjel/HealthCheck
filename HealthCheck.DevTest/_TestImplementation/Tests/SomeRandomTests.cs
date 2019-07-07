@@ -13,7 +13,6 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         Description = "Some fancy description",
         DefaultRolesWithAccess = RuntimeTestAccessRole.SystemAdmins,
         GroupName = RuntimeTestConstants.Group.AdminStuff,
-        Icon = RuntimeTestConstants.Icons.Dashboard,
         UIOrder = 500
     )]
     public class SomeRandomTests

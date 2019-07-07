@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 namespace HealthCheck.DevTest._TestImplementation.Tests
 {
     [RuntimeTestClass(
-        DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins,
-        Icon = RuntimeTestConstants.Icons.Face
+        DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins
     )]
     public class TestsWithWebAdminRequirements
     {
