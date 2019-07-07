@@ -13,7 +13,8 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         Description = "Some fancy description",
         DefaultRolesWithAccess = RuntimeTestAccessRole.SystemAdmins,
         GroupName = RuntimeTestConstants.Group.AdminStuff,
-        Icon = RuntimeTestConstants.Icons.Dashboard
+        Icon = RuntimeTestConstants.Icons.Dashboard,
+        UIOrder = 500
     )]
     public class SomeRandomTests
     {
@@ -23,7 +24,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             var objectToSerialize = TestResult.CreateWarning($"Some random json object");
 
             return TestResult.CreateSuccess($"Images has been served.")
-                .AddImageUrlsData(Enumerable.Range(1, imageCount).Select(x => $"{"https://"}loremflickr.com/{imageWidth}/{imageHeight}?v={x}"), $"{imageCount} images from https://loremflickr.com")
+                .AddImageUrlsData(Enumerable.Range(1, imageCount).Select(x => $"{"https://"}picsum.photos/{imageWidth}/{imageHeight}?v={x}"), $"{imageCount} images from https://picsum.photos")
                 .AddHtmlData($"Some <b>html</b> here!<br /><a href='https://www.google.com'>some link</a>", "Some html")
                 .AddSerializedData(objectToSerialize, "Serialized object data")
                 .AddTextData("Some text data", "Text title")

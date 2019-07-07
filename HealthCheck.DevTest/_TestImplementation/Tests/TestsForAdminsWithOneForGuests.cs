@@ -6,8 +6,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
 {
     [RuntimeTestClass(
         DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins | RuntimeTestAccessRole.SystemAdmins,
-        UIOrder = 100,
-        GroupName = RuntimeTestConstants.Group.BottomGroup
+        UIOrder = 100
     )]
     public class TestsForAdminsWithOneForGuests
     {
