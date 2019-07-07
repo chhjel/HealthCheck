@@ -102,7 +102,7 @@ export default class TestComponent extends Vue {
       let defaultBorderStyle = `1px solid var(--v-primary-base)`;
       let borderStyle = defaultBorderStyle;
 
-      if (this.testResult == null) borderStyle = defaultBorderStyle;
+      if (this.testResult == null || this.testInProgress) borderStyle = defaultBorderStyle;
       else if (this.testResult!.StatusCode == 0) borderStyle = `${borderWidth}px solid #4caf50`;
       else if (this.testResult!.StatusCode == 1) borderStyle = `${borderWidth}px solid orange`;
       else if (this.testResult!.StatusCode == 2) borderStyle = `${borderWidth}px solid red`;
@@ -179,6 +179,7 @@ export default class TestComponent extends Vue {
           this.$emit("testStopped", this.test.Id);
       })
       .catch((e) => {
+          this.testResult = null;
           this.testInProgress = false;
           this.testExecutionFailed = true;
           this.testExecutionErrorMessage = `Failed to execute test with the following error. ${e}.`;

@@ -65,7 +65,7 @@ namespace HealthCheck.Core.Entities
             Method = method;
             ParentClass = parentClass;
 
-            Name = testAttribute.Name ?? Method.Name.AddSpaceBetweenCapitalLetters();
+            Name = testAttribute.Name ?? Method.Name.SpacifySentence();
             Description = testAttribute.Description;
             AllowParallelExecution = (testAttribute.AllowParallelExecution is bool allowParallelExecution && allowParallelExecution);
             AllowManualExecution = (testAttribute.AllowManualExecution is bool allowManualExecution ? allowManualExecution : parentClass.DefaultAllowManualExecution);
@@ -91,7 +91,7 @@ namespace HealthCheck.Core.Entities
                 Parameters[i] = new TestParameter()
                 {
                     Index = i,
-                    Name = testAttribute.GetCustomParameterName(i) ?? parameter.Name.AddSpaceBetweenCapitalLetters(),
+                    Name = testAttribute.GetCustomParameterName(i) ?? parameter.Name.SpacifySentence(),
                     Description = testAttribute.GetCustomParameterDescription(i),
                     DefaultValue = parameter.DefaultValue,
                     ParameterType = parameter.ParameterType

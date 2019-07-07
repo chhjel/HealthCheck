@@ -73,7 +73,7 @@ namespace HealthCheck.Core.Entities
         {
             ClassType = classType;
             Id = testClassAttribute.Id ?? ClassType.FullName;
-            Name = testClassAttribute.Name ?? ClassType.Name.AddSpaceBetweenCapitalLetters();
+            Name = testClassAttribute.Name ?? ClassType.Name.SpacifySentence();
             Description = testClassAttribute.Description;
             DefaultAllowParallelExecution = testClassAttribute.DefaultAllowParallelExecution;
             DefaultAllowManualExecution = testClassAttribute.DefaultAllowManualExecution;

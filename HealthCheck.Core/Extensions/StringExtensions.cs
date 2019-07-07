@@ -8,10 +8,10 @@ namespace HealthCheck.Core.Extensions
     public static class StringExtensions
     {
         /// <summary>
-        /// Appends a space before all capital letters in a sentence, except the first character.
+        /// Appends a space before all capital letters and numbers in a sentence, except the first character.
         /// Also trims and capitalizes first character unless disabled.
         /// </summary>
-        public static string AddSpaceBetweenCapitalLetters(this string text,
+        public static string SpacifySentence(this string text,
             bool trim = true, bool capitalizeFirst = true)
         {
             if (text == null || text.Length == 0)
@@ -31,7 +31,7 @@ namespace HealthCheck.Core.Extensions
 
             for (int i = 0; i < text.Length; i++)
             {
-                if (i > 0 && char.IsUpper(text[i]))
+                if (i > 0 && (char.IsUpper(text[i]) || ANumberIsStartingAtPosition(text, i)))
                 {
                     str.Append(" ");
                 }
@@ -40,6 +40,12 @@ namespace HealthCheck.Core.Extensions
             }
 
             return str.ToString();
+        }
+
+        private static bool ANumberIsStartingAtPosition(string text, int index)
+        {
+            if (index > 0 && char.IsDigit(text[index - 1])) return false;
+            else return char.IsDigit(text[index]);
         }
     }
 }
