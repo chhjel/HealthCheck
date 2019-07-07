@@ -24,7 +24,7 @@
                     </v-list>
                 </v-toolbar>
                 
-                <v-list expand>
+                <v-list expand class="menu-items">
                     <v-text-field v-model="testSetFilterText" />
 
                     <!-- GROUPS IF ANY -->
@@ -366,5 +366,12 @@ export default class HealthCheckPageComponent extends Vue {
 }
 .v-list__group {
     margin-bottom: 10px;
+}
+.menu .v-list__group__header__prepend-icon {
+    padding-left: 14px !important;
+    min-width: inherit !important;
+}
+.menu-items .v-list__tile--link {
+    padding-left: 46px !important;
 }
 </style>
