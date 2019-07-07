@@ -13,7 +13,7 @@
           // ToDo move snackbar here
         </v-card-actions>
         
-        <textarea type="hidden" ref="copyValue" :value="data.Data" />
+        <textarea style="display:none;" ref="copyValue" :value="data.Data" />
         <v-snackbar
           v-model="showCopyAlert"
           :timeout="5000"
@@ -84,7 +84,7 @@ export default class TestResultDataComponent extends Vue {
     
     putDataOnCLipboard(): void {
       let copySourceElement = this.$refs.copyValue as HTMLTextAreaElement;
-      copySourceElement.setAttribute('type', 'text');
+      copySourceElement.setAttribute('style', 'display:inherit;');
       copySourceElement.select()
 
       try {
@@ -98,7 +98,7 @@ export default class TestResultDataComponent extends Vue {
         this.ShowCopyAlert('Oops, unable to copy :(', false);
       }
 
-      copySourceElement.setAttribute('type', 'hidden')
+      copySourceElement.setAttribute('style', 'display:none;');
       window.getSelection().removeAllRanges()
     }
 
