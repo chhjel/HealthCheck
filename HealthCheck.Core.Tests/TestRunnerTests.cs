@@ -4,14 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace HealthCheck.Core.TestManagers
+namespace HealthCheck.Core.Services
 {
     public class TestRunnerTests
     {
         [Fact]
         public async Task ExecuteTests_WithAFewTests_ReturnsResults()
         {
-            var discoverer = new TestDiscoverer()
+            var discoverer = new TestDiscoveryService()
             {
                 AssemblyContainingTests = GetType().Assembly
             };
@@ -19,7 +19,7 @@ namespace HealthCheck.Core.TestManagers
                 .Where(x => x.Id == "TestRunnerTestsSetA")
                 .ToList();
 
-            var runner = new TestRunner();
+            var runner = new TestRunnerService();
             var results = await runner.ExecuteTests(testClasses);
             Assert.NotEmpty(results);
         }
@@ -27,7 +27,7 @@ namespace HealthCheck.Core.TestManagers
         [Fact]
         public async Task ExecuteTests_WithAsyncAndTaskTest_DoesNotFail()
         {
-            var discoverer = new TestDiscoverer()
+            var discoverer = new TestDiscoveryService()
             {
                 AssemblyContainingTests = GetType().Assembly
             };
@@ -35,7 +35,7 @@ namespace HealthCheck.Core.TestManagers
                 .Where(x => x.Id == "TestRunnerTestsSetB")
                 .ToList();
 
-            var runner = new TestRunner();
+            var runner = new TestRunnerService();
             var results = await runner.ExecuteTests(testClasses);
             Assert.NotEmpty(results);
             Assert.Contains(results, x => x.Tag as string == "AsyncTestMethod");

@@ -1,5 +1,5 @@
 ﻿using HealthCheck.Core.Entities;
-using HealthCheck.Core.TestManagers;
+using HealthCheck.Core.Services;
 using HealthCheck.Core.Util;
 using HealthCheck.WebUI.Exceptions;
 using HealthCheck.WebUI.Factories;
@@ -21,12 +21,12 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Executes tests.
         /// </summary>
-        public TestRunner TestRunner = new TestRunner();
+        public TestRunnerService TestRunner = new TestRunnerService();
 
         /// <summary>
         /// Discovers tests.
         /// </summary>
-        public TestDiscoverer TestDiscoverer = new TestDiscoverer();
+        public TestDiscoveryService TestDiscoverer = new TestDiscoveryService();
 
         /// <summary>
         /// Converts string input from the UI into the types of the method parameters.

@@ -7,12 +7,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace HealthCheck.Core.TestManagers
+namespace HealthCheck.Core.Services
 {
     /// <summary>
     /// Discovers and validates test methods and test sets.
     /// </summary>
-    public class TestDiscoverer
+    public class TestDiscoveryService
     {
         /// <summary>
         /// The assembly that contains the test methods. Defaults to entry assembly.
@@ -25,9 +25,9 @@ namespace HealthCheck.Core.TestManagers
         public TestSetGroupsOptions GroupOptions { get; set; } = new TestSetGroupsOptions();
 
         /// <summary>
-        /// Create a new <see cref="TestDiscoverer"/>.
+        /// Create a new <see cref="TestDiscoveryService"/>.
         /// </summary>
-        public TestDiscoverer() {}
+        public TestDiscoveryService() {}
 
         /// <summary>
         /// Validate tests, throws a <see cref="InvalidTestDefinitionException"/> if any tests are invalid.

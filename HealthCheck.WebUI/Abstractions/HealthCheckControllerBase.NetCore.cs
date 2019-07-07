@@ -1,5 +1,5 @@
 ﻿#if NETCORE
-using HealthCheck.Core.TestManagers;
+using HealthCheck.Core.Services;
 using HealthCheck.Core.Util;
 using HealthCheck.Core.Attributes;
 using HealthCheck.WebUI.ViewModels;
@@ -54,7 +54,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Set any options on the test managers here. Method is invoked from BeginExecute.
         /// </summary>
-        protected virtual void SetOptionalOptions(HttpRequest request, TestRunner testRunner, TestDiscoverer testDiscoverer) { }
+        protected virtual void SetOptionalOptions(HttpRequest request, TestRunnerService testRunner, TestDiscoveryService testDiscoverer) { }
 
         /// <summary>
         /// Should return a custom enum flag object with the roles of the current user. Must match the type used in <see cref="RuntimeTestAttribute.RolesWithAccess"/>.

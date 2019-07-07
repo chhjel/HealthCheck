@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HealthCheck.Core.TestManagers
+namespace HealthCheck.Core.Services
 {
     /// <summary>
     /// Executes tests.
     /// </summary>
-    public class TestRunner
+    public class TestRunnerService
     {
         /// <summary>
         /// Include exception stacktraces in test results.

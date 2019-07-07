@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace HealthCheck.Core.TestManagers
+namespace HealthCheck.Core.Services
 {
     public class TestDefinitionTests
     {
@@ -20,7 +20,7 @@ namespace HealthCheck.Core.TestManagers
         [Fact]
         public void Id_OfAllTests_AreUnique()
         {
-            var discoverer = new TestDiscoverer()
+            var discoverer = new TestDiscoveryService()
             {
                 AssemblyContainingTests = GetType().Assembly
             };
@@ -36,7 +36,7 @@ namespace HealthCheck.Core.TestManagers
         [Fact]
         public void Id_OfValidTest_IsGenerated()
         {
-            var discoverer = new TestDiscoverer()
+            var discoverer = new TestDiscoveryService()
             {
                 AssemblyContainingTests = GetType().Assembly
             };
@@ -49,7 +49,7 @@ namespace HealthCheck.Core.TestManagers
         [Fact]
         public void Id_OfInvalidTest_IsGenerated()
         {
-            var discoverer = new TestDiscoverer()
+            var discoverer = new TestDiscoveryService()
             {
                 AssemblyContainingTests = GetType().Assembly
             };
@@ -62,7 +62,7 @@ namespace HealthCheck.Core.TestManagers
         [Fact]
         public async Task ExecuteTest_WithoutMethodParametersAndNullParam_Works()
         {
-            var discoverer = new TestDiscoverer()
+            var discoverer = new TestDiscoveryService()
             {
                 AssemblyContainingTests = GetType().Assembly
             };
@@ -76,7 +76,7 @@ namespace HealthCheck.Core.TestManagers
         [Fact]
         public async Task ExecuteTest_WithMethodParametersAndNullParam_UsesDefaultParams()
         {
-            var discoverer = new TestDiscoverer()
+            var discoverer = new TestDiscoveryService()
             {
                 AssemblyContainingTests = GetType().Assembly
             };

@@ -2,7 +2,7 @@
 using System.Web;
 using System.Web.Hosting;
 using System.Web.Mvc;
-using HealthCheck.Core.TestManagers;
+using HealthCheck.Core.Services;
 using HealthCheck.Core.Util;
 using HealthCheck.DevTest._TestImplementation;
 using HealthCheck.WebUI.Models;
@@ -34,7 +34,7 @@ namespace HealthCheck.DevTest.Controllers
                 PageTitle = "Test Monitor"
             };
 
-        protected override void SetOptionalOptions(HttpRequestBase request, TestRunner testRunner, TestDiscoverer testDiscoverer)
+        protected override void SetOptionalOptions(HttpRequestBase request, TestRunnerService testRunner, TestDiscoveryService testDiscoverer)
         {
             var requestRoles = GetRequestAccessRoles(request);
             testRunner.IncludeExceptionStackTraces = requestRoles.HasValue && requestRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);

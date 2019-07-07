@@ -7,7 +7,7 @@ using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace HealthCheck.Core.TestManagers
+namespace HealthCheck.Core.Services
 {
     public class TestDiscovererTests
     {
@@ -21,7 +21,7 @@ namespace HealthCheck.Core.TestManagers
         [Fact]
         public void DiscoverTestDefinitions_WithRoles_ReturnsOnlyTestsWithGivenRoles()
         {
-            var discoverer = new TestDiscoverer()
+            var discoverer = new TestDiscoveryService()
             {
                 AssemblyContainingTests = GetType().Assembly
             };
@@ -37,7 +37,7 @@ namespace HealthCheck.Core.TestManagers
         [Fact]
         public void DiscoverTestDefinitions_WithDifferentRolesObject_GivesException()
         {
-            var discoverer = new TestDiscoverer()
+            var discoverer = new TestDiscoveryService()
             {
                 AssemblyContainingTests = GetType().Assembly
             };
@@ -61,7 +61,7 @@ namespace HealthCheck.Core.TestManagers
         [Fact]
         public void DiscoverTestDefinitions_WithTwoTests_FindsTests()
         {
-            var discoverer = new TestDiscoverer()
+            var discoverer = new TestDiscoveryService()
             {
                 AssemblyContainingTests = GetType().Assembly
             };
@@ -73,7 +73,7 @@ namespace HealthCheck.Core.TestManagers
         [Fact]
         public void DiscoverTestDefinitions_WithTwoTestsAndANonTest__DoesNotContainNonTests()
         {
-            var discoverer = new TestDiscoverer()
+            var discoverer = new TestDiscoveryService()
             {
                 AssemblyContainingTests = GetType().Assembly
             };
@@ -84,7 +84,7 @@ namespace HealthCheck.Core.TestManagers
         [Fact]
         public void GetInvalidTests_WithInvalidTests_ReturnsInvalidTests()
         {
-            var discoverer = new TestDiscoverer()
+            var discoverer = new TestDiscoveryService()
             {
                 AssemblyContainingTests = GetType().Assembly
             };
@@ -98,7 +98,7 @@ namespace HealthCheck.Core.TestManagers
         [Fact]
         public void GetInvalidTests_WithInvalideTests_ThrowsException()
         {
-            var discoverer = new TestDiscoverer()
+            var discoverer = new TestDiscoveryService()
             {
                 AssemblyContainingTests = GetType().Assembly
             };
