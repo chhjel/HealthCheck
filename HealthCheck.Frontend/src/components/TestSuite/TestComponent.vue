@@ -94,6 +94,10 @@ export default class TestComponent extends Vue {
       this.$parent.$on('executeAllTestsInSet', this.executeTest);
     }
 
+    beforeDestroy(): void {
+      this.$parent.$off('executeAllTestsInSet', this.executeTest);
+    }
+
     ////////////////
     //  GETTERS  //
     //////////////
@@ -119,9 +123,9 @@ export default class TestComponent extends Vue {
 
     get statusClass(): string {
       if (this.testResult == null || this.testInProgress) return "";
-      else if (this.testResult!.StatusCode == 0) return "success";
-      else if (this.testResult!.StatusCode == 1) return "warning";
-      else if (this.testResult!.StatusCode == 2) return "error";
+      else if (this.testResult!.StatusCode == 0) return "label-success";
+      else if (this.testResult!.StatusCode == 1) return "label-warning";
+      else if (this.testResult!.StatusCode == 2) return "label-error";
       else return "";
     }
 
@@ -222,7 +226,6 @@ export default class TestComponent extends Vue {
 .test-header {
   display: flex;
   padding-left: 24px;
-  background-color: #6908b91f;
   border-radius: 0 25px 0 0;
 }
 .test-header.no-details {
@@ -254,5 +257,17 @@ export default class TestComponent extends Vue {
   margin-right: 8px;
   padding-top: 5px;
   align-self: center;
+}
+.test-status-label.label-success {
+  color: #317711;
+  background-color: #c7e6c8;
+}
+.test-status-label.label-warning {
+  color: #df6d03;
+  background-color: #f3d5b2;
+}
+.test-status-label.label-error {
+  color: #c20404;
+  background-color: #eeb2b2;
 }
 </style>

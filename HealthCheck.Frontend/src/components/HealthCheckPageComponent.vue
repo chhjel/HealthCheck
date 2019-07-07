@@ -37,6 +37,7 @@
                         </template>
 
                         <v-list-tile ripple class="testset-menu-item"
+                            :class="{ 'active': (activeSet == set) }"
                             v-for="(set) in filterTestSets(group.Sets)"
                             :key="`testset-menu-group-${group.Id}-set-${set.Id}`"
                             @click="setActiveSet(set)">
@@ -57,6 +58,7 @@
 
                     <!-- WHEN NO GROUPS -->
                     <v-list-tile ripple
+                        :class="{ 'active': (activeSet == set) }"
                         v-for="(set) in filterTestSets(testSetsWhenThereIsNoNamedGroups)"
                         :key="`testset-menu-${set.Id}`"
                         @click="setActiveSet(set)">
@@ -89,7 +91,7 @@
 
             <!-- CONTENT -->
             <v-content>
-                <v-container fluid fill-height>
+                <v-container fluid fill-height class="content-root">
                     <v-layout>
                         <v-flex>
                             <v-alert
@@ -349,6 +351,9 @@ export default class HealthCheckPageComponent extends Vue {
     background-color: #fff;
     box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
+.content-root {
+    padding-right: 46px;
+}
 </style>
 
 <style>
@@ -357,6 +362,10 @@ export default class HealthCheckPageComponent extends Vue {
 } */
 .testset-menu-item>a {
     color: #000;
+}
+.testset-menu-item.active .v-list__tile {
+    border-left: 4px solid var(--v-primary-base);
+    padding-left: 42px !important;
 }
 .v-list__group::before, .v-list__group::after {
     display: none;
