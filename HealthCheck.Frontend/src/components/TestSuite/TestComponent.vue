@@ -4,25 +4,25 @@
       <div class="test-item">
         <!-- :style="statusBorderStyle" -->
           <!-- HEADER -->
-          <div class="test-header">
+          <div class="test-header" :class="{'no-details': !showDetails}">
             <div class="test-status-label subheading font-weight-bold"
               :class="statusClass"
               v-if="hasStatus">{{statusText}}</div>
             <h4 class="test-name">{{ test.Name }}</h4>
             
-            <v-btn ripple color="primary" large
+            <v-btn ripple color="primary" 
               @click.stop.prevent="onExecuteTestClicked()"
               :disabled="testInProgress"
               class="ma-0 pl-1 pr-3 run-test-button">
-              <v-icon color="white" x-large>play_arrow</v-icon>
+              <v-icon color="white" large>play_arrow</v-icon>
               {{ executeTestButtonText }}
             </v-btn>
           </div>
           
-          <div class="test-details">
+          <div class="test-details" v-if="showDetails">
             <!-- DESCRIPTION -->
             <div v-if="hasDescription">
-              <div class="mt-1"></div>
+              <div class="mt-3"></div>
               <h4 class="subheading">{{ test.Description }}</h4>
             </div>
             
@@ -97,6 +97,14 @@ export default class TestComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get showDetails(): boolean {
+      return this.hasDescription 
+      || this.test.Parameters.length > 0 
+      || this.testInProgress 
+      || this.testExecutionFailed 
+      || this.showTestResult;
+    }
+
     get hasStatus(): boolean {
       return this.statusText.length > 0;
     }
@@ -208,28 +216,35 @@ export default class TestComponent extends Vue {
 
 <style scoped>
 .test-item {
-  /* border: 1px solid var(--v-primary-base); */
-  border-radius: 15px;
+  border-radius: 0 25px 0 25px;
   background-color: #fff;
 }
 .test-header {
   display: flex;
-  padding: 25px;
-  padding-bottom: 0;
-  padding-top: 18px;
+  padding-left: 24px;
+  background-color: #6908b91f;
+  border-radius: 0 25px 0 0;
+}
+.test-header.no-details {
+  border-radius: 0 25px 0 25px;
+}
+.run-test-button {
+  font-size: 20px;
+  min-width: 120px;
+  min-height: 53px;
+  border-radius: 0 25px 0 25px;
+  text-transform: inherit;
+}
+.run-test-button .v-icon {
+    margin-right: 5px;
 }
 .test-details {
   padding: 0px 48px 24px 24px;
 }
 .test-name {
   flex-grow: 1;
-  font-size: 26px;
-  line-height: 50px;
-}
-.run-test-button {
-  font-size: 20px;
-  min-width: 120px;
-  min-height: 50px;
+  font-size: 22px;
+  margin-top: 10px;
 }
 .test-status-label {
   color: #fff;

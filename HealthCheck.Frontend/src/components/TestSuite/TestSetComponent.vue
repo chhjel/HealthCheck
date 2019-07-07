@@ -2,26 +2,27 @@
 <template>
     <div>
         <div class="testset-header">
-            <v-btn ripple color="primary" large
-                @click.stop.prevent="executeAllTestsInSet()"
-                :disabled="anyTestInProgress"
-                class="mt-4 run-all-tests-button">
+            <div class="title-button-wrapper">
+                <h2 class="testset-title font-weight-bold">{{ testSet.Name }}</h2>
+                <v-btn ripple color="primary" outline
+                    @click.stop.prevent="executeAllTestsInSet()"
+                    :disabled="anyTestInProgress"
+                    class="run-all-tests-button">
 
-                <v-progress-circular class="mr-2"
-                    v-if="anyTestInProgress"
-                    :indeterminate="showIndeterminateProgress"
-                    :value="allTestsProgress"></v-progress-circular>
-                <v-icon color="white" large v-if="!anyTestInProgress">play_arrow</v-icon>
-                
-                {{executeAllTestsInSetButtonText}}
-            </v-btn>
-
-            <h2 class="display-3 testset-title">{{ testSet.Name }}</h2>
+                    <v-progress-circular class="mr-2"
+                        v-if="anyTestInProgress" size="22"
+                        :indeterminate="showIndeterminateProgress"
+                        :value="allTestsProgress"></v-progress-circular>
+                    <v-icon color="primary"  v-if="!anyTestInProgress">play_arrow</v-icon>
+                    
+                    {{executeAllTestsInSetButtonText}}
+                </v-btn>
+            </div>
             <div class="subheading testset-subtitle">{{ testSet.Description }}</div>
         </div>
 
-        <v-text-field v-model="testFilterText" />
-        <div class="mb-4"></div>
+        <!-- <filter-input-component class="filter" v-model="testFilterText" /> -->
+        <div class="mb-4" style="clear:both;"></div>
 
         <test-component
             v-for="(test) in filteredTests"
@@ -38,14 +39,16 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import TestSetViewModel from '../../models/TestSetViewModel';
 import TestViewModel from '../../models/TestViewModel';
 import TestComponent from './TestComponent.vue';
+import FilterInputComponent from '../FilterInputComponent.vue';
 
 @Component({
     components: {
-        TestComponent
+        TestComponent,
+        FilterInputComponent
     }
 })
 export default class TestSetComponent extends Vue {
@@ -93,6 +96,17 @@ export default class TestSetComponent extends Vue {
         : "Run all";
     }
 
+    /////////////////
+    //  WATCHERS  //
+    ///////////////
+    @Watch("testSet")
+    onTestSetChanged(): void {
+        this.currentlyExecutingTestIds = new Array<string>();
+        this.testsFinishedCount = 0;
+        this.testsTotalCount = 0;
+        this.showIndeterminateProgress = true;
+    }
+
     ////////////////
     //  METHODS  //
     //////////////
@@ -120,13 +134,18 @@ export default class TestSetComponent extends Vue {
 
 <style scoped>
 .run-all-tests-button{
-    float: right;
+    border-radius: 25px;
+    text-transform: inherit;
+    padding-right: 16px;
 }
-/*
-.testset-header {
+.run-all-tests-button .v-icon {
+    margin-right: 5px;
 }
 .testset-title{
+    font-size: 26px;
 }
-.testset-subtitle{
-} */
+.title-button-wrapper {
+    display: flex;
+    align-items: center;
+}
 </style>

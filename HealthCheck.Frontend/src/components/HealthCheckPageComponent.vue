@@ -3,30 +3,16 @@
     <div>
         <v-app light class="approot">
 
-            
             <!-- NAVIGATION DRAWER -->
             <v-navigation-drawer
                 v-model="drawerState"
                 clipped fixed floating app
+                mobile-break-point="1000"
                 class="menu">
-                            
-                <v-toolbar flat class="transparent">
-                    <v-list class="pa-0">
-                        <v-list-tile avatar>
-                            <v-list-tile-avatar>
-                                <v-icon x-large color="primary">dashboard</v-icon>
-                            </v-list-tile-avatar>
-
-                            <v-list-tile-content>
-                                <v-list-tile-title>Tests</v-list-tile-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
-                    </v-list>
-                </v-toolbar>
-                
+                                
                 <v-list expand class="menu-items">
-                    <v-text-field v-model="testSetFilterText" />
-
+                    <filter-input-component class="filter" v-model="testSetFilterText" />
+                    
                     <!-- GROUPS IF ANY -->
                     <v-list-group
                         no-action
@@ -91,9 +77,14 @@
             </v-navigation-drawer>
             
             <!-- TOOLBAR -->
-            <v-toolbar  clipped-left class="hidden-lg-and-up">
+            <v-toolbar clipped-left fixed app class="toolbar-main">
                 <v-toolbar-side-icon @click.stop="drawerState = !drawerState"></v-toolbar-side-icon>
                 <v-toolbar-title>{{ options.ApplicationTitle }}</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-toolbar-items>
+                    <v-btn flat disabled>Overview</v-btn>
+                    <v-btn flat>Tests</v-btn>
+                </v-toolbar-items>
             </v-toolbar>
 
             <!-- CONTENT -->
@@ -136,11 +127,13 @@ import TestSetViewModel from '../models/TestSetViewModel';
 import TestSetGroupViewModel from '../models/TestSetGroupViewModel';
 import TestsDataViewModel from  '../models/TestsDataViewModel';
 import TestSetComponent from './TestSuite/TestSetComponent.vue';
+import FilterInputComponent from './FilterInputComponent.vue';
 import LinqUtils from '../util/LinqUtils';
 
 @Component({
     components: {
-        TestSetComponent
+        TestSetComponent,
+        FilterInputComponent
     }
 })
 export default class HealthCheckPageComponent extends Vue {
@@ -297,7 +290,7 @@ export default class HealthCheckPageComponent extends Vue {
 
     getTestSetTitleClass(set: TestSetViewModel): string
     {
-        return (this.activeSet == set) ? "font-weight-bold" : "font-weight-regular";
+        return (this.activeSet == set) ? "font-weight-black active" : "font-weight-regular";
     }
 
     getTestSetGroupIcon(group: TestSetGroupViewModel): string | null
@@ -343,7 +336,17 @@ export default class HealthCheckPageComponent extends Vue {
     background-color: #f4f4f4;
 }
 .menu {
-    background-color: #f4f4f4;
+    background-color: #fff;
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+.filter { 
+    margin-left: 44px;
+    margin-top: 26px;
+    margin-bottom: 18px;
+}
+.toolbar-main {
+    background-color: #fff;
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 </style>
 
@@ -352,7 +355,6 @@ export default class HealthCheckPageComponent extends Vue {
     font-family: 'Helvetica, Arial, sans-serif';
 } */
 .testset-menu-item>a {
-    /* padding-left: 49px !important; */
     color: #000;
 }
 .v-list__group::before, .v-list__group::after {

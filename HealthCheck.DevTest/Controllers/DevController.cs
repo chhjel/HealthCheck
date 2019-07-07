@@ -24,14 +24,14 @@ namespace HealthCheck.DevTest.Controllers
         protected override FrontEndOptionsViewModel GetFrontEndOptions()
             => new FrontEndOptionsViewModel(EndpointBase)
             {
-                ApplicationTitle = "Site Status"
+                ApplicationTitle = "Test Monitor"
             };
 
         protected override PageOptions GetPageOptions()
             => new PageOptions()
             {
                 JavaScriptUrl = $"{EndpointBase}/GetScript",
-                PageTitle = "Dev Checks"
+                PageTitle = "Test Monitor"
             };
 
         protected override void SetOptionalOptions(HttpRequestBase request, TestRunner testRunner, TestDiscoverer testDiscoverer)

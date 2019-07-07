@@ -62,7 +62,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
                 .AddHtmlData($"This is the h-tag you ordered: <h{hNumber}>{text}</h{hNumber}>");
         }
 
-        [RuntimeTest]
+        [RuntimeTest(Description = "Throws some stuff depending on other stuff not really just throws stuff.")]
         public async Task<TestResult> TestThatThrowsException()
         {
             await Task.Delay(100);
