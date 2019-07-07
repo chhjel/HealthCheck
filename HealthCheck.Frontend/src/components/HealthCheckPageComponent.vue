@@ -1,78 +1,64 @@
 <!-- src/components/HealthCheckPageComponent.vue -->
 <template>
     <div>
-        <v-app light>
+        <v-app light class="approot">
+
+            
             <!-- NAVIGATION DRAWER -->
             <v-navigation-drawer
                 v-model="drawerState"
-                clipped fixed floating app>
-                <v-list>
-                    <v-list-tile>
-                        <v-list-tile-action>
-                        <v-icon>dashboard</v-icon>
-                        </v-list-tile-action>
-                        <v-list-tile-title>Overview</v-list-tile-title>
-                    </v-list-tile>
+                clipped fixed floating app
+                class="menu">
+                            
+                <v-toolbar flat class="transparent">
+                    <v-list class="pa-0">
+                        <v-list-tile avatar>
+                            <v-list-tile-avatar>
+                                <v-icon x-large color="primary">dashboard</v-icon>
+                            </v-list-tile-avatar>
 
+                            <v-list-tile-content>
+                                <v-list-tile-title>Tests</v-list-tile-title>
+                            </v-list-tile-content>
+                        </v-list-tile>
+                    </v-list>
+                </v-toolbar>
+                
+                <v-list expand>
+                    <v-text-field v-model="testSetFilterText" />
+
+                    <!-- GROUPS IF ANY -->
                     <v-list-group
-                        v-if="hasAnyTests"
-                        :no-action="hasAnyGroups"
-                        prepend-icon="code"
-                        value="true">
+                        no-action
+                        sub-group
+                        prepend-icon="keyboard_arrow_up"
+                        value="true"
+                        v-for="(group) in groupsWithNames"
+                        :key="`testset-menu-group-${group.Id}`">
                         <template v-slot:activator>
                             <v-list-tile>
-                                <v-list-tile-title>Test Suites</v-list-tile-title>
-                            </v-list-tile>
-                        </template>
-
-                        <v-text-field v-model="testSetFilterText" />
-
-                        <!-- GROUPS IF ANY -->
-                        <v-list-group
-                            no-action
-                            sub-group
-                            value="true"
-                            v-for="(group) in groupsWithNames"
-                                :key="`testset-menu-group-${group.Id}`">
-                            <template v-slot:activator>
-                                <v-list-tile>
-                                    <v-icon v-text="getTestSetGroupIcon(group)"></v-icon>
-                                    <v-list-tile-title v-text="group.Name"></v-list-tile-title>
-                                    <v-badge class="mr-2" v-if="showFilterCounts">
-                                        <template v-slot:badge>
-                                            <span>{{ getGroupFilterMatchCount(group) }}</span>
-                                        </template>
-                                    </v-badge>
-                                </v-list-tile>
-                            </template>
-
-                            <v-list-tile ripple
-                                v-for="(set) in filterTestSets(group.Sets)"
-                                :key="`testset-menu-group-${group.Id}-set-${set.Id}`"
-                                @click="setActiveSet(set)">
-                                <v-icon 
-                                    v-text="getTestSetIcon(set)" 
-                                    v-if="testSetHasIcon(set)"></v-icon>
-                                <v-list-tile-title
-                                    v-text="set.Name"
-                                    :class="getTestSetTitleClass(set)"></v-list-tile-title>
+                                <v-icon
+                                    class="mr-2"
+                                    v-if="getTestSetGroupIcon(group) != null" 
+                                    v-text="getTestSetGroupIcon(group)"></v-icon>
+                                <v-list-tile-title v-text="group.Name"></v-list-tile-title>
                                 <v-badge class="mr-2" v-if="showFilterCounts">
                                     <template v-slot:badge>
-                                        <span>{{ getSetFilterMatchCount(set) }}</span>
+                                        <span>{{ getGroupFilterMatchCount(group) }}</span>
                                     </template>
                                 </v-badge>
                             </v-list-tile>
-                        </v-list-group>
+                        </template>
 
-                        <!-- WHEN NO GROUPS -->
-                        <v-list-tile ripple
-                            v-for="(set) in filterTestSets(testSetsWhenThereIsNoNamedGroups)"
-                            :key="`testset-menu-${set.Id}`"
+                        <v-list-tile ripple class="testset-menu-item"
+                            v-for="(set) in filterTestSets(group.Sets)"
+                            :key="`testset-menu-group-${group.Id}-set-${set.Id}`"
                             @click="setActiveSet(set)">
                             <v-icon
-                                v-text="getTestSetIcon(set)"
+                                class="mr-2"
+                                v-text="getTestSetIcon(set)" 
                                 v-if="testSetHasIcon(set)"></v-icon>
-                            <v-list-tile-title 
+                            <v-list-tile-title
                                 v-text="set.Name"
                                 :class="getTestSetTitleClass(set)"></v-list-tile-title>
                             <v-badge class="mr-2" v-if="showFilterCounts">
@@ -81,8 +67,26 @@
                                 </template>
                             </v-badge>
                         </v-list-tile>
-
                     </v-list-group>
+
+                    <!-- WHEN NO GROUPS -->
+                    <v-list-tile ripple
+                        v-for="(set) in filterTestSets(testSetsWhenThereIsNoNamedGroups)"
+                        :key="`testset-menu-${set.Id}`"
+                        @click="setActiveSet(set)">
+                        <v-icon
+                            class="mr-2"
+                            v-text="getTestSetIcon(set)"
+                            v-if="testSetHasIcon(set)"></v-icon>
+                        <v-list-tile-title 
+                            v-text="set.Name"
+                            :class="getTestSetTitleClass(set)"></v-list-tile-title>
+                        <v-badge class="mr-2" v-if="showFilterCounts">
+                            <template v-slot:badge>
+                                <span>{{ getSetFilterMatchCount(set) }}</span>
+                            </template>
+                        </v-badge>
+                    </v-list-tile>
                 </v-list>
             </v-navigation-drawer>
             
@@ -118,9 +122,9 @@
             </v-content>
 
             <!-- FOOTER -->
-            <v-footer app fixed>
+            <!-- <v-footer app fixed>
                 <span>&copy; {{ new Date().getFullYear() }}</span>
-            </v-footer>
+            </v-footer> -->
         </v-app>
     </div>
 </template>
@@ -288,7 +292,7 @@ export default class HealthCheckPageComponent extends Vue {
 
     getTestSetIcon(set: TestSetViewModel): string | null
     {
-        return set.Icon;
+        return null; //set.Icon || "sentiment_satisfied_alt";
     }
 
     getTestSetTitleClass(set: TestSetViewModel): string
@@ -296,9 +300,9 @@ export default class HealthCheckPageComponent extends Vue {
         return (this.activeSet == set) ? "font-weight-bold" : "font-weight-regular";
     }
 
-    getTestSetGroupIcon(group: TestSetGroupViewModel): string
+    getTestSetGroupIcon(group: TestSetGroupViewModel): string | null
     {
-        return group.Icon || "extension";
+        return null; //"folder_open"; //group.Icon || "extension";
     }
 
     urlParameterCurrentSet: string = "set";
@@ -335,7 +339,32 @@ export default class HealthCheckPageComponent extends Vue {
 </script>
 
 <style scoped>
-.root {
-    background-color: #fff;
+.approot {
+    background-color: #f4f4f4;
+}
+.menu {
+    background-color: #f4f4f4;
+}
+</style>
+
+<style>
+/* .application {
+    font-family: 'Helvetica, Arial, sans-serif';
+} */
+.testset-menu-item>a {
+    /* padding-left: 49px !important; */
+    color: #000;
+}
+.v-list__group::before, .v-list__group::after {
+    display: none;
+}
+.v-list__tile {
+    height: 42px;
+}
+.v-list__group.v-list__group--active {
+    margin-bottom: 15px;
+}
+.v-list__group {
+    margin-bottom: 10px;
 }
 </style>

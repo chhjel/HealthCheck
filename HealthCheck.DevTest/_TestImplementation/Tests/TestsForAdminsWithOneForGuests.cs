@@ -70,17 +70,23 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
     }
 
     [RuntimeTestClass(
+        Name = "Test Set C (slow ones)",
         DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins | RuntimeTestAccessRole.SystemAdmins,
         UIOrder = -50,
         GroupName = RuntimeTestConstants.Group.BottomGroup
     )]
     public class TestSetC
     {
-        [RuntimeTest]
-        public async Task<TestResult> TestServiceX()
+        [RuntimeTest] public async Task<TestResult> TestThatTakes2Seconds() => await CreateSlowResult(2000);
+        [RuntimeTest] public async Task<TestResult> TestThatTakes4Seconds() => await CreateSlowResult(4000);
+        [RuntimeTest] public async Task<TestResult> TestThatTakes6Seconds() => await CreateSlowResult(6000);
+        [RuntimeTest] public async Task<TestResult> TestThatTakes8Seconds() => await CreateSlowResult(8000);
+        [RuntimeTest] public async Task<TestResult> TestThatTakes10Seconds() => await CreateSlowResult(10000);
+
+        private async Task<TestResult> CreateSlowResult(int delay)
         {
-            await Task.Delay(1200);
-            return TestResult.CreateSuccess($"Success, used 1200ms!");
+            await Task.Delay(delay);
+            return TestResult.CreateSuccess($"Success!");
         }
     }
 }

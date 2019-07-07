@@ -24,33 +24,35 @@
             </v-btn>
           </div>
           
-          <!-- PARAMETERS -->
-          <test-parameters-component 
-            v-if="test.Parameters.length > 0"
-            :test="test" />
-          <div v-if="test.Parameters.length > 0 && showTestResult" class="mb-4"></div>
+          <div class="test-details">
+            <!-- PARAMETERS -->
+            <test-parameters-component 
+              v-if="test.Parameters.length > 0"
+              :test="test" />
+            <div v-if="test.Parameters.length > 0 && showTestResult" class="mb-4"></div>
 
-          <!-- PROGRESS -->
-          <v-progress-linear
-            v-if="testInProgress"
-            :indeterminate="true"
-            height="4"
-            class="mt-4"></v-progress-linear>
+            <!-- PROGRESS -->
+            <v-progress-linear
+              v-if="testInProgress"
+              :indeterminate="true"
+              height="4"
+              class="mt-4"></v-progress-linear>
 
-          <!-- ERRORS -->
-          <v-alert
-            :value="testExecutionFailed"
-            type="error">
-            {{ testExecutionErrorMessage }}
-          </v-alert>
-          
-          <!-- RESULT -->
-          <test-result-component 
-            v-if="showTestResult" 
-            :testResult="testResult"
-            :expandDataOnLoad="resultDataExpandedState"
-            v-on:dataExpandedStateChanged="onDataExpandedStateChanged"
-            class="mt-1 mr-4"  />
+            <!-- ERRORS -->
+            <v-alert
+              :value="testExecutionFailed"
+              type="error">
+              {{ testExecutionErrorMessage }}
+            </v-alert>
+            
+            <!-- RESULT -->
+            <test-result-component 
+              v-if="showTestResult" 
+              :testResult="testResult"
+              :expandDataOnLoad="resultDataExpandedState"
+              v-on:dataExpandedStateChanged="onDataExpandedStateChanged"
+              class="mt-1 mr-4"  />
+          </div>
       </div>
     </div>
 </template>
@@ -84,6 +86,13 @@ export default class TestComponent extends Vue {
     testExecutionErrorMessage: string = "";
     resultDataExpandedState: boolean = false;
 
+    //////////////////
+    //  LIFECYCLE  //
+    ////////////////
+    created(): void {
+      this.$parent.$on('executeAllTestsInSet', this.executeTest);
+    }
+
     ////////////////
     //  GETTERS  //
     //////////////
@@ -100,7 +109,7 @@ export default class TestComponent extends Vue {
 
       return {
         'border-left': borderStyle,
-        'padding-left': (borderStyle == "none" ? "48px" : "43px")
+        'padding-left': "0" //(borderStyle == "none" ? "48px" : "43px")
       };
     }
 
@@ -141,38 +150,40 @@ export default class TestComponent extends Vue {
 
     onExecuteTestClicked(): void 
     {
-      this.testInProgress = true;
       this.executeTest();
     }
 
     executeTest(): void
     {
-        this.testInProgress = true;
-        this.testExecutionFailed = false;
+      this.$emit("testStarted", this.test.Id);
+      this.testInProgress = true;
+      this.testExecutionFailed = false;
 
-        let payload = this.generatePayload();
-        let queryStringIfEnabled = this.inludeQueryStringInApiCalls ? window.location.search : '';
-        let url = `${this.executeTestEndpoint}${queryStringIfEnabled}`;
+      let payload = this.generatePayload();
+      let queryStringIfEnabled = this.inludeQueryStringInApiCalls ? window.location.search : '';
+      let url = `${this.executeTestEndpoint}${queryStringIfEnabled}`;
 
-        fetch(url, {
-            credentials: 'include',
-            method: "POST",
-            body: JSON.stringify(payload),
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            })
-        })
-        .then(response => response.json())
-        .then((result: TestResultViewModel) => {
-            this.testResult = result;
-            this.testInProgress = false;
-        })
-        .catch((e) => {
-            this.testInProgress = false;
-            this.testExecutionFailed = true;
-            this.testExecutionErrorMessage = `Failed to execute test with the following error. ${e}.`;
-        });
+      fetch(url, {
+          credentials: 'include',
+          method: "POST",
+          body: JSON.stringify(payload),
+          headers: new Headers({
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+          })
+      })
+      .then(response => response.json())
+      .then((result: TestResultViewModel) => {
+          this.testResult = result;
+          this.testInProgress = false;
+          this.$emit("testStopped", this.test.Id);
+      })
+      .catch((e) => {
+          this.testInProgress = false;
+          this.testExecutionFailed = true;
+          this.testExecutionErrorMessage = `Failed to execute test with the following error. ${e}.`;
+          this.$emit("testStopped", this.test.Id);
+      });
     }
 
     generatePayload(): ExecuteTestPayload {
@@ -193,11 +204,15 @@ export default class TestComponent extends Vue {
 <style scoped>
 .test-item {
   border: 1px solid var(--v-primary-base);
-  padding: 12px 48px 24px 48px;
 }
 .test-header {
   display: flex;
   justify-content: space-between;
+  background-color: #fefefe;
+  padding: 10px;
+}
+.test-details {
+  padding: 12px 48px 24px 48px;
 }
 .test-name {
   font-size: 26px;
