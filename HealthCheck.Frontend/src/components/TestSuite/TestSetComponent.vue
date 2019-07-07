@@ -31,7 +31,7 @@
             :inludeQueryStringInApiCalls="inludeQueryStringInApiCalls"
             v-on:testStarted="onTestStarted"
             v-on:testStopped="onTestStopped"
-            class="mb-2" />
+            class="mb-4" />
         
         <div class="mb-4"></div>
     </div>

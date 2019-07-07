@@ -35,7 +35,8 @@ export default class TestParametersComponent extends Vue {
 
 <style scoped>
 .parameter-container {
-  padding-left: 32px;
+  padding-left: 10px;
+  padding-bottom: 0;
 }
 .parameter-block {
   padding-right: 40px !important;

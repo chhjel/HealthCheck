@@ -80,9 +80,9 @@ export default class TestResultComponent extends Vue {
     get testResultIcon(): string
     {
       if (this.testResult == null) return "";
-      else if (this.testResult.StatusCode == 0) return "check_circle";
-      else if (this.testResult.StatusCode == 1) return "warning";
-      else if (this.testResult.StatusCode == 2) return "error";
+      else if (this.testResult.StatusCode == 0) return "sentiment_satisfied_alt";
+      else if (this.testResult.StatusCode == 1) return "sentiment_dissatisfied";
+      else if (this.testResult.StatusCode == 2) return "sentiment_very_dissatisfied";
       else return "";
     }
 

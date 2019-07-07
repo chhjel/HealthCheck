@@ -1,30 +1,31 @@
 <!-- src/components/TestComponent.vue -->
 <template>
     <div>
-      <div class="test-item"
-        :style="statusBorderStyle">
+      <div class="test-item">
+        <!-- :style="statusBorderStyle" -->
           <!-- HEADER -->
           <div class="test-header">
-            <div>
-              <h4 class="test-name">{{ test.Name }}</h4>
-              <div v-if="hasDescription">
-                <div class="mt-1"></div>
-                <h4 class="subheading">{{ test.Description }}</h4>
-              </div>
-              
-              <div class="mt-2"></div>
-            </div>
+            <div class="test-status-label subheading font-weight-bold"
+              :class="statusClass"
+              v-if="hasStatus">{{statusText}}</div>
+            <h4 class="test-name">{{ test.Name }}</h4>
             
             <v-btn ripple color="primary" large
               @click.stop.prevent="onExecuteTestClicked()"
               :disabled="testInProgress"
-              class="ma-0 pl-1 pr-3 run-text-button">
+              class="ma-0 pl-1 pr-3 run-test-button">
               <v-icon color="white" x-large>play_arrow</v-icon>
               {{ executeTestButtonText }}
             </v-btn>
           </div>
           
           <div class="test-details">
+            <!-- DESCRIPTION -->
+            <div v-if="hasDescription">
+              <div class="mt-1"></div>
+              <h4 class="subheading">{{ test.Description }}</h4>
+            </div>
+            
             <!-- PARAMETERS -->
             <test-parameters-component 
               v-if="test.Parameters.length > 0"
@@ -96,21 +97,24 @@ export default class TestComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
-    get statusBorderStyle(): any
-    {
-      let borderWidth = 5;
-      let defaultBorderStyle = `1px solid var(--v-primary-base)`;
-      let borderStyle = defaultBorderStyle;
+    get hasStatus(): boolean {
+      return this.statusText.length > 0;
+    }
 
-      if (this.testResult == null || this.testInProgress) borderStyle = defaultBorderStyle;
-      else if (this.testResult!.StatusCode == 0) borderStyle = `${borderWidth}px solid #4caf50`;
-      else if (this.testResult!.StatusCode == 1) borderStyle = `${borderWidth}px solid orange`;
-      else if (this.testResult!.StatusCode == 2) borderStyle = `${borderWidth}px solid red`;
+    get statusText(): string {
+      if (this.testResult == null || this.testInProgress) return "";
+      else if (this.testResult!.StatusCode == 0) return "success";
+      else if (this.testResult!.StatusCode == 1) return "warning";
+      else if (this.testResult!.StatusCode == 2) return "failed";
+      else return "";
+    }
 
-      return {
-        'border-left': borderStyle,
-        'padding-left': "0" //(borderStyle == "none" ? "48px" : "43px")
-      };
+    get statusClass(): string {
+      if (this.testResult == null || this.testInProgress) return "";
+      else if (this.testResult!.StatusCode == 0) return "success";
+      else if (this.testResult!.StatusCode == 1) return "warning";
+      else if (this.testResult!.StatusCode == 2) return "error";
+      else return "";
     }
 
     get executeTestButtonText(): string
@@ -204,23 +208,36 @@ export default class TestComponent extends Vue {
 
 <style scoped>
 .test-item {
-  border: 1px solid var(--v-primary-base);
+  /* border: 1px solid var(--v-primary-base); */
+  border-radius: 15px;
+  background-color: #fff;
 }
 .test-header {
   display: flex;
-  justify-content: space-between;
-  background-color: #fefefe;
-  padding: 10px;
+  padding: 25px;
+  padding-bottom: 0;
+  padding-top: 18px;
 }
 .test-details {
-  padding: 12px 48px 24px 48px;
+  padding: 0px 48px 24px 24px;
 }
 .test-name {
+  flex-grow: 1;
   font-size: 26px;
+  line-height: 50px;
 }
-.run-text-button {
+.run-test-button {
   font-size: 20px;
   min-width: 120px;
   min-height: 50px;
+}
+.test-status-label {
+  color: #fff;
+  background-color: var(--v-success-base);
+  height: 33px;
+  padding: 8px;
+  margin-right: 8px;
+  padding-top: 5px;
+  align-self: center;
 }
 </style>
