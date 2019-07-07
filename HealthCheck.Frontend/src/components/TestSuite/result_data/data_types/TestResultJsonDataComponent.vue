@@ -2,7 +2,10 @@
 <template>
     <div>
       <div v-if="!fullscreen">{{data.Title}}</div>
-      <highlight-code lang="json" :code="data.Data"></highlight-code>
+      <highlight-code 
+        :class="`${(fullscreen ? 'code-field fullscreen' : 'code-field')}`"
+        lang="json"
+        :code="data.Data"></highlight-code>
     </div>
 </template>
 
@@ -22,13 +25,12 @@ export default class TestResultJsonDataComponent extends Vue {
 
     mounted(): void {
     }
-
-    get rowCount(): number {
-      let lineCount = this.data.Data.split(/\r\n|\r|\n/).length;
-      return Math.min(10, lineCount);
-    }
 }
 </script>
 
-<style>
+<style scoped>
+.code-field:not(.fullscreen) {
+    max-height: 300px;
+    overflow: auto;
+}
 </style>

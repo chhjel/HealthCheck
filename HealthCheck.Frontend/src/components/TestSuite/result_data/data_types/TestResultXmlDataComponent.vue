@@ -2,7 +2,10 @@
 <template>
     <div>
       <div v-if="!fullscreen">{{data.Title}}</div>
-      <highlight-code lang="xml" :code="data.Data"></highlight-code>
+      <highlight-code 
+        :class="`${(fullscreen ? 'code-field fullscreen' : 'code-field')}`"
+        lang="xml"
+        :code="data.Data"></highlight-code>
     </div>
 </template>
 
@@ -25,5 +28,9 @@ export default class TestResultXmlDataComponent extends Vue {
 }
 </script>
 
-<style>
+<style scoped>
+.code-field:not(.fullscreen) {
+    max-height: 300px;
+    overflow: auto;
+}
 </style>
