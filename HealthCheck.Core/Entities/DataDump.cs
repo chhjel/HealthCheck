@@ -1,4 +1,4 @@
-﻿namespace RuntimeCodeTest.Core.Models
+﻿namespace RuntimeCodeTest.Core.Entities
 {
     /// <summary>
     /// Represents a dump of data.

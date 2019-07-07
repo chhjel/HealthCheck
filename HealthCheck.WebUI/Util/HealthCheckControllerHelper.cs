@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Entities;
 using HealthCheck.Core.Services;
+using HealthCheck.Core.Services.SiteStatus;
 using HealthCheck.Core.Util;
 using HealthCheck.WebUI.Exceptions;
 using HealthCheck.WebUI.Factories;
@@ -34,9 +35,14 @@ namespace HealthCheck.WebUI.Util
         public readonly StringConverter ParameterConverter = new StringConverter();
 
         /// <summary>
-        /// Factory for view models.
+        /// Factory for test view models.
         /// </summary>
-        public readonly TestViewModelsFactory ViewModelsFactory = new TestViewModelsFactory();
+        public readonly TestViewModelsFactory TestsViewModelsFactory = new TestViewModelsFactory();
+
+        /// <summary>
+        /// Factory for site event view models.
+        /// </summary>
+        public readonly SiteEventViewModelsFactory SiteEventViewModelsFactory = new SiteEventViewModelsFactory();
 
         /// <summary>
         /// Function that checks access role based on the current request.
@@ -48,12 +54,31 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Get viewmodel for test sets data.
         /// </summary>
+        public async Task<List<SiteEventViewModel>> GetSiteEventsViewModel(SiteStatusService service,
+            DateTime? from = null, DateTime? to = null)
+        {
+            if (service == null)
+            {
+                return new List<SiteEventViewModel>();
+            }
+
+            from = from ?? DateTime.Now.AddDays(-30);
+            to = to ?? DateTime.Now;
+            var viewModel = (await service.GetEvents(from.Value, to.Value))
+                .Select(x => SiteEventViewModelsFactory.CreateViewModel(x))
+                .ToList();
+            return viewModel;
+        }
+
+        /// <summary>
+        /// Get viewmodel for test sets data.
+        /// </summary>
         public TestsDataViewModel GetTestDefinitionsViewModel()
         {
             var model = new TestsDataViewModel()
             {
-                TestSets = ViewModelsFactory.CreateViewModel(GetTestDefinitions()),
-                GroupOptions = ViewModelsFactory.CreateViewModel(TestDiscoverer.GroupOptions),
+                TestSets = TestsViewModelsFactory.CreateViewModel(GetTestDefinitions()),
+                GroupOptions = TestsViewModelsFactory.CreateViewModel(TestDiscoverer.GroupOptions),
             };
             return model;
         }
@@ -78,7 +103,7 @@ namespace HealthCheck.WebUI.Util
             {
                 var parameters = data?.GetParametersWithConvertedTypes(test.Parameters.Select(x => x.ParameterType).ToArray(), ParameterConverter);
                 var result = await TestRunner.ExecuteTest(test, parameters);
-                return ViewModelsFactory.CreateViewModel(result);
+                return TestsViewModelsFactory.CreateViewModel(result);
             }
             catch (Exception ex)
             {

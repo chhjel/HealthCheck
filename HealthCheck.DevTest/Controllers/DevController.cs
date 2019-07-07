@@ -8,16 +8,37 @@ using HealthCheck.DevTest._TestImplementation;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.ViewModels;
 using HealthCheck.WebUI.Abstractions;
-using HealthCheck.WebUI.Util;
+using HealthCheck.Core.Services.SiteStatus;
+using System;
+using HealthCheck.Core.Entities;
+using HealthCheck.Core.Enums;
 
 namespace HealthCheck.DevTest.Controllers
 {
     public class DevController : HealthCheckControllerBase<RuntimeTestAccessRole>
     {
         private const string EndpointBase = "/dev";
+        private static SiteStatusService _siteStatusService;
 
         public DevController()
-            : base(assemblyContainingTests: typeof(DevController).Assembly) {}
+            : base(assemblyContainingTests: typeof(DevController).Assembly) {
+
+            var addSomeRandomEvents = false;
+            if (_siteStatusService == null)
+            {
+                addSomeRandomEvents = true;
+                _siteStatusService = new SiteStatusService(new MemorySiteStatusStorageService());
+            }
+            SiteStatusService = _siteStatusService;
+
+            if (addSomeRandomEvents)
+            {
+                for (int i = 0; i < 20; i++)
+                {
+                    AddEvent();
+                }
+            }
+        }
 
 
         #region Overrides
@@ -64,6 +85,24 @@ namespace HealthCheck.DevTest.Controllers
         {
             var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheckfrontend.js");
             return new FileStreamResult(new FileStream(filepath, FileMode.Open), "content-disposition");
+        }
+
+        private static readonly Random _rand = new Random();
+        public virtual ActionResult AddEvent()
+        {
+            if (!Enabled || SiteStatusService == null) return HttpNotFound();
+
+            var ev = new SiteEvent()
+            {
+                EventTypeId = $"Error type {_rand.Next(10000)}",
+                Title = "Something integration error",
+                Description = "Something happened in the integration with something",
+                Timestamp = DateTime.Now.AddDays(-7 + _rand.Next(14)),
+                Severity = (_rand.Next(100) > 90) ? SiteEventSeverity.Fatal
+                    : (_rand.Next(100) > 50) ? SiteEventSeverity.Error : SiteEventSeverity.Warning
+            };
+            SiteStatusService.RegisterEvent(ev);
+            return CreateJsonResult(ev);
         }
     }
 }

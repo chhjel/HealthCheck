@@ -1,6 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Serializers;
-using RuntimeCodeTest.Core.Models;
+using RuntimeCodeTest.Core.Entities;
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;

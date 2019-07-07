@@ -14,6 +14,7 @@ using System.Web;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI;
 using HealthCheck.WebUI.Util;
+using HealthCheck.Core.Services.SiteStatus;
 
 namespace HealthCheck.WebUI.Abstractions
 {
@@ -24,6 +25,11 @@ namespace HealthCheck.WebUI.Abstractions
     public abstract class HealthCheckControllerBase<TAccessRole>: Controller
         where TAccessRole: Enum
     {
+        /// <summary>
+        /// Must be set for any site statuses to be returned.
+        /// </summary>
+        protected SiteStatusService SiteStatusService;
+
         /// <summary>
         /// Set to false to return 404 for all actions.
         /// <para>Enabled by default.</para>
@@ -76,6 +82,16 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
+        /// Get site events to show in the UI.
+        /// </summary>
+        public virtual async Task<ActionResult> GetSiteEvents()
+        {
+            if (!Enabled) return HttpNotFound();
+            var viewModel = await Helper.GetSiteEventsViewModel(SiteStatusService);
+            return CreateJsonResult(viewModel);
+        }
+
+        /// <summary>
         /// Get tests to show in the UI.
         /// </summary>
         public virtual ActionResult GetTests()
@@ -98,7 +114,10 @@ namespace HealthCheck.WebUI.Abstractions
             return CreateJsonResult(result);
         }
 
-        private ActionResult CreateJsonResult(object obj)
+        /// <summary>
+        /// Serializes the given object into a json result.
+        /// </summary>
+        protected ActionResult CreateJsonResult(object obj)
         {
             var settings = new JsonSerializerSettings
             {
