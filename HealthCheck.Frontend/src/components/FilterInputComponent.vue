@@ -35,6 +35,7 @@ export default class FilterInputComponent extends Vue {
     border: 1px solid #e4e4e4;
     border-radius: 10px;
     padding: 5px;
+    flex: 1;
 }
 .icon {
     margin-left: 5px;

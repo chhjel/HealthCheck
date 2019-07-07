@@ -343,6 +343,7 @@ export default class HealthCheckPageComponent extends Vue {
     margin-left: 44px;
     margin-top: 26px;
     margin-bottom: 18px;
+    margin-right: 16px;
 }
 .toolbar-main {
     background-color: #fff;
