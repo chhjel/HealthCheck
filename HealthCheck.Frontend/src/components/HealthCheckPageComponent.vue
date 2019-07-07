@@ -178,7 +178,7 @@ export default class HealthCheckPageComponent extends Vue {
     }
 
     get testSetsWhenThereIsNoNamedGroups(): Array<TestSetViewModel> {
-      return this.hasAnyGroups ? Array<TestSetViewModel>() : this.groupWithoutName!.Sets || Array<TestSetViewModel>();
+      return this.hasAnyGroups || this.groupWithoutName == null ? Array<TestSetViewModel>() : this.groupWithoutName!.Sets || Array<TestSetViewModel>();
     }
 
     get hasAnyGroups(): boolean {
