@@ -37,7 +37,7 @@
 import { Vue, Component, Prop } from "vue-property-decorator";
 import TestSuitesPageComponent from './Pages/TestSuitesPageComponent.vue';
 import OverviewPageComponent from './Pages/OverviewPageComponent.vue';
-import FrontEndOptionsViewModel from '../models/FrontEndOptionsViewModel';
+import FrontEndOptionsViewModel from '../models/Page/FrontEndOptionsViewModel';
 import UrlUtils from '../util/UrlUtils';
 
 @Component({

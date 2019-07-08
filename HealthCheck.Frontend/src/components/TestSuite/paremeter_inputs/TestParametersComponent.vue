@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import TestViewModel from '../../../models/TestViewModel';
+import TestViewModel from '../../../models/TestSuite/TestViewModel';
 import ParameterInputComponent from './ParameterInputComponent.vue';
 
 @Component({

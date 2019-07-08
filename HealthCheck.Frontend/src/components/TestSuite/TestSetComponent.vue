@@ -39,8 +39,8 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import TestSetViewModel from '../../models/TestSetViewModel';
-import TestViewModel from '../../models/TestViewModel';
+import TestSetViewModel from '../../models/TestSuite/TestSetViewModel';
+import TestViewModel from '../../models/TestSuite/TestViewModel';
 import TestComponent from './TestComponent.vue';
 
 @Component({

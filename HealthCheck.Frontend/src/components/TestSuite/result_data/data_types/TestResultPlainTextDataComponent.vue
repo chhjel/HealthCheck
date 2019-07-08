@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import TestResultDataDumpViewModel from "../../../../models/TestResultDataDumpViewModel";
+import TestResultDataDumpViewModel from "../../../../models/TestSuite/TestResultDataDumpViewModel";
 
 @Component({
     components: {

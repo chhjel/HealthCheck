@@ -60,9 +60,9 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import TestViewModel from '../../models/TestViewModel';
-import TestResultViewModel from '../../models/TestResultViewModel';
-import ExecuteTestPayload from '../../models/ExecuteTestPayload';
+import TestViewModel from '../../models/TestSuite/TestViewModel';
+import TestResultViewModel from '../../models/TestSuite/TestResultViewModel';
+import ExecuteTestPayload from '../../models/TestSuite/ExecuteTestPayload';
 import TestParametersComponent from './paremeter_inputs/TestParametersComponent.vue';
 import TestResultComponent from './TestResultComponent.vue';
 

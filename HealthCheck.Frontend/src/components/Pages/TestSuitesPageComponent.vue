@@ -105,10 +105,10 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import FrontEndOptionsViewModel from '../../models/FrontEndOptionsViewModel';
-import TestSetViewModel from '../../models/TestSetViewModel';
-import TestSetGroupViewModel from '../../models/TestSetGroupViewModel';
-import TestsDataViewModel from  '../../models/TestsDataViewModel';
+import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
+import TestSetViewModel from '../../models/TestSuite/TestSetViewModel';
+import TestSetGroupViewModel from '../../models/TestSuite/TestSetGroupViewModel';
+import TestsDataViewModel from  '../../models/TestSuite/TestsDataViewModel';
 import TestSetComponent from '.././TestSuite/TestSetComponent.vue';
 import FilterInputComponent from '.././Common/FilterInputComponent.vue';
 import LinqUtils from '../../util/LinqUtils';
