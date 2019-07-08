@@ -21,7 +21,6 @@
             <div class="subheading testset-subtitle">{{ testSet.Description }}</div>
         </div>
 
-        <!-- <filter-input-component class="filter" v-model="testFilterText" /> -->
         <div class="mb-4" style="clear:both;"></div>
 
         <test-component
@@ -43,12 +42,10 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import TestSetViewModel from '../../models/TestSetViewModel';
 import TestViewModel from '../../models/TestViewModel';
 import TestComponent from './TestComponent.vue';
-import FilterInputComponent from '../FilterInputComponent.vue';
 
 @Component({
     components: {
-        TestComponent,
-        FilterInputComponent
+        TestComponent
     }
 })
 export default class TestSetComponent extends Vue {
