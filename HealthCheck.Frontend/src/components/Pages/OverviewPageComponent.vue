@@ -2,18 +2,18 @@
 <template>
     <div>
         <v-content class="pl-0">
-         <v-container fluid fill-height class="content-root">
-          <v-layout>
-          <v-flex>
+        <v-container fluid fill-height class="content-root">
+        <v-layout>
+        <v-flex>
             <!-- CONTENT BEGIN -->
             <v-calendar
                 v-show="false"
-                :now="today" :value="today" 
-                v-model="start"
-                :type="type"
+                :now="calendarToday" :value="calendarToday" 
+                v-model="calendarStart"
+                :type="calendarType"
                 color="primary" ref="calendar">
             <template v-slot:day="{ date }">
-                <template v-for="event in eventsMap[date]">
+                <template v-for="event in calendarEventsMap[date]">
                     <v-menu :key="event.title" v-model="event.open" full-width offset-x>
                         <template v-slot:activator="{ on }">
                             <div v-if="!event.time" v-ripple class="calendar-event" v-on="on" v-html="event.title"></div>
@@ -58,7 +58,7 @@
                     </v-btn>
                 </v-flex>
                 <v-flex sm4 xs12 class="text-xs-center">
-                    <v-select v-model="type" :items="typeOptions" label="Type"></v-select>
+                    <v-select v-model="calendarType" :items="calendarTypeOptions" label="Type"></v-select>
                 </v-flex>
                 <v-flex sm4 xs12 class="text-sm-right text-xs-center">
                     <v-btn @click="$refs.calendar.next()">
@@ -145,9 +145,9 @@
             </div>
 
           <!-- CONTENT END -->
-          </v-flex>
-          </v-layout>
-         </v-container>
+        </v-flex>
+        </v-layout>
+        </v-container>
         </v-content>
     </div>
 </template>
@@ -164,9 +164,15 @@ export default class OverviewPageComponent extends Vue {
     @Prop({ required: true })
     options!: FrontEndOptionsViewModel;
 
-    start: string = '2019-01-01';
-    today: string = '2019-01-08';
-    events: Array<any> = [
+    // Loading
+    overviewDataLoadInProgress: boolean = false;
+    overviewDataLoadFailed: boolean = false;
+    overviewDataFailedErrorMessage: string = "";
+
+    // Calendar
+    calendarStart: string = '2019-01-01';
+    calendarToday: string = '2019-01-08';
+    calendarEvents: Array<any> = [
         {
           title: 'Vacation',
           details: 'Going to the beach!',
@@ -175,50 +181,14 @@ export default class OverviewPageComponent extends Vue {
           open: false
         },
         {
-          title: 'Vacation',
-          details: 'Going to the beach!',
-          date: '2018-12-31',
-          open: false
-        },
-        {
-          title: 'Vacation',
-          details: 'Going to the beach!',
-          date: '2019-01-01',
-          open: false
-        },
-        {
-          title: 'Meeting',
-          details: 'Spending time on how we do not have enough time',
-          date: '2019-01-07',
-          open: false
-        },
-        {
-          title: '30th Birthday',
-          details: 'Celebrate responsibly',
-          date: '2019-01-03',
-          open: false
-        },
-        {
-          title: 'New Year',
-          details: 'Eat chocolate until you pass out',
-          date: '2019-01-01',
-          open: false
-        },
-        {
-          title: 'Conference',
-          details: 'Mute myself the whole time and wonder why I am on this call',
-          date: '2019-01-21',
-          open: false
-        },
-        {
           title: 'Hackathon',
           details: 'Code like there is no tommorrow',
           date: '2019-02-01',
           open: false
         }
-      ];
-    type: string = 'month';
-    typeOptions: Array<any> = [
+    ];
+    calendarType: string = 'month';
+    calendarTypeOptions: Array<any> = [
         { text: 'Day', value: 'day' },
         { text: '4 Day', value: '4day' },
         { text: 'Week', value: 'week' },
@@ -230,22 +200,44 @@ export default class OverviewPageComponent extends Vue {
     ////////////////
     mounted(): void
     {
+        this.loadData();
     }
 
     ////////////////
     //  GETTERS  //
     //////////////
-    get eventsMap () {
+    get calendarEventsMap () {
         const map: any = {}
-        this.events.forEach(e => (map[e.date] = map[e.date] || []).push(e))
+        this.calendarEvents.forEach(e => (map[e.date] = map[e.date] || []).push(e))
         return map
     }
 
     ////////////////
     //  METHODS  //
     //////////////
-    open(event: any): void {
-        alert(event.title)
+    loadData(): void {
+        this.overviewDataLoadInProgress = true;
+        this.overviewDataLoadFailed = false;
+
+        // let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
+        // let url = `${this.options.GetTestsEndpoint}${queryStringIfEnabled}`;
+        // fetch(url, {
+        //     credentials: 'include',
+        //     method: "GET",
+        //     // body: JSON.stringify(payload),
+        //     headers: new Headers({
+        //         'Content-Type': 'application/json',
+        //         Accept: 'application/json',
+        //     })
+        // })
+        // .then(response => response.json())
+        // .then((testsData: TestsDataViewModel) => this.onTestSetDataRetrieved(testsData))
+        // .catch((e) => {
+        //     this.overviewDataLoadInProgress = false;
+        //     this.overviewDataLoadFailed = true;
+        //     this.overviewDataFailedErrorMessage = `Failed to load data with the following error. ${e}.`;
+        //     console.error(e);
+        // });
     }
 }
 </script>

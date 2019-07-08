@@ -16,4 +16,14 @@ export default class LinqUtils
             console.error(`Unknown UpdateHistoryStateMethod enum value given: '${method}'`);
         }
     }
+
+    static GetQueryStringParameter(key: string, fallbackValue: string | null = null): string | null
+    {
+        let params = new URLSearchParams(location.search);
+        if (params.has(key)) {
+            return params.get(key);
+        } else {
+            return fallbackValue;
+        }
+    }
 }

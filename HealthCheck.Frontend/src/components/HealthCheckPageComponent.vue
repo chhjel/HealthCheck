@@ -53,10 +53,11 @@ export default class HealthCheckPageComponent extends Vue {
     showMenuButton: boolean = true;
     
     // Pages
-    currentPage: string = "";
     PAGE_OVERVIEW: string = "overview";
     PAGE_TESTS: string = "tests";
+    currentPage: string = this.PAGE_OVERVIEW;
     pagesWithMenu: string[] = [ this.PAGE_TESTS ];
+    validPages: string[] = [ this.PAGE_OVERVIEW, this.PAGE_TESTS ];
     pagesShownAtLeastOnce: string[] = [];
 
     //////////////////
@@ -64,7 +65,7 @@ export default class HealthCheckPageComponent extends Vue {
     ////////////////
     mounted(): void
     {
-        this.setCurrentPage(this.PAGE_OVERVIEW);
+        this.setInitialCurrentPage();
     }
 
     ////////////////
@@ -74,6 +75,17 @@ export default class HealthCheckPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    setInitialCurrentPage(): void
+    {
+        // Attempt to get from query string first
+        let pageFromQueryParam = UrlUtils.GetQueryStringParameter(this.urlParameterCurrentPage);
+        if (pageFromQueryParam != null && this.validPages.indexOf(pageFromQueryParam) != -1) {
+            this.setCurrentPage(pageFromQueryParam);
+        } else {
+            this.setCurrentPage(this.currentPage);
+        }
+    }
+
     urlParameterCurrentPage: string = "page";
     setCurrentPage(page: string) {
         this.showMenuButton = this.pagesWithMenu.indexOf(page) != -1;

@@ -140,7 +140,7 @@ export default class TestSuitesPageComponent extends Vue {
     ////////////////
     mounted(): void
     {
-        this.initTestSets();
+        this.loadData();
     }
 
     created(): void {
@@ -185,7 +185,7 @@ export default class TestSuitesPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
-    initTestSets(): void {
+    loadData(): void {
         this.testSetDataLoadInProgress = true;
         this.testSetDataLoadFailed = false;
 
