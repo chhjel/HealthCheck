@@ -59,7 +59,7 @@ export default class HealthCheckPageComponent extends Vue {
     ////////////////
     mounted(): void
     {
-        this.setCurrentPage(this.PAGE_TESTS);
+        this.setCurrentPage(this.PAGE_OVERVIEW);
     }
 
     ////////////////
