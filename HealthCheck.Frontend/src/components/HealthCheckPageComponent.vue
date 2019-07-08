@@ -17,9 +17,11 @@
 
             <!-- CONTENT -->
             <test-suites-page-component 
+                v-if="shouldIncludePage(PAGE_TESTS)"
                 v-show="currentPage == PAGE_TESTS"
                 :options="options" />
-            <overview-page-component 
+            <overview-page-component
+                v-if="shouldIncludePage(PAGE_OVERVIEW)"
                 v-show="currentPage == PAGE_OVERVIEW"
                 :options="options" />
 
@@ -48,11 +50,14 @@ export default class HealthCheckPageComponent extends Vue {
     @Prop({ required: true })
     options!: FrontEndOptionsViewModel;
     
-    currentPage: string = "tests";
+    showMenuButton: boolean = true;
+    
+    // Pages
+    currentPage: string = "";
     PAGE_OVERVIEW: string = "overview";
     PAGE_TESTS: string = "tests";
     pagesWithMenu: string[] = [ this.PAGE_TESTS ];
-    showMenuButton: boolean = true;
+    pagesShownAtLeastOnce: string[] = [];
 
     //////////////////
     //  LIFECYCLE  //
@@ -65,7 +70,7 @@ export default class HealthCheckPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
-
+    
     ////////////////
     //  METHODS  //
     //////////////
@@ -74,6 +79,14 @@ export default class HealthCheckPageComponent extends Vue {
         this.showMenuButton = this.pagesWithMenu.indexOf(page) != -1;
         this.currentPage = page;
         UrlUtils.SetQueryStringParameter(this.urlParameterCurrentPage, page);
+
+        if (this.pagesShownAtLeastOnce.indexOf(page) == -1) {
+            this.pagesShownAtLeastOnce.push(page);
+        }
+    }
+
+    shouldIncludePage(page: string): boolean {
+        return this.pagesShownAtLeastOnce.indexOf(page) != -1;
     }
 
     ///////////////////////

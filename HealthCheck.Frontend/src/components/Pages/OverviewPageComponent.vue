@@ -112,6 +112,7 @@
                             </v-flex>
                             <v-flex>
                                 <strong>Site unresponsive for 2 minutes</strong>
+                                <div class="caption">Site down for short time.</div>
                             </v-flex>
                         </v-layout>
                     </v-timeline-item>
