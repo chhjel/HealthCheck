@@ -1,7 +1,7 @@
 export enum SiteEventSeverity
 {
-    Information = 0,
-    Warning,
-    Error,
-    Fatal
+    Information = "Information",
+    Warning = "Warning",
+    Error = "Error",
+    Fatal = "Fatal"
 }

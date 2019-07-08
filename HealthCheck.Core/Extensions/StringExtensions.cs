@@ -8,6 +8,15 @@ namespace HealthCheck.Core.Extensions
     public static class StringExtensions
     {
         /// <summary>
+        /// Capitalizes first character.
+        /// </summary>
+        public static string CapitalizeFirst(this string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return text;
+            else return text.Substring(0, 1).ToUpper() + text.Substring(1);
+        }
+
+        /// <summary>
         /// Appends a space before all capital letters and numbers in a sentence, except the first character.
         /// Also trims and capitalizes first character unless disabled.
         /// </summary>

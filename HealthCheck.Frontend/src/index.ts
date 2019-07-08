@@ -15,6 +15,9 @@ Vue.use(VueHighlightJS, {
 	}
 });
 
+// Extensions
+import './util/extensions/StringExtensions';
+
 Vue.use(Vuetify, {
     iconfont: 'fa',
     options: {

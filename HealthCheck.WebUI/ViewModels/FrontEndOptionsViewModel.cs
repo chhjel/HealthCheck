@@ -31,6 +31,12 @@ namespace HealthCheck.WebUI.ViewModels
         public string ExecuteTestEndpoint { get; set; }
 
         /// <summary>
+        /// Url to the endpoint that retrieves events..
+        /// <para>Is set from the constructor relative to the provided baseApiEndpoint.</para>
+        /// </summary>
+        public string GetSiteEventsEndpoint { get; set; }
+
+        /// <summary>
         /// Create a new <see cref="FrontEndOptionsViewModel"/>.
         /// </summary>
         /// <param name="baseApiEndpoint"></param>
@@ -38,6 +44,7 @@ namespace HealthCheck.WebUI.ViewModels
         {
             ExecuteTestEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/ExecuteTest";
             GetTestsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetTests";
+            GetSiteEventsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetSiteEvents";
         }
 
         /// <summary>

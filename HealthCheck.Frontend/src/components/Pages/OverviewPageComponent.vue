@@ -7,30 +7,37 @@
         <v-flex>
             <!-- CONTENT BEGIN -->
             <v-calendar
-                v-show="false"
+                v-show="true"
                 :now="calendarToday" :value="calendarToday" 
                 v-model="calendarStart"
+                :weekdays="[1, 2, 3, 4, 5, 6, 0]"
                 :type="calendarType"
                 color="primary" ref="calendar">
             <template v-slot:day="{ date }">
                 <template v-for="event in calendarEventsMap[date]">
-                    <v-menu :key="event.title" v-model="event.open" full-width offset-x>
+                    <v-menu :key="event.Id"
+                        v-model="event.open" full-width offset-x>
                         <template v-slot:activator="{ on }">
-                            <div v-if="!event.time" v-ripple class="calendar-event" v-on="on" v-html="event.title"></div>
+                            <div v-ripple v-on="on"
+                                class="calendar-event"
+                                :class="getEventSeverityClass(event.data.Severity)">
+                                {{event.title}}
+                            </div>
                         </template>
                         <v-card color="grey lighten-4" min-width="350px" flat>
                             <v-toolbar color="primary" dark>
-                                <v-btn icon>
+                                <v-icon v-text="getEventSeverityIcon(event.data.Severity)"/>
+                                <!-- <v-btn icon>
                                     <v-icon>edit</v-icon>
-                                </v-btn>
+                                </v-btn> -->
                                 <v-toolbar-title v-html="event.title"></v-toolbar-title>
-                                <v-spacer></v-spacer>
-                                <v-btn icon>
+                                <!-- <v-spacer></v-spacer> -->
+                                <!-- <v-btn icon>
                                     <v-icon>favorite</v-icon>
-                                </v-btn>
-                                <v-btn icon>
+                                </v-btn> -->
+                                <!-- <v-btn icon>
                                     <v-icon>more_vert</v-icon>
-                                </v-btn>
+                                </v-btn> -->
                             </v-toolbar>
                             <v-card-title primary-title>
                                 <span v-html="event.details"></span>
@@ -47,7 +54,7 @@
             </v-calendar>
 
             <!-- PREV / NEXT -->
-            <v-flex v-show="false">
+            <v-flex v-show="true">
                 <v-flex 
                     sm4 xs12 class="text-sm-left text-xs-center">
                     <v-btn @click="$refs.calendar.prev()">
@@ -155,6 +162,9 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
+import CalendarEvent from '../../models/Common/CalendarEvent';
+import SiteEventViewModel from '../../models/SiteEvents/SiteEventViewModel';
+import { SiteEventSeverity } from '../../models/SiteEvents/SiteEventSeverity';
 
 @Component({
     components: {
@@ -170,23 +180,9 @@ export default class OverviewPageComponent extends Vue {
     overviewDataFailedErrorMessage: string = "";
 
     // Calendar
-    calendarStart: string = '2019-01-01';
-    calendarToday: string = '2019-01-08';
-    calendarEvents: Array<any> = [
-        {
-          title: 'Vacation',
-          details: 'Going to the beach!',
-          date: '2018-12-30',
-          time: '12:00',
-          open: false
-        },
-        {
-          title: 'Hackathon',
-          details: 'Code like there is no tommorrow',
-          date: '2019-02-01',
-          open: false
-        }
-    ];
+    calendarStart: string = this.nowTimeString;
+    calendarToday: string = this.nowTimeString;
+    calendarEvents: Array<CalendarEvent<SiteEventViewModel>> = [];
     calendarType: string = 'month';
     calendarTypeOptions: Array<any> = [
         { text: 'Day', value: 'day' },
@@ -206,10 +202,14 @@ export default class OverviewPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
-    get calendarEventsMap () {
+    get calendarEventsMap(): any {
         const map: any = {}
         this.calendarEvents.forEach(e => (map[e.date] = map[e.date] || []).push(e))
         return map
+    }
+
+    get nowTimeString(): string {
+        return this.getCalendarDateTimeFormat(new Date());
     }
 
     ////////////////
@@ -219,25 +219,97 @@ export default class OverviewPageComponent extends Vue {
         this.overviewDataLoadInProgress = true;
         this.overviewDataLoadFailed = false;
 
-        // let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
-        // let url = `${this.options.GetTestsEndpoint}${queryStringIfEnabled}`;
-        // fetch(url, {
-        //     credentials: 'include',
-        //     method: "GET",
-        //     // body: JSON.stringify(payload),
-        //     headers: new Headers({
-        //         'Content-Type': 'application/json',
-        //         Accept: 'application/json',
-        //     })
-        // })
-        // .then(response => response.json())
-        // .then((testsData: TestsDataViewModel) => this.onTestSetDataRetrieved(testsData))
-        // .catch((e) => {
-        //     this.overviewDataLoadInProgress = false;
-        //     this.overviewDataLoadFailed = true;
-        //     this.overviewDataFailedErrorMessage = `Failed to load data with the following error. ${e}.`;
-        //     console.error(e);
-        // });
+        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
+        let url = `${this.options.GetSiteEventsEndpoint}${queryStringIfEnabled}`;
+        fetch(url, {
+            credentials: 'include',
+            method: "GET",
+            headers: new Headers({
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            })
+        })
+        .then(response => response.json())
+        .then((events: Array<SiteEventViewModel>) => this.onEventDataRetrieved(events))
+        .catch((e) => {
+            this.overviewDataLoadInProgress = false;
+            this.overviewDataLoadFailed = true;
+            this.overviewDataFailedErrorMessage = `Failed to load data with the following error. ${e}.`;
+            console.error(e);
+        });
+    }
+    
+    onEventDataRetrieved(events: Array<SiteEventViewModel>): void {
+        let index = -1;
+        this.calendarEvents = events.map(x =>
+        {
+            index++;
+            let eventDate = new Date(x.Timestamp);
+            return {
+                id: index.toString(),
+                title: x.Title,
+                details: `${x.Description}<br/><br/>EventTypeId: ${x.EventTypeId}`,
+                date: this.getCalendarDateFormat(eventDate),
+                time: this.getCalendarTimeFormat(eventDate),
+                open: false,
+                data: x
+            };
+        });
+    }
+
+    getCalendarDateTimeFormat(date: Date): string {
+        //@ts-ignore
+        return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padZero(2)}-${date.getDate().toString().padZero(2)} ${date.getHours().toString().padZero(2)}:${date.getMinutes().toString().padZero(2)}:${date.getSeconds().toString().padZero(2)}`;
+    }
+    getCalendarTimeFormat(date: Date): string {
+        //@ts-ignore
+        return `${(date.getHours().toString().padZero(2))}:${date.getMinutes().toString().padZero(2)}`;
+    }
+    getCalendarDateFormat(date: Date): string {
+        //@ts-ignore
+        return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padZero(2)}-${date.getDate().toString().padZero(2)}`;
+    }
+
+    getEventSeverityClass(severity: SiteEventSeverity): string {
+        if (severity == SiteEventSeverity.Information) {
+            return 'info';
+        } else if (severity == SiteEventSeverity.Warning) {
+            return 'warning';
+        } else if (severity == SiteEventSeverity.Error) {
+            return 'error';
+        } else if (severity == SiteEventSeverity.Fatal) {
+            return 'error';
+        } else {
+            return '';
+        }
+    }
+
+    getEventSeverityIcon(severity: SiteEventSeverity): string {
+        if (severity == SiteEventSeverity.Information) {
+            return 'info';
+        } else if (severity == SiteEventSeverity.Warning) {
+            return 'warning';
+        } else if (severity == SiteEventSeverity.Error) {
+            return 'error';
+        } else if (severity == SiteEventSeverity.Fatal) {
+            return 'report';
+        } else {
+            return '';
+        }
+    }
+
+    getEventSeverityColor(severity: SiteEventSeverity): string {
+        if (severity == SiteEventSeverity.Information) {
+            return 'info';
+        } else if (severity == SiteEventSeverity.Warning) {
+            return 'warning';
+        } else if (severity == SiteEventSeverity.Error) {
+            return 'error';
+        } else if (severity == SiteEventSeverity.Fatal) {
+            return 'error';
+        } else {
+            return '';
+        }
     }
 }
 </script>
