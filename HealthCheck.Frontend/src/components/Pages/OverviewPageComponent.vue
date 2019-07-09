@@ -4,22 +4,28 @@
         <v-content class="pl-0">
         <v-container fluid fill-height class="content-root">
         <v-layout>
-        <v-flex>
+        <v-flex class="pl-4 pr-4 pb-4">
           <!-- CONTENT BEGIN -->
             
-            <h1>Events overview</h1>
-            <v-alert :value="calendarEvents.length == 0" color="info" icon="sentiment_satisfied_alt" outline>
-                No events recorded the lately, things seems to be quiet.
-            </v-alert>
-            <event-calendar-component
-                :events="calendarEvents"
-                class="calendar mt-2" />
+            <h1 class="mb-4">Events overview</h1>
 
-            <div class="mt-4"></div>
-            
-            <event-timeline-component
-                :events="timelineEvents"
-                class="timeline mt-4" />
+            <v-layout align-content-center>
+                <v-flex sm12 md8>
+                    <v-alert :value="calendarEvents.length == 0" color="info" icon="sentiment_satisfied_alt" outline>
+                        No events recorded the lately, things seems to be quiet.
+                    </v-alert>
+                    <event-calendar-component
+                        :events="calendarEvents"
+                        class="calendar" />
+                </v-flex>
+                
+                <v-flex sm12 md4 class="ml-4">
+                    <event-timeline-component
+                        :events="timelineEvents"
+                        class="timeline" />
+                </v-flex>
+            </v-layout>
+
 
           <!-- CONTENT END -->
         </v-flex>
@@ -116,8 +122,8 @@ export default class OverviewPageComponent extends Vue {
 
 <style scoped>
 .content-root {
-    margin: auto;
-    max-width: 800px;
+    /* margin: auto;
+    max-width: 800px; */
 }
 </style>
 

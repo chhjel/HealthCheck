@@ -272,4 +272,15 @@ export default class OverviewPageComponent extends Vue {
 </style>
 
 <style>
+.v-calendar-weekly__day {
+    min-height: 100px;
+}
+.v-calendar-weekly__day-label {
+    font-size: 18px;
+    color: #9c8888;
+}
+.v-calendar-weekly__day-month {
+    font-size: 18px;
+    color: #9c8888;
+}
 </style>
