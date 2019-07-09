@@ -12,6 +12,7 @@ using System;
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
+using System.Collections.Generic;
 
 namespace HealthCheck.DevTest.Controllers
 {
@@ -27,19 +28,15 @@ namespace HealthCheck.DevTest.Controllers
             if (_siteStatusService == null)
             {
                 addSomeRandomEvents = true;
-                _siteStatusService = new SiteStatusService(new MemorySiteStatusStorageService());
+                _siteStatusService = CreateSiteStatusService();
             }
             SiteStatusService = _siteStatusService;
 
             if (addSomeRandomEvents)
             {
-                for (int i = 0; i < 20; i++)
-                {
-                    AddEvent();
-                }
+                ResetEvents(false);
             }
         }
-
 
         #region Overrides
         protected override FrontEndOptionsViewModel GetFrontEndOptions()
@@ -59,7 +56,7 @@ namespace HealthCheck.DevTest.Controllers
         {
             TestRunner.IncludeExceptionStackTraces = CurrentRequestAccessRoles.HasValue && CurrentRequestAccessRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
-            AccessOptions.TestsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            //AccessOptions.TestsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
         }
 
         protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)
@@ -91,9 +88,23 @@ namespace HealthCheck.DevTest.Controllers
             var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheckfrontend.js");
             return new FileStreamResult(new FileStream(filepath, FileMode.Open), "content-disposition");
         }
+        
+        public ActionResult ResetEvents(bool reInitService = true)
+        {
+            if (reInitService)
+            {
+                SiteStatusService = CreateSiteStatusService();
+            }
+
+            for (int i = 0; i < 20; i++)
+            {
+                AddEvent();
+            }
+            return Content("Mock events reset");
+        }
 
         private static readonly Random _rand = new Random();
-        public virtual ActionResult AddEvent()
+        public ActionResult AddEvent()
         {
             if (!Enabled || SiteStatusService == null) return HttpNotFound();
 
@@ -104,14 +115,24 @@ namespace HealthCheck.DevTest.Controllers
                 EventTypeId = $"Error type {_rand.Next(10000)}",
                 Title = title,
                 Description = description,
-                Timestamp = DateTime.Now.AddDays(-7 + _rand.Next(14)),
-                Severity = (_rand.Next(100) > 90) ? SiteEventSeverity.Fatal
-                    : (_rand.Next(100) > 50) ? SiteEventSeverity.Error
-                        : (_rand.Next(100) > 80) ? SiteEventSeverity.Information : SiteEventSeverity.Warning
+                Timestamp = DateTime.Now
+                    .AddDays(-7 + _rand.Next(7))
+                    .AddMinutes(_rand.Next(0, 24 * 60)),
+                Severity = (_rand.Next(100) < 10) ? SiteEventSeverity.Fatal
+                            : (_rand.Next(100) < 25) ? SiteEventSeverity.Error
+                                : (_rand.Next(100) < 50) ? SiteEventSeverity.Warning : SiteEventSeverity.Information,
+                RelatedLinks = new List<HyperLink>()
+                {
+                    new HyperLink("Page that failed", "https://www.google.com?etc"),
+                    new HyperLink("Error log", "https://www.google.com?q=errorlog"),
+                }
             };
             SiteStatusService.RegisterEvent(ev);
             return CreateJsonResult(ev);
         }
+
+        private SiteStatusService CreateSiteStatusService()
+            => new SiteStatusService(new MemorySiteStatusStorageService());
 
         private string AddXFix(string subject, string xfix)
         {

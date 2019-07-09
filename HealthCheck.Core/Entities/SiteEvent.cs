@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Enums;
 using HealthCheck.Core.Services.SiteStatus;
 using System;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Entities
 {
@@ -34,6 +35,9 @@ namespace HealthCheck.Core.Entities
         /// </summary>
         public string Description { get; set; }
 
-        // related tests etc?
+        /// <summary>
+        /// Any urls to related things.
+        /// </summary>
+        public List<HyperLink> RelatedLinks { get; set; }
     }
 }

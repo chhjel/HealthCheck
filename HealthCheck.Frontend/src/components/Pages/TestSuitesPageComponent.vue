@@ -221,14 +221,14 @@ export default class TestSuitesPageComponent extends Vue {
         }
 
         let groupIndex = -1;
-        LinqUtils.GroupByInto(testsData.TestSets, "GroupName", (key, items) => {
+        LinqUtils.GroupByInto(testsData.TestSets, (item) => item.GroupName || "", (key, items) => {
             groupIndex++;
             return {
                 Id: `g${groupIndex}`,
-                Name: (key === "null") ? null : key,
+                Name: (key === "") ? null : key,
                 Sets: items.sort((a,b) => b.UIOrder - a.UIOrder),
                 Icon: null,
-                UIOrder: (key === "null") ? -1 : 0,
+                UIOrder: (key === "") ? -1 : 0,
             }
         })
         .forEach(x => this.testSetGroups.push(x));

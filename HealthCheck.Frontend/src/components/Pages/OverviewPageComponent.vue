@@ -5,151 +5,21 @@
         <v-container fluid fill-height class="content-root">
         <v-layout>
         <v-flex>
-            <!-- CONTENT BEGIN -->
-            <v-calendar
-                v-show="true"
-                :now="calendarToday" :value="calendarToday" 
-                v-model="calendarStart"
-                :weekdays="[1, 2, 3, 4, 5, 6, 0]"
-                :type="calendarType"
-                color="primary" ref="calendar">
-            <template v-slot:day="{ date }">
-                <template v-for="event in calendarEventsMap[date]">
-                    <v-menu :key="event.Id"
-                        v-model="event.open" full-width offset-x>
-                        <template v-slot:activator="{ on }">
-                            <div v-ripple v-on="on"
-                                class="calendar-event"
-                                :class="getEventSeverityClass(event.data.Severity)">
-                                {{event.title}}
-                            </div>
-                        </template>
-                        <v-card color="grey lighten-4" min-width="350px" flat>
-                            <v-toolbar color="primary" dark>
-                                <v-icon v-text="getEventSeverityIcon(event.data.Severity)"/>
-                                <!-- <v-btn icon>
-                                    <v-icon>edit</v-icon>
-                                </v-btn> -->
-                                <v-toolbar-title v-html="event.title"></v-toolbar-title>
-                                <!-- <v-spacer></v-spacer> -->
-                                <!-- <v-btn icon>
-                                    <v-icon>favorite</v-icon>
-                                </v-btn> -->
-                                <!-- <v-btn icon>
-                                    <v-icon>more_vert</v-icon>
-                                </v-btn> -->
-                            </v-toolbar>
-                            <v-card-title primary-title>
-                                <span v-html="event.details"></span>
-                            </v-card-title>
-                            <v-card-actions>
-                                <v-btn flat color="secondary">
-                                    Cancel
-                                </v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-menu>
-                </template>
-            </template>
-            </v-calendar>
+          <!-- CONTENT BEGIN -->
+            
+            <h1>Events overview</h1>
+            <v-alert :value="calendarEvents.length == 0" color="info" icon="sentiment_satisfied_alt" outline>
+                No events recorded the lately, things seems to be quiet.
+            </v-alert>
+            <event-calendar-component
+                :events="calendarEvents"
+                class="calendar mt-2" />
 
-            <!-- PREV / NEXT -->
-            <v-flex v-show="true">
-                <v-flex 
-                    sm4 xs12 class="text-sm-left text-xs-center">
-                    <v-btn @click="$refs.calendar.prev()">
-                        <v-icon dark left>
-                            keyboard_arrow_left
-                        </v-icon>
-                        Prev
-                    </v-btn>
-                </v-flex>
-                <v-flex sm4 xs12 class="text-xs-center">
-                    <v-select v-model="calendarType" :items="calendarTypeOptions" label="Type"></v-select>
-                </v-flex>
-                <v-flex sm4 xs12 class="text-sm-right text-xs-center">
-                    <v-btn @click="$refs.calendar.next()">
-                        Next
-                        <v-icon right dark>
-                            keyboard_arrow_right
-                        </v-icon>
-                    </v-btn>
-                </v-flex>
-            </v-flex>
-
-            <!-- LAST DAYS TIMELINE -->
-            <div class="timeline">
-                <h2>Events last 3 days</h2>
-                <v-timeline align-top dense>
-                    <v-timeline-item small hide-dot class="pb-0">
-                        <span>TODAY</span>
-                    </v-timeline-item>
-
-                    <v-timeline-item color="error" small>
-                        <v-layout pt-3>
-                            <v-flex xs3>
-                                <strong>5pm</strong>
-                            </v-flex>
-                            <v-flex>
-                                <strong>Faults in integration with Finn.no</strong>
-                                <div class="caption">Some short details here.</div>
-                            </v-flex>
-                        </v-layout>
-                    </v-timeline-item>
-
-                    <v-timeline-item color="warning" small>
-                        <v-layout wrap pt-3>
-                            <v-flex xs3>
-                                <strong>3-4pm</strong>
-                            </v-flex>
-                            <v-flex>
-                                <strong>Page slowness detected</strong>
-                                <div class="caption">Page load latency was increased by 222%.</div>
-                            </v-flex>
-                        </v-layout>
-                    </v-timeline-item>
-                    
-                    <v-timeline-item small hide-dot class="pb-0">
-                        <span>Yesterday</span>
-                    </v-timeline-item>
-                    <v-timeline-item color="error" small>
-                        <v-layout pt-3>
-                            <v-flex xs3>
-                                <strong>12pm</strong>
-                            </v-flex>
-                            <v-flex>
-                                <strong>Site unresponsive for 2 minutes</strong>
-                                <div class="caption">Site down for short time.</div>
-                            </v-flex>
-                        </v-layout>
-                    </v-timeline-item>
-
-                    <v-timeline-item color="warning" small>
-                        <v-layout pt-3>
-                            <v-flex xs3>
-                                <strong>9-11am</strong>
-                            </v-flex>
-                            <v-flex>
-                                <strong>New version deployed</strong>
-                                <div class="caption">Site down for short time.</div>
-                            </v-flex>
-                        </v-layout>
-                    </v-timeline-item>
-                    
-                    <v-timeline-item small hide-dot class="pb-0">
-                        <span>Saturday, 6. July</span>
-                    </v-timeline-item>
-                    <v-timeline-item color="success" small>
-                        <v-layout pt-3>
-                            <v-flex xs3>
-                                <strong>No events</strong>
-                            </v-flex>
-                            <v-flex>
-                            </v-flex>
-                        </v-layout>
-                    </v-timeline-item>
-                </v-timeline>
-            </div>
+            <div class="mt-4"></div>
+            
+            <event-timeline-component
+                :events="timelineEvents"
+                class="timeline mt-4" />
 
           <!-- CONTENT END -->
         </v-flex>
@@ -165,9 +35,13 @@ import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel
 import CalendarEvent from '../../models/Common/CalendarEvent';
 import SiteEventViewModel from '../../models/SiteEvents/SiteEventViewModel';
 import { SiteEventSeverity } from '../../models/SiteEvents/SiteEventSeverity';
+import EventTimelineComponent from '../Overview/EventTimelineComponent.vue';
+import EventCalendarComponent from '../Overview/EventCalendarComponent.vue';
 
 @Component({
     components: {
+        EventTimelineComponent,
+        EventCalendarComponent
     }
 })
 export default class OverviewPageComponent extends Vue {
@@ -179,17 +53,7 @@ export default class OverviewPageComponent extends Vue {
     overviewDataLoadFailed: boolean = false;
     overviewDataFailedErrorMessage: string = "";
 
-    // Calendar
-    calendarStart: string = this.nowTimeString;
-    calendarToday: string = this.nowTimeString;
-    calendarEvents: Array<CalendarEvent<SiteEventViewModel>> = [];
-    calendarType: string = 'month';
-    calendarTypeOptions: Array<any> = [
-        { text: 'Day', value: 'day' },
-        { text: '4 Day', value: '4day' },
-        { text: 'Week', value: 'week' },
-        { text: 'Month', value: 'month' }
-      ];
+    siteEvents: Array<SiteEventViewModel> = [];
 
     //////////////////
     //  LIFECYCLE  //
@@ -202,14 +66,13 @@ export default class OverviewPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
-    get calendarEventsMap(): any {
-        const map: any = {}
-        this.calendarEvents.forEach(e => (map[e.date] = map[e.date] || []).push(e))
-        return map
+    get calendarEvents(): Array<SiteEventViewModel> {
+        return this.siteEvents;
     }
-
-    get nowTimeString(): string {
-        return this.getCalendarDateTimeFormat(new Date());
+    get timelineEvents(): Array<SiteEventViewModel> {
+        let thresholdDate = new Date();
+        thresholdDate.setDate(thresholdDate.getDate() - 3);
+        return this.siteEvents.filter(x => x.Timestamp >= thresholdDate);
     }
 
     ////////////////
@@ -241,97 +104,20 @@ export default class OverviewPageComponent extends Vue {
     
     onEventDataRetrieved(events: Array<SiteEventViewModel>): void {
         let index = -1;
-        this.calendarEvents = events.map(x =>
-        {
+        events.forEach(x => {
             index++;
-            let eventDate = new Date(x.Timestamp);
-            return {
-                id: index.toString(),
-                title: x.Title,
-                details: `${x.Description}<br/><br/>EventTypeId: ${x.EventTypeId}`,
-                date: this.getCalendarDateFormat(eventDate),
-                time: this.getCalendarTimeFormat(eventDate),
-                open: false,
-                data: x
-            };
+            x.Id = index.toString();
+            x.Timestamp = new Date(x.Timestamp);
         });
-    }
-
-    getCalendarDateTimeFormat(date: Date): string {
-        //@ts-ignore
-        return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padZero(2)}-${date.getDate().toString().padZero(2)} ${date.getHours().toString().padZero(2)}:${date.getMinutes().toString().padZero(2)}:${date.getSeconds().toString().padZero(2)}`;
-    }
-    getCalendarTimeFormat(date: Date): string {
-        //@ts-ignore
-        return `${(date.getHours().toString().padZero(2))}:${date.getMinutes().toString().padZero(2)}`;
-    }
-    getCalendarDateFormat(date: Date): string {
-        //@ts-ignore
-        return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padZero(2)}-${date.getDate().toString().padZero(2)}`;
-    }
-
-    getEventSeverityClass(severity: SiteEventSeverity): string {
-        if (severity == SiteEventSeverity.Information) {
-            return 'info';
-        } else if (severity == SiteEventSeverity.Warning) {
-            return 'warning';
-        } else if (severity == SiteEventSeverity.Error) {
-            return 'error';
-        } else if (severity == SiteEventSeverity.Fatal) {
-            return 'error';
-        } else {
-            return '';
-        }
-    }
-
-    getEventSeverityIcon(severity: SiteEventSeverity): string {
-        if (severity == SiteEventSeverity.Information) {
-            return 'info';
-        } else if (severity == SiteEventSeverity.Warning) {
-            return 'warning';
-        } else if (severity == SiteEventSeverity.Error) {
-            return 'error';
-        } else if (severity == SiteEventSeverity.Fatal) {
-            return 'report';
-        } else {
-            return '';
-        }
-    }
-
-    getEventSeverityColor(severity: SiteEventSeverity): string {
-        if (severity == SiteEventSeverity.Information) {
-            return 'info';
-        } else if (severity == SiteEventSeverity.Warning) {
-            return 'warning';
-        } else if (severity == SiteEventSeverity.Error) {
-            return 'error';
-        } else if (severity == SiteEventSeverity.Fatal) {
-            return 'error';
-        } else {
-            return '';
-        }
+        this.siteEvents = events;
     }
 }
 </script>
 
 <style scoped>
-.calendar-event {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    border-radius: 2px;
-    background-color: var(--v-primary-base);
-    color: #ffffff;
-    border: 1px solid var(--v-primary-base);
-    width: 100%;
-    font-size: 12px;
-    padding: 3px;
-    cursor: pointer;
-    margin-bottom: 1px;
-}
-.timeline {
+.content-root {
     margin: auto;
-    max-width: 600px;
+    max-width: 800px;
 }
 </style>
 

@@ -1,4 +1,5 @@
 import { SiteEventSeverity } from "./SiteEventSeverity";
+import HyperLinkViewModel from "../Common/HyperLinkViewModel";
 
 export default interface SiteEventViewModel {
     Id: string;
@@ -8,4 +9,5 @@ export default interface SiteEventViewModel {
     EventTypeId: string;
     Title: string;
     Description: string;
+    RelatedLinks: Array<HyperLinkViewModel>;
 }

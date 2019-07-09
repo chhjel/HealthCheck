@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using System;
+using System.Collections.Generic;
 
 namespace HealthCheck.WebUI.ViewModels
 {
@@ -38,5 +39,10 @@ namespace HealthCheck.WebUI.ViewModels
         /// Event description.
         /// </summary>
         public string Description { get; set; }
+
+        /// <summary>
+        /// Any urls to related things.
+        /// </summary>
+        public List<HyperLinkViewModel> RelatedLinks { get; set; }
     }
 }
