@@ -1,5 +1,4 @@
-﻿using HealthCheck.Core.Services;
-using HealthCheck.Core.Util;
+﻿using HealthCheck.Core.Util;
 using HealthCheck.DevTest._TestImplementation;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.ViewModels;
@@ -37,12 +36,14 @@ namespace HealthCheck.DevTest.NetCore.Controllers
                 PageTitle = "Dev Checks"
             };
 
-        protected override void SetOptionalOptions(HttpRequest request, TestRunnerService testRunner, TestDiscoveryService testDiscoverer)
+        protected override void Configure(HttpRequest request)
         {
-            var requestRoles = GetRequestAccessRoles(request);
-            testRunner.IncludeExceptionStackTraces = requestRoles.HasValue && requestRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);
-            testDiscoverer.GroupOptions
-                .SetOptionsFor(RuntimeTestConstants.Group.AdminStuff, uiOrder: -100);
+            TestRunner.IncludeExceptionStackTraces = CurrentRequestAccessRoles.HasValue && CurrentRequestAccessRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);
+        }
+
+        protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)
+        {
+            options.SetOptionsFor(RuntimeTestConstants.Group.AdminStuff, uiOrder: -100);
         }
 
         protected override Maybe<RuntimeTestAccessRole> GetRequestAccessRoles(HttpRequest request)

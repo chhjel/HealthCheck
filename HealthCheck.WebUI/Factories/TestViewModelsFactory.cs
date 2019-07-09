@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Entities;
+using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.ViewModels;
 using System.Collections.Generic;
 using System.Linq;

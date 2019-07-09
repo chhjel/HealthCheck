@@ -1,4 +1,4 @@
-﻿namespace HealthCheck.Core.Entities
+﻿namespace HealthCheck.WebUI.Models
 {
     /// <summary>
     /// Options for a test set group.

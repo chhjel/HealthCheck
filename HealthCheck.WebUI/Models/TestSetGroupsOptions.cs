@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace HealthCheck.Core.Entities
+namespace HealthCheck.WebUI.Models
 {
     /// <summary>
     /// Options for test set groups. ToDo move to web.core

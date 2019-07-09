@@ -2,7 +2,6 @@
 using System.Web;
 using System.Web.Hosting;
 using System.Web.Mvc;
-using HealthCheck.Core.Services;
 using HealthCheck.Core.Util;
 using HealthCheck.DevTest._TestImplementation;
 using HealthCheck.WebUI.Models;
@@ -56,13 +55,16 @@ namespace HealthCheck.DevTest.Controllers
                 PageTitle = "Test Monitor"
             };
 
-        protected override void SetOptionalOptions(HttpRequestBase request, TestRunnerService testRunner, TestDiscoveryService testDiscoverer)
+        protected override void Configure(HttpRequestBase request)
         {
-            var requestRoles = GetRequestAccessRoles(request);
-            testRunner.IncludeExceptionStackTraces = requestRoles.HasValue && requestRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);
-            testDiscoverer.GroupOptions
-                .SetOptionsFor(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
-                .SetOptionsFor(RuntimeTestConstants.Group.BottomGroup, uiOrder: -100);
+            TestRunner.IncludeExceptionStackTraces = CurrentRequestAccessRoles.HasValue && CurrentRequestAccessRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);
+        }
+
+        protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)
+        {
+            options
+            .SetOptionsFor(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
+            .SetOptionsFor(RuntimeTestConstants.Group.BottomGroup, uiOrder: -100);
         }
 
         protected override Maybe<RuntimeTestAccessRole> GetRequestAccessRoles(HttpRequestBase request)

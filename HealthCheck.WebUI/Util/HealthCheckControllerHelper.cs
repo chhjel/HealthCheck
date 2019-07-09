@@ -7,6 +7,7 @@ using HealthCheck.WebUI.Factories;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.ViewModels;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,16 +46,31 @@ namespace HealthCheck.WebUI.Util
         public readonly SiteEventViewModelsFactory SiteEventViewModelsFactory = new SiteEventViewModelsFactory();
 
         /// <summary>
-        /// Function that checks access role based on the current request.
+        /// Optional config for test set groups.
         /// </summary>
-        public Func<Maybe<TAccessRole>> GetRequestAccessRolesFunction { get; set; }
+        public TestSetGroupsOptions TestSetGroupsOptions { get; set; } = new TestSetGroupsOptions();
 
         private const string Q = "\"";
 
         /// <summary>
+        /// Serializes the given object into a json string.
+        /// </summary>
+        public string SerializeJson(object obj)
+        {
+            var settings = new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented
+            };
+            settings.Converters.Add(new StringEnumConverter());
+
+            return JsonConvert.SerializeObject(obj, settings);
+        }
+
+        /// <summary>
         /// Get viewmodel for test sets data.
         /// </summary>
-        public async Task<List<SiteEventViewModel>> GetSiteEventsViewModel(SiteStatusService service,
+        public async Task<List<SiteEventViewModel>> GetSiteEventsViewModel(
+            Maybe<TAccessRole> accessRoles, SiteStatusService service,
             DateTime? from = null, DateTime? to = null)
         {
             if (service == null)
@@ -73,12 +89,12 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Get viewmodel for test sets data.
         /// </summary>
-        public TestsDataViewModel GetTestDefinitionsViewModel()
+        public TestsDataViewModel GetTestDefinitionsViewModel(Maybe<TAccessRole> accessRoles)
         {
             var model = new TestsDataViewModel()
             {
-                TestSets = TestsViewModelsFactory.CreateViewModel(GetTestDefinitions()),
-                GroupOptions = TestsViewModelsFactory.CreateViewModel(TestDiscoverer.GroupOptions),
+                TestSets = TestsViewModelsFactory.CreateViewModel(GetTestDefinitions(accessRoles)),
+                GroupOptions = TestsViewModelsFactory.CreateViewModel(TestSetGroupsOptions),
             };
             return model;
         }
@@ -86,14 +102,14 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Execute the given test and return a result view model.
         /// </summary>
-        public async Task<TestResultViewModel> ExecuteTest(ExecuteTestInputData data)
+        public async Task<TestResultViewModel> ExecuteTest(Maybe<TAccessRole> accessRoles, ExecuteTestInputData data)
         {
             if (data == null || data.TestId == null)
             {
                 return TestResultViewModel.CreateError("No test id was given.");
             }
 
-            var test = GetTest(data.TestId);
+            var test = GetTest(accessRoles, data.TestId);
             if (test == null)
             {
                 return TestResultViewModel.CreateError($"Test with id '{data.TestId}' not found.", data.TestId);
@@ -150,14 +166,14 @@ namespace HealthCheck.WebUI.Util
 </html>";
         }
 
-        private List<TestClassDefinition> GetTestDefinitions()
+        private List<TestClassDefinition> GetTestDefinitions(Maybe<TAccessRole> accessRoles)
         {
-            var userRolesMaybe = GetRequestAccessRolesFunction?.Invoke() ?? new Maybe<TAccessRole>();
+            var userRolesMaybe = accessRoles ?? new Maybe<TAccessRole>();
             var userRoles = userRolesMaybe.HasValue ? (object)userRolesMaybe.Value : null;
             return TestDiscoverer.DiscoverTestDefinitions(onlyTestsAllowedToBeManuallyExecuted: true, userRolesEnum: userRoles);
         }
 
-        private TestDefinition GetTest(string testId)
-            => GetTestDefinitions().SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == testId);
+        private TestDefinition GetTest(Maybe<TAccessRole> accessRoles, string testId)
+            => GetTestDefinitions(accessRoles).SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == testId);
     }
 }

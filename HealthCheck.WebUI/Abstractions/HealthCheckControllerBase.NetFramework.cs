@@ -36,6 +36,21 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         protected bool Enabled { get; set; } = true;
 
+        /// <summary>
+        /// Service that executes tests.
+        /// </summary>
+        protected TestRunnerService TestRunner => Helper.TestRunner;
+
+        /// <summary>
+        /// Service that discovers tests.
+        /// </summary>
+        protected TestDiscoveryService TestDiscoverer => Helper.TestDiscoverer;
+
+        /// <summary>
+        /// Access roles for the current request. Is only set after BeginExecute has been called for the request.
+        /// </summary>
+        protected Maybe<TAccessRole> CurrentRequestAccessRoles { get; set; }
+
         private readonly HealthCheckControllerHelper<TAccessRole> Helper = new HealthCheckControllerHelper<TAccessRole>();
 
         /// <summary>
@@ -44,7 +59,6 @@ namespace HealthCheck.WebUI.Abstractions
         public HealthCheckControllerBase(Assembly assemblyContainingTests)
         {
             Helper.TestDiscoverer.AssemblyContainingTests = assemblyContainingTests ?? throw new ArgumentNullException("An assembly to retrieve tests from must be provided.");
-            Helper.GetRequestAccessRolesFunction = () => GetRequestAccessRoles(HttpContext.Request);
         }
 
         /// <summary>
@@ -58,15 +72,30 @@ namespace HealthCheck.WebUI.Abstractions
         protected abstract PageOptions GetPageOptions();
 
         /// <summary>
-        /// Set any options on the test managers here. Method is invoked from BeginExecute.
+        /// Should return a custom enum flag object with the roles of the current user. Must match the type used in <see cref="RuntimeTestAttribute.RolesWithAccess"/>.
         /// </summary>
-        protected virtual void SetOptionalOptions(HttpRequestBase request, TestRunnerService testRunner, TestDiscoveryService testDiscoverer) {}
+        protected abstract Maybe<TAccessRole> GetRequestAccessRoles(HttpRequestBase request);
 
         /// <summary>
-        /// Should return a custom enum flag object with the roles of the current user. Must match the type used in <see cref="RuntimeTestAttribute.RolesWithAccess"/>.
-        /// <para>Returns null by default to allow all test.</para>
+        /// Optionally set config for test set groups. Use the options.SetOptionsFor method to add config for a group by name.
         /// </summary>
-        protected virtual Maybe<TAccessRole> GetRequestAccessRoles(HttpRequestBase request) => null;
+        protected virtual void SetTestSetGroupsOptions(TestSetGroupsOptions options) { }
+
+        /// <summary>
+        /// Set any options on the test managers here. Method is invoked from BeginExecute.
+        /// </summary>
+        protected virtual void Configure(HttpRequestBase request) {}
+
+        /// <summary>
+        /// Calls GetRequestAccessRoles and SetOptions.
+        /// </summary>
+        protected override IAsyncResult BeginExecute(RequestContext requestContext, AsyncCallback callback, object state)
+        {
+            var request = requestContext?.HttpContext?.Request;
+            CurrentRequestAccessRoles = GetRequestAccessRoles(request);
+            Configure(request);
+            return base.BeginExecute(requestContext, callback, state);
+        }
 
         /// <summary>
         /// Returns the page html.
@@ -87,7 +116,7 @@ namespace HealthCheck.WebUI.Abstractions
         public virtual async Task<ActionResult> GetSiteEvents()
         {
             if (!Enabled) return HttpNotFound();
-            var viewModel = await Helper.GetSiteEventsViewModel(SiteStatusService);
+            var viewModel = await Helper.GetSiteEventsViewModel(CurrentRequestAccessRoles, SiteStatusService);
             return CreateJsonResult(viewModel);
         }
 
@@ -98,7 +127,8 @@ namespace HealthCheck.WebUI.Abstractions
         {
             if (!Enabled) return HttpNotFound();
 
-            var viewModel = Helper.GetTestDefinitionsViewModel();
+            SetTestSetGroupsOptions(Helper.TestSetGroupsOptions);
+            var viewModel = Helper.GetTestDefinitionsViewModel(CurrentRequestAccessRoles);
             return CreateJsonResult(viewModel);
         }
 
@@ -110,7 +140,7 @@ namespace HealthCheck.WebUI.Abstractions
         {
             if (!Enabled) return HttpNotFound();
 
-            var result = await Helper.ExecuteTest(data);
+            var result = await Helper.ExecuteTest(CurrentRequestAccessRoles, data);
             return CreateJsonResult(result);
         }
 
@@ -118,26 +148,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// Serializes the given object into a json result.
         /// </summary>
         protected ActionResult CreateJsonResult(object obj)
-        {
-            var settings = new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented
-            };
-            settings.Converters.Add(new StringEnumConverter());
-
-            var json = JsonConvert.SerializeObject(obj, settings);
-            return Content(json, "application/json");
-        }
-
-        /// <summary>
-        /// Calls SetOptionalOptions.
-        /// </summary>
-        protected override IAsyncResult BeginExecute(RequestContext requestContext, AsyncCallback callback, object state)
-        {
-            var request = requestContext?.HttpContext?.Request;
-            SetOptionalOptions(request, Helper.TestRunner, Helper.TestDiscoverer);
-            return base.BeginExecute(requestContext, callback, state);
-        }
+            => Content(Helper.SerializeJson(obj), "application/json");
     }
 }
 #endif
