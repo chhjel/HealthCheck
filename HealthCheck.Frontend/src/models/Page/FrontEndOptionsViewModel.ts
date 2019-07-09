@@ -4,4 +4,5 @@ export default interface FrontEndOptionsViewModel {
     GetTestsEndpoint: string;
     ExecuteTestEndpoint: string;
     GetSiteEventsEndpoint: string;
+    Pages: string[];
 }

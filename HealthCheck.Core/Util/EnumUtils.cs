@@ -4,11 +4,20 @@ using System.Linq;
 
 namespace HealthCheck.Core.Util
 {
-    internal static class EnumUtils
+    /// <summary>
+    /// Enum related utility methods.
+    /// </summary>
+    public static class EnumUtils
     {
+        /// <summary>
+        /// Check if the given object is an enum object with flags attribute.
+        /// </summary>
         public static bool IsEnumFlag(object obj)
             => obj is Enum && obj.GetType().GetCustomAttributes(false).Any(x => x.GetType() == typeof(FlagsAttribute));
 
+        /// <summary>
+        /// Check if the given object is an enum object with flags attribute, and the underlying type is one of the given types.
+        /// </summary>
         public static bool IsEnumFlagOfType(object obj, Type[] allowedUnderlyingTypes)
         {
             if (!IsEnumFlag(obj))
@@ -23,6 +32,9 @@ namespace HealthCheck.Core.Util
             return true;
         }
 
+        /// <summary>
+        /// Check if the given enum flag object has the given flags set.
+        /// </summary>
         public static bool IsFlagSet(object obj, object flagToCheckFor, bool zeroReturnsFalse = true)
         {
             var underlyingType = Enum.GetUnderlyingType(obj.GetType());
@@ -40,6 +52,9 @@ namespace HealthCheck.Core.Util
             }
         }
 
+        /// <summary>
+        /// Get all flagged values.
+        /// </summary>
         public static List<object> GetFlaggedEnumValues(object obj)
         {
             var results = new List<object>();
@@ -58,6 +73,15 @@ namespace HealthCheck.Core.Util
             return results;
         }
 
+        /// <summary>
+        /// Check if the given object has any of the given flags set.
+        /// </summary>
+        public static bool EnumFlagHasAnyFlagsSet<TEnum>(TEnum enm, TEnum flagsToCheckFor)
+            => EnumFlagHasAnyFlagsSet((object)enm, flagsToCheckFor);
+
+        /// <summary>
+        /// Check if the given object has any of the given flags set.
+        /// </summary>
         public static bool EnumFlagHasAnyFlagsSet(object obj, object flagsToCheckFor)
         {
             var flaggedValues = GetFlaggedEnumValues(obj);

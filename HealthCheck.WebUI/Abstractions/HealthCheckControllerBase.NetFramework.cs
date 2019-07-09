@@ -47,6 +47,11 @@ namespace HealthCheck.WebUI.Abstractions
         protected TestDiscoveryService TestDiscoverer => Helper.TestDiscoverer;
 
         /// <summary>
+        /// Options for page access etc.
+        /// </summary>
+        protected AccessOptions<TAccessRole> AccessOptions => Helper.AccessOptions;
+
+        /// <summary>
         /// Access roles for the current request. Is only set after BeginExecute has been called for the request.
         /// </summary>
         protected Maybe<TAccessRole> CurrentRequestAccessRoles { get; set; }
@@ -106,7 +111,7 @@ namespace HealthCheck.WebUI.Abstractions
 
             var frontEndOptions = GetFrontEndOptions();
             var pageOptions = GetPageOptions();
-            var html = Helper.CreateViewHtml(frontEndOptions, pageOptions);
+            var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions);
             return Content(html);
         }
 

@@ -1,4 +1,6 @@
 ﻿using HealthCheck.WebUI.Exceptions;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace HealthCheck.WebUI.ViewModels
 {
@@ -35,6 +37,12 @@ namespace HealthCheck.WebUI.ViewModels
         /// <para>Is set from the constructor relative to the provided baseApiEndpoint.</para>
         /// </summary>
         public string GetSiteEventsEndpoint { get; set; }
+
+        /// <summary>
+        /// Pages that will be shown.
+        /// </summary>
+        [JsonProperty]
+        internal List<string> Pages = new List<string>();
 
         /// <summary>
         /// Create a new <see cref="FrontEndOptionsViewModel"/>.

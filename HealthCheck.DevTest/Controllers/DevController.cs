@@ -58,6 +58,8 @@ namespace HealthCheck.DevTest.Controllers
         protected override void Configure(HttpRequestBase request)
         {
             TestRunner.IncludeExceptionStackTraces = CurrentRequestAccessRoles.HasValue && CurrentRequestAccessRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);
+            AccessOptions.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
+            AccessOptions.TestsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
         }
 
         protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)

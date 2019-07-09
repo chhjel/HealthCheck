@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Entities;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Services;
 using HealthCheck.Core.Services.SiteStatus;
 using HealthCheck.Core.Util;
@@ -50,6 +51,11 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public TestSetGroupsOptions TestSetGroupsOptions { get; set; } = new TestSetGroupsOptions();
 
+        /// <summary>
+        /// Access related options.
+        /// </summary>
+        public AccessOptions<TAccessRole> AccessOptions { get; set; } = new AccessOptions<TAccessRole>();
+
         private const string Q = "\"";
 
         /// <summary>
@@ -73,7 +79,7 @@ namespace HealthCheck.WebUI.Util
             Maybe<TAccessRole> accessRoles, SiteStatusService service,
             DateTime? from = null, DateTime? to = null)
         {
-            if (service == null)
+            if (service == null || !CanShowOverviewPageTo(accessRoles))
             {
                 return new List<SiteEventViewModel>();
             }
@@ -132,8 +138,17 @@ namespace HealthCheck.WebUI.Util
         /// Create view html from the given options.
         /// </summary>
         /// <exception cref="ConfigValidationException"></exception>
-        public string CreateViewHtml(FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
+        public string CreateViewHtml(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
         {
+            if (CanShowOverviewPageTo(accessRoles))
+            {
+                frontEndOptions.Pages.Add("overview");
+            }
+            if (CanShowTestsPageTo(accessRoles))
+            {
+                frontEndOptions.Pages.Add("tests");
+            }
+
             frontEndOptions.Validate();
             pageOptions.Validate();
 
@@ -162,6 +177,7 @@ namespace HealthCheck.WebUI.Util
         window.healthCheckOptions = {JsonConvert.SerializeObject(frontEndOptions)};
     </script>
     <script src={Q}{pageOptions.JavaScriptUrl}{Q}></script>
+    {pageOptions.CustomBodyHtml}
 </body>
 </html>";
         }
@@ -175,5 +191,27 @@ namespace HealthCheck.WebUI.Util
 
         private TestDefinition GetTest(Maybe<TAccessRole> accessRoles, string testId)
             => GetTestDefinitions(accessRoles).SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == testId);
+
+        private bool CanShowOverviewPageTo(Maybe<TAccessRole> accessRoles)
+            => CanShowPageTo(accessRoles, AccessOptions.OverviewPageAccess);
+
+        private bool CanShowTestsPageTo(Maybe<TAccessRole> accessRoles)
+            => CanShowPageTo(accessRoles, AccessOptions.TestsPageAccess);
+
+        private bool CanShowPageTo(Maybe<TAccessRole> accessRoles, Maybe<TAccessRole> pageAccess)
+        {
+            // No access defined => allow
+            if (pageAccess == null || !pageAccess.HasValue)
+            {
+                return true;
+            }
+            // Access is defined but no user roles => denied
+            else if (accessRoles.HasNothing() && pageAccess.HasValue())
+            {
+                return false;
+            }
+
+            return EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, pageAccess.Value);
+        }
     }
 }

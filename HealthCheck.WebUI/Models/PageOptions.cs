@@ -23,6 +23,11 @@ namespace HealthCheck.WebUI.Models
         public string CustomHeadHtml { get; set; }
 
         /// <summary>
+        /// Any custom body section html.
+        /// </summary>
+        public string CustomBodyHtml { get; set; }
+
+        /// <summary>
         /// Include default fonts and css from CDN.
         /// <para>Defaults to true.</para>
         /// </summary>
