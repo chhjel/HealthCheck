@@ -66,7 +66,7 @@ namespace HealthCheck.DevTest.Controllers
             .SetOptionsFor(RuntimeTestConstants.Group.BottomGroup, uiOrder: -100);
         }
 
-        protected override Maybe<RuntimeTestAccessRole> GetRequestAccessRoles(HttpRequestBase request)
+        protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequestBase request)
         {
             var roles = RuntimeTestAccessRole.Guest;
 
@@ -79,7 +79,7 @@ namespace HealthCheck.DevTest.Controllers
                 roles |= RuntimeTestAccessRole.SystemAdmins;
             }
 
-            return new Maybe<RuntimeTestAccessRole>(roles);
+            return new RequestInformation<RuntimeTestAccessRole>(roles, "dev42", "Dev user");
         }
         #endregion
 

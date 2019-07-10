@@ -53,8 +53,15 @@ namespace HealthCheck.WebUI.Abstractions
 
         /// <summary>
         /// Access roles for the current request. Is only set after BeginExecute has been called for the request.
+        /// <para>Value equals what you return from GetRequestInformation().AccessRole.</para>
         /// </summary>
         protected Maybe<TAccessRole> CurrentRequestAccessRoles { get; set; }
+
+        /// <summary>
+        /// Information about the current request. Is only set after BeginExecute has been called for the request.
+        /// <para>Value equals what you return from GetRequestInformation.</para>
+        /// </summary>
+        protected RequestInformation<TAccessRole> CurrentRequestInformation { get; private set; }
 
         private readonly HealthCheckControllerHelper<TAccessRole> Helper = new HealthCheckControllerHelper<TAccessRole>();
 
@@ -80,7 +87,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// Should return a custom enum flag object with the roles of the current user. Must match the type used in <see cref="RuntimeTestAttribute.RolesWithAccess"/>.
         /// <para>Returns null by default to allow all test.</para>
         /// </summary>
-        protected abstract Maybe<TAccessRole> GetRequestAccessRoles(HttpRequest request);
+        protected abstract RequestInformation<TAccessRole> GetRequestInformation(HttpRequest request);
 
         /// <summary>
         /// Optionally set config for test set groups. Use the options.SetOptionsFor method to add config for a group by name.
@@ -93,12 +100,13 @@ namespace HealthCheck.WebUI.Abstractions
         protected virtual void Configure(HttpRequest request) { }
 
         /// <summary>
-        /// Calls GetRequestAccessRoles and SetOptions.
+        /// Calls GetRequestInformation and SetOptions.
         /// </summary>
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var request = context?.HttpContext?.Request;
-            CurrentRequestAccessRoles = GetRequestAccessRoles(request);
+            CurrentRequestInformation = GetRequestInformation(request);
+            CurrentRequestAccessRoles = CurrentRequestInformation?.AccessRole;
             Configure(request);
             await base.OnActionExecutionAsync(context, next);
         }
