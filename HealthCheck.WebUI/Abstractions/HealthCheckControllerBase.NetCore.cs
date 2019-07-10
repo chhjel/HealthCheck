@@ -14,7 +14,7 @@ using HealthCheck.WebUI;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
-using HealthCheck.Core.Services.SiteStatus;
+using HealthCheck.Core.Abstractions;
 
 namespace HealthCheck.WebUI.Abstractions
 {
@@ -28,7 +28,12 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Must be set for any site statuses to be returned.
         /// </summary>
-        protected SiteStatusService SiteStatusService;
+        protected ISiteEventService SiteEventService { get; set; }
+
+        /// <summary>
+        /// Must be set for any site audits to be logged.
+        /// </summary>
+        protected IAuditEventService AuditEventService { get; set; }
 
         /// <summary>
         /// Set to false to return 404 for all actions.
@@ -135,7 +140,7 @@ namespace HealthCheck.WebUI.Abstractions
         public virtual async Task<ActionResult> GetSiteEvents()
         {
             if (!Enabled) return NotFound();
-            var viewModel = await Helper.GetSiteEventsViewModel(CurrentRequestAccessRoles, SiteStatusService);
+            var viewModel = await Helper.GetSiteEventsViewModel(CurrentRequestAccessRoles, SiteEventService);
             return CreateJsonResult(viewModel);
         }
 
@@ -162,6 +167,8 @@ namespace HealthCheck.WebUI.Abstractions
             if (!Enabled) return NotFound();
 
             var result = await Helper.ExecuteTest(CurrentRequestAccessRoles, data);
+            Helper.OnTestExecuted(AuditEventService, CurrentRequestInformation, data, result);
+
             return CreateJsonResult(result);
         }
 

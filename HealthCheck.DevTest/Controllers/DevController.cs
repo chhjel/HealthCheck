@@ -7,35 +7,57 @@ using HealthCheck.DevTest._TestImplementation;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.ViewModels;
 using HealthCheck.WebUI.Abstractions;
-using HealthCheck.Core.Services.SiteStatus;
 using System;
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
 using System.Collections.Generic;
+using HealthCheck.WebUI.Services;
+using HealthCheck.Core.Abstractions;
 
 namespace HealthCheck.DevTest.Controllers
 {
     public class DevController : HealthCheckControllerBase<RuntimeTestAccessRole>
     {
         private const string EndpointBase = "/dev";
-        private static SiteStatusService _siteStatusService;
+        private static ISiteEventService _siteEventService;
+        private static IAuditEventService _auditEventService;
 
         public DevController()
             : base(assemblyContainingTests: typeof(DevController).Assembly) {
 
-            var addSomeRandomEvents = false;
-            if (_siteStatusService == null)
+            if (_siteEventService == null)
             {
-                addSomeRandomEvents = true;
-                _siteStatusService = CreateSiteStatusService();
-            }
-            SiteStatusService = _siteStatusService;
 
-            if (addSomeRandomEvents)
-            {
-                ResetEvents(false);
+                _siteEventService = CreateSiteEventService();
+                _auditEventService = CreateAuditEventService();
             }
+
+            SiteEventService = _siteEventService;
+            AuditEventService = _auditEventService;
+
+            if (!_hasInited)
+            {
+                InitOnce();
+            }
+        }
+
+        private ISiteEventService CreateSiteEventService()
+            => new FlatFileSiteEventStorageService(HostingEnvironment.MapPath("~/App_Data/SiteEventStorage.json"))
+            {
+                MaxEventAge = TimeSpan.FromSeconds(10)
+            };
+        private IAuditEventService CreateAuditEventService()
+            => new FlatFileAuditEventStorageService(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"))
+            {
+                MaxEventAge = TimeSpan.FromSeconds(30)
+            };
+
+        private static bool _hasInited = false;
+        private void InitOnce()
+        {
+            _hasInited = true;
+            ResetEvents(false);
         }
 
         #region Overrides
@@ -83,6 +105,7 @@ namespace HealthCheck.DevTest.Controllers
         }
         #endregion
 
+        #region dev
         public FileResult GetScript()
         {
             var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheckfrontend.js");
@@ -93,7 +116,7 @@ namespace HealthCheck.DevTest.Controllers
         {
             if (reInitService)
             {
-                SiteStatusService = CreateSiteStatusService();
+                SiteEventService = CreateSiteEventService();
             }
 
             for (int i = 0; i < 20; i++)
@@ -106,7 +129,7 @@ namespace HealthCheck.DevTest.Controllers
         private static readonly Random _rand = new Random();
         public ActionResult AddEvent()
         {
-            if (!Enabled || SiteStatusService == null) return HttpNotFound();
+            if (!Enabled || SiteEventService == null) return HttpNotFound();
 
             CreateSomeData(out string title, out string description);
 
@@ -127,12 +150,9 @@ namespace HealthCheck.DevTest.Controllers
                     new HyperLink("Error log", "https://www.google.com?q=errorlog"),
                 }
             };
-            SiteStatusService.RegisterEvent(ev);
+            SiteEventService.StoreEvent(ev);
             return CreateJsonResult(ev);
         }
-
-        private SiteStatusService CreateSiteStatusService()
-            => new SiteStatusService(new MemorySiteStatusStorageService());
 
         private string AddXFix(string subject, string xfix)
         {
@@ -165,5 +185,6 @@ namespace HealthCheck.DevTest.Controllers
         private readonly string[] _subjects = new[] { "service", "server", "integration", "frontpage", "developer", "codebase", "project manager", "CEO" };
         private readonly string[] _accidents = new[] { "is on fire", "exploded", "is slow", "decided to close", "is infected with ransomware", "is not happy" };
         private readonly string[] _reactions = new[] { "on fire", "not pleased", "confused", "not happy", "leaving" };
+        #endregion
     }
 }

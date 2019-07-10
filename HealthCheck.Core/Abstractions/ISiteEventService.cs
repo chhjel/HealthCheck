@@ -8,7 +8,7 @@ namespace HealthCheck.Core.Abstractions
     /// <summary>
     /// Storage for <see cref="SiteEvent"/> objects.
     /// </summary>
-    public interface ISiteStatusStorageService
+    public interface ISiteEventService
     {
         /// <summary>
         /// Store a <see cref="SiteEvent"/> object.

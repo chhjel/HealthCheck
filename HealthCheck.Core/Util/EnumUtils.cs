@@ -10,6 +10,25 @@ namespace HealthCheck.Core.Util
     public static class EnumUtils
     {
         /// <summary>
+        /// Attempts to get the name of all the flagged enum values. Should never fail and returns an empty list if anything goes wrong.
+        /// </summary>
+        public static List<string> TryGetEnumFlaggedValueNames(object enm)
+        {
+            try
+            {
+                if (enm == null) return new List<string>();
+                return GetFlaggedEnumValues(enm)
+                    ?.Select(x => x?.ToString())
+                    ?.Where(x => x != null)
+                    ?.ToList();
+            }
+            catch (Exception)
+            {
+                return new List<string>();
+            }
+        }
+
+        /// <summary>
         /// Check if the given object is an enum object with flags attribute.
         /// </summary>
         public static bool IsEnumFlag(object obj)

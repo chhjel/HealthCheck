@@ -18,5 +18,20 @@ namespace HealthCheck.Core.Extensions
         /// </summary>
         public static bool HasValue<T>(this Maybe<T> maybe)
             => maybe != null && maybe.HasValue && maybe.Value != null;
+
+        /// <summary>
+        /// Value if any or null.
+        /// </summary>
+        public static object ValueOrNull<T>(this Maybe<T> maybe)
+        {
+            if (maybe != null && maybe.HasValue && maybe.Value != null)
+            {
+                return maybe.Value;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

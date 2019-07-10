@@ -1,12 +1,12 @@
-﻿using HealthCheck.Core.Enums;
-using HealthCheck.Core.Services.SiteStatus;
+﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Enums;
 using System;
 using System.Collections.Generic;
 
 namespace HealthCheck.Core.Entities
 {
     /// <summary>
-    /// An event that can be reported to the <see cref="SiteStatusService"/>.
+    /// An event that can be reported to the <see cref="ISiteEventService"/>.
     /// </summary>
     public class SiteEvent
     {

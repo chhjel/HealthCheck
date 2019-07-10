@@ -6,28 +6,28 @@ using System.Threading.Tasks;
 using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Entities;
 
-namespace HealthCheck.Core.Services.SiteStatus
+namespace HealthCheck.Core.Services.Storage
 {
     /// <summary>
     /// Stores in memory only.
     /// </summary>
-    public class MemorySiteStatusStorageService : ISiteStatusStorageService
+    public class MemoryAuditEventService : IAuditEventService
     {
-        private readonly ConcurrentBag<SiteEvent> Items = new ConcurrentBag<SiteEvent>();
+        private readonly ConcurrentBag<AuditEvent> Items = new ConcurrentBag<AuditEvent>();
 
         /// <summary>
         /// Store the given event in memory.
         /// </summary>
-        public Task StoreEvent(SiteEvent siteEvent)
+        public Task StoreEvent(AuditEvent auditEvent)
         {
-            Items.Add(siteEvent);
+            Items.Add(auditEvent);
             return Task.CompletedTask;
         }
 
         /// <summary>
         /// Get some events from memory.
         /// </summary>
-        public Task<List<SiteEvent>> GetEvents(DateTime from, DateTime to)
+        public Task<List<AuditEvent>> GetEvents(DateTime from, DateTime to)
              => Task.FromResult(Items.Where(x => x.Timestamp >= from && x.Timestamp <= to).ToList());
     }
 }

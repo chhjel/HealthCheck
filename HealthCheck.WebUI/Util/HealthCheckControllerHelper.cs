@@ -1,7 +1,8 @@
-﻿using HealthCheck.Core.Entities;
+﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Entities;
+using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Services;
-using HealthCheck.Core.Services.SiteStatus;
 using HealthCheck.Core.Util;
 using HealthCheck.WebUI.Exceptions;
 using HealthCheck.WebUI.Factories;
@@ -76,7 +77,7 @@ namespace HealthCheck.WebUI.Util
         /// Get viewmodel for test sets data.
         /// </summary>
         public async Task<List<SiteEventViewModel>> GetSiteEventsViewModel(
-            Maybe<TAccessRole> accessRoles, SiteStatusService service,
+            Maybe<TAccessRole> accessRoles, ISiteEventService service,
             DateTime? from = null, DateTime? to = null)
         {
             if (service == null || !CanShowOverviewPageTo(accessRoles))
@@ -213,5 +214,36 @@ namespace HealthCheck.WebUI.Util
 
             return EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, pageAccess.Value);
         }
+
+
+        #region Audit
+        /// <summary>
+        /// Create a new <see cref="AuditEvent"/> from the given request data and values.
+        /// </summary>
+        public AuditEvent CreateAuditEventFor(RequestInformation<TAccessRole> request, AuditEventArea area,
+            string title, string subject = null)
+            => new AuditEvent()
+            {
+                Area = area,
+                Title = title,
+                Subject = subject,
+                Timestamp = DateTime.Now,
+                UserId = request?.UserId,
+                UserName = request?.UserName,
+                UserAccessRoles = EnumUtils.TryGetEnumFlaggedValueNames(request?.AccessRole.ValueOrNull())
+            };
+
+        /// <summary>
+        /// When a test has executed this should be called.
+        /// </summary>
+        public void OnTestExecuted(IAuditEventService auditEventService, RequestInformation<TAccessRole> requestInformation, ExecuteTestInputData input, TestResultViewModel result)
+        {
+            auditEventService?.StoreEvent(
+                CreateAuditEventFor(requestInformation, AuditEventArea.Tests, title: "Test executed", subject: input?.TestId)
+                .AddDetail("Parameter", $"[{string.Join(", ", (input?.Parameters ?? new List<string>()))}]")
+                .AddDetail("Result", result?.Message)
+            );
+        }
+        #endregion
     }
 }
