@@ -20,12 +20,12 @@ namespace HealthCheck.Core.Entities
         public AuditEventArea Area { get; set; }
 
         /// <summary>
-        /// Event title.
+        /// Action that was performed.
         /// </summary>
-        public string Title { get; set; }
+        public string Action { get; set; }
 
         /// <summary>
-        /// Event subject.
+        /// What object the action was performed on.
         /// </summary>
         public string Subject { get; set; }
 
@@ -61,7 +61,7 @@ namespace HealthCheck.Core.Entities
         {
             Timestamp = timestamp;
             Area = area;
-            Title = title;
+            Action = title;
             Subject = subject;
             UserId = userId;
             UserName = userName;

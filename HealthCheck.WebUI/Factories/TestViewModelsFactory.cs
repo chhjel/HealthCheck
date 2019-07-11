@@ -88,6 +88,7 @@ namespace HealthCheck.WebUI.Factories
             var vm = new TestResultViewModel()
             {
                 TestId = testResult.Test.Id,
+                TestName = testResult.Test.Name,
                 StatusCode = (int)testResult.Status,
                 Status = testResult.Status,
                 Message = testResult.Message,
@@ -135,7 +136,7 @@ namespace HealthCheck.WebUI.Factories
                 Timestamp = e.Timestamp,
                 Area = e.Area,
                 AreaCode = (int)e.Area,
-                Title = e.Title,
+                Action = e.Action,
                 Subject = e.Subject,
                 Details = e.Details,
                 UserId = e.UserId,

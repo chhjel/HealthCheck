@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Enums;
+using System;
 
 namespace HealthCheck.WebUI.Models
 {
@@ -8,14 +9,19 @@ namespace HealthCheck.WebUI.Models
     public class AuditEventFilterInputData
     {
         /// <summary>
-        /// Subject filter.
+        /// Filter on area.
         /// </summary>
-        public string SubjectFilter { get; set; }
+        public AuditEventArea? AreaFilter { get; set; }
 
         /// <summary>
-        /// Title filter.
+        /// Filter on action that was performed.
         /// </summary>
-        public string TitleFilter { get; set; }
+        public string ActionFilter { get; set; }
+
+        /// <summary>
+        /// Filter on the object that action was performed against.
+        /// </summary>
+        public string SubjectFilter { get; set; }
 
         /// <summary>
         /// User id filter.

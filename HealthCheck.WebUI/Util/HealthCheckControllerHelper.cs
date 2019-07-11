@@ -131,7 +131,7 @@ namespace HealthCheck.WebUI.Util
             catch (Exception ex)
             {
                 var message = $"Exception: {(ex.InnerException ?? ex).Message}";
-                return TestResultViewModel.CreateError(message);
+                return TestResultViewModel.CreateError(message, test.Id, test.Name);
             }
         }
 
@@ -251,7 +251,7 @@ namespace HealthCheck.WebUI.Util
             => new AuditEvent()
             {
                 Area = area,
-                Title = title,
+                Action = title,
                 Subject = subject,
                 Timestamp = DateTime.Now,
                 UserId = request?.UserId,
@@ -265,7 +265,8 @@ namespace HealthCheck.WebUI.Util
         public void OnTestExecuted(IAuditEventService auditEventService, RequestInformation<TAccessRole> requestInformation, ExecuteTestInputData input, TestResultViewModel result)
         {
             auditEventService?.StoreEvent(
-                CreateAuditEventFor(requestInformation, AuditEventArea.Tests, title: "Test executed", subject: input?.TestId)
+                CreateAuditEventFor(requestInformation, AuditEventArea.Tests, title: "Test executed", subject: result?.TestName)
+                .AddDetail("Test id", input?.TestId)
                 .AddDetail("Parameter", $"[{string.Join(", ", (input?.Parameters ?? new List<string>()))}]")
                 .AddDetail("Result", result?.Message)
             );
@@ -296,9 +297,10 @@ namespace HealthCheck.WebUI.Util
             else if (filter.FromFilter != null && e.Timestamp < filter.FromFilter) return false;
             else if (filter.ToFilter != null && e.Timestamp > filter.ToFilter) return false;
             else if (filter.SubjectFilter != null && e.Subject?.ToLower()?.Contains(filter.SubjectFilter?.ToLower()) != true) return false;
-            else if (filter.TitleFilter != null && e.Title?.ToLower()?.Contains(filter.TitleFilter?.ToLower()) != true) return false;
+            else if (filter.ActionFilter != null && e.Action?.ToLower()?.Contains(filter.ActionFilter?.ToLower()) != true) return false;
             else if (filter.UserIdFilter != null && e.UserId?.ToLower()?.Contains(filter.UserIdFilter?.ToLower()) != true) return false;
             else if (filter.UserNameFilter != null && e.UserName?.ToLower()?.Contains(filter.UserNameFilter?.ToLower()) != true) return false;
+            else if (filter.AreaFilter != null && e.Area != filter.AreaFilter) return false;
             else return true;
         }
 

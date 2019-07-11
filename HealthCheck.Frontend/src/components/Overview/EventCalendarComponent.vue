@@ -4,7 +4,7 @@
         <!-- DATEPICKER & TYPE SELECT-->
         <v-layout v-if="calendarEvents.length > 0">
             <v-flex xs12 sm3 class="mr-4">
-                <v-dialog ref="dialog" v-model="datepickerModal"
+                <v-dialog ref="dateDialog" v-model="datepickerModal"
                     :return-value.sync="calendarStart" lazy
                     full-width width="290px">
                     <template v-slot:activator="{ on }">
@@ -22,7 +22,7 @@
                         scrollable>
                     <v-spacer></v-spacer>
                     <v-btn flat color="primary" @click="datepickerModal = false">Cancel</v-btn>
-                    <v-btn flat color="primary" @click="$refs.dialog.save(calendarStart)">OK</v-btn>
+                    <v-btn flat color="primary" @click="$refs.dateDialog.save(calendarStart)">OK</v-btn>
                     </v-date-picker>
                 </v-dialog>
             </v-flex>

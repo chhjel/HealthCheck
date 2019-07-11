@@ -1,0 +1,1 @@
+declare module '@lazy-copilot/datetimepicker';

@@ -137,7 +137,8 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Get filtered audit events to show in the UI.
         /// </summary>
-        public virtual async Task<ActionResult> GetFilteredAudits(AuditEventFilterInputData input = null)
+        [Route("GetFilteredAudits")]
+        public virtual async Task<ActionResult> GetFilteredAudits([FromBody] AuditEventFilterInputData input = null)
         {
             if (!Enabled) return NotFound();
 
@@ -148,6 +149,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Get site events to show in the UI.
         /// </summary>
+        [Route("GetSiteEvents")]
         public virtual async Task<ActionResult> GetSiteEvents()
         {
             if (!Enabled) return NotFound();

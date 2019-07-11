@@ -1,12 +1,14 @@
 import { AuditEventArea } from "./AuditEventArea";
+import KeyValuePair from "../Common/KeyValuePair";
 
 export default interface AuditEventViewModel {
+    Id: string;
     Timestamp: Date;
     Area: AuditEventArea;
     AreaCode: number;
-    Title: string;
+    Action: string;
     Subject: string;
-    Details: Array<any>;
+    Details: Array<KeyValuePair<string, string>>;
     UserId: string;
     UserName: string;
     UserAccessRoles: Array<string>;    

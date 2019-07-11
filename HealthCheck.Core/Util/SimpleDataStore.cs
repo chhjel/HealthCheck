@@ -57,15 +57,23 @@ namespace HealthCheck.Core.Util
             Serializer = serializer;
             Deserializer = deserializer;
 
-            if (!File.Exists(FilePath))
+            EnsureFileExists();
+        }
+
+        private void EnsureFileExists()
+        {
+            lock (_fileLock)
             {
-                var parentFolder = Directory.GetParent(filepath).FullName;
-                if (!Directory.Exists(parentFolder))
+                if (!File.Exists(FilePath))
                 {
-                    Directory.CreateDirectory(parentFolder);
+                    var parentFolder = Directory.GetParent(FilePath).FullName;
+                    if (!Directory.Exists(parentFolder))
+                    {
+                        Directory.CreateDirectory(parentFolder);
+                    }
+                    File.WriteAllText(FilePath, "");
+                    OnFileWrittenEvent?.Invoke();
                 }
-                File.WriteAllText(FilePath, "");
-                OnFileWrittenEvent?.Invoke();
             }
         }
 
@@ -114,6 +122,7 @@ namespace HealthCheck.Core.Util
                 NewRowsBuffer.RemoveAll(x => condition(DeserializeRow(x)));
             }
 
+            EnsureFileExists();
             lock (_fileLock)
             {
                 var tempFile = Path.GetTempFileName();
@@ -145,6 +154,7 @@ namespace HealthCheck.Core.Util
                 }
             }
 
+            EnsureFileExists();
             lock (_fileLock)
             {
                 var tempFile = Path.GetTempFileName();
@@ -179,6 +189,7 @@ namespace HealthCheck.Core.Util
             {
                 try
                 {
+                    EnsureFileExists();
                     lock (_fileLock)
                     {
                         File.WriteAllText(FilePath, string.Empty);
@@ -198,6 +209,7 @@ namespace HealthCheck.Core.Util
         /// </summary>
         public IEnumerable<TItem> GetEnumerable()
         {
+            EnsureFileExists();
             lock (_fileLock)
             {
                 using (FileStream fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -251,6 +263,7 @@ namespace HealthCheck.Core.Util
 
                 try
                 {
+                    EnsureFileExists();
                     lock (_fileLock)
                     {
                         File.AppendAllLines(FilePath, NewRowsBuffer);

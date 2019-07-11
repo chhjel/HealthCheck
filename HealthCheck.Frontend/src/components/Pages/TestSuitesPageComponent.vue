@@ -87,9 +87,9 @@
                         {{ testSetDataFailedErrorMessage }}
                         </v-alert>
 
-                        <v-progress-circular 
+                        <v-progress-linear 
                             v-if="testSetDataLoadInProgress"
-                            indeterminate color="green"></v-progress-circular>
+                            indeterminate color="green"></v-progress-linear>
 
                         <test-set-component
                             v-if="activeSet != null"
@@ -201,6 +201,7 @@ export default class TestSuitesPageComponent extends Vue {
             })
         })
         .then(response => response.json())
+        // .then(response => new Promise<TestsDataViewModel>(resolve => setTimeout(() => resolve(response), 3000)))
         .then((testsData: TestsDataViewModel) => this.onTestSetDataRetrieved(testsData))
         .catch((e) => {
             this.testSetDataLoadInProgress = false;

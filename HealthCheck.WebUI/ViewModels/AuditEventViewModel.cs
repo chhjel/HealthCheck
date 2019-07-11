@@ -26,12 +26,12 @@ namespace HealthCheck.WebUI.ViewModels
         public int AreaCode { get; set; }
 
         /// <summary>
-        /// Event title.
+        /// Action that was performed.
         /// </summary>
-        public string Title { get; set; }
+        public string Action { get; set; }
 
         /// <summary>
-        /// Event subject.
+        /// What object the action was performed on.
         /// </summary>
         public string Subject { get; set; }
 

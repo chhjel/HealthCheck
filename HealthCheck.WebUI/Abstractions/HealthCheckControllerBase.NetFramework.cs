@@ -134,6 +134,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Get filtered audit events to show in the UI.
         /// </summary>
+        [HttpPost]
         public virtual async Task<ActionResult> GetFilteredAudits(AuditEventFilterInputData input = null)
         {
             if (!Enabled) return HttpNotFound();

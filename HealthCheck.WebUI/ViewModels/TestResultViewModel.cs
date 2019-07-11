@@ -15,6 +15,11 @@ namespace HealthCheck.WebUI.ViewModels
         public string TestId { get; set; }
 
         /// <summary>
+        /// name of the test this result is from.
+        /// </summary>
+        public string TestName { get; set; }
+
+        /// <summary>
         /// Result status code.
         /// <para>0=<see cref="TestResultStatus.Success"/>, 1=<see cref="TestResultStatus.Warning"/>, 2=<see cref="TestResultStatus.Error"/></para>
         /// </summary>
@@ -43,11 +48,12 @@ namespace HealthCheck.WebUI.ViewModels
         /// <summary>
         /// Create a new <see cref="TestResultViewModel"/> with error status code.
         /// </summary>
-        public static TestResultViewModel CreateError(string message, string testId = null)
+        public static TestResultViewModel CreateError(string message, string testId = null, string testName = null)
         {
             return new TestResultViewModel()
             {
                 TestId = testId,
+                TestName = testName,
                 StatusCode = (int)TestResultStatus.Error,
                 Message = message
             };
