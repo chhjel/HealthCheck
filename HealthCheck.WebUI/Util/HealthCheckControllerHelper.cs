@@ -141,17 +141,7 @@ namespace HealthCheck.WebUI.Util
         /// <exception cref="ConfigValidationException"></exception>
         public string CreateViewHtml(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
         {
-            if (CanShowOverviewPageTo(accessRoles))
-            {
-                frontEndOptions.Pages.Add("overview");
-            }
-            if (CanShowTestsPageTo(accessRoles))
-            {
-                frontEndOptions.Pages.Add("tests");
-            }
-
-            frontEndOptions.Validate();
-            pageOptions.Validate();
+            CheckPageOptions(accessRoles, frontEndOptions, pageOptions);
 
             var defaultAssets = !pageOptions.IncludeDefaultAssetLinks ? "" : $@"
     <link href={Q}https://cdn.jsdelivr.net/npm/vuetify@1/dist/vuetify.min.css{Q} rel={Q}stylesheet{Q} />
@@ -183,13 +173,47 @@ namespace HealthCheck.WebUI.Util
 </html>";
         }
 
+        private void CheckPageOptions(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
+        {
+            var deniedEndpoint = "0x90";
+            if (CanShowOverviewPageTo(accessRoles))
+            {
+                frontEndOptions.Pages.Add("overview");
+            }
+            else
+            {
+                frontEndOptions.GetSiteEventsEndpoint = deniedEndpoint;
+            }
+
+            if (CanShowTestsPageTo(accessRoles))
+            {
+                frontEndOptions.Pages.Add("tests");
+            }
+            else
+            {
+                frontEndOptions.ExecuteTestEndpoint = deniedEndpoint;
+                frontEndOptions.GetTestsEndpoint = deniedEndpoint;
+            }
+
+            if (CanShowAuditPageTo(accessRoles))
+            {
+                frontEndOptions.Pages.Add("auditlog");
+            }
+            else
+            {
+                frontEndOptions.GetFilteredAuditLogEventsEndpoint = deniedEndpoint;
+            }
+            frontEndOptions.Validate();
+            pageOptions.Validate();
+        }
+
         private List<TestClassDefinition> GetTestDefinitions(Maybe<TAccessRole> accessRoles)
         {
             var userRolesMaybe = accessRoles ?? new Maybe<TAccessRole>();
             var userRoles = userRolesMaybe.HasValue ? (object)userRolesMaybe.Value : null;
             return TestDiscoverer.DiscoverTestDefinitions(onlyTestsAllowedToBeManuallyExecuted: true, userRolesEnum: userRoles);
         }
-
+        
         private TestDefinition GetTest(Maybe<TAccessRole> accessRoles, string testId)
             => GetTestDefinitions(accessRoles).SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == testId);
 
@@ -199,12 +223,15 @@ namespace HealthCheck.WebUI.Util
         private bool CanShowTestsPageTo(Maybe<TAccessRole> accessRoles)
             => CanShowPageTo(accessRoles, AccessOptions.TestsPageAccess);
 
-        private bool CanShowPageTo(Maybe<TAccessRole> accessRoles, Maybe<TAccessRole> pageAccess)
+        private bool CanShowAuditPageTo(Maybe<TAccessRole> accessRoles)
+            => CanShowPageTo(accessRoles, AccessOptions.AuditLogAccess, defaultValue: false);
+
+        private bool CanShowPageTo(Maybe<TAccessRole> accessRoles, Maybe<TAccessRole> pageAccess, bool defaultValue = true)
         {
-            // No access defined => allow
+            // No access defined => default
             if (pageAccess == null || !pageAccess.HasValue)
             {
-                return true;
+                return defaultValue;
             }
             // Access is defined but no user roles => denied
             else if (accessRoles.HasNothing() && pageAccess.HasValue())
@@ -214,7 +241,6 @@ namespace HealthCheck.WebUI.Util
 
             return EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, pageAccess.Value);
         }
-
 
         #region Audit
         /// <summary>
@@ -243,6 +269,48 @@ namespace HealthCheck.WebUI.Util
                 .AddDetail("Parameter", $"[{string.Join(", ", (input?.Parameters ?? new List<string>()))}]")
                 .AddDetail("Result", result?.Message)
             );
+        }
+
+        /// <summary>
+        /// Get viewmodel for audit filter results.
+        /// </summary>
+        public async Task<IEnumerable<AuditEventViewModel>> GetAuditEventsFilterViewModel(
+            Maybe<TAccessRole> accessRoles,
+            AuditEventFilterInputData filter,
+            IAuditEventService auditEventService)
+        {
+            if (auditEventService == null || !RoleHasAccessToAuditLogs(accessRoles))
+                return Enumerable.Empty<AuditEventViewModel>();
+
+            var from = filter?.FromFilter ?? DateTime.MinValue;
+            var to = filter?.ToFilter ?? DateTime.MaxValue;
+            var events = await auditEventService.GetEvents(from, to);
+            return events
+                .Where(x => AuditEventMatchesFilter(x, filter))
+                .Select(x => TestsViewModelsFactory.CreateViewModel(x));
+        }
+
+        private bool AuditEventMatchesFilter(AuditEvent e, AuditEventFilterInputData filter)
+        {
+            if (filter == null) return true;
+            else if (filter.FromFilter != null && e.Timestamp < filter.FromFilter) return false;
+            else if (filter.ToFilter != null && e.Timestamp > filter.ToFilter) return false;
+            else if (filter.SubjectFilter != null && e.Subject?.ToLower()?.Contains(filter.SubjectFilter?.ToLower()) != true) return false;
+            else if (filter.TitleFilter != null && e.Title?.ToLower()?.Contains(filter.TitleFilter?.ToLower()) != true) return false;
+            else if (filter.UserIdFilter != null && e.UserId?.ToLower()?.Contains(filter.UserIdFilter?.ToLower()) != true) return false;
+            else if (filter.UserNameFilter != null && e.UserName?.ToLower()?.Contains(filter.UserNameFilter?.ToLower()) != true) return false;
+            else return true;
+        }
+
+        private bool RoleHasAccessToAuditLogs(Maybe<TAccessRole> accessRoles)
+        {
+            // No access defined or user has no roles => denied
+            if (AccessOptions?.AuditLogAccess == null || AccessOptions?.AuditLogAccess?.HasValue != true || accessRoles.HasNothing())
+            {
+                return false;
+            }
+
+            return EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, AccessOptions.AuditLogAccess.Value);
         }
         #endregion
     }

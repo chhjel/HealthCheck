@@ -135,11 +135,23 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
+        /// Get filtered audit events to show in the UI.
+        /// </summary>
+        public virtual async Task<ActionResult> GetFilteredAudits(AuditEventFilterInputData input = null)
+        {
+            if (!Enabled) return NotFound();
+
+            var filteredItems = await Helper.GetAuditEventsFilterViewModel(CurrentRequestAccessRoles, input, AuditEventService);
+            return CreateJsonResult(filteredItems);
+        }
+
+        /// <summary>
         /// Get site events to show in the UI.
         /// </summary>
         public virtual async Task<ActionResult> GetSiteEvents()
         {
             if (!Enabled) return NotFound();
+
             var viewModel = await Helper.GetSiteEventsViewModel(CurrentRequestAccessRoles, SiteEventService);
             return CreateJsonResult(viewModel);
         }

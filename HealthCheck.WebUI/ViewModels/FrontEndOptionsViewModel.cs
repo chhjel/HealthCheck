@@ -33,10 +33,16 @@ namespace HealthCheck.WebUI.ViewModels
         public string ExecuteTestEndpoint { get; set; }
 
         /// <summary>
-        /// Url to the endpoint that retrieves events..
+        /// Url to the endpoint that retrieves events.
         /// <para>Is set from the constructor relative to the provided baseApiEndpoint.</para>
         /// </summary>
         public string GetSiteEventsEndpoint { get; set; }
+
+        /// <summary>
+        /// Url to the endpoint that retrieves filtered audit log events.
+        /// <para>Is set from the constructor relative to the provided baseApiEndpoint.</para>
+        /// </summary>
+        public string GetFilteredAuditLogEventsEndpoint { get; set; }
 
         /// <summary>
         /// Pages that will be shown.
@@ -53,6 +59,7 @@ namespace HealthCheck.WebUI.ViewModels
             ExecuteTestEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/ExecuteTest";
             GetTestsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetTests";
             GetSiteEventsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetSiteEvents";
+            GetFilteredAuditLogEventsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetFilteredAudits";
         }
 
         /// <summary>

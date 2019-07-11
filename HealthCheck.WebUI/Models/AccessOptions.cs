@@ -18,5 +18,11 @@ namespace HealthCheck.WebUI.Models
         /// <para>If null anyone can access it by default.</para>
         /// </summary>
         public Maybe<TAccessRole> TestsPageAccess { get; set; }
+
+        /// <summary>
+        /// Roles with access to view the audit logs.
+        /// <para>If null nobody can access it by default.</para>
+        /// </summary>
+        public Maybe<TAccessRole> AuditLogAccess { get; set; }
     }
 }

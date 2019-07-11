@@ -23,6 +23,7 @@ namespace HealthCheck.DevTest.Controllers
         private static ISiteEventService _siteEventService;
         private static IAuditEventService _auditEventService;
 
+        #region Init
         public DevController()
             : base(assemblyContainingTests: typeof(DevController).Assembly) {
 
@@ -59,6 +60,7 @@ namespace HealthCheck.DevTest.Controllers
             _hasInited = true;
             ResetEvents(false);
         }
+        #endregion
 
         #region Overrides
         protected override FrontEndOptionsViewModel GetFrontEndOptions()
@@ -77,8 +79,9 @@ namespace HealthCheck.DevTest.Controllers
         protected override void Configure(HttpRequestBase request)
         {
             TestRunner.IncludeExceptionStackTraces = CurrentRequestAccessRoles.HasValue && CurrentRequestAccessRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);
-            AccessOptions.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
-            //AccessOptions.TestsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            AccessOptions.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.Guest);
+            AccessOptions.TestsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
+            AccessOptions.AuditLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
         }
 
         protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)

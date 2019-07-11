@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Entities;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -122,6 +123,25 @@ namespace HealthCheck.WebUI.Factories
                 GroupName = x.GroupName,
                 UIOrder = x.UIOrder
             }).ToList();
+        }
+
+        /// <summary>
+        /// Create a <see cref="GroupOptionsViewModel"/> from the given <see cref="TestSetGroupsOptions"/>.
+        /// </summary>
+        internal AuditEventViewModel CreateViewModel(AuditEvent e)
+        {
+            return new AuditEventViewModel()
+            {
+                Timestamp = e.Timestamp,
+                Area = e.Area,
+                AreaCode = (int)e.Area,
+                Title = e.Title,
+                Subject = e.Subject,
+                Details = e.Details,
+                UserId = e.UserId,
+                UserName = e.UserName,
+                UserAccessRoles = e.UserAccessRoles,
+            };
         }
     }
 

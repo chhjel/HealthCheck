@@ -16,21 +16,28 @@
                     <v-btn flat 
                         v-if="showPageMenu(PAGE_TESTS)"
                         @click="setCurrentPage(PAGE_TESTS)">Tests</v-btn>
+                    <v-btn flat 
+                        v-if="showPageMenu(PAGE_AUDITLOG)"
+                        @click="setCurrentPage(PAGE_AUDITLOG)">Audit log</v-btn>
                 </v-toolbar-items>
             </v-toolbar>
 
             <!-- CONTENT -->
-            <test-suites-page-component 
-                v-if="shouldIncludePage(PAGE_TESTS)"
-                v-show="currentPage == PAGE_TESTS"
+            <no-page-available-page-component
+                v-if="shouldIncludePage(PAGE_NO_PAGES_AVAILABLE)"
+                v-show="currentPage == PAGE_NO_PAGES_AVAILABLE"
                 :options="options" />
             <overview-page-component
                 v-if="shouldIncludePage(PAGE_OVERVIEW)"
                 v-show="currentPage == PAGE_OVERVIEW"
                 :options="options" />
-            <no-page-available-page-component
-                v-if="shouldIncludePage(PAGE_NO_PAGES_AVAILABLE)"
-                v-show="currentPage == PAGE_NO_PAGES_AVAILABLE"
+            <test-suites-page-component 
+                v-if="shouldIncludePage(PAGE_TESTS)"
+                v-show="currentPage == PAGE_TESTS"
+                :options="options" />
+            <audit-log-page-component 
+                v-if="shouldIncludePage(PAGE_AUDITLOG)"
+                v-show="currentPage == PAGE_AUDITLOG"
                 :options="options" />
 
             <!-- FOOTER -->
@@ -43,17 +50,19 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
+import NoPageAvailablePageComponent from './Pages/NoPageAvailablePageComponent.vue';
 import TestSuitesPageComponent from './Pages/TestSuitesPageComponent.vue';
 import OverviewPageComponent from './Pages/OverviewPageComponent.vue';
-import NoPageAvailablePageComponent from './Pages/NoPageAvailablePageComponent.vue';
+import AuditLogPageComponent from './Pages/AuditLogPageComponent.vue';
 import FrontEndOptionsViewModel from '../models/Page/FrontEndOptionsViewModel';
 import UrlUtils from '../util/UrlUtils';
 
 @Component({
     components: {
+        NoPageAvailablePageComponent,
         TestSuitesPageComponent,
         OverviewPageComponent,
-        NoPageAvailablePageComponent
+        AuditLogPageComponent
     }
 })
 export default class HealthCheckPageComponent extends Vue {
@@ -65,6 +74,7 @@ export default class HealthCheckPageComponent extends Vue {
     // Pages
     PAGE_OVERVIEW: string = "overview";
     PAGE_TESTS: string = "tests";
+    PAGE_AUDITLOG: string = "auditlog";
     PAGE_NO_PAGES_AVAILABLE: string = "no_page";
     currentPage: string = this.PAGE_TESTS;
     pagesWithMenu: string[] = [ this.PAGE_TESTS ];
