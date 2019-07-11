@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -11,8 +10,9 @@ namespace HealthCheck.Core.Util
     /// <summary>
     /// Simple data storage to flatfile.
     /// <para>Requires your own item serialization/deserialization logic.</para>
+    /// <para>If you need item ids use <see cref="SimpleDataStoreWithId{TItem, TId}"/> instead.</para>
     /// </summary>
-    public class SimpleDataStore<T>
+    public class SimpleDataStore<TItem>
     {
         /// <summary>
         /// Path to the storage file.
@@ -25,12 +25,22 @@ namespace HealthCheck.Core.Util
         /// </summary>
         public float WriteDelay { get; set; } = 2f;
 
-        private Func<T, string[]> Serializer { get; set; }
-        private Func<string[], T> Deserializer { get; set; }
+        internal Func<TItem, string[]> Serializer { get; set; }
+        internal Func<string[], TItem> Deserializer { get; set; }
 
-        private bool IsWriteQueued { get; set; }
-        private StringBuilder WriteBuilder { get; set; } = new StringBuilder();
-        private readonly object _fileLock = new object();
+        internal bool IsWriteQueued { get; set; }
+        internal List<string> NewRowsBuffer { get; set; } = new List<string>();
+        internal readonly object _fileLock = new object();
+
+        /// <summary>
+        /// Signature of OnFileWrittenEvent.
+        /// </summary>
+        public delegate void OnFileWritten();
+
+        /// <summary>
+        /// Triggered whenever the file is updated.
+        /// </summary>
+        public event OnFileWritten OnFileWrittenEvent;
 
         /// <summary>
         /// Simple data storage to flatfile.
@@ -40,8 +50,8 @@ namespace HealthCheck.Core.Util
         /// <param name="serializer">Serialize the wanted properties into string columns.</param>
         /// <param name="deserializer">Deserialize the serialized columns back into their properties.</param>
         public SimpleDataStore(string filepath,
-            Func<T, string[]> serializer,
-            Func<string[], T> deserializer)
+            Func<TItem, string[]> serializer,
+            Func<string[], TItem> deserializer)
         {
             FilePath = filepath;
             Serializer = serializer;
@@ -55,6 +65,7 @@ namespace HealthCheck.Core.Util
                     Directory.CreateDirectory(parentFolder);
                 }
                 File.WriteAllText(FilePath, "");
+                OnFileWrittenEvent?.Invoke();
             }
         }
 
@@ -66,28 +77,43 @@ namespace HealthCheck.Core.Util
         /// <param name="serializer">Serialize the wanted properties into a string.</param>
         /// <param name="deserializer">Deserialize the serialized string back into a object.</param>
         public SimpleDataStore(string filepath,
-            Func<T, string> serializer,
-            Func<string, T> deserializer)
-            :this(
+            Func<TItem, string> serializer,
+            Func<string, TItem> deserializer)
+            : this(
                  filepath,
-                 new Func<T, string[]>(item => new string[] { serializer(item) }),
-                 new Func<string[], T>(columns => columns.Length == 0 ? default : deserializer(columns[0]))
-        ) { }
+                 serializer: new Func<TItem, string[]>(item => new string[] { serializer(item) }),
+                 deserializer: new Func<string[], TItem>(columns => columns.Length == 0 ? default : deserializer(columns[0]))
+        )
+        { }
+
+        /// <summary>
+        /// Deconstructor. Stores any buffered data before self destructing.
+        /// </summary>
+        ~SimpleDataStore()
+        {
+            WriteBufferToFile();
+        }
 
         /// <summary>
         /// Add a new row in the file with the given object.
         /// </summary>
-        public void InsertItem(T item)
+        public virtual TItem InsertItem(TItem item)
         {
             var row = SerializeItem(item);
-            Task.Run(() => QueueWrite(row));
+            Task.Run(() => QueueWriteBufferToFile(row));
+            return item;
         }
 
         /// <summary>
-        /// Delete all rows that matches the given condition.
+        /// Delete all rows that match the given condition.
         /// </summary>
-        public void DeleteWhere(Func<T, bool> condition)
+        public void DeleteWhere(Func<TItem, bool> condition)
         {
+            lock (NewRowsBuffer)
+            {
+                NewRowsBuffer.RemoveAll(x => condition(DeserializeRow(x)));
+            }
+
             lock (_fileLock)
             {
                 var tempFile = Path.GetTempFileName();
@@ -98,6 +124,44 @@ namespace HealthCheck.Core.Util
 
                 File.Delete(FilePath);
                 File.Move(tempFile, FilePath);
+                OnFileWrittenEvent?.Invoke();
+            }
+        }
+
+        /// <summary>
+        /// Perform the given changes on all rows that match the given condition.
+        /// </summary>
+        public void UpdateWhere(Func<TItem, bool> condition, Func<TItem, TItem> update)
+        {
+            lock (NewRowsBuffer)
+            {
+                for (int i = 0; i < NewRowsBuffer.Count; i++)
+                {
+                    var item = DeserializeRow(NewRowsBuffer[i]);
+                    if (condition(item))
+                    {
+                        NewRowsBuffer[i] = SerializeItem(update(item));
+                    }
+                }
+            }
+
+            lock (_fileLock)
+            {
+                var tempFile = Path.GetTempFileName();
+
+                var updatedLines = File.ReadLines(FilePath)
+                    .Select(row => new { row, item = DeserializeRow(row) })
+                    .Select(x =>
+                        (condition(x.item))
+                            ? SerializeItem(update(x.item))
+                            : x.row
+                    );
+
+                File.WriteAllLines(tempFile, updatedLines);
+
+                File.Delete(FilePath);
+                File.Move(tempFile, FilePath);
+                OnFileWrittenEvent?.Invoke();
             }
         }
 
@@ -106,9 +170,9 @@ namespace HealthCheck.Core.Util
         /// </summary>
         public async Task ClearDataAsync()
         {
-            lock (WriteBuilder)
+            lock (NewRowsBuffer)
             {
-                WriteBuilder.Clear();
+                NewRowsBuffer.Clear();
             }
 
             for (int i = 0; i < 5; i++)
@@ -118,6 +182,7 @@ namespace HealthCheck.Core.Util
                     lock (_fileLock)
                     {
                         File.WriteAllText(FilePath, string.Empty);
+                        OnFileWrittenEvent?.Invoke();
                     }
                     break;
                 }
@@ -129,9 +194,9 @@ namespace HealthCheck.Core.Util
         }
 
         /// <summary>
-        /// Get all rows as enumerable, reading one line at a time.
+        /// Get all rows as enumerable, reading one line at a time. Also reads buffered lines.
         /// </summary>
-        public IEnumerable<T> GetEnumerable()
+        public IEnumerable<TItem> GetEnumerable()
         {
             lock (_fileLock)
             {
@@ -146,14 +211,22 @@ namespace HealthCheck.Core.Util
                     }
                 }
             }
+
+            lock (NewRowsBuffer)
+            {
+                foreach (var bufferedRow in NewRowsBuffer)
+                {
+                    yield return DeserializeRow(bufferedRow);
+                }
+            }
         }
 
-        private async Task QueueWrite(string row)
+        private async Task QueueWriteBufferToFile(string row)
         {
             // Store text in memory
-            lock (WriteBuilder)
+            lock (NewRowsBuffer)
             {
-                WriteBuilder.AppendLine(row);
+                NewRowsBuffer.Add(row);
 
                 // Return if already queued a write
                 if (IsWriteQueued)
@@ -167,16 +240,23 @@ namespace HealthCheck.Core.Util
             await Task.Delay(TimeSpan.FromSeconds(WriteDelay));
 
             // Write and clear queue
-            lock (WriteBuilder)
+            WriteBufferToFile();
+        }
+
+        internal void WriteBufferToFile()
+        {
+            lock (NewRowsBuffer)
             {
-                var newRows = WriteBuilder.ToString();
+                if (NewRowsBuffer.Count == 0) return;
+
                 try
                 {
                     lock (_fileLock)
                     {
-                        File.AppendAllText(FilePath, newRows);
+                        File.AppendAllLines(FilePath, NewRowsBuffer);
+                        OnFileWrittenEvent?.Invoke();
                     }
-                    WriteBuilder.Clear();
+                    NewRowsBuffer.Clear();
                 }
                 catch (Exception)
                 {
@@ -186,8 +266,8 @@ namespace HealthCheck.Core.Util
             }
         }
 
-        private T DeserializeRow(string row) => Deserializer(Decode(row));
-        private string SerializeItem(T item) => Encode(Serializer(item));
+        private TItem DeserializeRow(string row) => Deserializer(Decode(row));
+        private string SerializeItem(TItem item) => Encode(Serializer(item));
 
         private const string Delimiter = "|";
         private const string NewlineReplacement = @"\n";
