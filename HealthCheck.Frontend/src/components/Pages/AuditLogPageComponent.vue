@@ -331,6 +331,9 @@ export default class AuditLogPageComponent extends Vue {
 </style>
 
 <style>
+.audit-table th i {
+    margin-left: 5px;
+}
 .audit-table-row {
     cursor: pointer;
 }
