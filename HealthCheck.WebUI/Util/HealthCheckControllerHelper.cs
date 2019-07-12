@@ -270,11 +270,11 @@ namespace HealthCheck.WebUI.Util
         /// Create a new <see cref="AuditEvent"/> from the given request data and values.
         /// </summary>
         public AuditEvent CreateAuditEventFor(RequestInformation<TAccessRole> request, AuditEventArea area,
-            string title, string subject = null)
+            string action, string subject = null)
             => new AuditEvent()
             {
                 Area = area,
-                Action = title,
+                Action = action,
                 Subject = subject,
                 Timestamp = DateTime.Now,
                 UserId = request?.UserId,
@@ -288,7 +288,7 @@ namespace HealthCheck.WebUI.Util
         public void OnTestExecuted(IAuditEventService auditEventService, RequestInformation<TAccessRole> requestInformation, ExecuteTestInputData input, TestResultViewModel result)
         {
             auditEventService?.StoreEvent(
-                CreateAuditEventFor(requestInformation, AuditEventArea.Tests, title: "Test executed", subject: result?.TestName)
+                CreateAuditEventFor(requestInformation, AuditEventArea.Tests, action: "Test executed", subject: result?.TestName)
                 .AddDetail("Test id", input?.TestId)
                 .AddDetail("Parameters", $"[{string.Join(", ", (input?.Parameters ?? new List<string>()))}]")
                 .AddDetail("Result", result?.Message)

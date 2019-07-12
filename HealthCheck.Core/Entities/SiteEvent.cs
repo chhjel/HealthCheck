@@ -38,6 +38,31 @@ namespace HealthCheck.Core.Entities
         /// <summary>
         /// Any urls to related things.
         /// </summary>
-        public List<HyperLink> RelatedLinks { get; set; }
+        public List<HyperLink> RelatedLinks { get; set; } = new List<HyperLink>();
+
+        /// <summary>
+        /// Create a new <see cref="SiteEvent"/>.
+        /// </summary>
+        /// <param name="severity">Severity of the event.</param>
+        /// <param name="eventTypeId">Custom id of this type of event.</param>
+        /// <param name="title">Title of the event.</param>
+        /// <param name="description">Description of the event.</param>
+        public SiteEvent(SiteEventSeverity severity, string eventTypeId, string title, string description)
+        {
+            Severity = severity;
+            Timestamp = DateTime.Now;
+            EventTypeId = eventTypeId;
+            Title = title;
+            Description = description;
+        }
+
+        /// <summary>
+        /// Add an url related to this event.
+        /// </summary>
+        public SiteEvent AddRelatedLink(string title, string url)
+        {
+            RelatedLinks.Add(new HyperLink(title, url));
+            return this;
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Entities;
+using HealthCheck.Core.Enums;
 using HealthCheck.WebUI.Extensions;
 using HealthCheck.WebUI.Serializers;
 using System;
@@ -83,10 +84,21 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         }
 
         [RuntimeTest(Category = RuntimeTestConstants.Categories.ScheduledHealthCheck)]
-        public TestResult TestOfAHealthCheck()
+        public TestResult TestOfAHealthCheckWarning()
         {
-            return TestResult.CreateWarning("")
-                .SetSiteEvent(new SiteEvent());
+            return TestResult.CreateWarning("Some warning here")
+                .SetSiteEvent(new SiteEvent(SiteEventSeverity.Warning, "IntegrationXLatency", "Increased latency with X", "Integration with X seems to be a bit slower than usual."));
+        }
+
+        [RuntimeTest(Category = RuntimeTestConstants.Categories.ScheduledHealthCheck)]
+        public TestResult TestOfAHealthCheckError()
+        {
+            return TestResult.CreateWarning("Some error")
+                .SetSiteEvent(
+                    new SiteEvent(SiteEventSeverity.Error, "IntegrationDataImport",
+                        "Integration Y instabilities", "Failed to retrieve data from integration Y, the service might be temporary down.")
+                    .AddRelatedLink("Endpoint", "https://www.google.com/?q=some+endpoint+instead+of+this")
+                );
         }
 
         [RuntimeTest]

@@ -127,7 +127,7 @@ namespace HealthCheck.Core.Services
         private bool IsTestIncludedForRoles(TestDefinition test, object roles)
         {
             // No access set => allow
-            if (test.RolesWithAccess == null)
+            if (roles == null || test.RolesWithAccess == null)
             {
                 return true;
             }

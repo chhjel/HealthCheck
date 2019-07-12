@@ -21,24 +21,56 @@ namespace HealthCheck.Core.Services
         public bool IncludeExceptionStackTraces { get; set; }
 
         /// <summary>
-        /// Executes matching tests. Any results containing a <see cref="TestResult.SiteEvent"/> will be sent to the provided <see cref="ISiteEventService"/>.
+        /// Executes matching tests.
+        /// <para>Optionally sends results containing a <see cref="TestResult.SiteEvent"/> if a <see cref="ISiteEventService"/> is provided,
+        /// and creates audit events if a <see cref="IAuditEventService"/> is provided.</para>
         /// </summary>
         /// <param name="testDiscoveryService">Service that will discover tests to run.</param>
-        /// <param name="siteEventService">Service that any <see cref="TestResult.SiteEvent"/> will be sent to.</param>
         /// <param name="testFilter">Only tests that return true to this condition will be executed.</param>
+        /// <param name="siteEventService">Service that any <see cref="TestResult.SiteEvent"/> will be sent to if not null.</param>
+        /// <param name="auditEventService">Stores an entry to the audit service if not null.</param>
+        /// <param name="auditUserId">User id stored in audit log if service is provided.</param>
+        /// <param name="auditUsername">User name stored in audit log if service is provided.</param>
         /// <returns>All executed test results are returned.</returns>
         public async Task<List<TestResult>> ExecuteTests(
             TestDiscoveryService testDiscoveryService,
-            ISiteEventService siteEventService,
-            Func<TestDefinition, bool> testFilter)
+            Func<TestDefinition, bool> testFilter,
+            ISiteEventService siteEventService = null,
+            IAuditEventService auditEventService = null,
+            string auditUserId = "0",
+            string auditUsername = "System")
         {
             var tests = testDiscoveryService.DiscoverTestDefinitions(includeInvalidTests: false, onlyTestsAllowedToBeManuallyExecuted: false);
             var results = await ExecuteTests(tests, testFilter);
 
-            var siteEvents = results.Where(x => x.SiteEvent != null).Select(x => x.SiteEvent);
-            foreach(var ev in siteEvents)
+            if (auditEventService != null)
             {
-                await siteEventService.StoreEvent(ev);
+                foreach(var result in results)
+                {
+                    await auditEventService.StoreEvent(new AuditEvent()
+                        {
+                            Area = Enums.AuditEventArea.Tests,
+                            Action = "Test executed",
+                            Subject = result?.Test?.Name,
+                            Timestamp = DateTime.Now,
+                            UserId = auditUserId,
+                            UserName = auditUsername,
+                            UserAccessRoles = new List<string>()
+                        }
+                        .AddDetail("Test id", result?.Test?.Id)
+                        .AddDetail("Result", result?.Message)
+                        .AddDetail("Duration", $"{result?.DurationInMilliseconds}ms")
+                    );
+                }
+            }
+
+            if (siteEventService != null)
+            {
+                var siteEvents = results.Where(x => x.SiteEvent != null).Select(x => x.SiteEvent);
+                foreach (var ev in siteEvents)
+                {
+                    await siteEventService.StoreEvent(ev);
+                }
             }
 
             return results;
@@ -49,7 +81,9 @@ namespace HealthCheck.Core.Services
         /// </summary>
         /// <param name="testClasses">Classes to execute.</param>
         /// <param name="testFilter">Only tests that return true to this condition will be executed. If null all tests will be included.</param>
-        public async Task<List<TestResult>> ExecuteTests(List<TestClassDefinition> testClasses, Func<TestDefinition, bool> testFilter = null)
+        public async Task<List<TestResult>> ExecuteTests(
+            List<TestClassDefinition> testClasses,
+            Func<TestDefinition, bool> testFilter = null)
         {
             var results = new ConcurrentBag<TestResult>();
             foreach (var testClass in testClasses)

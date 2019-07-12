@@ -11,10 +11,10 @@ using System;
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
-using System.Collections.Generic;
 using HealthCheck.WebUI.Services;
 using HealthCheck.Core.Abstractions;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace HealthCheck.DevTest.Controllers
 {
@@ -118,8 +118,12 @@ namespace HealthCheck.DevTest.Controllers
 
         public async Task<ActionResult> RunHealthChecks()
         {
-            await TestRunner.ExecuteTests(TestDiscoverer, SiteEventService, (test) => test.Categories.Contains(RuntimeTestConstants.Categories.ScheduledHealthCheck));
-            return Content("Checks executed");
+            var results = await TestRunner.ExecuteTests(TestDiscoverer, 
+                testFilter: (test) => test.Categories.Contains(RuntimeTestConstants.Categories.ScheduledHealthCheck),
+                SiteEventService,
+                AuditEventService
+            );
+            return CreateJsonResult(results.Select(x => new { Test = x.Test?.Name, Result = x.Message, SiteEventTitle = x.SiteEvent?.Title }));
         }
 
         // New mock data
@@ -144,24 +148,19 @@ namespace HealthCheck.DevTest.Controllers
             if (!Enabled || SiteEventService == null) return HttpNotFound();
 
             CreateSomeData(out string title, out string description);
+            var severity = (_rand.Next(100) < 10) ? SiteEventSeverity.Fatal
+                            : (_rand.Next(100) < 25) ? SiteEventSeverity.Error
+                                : (_rand.Next(100) < 50) ? SiteEventSeverity.Warning : SiteEventSeverity.Information;
 
-            var ev = new SiteEvent()
+            var ev = new SiteEvent(severity, $"Error type {_rand.Next(10000)}", title, description)
             {
-                EventTypeId = $"Error type {_rand.Next(10000)}",
-                Title = title,
-                Description = description,
                 Timestamp = DateTime.Now
                     .AddDays(-7 + _rand.Next(7))
-                    .AddMinutes(_rand.Next(0, 24 * 60)),
-                Severity = (_rand.Next(100) < 10) ? SiteEventSeverity.Fatal
-                            : (_rand.Next(100) < 25) ? SiteEventSeverity.Error
-                                : (_rand.Next(100) < 50) ? SiteEventSeverity.Warning : SiteEventSeverity.Information,
-                RelatedLinks = new List<HyperLink>()
-                {
-                    new HyperLink("Page that failed", "https://www.google.com?etc"),
-                    new HyperLink("Error log", "https://www.google.com?q=errorlog"),
-                }
-            };
+                    .AddMinutes(_rand.Next(0, 24 * 60))
+            }
+            .AddRelatedLink("Page that failed", "https://www.google.com?etc")
+            .AddRelatedLink("Error log", "https://www.google.com?q=errorlog");
+
             SiteEventService.StoreEvent(ev);
             return CreateJsonResult(ev);
         }
