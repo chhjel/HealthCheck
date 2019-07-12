@@ -259,18 +259,31 @@ export default class AuditLogPageComponent extends Vue {
 
     tableSorter(items: AuditEventViewModel[], index: string, isDescending: boolean): AuditEventViewModel[]
     {
-        console.log({ 
-            items: items,
-            index: index,
-            isDescending: isDescending
-        });
-        if (index === "Timestamp")
+        // console.log({ 
+        //     items: items,
+        //     index: index,
+        //     isDescending: isDescending
+        // });
+        if (index == null) {
+            // Do nothing
+        }
+        else if (index === "Timestamp")
         {
-            return (isDescending)
-                ? items.sort((a:AuditEventViewModel, b:AuditEventViewModel) => a.Timestamp.getTime() - b.Timestamp.getTime())
-                : items.sort((a:AuditEventViewModel, b:AuditEventViewModel) => b.Timestamp.getTime() - a.Timestamp.getTime());
+            items = items.sort((a:AuditEventViewModel, b:AuditEventViewModel) => b.Timestamp.getTime() - a.Timestamp.getTime());
+        }
+        else {
+            items = items.sort((a:AuditEventViewModel, b:AuditEventViewModel) => {
+            
+                var textA = (<any>a)[index].toUpperCase();
+                var textB = (<any>b)[index].toUpperCase();
+                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+            });
         }
         
+        if (isDescending === true) {
+            items = items.reverse();
+        }
+
         return items;
     }
 

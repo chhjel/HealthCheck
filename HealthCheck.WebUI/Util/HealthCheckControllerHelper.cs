@@ -113,13 +113,13 @@ namespace HealthCheck.WebUI.Util
         {
             if (data == null || data.TestId == null)
             {
-                return TestResultViewModel.CreateError("No test id was given.");
+                return TestResultViewModel.CreateError("No test id was given.", null, "<Unknown>");
             }
 
             var test = GetTest(accessRoles, data.TestId);
             if (test == null)
             {
-                return TestResultViewModel.CreateError($"Test with id '{data.TestId}' not found.", data.TestId);
+                return TestResultViewModel.CreateError($"Test with id '{data.TestId}' not found.", data.TestId, "<Unknown>");
             }
 
             try
