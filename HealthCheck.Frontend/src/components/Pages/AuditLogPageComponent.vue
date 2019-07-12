@@ -14,6 +14,7 @@
                 <v-layout row wrap>
                     <v-flex xs12 sm12 md8>
                         <date-time-picker
+                            ref="filterDate"
                             :startDate="filterFromDate"
                             :endDate="filterToDate"
                             :singleDate="false"
@@ -52,6 +53,11 @@
                     expand
                     class="elevation-1 audit-table">
                     <v-progress-linear v-slot:progress color="primary" indeterminate></v-progress-linear>
+                    <template v-slot:no-data>
+                    <v-alert :value="true" color="error" icon="warning" v-if="auditDataLoadFailed">
+                        {{ auditDataFailedErrorMessage }}
+                    </v-alert>
+                    </template>
                     <template v-slot:items="props">
                         <tr
                             @click="props.expanded = !props.expanded"
@@ -190,6 +196,10 @@ export default class AuditLogPageComponent extends Vue {
         this.filterAction = "";
         this.filterUserId = "";
         this.filterUserName = "";
+
+        let dateFilterFormat = 'yyyy MMM d  HH:mm';
+        (<any>this.$refs.filterDate).selectDateString 
+            = `${DateUtils.FormatDate(this.filterFromDate, dateFilterFormat)} - ${DateUtils.FormatDate(this.filterToDate, dateFilterFormat)}`;
     }
 
     loadData(): void {
@@ -212,6 +222,7 @@ export default class AuditLogPageComponent extends Vue {
         // .then(response => new Promise<Array<AuditEventViewModel>>(resolve => setTimeout(() => resolve(response), 3000)))
         .then((events: Array<AuditEventViewModel>) => this.onEventDataRetrieved(events))
         .catch((e) => {
+            this.filteredAuditEvents = [];
             this.auditDataLoadInProgress = false;
             this.auditDataLoadFailed = true;
             this.auditDataFailedErrorMessage = `Failed to load data with the following error. ${e}.`;
