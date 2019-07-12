@@ -6,5 +6,6 @@ export default interface TestResultViewModel {
     StatusCode: number;
     Message: string;
     StackTrace: string;
+    DurationInMilliseconds: number;
     Data: Array<TestResultDataDumpViewModel>;
 }

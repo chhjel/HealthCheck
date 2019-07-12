@@ -80,7 +80,7 @@ namespace HealthCheck.WebUI.Util
             Maybe<TAccessRole> accessRoles, ISiteEventService service,
             DateTime? from = null, DateTime? to = null)
         {
-            if (service == null || !CanShowOverviewPageTo(accessRoles))
+            if (!CanShowOverviewPageTo(accessRoles, service))
             {
                 return new List<SiteEventViewModel>();
             }
@@ -139,9 +139,11 @@ namespace HealthCheck.WebUI.Util
         /// Create view html from the given options.
         /// </summary>
         /// <exception cref="ConfigValidationException"></exception>
-        public string CreateViewHtml(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
+        public string CreateViewHtml(Maybe<TAccessRole> accessRoles,
+            FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions,
+            ISiteEventService siteEventService, IAuditEventService auditEventService)
         {
-            CheckPageOptions(accessRoles, frontEndOptions, pageOptions);
+            CheckPageOptions(accessRoles, frontEndOptions, pageOptions, siteEventService, auditEventService);
 
             var defaultAssets = !pageOptions.IncludeDefaultAssetLinks ? "" : $@"
     <link href={Q}https://cdn.jsdelivr.net/npm/vuetify@1/dist/vuetify.min.css{Q} rel={Q}stylesheet{Q} />
@@ -173,10 +175,40 @@ namespace HealthCheck.WebUI.Util
 </html>";
         }
 
-        private void CheckPageOptions(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
+        /// <summary>
+        /// Check if the given roles has access to the any of the pages.
+        /// </summary>
+        public bool HasAccessToAnyContent(
+            Maybe<TAccessRole> accessRoles,
+            ISiteEventService siteEventService,
+            IAuditEventService auditEventService)
+            => CanShowTestsPageTo(accessRoles)
+            || CanShowOverviewPageTo(accessRoles, siteEventService)
+            || CanShowAuditPageTo(accessRoles, auditEventService);
+
+        /// <summary>
+        /// Check if the given roles has access to the overview page.
+        /// </summary>
+        public bool CanShowOverviewPageTo(Maybe<TAccessRole> accessRoles, ISiteEventService siteEventService)
+            => siteEventService != null && CanShowPageTo(accessRoles, AccessOptions.OverviewPageAccess);
+
+        /// <summary>
+        /// Check if the given roles has access to the tests page.
+        /// </summary>
+        public bool CanShowTestsPageTo(Maybe<TAccessRole> accessRoles)
+            => CanShowPageTo(accessRoles, AccessOptions.TestsPageAccess);
+
+        /// <summary>
+        /// Check if the given roles has access to the audit log page.
+        /// </summary>
+        public bool CanShowAuditPageTo(Maybe<TAccessRole> accessRoles, IAuditEventService auditEventService)
+            => auditEventService != null && CanShowPageTo(accessRoles, AccessOptions.AuditLogAccess, defaultValue: false);
+
+        private void CheckPageOptions(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions,
+            ISiteEventService siteEventService, IAuditEventService auditEventService)
         {
             var deniedEndpoint = "0x90";
-            if (CanShowOverviewPageTo(accessRoles))
+            if (CanShowOverviewPageTo(accessRoles, siteEventService))
             {
                 frontEndOptions.Pages.Add("overview");
             }
@@ -195,7 +227,7 @@ namespace HealthCheck.WebUI.Util
                 frontEndOptions.GetTestsEndpoint = deniedEndpoint;
             }
 
-            if (CanShowAuditPageTo(accessRoles))
+            if (CanShowAuditPageTo(accessRoles, auditEventService))
             {
                 frontEndOptions.Pages.Add("auditlog");
             }
@@ -216,15 +248,6 @@ namespace HealthCheck.WebUI.Util
         
         private TestDefinition GetTest(Maybe<TAccessRole> accessRoles, string testId)
             => GetTestDefinitions(accessRoles).SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == testId);
-
-        private bool CanShowOverviewPageTo(Maybe<TAccessRole> accessRoles)
-            => CanShowPageTo(accessRoles, AccessOptions.OverviewPageAccess);
-
-        private bool CanShowTestsPageTo(Maybe<TAccessRole> accessRoles)
-            => CanShowPageTo(accessRoles, AccessOptions.TestsPageAccess);
-
-        private bool CanShowAuditPageTo(Maybe<TAccessRole> accessRoles)
-            => CanShowPageTo(accessRoles, AccessOptions.AuditLogAccess, defaultValue: false);
 
         private bool CanShowPageTo(Maybe<TAccessRole> accessRoles, Maybe<TAccessRole> pageAccess, bool defaultValue = true)
         {
@@ -269,6 +292,7 @@ namespace HealthCheck.WebUI.Util
                 .AddDetail("Test id", input?.TestId)
                 .AddDetail("Parameter", $"[{string.Join(", ", (input?.Parameters ?? new List<string>()))}]")
                 .AddDetail("Result", result?.Message)
+                .AddDetail("Duration", $"{result?.DurationInMilliseconds}ms")
             );
         }
 

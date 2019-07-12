@@ -24,5 +24,11 @@ namespace HealthCheck.WebUI.Models
         /// <para>If null nobody can access it by default.</para>
         /// </summary>
         public Maybe<TAccessRole> AuditLogAccess { get; set; }
+
+        /// <summary>
+        /// Redirect url if the request does not have access to any of the content.
+        /// <para>If not set a 404 will be returned.</para>
+        /// </summary>
+        public string RedirectTargetOnNoAccess { get; set; }
     }
 }

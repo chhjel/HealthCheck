@@ -122,10 +122,18 @@ namespace HealthCheck.WebUI.Abstractions
         public virtual ActionResult Index()
         {
             if (!Enabled) return NotFound();
+            else if (!Helper.HasAccessToAnyContent(CurrentRequestAccessRoles, SiteEventService, AuditEventService))
+            {
+                if (!string.IsNullOrWhiteSpace(AccessOptions.RedirectTargetOnNoAccess)) {
+                    return Redirect(AccessOptions.RedirectTargetOnNoAccess);
+                } else {
+                    return NotFound();
+                }
+            }
 
             var frontEndOptions = GetFrontEndOptions();
             var pageOptions = GetPageOptions();
-            var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions);
+            var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions, SiteEventService, AuditEventService);
 
             return new ContentResult()
             {
@@ -140,7 +148,8 @@ namespace HealthCheck.WebUI.Abstractions
         [Route("GetFilteredAudits")]
         public virtual async Task<ActionResult> GetFilteredAudits([FromBody] AuditEventFilterInputData input = null)
         {
-            if (!Enabled) return NotFound();
+            if (!Enabled || !Helper.CanShowAuditPageTo(CurrentRequestAccessRoles, AuditEventService))
+                return NotFound();
 
             var filteredItems = await Helper.GetAuditEventsFilterViewModel(CurrentRequestAccessRoles, input, AuditEventService);
             return CreateJsonResult(filteredItems);
@@ -152,7 +161,8 @@ namespace HealthCheck.WebUI.Abstractions
         [Route("GetSiteEvents")]
         public virtual async Task<ActionResult> GetSiteEvents()
         {
-            if (!Enabled) return NotFound();
+            if (!Enabled || !Helper.CanShowOverviewPageTo(CurrentRequestAccessRoles, SiteEventService))
+                return NotFound();
 
             var viewModel = await Helper.GetSiteEventsViewModel(CurrentRequestAccessRoles, SiteEventService);
             return CreateJsonResult(viewModel);
@@ -164,7 +174,7 @@ namespace HealthCheck.WebUI.Abstractions
         [Route("GetTests")]
         public virtual ActionResult GetTests()
         {
-            if (!Enabled) return NotFound();
+            if (!Enabled || !Helper.CanShowTestsPageTo(CurrentRequestAccessRoles)) return NotFound();
 
             SetTestSetGroupsOptions(Helper.TestSetGroupsOptions);
             var viewModel = Helper.GetTestDefinitionsViewModel(CurrentRequestAccessRoles);
@@ -178,7 +188,7 @@ namespace HealthCheck.WebUI.Abstractions
         [Route("ExecuteTest")]
         public virtual async Task<ActionResult> ExecuteTest([FromBody] ExecuteTestInputData data)
         {
-            if (!Enabled) return NotFound();
+            if (!Enabled || !Helper.CanShowTestsPageTo(CurrentRequestAccessRoles)) return NotFound();
 
             var result = await Helper.ExecuteTest(CurrentRequestAccessRoles, data);
             Helper.OnTestExecuted(AuditEventService, CurrentRequestInformation, data, result);

@@ -42,6 +42,11 @@ namespace HealthCheck.Core.Entities
         public object Tag { get; set; }
 
         /// <summary>
+        /// How long the test took to execute.
+        /// </summary>
+        public long DurationInMilliseconds { get; set; }
+
+        /// <summary>
         /// Create a new test result with the given status.
         /// </summary>
         /// <param name="status">Test status.</param>

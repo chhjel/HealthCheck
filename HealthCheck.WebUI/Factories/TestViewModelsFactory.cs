@@ -93,6 +93,7 @@ namespace HealthCheck.WebUI.Factories
                 Status = testResult.Status,
                 Message = testResult.Message,
                 StackTrace = testResult.StackTrace,
+                DurationInMilliseconds = testResult.DurationInMilliseconds,
                 Data = dumps
             };
 

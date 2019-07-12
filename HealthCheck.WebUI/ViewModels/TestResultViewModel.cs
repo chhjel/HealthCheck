@@ -46,6 +46,11 @@ namespace HealthCheck.WebUI.ViewModels
         public List<TestResultDataDumpViewModel> Data { get; set; } = new List<TestResultDataDumpViewModel>();
 
         /// <summary>
+        /// How long the text took to execute.
+        /// </summary>
+        public long DurationInMilliseconds { get; set; }
+
+        /// <summary>
         /// Create a new <see cref="TestResultViewModel"/> with error status code.
         /// </summary>
         public static TestResultViewModel CreateError(string message, string testId = null, string testName = null)

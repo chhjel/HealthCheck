@@ -28,6 +28,9 @@
                     </v-flex>
 
                     <v-flex xs12 sm6 md3>
+                        <v-text-field v-model="filterUserName" label="Username"></v-text-field>
+                    </v-flex>
+                    <v-flex xs12 sm6 md3>
                         <v-text-field v-model="filterAction" label="Action"></v-text-field>
                     </v-flex>
                     <v-flex xs12 sm6 md3>
@@ -35,9 +38,6 @@
                     </v-flex>
                     <v-flex xs12 sm6 md3>
                         <v-text-field v-model="filterUserId" label="User id"></v-text-field>
-                    </v-flex>
-                    <v-flex xs12 sm6 md3>
-                        <v-text-field v-model="filterUserName" label="Username"></v-text-field>
                     </v-flex>
                 </v-layout>
                         
@@ -177,9 +177,11 @@ export default class AuditLogPageComponent extends Vue {
     //  METHODS  //
     //////////////
     resetFilters(): void {
+        this.filterFromDate = new Date();
         this.filterFromDate.setDate(this.filterFromDate.getDate() - 2);
         this.filterFromDate.setHours(0);
         this.filterFromDate.setMinutes(0);
+        this.filterToDate = new Date();
         this.filterToDate.setHours(23);
         this.filterToDate.setMinutes(59);
 

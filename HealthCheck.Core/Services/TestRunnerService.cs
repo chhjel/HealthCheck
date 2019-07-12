@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -67,6 +68,8 @@ namespace HealthCheck.Core.Services
             object[] parameters = null,
             object testClassInstance = null)
         {
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
             try
             {
                 var instance = testClassInstance ?? Activator.CreateInstance(test.ParentClass.ClassType);
@@ -74,6 +77,7 @@ namespace HealthCheck.Core.Services
 
                 // Post-process result
                 result.Test = test;
+                result.DurationInMilliseconds = stopWatch.ElapsedMilliseconds;
                 if (!IncludeExceptionStackTraces)
                 {
                     result.StackTrace = null;
@@ -88,8 +92,9 @@ namespace HealthCheck.Core.Services
                     Test = test,
                     Status = Enums.TestResultStatus.Error,
                     Message = $"Failed to execute test with the exception: {ex.Message}",
-                    StackTrace = IncludeExceptionStackTraces ? ex.ToString() : null
-                };
+                    StackTrace = IncludeExceptionStackTraces ? ex.ToString() : null,
+                    DurationInMilliseconds = stopWatch.ElapsedMilliseconds
+            };
             }
         }
     }

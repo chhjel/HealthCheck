@@ -145,8 +145,8 @@ namespace HealthCheck.Core.Entities
 
             if (Method.ReturnType != typeof(TestResult) && Method.ReturnType != typeof(Task<TestResult>))
                 result.Error = $"Test method '{ParentClass.ClassType.Name}.{Method.Name}' must return a TestResult or Task<TestResult>.";
-            else if (Method.GetParameters().Any(x => !x.HasDefaultValue))
-                result.Error = $"Test method '{ParentClass.ClassType.Name}.{Method.Name}' must have default values for all parameters.";
+            //else if (Method.GetParameters().Any(x => !x.HasDefaultValue))
+            //    result.Error = $"Test method '{ParentClass.ClassType.Name}.{Method.Name}' must have default values for all parameters.";
 
             return result;
         }

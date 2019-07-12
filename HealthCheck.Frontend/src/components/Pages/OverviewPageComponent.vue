@@ -22,7 +22,7 @@
                     indeterminate color="green"></v-progress-linear>
                     
                 <v-flex sm12 md7
-                    v-if="!overviewDataLoadInProgress">
+                    v-if="showContent">
                     <v-alert :value="calendarEvents.length == 0" color="info" icon="sentiment_satisfied_alt" outline>
                         No events recorded the lately, things seems to be quiet.
                     </v-alert>
@@ -32,7 +32,7 @@
                 </v-flex>
                 
                 <v-flex sm12 md5
-                    v-if="!overviewDataLoadInProgress">
+                    v-if="showContent">
                     <event-timeline-component
                         :events="timelineEvents"
                         class="timeline" />
@@ -93,6 +93,9 @@ export default class OverviewPageComponent extends Vue {
         let thresholdDate = new Date();
         thresholdDate.setDate(thresholdDate.getDate() - 3);
         return this.siteEvents.filter(x => x.Timestamp >= thresholdDate);
+    }
+    get showContent(): boolean {
+        return !this.overviewDataLoadInProgress && !this.overviewDataLoadFailed;
     }
 
     ////////////////
