@@ -29,6 +29,7 @@ import UnknownParameterInputComponent from './UnknownParameterInputComponent.vue
 import ParameterInputTypeInt32Component from './input_types/ParameterInputTypeInt32Component.vue';
 import ParameterInputTypeStringComponent from './input_types/ParameterInputTypeStringComponent.vue';
 import ParameterInputTypeBooleanComponent from './input_types/ParameterInputTypeBooleanComponent.vue';
+import ParameterInputTypeDateTimeComponent from './input_types/ParameterInputTypeDateTimeComponent.vue';
 
 @Component({
     components: {
@@ -36,7 +37,8 @@ import ParameterInputTypeBooleanComponent from './input_types/ParameterInputType
       UnknownParameterInputComponent,
       ParameterInputTypeInt32Component,
       ParameterInputTypeStringComponent,
-      ParameterInputTypeBooleanComponent
+      ParameterInputTypeBooleanComponent,
+      ParameterInputTypeDateTimeComponent
     }
 })
 export default class ParameterInputComponent extends Vue {

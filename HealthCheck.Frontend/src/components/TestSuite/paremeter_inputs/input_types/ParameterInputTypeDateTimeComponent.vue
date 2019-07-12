@@ -1,8 +1,7 @@
-<!-- src/components/paremeter_inputs/input_types/ParameterInputTypeInt32Component.vue -->
+<!-- src/components/paremeter_inputs/input_types/ParameterInputTypeDateTimeComponent.vue -->
 <template>
     <div>
         <v-text-field
-            type="number"
             class="pt-0"
             v-model="parameter.Value"
             required />
@@ -12,18 +11,19 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 import TestParameterViewModel from '../../../../models/TestSuite/TestParameterViewModel';
+import DateUtils from "../../../../util/DateUtils";
 
 @Component({
     components: {
     }
 })
-export default class ParameterInputTypeInt32Component extends Vue {
+export default class ParameterInputTypeDateTimeComponent extends Vue {
     @Prop({ required: true })
     parameter!: TestParameterViewModel;
     
     mounted(): void {
         if (this.parameter.Value === '') {
-            this.parameter.Value = '0';
+            this.parameter.Value = DateUtils.FormatDate(new Date(), 'dd-MM-yy HH:mm:ss');
         }
     }
 }

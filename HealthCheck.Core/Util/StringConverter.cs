@@ -44,6 +44,7 @@ namespace HealthCheck.Core.Util
         public T ConvertStringTo<T>(string input)
         {
             var inputType = typeof(T);
+            input = input ?? "";
 
             // Use registered handler if any.
             if (ConversionHandlers.ContainsKey(inputType))

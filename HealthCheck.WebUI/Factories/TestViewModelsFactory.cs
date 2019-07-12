@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Entities;
+using HealthCheck.Core.Util;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.ViewModels;
 using System;
@@ -72,7 +73,7 @@ namespace HealthCheck.WebUI.Factories
                 Name = testParameter.Name,
                 Description = testParameter.Description,
                 DefaultValue = testParameter.DefaultValue?.ToString(),
-                Type = testParameter.ParameterType.Name
+                Type = DumpHelper.GetFriendlyTypeName(testParameter.ParameterType)
             };
 
             return vm;

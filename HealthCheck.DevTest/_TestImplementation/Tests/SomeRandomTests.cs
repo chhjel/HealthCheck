@@ -31,15 +31,14 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
                 .AddJsonData(LargeJson, "Big json data");
         }
 
-        [RuntimeTest(Name = "Test of DateTime parameter")]
-        public async Task<TestResult> TestOfDateTimeParameter(DateTime date)
+        [RuntimeTest]
+        public TestResult TestWithoutDefaultValues(int number, string text, bool checkbox, DateTime date)
         {
-            await Task.Delay(300);
-            return TestResult.CreateSuccess($"Recieved: '{date.ToString()}'");
+            return TestResult.CreateSuccess($"Recieved: [{number}, '{text}', {checkbox}, '{date.ToString()}']");
         }
 
         [RuntimeTest]
-        public TestResult TestWithoutDefaultValues(int number, string text, bool checkbox, DateTime date)
+        public TestResult TestWithDefaultValues(int number = 123, string text = "something", bool checkbox = true, DateTime? date = null)
         {
             return TestResult.CreateSuccess($"Recieved: [{number}, '{text}', {checkbox}, '{date.ToString()}']");
         }

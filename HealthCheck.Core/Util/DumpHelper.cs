@@ -58,7 +58,10 @@ namespace HealthCheck.Core.Util
 
         private static string CreateDumpName<T>(Type type) => GetFriendlyTypeName(type);
 
-        private static string GetFriendlyTypeName(Type type)
+        /// <summary>
+        /// Get a prettier name for type names.
+        /// </summary>
+        public static string GetFriendlyTypeName(Type type)
         {
             if (type == null)
             {

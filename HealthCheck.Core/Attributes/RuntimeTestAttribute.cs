@@ -7,7 +7,7 @@ namespace HealthCheck.Core.Attributes
     /// Decorate methods with this attribute to mark them as a test that can be executed at runtime.
     /// <para>Method must be static.</para>
     /// <para>Method must return a <see cref="TestResult"/> (use the TestResult.Create.. methods).</para>
-    /// <para>Method can have parameters but they must have default values.</para>
+    /// <para>Method parameters should have default values.</para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public class RuntimeTestAttribute : Attribute

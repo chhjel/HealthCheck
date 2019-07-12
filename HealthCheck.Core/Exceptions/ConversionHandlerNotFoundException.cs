@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Util;
+using System;
 using System.Runtime.Serialization;
 
 namespace HealthCheck.Core.Exceptions
@@ -18,7 +19,7 @@ namespace HealthCheck.Core.Exceptions
         /// Thrown when a converter is not registered for the type we want to convert to.
         /// </summary>
         public ConversionHandlerNotFoundException(string inputValue, Type missingForType)
-            : this($"No handler for the type '{missingForType.Name}' is registered, or could not parse the value '{inputValue}' into a {missingForType.Name}.") { }
+            : this($"No handler for the type '{DumpHelper.GetFriendlyTypeName(missingForType)}' is registered, or could not parse the value '{inputValue}' into a {DumpHelper.GetFriendlyTypeName(missingForType)}.") { }
 
         /// <summary>
         /// Thrown when a converter is not registered for the type we want to convert to.
