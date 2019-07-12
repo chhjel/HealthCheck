@@ -37,6 +37,11 @@ namespace HealthCheck.Core.Entities
         public List<TestResultDataDump> Data { get; set; } = new List<TestResultDataDump>();
 
         /// <summary>
+        /// Optional site event.
+        /// </summary>
+        public SiteEvent SiteEvent { get; set; }
+
+        /// <summary>
         /// Custom data object.
         /// </summary>
         public object Tag { get; set; }
@@ -152,6 +157,17 @@ namespace HealthCheck.Core.Entities
         /// </summary>
         public TestResult AddImageUrlsData(IEnumerable<string> urls, string title = null)
             => AddData(string.Join(Environment.NewLine, urls ?? new string[0]), title, TestResultDataDumpType.ImageUrls);
+
+        /// <summary>
+        /// Include the given <see cref="SiteEvent"/>.
+        /// <para>Only the data from this object will be included in the overview.</para>
+        /// <para>Manual test executions from the UI will not be reported to any overview by default.</para>
+        /// </summary>
+        public TestResult SetSiteEvent(SiteEvent ev)
+        {
+            SiteEvent = ev;
+            return this;
+        }
         #endregion
     }
 }

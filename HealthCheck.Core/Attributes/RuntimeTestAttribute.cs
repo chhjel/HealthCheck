@@ -31,7 +31,7 @@ namespace HealthCheck.Core.Attributes
         /// Optional boolean value to override default option on the test class.
         /// <para>If enabled the test in this class can be executed from the ui manually</para>
         /// </summary>
-        public object AllowManualExecution { get; set; } 
+        public object AllowManualExecution { get; set; }
 
         /// <summary>
         /// Names of the paremeters on the method if any. Defaults to their actual names. Shown in the UI.
@@ -42,6 +42,16 @@ namespace HealthCheck.Core.Attributes
         /// Description of the paremeters on the method if any. Shown in the UI.
         /// </summary>
         public string[] ParameterDescriptions { get; set; }
+
+        /// <summary>
+        /// Optional categories that can be filtered upon. Will be unioned with <see cref="Category"/>,
+        /// </summary>
+        public string[] Categories { get; set; }
+
+        /// <summary>
+        /// Optional category that can be filtered upon. Will be unioned with <see cref="Categories"/>,
+        /// </summary>
+        public string Category { get; set; }
 
         /// <summary>
         /// Set roles that are allowed access to the tests in this class.

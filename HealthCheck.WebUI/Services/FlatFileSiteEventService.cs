@@ -12,7 +12,7 @@ namespace HealthCheck.WebUI.Services
     /// <summary>
     /// Stores events to the given file.
     /// </summary>
-    public class FlatFileAuditEventStorageService : IAuditEventService
+    public class FlatFileSiteEventService : ISiteEventService
     {
         /// <summary>
         /// Max age of events before they can become deleted.
@@ -22,24 +22,24 @@ namespace HealthCheck.WebUI.Services
 
         private bool CleanupEnabled => MaxEventAge != null;
         private DateTime? LastCleanup { get; set; }
-        private SimpleDataStore<AuditEvent> Store { get; set; }
+        private SimpleDataStore<SiteEvent> Store { get; set; }
 
         /// <summary>
-        /// Create a new <see cref="FlatFileAuditEventStorageService"/> with the given json file path.
+        /// Create a new <see cref="FlatFileSiteEventService"/> with the given json file path.
         /// </summary>
-        public FlatFileAuditEventStorageService(string filepath)
+        public FlatFileSiteEventService(string filepath)
         {
-            Store = new SimpleDataStore<AuditEvent>(
+            Store = new SimpleDataStore<SiteEvent>(
                 filepath,
-                serializer: new Func<AuditEvent, string>((e) => JsonConvert.SerializeObject(e)),
-                deserializer: new Func<string, AuditEvent>((row) => JsonConvert.DeserializeObject<AuditEvent>(row))
+                serializer: new Func<SiteEvent, string>((e) => JsonConvert.SerializeObject(e)),
+                deserializer: new Func<string, SiteEvent>((row) => JsonConvert.DeserializeObject<SiteEvent>(row))
             );
         }
 
         /// <summary>
         /// Store the given event. There is a 2 second buffer delay before the item is written.
         /// </summary>
-        public Task StoreEvent(AuditEvent siteEvent)
+        public Task StoreEvent(SiteEvent siteEvent)
         {
             Store.InsertItem(siteEvent);
             CheckCleanup();
@@ -49,7 +49,7 @@ namespace HealthCheck.WebUI.Services
         /// <summary>
         /// Get stored events within the given threshold.
         /// </summary>
-        public Task<List<AuditEvent>> GetEvents(DateTime from, DateTime to)
+        public Task<List<SiteEvent>> GetEvents(DateTime from, DateTime to)
         {
             var items = Store.GetEnumerable()
                 .Where(x => x.Timestamp >= from && x.Timestamp <= to)

@@ -79,7 +79,14 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         public async Task<TestResult> TestThatThrowsException()
         {
             await Task.Delay(100);
-            throw new System.ArgumentOutOfRangeException("nonExistentArgument");
+            throw new ArgumentOutOfRangeException("nonExistentArgument");
+        }
+
+        [RuntimeTest(Category = RuntimeTestConstants.Categories.ScheduledHealthCheck)]
+        public TestResult TestOfAHealthCheck()
+        {
+            return TestResult.CreateWarning("")
+                .SetSiteEvent(new SiteEvent());
         }
 
         [RuntimeTest]
@@ -88,7 +95,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             try
             {
                 await Task.Delay(100);
-                throw new System.ArgumentOutOfRangeException("nonExistentArgument");
+                throw new ArgumentOutOfRangeException("nonExistentArgument");
             }
             catch (Exception ex)
             {

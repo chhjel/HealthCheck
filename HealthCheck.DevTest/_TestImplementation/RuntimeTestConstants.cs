@@ -8,11 +8,9 @@
             public const string BottomGroup = "Bottom group";
         }
 
-        public static class Icons
+        public static class Categories
         {
-            public const string Dashboard = "dashboard";
-            public const string AspectRatio = "aspect_ratio";
-            public const string Face = "face";
+            public const string ScheduledHealthCheck = "healthcheck";
         }
     }
 }

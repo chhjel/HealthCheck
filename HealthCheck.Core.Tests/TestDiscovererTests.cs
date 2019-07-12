@@ -92,7 +92,7 @@ namespace HealthCheck.Core.Services
             var invalidTests = discoverer.GetInvalidTests();
             Assert.Contains(invalidTests, x => x.Test.Name == nameof(TestClass.InvalidMethodA));
             Assert.Contains(invalidTests, x => x.Test.Name == nameof(TestClass.InvalidMethodB));
-            Assert.Contains(invalidTests, x => x.Test.Name == nameof(TestClass.InvalidMethodC));
+            //Assert.Contains(invalidTests, x => x.Test.Name == nameof(TestClass.InvalidMethodC));
         }
 
         [Fact]
@@ -137,8 +137,8 @@ namespace HealthCheck.Core.Services
             [RuntimeTest(Name = "InvalidMethodB")]
             public void InvalidMethodB() { }
 
-            [RuntimeTest(Name = "InvalidMethodC")]
-            public TestResult InvalidMethodC(string a, string b) => TestResult.CreateSuccess($"{a}, {b}");
+            //[RuntimeTest(Name = "InvalidMethodC")]
+            //public TestResult InvalidMethodC(string a, string b) => TestResult.CreateSuccess($"{a}, {b}");
 
             public TestResult NotATestMethod() => new TestResult();
         }

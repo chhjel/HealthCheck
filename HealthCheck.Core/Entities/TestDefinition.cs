@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Exceptions;
 using HealthCheck.Core.Extensions;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -48,6 +49,11 @@ namespace HealthCheck.Core.Entities
         public object RolesWithAccess { get; set; }
 
         /// <summary>
+        /// Optional categories that can be filtered upon.
+        /// </summary>
+        public List<string> Categories { get; set; }
+
+        /// <summary>
         /// Test method.
         /// </summary>
         internal MethodInfo Method { get; private set; }
@@ -70,6 +76,9 @@ namespace HealthCheck.Core.Entities
             AllowParallelExecution = (testAttribute.AllowParallelExecution is bool allowParallelExecution && allowParallelExecution);
             AllowManualExecution = (testAttribute.AllowManualExecution is bool allowManualExecution ? allowManualExecution : parentClass.DefaultAllowManualExecution);
             RolesWithAccess =  testAttribute.RolesWithAccess ?? parentClass.DefaultRolesWithAccess;
+            Categories = (testAttribute.Categories ?? new string[0])
+                .Union((testAttribute.Category == null ? new string[0] : new []{ testAttribute.Category }))
+                .ToList();
 
             SetId();
             InitParameters(testAttribute);

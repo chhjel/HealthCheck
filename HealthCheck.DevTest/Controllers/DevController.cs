@@ -14,6 +14,7 @@ using HealthCheck.Core.Extensions;
 using System.Collections.Generic;
 using HealthCheck.WebUI.Services;
 using HealthCheck.Core.Abstractions;
+using System.Threading.Tasks;
 
 namespace HealthCheck.DevTest.Controllers
 {
@@ -44,12 +45,12 @@ namespace HealthCheck.DevTest.Controllers
         }
 
         private ISiteEventService CreateSiteEventService()
-            => new FlatFileSiteEventStorageService(HostingEnvironment.MapPath("~/App_Data/SiteEventStorage.json"))
+            => new FlatFileSiteEventService(HostingEnvironment.MapPath("~/App_Data/SiteEventStorage.json"))
             {
                 MaxEventAge = TimeSpan.FromSeconds(10)
             };
         private IAuditEventService CreateAuditEventService()
-            => new FlatFileAuditEventStorageService(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"))
+            => new FlatFileAuditEventService(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"))
             {
                 MaxEventAge = TimeSpan.FromSeconds(30)
             };
@@ -58,7 +59,7 @@ namespace HealthCheck.DevTest.Controllers
         private void InitOnce()
         {
             _hasInited = true;
-            ResetEvents(false);
+            AddEvents(false);
         }
         #endregion
 
@@ -114,8 +115,15 @@ namespace HealthCheck.DevTest.Controllers
             var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheckfrontend.js");
             return new FileStreamResult(new FileStream(filepath, FileMode.Open), "content-disposition");
         }
-        
-        public ActionResult ResetEvents(bool reInitService = true)
+
+        public async Task<ActionResult> RunHealthChecks()
+        {
+            await TestRunner.ExecuteTests(TestDiscoverer, SiteEventService, (test) => test.Categories.Contains(RuntimeTestConstants.Categories.ScheduledHealthCheck));
+            return Content("Checks executed");
+        }
+
+        // New mock data
+        public ActionResult AddEvents(bool reInitService = true)
         {
             if (reInitService)
             {
@@ -129,6 +137,7 @@ namespace HealthCheck.DevTest.Controllers
             return Content("Mock events reset");
         }
 
+        // New mock data
         private static readonly Random _rand = new Random();
         public ActionResult AddEvent()
         {

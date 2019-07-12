@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Entities;
+﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Entities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -20,24 +21,51 @@ namespace HealthCheck.Core.Services
         public bool IncludeExceptionStackTraces { get; set; }
 
         /// <summary>
+        /// Executes matching tests. Any results containing a <see cref="TestResult.SiteEvent"/> will be sent to the provided <see cref="ISiteEventService"/>.
+        /// </summary>
+        /// <param name="testDiscoveryService">Service that will discover tests to run.</param>
+        /// <param name="siteEventService">Service that any <see cref="TestResult.SiteEvent"/> will be sent to.</param>
+        /// <param name="testFilter">Only tests that return true to this condition will be executed.</param>
+        /// <returns>All executed test results are returned.</returns>
+        public async Task<List<TestResult>> ExecuteTests(
+            TestDiscoveryService testDiscoveryService,
+            ISiteEventService siteEventService,
+            Func<TestDefinition, bool> testFilter)
+        {
+            var tests = testDiscoveryService.DiscoverTestDefinitions(includeInvalidTests: false, onlyTestsAllowedToBeManuallyExecuted: false);
+            var results = await ExecuteTests(tests, testFilter);
+
+            var siteEvents = results.Where(x => x.SiteEvent != null).Select(x => x.SiteEvent);
+            foreach(var ev in siteEvents)
+            {
+                await siteEventService.StoreEvent(ev);
+            }
+
+            return results;
+        }
+
+        /// <summary>
         /// Execute all the tests in the given test classes.
         /// </summary>
-        public async Task<List<TestResult>> ExecuteTests(List<TestClassDefinition> testClasses)
+        /// <param name="testClasses">Classes to execute.</param>
+        /// <param name="testFilter">Only tests that return true to this condition will be executed. If null all tests will be included.</param>
+        public async Task<List<TestResult>> ExecuteTests(List<TestClassDefinition> testClasses, Func<TestDefinition, bool> testFilter = null)
         {
             var results = new ConcurrentBag<TestResult>();
             foreach (var testClass in testClasses)
             {
                 var classInstance = Activator.CreateInstance(testClass.ClassType);
+                var includedTests = testClass.Tests.Where(x => testFilter?.Invoke(x) != false).ToList();
 
                 var defaultAllowsParallel = testClass.DefaultAllowParallelExecution == true;
-                var testsThatCanRunInParallel = testClass.Tests
+                var testsThatCanRunInParallel = includedTests
                     .Where(x =>
                         (defaultAllowsParallel
                         && (x.AllowParallelExecution == null || x.AllowParallelExecution == true))
                         || (!defaultAllowsParallel
                         && (x.AllowParallelExecution != null && x.AllowParallelExecution == true))
                     );
-                var testsThatCannotRunInParallel = testClass.Tests.Except(testsThatCanRunInParallel);
+                var testsThatCannotRunInParallel = includedTests.Except(testsThatCanRunInParallel);
 
                 // Run tests that are allowed to run in parallel first
                 if (testsThatCanRunInParallel.Any())
