@@ -290,7 +290,7 @@ namespace HealthCheck.WebUI.Util
             auditEventService?.StoreEvent(
                 CreateAuditEventFor(requestInformation, AuditEventArea.Tests, title: "Test executed", subject: result?.TestName)
                 .AddDetail("Test id", input?.TestId)
-                .AddDetail("Parameter", $"[{string.Join(", ", (input?.Parameters ?? new List<string>()))}]")
+                .AddDetail("Parameters", $"[{string.Join(", ", (input?.Parameters ?? new List<string>()))}]")
                 .AddDetail("Result", result?.Message)
                 .AddDetail("Duration", $"{result?.DurationInMilliseconds}ms")
             );

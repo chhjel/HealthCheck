@@ -1,9 +1,8 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Serializers;
 using RuntimeCodeTest.Core.Entities;
 using System;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace HealthCheck.Core.Util
 {
@@ -40,57 +39,11 @@ namespace HealthCheck.Core.Util
             return new DataDump()
             {
                 Title = title ?? CreateDumpName<T>(type),
-                Type = GetFriendlyTypeName(type) ?? typeof(T).Name,
+                Type = type.GetFriendlyTypeName() ?? typeof(T).Name,
                 Data = data
             };
         }
 
-        /// <summary>
-        /// Checks if the type is anonymous.
-        /// </summary>
-        public static bool IsAnonymous(Type type)
-        {
-            return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
-                && type.IsGenericType && type.Name.Contains("AnonymousType")
-                && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
-                && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
-        }
-
-        private static string CreateDumpName<T>(Type type) => GetFriendlyTypeName(type);
-
-        /// <summary>
-        /// Get a prettier name for type names.
-        /// </summary>
-        public static string GetFriendlyTypeName(Type type)
-        {
-            if (type == null)
-            {
-                return null;
-            }
-            else if (IsAnonymous(type))
-            {
-                return "AnonymousType";
-            }
-
-            string friendlyName = type.Name;
-            if (type.IsGenericType)
-            {
-                int iBacktick = friendlyName.IndexOf('`');
-                if (iBacktick > 0)
-                {
-                    friendlyName = friendlyName.Remove(iBacktick);
-                }
-                friendlyName += "<";
-                Type[] typeParameters = type.GetGenericArguments();
-                for (int i = 0; i < typeParameters.Length; ++i)
-                {
-                    string typeParamName = GetFriendlyTypeName(typeParameters[i]);
-                    friendlyName += (i == 0 ? typeParamName : "," + typeParamName);
-                }
-                friendlyName += ">";
-            }
-
-            return friendlyName;
-        }
+        private static string CreateDumpName<T>(Type type) => type.GetFriendlyTypeName();
     }
 }

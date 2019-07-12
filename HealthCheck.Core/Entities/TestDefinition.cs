@@ -77,7 +77,7 @@ namespace HealthCheck.Core.Entities
 
         private void SetId()
         {
-            var methodParametersSignature = string.Join("-", Method.GetParameters().Select(x => x.ParameterType.Name));
+            var methodParametersSignature = string.Join("-", Method.GetParameters().Select(x => x.ParameterType.GetFriendlyTypeName()));
             Id = $"{ParentClass.ClassType.FullName}.{Method.Name}.{methodParametersSignature}";
         }
 

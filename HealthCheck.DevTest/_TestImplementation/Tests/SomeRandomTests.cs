@@ -37,26 +37,27 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             return TestResult.CreateSuccess($"Recieved: [{number}, '{text}', {checkbox}, '{date.ToString()}']");
         }
 
-        [RuntimeTest]
-        public TestResult TestWithDefaultValues(int number = 123, string text = "something", bool checkbox = true, DateTime? date = null)
-        {
-            return TestResult.CreateSuccess($"Recieved: [{number}, '{text}', {checkbox}, '{date.ToString()}']");
-        }
+        //[RuntimeTest]
+        //public TestResult TestWithDefaultValues(int number = 123, string text = "something", bool checkbox = true, DateTime? date = null)
+        //{
+        //    return TestResult.CreateSuccess($"Recieved: [{number}, '{text}', {checkbox}, '{date.ToString()}']");
+        //}
 
-        [RuntimeTest(
-            Name = "Get data from X",
-            Description = "Retrieve some data from some service.",
-            ParameterNames = new[] {
-                "Data id",
-                "Organization name",
-                "Only get the latest data"
-            },
-            ParameterDescriptions = new[] {
-                "Id of the thing to get",
-                "Name of the organization the data belongs to.",
-                "If true only the latest data will be retrieved."
-            }
-        )]
+        //[RuntimeTest(
+        //    Name = "Get data from X",
+        //    Description = "Retrieve some data from some service.",
+        //    ParameterNames = new[] {
+        //        "Data id",
+        //        "Organization name",
+        //        "Only get the latest data"
+        //    },
+        //    ParameterDescriptions = new[] {
+        //        "Id of the thing to get",
+        //        "Name of the organization the data belongs to.",
+        //        "If true only the latest data will be retrieved."
+        //    }
+        //)]
+
         public async Task<TestResult> GetDataFromX(int id = 123, string orgName = "Test Organization", bool latestOnly = false, int someNumber = 42)
         {
             await Task.Delay(300);
