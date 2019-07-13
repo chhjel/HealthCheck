@@ -92,6 +92,7 @@ export default class TestComponent extends Vue {
     ////////////////
     created(): void {
       this.$parent.$on('executeAllTestsInSet', this.executeTest);
+      this.testResult = this.test.TestResult;
     }
 
     beforeDestroy(): void {
@@ -190,12 +191,14 @@ export default class TestComponent extends Vue {
       })
       .then(response => response.json())
       .then((result: TestResultViewModel) => {
-          this.testResult = result;
+          this.test.TestResult = result;
+          this.testResult = this.test.TestResult;
           this.testInProgress = false;
           this.$emit("testStopped", this.test.Id);
       })
       .catch((e) => {
-          this.testResult = null;
+          this.test.TestResult = null;
+          this.testResult = this.test.TestResult;
           this.testInProgress = false;
           this.testExecutionFailed = true;
           this.testExecutionErrorMessage = `Failed to execute test with the following error. ${e}.`;

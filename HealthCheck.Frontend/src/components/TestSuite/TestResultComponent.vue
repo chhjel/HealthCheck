@@ -18,7 +18,7 @@
             <template v-slot:header>
               <div>{{ testResultDataTitle }}</div>
             </template>
-            <v-card>
+            <v-card v-if="dataExpandedState == 0">
               <v-card-text>
                 <test-result-data-component 
                   v-for="(data, index) in testResult.Data"

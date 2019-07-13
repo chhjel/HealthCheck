@@ -53,7 +53,7 @@ namespace HealthCheck.DevTest.Controllers
         private IAuditEventStorage CreateAuditEventService()
             => new FlatFileAuditEventStorage(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"))
             {
-                MaxEventAge = TimeSpan.FromSeconds(30)
+                MaxEventAge = TimeSpan.FromDays(30)
             };
 
         private static bool _hasInited = false;
