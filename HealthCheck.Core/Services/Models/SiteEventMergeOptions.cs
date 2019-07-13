@@ -54,7 +54,11 @@ namespace HealthCheck.Core.Services.Models
             EventMerger = eventMerger ?? DefaultMergeLogic;
         }
 
-        private static void DefaultMergeLogic(SiteEvent oldEvent, SiteEvent newEvent)
+        /// <summary>
+        /// The default method that is called when merging events.
+        /// Extends duration but not past the current time.
+        /// </summary>
+        public static void DefaultMergeLogic(SiteEvent oldEvent, SiteEvent newEvent)
         {
             var maxAllowedMinutesToAdd = (int)(DateTime.Now - oldEvent.Timestamp.AddMinutes(oldEvent.Duration)).TotalMinutes;
             var minutesToAdd = Math.Min(newEvent.Duration, maxAllowedMinutesToAdd);
@@ -63,7 +67,7 @@ namespace HealthCheck.Core.Services.Models
                 return;
             }
 
-            oldEvent.Duration += newEvent.Duration;
+            oldEvent.Duration += minutesToAdd;
         }
     }
 }
