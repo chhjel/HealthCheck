@@ -10,15 +10,18 @@
                 <v-toolbar-title>{{ options.ApplicationTitle }}</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-toolbar-items v-if="showPagesMenu">
-                    <v-btn flat 
+                    <v-btn flat
                         v-if="showPageMenu(PAGE_OVERVIEW)"
-                        @click="setCurrentPage(PAGE_OVERVIEW)">Overview</v-btn>
+                        :href="`?page=${PAGE_OVERVIEW}`"
+                        @click.left.prevent="setCurrentPage(PAGE_OVERVIEW)">Overview</v-btn>
                     <v-btn flat 
                         v-if="showPageMenu(PAGE_TESTS)"
-                        @click="setCurrentPage(PAGE_TESTS)">Tests</v-btn>
+                        :href="`?page=${PAGE_TESTS}`"
+                        @click.left.prevent="setCurrentPage(PAGE_TESTS)">Tests</v-btn>
                     <v-btn flat 
                         v-if="showPageMenu(PAGE_AUDITLOG)"
-                        @click="setCurrentPage(PAGE_AUDITLOG)">Audit log</v-btn>
+                        :href="`?page=${PAGE_AUDITLOG}`"
+                        @click.left.prevent="setCurrentPage(PAGE_AUDITLOG)">Audit log</v-btn>
                 </v-toolbar-items>
             </v-toolbar>
 
