@@ -131,7 +131,6 @@ export default class OverviewPageComponent extends Vue {
         let index = -1;
         events.forEach(x => {
             index++;
-            x.Id = index.toString();
             x.Timestamp = new Date(x.Timestamp);
         });
         this.siteEvents = events;

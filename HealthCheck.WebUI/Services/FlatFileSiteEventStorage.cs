@@ -22,17 +22,20 @@ namespace HealthCheck.WebUI.Services
 
         private bool CleanupEnabled => MaxEventAge != null;
         private DateTime? LastCleanup { get; set; }
-        private SimpleDataStore<SiteEvent> Store { get; set; }
+        private SimpleDataStoreWithId<SiteEvent, Guid> Store { get; set; }
 
         /// <summary>
         /// Create a new <see cref="FlatFileSiteEventStorage"/> with the given json file path.
         /// </summary>
         public FlatFileSiteEventStorage(string filepath)
         {
-            Store = new SimpleDataStore<SiteEvent>(
+            Store = new SimpleDataStoreWithId<SiteEvent, Guid>(
                 filepath,
                 serializer: new Func<SiteEvent, string>((e) => JsonConvert.SerializeObject(e)),
-                deserializer: new Func<string, SiteEvent>((row) => JsonConvert.DeserializeObject<SiteEvent>(row))
+                deserializer: new Func<string, SiteEvent>((row) => JsonConvert.DeserializeObject<SiteEvent>(row)),
+                idSelector: (e) => e.Id,
+                idSetter: (e, id) => e.Id = id,
+                nextIdFactory: (events, e) => Guid.NewGuid()
             );
         }
 
@@ -47,6 +50,15 @@ namespace HealthCheck.WebUI.Services
         }
 
         /// <summary>
+        /// Update the given site event.
+        /// </summary>
+        public Task UpdateEvent(SiteEvent siteEvent)
+        {
+            Store.InsertOrUpdateItem(siteEvent);
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
         /// Get stored events within the given threshold.
         /// </summary>
         public Task<List<SiteEvent>> GetEvents(DateTime from, DateTime to)
@@ -56,6 +68,17 @@ namespace HealthCheck.WebUI.Services
                 .ToList();
 
             return Task.FromResult(items);
+        }
+
+        /// <summary>
+        /// Get the latest <see cref="SiteEvent"/> with the given <see cref="SiteEvent.EventTypeId"/>.
+        /// <para>Gets the last stored one with a matching id for performance reasons.</para>
+        /// </summary>
+        public Task<SiteEvent> GetLastMergableEventOfType(string eventTypeId)
+        {
+            var item = Store.GetEnumerable(fromEnd: true)
+                .FirstOrDefault(x => x.AllowMerge && x.EventTypeId == eventTypeId);
+            return Task.FromResult(item);
         }
 
         private void CheckCleanup()

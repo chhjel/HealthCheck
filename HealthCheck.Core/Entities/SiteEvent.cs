@@ -11,6 +11,11 @@ namespace HealthCheck.Core.Entities
     public class SiteEvent
     {
         /// <summary>
+        /// Generated id of this event. Is set automatically from constructor.
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
         /// Severity of the event.
         /// </summary>
         public SiteEventSeverity Severity { get; set; }
@@ -61,6 +66,7 @@ namespace HealthCheck.Core.Entities
         /// <param name="duration">Duration of event in minutes.</param>
         public SiteEvent(SiteEventSeverity severity, string eventTypeId, string title, string description, int duration = 1)
         {
+            Id = Guid.NewGuid();
             Severity = severity;
             Timestamp = DateTime.Now;
             EventTypeId = eventTypeId;
@@ -85,6 +91,25 @@ namespace HealthCheck.Core.Entities
         {
             AllowMerge = false;
             return this;
+        }
+
+        /// <summary>
+        /// Set values from the given event.
+        /// </summary>
+        public void SetValuesFrom(SiteEvent other, bool setId = false)
+        {
+            if (setId)
+            {
+                Id = other.Id;
+            }
+            Severity = other.Severity;
+            Timestamp = other.Timestamp;
+            EventTypeId = other.EventTypeId;
+            Title = other.Title;
+            Description = other.Description;
+            Duration = other.Duration;
+            AllowMerge = other.AllowMerge;
+            RelatedLinks = other.RelatedLinks;
         }
     }
 }

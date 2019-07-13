@@ -207,28 +207,84 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Get all rows as enumerable, reading one line at a time. Also reads buffered lines.
         /// </summary>
-        public IEnumerable<TItem> GetEnumerable()
+        /// <param name="fromEnd">Read from the end of file.</param>
+        public IEnumerable<TItem> GetEnumerable(bool fromEnd = false)
         {
             EnsureFileExists();
-            lock (_fileLock)
+
+            if (fromEnd)
             {
-                using (FileStream fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (BufferedStream bufferedStream = new BufferedStream(fileStream))
-                using (StreamReader streamReader = new StreamReader(bufferedStream))
+                lock (NewRowsBuffer)
                 {
-                    string row;
-                    while ((row = streamReader.ReadLine()) != null)
+                    foreach (var bufferedRow in NewRowsBuffer.Reverse<string>())
                     {
-                        yield return DeserializeRow(row);
+                        if (string.IsNullOrWhiteSpace(bufferedRow))
+                            continue;
+
+                        var item = DeserializeRow(bufferedRow);
+                        if (item != null)
+                        {
+                            yield return item;
+                        }
+                    }
+                }
+
+                lock (_fileLock)
+                {
+                    using (FileStream fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (ReverseStreamReader streamReader = new ReverseStreamReader(fileStream))
+                    {
+                        string row;
+                        while ((row = streamReader.ReadLine()) != null)
+                        {
+                            if (string.IsNullOrWhiteSpace(row))
+                                continue;
+
+                            var item = DeserializeRow(row);
+                            if (item != null)
+                            {
+                                yield return item;
+                            }
+                        }
                     }
                 }
             }
-
-            lock (NewRowsBuffer)
+            else
             {
-                foreach (var bufferedRow in NewRowsBuffer)
+                lock (_fileLock)
                 {
-                    yield return DeserializeRow(bufferedRow);
+                    using (FileStream fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (BufferedStream bufferedStream = new BufferedStream(fileStream))
+                    using (StreamReader streamReader = new StreamReader(bufferedStream))
+                    {
+                        string row;
+                        while ((row = streamReader.ReadLine()) != null)
+                        {
+                            if (string.IsNullOrWhiteSpace(row))
+                                continue;
+
+                            var item = DeserializeRow(row);
+                            if (item != null)
+                            {
+                                yield return item;
+                            }
+                        }
+                    }
+                }
+
+                lock (NewRowsBuffer)
+                {
+                    foreach (var bufferedRow in NewRowsBuffer)
+                    {
+                        if (string.IsNullOrWhiteSpace(bufferedRow))
+                            continue;
+
+                        var item = DeserializeRow(bufferedRow);
+                        if (item != null)
+                        {
+                            yield return item;
+                        }
+                    }
                 }
             }
         }

@@ -16,6 +16,7 @@ namespace HealthCheck.WebUI.Factories
         {
             var vm = new SiteEventViewModel()
             {
+                Id = siteEvent.Id,
                 Severity = siteEvent.Severity,
                 SeverityCode = (int)siteEvent.Severity,
                 Title = siteEvent.Title,

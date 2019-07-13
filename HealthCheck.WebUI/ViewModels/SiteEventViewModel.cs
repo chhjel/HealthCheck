@@ -11,6 +11,11 @@ namespace HealthCheck.WebUI.ViewModels
     public class SiteEventViewModel
     {
         /// <summary>
+        /// Generated id of this event. Is set automatically from constructor.
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
         /// Severity of the event.
         /// </summary>
         public SiteEventSeverity Severity { get; set; }
