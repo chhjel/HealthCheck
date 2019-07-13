@@ -78,7 +78,7 @@
                                     <div class="row-details-roles ml-1" v-if="props.item.UserAccessRoles.length > 0">
                                         <div v-for="(role, index) in props.item.UserAccessRoles"
                                             :key="`audit-${props.item.Id}-role-${index}`"
-                                            class="row-details-role">
+                                            class="role-tag">
                                             {{ role }}
                                         </div>
                                     </div>
@@ -312,7 +312,7 @@ export default class AuditLogPageComponent extends Vue {
 .row-details-roles {
     display: inline;
 }
-.row-details-role {
+/* .row-details-role {
     display: inline;
     color: var(--v-secondary-base);
     padding: 5px;
@@ -320,6 +320,15 @@ export default class AuditLogPageComponent extends Vue {
     border-radius: 15px;
     margin: 2px;
     font-size: 12px;
+} */
+.role-tag {
+    display: inline;
+    color: #4c41a5;
+    background-color: #d5d5f7;
+    padding: 6px;
+    margin-left: 8px;
+    align-self: center;
+    font-weight: 500;
 }
 .row-details-details-title {
     font-weight: 600;

@@ -59,7 +59,7 @@ namespace HealthCheck.Core.Services
                         }
                         .AddDetail("Test id", result?.Test?.Id)
                         .AddDetail("Result", result?.Message)
-                        .AddDetail("Duration", $"{result?.DurationInMilliseconds}ms")
+                        .AddDetail("Duration", (result == null ? "?" : result.DurationInMilliseconds < 0 ? "< 0" : result?.DurationInMilliseconds.ToString()) + "ms")
                     );
                 }
             }
