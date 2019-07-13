@@ -40,7 +40,7 @@
             color="primary" ref="calendar">
             <!-- MONTH VIEW -->
             <template v-slot:day="{ date }">
-                <template v-for="(event, eventIndex) in calendarEventsMap[date]">
+                <template v-for="(event, eventIndex) in calendarEventsMapReversed[date]">
                     <v-menu
                         :key="`month-item-${event.id}-${eventIndex}`"
                         v-model="event.open" full-width offset-x>
@@ -61,7 +61,12 @@
                                 </v-btn> -->
                                 <v-toolbar-title>{{ event.title }}</v-toolbar-title>
                                 <v-spacer></v-spacer>
-                                <v-toolbar-title class="subheading">@ {{ event.date }} {{ event.time }}</v-toolbar-title>
+                                <v-toolbar-title class="subheading" v-if="event.endTime == null">
+                                    @ {{ event.date }} {{ event.time }}
+                                </v-toolbar-title>
+                                <v-toolbar-title class="subheading" v-if="event.endTime != null">
+                                    @ {{ event.date }}<br />{{ event.time }} - {{ event.endTime }}
+                                </v-toolbar-title>
                                 <!-- <v-btn icon>
                                     <v-icon>favorite</v-icon>
                                 </v-btn> -->
@@ -101,11 +106,15 @@
             
             <!-- WITH-TIME VIEW -->
             <template v-slot:dayBody="{ date, timeToY, minutesToPixels }">
-                <template v-for="event in calendarEventsMap[date]">
-                    <div
+                <template  v-for="(event) in calendarEventsMap[date]">
+                    <div v-ripple
                         v-if="event.time"
                         :key="`day-item-${event.id}`"
-                        :style="{ top: timeToY(event.time) + 'px', height: minutesToPixels(event.duration) + 'px' }"
+                        :style="{
+                            top: timeToY(event.time) + 'px',
+                            height: minutesToPixels(event.duration) + 'px',
+                            'min-height': '20px'
+                        }"
                         class="calendar-event with-time"
                         :class="getEventSeverityClass(event.data.Severity)"
                         v-html="event.title"
@@ -157,16 +166,28 @@ export default class OverviewPageComponent extends Vue {
                 details: x.Description,
                 date: this.getCalendarDateFormat(x.Timestamp),
                 time: this.getCalendarTimeFormat(x.Timestamp),
+                endTime: this.getEventEndTime(x),
                 open: false,
                 data: x,
-                duration: 45
+                duration: x.Duration
             };
         });
     }
 
     get calendarEventsMap(): any {
         const map: any = {}
-        this.calendarEvents.forEach(e => (map[e.date] = map[e.date] || []).push(e))
+        this.calendarEvents
+            .sort((a, b) => a.data.Timestamp.getTime() - b.data.Timestamp.getTime())
+            .forEach(e => (map[e.date] = map[e.date] || []).push(e))
+        return map
+    }
+
+    get calendarEventsMapReversed(): any {
+        const map: any = {}
+        this.calendarEvents
+            .sort((a, b) => a.data.Timestamp.getTime() - b.data.Timestamp.getTime())
+            .reverse()
+            .forEach(e => (map[e.date] = map[e.date] || []).push(e))
         return map
     }
 
@@ -200,6 +221,15 @@ export default class OverviewPageComponent extends Vue {
     getCalendarDateFormat(date: Date): string {
         //@ts-ignore
         return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padZero(2)}-${date.getDate().toString().padZero(2)}`;
+    }
+
+    getEventEndTime(event: SiteEventViewModel) : string | null {
+        if (event.Duration > 1) {
+            let date = new Date(event.Timestamp.getTime() + event.Duration * 60000);
+            return this.getCalendarTimeFormat(date);
+        } else {
+            return null;
+        }
     }
 
     getEventSeverityClass(severity: SiteEventSeverity): string {

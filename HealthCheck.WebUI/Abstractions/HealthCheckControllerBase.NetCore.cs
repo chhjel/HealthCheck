@@ -26,14 +26,14 @@ namespace HealthCheck.WebUI.Abstractions
         where TAccessRole : Enum
     {
         /// <summary>
-        /// Must be set for any site statuses to be returned.
+        /// Must be set for any site statuses to be stored and returned.
         /// </summary>
-        protected ISiteEventService SiteEventService { get; set; }
+        protected SiteEventService SiteEventService { get; set; }
 
         /// <summary>
         /// Must be set for any site audits to be logged.
         /// </summary>
-        protected IAuditEventService AuditEventService { get; set; }
+        protected IAuditEventStorage AuditEventService { get; set; }
 
         /// <summary>
         /// Set to false to return 404 for all actions.

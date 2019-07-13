@@ -20,6 +20,7 @@ namespace HealthCheck.WebUI.Factories
                 SeverityCode = (int)siteEvent.Severity,
                 Title = siteEvent.Title,
                 Description = siteEvent.Description,
+                Duration = siteEvent.Duration,
                 EventTypeId = siteEvent.EventTypeId,
                 Timestamp = siteEvent.Timestamp,
                 RelatedLinks = siteEvent.RelatedLinks.Select(x => CreateViewModel(x)).ToList()

@@ -17,7 +17,7 @@
                 {{ overviewDataFailedErrorMessage }}
                 </v-alert>
 
-                <v-progress-linear 
+                <v-progress-linear
                     v-if="overviewDataLoadInProgress"
                     indeterminate color="green"></v-progress-linear>
                     

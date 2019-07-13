@@ -22,8 +22,8 @@ namespace HealthCheck.Core.Services
 
         /// <summary>
         /// Executes matching tests.
-        /// <para>Optionally sends results containing a <see cref="TestResult.SiteEvent"/> if a <see cref="ISiteEventService"/> is provided,
-        /// and creates audit events if a <see cref="IAuditEventService"/> is provided.</para>
+        /// <para>Optionally sends results containing a <see cref="TestResult.SiteEvent"/> if a <see cref="ISiteEventStorage"/> is provided,
+        /// and creates audit events if a <see cref="IAuditEventStorage"/> is provided.</para>
         /// </summary>
         /// <param name="testDiscoveryService">Service that will discover tests to run.</param>
         /// <param name="testFilter">Only tests that return true to this condition will be executed.</param>
@@ -35,8 +35,8 @@ namespace HealthCheck.Core.Services
         public async Task<List<TestResult>> ExecuteTests(
             TestDiscoveryService testDiscoveryService,
             Func<TestDefinition, bool> testFilter,
-            ISiteEventService siteEventService = null,
-            IAuditEventService auditEventService = null,
+            SiteEventService siteEventService = null,
+            IAuditEventStorage auditEventService = null,
             string auditUserId = "0",
             string auditUsername = "System")
         {

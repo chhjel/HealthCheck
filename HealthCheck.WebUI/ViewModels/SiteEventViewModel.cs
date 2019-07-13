@@ -41,6 +41,11 @@ namespace HealthCheck.WebUI.ViewModels
         public string Description { get; set; }
 
         /// <summary>
+        /// Event duration in minutes.
+        /// </summary>
+        public int Duration { get; set; }
+
+        /// <summary>
         /// Any urls to related things.
         /// </summary>
         public List<HyperLinkViewModel> RelatedLinks { get; set; }

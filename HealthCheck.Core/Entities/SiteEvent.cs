@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace HealthCheck.Core.Entities
 {
     /// <summary>
-    /// An event that can be reported to the <see cref="ISiteEventService"/>.
+    /// An event that can be reported to the <see cref="ISiteEventStorage"/>.
     /// </summary>
     public class SiteEvent
     {
@@ -36,6 +36,17 @@ namespace HealthCheck.Core.Entities
         public string Description { get; set; }
 
         /// <summary>
+        /// Event duration in minutes.
+        /// </summary>
+        public int Duration { get; set; }
+
+        /// <summary>
+        /// Allow merging this event with previous ones of the same type if within duration threshold.
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public bool AllowMerge { get; set; } = true;
+
+        /// <summary>
         /// Any urls to related things.
         /// </summary>
         public List<HyperLink> RelatedLinks { get; set; } = new List<HyperLink>();
@@ -47,13 +58,15 @@ namespace HealthCheck.Core.Entities
         /// <param name="eventTypeId">Custom id of this type of event.</param>
         /// <param name="title">Title of the event.</param>
         /// <param name="description">Description of the event.</param>
-        public SiteEvent(SiteEventSeverity severity, string eventTypeId, string title, string description)
+        /// <param name="duration">Duration of event in minutes.</param>
+        public SiteEvent(SiteEventSeverity severity, string eventTypeId, string title, string description, int duration = 1)
         {
             Severity = severity;
             Timestamp = DateTime.Now;
             EventTypeId = eventTypeId;
             Title = title;
             Description = description;
+            Duration = duration;
         }
 
         /// <summary>
@@ -62,6 +75,15 @@ namespace HealthCheck.Core.Entities
         public SiteEvent AddRelatedLink(string title, string url)
         {
             RelatedLinks.Add(new HyperLink(title, url));
+            return this;
+        }
+
+        /// <summary>
+        /// Do not allow this event to be merged with previous ones.
+        /// </summary>
+        public SiteEvent DisallowMerge()
+        {
+            AllowMerge = false;
             return this;
         }
     }

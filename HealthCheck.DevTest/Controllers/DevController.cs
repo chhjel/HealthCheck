@@ -15,14 +15,15 @@ using HealthCheck.WebUI.Services;
 using HealthCheck.Core.Abstractions;
 using System.Threading.Tasks;
 using System.Linq;
+using HealthCheck.Core.Services;
 
 namespace HealthCheck.DevTest.Controllers
 {
     public class DevController : HealthCheckControllerBase<RuntimeTestAccessRole>
     {
         private const string EndpointBase = "/dev";
-        private static ISiteEventService _siteEventService;
-        private static IAuditEventService _auditEventService;
+        private static SiteEventService _siteEventService;
+        private static IAuditEventStorage _auditEventService;
 
         #region Init
         public DevController()
@@ -44,13 +45,13 @@ namespace HealthCheck.DevTest.Controllers
             }
         }
 
-        private ISiteEventService CreateSiteEventService()
-            => new FlatFileSiteEventService(HostingEnvironment.MapPath("~/App_Data/SiteEventStorage.json"))
+        private SiteEventService CreateSiteEventService()
+            => new SiteEventService(new FlatFileSiteEventStorage(HostingEnvironment.MapPath("~/App_Data/SiteEventStorage.json"))
             {
                 MaxEventAge = TimeSpan.FromSeconds(10)
-            };
-        private IAuditEventService CreateAuditEventService()
-            => new FlatFileAuditEventService(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"))
+            });
+        private IAuditEventStorage CreateAuditEventService()
+            => new FlatFileAuditEventStorage(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"))
             {
                 MaxEventAge = TimeSpan.FromSeconds(30)
             };
@@ -59,7 +60,7 @@ namespace HealthCheck.DevTest.Controllers
         private void InitOnce()
         {
             _hasInited = true;
-            AddEvents(false);
+            Task.Run(() => AddEvents(false));
         }
         #endregion
 
@@ -127,7 +128,7 @@ namespace HealthCheck.DevTest.Controllers
         }
 
         // New mock data
-        public ActionResult AddEvents(bool reInitService = true)
+        public async Task<ActionResult> AddEvents(bool reInitService = true)
         {
             if (reInitService)
             {
@@ -136,14 +137,14 @@ namespace HealthCheck.DevTest.Controllers
 
             for (int i = 0; i < 20; i++)
             {
-                AddEvent();
+                await AddEvent();
             }
             return Content("Mock events reset");
         }
 
         // New mock data
         private static readonly Random _rand = new Random();
-        public ActionResult AddEvent()
+        public async Task<ActionResult> AddEvent()
         {
             if (!Enabled || SiteEventService == null) return HttpNotFound();
 
@@ -152,8 +153,11 @@ namespace HealthCheck.DevTest.Controllers
                             : (_rand.Next(100) < 25) ? SiteEventSeverity.Error
                                 : (_rand.Next(100) < 50) ? SiteEventSeverity.Warning : SiteEventSeverity.Information;
 
-            var ev = new SiteEvent(severity, $"Error type {_rand.Next(10000)}", title, description)
-            {
+            var ev = new SiteEvent(
+                severity, $"Error type {_rand.Next(10000)}",
+                title, description,
+                duration: _rand.Next(1, 90)
+            ) {
                 Timestamp = DateTime.Now
                     .AddDays(-7 + _rand.Next(7))
                     .AddMinutes(_rand.Next(0, 24 * 60))
@@ -161,7 +165,7 @@ namespace HealthCheck.DevTest.Controllers
             .AddRelatedLink("Page that failed", "https://www.google.com?etc")
             .AddRelatedLink("Error log", "https://www.google.com?q=errorlog");
 
-            SiteEventService.StoreEvent(ev);
+            await SiteEventService.StoreEvent(ev);
             return CreateJsonResult(ev);
         }
 

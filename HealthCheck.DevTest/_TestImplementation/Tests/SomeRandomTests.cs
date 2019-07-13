@@ -87,7 +87,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         public TestResult TestOfAHealthCheckWarning()
         {
             return TestResult.CreateWarning("Some warning here")
-                .SetSiteEvent(new SiteEvent(SiteEventSeverity.Warning, "IntegrationXLatency", "Increased latency with X", "Integration with X seems to be a bit slower than usual."));
+                .SetSiteEvent(new SiteEvent(SiteEventSeverity.Warning, "IntegrationXLatency", "Increased latency with X", "Integration with X seems to be a bit slower than usual.", duration: 1));
         }
 
         [RuntimeTest(Category = RuntimeTestConstants.Categories.ScheduledHealthCheck)]
@@ -96,7 +96,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             return TestResult.CreateWarning("Some error")
                 .SetSiteEvent(
                     new SiteEvent(SiteEventSeverity.Error, "IntegrationDataImport",
-                        "Integration Y instabilities", "Failed to retrieve data from integration Y, the service might be temporary down.")
+                        "Integration Y instabilities", "Failed to retrieve data from integration Y, the service might be temporary down.", duration: 5)
                     .AddRelatedLink("Endpoint", "https://www.google.com/?q=some+endpoint+instead+of+this")
                 );
         }

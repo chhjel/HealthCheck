@@ -77,7 +77,7 @@ namespace HealthCheck.WebUI.Util
         /// Get viewmodel for test sets data.
         /// </summary>
         public async Task<List<SiteEventViewModel>> GetSiteEventsViewModel(
-            Maybe<TAccessRole> accessRoles, ISiteEventService service,
+            Maybe<TAccessRole> accessRoles, SiteEventService service,
             DateTime? from = null, DateTime? to = null)
         {
             if (!CanShowOverviewPageTo(accessRoles, service))
@@ -141,7 +141,7 @@ namespace HealthCheck.WebUI.Util
         /// <exception cref="ConfigValidationException"></exception>
         public string CreateViewHtml(Maybe<TAccessRole> accessRoles,
             FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions,
-            ISiteEventService siteEventService, IAuditEventService auditEventService)
+            SiteEventService siteEventService, IAuditEventStorage auditEventService)
         {
             CheckPageOptions(accessRoles, frontEndOptions, pageOptions, siteEventService, auditEventService);
 
@@ -180,8 +180,8 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public bool HasAccessToAnyContent(
             Maybe<TAccessRole> accessRoles,
-            ISiteEventService siteEventService,
-            IAuditEventService auditEventService)
+            SiteEventService siteEventService,
+            IAuditEventStorage auditEventService)
             => CanShowTestsPageTo(accessRoles)
             || CanShowOverviewPageTo(accessRoles, siteEventService)
             || CanShowAuditPageTo(accessRoles, auditEventService);
@@ -189,7 +189,7 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Check if the given roles has access to the overview page.
         /// </summary>
-        public bool CanShowOverviewPageTo(Maybe<TAccessRole> accessRoles, ISiteEventService siteEventService)
+        public bool CanShowOverviewPageTo(Maybe<TAccessRole> accessRoles, SiteEventService siteEventService)
             => siteEventService != null && CanShowPageTo(accessRoles, AccessOptions.OverviewPageAccess);
 
         /// <summary>
@@ -201,11 +201,11 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Check if the given roles has access to the audit log page.
         /// </summary>
-        public bool CanShowAuditPageTo(Maybe<TAccessRole> accessRoles, IAuditEventService auditEventService)
+        public bool CanShowAuditPageTo(Maybe<TAccessRole> accessRoles, IAuditEventStorage auditEventService)
             => auditEventService != null && CanShowPageTo(accessRoles, AccessOptions.AuditLogAccess, defaultValue: false);
 
         private void CheckPageOptions(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions,
-            ISiteEventService siteEventService, IAuditEventService auditEventService)
+            SiteEventService siteEventService, IAuditEventStorage auditEventService)
         {
             var deniedEndpoint = "0x90";
             if (CanShowOverviewPageTo(accessRoles, siteEventService))
@@ -285,7 +285,7 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// When a test has executed this should be called.
         /// </summary>
-        public void OnTestExecuted(IAuditEventService auditEventService, RequestInformation<TAccessRole> requestInformation, ExecuteTestInputData input, TestResultViewModel result)
+        public void OnTestExecuted(IAuditEventStorage auditEventService, RequestInformation<TAccessRole> requestInformation, ExecuteTestInputData input, TestResultViewModel result)
         {
             auditEventService?.StoreEvent(
                 CreateAuditEventFor(requestInformation, AuditEventArea.Tests, action: "Test executed", subject: result?.TestName)
@@ -302,7 +302,7 @@ namespace HealthCheck.WebUI.Util
         public async Task<IEnumerable<AuditEventViewModel>> GetAuditEventsFilterViewModel(
             Maybe<TAccessRole> accessRoles,
             AuditEventFilterInputData filter,
-            IAuditEventService auditEventService)
+            IAuditEventStorage auditEventService)
         {
             if (auditEventService == null || !RoleHasAccessToAuditLogs(accessRoles))
                 return Enumerable.Empty<AuditEventViewModel>();

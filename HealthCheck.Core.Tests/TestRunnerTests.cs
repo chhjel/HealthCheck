@@ -31,7 +31,7 @@ namespace HealthCheck.Core.Services
                 AssemblyContainingTests = GetType().Assembly
             };
             var runner = new TestRunnerService();
-            var eventService = new MemorySiteEventService();
+            var eventService = new SiteEventService(new MemorySiteEventStorage());
             var results = await runner.ExecuteTests(discoverer, (test) => true, siteEventService: eventService);
             Assert.Contains(results, result => result.SiteEvent?.Title == "EventA");
 
@@ -47,7 +47,7 @@ namespace HealthCheck.Core.Services
                 AssemblyContainingTests = GetType().Assembly
             };
             var runner = new TestRunnerService();
-            var auditService = new MemoryAuditEventService();
+            var auditService = new MemoryAuditEventStorage();
             var results = await runner.ExecuteTests(discoverer, (test) => true, auditEventService: auditService);
             Assert.Contains(results, result => result.SiteEvent?.Title == "EventA");
 
