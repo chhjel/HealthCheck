@@ -26,6 +26,12 @@ namespace HealthCheck.WebUI.Models
         public Maybe<TAccessRole> AuditLogAccess { get; set; }
 
         /// <summary>
+        /// Roles with access to view the invalid tests.
+        /// <para>If null anyone can access it by default.</para>
+        /// </summary>
+        public Maybe<TAccessRole> InvalidTestsAccess { get; set; }
+
+        /// <summary>
         /// Redirect url if the request does not have access to any of the content.
         /// <para>If not set a 404 will be returned.</para>
         /// </summary>

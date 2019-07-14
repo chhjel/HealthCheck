@@ -98,10 +98,18 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public TestsDataViewModel GetTestDefinitionsViewModel(Maybe<TAccessRole> accessRoles)
         {
+            var invalidTests = new List<TestDefinitionValidationResult>();
+            if (CanShowPageTo(accessRoles, AccessOptions.InvalidTestsAccess))
+            {
+                invalidTests = TestDiscoverer.GetInvalidTests();
+            }
+
+            TestDiscoverer.GetInvalidTests();
             var model = new TestsDataViewModel()
             {
                 TestSets = TestsViewModelsFactory.CreateViewModel(GetTestDefinitions(accessRoles)),
                 GroupOptions = TestsViewModelsFactory.CreateViewModel(TestSetGroupsOptions),
+                InvalidTests = invalidTests.Select(x => (TestsViewModelsFactory.CreateViewModel(x))).ToList()
             };
             return model;
         }
@@ -249,6 +257,9 @@ namespace HealthCheck.WebUI.Util
         private TestDefinition GetTest(Maybe<TAccessRole> accessRoles, string testId)
             => GetTestDefinitions(accessRoles).SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == testId);
 
+        /// <summary>
+        /// Default value if pageAccess is null, false if no roles were given.
+        /// </summary>
         private bool CanShowPageTo(Maybe<TAccessRole> accessRoles, Maybe<TAccessRole> pageAccess, bool defaultValue = true)
         {
             // No access defined => default

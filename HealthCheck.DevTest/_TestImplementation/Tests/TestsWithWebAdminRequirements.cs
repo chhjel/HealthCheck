@@ -29,5 +29,10 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             await Task.Delay(1100);
             return TestResult.CreateSuccess($"Success, it took about a second.");
         }
+
+        [RuntimeTest]
+        public void AnotherInvalidTest()
+        {
+        }
     }
 }

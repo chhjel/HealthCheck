@@ -16,5 +16,10 @@ namespace HealthCheck.WebUI.ViewModels
         /// Any options for groups.
         /// </summary>
         public List<GroupOptionsViewModel> GroupOptions { get; set; }
+
+        /// <summary>
+        /// A list of any invalid tests.
+        /// </summary>
+        public List<InvalidTestViewModel> InvalidTests { get; set; }
     }
 }

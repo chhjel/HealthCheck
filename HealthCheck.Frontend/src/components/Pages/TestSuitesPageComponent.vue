@@ -81,16 +81,35 @@
             <v-container fluid fill-height class="content-root">
                 <v-layout>
                     <v-flex>
-                        <v-alert
-                            :value="testSetDataLoadFailed"
-                            type="error">
+                        <!-- INVALID TESTS -->
+                        <v-alert :value="hasInvalidTests" type="error">
+                            <h3>Some invalid tests were found:</h3>
+                            <ul>
+                                <li v-for="(invalidTest, index) in invalidTests"
+                                    :key="`invalidtest-${index}-${invalidTest.Id}`"
+                                    class="mt-2 mb-2">
+                                    <h4 style="display: flex; align-items: center;">
+                                        "{{ invalidTest.Name }}" 
+                                        <span class="caption ml-2" style="font-family: monospace;">({{ invalidTest.Id }})</span>
+                                    </h4>
+                                    <div class="ma-1">
+                                        {{ invalidTest.Reason }}
+                                    </div>
+                                </li>
+                            </ul>
+                        </v-alert>
+
+                        <!-- DATA LOAD ERROR -->
+                        <v-alert :value="testSetDataLoadFailed" type="error">
                         {{ testSetDataFailedErrorMessage }}
                         </v-alert>
 
+                        <!-- LOAD PROGRESS -->
                         <v-progress-linear 
                             v-if="testSetDataLoadInProgress"
                             indeterminate color="green"></v-progress-linear>
 
+                        <!-- TESTS -->
                         <test-set-component
                             v-if="activeSet != null"
                             :testSet="activeSet"
@@ -109,6 +128,7 @@ import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel
 import TestSetViewModel from '../../models/TestSuite/TestSetViewModel';
 import TestSetGroupViewModel from '../../models/TestSuite/TestSetGroupViewModel';
 import TestsDataViewModel from  '../../models/TestSuite/TestsDataViewModel';
+import InvalidTestViewModel from "../../models/TestSuite/InvalidTestViewModel";
 import TestSetComponent from '.././TestSuite/TestSetComponent.vue';
 import FilterInputComponent from '.././Common/FilterInputComponent.vue';
 import LinqUtils from '../../util/LinqUtils';
@@ -130,6 +150,7 @@ export default class TestSuitesPageComponent extends Vue {
 
     testSetGroups: Array<TestSetGroupViewModel> = new Array<TestSetGroupViewModel>();
     activeSet: TestSetViewModel | null = null;
+    invalidTests: Array<InvalidTestViewModel> = new Array<InvalidTestViewModel>();
 
     testSetDataLoadInProgress: boolean = false;
     testSetDataLoadFailed: boolean = false;
@@ -154,6 +175,10 @@ export default class TestSuitesPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get hasInvalidTests(): boolean {
+        return this.invalidTests.length > 0;
+    }
+
     get hasAnyTests(): boolean {
         return this.testSetGroups.length > 0;
     }
@@ -212,6 +237,8 @@ export default class TestSuitesPageComponent extends Vue {
     }
 
     onTestSetDataRetrieved(testsData: TestsDataViewModel): void {
+        this.invalidTests = testsData.InvalidTests;
+
         // Init default value
         for(let set of testsData.TestSets) {
             for(let test of set.Tests) {

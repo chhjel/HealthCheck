@@ -63,6 +63,21 @@ namespace HealthCheck.WebUI.Factories
         }
 
         /// <summary>
+        /// Create a <see cref="InvalidTestViewModel"/> from the given <see cref="TestDefinitionValidationResult"/>.
+        /// </summary>
+        public InvalidTestViewModel CreateViewModel(TestDefinitionValidationResult testDefinition)
+        {
+            var vm = new InvalidTestViewModel()
+            {
+                Id = testDefinition.Test.Id,
+                Name = testDefinition.Test.Name,
+                Reason = testDefinition.Error
+            };
+
+            return vm;
+        }
+
+        /// <summary>
         /// Create a <see cref="TestParameterViewModel"/> from the given <see cref="TestParameter"/>.
         /// </summary>
         public TestParameterViewModel CreateViewModel(TestParameter testParameter)
