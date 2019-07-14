@@ -1,4 +1,5 @@
 ﻿using HealthCheck.WebUI.Exceptions;
+using System.Collections.Generic;
 
 namespace HealthCheck.WebUI.Models
 {
@@ -8,9 +9,14 @@ namespace HealthCheck.WebUI.Models
     public class PageOptions
     {
         /// <summary>
-        /// Url to the javascript for the UI.
+        /// Url to the javascripts for the UI.
+        /// <para>Defaults to version 1.x of logic + vendor bundles from unpkg.com CDN.</para>
         /// </summary>
-        public string JavaScriptUrl { get; set; }
+        public List<string> JavaScriptUrls { get; set; } = new List<string>()
+        {
+            "https://unpkg.com/christianh-healthcheck@1/healthcheck.js",
+            "https://unpkg.com/christianh-healthcheck@1/healthcheck.vendor.js",
+        };
 
         /// <summary>
         /// Title of the page.
@@ -44,8 +50,8 @@ namespace HealthCheck.WebUI.Models
         /// </summary>
         public void Validate()
         {
-            if (string.IsNullOrWhiteSpace(JavaScriptUrl))
-                throw new ConfigValidationException($"{nameof(JavaScriptUrl)} is not set.");
+            if (JavaScriptUrls == null || JavaScriptUrls.Count == 0)
+                throw new ConfigValidationException($"{nameof(JavaScriptUrls)} is empty.");
         }
     }
 }

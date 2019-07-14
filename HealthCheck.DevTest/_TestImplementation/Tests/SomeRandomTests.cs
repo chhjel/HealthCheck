@@ -100,7 +100,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         [RuntimeTest(Category = RuntimeTestConstants.Categories.ScheduledHealthCheck)]
         public TestResult TestOfAHealthCheckError(bool someBool = true, string someStringParam = "test string")
         {
-            return TestResult.CreateWarning("Some error")
+            return TestResult.CreateError("Some error")
                 .SetSiteEvent(
                     new SiteEvent(SiteEventSeverity.Error, "IntegrationDataImport",
                         $"Integration Y instabilities ({someStringParam}, {someBool})",
@@ -112,7 +112,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         [RuntimeTest(Category = RuntimeTestConstants.Categories.ScheduledHealthCheck)]
         public TestResult TestOfAHealthCheckError(bool? someBool = true, string someStringParam = null, int? number = 222, int? number2 = null)
         {
-            return TestResult.CreateWarning("Some error")
+            return TestResult.CreateError("Some error")
                 .SetSiteEvent(
                     new SiteEvent(SiteEventSeverity.Information, "IntegrationZDataImport",
                         $"Integration Z instabilities ({someStringParam}, {someBool}, {number}, {number2})",

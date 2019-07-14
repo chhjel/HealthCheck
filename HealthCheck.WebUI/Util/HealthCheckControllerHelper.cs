@@ -152,6 +152,10 @@ namespace HealthCheck.WebUI.Util
             SiteEventService siteEventService, IAuditEventStorage auditEventService)
         {
             CheckPageOptions(accessRoles, frontEndOptions, pageOptions, siteEventService, auditEventService);
+            var javascriptUrlTags = pageOptions.JavaScriptUrls
+                .Select(url => $"<script src=\"{url}\"></script>")
+                .ToList();
+            var javascriptUrlTagsHtml = string.Join("\n    ", javascriptUrlTags);
 
             var defaultAssets = !pageOptions.IncludeDefaultAssetLinks ? "" : $@"
     <link href={Q}https://cdn.jsdelivr.net/npm/vuetify@1/dist/vuetify.min.css{Q} rel={Q}stylesheet{Q} />
@@ -165,10 +169,10 @@ namespace HealthCheck.WebUI.Util
 <html>
 <head>
     <title>{pageOptions.PageTitle}</title>
-    {pageOptions.CustomHeadHtml}
     {noIndexMeta}
     <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
     {defaultAssets}
+    {pageOptions.CustomHeadHtml}
 </head>
 
 <body>
@@ -177,7 +181,7 @@ namespace HealthCheck.WebUI.Util
     <script>
         window.healthCheckOptions = {JsonConvert.SerializeObject(frontEndOptions)};
     </script>
-    <script src={Q}{pageOptions.JavaScriptUrl}{Q}></script>
+    {javascriptUrlTagsHtml}
     {pageOptions.CustomBodyHtml}
 </body>
 </html>";

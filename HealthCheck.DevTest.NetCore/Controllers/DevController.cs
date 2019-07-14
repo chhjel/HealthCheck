@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
+using System.Collections.Generic;
 
 namespace HealthCheck.DevTest.NetCore.Controllers
 {
@@ -32,7 +33,10 @@ namespace HealthCheck.DevTest.NetCore.Controllers
         protected override PageOptions GetPageOptions()
             => new PageOptions()
             {
-                JavaScriptUrl = $"{EndpointBase.TrimEnd('/')}/GetScript",
+                JavaScriptUrls = new List<string> {
+                    $"{EndpointBase.TrimEnd('/')}/GetVendorScript",
+                    $"{EndpointBase.TrimEnd('/')}/GetMainScript",
+                },
                 PageTitle = "Dev Checks"
             };
 
@@ -63,10 +67,17 @@ namespace HealthCheck.DevTest.NetCore.Controllers
         }
         #endregion
 
-        [Route("GetScript")]
-        public FileResult GetScript()
+        [Route("GetMainScript")]
+        public FileResult GetMainScript()
         {
-            var filepath = Path.GetFullPath(Path.Combine(_env.WebRootPath, @"..\..\HealthCheck.Frontend\dist\healthcheckfrontend.js"));
+            var filepath = Path.GetFullPath(Path.Combine(_env.WebRootPath, @"..\..\HealthCheck.Frontend\dist\healthcheck.js"));
+            return new FileStreamResult(new FileStream(filepath, FileMode.Open), "text/javascript");
+        }
+
+        [Route("GetVendorScript")]
+        public FileResult GetVendorScript()
+        {
+            var filepath = Path.GetFullPath(Path.Combine(_env.WebRootPath, @"..\..\HealthCheck.Frontend\dist\healthcheck.vendor.js"));
             return new FileStreamResult(new FileStream(filepath, FileMode.Open), "text/javascript");
         }
     }

@@ -16,6 +16,7 @@ using HealthCheck.Core.Abstractions;
 using System.Threading.Tasks;
 using System.Linq;
 using HealthCheck.Core.Services;
+using System.Collections.Generic;
 
 namespace HealthCheck.DevTest.Controllers
 {
@@ -74,7 +75,10 @@ namespace HealthCheck.DevTest.Controllers
         protected override PageOptions GetPageOptions()
             => new PageOptions()
             {
-                JavaScriptUrl = $"{EndpointBase}/GetScript",
+                JavaScriptUrls = new List<string> {
+                    $"{EndpointBase}/GetVendorScript",
+                    $"{EndpointBase}/GetMainScript",
+                },
                 PageTitle = "Test Monitor"
             };
 
@@ -112,9 +116,16 @@ namespace HealthCheck.DevTest.Controllers
         #endregion
 
         #region dev
-        public FileResult GetScript()
+        public FileResult GetMainScript()
         {
-            var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheckfrontend.js");
+            var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheck.js");
+            return new FileStreamResult(new FileStream(filepath, FileMode.Open), "content-disposition");
+        }
+
+        [OutputCache(Duration = 1200, VaryByParam = "none")]
+        public FileResult GetVendorScript()
+        {
+            var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheck.vendor.js");
             return new FileStreamResult(new FileStream(filepath, FileMode.Open), "content-disposition");
         }
 

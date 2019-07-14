@@ -8,7 +8,13 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, './dist'),
     publicPath: '/dist/',
-    filename: 'healthcheckfrontend.js'
+    filename: 'healthcheck.js',
+    chunkFilename: 'healthcheck.vendor.js'
+  },
+  optimization: {
+    splitChunks: {
+      chunks: 'all'
+    }
   },
   module: {
     rules: [
