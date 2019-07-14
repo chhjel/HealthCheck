@@ -10,6 +10,7 @@
     <Copyright>ChristianH</Copyright>
     <Description>Abstract HealthCheck controllers and web logic for .NET Framework and .NET Core.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <!-- .NET STANDARD ######################### -->

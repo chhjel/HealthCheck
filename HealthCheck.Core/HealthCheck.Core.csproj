@@ -9,6 +9,7 @@
     <Company>ChristianH</Company>
     <Description>Core logic for discovering and executing tests.</Description>
     <Copyright>ChristianH</Copyright>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
