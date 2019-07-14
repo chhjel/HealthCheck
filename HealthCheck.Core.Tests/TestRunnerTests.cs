@@ -123,6 +123,26 @@ namespace HealthCheck.Core.Services
             Assert.Null(result.Tag);
         }
 
+        [Fact]
+        public async Task ExecuteTests_TestsWithoutDefaultValue_ShouldUseTypeDefaultValues()
+        {
+            var discoverer = new TestDiscoveryService()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+            var testClasses = discoverer.DiscoverTestDefinitions()
+                .Where(x => x.Id == "TestRunnerTestsSetC")
+                .ToList();
+
+            var runner = new TestRunnerService();
+            var results = await runner.ExecuteTests(testClasses, (x) => x.Name == "Test Without Default Values");
+            Assert.Single(results);
+
+            var data = results[0].Tag as object[];
+            Assert.Equal(default, data[0] as string);
+            Assert.Equal(default, (DateTime)data[1]);
+        }
+
         [RuntimeTestClass(Id = "TestRunnerTestsSetA", Description = "Some test set", Name = "Dev test set")]
         public class TestClassA
         {
@@ -168,6 +188,12 @@ namespace HealthCheck.Core.Services
             public TestResult TestWithDefaultValues(string text = "defaultValue")
             {
                 return new TestResult() { Tag = text };
+            }
+
+            [RuntimeTest(Category = "CategoryD")]
+            public TestResult TestWithoutDefaultValues(string text, DateTime date)
+            {
+                return new TestResult() { Tag = new object[] { text, date } };
             }
         }
     }
