@@ -210,7 +210,7 @@ namespace HealthCheck.DevTest.Controllers
 
         private readonly string[] _subjectXFixes = new[] { "the ", "an unknown ", "most of the |s", "several of the |s", "one of the |s" };
         private readonly string[] _subjects = new[] { "service", "server", "integration", "frontpage", "developer", "codebase", "project manager", "CEO" };
-        private readonly string[] _accidents = new[] { "is on fire", "exploded", "is slow", "decided to close", "is infected with ransomware", "is not happy" };
+        private readonly string[] _accidents = new[] { "is on fire", "exploded", "is slow", "decided to close", "is infected with ransomware", "is not happy", "don't know what to do" };
         private readonly string[] _reactions = new[] { "on fire", "not pleased", "confused", "not happy", "leaving" };
         #endregion
     }
