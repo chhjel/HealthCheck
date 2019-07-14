@@ -4,5 +4,5 @@ export default interface TestParameterViewModel {
     Description: string;
     Type: string;
     DefaultValue: string;
-    Value: string;
+    Value: string | null;
 }

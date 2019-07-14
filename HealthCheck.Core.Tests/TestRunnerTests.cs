@@ -89,6 +89,40 @@ namespace HealthCheck.Core.Services
             Assert.Contains(results, x => x.Tag as string == "TaskTestMethod");
         }
 
+        [Fact]
+        public async Task ExecuteTest_WithDefaultValueAnInput_UsesInput()
+        {
+            var discoverer = new TestDiscoveryService()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+            var test = discoverer.DiscoverTestDefinitions()
+                .Where(x => x.Id == "TestRunnerTestsSetC")
+                .SelectMany(x => x.Tests)
+                .FirstOrDefault(x => x.Name == "Test With Default Values");
+
+            var runner = new TestRunnerService();
+            var result = await runner.ExecuteTest(test, new object[] { "new value" }, allowDefaultValues: true);
+            Assert.Equal("new value", result.Tag);
+        }
+
+        [Fact]
+        public async Task ExecuteTest_WithDefaultValueAndNullInput_UsesNullInput()
+        {
+            var discoverer = new TestDiscoveryService()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+            var test = discoverer.DiscoverTestDefinitions()
+                .Where(x => x.Id == "TestRunnerTestsSetC")
+                .SelectMany(x => x.Tests)
+                .FirstOrDefault(x => x.Name == "Test With Default Values");
+
+            var runner = new TestRunnerService();
+            var result = await runner.ExecuteTest(test, new object[] { null }, allowDefaultValues: false);
+            Assert.Null(result.Tag);
+        }
+
         [RuntimeTestClass(Id = "TestRunnerTestsSetA", Description = "Some test set", Name = "Dev test set")]
         public class TestClassA
         {
@@ -124,6 +158,16 @@ namespace HealthCheck.Core.Services
                 var e = new SiteEvent(Enums.SiteEventSeverity.Error, "typeId", "EventA", "description");
                 return Task.FromResult(new TestResult() { Tag = "TaskTestMethod" }
                     .SetSiteEvent(e));
+            }
+        }
+
+        [RuntimeTestClass(Id = "TestRunnerTestsSetC", Description = "Some test set", Name = "Dev test set")]
+        public class TestClassC
+        {
+            [RuntimeTest(Category = "CategoryC")]
+            public TestResult TestWithDefaultValues(string text = "defaultValue")
+            {
+                return new TestResult() { Tag = text };
             }
         }
     }

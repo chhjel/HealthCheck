@@ -27,18 +27,24 @@ import TestParameterViewModel from '../../../models/TestSuite/TestParameterViewM
 // Parameter input components
 import UnknownParameterInputComponent from './UnknownParameterInputComponent.vue';
 import ParameterInputTypeInt32Component from './input_types/ParameterInputTypeInt32Component.vue';
+import ParameterInputTypeNullableInt32Component from './input_types/ParameterInputTypeNullableInt32Component.vue';
 import ParameterInputTypeStringComponent from './input_types/ParameterInputTypeStringComponent.vue';
 import ParameterInputTypeBooleanComponent from './input_types/ParameterInputTypeBooleanComponent.vue';
+import ParameterInputTypeNullableBooleanComponent from './input_types/ParameterInputTypeNullableBooleanComponent.vue';
 import ParameterInputTypeDateTimeComponent from './input_types/ParameterInputTypeDateTimeComponent.vue';
+import ParameterInputTypeNullableDateTimeComponent from './input_types/ParameterInputTypeNullableDateTimeComponent.vue';
 
 @Component({
     components: {
       // Parameter input components
       UnknownParameterInputComponent,
       ParameterInputTypeInt32Component,
+      ParameterInputTypeNullableInt32Component,
       ParameterInputTypeStringComponent,
       ParameterInputTypeBooleanComponent,
-      ParameterInputTypeDateTimeComponent
+      ParameterInputTypeNullableBooleanComponent,
+      ParameterInputTypeDateTimeComponent,
+      ParameterInputTypeNullableDateTimeComponent
     }
 })
 export default class ParameterInputComponent extends Vue {
@@ -53,11 +59,12 @@ export default class ParameterInputComponent extends Vue {
     
     getInputComponentNameFromType(typeName: string): string
     {
-      let componentName = `ParameterInputType${typeName}Component`;
-      let componentExists = (this.$options!.components![componentName] != undefined);
-      return componentExists 
-        ? componentName
-        : "UnknownParameterInputComponent";
+        typeName = typeName.replace('<', '').replace('>', '');
+        let componentName = `ParameterInputType${typeName}Component`;
+        let componentExists = (this.$options!.components![componentName] != undefined);
+        return componentExists 
+            ? componentName
+            : "UnknownParameterInputComponent";
     }
 
     disableInputHeader(): void {

@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Exceptions;
 using HealthCheck.Core.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -102,16 +103,27 @@ namespace HealthCheck.Core.Entities
                     Index = i,
                     Name = testAttribute.GetCustomParameterName(i) ?? parameter.Name.SpacifySentence(),
                     Description = testAttribute.GetCustomParameterDescription(i),
-                    DefaultValue = parameter.DefaultValue,
+                    DefaultValue = GetDefaultValue(parameter),
                     ParameterType = parameter.ParameterType
                 };
+            }
+        }
+
+        private object GetDefaultValue(ParameterInfo parameter)
+        {
+            if (parameter.DefaultValue == null || parameter.DefaultValue.GetType() == typeof(DBNull))
+            {
+                return null;
+            } else
+            {
+                return parameter.DefaultValue;
             }
         }
 
         /// <summary>
         /// Run the test.
         /// </summary>
-        public async Task<TestResult> ExecuteTest(object instance, object[] parameters)
+        public async Task<TestResult> ExecuteTest(object instance, object[] parameters, bool allowDefaultValues = true)
         {
             var methodParams = Method.GetParameters();
             var parameterCount = methodParams.Length;
@@ -122,9 +134,14 @@ namespace HealthCheck.Core.Entities
                     ? parameters[i]
                     : null;
 
-                if (value == null && methodParams[i].DefaultValue != null)
+                if (allowDefaultValues && value == null && methodParams[i].DefaultValue != null)
                 {
                     value = methodParams[i].DefaultValue;
+                }
+
+                if (Convert.IsDBNull(value))
+                {
+                    value = null;
                 }
 
                 parameterList[i] = value;

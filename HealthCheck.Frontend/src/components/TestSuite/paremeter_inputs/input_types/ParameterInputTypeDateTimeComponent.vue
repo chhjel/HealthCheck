@@ -4,6 +4,7 @@
         <v-text-field
             class="pt-0"
             v-model="parameter.Value"
+            v-on:change="onValueChanged"
             required />
     </div>
 </template>
@@ -22,9 +23,19 @@ export default class ParameterInputTypeDateTimeComponent extends Vue {
     parameter!: TestParameterViewModel;
     
     mounted(): void {
-        if (this.parameter.Value === '') {
-            this.parameter.Value = DateUtils.FormatDate(new Date(), 'dd-MM-yy HH:mm:ss');
+        if (this.parameter.Value == null || this.parameter.Value === '') {
+            this.setValueToNow();
         }
+    }
+
+    onValueChanged(): void {
+        if (this.parameter.Value == null || this.parameter.Value === '') {
+            this.setValueToNow();
+        }
+    }
+
+    setValueToNow(): void {
+        this.parameter.Value = DateUtils.FormatDate(new Date(), 'dd-MM-yy HH:mm:ss');
     }
 }
 </script>

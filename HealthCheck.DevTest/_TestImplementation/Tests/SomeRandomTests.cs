@@ -19,6 +19,25 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
     public class SomeRandomTests
     {
         [RuntimeTest]
+        public TestResult TestWithoutDefaultValues(int number, string text, bool toggle, DateTime date)
+        {
+            return TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(text)}, {PrettifyValue(toggle)}, {PrettifyValue(date)}]");
+        }
+
+        [RuntimeTest]
+        public TestResult TestWithNullableValues(int? number = null, bool? checkbox = null, DateTime? date = null)
+        {
+            return TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(checkbox)}, {PrettifyValue(date)}]");
+        }
+
+        private string PrettifyValue(object value)
+        {
+            return (value != null) 
+                ? (value.GetType().IsValueType) ? value.ToString() : $"'{value.ToString()}'" 
+                : "null";
+        }
+
+        [RuntimeTest]
         public TestResult TestAllDataDumpTypes(int imageWidth = 640, int imageHeight = 480, int imageCount = 10)
         {
             var objectToSerialize = TestResult.CreateWarning($"Some random json object");
@@ -32,33 +51,21 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
                 .AddJsonData(LargeJson, "Big json data");
         }
 
-        [RuntimeTest]
-        public TestResult TestWithoutDefaultValues(int number, string text, bool checkbox, DateTime date)
-        {
-            return TestResult.CreateSuccess($"Recieved: [{number}, '{text}', {checkbox}, '{date.ToString()}']");
-        }
 
-        //[RuntimeTest]
-        //public TestResult TestWithDefaultValues(int number = 123, string text = "something", bool checkbox = true, DateTime? date = null)
-        //{
-        //    return TestResult.CreateSuccess($"Recieved: [{number}, '{text}', {checkbox}, '{date.ToString()}']");
-        //}
-
-        //[RuntimeTest(
-        //    Name = "Get data from X",
-        //    Description = "Retrieve some data from some service.",
-        //    ParameterNames = new[] {
-        //        "Data id",
-        //        "Organization name",
-        //        "Only get the latest data"
-        //    },
-        //    ParameterDescriptions = new[] {
-        //        "Id of the thing to get",
-        //        "Name of the organization the data belongs to.",
-        //        "If true only the latest data will be retrieved."
-        //    }
-        //)]
-
+        [RuntimeTest(
+            Name = "Get data from X",
+            Description = "Retrieve some data from some service.",
+            ParameterNames = new[] {
+                "Data id",
+                "Organization name",
+                "Only get the latest data"
+            },
+            ParameterDescriptions = new[] {
+                "Id of the thing to get",
+                "Name of the organization the data belongs to.",
+                "If true only the latest data will be retrieved."
+            }
+        )]
         public async Task<TestResult> GetDataFromX(int id = 123, string orgName = "Test Organization", bool latestOnly = false, int someNumber = 42)
         {
             await Task.Delay(300);
@@ -91,15 +98,30 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         }
 
         [RuntimeTest(Category = RuntimeTestConstants.Categories.ScheduledHealthCheck)]
-        public TestResult TestOfAHealthCheckError()
+        public TestResult TestOfAHealthCheckError(bool someBool = true, string someStringParam = "test string")
         {
             return TestResult.CreateWarning("Some error")
                 .SetSiteEvent(
                     new SiteEvent(SiteEventSeverity.Error, "IntegrationDataImport",
-                        "Integration Y instabilities", "Failed to retrieve data from integration Y, the service might be temporary down.", duration: 5)
+                        $"Integration Y instabilities ({someStringParam}, {someBool})",
+                        "Failed to retrieve data from integration Y, the service might be temporary down.", duration: 5)
                     .AddRelatedLink("Endpoint", "https://www.google.com/?q=some+endpoint+instead+of+this")
                 );
         }
+
+        [RuntimeTest(Category = RuntimeTestConstants.Categories.ScheduledHealthCheck)]
+        public TestResult TestOfAHealthCheckError(bool? someBool = true, string someStringParam = null, int? number = 222, int? number2 = null)
+        {
+            return TestResult.CreateWarning("Some error")
+                .SetSiteEvent(
+                    new SiteEvent(SiteEventSeverity.Information, "IntegrationZDataImport",
+                        $"Integration Z instabilities ({someStringParam}, {someBool}, {number}, {number2})",
+                        "Failed to retrieve data from integration Z, the service might be temporary down.", duration: 5)
+                    .AddRelatedLink("Endpoint", "https://www.google.com/?q=some+endpoint+instead+of+this")
+                    .AddRelatedLink("Page", "https://www.google.com/?q=page")
+                );
+        }
+
 
         [RuntimeTest]
         public async Task<TestResult> TestThatReturnsErrorWithExceptionStackTrace()

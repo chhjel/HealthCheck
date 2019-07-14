@@ -8,6 +8,7 @@ namespace HealthCheck.DevTest._TestImplementation
         None = 0,
         Guest = 1,
         WebAdmins = 2,
-        SystemAdmins = 4
+        SystemAdmins = 4,
+        SomethingElse = 8
     }
 }

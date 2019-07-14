@@ -133,7 +133,7 @@ namespace HealthCheck.WebUI.Util
             try
             {
                 var parameters = data?.GetParametersWithConvertedTypes(test.Parameters.Select(x => x.ParameterType).ToArray(), ParameterConverter);
-                var result = await TestRunner.ExecuteTest(test, parameters);
+                var result = await TestRunner.ExecuteTest(test, parameters, allowDefaultValues: false);
                 return TestsViewModelsFactory.CreateViewModel(result);
             }
             catch (Exception ex)

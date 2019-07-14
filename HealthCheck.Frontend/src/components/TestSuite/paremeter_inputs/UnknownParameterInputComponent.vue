@@ -2,7 +2,7 @@
 <template>
     <div>
         Unknown parameter type '{{parameter.Type}}'. No input component created for this type yet.<br />
-        Default value '{{parameter.Value}}' will be used.
+        Default value {{valueName}} will be used.
     </div>
 </template>
 
@@ -19,6 +19,14 @@ export default class UnknownParameterInputComponent extends Vue {
     parameter!: TestParameterViewModel;
 
     mounted(): void {
+        if (this.parameter.Type.startsWith("Nullable<")) {
+            this.parameter.Value = null;
+        }
+    }
+
+    get valueName(): string {
+        if (this.parameter.Value == null) return "null";
+        else return `'${this.parameter.Value}'`;
     }
 }
 </script>

@@ -207,7 +207,7 @@ export default class TestComponent extends Vue {
     }
 
     generatePayload(): ExecuteTestPayload {
-      let parameters = Array<string>();
+      let parameters = Array<string | null>();
       for(let param of this.test.Parameters)
       {
         parameters.push(param.Value);

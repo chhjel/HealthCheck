@@ -107,7 +107,7 @@ namespace HealthCheck.Core.Services
                     var tasks = new List<Task<TestResult>>();
                     foreach (var test in testsThatCanRunInParallel)
                     {
-                        var task = ExecuteTest(test, null, classInstance);
+                        var task = ExecuteTest(test, null, classInstance, allowDefaultValues: true);
                         tasks.Add(task);
                     }
                     await Task.WhenAll(tasks);
@@ -116,7 +116,7 @@ namespace HealthCheck.Core.Services
                 // Run other tests after
                 foreach (var test in testsThatCannotRunInParallel)
                 {
-                    var result = await ExecuteTest(test, null, classInstance);
+                    var result = await ExecuteTest(test, null, classInstance, allowDefaultValues: true);
                     results.Add(result);
                 }
             }
@@ -128,14 +128,15 @@ namespace HealthCheck.Core.Services
         /// </summary>
         public async Task<TestResult> ExecuteTest(TestDefinition test,
             object[] parameters = null,
-            object testClassInstance = null)
+            object testClassInstance = null,
+            bool allowDefaultValues = true)
         {
             var stopWatch = new Stopwatch();
             stopWatch.Start();
             try
             {
                 var instance = testClassInstance ?? Activator.CreateInstance(test.ParentClass.ClassType);
-                var result = await test.ExecuteTest(instance, parameters);
+                var result = await test.ExecuteTest(instance, parameters, allowDefaultValues);
 
                 // Post-process result
                 result.Test = test;

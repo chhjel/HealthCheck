@@ -7,6 +7,7 @@
         :hide-delimiters="!showControls"
         :hide-controls="!showControls">
         <v-carousel-item
+          class="image-result-data-item"
           v-for="(url,index) in urls"
           :key="`result-data-item-${index}-${url}`"
           :src="url"
@@ -67,6 +68,9 @@ export default class TestResultImageUrlsDataComponent extends Vue {
 }
 .details-icon {
   float: right;
+}
+.image-result-data-item {
+  min-height: 100px;
 }
 </style>
 

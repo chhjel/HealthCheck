@@ -1,10 +1,31 @@
 <!-- src/components/paremeter_inputs/input_types/ParameterInputTypeStringComponent.vue -->
 <template>
     <div>
-        <v-text-field
-            class="pt-0"
-            v-model="parameter.Value"
-            required />
+        <v-layout>
+            <v-flex xs10>
+                <v-text-field
+                    class="pt-0"
+                    v-model="parameter.Value"
+                    :placeholder="placeholderText"
+                    required />
+            </v-flex>
+            <v-flex xs2 class="text-sm-right">
+                            
+                <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                        <span v-on="on">
+                            <v-btn flat icon color="primary" class="ma-0 pa-0"
+                                @click="setValueToNull"
+                                :disabled="parameter.Value == null">
+                                <v-icon>clear</v-icon>
+                            </v-btn>
+                        </span>
+                    </template>
+                    <span>Sets value to null</span>
+                </v-tooltip>
+
+            </v-flex>
+        </v-layout>
     </div>
 </template>
 
@@ -21,6 +42,14 @@ export default class ParameterInputTypeStringComponent extends Vue {
     parameter!: TestParameterViewModel;
     
     mounted(): void {
+    }
+
+    setValueToNull(): void {
+        this.parameter.Value = null;
+    }
+
+    get placeholderText(): string {
+        return this.parameter.Value == null ? "null" : "";
     }
 }
 </script>

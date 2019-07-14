@@ -5,6 +5,7 @@
             type="number"
             class="pt-0"
             v-model="parameter.Value"
+            v-on:change="onValueChanged"
             required />
     </div>
 </template>
@@ -22,8 +23,14 @@ export default class ParameterInputTypeInt32Component extends Vue {
     parameter!: TestParameterViewModel;
     
     mounted(): void {
-        if (this.parameter.Value === '') {
+        if (this.parameter.Value == null || this.parameter.Value === '') {
             this.parameter.Value = '0';
+        }
+    }
+
+    onValueChanged(): void {
+        if (this.parameter.Value == null || this.parameter.Value === '') {
+            this.parameter.Value = "0";
         }
     }
 }

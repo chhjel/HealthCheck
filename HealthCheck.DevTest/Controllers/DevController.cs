@@ -84,6 +84,7 @@ namespace HealthCheck.DevTest.Controllers
             AccessOptions.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.Guest);
             AccessOptions.TestsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
             AccessOptions.AuditLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            AccessOptions.InvalidTestsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SomethingElse);
         }
 
         protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)
@@ -121,8 +122,8 @@ namespace HealthCheck.DevTest.Controllers
         {
             var results = await TestRunner.ExecuteTests(TestDiscoverer, 
                 testFilter: (test) => test.Categories.Contains(RuntimeTestConstants.Categories.ScheduledHealthCheck),
-                SiteEventService,
-                AuditEventService
+                siteEventService: SiteEventService,
+                auditEventService: AuditEventService
             );
             return CreateJsonResult(results.Select(x => new { Test = x.Test?.Name, Result = x.Message, SiteEventTitle = x.SiteEvent?.Title }));
         }

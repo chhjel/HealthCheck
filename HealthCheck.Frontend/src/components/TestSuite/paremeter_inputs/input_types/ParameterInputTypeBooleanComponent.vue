@@ -27,12 +27,12 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
 
     mounted(): void {
         // this.$emit("disableInputHeader");
-        this.value = (this.parameter.Value!.toLowerCase() == "true");
+        this.value = (this.parameter.Value != null && this.parameter.Value.toLowerCase() == "true");
         this.onChanged();
     }
 
     get label(): string {
-        return (this.parameter.Value.toLowerCase() == "true") ? "Yes" : "No";
+        return (this.parameter.Value != null && this.parameter.Value.toLowerCase() == "true") ? "Yes" : "No";
     }
 
     onChanged(): void {

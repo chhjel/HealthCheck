@@ -33,6 +33,22 @@ namespace HealthCheck.Core.Util
                 .Where(x => x.Name == nameof(ConvertStringTo) && x.IsGenericMethod)
                 .First();
 
+            // Handle nullable types
+            var isNullable = type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+            if (isNullable)
+            {
+                if (input == null)
+                {
+                    return null;
+                }
+
+                var valueType = type.GetGenericArguments()[0];
+                var convertedValue = ConvertStringTo(valueType, input);
+                var nullableType = typeof(Nullable<>).MakeGenericType(valueType);
+                var resultNullable = Activator.CreateInstance(nullableType, convertedValue);
+                return resultNullable;
+            }
+
             var genericMethod = method.MakeGenericMethod(type);
             var value = genericMethod.Invoke(this, new object[] { input });
             return Convert.ChangeType(value, type);
@@ -44,7 +60,10 @@ namespace HealthCheck.Core.Util
         public T ConvertStringTo<T>(string input)
         {
             var inputType = typeof(T);
-            input = input ?? "";
+            if (input == null && inputType != typeof(string))
+            {
+                input = input ?? "";
+            }
 
             // Use registered handler if any.
             if (ConversionHandlers.ContainsKey(inputType))
@@ -53,7 +72,7 @@ namespace HealthCheck.Core.Util
             }
 
             // Fallback to default built in logic
-            var trimmedLowerInput = input.Trim().ToLower();
+            var trimmedLowerInput = input?.Trim()?.ToLower() ?? "";
 
             // Special cases
             if (inputType == typeof(Boolean) && BOOL_ALIAS_TRUE.Contains(trimmedLowerInput))
