@@ -1,17 +1,23 @@
 <!-- src/components/result_data/data_types/TestResultImageUrlsDataComponent.vue -->
 <template>
     <div>
+      <v-progress-linear
+        v-if="showLoader"
+        indeterminate color="primary"></v-progress-linear>
+
       <v-carousel 
         :height="'100%'"
         :cycle="false"
         :hide-delimiters="!showControls"
         :hide-controls="!showControls">
+
         <v-carousel-item
           class="image-result-data-item"
           v-for="(url,index) in urls"
           :key="`result-data-item-${index}-${url}`"
           :src="url"
           @click.native="showControls = !showControls"
+          v-on:load="onImageLoaded"
         >
           <div class="details" v-if="showControls">
             <div class="details-title">
@@ -19,7 +25,6 @@
             </div>
             <div style="clear: both;"></div>
           </div>
-          
         </v-carousel-item>
       </v-carousel>
     </div>
@@ -40,13 +45,21 @@ export default class TestResultImageUrlsDataComponent extends Vue {
     fullscreen!: boolean;
 
     showControls: boolean = true;
+    showLoader: boolean = true;
 
     mounted(): void {
+      this.showLoader = true;
     }
 
     get urls(): Array<string> {
       return this.data.Data.split(/\r\n|\r|\n/)
         .filter(x => x.trim().length > 0);
+    }
+
+    onImageLoaded(url: string): void {
+      if (url == this.urls[0]) {
+        this.showLoader = false;
+      }
     }
 }
 </script>
