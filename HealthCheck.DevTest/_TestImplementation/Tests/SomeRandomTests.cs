@@ -90,7 +90,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             throw new ArgumentOutOfRangeException("nonExistentArgument");
         }
 
-        [RuntimeTest(Category = RuntimeTestConstants.Categories.ScheduledHealthCheck)]
+        [RuntimeTest(Category = RuntimeTestConstants.Categories.ScheduledHealthCheck, AllowManualExecution = false)]
         public TestResult TestOfAHealthCheckWarning()
         {
             return TestResult.CreateWarning("Some warning here")
