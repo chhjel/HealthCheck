@@ -2,14 +2,14 @@
 <template>
     <div>
       <div class="test-item">
-        <!-- :style="statusBorderStyle" -->
           <!-- HEADER -->
           <div class="test-header" :class="{'no-details': !showDetails}">
             <div class="test-status-label subheading font-weight-bold"
               :class="statusClass"
               v-if="hasStatus">{{statusText}}</div>
             <h4 class="test-name">{{ test.Name }}</h4>
-            
+            <div class="test-duration" v-if="showTestDuration">{{ prettifyDuration(testResult.DurationInMilliseconds) }}</div>
+
             <v-btn ripple color="primary" 
               @click.stop.prevent="onExecuteTestClicked()"
               :disabled="testInProgress"
@@ -145,6 +145,10 @@ export default class TestComponent extends Vue {
       return !this.testExecutionFailed && this.testResult != null && !this.testInProgress; 
     }
 
+    get showTestDuration(): boolean {
+      return this.testResult != null; 
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
@@ -218,6 +222,19 @@ export default class TestComponent extends Vue {
         Parameters: parameters
       };
     }
+
+    prettifyDuration(milliseconds: number): string {
+      if (milliseconds <= 0) {
+        return "< 0ms";
+      } else if(milliseconds > 1000) {
+        let seconds = milliseconds / 1000;
+        let multiplier = Math.pow(10, 2);
+        seconds = Math.round(seconds * multiplier) / multiplier;
+        return `${seconds}s`;
+      } else {
+        return `${milliseconds}ms`;
+      }
+    }
 }
 </script>
 
@@ -251,6 +268,12 @@ export default class TestComponent extends Vue {
   flex-grow: 1;
   font-size: 22px;
   margin-top: 10px;
+}
+.test-duration {
+  padding-right: 10px;
+  color: hsla(273, 40%, 80%, 1);
+  display: flex;
+  align-items: center;
 }
 .test-status-label {
   color: #fff;
