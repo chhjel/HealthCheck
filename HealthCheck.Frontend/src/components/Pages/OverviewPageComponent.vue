@@ -24,7 +24,7 @@
                 <v-flex sm12 md7
                     v-if="showContent">
                     <v-alert :value="calendarEvents.length == 0" color="info" icon="sentiment_satisfied_alt" outline>
-                        No events recorded the lately, things seems to be quiet.
+                        Things are quiet, nothing seems to have happened lately.
                     </v-alert>
                     <event-calendar-component
                         :events="calendarEvents"
