@@ -10,6 +10,13 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
     )]
     public class SomeServiceIntegrationTests
     {
+        [RuntimeTest(Name = "A test with a description and zero parameters", Description = "Some description here and a bit more text and just a bit more there thats it.")]
+        public async Task<TestResult> TestWithDescriptionAndNoParams()
+        {
+            await Task.Delay(100);
+            return TestResult.CreateSuccess($"Success, 124268724 items recieved!");
+        }
+
         [RuntimeTest]
         public async Task<TestResult> TestServiceA(int id = 123, string orgName = "Test Organization", bool latestOnly = false, int someNumber = 42)
         {
