@@ -26,5 +26,10 @@ namespace HealthCheck.WebUI.ViewModels
         /// Stringified default value of the parameter.
         /// </summary>
         public string DefaultValue { get; set; }
+
+        /// <summary>
+        /// Do not allow null-values to be entered in the user interface. Does not affect nullable parameters.
+        /// </summary>
+        public bool NotNull { get; set; }
     }
 }

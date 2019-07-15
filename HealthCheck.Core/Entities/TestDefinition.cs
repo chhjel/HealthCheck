@@ -109,7 +109,8 @@ namespace HealthCheck.Core.Entities
                     Name = parameterAttribute?.Name ?? parameter.Name.SpacifySentence(),
                     Description = parameterAttribute?.Description.EnsureDotAtEndIfNotNull(),
                     DefaultValue = GetDefaultValue(parameter),
-                    ParameterType = parameter.ParameterType
+                    ParameterType = parameter.ParameterType,
+                    NotNull = parameterAttribute?.NotNull == true
                 };
             }
         }

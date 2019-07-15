@@ -31,5 +31,10 @@ namespace HealthCheck.Core.Entities
         /// Default parameter value.
         /// </summary>
         public object DefaultValue { get; set; }
+
+        /// <summary>
+        /// Do not allow null-values to be entered in the user interface. Does not affect nullable parameters.
+        /// </summary>
+        public bool NotNull { get; set; }
     }
 }

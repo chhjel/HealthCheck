@@ -5,4 +5,5 @@ export default interface TestParameterViewModel {
     Type: string;
     DefaultValue: string;
     Value: string | null;
+    NotNull: boolean;
 }

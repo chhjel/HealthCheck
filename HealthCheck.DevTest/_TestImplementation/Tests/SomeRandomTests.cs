@@ -58,7 +58,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             Description = "Retrieve some data from some service."
         )]
         [RuntimeTestParameter(target: "id", name: "Data id", description: "Id of the thing to get")]
-        [RuntimeTestParameter(target: "orgName", name: "Organization name", description: "Name of the organization the data belongs to")]
+        [RuntimeTestParameter(target: "orgName", name: "Organization name", description: "Name of the organization the data belongs to", notNull: true)]
         [RuntimeTestParameter(target: "latestOnly", name: "Only get the latest data", description: "If true only the latest data will be retrieved")]
         public async Task<TestResult> GetDataFromX(int id = 123, string orgName = "Test Organization", bool latestOnly = false, int someNumber = 42)
         {

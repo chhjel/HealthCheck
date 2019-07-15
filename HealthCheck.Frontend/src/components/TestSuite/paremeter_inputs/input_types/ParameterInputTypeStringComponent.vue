@@ -2,15 +2,15 @@
 <template>
     <div>
         <v-layout>
-            <v-flex xs10>
+            <v-flex :xs10="parameter.NotNull" :xs12="!parameter.NotNull">
                 <v-text-field
                     class="pt-0"
                     v-model="parameter.Value"
                     :placeholder="placeholderText"
                     required />
             </v-flex>
-            <v-flex xs2 class="text-sm-right">
-                            
+
+            <v-flex xs2 class="text-sm-right" v-if="!parameter.NotNull">
                 <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
                         <span v-on="on">
@@ -23,8 +23,8 @@
                     </template>
                     <span>Sets value to null</span>
                 </v-tooltip>
-
             </v-flex>
+
         </v-layout>
     </div>
 </template>
@@ -42,6 +42,9 @@ export default class ParameterInputTypeStringComponent extends Vue {
     parameter!: TestParameterViewModel;
     
     mounted(): void {
+        if (this.parameter.Value == null && this.parameter.NotNull) {
+            this.parameter.Value = "";
+        }
     }
 
     setValueToNull(): void {

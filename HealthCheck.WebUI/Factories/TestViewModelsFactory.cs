@@ -87,7 +87,8 @@ namespace HealthCheck.WebUI.Factories
                 Name = testParameter.Name,
                 Description = testParameter.Description,
                 DefaultValue = testParameter.DefaultValue?.ToString(),
-                Type = testParameter.ParameterType.GetFriendlyTypeName()
+                Type = testParameter.ParameterType.GetFriendlyTypeName(),
+                NotNull = testParameter.NotNull,
             };
 
             return vm;
