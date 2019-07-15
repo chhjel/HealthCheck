@@ -28,6 +28,11 @@
         /// <summary>
         /// Image urls. Separate with newlines if done manually.
         /// </summary>
-        ImageUrls
+        ImageUrls,
+
+        /// <summary>
+        /// Urls. Separate with newlines if done manually.
+        /// </summary>
+        Urls
     }
 }

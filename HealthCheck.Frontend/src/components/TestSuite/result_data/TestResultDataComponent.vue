@@ -73,6 +73,7 @@ import TestResultXmlDataComponent from './data_types/TestResultXmlDataComponent.
 import TestResultJsonDataComponent from './data_types/TestResultJsonDataComponent.vue';
 import TestResultHtmlDataComponent from './data_types/TestResultHtmlDataComponent.vue';
 import TestResultImageUrlsDataComponent from './data_types/TestResultImageUrlsDataComponent.vue';
+import TestResultUrlsDataComponent from './data_types/TestResultUrlsDataComponent.vue';
 
 @Component({
     components: {
@@ -82,7 +83,8 @@ import TestResultImageUrlsDataComponent from './data_types/TestResultImageUrlsDa
       TestResultXmlDataComponent,
       TestResultJsonDataComponent,
       TestResultHtmlDataComponent,
-      TestResultImageUrlsDataComponent
+      TestResultImageUrlsDataComponent,
+      TestResultUrlsDataComponent
     }
 })
 export default class TestResultDataComponent extends Vue {

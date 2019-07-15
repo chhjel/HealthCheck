@@ -3,6 +3,7 @@ using HealthCheck.Core.Enums;
 using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HealthCheck.Core.Entities
 {
@@ -157,6 +158,23 @@ namespace HealthCheck.Core.Entities
         /// </summary>
         public TestResult AddImageUrlsData(IEnumerable<string> urls, string title = null)
             => AddData(string.Join(Environment.NewLine, urls ?? new string[0]), title, TestResultDataDumpType.ImageUrls);
+
+        /// <summary>
+        /// Include the given urls in the result data.
+        /// </summary>
+        public TestResult AddUrlsData(IEnumerable<HyperLink> urls, string title = null)
+        {
+            urls = urls ?? new HyperLink[0];
+            var stringUrls = urls.Where(x => x != null).Select(x => $"{x.Text.Replace("=>", "->")} => {x.Url}");
+            AddData(string.Join(Environment.NewLine, stringUrls), title, TestResultDataDumpType.Urls);
+            return this;
+        }
+
+        /// <summary>
+        /// Include the given urls in the result data.
+        /// </summary>
+        public TestResult AddUrlsData(IEnumerable<string> urls, string title = null)
+            => AddUrlsData(urls?.Select(x => new HyperLink(x, x)), title);
 
         /// <summary>
         /// Include the given <see cref="SiteEvent"/>.
