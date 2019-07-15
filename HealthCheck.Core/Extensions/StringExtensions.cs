@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace HealthCheck.Core.Extensions
 {
@@ -7,6 +9,68 @@ namespace HealthCheck.Core.Extensions
     /// </summary>
     public static class StringExtensions
     {
+        /// <summary>
+        /// Joins the given values with the given delimiter. The last two parts will use the given lastDelimiter.
+        /// <para>For creating sentence outputs like ["A", "B", "C"] => "A, B and C"</para>
+        /// </summary>
+        public static string JoinForSentence(this IEnumerable<string> values,
+            string delimiter = ", ", string lastDelimiter = " and ", string valueIfNoItems = null)
+        {
+            if (values == null || !values.Any())
+            {
+                return valueIfNoItems;
+            }
+            else if (values.Count() <= 1)
+            {
+                return values.First();
+            }
+            else if (values.Count() == 2)
+            {
+                return string.Join(lastDelimiter, values);
+            }
+
+            var firstParts = values.Take(values.Count() - 1);
+            var lastPart = values.Last();
+            return $"{string.Join(delimiter, firstParts)}{lastDelimiter}{lastPart}";
+        }
+
+        /// <summary>
+        /// If the input count is not equal to 1 the plural suffix will be appended, or the pluralWord used if given.
+        /// </summary>
+        public static string Pluralize(this string value, int count,
+            string pluralSuffix = "s",
+            string pluralWord = null,
+            string singularPrefix = null)
+            => (count == 1) ? $"{singularPrefix}{value}" : pluralWord ?? $"{value}{pluralSuffix}";
+
+        /// <summary>
+        /// Wrap the string with quotes if not null, otherwise return the text null.
+        /// </summary>
+        public static string QuotifyOrReturnNullText(this string text, string quoteCharacter = "'")
+        {
+            if (text == null) return "null";
+            else return $"{quoteCharacter}{text}{quoteCharacter}";
+        }
+
+        /// <summary>
+        /// If the string is not null, ensure a dot is at the end.
+        /// </summary>
+        public static string EnsureDotAtEndIfNotNull(this string text, bool trim = true)
+        {
+            if (text == null) return null;
+            if (trim)
+            {
+                text = text?.Trim();
+            }
+
+            if (!text.EndsWith("."))
+            {
+                text += ".";
+            }
+
+            return text;
+        }
+
         /// <summary>
         /// Capitalizes first character.
         /// </summary>

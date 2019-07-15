@@ -55,29 +55,18 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
 
         [RuntimeTest(
             Name = "Get data from X",
-            Description = "Retrieve some data from some service.",
-            ParameterNames = new[] {
-                "Data id",
-                "Organization name",
-                "Only get the latest data"
-            },
-            ParameterDescriptions = new[] {
-                "Id of the thing to get",
-                "Name of the organization the data belongs to.",
-                "If true only the latest data will be retrieved."
-            }
+            Description = "Retrieve some data from some service."
         )]
+        [RuntimeTestParameter(target: "id", name: "Data id", description: "Id of the thing to get")]
+        [RuntimeTestParameter(target: "orgName", name: "Organization name", description: "Name of the organization the data belongs to")]
+        [RuntimeTestParameter(target: "latestOnly", name: "Only get the latest data", description: "If true only the latest data will be retrieved")]
         public async Task<TestResult> GetDataFromX(int id = 123, string orgName = "Test Organization", bool latestOnly = false, int someNumber = 42)
         {
             await Task.Delay(300);
             return TestResult.CreateSuccess($"Recieved [{id}, {orgName}, {latestOnly}, {someNumber}] and it was a success!");
         }
 
-        [RuntimeTest(
-            Name = "Html result test",
-            ParameterNames = new[] { "H-number", "Text" },
-            ParameterDescriptions = new[] { "What h-tag to return.", "Text in the h-tag" }
-        )]
+        [RuntimeTest("Html result test")]
         public TestResult SomeFancyTest(int hNumber = 3, string text = "Title")
         {
             return TestResult.CreateSuccess($"Success")
@@ -140,11 +129,9 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
 
         [RuntimeTest(
             Name = "Custom name for this one",
-            Description = "Fancy fancy description",
-            ParameterNames = new[] { "Id number" },
-            ParameterDescriptions = new[] { "The number on this fancy parameter" }
+            Description = "Fancy fancy description"
         )]
-        public TestResult SomeFancyTest(int number = 123)
+        public TestResult SomeFancyTest([RuntimeTestParameter("Id number", "The number on this fancy parameter")] int number = 123)
         {
             return TestResult.CreateSuccess($"Number {number} is a success!");
         }
@@ -158,10 +145,9 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
 
         [RuntimeTest(
             Name = "Test of warning result with a data dump",
-            Description = "This test returns a warning no matter what the input is.",
-            ParameterDescriptions = new[] { "Some help text here", "Some help text here", "Some help text here", "Some help text here" }
+            Description = "This test returns a warning no matter what the input is."
         )]
-        public async Task<TestResult> ThisOneShouldReturnAWarning(int id = 123, string key = "key_asd", int days = 7, bool reverse = false)
+        public async Task<TestResult> ThisOneShouldReturnAWarning([RuntimeTestParameter(description: "Some help text here")] int id = 123, string key = "key_asd", int days = 7, bool reverse = false)
         {
             await Task.Delay(400);
 

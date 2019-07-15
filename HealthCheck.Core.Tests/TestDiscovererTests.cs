@@ -19,6 +19,34 @@ namespace HealthCheck.Core.Services
         }
 
         [Fact]
+        public void DiscoverTestDefinitions_WithCustomParameterNames_ResolvesCustomParameterNames()
+        {
+            var discoverer = new TestDiscoveryService()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+            var tests = discoverer.DiscoverTestDefinitions().SelectMany(x => x.Tests);
+            var test = tests.Single(x => x.Name == "TestMethodWithCustomNames");
+            Assert.Equal("First name", test.Parameters[0].Name);
+            Assert.Equal("Second name", test.Parameters[1].Name);
+            Assert.Equal("Third name", test.Parameters[2].Name);
+        }
+
+        [Fact]
+        public void DiscoverTestDefinitions_WithCustomParameterDescriptions_ResolvesCustomParameterDescriptions()
+        {
+            var discoverer = new TestDiscoveryService()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+            var tests = discoverer.DiscoverTestDefinitions().SelectMany(x => x.Tests);
+            var test = tests.Single(x => x.Name == "TestMethodWithCustomNames");
+            Assert.Equal("First desc.", test.Parameters[0].Description);
+            Assert.Equal("Second desc.", test.Parameters[1].Description);
+            Assert.Equal("Third desc.", test.Parameters[2].Description);
+        }
+
+        [Fact]
         public void DiscoverTestDefinitions_WithRoles_ReturnsOnlyTestsWithGivenRoles()
         {
             var discoverer = new TestDiscoveryService()
@@ -92,11 +120,13 @@ namespace HealthCheck.Core.Services
             var invalidTests = discoverer.GetInvalidTests();
             Assert.Contains(invalidTests, x => x.Test.Name == nameof(TestClass.InvalidMethodA));
             Assert.Contains(invalidTests, x => x.Test.Name == nameof(TestClass.InvalidMethodB));
-            //Assert.Contains(invalidTests, x => x.Test.Name == nameof(TestClass.InvalidMethodC));
+            Assert.Contains(invalidTests, x => x.Test.Name == nameof(TestClass.InvalidMethodC));
+
+            Output.WriteLine(string.Join("\n", invalidTests.Select(x => x.Error)));
         }
 
         [Fact]
-        public void GetInvalidTests_WithInvalideTests_ThrowsException()
+        public void GetInvalidTests_WithInvalidTests_ThrowsException()
         {
             var discoverer = new TestDiscoveryService()
             {
@@ -119,7 +149,7 @@ namespace HealthCheck.Core.Services
                 return TestResult.CreateSuccess($"Success!");
             }
 
-            [RuntimeTest(Name = "TestMethodA", ParameterDescriptions = new[] { "a desc", "b", "c" })]
+            [RuntimeTest(Name = "TestMethodA")]
             public TestResult TestMethodA(string stringArg = "wut", bool boolArg = true, int intArg = 123)
             {
                 return TestResult.CreateSuccess($"Success! [{stringArg}, {boolArg}, {intArg}]");
@@ -137,10 +167,22 @@ namespace HealthCheck.Core.Services
             [RuntimeTest(Name = "InvalidMethodB")]
             public void InvalidMethodB() { }
 
-            //[RuntimeTest(Name = "InvalidMethodC")]
-            //public TestResult InvalidMethodC(string a, string b) => TestResult.CreateSuccess($"{a}, {b}");
+            [RuntimeTest(Name = "InvalidMethodC")]
+            [RuntimeTestParameter("Name", "Description")]
+            [RuntimeTestParameter("c", "Name", "Description")]
+            public TestResult InvalidMethodC(string a, string b) => TestResult.CreateSuccess($"{a}, {b}");
 
             public TestResult NotATestMethod() => new TestResult();
+
+            [RuntimeTest("TestMethodWithCustomNames")]
+            [RuntimeTestParameter("stringArg", "First name", "First desc")]
+            public TestResult TestMethodWithCustomNames(
+                string stringArg = "wut",
+                [RuntimeTestParameter("Second name", "Second desc")] bool boolArg = true,
+                [RuntimeTestParameter("Third name", "Third desc")] int intArg = 123)
+            {
+                return TestResult.CreateSuccess($"Success! [{stringArg}, {boolArg}, {intArg}]");
+            }
         }
     }
 }

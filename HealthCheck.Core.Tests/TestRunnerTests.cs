@@ -152,7 +152,7 @@ namespace HealthCheck.Core.Services
                 return new TestResult();
             }
 
-            [RuntimeTest(ParameterDescriptions = new[] { "a desc", "b", "c" })]
+            [RuntimeTest()]
             public TestResult TestMethodWithParameters(string stringArg = "wut", bool boolArg = true, int intArg = 123)
             {
                 return new TestResult()

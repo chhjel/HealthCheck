@@ -73,7 +73,7 @@ namespace HealthCheck.Core.Entities
             ParentClass = parentClass;
 
             Name = testAttribute.Name ?? Method.Name.SpacifySentence();
-            Description = testAttribute.Description;
+            Description = testAttribute.Description.EnsureDotAtEndIfNotNull();
             AllowParallelExecution = (testAttribute.AllowParallelExecution is bool allowParallelExecution && allowParallelExecution);
             AllowManualExecution = (testAttribute.AllowManualExecution is bool allowManualExecution ? allowManualExecution : parentClass.DefaultAllowManualExecution);
             RolesWithAccess =  testAttribute.RolesWithAccess ?? parentClass.DefaultRolesWithAccess;
@@ -82,7 +82,7 @@ namespace HealthCheck.Core.Entities
                 .ToList();
 
             SetId();
-            InitParameters(testAttribute);
+            InitParameters(method);
         }
 
         private void SetId()
@@ -91,18 +91,23 @@ namespace HealthCheck.Core.Entities
             Id = $"{ParentClass.ClassType.FullName}.{Method.Name}.{methodParametersSignature}";
         }
 
-        private void InitParameters(RuntimeTestAttribute testAttribute)
+        private void InitParameters(MethodInfo method)
         {
+            var parameterAttributesOnMethod = method.GetCustomAttributes<RuntimeTestParameterAttribute>(true);
+
             var methodParameters = Method.GetParameters();
             Parameters = new TestParameter[methodParameters.Length];
             for(int i = 0; i < methodParameters.Length; i++)
             {
                 var parameter = methodParameters[i];
+                var parameterAttributesOnParameter = parameter.GetCustomAttribute<RuntimeTestParameterAttribute>(true);
+                var parameterAttribute = parameterAttributesOnParameter ?? parameterAttributesOnMethod.FirstOrDefault(x => x.Target == parameter.Name);
+
                 Parameters[i] = new TestParameter()
                 {
                     Index = i,
-                    Name = testAttribute.GetCustomParameterName(i) ?? parameter.Name.SpacifySentence(),
-                    Description = testAttribute.GetCustomParameterDescription(i),
+                    Name = parameterAttribute?.Name ?? parameter.Name.SpacifySentence(),
+                    Description = parameterAttribute?.Description.EnsureDotAtEndIfNotNull(),
                     DefaultValue = GetDefaultValue(parameter),
                     ParameterType = parameter.ParameterType
                 };
@@ -168,12 +173,44 @@ namespace HealthCheck.Core.Entities
         public TestDefinitionValidationResult Validate()
         {
             var result = new TestDefinitionValidationResult(this);
+            var errors = new List<string>();
 
             if (Method.ReturnType != typeof(TestResult) && Method.ReturnType != typeof(Task<TestResult>))
-                result.Error = $"Test method '{ParentClass.ClassType.Name}.{Method.Name}' must return a TestResult or Task<TestResult>.";
+            {
+                errors.Add($"Test method '{ParentClass.ClassType.Name}.{Method.Name}' must return a TestResult or Task<TestResult>.");
+            }
             //else if (Method.GetParameters().Any(x => !x.HasDefaultValue))
             //    result.Error = $"Test method '{ParentClass.ClassType.Name}.{Method.Name}' must have default values for all parameters.";
 
+            var methodParameterNames = Method.GetParameters().Select(x => x.Name).ToArray();
+            var parameterAttributesOnMethod = Method.GetCustomAttributes<RuntimeTestParameterAttribute>(true);
+            var invalidAttributes = parameterAttributesOnMethod.Where(x => x.Target == null || !methodParameterNames.Contains(x.Target));
+            if (invalidAttributes.Any())
+            {
+                var detailItems = new List<string>();
+                var nonNullCount = invalidAttributes.Count(x => x.Target != null);
+                if (nonNullCount > 0)
+                {
+                    var targets = invalidAttributes.Where(x => x.Target != null).Select(x => x.Target.QuotifyOrReturnNullText()).JoinForSentence();
+                    detailItems.Add($"{nonNullCount} [RuntimeTestParameter]-{"attribute".Pluralize(nonNullCount)} with wrong target value: {targets}");
+                }
+
+                var nullCount = invalidAttributes.Count(x => x.Target == null);
+                if (nullCount > 0)
+                {
+                    detailItems.Add($"{nullCount} [RuntimeTestParameter]-{"attribute".Pluralize(nullCount)} with null-value for target");
+                }
+
+                var details = $" {detailItems.JoinForSentence()}";
+                var attributeText = $"{"attribute".Pluralize(invalidAttributes.Count())}";
+                errors.Add($"Test method '{ParentClass.ClassType.Name}.{Method.Name}' has {details}. " +
+                    $"When decorating a method with this attribute it must have a Target value equal to the name of one of its parameters.");
+            }
+
+            if (errors.Any())
+            {
+                result.Error = string.Join("\n", errors);
+            }
             return result;
         }
 
