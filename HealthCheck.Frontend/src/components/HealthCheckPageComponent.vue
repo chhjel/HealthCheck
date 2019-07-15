@@ -88,7 +88,7 @@ export default class HealthCheckPageComponent extends Vue {
     ////////////////
     mounted(): void
     {
-        this.setInitialCurrentPage();
+        this.setInitialPage();
     }
 
     ////////////////
@@ -101,12 +101,14 @@ export default class HealthCheckPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
-    setInitialCurrentPage(): void
+    setInitialPage(): void
     {
         // Attempt to get from query string first
         let pageFromQueryParam = UrlUtils.GetQueryStringParameter(this.urlParameterCurrentPage);
         if (pageFromQueryParam != null && this.options.Pages.indexOf(pageFromQueryParam) != -1) {
             this.setCurrentPage(pageFromQueryParam);
+        } else if(this.options.Pages.length > 0) {
+            this.setCurrentPage(this.options.Pages[0]);
         } else {
             this.setCurrentPage(this.currentPage);
         }

@@ -1,4 +1,5 @@
-﻿using HealthCheck.WebUI.Exceptions;
+﻿using HealthCheck.Core.Enums;
+using HealthCheck.WebUI.Exceptions;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
@@ -43,6 +44,20 @@ namespace HealthCheck.WebUI.ViewModels
         /// <para>Is set from the constructor relative to the provided baseApiEndpoint.</para>
         /// </summary>
         public string GetFilteredAuditLogEventsEndpoint { get; set; }
+
+        /// <summary>
+        /// Default page to show on entering the Index action in prioritized order.
+        /// <para>The first available page will be shown when ?page=x is omitted.</para>
+        /// <para>Defaults to overview, tests, auditlog.</para>
+        /// <para>Types omitted will be placed last.</para>
+        /// </summary>
+        [JsonIgnore]
+        public List<HealthCheckPageType> PagePriority { get; set; } = new List<HealthCheckPageType>()
+        {
+            HealthCheckPageType.Overview,
+            HealthCheckPageType.Tests,
+            HealthCheckPageType.AuditLog
+        };
 
         /// <summary>
         /// Pages that will be shown.

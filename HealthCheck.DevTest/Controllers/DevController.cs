@@ -69,7 +69,13 @@ namespace HealthCheck.DevTest.Controllers
         protected override FrontEndOptionsViewModel GetFrontEndOptions()
             => new FrontEndOptionsViewModel(EndpointBase)
             {
-                ApplicationTitle = "Test Monitor"
+                ApplicationTitle = "Test Monitor",
+                PagePriority = new List<HealthCheckPageType>()
+                {
+                    HealthCheckPageType.Tests,
+                    HealthCheckPageType.Overview,
+                    HealthCheckPageType.AuditLog,
+                }
             };
 
         protected override PageOptions GetPageOptions()

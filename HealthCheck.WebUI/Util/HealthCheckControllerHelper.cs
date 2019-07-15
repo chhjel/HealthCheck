@@ -57,6 +57,9 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public AccessOptions<TAccessRole> AccessOptions { get; set; } = new AccessOptions<TAccessRole>();
 
+        private const string PAGE_OVERVIEW = "overview";
+        private const string PAGE_TESTS = "tests";
+        private const string PAGE_AUDITLOG = "auditlog";
         private const string Q = "\"";
 
         /// <summary>
@@ -222,7 +225,7 @@ namespace HealthCheck.WebUI.Util
             var deniedEndpoint = "0x90";
             if (CanShowOverviewPageTo(accessRoles, siteEventService))
             {
-                frontEndOptions.Pages.Add("overview");
+                frontEndOptions.Pages.Add(PAGE_OVERVIEW);
             }
             else
             {
@@ -231,7 +234,7 @@ namespace HealthCheck.WebUI.Util
 
             if (CanShowTestsPageTo(accessRoles))
             {
-                frontEndOptions.Pages.Add("tests");
+                frontEndOptions.Pages.Add(PAGE_TESTS);
             }
             else
             {
@@ -241,14 +244,37 @@ namespace HealthCheck.WebUI.Util
 
             if (CanShowAuditPageTo(accessRoles, auditEventService))
             {
-                frontEndOptions.Pages.Add("auditlog");
+                frontEndOptions.Pages.Add(PAGE_AUDITLOG);
             }
             else
             {
                 frontEndOptions.GetFilteredAuditLogEventsEndpoint = deniedEndpoint;
             }
+
+            PrioritizePages(frontEndOptions.Pages, frontEndOptions.PagePriority);
+
             frontEndOptions.Validate();
             pageOptions.Validate();
+        }
+
+        private void PrioritizePages(List<string> pages, List<HealthCheckPageType> priority)
+        {
+            foreach(var prio in priority.Reverse<HealthCheckPageType>().Select(x => GetPageTypeString(x)))
+            {
+                if (pages.Contains(prio))
+                {
+                    pages.Remove(prio);
+                    pages.Insert(0, prio);
+                }
+            }
+        }
+
+        private string GetPageTypeString(HealthCheckPageType type)
+        {
+            if (type == HealthCheckPageType.Overview) return PAGE_OVERVIEW;
+            else if (type == HealthCheckPageType.Tests) return PAGE_TESTS;
+            else if (type == HealthCheckPageType.AuditLog) return PAGE_AUDITLOG;
+            else throw new NotImplementedException($"Page type {type.ToString()} not fully implemented yet.");
         }
 
         private List<TestClassDefinition> GetTestDefinitions(Maybe<TAccessRole> accessRoles)
