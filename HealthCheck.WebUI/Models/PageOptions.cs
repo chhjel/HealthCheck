@@ -10,7 +10,7 @@ namespace HealthCheck.WebUI.Models
     {
         /// <summary>
         /// Url to the javascripts for the UI.
-        /// <para>Defaults to version 1.x of logic + vendor bundles from unpkg.com CDN.</para>
+        /// <para>Defaults to matching versions of logic + vendor bundles from unpkg.com CDN.</para>
         /// </summary>
         public List<string> JavaScriptUrls { get; set; } = new List<string>()
         {
