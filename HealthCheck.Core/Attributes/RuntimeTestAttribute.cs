@@ -46,14 +46,16 @@ namespace HealthCheck.Core.Attributes
         public object AllowManualExecution { get; set; }
 
         /// <summary>
-        /// Optional categories that can be filtered upon. Will be unioned with <see cref="Category"/>,
-        /// </summary>
-        public string[] Categories { get; set; }
-
-        /// <summary>
-        /// Optional category that can be filtered upon. Will be unioned with <see cref="Categories"/>,
+        /// Optional category that can be filtered upon. Will be unioned with <see cref="Categories"/>.
+        /// <para>If set it will override any default categories set on the class.</para>
         /// </summary>
         public string Category { get; set; }
+
+        /// <summary>
+        /// Optional categories that can be filtered upon. Will be unioned with <see cref="Category"/>.
+        /// <para>If set it will override any default categories set on the class.</para>
+        /// </summary>
+        public string[] Categories { get; set; }
 
         /// <summary>
         /// Set roles that are allowed access to the tests in this class.

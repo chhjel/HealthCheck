@@ -4,6 +4,7 @@ using HealthCheck.Core.Exceptions;
 using HealthCheck.Core.Tests.Helpers;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -31,6 +32,37 @@ namespace HealthCheck.Core.Services
             Assert.Equal("Second name", test.Parameters[1].Name);
             Assert.Equal("Third name", test.Parameters[2].Name);
         }
+        //
+        [Fact]
+        public void DiscoverTestDefinitions_WithCategorisedTest_ResolvesCustomCategory()
+        {
+            var discoverer = new TestDiscoveryService()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+            var tests = discoverer.DiscoverTestDefinitions().SelectMany(x => x.Tests);
+            var test = tests.Single(x => x.Name == nameof(TestClass.TestMethodA));
+            Assert.Single(test.Categories);
+            Assert.Equal("TestMethodACategory", test.Categories[0]);
+        }
+
+        [Fact]
+        public void DiscoverTestDefinitions_WithCategorisedClassAndTest_ResolvesCustomCategories()
+        {
+            var discoverer = new TestDiscoveryService()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+            var tests = discoverer.DiscoverTestDefinitions().SelectMany(x => x.Tests);
+
+            var testA2 = tests.Single(x => x.Name == nameof(TestClass2.TestMethodA2));
+            Assert.Single(testA2.Categories);
+            Assert.Equal("TestSetId2Category", testA2.Categories[0]);
+
+            var testB2 = tests.Single(x => x.Name == nameof(TestClass2.TestMethodB2));
+            Assert.Single(testB2.Categories);
+            Assert.Contains("TestMethodB2Category", testB2.Categories);
+        }
 
         [Fact]
         public void DiscoverTestDefinitions_WithCustomParameterDescriptions_ResolvesCustomParameterDescriptions()
@@ -44,6 +76,21 @@ namespace HealthCheck.Core.Services
             Assert.Equal("First desc.", test.Parameters[0].Description);
             Assert.Equal("Second desc.", test.Parameters[1].Description);
             Assert.Equal("Third desc.", test.Parameters[2].Description);
+        }
+
+        [Fact]
+        public void DiscoverTestDefinitions_WithFilter_ReturnsOnlyWantedTests()
+        {
+            var discoverer = new TestDiscoveryService()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+
+            var userRoles = AccessRoles.WebAdmins;
+            var tests = discoverer.DiscoverTestDefinitions(userRoles, testFilter: (test) => test.Name == nameof(TestClass.TestMethodA))
+                .SelectMany(x => x.Tests);
+            Assert.Single(tests);
+            Assert.Single(tests, x => x.Name == nameof(TestClass.TestMethodA));
         }
 
         [Fact]
@@ -149,7 +196,7 @@ namespace HealthCheck.Core.Services
                 return TestResult.CreateSuccess($"Success!");
             }
 
-            [RuntimeTest(Name = "TestMethodA")]
+            [RuntimeTest(Name = "TestMethodA", Category = "TestMethodACategory")]
             public TestResult TestMethodA(string stringArg = "wut", bool boolArg = true, int intArg = 123)
             {
                 return TestResult.CreateSuccess($"Success! [{stringArg}, {boolArg}, {intArg}]");
@@ -182,6 +229,25 @@ namespace HealthCheck.Core.Services
                 [RuntimeTestParameter("Third name", "Third desc")] int intArg = 123)
             {
                 return TestResult.CreateSuccess($"Success! [{stringArg}, {boolArg}, {intArg}]");
+            }
+        }
+
+
+        [RuntimeTestClass(Id = "TestSetId2", Description = "Some test set #2", Name = "Dev test set #2", DefaultCategory = "TestSetId2Category")]
+        public class TestClass2
+        {
+            [RuntimeTest(Name = "TestMethodA2")]
+            public async Task<TestResult> TestMethodA2(string stringArg = "wut", bool boolArg = true, int intArg = 123)
+            {
+                await Task.Delay(1);
+                return TestResult.CreateSuccess($"Success! [{stringArg}, {boolArg}, {intArg}]");
+            }
+
+            [RuntimeTest(Name = "TestMethodB2", Category = "TestMethodB2Category")]
+            public async Task<TestResult> TestMethodB2()
+            {
+                await Task.Delay(1);
+                return TestResult.CreateSuccess($"Success!");
             }
         }
     }

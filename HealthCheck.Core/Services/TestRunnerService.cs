@@ -40,7 +40,7 @@ namespace HealthCheck.Core.Services
             string auditUserId = "0",
             string auditUsername = "System")
         {
-            var tests = testDiscoveryService.DiscoverTestDefinitions(includeInvalidTests: false, onlyTestsAllowedToBeManuallyExecuted: false);
+            var tests = testDiscoveryService.DiscoverTestDefinitions(includeInvalidTests: false, onlyTestsAllowedToBeManuallyExecuted: false, testFilter: testFilter);
             var results = await ExecuteTests(tests, testFilter);
 
             if (auditEventService != null)

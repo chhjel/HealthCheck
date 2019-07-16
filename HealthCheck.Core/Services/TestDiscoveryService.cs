@@ -57,9 +57,10 @@ namespace HealthCheck.Core.Services
         /// </summary>
         public List<TestClassDefinition> DiscoverTestDefinitions<TAccessRolesEnum>(TAccessRolesEnum userRoles,
             bool includeInvalidTests = false,
-            bool onlyTestsAllowedToBeManuallyExecuted = false)
+            bool onlyTestsAllowedToBeManuallyExecuted = false,
+            Func<TestDefinition, bool> testFilter = null)
             where TAccessRolesEnum : Enum
-            => DiscoverTestDefinitions(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRoles);
+            => DiscoverTestDefinitions(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRoles, testFilter);
 
         /// <summary>
         /// Discover tests.
@@ -67,7 +68,8 @@ namespace HealthCheck.Core.Services
         public List<TestClassDefinition> DiscoverTestDefinitions(
             bool includeInvalidTests = false,
             bool onlyTestsAllowedToBeManuallyExecuted = false,
-            object userRolesEnum = null)
+            object userRolesEnum = null,
+            Func<TestDefinition, bool> testFilter = null)
         {
             var assembly = GetAssembly();
             if (assembly == null)
@@ -112,7 +114,10 @@ namespace HealthCheck.Core.Services
                         continue;
                     }
 
-                    classDef.Tests.Add(testDef);
+                    if (testFilter?.Invoke(testDef) != false)
+                    {
+                        classDef.Tests.Add(testDef);
+                    }
                 }
 
                 // Only include test set if it has any tests

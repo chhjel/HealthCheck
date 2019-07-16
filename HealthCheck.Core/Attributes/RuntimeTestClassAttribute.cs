@@ -41,6 +41,16 @@ namespace HealthCheck.Core.Attributes
         public object DefaultRolesWithAccess { get; set; }
 
         /// <summary>
+        /// Optional category that can be filtered upon. Will be unioned with <see cref="DefaultCategories"/>.
+        /// </summary>
+        public string DefaultCategory { get; set; }
+
+        /// <summary>
+        /// Optional categories that can be filtered upon. Will be unioned with <see cref="DefaultCategory"/>.
+        /// </summary>
+        public string[] DefaultCategories { get; set; }
+
+        /// <summary>
         /// Optional group name.
         /// </summary>
         public string GroupName { get; set; }

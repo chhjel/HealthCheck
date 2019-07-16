@@ -2,6 +2,7 @@
 using HealthCheck.Core.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HealthCheck.Core.Entities
 {
@@ -47,6 +48,11 @@ namespace HealthCheck.Core.Entities
         public object DefaultRolesWithAccess { get; set; }
 
         /// <summary>
+        /// Optional default categories for tests in this class that can be filtered upon.
+        /// </summary>
+        public List<string> DefaultCategories { get; set; }
+
+        /// <summary>
         /// Optional group name.
         /// </summary>
         public string GroupName { get; set; }
@@ -75,6 +81,11 @@ namespace HealthCheck.Core.Entities
             DefaultRolesWithAccess = testClassAttribute.DefaultRolesWithAccess;
             GroupName = testClassAttribute.GroupName;
             UIOrder = testClassAttribute.UIOrder;
+
+            DefaultCategories = (testClassAttribute.DefaultCategories ?? new string[0])
+                .Union((testClassAttribute.DefaultCategory == null ? new string[0] : new[] { testClassAttribute.DefaultCategory }))
+                .Distinct()
+                .ToList();
         }
     }
 }

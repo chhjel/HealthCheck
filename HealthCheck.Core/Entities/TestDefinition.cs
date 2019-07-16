@@ -77,9 +77,16 @@ namespace HealthCheck.Core.Entities
             AllowParallelExecution = (testAttribute.AllowParallelExecution is bool allowParallelExecution && allowParallelExecution);
             AllowManualExecution = (testAttribute.AllowManualExecution is bool allowManualExecution ? allowManualExecution : parentClass.DefaultAllowManualExecution);
             RolesWithAccess =  testAttribute.RolesWithAccess ?? parentClass.DefaultRolesWithAccess;
+
             Categories = (testAttribute.Categories ?? new string[0])
                 .Union((testAttribute.Category == null ? new string[0] : new []{ testAttribute.Category }))
+                .Distinct()
                 .ToList();
+
+            if (!Categories.Any())
+            {
+                Categories = ParentClass.DefaultCategories;
+            }
 
             SetId();
             InitParameters(method);
