@@ -308,6 +308,10 @@ export default class OverviewPageComponent extends Vue {
 .v-calendar-weekly__day-label {
     font-size: 18px;
     color: #9c8888;
+    cursor: default;
+}
+.v-calendar-weekly__day-label:hover {
+    text-decoration: none;
 }
 .v-calendar-weekly__day-month {
     font-size: 18px;
