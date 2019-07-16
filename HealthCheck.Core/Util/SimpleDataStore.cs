@@ -119,7 +119,7 @@ namespace HealthCheck.Core.Util
         {
             lock (NewRowsBuffer)
             {
-                NewRowsBuffer.RemoveAll(x => condition(DeserializeRow(x)));
+                NewRowsBuffer.RemoveAll(x => CheckCondition(x, condition, true));
             }
 
             EnsureFileExists();
@@ -128,13 +128,20 @@ namespace HealthCheck.Core.Util
                 var tempFile = Path.GetTempFileName();
 
                 var linesToKeep = File.ReadLines(FilePath)
-                    .Where(x => !condition(DeserializeRow(x)));
+                    .Where(x => CheckCondition(x, (item) => !condition(item), false));
                 File.WriteAllLines(tempFile, linesToKeep);
 
                 File.Delete(FilePath);
                 File.Move(tempFile, FilePath);
                 OnFileWrittenEvent?.Invoke();
             }
+        }
+
+        private bool CheckCondition(string row, Func<TItem, bool> condition, bool valueIfnull)
+        {
+            var item = DeserializeRow(row);
+            if (item == null) return valueIfnull;
+            else return condition(item);
         }
 
         /// <summary>
@@ -147,7 +154,7 @@ namespace HealthCheck.Core.Util
                 for (int i = 0; i < NewRowsBuffer.Count; i++)
                 {
                     var item = DeserializeRow(NewRowsBuffer[i]);
-                    if (condition(item))
+                    if (item != null && condition(item))
                     {
                         NewRowsBuffer[i] = SerializeItem(update(item));
                     }
@@ -162,7 +169,7 @@ namespace HealthCheck.Core.Util
                 var updatedLines = File.ReadLines(FilePath)
                     .Select(row => new { row, item = DeserializeRow(row) })
                     .Select(x =>
-                        (condition(x.item))
+                        (x.item != null && condition(x.item))
                             ? SerializeItem(update(x.item))
                             : x.row
                     );
