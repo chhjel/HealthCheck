@@ -8,53 +8,70 @@
           <!-- CONTENT BEGIN -->
             
         <v-container grid-list-md>
-            <h1 class="mb-2">Events overview</h1>
+            <!-- <h1 class="mb-2">Events overview</h1> -->
 
             <v-layout align-content-center wrap>
-                
-                <v-flex sm12 md7 class="mb-4" v-if="showContent">
-                    <v-alert :value="true" :color="summaryColor" :icon="summaryIcon">
-                        <span v-if="summaryItems.length == 1">{{ summaryItems[0] }}</span>
-                        <ul v-if="summaryItems.length > 1">
-                            <li v-for="(summaryItem, index) in summaryItems"
-                                :key="`summary-item-${index}`">
-                                {{ summaryItem }}
-                            </li>
-                        </ul>
-                    </v-alert>
-                </v-flex>
-            
+                <!-- LOAD ERROR -->
                 <v-alert
                     :value="overviewDataLoadFailed"
                     type="error">
                 {{ overviewDataFailedErrorMessage }}
                 </v-alert>
 
+                <!-- PROGRESS BAR -->
                 <v-progress-linear
                     v-if="overviewDataLoadInProgress"
                     indeterminate color="green"></v-progress-linear>
-                    
-                <v-flex sm12 md7 v-if="showContent">
+                
+                <!-- SUMMARY -->
+                <v-flex sm12 v-if="showContent" class="mb-4" >
+                    <h1 class="mb-2">Current status</h1>
+
+                    <status-component :type="summaryType" :text="summaryText" />
+
+                    <site-events-summary-component
+                        v-if="currentEvents.length > 0"
+                        :events="currentEvents"
+                        v-on:eventClicked="showEventDetailsDialog" />
+                </v-flex>
+
+                <!-- TIMELINE -->
+                <v-flex sm12 v-if="showContent" class="mb-4">
+                    <h2>Past events</h2>
+                    <event-timeline-component
+                        :events="pastEvents"
+                        v-on:eventClicked="showEventDetailsDialog"
+                        class="timeline" />
+                </v-flex>
+
+                <!-- CALENDAR -->
+                <v-flex sm12 v-if="showContent">
+                    <h2>History</h2>
                     <event-calendar-component
                         :events="calendarEvents"
+                        v-on:eventClicked="showEventDetailsDialog"
                         class="calendar" />
-                </v-flex>
-                
-                <v-flex sm12 md5
-                    v-if="showContent">
-                    <event-timeline-component
-                        :events="timelineEvents"
-                        class="timeline" />
                 </v-flex>
             </v-layout>
         </v-container>
-
 
           <!-- CONTENT END -->
         </v-flex>
         </v-layout>
         </v-container>
         </v-content>
+
+        <!-- DIALOGS -->
+        <v-dialog v-model="eventDetailsDialogState" width="700">
+            <site-event-details-component :event="selectedEventForDetails" v-if="selectedEventForDetails != null">
+                <template v-slot:actions>
+                    <v-btn flat color="secondary" @click="eventDetailsDialogState = false">
+                        Close
+                    </v-btn>
+                </template>
+            </site-event-details-component>
+        </v-dialog>
+        <!-- DIALOGS END -->
     </div>
 </template>
 
@@ -66,16 +83,27 @@ import SiteEventViewModel from '../../models/SiteEvents/SiteEventViewModel';
 import { SiteEventSeverity } from '../../models/SiteEvents/SiteEventSeverity';
 import EventTimelineComponent from '../Overview/EventTimelineComponent.vue';
 import EventCalendarComponent from '../Overview/EventCalendarComponent.vue';
+import SiteEventDetailsComponent from '../Overview/SiteEventDetailsComponent.vue';
+import SiteEventsSummaryComponent from '../Overview/SiteEventsSummaryComponent.vue';
+import StatusComponent from '../Overview/StatusComponent.vue';
+import DateUtils from "../../util/DateUtils";
 
 @Component({
     components: {
         EventTimelineComponent,
-        EventCalendarComponent
+        EventCalendarComponent,
+        SiteEventDetailsComponent,
+        SiteEventsSummaryComponent,
+        StatusComponent
     }
 })
 export default class OverviewPageComponent extends Vue {
     @Prop({ required: true })
     options!: FrontEndOptionsViewModel;
+
+    // Dialogs
+    eventDetailsDialogState: boolean = false;
+    selectedEventForDetails: SiteEventViewModel | null = null;
 
     // Loading
     overviewDataLoadInProgress: boolean = false;
@@ -99,31 +127,66 @@ export default class OverviewPageComponent extends Vue {
         return this.siteEvents;
     }
 
-    get timelineEvents(): Array<SiteEventViewModel> {
-        let thresholdDate = new Date();
-        thresholdDate.setDate(thresholdDate.getDate() - 3);
-        return this.siteEvents.filter(x => x.Timestamp >= thresholdDate);
+    get pastCurrentThreshold(): Date {
+        let date = new Date();
+        date.setHours(date.getHours() - 1);
+        return date;
+    }
+
+    get pastEvents(): Array<SiteEventViewModel> {
+        let fromDate = new Date();
+        fromDate.setDate(fromDate.getDate() - 3);
+        fromDate.setHours(23);
+        fromDate.setMinutes(59);
+        
+        return this.siteEvents.filter(x => x.Timestamp >= fromDate && x.Timestamp <= this.pastCurrentThreshold);
+    }
+
+    get currentEvents(): Array<SiteEventViewModel> {
+        return this.siteEvents
+            .filter(x => x.Timestamp >= this.pastCurrentThreshold)
+            .sort((a, b) => b.SeverityCode - a.SeverityCode);
     }
 
     get showContent(): boolean {
         return !this.overviewDataLoadInProgress && !this.overviewDataLoadFailed;
     }
 
-    get summaryItems(): Array<string> {
-        let relevantEvents = this.getSummaryEvents();
+    get summaryText(): string {
+        let relevantEvents = this.currentEvents;
         if (relevantEvents.length == 0) {
-            return ["All Systems Operational."];
+            return "All Systems Operational.";
         }
         
-        let severity = this.getSummarySeverity();
+        let severity = this.getCurrentSeverity();
+        if (severity == null) {
+            return "All Systems Operational";
+        }
+
         let relevantMessages = relevantEvents
             .filter(x => x.Severity == severity)
             .map(x => x.Title);
-        return relevantMessages;
+
+        if (relevantMessages.length > 1) {
+            if (severity == SiteEventSeverity.Information) {
+                return "Some informative events have been reported";
+            }
+            else if (severity == SiteEventSeverity.Warning) {
+                return "A few warnings have been reported";
+            }
+            else if (severity == SiteEventSeverity.Error) {
+                return "A few errors are currently ongoing";
+            }
+            else if (severity == SiteEventSeverity.Fatal) {
+                return "The site is currently experiencing a few errors";
+            }
+        }
+
+        return relevantMessages[0];
     }
 
-    get summaryColor(): string {
-        let severity = this.getSummarySeverity();
+    get summaryType(): string {
+        let severity = this.getCurrentSeverity();
         if (severity == null) {
             return "success";
         }
@@ -133,30 +196,14 @@ export default class OverviewPageComponent extends Vue {
         else if (severity == SiteEventSeverity.Warning) {
             return "warning";
         }
-        else if (severity == SiteEventSeverity.Error || severity == SiteEventSeverity.Fatal) {
+        else if (severity == SiteEventSeverity.Error) {
             return "error";
+        }
+        else if (severity == SiteEventSeverity.Fatal) {
+            return "fatal";
         }
         else {
             return "info";
-        }
-    }
-
-    get summaryIcon(): string {
-        let severity = this.getSummarySeverity();
-        if (severity == null) {
-            return "sentiment_satisfied_alt";
-        }
-        else if (severity == SiteEventSeverity.Information) {
-            return "info";
-        }
-        else if (severity == SiteEventSeverity.Warning) {
-            return "warning";
-        }
-        else if (severity == SiteEventSeverity.Error || severity == SiteEventSeverity.Fatal) {
-            return "error";
-        }
-        else {
-            return "sentiment_satisfied_alt";
         }
     }
 
@@ -198,14 +245,8 @@ export default class OverviewPageComponent extends Vue {
         this.siteEvents = events;
     }
 
-    getSummaryEvents(): Array<SiteEventViewModel> {
-        let thresholdDate = new Date();
-        thresholdDate.setHours(thresholdDate.getHours() - 1);
-        return this.siteEvents.filter(x => x.Timestamp >= thresholdDate);
-    }
-
-    getSummarySeverity(): SiteEventSeverity | null {
-        let relevantEvents = this.getSummaryEvents();
+    getCurrentSeverity(): SiteEventSeverity | null {
+        let relevantEvents = this.currentEvents;
         if (relevantEvents.length == 0) {
             return null;
         } else if(relevantEvents.some(x => x.Severity == SiteEventSeverity.Fatal)) {
@@ -220,14 +261,38 @@ export default class OverviewPageComponent extends Vue {
             return null;
         }
     }
+
+    getEventDateRange(event: SiteEventViewModel) : string {
+        let timeFormat = 'HH:mm';
+        let start = event.Timestamp;
+        let end = this.getEventEndDate(event);
+        if (end == null) {
+            return DateUtils.FormatDate(start, timeFormat);
+        } else {
+            return `${DateUtils.FormatDate(start, timeFormat)} - ${DateUtils.FormatDate(end, timeFormat)}`;
+        }
+    }
+
+    getEventEndDate(event: SiteEventViewModel) : Date | null {
+        if (event.Duration > 1) {
+            return new Date(event.Timestamp.getTime() + event.Duration * 60000);
+        } else {
+            return null;
+        }
+    }
+
+    showEventDetailsDialog(event: SiteEventViewModel): void {
+        this.selectedEventForDetails = event;
+        this.eventDetailsDialogState = true;
+    }
 }
 </script>
 
 <style scoped>
-.content-root {
-    /* margin: auto;
-    max-width: 800px; */
-}
+/* .content-root {
+    margin: auto;
+    max-width: 800px;
+} */
 </style>
 
 <style>

@@ -13,7 +13,7 @@
                     <v-btn flat
                         v-if="showPageMenu(PAGE_OVERVIEW)"
                         :href="`?page=${PAGE_OVERVIEW}`"
-                        @click.left.prevent="setCurrentPage(PAGE_OVERVIEW)">Overview</v-btn>
+                        @click.left.prevent="setCurrentPage(PAGE_OVERVIEW)">Status</v-btn>
                     <v-btn flat 
                         v-if="showPageMenu(PAGE_TESTS)"
                         :href="`?page=${PAGE_TESTS}`"
@@ -75,7 +75,7 @@ export default class HealthCheckPageComponent extends Vue {
     showMenuButton: boolean = true;
     
     // Pages
-    PAGE_OVERVIEW: string = "overview";
+    PAGE_OVERVIEW: string = "status";
     PAGE_TESTS: string = "tests";
     PAGE_AUDITLOG: string = "auditlog";
     PAGE_NO_PAGES_AVAILABLE: string = "no_page";

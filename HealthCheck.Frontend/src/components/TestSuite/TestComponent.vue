@@ -7,7 +7,10 @@
             <div class="test-status-label subheading font-weight-bold"
               :class="statusClass"
               v-if="hasStatus">{{statusText}}</div>
-            <h4 class="test-name">{{ test.Name }}</h4>
+            <h4 class="test-name">
+              {{ test.Name }}
+              <!-- <v-icon>link</v-icon> -->
+            </h4>
             <div class="test-duration" v-if="showTestDuration">{{ prettifyDuration(testResult.DurationInMilliseconds) }}</div>
 
             <v-btn ripple color="primary" 

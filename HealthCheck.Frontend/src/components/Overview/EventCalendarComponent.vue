@@ -51,55 +51,13 @@
                                 {{event.title}}
                             </div>
                         </template>
-                        <v-card color="grey lighten-4" flat
-                            min-width="350px" max-width="800px">
-                            <v-toolbar dark
-                                :color="getEventSeverityColor(event.data.Severity)">
-                                <v-icon v-text="getEventSeverityIcon(event.data.Severity)"/>
-                                <!-- <v-btn icon>
-                                    <v-icon>edit</v-icon>
-                                </v-btn> -->
-                                <v-toolbar-title>{{ event.title }}</v-toolbar-title>
-                                <v-spacer></v-spacer>
-                                <v-toolbar-title class="subheading" v-if="event.endTime == null">
-                                    @ {{ event.date }} {{ event.time }}
-                                </v-toolbar-title>
-                                <v-toolbar-title class="subheading" v-if="event.endTime != null">
-                                    @ {{ event.date }}<br />{{ event.time }} - {{ event.endTime }}
-                                </v-toolbar-title>
-                                <!-- <v-btn icon>
-                                    <v-icon>favorite</v-icon>
-                                </v-btn> -->
-                                <!-- <v-btn icon>
-                                    <v-icon>more_vert</v-icon>
-                                </v-btn> -->
-                            </v-toolbar>
-                            <v-card-title primary-title>
-                                <span>
-                                    {{ event.data.Description }}
-
-                                    <div v-if="event.data.RelatedLinks.length > 0" class="mt-4">
-                                        <h4>Related links</h4>
-                                        <ul>
-                                            <li v-for="(link, linkIndex) in event.data.RelatedLinks"
-                                                :key="`month-item-${event.id}-link-${linkIndex}`">
-                                                <a :href="link.Url">{{link.Text}}</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-
-                                    <div class="caption mt-4">
-                                        This is a {{ event.data.Severity.toString().toLowerCase() }}-level event.<br />
-                                        EventTypeId: {{ event.data.EventTypeId }}
-                                    </div>
-                                </span>
-                            </v-card-title>
-                            <v-card-actions>
+                        <site-event-details-component :event="event.data">
+                            <template v-slot:actions>
                                 <v-btn flat color="secondary">
                                     Close
                                 </v-btn>
-                            </v-card-actions>
-                        </v-card>
+                            </template>
+                        </site-event-details-component>
                     </v-menu>
                 </template>
             </template>
@@ -118,6 +76,7 @@
                         class="calendar-event with-time"
                         :class="getEventSeverityClass(event.data.Severity)"
                         v-html="event.title"
+                        @click="onEventClicked(event.data)"
                     ></div>
                 </template>
             </template>
@@ -132,10 +91,12 @@ import CalendarEvent from '../../models/Common/CalendarEvent';
 import SiteEventViewModel from '../../models/SiteEvents/SiteEventViewModel';
 import { SiteEventSeverity } from '../../models/SiteEvents/SiteEventSeverity';
 import EventTimelineComponent from '../Overview/EventTimelineComponent.vue';
+import SiteEventDetailsComponent from '../Overview/SiteEventDetailsComponent.vue';
 
 @Component({
     components: {
-        EventTimelineComponent
+        EventTimelineComponent,
+        SiteEventDetailsComponent
     }
 })
 export default class OverviewPageComponent extends Vue {
@@ -272,6 +233,13 @@ export default class OverviewPageComponent extends Vue {
         } else {
             return '';
         }
+    }
+
+    ///////////////////////
+    //  EVENT HANDLERS  //
+    /////////////////////
+    onEventClicked(event: SiteEventViewModel): void {
+        this.$emit("eventClicked", event);
     }
 }
 </script>

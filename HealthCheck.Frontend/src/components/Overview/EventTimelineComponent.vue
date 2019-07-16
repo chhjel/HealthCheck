@@ -1,7 +1,6 @@
 <!-- src/components/Overview/EventTimelineComponent.vue -->
 <template>
     <div class="root">
-        <h2>Events last 3 days</h2>
         <v-timeline align-top dense>
             <v-timeline-item color="info" small v-if="timelineEventGroups.length == 0">
                 <v-layout pt-3>
@@ -22,7 +21,7 @@
                     :key="`timeline-group-${group.index}-item-${event.Id}`"
                     :color="getTimelineItemColor(event)"
                     small>
-                    <v-layout pt-3>
+                    <v-layout pt-3 class="timeline-item" @click="onEventClicked(event)">
                         <div class="mr-4">
                             <strong>{{getTimelineItemTimeString(event)}}</strong>
                         </div>
@@ -82,8 +81,18 @@ export default class EventTimelineComponent extends Vue {
     //  METHODS  //
     //////////////
     getTimelineItemTimeString(event: SiteEventViewModel): string {
-        // @ts-ignore
-        return `${event.Timestamp.getHours().toString().padZero(2)}:${event.Timestamp.getMinutes().toString().padZero(2)}`;
+        if (event.Duration > 1) {
+            // @ts-ignore
+            let from = `${event.Timestamp.getHours().toString().padZero(2)}:${event.Timestamp.getMinutes().toString().padZero(2)}`;
+            // @ts-ignore
+            let toDate = new Date(event.Timestamp.getTime());
+            toDate.setMinutes(event.Timestamp.getMinutes() + event.Duration);
+            let to = `${toDate.getHours().toString().padZero(2)}:${toDate.getMinutes().toString().padZero(2)}`;
+            return `${from} - ${to}`;
+        } else {
+            // @ts-ignore
+            return `${event.Timestamp.getHours().toString().padZero(2)}:${event.Timestamp.getMinutes().toString().padZero(2)}`;
+        }
     }
 
     getTimelineItemColor(event: SiteEventViewModel): string {
@@ -110,10 +119,21 @@ export default class EventTimelineComponent extends Vue {
             date.getMonth() == today.getMonth() &&
             date.getFullYear() == today.getFullYear()
     }
+
+    ///////////////////////
+    //  EVENT HANDLERS  //
+    /////////////////////
+    onEventClicked(event: SiteEventViewModel): void {
+        this.$emit("eventClicked", event);
+    }
 }
 </script>
 
 <style scoped>
-/* .root {
-} */
+.timeline-item {
+    cursor: pointer;
+}
+.timeline-item:hover {
+    background-color: #f1eded;
+}
 </style>

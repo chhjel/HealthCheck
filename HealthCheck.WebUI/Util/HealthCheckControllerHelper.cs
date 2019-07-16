@@ -57,7 +57,7 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public AccessOptions<TAccessRole> AccessOptions { get; set; } = new AccessOptions<TAccessRole>();
 
-        private const string PAGE_OVERVIEW = "overview";
+        private const string PAGE_OVERVIEW = "status";
         private const string PAGE_TESTS = "tests";
         private const string PAGE_AUDITLOG = "auditlog";
         private const string Q = "\"";

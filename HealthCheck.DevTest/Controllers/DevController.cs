@@ -49,7 +49,7 @@ namespace HealthCheck.DevTest.Controllers
         private SiteEventService CreateSiteEventService()
             => new SiteEventService(new FlatFileSiteEventStorage(HostingEnvironment.MapPath("~/App_Data/SiteEventStorage.json"))
             {
-                MaxEventAge = TimeSpan.FromSeconds(10)
+                MaxEventAge = TimeSpan.FromDays(5)
             });
         private IAuditEventStorage CreateAuditEventService()
             => new FlatFileAuditEventStorage(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"))
