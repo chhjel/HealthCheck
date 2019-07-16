@@ -89,4 +89,20 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             return TestResult.CreateSuccess($"Success!");
         }
     }
+
+    [RuntimeTestClass(
+        Name = "Test Set B",
+        DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins | RuntimeTestAccessRole.SystemAdmins,
+        UIOrder = -100,
+        GroupName = RuntimeTestConstants.Group.AdminStuff
+    )]
+    public class TestSetBDuplicatedName
+    {
+        [RuntimeTest]
+        public async Task<TestResult> TestServiceX()
+        {
+            await Task.Delay(1200);
+            return TestResult.CreateSuccess($"Success, used 1200ms!");
+        }
+    }
 }

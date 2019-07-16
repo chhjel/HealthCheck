@@ -321,8 +321,9 @@ export default class TestSuitesPageComponent extends Vue {
     setActiveSet(set: TestSetViewModel): void
     {
         this.activeSet = set;
-
-        UrlUtils.SetQueryStringParameter(this.urlParameterCurrentSet, set.Name);
+        let groupValue = (set.GroupName == null) ? '' : set.GroupName.replace('/', '-');
+        let queryValue = `${groupValue}/${set.Name}`;
+        UrlUtils.SetQueryStringParameter(this.urlParameterCurrentSet, queryValue);
     }
 
     setInitialActiveTestSet(): void
@@ -331,11 +332,17 @@ export default class TestSuitesPageComponent extends Vue {
         let params = new URLSearchParams(location.search);
         if (params.has(this.urlParameterCurrentSet)) {
             let queryStringValue = params.get(this.urlParameterCurrentSet);
-            let matchingSet = this.allTestSets.filter(x => x.Name === queryStringValue)[0];
+            let queryStringValueParts = (queryStringValue || "").split('/', 2);
+            if (queryStringValueParts.length >= 2) {
+                let groupFromQueryString = queryStringValueParts[0];
+                let nameFromQueryString = queryStringValueParts[1];
+                let matchingSet = this.allTestSets
+                    .filter(x => (groupFromQueryString.length == 0 || x.GroupName == groupFromQueryString) && x.Name === nameFromQueryString)[0];
 
-            if (matchingSet != null) {
-                this.setActiveSet(matchingSet);
-                return;
+                if (matchingSet != null) {
+                    this.setActiveSet(matchingSet);
+                    return;
+                }
             }
         }
         
