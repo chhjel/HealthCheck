@@ -10,6 +10,15 @@ namespace HealthCheck.Core.Extensions
     public static class StringExtensions
     {
         /// <summary>
+        /// Appends the given suffix if the string is not null and does not already end with it.
+        /// </summary>
+        public static string EnsureEndsWithIfNotNull(this string text, string suffix)
+        {
+            if (text == null) return text;
+            else return text.EndsWith(suffix) ? text : $"{text}{suffix}";
+        }
+
+        /// <summary>
         /// Joins the given values with the given delimiter. The last two parts will use the given lastDelimiter.
         /// <para>For creating sentence outputs like ["A", "B", "C"] => "A, B and C"</para>
         /// </summary>
