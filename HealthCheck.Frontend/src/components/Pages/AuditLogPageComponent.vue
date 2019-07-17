@@ -29,16 +29,24 @@
                     </v-flex>
 
                     <v-flex xs12 sm6 md3>
-                        <v-text-field v-model="filterUserName" label="Username"></v-text-field>
+                        <v-text-field v-model="filterUserName" label="Username"
+                            @blur="loadData"
+                            @keyup.enter="loadData" />
                     </v-flex>
                     <v-flex xs12 sm6 md3>
-                        <v-text-field v-model="filterAction" label="Action"></v-text-field>
+                        <v-text-field v-model="filterAction" label="Action"
+                            @blur="loadData"
+                            @keyup.enter="loadData" />
                     </v-flex>
                     <v-flex xs12 sm6 md3>
-                        <v-text-field v-model="filterSubject" label="Subject"></v-text-field>
+                        <v-text-field v-model="filterSubject" label="Subject"
+                            @blur="loadData"
+                            @keyup.enter="loadData" />
                     </v-flex>
                     <v-flex xs12 sm6 md3>
-                        <v-text-field v-model="filterUserId" label="User id"></v-text-field>
+                        <v-text-field v-model="filterUserId" label="User id"
+                            @blur="loadData"
+                            @keyup.enter="loadData" />
                     </v-flex>
                 </v-layout>
                         
@@ -293,6 +301,7 @@ export default class AuditLogPageComponent extends Vue {
     onDateRangeChanged(data: any): void {
         this.filterFromDate = data.startDate;
         this.filterToDate = data.endDate;
+        this.loadData();
     }
 }
 </script>
