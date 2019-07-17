@@ -22,7 +22,7 @@
                     :color="getTimelineItemColor(event)"
                     small>
                     <v-layout pt-3 class="timeline-item" @click="onEventClicked(event)">
-                        <div class="mr-4">
+                        <div class="mr-4 pt-1">
                             <strong>{{getTimelineItemTimeString(event)}}</strong>
                         </div>
                         <v-flex>

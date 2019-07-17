@@ -39,7 +39,7 @@
                 <v-flex sm12 v-if="showContent" class="mb-4">
                     <h2>Past events</h2>
                     <event-timeline-component
-                        :events="pastEvents"
+                        :events="timelineEvents"
                         v-on:eventClicked="showEventDetailsDialog"
                         class="timeline" />
                 </v-flex>
@@ -87,6 +87,7 @@ import SiteEventDetailsComponent from '../Overview/SiteEventDetailsComponent.vue
 import SiteEventsSummaryComponent from '../Overview/SiteEventsSummaryComponent.vue';
 import StatusComponent from '../Overview/StatusComponent.vue';
 import DateUtils from "../../util/DateUtils";
+import LinqUtils from "../../util/LinqUtils";
 
 @Component({
     components: {
@@ -127,25 +128,31 @@ export default class OverviewPageComponent extends Vue {
         return this.siteEvents;
     }
 
-    get pastCurrentThreshold(): Date {
-        let date = new Date();
-        date.setHours(date.getHours() - 1);
-        return date;
-    }
-
-    get pastEvents(): Array<SiteEventViewModel> {
+    get timelineEvents(): Array<SiteEventViewModel> {
         let fromDate = new Date();
         fromDate.setDate(fromDate.getDate() - 3);
         fromDate.setHours(23);
         fromDate.setMinutes(59);
         
-        return this.siteEvents.filter(x => x.Timestamp >= fromDate && x.Timestamp <= this.pastCurrentThreshold);
+        return this.siteEvents.filter(x => !this.isEventCurrent(x) && x.Timestamp >= fromDate);
     }
 
     get currentEvents(): Array<SiteEventViewModel> {
         return this.siteEvents
-            .filter(x => x.Timestamp >= this.pastCurrentThreshold)
-            .sort((a, b) => b.SeverityCode - a.SeverityCode);
+            .filter(x => this.isEventCurrent(x))
+            .sort((a, b) => LinqUtils.SortByThenBy(a, b,
+                (item) => item.SeverityCode,
+                (item) => item.Timestamp)
+            );
+    }
+
+    isEventCurrent(event: SiteEventViewModel): boolean {
+        let thresholdDate = new Date();
+        thresholdDate.setMinutes(thresholdDate.getMinutes() - this.options.CurrentEventBufferMinutes);
+        
+        let eventEndDate = new Date(event.Timestamp);
+        eventEndDate.setMinutes(eventEndDate.getMinutes() + event.Duration);
+        return eventEndDate.getTime() >= thresholdDate.getTime();
     }
 
     get showContent(): boolean {
@@ -154,12 +161,8 @@ export default class OverviewPageComponent extends Vue {
 
     get summaryText(): string {
         let relevantEvents = this.currentEvents;
-        if (relevantEvents.length == 0) {
-            return "All Systems Operational.";
-        }
-        
         let severity = this.getCurrentSeverity();
-        if (severity == null) {
+        if (relevantEvents.length == 0 || severity == null) {
             return "All Systems Operational";
         }
 

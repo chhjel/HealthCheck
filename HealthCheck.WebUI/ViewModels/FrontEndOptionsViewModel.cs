@@ -46,6 +46,12 @@ namespace HealthCheck.WebUI.ViewModels
         public string GetFilteredAuditLogEventsEndpoint { get; set; }
 
         /// <summary>
+        /// Number of minutes past the end of a site event it will be displayed below "Current status" on the status page.
+        /// <para>Defaults to 30 minutes.</para>
+        /// </summary>
+        public int CurrentEventBufferMinutes { get; set; } = 30;
+
+        /// <summary>
         /// Default page to show on entering the Index action in prioritized order.
         /// <para>The first available page will be shown when ?page=x is omitted.</para>
         /// <para>Defaults to overview, tests, auditlog.</para>
