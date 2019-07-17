@@ -135,7 +135,7 @@ namespace HealthCheck.Core.Services
             Assert.Single(items);
 
             var item = items.Single();
-            Assert.Equal(15, item.Duration);
+            Assert.Equal(25, item.Duration);
         }
 
         [Fact]

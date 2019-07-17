@@ -28,7 +28,7 @@ namespace HealthCheck.Core.Services.Models
         /// Logic for merging two close events.
         /// <para>Parameter 1 = existing event that will be updated.</para>
         /// <para>Parameter 2 = new event data that should be merged into existing one.</para>
-        /// <para>By default only duration will be extended of the original one.</para>
+        /// <para> Uses <see cref="DefaultMergeLogic"/> with allowExtendPastCurrentTime = false by default.</para>
         /// </summary>
         public Action<SiteEvent, SiteEvent> EventMerger { get; set; }
 
@@ -42,7 +42,7 @@ namespace HealthCheck.Core.Services.Models
         /// Logic for merging two close events.
         /// <para>Parameter 1 = existing event that will be updated.</para>
         /// <para>Parameter 2 = new event data that should be merged into existing one.</para>
-        /// <para>By default only duration will be extended of the original one, but not past the current time.</para>
+        /// <para> Uses <see cref="DefaultMergeLogic"/> with allowExtendPastCurrentTime = false by default.</para>
         /// </param>
         public SiteEventMergeOptions(bool allowEventMerge, int maxMinutesSinceLastEventEnd,
             float? lastEventDurationMultiplier = null,
@@ -51,17 +51,32 @@ namespace HealthCheck.Core.Services.Models
             AllowEventMerge = allowEventMerge;
             MaxMinutesSinceLastEventEnd = maxMinutesSinceLastEventEnd;
             LastEventDurationMultiplier = lastEventDurationMultiplier;
-            EventMerger = eventMerger ?? DefaultMergeLogic;
+            EventMerger = eventMerger ?? new Action<SiteEvent, SiteEvent>((old, nw) => DefaultMergeLogic(old, nw));
         }
 
         /// <summary>
         /// The default method that is called when merging events.
-        /// Extends duration but not past the current time.
+        /// Sets the old event duration to the highest of either (old.time + old.duration + new.duration) or the new events timestamp.
+        /// <para>Duration will not be increased past the current time, and duration will not be decreased.</para>
         /// </summary>
-        public static void DefaultMergeLogic(SiteEvent oldEvent, SiteEvent newEvent)
+        public static void DefaultMergeLogic(SiteEvent oldEvent, SiteEvent newEvent, bool allowExtendPastCurrentTime = false)
         {
-            var maxAllowedMinutesToAdd = (int)(DateTime.Now - oldEvent.Timestamp.AddMinutes(oldEvent.Duration)).TotalMinutes;
-            var minutesToAdd = Math.Min(newEvent.Duration, maxAllowedMinutesToAdd);
+            // Minutes until new event start
+            var minutesToAddUntilNewEventStart = (int)(newEvent.Timestamp - oldEvent.Timestamp).TotalMinutes;
+            // Minutes until extended old event
+            var minutesToAddToExtendedOldEvent = newEvent.Duration;
+
+            // Find the highest of the two
+            var minutesToAdd = Math.Max(minutesToAddUntilNewEventStart, minutesToAddToExtendedOldEvent);
+
+            // Limit to minutes until current time.
+            if (!allowExtendPastCurrentTime)
+            {
+                var minutesUntilCurrentTime = (int)(DateTime.Now - oldEvent.Timestamp.AddMinutes(oldEvent.Duration)).TotalMinutes;
+                minutesToAdd = Math.Min(minutesUntilCurrentTime, minutesToAdd);
+            }
+
+            // Do not decrease duration
             if (minutesToAdd <= 0)
             {
                 return;
