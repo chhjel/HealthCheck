@@ -56,6 +56,43 @@ namespace HealthCheck.Core.Services
         }
 
         [Fact]
+        public async Task StoreEvent_WithOverlappingEventsWithDifferentIds_ShouldNotNotMerge()
+        {
+            var storage = new MemorySiteEventStorage();
+            var service = new SiteEventService(storage);
+            var eventA = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
+            {
+                Timestamp = DateTime.Now.AddMinutes(-3)
+            };
+            var eventB = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdB", "TitleB", "DescriptionB", duration: 10);
+            await service.StoreEvent(eventA);
+            await service.StoreEvent(eventB);
+
+            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            Assert.Equal(2, items.Count);
+        }
+
+        [Fact]
+        public async Task StoreEvent_WithOverlappingEvents_ShouldNotExtendPastCurrentTime()
+        {
+            var storage = new MemorySiteEventStorage();
+            var service = new SiteEventService(storage);
+            var eventA = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
+            {
+                Timestamp = DateTime.Now.AddMinutes(-10)
+            };
+            var eventB = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 30);
+            await service.StoreEvent(eventA);
+            await service.StoreEvent(eventB);
+
+            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            Assert.Single(items);
+
+            var item = items.Single();
+            Assert.Equal(10, item.Duration);
+        }
+
+        [Fact]
         public async Task StoreEvent_5MinutesSinceLastAndIncreasedThreshold_ShouldExtendPrevious()
         {
             var storage = new MemorySiteEventStorage();
