@@ -285,11 +285,34 @@ export default class OverviewPageComponent extends Vue {
     font-size: 18px;
     color: #9c8888;
 }
-/* .v-calendar-weekly__day.v-past > .v-calendar-weekly__day-label:only-child {
-    content: ' ';
-    background-color: var(--v-success-lighten3);
+.v-calendar-weekly__day.v-past > .v-calendar-weekly__day-label:only-child::after,
+.v-calendar-weekly__day.v-past > .v-calendar-weekly__day-label+.v-calendar-weekly__day-month::after {
+    content: 'done';
+    color: var(--v-success-lighten5);
+
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 51px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
     display: block;
-    width: 100%;
-    height: 100%;
-} */
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    
+    font-size: 5vw;
+}
+.v-calendar-weekly__day.v-past > .v-calendar-weekly__day-label+.v-calendar-weekly__day-month::after {
+    margin-left: -37px;
+}
+@media (min-width: 800px) {
+    .v-calendar-weekly__day.v-past > .v-calendar-weekly__day-label:only-child::after,
+    .v-calendar-weekly__day.v-past > .v-calendar-weekly__day-label+.v-calendar-weekly__day-month::after {
+        font-size: 50px;
+    }
+}
 </style>
