@@ -1,6 +1,6 @@
 <!-- src/components/Overview/SiteEventsSummaryComponent.vue -->
 <template>
-    <v-list>
+    <v-list class="summary-list">
         <v-list-tile v-for="(event, index) in events"
             :key="`current-event-${index}`"
             @click="onEventClicked(event)"
@@ -10,8 +10,8 @@
             </v-list-tile-action>
 
             <v-list-tile-content>
-                <v-list-tile-title>{{ event.Title }}</v-list-tile-title>
-                <v-list-tile-sub-title>{{ event.Description }}</v-list-tile-sub-title>
+                <v-list-tile-title class="summary-item-title">{{ event.Title }}</v-list-tile-title>
+                <v-list-tile-sub-title class="summary-item-description">{{ event.Description }}</v-list-tile-sub-title>
             </v-list-tile-content>
         </v-list-tile>
     </v-list>
@@ -111,9 +111,22 @@ export default class SiteEventsSummaryComponent extends Vue {
     color: #fff;
     background: #333;
 }
+.summary-item-title {
+    font-size: 18px;
+}
+.summary-item-description {
+    font-size: 16px;
+}
+.summary-list-item {
+    background: #fff;
+    margin-bottom: 5px;
+}
+.summary-list {
+    background: inherit;
+}
 </style>
 <style>
 .summary-list-item a {
-    height: 52px;
+    height: 64px;
 }
 </style>

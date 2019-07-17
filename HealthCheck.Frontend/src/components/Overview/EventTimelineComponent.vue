@@ -22,12 +22,12 @@
                     :color="getTimelineItemColor(event)"
                     small>
                     <v-layout pt-3 class="timeline-item" @click="onEventClicked(event)">
-                        <div class="mr-4 pt-1">
+                        <div class="mr-4 pt-1 timeline-item-time">
                             <strong>{{getTimelineItemTimeString(event)}}</strong>
                         </div>
                         <v-flex>
-                            <strong>{{ event.Title }}</strong>
-                            <div class="caption">{{ event.Description }}</div>
+                            <strong class="timeline-item-title">{{ event.Title }}</strong>
+                            <div class="caption timeline-item-description">{{ event.Description }}</div>
                         </v-flex>
                     </v-layout>
                 </v-timeline-item>
@@ -135,5 +135,14 @@ export default class EventTimelineComponent extends Vue {
 }
 .timeline-item:hover {
     background-color: #f1eded;
+}
+.timeline-item-time {
+    font-size: 18px;
+}
+.timeline-item-title {
+    font-size: 18px;
+}
+.timeline-item-description {
+    font-size: 16px !important;
 }
 </style>

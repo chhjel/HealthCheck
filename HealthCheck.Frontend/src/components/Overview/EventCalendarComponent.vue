@@ -144,11 +144,11 @@ export default class OverviewPageComponent extends Vue {
     }
 
     get calendarEventsMapReversed(): any {
-        const map: any = {}
+        const map: any = {};
         this.calendarEvents
             .sort((a, b) => a.data.Timestamp.getTime() - b.data.Timestamp.getTime())
             .reverse()
-            .forEach(e => (map[e.date] = map[e.date] || []).push(e))
+            .forEach(e => (map[e.date] = map[e.date] || []).push(e));
         return map
     }
 
@@ -285,4 +285,11 @@ export default class OverviewPageComponent extends Vue {
     font-size: 18px;
     color: #9c8888;
 }
+/* .v-calendar-weekly__day.v-past > .v-calendar-weekly__day-label:only-child {
+    content: ' ';
+    background-color: var(--v-success-lighten3);
+    display: block;
+    width: 100%;
+    height: 100%;
+} */
 </style>
