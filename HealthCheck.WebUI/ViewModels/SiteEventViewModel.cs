@@ -51,6 +51,21 @@ namespace HealthCheck.WebUI.ViewModels
         public string Description { get; set; }
 
         /// <summary>
+        /// True when the event is resolved.
+        /// </summary>
+        public bool Resolved { get; set; }
+
+        /// <summary>
+        /// Message that is displayed when the event is resolved.
+        /// </summary>
+        public string ResolvedMessage { get; set; }
+
+        /// <summary>
+        /// Resolved at timestamp.
+        /// </summary>
+        public DateTime? ResolvedAt { get; set; }
+
+        /// <summary>
         /// Event duration in minutes.
         /// </summary>
         public int Duration { get; set; }

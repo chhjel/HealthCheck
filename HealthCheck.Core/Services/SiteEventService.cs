@@ -74,6 +74,24 @@ namespace HealthCheck.Core.Services
         }
 
         /// <summary>
+        /// Mark the last event with the given <paramref name="eventTypeId"/> as resolved with the given message.
+        /// </summary>
+        public async Task<bool> MarkEventAsResolved(string eventTypeId, string resolveMessage)
+        {
+            var lastEvent = await Storage.GetLastEventOfType(eventTypeId);
+            if (lastEvent == null)
+            {
+                return false;
+            }
+
+            lastEvent.Resolved = true;
+            lastEvent.ResolvedAt = DateTime.Now;
+            lastEvent.ResolvedMessage = resolveMessage;
+            await Storage.UpdateEvent(lastEvent);
+            return true;
+        }
+
+        /// <summary>
         /// Get all stored <see cref="SiteEvent"/>s objects with a <see cref="SiteEvent.Timestamp"/> within the given threshold.
         /// </summary>
         public async Task<List<SiteEvent>> GetEvents(DateTime from, DateTime to)

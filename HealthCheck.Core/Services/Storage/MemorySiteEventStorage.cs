@@ -44,13 +44,24 @@ namespace HealthCheck.Core.Services.Storage
              => Task.FromResult(Items.Where(x => x.Timestamp >= from && x.Timestamp <= to).ToList());
 
         /// <summary>
-        /// Get the latest <see cref="SiteEvent"/> with the given <see cref="SiteEvent.EventTypeId"/>.
+        /// Get the latest <see cref="SiteEvent"/> with the given <see cref="SiteEvent.EventTypeId"/> and <see cref="SiteEvent.AllowMerge"/> == true.
         /// </summary>
         public Task<SiteEvent> GetLastMergableEventOfType(string eventTypeId)
         {
             var item = Items
                 .OrderByDescending(x => x.Timestamp)
                 .FirstOrDefault(x => x.AllowMerge && x.EventTypeId == eventTypeId);
+            return Task.FromResult(item);
+        }
+
+        /// <summary>
+        /// Get the latest <see cref="SiteEvent"/> with the given <see cref="SiteEvent.EventTypeId"/>.
+        /// </summary>
+        public Task<SiteEvent> GetLastEventOfType(string eventTypeId)
+        {
+            var item = Items
+                .OrderByDescending(x => x.Timestamp)
+                .FirstOrDefault(x => x.EventTypeId == eventTypeId);
             return Task.FromResult(item);
         }
     }

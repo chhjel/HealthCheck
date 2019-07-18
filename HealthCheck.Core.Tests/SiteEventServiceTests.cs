@@ -19,6 +19,36 @@ namespace HealthCheck.Core.Services
         }
 
         [Fact]
+        public async Task MarkEventAsResolved_WithoutMatchingEvent_ShouldDoNothing()
+        {
+            var storage = new MemorySiteEventStorage();
+            var service = new SiteEventService(storage);
+            var eventA = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA");
+            var eventB = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdB", "TitleB", "DescriptionB");
+            await service.StoreEvent(eventA);
+            await service.StoreEvent(eventB);
+
+            await service.MarkEventAsResolved("typeIdC", "Resolved!");
+            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            Assert.Empty(items.Where(x => x.Resolved));
+        }
+
+        [Fact]
+        public async Task MarkEventAsResolved_WithoutMultipleMatchingEvents_ShouldMarkLast()
+        {
+            var storage = new MemorySiteEventStorage();
+            var service = new SiteEventService(storage);
+            var eventA = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdX", "TitleA", "DescriptionA");
+            var eventB = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdX", "TitleB", "DescriptionB");
+            await service.StoreEvent(eventA);
+            await service.StoreEvent(eventB);
+
+            await service.MarkEventAsResolved("typeIdX", "Resolved!");
+            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            Assert.Single(items.Where(x => x.Resolved && x.ResolvedMessage == "Resolved!" && x.ResolvedAt != null));
+        }
+
+        [Fact]
         public async Task StoreEvent_WithoutOverlappingEvents_ShouldAddNew()
         {
             var storage = new MemorySiteEventStorage();

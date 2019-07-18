@@ -23,6 +23,22 @@ namespace HealthCheck.Core.Services
             Assert.Contains("CategoryA", results.Single().Test.Categories);
         }
 
+        //[Fact]
+        //public async Task ExecuteTests_WithEventService_CanResolveLast()
+        //{
+        //    var discoverer = new TestDiscoveryService()
+        //    {
+        //        AssemblyContainingTests = GetType().Assembly
+        //    };
+        //    var runner = new TestRunnerService();
+        //    var eventService = new SiteEventService(new MemorySiteEventStorage());
+        //    var results = await runner.ExecuteTests(discoverer, (test) => true, siteEventService: eventService);
+        //    Assert.Contains(results, result => result.SiteEvent?.Title == "EventA");
+
+        //    var events = await eventService.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+        //    Assert.Contains(events, e => e.Title == "EventA" && e.Resolved);
+        //}
+
         [Fact]
         public async Task ExecuteTests_WithEventService_StoresEventResultsInService()
         {

@@ -24,6 +24,7 @@ namespace HealthCheck.Core.Services
         /// Executes matching tests.
         /// <para>Optionally sends results containing a <see cref="TestResult.SiteEvent"/> if a <see cref="ISiteEventStorage"/> is provided,
         /// and creates audit events if a <see cref="IAuditEventStorage"/> is provided.</para>
+        /// <para><see cref="TestResult.SiteEvent"/> marked as resolved will resolve the last event with a matching event type id.</para>
         /// </summary>
         /// <param name="testDiscoveryService">Service that will discover tests to run.</param>
         /// <param name="testFilter">Only tests that return true to this condition will be executed.</param>
@@ -69,7 +70,13 @@ namespace HealthCheck.Core.Services
                 var siteEvents = results.Where(x => x.SiteEvent != null).Select(x => x.SiteEvent);
                 foreach (var ev in siteEvents)
                 {
-                    await siteEventService.StoreEvent(ev);
+                    if (ev.Resolved)
+                    {
+                        await siteEventService.MarkEventAsResolved(ev.EventTypeId, ev.ResolvedMessage);
+                    } else
+                    {
+                        await siteEventService.StoreEvent(ev);
+                    }
                 }
             }
 

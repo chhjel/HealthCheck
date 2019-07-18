@@ -29,5 +29,10 @@ namespace HealthCheck.Core.Abstractions
         /// Get the latest <see cref="SiteEvent"/> with the given <see cref="SiteEvent.EventTypeId"/> and <see cref="SiteEvent.AllowMerge"/> == true.
         /// </summary>
         Task<SiteEvent> GetLastMergableEventOfType(string eventTypeId);
+
+        /// <summary>
+        /// Get the latest <see cref="SiteEvent"/> with the given <see cref="SiteEvent.EventTypeId"/>.
+        /// </summary>
+        Task<SiteEvent> GetLastEventOfType(string eventTypeId);
     }
 }

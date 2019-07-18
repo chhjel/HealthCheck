@@ -41,6 +41,21 @@ namespace HealthCheck.Core.Entities
         public string Description { get; set; }
 
         /// <summary>
+        /// True when the event is resolved.
+        /// </summary>
+        public bool Resolved { get; set; }
+
+        /// <summary>
+        /// Message that is displayed when the event is resolved.
+        /// </summary>
+        public string ResolvedMessage { get; set; }
+
+        /// <summary>
+        /// Resolved at timestamp.
+        /// </summary>
+        public DateTime? ResolvedAt { get; set; }
+
+        /// <summary>
         /// Event duration in minutes.
         /// </summary>
         public int Duration { get; set; }
@@ -91,6 +106,15 @@ namespace HealthCheck.Core.Entities
         {
             AllowMerge = false;
             return this;
+        }
+
+        /// <summary>
+        /// Updates the last event with the matching <see cref="EventTypeId"/> if any to resolved with the given message.
+        /// </summary>
+        public void SetResolved(string message)
+        {
+            Resolved = true;
+            ResolvedMessage = message;
         }
 
         /// <summary>

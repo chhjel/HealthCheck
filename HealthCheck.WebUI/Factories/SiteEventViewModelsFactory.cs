@@ -25,7 +25,10 @@ namespace HealthCheck.WebUI.Factories
                 EventTypeId = siteEvent.EventTypeId,
                 Timestamp = siteEvent.Timestamp,
                 EndTime = siteEvent.Timestamp.AddMinutes(siteEvent.Duration),
-                RelatedLinks = siteEvent.RelatedLinks.Select(x => CreateViewModel(x)).ToList()
+                RelatedLinks = siteEvent.RelatedLinks.Select(x => CreateViewModel(x)).ToList(),
+                Resolved = siteEvent.Resolved,
+                ResolvedMessage = siteEvent.ResolvedMessage,
+                ResolvedAt = siteEvent.ResolvedAt
             };
             return vm;
         }

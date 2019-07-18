@@ -12,4 +12,7 @@ export default interface SiteEventViewModel {
     Description: string;
     Duration: number;
     RelatedLinks: Array<HyperLinkViewModel>;
+    Resolved: boolean;
+    ResolvedMessage: string | null;
+    ResolvedAt: Date | null;
 }
