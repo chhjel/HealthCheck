@@ -47,15 +47,12 @@ namespace HealthCheck.DevTest.Controllers
         }
 
         private SiteEventService CreateSiteEventService()
-            => new SiteEventService(new FlatFileSiteEventStorage(HostingEnvironment.MapPath("~/App_Data/SiteEventStorage.json"))
-            {
-                MaxEventAge = TimeSpan.FromDays(5)
-            });
+            => new SiteEventService(new FlatFileSiteEventStorage(HostingEnvironment.MapPath("~/App_Data/SiteEventStorage.json"),
+                maxEventAge: TimeSpan.FromDays(5), delayFirstCleanup: false));
+
         private IAuditEventStorage CreateAuditEventService()
-            => new FlatFileAuditEventStorage(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"))
-            {
-                MaxEventAge = TimeSpan.FromDays(30)
-            };
+            => new FlatFileAuditEventStorage(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"),
+                maxEventAge: TimeSpan.FromDays(30), delayFirstCleanup: false);
 
         private static bool _hasInited = false;
         private void InitOnce()
@@ -153,11 +150,18 @@ namespace HealthCheck.DevTest.Controllers
                 SiteEventService = CreateSiteEventService();
             }
 
-            for (int i = 0; i < 20; i++)
+            if ((await SiteEventService.GetEvents(DateTime.MinValue, DateTime.MaxValue)).Count == 0)
             {
-                await AddEvent();
+                for (int i = 0; i < 20; i++)
+                {
+                    await AddEvent();
+                }
+                return Content("Mock events reset");
             }
-            return Content("Mock events reset");
+            else
+            {
+                return Content("Already have some mock events in place");
+            }
         }
 
         // New mock data

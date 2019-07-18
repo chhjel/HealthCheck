@@ -4,7 +4,6 @@ using System.Linq;
 
 namespace HealthCheck.Core.Util
 {
-
     /// <summary>
     /// Simple data storage to flatfile.
     /// <para>Requires your own item serialization/deserialization logic.</para>

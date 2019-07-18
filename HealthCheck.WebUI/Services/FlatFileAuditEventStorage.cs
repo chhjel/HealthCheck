@@ -14,26 +14,34 @@ namespace HealthCheck.WebUI.Services
     /// </summary>
     public class FlatFileAuditEventStorage : IAuditEventStorage
     {
-        /// <summary>
-        /// Max age of events before they can become deleted.
-        /// <para>Delete check is once per min(MaxEventAge, 4 hours) whenever a new event is stored.</para>
-        /// </summary>
-        public TimeSpan? MaxEventAge { get; set; }
-
-        private bool CleanupEnabled => MaxEventAge != null;
-        private DateTime? LastCleanup { get; set; }
         private SimpleDataStore<AuditEvent> Store { get; set; }
 
         /// <summary>
-        /// Create a new <see cref="FlatFileAuditEventStorage"/> with the given json file path.
+        /// Create a new <see cref="FlatFileAuditEventStorage"/> with the given file path.
         /// </summary>
-        public FlatFileAuditEventStorage(string filepath)
+        /// <param name="filepath">Filepath to where the data will be stored.</param>
+        /// <param name="maxEventAge">Max age of entries before they can become deleted. Leave at null to disable cleanup.</param>
+        /// <param name="delayFirstCleanup">Delay first cleanup by the lowest of 4 hours or max event age.</param>
+        public FlatFileAuditEventStorage(string filepath,
+            TimeSpan? maxEventAge = null,
+            bool delayFirstCleanup = true)
         {
             Store = new SimpleDataStore<AuditEvent>(
                 filepath,
                 serializer: new Func<AuditEvent, string>((e) => JsonConvert.SerializeObject(e)),
                 deserializer: new Func<string, AuditEvent>((row) => JsonConvert.DeserializeObject<AuditEvent>(row))
             );
+
+            if (maxEventAge != null)
+            {
+                var minimumCleanupInterval = TimeSpan.FromHours(4);
+                Store.RetentionOptions = new StorageRetentionOptions<AuditEvent>(
+                    (item) => item.Timestamp,
+                    maxAge: maxEventAge.Value,
+                    minimumCleanupInterval: (maxEventAge.Value < minimumCleanupInterval) ? maxEventAge.Value : minimumCleanupInterval,
+                    delayFirstCleanup: delayFirstCleanup
+                );
+            }
         }
 
         /// <summary>
@@ -42,7 +50,6 @@ namespace HealthCheck.WebUI.Services
         public Task StoreEvent(AuditEvent siteEvent)
         {
             Store.InsertItem(siteEvent);
-            CheckCleanup();
             return Task.CompletedTask;
         }
 
@@ -56,25 +63,6 @@ namespace HealthCheck.WebUI.Services
                 .ToList();
 
             return Task.FromResult(items);
-        }
-
-        private void CheckCleanup()
-        {
-            var minimumCleanupInterval = TimeSpan.FromHours(4);
-            if (MaxEventAge != null && MaxEventAge < minimumCleanupInterval)
-            {
-                minimumCleanupInterval = MaxEventAge.Value;
-            }
-
-            // Cleanup disabled => abort
-            if (!CleanupEnabled) return;
-            // Less than min time since last cleanup => abort
-            else if (LastCleanup != null && (DateTime.Now - LastCleanup) < minimumCleanupInterval) return;
-
-            var threshold = DateTime.Now - MaxEventAge;
-            Store.DeleteWhere(x => x.Timestamp <= threshold);
-
-            LastCleanup = DateTime.Now;
         }
     }
 }

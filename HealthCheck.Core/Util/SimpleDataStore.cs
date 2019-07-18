@@ -15,6 +15,11 @@ namespace HealthCheck.Core.Util
     public class SimpleDataStore<TItem>
     {
         /// <summary>
+        /// Options for automatic storage cleanup.
+        /// </summary>
+        public StorageRetentionOptions<TItem> RetentionOptions { get; set; }
+
+        /// <summary>
         /// Path to the storage file.
         /// </summary>
         public string FilePath { get; private set; }
@@ -60,23 +65,6 @@ namespace HealthCheck.Core.Util
             EnsureFileExists();
         }
 
-        private void EnsureFileExists()
-        {
-            lock (_fileLock)
-            {
-                if (!File.Exists(FilePath))
-                {
-                    var parentFolder = Directory.GetParent(FilePath).FullName;
-                    if (!Directory.Exists(parentFolder))
-                    {
-                        Directory.CreateDirectory(parentFolder);
-                    }
-                    File.WriteAllText(FilePath, "");
-                    OnFileWrittenEvent?.Invoke();
-                }
-            }
-        }
-
         /// <summary>
         /// Simple data storage to flatfile.
         /// <para>Requires your own item serialization/deserialization logic.</para>
@@ -109,6 +97,7 @@ namespace HealthCheck.Core.Util
         {
             var row = SerializeItem(item);
             Task.Run(() => QueueWriteBufferToFile(row));
+            CheckCleanup();
             return item;
         }
 
@@ -296,6 +285,52 @@ namespace HealthCheck.Core.Util
             }
         }
 
+        /// <summary>
+        /// Perform cleanup if retention options allow it.
+        /// </summary>
+        protected void CheckCleanup()
+        {
+            if (LastCleanupPerformedAt == null && RetentionOptions?.DelayFirstCleanupByMinimumCleanupInterval == true)
+            {
+                LastCleanupPerformedAt = DateTime.Now;
+            }
+
+            if (!CanCleanup())
+            {
+                return;
+            }
+
+            PerformCleanup();
+        }
+
+        private DateTime? LastCleanupPerformedAt { get; set; }
+        private bool CanCleanup()
+        {
+            // Cleanup not enabled => abort
+            if (RetentionOptions == null || RetentionOptions.ItemTimestampSelector == null)
+            {
+                return false;
+            }
+
+            // Less than min time since last cleanup => abort
+            if (LastCleanupPerformedAt != null && (DateTime.Now - LastCleanupPerformedAt) < RetentionOptions.MinimumCleanupInterval)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private void PerformCleanup()
+        {
+            LastCleanupPerformedAt = DateTime.Now;
+            if (RetentionOptions.MaxItemAge != null && RetentionOptions.ItemTimestampSelector != null)
+            {
+                var threshold = DateTime.Now - RetentionOptions.MaxItemAge;
+                DeleteWhere(x => RetentionOptions.ItemTimestampSelector(x) <= threshold);
+            }
+        }
+
         private async Task QueueWriteBufferToFile(string row)
         {
             // Store text in memory
@@ -368,6 +403,23 @@ namespace HealthCheck.Core.Util
                     .Replace($@"\{Delimiter}", Delimiter)
                     .Replace(@"\\", @"\")
                 ).ToArray();
+        }
+
+        private void EnsureFileExists()
+        {
+            lock (_fileLock)
+            {
+                if (!File.Exists(FilePath))
+                {
+                    var parentFolder = Directory.GetParent(FilePath).FullName;
+                    if (!Directory.Exists(parentFolder))
+                    {
+                        Directory.CreateDirectory(parentFolder);
+                    }
+                    File.WriteAllText(FilePath, "");
+                    OnFileWrittenEvent?.Invoke();
+                }
+            }
         }
     }
 }
