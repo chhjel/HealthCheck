@@ -244,6 +244,7 @@ export default class OverviewPageComponent extends Vue {
         events.forEach(x => {
             index++;
             x.Timestamp = new Date(x.Timestamp);
+            x.EndTime = new Date(x.EndTime);
         });
         this.siteEvents = events;
     }

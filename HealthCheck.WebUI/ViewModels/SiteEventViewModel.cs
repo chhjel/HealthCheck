@@ -31,6 +31,11 @@ namespace HealthCheck.WebUI.ViewModels
         public DateTime Timestamp { get; set; }
 
         /// <summary>
+        /// End of the event.
+        /// </summary>
+        public DateTime EndTime { get; set; }
+
+        /// <summary>
         /// Id of this type of event.
         /// </summary>
         public string EventTypeId { get; set; }

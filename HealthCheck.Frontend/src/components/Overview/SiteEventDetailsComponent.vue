@@ -11,7 +11,7 @@
             <v-toolbar-title>{{ event.Title }}</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-title class="subheading">
-                {{ getEventDate(event) }}<br />{{ getEventTimeRange(event) }}
+                {{ getEventTimeLine1(event) }}<br />{{ getEventTimeLine2(event) }}
             </v-toolbar-title>
             <!-- <v-btn icon>
                 <v-icon>favorite</v-icon>
@@ -74,19 +74,30 @@ export default class SiteEventDetailsComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
-    getEventDate(event: SiteEventViewModel) : string {
-        let dateFormat = 'dd. MMMM';
-        return DateUtils.FormatDate(event.Timestamp, dateFormat);
+    getEventTimeLine1(event: SiteEventViewModel) : string {
+        if (event.Timestamp.getDate() === event.EndTime.getDate()) {
+            let dateFormat = 'dd. MMMM';
+            return DateUtils.FormatDate(event.Timestamp, dateFormat);
+        } else {
+            let timeFormat = 'HH:mm';
+            let dateFormat = 'dd. MMM';
+            return `${DateUtils.FormatDate(event.Timestamp, `${dateFormat} ${timeFormat}`)} -`;
+        }
     }
 
-    getEventTimeRange(event: SiteEventViewModel) : string {
+    getEventTimeLine2(event: SiteEventViewModel) : string {
         let timeFormat = 'HH:mm';
-        let start = event.Timestamp;
-        let end = this.getEventEndDate(event);
-        if (end == null) {
-            return DateUtils.FormatDate(start, timeFormat);
+        if (event.Timestamp.getDate() === event.EndTime.getDate()) {
+            let start = event.Timestamp;
+            let end = this.getEventEndDate(event);
+            if (end == null) {
+                return DateUtils.FormatDate(start, timeFormat);
+            } else {
+                return `${DateUtils.FormatDate(start, timeFormat)} - ${DateUtils.FormatDate(end, timeFormat)}`;
+            }
         } else {
-            return `${DateUtils.FormatDate(start, timeFormat)} - ${DateUtils.FormatDate(end, timeFormat)}`;
+            let dateFormat = 'dd. MMM';
+            return `${DateUtils.FormatDate(event.EndTime, `${dateFormat} ${timeFormat}`)}`;
         }
     }
     

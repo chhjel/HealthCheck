@@ -24,6 +24,7 @@ namespace HealthCheck.WebUI.Factories
                 Duration = siteEvent.Duration,
                 EventTypeId = siteEvent.EventTypeId,
                 Timestamp = siteEvent.Timestamp,
+                EndTime = siteEvent.Timestamp.AddMinutes(siteEvent.Duration),
                 RelatedLinks = siteEvent.RelatedLinks.Select(x => CreateViewModel(x)).ToList()
             };
             return vm;

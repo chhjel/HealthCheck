@@ -6,6 +6,7 @@ export default interface SiteEventViewModel {
     Severity: SiteEventSeverity;
     SeverityCode: number;
     Timestamp: Date;
+    EndTime: Date;
     EventTypeId: string;
     Title: string;
     Description: string;

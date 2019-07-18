@@ -119,7 +119,9 @@ export default class OverviewPageComponent extends Vue {
     //////////////
     get calendarEvents(): Array<CalendarEvent<SiteEventViewModel>>
     {
-        return this.events.map(x =>
+        // Duplicate events that go across several days
+        let newEvents = new Array<SiteEventViewModel>();
+        let mappedEvents = this.events.map(x =>
         {
             return {
                 id: x.Id,
@@ -133,6 +135,33 @@ export default class OverviewPageComponent extends Vue {
                 duration: x.Duration
             };
         });
+        
+        this.events
+            .filter(x =>  x.Timestamp.getDate() !== x.EndTime.getDate())
+            .forEach(x => {
+                let fromDate = new Date(x.Timestamp);
+                fromDate.setHours(x.Timestamp.getHours() + 24);
+                let fromDay = fromDate.getDate();
+                let toDay = x.EndTime.getDate();
+                
+                let now = new Date();
+                for (let d = new Date(fromDate); d <= x.EndTime; d.setDate(d.getDate() + 1)) {
+                    let date = new Date(d);
+                    mappedEvents.push({
+                        id: x.Id,
+                        title: x.Title,
+                        details: x.Description,
+                        date: this.getCalendarDateFormat(date),
+                        time: this.getCalendarTimeFormat(x.Timestamp),
+                        endTime: this.getEventEndTime(x),
+                        open: false,
+                        data: x,
+                        duration: x.Duration
+                    });
+                }
+            });
+
+        return mappedEvents;
     }
 
     get calendarEventsMap(): any {
@@ -285,7 +314,7 @@ export default class OverviewPageComponent extends Vue {
     font-size: 18px;
     color: #9c8888;
 }
-.v-calendar-weekly__day.v-past > .v-calendar-weekly__day-label:only-child::after,
+/* .v-calendar-weekly__day.v-past > .v-calendar-weekly__day-label:only-child::after,
 .v-calendar-weekly__day.v-past > .v-calendar-weekly__day-label+.v-calendar-weekly__day-month::after {
     content: 'done';
     color: var(--v-success-lighten5);
@@ -314,5 +343,5 @@ export default class OverviewPageComponent extends Vue {
     .v-calendar-weekly__day.v-past > .v-calendar-weekly__day-label+.v-calendar-weekly__day-month::after {
         font-size: 50px;
     }
-}
+} */
 </style>
