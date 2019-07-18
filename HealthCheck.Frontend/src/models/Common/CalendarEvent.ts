@@ -6,4 +6,5 @@ export default interface CalendarEvent<T> {
     time?: string;
     duration?: number;
     open: boolean;
+    dateTime: Date;
 }

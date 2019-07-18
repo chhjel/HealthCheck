@@ -40,7 +40,7 @@
             color="primary" ref="calendar">
             <!-- MONTH VIEW -->
             <template v-slot:day="{ date }">
-                <template v-for="(event, eventIndex) in calendarEventsMapReversed[date]">
+                <template v-for="(event, eventIndex) in calendarEventsMap[date]">
                     <v-menu
                         :key="`month-item-${event.id}-${eventIndex}`"
                         v-model="event.open" full-width offset-x>
@@ -92,6 +92,7 @@ import SiteEventViewModel from '../../models/SiteEvents/SiteEventViewModel';
 import { SiteEventSeverity } from '../../models/SiteEvents/SiteEventSeverity';
 import EventTimelineComponent from '../Overview/EventTimelineComponent.vue';
 import SiteEventDetailsComponent from '../Overview/SiteEventDetailsComponent.vue';
+import LinqUtils from "../../util/LinqUtils";
 
 @Component({
     components: {
@@ -132,7 +133,8 @@ export default class OverviewPageComponent extends Vue {
                 endTime: this.getEventEndTime(x),
                 open: false,
                 data: x,
-                duration: x.Duration
+                duration: x.Duration,
+                dateTime: x.Timestamp
             };
         });
         
@@ -156,7 +158,8 @@ export default class OverviewPageComponent extends Vue {
                         endTime: this.getEventEndTime(x),
                         open: false,
                         data: x,
-                        duration: x.Duration
+                        duration: x.Duration,
+                        dateTime: x.Timestamp
                     });
                 }
             });
@@ -167,17 +170,8 @@ export default class OverviewPageComponent extends Vue {
     get calendarEventsMap(): any {
         const map: any = {}
         this.calendarEvents
-            .sort((a, b) => a.data.Timestamp.getTime() - b.data.Timestamp.getTime())
+            .sort((a, b) => a.dateTime.getTime() - b.dateTime.getTime())
             .forEach(e => (map[e.date] = map[e.date] || []).push(e))
-        return map
-    }
-
-    get calendarEventsMapReversed(): any {
-        const map: any = {};
-        this.calendarEvents
-            .sort((a, b) => a.data.Timestamp.getTime() - b.data.Timestamp.getTime())
-            .reverse()
-            .forEach(e => (map[e.date] = map[e.date] || []).push(e));
         return map
     }
 
