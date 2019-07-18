@@ -23,7 +23,7 @@
                     small>
                     <v-layout pt-3 class="timeline-item" @click="onEventClicked(event)">
                         <div class="mr-4 pt-1 timeline-item-time">
-                            <strong>{{getTimelineItemTimeString(event)}}</strong>
+                            <strong>{{getTimelineItemTimeString(event, group)}}</strong>
                         </div>
                         <v-flex>
                             <strong class="timeline-item-title">{{ event.Title }}</strong>
@@ -41,10 +41,12 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 import SiteEventViewModel from '../../models/SiteEvents/SiteEventViewModel';
 import LinqUtils from "../../util/LinqUtils";
 import { SiteEventSeverity } from "../../models/SiteEvents/SiteEventSeverity";
+import DateUtils from "../../util/DateUtils";
 
 interface TimelineGroup {
     index: number;
     title: string;
+    date: Date;
     events: Array<SiteEventViewModel>;
 }
 
@@ -67,12 +69,17 @@ export default class EventTimelineComponent extends Vue {
     //////////////
     get timelineEventGroups(): Array<TimelineGroup> {
         let index = -1;
-        let sortedEvents = this.events.sort((a, b) => a.Timestamp > b.Timestamp ? -1 : a < b ? 1 : 0);
+        let sortedEvents = this.events;
+        this.duplicateNeededEventsAcrossDays(this.events).forEach(x => sortedEvents.push(x));
+        sortedEvents = sortedEvents.sort((a, b) => a.Timestamp > b.Timestamp ? -1 : a < b ? 1 : 0);
         return LinqUtils.GroupByInto(sortedEvents, (item) => this.createTimelineGroupName(item.Timestamp), (title, items) => {
+            let groupEvents = items.sort((a, b) => a.Timestamp > b.Timestamp ? -1 : a < b ? 1 : 0);
+
             return {
                 index: index++,
                 title: title,
-                events: items.sort((a, b) => a.Timestamp > b.Timestamp ? -1 : a < b ? 1 : 0)
+                date: items[0].Timestamp,
+                events: groupEvents
             };
         });
     }
@@ -80,18 +87,57 @@ export default class EventTimelineComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
-    getTimelineItemTimeString(event: SiteEventViewModel): string {
-        if (event.Duration > 1) {
-            // @ts-ignore
-            let from = `${event.Timestamp.getHours().toString().padZero(2)}:${event.Timestamp.getMinutes().toString().padZero(2)}`;
-            // @ts-ignore
-            let toDate = new Date(event.Timestamp.getTime());
-            toDate.setMinutes(event.Timestamp.getMinutes() + event.Duration);
-            let to = `${toDate.getHours().toString().padZero(2)}:${toDate.getMinutes().toString().padZero(2)}`;
+    duplicateNeededEventsAcrossDays(items: Array<SiteEventViewModel>): Array<SiteEventViewModel> {
+        let dupes = new Array<SiteEventViewModel>();
+        items.filter(item => item.Timestamp.getDate() != item.EndTime.getDate())
+            .forEach(x => {
+                let fromDate = new Date(x.Timestamp);
+                fromDate.setHours(x.Timestamp.getHours() + 24);
+                let fromDay = fromDate.getDate();
+                let toDay = x.EndTime.getDate();
+                
+                let now = new Date();
+                for (let d = new Date(fromDate); d <= x.EndTime; d.setDate(d.getDate() + 1)) {
+                    let date = new Date(d);
+                    let dupe = Object.assign({}, x);
+                    (<any>dupe).ActualStart = x.Timestamp;
+                    dupe.Timestamp = date;
+                    dupes.push(dupe);
+                }
+            });
+        return dupes;
+    }
+
+    getTimelineItemTimeString(event: SiteEventViewModel, group: TimelineGroup): string {
+        let timeFormat = 'HH:mm';
+        let dateFormat = 'dd. MMM';
+
+        let timestamp = <Date>(<any>event).ActualStart || event.Timestamp;
+        console.log(timestamp);
+        // Across days
+        if (timestamp.getDate() != event.EndTime.getDate()) {
+            let date = DateUtils.FormatDate(timestamp, dateFormat);
+            let from = DateUtils.FormatDate(timestamp, timeFormat);
+            let to = DateUtils.FormatDate(event.EndTime, timeFormat);
+
+            if (group.date.getDate() == timestamp.getDate()) {
+                return `${from} →`;
+            }
+            else if (group.date.getDate() == event.EndTime.getDate()) {
+                return `→ ${to}`;
+            }
+            else {
+                return `All day`;
+            }
+        }
+        // More than an instant
+        else if (event.Duration > 1) {
+            let from = DateUtils.FormatDate(event.Timestamp, timeFormat);
+            let to = DateUtils.FormatDate(event.EndTime, timeFormat);
             return `${from} - ${to}`;
+        // A single instant
         } else {
-            // @ts-ignore
-            return `${event.Timestamp.getHours().toString().padZero(2)}:${event.Timestamp.getMinutes().toString().padZero(2)}`;
+            return DateUtils.FormatDate(event.Timestamp, timeFormat);
         }
     }
 
@@ -138,6 +184,7 @@ export default class EventTimelineComponent extends Vue {
 }
 .timeline-item-time {
     font-size: 18px;
+    min-width: 110px;
 }
 .timeline-item-title {
     font-size: 18px;

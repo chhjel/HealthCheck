@@ -134,7 +134,7 @@ export default class OverviewPageComponent extends Vue {
         fromDate.setHours(23);
         fromDate.setMinutes(59);
         
-        return this.siteEvents.filter(x => !this.isEventCurrent(x) && x.Timestamp >= fromDate);
+        return this.siteEvents.filter(x => x.Timestamp >= fromDate); //!this.isEventCurrent(x) && 
     }
 
     get currentEvents(): Array<SiteEventViewModel> {
