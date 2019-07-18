@@ -1,5 +1,17 @@
 export default class DateUtils
 {
+    static IsDatePastDay(date: Date, day: Date): boolean {
+        return date.getMonth()     > day.getMonth()
+            || date.getDate()      > day.getDate()
+            || date.getFullYear()  > day.getFullYear();
+    }
+
+    static DatesAreOnSameDay(dateA: Date, dateB: Date): boolean {
+        return dateA.getMonth()    == dateB.getMonth()
+            && dateA.getDate()     == dateB.getDate()
+            && dateA.getFullYear() == dateB.getFullYear();
+    }
+
     static getVuetifyTimeFormat(date: Date): string {
         //@ts-ignore
         return `${(date.getHours().toString().padZero(2))}:${date.getMinutes().toString().padZero(2)}`;

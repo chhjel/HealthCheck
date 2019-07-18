@@ -56,6 +56,9 @@ interface TimelineGroup {
 export default class EventTimelineComponent extends Vue {
     @Prop({ required: true })
     events!: Array<SiteEventViewModel>;
+
+    @Prop()
+    fromDate!: Date | null;
     
     //////////////////
     //  LIFECYCLE  //
@@ -67,11 +70,27 @@ export default class EventTimelineComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get thresholdFromDate(): Date
+    {
+        if (this.fromDate != null) {
+            return this.fromDate;
+        } else {
+            let date = new Date();
+            date.setDate(date.getDate() - 3);
+            date.setHours(23);
+            date.setMinutes(59);
+            return date;
+        }
+    }
+
     get timelineEventGroups(): Array<TimelineGroup> {
         let index = -1;
         let sortedEvents = this.events;
         this.duplicateNeededEventsAcrossDays(this.events).forEach(x => sortedEvents.push(x));
-        sortedEvents = sortedEvents.sort((a, b) => a.Timestamp > b.Timestamp ? -1 : a < b ? 1 : 0);
+        sortedEvents = sortedEvents
+            .sort((a, b) => a.Timestamp > b.Timestamp ? -1 : a < b ? 1 : 0)
+            .filter(x => x.Timestamp.getTime() >= this.thresholdFromDate.getTime());
+
         return LinqUtils.GroupByInto(sortedEvents, (item) => this.createTimelineGroupName(item.Timestamp), (title, items) => {
             let groupEvents = items.sort((a, b) => a.Timestamp > b.Timestamp ? -1 : a < b ? 1 : 0);
 
@@ -96,8 +115,14 @@ export default class EventTimelineComponent extends Vue {
                 let fromDay = fromDate.getDate();
                 let toDay = x.EndTime.getDate();
                 
+                let toDate = new Date(x.EndTime);
+                toDate.setHours(toDate.getHours() + 24);
                 let now = new Date();
-                for (let d = new Date(fromDate); d <= x.EndTime; d.setDate(d.getDate() + 1)) {
+                for (let d = new Date(fromDate); d <= toDate; d.setDate(d.getDate() + 1)) {
+                    if (DateUtils.IsDatePastDay(d, x.EndTime)) {
+                        break;
+                    }
+
                     let date = new Date(d);
                     let dupe = Object.assign({}, x);
                     (<any>dupe).ActualStart = x.Timestamp;
@@ -113,7 +138,7 @@ export default class EventTimelineComponent extends Vue {
         let dateFormat = 'dd. MMM';
 
         let timestamp = <Date>(<any>event).ActualStart || event.Timestamp;
-        console.log(timestamp);
+        
         // Across days
         if (timestamp.getDate() != event.EndTime.getDate()) {
             let date = DateUtils.FormatDate(timestamp, dateFormat);

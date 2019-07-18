@@ -93,6 +93,7 @@ import { SiteEventSeverity } from '../../models/SiteEvents/SiteEventSeverity';
 import EventTimelineComponent from '../Overview/EventTimelineComponent.vue';
 import SiteEventDetailsComponent from '../Overview/SiteEventDetailsComponent.vue';
 import LinqUtils from "../../util/LinqUtils";
+import DateUtils from "../../util/DateUtils";
 
 @Component({
     components: {
@@ -146,8 +147,14 @@ export default class OverviewPageComponent extends Vue {
                 let fromDay = fromDate.getDate();
                 let toDay = x.EndTime.getDate();
                 
+                let toDate = new Date(x.EndTime);
+                toDate.setHours(toDate.getHours() + 24);
                 let now = new Date();
-                for (let d = new Date(fromDate); d <= x.EndTime; d.setDate(d.getDate() + 1)) {
+                for (let d = new Date(fromDate); d <= toDate; d.setDate(d.getDate() + 1)) {
+                    if (DateUtils.IsDatePastDay(d, x.EndTime)) {
+                        break;
+                    }
+
                     let date = new Date(d);
                     mappedEvents.push({
                         id: x.Id,
@@ -188,10 +195,14 @@ export default class OverviewPageComponent extends Vue {
     //////////////
     allowDatepickerDate(dateStr: string): boolean {
         let date = new Date(dateStr);
-        return this.calendarEvents.map(x => x.data.Timestamp).some(x => 
-            x.getMonth() == date.getMonth()
-            && x.getDate() == date.getDate()
-            && x.getFullYear() == date.getFullYear());
+        return this.calendarEvents
+            .some(x => {
+                let start = x.data.Timestamp;
+                let end = x.data.EndTime;
+                return DateUtils.DatesAreOnSameDay(date, start)
+                    || DateUtils.DatesAreOnSameDay(date, end)
+                    || date.getTime() > start.getTime() && date.getTime() < end.getTime();
+            });
     }
 
     getCalendarDateTimeFormat(date: Date): string {
