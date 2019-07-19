@@ -36,7 +36,7 @@ namespace HealthCheck.Core.Services
         public async Task<List<TestResult>> ExecuteTests(
             TestDiscoveryService testDiscoveryService,
             Func<TestDefinition, bool> testFilter,
-            SiteEventService siteEventService = null,
+            ISiteEventService siteEventService = null,
             IAuditEventStorage auditEventService = null,
             string auditUserId = "0",
             string auditUsername = "System")

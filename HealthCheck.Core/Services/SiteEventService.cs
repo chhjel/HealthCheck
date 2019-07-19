@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 namespace HealthCheck.Core.Services
 {
     /// <summary>
-    /// Manages <see cref="SiteEvent"/>s.
+    /// Default implementation for managing <see cref="SiteEvent"/>s.
     /// </summary>
-    public class SiteEventService
+    public class SiteEventService : ISiteEventService
     {
         /// <summary>
         /// Default options for merging of close events.
@@ -27,7 +27,7 @@ namespace HealthCheck.Core.Services
         public SiteEventService(ISiteEventStorage storage, SiteEventMergeOptions defaultMergeOptions = null)
         {
             Storage = storage;
-            DefaultMergeOptions = defaultMergeOptions 
+            DefaultMergeOptions = defaultMergeOptions
                 ?? new SiteEventMergeOptions(
                     allowEventMerge: true,
                     maxMinutesSinceLastEventEnd: 15,

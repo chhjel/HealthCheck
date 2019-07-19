@@ -80,7 +80,7 @@ namespace HealthCheck.WebUI.Util
         /// Get viewmodel for test sets data.
         /// </summary>
         public async Task<List<SiteEventViewModel>> GetSiteEventsViewModel(
-            Maybe<TAccessRole> accessRoles, SiteEventService service,
+            Maybe<TAccessRole> accessRoles, ISiteEventService service,
             DateTime? from = null, DateTime? to = null)
         {
             if (!CanShowOverviewPageTo(accessRoles, service))
@@ -152,7 +152,7 @@ namespace HealthCheck.WebUI.Util
         /// <exception cref="ConfigValidationException"></exception>
         public string CreateViewHtml(Maybe<TAccessRole> accessRoles,
             FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions,
-            SiteEventService siteEventService, IAuditEventStorage auditEventService)
+            ISiteEventService siteEventService, IAuditEventStorage auditEventService)
         {
             CheckPageOptions(accessRoles, frontEndOptions, pageOptions, siteEventService, auditEventService);
             var javascriptUrlTags = pageOptions.JavaScriptUrls
@@ -195,7 +195,7 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public bool HasAccessToAnyContent(
             Maybe<TAccessRole> accessRoles,
-            SiteEventService siteEventService,
+            ISiteEventService siteEventService,
             IAuditEventStorage auditEventService)
             => CanShowTestsPageTo(accessRoles)
             || CanShowOverviewPageTo(accessRoles, siteEventService)
@@ -204,7 +204,7 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Check if the given roles has access to the overview page.
         /// </summary>
-        public bool CanShowOverviewPageTo(Maybe<TAccessRole> accessRoles, SiteEventService siteEventService)
+        public bool CanShowOverviewPageTo(Maybe<TAccessRole> accessRoles, ISiteEventService siteEventService)
             => siteEventService != null && CanShowPageTo(accessRoles, AccessOptions.OverviewPageAccess);
 
         /// <summary>
@@ -220,7 +220,7 @@ namespace HealthCheck.WebUI.Util
             => auditEventService != null && CanShowPageTo(accessRoles, AccessOptions.AuditLogAccess, defaultValue: false);
 
         private void CheckPageOptions(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions,
-            SiteEventService siteEventService, IAuditEventStorage auditEventService)
+            ISiteEventService siteEventService, IAuditEventStorage auditEventService)
         {
             var deniedEndpoint = "0x90";
             if (CanShowOverviewPageTo(accessRoles, siteEventService))

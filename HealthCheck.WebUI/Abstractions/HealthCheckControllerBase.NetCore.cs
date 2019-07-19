@@ -28,7 +28,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Must be set for any site statuses to be stored and returned.
         /// </summary>
-        protected SiteEventService SiteEventService { get; set; }
+        protected ISiteEventService SiteEventService { get; set; }
 
         /// <summary>
         /// Must be set for any site audits to be logged.

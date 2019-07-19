@@ -23,7 +23,7 @@ namespace HealthCheck.DevTest.Controllers
     public class DevController : HealthCheckControllerBase<RuntimeTestAccessRole>
     {
         private const string EndpointBase = "/dev";
-        private static SiteEventService _siteEventService;
+        private static ISiteEventService _siteEventService;
         private static IAuditEventStorage _auditEventService;
 
         #region Init
@@ -46,7 +46,7 @@ namespace HealthCheck.DevTest.Controllers
             }
         }
 
-        private SiteEventService CreateSiteEventService()
+        private ISiteEventService CreateSiteEventService()
             => new SiteEventService(new FlatFileSiteEventStorage(HostingEnvironment.MapPath("~/App_Data/SiteEventStorage.json"),
                 maxEventAge: TimeSpan.FromDays(5), delayFirstCleanup: false));
 
