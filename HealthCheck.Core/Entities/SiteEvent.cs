@@ -52,6 +52,7 @@ namespace HealthCheck.Core.Entities
 
         /// <summary>
         /// Details for developers.
+        /// <para>Will replace any previous details on event merge if not null.</para>
         /// </summary>
         public string DeveloperDetails { get; set; }
 

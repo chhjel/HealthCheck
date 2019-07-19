@@ -92,7 +92,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
                 return TestResult.CreateWarning("Some warning here")
                     .SetSiteEvent(new SiteEvent(SiteEventSeverity.Warning,
                     "IntegrationXLatency", "Increased latency with X", "Integration with X seems to be a bit slower than usual.",
-                    duration: 1, developerDetails: ex.ToString()));
+                    duration: 1, developerDetails: $"Exception at {DateTime.Now.ToLongTimeString()}:\n{ex.ToString()}"));
             }
         }
 

@@ -52,7 +52,7 @@
                         <template v-slot:header>
                         <div>Developer details</div>
                         </template>
-                        <code class="pa-4">{{ event.DeveloperDetails }}</code>
+                        <code class="pa-4 dev-details-contents">{{ event.DeveloperDetails }}</code>
                     </v-expansion-panel-content>
                 </v-expansion-panel>
             </span>
@@ -178,4 +178,8 @@ export default class SiteEventDetailsComponent extends Vue {
 </script>
 
 <style scoped>
+.dev-details-contents::before,
+.dev-details-contents::after {
+    content:'';
+}
 </style>

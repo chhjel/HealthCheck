@@ -58,11 +58,12 @@ namespace HealthCheck.Core.Services.Models
         /// The default method that is called when merging events.
         /// Sets the old event duration to the highest of either (old.time + old.duration + new.duration) or the new events timestamp.
         /// <para>Duration will not be increased past the current time, and duration will not be decreased.</para>
+        /// <para>Also updates developer details if not null.</para>
         /// </summary>
-        public static void DefaultMergeLogic(SiteEvent oldEvent, SiteEvent newEvent, bool allowExtendPastCurrentTime = false)
+        public static void DefaultMergeLogic(SiteEvent existingEvent, SiteEvent newEvent, bool allowExtendPastCurrentTime = false)
         {
             // Minutes until new event start
-            var minutesToAddUntilNewEventStart = (int)(newEvent.Timestamp - oldEvent.Timestamp).TotalMinutes;
+            var minutesToAddUntilNewEventStart = (int)(newEvent.Timestamp - existingEvent.Timestamp).TotalMinutes;
             // Minutes until extended old event
             var minutesToAddToExtendedOldEvent = newEvent.Duration;
 
@@ -72,17 +73,21 @@ namespace HealthCheck.Core.Services.Models
             // Limit to minutes until current time.
             if (!allowExtendPastCurrentTime)
             {
-                var minutesUntilCurrentTime = (int)(DateTime.Now - oldEvent.Timestamp.AddMinutes(oldEvent.Duration)).TotalMinutes;
+                var minutesUntilCurrentTime = (int)(DateTime.Now - existingEvent.Timestamp.AddMinutes(existingEvent.Duration)).TotalMinutes;
                 minutesToAdd = Math.Min(minutesUntilCurrentTime, minutesToAdd);
             }
 
-            // Do not decrease duration
-            if (minutesToAdd <= 0)
+            // Extend duration if suitable
+            if (minutesToAdd > 0)
             {
-                return;
+                existingEvent.Duration += minutesToAdd;
             }
 
-            oldEvent.Duration += minutesToAdd;
+            // Update developer details
+            if (newEvent.DeveloperDetails != null)
+            {
+                existingEvent.DeveloperDetails = newEvent.DeveloperDetails;
+            }
         }
     }
 }

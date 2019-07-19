@@ -40,7 +40,7 @@ namespace HealthCheck.Core.Services
         /// Store a <see cref="SiteEvent"/> object.
         /// <para>Merges with the latest event with the same <see cref="SiteEvent.EventTypeId"/> if suitable.</para>
         /// </summary>
-        public async Task StoreEvent(SiteEvent siteEvent, SiteEventMergeOptions forcedMergeOptions = null)
+        public virtual async Task StoreEvent(SiteEvent siteEvent, SiteEventMergeOptions forcedMergeOptions = null)
         {
             var mergeOptions = forcedMergeOptions ?? DefaultMergeOptions;
             var shouldUpdate = false;
@@ -81,7 +81,7 @@ namespace HealthCheck.Core.Services
         /// <summary>
         /// Mark the last event with the given <paramref name="eventTypeId"/> as resolved with the given message.
         /// </summary>
-        public async Task<bool> MarkEventAsResolved(string eventTypeId, string resolveMessage)
+        public virtual async Task<bool> MarkEventAsResolved(string eventTypeId, string resolveMessage)
         {
             var lastEvent = await Storage.GetLastEventOfType(eventTypeId);
             if (lastEvent == null || lastEvent.Resolved)
@@ -99,7 +99,7 @@ namespace HealthCheck.Core.Services
         /// <summary>
         /// Get all stored <see cref="SiteEvent"/>s objects with a <see cref="SiteEvent.Timestamp"/> within the given threshold.
         /// </summary>
-        public async Task<List<SiteEvent>> GetEvents(DateTime from, DateTime to)
+        public virtual async Task<List<SiteEvent>> GetEvents(DateTime from, DateTime to)
             => await Storage.GetEvents(from, to);
     }
 }
