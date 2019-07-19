@@ -91,6 +91,23 @@ namespace HealthCheck.Core.Entities
         }
 
         /// <summary>
+        /// Create a new <see cref="SiteEvent"/> that is resolved.
+        /// </summary>
+        /// <param name="eventTypeId">Custom id of this type of event.</param>
+        /// <param name="resolvedMessage">Resolved message.</param>
+        public SiteEvent(string eventTypeId, string resolvedMessage)
+        {
+            EventTypeId = eventTypeId;
+            Resolved = true;
+            ResolvedMessage = resolvedMessage;
+        }
+
+        /// <summary>
+        /// Create a new <see cref="SiteEvent"/> without any values set.
+        /// </summary>
+        public SiteEvent() {}
+
+        /// <summary>
         /// Add an url related to this event.
         /// </summary>
         public SiteEvent AddRelatedLink(string title, string url)
@@ -135,5 +152,10 @@ namespace HealthCheck.Core.Entities
             AllowMerge = other.AllowMerge;
             RelatedLinks = other.RelatedLinks;
         }
+
+        /// <summary>
+        /// Name and resolved status of the event.
+        /// </summary>
+        public override string ToString() => $"{Title}{(Resolved ? $" [Resolved]" : "")}";
     }
 }

@@ -87,6 +87,20 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
                 .SetSiteEvent(new SiteEvent(SiteEventSeverity.Warning, "IntegrationXLatency", "Increased latency with X", "Integration with X seems to be a bit slower than usual.", duration: 1));
         }
 
+        [RuntimeTest(Category = RuntimeTestConstants.Categories.ScheduledHealthCheck, AllowManualExecution = false)]
+        public TestResult RandomlyResolvesIntegrationXLatency()
+        {
+            var random = new Random();
+            if (random.Next(100) > 80)
+            {
+                return TestResult.CreateSuccess("OK")
+                    .SetSiteEvent(new SiteEvent("IntegrationXLatency", "Problem now resolved!"));
+            } else
+            {
+                return TestResult.CreateWarning("Not resolved yet");
+            }
+        }
+
         [RuntimeTest(Category = RuntimeTestConstants.Categories.ScheduledHealthCheck)]
         public TestResult TestOfAHealthCheckError(bool someBool = true, string someStringParam = "test string")
         {

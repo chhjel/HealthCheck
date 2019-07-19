@@ -79,7 +79,7 @@ namespace HealthCheck.Core.Services
         public async Task<bool> MarkEventAsResolved(string eventTypeId, string resolveMessage)
         {
             var lastEvent = await Storage.GetLastEventOfType(eventTypeId);
-            if (lastEvent == null)
+            if (lastEvent == null || lastEvent.Resolved)
             {
                 return false;
             }

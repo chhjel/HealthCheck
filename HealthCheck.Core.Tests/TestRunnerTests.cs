@@ -23,21 +23,46 @@ namespace HealthCheck.Core.Services
             Assert.Contains("CategoryA", results.Single().Test.Categories);
         }
 
-        //[Fact]
-        //public async Task ExecuteTests_WithEventService_CanResolveLast()
-        //{
-        //    var discoverer = new TestDiscoveryService()
-        //    {
-        //        AssemblyContainingTests = GetType().Assembly
-        //    };
-        //    var runner = new TestRunnerService();
-        //    var eventService = new SiteEventService(new MemorySiteEventStorage());
-        //    var results = await runner.ExecuteTests(discoverer, (test) => true, siteEventService: eventService);
-        //    Assert.Contains(results, result => result.SiteEvent?.Title == "EventA");
+        [Fact]
+        public async Task ExecuteTests_WithEventService_CanResolveLastMatchingEvent()
+        {
+            var discoverer = new TestDiscoveryService()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+            var runner = new TestRunnerService();
+            var eventService = new SiteEventService(new MemorySiteEventStorage());
 
-        //    var events = await eventService.GetEvents(DateTime.MinValue, DateTime.MaxValue);
-        //    Assert.Contains(events, e => e.Title == "EventA" && e.Resolved);
-        //}
+            var eventTypeId = "DCategoryA-eventIdA";
+            await eventService.StoreEvent(new SiteEvent(Enums.SiteEventSeverity.Error, eventTypeId, "First event", "Some desc A")
+            {
+                Timestamp = DateTime.Now.AddDays(-2)
+            });
+            await eventService.StoreEvent(new SiteEvent(Enums.SiteEventSeverity.Error, eventTypeId, "Last event", "Some desc B")
+            {
+                Timestamp = DateTime.Now.AddDays(-1)
+            });
+            await eventService.StoreEvent(new SiteEvent(Enums.SiteEventSeverity.Error, "Some other event id", "Other event", "Some desc C")
+            {
+                Timestamp = DateTime.Now.AddHours(-2)
+            });
+
+            var results = await runner.ExecuteTests(discoverer, (test) => test.Categories.Contains("DCategoryA"), siteEventService: eventService);
+            Assert.Contains(results, result => result.SiteEvent?.EventTypeId == eventTypeId);
+
+            var events = await eventService.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            Assert.Equal(3, events.Count);
+
+            var firstEvent = events.First(x => x.Title == "First event");
+            Assert.False(firstEvent.Resolved);
+            Assert.Null(firstEvent.ResolvedMessage);
+            Assert.Equal(eventTypeId, firstEvent.EventTypeId);
+
+            var lastEvent = events.First(x => x.Title == "Last event");
+            Assert.True(lastEvent.Resolved);
+            Assert.Equal("Resolved message!", lastEvent.ResolvedMessage);
+            Assert.Equal(eventTypeId, lastEvent.EventTypeId);
+        }
 
         [Fact]
         public async Task ExecuteTests_WithEventService_StoresEventResultsInService()
@@ -210,6 +235,17 @@ namespace HealthCheck.Core.Services
             public TestResult TestWithoutDefaultValues(string text, DateTime date)
             {
                 return new TestResult() { Tag = new object[] { text, date } };
+            }
+        }
+
+        [RuntimeTestClass(Id = "TestRunnerTestsSetD", Description = "Some test set D", Name = "Dev test set D")]
+        public class TestClassD
+        {
+            [RuntimeTest(Category = "DCategoryA")]
+            public TestResult TestThatResolvesEvent()
+            {
+                return TestResult.CreateSuccess("Ok")
+                    .SetSiteEvent(new SiteEvent("DCategoryA-eventIdA", "Resolved message!"));
             }
         }
     }

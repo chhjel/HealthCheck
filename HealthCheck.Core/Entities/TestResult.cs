@@ -187,5 +187,10 @@ namespace HealthCheck.Core.Entities
             return this;
         }
         #endregion
+
+        /// <summary>
+        /// Name and severity of the result.
+        /// </summary>
+        public override string ToString() => $"[{Status.ToString()}] {Message}";
     }
 }
