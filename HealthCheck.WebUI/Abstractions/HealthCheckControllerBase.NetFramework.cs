@@ -69,7 +69,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// Information about the current request. Is only set after BeginExecute has been called for the request.
         /// <para>Value equals what you return from GetRequestInformation.</para>
         /// </summary>
-        protected RequestInformation<TAccessRole> CurrentRequestInformation { get; private set; }
+        protected RequestInformation<TAccessRole> CurrentRequestInformation { get; set; }
 
         private readonly HealthCheckControllerHelper<TAccessRole> Helper = new HealthCheckControllerHelper<TAccessRole>();
 

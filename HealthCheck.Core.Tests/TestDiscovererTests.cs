@@ -232,7 +232,6 @@ namespace HealthCheck.Core.Services
             }
         }
 
-
         [RuntimeTestClass(Id = "TestSetId2", Description = "Some test set #2", Name = "Dev test set #2", DefaultCategory = "TestSetId2Category")]
         public class TestClass2
         {
