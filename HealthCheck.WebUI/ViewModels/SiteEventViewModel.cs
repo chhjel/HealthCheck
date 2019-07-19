@@ -51,6 +51,21 @@ namespace HealthCheck.WebUI.ViewModels
         public string Description { get; set; }
 
         /// <summary>
+        /// Event duration in minutes.
+        /// </summary>
+        public int Duration { get; set; }
+
+        /// <summary>
+        /// Any urls to related things.
+        /// </summary>
+        public List<HyperLinkViewModel> RelatedLinks { get; set; }
+
+        /// <summary>
+        /// Details for developers.
+        /// </summary>
+        public string DeveloperDetails { get; set; }
+
+        /// <summary>
         /// True when the event is resolved.
         /// </summary>
         public bool Resolved { get; set; }
@@ -64,15 +79,5 @@ namespace HealthCheck.WebUI.ViewModels
         /// Resolved at timestamp.
         /// </summary>
         public DateTime? ResolvedAt { get; set; }
-
-        /// <summary>
-        /// Event duration in minutes.
-        /// </summary>
-        public int Duration { get; set; }
-
-        /// <summary>
-        /// Any urls to related things.
-        /// </summary>
-        public List<HyperLinkViewModel> RelatedLinks { get; set; }
     }
 }

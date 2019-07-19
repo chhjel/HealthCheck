@@ -83,8 +83,17 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         [RuntimeTest(Category = RuntimeTestConstants.Categories.ScheduledHealthCheck, AllowManualExecution = false)]
         public TestResult TestOfAHealthCheckWarning()
         {
-            return TestResult.CreateWarning("Some warning here")
-                .SetSiteEvent(new SiteEvent(SiteEventSeverity.Warning, "IntegrationXLatency", "Increased latency with X", "Integration with X seems to be a bit slower than usual.", duration: 1));
+            try
+            {
+                int.Parse("something unparsable");
+                throw new NotImplementedException();
+            } catch(Exception ex)
+            {
+                return TestResult.CreateWarning("Some warning here")
+                    .SetSiteEvent(new SiteEvent(SiteEventSeverity.Warning,
+                    "IntegrationXLatency", "Increased latency with X", "Integration with X seems to be a bit slower than usual.",
+                    duration: 1, developerDetails: ex.ToString()));
+            }
         }
 
         [RuntimeTest(Category = RuntimeTestConstants.Categories.ScheduledHealthCheck, AllowManualExecution = false)]

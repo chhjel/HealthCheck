@@ -41,6 +41,21 @@ namespace HealthCheck.Core.Entities
         public string Description { get; set; }
 
         /// <summary>
+        /// Event duration in minutes.
+        /// </summary>
+        public int Duration { get; set; }
+
+        /// <summary>
+        /// Any urls to related things.
+        /// </summary>
+        public List<HyperLink> RelatedLinks { get; set; } = new List<HyperLink>();
+
+        /// <summary>
+        /// Details for developers.
+        /// </summary>
+        public string DeveloperDetails { get; set; }
+
+        /// <summary>
         /// True when the event is resolved.
         /// </summary>
         public bool Resolved { get; set; }
@@ -56,20 +71,10 @@ namespace HealthCheck.Core.Entities
         public DateTime? ResolvedAt { get; set; }
 
         /// <summary>
-        /// Event duration in minutes.
-        /// </summary>
-        public int Duration { get; set; }
-
-        /// <summary>
         /// Allow merging this event with previous ones of the same type if within duration threshold.
         /// <para>Defaults to true.</para>
         /// </summary>
         public bool AllowMerge { get; set; } = true;
-
-        /// <summary>
-        /// Any urls to related things.
-        /// </summary>
-        public List<HyperLink> RelatedLinks { get; set; } = new List<HyperLink>();
 
         /// <summary>
         /// Create a new <see cref="SiteEvent"/>.
@@ -79,7 +84,8 @@ namespace HealthCheck.Core.Entities
         /// <param name="title">Title of the event.</param>
         /// <param name="description">Description of the event.</param>
         /// <param name="duration">Duration of event in minutes.</param>
-        public SiteEvent(SiteEventSeverity severity, string eventTypeId, string title, string description, int duration = 1)
+        /// <param name="developerDetails">Extra details for developers.</param>
+        public SiteEvent(SiteEventSeverity severity, string eventTypeId, string title, string description, int duration = 1, string developerDetails = null)
         {
             Id = Guid.NewGuid();
             Severity = severity;
@@ -88,6 +94,7 @@ namespace HealthCheck.Core.Entities
             Title = title;
             Description = description;
             Duration = duration;
+            DeveloperDetails = developerDetails;
         }
 
         /// <summary>

@@ -43,6 +43,18 @@
                     This is a {{ event.Severity.toString().toLowerCase() }}-level event.<br />
                     EventTypeId: {{ event.EventTypeId }}
                 </div>
+
+                <!-- DEVELOPER DETAILS -->
+                <v-expansion-panel class="mt-4"
+                    v-if="event.DeveloperDetails != null && event.DeveloperDetails.length > 0"
+                    v-model="developerDetailsExpandedState">
+                    <v-expansion-panel-content>
+                        <template v-slot:header>
+                        <div>Developer details</div>
+                        </template>
+                        <code class="pa-4">{{ event.DeveloperDetails }}</code>
+                    </v-expansion-panel-content>
+                </v-expansion-panel>
             </span>
         </v-card-title>
         <v-card-actions>
@@ -64,6 +76,8 @@ import DateUtils from "../../util/DateUtils";
 export default class SiteEventDetailsComponent extends Vue {
     @Prop()
     event!: SiteEventViewModel;
+
+    developerDetailsExpandedState: number = -1;
 
     //////////////////
     //  LIFECYCLE  //

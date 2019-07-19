@@ -12,7 +12,7 @@ namespace HealthCheck.WebUI.Factories
         /// <summary>
         /// Create a <see cref="SiteEventViewModel"/> from the given <see cref="SiteEvent"/>.
         /// </summary>
-        public SiteEventViewModel CreateViewModel(SiteEvent siteEvent)
+        public SiteEventViewModel CreateViewModel(SiteEvent siteEvent, bool includeDeveloperDetails)
         {
             var vm = new SiteEventViewModel()
             {
@@ -28,7 +28,8 @@ namespace HealthCheck.WebUI.Factories
                 RelatedLinks = siteEvent.RelatedLinks.Select(x => CreateViewModel(x)).ToList(),
                 Resolved = siteEvent.Resolved,
                 ResolvedMessage = siteEvent.ResolvedMessage,
-                ResolvedAt = siteEvent.ResolvedAt
+                ResolvedAt = siteEvent.ResolvedAt,
+                DeveloperDetails = (includeDeveloperDetails) ? siteEvent.DeveloperDetails : null
             };
             return vm;
         }

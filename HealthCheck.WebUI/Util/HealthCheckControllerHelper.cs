@@ -88,10 +88,11 @@ namespace HealthCheck.WebUI.Util
                 return new List<SiteEventViewModel>();
             }
 
+            var includeDeveloperDetails = CanShowPageTo(accessRoles, AccessOptions.SiteEventDeveloperDetailsAccess, false);
             from = from ?? DateTime.Now.AddDays(-30);
             to = to ?? DateTime.Now;
             var viewModel = (await service.GetEvents(from.Value, to.Value))
-                .Select(x => SiteEventViewModelsFactory.CreateViewModel(x))
+                .Select(x => SiteEventViewModelsFactory.CreateViewModel(x, includeDeveloperDetails))
                 .ToList();
             return viewModel;
         }

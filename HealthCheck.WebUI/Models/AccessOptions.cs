@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Util;
+﻿using HealthCheck.Core.Entities;
+using HealthCheck.Core.Util;
 
 namespace HealthCheck.WebUI.Models
 {
@@ -30,6 +31,12 @@ namespace HealthCheck.WebUI.Models
         /// <para>If null anyone can access it by default.</para>
         /// </summary>
         public Maybe<TAccessRole> InvalidTestsAccess { get; set; }
+
+        /// <summary>
+        /// Roles with access to view developer details on <see cref="SiteEvent"/>.
+        /// <para>If null nobody can access it by default.</para>
+        /// </summary>
+        public Maybe<TAccessRole> SiteEventDeveloperDetailsAccess { get; set; }
 
         /// <summary>
         /// Redirect url if the request does not have access to any of the content.
