@@ -98,6 +98,15 @@ namespace HealthCheck.Core.Entities
         public static TestResult CreateError(string message, Exception exception = null)
             => Create(TestResultStatus.Error, message, exception);
 
+        /// <summary>
+        /// Create a successfull result with a resolved site event, resolving the previous site event with the given <paramref name="eventTypeId"/>.
+        /// </summary>
+        /// <param name="testResultMessage">Success message in test result.</param>
+        /// <param name="eventTypeId">Event type id of previous site event to resolve.</param>
+        /// <param name="resolvedMessage">Resolved message.</param>
+        public static TestResult CreateResolvedSiteEvent(string testResultMessage, string eventTypeId, string resolvedMessage)
+            => Create(TestResultStatus.Success, testResultMessage).SetResolvedSiteEvent(eventTypeId, resolvedMessage);
+
         #region Method-chaining
         /// <summary>
         /// Include a serialized version of the given object in the result data.
@@ -184,6 +193,17 @@ namespace HealthCheck.Core.Entities
         public TestResult SetSiteEvent(SiteEvent ev)
         {
             SiteEvent = ev;
+            return this;
+        }
+
+        /// <summary>
+        /// Include a resolved site event, resolving the previous site event with the given <paramref name="eventTypeId"/>.
+        /// </summary>
+        /// <param name="eventTypeId">Event type id of previous site event to resolve.</param>
+        /// <param name="resolvedMessage">Resolved message.</param>
+        public TestResult SetResolvedSiteEvent(string eventTypeId, string resolvedMessage)
+        {
+            SiteEvent = new SiteEvent(eventTypeId, resolvedMessage);
             return this;
         }
         #endregion

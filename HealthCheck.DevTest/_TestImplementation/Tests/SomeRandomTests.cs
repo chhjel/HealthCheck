@@ -93,8 +93,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             var random = new Random();
             if (random.Next(100) > 80)
             {
-                return TestResult.CreateSuccess("OK")
-                    .SetSiteEvent(new SiteEvent("IntegrationXLatency", "Problem now resolved!"));
+                return TestResult.CreateResolvedSiteEvent("OK", "IntegrationXLatency", "Problem now resolved!");
             } else
             {
                 return TestResult.CreateWarning("Not resolved yet");
