@@ -147,6 +147,10 @@ export default class OverviewPageComponent extends Vue {
     }
 
     isEventCurrent(event: SiteEventViewModel): boolean {
+        if (event.Resolved) {
+            return false;
+        }
+
         let thresholdDate = new Date();
         thresholdDate.setMinutes(thresholdDate.getMinutes() - this.options.CurrentEventBufferMinutes);
         
@@ -245,6 +249,7 @@ export default class OverviewPageComponent extends Vue {
             index++;
             x.Timestamp = new Date(x.Timestamp);
             x.EndTime = new Date(x.EndTime);
+            x.ResolvedAt = (x.ResolvedAt != null) ? new Date(x.ResolvedAt) : null;
         });
         this.siteEvents = events;
     }

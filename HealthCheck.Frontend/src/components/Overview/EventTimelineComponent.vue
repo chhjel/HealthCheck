@@ -26,7 +26,12 @@
                             <strong>{{getTimelineItemTimeString(event, group)}}</strong>
                         </div>
                         <v-flex>
-                            <strong class="timeline-item-title">{{ event.Title }}</strong>
+                            <strong class="timeline-item-title">
+                                {{ event.Title }}
+                                <strong class="timeline-item-title-resolved-label" v-if="event.Resolved">
+                                    Resolved
+                                </strong>
+                            </strong>
                             <div class="caption timeline-item-description">{{ event.Description }}</div>
                         </v-flex>
                     </v-layout>
@@ -213,6 +218,12 @@ export default class EventTimelineComponent extends Vue {
 }
 .timeline-item-title {
     font-size: 18px;
+}
+.timeline-item-title-resolved-label {
+    color: var(--v-success-base);
+    font-size: 14px;
+    margin-left: 10px;
+    font-weight: normal;
 }
 .timeline-item-description {
     font-size: 16px !important;

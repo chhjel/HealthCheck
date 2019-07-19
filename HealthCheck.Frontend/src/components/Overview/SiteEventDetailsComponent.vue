@@ -24,6 +24,11 @@
             <span>
                 {{ event.Description }}
 
+                <div v-if="event.Resolved && event.ResolvedMessage != null && event.ResolvedMessage.length > 0" class="mt-4">
+                    <b v-if="event.ResolvedAt != null">Resolved {{ getResolvedAtDateString(event.ResolvedAt) }}: </b>
+                    {{ event.ResolvedMessage }}
+                </div>
+
                 <div v-if="event.RelatedLinks.length > 0" class="mt-4">
                     <h4>Related links</h4>
                     <ul>
@@ -74,6 +79,11 @@ export default class SiteEventDetailsComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    getResolvedAtDateString(date: Date): string {
+        let format = 'dd. MMM HH:mm';
+        return DateUtils.FormatDate(date, format);
+    }
+
     getEventTimeLine1(event: SiteEventViewModel) : string {
         if (event.Timestamp.getDate() === event.EndTime.getDate()) {
             let dateFormat = 'dd. MMMM';
