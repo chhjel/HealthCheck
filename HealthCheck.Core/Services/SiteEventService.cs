@@ -45,7 +45,12 @@ namespace HealthCheck.Core.Services
             var mergeOptions = forcedMergeOptions ?? DefaultMergeOptions;
             var shouldUpdate = false;
 
-            var lastEvent = await Storage.GetLastMergableEventOfType(siteEvent.EventTypeId);
+            SiteEvent lastEvent = null;
+            if (!string.IsNullOrWhiteSpace(siteEvent.EventTypeId))
+            {
+                lastEvent = await Storage.GetLastMergableEventOfType(siteEvent.EventTypeId);
+            }
+
             if (mergeOptions.AllowEventMerge && lastEvent != null)
             {
                 var lastEventDuration = lastEvent.Duration;

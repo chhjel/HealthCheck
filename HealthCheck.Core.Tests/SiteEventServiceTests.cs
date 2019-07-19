@@ -146,6 +146,26 @@ namespace HealthCheck.Core.Services
         }
 
         [Fact]
+        public async Task StoreEvent_WithoutEventTypeIds_ShouldNotExtendPrevious()
+        {
+            var storage = new MemorySiteEventStorage();
+            var defaultMergeOptions = new SiteEventMergeOptions(allowEventMerge: true, maxMinutesSinceLastEventEnd: 10, lastEventDurationMultiplier: null);
+            var service = new SiteEventService(storage, defaultMergeOptions);
+
+            var eventA = new SiteEvent(Enums.SiteEventSeverity.Error, null, "TitleA", "DescriptionA", duration: 10)
+            {
+                Timestamp = DateTime.Now.AddMinutes(-15)
+            };
+            var eventB = new SiteEvent(Enums.SiteEventSeverity.Error, null, "TitleB", "DescriptionB", duration: 5);
+
+            await service.StoreEvent(eventA);
+            await service.StoreEvent(eventB);
+
+            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            Assert.Equal(2, items.Count);
+        }
+
+        [Fact]
         public async Task StoreEvent_LastMultiplierShouldCreateOverlap_ShouldExtendPrevious()
         {
             var storage = new MemorySiteEventStorage();
