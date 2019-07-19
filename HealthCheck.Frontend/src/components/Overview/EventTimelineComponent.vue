@@ -200,7 +200,9 @@ export default class EventTimelineComponent extends Vue {
     //  EVENT HANDLERS  //
     /////////////////////
     onEventClicked(event: SiteEventViewModel): void {
-        this.$emit("eventClicked", event);
+        let e = Object.assign({}, event);
+        e.Timestamp = <Date>(<any>event).ActualStart || event.Timestamp;
+        this.$emit("eventClicked", e);
     }
 }
 </script>
