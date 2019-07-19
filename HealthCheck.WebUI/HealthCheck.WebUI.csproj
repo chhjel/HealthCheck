@@ -11,6 +11,7 @@
     <Description>Abstract HealthCheck controllers and web logic for .NET Framework and .NET Core.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>latest</LangVersion>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.WebUI.Core.xml</DocumentationFile>
   </PropertyGroup>
 
   <!-- .NET STANDARD ######################### -->
@@ -46,18 +47,6 @@
     <Reference Include="System.Web" />
   </ItemGroup>
   <!-- ####################################### -->
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\HealthCheck.WebUI.Core.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_NetFramework|AnyCPU'">
-    <DocumentationFile>bin\Debug\HealthCheck.WebUI.Core.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\HealthCheck.WebUI.Core.xml</DocumentationFile>
-  </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp2.0'">
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
