@@ -63,7 +63,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// Access roles for the current request. Is only set after BeginExecute has been called for the request.
         /// <para>Value equals what you return from GetRequestInformation().AccessRole.</para>
         /// </summary>
-        protected Maybe<TAccessRole> CurrentRequestAccessRoles { get; private set; }
+        protected Maybe<TAccessRole> CurrentRequestAccessRoles { get; set; }
 
         /// <summary>
         /// Information about the current request. Is only set after BeginExecute has been called for the request.

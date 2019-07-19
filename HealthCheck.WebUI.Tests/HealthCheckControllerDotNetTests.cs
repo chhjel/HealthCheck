@@ -6,12 +6,11 @@ using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Tests.Helpers;
 using HealthCheck.WebUI.ViewModels;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -93,7 +92,7 @@ namespace HealthCheck.WebUI.Tests
             var result = await controller.GetFilteredAudits();
             Assert.NotNull(result);
 
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<HttpNotFoundResult>(result);
         }
 
         private async Task<HealthCheckControllerDotNet> CreateController(AccessRoles allowedRoles)
@@ -131,11 +130,10 @@ namespace HealthCheck.WebUI.Tests
         {
             CurrentRequestInformation = GetRequestInformation(null);
             CurrentRequestAccessRoles = CurrentRequestInformation?.AccessRole;
-            Configure(null);
         }
 
         protected override FrontEndOptionsViewModel GetFrontEndOptions() => new FrontEndOptionsViewModel("/HealthCheck");
         protected override PageOptions GetPageOptions() => new PageOptions();
-        protected override RequestInformation<AccessRoles> GetRequestInformation(HttpRequest request) => new RequestInformation<AccessRoles>(AllowedRoles);
+        protected override RequestInformation<AccessRoles> GetRequestInformation(HttpRequestBase request) => new RequestInformation<AccessRoles>(AllowedRoles);
     }
 }
