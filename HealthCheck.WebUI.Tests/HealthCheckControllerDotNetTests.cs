@@ -41,7 +41,6 @@ namespace HealthCheck.WebUI.Tests
             Assert.IsType<ContentResult>(result);
             var content = (ContentResult)result;
             var contentBody = content.Content;
-            Output.WriteLine(contentBody);
             Assert.Contains("eventTypeA", contentBody);
         }
 
@@ -61,7 +60,6 @@ namespace HealthCheck.WebUI.Tests
             Assert.IsType<ContentResult>(result);
             var content = (ContentResult)result;
             var contentBody = content.Content;
-            Output.WriteLine(contentBody);
             Assert.Contains("TestSetIdA2", contentBody);
         }
 
@@ -78,7 +76,6 @@ namespace HealthCheck.WebUI.Tests
             Assert.IsType<ContentResult>(result);
             var content = (ContentResult)result;
             var contentBody = content.Content;
-            Output.WriteLine(contentBody);
             Assert.Contains("User 123", contentBody);
         }
 
