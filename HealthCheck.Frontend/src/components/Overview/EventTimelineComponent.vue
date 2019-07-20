@@ -226,6 +226,7 @@ export default class EventTimelineComponent extends Vue {
     font-size: 14px;
     margin-left: 10px;
     font-weight: normal;
+    font-weight: 600;
 }
 .timeline-item-description {
     font-size: 16px !important;
