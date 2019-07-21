@@ -1,4 +1,5 @@
 using HealthCheck.Core.Entities;
+using HealthCheck.Core.Enums;
 using HealthCheck.Core.Services.Models;
 using HealthCheck.Core.Services.Storage;
 using System;
@@ -218,6 +219,38 @@ namespace HealthCheck.Core.Services
             var item = items.Single();
             Assert.Equal(10, item.Duration);
             Assert.Equal(item.Description, NewDescription);
+        }
+
+        [Fact]
+        public void DefaultMergeLogic_Merges_AccordingToDescription()
+        {
+            var eventTypeId = "merge-test-event";
+            var existingEvent = new SiteEvent(SiteEventSeverity.Error, eventTypeId, "Old title", "Old desc", duration: 5, developerDetails: "Old details")
+                .AddRelatedLink("old title", "old url");
+
+            var newSeverity = SiteEventSeverity.Information;
+            var newTitle = "New title";
+            var newDesc = "New desc";
+            var newDetails = "New details";
+            var newEvent = new SiteEvent(newSeverity, eventTypeId, newTitle, newDesc, duration: 5, developerDetails: newDetails)
+                .AddRelatedLink("new title", "new url");
+
+            SiteEventMergeOptions.DefaultMergeLogic(existingEvent, newEvent);
+            Assert.Equal(newSeverity, existingEvent.Severity);
+            Assert.Equal(newTitle, existingEvent.Title);
+            Assert.Equal(newDesc, existingEvent.Description);
+            Assert.Equal(newDetails, existingEvent.DeveloperDetails);
+
+            Assert.Equal(2, existingEvent.RelatedLinks.Count);
+            var firstLink = existingEvent.RelatedLinks[0];
+            Assert.Equal("old title", firstLink.Text);
+            Assert.Equal("old url", firstLink.Url);
+            var secondLink = existingEvent.RelatedLinks[1];
+            Assert.Equal("new title", secondLink.Text);
+            Assert.Equal("new url", secondLink.Url);
+
+            SiteEventMergeOptions.DefaultMergeLogic(existingEvent, newEvent);
+            Assert.Equal(2, existingEvent.RelatedLinks.Count);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Entities;
 using System;
+using System.Linq;
 
 namespace HealthCheck.Core.Services.Models
 {
@@ -58,7 +59,8 @@ namespace HealthCheck.Core.Services.Models
         /// The default method that is called when merging events.
         /// Sets the old event duration to the highest of either (old.time + old.duration + new.duration) or the new events timestamp.
         /// <para>Duration will not be increased past the current time, and duration will not be decreased.</para>
-        /// <para>Also updates developer details if not null.</para>
+        /// <para>Updates title, description and developer details if not null.</para>
+        /// <para>Updates severity and adds any new related links (distinct on url).</para>
         /// </summary>
         public static void DefaultMergeLogic(SiteEvent existingEvent, SiteEvent newEvent, bool allowExtendPastCurrentTime = false)
         {
@@ -83,11 +85,35 @@ namespace HealthCheck.Core.Services.Models
                 existingEvent.Duration += minutesToAdd;
             }
 
+            // Update title
+            if (newEvent.Title != null)
+            {
+                existingEvent.Title = newEvent.Title;
+            }
+
+            // Update description
+            if (newEvent.Description != null)
+            {
+                existingEvent.Description = newEvent.Description;
+            }
+
+            // Add any new related links
+            if (newEvent.RelatedLinks != null && newEvent.RelatedLinks.Count > 0)
+            {
+                foreach(var link in newEvent.RelatedLinks.Where(newLink => !existingEvent.RelatedLinks.Any(existingLink => existingLink.Url == newLink.Url)))
+                {
+                    existingEvent.RelatedLinks.Add(link);
+                }
+            }
+
             // Update developer details
             if (newEvent.DeveloperDetails != null)
             {
                 existingEvent.DeveloperDetails = newEvent.DeveloperDetails;
             }
+
+            // Update severity
+            existingEvent.Severity = newEvent.Severity;
         }
     }
 }
