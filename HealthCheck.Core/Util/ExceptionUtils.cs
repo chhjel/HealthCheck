@@ -11,6 +11,35 @@ namespace HealthCheck.Core.Util
     public static class ExceptionUtils
     {
         /// <summary>
+        /// Gets a full summary of the exception. Including inner exception message, stack trace and potentially other usefull data.
+        /// </summary>
+        public static string GetFullExceptionDetails(Exception exception)
+        {
+            if (exception == null)
+            {
+                return $"Exception is null.";
+            }
+
+            var summary = GetExceptionSummary(exception);
+            var details = GetExceptionDetails(exception);
+            var trace = exception?.StackTrace;
+
+            var result = summary;
+
+            if (!string.IsNullOrWhiteSpace(details))
+            {
+                result += $"\n\nDetails:\n{details}";
+            }
+
+            if (!string.IsNullOrWhiteSpace(trace))
+            {
+                result += $"\n\nStack trace:\n{trace}";
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Gets a summary of the exception. If it's a WebException the full response will be attempted read and included.
         /// </summary>
         public static string GetExceptionSummary(Exception exception)

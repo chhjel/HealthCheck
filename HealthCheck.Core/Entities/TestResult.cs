@@ -112,8 +112,11 @@ namespace HealthCheck.Core.Entities
         /// Include a serialized version of the given object in the result data.
         /// <para>If using HealthCheck.WebUI the NewtonsoftJsonSerializer() or just use the AddSerializedData(object data, string title=null) extension method from HealthCheck.WebUI.</para>
         /// </summary>
-        public TestResult AddSerializedData(object data, IDumpJsonSerializer serializer, string title = null)
+        public TestResult AddSerializedData(object data, IDumpJsonSerializer serializer, string title = null, bool onlyIfNotNull = true)
         {
+            if (data == null && onlyIfNotNull)
+                return this;
+
             var dump = data.Dump(serializer, title);
             Data.Add(new TestResultDataDump()
             {
@@ -127,8 +130,11 @@ namespace HealthCheck.Core.Entities
         /// <summary>
         /// Include the given content in the result data.
         /// </summary>
-        public TestResult AddData(string data, string title = null, TestResultDataDumpType type = TestResultDataDumpType.PlainText)
+        public TestResult AddData(string data, string title = null, TestResultDataDumpType type = TestResultDataDumpType.PlainText, bool onlyIfNotNullOrEmpty = true)
         {
+            if (string.IsNullOrWhiteSpace(data) && onlyIfNotNullOrEmpty)
+                return this;
+
             Data.Add(new TestResultDataDump()
             {
                 Title = title,
@@ -141,39 +147,40 @@ namespace HealthCheck.Core.Entities
         /// <summary>
         /// Include the given html in the result data.
         /// </summary>
-        public TestResult AddTextData(string text, string title = null)
-            => AddData(text, title, TestResultDataDumpType.PlainText);
+        public TestResult AddTextData(string text, string title = null, bool onlyIfNotNullOrEmpty = true)
+            => AddData(text, title, TestResultDataDumpType.PlainText, onlyIfNotNullOrEmpty);
 
         /// <summary>
         /// Include the given html in the result data.
         /// </summary>
-        public TestResult AddHtmlData(string html, string title = null)
-            => AddData(html, title, TestResultDataDumpType.Html);
+        public TestResult AddHtmlData(string html, string title = null, bool onlyIfNotNullOrEmpty = true)
+            => AddData(html, title, TestResultDataDumpType.Html, onlyIfNotNullOrEmpty);
 
         /// <summary>
         /// Include the given xml in the result data.
         /// </summary>
-        public TestResult AddXmlData(string xml, string title = null)
-            => AddData(xml, title, TestResultDataDumpType.Xml);
+        public TestResult AddXmlData(string xml, string title = null, bool onlyIfNotNullOrEmpty = true)
+            => AddData(xml, title, TestResultDataDumpType.Xml, onlyIfNotNullOrEmpty);
 
         /// <summary>
         /// Include the given json in the result data.
         /// </summary>
-        public TestResult AddJsonData(string json, string title = null)
-            => AddData(json, title, TestResultDataDumpType.Json);
+        public TestResult AddJsonData(string json, string title = null, bool onlyIfNotNullOrEmpty = true)
+            => AddData(json, title, TestResultDataDumpType.Json, onlyIfNotNullOrEmpty);
 
         /// <summary>
         /// Include the given image urls in the result data.
         /// </summary>
-        public TestResult AddImageUrlsData(IEnumerable<string> urls, string title = null)
-            => AddData(string.Join(Environment.NewLine, urls ?? new string[0]), title, TestResultDataDumpType.ImageUrls);
+        public TestResult AddImageUrlsData(IEnumerable<string> urls, string title = null, bool onlyIfNotNullOrEmpty = true)
+            => AddData(string.Join(Environment.NewLine, urls ?? new string[0]), title, TestResultDataDumpType.ImageUrls, onlyIfNotNullOrEmpty);
 
         /// <summary>
         /// Include the given urls in the result data.
         /// </summary>
-        public TestResult AddUrlsData(IEnumerable<HyperLink> urls, string title = null)
+        public TestResult AddUrlsData(IEnumerable<HyperLink> urls, string title = null, bool onlyifAnyUrls = true)
         {
             urls = urls ?? new HyperLink[0];
+            if (urls.Count() == 0 && onlyifAnyUrls) return this;
             var stringUrls = urls.Where(x => x != null).Select(x => $"{x.Text.Replace("=>", "->")} => {x.Url}");
             AddData(string.Join(Environment.NewLine, stringUrls), title, TestResultDataDumpType.Urls);
             return this;
@@ -182,8 +189,8 @@ namespace HealthCheck.Core.Entities
         /// <summary>
         /// Include the given urls in the result data.
         /// </summary>
-        public TestResult AddUrlsData(IEnumerable<string> urls, string title = null)
-            => AddUrlsData(urls?.Select(x => new HyperLink(x, x)), title);
+        public TestResult AddUrlsData(IEnumerable<string> urls, string title = null, bool onlyIfNotNullOrEmpty = true)
+            => AddUrlsData(urls?.Select(x => new HyperLink(x, x)), title, onlyIfNotNullOrEmpty);
 
         /// <summary>
         /// Include the given <see cref="SiteEvent"/>.

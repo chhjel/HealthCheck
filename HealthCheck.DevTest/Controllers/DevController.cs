@@ -99,7 +99,7 @@ namespace HealthCheck.DevTest.Controllers
         {
             options
             .SetOptionsFor(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
-            .SetOptionsFor(RuntimeTestConstants.Group.BottomGroup, uiOrder: -100);
+            .SetOptionsFor(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50);
         }
 
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequestBase request)
