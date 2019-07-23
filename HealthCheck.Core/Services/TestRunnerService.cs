@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Entities;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -32,6 +33,12 @@ namespace HealthCheck.Core.Services
         /// <param name="auditEventService">Stores an entry to the audit service if not null.</param>
         /// <param name="auditUserId">User id stored in audit log if service is provided.</param>
         /// <param name="auditUsername">User name stored in audit log if service is provided.</param>
+        /// <param name="multipleResultSiteEventMergeLogic">
+        /// Merge logic used when multiple <see cref="SiteEvent"/>s have the same eventTypeId.
+        /// The parameter is a list of all the reported unresolved site events, and the return value should be the merged event to store/merge with previously stored events.
+        /// Uses <see cref="DefaultMultipleResultSiteEventMerge"/> by default if left null. If a Maybe(null) is given merge will be disabled.
+        /// The default logic uses the highest severity event, and appends descriptions from any other one.
+        /// </param>
         /// <returns>All executed test results are returned.</returns>
         public async Task<List<TestResult>> ExecuteTests(
             TestDiscoveryService testDiscoveryService,
@@ -39,7 +46,8 @@ namespace HealthCheck.Core.Services
             ISiteEventService siteEventService = null,
             IAuditEventStorage auditEventService = null,
             string auditUserId = "0",
-            string auditUsername = "System")
+            string auditUsername = "System",
+            Maybe<Func<IEnumerable<SiteEvent>, SiteEvent>> multipleResultSiteEventMergeLogic = null)
         {
             var tests = testDiscoveryService.DiscoverTestDefinitions(includeInvalidTests: false, onlyTestsAllowedToBeManuallyExecuted: false, testFilter: testFilter);
             var results = await ExecuteTests(tests, testFilter);
@@ -67,8 +75,25 @@ namespace HealthCheck.Core.Services
 
             if (siteEventService != null)
             {
-                var siteEvents = results.Where(x => x.SiteEvent != null).Select(x => x.SiteEvent);
-                foreach (var ev in siteEvents)
+                var siteEvents = results
+                    .Where(x => x.SiteEvent != null)
+                    .Select(x => x.SiteEvent)
+                    .ToList();
+
+                var includedSiteEvents = siteEvents
+                    .Where(x => !x.Resolved || !ContainsAnyUnresolvedTestsFor(x, siteEvents))
+                    .ToList();
+
+                var mergeLogic = (multipleResultSiteEventMergeLogic != null) ? multipleResultSiteEventMergeLogic.Value : DefaultMultipleResultSiteEventMerge;
+                if (mergeLogic != null)
+                {
+                    includedSiteEvents = includedSiteEvents
+                        .GroupBy(x => x.EventTypeId)
+                        .Select(x => DefaultMultipleResultSiteEventMerge(x))
+                        .ToList();
+                }
+
+                foreach (var ev in includedSiteEvents)
                 {
                     if (ev.Resolved)
                     {
@@ -81,6 +106,36 @@ namespace HealthCheck.Core.Services
             }
 
             return results;
+        }
+
+        private bool ContainsAnyUnresolvedTestsFor(SiteEvent self, List<SiteEvent> events)
+        {
+            return events.Any(other =>
+                other != self
+                && other.EventTypeId == self.EventTypeId
+                && other.Resolved == false
+            );
+        }
+
+        /// <summary>
+        /// Default merge logic for the ExecuteTests method.
+        /// <para>Uses the highest severity event, and appends descriptions from any other one.</para>
+        /// </summary>
+        /// <param name="events">Events with the same event type id.</param>
+        public static SiteEvent DefaultMultipleResultSiteEventMerge(IEnumerable<SiteEvent> events)
+        {
+            var ordered = events.OrderByDescending(x => x.Severity);
+
+            var mainEvent = ordered.First();
+            var otherEvents = ordered.Where(x => x != mainEvent);
+
+            var otherDesc = string.Join("\n\n", otherEvents.Select(x => x.Description));
+            if (!string.IsNullOrWhiteSpace(otherDesc))
+            {
+                mainEvent.Description += "\n\n" + otherDesc;
+            }
+
+            return mainEvent;
         }
 
         /// <summary>
