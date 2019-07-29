@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Json;
+using System.Text;
 
 namespace HealthCheck.Core.Util
 {
@@ -55,17 +56,7 @@ namespace HealthCheck.Core.Util
             // Serialize lists as json
             else if(objType.IsGenericType && objType.GetGenericTypeDefinition() == typeof(List<>))
             {
-                using (var memStream = new MemoryStream())
-                {
-                    var ser = new DataContractJsonSerializer(objType);
-                    ser.WriteObject(memStream, obj);
-
-                    memStream.Position = 0;
-                    using (var reader = new StreamReader(memStream))
-                    {
-                        return reader.ReadToEnd();
-                    }
-                }
+                return JsonSerialize(obj);
             }
 
             // Fallback to basic stringifying.
@@ -122,9 +113,27 @@ namespace HealthCheck.Core.Util
 
                 return (T)Enum.Parse(inputType, input);
             }
+            else if (inputType.IsGenericType
+               && inputType.GetGenericTypeDefinition() == typeof(List<>)
+               && inputType.GetGenericArguments()[0].IsEnum)
+            {
+                var enumType = inputType.GetGenericArguments()[0];
+                input = input.Replace("[", "").Replace("]", "");
+                var enumNames = input.Split(new[] { "\",\"" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Replace("\"", ""));
+
+                var listInstance = Activator.CreateInstance(inputType);
+                var listAddMethod = inputType.GetMethod("Add");
+                enumNames.Select(x => Enum.Parse(enumType, x)).ToList().ForEach(x => listAddMethod.Invoke(listInstance, new object[] { x }));
+                return (T)listInstance;
+            }
+            else if (inputType.IsGenericType
+               && inputType.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                return (T)JsonDeserialize(inputType, input);
+            }
 
             // Use registered handler if any.
-            if (ConversionHandlers.ContainsKey(inputType) && ConversionHandlers[inputType].StringToObjConverter != null)
+                if (ConversionHandlers.ContainsKey(inputType) && ConversionHandlers[inputType].StringToObjConverter != null)
             {
                 return (T)Convert.ChangeType(ConversionHandlers[inputType].StringToObjConverter(input), typeof(T));
             }
@@ -186,6 +195,31 @@ namespace HealthCheck.Core.Util
             catch (System.Exception)
             {
                 throw new ConversionFailedException(input, typeof(T));
+            }
+        }
+
+        private string JsonSerialize(object obj)
+        {
+            var objType = obj.GetType();
+            using (var memStream = new MemoryStream())
+            {
+                var ser = new DataContractJsonSerializer(objType);
+                ser.WriteObject(memStream, obj);
+
+                memStream.Position = 0;
+                using (var reader = new StreamReader(memStream))
+                {
+                    return reader.ReadToEnd();
+                }
+            }
+        }
+
+        private object JsonDeserialize(Type type, string json)
+        {
+            using (var memStream = new MemoryStream(Encoding.Unicode.GetBytes(json)))
+            {
+                var deserializer = new DataContractJsonSerializer(type);
+                return deserializer.ReadObject(memStream);
             }
         }
     }

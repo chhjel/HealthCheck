@@ -24,6 +24,7 @@
     "vue-highlight.js": "^3.1.0",
     "vue-property-decorator": "^8.0.0",
     "vue-router": "^3.0.2",
+    "vuedraggable": "^2.23.0",
     "vuetify": "^1.5.6"
   },
   "devDependencies": {

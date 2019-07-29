@@ -59,6 +59,17 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
                 $"{PrettifyValue(toggle)}, {PrettifyValue(enumParam)}, {PrettifyValue(enumFlagsParam)}]");
         }
 
+        [RuntimeTest]
+        [RuntimeTestParameter("stringList", "A read only list", "Fancy description", readOnlyList: true, DefaultValueFactoryMethod = nameof(ReadOnlyListTest_Default))]
+        public TestResult ReadOnlyListTest(List<string> stringList)
+        {
+            return TestResult.CreateSuccess($"Got list")
+                .AddSerializedData(stringList, "stringList");
+        }
+
+        public static List<string> ReadOnlyListTest_Default()
+            => new List<string>() { "Item number one", "Item number two", "Item number three" };
+
         // ToDo: default value factory for lists
         [RuntimeTest]
         public TestResult TestWithNullableValues(int? number = null, bool? checkbox = null, DateTime? date = null)

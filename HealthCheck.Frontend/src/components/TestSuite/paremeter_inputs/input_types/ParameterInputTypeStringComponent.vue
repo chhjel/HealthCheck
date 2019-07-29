@@ -10,7 +10,10 @@
                     required />
             </v-flex>
 
-            <v-flex xs2 class="text-sm-right" v-if="!parameter.NotNull">
+            <v-flex xs2
+                :xs3="isListItem"
+                class="text-sm-right"
+                v-if="!parameter.NotNull">
                 <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
                         <span v-on="on">
@@ -40,6 +43,9 @@ import TestParameterViewModel from '../../../../models/TestSuite/TestParameterVi
 export default class ParameterInputTypeStringComponent extends Vue {
     @Prop({ required: true })
     parameter!: TestParameterViewModel;
+
+    @Prop({ required: false })
+    isListItem!: boolean;
     
     mounted(): void {
         if (this.parameter.Value == null && this.parameter.NotNull) {

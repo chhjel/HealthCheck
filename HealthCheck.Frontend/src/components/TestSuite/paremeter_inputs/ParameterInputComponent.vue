@@ -15,6 +15,8 @@
         <component
             class="parameter-input"
             :parameter="parameter"
+            :type="getGenericListInputType(parameter.Type)"
+            :isListItem="isListItem"
             :is="getInputComponentNameFromType(parameter.Type)"
             v-on:disableInputHeader="disableInputHeader">
         </component>
@@ -35,6 +37,7 @@ import ParameterInputTypeDateTimeComponent from './input_types/ParameterInputTyp
 import ParameterInputTypeNullableDateTimeComponent from './input_types/ParameterInputTypeNullableDateTimeComponent.vue';
 import ParameterInputTypeEnumComponent from './input_types/ParameterInputTypeEnumComponent.vue';
 import ParameterInputTypeFlaggedEnumComponent from './input_types/ParameterInputTypeFlaggedEnumComponent.vue';
+import ParameterInputTypeGenericListComponent from './input_types/ParameterInputTypeGenericListComponent.vue';
 
 @Component({
     components: {
@@ -48,21 +51,41 @@ import ParameterInputTypeFlaggedEnumComponent from './input_types/ParameterInput
       ParameterInputTypeDateTimeComponent,
       ParameterInputTypeNullableDateTimeComponent,
       ParameterInputTypeEnumComponent,
-      ParameterInputTypeFlaggedEnumComponent
+      ParameterInputTypeFlaggedEnumComponent,
+      ParameterInputTypeGenericListComponent
     }
 })
 export default class ParameterInputComponent extends Vue {
     @Prop({ required: true })
     parameter!: TestParameterViewModel;
 
+    @Prop({ required: false })
+    isListItem!: boolean;
+
     showInputHeader: boolean = true;
     showDescription: boolean = false;
 
     mounted(): void {
     }
+
+    getGenericListInputType(typeName: string): string | null
+    {
+        let genericListPattern = /^List<(?<type>\w+)>$/;
+        if (genericListPattern.test(typeName)) {
+            let match = (<any>typeName.match(genericListPattern));
+            let itemType: string = match == null ? null : match.groups["type"];
+            return itemType;
+        }
+        return null;
+    }
     
     getInputComponentNameFromType(typeName: string): string
     {
+        let genericType = this.getGenericListInputType(typeName);
+        if (genericType != null) {
+            return "ParameterInputTypeGenericListComponent";
+        }
+
         typeName = typeName.replace('<', '').replace('>', '');
         let componentName = `ParameterInputType${typeName}Component`;
         let componentExists = (this.$options!.components![componentName] != undefined);

@@ -116,9 +116,10 @@ namespace HealthCheck.Core.Entities
                     Index = i,
                     Name = parameterAttribute?.Name ?? parameter.Name.SpacifySentence(),
                     Description = parameterAttribute?.Description.EnsureDotAtEndIfNotNull(),
-                    DefaultValue = GetDefaultValue(parameter),
+                    DefaultValue = GetDefaultValue(parameter, parameterAttribute),
                     ParameterType = parameter.ParameterType,
                     NotNull = parameterAttribute?.NotNull == true,
+                    ReadOnlyList = parameterAttribute?.ReadOnlyList == true,
                     PossibleValues = GetPossibleValues(parameter.ParameterType)
                 };
             }
@@ -126,7 +127,7 @@ namespace HealthCheck.Core.Entities
 
         private List<object> GetPossibleValues(Type parameterType)
         {
-            // Only for enums
+            // Enums
             if (parameterType.IsEnum)
             {
                 var isFlags = EnumUtils.IsTypeEnumFlag(parameterType);
@@ -137,21 +138,41 @@ namespace HealthCheck.Core.Entities
                     list.Add(value);
                 }
                 return list;
-            } else
+            }
+            // List of enums
+            else if(parameterType.IsGenericType
+                && parameterType.GetGenericTypeDefinition() == typeof(List<>)
+                && parameterType.GetGenericArguments()[0].IsEnum)
+            {
+                return GetPossibleValues(parameterType.GetGenericArguments()[0]);
+            }
+            // Not supported
+            else
             {
                 return null;
             }
         }
 
-        private object GetDefaultValue(ParameterInfo parameter)
+        private object GetDefaultValue(ParameterInfo parameter, RuntimeTestParameterAttribute parameterAttribute)
         {
-            if (parameter.DefaultValue == null || parameter.DefaultValue.GetType() == typeof(DBNull))
+            if (parameterAttribute?.DefaultValueFactoryMethod != null)
+            {
+                var factoryMethod = GetCustomDefaultValueMethod(parameterAttribute);
+                return factoryMethod.Invoke(null, new object[0]);
+            }
+            else if (parameter.DefaultValue == null || parameter.DefaultValue.GetType() == typeof(DBNull))
             {
                 return null;
             } else
             {
                 return parameter.DefaultValue;
             }
+        }
+
+        private MethodInfo GetCustomDefaultValueMethod(RuntimeTestParameterAttribute parameterAttribute)
+        {
+            var classType = Method.DeclaringType;
+            return classType.GetMethod(parameterAttribute.DefaultValueFactoryMethod, BindingFlags.Public | BindingFlags.Static);
         }
 
         /// <summary>
@@ -210,6 +231,16 @@ namespace HealthCheck.Core.Entities
             }
             //else if (Method.GetParameters().Any(x => !x.HasDefaultValue))
             //    result.Error = $"Test method '{ParentClass.ClassType.Name}.{Method.Name}' must have default values for all parameters.";
+
+            var parameterAttributes = Method.GetCustomAttributes<RuntimeTestParameterAttribute>(true)
+                .Union(Method.GetParameters().Select(p => p.GetCustomAttribute<RuntimeTestParameterAttribute>()).Where(p => p != null));
+            var attributesWithCustomDefaultValueFactories = parameterAttributes.Where(x => x.DefaultValueFactoryMethod != null);
+            var invalidFactoryReferences = attributesWithCustomDefaultValueFactories.Where(x => GetCustomDefaultValueMethod(x) == null);
+            if (invalidFactoryReferences.Any())
+            {
+                var factoryRefs = invalidFactoryReferences.Select(x => $"'{x.DefaultValueFactoryMethod}'").JoinForSentence();
+                errors.Add($"Test method '{ParentClass.ClassType.Name}.{Method.Name}' references DefaultValueFactoryMethod(s) that could not be found ({factoryRefs}), make sure it's in the same class and is public static.");
+            }
 
             var methodParameterNames = Method.GetParameters().Select(x => x.Name).ToArray();
             var parameterAttributesOnMethod = Method.GetCustomAttributes<RuntimeTestParameterAttribute>(true);

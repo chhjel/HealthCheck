@@ -42,5 +42,10 @@ namespace HealthCheck.Core.Entities
         /// Do not allow null-values to be entered in the user interface. Does not affect nullable parameters.
         /// </summary>
         public bool NotNull { get; set; }
+
+        /// <summary>
+        /// Only affects generic lists. Does not allow new entries to be added, or existing entries to be changed.
+        /// </summary>
+        public bool ReadOnlyList { get; set; }
     }
 }

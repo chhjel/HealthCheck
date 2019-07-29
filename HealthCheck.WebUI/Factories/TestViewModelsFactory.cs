@@ -90,6 +90,13 @@ namespace HealthCheck.WebUI.Factories
             {
                 type = EnumUtils.IsTypeEnumFlag(paramType) ? "FlaggedEnum" : "Enum";
             }
+            else if (paramType.IsGenericType
+                && paramType.GetGenericTypeDefinition() == typeof(List<>)
+                && paramType.GetGenericArguments()[0].IsEnum)
+            {
+                var innerType = EnumUtils.IsTypeEnumFlag(paramType.GetGenericArguments()[0]) ? "FlaggedEnum" : "Enum";
+                type = $"List<{innerType}>";
+            }
 
             var vm = new TestParameterViewModel()
             {
@@ -99,6 +106,7 @@ namespace HealthCheck.WebUI.Factories
                 PossibleValues = testParameter?.PossibleValues?.Select(x => stringConverter.ConvertToString(x))?.ToList(),
                 Type = type,
                 NotNull = testParameter.NotNull,
+                ReadOnlyList = testParameter.ReadOnlyList
             };
 
             return vm;

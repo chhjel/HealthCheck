@@ -179,7 +179,8 @@ export default class DateUtils
             },
             e: function (method: any) {
                 throw 'ERROR: Not supported method [' + method + ']';
-            }
+            },
+            T: function () { return 'T'; }
         };
         
         const dayNames: string[] = 

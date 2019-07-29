@@ -31,18 +31,30 @@ namespace HealthCheck.Core.Attributes
         public bool NotNull { get; set; }
 
         /// <summary>
+        /// Only affects generic lists. Does not allow new entries to be added, or existing entries to be changed.
+        /// </summary>
+        public bool ReadOnlyList { get; set; }
+
+        /// <summary>
+        /// Method name of a public static method in the same class as this method. The method should return the same return type as this parameter, and have zero parameters.
+        /// </summary>
+        public string DefaultValueFactoryMethod { get; set; }
+
+        /// <summary>
         /// Sets parameters options.
         /// </summary>
         /// <param name="target">Target parameter name.</param>
         /// <param name="name">New name of the property.</param>
         /// <param name="description">Description text that will be visible as a help text.</param>
         /// <param name="notNull">If true null-values will not be allowed to be entered in the user interface. Does not affect nullable parameters.</param>
-        public RuntimeTestParameterAttribute(string target, string name, string description, bool notNull = false)
+        /// <param name="readOnlyList">Only affects generic lists. Does not allow new entries to be added, or existing entries to be changed.</param>
+        public RuntimeTestParameterAttribute(string target, string name, string description, bool notNull = false, bool readOnlyList = false)
         {
             Target = target;
             Name = name;
             Description = description;
             NotNull = notNull;
+            ReadOnlyList = readOnlyList;
         }
 
         /// <summary>
@@ -52,11 +64,13 @@ namespace HealthCheck.Core.Attributes
         /// <param name="name">New name of the property.</param>
         /// <param name="description">Description text that will be visible as a help text.</param>
         /// <param name="notNull">If true null-values will not be allowed to be entered in the user interface. Does not affect nullable parameters.</param>
-        public RuntimeTestParameterAttribute(string name = null, string description = null, bool notNull = false)
+        /// <param name="readOnlyList">Only affects generic lists. Does not allow new entries to be added, or existing entries to be changed. Entries can only be sorted.</param>
+        public RuntimeTestParameterAttribute(string name = null, string description = null, bool notNull = false, bool readOnlyList = false)
         {
             Name = name;
             Description = description;
             NotNull = notNull;
+            ReadOnlyList = readOnlyList;
         }
 
         /// <summary>
