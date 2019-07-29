@@ -129,7 +129,7 @@ namespace HealthCheck.Core.Entities
             // Only for enums
             if (parameterType.IsEnum)
             {
-                var isFlags = EnumUtils.IsEnumFlag(parameterType);
+                var isFlags = EnumUtils.IsTypeEnumFlag(parameterType);
                 var list = new List<object>();
                 foreach (var value in Enum.GetValues(parameterType))
                 {

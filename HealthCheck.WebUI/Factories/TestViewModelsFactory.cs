@@ -88,7 +88,7 @@ namespace HealthCheck.WebUI.Factories
             string type = paramType.GetFriendlyTypeName();
             if (paramType.IsEnum)
             {
-                type = EnumUtils.IsEnumFlag(paramType) ? "FlaggedEnum" : "Enum";
+                type = EnumUtils.IsTypeEnumFlag(paramType) ? "FlaggedEnum" : "Enum";
             }
 
             var vm = new TestParameterViewModel()

@@ -35,6 +35,12 @@ namespace HealthCheck.Core.Util
             => obj is Enum && obj.GetType().GetCustomAttributes(false).Any(x => x.GetType() == typeof(FlagsAttribute));
 
         /// <summary>
+        /// Check if the given type is an enum with flags attribute.
+        /// </summary>
+        public static bool IsTypeEnumFlag(Type type)
+            => type.IsEnum && type.GetCustomAttributes(false).Any(x => x.GetType() == typeof(FlagsAttribute));
+
+        /// <summary>
         /// Check if the given object is an enum object with flags attribute, and the underlying type is one of the given types.
         /// </summary>
         public static bool IsEnumFlagOfType(object obj, Type[] allowedUnderlyingTypes)
