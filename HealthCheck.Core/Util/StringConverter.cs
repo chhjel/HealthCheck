@@ -113,6 +113,16 @@ namespace HealthCheck.Core.Util
                 input = input ?? "";
             }
 
+            if (inputType.IsEnum)
+            {
+                if (input == "" && EnumUtils.IsTypeEnumFlag(inputType))
+                {
+                    return default;
+                }
+
+                return (T)Enum.Parse(inputType, input);
+            }
+
             // Use registered handler if any.
             if (ConversionHandlers.ContainsKey(inputType) && ConversionHandlers[inputType].StringToObjConverter != null)
             {

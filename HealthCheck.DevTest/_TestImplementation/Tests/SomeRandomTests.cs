@@ -39,22 +39,31 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
 
         [RuntimeTest]
         public TestResult TestWithoutDefaultValues(int number, string text, bool toggle, DateTime date,
-            EnumTestType enumParam, EnumFlagsTestType enumFlagsParam, List<string> stringList, List<DateTime> dateList, List<bool> boolList)
+            EnumTestType enumParam, EnumFlagsTestType enumFlagsParam, List<string> stringList, List<DateTime> dateList, List<bool> boolList, List<EnumTestType> enumList)
         {
             return TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(text)}, " +
                 $"{PrettifyValue(toggle)}, {PrettifyValue(date)}, {PrettifyValue(enumParam)}, {PrettifyValue(enumFlagsParam)}]")
                 .AddSerializedData(stringList, "stringList")
                 .AddSerializedData(dateList, "dateList")
-                .AddSerializedData(boolList, "boolList");
+                .AddSerializedData(boolList, "boolList")
+                .AddSerializedData(enumList, "enumList");
+        }
+
+        [RuntimeTest]
+        public TestResult TestWithDefaultValues(int number = 123, string text = "some text", bool toggle = true,
+            EnumTestType enumParam = EnumTestType.SecondValue, 
+            EnumFlagsTestType enumFlagsParam = EnumFlagsTestType.B | EnumFlagsTestType.D)
+        //List<string> stringList, List<DateTime> dateList, List<bool> boolList, List<EnumTestType> enumList
+        {
+            return TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(text)}, " +
+                $"{PrettifyValue(toggle)}, {PrettifyValue(enumParam)}, {PrettifyValue(enumFlagsParam)}]");
         }
 
         // ToDo: default value factory for lists
         [RuntimeTest]
-        public TestResult TestWithNullableValues(int? number = null, bool? checkbox = null, DateTime? date = null,
-            EnumTestType? enumParam = null, EnumFlagsTestType? enumFlagsParam = null)
+        public TestResult TestWithNullableValues(int? number = null, bool? checkbox = null, DateTime? date = null)
         {
-            return TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(checkbox)}, " +
-                $"{PrettifyValue(date)}, {PrettifyValue(enumParam)}, {PrettifyValue(enumFlagsParam)}]");
+            return TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(checkbox)}, {PrettifyValue(date)}]");
         }
 
         private string PrettifyValue(object value)

@@ -33,6 +33,8 @@ import ParameterInputTypeBooleanComponent from './input_types/ParameterInputType
 import ParameterInputTypeNullableBooleanComponent from './input_types/ParameterInputTypeNullableBooleanComponent.vue';
 import ParameterInputTypeDateTimeComponent from './input_types/ParameterInputTypeDateTimeComponent.vue';
 import ParameterInputTypeNullableDateTimeComponent from './input_types/ParameterInputTypeNullableDateTimeComponent.vue';
+import ParameterInputTypeEnumComponent from './input_types/ParameterInputTypeEnumComponent.vue';
+import ParameterInputTypeFlaggedEnumComponent from './input_types/ParameterInputTypeFlaggedEnumComponent.vue';
 
 @Component({
     components: {
@@ -44,7 +46,9 @@ import ParameterInputTypeNullableDateTimeComponent from './input_types/Parameter
       ParameterInputTypeBooleanComponent,
       ParameterInputTypeNullableBooleanComponent,
       ParameterInputTypeDateTimeComponent,
-      ParameterInputTypeNullableDateTimeComponent
+      ParameterInputTypeNullableDateTimeComponent,
+      ParameterInputTypeEnumComponent,
+      ParameterInputTypeFlaggedEnumComponent
     }
 })
 export default class ParameterInputComponent extends Vue {
