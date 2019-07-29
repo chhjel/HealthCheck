@@ -51,14 +51,10 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         // ToDo: default value factory for lists
         [RuntimeTest]
         public TestResult TestWithNullableValues(int? number = null, bool? checkbox = null, DateTime? date = null,
-            EnumTestType? enumParam = null, EnumFlagsTestType? enumFlagsParam = null,
-            List<string> stringList = null, List<DateTime> dateList = null, List<bool> boolList = null)
+            EnumTestType? enumParam = null, EnumFlagsTestType? enumFlagsParam = null)
         {
             return TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(checkbox)}, " +
-                $"{PrettifyValue(date)}, {PrettifyValue(enumParam)}, {PrettifyValue(enumFlagsParam)}]")
-                .AddSerializedData(stringList, "stringList")
-                .AddSerializedData(dateList, "dateList")
-                .AddSerializedData(boolList, "boolList");
+                $"{PrettifyValue(date)}, {PrettifyValue(enumParam)}, {PrettifyValue(enumFlagsParam)}]");
         }
 
         private string PrettifyValue(object value)
