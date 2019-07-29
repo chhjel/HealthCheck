@@ -4,6 +4,7 @@ using HealthCheck.Core.Enums;
 using HealthCheck.WebUI.Extensions;
 using HealthCheck.WebUI.Serializers;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,16 +19,46 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
     )]
     public class SomeRandomTests
     {
-        [RuntimeTest]
-        public TestResult TestWithoutDefaultValues(int number, string text, bool toggle, DateTime date)
+        public enum EnumTestType
         {
-            return TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(text)}, {PrettifyValue(toggle)}, {PrettifyValue(date)}]");
+            FirstValue = 0,
+            SecondValue,
+            ThirdValue,
+            FourthValue
+        }
+
+        [Flags]
+        public enum EnumFlagsTestType
+        {
+            Nothing = 0,
+            A = 1,
+            B = 2,
+            C = 4,
+            D = 8
         }
 
         [RuntimeTest]
-        public TestResult TestWithNullableValues(int? number = null, bool? checkbox = null, DateTime? date = null)
+        public TestResult TestWithoutDefaultValues(int number, string text, bool toggle, DateTime date,
+            EnumTestType enumParam, EnumFlagsTestType enumFlagsParam, List<string> stringList, List<DateTime> dateList, List<bool> boolList)
         {
-            return TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(checkbox)}, {PrettifyValue(date)}]");
+            return TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(text)}, " +
+                $"{PrettifyValue(toggle)}, {PrettifyValue(date)}, {PrettifyValue(enumParam)}, {PrettifyValue(enumFlagsParam)}]")
+                .AddSerializedData(stringList, "stringList")
+                .AddSerializedData(dateList, "dateList")
+                .AddSerializedData(boolList, "boolList");
+        }
+
+        // ToDo: default value factory for lists
+        [RuntimeTest]
+        public TestResult TestWithNullableValues(int? number = null, bool? checkbox = null, DateTime? date = null,
+            EnumTestType? enumParam = null, EnumFlagsTestType? enumFlagsParam = null,
+            List<string> stringList = null, List<DateTime> dateList = null, List<bool> boolList = null)
+        {
+            return TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(checkbox)}, " +
+                $"{PrettifyValue(date)}, {PrettifyValue(enumParam)}, {PrettifyValue(enumFlagsParam)}]")
+                .AddSerializedData(stringList, "stringList")
+                .AddSerializedData(dateList, "dateList")
+                .AddSerializedData(boolList, "boolList");
         }
 
         private string PrettifyValue(object value)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Entities
 {
@@ -31,6 +32,11 @@ namespace HealthCheck.Core.Entities
         /// Default parameter value.
         /// </summary>
         public object DefaultValue { get; set; }
+
+        /// <summary>
+        /// Values when a selection is possible.
+        /// </summary>
+        public List<object> PossibleValues { get; set; }
 
         /// <summary>
         /// Do not allow null-values to be entered in the user interface. Does not affect nullable parameters.

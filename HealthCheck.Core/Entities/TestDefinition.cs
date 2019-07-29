@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Exceptions;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -117,8 +118,28 @@ namespace HealthCheck.Core.Entities
                     Description = parameterAttribute?.Description.EnsureDotAtEndIfNotNull(),
                     DefaultValue = GetDefaultValue(parameter),
                     ParameterType = parameter.ParameterType,
-                    NotNull = parameterAttribute?.NotNull == true
+                    NotNull = parameterAttribute?.NotNull == true,
+                    PossibleValues = GetPossibleValues(parameter.ParameterType)
                 };
+            }
+        }
+
+        private List<object> GetPossibleValues(Type parameterType)
+        {
+            // Only for enums
+            if (parameterType.IsEnum)
+            {
+                var isFlags = EnumUtils.IsEnumFlag(parameterType);
+                var list = new List<object>();
+                foreach (var value in Enum.GetValues(parameterType))
+                {
+                    if (isFlags && (int)value == 0) continue;
+                    list.Add(value);
+                }
+                return list;
+            } else
+            {
+                return null;
             }
         }
 

@@ -4,6 +4,7 @@ export default interface TestParameterViewModel {
     Description: string;
     Type: string;
     DefaultValue: string;
+    PossibleValues: Array<string>;
     Value: string | null;
     NotNull: boolean;
 }

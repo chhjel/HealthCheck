@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Entities;
+using System.Collections.Generic;
 
 namespace HealthCheck.WebUI.ViewModels
 {
@@ -26,6 +27,11 @@ namespace HealthCheck.WebUI.ViewModels
         /// Stringified default value of the parameter.
         /// </summary>
         public string DefaultValue { get; set; }
+
+        /// <summary>
+        /// Values when a selection is possible.
+        /// </summary>
+        public List<string> PossibleValues { get; set; }
 
         /// <summary>
         /// Do not allow null-values to be entered in the user interface. Does not affect nullable parameters.

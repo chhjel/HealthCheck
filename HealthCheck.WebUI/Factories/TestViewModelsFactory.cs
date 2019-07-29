@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Entities;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Util;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.ViewModels;
 using System.Collections.Generic;
@@ -82,12 +83,21 @@ namespace HealthCheck.WebUI.Factories
         /// </summary>
         public TestParameterViewModel CreateViewModel(TestParameter testParameter)
         {
+            var stringConverter = new StringConverter();
+            var paramType = testParameter.ParameterType;
+            string type = paramType.GetFriendlyTypeName();
+            if (paramType.IsEnum)
+            {
+                type = EnumUtils.IsEnumFlag(paramType) ? "FlaggedEnum" : "Enum";
+            }
+
             var vm = new TestParameterViewModel()
             {
                 Name = testParameter.Name,
                 Description = testParameter.Description,
-                DefaultValue = testParameter.DefaultValue?.ToString(),
-                Type = testParameter.ParameterType.GetFriendlyTypeName(),
+                DefaultValue = stringConverter.ConvertToString(testParameter.DefaultValue),
+                PossibleValues = testParameter?.PossibleValues?.Select(x => stringConverter.ConvertToString(x))?.ToList(),
+                Type = type,
                 NotNull = testParameter.NotNull,
             };
 

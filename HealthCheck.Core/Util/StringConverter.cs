@@ -1,7 +1,9 @@
 ﻿using HealthCheck.Core.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Json;
 
 namespace HealthCheck.Core.Util
 {
@@ -10,7 +12,12 @@ namespace HealthCheck.Core.Util
     /// </summary>
     public class StringConverter
     {
-        private Dictionary<Type, Func<string, object>> ConversionHandlers { get; set; } = new Dictionary<Type, Func<string, object>>();
+        private class ConverterPair
+        {
+            public Func<string, object> StringToObjConverter { get; set; }
+            public Func<object, string> ObjToStringConverter { get; set; }
+        }
+        private Dictionary<Type, ConverterPair> ConversionHandlers { get; set; } = new Dictionary<Type, ConverterPair>();
 
         private readonly string[] BOOL_ALIAS_TRUE = new[] { "yes", "ja", "jup" };
         private readonly string[] BOOL_ALIAS_FALSE = new[] { "no", "nei", "nope", "0x90" };
@@ -19,9 +26,50 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Register a new converter that converts a string to the given type.
         /// </summary>
-        public void RegisterConverter<T>(Func<string, object> converter)
+        public void RegisterConverter<T>(Func<string, object> stringToObjConverter, Func<object, string> objToStringConverter)
         {
-            ConversionHandlers[typeof(T)] = converter;
+            ConversionHandlers[typeof(T)] = new ConverterPair()
+            {
+                ObjToStringConverter = objToStringConverter,
+                StringToObjConverter = stringToObjConverter
+            };
+        }
+
+        /// <summary>
+        /// Attempt to convert the given object into a string.
+        /// </summary>
+        public string ConvertToString(object obj)
+        {
+            if (obj == null)
+            {
+                return null;
+            }
+
+            var objType = obj.GetType();
+
+            // Use registered handler if any.
+            if (ConversionHandlers.ContainsKey(objType) && ConversionHandlers[objType].ObjToStringConverter != null)
+            {
+                return ConversionHandlers[objType].ObjToStringConverter(obj);
+            }
+            // Serialize lists as json
+            else if(objType.IsGenericType && objType.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                using (var memStream = new MemoryStream())
+                {
+                    var ser = new DataContractJsonSerializer(objType);
+                    ser.WriteObject(memStream, obj);
+
+                    memStream.Position = 0;
+                    using (var reader = new StreamReader(memStream))
+                    {
+                        return reader.ReadToEnd();
+                    }
+                }
+            }
+
+            // Fallback to basic stringifying.
+            return obj?.ToString();
         }
 
         /// <summary>
@@ -66,9 +114,9 @@ namespace HealthCheck.Core.Util
             }
 
             // Use registered handler if any.
-            if (ConversionHandlers.ContainsKey(inputType))
+            if (ConversionHandlers.ContainsKey(inputType) && ConversionHandlers[inputType].StringToObjConverter != null)
             {
-                return (T)Convert.ChangeType(ConversionHandlers[inputType](input), typeof(T));
+                return (T)Convert.ChangeType(ConversionHandlers[inputType].StringToObjConverter(input), typeof(T));
             }
 
             // Fallback to default built in logic
