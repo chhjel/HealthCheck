@@ -38,6 +38,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         }
 
         [RuntimeTest]
+        [RuntimeTestParameter(Target = "number", Description = "Some <b>fancy</b> text! :D <a href=\"https://www.google.com\">woop</a>")]
         public TestResult TestWithoutDefaultValues(int number, string text, bool toggle, DateTime date,
             EnumTestType enumParam, EnumFlagsTestType enumFlagsParam, List<string> stringList, List<DateTime> dateList, List<bool> boolList, List<EnumTestType> enumList)
         {
@@ -60,16 +61,21 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         }
 
         [RuntimeTest]
-        [RuntimeTestParameter("stringList", "A read only list", "Fancy description", readOnlyList: true, DefaultValueFactoryMethod = nameof(ReadOnlyListTest_Default))]
-        public TestResult ReadOnlyListTest(List<string> stringList)
+        [RuntimeTestParameter("stringList", "A read only string list", "Fancy description 1", readOnlyList: true, DefaultValueFactoryMethod = nameof(ReadOnlyListTest_Default))]
+        [RuntimeTestParameter("enumList", "A read only enum list", "Fancy description 2", readOnlyList: true, DefaultValueFactoryMethod = nameof(ReadOnlyListEnumTest_Default))]
+        public TestResult ReadOnlyListTest(List<string> stringList, List<EnumTestType> enumList)
         {
-            return TestResult.CreateSuccess($"Got list")
-                .AddSerializedData(stringList, "stringList");
+            return TestResult.CreateSuccess($"Got lists")
+                .AddSerializedData(stringList, "stringList")
+                .AddSerializedData(enumList, "enumList");
         }
 
         public static List<string> ReadOnlyListTest_Default()
             => new List<string>() { "Item number one", "Item number two", "Item number three" };
 
+        public static List<EnumTestType> ReadOnlyListEnumTest_Default()
+            => new List<EnumTestType>() { EnumTestType.FirstValue, EnumTestType.SecondValue, EnumTestType.FourthValue };
+        
         // ToDo: default value factory for lists
         [RuntimeTest]
         public TestResult TestWithNullableValues(int? number = null, bool? checkbox = null, DateTime? date = null)

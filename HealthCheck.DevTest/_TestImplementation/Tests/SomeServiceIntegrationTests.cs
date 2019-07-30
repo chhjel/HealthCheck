@@ -46,12 +46,12 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             return TestResult.CreateSuccess($"Success, it took about a second.");
         }
 
-        [RuntimeTest]
-        public async Task<Task<TestResult>> AnInvalidTest()
-        {
-            await Task.Delay(1100);
-            return Task.FromResult(TestResult.CreateSuccess($"Success, it took about a second."));
-        }
+        //[RuntimeTest]
+        //public async Task<Task<TestResult>> AnInvalidTest()
+        //{
+        //    await Task.Delay(1100);
+        //    return Task.FromResult(TestResult.CreateSuccess($"Success, it took about a second."));
+        //}
 
         [RuntimeTest]
         public async Task<TestResult> SendAFailingWebRequestToGoogle()

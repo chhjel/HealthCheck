@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization.Json;
 using System.Text;
 
@@ -52,6 +53,18 @@ namespace HealthCheck.Core.Util
             if (ConversionHandlers.ContainsKey(objType) && ConversionHandlers[objType].ObjToStringConverter != null)
             {
                 return ConversionHandlers[objType].ObjToStringConverter(obj);
+            }
+            // Special case for enums lists for now
+            else if (objType.IsGenericType
+               && objType.GetGenericTypeDefinition() == typeof(List<>)
+               && objType.GetGenericArguments()[0].IsEnum)
+            {
+                return SerializeCollection(obj, objType.GetGenericArguments()[0]);
+            }
+            // Special case for enums arrays for now
+            else if (objType.IsArray && objType.GetElementType().IsEnum)
+            {
+                return SerializeCollection(obj, objType.GetElementType());
             }
             // Serialize lists as json
             else if(objType.IsGenericType && objType.GetGenericTypeDefinition() == typeof(List<>))
@@ -221,6 +234,19 @@ namespace HealthCheck.Core.Util
                 var deserializer = new DataContractJsonSerializer(type);
                 return deserializer.ReadObject(memStream);
             }
+        }
+
+        private string SerializeCollection(object list, Type itemType)
+        {
+            var method = this.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(x => x.Name == nameof(SerializeCollection) && x.IsGenericMethod)
+                .First();
+
+            return method.MakeGenericMethod(itemType).Invoke(this, new object[] { list }) as string;
+        }
+        private string SerializeCollection<T>(IList<T> list)
+        {
+            return $"[{string.Join(", ", list.Select(x => $"\"{x?.ToString()}\""))}]";
         }
     }
 }

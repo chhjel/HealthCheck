@@ -30,9 +30,9 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             return TestResult.CreateSuccess($"Success, it took about a second.");
         }
 
-        [RuntimeTest]
-        public void AnotherInvalidTest()
-        {
-        }
+        //[RuntimeTest]
+        //public void AnotherInvalidTest()
+        //{
+        //}
     }
 }

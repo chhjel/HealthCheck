@@ -21,7 +21,7 @@ namespace HealthCheck.Core.Attributes
         public string Name { get; set; }
 
         /// <summary>
-        /// Description of the property. Shown as a help text.
+        /// Description of the property. Shown as a help text and can contain html.
         /// </summary>
         public string Description { get; set; }
 

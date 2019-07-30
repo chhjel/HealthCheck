@@ -157,8 +157,8 @@ namespace HealthCheck.Core.Entities
         {
             if (parameterAttribute?.DefaultValueFactoryMethod != null)
             {
-                var factoryMethod = GetCustomDefaultValueMethod(parameterAttribute);
-                return factoryMethod.Invoke(null, new object[0]);
+                var factoryMethod = GetCustomDefaultValueMethod(parameterAttribute, parameter);
+                return factoryMethod?.Invoke(null, new object[0]);
             }
             else if (parameter.DefaultValue == null || parameter.DefaultValue.GetType() == typeof(DBNull))
             {
@@ -169,10 +169,14 @@ namespace HealthCheck.Core.Entities
             }
         }
 
-        private MethodInfo GetCustomDefaultValueMethod(RuntimeTestParameterAttribute parameterAttribute)
+        private MethodInfo GetCustomDefaultValueMethod(RuntimeTestParameterAttribute parameterAttribute, ParameterInfo parameterInfo)
         {
             var classType = Method.DeclaringType;
-            return classType.GetMethod(parameterAttribute.DefaultValueFactoryMethod, BindingFlags.Public | BindingFlags.Static);
+            return classType.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Where(x => x.Name == parameterAttribute.DefaultValueFactoryMethod 
+                    && x.GetParameters().Length == 0
+                    && x.ReturnType == parameterInfo.ParameterType)
+                .FirstOrDefault();
         }
 
         /// <summary>
@@ -232,16 +236,6 @@ namespace HealthCheck.Core.Entities
             //else if (Method.GetParameters().Any(x => !x.HasDefaultValue))
             //    result.Error = $"Test method '{ParentClass.ClassType.Name}.{Method.Name}' must have default values for all parameters.";
 
-            var parameterAttributes = Method.GetCustomAttributes<RuntimeTestParameterAttribute>(true)
-                .Union(Method.GetParameters().Select(p => p.GetCustomAttribute<RuntimeTestParameterAttribute>()).Where(p => p != null));
-            var attributesWithCustomDefaultValueFactories = parameterAttributes.Where(x => x.DefaultValueFactoryMethod != null);
-            var invalidFactoryReferences = attributesWithCustomDefaultValueFactories.Where(x => GetCustomDefaultValueMethod(x) == null);
-            if (invalidFactoryReferences.Any())
-            {
-                var factoryRefs = invalidFactoryReferences.Select(x => $"'{x.DefaultValueFactoryMethod}'").JoinForSentence();
-                errors.Add($"Test method '{ParentClass.ClassType.Name}.{Method.Name}' references DefaultValueFactoryMethod(s) that could not be found ({factoryRefs}), make sure it's in the same class and is public static.");
-            }
-
             var methodParameterNames = Method.GetParameters().Select(x => x.Name).ToArray();
             var parameterAttributesOnMethod = Method.GetCustomAttributes<RuntimeTestParameterAttribute>(true);
             var invalidAttributes = parameterAttributesOnMethod.Where(x => x.Target == null || !methodParameterNames.Contains(x.Target));
@@ -265,6 +259,22 @@ namespace HealthCheck.Core.Entities
                 var attributeText = $"{"attribute".Pluralize(invalidAttributes.Count())}";
                 errors.Add($"Test method '{ParentClass.ClassType.Name}.{Method.Name}' has {details}. " +
                     $"When decorating a method with this attribute it must have a Target value equal to the name of one of its parameters.");
+            }
+
+            var parameterAttributes = Method.GetCustomAttributes<RuntimeTestParameterAttribute>(true)
+                .Select(x => Tuple.Create(x, Method.GetParameters().FirstOrDefault(p => p.Name == x.Target)))
+                .Union(
+                    Method.GetParameters()
+                    .Select(p => Tuple.Create(p.GetCustomAttribute<RuntimeTestParameterAttribute>(), p))
+                    .Where(x => x.Item1 != null)
+                )
+                .Where(x => x.Item1 != null && x.Item2 != null);
+            var attributesWithCustomDefaultValueFactories = parameterAttributes.Where(x => x.Item1.DefaultValueFactoryMethod != null);
+            var invalidFactoryReferences = attributesWithCustomDefaultValueFactories.Where(x => GetCustomDefaultValueMethod(x.Item1, x.Item2) == null);
+            if (invalidFactoryReferences.Any())
+            {
+                var factoryRefs = invalidFactoryReferences.Select(x => $"'{x.Item1.DefaultValueFactoryMethod}'").JoinForSentence();
+                errors.Add($"Test method '{ParentClass.ClassType.Name}.{Method.Name}' references DefaultValueFactoryMethod(s) that could not be found ({factoryRefs}), make sure it's in the same class, returns the same type as the parameter and is public static.");
             }
 
             if (errors.Any())
