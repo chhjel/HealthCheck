@@ -8,9 +8,7 @@
                 @click="toggleDescription">help</v-icon>
         </div>
 
-        <div v-show="showDescription" class="parameter-description">
-            {{ parameter.Description }}
-        </div>
+        <div v-show="showDescription" class="parameter-description" v-html="parameter.Description"></div>
 
         <component
             class="parameter-input"
