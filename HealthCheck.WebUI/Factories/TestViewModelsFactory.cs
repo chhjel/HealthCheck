@@ -52,6 +52,8 @@ namespace HealthCheck.WebUI.Factories
                 Id = testDefinition.Id,
                 Name = testDefinition.Name,
                 Description = testDefinition.Description,
+                RunButtonText = testDefinition.RunButtonText,
+                RunningButtonText = testDefinition.RunningButtonText,
                 Parameters = new List<TestParameterViewModel>()
             };
 

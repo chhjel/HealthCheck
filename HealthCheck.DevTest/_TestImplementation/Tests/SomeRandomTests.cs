@@ -37,17 +37,19 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             D = 8
         }
 
-        [RuntimeTest]
+        [RuntimeTest(RunButtonText = "Import", RunningButtonText = "Importing")]
         [RuntimeTestParameter(Target = "number", Description = "Some <b>fancy</b> text! :D <a href=\"https://www.google.com\">woop</a>")]
-        public TestResult TestWithoutDefaultValues(int number, string text, bool toggle, DateTime date,
+        public async Task<TestResult> TestWithoutDefaultValues(int number, string text, bool toggle, DateTime date,
             EnumTestType enumParam, EnumFlagsTestType enumFlagsParam, List<string> stringList, List<DateTime> dateList, List<bool> boolList, List<EnumTestType> enumList)
         {
-            return TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(text)}, " +
+            await Task.Delay(TimeSpan.FromSeconds(2));
+            var result = TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(text)}, " +
                 $"{PrettifyValue(toggle)}, {PrettifyValue(date)}, {PrettifyValue(enumParam)}, {PrettifyValue(enumFlagsParam)}]")
                 .AddSerializedData(stringList, "stringList")
                 .AddSerializedData(dateList, "dateList")
                 .AddSerializedData(boolList, "boolList")
                 .AddSerializedData(enumList, "enumList");
+            return await Task.FromResult(result);
         }
 
         [RuntimeTest]

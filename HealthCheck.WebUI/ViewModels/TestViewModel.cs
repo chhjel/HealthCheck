@@ -24,6 +24,18 @@ namespace HealthCheck.WebUI.ViewModels
         public string Description { get; set; }
 
         /// <summary>
+        /// Text on the button when the check is not executing.
+        /// <para>Defaults to "Run"</para>
+        /// </summary>
+        public string RunButtonText { get; set; }
+
+        /// <summary>
+        /// Text on the button when the check is executing.
+        /// <para>Defaults to "Runnings.."</para>
+        /// </summary>
+        public string RunningButtonText { get; set; }
+
+        /// <summary>
         /// Test parameters.
         /// </summary>
         public List<TestParameterViewModel> Parameters { get; set; }

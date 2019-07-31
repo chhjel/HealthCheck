@@ -62,5 +62,17 @@ namespace HealthCheck.Core.Attributes
         /// <para>Must be an enum flags value.</para>
         /// </summary>
         public object RolesWithAccess { get; set; }
+
+        /// <summary>
+        /// Text on the button when the check is not executing.
+        /// <para>Defaults to "Run"</para>
+        /// </summary>
+        public string RunButtonText { get; set; }
+
+        /// <summary>
+        /// Text on the button when the check is executing.
+        /// <para>Defaults to "Runnings.."</para>
+        /// </summary>
+        public string RunningButtonText { get; set; }
     }
 }

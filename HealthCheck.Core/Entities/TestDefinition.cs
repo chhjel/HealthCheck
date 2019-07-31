@@ -56,6 +56,18 @@ namespace HealthCheck.Core.Entities
         public List<string> Categories { get; set; }
 
         /// <summary>
+        /// Text on the button when the check is not executing.
+        /// <para>Defaults to "Run"</para>
+        /// </summary>
+        public string RunButtonText { get; set; }
+
+        /// <summary>
+        /// Text on the button when the check is executing.
+        /// <para>Defaults to "Runnings.."</para>
+        /// </summary>
+        public string RunningButtonText { get; set; }
+
+        /// <summary>
         /// Test method.
         /// </summary>
         internal MethodInfo Method { get; private set; }
@@ -78,6 +90,8 @@ namespace HealthCheck.Core.Entities
             AllowParallelExecution = (testAttribute.AllowParallelExecution is bool allowParallelExecution && allowParallelExecution);
             AllowManualExecution = (testAttribute.AllowManualExecution is bool allowManualExecution ? allowManualExecution : parentClass.DefaultAllowManualExecution);
             RolesWithAccess =  testAttribute.RolesWithAccess ?? parentClass.DefaultRolesWithAccess;
+            RunButtonText = testAttribute.RunButtonText;
+            RunningButtonText = testAttribute.RunningButtonText;
 
             Categories = (testAttribute.Categories ?? new string[0])
                 .Union((testAttribute.Category == null ? new string[0] : new []{ testAttribute.Category }))

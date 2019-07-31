@@ -137,8 +137,8 @@ export default class TestComponent extends Vue {
     get executeTestButtonText(): string
     {
       return this.testInProgress
-        ? "Running.."
-        : "Run";
+        ? (this.test.RunningButtonText != null && this.test.RunningButtonText.length > 0) ? this.test.RunningButtonText : "Running.."
+        : (this.test.RunButtonText != null && this.test.RunButtonText.length > 0) ? this.test.RunButtonText : "Run";
     }
 
     get hasDescription(): boolean {
