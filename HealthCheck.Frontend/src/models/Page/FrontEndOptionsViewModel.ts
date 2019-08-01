@@ -3,6 +3,7 @@ export default interface FrontEndOptionsViewModel {
     InludeQueryStringInApiCalls: boolean;
     GetTestsEndpoint: string;
     ExecuteTestEndpoint: string;
+    CancelTestEndpoint: string;
     GetSiteEventsEndpoint: string;
     GetFilteredAuditLogEventsEndpoint: string;
     CurrentEventBufferMinutes: number;

@@ -114,6 +114,7 @@
                             v-if="activeSet != null"
                             :testSet="activeSet"
                             :executeTestEndpoint="options.ExecuteTestEndpoint"
+                            :cancelTestEndpoint="options.CancelTestEndpoint"
                             :inludeQueryStringInApiCalls="options.InludeQueryStringInApiCalls" />
                     </v-flex>
                 </v-layout>

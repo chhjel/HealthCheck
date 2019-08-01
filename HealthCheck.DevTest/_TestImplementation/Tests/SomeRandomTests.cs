@@ -6,6 +6,7 @@ using HealthCheck.WebUI.Serializers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HealthCheck.DevTest._TestImplementation.Tests
@@ -77,8 +78,26 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
 
         public static List<EnumTestType> ReadOnlyListEnumTest_Default()
             => new List<EnumTestType>() { EnumTestType.FirstValue, EnumTestType.SecondValue, EnumTestType.FourthValue };
-        
-        // ToDo: default value factory for lists
+
+        [RuntimeTest(description: "Should run for about 10 seconds.")]
+        public async Task<TestResult> CancellableTest(CancellationToken cancellationToken)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
+            await Task.Delay(TimeSpan.FromSeconds(2));
+            return TestResult.CreateSuccess("Completed!");
+        }
+        [RuntimeTest(description: "Should run for about 10 seconds.")]
+        public async Task<TestResult> CancellableTest2(CancellationToken cancellationToken)
+        {
+            for(int i = 0; i < 5; i++)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2));
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+            }
+            return TestResult.CreateSuccess("Completed!");
+        }
+
         [RuntimeTest]
         public TestResult TestWithNullableValues(int? number = null, bool? checkbox = null, DateTime? date = null)
         {

@@ -13,10 +13,20 @@
             </h4>
             <div class="test-duration" v-if="showTestDuration">{{ prettifyDuration(testResult.DurationInMilliseconds) }}</div>
 
+            <v-btn ripple color="error"
+              @click.stop.prevent="cancelTest()"
+              v-if="(testInProgress || showCancellationButtonUntilNextRun) && test.IsCancellable"
+              :disabled="cancellationInProgress"
+              class="ma-0 mr-2 mt-2 pl-1 pr-3 cancel-test-button">
+              <v-icon color="white">cancel</v-icon>
+              {{ cancelTestButtonText }}
+            </v-btn>
+            
             <v-btn ripple color="primary" 
               @click.stop.prevent="onExecuteTestClicked()"
-              :disabled="testInProgress"
-              class="ma-0 pl-1 pr-3 run-test-button">
+              :disabled="testInProgress || showCancellationButtonUntilNextRun"
+              class="ma-0 pl-1 pr-3 run-test-button"
+              :class="{ 'cancellable': test.IsCancellable }">
               <v-icon color="white" large>play_arrow</v-icon>
               {{ executeTestButtonText }}
             </v-btn>
@@ -83,10 +93,14 @@ export default class TestComponent extends Vue {
     @Prop({ required: true })
     executeTestEndpoint!: string;
     @Prop({ required: true })
+    cancelTestEndpoint!: string;
+    @Prop({ required: true })
     inludeQueryStringInApiCalls!: string;
 
     testResult: TestResultViewModel | null = null;
     testInProgress: boolean = false;
+    cancellationInProgress: boolean = false;
+    showCancellationButtonUntilNextRun: boolean = false;
     testExecutionFailed: boolean = false;
     testExecutionErrorMessage: string = "";
     resultDataExpandedState: boolean = false;
@@ -141,6 +155,11 @@ export default class TestComponent extends Vue {
         : (this.test.RunButtonText != null && this.test.RunButtonText.length > 0) ? this.test.RunButtonText : "Run";
     }
 
+    get cancelTestButtonText(): string
+    {
+      return this.cancellationInProgress ? "Cancelling.." : "Cancel";
+    }
+
     get hasDescription(): boolean {
       return this.test.Description != null && this.test.Description.trim().length > 0;
     }
@@ -173,15 +192,46 @@ export default class TestComponent extends Vue {
         : "UnknownParameterInputComponent";
     }
 
-    onExecuteTestClicked(): void 
+    onExecuteTestClicked(): void
     {
       this.executeTest();
+    }
+
+    cancelTest(): void
+    {
+      this.cancellationInProgress = true;
+      this.showCancellationButtonUntilNextRun = false;
+
+      let queryStringIfEnabled = this.inludeQueryStringInApiCalls ? window.location.search : '';
+      let queryString = queryStringIfEnabled;
+      let payload = `testId=${this.test.Id}`;
+      if (queryString.indexOf('?') === -1) {
+        payload = `?${payload}`;
+      } else {
+        payload = `&${payload}`;
+      }
+      queryString = `${queryString}${payload}`;
+
+      let url = `${this.cancelTestEndpoint}${queryString}`;
+
+      fetch(url, {
+          credentials: 'include',
+          method: "POST",
+          headers: new Headers({
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }),
+      })
+      .then(response => {
+      })
+      .catch((e) => {
+      });
     }
 
     executeTest(): void
     {
       this.$emit("testStarted", this.test.Id);
       this.testInProgress = true;
+      this.cancellationInProgress = false;
       this.testExecutionFailed = false;
 
       let payload = this.generatePayload();
@@ -202,12 +252,20 @@ export default class TestComponent extends Vue {
           this.test.TestResult = result;
           this.testResult = this.test.TestResult;
           this.testInProgress = false;
+          this.cancellationInProgress = false;
           this.$emit("testStopped", this.test.Id);
+          this.showCancellationButtonUntilNextRun = false;
+
+          // ToDo dont do this :-)
+          if (this.test.TestResult.Message == 'Test is already running and must be cancelled before it can run again.') {
+            this.showCancellationButtonUntilNextRun = true;
+          }
       })
       .catch((e) => {
           this.test.TestResult = null;
           this.testResult = this.test.TestResult;
           this.testInProgress = false;
+          this.cancellationInProgress = false;
           this.testExecutionFailed = true;
           this.testExecutionErrorMessage = `Failed to execute test with the following error. ${e}.`;
           this.$emit("testStopped", this.test.Id);
@@ -264,6 +322,22 @@ export default class TestComponent extends Vue {
 }
 .run-test-button .v-icon {
     margin-right: 5px;
+}
+.run-test-button.v-btn--disabled.cancellable {
+    /* padding-left: 30px !important; */
+}
+.cancel-test-button {
+  /* font-size: 20px;
+  min-width: 120px;
+  min-height: 53px;
+  border-radius: 0 0 0 25px;
+  text-transform: inherit;
+  margin-right: -25px !important;
+  padding-right: 40px !important;
+  z-index: 1; */
+}
+.cancel-test-button .v-icon {
+    /* margin-right: 5px; */
 }
 .test-details {
   padding: 0px 48px 24px 24px;

@@ -36,6 +36,11 @@ namespace HealthCheck.WebUI.ViewModels
         public string RunningButtonText { get; set; }
 
         /// <summary>
+        /// True if the test supports cancellation.
+        /// </summary>
+        public bool IsCancellable { get; set; }
+
+        /// <summary>
         /// Test parameters.
         /// </summary>
         public List<TestParameterViewModel> Parameters { get; set; }

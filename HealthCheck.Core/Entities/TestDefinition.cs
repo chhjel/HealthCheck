@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Entities
@@ -68,6 +69,11 @@ namespace HealthCheck.Core.Entities
         public string RunningButtonText { get; set; }
 
         /// <summary>
+        /// True if the test supports cancellation.
+        /// </summary>
+        public bool IsCancellable { get; set; }
+
+        /// <summary>
         /// Test method.
         /// </summary>
         internal MethodInfo Method { get; private set; }
@@ -92,6 +98,9 @@ namespace HealthCheck.Core.Entities
             RolesWithAccess =  testAttribute.RolesWithAccess ?? parentClass.DefaultRolesWithAccess;
             RunButtonText = testAttribute.RunButtonText;
             RunningButtonText = testAttribute.RunningButtonText;
+
+            var methodParams = Method.GetParameters();
+            IsCancellable = (methodParams.FirstOrDefault()?.ParameterType == typeof(CancellationToken));
 
             Categories = (testAttribute.Categories ?? new string[0])
                 .Union((testAttribute.Category == null ? new string[0] : new []{ testAttribute.Category }))
@@ -118,6 +127,11 @@ namespace HealthCheck.Core.Entities
             var parameterAttributesOnMethod = method.GetCustomAttributes<RuntimeTestParameterAttribute>(true);
 
             var methodParameters = Method.GetParameters();
+            if (methodParameters.FirstOrDefault()?.ParameterType == typeof(CancellationToken))
+            {
+                methodParameters = methodParameters.Skip(1).ToArray();
+            }
+
             Parameters = new TestParameter[methodParameters.Length];
             for(int i = 0; i < methodParameters.Length; i++)
             {
@@ -196,9 +210,19 @@ namespace HealthCheck.Core.Entities
         /// <summary>
         /// Run the test.
         /// </summary>
-        public async Task<TestResult> ExecuteTest(object instance, object[] parameters, bool allowDefaultValues = true)
+        public async Task<TestResult> ExecuteTest(object instance, object[] parameters, bool allowDefaultValues = true,
+            Action<CancellationTokenSource> onCancellationTokenCreated = null)
         {
             var methodParams = Method.GetParameters();
+            if (methodParams.FirstOrDefault()?.ParameterType == typeof(CancellationToken))
+            {
+                var cancellationTokenSource = new CancellationTokenSource();
+                var paramList = parameters.ToList();
+                paramList.Insert(0, cancellationTokenSource.Token);
+                parameters = paramList.ToArray();
+                onCancellationTokenCreated(cancellationTokenSource);
+            }
+
             var parameterCount = methodParams.Length;
             var parameterList = new object[parameterCount];
             for (int i = 0; i < parameterCount; i++)
@@ -226,8 +250,8 @@ namespace HealthCheck.Core.Entities
             }
             else if (Method.ReturnType == typeof(Task<TestResult>))
             {
-                var task = (Task<TestResult>)Method.Invoke(instance, parameterList);
-                return await task;
+                var resultTask = (Task<TestResult>)Method.Invoke(instance, parameterList);
+                return await resultTask;
             }
             else
             {

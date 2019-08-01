@@ -7,6 +7,7 @@ export default interface TestViewModel {
     Description: string;
     RunButtonText: string;
     RunningButtonText: string;
+    IsCancellable: boolean;
     Parameters: Array<TestParameterViewModel>;
 
     // Extra data

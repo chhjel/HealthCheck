@@ -54,6 +54,7 @@ namespace HealthCheck.WebUI.Factories
                 Description = testDefinition.Description,
                 RunButtonText = testDefinition.RunButtonText,
                 RunningButtonText = testDefinition.RunningButtonText,
+                IsCancellable = testDefinition.IsCancellable,
                 Parameters = new List<TestParameterViewModel>()
             };
 

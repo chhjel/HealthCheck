@@ -148,6 +148,33 @@ namespace HealthCheck.WebUI.Util
         }
 
         /// <summary>
+        /// Requests cancellation of the given cancellable test.
+        /// </summary>
+        public bool CancelTest(RequestInformation<TAccessRole> requestInfo, string testId, IAuditEventStorage auditEventService)
+        {
+            if (testId == null)
+            {
+                return false;
+            }
+
+            var test = GetTest(requestInfo.AccessRole, testId);
+            if (test == null)
+            {
+                return false;
+            }
+
+            var registered = TestRunner.RequestTestCancellation(testId);
+            if (registered)
+            {
+                auditEventService?.StoreEvent(
+                    CreateAuditEventFor(requestInfo, AuditEventArea.Tests, action: "Test cancellation requested", subject: test?.Name)
+                    .AddDetail("Test id", test?.Id)
+                );
+            }
+            return registered;
+        }
+
+        /// <summary>
         /// Create view html from the given options.
         /// </summary>
         /// <exception cref="ConfigValidationException"></exception>
@@ -239,6 +266,7 @@ namespace HealthCheck.WebUI.Util
             }
             else
             {
+                frontEndOptions.CancelTestEndpoint = deniedEndpoint;
                 frontEndOptions.ExecuteTestEndpoint = deniedEndpoint;
                 frontEndOptions.GetTestsEndpoint = deniedEndpoint;
             }

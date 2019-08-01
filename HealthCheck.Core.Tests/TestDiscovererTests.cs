@@ -4,6 +4,7 @@ using HealthCheck.Core.Exceptions;
 using HealthCheck.Core.Tests.Helpers;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -157,6 +158,20 @@ namespace HealthCheck.Core.Services
         }
 
         [Fact]
+        public void DiscoverTestDefinitions_WithCancellableTests__DoesNotIncludeParameterDefinitionForCancellationToken()
+        {
+            var discoverer = new TestDiscoveryService()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+            var tests = discoverer.DiscoverTestDefinitions().SelectMany(x => x.Tests);
+            var test = tests.FirstOrDefault(x => x.Categories.Contains("TestSetId3Category"));
+            Assert.NotNull(test);
+            Assert.True(test.IsCancellable);
+            Assert.DoesNotContain(test.Parameters, x => x.ParameterType == typeof(CancellationToken));
+        }
+
+        [Fact]
         public void GetInvalidTests_WithInvalidTests_ReturnsInvalidTests()
         {
             var discoverer = new TestDiscoveryService()
@@ -247,6 +262,17 @@ namespace HealthCheck.Core.Services
             {
                 await Task.Delay(1);
                 return TestResult.CreateSuccess($"Success!");
+            }
+        }
+
+        [RuntimeTestClass(Id = "TestSetId3", Description = "Some test set #3", Name = "Dev test set #3", DefaultCategory = "TestSetId3Category")]
+        public class TestClass3
+        {
+            [RuntimeTest(name: "TestMethodA3")]
+            public async Task<TestResult> CancellableTest1(CancellationToken cancellationToken, string param1)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(0.1), cancellationToken);
+                return TestResult.CreateSuccess("Completed! " + param1);
             }
         }
     }

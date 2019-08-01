@@ -1,8 +1,10 @@
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Entities;
+using HealthCheck.Core.Enums;
 using HealthCheck.Core.Services.Storage;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -241,6 +243,110 @@ namespace HealthCheck.Core.Services
             Assert.Equal(default, (DateTime)data[1]);
         }
 
+        [Fact]
+        public void ExecuteTest_WithCancellationToken_ShouldBeValidTest()
+        {
+            var discoverer = new TestDiscoveryService()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+            var test = discoverer.DiscoverTestDefinitions()
+                .Where(x => x.Id == "TestClass_Cancellable")
+                .SelectMany(x => x.Tests)
+                .FirstOrDefault(x => x.Name == "CancellableTest1");
+
+            Assert.NotNull(test);
+        }
+
+        [Fact]
+        public async Task ExecuteTest_WithAlreadyRunningCancellableTest_ShouldReturnWarning()
+        {
+            var discoverer = new TestDiscoveryService()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+            var test = discoverer.DiscoverTestDefinitions()
+                .Where(x => x.Id == "TestClass_Cancellable")
+                .SelectMany(x => x.Tests)
+                .FirstOrDefault(x => x.Name == "CancellableTest1");
+
+            var runner = new TestRunnerService();
+            var resultTask1 = runner.ExecuteTest(test, new object[0], allowDefaultValues: true);
+            var resultTask2 = runner.ExecuteTest(test, new object[0], allowDefaultValues: true);
+
+            await Task.Delay(40);
+            var runner2 = new TestRunnerService();
+            runner2.RequestTestCancellation(test.Id);
+
+            var results = new TestResult[] {
+                await resultTask1,
+                await resultTask2
+            };
+
+            Assert.Contains(results, x => x.Status == TestResultStatus.Warning);
+            Assert.Contains(results, x => x.Message == "Test is already running and must be cancelled before it can run again.");
+            Assert.Contains(results, x => x.Message == "Task was cancelled.");
+        }
+
+        [Fact]
+        public async Task RequestTestCancellation_WithCancellationToken_ShouldBeCancellable()
+        {
+            var discoverer = new TestDiscoveryService()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+            var test = discoverer.DiscoverTestDefinitions()
+                .Where(x => x.Id == "TestClass_Cancellable")
+                .SelectMany(x => x.Tests)
+                .FirstOrDefault(x => x.Name == "CancellableTest1");
+
+            var runner = new TestRunnerService();
+            var resultTask = runner.ExecuteTest(test, new object[0], allowDefaultValues: true);
+
+            var runner2 = new TestRunnerService();
+            runner2.RequestTestCancellation(test.Id);
+
+            var result = await resultTask;
+
+            Output.WriteLine(result.Message);
+            Assert.Equal("Task was cancelled.", result.Message);
+            Assert.Equal(TestResultStatus.Warning, result.Status);
+        }
+
+        [Fact]
+        public async Task ExecuteTest_WithCancellableTestWithoutParams_ShouldRunWhenNotCancelled()
+        {
+            var discoverer = new TestDiscoveryService()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+            var test = discoverer.DiscoverTestDefinitions()
+                .Where(x => x.Id == "TestClass_Cancellable")
+                .SelectMany(x => x.Tests)
+                .FirstOrDefault(x => x.Name == "CancellableTest2");
+
+            var runner = new TestRunnerService();
+            var result = await runner.ExecuteTest(test, new object[0], allowDefaultValues: true);
+            Assert.Equal("Completed!", result.Message);
+        }
+
+        [Fact]
+        public async Task ExecuteTest_WithCancellableTestWithParams_ShouldRunWhenNotCancelled()
+        {
+            var discoverer = new TestDiscoveryService()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+            var test = discoverer.DiscoverTestDefinitions()
+                .Where(x => x.Id == "TestClass_Cancellable")
+                .SelectMany(x => x.Tests)
+                .FirstOrDefault(x => x.Name == "CancellableTest3");
+
+            var runner = new TestRunnerService();
+            var result = await runner.ExecuteTest(test, new object[] { "input here" }, allowDefaultValues: true);
+            Assert.Equal("Completed! input here", result.Message);
+        }
+
         [RuntimeTestClass(Id = "TestRunnerTestsSetA", Description = "Some test set", Name = "Dev test set")]
         public class TestClassA
         {
@@ -356,6 +462,31 @@ namespace HealthCheck.Core.Services
             {
                 return TestResult.CreateError("Opsie Error!")
                     .SetSiteEvent(new SiteEvent(Enums.SiteEventSeverity.Error, EventTypeId + "2", "Oh no Error2!", "Other Error!"));
+            }
+        }
+
+        [RuntimeTestClass(Id = "TestClass_Cancellable", DefaultCategory = "DCategory_Cancellable")]
+        public class TestClass_Cancellable
+        {
+            [RuntimeTest(name: "CancellableTest1")]
+            public async Task<TestResult> CancellableTest1(CancellationToken cancellationToken)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+                return TestResult.CreateSuccess("Completed!");
+            }
+
+            [RuntimeTest(name: "CancellableTest2")]
+            public async Task<TestResult> CancellableTest2(CancellationToken cancellationToken)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(20), cancellationToken);
+                return TestResult.CreateSuccess("Completed!");
+            }
+
+            [RuntimeTest(name: "CancellableTest3")]
+            public async Task<TestResult> CancellableTest2(CancellationToken cancellationToken, string param1)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(20), cancellationToken);
+                return TestResult.CreateSuccess($"Completed! {param1}");
             }
         }
     }

@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Services
@@ -20,6 +21,9 @@ namespace HealthCheck.Core.Services
         /// <para>False by default.</para>
         /// </summary>
         public bool IncludeExceptionStackTraces { get; set; }
+
+
+        private static Dictionary<string, CancellationTokenSource> _testCancellationTokenSources = new Dictionary<string, CancellationTokenSource>();
 
         /// <summary>
         /// Executes matching tests.
@@ -193,12 +197,27 @@ namespace HealthCheck.Core.Services
             object testClassInstance = null,
             bool allowDefaultValues = true)
         {
+            var removeCancellationTokenOnFinish = true;
             var stopWatch = new Stopwatch();
             stopWatch.Start();
             try
             {
+                // Abort if already running
+                if (IsCancellableTestRunning(test.Id)) {
+                    removeCancellationTokenOnFinish = false;
+                    return new TestResult()
+                    {
+                        Test = test,
+                        Status = Enums.TestResultStatus.Warning,
+                        Message = $"Test is already running and must be cancelled before it can run again.",
+                        DurationInMilliseconds = stopWatch.ElapsedMilliseconds
+                    };
+                }
+
+                // Execute test
                 var instance = testClassInstance ?? Activator.CreateInstance(test.ParentClass.ClassType);
-                var result = await test.ExecuteTest(instance, parameters, allowDefaultValues);
+                var result = await test.ExecuteTest(instance, parameters, allowDefaultValues,
+                    (tokenSource) => RegisterCancellableTestStarted(test.Id, tokenSource));
 
                 // Post-process result
                 result.Test = test;
@@ -210,6 +229,16 @@ namespace HealthCheck.Core.Services
 
                 return result;
             }
+            catch (TaskCanceledException)
+            {
+                return new TestResult()
+                {
+                    Test = test,
+                    Status = Enums.TestResultStatus.Warning,
+                    Message = $"Task was cancelled.",
+                    DurationInMilliseconds = stopWatch.ElapsedMilliseconds
+                };
+            }
             catch (Exception ex)
             {
                 return new TestResult()
@@ -219,7 +248,61 @@ namespace HealthCheck.Core.Services
                     Message = $"Failed to execute test with the exception: {ex.Message}",
                     StackTrace = IncludeExceptionStackTraces ? ex.ToString() : null,
                     DurationInMilliseconds = stopWatch.ElapsedMilliseconds
-            };
+                };
+            }
+            finally
+            {
+                if (removeCancellationTokenOnFinish)
+                {
+                    RegisterCancellableTestStopped(test.Id);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Request the given cancellable test to be stopped.
+        /// </summary>
+        public bool RequestTestCancellation(string testId)
+        {
+            lock (_testCancellationTokenSources)
+            {
+                if (_testCancellationTokenSources.ContainsKey(testId))
+                {
+                    var token = _testCancellationTokenSources[testId];
+                    token.Cancel();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Check if the given cancellable test is currently running.
+        /// </summary>
+        public static bool IsCancellableTestRunning(string testId)
+        {
+            lock (_testCancellationTokenSources)
+            {
+                return _testCancellationTokenSources.ContainsKey(testId);
+            }
+        }
+
+        private void RegisterCancellableTestStarted(string testId, CancellationTokenSource source)
+        {
+            lock (_testCancellationTokenSources)
+            {
+                _testCancellationTokenSources[testId] = source;
+            }
+        }
+
+        private void RegisterCancellableTestStopped(string testId)
+        {
+            lock (_testCancellationTokenSources)
+            {
+                if (_testCancellationTokenSources.ContainsKey(testId))
+                {
+                    _testCancellationTokenSources.Remove(testId);
+                }
             }
         }
     }

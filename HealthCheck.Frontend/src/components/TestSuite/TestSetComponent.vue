@@ -28,6 +28,7 @@
             :key="`set-${testSet.Id}-test-${test.Id}`"
             :test="test"
             :executeTestEndpoint="executeTestEndpoint"
+            :cancelTestEndpoint="cancelTestEndpoint"
             :inludeQueryStringInApiCalls="inludeQueryStringInApiCalls"
             v-on:testStarted="onTestStarted"
             v-on:testStopped="onTestStopped"
@@ -54,6 +55,8 @@ export default class TestSetComponent extends Vue {
     
     @Prop({ required: true })
     executeTestEndpoint!: string;
+    @Prop({ required: true })
+    cancelTestEndpoint!: string;
     @Prop({ required: true })
     inludeQueryStringInApiCalls!: string;
 

@@ -191,6 +191,16 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
+        /// Requests cancellation of the given cancellable test.
+        /// </summary>
+        [HttpPost]
+        public virtual async Task<ActionResult> CancelTest(string testId)
+        {
+            if (!Enabled || !Helper.CanShowTestsPageTo(CurrentRequestAccessRoles)) return HttpNotFound();
+            return CreateJsonResult(Helper.CancelTest(CurrentRequestInformation, testId, AuditEventService));
+        }
+
+        /// <summary>
         /// Serializes the given object into a json result.
         /// </summary>
         protected ActionResult CreateJsonResult(object obj)
