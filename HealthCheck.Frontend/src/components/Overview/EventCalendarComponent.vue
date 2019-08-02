@@ -40,26 +40,14 @@
             color="primary" ref="calendar">
             <!-- MONTH VIEW -->
             <template v-slot:day="{ date }">
-                <template v-for="(event, eventIndex) in calendarEventsMap[date]">
-                    <v-menu
-                        :key="`month-item-${event.id}-${eventIndex}`"
-                        v-model="event.open" full-width offset-x>
-                        <template v-slot:activator="{ on }">
-                            <div v-ripple v-on="on"
-                                class="calendar-event"
-                                :class="getEventSeverityClass(event.data.Severity)">
-                                {{event.title}}
-                            </div>
-                        </template>
-                        <site-event-details-component :event="event.data">
-                            <template v-slot:actions>
-                                <v-btn flat color="secondary">
-                                    Close
-                                </v-btn>
-                            </template>
-                        </site-event-details-component>
-                    </v-menu>
-                </template>
+                <div v-for="(event, eventIndex) in calendarEventsMap[date]"
+                    :key="`month-item-${event.id}-${eventIndex}`"
+                    v-ripple
+                    @click="onEventClicked(event.data)"
+                    class="calendar-event"
+                    :class="getEventSeverityClass(event.data.Severity)">
+                    {{event.title}}
+                </div>
             </template>
             
             <!-- WITH-TIME VIEW -->
