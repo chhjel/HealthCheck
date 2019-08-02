@@ -36,7 +36,7 @@ namespace HealthCheck.Core.Attributes
         public bool ReadOnlyList { get; set; }
 
         /// <summary>
-        /// Method name of a public static method in the same class as this method. The method should return the same return type as this parameter, and have zero parameters.
+        /// Method name of a public static method in the same class as this method. The method should have the same return type as this parameter, and have zero parameters.
         /// </summary>
         public string DefaultValueFactoryMethod { get; set; }
 
