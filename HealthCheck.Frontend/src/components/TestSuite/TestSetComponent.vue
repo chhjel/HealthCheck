@@ -18,7 +18,7 @@
                     {{executeAllTestsInSetButtonText}}
                 </v-btn>
             </div>
-            <div class="subheading testset-subtitle">{{ testSet.Description }}</div>
+            <div class="subheading testset-subtitle" v-html="testSet.Description"></div>
         </div>
 
         <div class="mb-4" style="clear:both;"></div>
