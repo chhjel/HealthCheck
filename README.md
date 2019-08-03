@@ -120,13 +120,32 @@ public class MyClass
 }
 ```
 
+<details><summary>Another method example</summary>
+<p>
+
+```csharp
+
+[RuntimeTest("Get data from somewhere", "Retrieves data from service X and shows the response data.")]
+[RuntimeTestParameter(target: "id", name: "Data id", description: "Id of the thing to get")]
+[RuntimeTestParameter(target: "orgName", name: "Organization name", description: "Name of the organization the data belongs to", notNull: true)]
+public async Task<TestResult> GetDataFromServiceX(int id = 42, string orgName = "Test Organization")
+{
+    var data = await dataService.GetData(id, orgName, allowCache, maxResults);
+    return TestResult.CreateSuccess($"Recieved data successfully")
+        .AddSerializedData(data, data.Name);
+}
+```
+</p>
+</details>
+
 ### Method parameters
 
 Executable methods can have parameter with or without default values. Default values will be included in the generated interface.
 
 Supported parameter types:
-* `int`, `int?`
 * `string`
+* `int`, `int?`
+* `bool`, `bool?`
 * `DateTime`, `DateTime?`
 * `Enum` (=> select)
 * `Enum with `[Flags]` (=> multiselect)
