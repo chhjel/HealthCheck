@@ -146,7 +146,7 @@ namespace HealthCheck.Core.Entities
         }
 
         /// <summary>
-        /// Include the given html in the result data.
+        /// Include the given plain text in the result data.
         /// </summary>
         public TestResult AddTextData(string text, string title = null, bool onlyIfNotNullOrEmpty = true)
             => AddData(text, title, TestResultDataDumpType.PlainText, onlyIfNotNullOrEmpty);

@@ -227,10 +227,61 @@ IAuditEventStorage auditEventStorage = new FlatFileAuditEventStorage(HostingEnvi
 ### ISiteEventService
 If a ISiteEventService is provided in the controller any events will be retrieved from it and can be shown in a overview page. Call this service from other places in the code to register new events.
 
-Test methods can register events if executed through `<TestRunnerService>.ExecuteTests(..)`, a site event service is given, and the `TestResult` from a method includes a `SiteEvent`.
+Test methods can register events if executed through `<TestRunnerService>.ExecuteTests(..)`, a site event service is given, and the `TestResult` from a method includes a `SiteEvent`. When executing a method from the UI the site event data will be ignored. 
 
 Site events are grouped on `SiteEvent.EventTypeId` and extend their duration when multiple events are registered after each other.
 
 ```csharp
 ISiteEventService siteEventService = new SiteEventService(new FlatFileSiteEventStorage(HostingEnvironment.MapPath("~/App_Data/SiteEventStorage.json"), maxEventAge: TimeSpan.FromDays(5)));
+```
+
+<details><summary>Example method</summary>
+<p>
+
+```csharp
+
+[RuntimeTest]
+public TestResult CheckIntegrationX()
+{
+    // Use the same event type id when reporting and resolving the event.
+    var eventTypeId = "IntegrationXAvailability";
+
+    try {
+        ...
+        
+        // Methods that include site events should always include a resolved event
+        // when the method runs successfully. The event will then be marked as resolved.
+        return TestResult.CreateResolvedSiteEvent(
+            testResultMessage: "Integration X seems to be alive.",
+            eventTypeid: eventTypeId,
+            resolvedMessage: "Integration X seems to be working again.");
+    }
+    catch(Exception ex)
+    {
+        // On error include a site event in the result
+        return TestResult.CreateError(ex.Message)
+            .SetSiteEvent(new SiteEvent(SiteEventSeverity.Error, eventTypeId,
+                title: "Integration X availability reduced",
+                description: "There seems to be some instabilities at the moment " +
+                "and feature Y and Z might temporarily experience reduced functionality."));
+    }
+}
+```
+</p>
+</details>
+
+## Scheduled health checks
+
+There is no built in scheduler but the `TestRunner` class can be used to easily execute a subset of the methods from e.g. a scheduled task and report the results to the given site `ISiteEventService`.
+
+```csharp
+TestDiscoveryService testDiscovererService = ..;
+ISiteEventService siteEventService = ..;
+
+var runner = new TestRunnerService();
+var results = await runner.ExecuteTests(testDiscovererService,
+    // Only include methods belonging to the "Scheduled Checks"-category
+    (m) => m.Categories.Contains("Scheduled Checks"),
+    // Provide an event service to automatically report to it
+    siteEventService);
 ```

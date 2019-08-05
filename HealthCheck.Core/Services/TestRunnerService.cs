@@ -27,7 +27,7 @@ namespace HealthCheck.Core.Services
 
         /// <summary>
         /// Executes matching tests.
-        /// <para>Optionally sends results containing a <see cref="TestResult.SiteEvent"/> if a <see cref="ISiteEventStorage"/> is provided,
+        /// <para>Optionally sends results containing a <see cref="TestResult.SiteEvent"/> if a <see cref="ISiteEventService"/> is provided,
         /// and creates audit events if a <see cref="IAuditEventStorage"/> is provided.</para>
         /// <para><see cref="TestResult.SiteEvent"/> marked as resolved will resolve the last event with a matching event type id.</para>
         /// </summary>
