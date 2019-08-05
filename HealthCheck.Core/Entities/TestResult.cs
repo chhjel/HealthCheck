@@ -146,6 +146,16 @@ namespace HealthCheck.Core.Entities
         }
 
         /// <summary>
+        /// Include details about the given exception in the result data.
+        /// <para>Shortcut to AddTextData(ExceptionUtils.GetFullExceptionDetails(exception), ..)</para>
+        /// </summary>
+        public TestResult AddExceptionData(Exception exception, string title = null, bool onlyIfNotNullOrEmpty = true)
+            => AddTextData(
+                (exception != null) ? ExceptionUtils.GetFullExceptionDetails(exception) : null, 
+                title ?? exception?.GetType()?.Name,
+                onlyIfNotNullOrEmpty);
+
+        /// <summary>
         /// Include the given plain text in the result data.
         /// </summary>
         public TestResult AddTextData(string text, string title = null, bool onlyIfNotNullOrEmpty = true)

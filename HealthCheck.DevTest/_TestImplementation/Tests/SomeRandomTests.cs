@@ -156,6 +156,21 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             throw new ArgumentOutOfRangeException("nonExistentArgument");
         }
 
+        [RuntimeTest()]
+        public TestResult TestThatIncludesExceptionData()
+        {
+            try
+            {
+                int.Parse("something unparsable");
+                throw new NotImplementedException("Implemented but broken on purpose!");
+            }
+            catch (Exception ex)
+            {
+                return TestResult.CreateError(ex?.Message)
+                    .AddExceptionData(ex);
+            }
+        }
+
         [RuntimeTest(Category = RuntimeTestConstants.Categories.ScheduledHealthCheck, AllowManualExecution = false)]
         public TestResult TestOfAHealthCheckWarning()
         {

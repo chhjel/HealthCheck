@@ -131,7 +131,7 @@ public class MyClass
 public async Task<TestResult> GetDataFromServiceX(int id = 42, string orgName = "Test Organization")
 {
     var data = await dataService.GetData(id, orgName, allowCache, maxResults);
-    return TestResult.CreateSuccess($"Recieved data successfully")
+    return TestResult.CreateSuccess("Recieved data successfully")
         .AddSerializedData(data, data.Name);
 }
 ```
@@ -280,8 +280,14 @@ ISiteEventService siteEventService = ..;
 
 var runner = new TestRunnerService();
 var results = await runner.ExecuteTests(testDiscovererService,
-    // Only include methods belonging to the "Scheduled Checks"-category
+    // Only include methods belonging to the custom "Scheduled Checks"-category
     (m) => m.Categories.Contains("Scheduled Checks"),
     // Provide an event service to automatically report to it
     siteEventService);
 ```
+
+## Utils
+
+A few utility classes are included below `HealthCheck.Core.Util`:
+* `ExceptionUtils` - Get a summary of exceptions to include in results.
+* `ConnectivityUtils` - Ping or send webrequests to check if a host is alive and return `TestResult` objects.

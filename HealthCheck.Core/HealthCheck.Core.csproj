@@ -10,6 +10,7 @@
     <Description>Core logic for discovering and executing tests.</Description>
     <Copyright>ChristianH</Copyright>
     <LangVersion>latest</LangVersion>
+    <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-HealthCheck</PackageProjectUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

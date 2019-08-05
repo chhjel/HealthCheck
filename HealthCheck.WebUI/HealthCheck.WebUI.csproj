@@ -12,6 +12,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>latest</LangVersion>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.WebUI.Core.xml</DocumentationFile>
+    <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-HealthCheck</PackageProjectUrl>
   </PropertyGroup>
 
   <!-- .NET STANDARD ######################### -->
