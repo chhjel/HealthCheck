@@ -2,19 +2,20 @@
 <template>
     <div>
       <div v-if="!fullscreen">{{data.Title}}</div>
-      <highlight-code 
-        :class="`${(fullscreen ? 'code-field fullscreen' : 'code-field')}`"
-        lang="json"
-        :code="data.Data"></highlight-code>
+      <code-editor language="json"
+        :data="data"
+        :fullscreen="fullscreen" />
     </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 import TestResultDataDumpViewModel from "../../../../models/TestSuite/TestResultDataDumpViewModel";
+import CodeEditor from './abstractions/CodeComponent.vue'
 
 @Component({
     components: {
+        CodeEditor
     }
 })
 export default class TestResultJsonDataComponent extends Vue {
@@ -22,15 +23,5 @@ export default class TestResultJsonDataComponent extends Vue {
     data!: TestResultDataDumpViewModel;
     @Prop({ required: true })
     fullscreen!: boolean;
-
-    mounted(): void {
-    }
 }
 </script>
-
-<style scoped>
-.code-field:not(.fullscreen) {
-    max-height: 300px;
-    overflow: auto;
-}
-</style>

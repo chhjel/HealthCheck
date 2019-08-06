@@ -38,6 +38,21 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             D = 8
         }
 
+        [RuntimeTest]
+        public TestResult TestAllDataDumpTypes(int imageWidth = 640, int imageHeight = 480, int imageCount = 10, int linkCount = 4)
+        {
+            var objectToSerialize = TestResult.CreateWarning($"Some random json object");
+
+            return TestResult.CreateSuccess($"Images has been served.")
+                .AddXmlData("<test>\n\t<el test=\"asd\">Some Value</el>\n</test>\n", "Xml test")
+                .AddHtmlData($"Some <b>html</b> here!<br /><a href='https://www.google.com'>some link</a>", "Some html")
+                .AddSerializedData(objectToSerialize, "Serialized object data")
+                .AddTextData("Some text data", "Text title")
+                .AddJsonData(LargeJson, "Big json data")
+                .AddUrlsData(Enumerable.Range(1, linkCount).Select(x => new HyperLink($"Link number #{x}", $"{"https://"}www.google.com?q={x}")))
+                .AddImageUrlsData(Enumerable.Range(1, imageCount).Select(x => $"{"https://"}loremflickr.com/{imageWidth}/{imageHeight}?v={x}"), $"{imageCount} images from https://loremflickr.com");
+        }
+
         [RuntimeTest(
             Description = "Some <a href=\"https://www.google.com\">description</a> here.",
             RunButtonText = "Import", RunningButtonText = "Importing")]
@@ -111,21 +126,6 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             return (value != null) 
                 ? (value.GetType().IsValueType) ? value.ToString() : $"'{value.ToString()}'" 
                 : "null";
-        }
-
-        [RuntimeTest]
-        public TestResult TestAllDataDumpTypes(int imageWidth = 640, int imageHeight = 480, int imageCount = 10, int linkCount = 4)
-        {
-            var objectToSerialize = TestResult.CreateWarning($"Some random json object");
-
-            return TestResult.CreateSuccess($"Images has been served.")
-                .AddHtmlData($"Some <b>html</b> here!<br /><a href='https://www.google.com'>some link</a>", "Some html")
-                .AddSerializedData(objectToSerialize, "Serialized object data")
-                .AddTextData("Some text data", "Text title")
-                .AddXmlData("<test><el test=\"asd\">Some Value</el></test>", "Xml test")
-                .AddJsonData(LargeJson, "Big json data")
-                .AddUrlsData(Enumerable.Range(1, linkCount).Select(x => new HyperLink($"Link number #{x}", $"{"https://"}www.google.com?q={x}")))
-                .AddImageUrlsData(Enumerable.Range(1, imageCount).Select(x => $"{"https://"}loremflickr.com/{imageWidth}/{imageHeight}?v={x}"), $"{imageCount} images from https://loremflickr.com");
         }
 
 
