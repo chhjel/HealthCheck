@@ -44,6 +44,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             var objectToSerialize = TestResult.CreateWarning($"Some random json object");
 
             return TestResult.CreateSuccess($"Images has been served.")
+                .AddCodeData("public class Test {\n\tpublic string Prop { get; set; }\n}\n", "Code test")
                 .AddXmlData("<test>\n\t<el test=\"asd\">Some Value</el>\n</test>\n", "Xml test")
                 .AddHtmlData($"Some <b>html</b> here!<br /><a href='https://www.google.com'>some link</a>", "Some html")
                 .AddSerializedData(objectToSerialize, "Serialized object data")

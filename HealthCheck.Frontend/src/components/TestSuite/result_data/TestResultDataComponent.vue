@@ -69,6 +69,7 @@ import TestResultDataDumpViewModel from "../../../models/TestSuite/TestResultDat
 // Parameter input components
 import UnknownDataTypeComponent from './UnknownDataTypeComponent.vue';
 import TestResultPlainTextDataComponent from './data_types/TestResultPlainTextDataComponent.vue';
+import TestResultCodeDataComponent from './data_types/TestResultCodeDataComponent.vue';
 import TestResultXmlDataComponent from './data_types/TestResultXmlDataComponent.vue';
 import TestResultJsonDataComponent from './data_types/TestResultJsonDataComponent.vue';
 import TestResultHtmlDataComponent from './data_types/TestResultHtmlDataComponent.vue';
@@ -84,7 +85,8 @@ import TestResultUrlsDataComponent from './data_types/TestResultUrlsDataComponen
       TestResultJsonDataComponent,
       TestResultHtmlDataComponent,
       TestResultImageUrlsDataComponent,
-      TestResultUrlsDataComponent
+      TestResultUrlsDataComponent,
+      TestResultCodeDataComponent
     }
 })
 export default class TestResultDataComponent extends Vue {

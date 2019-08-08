@@ -144,7 +144,7 @@ namespace HealthCheck.Core.Entities
             });
             return this;
         }
-
+        
         /// <summary>
         /// Include details about the given exception in the result data.
         /// <para>Shortcut to AddTextData(ExceptionUtils.GetFullExceptionDetails(exception), ..)</para>
@@ -160,6 +160,12 @@ namespace HealthCheck.Core.Entities
         /// </summary>
         public TestResult AddTextData(string text, string title = null, bool onlyIfNotNullOrEmpty = true)
             => AddData(text, title, TestResultDataDumpType.PlainText, onlyIfNotNullOrEmpty);
+
+        /// <summary>
+        /// Include the given code text in the result data. Will be shown in a monaco-editor.
+        /// </summary>
+        public TestResult AddCodeData(string code, string title = null, bool onlyIfNotNullOrEmpty = true)
+            => AddData(code, title, TestResultDataDumpType.Code, onlyIfNotNullOrEmpty);
 
         /// <summary>
         /// Include the given html in the result data.

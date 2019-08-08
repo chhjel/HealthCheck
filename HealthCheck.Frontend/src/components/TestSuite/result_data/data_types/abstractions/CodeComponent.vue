@@ -14,7 +14,7 @@
             class="editor"
             :class="`${(fullscreen ? 'fullscreen' : '')}`"
             v-model="data.Data"
-            v-on:editorDidMount="onEditorDidMount "
+            v-on:editorDidMount="onEditorDidMount"
             :theme="monacoTheme"
             :options="monacoOptions"
             :syncInput="true"

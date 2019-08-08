@@ -11,6 +11,11 @@
         PlainText = 0,
 
         /// <summary>
+        /// Code, will be shown in a monaco-editor.
+        /// </summary>
+        Code,
+
+        /// <summary>
         /// Json data.
         /// </summary>
         Json,
