@@ -6,5 +6,6 @@ export default interface TestSetViewModel {
     Description: string;
     GroupName: string| null;
     UIOrder: number;
+    AllowRunAll: boolean;
     Tests: Array<TestViewModel>;
 }

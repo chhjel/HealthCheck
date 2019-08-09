@@ -31,7 +31,8 @@ namespace HealthCheck.WebUI.Factories
                 Description = testClassDefinition.Description,
                 GroupName = testClassDefinition.GroupName,
                 UIOrder = testClassDefinition.UIOrder,
-                Tests = new List<TestViewModel>()
+                AllowRunAll = testClassDefinition.AllowRunAll,
+                Tests = new List<TestViewModel>(),
             };
 
             foreach (var test in testClassDefinition.Tests)

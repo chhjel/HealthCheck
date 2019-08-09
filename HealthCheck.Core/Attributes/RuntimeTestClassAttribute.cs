@@ -60,5 +60,11 @@ namespace HealthCheck.Core.Attributes
         /// <para>If groups are used this is the order within its group.</para>
         /// </summary>
         public int UIOrder { get; set; }
+
+        /// <summary>
+        /// Show button to run all the tests in this set at once.
+        /// <para>Enabled by default.</para>
+        /// </summary>
+        public bool AllowRunAll { get; set; } = true;
     }
 }

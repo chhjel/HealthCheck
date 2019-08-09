@@ -34,6 +34,12 @@ namespace HealthCheck.WebUI.ViewModels
         public int UIOrder { get; set; }
 
         /// <summary>
+        /// Show button to run all the tests in this set at once.
+        /// <para>Enabled by default.</para>
+        /// </summary>
+        public bool AllowRunAll { get; set; } = true;
+
+        /// <summary>
         /// List of tests in the set.
         /// </summary>
         public List<TestViewModel> Tests { get; set; }

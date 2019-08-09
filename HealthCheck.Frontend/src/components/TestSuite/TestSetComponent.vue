@@ -5,6 +5,7 @@
             <div class="title-button-wrapper">
                 <h2 class="testset-title font-weight-bold">{{ testSet.Name }}</h2>
                 <v-btn ripple color="primary" outline
+                    v-if="testSet.AllowRunAll"
                     @click.stop.prevent="executeAllTestsInSet()"
                     :disabled="anyTestInProgress"
                     class="run-all-tests-button">

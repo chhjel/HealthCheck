@@ -16,7 +16,8 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         Description = "Some fancy <a href=\"https://www.google.com\">description</a>.",
         DefaultRolesWithAccess = RuntimeTestAccessRole.SystemAdmins,
         GroupName = RuntimeTestConstants.Group.AdminStuff,
-        UIOrder = 500
+        UIOrder = 500,
+        AllowRunAll = false
     )]
     public class SomeRandomTests
     {

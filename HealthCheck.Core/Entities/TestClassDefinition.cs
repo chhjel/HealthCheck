@@ -63,6 +63,12 @@ namespace HealthCheck.Core.Entities
         public int UIOrder { get; set; }
 
         /// <summary>
+        /// Show button to run all the tests in this set at once.
+        /// <para>Enabled by default.</para>
+        /// </summary>
+        public bool AllowRunAll { get; set; } = true;
+
+        /// <summary>
         /// Test methods defined within this class.
         /// </summary>
         public List<TestDefinition> Tests { get; set; } = new List<TestDefinition>();
@@ -81,6 +87,7 @@ namespace HealthCheck.Core.Entities
             DefaultRolesWithAccess = testClassAttribute.DefaultRolesWithAccess;
             GroupName = testClassAttribute.GroupName;
             UIOrder = testClassAttribute.UIOrder;
+            AllowRunAll = testClassAttribute.AllowRunAll;
 
             DefaultCategories = (testClassAttribute.DefaultCategories ?? new string[0])
                 .Union((testClassAttribute.DefaultCategory == null ? new string[0] : new[] { testClassAttribute.DefaultCategory }))
