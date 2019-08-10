@@ -7,7 +7,10 @@
                 <v-toolbar-side-icon
                     @click.stop="onSideMenuToggleButtonClicked"
                     v-if="showMenuButton"></v-toolbar-side-icon>
-                <v-toolbar-title>{{ options.ApplicationTitle }}</v-toolbar-title>
+                <v-toolbar-title class="apptitle">
+                    <a v-if="hasTitleLink" :href="titleLink">{{ options.ApplicationTitle }}</a>
+                    <span v-else>{{ options.ApplicationTitle }}</span>
+                </v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-toolbar-items v-if="showPagesMenu">
                     <v-btn flat
@@ -97,6 +100,15 @@ export default class HealthCheckPageComponent extends Vue {
     get showPagesMenu(): boolean {
         return this.options.Pages.length > 1;
     }
+
+    get hasTitleLink(): boolean {
+        let url = this.titleLink;
+        return (url != null && url != undefined && url.trim().length > 0);
+    }
+
+    get titleLink(): string {
+        return this.options.ApplicationTitleLink;
+    }
     
     ////////////////
     //  METHODS  //
@@ -153,6 +165,10 @@ export default class HealthCheckPageComponent extends Vue {
 <style scoped>
 .approot {
     background-color: #f4f4f4;
+}
+.apptitle a {
+    color: inherit;
+    text-decoration: inherit;
 }
 .toolbar-main {
     background-color: #fff;

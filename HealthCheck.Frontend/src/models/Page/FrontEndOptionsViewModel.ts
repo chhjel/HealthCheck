@@ -1,5 +1,6 @@
 export default interface FrontEndOptionsViewModel {
     ApplicationTitle: string;
+    ApplicationTitleLink: string;
     InludeQueryStringInApiCalls: boolean;
     GetTestsEndpoint: string;
     ExecuteTestEndpoint: string;

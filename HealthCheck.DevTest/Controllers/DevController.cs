@@ -67,6 +67,7 @@ namespace HealthCheck.DevTest.Controllers
             => new FrontEndOptionsViewModel(EndpointBase)
             {
                 ApplicationTitle = "Test Monitor",
+                ApplicationTitleLink = "/?sysadmin=x&webadmin=1",
                 PagePriority = new List<HealthCheckPageType>()
                 {
                     HealthCheckPageType.Tests,

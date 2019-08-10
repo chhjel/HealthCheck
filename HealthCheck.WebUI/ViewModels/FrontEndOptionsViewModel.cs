@@ -14,6 +14,11 @@ namespace HealthCheck.WebUI.ViewModels
         /// Title of the page application.
         /// </summary>
         public string ApplicationTitle { get; set; } = "Health Check";
+        
+        /// <summary>
+        /// Optional url the application title links to.
+        /// </summary>
+        public string ApplicationTitleLink { get; set; }
 
         /// <summary>
         /// Include current query string in API calls to backend.
