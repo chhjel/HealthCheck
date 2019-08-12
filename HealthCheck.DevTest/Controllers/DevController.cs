@@ -106,15 +106,16 @@ namespace HealthCheck.DevTest.Controllers
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequestBase request)
         {
             var roles = RuntimeTestAccessRole.Guest;
+            roles |= RuntimeTestAccessRole.SystemAdmins | RuntimeTestAccessRole.WebAdmins;
 
-            if (request.QueryString["webadmin"] != null)
-            {
-                roles |= RuntimeTestAccessRole.WebAdmins;
-            }
-            if (request.QueryString["sysadmin"] != null)
-            {
-                roles |= RuntimeTestAccessRole.SystemAdmins;
-            }
+            //if (request.QueryString["webadmin"] != null)
+            //{
+            //    roles |= RuntimeTestAccessRole.WebAdmins;
+            //}
+            //if (request.QueryString["sysadmin"] != null)
+            //{
+            //    roles |= RuntimeTestAccessRole.SystemAdmins;
+            //}
 
             return new RequestInformation<RuntimeTestAccessRole>(roles, "dev42", "Dev user");
         }

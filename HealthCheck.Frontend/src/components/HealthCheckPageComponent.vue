@@ -40,6 +40,7 @@
             <test-suites-page-component 
                 v-if="shouldIncludePage(PAGE_TESTS)"
                 v-show="currentPage == PAGE_TESTS"
+                ref="testsPage"
                 :options="options" />
             <audit-log-page-component 
                 v-if="shouldIncludePage(PAGE_AUDITLOG)"
@@ -116,9 +117,9 @@ export default class HealthCheckPageComponent extends Vue {
     setInitialPage(): void
     {
         // Attempt to get from query string first
-        let pageFromQueryParam = UrlUtils.GetQueryStringParameter(this.urlParameterCurrentPage);
-        if (pageFromQueryParam != null && this.options.Pages.indexOf(pageFromQueryParam) != -1) {
-            this.setCurrentPage(pageFromQueryParam);
+        const pageFromHash = UrlUtils.GetHashPart(0);
+        if (pageFromHash != null && this.options.Pages.indexOf(pageFromHash) != -1) {
+            this.setCurrentPage(pageFromHash);
         } else if(this.options.Pages.length > 0) {
             this.setCurrentPage(this.options.Pages[0]);
         } else {
@@ -126,7 +127,6 @@ export default class HealthCheckPageComponent extends Vue {
         }
     }
 
-    urlParameterCurrentPage: string = "page";
     setCurrentPage(page: string) {
         // Only allow pages in option.Pages 
         if (this.options.Pages.indexOf(page) == -1) {
@@ -137,7 +137,15 @@ export default class HealthCheckPageComponent extends Vue {
         this.currentPage = page;
 
         if (page !== this.PAGE_NO_PAGES_AVAILABLE) {
-            UrlUtils.SetQueryStringParameter(this.urlParameterCurrentPage, page);
+            if (page == this.PAGE_TESTS) {
+                UrlUtils.SetHashPart(0, page);
+                const testPage = (<TestSuitesPageComponent>this.$refs.testsPage);
+                if (testPage != undefined) {
+                    testPage.onPageShow();
+                }
+            } else {
+                UrlUtils.SetHashParts([page]);
+            }
         }
 
         if (this.pagesShownAtLeastOnce.indexOf(page) == -1) {

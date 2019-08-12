@@ -318,39 +318,60 @@ export default class TestSuitesPageComponent extends Vue {
         return null; //"folder_open"; //group.Icon || "extension";
     }
 
-    urlParameterCurrentSet: string = "set";
+    // Invoked from parent
+    public onPageShow(): void {
+        // Show last used set if any
+        const lastViewedSet = (<any>window).currentSet;
+        if (lastViewedSet != null && lastViewedSet != undefined) {
+            if (this.trySetActiveSetFromEncodedValues(lastViewedSet[0], lastViewedSet[1])) {
+                return;
+            }
+        }
+    }
+
+    hashIndexCurrentGroup: number = 1;
+    hashIndexCurrentSet: number = 2;
     setActiveSet(set: TestSetViewModel): void
     {
         this.activeSet = set;
-        let groupValue = (set.GroupName == null) ? '' : set.GroupName.replace('/', '-');
-        let queryValue = `${groupValue}/${set.Name}`;
-        UrlUtils.SetQueryStringParameter(this.urlParameterCurrentSet, queryValue);
+        const groupValue = (set.GroupName == null) ? 'other' : set.GroupName.replace('/', '-').replace(/ /g, '');
+        const setValue = set.Name.replace(/ /g, '');
+
+        // Some dirty technical debt before transitioning to propper routing :-)
+        (<any>window).currentSet = [groupValue, setValue];
+        UrlUtils.SetHashPart(this.hashIndexCurrentGroup, groupValue);
+        UrlUtils.SetHashPart(this.hashIndexCurrentSet, setValue);
     }
 
     setInitialActiveTestSet(): void
     {
         // Attempt to get from query string first
-        let params = new URLSearchParams(location.search);
-        if (params.has(this.urlParameterCurrentSet)) {
-            let queryStringValue = params.get(this.urlParameterCurrentSet);
-            let queryStringValueParts = (queryStringValue || "").split('/', 2);
-            if (queryStringValueParts.length >= 2) {
-                let groupFromQueryString = queryStringValueParts[0];
-                let nameFromQueryString = queryStringValueParts[1];
-                let matchingSet = this.allTestSets
-                    .filter(x => (groupFromQueryString.length == 0 || x.GroupName == groupFromQueryString) && x.Name === nameFromQueryString)[0];
-
-                if (matchingSet != null) {
-                    this.setActiveSet(matchingSet);
-                    return;
-                }
-            }
+        const groupFromHash = UrlUtils.GetHashPart(this.hashIndexCurrentGroup) || '';
+        const setFromHash = UrlUtils.GetHashPart(this.hashIndexCurrentSet);
+        if (setFromHash != null && this.trySetActiveSetFromEncodedValues(groupFromHash, setFromHash)) {
+            return;
         }
         
         // Fallback to first set in list
         if(this.allTestSets.length > 0) {
             this.setActiveSet(this.allTestSets[0]);
         }
+    }
+
+    trySetActiveSetFromEncodedValues(group: string, set: string):boolean
+    {
+        if (set != null) {
+            let matchingSet = this.allTestSets
+                .filter(x => (group.length == 0 || (x.GroupName || 'other').replace(/ /g, '') == group) 
+                              && x.Name.replace(/ /g, '') === set)[0];
+
+            if (matchingSet != null) {
+                this.setActiveSet(matchingSet);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     toggleSideMenu(): void {
