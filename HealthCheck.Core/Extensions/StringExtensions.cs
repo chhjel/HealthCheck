@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace HealthCheck.Core.Extensions
 {
@@ -51,6 +52,26 @@ namespace HealthCheck.Core.Extensions
             string pluralWord = null,
             string singularPrefix = null)
             => (count == 1) ? $"{singularPrefix}{value}" : pluralWord ?? $"{value}{pluralSuffix}";
+
+        /// <summary>
+        /// Pluralizes the given string that includes a count. Must be a number followed by a text.
+        /// <para>If the input count is not equal to 1 the plural suffix will be appended, or the pluralWord used if given.</para>
+        /// </summary>
+        public static string Pluralize(this string value,
+            string pluralSuffix = "s",
+            string pluralWord = null,
+            string singularPrefix = null)
+        {
+            var match = _autoPluralizeCountRegex.Match(value);
+            if (!match.Success)
+            {
+                return value;
+            }
+
+            var count = int.Parse(match.Groups["count"].Value);
+            return value.Pluralize(count, pluralSuffix, pluralWord, singularPrefix);
+        }
+        private static Regex _autoPluralizeCountRegex = new Regex(@"\s*(?<count>[0-9]+)\s+\w+");
 
         /// <summary>
         /// Wrap the string with quotes if not null, otherwise return the text null.

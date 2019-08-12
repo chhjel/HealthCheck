@@ -14,6 +14,41 @@ namespace HealthCheck.Core.Tests.Extensions
         }
 
         [Fact]
+        public void Pluralize_WithoutCount_ReturnsInput()
+        {
+            var input = "thing";
+            var output = input.Pluralize();
+            Assert.Equal(input, output);
+        }
+
+        [Fact]
+        public void Pluralize_WithPositiveCount_ReturnsPluralized()
+        {
+            var input = "2 thing";
+            var expected = "2 things";
+            var output = input.Pluralize();
+            Assert.Equal(expected, output);
+        }
+
+        [Fact]
+        public void Pluralize_WithNegativeCount_ReturnsPluralized()
+        {
+            var input = "-2 thing";
+            var expected = "-2 things";
+            var output = input.Pluralize();
+            Assert.Equal(expected, output);
+        }
+
+        [Fact]
+        public void Pluralize_WithSingleCount_ReturnsNonPluralized()
+        {
+            var input = "1 thing";
+            var expected = "1 thing";
+            var output = input.Pluralize();
+            Assert.Equal(expected, output);
+        }
+
+        [Fact]
         public void SpacifySentence_WithSingleWord_ShouldReturnCapitalizedWord()
         {
             var input = "word";
