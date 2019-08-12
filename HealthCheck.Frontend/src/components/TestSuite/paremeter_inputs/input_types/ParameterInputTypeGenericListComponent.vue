@@ -127,7 +127,7 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
 
 <style scoped>
 .handle-icon {
-    cursor: pointer;
+    cursor: grab;
 }
 </style>
 
