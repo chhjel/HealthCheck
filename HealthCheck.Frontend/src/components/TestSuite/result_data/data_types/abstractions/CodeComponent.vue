@@ -51,6 +51,9 @@ export default class CodeEditor extends Vue {
 
     mounted(): void {
         window.addEventListener('resize', this.onWindowResize);
+        setTimeout(() => {
+            this.refreshSize();
+        }, 10);
     }
 
     beforeDestroy(): void {
