@@ -33,6 +33,7 @@
             :inludeQueryStringInApiCalls="inludeQueryStringInApiCalls"
             v-on:testStarted="onTestStarted"
             v-on:testStopped="onTestStopped"
+            v-on:testClicked="onTestClicked"
             class="mb-4" />
         
         <div class="mb-4"></div>
@@ -44,6 +45,7 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import TestSetViewModel from '../../models/TestSuite/TestSetViewModel';
 import TestViewModel from '../../models/TestSuite/TestViewModel';
 import TestComponent from './TestComponent.vue';
+import UrlUtils from "../../util/UrlUtils";
 
 @Component({
     components: {
@@ -129,6 +131,10 @@ export default class TestSetComponent extends Vue {
         if (!this.anyTestInProgress) {
             this.showIndeterminateProgress = true;
         }
+    }
+
+    onTestClicked(test: TestViewModel): void {
+        this.$emit('testClicked', test);
     }
 }
 </script>

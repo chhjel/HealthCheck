@@ -115,7 +115,8 @@
                             :testSet="activeSet"
                             :executeTestEndpoint="options.ExecuteTestEndpoint"
                             :cancelTestEndpoint="options.CancelTestEndpoint"
-                            :inludeQueryStringInApiCalls="options.InludeQueryStringInApiCalls" />
+                            :inludeQueryStringInApiCalls="options.InludeQueryStringInApiCalls"
+                            v-on:testClicked="onTestClicked" />
                     </v-flex>
                 </v-layout>
             </v-container>
@@ -134,6 +135,7 @@ import TestSetComponent from '.././TestSuite/TestSetComponent.vue';
 import FilterInputComponent from '.././Common/FilterInputComponent.vue';
 import LinqUtils from '../../util/LinqUtils';
 import UrlUtils from '../../util/UrlUtils';
+import TestViewModel from "../../models/TestSuite/TestViewModel";
 
 @Component({
     components: {
@@ -323,7 +325,7 @@ export default class TestSuitesPageComponent extends Vue {
         // Show last used set if any
         const lastViewedSet = (<any>window).currentSet;
         if (lastViewedSet != null && lastViewedSet != undefined) {
-            if (this.trySetActiveSetFromEncodedValues(lastViewedSet[0], lastViewedSet[1])) {
+            if (this.trySetActiveSetFromEncodedValues(lastViewedSet[0], lastViewedSet[1], lastViewedSet[2])) {
                 return;
             }
         }
@@ -331,16 +333,20 @@ export default class TestSuitesPageComponent extends Vue {
 
     hashIndexCurrentGroup: number = 1;
     hashIndexCurrentSet: number = 2;
-    setActiveSet(set: TestSetViewModel): void
+    hashIndexCurrentTest: number = 3;
+    setActiveSet(set: TestSetViewModel, test: string | null = null): void
     {
         this.activeSet = set;
-        const groupValue = (set.GroupName == null) ? 'other' : set.GroupName.replace('/', '-').replace(/ /g, '');
-        const setValue = set.Name.replace(/ /g, '');
+        const groupValue = (set.GroupName == null) ? 'other' : UrlUtils.EncodeHashPart(set.GroupName);
+        const setValue = UrlUtils.EncodeHashPart(set.Name);
 
         // Some dirty technical debt before transitioning to propper routing :-)
-        (<any>window).currentSet = [groupValue, setValue];
+        (<any>window).currentSet = [groupValue, setValue, test];
         UrlUtils.SetHashPart(this.hashIndexCurrentGroup, groupValue);
         UrlUtils.SetHashPart(this.hashIndexCurrentSet, setValue);
+        if (test != null) {
+            UrlUtils.SetHashPart(this.hashIndexCurrentTest, test);
+        }
     }
 
     setInitialActiveTestSet(): void
@@ -348,7 +354,8 @@ export default class TestSuitesPageComponent extends Vue {
         // Attempt to get from query string first
         const groupFromHash = UrlUtils.GetHashPart(this.hashIndexCurrentGroup) || '';
         const setFromHash = UrlUtils.GetHashPart(this.hashIndexCurrentSet);
-        if (setFromHash != null && this.trySetActiveSetFromEncodedValues(groupFromHash, setFromHash)) {
+        const testFromHash = UrlUtils.GetHashPart(this.hashIndexCurrentTest);
+        if (setFromHash != null && this.trySetActiveSetFromEncodedValues(groupFromHash, setFromHash, testFromHash)) {
             return;
         }
         
@@ -358,20 +365,44 @@ export default class TestSuitesPageComponent extends Vue {
         }
     }
 
-    trySetActiveSetFromEncodedValues(group: string, set: string):boolean
+    trySetActiveSetFromEncodedValues(group: string, set: string, test: string | null = null): boolean
     {
         if (set != null) {
             let matchingSet = this.allTestSets
-                .filter(x => (group.length == 0 || (x.GroupName || 'other').replace(/ /g, '') == group) 
-                              && x.Name.replace(/ /g, '') === set)[0];
+                .filter(x => (group.length == 0 || UrlUtils.EncodeHashPart(x.GroupName || 'other') == group) 
+                              && UrlUtils.EncodeHashPart(x.Name) === set)[0];
 
             if (matchingSet != null) {
-                this.setActiveSet(matchingSet);
+                this.setActiveSet(matchingSet, test);
+                this.scrollToTest(test);
                 return true;
             }
         }
 
         return false;
+    }
+
+    onTestClicked(test: TestViewModel): void {
+        const encodedTestName = UrlUtils.EncodeHashPart(test.Name);
+        this.setActiveSet(this.activeSet!, encodedTestName)
+        this.scrollToTest(encodedTestName);
+    }
+
+    scrollToTest(encodedTestName: string | null): void {
+        if (encodedTestName == null) {
+            return;
+        }
+
+        setTimeout(() => {
+            const testElement = document.querySelector(`[data-test-title-encoded='${encodedTestName}']`);
+            if (testElement != null) {
+                window.scrollTo({
+                    top: (window.pageYOffset || document.documentElement.scrollTop) 
+                        + testElement.getBoundingClientRect().top - 70,
+                    behavior: 'smooth'
+                });
+            }
+        }, 10);
     }
 
     toggleSideMenu(): void {

@@ -17,6 +17,11 @@ export default class LinqUtils
         }
     }
 
+    static EncodeHashPart(value: string): string {
+        return value.replace(/ /g, '-').replace('/', '-');
+    }
+
+
     static FirstHashPartIs(value: string): boolean {
         return this.GetHashParts()[0] == value;
     }

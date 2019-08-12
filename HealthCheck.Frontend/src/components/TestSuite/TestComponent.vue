@@ -3,7 +3,11 @@
     <div>
       <div class="test-item">
           <!-- HEADER -->
-          <div class="test-header" :class="{'no-details': !showDetails}">
+          <div class="test-header" 
+            :class="{'no-details': !showDetails}"
+            :data-test-title-encoded="encodedTestTitle"
+            @click="$emit('testClicked', test)">
+
             <div class="test-status-label subheading font-weight-bold"
               :class="statusClass"
               v-if="hasStatus">{{statusText}}</div>
@@ -80,6 +84,7 @@ import TestResultViewModel from '../../models/TestSuite/TestResultViewModel';
 import ExecuteTestPayload from '../../models/TestSuite/ExecuteTestPayload';
 import TestParametersComponent from './paremeter_inputs/TestParametersComponent.vue';
 import TestResultComponent from './TestResultComponent.vue';
+import UrlUtils from '../../util/UrlUtils';
 
 @Component({
     components: {
@@ -121,6 +126,10 @@ export default class TestComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get encodedTestTitle(): string {
+      return UrlUtils.EncodeHashPart(this.test.Name);
+    }
+
     get showDetails(): boolean {
       return this.hasDescription 
       || this.test.Parameters.length > 0 
@@ -310,6 +319,7 @@ export default class TestComponent extends Vue {
   display: flex;
   padding-left: 24px;
   border-radius: 0 25px 0 0;
+  cursor: pointer;
 }
 .test-header.no-details {
   border-radius: 0 25px 0 25px;
