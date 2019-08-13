@@ -63,6 +63,11 @@ export default class LinqUtils
         this.SetHashParts(parts);
     }
 
+    static LimitHashParts(count: number): void {
+        const parts = this.GetHashParts().filter((_, i) => i < count);
+        this.SetHashParts(parts);
+    }
+
     static GetQueryStringParameter(key: string, fallbackValue: string | null = null): string | null
     {
         let params = new URLSearchParams(location.search);

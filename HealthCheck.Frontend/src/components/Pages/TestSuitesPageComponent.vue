@@ -346,6 +346,8 @@ export default class TestSuitesPageComponent extends Vue {
         UrlUtils.SetHashPart(this.hashIndexCurrentSet, setValue);
         if (test != null) {
             UrlUtils.SetHashPart(this.hashIndexCurrentTest, test);
+        } else {
+            UrlUtils.LimitHashParts(3);
         }
     }
 
