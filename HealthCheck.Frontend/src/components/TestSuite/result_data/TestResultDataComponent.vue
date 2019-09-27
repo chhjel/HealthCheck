@@ -4,7 +4,7 @@
         <component
             :class="`data-dump data-dump-${data.Type.toLowerCase()}`"
             :data="data"
-            :fullscreen="showFullscreen"
+            :fullscreen="false"
             :is="getDataComponentNameFromType(data.Type)">
         </component>
 
