@@ -72,6 +72,7 @@ namespace HealthCheck.DevTest.Controllers
                 {
                     HealthCheckPageType.Tests,
                     HealthCheckPageType.Overview,
+                    HealthCheckPageType.LogViewer,
                     HealthCheckPageType.AuditLog,
                 }
             };
@@ -92,6 +93,7 @@ namespace HealthCheck.DevTest.Controllers
             AccessOptions.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.Guest);
             AccessOptions.TestsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
             AccessOptions.AuditLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            AccessOptions.LogViewerPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.InvalidTestsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.SiteEventDeveloperDetailsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
         }
@@ -107,6 +109,11 @@ namespace HealthCheck.DevTest.Controllers
         {
             var roles = RuntimeTestAccessRole.Guest;
             roles |= RuntimeTestAccessRole.SystemAdmins | RuntimeTestAccessRole.WebAdmins;
+
+            if (request.QueryString["notsysadmin"] != null)
+            {
+                roles &= ~RuntimeTestAccessRole.SystemAdmins;
+            }
 
             //if (request.QueryString["webadmin"] != null)
             //{

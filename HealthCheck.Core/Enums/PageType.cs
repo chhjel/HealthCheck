@@ -18,6 +18,11 @@
         /// <summary>
         /// Log of performed actions.
         /// </summary>
-        AuditLog
+        AuditLog,
+
+        /// <summary>
+        /// Application log viewer
+        /// </summary>
+        LogViewer,
     }
 }

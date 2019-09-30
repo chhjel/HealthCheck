@@ -65,7 +65,7 @@ namespace HealthCheck.WebUI.ViewModels
         /// <summary>
         /// Default page to show on entering the Index action in prioritized order.
         /// <para>The first available page will be shown when ?page=x is omitted.</para>
-        /// <para>Defaults to overview, tests, auditlog.</para>
+        /// <para>Defaults to overview, tests, logviewer, auditlog.</para>
         /// <para>Types omitted will be placed last.</para>
         /// </summary>
         [JsonIgnore]
@@ -73,6 +73,7 @@ namespace HealthCheck.WebUI.ViewModels
         {
             HealthCheckPageType.Overview,
             HealthCheckPageType.Tests,
+            HealthCheckPageType.LogViewer,
             HealthCheckPageType.AuditLog
         };
 

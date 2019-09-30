@@ -60,6 +60,7 @@ namespace HealthCheck.WebUI.Util
         private const string PAGE_OVERVIEW = "status";
         private const string PAGE_TESTS = "tests";
         private const string PAGE_AUDITLOG = "auditlog";
+        private const string PAGE_LOGS = "logviewer";
         private const string Q = "\"";
 
         /// <summary>
@@ -227,7 +228,8 @@ namespace HealthCheck.WebUI.Util
             IAuditEventStorage auditEventService)
             => CanShowTestsPageTo(accessRoles)
             || CanShowOverviewPageTo(accessRoles, siteEventService)
-            || CanShowAuditPageTo(accessRoles, auditEventService);
+            || CanShowAuditPageTo(accessRoles, auditEventService)
+            || CanShowLogViewerPageTo(accessRoles);
 
         /// <summary>
         /// Check if the given roles has access to the overview page.
@@ -246,6 +248,12 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public bool CanShowAuditPageTo(Maybe<TAccessRole> accessRoles, IAuditEventStorage auditEventService)
             => auditEventService != null && CanShowPageTo(accessRoles, AccessOptions.AuditLogAccess, defaultValue: false);
+
+        /// <summary>
+        /// Check if the given roles has access to the logviewer page.
+        /// </summary>
+        public bool CanShowLogViewerPageTo(Maybe<TAccessRole> accessRoles)
+            => CanShowPageTo(accessRoles, AccessOptions.LogViewerPageAccess, defaultValue: false);
 
         private void CheckPageOptions(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions,
             ISiteEventService siteEventService, IAuditEventStorage auditEventService)
@@ -280,6 +288,16 @@ namespace HealthCheck.WebUI.Util
                 frontEndOptions.GetFilteredAuditLogEventsEndpoint = deniedEndpoint;
             }
 
+            if (CanShowLogViewerPageTo(accessRoles))
+            {
+                frontEndOptions.Pages.Add(PAGE_LOGS);
+            }
+            else
+            {
+                // ToDo filter new endpoint
+                //frontEndOptions.GetFilteredAuditLogEventsEndpoint = deniedEndpoint;
+            }
+
             PrioritizePages(frontEndOptions.Pages, frontEndOptions.PagePriority);
 
             frontEndOptions.Validate();
@@ -303,6 +321,7 @@ namespace HealthCheck.WebUI.Util
             if (type == HealthCheckPageType.Overview) return PAGE_OVERVIEW;
             else if (type == HealthCheckPageType.Tests) return PAGE_TESTS;
             else if (type == HealthCheckPageType.AuditLog) return PAGE_AUDITLOG;
+            else if (type == HealthCheckPageType.LogViewer) return PAGE_LOGS;
             else throw new NotImplementedException($"Page type {type.ToString()} not fully implemented yet.");
         }
 
