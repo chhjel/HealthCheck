@@ -20,6 +20,15 @@
                 @click:append-outer="loadData"
             ></v-text-field>
 
+            <v-btn ripple color="error"
+              @click.stop.prevent="cancelSearch()"
+              v-if="logDataLoadInProgress"
+              :disabled="cancellationInProgress"
+              class="ma-0 mr-2 mt-2 pl-1 pr-3 cancel-test-button">
+              <v-icon color="white">cancel</v-icon>
+              Cancel
+            </v-btn>
+
             <hr />
             Last searched used {{ prettifyDuration(searchResultData.DurationInMilliseconds) }}
             <hr />
@@ -57,6 +66,7 @@ export default class LogViewerPageComponent extends Vue {
     filterQuery: string = "";
 
     searchResultData: LogSearchResult = this.createEmptyResultData();
+    cancellationInProgress: boolean = false;
     logDataLoadInProgress: boolean = false;
     logDataLoadFailed: boolean = false;
     logDataFailedErrorMessage: string = "";
@@ -85,6 +95,10 @@ export default class LogViewerPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    cancelSearch(): void {
+
+    }
+
     loadData(): void {
         this.logDataLoadInProgress = true;
         this.logDataLoadFailed = false;
