@@ -27,5 +27,10 @@ namespace HealthCheck.Core.Entities
         /// Result column names.
         /// </summary>
         public List<string> ColumnNames { get; set; } = new List<string>();
+
+        /// <summary>
+        /// How long the search process lasted.
+        /// </summary>
+        public long DurationInMilliseconds { get; set; }
     }
 }

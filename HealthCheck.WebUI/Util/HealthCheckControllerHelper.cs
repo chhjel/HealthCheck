@@ -314,8 +314,7 @@ namespace HealthCheck.WebUI.Util
             }
             else
             {
-                // ToDo filter new endpoint
-                //frontEndOptions.GetFilteredAuditLogEventsEndpoint = deniedEndpoint;
+                frontEndOptions.GetLogSearchResultsEndpoint = deniedEndpoint;
             }
 
             PrioritizePages(frontEndOptions.Pages, frontEndOptions.PagePriority);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -34,10 +35,15 @@ namespace HealthCheck.Core.Services
         {
             await Task.Delay(TimeSpan.FromMilliseconds(1));
 
+            var watch = new Stopwatch();
+            watch.Start();
+
             var internalResult = SearchInternal(filter);
+            var duration = watch.ElapsedMilliseconds;
 
             return new LogSearchResult()
             {
+                DurationInMilliseconds = duration,
                 ColumnNames = internalResult.ColumnNames,
                 Count = internalResult.MatchingEntries.Count,
                 TotalCount = internalResult.TotalMatchCount,

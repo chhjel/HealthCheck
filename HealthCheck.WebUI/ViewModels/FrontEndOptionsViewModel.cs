@@ -57,6 +57,12 @@ namespace HealthCheck.WebUI.ViewModels
         public string GetFilteredAuditLogEventsEndpoint { get; set; }
 
         /// <summary>
+        /// Url to the endpoint that searches logs.
+        /// <para>Is set from the constructor relative to the provided baseApiEndpoint.</para>
+        /// </summary>
+        public string GetLogSearchResultsEndpoint { get; set; }
+
+        /// <summary>
         /// Number of minutes past the end of a site event it will be displayed below "Current status" on the status page.
         /// <para>Defaults to 30 minutes.</para>
         /// </summary>
@@ -94,6 +100,7 @@ namespace HealthCheck.WebUI.ViewModels
             GetTestsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetTests";
             GetSiteEventsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetSiteEvents";
             GetFilteredAuditLogEventsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetFilteredAudits";
+            GetLogSearchResultsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/SearchLogs";
         }
 
         /// <summary>

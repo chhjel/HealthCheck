@@ -7,6 +7,7 @@ export default interface FrontEndOptionsViewModel {
     CancelTestEndpoint: string;
     GetSiteEventsEndpoint: string;
     GetFilteredAuditLogEventsEndpoint: string;
+    GetLogSearchResultsEndpoint: string;
     CurrentEventBufferMinutes: number;
     Pages: string[];
 }
