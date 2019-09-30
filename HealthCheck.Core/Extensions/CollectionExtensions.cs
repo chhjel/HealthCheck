@@ -20,5 +20,14 @@ namespace HealthCheck.Core.Extensions
             int index = random.Next(0, enumerable.Count());
             return enumerable.ElementAt(index);
         }
+
+        /// <summary>
+        /// Order by descending or ascending dependent on the given bool.
+        /// </summary>
+        public static IOrderedEnumerable<TSource> OrderByWithDirection<TSource, TKey>
+            (this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, bool descending)
+            => descending
+                ? source.OrderByDescending(keySelector)
+                : source.OrderBy(keySelector);
     }
 }

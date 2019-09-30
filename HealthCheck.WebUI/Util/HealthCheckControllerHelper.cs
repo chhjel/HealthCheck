@@ -2,6 +2,7 @@
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.LogViewer.Models;
 using HealthCheck.Core.Services;
 using HealthCheck.Core.Util;
 using HealthCheck.WebUI.Exceptions;
@@ -22,6 +23,19 @@ namespace HealthCheck.WebUI.Util
     /// </summary>
     public class HealthCheckControllerHelper<TAccessRole>
     {
+        /// <summary>
+        /// Initialize a new HealthCheck helper with the given services.
+        /// </summary>
+        public HealthCheckControllerHelper(HealthCheckServiceContainer serviceContainer)
+        {
+            Services = serviceContainer ?? new HealthCheckServiceContainer();
+        }
+
+        /// <summary>
+        /// Contains services that enables extra functionality.
+        /// </summary>
+        public HealthCheckServiceContainer Services { get; } = new HealthCheckServiceContainer();
+
         /// <summary>
         /// Executes tests.
         /// </summary>
@@ -81,10 +95,10 @@ namespace HealthCheck.WebUI.Util
         /// Get viewmodel for test sets data.
         /// </summary>
         public async Task<List<SiteEventViewModel>> GetSiteEventsViewModel(
-            Maybe<TAccessRole> accessRoles, ISiteEventService service,
+            Maybe<TAccessRole> accessRoles,
             DateTime? from = null, DateTime? to = null)
         {
-            if (!CanShowOverviewPageTo(accessRoles, service))
+            if (!CanShowOverviewPageTo(accessRoles))
             {
                 return new List<SiteEventViewModel>();
             }
@@ -92,7 +106,7 @@ namespace HealthCheck.WebUI.Util
             var includeDeveloperDetails = CanShowPageTo(accessRoles, AccessOptions.SiteEventDeveloperDetailsAccess, false);
             from = from ?? DateTime.Now.AddDays(-30);
             to = to ?? DateTime.Now;
-            var viewModel = (await service.GetEvents(from.Value, to.Value))
+            var viewModel = (await Services.SiteEventService.GetEvents(from.Value, to.Value))
                 .Select(x => SiteEventViewModelsFactory.CreateViewModel(x, includeDeveloperDetails))
                 .ToList();
             return viewModel;
@@ -151,7 +165,7 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Requests cancellation of the given cancellable test.
         /// </summary>
-        public bool CancelTest(RequestInformation<TAccessRole> requestInfo, string testId, IAuditEventStorage auditEventService)
+        public bool CancelTest(RequestInformation<TAccessRole> requestInfo, string testId)
         {
             if (testId == null)
             {
@@ -167,7 +181,7 @@ namespace HealthCheck.WebUI.Util
             var registered = TestRunner.RequestTestCancellation(testId);
             if (registered)
             {
-                auditEventService?.StoreEvent(
+                Services.AuditEventService?.StoreEvent(
                     CreateAuditEventFor(requestInfo, AuditEventArea.Tests, action: "Test cancellation requested", subject: test?.Name)
                     .AddDetail("Test id", test?.Id)
                 );
@@ -176,14 +190,24 @@ namespace HealthCheck.WebUI.Util
         }
 
         /// <summary>
+        /// Perform a log search.
+        /// </summary>
+        public async Task<LogSearchResult> SearchLogs(Maybe<TAccessRole> accessRoles, LogSearchFilter filter)
+        {
+            if (Services.LogSearcherService == null || !CanShowLogViewerPageTo(accessRoles))
+                return new LogSearchResult();
+
+            return await Services.LogSearcherService.PerformSearchAsync(filter);
+        }
+
+        /// <summary>
         /// Create view html from the given options.
         /// </summary>
         /// <exception cref="ConfigValidationException"></exception>
         public string CreateViewHtml(Maybe<TAccessRole> accessRoles,
-            FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions,
-            ISiteEventService siteEventService, IAuditEventStorage auditEventService)
+            FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
         {
-            CheckPageOptions(accessRoles, frontEndOptions, pageOptions, siteEventService, auditEventService);
+            CheckPageOptions(accessRoles, frontEndOptions, pageOptions);
             var javascriptUrlTags = pageOptions.JavaScriptUrls
                 .Select(url => $"<script src=\"{url}\"></script>")
                 .ToList();
@@ -222,20 +246,17 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Check if the given roles has access to the any of the pages.
         /// </summary>
-        public bool HasAccessToAnyContent(
-            Maybe<TAccessRole> accessRoles,
-            ISiteEventService siteEventService,
-            IAuditEventStorage auditEventService)
+        public bool HasAccessToAnyContent(Maybe<TAccessRole> accessRoles)
             => CanShowTestsPageTo(accessRoles)
-            || CanShowOverviewPageTo(accessRoles, siteEventService)
-            || CanShowAuditPageTo(accessRoles, auditEventService)
+            || CanShowOverviewPageTo(accessRoles)
+            || CanShowAuditPageTo(accessRoles)
             || CanShowLogViewerPageTo(accessRoles);
 
         /// <summary>
         /// Check if the given roles has access to the overview page.
         /// </summary>
-        public bool CanShowOverviewPageTo(Maybe<TAccessRole> accessRoles, ISiteEventService siteEventService)
-            => siteEventService != null && CanShowPageTo(accessRoles, AccessOptions.OverviewPageAccess);
+        public bool CanShowOverviewPageTo(Maybe<TAccessRole> accessRoles)
+            => Services.SiteEventService != null && CanShowPageTo(accessRoles, AccessOptions.OverviewPageAccess);
 
         /// <summary>
         /// Check if the given roles has access to the tests page.
@@ -246,20 +267,19 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Check if the given roles has access to the audit log page.
         /// </summary>
-        public bool CanShowAuditPageTo(Maybe<TAccessRole> accessRoles, IAuditEventStorage auditEventService)
-            => auditEventService != null && CanShowPageTo(accessRoles, AccessOptions.AuditLogAccess, defaultValue: false);
+        public bool CanShowAuditPageTo(Maybe<TAccessRole> accessRoles)
+            => Services.AuditEventService != null && CanShowPageTo(accessRoles, AccessOptions.AuditLogAccess, defaultValue: false);
 
         /// <summary>
         /// Check if the given roles has access to the logviewer page.
         /// </summary>
         public bool CanShowLogViewerPageTo(Maybe<TAccessRole> accessRoles)
-            => CanShowPageTo(accessRoles, AccessOptions.LogViewerPageAccess, defaultValue: false);
+            => Services.LogSearcherService != null && CanShowPageTo(accessRoles, AccessOptions.LogViewerPageAccess, defaultValue: false);
 
-        private void CheckPageOptions(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions,
-            ISiteEventService siteEventService, IAuditEventStorage auditEventService)
+        private void CheckPageOptions(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
         {
             var deniedEndpoint = "0x90";
-            if (CanShowOverviewPageTo(accessRoles, siteEventService))
+            if (CanShowOverviewPageTo(accessRoles))
             {
                 frontEndOptions.Pages.Add(PAGE_OVERVIEW);
             }
@@ -279,7 +299,7 @@ namespace HealthCheck.WebUI.Util
                 frontEndOptions.GetTestsEndpoint = deniedEndpoint;
             }
 
-            if (CanShowAuditPageTo(accessRoles, auditEventService))
+            if (CanShowAuditPageTo(accessRoles))
             {
                 frontEndOptions.Pages.Add(PAGE_AUDITLOG);
             }
@@ -374,9 +394,9 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// When a test has executed this should be called.
         /// </summary>
-        public void OnTestExecuted(IAuditEventStorage auditEventService, RequestInformation<TAccessRole> requestInformation, ExecuteTestInputData input, TestResultViewModel result)
+        public void OnTestExecuted(RequestInformation<TAccessRole> requestInformation, ExecuteTestInputData input, TestResultViewModel result)
         {
-            auditEventService?.StoreEvent(
+            Services.AuditEventService?.StoreEvent(
                 CreateAuditEventFor(requestInformation, AuditEventArea.Tests, action: "Test executed", subject: result?.TestName)
                 .AddDetail("Test id", input?.TestId)
                 .AddDetail("Parameters", $"[{string.Join(", ", (input?.Parameters ?? new List<string>()))}]")
@@ -390,15 +410,14 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public async Task<IEnumerable<AuditEventViewModel>> GetAuditEventsFilterViewModel(
             Maybe<TAccessRole> accessRoles,
-            AuditEventFilterInputData filter,
-            IAuditEventStorage auditEventService)
+            AuditEventFilterInputData filter)
         {
-            if (auditEventService == null || !RoleHasAccessToAuditLogs(accessRoles))
+            if (Services.AuditEventService == null || !RoleHasAccessToAuditLogs(accessRoles))
                 return Enumerable.Empty<AuditEventViewModel>();
 
             var from = filter?.FromFilter ?? DateTime.MinValue;
             var to = filter?.ToFilter ?? DateTime.MaxValue;
-            var events = await auditEventService.GetEvents(from, to);
+            var events = await Services.AuditEventService.GetEvents(from, to);
             return events
                 .Where(x => AuditEventMatchesFilter(x, filter))
                 .Select(x => TestsViewModelsFactory.CreateViewModel(x));

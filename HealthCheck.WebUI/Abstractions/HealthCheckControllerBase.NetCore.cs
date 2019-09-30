@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Modules.LogViewer.Models;
 
 namespace HealthCheck.WebUI.Abstractions
 {
@@ -26,20 +27,15 @@ namespace HealthCheck.WebUI.Abstractions
         where TAccessRole : Enum
     {
         /// <summary>
-        /// Must be set for any site statuses to be stored and returned.
-        /// </summary>
-        protected ISiteEventService SiteEventService { get; set; }
-
-        /// <summary>
-        /// Must be set for any site audits to be logged.
-        /// </summary>
-        protected IAuditEventStorage AuditEventService { get; set; }
-
-        /// <summary>
         /// Set to false to return 404 for all actions.
         /// <para>Enabled by default.</para>
         /// </summary>
         protected bool Enabled { get; set; } = true;
+
+        /// <summary>
+        /// Contains services that enables extra functionality.
+        /// </summary>
+        protected HealthCheckServiceContainer Services { get; } = new HealthCheckServiceContainer();
 
         /// <summary>
         /// Service that executes tests.
@@ -68,13 +64,14 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         protected RequestInformation<TAccessRole> CurrentRequestInformation { get; set; }
 
-        private readonly HealthCheckControllerHelper<TAccessRole> Helper = new HealthCheckControllerHelper<TAccessRole>();
+        private readonly HealthCheckControllerHelper<TAccessRole> Helper;
 
         /// <summary>
         /// Base controller for the ui and api.
         /// </summary>
         public HealthCheckControllerBase(Assembly assemblyContainingTests)
         {
+            Helper = new HealthCheckControllerHelper<TAccessRole>(Services);
             Helper.TestDiscoverer.AssemblyContainingTests = assemblyContainingTests ?? throw new ArgumentNullException("An assembly to retrieve tests from must be provided.");
         }
 
@@ -122,7 +119,7 @@ namespace HealthCheck.WebUI.Abstractions
         public virtual ActionResult Index()
         {
             if (!Enabled) return NotFound();
-            else if (!Helper.HasAccessToAnyContent(CurrentRequestAccessRoles, SiteEventService, AuditEventService))
+            else if (!Helper.HasAccessToAnyContent(CurrentRequestAccessRoles))
             {
                 if (!string.IsNullOrWhiteSpace(AccessOptions.RedirectTargetOnNoAccess)) {
                     return Redirect(AccessOptions.RedirectTargetOnNoAccess);
@@ -133,7 +130,7 @@ namespace HealthCheck.WebUI.Abstractions
 
             var frontEndOptions = GetFrontEndOptions();
             var pageOptions = GetPageOptions();
-            var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions, SiteEventService, AuditEventService);
+            var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions);
 
             return new ContentResult()
             {
@@ -143,15 +140,28 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
+        /// Get log entry search results.
+        /// </summary>
+        [Route("SearchLogs")]
+        public virtual async Task<ActionResult> SearchLogs([FromBody] LogSearchFilter filter)
+        {
+            if (!Enabled || !Helper.CanShowLogViewerPageTo(CurrentRequestAccessRoles))
+                return NotFound();
+
+            var result = await Helper.SearchLogs(CurrentRequestAccessRoles, filter);
+            return CreateJsonResult(result);
+        }
+
+        /// <summary>
         /// Get filtered audit events to show in the UI.
         /// </summary>
         [Route("GetFilteredAudits")]
         public virtual async Task<ActionResult> GetFilteredAudits([FromBody] AuditEventFilterInputData input = null)
         {
-            if (!Enabled || !Helper.CanShowAuditPageTo(CurrentRequestAccessRoles, AuditEventService))
+            if (!Enabled || !Helper.CanShowAuditPageTo(CurrentRequestAccessRoles))
                 return NotFound();
 
-            var filteredItems = await Helper.GetAuditEventsFilterViewModel(CurrentRequestAccessRoles, input, AuditEventService);
+            var filteredItems = await Helper.GetAuditEventsFilterViewModel(CurrentRequestAccessRoles, input);
             return CreateJsonResult(filteredItems);
         }
 
@@ -161,10 +171,10 @@ namespace HealthCheck.WebUI.Abstractions
         [Route("GetSiteEvents")]
         public virtual async Task<ActionResult> GetSiteEvents()
         {
-            if (!Enabled || !Helper.CanShowOverviewPageTo(CurrentRequestAccessRoles, SiteEventService))
+            if (!Enabled || !Helper.CanShowOverviewPageTo(CurrentRequestAccessRoles))
                 return NotFound();
 
-            var viewModel = await Helper.GetSiteEventsViewModel(CurrentRequestAccessRoles, SiteEventService);
+            var viewModel = await Helper.GetSiteEventsViewModel(CurrentRequestAccessRoles);
             return CreateJsonResult(viewModel);
         }
 
@@ -191,7 +201,7 @@ namespace HealthCheck.WebUI.Abstractions
             if (!Enabled || !Helper.CanShowTestsPageTo(CurrentRequestAccessRoles)) return NotFound();
 
             var result = await Helper.ExecuteTest(CurrentRequestAccessRoles, data);
-            Helper.OnTestExecuted(AuditEventService, CurrentRequestInformation, data, result);
+            Helper.OnTestExecuted(CurrentRequestInformation, data, result);
 
             return CreateJsonResult(result);
         }
@@ -205,7 +215,8 @@ namespace HealthCheck.WebUI.Abstractions
         {
             if (!Enabled || !Helper.CanShowTestsPageTo(CurrentRequestAccessRoles)) return NotFound();
 
-            return CreateJsonResult(Helper.CancelTest(CurrentRequestInformation, testId, AuditEventService));
+            await Task.Delay(TimeSpan.FromMilliseconds(1));
+            return CreateJsonResult(Helper.CancelTest(CurrentRequestInformation, testId));
         }
 
         /// <summary>
