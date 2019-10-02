@@ -193,7 +193,7 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Perform a log search.
         /// </summary>
-        public async Task<LogSearchResult> SearchLogs(Maybe<TAccessRole> accessRoles, LogSearchFilter filter, Action<string> onSearchStarted)
+        public async Task<LogSearchResult> SearchLogs(Maybe<TAccessRole> accessRoles, LogSearchFilter filter)
         {
             if (Services.LogSearcherService == null || !CanShowLogViewerPageTo(accessRoles))
                 return new LogSearchResult();
@@ -202,7 +202,7 @@ namespace HealthCheck.WebUI.Util
 
             var search = new LogSearchInProgress
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = filter.SearchId ?? Guid.NewGuid().ToString(),
                 CancellationTokenSource = cts,
                 StartedAt = DateTime.Now
             };
@@ -210,7 +210,6 @@ namespace HealthCheck.WebUI.Util
             {
                 SearchesInProgress.Add(search);
             }
-            onSearchStarted?.Invoke(search.Id);
 
             var result = await Services.LogSearcherService.PerformSearchAsync(filter, cts.Token);
 
@@ -251,6 +250,17 @@ namespace HealthCheck.WebUI.Util
         }
 
         /// <summary>
+        /// Get the number of currently executing log searches across all sessions.
+        /// </summary>
+        public int GetCurrentlyRunningLogSearchCount()
+        {
+            lock (SearchesInProgress)
+            {
+                return SearchesInProgress.Count;
+            }
+        }
+
+        /// <summary>
         /// Cancel all running log searches from all sessions.
         /// </summary>
         public int CancelAllLogSearches() => AbortLogSearches();
@@ -262,6 +272,11 @@ namespace HealthCheck.WebUI.Util
         public string CreateViewHtml(Maybe<TAccessRole> accessRoles,
             FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
         {
+            if (frontEndOptions != null)
+            {
+                frontEndOptions.CurrentlyRunningLogSearchCount = GetCurrentlyRunningLogSearchCount();
+            }
+
             CheckPageOptions(accessRoles, frontEndOptions, pageOptions);
             var javascriptUrlTags = pageOptions.JavaScriptUrls
                 .Select(url => $"<script src=\"{url}\"></script>")
@@ -370,6 +385,8 @@ namespace HealthCheck.WebUI.Util
             else
             {
                 frontEndOptions.GetLogSearchResultsEndpoint = deniedEndpoint;
+                frontEndOptions.CancelLogSearchEndpoint = deniedEndpoint;
+                frontEndOptions.CancelAllLogSearchesEndpoint = deniedEndpoint;
             }
 
             PrioritizePages(frontEndOptions.Pages, frontEndOptions.PagePriority);
@@ -494,7 +511,7 @@ namespace HealthCheck.WebUI.Util
                 return;
 
             Services.AuditEventService?.StoreEvent(
-                CreateAuditEventFor(requestInformation, AuditEventArea.LogSearch, action: "Searched logs", subject: $"[{filter?.QueryMode.ToString()} '{filter?.Query}'")
+                CreateAuditEventFor(requestInformation, AuditEventArea.LogSearch, action: "Searched logs", subject: filter?.Query)
                 .AddDetail("Skip", filter?.Skip.ToString() ?? "null")
                 .AddDetail("Take", filter?.Take.ToString() ?? "null")
                 .AddDetail("Range", $"{filter?.FromFileDate?.ToString() ?? "min"} -> {filter?.ToFileDate?.ToString() ?? "max"}")

@@ -63,10 +63,28 @@ namespace HealthCheck.WebUI.ViewModels
         public string GetLogSearchResultsEndpoint { get; set; }
 
         /// <summary>
+        /// Url to the endpoint that cancels logs searches.
+        /// <para>Is set from the constructor relative to the provided baseApiEndpoint.</para>
+        /// </summary>
+        public string CancelLogSearchEndpoint { get; set; }
+
+        /// <summary>
+        /// Url to the endpoint that cancels all logs searches.
+        /// <para>Is set from the constructor relative to the provided baseApiEndpoint.</para>
+        /// </summary>
+        public string CancelAllLogSearchesEndpoint { get; set; }
+
+        /// <summary>
         /// Number of minutes past the end of a site event it will be displayed below "Current status" on the status page.
         /// <para>Defaults to 30 minutes.</para>
         /// </summary>
         public int CurrentEventBufferMinutes { get; set; } = 30;
+
+        /// <summary>
+        /// Number log searches currently running.
+        /// </summary>
+        [JsonProperty]
+        internal int CurrentlyRunningLogSearchCount { get; set; }
 
         /// <summary>
         /// Default page to show on entering the Index action in prioritized order.
@@ -101,6 +119,8 @@ namespace HealthCheck.WebUI.ViewModels
             GetSiteEventsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetSiteEvents";
             GetFilteredAuditLogEventsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetFilteredAudits";
             GetLogSearchResultsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/SearchLogs";
+            CancelLogSearchEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/CancelLogSearch";
+            CancelAllLogSearchesEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/CancelAllLogSearches";
         }
 
         /// <summary>

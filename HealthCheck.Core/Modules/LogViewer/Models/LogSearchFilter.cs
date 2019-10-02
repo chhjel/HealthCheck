@@ -10,6 +10,11 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
     public class LogSearchFilter
     {
         /// <summary>
+        /// Id of this search.
+        /// </summary>
+        public string SearchId { get; set; }
+
+        /// <summary>
         /// Number of entries to skip.
         /// </summary>
         public int Skip { get; set; }

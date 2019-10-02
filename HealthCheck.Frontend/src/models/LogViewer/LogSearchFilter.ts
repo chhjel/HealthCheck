@@ -1,6 +1,7 @@
 import { FilterQueryMode } from "./FilterQueryMode";
 
 export default interface LogSearchFilter {
+    SearchId: string;
     Skip: number;
     Take: number;
     FromFileDate: Date | null;

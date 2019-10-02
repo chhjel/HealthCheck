@@ -19,6 +19,7 @@ using HealthCheck.Core.Entities;
 using System.Collections.Generic;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Modules.LogViewer.Models;
+using System.Web.SessionState;
 
 namespace HealthCheck.WebUI.Abstractions
 {
@@ -26,6 +27,7 @@ namespace HealthCheck.WebUI.Abstractions
     /// Base controller for the ui and api.
     /// </summary>
     /// <typeparam name="TAccessRole">Maybe{EnumType} used for access roles.</typeparam>
+    [SessionState(SessionStateBehavior.ReadOnly)]
     public abstract class HealthCheckControllerBase<TAccessRole>: Controller
         where TAccessRole: Enum
     {
@@ -208,13 +210,7 @@ namespace HealthCheck.WebUI.Abstractions
             if (!Enabled || !Helper.CanShowLogViewerPageTo(CurrentRequestAccessRoles))
                 return HttpNotFound();
 
-            string searchId = null;
-            var result = await Helper.SearchLogs(CurrentRequestAccessRoles, filter, (sid) => {
-                searchId = sid;
-                OnLogSearchStarted(searchId);
-            });
-
-            OnLogSearchCompleted(searchId);
+            var result = await Helper.SearchLogs(CurrentRequestAccessRoles, filter);
             Helper.AuditLog_LogSearch(CurrentRequestInformation, filter, result);
 
             return CreateJsonResult(result);
@@ -247,53 +243,6 @@ namespace HealthCheck.WebUI.Abstractions
             }
             return await Task.FromResult(count);
         }
-
-        /// <summary>
-        /// Cancels all log searches for the current session.
-        /// </summary>
-        [HttpPost]
-        public virtual async Task<int> CancelAllSessionLogSearches()
-        {
-            var ids = GetCurrentSearchIds();
-            var count = 0;
-            foreach(var id in ids)
-            {
-                if (Helper.CancelLogSearch(id))
-                {
-                    count++;
-                }
-            }
-
-            if (count > 0)
-            {
-                Helper.AuditLog_LogSearchCancel(CurrentRequestInformation, "Cancelled all log searches in own session", count);
-            }
-
-            Session[SESSION_CURRENT_SEARCHES] = new List<string>();
-            return await Task.FromResult(count);
-        }
-
-        private const string SESSION_CURRENT_SEARCHES = "HealthCheck_LogSearches";
-        private void OnLogSearchStarted(string searchId)
-        {
-            var usersRunningSearches = GetCurrentSearchIds();
-            if (!usersRunningSearches.Contains(searchId))
-            {
-                usersRunningSearches.Add(searchId);
-                Session[SESSION_CURRENT_SEARCHES] = usersRunningSearches;
-            }
-        }
-
-        private void OnLogSearchCompleted(string searchId)
-        {
-            var usersRunningSearches = GetCurrentSearchIds();
-            if (usersRunningSearches.Contains(searchId))
-            {
-                usersRunningSearches.Remove(searchId);
-            }
-        }
-
-        private List<string> GetCurrentSearchIds() => Session[SESSION_CURRENT_SEARCHES] as List<string> ?? new List<string>();
 
         /// <summary>
         /// Serializes the given object into a json result.

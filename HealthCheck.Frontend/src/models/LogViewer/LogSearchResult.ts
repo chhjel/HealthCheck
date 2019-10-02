@@ -6,4 +6,5 @@ export default interface LogSearchResult {
     ColumnNames: Array<string>;
     Items: Array<LogEntrySearchResultItem>;
     DurationInMilliseconds: number;
+    WasCancelled: boolean;
 }
