@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace HealthCheck.Core.Modules.LogViewer
 {
@@ -18,13 +19,14 @@ namespace HealthCheck.Core.Modules.LogViewer
             Options = options;
         }
 
-        public List<LogEntry> SearchEntries(LogSearchFilter filter)
-            => SearchEntries(filter, out int _);
+        public List<LogEntry> SearchEntries(LogSearchFilter filter, CancellationToken cancellationToken)
+            => SearchEntries(filter, out int _, cancellationToken);
 
-        public List<LogEntry> SearchEntries(LogSearchFilter filter, out int totalMatchCount)
+        public List<LogEntry> SearchEntries(LogSearchFilter filter, out int totalMatchCount, CancellationToken cancellationToken)
         {
             var logs = FindLogs();
             var entries = logs
+                .WithCancellation(cancellationToken)
                 .SelectMany(x => x.GetEntriesEnumerable(Options.EntryParser, filter.FromFileDate, filter.ToFileDate, AllowLogFile, filter))
                 .Where(x =>
                     (filter.FromFileDate == null || x.Timestamp >= filter.FromFileDate)

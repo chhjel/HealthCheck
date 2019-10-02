@@ -137,19 +137,6 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
-        /// Get log entry search results.
-        /// </summary>
-        [HttpPost]
-        public virtual async Task<ActionResult> SearchLogs(LogSearchFilter filter)
-        {
-            if (!Enabled || !Helper.CanShowLogViewerPageTo(CurrentRequestAccessRoles))
-                return HttpNotFound();
-
-            var result = await Helper.SearchLogs(CurrentRequestAccessRoles, filter);
-            return CreateJsonResult(result);
-        }
-
-        /// <summary>
         /// Get filtered audit events to show in the UI.
         /// </summary>
         [HttpPost]
@@ -195,7 +182,7 @@ namespace HealthCheck.WebUI.Abstractions
             if (!Enabled || !Helper.CanShowTestsPageTo(CurrentRequestAccessRoles)) return HttpNotFound();
 
             var result = await Helper.ExecuteTest(CurrentRequestAccessRoles, data);
-            Helper.OnTestExecuted(CurrentRequestInformation, data, result);
+            Helper.AuditLog_TestExecuted(CurrentRequestInformation, data, result);
 
             return CreateJsonResult(result);
         }
@@ -211,6 +198,102 @@ namespace HealthCheck.WebUI.Abstractions
             await Task.Delay(TimeSpan.FromMilliseconds(1));
             return CreateJsonResult(Helper.CancelTest(CurrentRequestInformation, testId));
         }
+
+        /// <summary>
+        /// Get log entry search results.
+        /// </summary>
+        [HttpPost]
+        public virtual async Task<ActionResult> SearchLogs(LogSearchFilter filter)
+        {
+            if (!Enabled || !Helper.CanShowLogViewerPageTo(CurrentRequestAccessRoles))
+                return HttpNotFound();
+
+            string searchId = null;
+            var result = await Helper.SearchLogs(CurrentRequestAccessRoles, filter, (sid) => {
+                searchId = sid;
+                OnLogSearchStarted(searchId);
+            });
+
+            OnLogSearchCompleted(searchId);
+            Helper.AuditLog_LogSearch(CurrentRequestInformation, filter, result);
+
+            return CreateJsonResult(result);
+        }
+
+        /// <summary>
+        /// Cancels the given log search.
+        /// </summary>
+        [HttpPost]
+        public virtual async Task<bool> CancelLogSearch(string searchId)
+        {
+            var cancelled = Helper.CancelLogSearch(searchId);
+            if (cancelled)
+            {
+                Helper.AuditLog_LogSearchCancel(CurrentRequestInformation, "Cancelled log search");
+            }
+            return await Task.FromResult(cancelled);
+        }
+
+        /// <summary>
+        /// Cancels all log searches.
+        /// </summary>
+        [HttpPost]
+        public virtual async Task<int> CancelAllLogSearches()
+        {
+            var count = Helper.CancelAllLogSearches();
+            if (count > 0)
+            {
+                Helper.AuditLog_LogSearchCancel(CurrentRequestInformation, "Cancelled all log searches", count);
+            }
+            return await Task.FromResult(count);
+        }
+
+        /// <summary>
+        /// Cancels all log searches for the current session.
+        /// </summary>
+        [HttpPost]
+        public virtual async Task<int> CancelAllSessionLogSearches()
+        {
+            var ids = GetCurrentSearchIds();
+            var count = 0;
+            foreach(var id in ids)
+            {
+                if (Helper.CancelLogSearch(id))
+                {
+                    count++;
+                }
+            }
+
+            if (count > 0)
+            {
+                Helper.AuditLog_LogSearchCancel(CurrentRequestInformation, "Cancelled all log searches in own session", count);
+            }
+
+            Session[SESSION_CURRENT_SEARCHES] = new List<string>();
+            return await Task.FromResult(count);
+        }
+
+        private const string SESSION_CURRENT_SEARCHES = "HealthCheck_LogSearches";
+        private void OnLogSearchStarted(string searchId)
+        {
+            var usersRunningSearches = GetCurrentSearchIds();
+            if (!usersRunningSearches.Contains(searchId))
+            {
+                usersRunningSearches.Add(searchId);
+                Session[SESSION_CURRENT_SEARCHES] = usersRunningSearches;
+            }
+        }
+
+        private void OnLogSearchCompleted(string searchId)
+        {
+            var usersRunningSearches = GetCurrentSearchIds();
+            if (usersRunningSearches.Contains(searchId))
+            {
+                usersRunningSearches.Remove(searchId);
+            }
+        }
+
+        private List<string> GetCurrentSearchIds() => Session[SESSION_CURRENT_SEARCHES] as List<string> ?? new List<string>();
 
         /// <summary>
         /// Serializes the given object into a json result.

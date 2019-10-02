@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Entities;
@@ -31,14 +33,14 @@ namespace HealthCheck.Core.Services
         /// <summary>
         /// Search logs using the given filter.
         /// </summary>
-        public async Task<LogSearchResult> PerformSearchAsync(LogSearchFilter filter)
+        public async Task<LogSearchResult> PerformSearchAsync(LogSearchFilter filter, CancellationToken cancellationToken)
         {
             await Task.Delay(TimeSpan.FromMilliseconds(1));
 
             var watch = new Stopwatch();
             watch.Start();
 
-            var internalResult = SearchInternal(filter);
+            var internalResult = SearchInternal(filter, cancellationToken);
             var duration = watch.ElapsedMilliseconds;
 
             return new LogSearchResult()
@@ -47,6 +49,7 @@ namespace HealthCheck.Core.Services
                 ColumnNames = internalResult.ColumnNames,
                 Count = internalResult.MatchingEntries.Count,
                 TotalCount = internalResult.TotalMatchCount,
+                WasCancelled = internalResult.WasCancelled,
                 Items = internalResult.MatchingEntries.Select(x => new LogEntrySearchResultItem()
                 {
                     ColumnValues = x.ColumnValues,
@@ -58,7 +61,7 @@ namespace HealthCheck.Core.Services
             };
         }
 
-        private LogEntrySearchResult SearchInternal(LogSearchFilter filter)
+        private LogEntrySearchResult SearchInternal(LogSearchFilter filter, CancellationToken cancellationToken)
         {
             var columnRegex = string.IsNullOrWhiteSpace(filter.ColumnRegexPattern)
                 ? null
@@ -84,14 +87,26 @@ namespace HealthCheck.Core.Services
                 searcherOptions.IncludeLogFiles(file);
             }
 
-            var searcher = new LogSearcher(searcherOptions);
-            var matchingEntries = searcher.SearchEntries(filter, out int totalMatchCount);
+            var wasCancelled = false;
+            int totalMatchCount = 0;
+            List<LogEntry> matchingEntries = new List<LogEntry>();
+
+            try
+            {
+                var searcher = new LogSearcher(searcherOptions);
+                matchingEntries = searcher.SearchEntries(filter, out totalMatchCount, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                wasCancelled = true;
+            }
 
             return new LogEntrySearchResult
             {
                 ColumnNames = columnNames,
                 MatchingEntries = matchingEntries,
-                TotalMatchCount = totalMatchCount
+                TotalMatchCount = totalMatchCount,
+                WasCancelled = wasCancelled
             };
         }
 

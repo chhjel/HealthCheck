@@ -71,8 +71,13 @@ namespace HealthCheck.Core.Entities
         /// <summary>
         /// Add a detail to this event.
         /// </summary>
-        public AuditEvent AddDetail(string name, string value)
+        public AuditEvent AddDetail(string name, string value, bool onlyIfNotNull = false)
         {
+            if (onlyIfNotNull && value == null)
+            {
+                return this;
+            }
+
             Details.Add(new KeyValuePair<string, string>(name, value));
             return this;
         }

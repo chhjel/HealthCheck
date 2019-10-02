@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Modules.LogViewer.Models;
+using System.Collections.Generic;
 
 namespace HealthCheck.WebUI.Abstractions
 {
@@ -140,19 +141,6 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
-        /// Get log entry search results.
-        /// </summary>
-        [Route("SearchLogs")]
-        public virtual async Task<ActionResult> SearchLogs([FromBody] LogSearchFilter filter)
-        {
-            if (!Enabled || !Helper.CanShowLogViewerPageTo(CurrentRequestAccessRoles))
-                return NotFound();
-
-            var result = await Helper.SearchLogs(CurrentRequestAccessRoles, filter);
-            return CreateJsonResult(result);
-        }
-
-        /// <summary>
         /// Get filtered audit events to show in the UI.
         /// </summary>
         [Route("GetFilteredAudits")]
@@ -201,7 +189,7 @@ namespace HealthCheck.WebUI.Abstractions
             if (!Enabled || !Helper.CanShowTestsPageTo(CurrentRequestAccessRoles)) return NotFound();
 
             var result = await Helper.ExecuteTest(CurrentRequestAccessRoles, data);
-            Helper.OnTestExecuted(CurrentRequestInformation, data, result);
+            Helper.AuditLog_TestExecuted(CurrentRequestInformation, data, result);
 
             return CreateJsonResult(result);
         }
@@ -220,10 +208,127 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
+        /// Get log entry search results.
+        /// </summary>
+        [HttpPost]
+        [Route("SearchLogs")]
+        public virtual async Task<ActionResult> SearchLogs([FromBody] LogSearchFilter filter)
+        {
+            if (!Enabled || !Helper.CanShowLogViewerPageTo(CurrentRequestAccessRoles))
+                return NotFound();
+
+            string searchId = null;
+            var result = await Helper.SearchLogs(CurrentRequestAccessRoles, filter, (sid) => {
+                searchId = sid;
+                OnLogSearchStarted(searchId);
+            });
+
+            OnLogSearchCompleted(searchId);
+            Helper.AuditLog_LogSearch(CurrentRequestInformation, filter, result);
+
+            return CreateJsonResult(result);
+        }
+
+        /// <summary>
+        /// Cancels the given log search.
+        /// </summary>
+        [HttpPost]
+        [Route("CancelLogSearch")]
+        public virtual async Task<bool> CancelLogSearch([FromBody] string searchId)
+        {
+            var cancelled = Helper.CancelLogSearch(searchId);
+            if (cancelled)
+            {
+                Helper.AuditLog_LogSearchCancel(CurrentRequestInformation, "Cancelled log search");
+            }
+            return await Task.FromResult(cancelled);
+        }
+
+        /// <summary>
+        /// Cancels all log searches.
+        /// </summary>
+        [HttpPost]
+        [Route("CancelAllLogSearches")]
+        public virtual async Task<int> CancelAllLogSearches()
+        {
+            var count = Helper.CancelAllLogSearches();
+            if (count > 0)
+            {
+                Helper.AuditLog_LogSearchCancel(CurrentRequestInformation, "Cancelled all log searches", count);
+            }
+            return await Task.FromResult(count);
+        }
+
+        /// <summary>
+        /// Cancels all log searches for the current session.
+        /// </summary>
+        [HttpPost]
+        [Route("CancelAllSessionLogSearches")]
+        public virtual async Task<int> CancelAllSessionLogSearches()
+        {
+            var ids = GetCurrentSearchIds();
+            var count = 0;
+            foreach(var id in ids)
+            {
+                if (Helper.CancelLogSearch(id))
+                {
+                    count++;
+                }
+            }
+
+            if (count > 0)
+            {
+                Helper.AuditLog_LogSearchCancel(CurrentRequestInformation, "Cancelled all log searches in own session", count);
+            }
+
+            SetSessionObject(SESSION_CURRENT_SEARCHES, new List<string>());
+            return await Task.FromResult(count);
+        }
+
+        private const string SESSION_CURRENT_SEARCHES = "HealthCheck_LogSearches";
+        private void OnLogSearchStarted(string searchId)
+        {
+            var usersRunningSearches = GetCurrentSearchIds();
+            if (!usersRunningSearches.Contains(searchId))
+            {
+                usersRunningSearches.Add(searchId);
+                SetSessionObject(SESSION_CURRENT_SEARCHES, usersRunningSearches);
+            }
+        }
+
+        private void OnLogSearchCompleted(string searchId)
+        {
+            var usersRunningSearches = GetCurrentSearchIds();
+            if (usersRunningSearches.Contains(searchId))
+            {
+                usersRunningSearches.Remove(searchId);
+                SetSessionObject(SESSION_CURRENT_SEARCHES, usersRunningSearches);
+            }
+        }
+
+        private List<string> GetCurrentSearchIds() => GetSessionObject<List<string>>(SESSION_CURRENT_SEARCHES) ?? new List<string>();
+
+
+        /// <summary>
         /// Serializes the given object into a json result.
         /// </summary>
         protected ActionResult CreateJsonResult(object obj)
             => Content(Helper.SerializeJson(obj), "application/json");
+
+#region Util
+        private T GetSessionObject<T>(string key)
+        {
+            var json = HttpContext.Session.GetString(key);
+            if (json == null) return default(T);
+            else return JsonConvert.DeserializeObject<T>(json);
+        }
+
+        private void SetSessionObject(string key, object obj)
+        {
+            var json = JsonConvert.SerializeObject(obj);
+            HttpContext.Session.SetString(key, json);
+        }
+#endregion
     }
 }
 #endif

@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Entities;
 using HealthCheck.Core.Modules.LogViewer.Models;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Abstractions
@@ -12,6 +13,6 @@ namespace HealthCheck.Core.Abstractions
         /// <summary>
         /// Search logs using the given filter.
         /// </summary>
-        Task<LogSearchResult> PerformSearchAsync(LogSearchFilter filter);
+        Task<LogSearchResult> PerformSearchAsync(LogSearchFilter filter, CancellationToken cancellationToken);
     }
 }

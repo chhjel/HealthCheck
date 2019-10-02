@@ -14,6 +14,7 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HealthCheck.WebUI.Util
@@ -192,13 +193,67 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Perform a log search.
         /// </summary>
-        public async Task<LogSearchResult> SearchLogs(Maybe<TAccessRole> accessRoles, LogSearchFilter filter)
+        public async Task<LogSearchResult> SearchLogs(Maybe<TAccessRole> accessRoles, LogSearchFilter filter, Action<string> onSearchStarted)
         {
             if (Services.LogSearcherService == null || !CanShowLogViewerPageTo(accessRoles))
                 return new LogSearchResult();
 
-            return await Services.LogSearcherService.PerformSearchAsync(filter);
+            CancellationTokenSource cts = new CancellationTokenSource();
+
+            var search = new LogSearchInProgress
+            {
+                Id = Guid.NewGuid().ToString(),
+                CancellationTokenSource = cts,
+                StartedAt = DateTime.Now
+            };
+            lock (SearchesInProgress)
+            {
+                SearchesInProgress.Add(search);
+            }
+            onSearchStarted?.Invoke(search.Id);
+
+            var result = await Services.LogSearcherService.PerformSearchAsync(filter, cts.Token);
+
+            lock (SearchesInProgress)
+            {
+                SearchesInProgress.Remove(search);
+
+                // Cleanup any old searches
+                lock (SearchesInProgress)
+                {
+                    AbortLogSearches(threshold: DateTime.Now.AddMinutes(-30));
+                }
+            }
+            return result;
         }
+
+        /// <summary>
+        /// Cancel a running search.
+        /// </summary>
+        public bool CancelLogSearch(string searchId)
+        {
+            lock (SearchesInProgress)
+            {
+                var search = SearchesInProgress.FirstOrDefault(x => x.Id == searchId);
+                if (search == null)
+                    return false;
+
+                try
+                {
+                    search.CancellationTokenSource.Cancel();
+                }
+                catch (Exception) { }
+
+                SearchesInProgress.Remove(search);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Cancel all running log searches from all sessions.
+        /// </summary>
+        public int CancelAllLogSearches() => AbortLogSearches();
 
         /// <summary>
         /// Create view html from the given options.
@@ -373,6 +428,32 @@ namespace HealthCheck.WebUI.Util
             return EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, pageAccess.Value);
         }
 
+        #region Log search
+        private class LogSearchInProgress
+        {
+            public string Id { get; set; }
+            public DateTime StartedAt { get; set; }
+            public CancellationTokenSource CancellationTokenSource { get; set; }
+        }
+
+        private static List<LogSearchInProgress> SearchesInProgress { get; set; } = new List<LogSearchInProgress>();
+        private int AbortLogSearches(DateTime? threshold = null)
+        {
+            lock (SearchesInProgress)
+            {
+                var searchesToCleanup = SearchesInProgress
+                    .Where(x => threshold == null || x.StartedAt < threshold).ToList();
+
+                foreach (var search in searchesToCleanup)
+                {
+                    CancelLogSearch(search.Id);
+                }
+
+                return searchesToCleanup.Count;
+            }
+        }
+        #endregion
+
         #region Audit
         /// <summary>
         /// Create a new <see cref="AuditEvent"/> from the given request data and values.
@@ -393,7 +474,7 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// When a test has executed this should be called.
         /// </summary>
-        public void OnTestExecuted(RequestInformation<TAccessRole> requestInformation, ExecuteTestInputData input, TestResultViewModel result)
+        public void AuditLog_TestExecuted(RequestInformation<TAccessRole> requestInformation, ExecuteTestInputData input, TestResultViewModel result)
         {
             Services.AuditEventService?.StoreEvent(
                 CreateAuditEventFor(requestInformation, AuditEventArea.Tests, action: "Test executed", subject: result?.TestName)
@@ -401,6 +482,35 @@ namespace HealthCheck.WebUI.Util
                 .AddDetail("Parameters", $"[{string.Join(", ", (input?.Parameters ?? new List<string>()))}]")
                 .AddDetail("Result", result?.Message)
                 .AddDetail("Duration", $"{result?.DurationInMilliseconds}ms")
+            );
+        }
+
+        /// <summary>
+        /// When a log search has been started this should be called.
+        /// </summary>
+        public void AuditLog_LogSearch(RequestInformation<TAccessRole> requestInformation, LogSearchFilter filter, LogSearchResult result)
+        {
+            if (result.WasCancelled)
+                return;
+
+            Services.AuditEventService?.StoreEvent(
+                CreateAuditEventFor(requestInformation, AuditEventArea.LogSearch, action: "Searched logs", subject: $"[{filter?.QueryMode.ToString()} '{filter?.Query}'")
+                .AddDetail("Skip", filter?.Skip.ToString() ?? "null")
+                .AddDetail("Take", filter?.Take.ToString() ?? "null")
+                .AddDetail("Range", $"{filter?.FromFileDate?.ToString() ?? "min"} -> {filter?.ToFileDate?.ToString() ?? "max"}")
+                .AddDetail("Result count", result?.Items?.Count.ToString() ?? "null")
+                .AddDetail("Duration", $"{result?.DurationInMilliseconds}ms")
+            );
+        }
+
+        /// <summary>
+        /// When a log search has been started this should be called.
+        /// </summary>
+        public void AuditLog_LogSearchCancel(RequestInformation<TAccessRole> requestInformation, string action, int? count = null)
+        {
+            Services.AuditEventService?.StoreEvent(
+                CreateAuditEventFor(requestInformation, AuditEventArea.LogSearch, action: action)
+                    .AddDetail("Count", count?.ToString(), onlyIfNotNull: true)
             );
         }
 

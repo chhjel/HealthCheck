@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace HealthCheck.Core.Extensions
 {
@@ -29,5 +30,17 @@ namespace HealthCheck.Core.Extensions
             => descending
                 ? source.OrderByDescending(keySelector)
                 : source.OrderBy(keySelector);
+
+        /// <summary>
+        /// Throws a <see cref="OperationCanceledException"/> if the given token is cancelled.
+        /// </summary>
+        public static IEnumerable<T> WithCancellation<T>(this IEnumerable<T> en, CancellationToken token)
+        {
+            foreach (var item in en)
+            {
+                token.ThrowIfCancellationRequested();
+                yield return item;
+            }
+        }
     }
 }

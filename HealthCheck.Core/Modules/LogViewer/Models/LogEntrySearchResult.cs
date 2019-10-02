@@ -7,5 +7,6 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
         public List<string> ColumnNames { get; set; }
         public List<LogEntry> MatchingEntries { get; set; }
         public int TotalMatchCount { get; set; }
+        public bool WasCancelled { get; set; }
     }
 }

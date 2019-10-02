@@ -32,5 +32,10 @@ namespace HealthCheck.Core.Entities
         /// How long the search process lasted.
         /// </summary>
         public long DurationInMilliseconds { get; set; }
+
+        /// <summary>
+        /// True if the search was cancelled.
+        /// </summary>
+        public bool WasCancelled { get; set; }
     }
 }

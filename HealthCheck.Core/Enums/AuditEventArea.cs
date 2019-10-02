@@ -9,5 +9,10 @@
         /// The tests page.
         /// </summary>
         Tests = 0,
+
+        /// <summary>
+        /// The log search page.
+        /// </summary>
+        LogSearch
     }
 }
