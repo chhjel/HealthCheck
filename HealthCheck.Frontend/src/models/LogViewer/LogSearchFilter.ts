@@ -4,8 +4,8 @@ export default interface LogSearchFilter {
     SearchId: string;
     Skip: number;
     Take: number;
-    FromFileDate: Date | null;
-    ToFileDate: Date | null;
+    FromDate: Date | null;
+    ToDate: Date | null;
     Query: string;
     QueryMode: FilterQueryMode;
     ExcludedQuery: string;

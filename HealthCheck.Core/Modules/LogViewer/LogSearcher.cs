@@ -27,10 +27,10 @@ namespace HealthCheck.Core.Modules.LogViewer
             var logs = FindLogs();
             var entries = logs
                 .WithCancellation(cancellationToken)
-                .SelectMany(x => x.GetEntriesEnumerable(Options.EntryParser, filter.FromFileDate, filter.ToFileDate, AllowLogFile, filter))
+                .SelectMany(x => x.GetEntriesEnumerable(Options.EntryParser, filter.FromDate, filter.ToDate, AllowLogFile, filter))
                 .Where(x =>
-                    (filter.FromFileDate == null || x.Timestamp >= filter.FromFileDate)
-                     && (filter.ToFileDate == null || x.Timestamp <= filter.ToFileDate)
+                    (filter.FromDate == null || x.Timestamp >= filter.FromDate)
+                     && (filter.ToDate == null || x.Timestamp <= filter.ToDate)
                 )
                 .OrderByWithDirection(x => x.Timestamp, filter.OrderDescending)
                 .Select(x => Options.EntryParser.ParseDetails(x))

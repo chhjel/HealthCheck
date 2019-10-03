@@ -514,7 +514,7 @@ namespace HealthCheck.WebUI.Util
                 CreateAuditEventFor(requestInformation, AuditEventArea.LogSearch, action: "Searched logs", subject: filter?.Query)
                 .AddDetail("Skip", filter?.Skip.ToString() ?? "null")
                 .AddDetail("Take", filter?.Take.ToString() ?? "null")
-                .AddDetail("Range", $"{filter?.FromFileDate?.ToString() ?? "min"} -> {filter?.ToFileDate?.ToString() ?? "max"}")
+                .AddDetail("Range", $"{filter?.FromDate?.ToString() ?? "min"} -> {filter?.ToDate?.ToString() ?? "max"}")
                 .AddDetail("Result count", result?.Items?.Count.ToString() ?? "null")
                 .AddDetail("Duration", $"{result?.DurationInMilliseconds}ms")
             );
