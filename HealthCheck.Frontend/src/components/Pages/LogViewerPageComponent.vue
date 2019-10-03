@@ -84,7 +84,7 @@
                             <v-flex xs10 sm10>
                                 <v-text-field type="text" clearable
                                     v-model="filterLogPathQuery"
-                                    :label="getQueryLabel('Log file path', filterLogPathQueryMode, true)"
+                                    :label="getQueryLabel('Log file path', filterLogPathQueryMode)"
                                     :disabled="logDataLoadInProgress"
                                 ></v-text-field>
                             </v-flex>
@@ -131,7 +131,7 @@
                     <v-btn depressed small class="extra-filter-btn"
                         v-if="!showLogPathQuery" @click="showLogPathQuery = true">
                         <v-icon >add</v-icon>
-                        Search log filepaths
+                        Limit log filepaths
                     </v-btn>
                     <v-btn depressed small class="extra-filter-btn"
                         v-if="!showExcludedLogPathQuery" @click="showExcludedLogPathQuery = true">
