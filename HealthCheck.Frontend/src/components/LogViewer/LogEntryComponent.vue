@@ -67,14 +67,24 @@ export default class LogEntryComponent extends Vue {
                 const regexMatches = <any>regexp.exec(this.entry.Raw);
                 if (regexMatches != null) {
                     const groupNames = Object.keys(regexMatches.groups);
-                    
-                    this.columnNames = groupNames;
-                    // ToDo: order columnNames by index of '(?<name>' in pattern
-                    // ToDo: column config per group: hide, inline/block, html-template?
-
+                                        
+                    // order columnNames by index of '(?<name>' in pattern
+                    let groupPositions: Array<any> = [];
                     groupNames.forEach(groupName => {
-                        this.columnValues.push(regexMatches.groups[groupName]);
+                        groupPositions.push({
+                            index: this.customColumnRule.indexOf(`(?<${groupName}>`),
+                            name: groupName
+                        });
                     });
+
+                    groupPositions = groupPositions.sort((a, b) => (a.index > b.index) ? 1 : -1)
+                    this.columnNames = groupPositions.map(x => x.name);
+
+                    groupPositions.forEach(group => {
+                        this.columnValues.push(regexMatches.groups[group.name]);
+                    });
+
+                    // ToDo: column config per group: hide, inline/block, html-template?
                 }
             }
         }
