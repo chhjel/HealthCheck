@@ -19,10 +19,16 @@ namespace HealthCheck.Core.Modules.LogViewer
             Options = options;
         }
 
-        public List<LogEntry> SearchEntries(LogSearchFilter filter, CancellationToken cancellationToken)
-            => SearchEntries(filter, out int _, cancellationToken);
-
-        public List<LogEntry> SearchEntries(LogSearchFilter filter, out int totalMatchCount, CancellationToken cancellationToken)
+        internal class InternalLogSearchResult
+        {
+            public List<LogEntry> MatchingEntries { get; set; } = new List<LogEntry>();
+            public int TotalMatchCount { get; set; }
+            public DateTime? LowestDate { get; set; }
+            public DateTime? HighestDate { get; set; }
+            public List<DateTime> Dates { get; set; } = new List<DateTime>();
+            public bool AllDatesIncluded => Dates.Count == TotalMatchCount;
+        }
+        public InternalLogSearchResult SearchEntries(LogSearchFilter filter, CancellationToken cancellationToken, out int totalMatchCount)
         {
             var logs = FindLogs();
             var entries = logs
@@ -42,10 +48,23 @@ namespace HealthCheck.Core.Modules.LogViewer
             var matchingEntries = entries.ToList();
             totalMatchCount = matchingEntries.Count;
 
-            return matchingEntries
-                .Skip(filter.Skip)
-                .Take(filter.Take)
-                .ToList();
+            var firstDate = matchingEntries.FirstOrDefault()?.Timestamp;
+            var lastDate = matchingEntries.LastOrDefault()?.Timestamp;
+            var highestDate = filter.OrderDescending ? firstDate : lastDate;
+            var lowestDate = filter.OrderDescending ? lastDate : firstDate;
+            var dates = matchingEntries.Select(x => x.Timestamp).Take(1000).ToList();
+
+            return new InternalLogSearchResult
+            {
+                HighestDate = highestDate,
+                LowestDate = lowestDate,
+                TotalMatchCount = totalMatchCount,
+                Dates = dates,
+                MatchingEntries = matchingEntries
+                    .Skip(filter.Skip)
+                    .Take(filter.Take)
+                    .ToList()
+            };
         }
 
         private List<LogFileGroup> FindLogs()

@@ -32,7 +32,7 @@
                             <v-icon color="white">cancel</v-icon>
                             Cancel
                         </v-btn>
-                        <v-btn @click="loadData" :disabled="logDataLoadInProgress" class="primary">Search</v-btn>
+                        <v-btn @click="currentPage=1;loadData()" :disabled="logDataLoadInProgress" class="primary">Search</v-btn>
                         <v-btn @click="resetFilters" :disabled="logDataLoadInProgress">Reset</v-btn>
                     </v-flex>
                     
@@ -119,6 +119,30 @@
                             </v-flex>
                         </v-layout>
                     </v-flex>
+                    
+                    <!-- CUSTOM COLUMNS -->
+                    <v-flex xs12 v-if="showcustomColumnRule">
+                        <v-layout row xs12>
+                            <v-flex xs10 sm10>
+                                <v-text-field type="text" clearable
+                                    v-model="customColumnRule"
+                                    :label="getDelimiterLabel()"
+                                    :disabled="logDataLoadInProgress"
+                                    :error-messages="getCustomColumnRuleError()"
+                                    append-icon="keyboard_tab"
+                                    @click:append="customColumnRule = (customColumnRule || '') +'\t'"
+                                ></v-text-field>
+                            </v-flex>
+                            <v-flex xs2 sm2>
+                                <v-select
+                                    v-model="customColumnMode"
+                                    :items="customColumnModeOptions"
+                                    :disabled="logDataLoadInProgress"
+                                    item-text="text" item-value="value" color="secondary">
+                                </v-select>
+                            </v-flex>
+                        </v-layout>
+                    </v-flex>
                 </v-layout>
 
                 <!-- Show extra filters -->
@@ -138,6 +162,12 @@
                         <v-icon >add</v-icon>
                         Exclude log filepaths
                     </v-btn>
+                    <v-btn depressed small class="extra-filter-btn"
+                        v-if="!showcustomColumnRule" 
+                        @click="showcustomColumnRule = true; customColumnRule='(?<Date>.*,[0-9]{3}) \\[(?<Thread>[0-9]+)\\] (?<Severity>\\w+) (?<Message>[^\\n]*)\\n?(?<Details>.*)'">
+                        <v-icon >add</v-icon>
+                        Custom columns
+                    </v-btn>
                 </div>
 
             </v-container>
@@ -150,6 +180,18 @@
                 <v-chip v-if="searchResultData.WasCancelled" class="mb-4">
                     <b>Search was cancelled</b>
                 </v-chip>
+                <v-chip v-if="searchResultData.HighestDate != null" class="mb-4">
+                    Total matches: {{ searchResultData.TotalCount }}
+                </v-chip>
+                <v-chip v-if="searchResultData.LowestDate != null" class="mb-4">
+                    First matching entry @ {{ searchResultData.LowestDate }}
+                </v-chip>
+                <v-chip v-if="searchResultData.HighestDate != null" class="mb-4">
+                    Last matching entry @ {{ searchResultData.HighestDate }}
+                </v-chip>
+                <v-chip v-if="searchResultData.HighestDate != null" class="mb-4">
+                    Date count: {{ searchResultData.Dates.length }}
+                </v-chip>
                 <v-btn ripple color="error"
                     @click.stop.prevent="cancelAllSearches()"
                     v-if="options.CurrentlyRunningLogSearchCount > 0 && !hasCancelledAll"
@@ -158,6 +200,14 @@
                     <v-icon color="white">cancel</v-icon>
                     {{ cancelAllSearchesButtonText }}
                 </v-btn>
+            </div>
+
+            <!-- PAGINATION -->
+            <div class="text-xs-center mb-4" v-if="searchResultData.PageCount > 0">
+                <v-pagination
+                    v-model="currentPage"
+                    :length="searchResultData.PageCount"
+                    :disabled="logDataLoadInProgress"></v-pagination>
             </div>
 
             <!-- PROGRESS -->
@@ -180,9 +230,18 @@
                     v-for="(item, index) in searchResultData.Items"
                     :key="`log-entry-${index}`"
                     :entry="item"
+                    :customColumnRule="sanitizedCustomColumnRule"
+                    :customColumnMode="customColumnMode"
                     />
             </div>
 
+            <!-- PAGINATION -->
+            <div class="text-xs-center mb-4" v-if="searchResultData.PageCount > 0">
+                <v-pagination
+                    v-model="currentPage"
+                    :length="searchResultData.PageCount"
+                    :disabled="logDataLoadInProgress"></v-pagination>
+            </div>
 
           <!-- CONTENT END -->
         </v-flex>
@@ -193,7 +252,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
 import DateUtils from '../../util/DateUtils';
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
@@ -203,6 +262,7 @@ import { DateTimePicker } from "@lazy-copilot/datetimepicker";
 import LogSearchFilter from '../../models/LogViewer/LogSearchFilter';
 import LogSearchResult from '../../models/LogViewer/LogSearchResult';
 import { FilterQueryMode } from '../../models/LogViewer/FilterQueryMode';
+import { FilterDelimiterMode } from '../../models/LogViewer/FilterDelimiterMode';
 
 @Component({
     components: {
@@ -218,10 +278,10 @@ export default class LogViewerPageComponent extends Vue {
     showExcludedQuery: boolean = false;
     showLogPathQuery: boolean = false;
     showExcludedLogPathQuery: boolean = false;
+    showcustomColumnRule: boolean = false;
     currentSearchId: string = "";
     filterFromDate: Date = new Date();
     filterToDate: Date = new Date();
-    filterSkip: number = 0;
     filterTake: number = 50;
     filterQuery: string = "";
     filterQueryMode: FilterQueryMode = FilterQueryMode.Exact;
@@ -231,6 +291,11 @@ export default class LogViewerPageComponent extends Vue {
     filterLogPathQueryMode: FilterQueryMode = FilterQueryMode.Exact;
     filterExcludedLogPathQuery: string = "";
     filterExcludedLogPathQueryMode: FilterQueryMode = FilterQueryMode.Exact;
+
+    customColumnMode: FilterDelimiterMode = FilterDelimiterMode.Regex;
+    customColumnRule: string = "";
+
+    currentPage: number = 1;
 
     searchResultData: LogSearchResult = this.createEmptyResultData();
     cancellationInProgress: boolean = false;
@@ -267,6 +332,21 @@ export default class LogViewerPageComponent extends Vue {
         ];
     }
 
+    get customColumnModeOptions(): any {
+        return [
+            { text: 'RegExp', value: FilterDelimiterMode.Regex},
+            { text: 'Delimiter', value: FilterDelimiterMode.Delimiter}
+        ];
+    }
+
+    get sanitizedCustomColumnRule(): string {
+        if (this.customColumnMode == FilterDelimiterMode.Regex && !this.isValidRegex(this.customColumnRule)) {
+            return '';
+        } else {
+            return this.customColumnRule;
+        }
+    }
+
     ////////////////
     //  METHODS  //
     //////////////
@@ -286,20 +366,33 @@ export default class LogViewerPageComponent extends Vue {
         }
     }
 
+    getDelimiterLabel(): string {
+        return (this.customColumnMode == FilterDelimiterMode.Regex)
+            ? "Create columns from RegExp group names"
+            : "Create columns by splitting on string";
+    }
+
+    getCustomColumnRuleError(): string[] {
+        return (this.customColumnMode != FilterDelimiterMode.Regex 
+                || this.isValidRegex(this.customColumnRule))
+                ? []
+                : ["Invalid expression"];
+    }
+
     resetFilters(): void {
         this.showExcludedQuery = false;
         this.showLogPathQuery = false;
         this.showExcludedLogPathQuery = false;
+        this.showcustomColumnRule = false;
 
         this.filterFromDate = new Date();
-        this.filterFromDate.setDate(this.filterFromDate.getDate() - 365);
+        this.filterFromDate.setDate(this.filterFromDate.getDate() - (365));
         this.filterFromDate.setHours(0);
         this.filterFromDate.setMinutes(0);
         this.filterToDate = new Date();
         this.filterToDate.setHours(23);
         this.filterToDate.setMinutes(59);
 
-        this.filterSkip = 0;
         this.filterTake = 50;
         this.filterQuery = "";
         this.filterExcludedQuery = "";
@@ -309,6 +402,8 @@ export default class LogViewerPageComponent extends Vue {
         this.filterExcludedQueryMode = FilterQueryMode.Exact;
         this.filterLogPathQueryMode = FilterQueryMode.Exact;
         this.filterExcludedLogPathQueryMode = FilterQueryMode.Exact;
+        this.customColumnRule = "";
+        this.customColumnMode = FilterDelimiterMode.Regex;
 
         let dateFilterFormat = 'yyyy MMM d  HH:mm';
         (<any>this.$refs.filterDate).selectDateString 
@@ -383,14 +478,29 @@ export default class LogViewerPageComponent extends Vue {
             });
     }
 
+    onSearchResultRetrieved(data: LogSearchResult): void {
+        this.hasSearched = true;
+        this.logDataLoadInProgress = false;
+
+        this.searchResultData = data;
+        this.currentPage = data.CurrentPage;
+        
+        this.logDataLoadFailed = data.HasError;
+        this.logDataFailedErrorMessage = data.Error || "";
+    }
+
     createEmptyResultData(): LogSearchResult {
-        return { TotalCount: 0, Count: 0, Items: [], ColumnNames: [], DurationInMilliseconds: 0, WasCancelled: false }
+        return { 
+            TotalCount: 0, Count: 0, Items: [], ColumnNames: [], DurationInMilliseconds: 0, 
+            WasCancelled: false, Error: null, HasError: false, Dates: [], HighestDate: null, LowestDate: null,
+            AllDatesIncluded: true, PageCount: 0, CurrentPage: 1
+        };
     } 
 
     generateFilterPayload(): Partial<LogSearchFilter> {
         return {
             SearchId: this.generateSearchId(),
-            Skip: this.filterSkip,
+            Skip: (this.currentPage - 1) * this.filterTake,
             Take: this.filterTake,
 
             FromDate: this.filterFromDate,
@@ -405,9 +515,6 @@ export default class LogViewerPageComponent extends Vue {
             LogPathQueryMode: this.filterLogPathQueryMode,
             ExcludedLogPathQuery: this.filterExcludedLogPathQuery,
             ExcludedLogPathQueryMode: this.filterExcludedLogPathQueryMode,
-
-            // ColumnRegexPattern: string;
-            // ColumnDelimiter: string;
         };
     }
 
@@ -415,12 +522,6 @@ export default class LogViewerPageComponent extends Vue {
         return (<any>[1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, (c:any) =>
             (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
         );
-    }
-
-    onSearchResultRetrieved(data: LogSearchResult): void {
-        this.hasSearched = true;
-        this.logDataLoadInProgress = false;
-        this.searchResultData = data;
     }
     
     prettifyDuration(milliseconds: number): string {
@@ -436,9 +537,25 @@ export default class LogViewerPageComponent extends Vue {
       }
     }
 
+    isValidRegex(pattern: string): boolean {
+        try {
+            new RegExp(pattern);
+            return true;
+        } catch {
+            return false
+        }
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    @Watch("currentPage")
+    onCurrentPageChanged(): void {
+        if (!this.logDataLoadInProgress) {
+            this.loadData();
+        }
+    }
+
     onDateRangeChanged(data: any): void {
         this.filterFromDate = data.startDate;
         this.filterToDate = data.endDate;

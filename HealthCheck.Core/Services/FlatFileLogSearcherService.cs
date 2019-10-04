@@ -11,6 +11,8 @@ using HealthCheck.Core.Entities;
 using HealthCheck.Core.Modules.LogViewer;
 using HealthCheck.Core.Modules.LogViewer.Models;
 using HealthCheck.Core.Services.Models;
+using HealthCheck.Core.Util;
+using static HealthCheck.Core.Modules.LogViewer.LogSearcher;
 
 namespace HealthCheck.Core.Services
 {
@@ -42,14 +44,23 @@ namespace HealthCheck.Core.Services
 
             var internalResult = SearchInternal(filter, cancellationToken);
             var duration = watch.ElapsedMilliseconds;
+            var page = (filter.Skip / filter.Take) + 1;
+            var pageCount = internalResult.TotalMatchCount / filter.Take;
+            if (internalResult.TotalMatchCount % filter.Take != 0) pageCount++;
 
             return new LogSearchResult()
             {
                 DurationInMilliseconds = duration,
+                Error = internalResult.Error,
                 ColumnNames = internalResult.ColumnNames,
                 Count = internalResult.MatchingEntries.Count,
                 TotalCount = internalResult.TotalMatchCount,
+                PageCount = pageCount,
+                CurrentPage = page,
                 WasCancelled = internalResult.WasCancelled,
+                Dates = internalResult.Dates,
+                HighestDate = internalResult.HighestDate,
+                LowestDate = internalResult.LowestDate,
                 Items = internalResult.MatchingEntries.Select(x => new LogEntrySearchResultItem()
                 {
                     ColumnValues = x.ColumnValues,
@@ -89,24 +100,32 @@ namespace HealthCheck.Core.Services
 
             var wasCancelled = false;
             int totalMatchCount = 0;
-            List<LogEntry> matchingEntries = new List<LogEntry>();
-
+            string error = null;
+            var internalSearchResult = new InternalLogSearchResult();
             try
             {
                 var searcher = new LogSearcher(searcherOptions);
-                matchingEntries = searcher.SearchEntries(filter, out totalMatchCount, cancellationToken);
+                internalSearchResult = searcher.SearchEntries(filter, cancellationToken, out totalMatchCount);
             }
             catch (OperationCanceledException)
             {
                 wasCancelled = true;
             }
+            catch (Exception ex)
+            {
+                error = ExceptionUtils.GetFullExceptionDetails(ex);
+            }
 
             return new LogEntrySearchResult
             {
                 ColumnNames = columnNames,
-                MatchingEntries = matchingEntries,
+                MatchingEntries = internalSearchResult.MatchingEntries,
+                Dates = internalSearchResult.Dates,
+                HighestDate = internalSearchResult.HighestDate,
+                LowestDate = internalSearchResult.LowestDate,
                 TotalMatchCount = totalMatchCount,
-                WasCancelled = wasCancelled
+                WasCancelled = wasCancelled,
+                Error = error
             };
         }
 
