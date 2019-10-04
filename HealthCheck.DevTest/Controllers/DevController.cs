@@ -18,7 +18,6 @@ using System.Linq;
 using HealthCheck.Core.Services;
 using System.Collections.Generic;
 using HealthCheck.Core.Services.Models;
-using HealthCheck.Core.Modules.LogViewer.Models;
 
 namespace HealthCheck.DevTest.Controllers
 {

@@ -53,7 +53,7 @@ namespace HealthCheck.Core.Modules.LogViewer
             return GetLogFilepaths()
                 // .GroupBy(path => path.Substring(0, path.IndexOf(".")))
                 // .Select(group => LogFileGroup.FromFiles(group))
-                .Select(x => LogFileGroup.FromFiles(x))
+                .Select(x => LogFileGroup.FromFiles(Options.EntryParser, x))
                 .Where(x => x.Files.Any())
                 .OrderByDescending(x => x.LastFileWriteTime)
                 .ToList();
