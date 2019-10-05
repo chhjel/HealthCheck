@@ -148,8 +148,8 @@ export default class LogEntryTableComponent extends Vue {
             {
                 const parts = entry.Raw.split(this.customColumnRule);
                 for (let i=0;i<parts.length;i++) {
-                    item.Columns.push(parts[i]);
-                    item.Values.push(`Column ${(i+1)}`);
+                    item.Columns.push(`Column ${(i+1)}`);
+                    item.Values.push(parts[i]);
                 }
             }
             else if (this.customColumnMode == FilterDelimiterMode.Regex)
