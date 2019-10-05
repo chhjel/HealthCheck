@@ -84,6 +84,13 @@ export default class LogEntryComponent extends Vue {
                         this.columnValues.push(regexMatches.groups[group.name]);
                     });
 
+                    // -1st column always timestamp
+                    // -Use max groups from all entries on current page as column count?
+                    // -Click for details + raw?
+
+                    // calc columns in a new parent component, send column names & ids to this.
+                    // show in two different toggleable modes: Raw & Columns
+
                     // ToDo: column config per group: hide, inline/block, html-template?
                 }
             }

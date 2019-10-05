@@ -164,7 +164,7 @@
                     </v-btn>
                     <v-btn depressed small class="extra-filter-btn"
                         v-if="!showcustomColumnRule" 
-                        @click="showcustomColumnRule = true; customColumnRule='(?<Date>.*,[0-9]{3}) \\[(?<Thread>[0-9]+)\\] (?<Severity>\\w+) (?<Message>[^\\n]*)\\n?(?<Details>.*)'">
+                        @click="showcustomColumnRule = true; customColumnRule='(.*,[0-9]{3}) \\[(?<Thread>[0-9]+)\\] (?<Severity>\\w+) (?<Message>[^\\n]*)\\n?(?<Details>.*)'">
                         <v-icon >add</v-icon>
                         Custom columns
                     </v-btn>
@@ -373,10 +373,12 @@ export default class LogViewerPageComponent extends Vue {
     }
 
     getCustomColumnRuleError(): string[] {
-        return (this.customColumnMode != FilterDelimiterMode.Regex 
-                || this.isValidRegex(this.customColumnRule))
-                ? []
-                : ["Invalid expression"];
+        if (this.customColumnMode == FilterDelimiterMode.Regex) {
+            var error = this.getRegexError(this.customColumnRule);
+            return (error == null) ? [] : [error];
+        } else {
+            return [];
+        }
     }
 
     resetFilters(): void {
@@ -538,11 +540,15 @@ export default class LogViewerPageComponent extends Vue {
     }
 
     isValidRegex(pattern: string): boolean {
+        return this.getRegexError(pattern) != null;
+    }
+
+    getRegexError(pattern: string): string | null {
         try {
             new RegExp(pattern);
-            return true;
-        } catch {
-            return false
+            return null;
+        } catch(e) {
+            return e.message || e; 
         }
     }
 
