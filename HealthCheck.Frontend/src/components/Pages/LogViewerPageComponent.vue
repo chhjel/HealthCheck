@@ -145,8 +145,8 @@
                     </v-flex>
                 </v-layout>
 
-                <!-- Show extra filters -->
                 <div>
+                    <!-- Show extra filters -->
                     <v-btn depressed small class="extra-filter-btn"
                         v-if="!showExcludedQuery" @click="showExcludedQuery = true">
                         <v-icon >add</v-icon>
@@ -164,10 +164,16 @@
                     </v-btn>
                     <v-btn depressed small class="extra-filter-btn"
                         v-if="!showcustomColumnRule" 
-                        @click="showcustomColumnRule = true; customColumnRule='(.*,[0-9]{3}) \\[(?<Thread>[0-9]+)\\] (?<Severity>\\w+) (?<Message>[^\\n]*)\\n?(?<Details>.*)'">
+                        @click="showcustomColumnRule = true; customColumnRule='(.*,[0-9]{3}) \\[(?<Thread>[0-9]+)\\] (?<Severity>\\w+) (?<Message>[^\\n]*)'">
                         <v-icon >add</v-icon>
                         Custom columns
                     </v-btn>
+
+                    <!-- EXPAND ALL -->
+                    <v-checkbox
+                        v-model="expandAllRows"
+                        :label="`Expand all rows`"
+                    ></v-checkbox>
                 </div>
 
             </v-container>
@@ -184,10 +190,10 @@
                     Total matches: {{ searchResultData.TotalCount }}
                 </v-chip>
                 <v-chip v-if="searchResultData.LowestDate != null" class="mb-4">
-                    First matching entry @ {{ searchResultData.LowestDate }}
+                    First matching entry @ {{ formatDateForChip(new Date(searchResultData.LowestDate)) }}
                 </v-chip>
                 <v-chip v-if="searchResultData.HighestDate != null" class="mb-4">
-                    Last matching entry @ {{ searchResultData.HighestDate }}
+                    Last matching entry @ {{ formatDateForChip(new Date(searchResultData.HighestDate)) }}
                 </v-chip>
                 <v-chip v-if="searchResultData.HighestDate != null" class="mb-4">
                     Date count: {{ searchResultData.Dates.length }}
@@ -228,6 +234,7 @@
                 :entries="searchResultData.Items"
                 :customColumnRule="sanitizedCustomColumnRule"
                 :customColumnMode="customColumnMode"
+                :expandAllRows="expandAllRows"
                 />
 
             <!-- PAGINATION -->
@@ -251,7 +258,6 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
 import DateUtils from '../../util/DateUtils';
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
-import LogEntryComponent from '../LogViewer/LogEntryComponent.vue';
 import LogEntryTableComponent from '../LogViewer/LogEntryTableComponent.vue';
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
@@ -263,7 +269,6 @@ import { FilterDelimiterMode } from '../../models/LogViewer/FilterDelimiterMode'
 @Component({
     components: {
         DateTimePicker,
-        LogEntryComponent,
         LogEntryTableComponent
     }
 })
@@ -291,6 +296,7 @@ export default class LogViewerPageComponent extends Vue {
 
     customColumnMode: FilterDelimiterMode = FilterDelimiterMode.Regex;
     customColumnRule: string = "";
+    expandAllRows: boolean = false;
 
     currentPage: number = 1;
 
@@ -547,6 +553,10 @@ export default class LogViewerPageComponent extends Vue {
         } catch(e) {
             return e.message || e; 
         }
+    }
+
+    formatDateForChip(date: Date): string {
+        return DateUtils.FormatDate(date, 'd. MMM. HH:mm:ss yyyy');
     }
 
     ///////////////////////

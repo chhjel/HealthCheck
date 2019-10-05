@@ -18,7 +18,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
             FilePath = path;
             LastWriteTime = File.GetLastWriteTime(FilePath);
 
-            var firstLine = File.ReadAllLines(FilePath).FirstOrDefault();
+            var firstLine = File.ReadAllLines(FilePath).FirstOrDefault(x => !string.IsNullOrWhiteSpace(x));
             FirstEntryTime = entryParser.ParseEntryDate(firstLine) ?? DateTime.MaxValue;
         }
 
@@ -59,15 +59,23 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
             {
                 string line;
                 string nextStartingLine = null;
+                var emptyLineCount = 0;
+                var isFirstMatch = true;
+                long firstMatchStart = 0;
 
                 while ((line = streamReader.ReadLine()) != null)
                 {
                     lineNumber++;
                     if (string.IsNullOrWhiteSpace(line))
+                    {
+                        emptyLineCount++;
                         continue;
+                    }
 
                     stringbuilder.Clear();
-                    builderLines = 0;
+                    builderLines = emptyLineCount;
+                    emptyLineCount = 0;
+
                     var lineIsEntryStart = entryParser.IsEntryStart(line);
                     if (nextStartingLine != null)
                     {
@@ -84,6 +92,10 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
 
                     if (lineIsEntryStart)
                     {
+                        if (isFirstMatch)
+                        {
+                            firstMatchStart = lineNumber;
+                        }
                         if (stringbuilder.Length > 0)
                         {
                             yield return $"{lineNumber - builderLines}|{stringbuilder.ToString()}";
@@ -105,7 +117,10 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
                         lineNumber++;
 
                         if (string.IsNullOrWhiteSpace(line))
+                        {
+                            builderLines++;
                             continue;
+                        }
 
                         if (!entryParser.IsEntryStart(line))
                         {
@@ -116,7 +131,14 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
                         else
                         {
                             nextStartingLine = line;
-                            yield return $"{lineNumber - builderLines}|{stringbuilder.ToString()}";
+                            if (isFirstMatch)
+                            {
+                                isFirstMatch = false;
+                                yield return $"{firstMatchStart}|{stringbuilder.ToString()}";
+                            } else
+                            {
+                                yield return $"{lineNumber - builderLines}|{stringbuilder.ToString()}";
+                            }
                             break;
                         }
                     }
