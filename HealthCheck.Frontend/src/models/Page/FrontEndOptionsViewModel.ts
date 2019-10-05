@@ -10,6 +10,7 @@ export default interface FrontEndOptionsViewModel {
     GetLogSearchResultsEndpoint: string;
     CancelLogSearchEndpoint: string;
     CancelAllLogSearchesEndpoint: string;
+    DefaultColumnRegex: string;
     CurrentEventBufferMinutes: number;
     CurrentlyRunningLogSearchCount: number;
     Pages: string[];

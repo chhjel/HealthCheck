@@ -81,6 +81,12 @@ namespace HealthCheck.WebUI.ViewModels
         public int CurrentEventBufferMinutes { get; set; } = 30;
 
         /// <summary>
+        /// Default value for custom columns regex pattern.
+        /// <para>Group names become headers, and groups without names are hidden. Timestamps are always shown in the first column.</para>
+        /// </summary>
+        public string DefaultColumnRegex { get; set; } = "(.*,[0-9]{3}) \\[(?<Thread>[0-9]+)\\] (?<Severity>\\w+) (?<Message>[^\\n]*)'";
+
+        /// <summary>
         /// Number log searches currently running.
         /// </summary>
         [JsonProperty]
