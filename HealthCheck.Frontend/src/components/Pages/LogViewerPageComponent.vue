@@ -146,34 +146,53 @@
                 </v-layout>
 
                 <div>
-                    <!-- Show extra filters -->
-                    <v-btn depressed small class="extra-filter-btn"
-                        v-if="!showExcludedQuery" @click="showExcludedQuery = true">
-                        <v-icon >add</v-icon>
-                        Exclude content
-                    </v-btn>
-                    <v-btn depressed small class="extra-filter-btn"
-                        v-if="!showLogPathQuery" @click="showLogPathQuery = true">
-                        <v-icon >add</v-icon>
-                        Limit log filepaths
-                    </v-btn>
-                    <v-btn depressed small class="extra-filter-btn"
-                        v-if="!showExcludedLogPathQuery" @click="showExcludedLogPathQuery = true">
-                        <v-icon >add</v-icon>
-                        Exclude log filepaths
-                    </v-btn>
-                    <v-btn depressed small class="extra-filter-btn"
-                        v-if="!showcustomColumnRule" 
-                        @click="showcustomColumnRule = true; customColumnRule='(.*,[0-9]{3}) \\[(?<Thread>[0-9]+)\\] (?<Severity>\\w+) (?<Message>[^\\n]*)'">
-                        <v-icon >add</v-icon>
-                        Custom columns
-                    </v-btn>
-
-                    <!-- EXPAND ALL -->
-                    <v-checkbox
-                        v-model="expandAllRows"
-                        :label="`Expand all rows`"
-                    ></v-checkbox>
+                    <!-- Options -->
+                    <v-layout row wrap xs12>
+                        
+                        <v-flex xs6 sm4 lg2>
+                            <v-btn depressed small class="extra-filter-btn"
+                                v-if="!showExcludedQuery" @click="showExcludedQuery = true">
+                                <v-icon >add</v-icon>
+                                Exclude content
+                            </v-btn>
+                        </v-flex>
+                        <v-flex xs6 sm4 lg2>
+                            <v-btn depressed small class="extra-filter-btn"
+                                v-if="!showLogPathQuery" @click="showLogPathQuery = true">
+                                <v-icon >add</v-icon>
+                                Limit log filepaths
+                            </v-btn>
+                        </v-flex>
+                        <v-flex xs6 sm4 lg2>
+                            <v-btn depressed small class="extra-filter-btn"
+                                v-if="!showExcludedLogPathQuery" @click="showExcludedLogPathQuery = true">
+                                <v-icon >add</v-icon>
+                                Exclude log filepaths
+                            </v-btn>
+                        </v-flex>
+                        <v-flex xs6 sm4 lg2>
+                            <v-btn depressed small class="extra-filter-btn"
+                                v-if="!showcustomColumnRule" 
+                                @click="showcustomColumnRule = true; customColumnRule='(.*,[0-9]{3}) \\[(?<Thread>[0-9]+)\\] (?<Severity>\\w+) (?<Message>[^\\n]*)'">
+                                <v-icon >add</v-icon>
+                                Custom columns
+                            </v-btn>
+                        </v-flex>
+                            
+                        <v-flex xs6 sm4 lg2 style="padding-left: 22px;">
+                            <v-checkbox
+                                class="options-checkbox"
+                                v-model="expandAllRows"
+                                :label="`Expand all rows`"
+                            ></v-checkbox>
+                        </v-flex>
+                        <v-flex xs6 sm2 style="padding-left: 22px;">
+                            <v-text-field type="number" label="Page size"
+                                class="options-input"
+                                v-model.number="filterTake" />
+                        </v-flex>
+                    </v-layout>
+                    
                 </div>
 
             </v-container>
@@ -585,5 +604,12 @@ export default class LogViewerPageComponent extends Vue {
 }
 .extra-filter-chip .v-chip__content:hover {
     text-shadow: 0px 0px 0.5px #928484;
+}
+.options-checkbox.v-input {
+    margin-top: 4px;
+}
+.options-input.v-input {
+    margin-top: 0;
+    padding-top: 4px;
 }
 </style>
