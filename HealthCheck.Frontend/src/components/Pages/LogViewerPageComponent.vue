@@ -540,7 +540,7 @@ export default class LogViewerPageComponent extends Vue {
     }
 
     isValidRegex(pattern: string): boolean {
-        return this.getRegexError(pattern) != null;
+        return this.getRegexError(pattern) == null;
     }
 
     getRegexError(pattern: string): string | null {
