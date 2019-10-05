@@ -173,7 +173,7 @@
                         <v-flex xs6 sm4 lg2>
                             <v-btn depressed small class="extra-filter-btn"
                                 v-if="!showcustomColumnRule" 
-                                @click="showcustomColumnRule = true; customColumnRule='(.*,[0-9]{3}) \\[(?<Thread>[0-9]+)\\] (?<Severity>\\w+) (?<Message>[^\\n]*)'">
+                                @click="showcustomColumnRule = true; customColumnRule=options.DefaultColumnRegex">
                                 <v-icon >add</v-icon>
                                 Custom columns
                             </v-btn>
