@@ -224,16 +224,11 @@
               {{ logDataFailedErrorMessage }}
             </v-alert>
 
-            <!-- {{ searchResultData }} -->
-            <div>
-                <log-entry-component
-                    v-for="(item, index) in searchResultData.Items"
-                    :key="`log-entry-${index}`"
-                    :entry="item"
-                    :customColumnRule="sanitizedCustomColumnRule"
-                    :customColumnMode="customColumnMode"
-                    />
-            </div>
+            <log-entry-table-component
+                :entries="searchResultData.Items"
+                :customColumnRule="sanitizedCustomColumnRule"
+                :customColumnMode="customColumnMode"
+                />
 
             <!-- PAGINATION -->
             <div class="text-xs-center mb-4" v-if="searchResultData.PageCount > 0">
@@ -257,6 +252,7 @@ import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel
 import DateUtils from '../../util/DateUtils';
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 import LogEntryComponent from '../LogViewer/LogEntryComponent.vue';
+import LogEntryTableComponent from '../LogViewer/LogEntryTableComponent.vue';
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
 import LogSearchFilter from '../../models/LogViewer/LogSearchFilter';
@@ -267,7 +263,8 @@ import { FilterDelimiterMode } from '../../models/LogViewer/FilterDelimiterMode'
 @Component({
     components: {
         DateTimePicker,
-        LogEntryComponent
+        LogEntryComponent,
+        LogEntryTableComponent
     }
 })
 export default class LogViewerPageComponent extends Vue {
