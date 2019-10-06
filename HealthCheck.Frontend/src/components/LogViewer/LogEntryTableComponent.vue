@@ -41,7 +41,7 @@
                                 <span class="log-entry-fileref">
                                     <code>{{ row.Entry.FilePath }}</code> line <code>{{ row.Entry.LineNumber }}</code>
                                 </span>
-                                <pre>{{ row.Entry.Raw }}</pre>
+                                <pre v-if="showHeaders">{{ row.Entry.Raw }}</pre>
                             </td>
                         </tr>
                     </template> 

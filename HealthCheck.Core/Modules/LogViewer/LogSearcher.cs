@@ -52,7 +52,7 @@ namespace HealthCheck.Core.Modules.LogViewer
             var lastDate = matchingEntries.LastOrDefault()?.Timestamp;
             var highestDate = filter.OrderDescending ? firstDate : lastDate;
             var lowestDate = filter.OrderDescending ? lastDate : firstDate;
-            var dates = matchingEntries.Select(x => x.Timestamp).Take(1000).ToList();
+            var dates = matchingEntries.Select(x => x.Timestamp).Take(filter.MaxDateCount).ToList();
 
             return new InternalLogSearchResult
             {

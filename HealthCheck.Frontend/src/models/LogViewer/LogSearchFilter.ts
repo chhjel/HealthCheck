@@ -17,4 +17,5 @@ export default interface LogSearchFilter {
     ColumnRegexPattern: string;
     ColumnDelimiter: string;
     OrderDescending: boolean;
+    MaxDateCount: number;
 }

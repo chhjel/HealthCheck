@@ -82,7 +82,8 @@ namespace HealthCheck.DevTest.Controllers
                     HealthCheckPageType.Overview,
                     HealthCheckPageType.LogViewer,
                     HealthCheckPageType.AuditLog,
-                }
+                },
+                ApplyCustomColumnRuleByDefault = true
             };
 
         protected override PageOptions GetPageOptions()

@@ -172,8 +172,8 @@
                         </v-flex>
                         <v-flex xs6 sm4 lg2>
                             <v-btn depressed small class="extra-filter-btn"
-                                v-if="!showcustomColumnRule" 
-                                @click="showcustomColumnRule = true; customColumnRule=options.DefaultColumnRegex">
+                                v-if="!showcustomColumnRule"
+                                @click="showcustomColumnRule = true; customColumnRule=options.DefaultColumnRule">
                                 <v-icon >add</v-icon>
                                 Custom columns
                             </v-btn>
@@ -214,9 +214,6 @@
                 <v-chip v-if="searchResultData.HighestDate != null" class="mb-4">
                     Last matching entry @ {{ formatDateForChip(new Date(searchResultData.HighestDate)) }}
                 </v-chip>
-                <v-chip v-if="searchResultData.HighestDate != null" class="mb-4">
-                    Date count: {{ searchResultData.Dates.length }}
-                </v-chip>
                 <v-btn ripple color="error"
                     @click.stop.prevent="cancelAllSearches()"
                     v-if="options.CurrentlyRunningLogSearchCount > 0 && !hasCancelledAll"
@@ -226,6 +223,19 @@
                     {{ cancelAllSearchesButtonText }}
                 </v-btn>
             </div>
+
+            <!-- CHARTS -->
+            <v-expansion-panel popout v-if="chartEntries.length > 0" class="mb-4">
+                <v-expansion-panel-content>
+                    <template v-slot:header>
+                        <div>{{insightsTitle}}</div>
+                    </template>
+                    <v-card>
+                        <item-per-date-chart-component :entries="chartEntries" />
+                        <!-- <v-card-text></v-card-text> -->
+                    </v-card>
+                </v-expansion-panel-content>
+            </v-expansion-panel>
 
             <!-- PAGINATION -->
             <div class="text-xs-center mb-4" v-if="searchResultData.PageCount > 0">
@@ -278,17 +288,20 @@ import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel
 import DateUtils from '../../util/DateUtils';
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 import LogEntryTableComponent from '../LogViewer/LogEntryTableComponent.vue';
+import ItemPerDateChartComponent from '../LogViewer/ItemPerDateChartComponent.vue';
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
 import LogSearchFilter from '../../models/LogViewer/LogSearchFilter';
 import LogSearchResult from '../../models/LogViewer/LogSearchResult';
 import { FilterQueryMode } from '../../models/LogViewer/FilterQueryMode';
 import { FilterDelimiterMode } from '../../models/LogViewer/FilterDelimiterMode';
+import { ChartEntry } from '../LogViewer/ItemPerDateChartComponent.vue'; 
 
 @Component({
     components: {
         DateTimePicker,
-        LogEntryTableComponent
+        LogEntryTableComponent,
+        ItemPerDateChartComponent
     }
 })
 export default class LogViewerPageComponent extends Vue {
@@ -339,6 +352,45 @@ export default class LogViewerPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get chartEntries(): Array<ChartEntry> {
+        return this.searchResultData.Dates.map(x => {
+            return {
+                date: new Date(x),
+                label: `${new Date(x).toLocaleString()}`
+            };
+        });
+    }
+
+    get insightsTitle(): string {
+        if (!this.hasSearched || this.searchResultData.Dates.length == 0) {
+            return 'Insights';
+        }
+
+        const dates = this.searchResultData.Dates.map(x => new Date(x));
+        const lowestDate = dates.reduce((a, b) => { return a < b ? a : b; }); 
+        const highestDate = dates.reduce((a, b) => { return a > b ? a : b; });
+        const dateRange = highestDate.getTime() - lowestDate.getTime();
+        const from = this.getGroupedDate(lowestDate, dateRange);
+        const to = this.getGroupedDate(highestDate, dateRange);
+
+        const rangeDetails = `(${from} - ${to})`;
+        return (this.searchResultData.AllDatesIncluded)
+            ? `Insights ${rangeDetails}` 
+            : `Insights from the first ${this.searchResultData.Dates.length} entries ${rangeDetails}`;
+    }
+
+    getGroupedDate(date: Date, dateRange: number): string {
+        if (dateRange > 7 * 24 * 60 * 60 * 1000) {
+            return DateUtils.FormatDate(date, 'd. MMM. yyyy');
+        }
+        else if (dateRange > 8 * 60 * 60 * 1000) {
+            return DateUtils.FormatDate(date, 'HH') + ':xx ' + DateUtils.FormatDate(date, 'd. MMM. yyyy');
+        }
+        else {
+            return DateUtils.FormatDate(date, 'HH:mm') + ':xx ' + DateUtils.FormatDate(date, 'd. MMM. yyyy');
+        }
+    }
+
     get cancelAllSearchesButtonText(): string {
         const count = this.options.CurrentlyRunningLogSearchCount;
         const searchesWord = (count == 1) ? "search" : "searches";
@@ -407,10 +459,10 @@ export default class LogViewerPageComponent extends Vue {
         this.showExcludedQuery = false;
         this.showLogPathQuery = false;
         this.showExcludedLogPathQuery = false;
-        this.showcustomColumnRule = false;
+        this.showcustomColumnRule = this.options.ApplyCustomColumnRuleByDefault;
 
         this.filterFromDate = new Date();
-        this.filterFromDate.setDate(this.filterFromDate.getDate() - (365));
+        this.filterFromDate.setDate(this.filterFromDate.getDate() - 7);
         this.filterFromDate.setHours(0);
         this.filterFromDate.setMinutes(0);
         this.filterToDate = new Date();
@@ -426,8 +478,10 @@ export default class LogViewerPageComponent extends Vue {
         this.filterExcludedQueryMode = FilterQueryMode.Exact;
         this.filterLogPathQueryMode = FilterQueryMode.Exact;
         this.filterExcludedLogPathQueryMode = FilterQueryMode.Exact;
-        this.customColumnRule = "";
-        this.customColumnMode = FilterDelimiterMode.Regex;
+        this.customColumnRule = (this.options.ApplyCustomColumnRuleByDefault)
+            ? this.options.DefaultColumnRule : '';
+        this.customColumnMode = (this.options.DefaultColumnModeIsRegex == true) 
+            ? FilterDelimiterMode.Regex : FilterDelimiterMode.Delimiter;
 
         let dateFilterFormat = 'yyyy MMM d  HH:mm';
         (<any>this.$refs.filterDate).selectDateString 
@@ -529,6 +583,7 @@ export default class LogViewerPageComponent extends Vue {
 
             FromDate: this.filterFromDate,
             ToDate: this.filterToDate,
+            MaxDateCount: this.options.MaxInsightsEntryCount,
             // OrderDescending: boolean;
             
             Query: this.filterQuery,
@@ -538,7 +593,7 @@ export default class LogViewerPageComponent extends Vue {
             LogPathQuery: this.filterLogPathQuery,
             LogPathQueryMode: this.filterLogPathQueryMode,
             ExcludedLogPathQuery: this.filterExcludedLogPathQuery,
-            ExcludedLogPathQueryMode: this.filterExcludedLogPathQueryMode,
+            ExcludedLogPathQueryMode: this.filterExcludedLogPathQueryMode
         };
     }
 

@@ -81,10 +81,26 @@ namespace HealthCheck.WebUI.ViewModels
         public int CurrentEventBufferMinutes { get; set; } = 30;
 
         /// <summary>
-        /// Default value for custom columns regex pattern.
-        /// <para>Group names become headers, and groups without names are hidden. Timestamps are always shown in the first column.</para>
+        /// Default value for custom columns regex pattern/delimiter.
+        /// <para>If regex, group names become headers, and groups without names are hidden. Timestamps are always shown in the first column.</para>
         /// </summary>
-        public string DefaultColumnRegex { get; set; } = "(.*,[0-9]{3}) \\[(?<Thread>[0-9]+)\\] (?<Severity>\\w+) (?<Message>[^\\n]*)'";
+        public string DefaultColumnRule { get; set; } = "(.*,[0-9]{3}) \\[(?<Thread>[0-9]+)\\] (?<Severity>\\w+) (?<Message>[^\\n]*)";
+
+        /// <summary>
+        /// Default column mode will be set to Regex.
+        /// </summary>
+        public bool DefaultColumnModeIsRegex { get; set; } = true;
+
+        /// <summary>
+        /// Enables custom column rule by default.
+        /// </summary>
+        public bool ApplyCustomColumnRuleByDefault { get; set; }
+
+        /// <summary>
+        /// Max number of entries for the insights chart.
+        /// <para>Defaults to 5000.</para>
+        /// </summary>
+        public int MaxInsightsEntryCount { get; set; } = 5000;
 
         /// <summary>
         /// Number log searches currently running.

@@ -10,8 +10,11 @@ export default interface FrontEndOptionsViewModel {
     GetLogSearchResultsEndpoint: string;
     CancelLogSearchEndpoint: string;
     CancelAllLogSearchesEndpoint: string;
-    DefaultColumnRegex: string;
+    DefaultColumnRule: string;
+    DefaultColumnModeIsRegex: boolean;
+    ApplyCustomColumnRuleByDefault: boolean;
     CurrentEventBufferMinutes: number;
     CurrentlyRunningLogSearchCount: number;
     Pages: string[];
+    MaxInsightsEntryCount: number;
 }

@@ -88,5 +88,10 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
         /// Order descending instead of ascending.
         /// </summary>
         public bool OrderDescending { get; set; }
+
+        /// <summary>
+        /// Max number of dates to include.
+        /// </summary>
+        public int MaxDateCount { get; set; }
     }
 }
