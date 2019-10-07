@@ -9,6 +9,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
 
         public long LineNumber { get; set; }
         public DateTime Timestamp { get; set; }
+        public bool IsMargin { get; set; }
         public string[] ColumnValues { get; set; }
     }
 }

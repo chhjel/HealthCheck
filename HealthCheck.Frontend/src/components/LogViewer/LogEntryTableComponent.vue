@@ -18,6 +18,7 @@
                     <template 
                         v-for="(row, entryRowIndex) in rows">
                         <tr class="log-table-row"
+                            :class="{ 'log-table-row-margin': row.Entry.IsMargin }"
                             :key="`log-entry-row-${entryRowIndex}`"
                             @click="onRowClicked(entryRowIndex)">
 
@@ -218,6 +219,13 @@ export default class LogEntryTableComponent extends Vue {
 <style scoped>
 .log-table-row {
     cursor: pointer;
+}
+.log-table-row-margin {
+    background-color: #f3f2f2;
+    border-left: 5px solid #dadada;
+}
+.log-table-row-margin:hover {
+    background-color: #eaeaea !important;
 }
 .log-entry-details-row td pre {
     padding-left: 20px;

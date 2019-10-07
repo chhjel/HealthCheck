@@ -18,4 +18,5 @@ export default interface LogSearchFilter {
     ColumnDelimiter: string;
     OrderDescending: boolean;
     MaxDateCount: number;
+    MarginMilliseconds: number;
 }

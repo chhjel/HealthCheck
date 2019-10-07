@@ -66,6 +66,7 @@ namespace HealthCheck.Core.Services
                     ColumnValues = x.ColumnValues,
                     FilePath = x.FilePath,
                     LineNumber = x.LineNumber,
+                    IsMargin = x.IsMargin,
                     Raw = x.Raw,
                     Timestamp = x.Timestamp
                 }).ToList()

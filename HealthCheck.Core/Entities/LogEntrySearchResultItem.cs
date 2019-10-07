@@ -32,5 +32,10 @@ namespace HealthCheck.Core.Entities
         /// Column values if filter data contained column regex/delimiter data.
         /// </summary>
         public string[] ColumnValues { get; set; }
+
+        /// <summary>
+        /// Is not a direct match but a result included from setting a timestamp margin.
+        /// </summary>
+        public bool IsMargin { get; set; }
     }
 }

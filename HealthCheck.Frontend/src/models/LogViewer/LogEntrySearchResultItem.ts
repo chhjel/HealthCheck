@@ -4,4 +4,5 @@ export default interface LogEntrySearchResultItem {
     LineNumber: number;
     Raw: string;
     ColumnValues: Array<string>;
+    IsMargin: boolean;
 }

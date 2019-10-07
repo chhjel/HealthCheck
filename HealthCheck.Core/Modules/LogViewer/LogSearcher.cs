@@ -3,6 +3,7 @@ using HealthCheck.Core.Modules.LogViewer.Enums;
 using HealthCheck.Core.Modules.LogViewer.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -19,7 +20,7 @@ namespace HealthCheck.Core.Modules.LogViewer
             Options = options;
         }
 
-        internal class InternalLogSearchResult
+        public class InternalLogSearchResult
         {
             public List<LogEntry> MatchingEntries { get; set; } = new List<LogEntry>();
             public int TotalMatchCount { get; set; }
@@ -31,13 +32,15 @@ namespace HealthCheck.Core.Modules.LogViewer
         public InternalLogSearchResult SearchEntries(LogSearchFilter filter, CancellationToken cancellationToken, out int totalMatchCount)
         {
             var logs = FindLogs();
-            var entries = logs
+            var entriesWithinDateThreshold = logs
                 .WithCancellation(cancellationToken)
                 .SelectMany(x => x.GetEntriesEnumerable(Options.EntryParser, filter.FromDate, filter.ToDate, AllowLogFile, filter))
                 .Where(x =>
                     (filter.FromDate == null || x.Timestamp >= filter.FromDate)
                      && (filter.ToDate == null || x.Timestamp <= filter.ToDate)
-                )
+                );
+
+            var entries = entriesWithinDateThreshold
                 .OrderByWithDirection(x => x.Timestamp, filter.OrderDescending)
                 .Select(x => Options.EntryParser.ParseDetails(x))
                 .AsEnumerable();
@@ -46,13 +49,21 @@ namespace HealthCheck.Core.Modules.LogViewer
             entries = ProcessQueryFilter(entries, filter.ExcludedQuery, filter.ExcludedQueryMode, negate: true);
 
             var matchingEntries = entries.ToList();
+            var dates = matchingEntries.Select(x => x.Timestamp).Take(filter.MaxDateCount).ToList();
+
+            if (filter.MarginMilliseconds > 0)
+            {
+                matchingEntries = IncludeNeighbourEntries(matchingEntries, entriesWithinDateThreshold, filter.MarginMilliseconds)
+                    .OrderByWithDirection(x => x.Timestamp, filter.OrderDescending)
+                    .ToList();
+            }
+
             totalMatchCount = matchingEntries.Count;
 
             var firstDate = matchingEntries.FirstOrDefault()?.Timestamp;
             var lastDate = matchingEntries.LastOrDefault()?.Timestamp;
             var highestDate = filter.OrderDescending ? firstDate : lastDate;
             var lowestDate = filter.OrderDescending ? lastDate : firstDate;
-            var dates = matchingEntries.Select(x => x.Timestamp).Take(filter.MaxDateCount).ToList();
 
             return new InternalLogSearchResult
             {
@@ -65,6 +76,49 @@ namespace HealthCheck.Core.Modules.LogViewer
                     .Take(filter.Take)
                     .ToList()
             };
+        }
+
+        private List<LogEntry> IncludeNeighbourEntries(List<LogEntry> matches, IEnumerable<LogEntry> allEntries, int marginMilliseconds)
+        {
+            var matchingDates = matches.Select(x => x.Timestamp);
+            var dateRanges = GetTimeRanges(matchingDates, marginMilliseconds);
+
+            return allEntries
+                .Where(x =>
+                    !matches.Any(m => m.FilePath == x.FilePath && m.LineNumber == x.LineNumber)
+                    && dateRanges.Any(r => x.Timestamp >= r[0] && x.Timestamp <= r[1]))
+                .Select(x =>
+                {
+                    x.IsMargin = true;
+                    Options.EntryParser.ParseDetails(x);
+                    return x;
+                })
+                .Union(matches)
+                .ToList();
+        }
+
+        /// <summary>
+        /// Creates a list of date ranges [date - margin, date + margin]
+        /// </summary>
+        private List<DateTime[]> GetTimeRanges(IEnumerable<DateTime> dates, int marginMilliseconds)
+        {
+            var dateRanges = new List<DateTime[]>();
+            foreach (var date in dates)
+            {
+                var existingRange = dateRanges.FirstOrDefault(x => x[0] <= date && date <= x[1]);
+                var low = date.AddMilliseconds(-marginMilliseconds);
+                var high = date.AddMilliseconds(marginMilliseconds);
+                if (existingRange != null)
+                {
+                    existingRange[0] = (existingRange[0] > low) ? low : existingRange[0];
+                    existingRange[1] = (existingRange[1] < high) ? high : existingRange[1];
+                    continue;
+                }
+
+                dateRanges.Add(new[] { low, high });
+            }
+
+            return dateRanges;
         }
 
         private List<LogFileGroup> FindLogs()
@@ -113,7 +167,7 @@ namespace HealthCheck.Core.Modules.LogViewer
             Func<string, bool> queryPredicate = CreateQueryPredicate(query, mode, negate);
             if (queryPredicate != null)
             {
-                entries = entries.Where(entry => queryPredicate(entry.Raw));
+                entries = entries.Where(entry => !entry.IsMargin && queryPredicate(entry.Raw));
             }
 
             return entries;
@@ -156,4 +210,20 @@ namespace HealthCheck.Core.Modules.LogViewer
             return negate ? (raw) => !predicate(raw) : predicate;
         }
     }
+
+#if DEBUG
+    // For LinqPad use :-)
+#pragma warning disable CS1591
+    public class LogSearcherExt
+    {
+        public object SearchEntries(string dir, LogSearchFilter filter, CancellationToken cancellationToken, out int totalMatchCount)
+        {
+            return new LogSearcher(new LogSearcherOptions(new LogEntryParser()).IncludeLogFilesInDirectory(dir))
+                .SearchEntries(filter, cancellationToken, out totalMatchCount)
+                .MatchingEntries.Select(x => new { File = x.FilePath, Line = x.LineNumber, Raw = x.Raw })
+                .ToList();
+        }
+    }
+#pragma warning restore CS1591
+#endif
 }

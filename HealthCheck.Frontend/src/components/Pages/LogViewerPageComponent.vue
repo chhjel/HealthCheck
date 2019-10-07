@@ -12,7 +12,25 @@
                 <h1 class="mb-4">Log Search</h1>
 
                 <v-layout row wrap>
-                    <v-flex xs12 sm12 md8>
+                    <v-flex xs12 sm12 md8 style="position:relative">
+                        <v-menu
+                            transition="slide-y-transition"
+                            bottom>
+                            <template v-slot:activator="{ on }">
+                                <v-btn flat icon color="primary" class="datepicker-button" v-on="on">
+                                    <v-icon>date_range</v-icon>
+                                </v-btn>
+                            </template>
+                            <v-list>
+                                <v-list-tile
+                                    v-for="(preset, i) in datePickerPresets"
+                                    :key="`datepicker-preset-${i}`"
+                                    @click="setDatePickerValue(preset)">
+                                    <v-list-tile-title>{{ preset.name }}</v-list-tile-title>
+                                </v-list-tile>
+                            </v-list>
+                        </v-menu>
+
                         <date-time-picker
                             ref="filterDate"
                             :startDate="filterFromDate"
@@ -148,31 +166,29 @@
                 <div>
                     <!-- Options -->
                     <v-layout row wrap xs12>
-                        
-                        <v-flex xs6 sm4 lg2>
+                        <v-flex xs6 sm4 lg2 v-if="!showExcludedQuery">
                             <v-btn depressed small class="extra-filter-btn"
-                                v-if="!showExcludedQuery" @click="showExcludedQuery = true">
+                                @click="showExcludedQuery = true">
                                 <v-icon >add</v-icon>
                                 Exclude content
                             </v-btn>
                         </v-flex>
-                        <v-flex xs6 sm4 lg2>
+                        <v-flex xs6 sm4 lg2 v-if="!showLogPathQuery">
                             <v-btn depressed small class="extra-filter-btn"
-                                v-if="!showLogPathQuery" @click="showLogPathQuery = true">
+                                @click="showLogPathQuery = true">
                                 <v-icon >add</v-icon>
                                 Limit log filepaths
                             </v-btn>
                         </v-flex>
-                        <v-flex xs6 sm4 lg2>
+                        <v-flex xs6 sm4 lg2 v-if="!showExcludedLogPathQuery">
                             <v-btn depressed small class="extra-filter-btn"
-                                v-if="!showExcludedLogPathQuery" @click="showExcludedLogPathQuery = true">
+                                @click="showExcludedLogPathQuery = true">
                                 <v-icon >add</v-icon>
                                 Exclude log filepaths
                             </v-btn>
                         </v-flex>
-                        <v-flex xs6 sm4 lg2>
+                        <v-flex xs6 sm4 lg2 v-if="!showcustomColumnRule">
                             <v-btn depressed small class="extra-filter-btn"
-                                v-if="!showcustomColumnRule"
                                 @click="showcustomColumnRule = true; customColumnRule=options.DefaultColumnRule">
                                 <v-icon >add</v-icon>
                                 Custom columns
@@ -191,38 +207,42 @@
                                 class="options-input"
                                 v-model.number="filterTake" />
                         </v-flex>
+                        <v-flex xs6 sm2 style="padding-left: 22px;">
+                            <v-text-field type="number" label="Margin (ms)"
+                                class="options-input"
+                                v-model.number="filterMargin" />
+                        </v-flex>
                     </v-layout>
                     
                 </div>
 
+                <!-- METADATA -->
+                <div>
+                    <v-chip v-if="hasSearched" class="mb-4">
+                        Last searched used {{ prettifyDuration(searchResultData.DurationInMilliseconds) }}
+                    </v-chip>
+                    <v-chip v-if="searchResultData.WasCancelled" class="mb-4">
+                        <b>Search was cancelled</b>
+                    </v-chip>
+                    <v-chip v-if="searchResultData.HighestDate != null" class="mb-4">
+                        Total matches: {{ searchResultData.TotalCount }}
+                    </v-chip>
+                    <v-chip v-if="searchResultData.LowestDate != null" class="mb-4">
+                        First matching entry @ {{ formatDateForChip(new Date(searchResultData.LowestDate)) }}
+                    </v-chip>
+                    <v-chip v-if="searchResultData.HighestDate != null" class="mb-4">
+                        Last matching entry @ {{ formatDateForChip(new Date(searchResultData.HighestDate)) }}
+                    </v-chip>
+                    <v-btn ripple color="error"
+                        @click.stop.prevent="cancelAllSearches()"
+                        v-if="options.CurrentlyRunningLogSearchCount > 0 && !hasCancelledAll"
+                        :disabled="allCancellationInProgress"
+                        class="mb-4">
+                        <v-icon color="white">cancel</v-icon>
+                        {{ cancelAllSearchesButtonText }}
+                    </v-btn>
+                </div>
             </v-container>
-
-            <!-- METADATA -->
-            <div>
-                <v-chip v-if="hasSearched" class="mb-4">
-                    Last searched used {{ prettifyDuration(searchResultData.DurationInMilliseconds) }}
-                </v-chip>
-                <v-chip v-if="searchResultData.WasCancelled" class="mb-4">
-                    <b>Search was cancelled</b>
-                </v-chip>
-                <v-chip v-if="searchResultData.HighestDate != null" class="mb-4">
-                    Total matches: {{ searchResultData.TotalCount }}
-                </v-chip>
-                <v-chip v-if="searchResultData.LowestDate != null" class="mb-4">
-                    First matching entry @ {{ formatDateForChip(new Date(searchResultData.LowestDate)) }}
-                </v-chip>
-                <v-chip v-if="searchResultData.HighestDate != null" class="mb-4">
-                    Last matching entry @ {{ formatDateForChip(new Date(searchResultData.HighestDate)) }}
-                </v-chip>
-                <v-btn ripple color="error"
-                    @click.stop.prevent="cancelAllSearches()"
-                    v-if="options.CurrentlyRunningLogSearchCount > 0 && !hasCancelledAll"
-                    :disabled="allCancellationInProgress"
-                    class="mb-4">
-                    <v-icon color="white">cancel</v-icon>
-                    {{ cancelAllSearchesButtonText }}
-                </v-btn>
-            </div>
 
             <!-- CHARTS -->
             <v-expansion-panel popout v-if="chartEntries.length > 0" class="mb-4">
@@ -297,6 +317,12 @@ import { FilterQueryMode } from '../../models/LogViewer/FilterQueryMode';
 import { FilterDelimiterMode } from '../../models/LogViewer/FilterDelimiterMode';
 import { ChartEntry } from '../LogViewer/ItemPerDateChartComponent.vue'; 
 
+interface DatePickerPreset {
+    name: string;
+    from: Date;
+    to: Date;
+}
+
 @Component({
     components: {
         DateTimePicker,
@@ -317,6 +343,7 @@ export default class LogViewerPageComponent extends Vue {
     filterFromDate: Date = new Date();
     filterToDate: Date = new Date();
     filterTake: number = 50;
+    filterMargin: number = 0;
     filterQuery: string = "";
     filterQueryMode: FilterQueryMode = FilterQueryMode.Exact;
     filterExcludedQuery: string = "";
@@ -352,6 +379,22 @@ export default class LogViewerPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get datePickerPresets(): Array<DatePickerPreset> {
+        const endOfToday = new Date();
+        endOfToday.setHours(23);
+        endOfToday.setMinutes(59);
+
+        return [
+            { name: 'Last hour', from: DateUtils.CreateDateWithMinutesOffset(-60), to: endOfToday },
+            { name: 'Today', from: DateUtils.CreateDateWithDayOffset(0), to: endOfToday },
+            { name: 'Last 3 days', from: DateUtils.CreateDateWithDayOffset(-3), to: endOfToday },
+            { name: 'Last 7 days', from: DateUtils.CreateDateWithDayOffset(-7), to: endOfToday },
+            { name: 'Last 30 days', from: DateUtils.CreateDateWithDayOffset(-30), to: endOfToday },
+            { name: 'Last 60 days', from: DateUtils.CreateDateWithDayOffset(-60), to: endOfToday },
+            { name: 'Last 90 days', from: DateUtils.CreateDateWithDayOffset(-90), to: endOfToday }
+        ];
+    }
+
     get chartEntries(): Array<ChartEntry> {
         return this.searchResultData.Dates.map(x => {
             return {
@@ -375,8 +418,8 @@ export default class LogViewerPageComponent extends Vue {
 
         const rangeDetails = `(${from} - ${to})`;
         return (this.searchResultData.AllDatesIncluded)
-            ? `Insights ${rangeDetails}` 
-            : `Insights from the first ${this.searchResultData.Dates.length} entries ${rangeDetails}`;
+            ? `Insights from matching entries ${rangeDetails}` 
+            : `Insights from the first ${this.searchResultData.Dates.length} matching entries ${rangeDetails}`;
     }
 
     getGroupedDate(date: Date, dateRange: number): string {
@@ -469,7 +512,10 @@ export default class LogViewerPageComponent extends Vue {
         this.filterToDate.setHours(23);
         this.filterToDate.setMinutes(59);
 
+        this.setDatePickerDate(this.filterFromDate, this.filterToDate);
+
         this.filterTake = 50;
+        this.filterMargin = 0;
         this.filterQuery = "";
         this.filterExcludedQuery = "";
         this.filterLogPathQuery = "";
@@ -482,10 +528,6 @@ export default class LogViewerPageComponent extends Vue {
             ? this.options.DefaultColumnRule : '';
         this.customColumnMode = (this.options.DefaultColumnModeIsRegex == true) 
             ? FilterDelimiterMode.Regex : FilterDelimiterMode.Delimiter;
-
-        let dateFilterFormat = 'yyyy MMM d  HH:mm';
-        (<any>this.$refs.filterDate).selectDateString 
-            = `${DateUtils.FormatDate(this.filterFromDate, dateFilterFormat)} - ${DateUtils.FormatDate(this.filterToDate, dateFilterFormat)}`;
     }
 
     cancelSearch(searchId: string): void {
@@ -580,6 +622,7 @@ export default class LogViewerPageComponent extends Vue {
             SearchId: this.generateSearchId(),
             Skip: (this.currentPage - 1) * this.filterTake,
             Take: this.filterTake,
+            MarginMilliseconds: this.filterMargin,
 
             FromDate: this.filterFromDate,
             ToDate: this.filterToDate,
@@ -633,6 +676,19 @@ export default class LogViewerPageComponent extends Vue {
         return DateUtils.FormatDate(date, 'd. MMM. HH:mm:ss yyyy');
     }
 
+    setDatePickerValue(preset: DatePickerPreset): void {
+        this.setDatePickerDate(preset.from, preset.to);
+    }
+
+    setDatePickerDate(from: Date, to: Date): void {
+        this.filterFromDate = from;
+        this.filterToDate = to;
+
+        let dateFilterFormat = 'yyyy MMM d  HH:mm';
+        (<any>this.$refs.filterDate).selectDateString 
+            = `${DateUtils.FormatDate(this.filterFromDate, dateFilterFormat)} - ${DateUtils.FormatDate(this.filterToDate, dateFilterFormat)}`;
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
@@ -651,6 +707,13 @@ export default class LogViewerPageComponent extends Vue {
 </script>
 
 <style scoped>
+.datepicker-button {
+    float: right;
+    position: absolute;
+    right: 2px;
+    top: 5px;
+    z-index: 2;
+}
 </style>
 
 <style>

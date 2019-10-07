@@ -93,5 +93,10 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
         /// Max number of dates to include.
         /// </summary>
         public int MaxDateCount { get; set; }
+
+        /// <summary>
+        /// Optional number of milliseconds to include entries before/after any matches.
+        /// </summary>
+        public int MarginMilliseconds { get; set; }
     }
 }
