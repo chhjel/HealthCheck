@@ -60,7 +60,7 @@
                             <v-flex xs10 sm10>
                                 <v-text-field type="text" clearable
                                     v-model="filterQuery"
-                                    :label="getQueryLabel('Log entry', filterQueryMode)"
+                                    :label="getQueryLabel('Entry', filterQueryMode)"
                                     :disabled="logDataLoadInProgress"
                                 ></v-text-field>
                             </v-flex>
@@ -81,7 +81,7 @@
                             <v-flex xs10 sm10>
                                 <v-text-field type="text" clearable
                                     v-model="filterExcludedQuery"
-                                    :label="getQueryLabel('Log entry', filterExcludedQueryMode, true)"
+                                    :label="getQueryLabel('Entry', filterExcludedQueryMode, true)"
                                     :disabled="logDataLoadInProgress"
                                 ></v-text-field>
                             </v-flex>
@@ -102,7 +102,7 @@
                             <v-flex xs10 sm10>
                                 <v-text-field type="text" clearable
                                     v-model="filterLogPathQuery"
-                                    :label="getQueryLabel('Log file path', filterLogPathQueryMode)"
+                                    :label="getQueryLabel('File path', filterLogPathQueryMode)"
                                     :disabled="logDataLoadInProgress"
                                 ></v-text-field>
                             </v-flex>
@@ -123,7 +123,7 @@
                             <v-flex xs10 sm10>
                                 <v-text-field type="text" clearable
                                     v-model="filterExcludedLogPathQuery"
-                                    :label="getQueryLabel('Log file path', filterExcludedLogPathQueryMode, true)"
+                                    :label="getQueryLabel('File path', filterExcludedLogPathQueryMode, true)"
                                     :disabled="logDataLoadInProgress"
                                 ></v-text-field>
                             </v-flex>
@@ -242,20 +242,20 @@
                         {{ cancelAllSearchesButtonText }}
                     </v-btn>
                 </div>
-            </v-container>
 
-            <!-- CHARTS -->
-            <v-expansion-panel popout v-if="chartEntries.length > 0" class="mb-4">
-                <v-expansion-panel-content>
-                    <template v-slot:header>
-                        <div>{{insightsTitle}}</div>
-                    </template>
-                    <v-card>
-                        <item-per-date-chart-component :entries="chartEntries" />
-                        <!-- <v-card-text></v-card-text> -->
-                    </v-card>
-                </v-expansion-panel-content>
-            </v-expansion-panel>
+                <!-- CHARTS -->
+                <v-expansion-panel popout v-if="chartEntries.length > 0" class="mb-4">
+                    <v-expansion-panel-content>
+                        <template v-slot:header>
+                            <div>{{insightsTitle}}</div>
+                        </template>
+                        <v-card>
+                            <item-per-date-chart-component :entries="chartEntries" />
+                            <!-- <v-card-text></v-card-text> -->
+                        </v-card>
+                    </v-expansion-panel-content>
+                </v-expansion-panel>
+            </v-container>
 
             <!-- PAGINATION -->
             <div class="text-xs-center mb-4" v-if="searchResultData.PageCount > 0">
@@ -406,7 +406,7 @@ export default class LogViewerPageComponent extends Vue {
 
     get insightsTitle(): string {
         if (!this.hasSearched || this.searchResultData.Dates.length == 0) {
-            return 'Insights';
+            return 'Statistics';
         }
 
         const dates = this.searchResultData.Dates.map(x => new Date(x));
@@ -418,8 +418,8 @@ export default class LogViewerPageComponent extends Vue {
 
         const rangeDetails = `(${from} - ${to})`;
         return (this.searchResultData.AllDatesIncluded)
-            ? `Insights from matching entries ${rangeDetails}` 
-            : `Insights from the first ${this.searchResultData.Dates.length} matching entries ${rangeDetails}`;
+            ? `Statistics for matching entries ${rangeDetails}` 
+            : `Statistics for the first ${this.searchResultData.Dates.length} matching entries ${rangeDetails}`;
     }
 
     getGroupedDate(date: Date, dateRange: number): string {
