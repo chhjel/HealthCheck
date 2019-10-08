@@ -3,6 +3,7 @@ using HealthCheck.Core.Entities;
 using HealthCheck.Core.Services;
 using HealthCheck.Core.Services.Storage;
 using HealthCheck.Core.Util;
+using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Tests.Helpers;
 using HealthCheck.WebUI.Util;
 using System;
@@ -34,8 +35,10 @@ namespace HealthCheck.WebUI.Tests
             var helper = CreateHelper<AccessRoles>();
             var siteEventStorage = new MemorySiteEventStorage();
             var siteEventService = new SiteEventService(siteEventStorage);
+            helper.Services.SiteEventService = siteEventService;
             await siteEventService.StoreEvent(new SiteEvent(Core.Enums.SiteEventSeverity.Error, "typeId", "Title", "Desc", 17));
-            var models = await helper.GetSiteEventsViewModel(new Maybe<AccessRoles>(roles), siteEventService);
+
+            var models = await helper.GetSiteEventsViewModel(new Maybe<AccessRoles>(roles));
             Assert.NotEmpty(models);
         }
 
@@ -61,16 +64,18 @@ namespace HealthCheck.WebUI.Tests
             var helper = CreateHelper<AccessRoles>();
             helper.AccessOptions.AuditLogAccess = new Maybe<AccessRoles>(AccessRoles.WebAdmins);
             var auditEventService = new MemoryAuditEventStorage();
+            helper.Services.AuditEventService = auditEventService;
             await auditEventService.StoreEvent(
                 new AuditEvent(DateTime.Now, Core.Enums.AuditEventArea.Tests, "Title", "Subject", "123", "User 123", EnumUtils.GetFlaggedEnumValues(roles).Select(x => x.ToString()).ToList())
             );
-            var models = await helper.GetAuditEventsFilterViewModel(new Maybe<AccessRoles>(roles), new Models.AuditEventFilterInputData(), auditEventService);
+
+            var models = await helper.GetAuditEventsFilterViewModel(new Maybe<AccessRoles>(roles), new Models.AuditEventFilterInputData());
             Assert.NotEmpty(models);
         }
 
         private HealthCheckControllerHelper<AccessRoles> CreateHelper<AccessRoles>()
         {
-            var helper = new HealthCheckControllerHelper<AccessRoles>();
+            var helper = new HealthCheckControllerHelper<AccessRoles>(new HealthCheckServiceContainer());
             helper.TestDiscoverer.AssemblyContainingTests = GetType().Assembly;
             return helper;
         }

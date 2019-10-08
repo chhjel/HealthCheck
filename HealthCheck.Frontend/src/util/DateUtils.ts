@@ -201,4 +201,23 @@ export default class DateUtils
         });
         return format.replace(/\s+(?=\b(?:st|nd|rd|th)\b)/g, "");
     }
+    
+    static CreateDateWithDayOffset(daysOffset: number, zeroOut: boolean = true) : Date {
+        const date = new Date();
+        date.setDate(date.getDate() + daysOffset);
+        
+        if (zeroOut == true) {
+            date.setHours(0);
+            date.setMinutes(0);
+            date.setSeconds(0);
+            date.setMilliseconds(0);
+        }
+        return date;
+    }
+    
+    static CreateDateWithMinutesOffset(minutesOffset: number) : Date {
+        const date = new Date();
+        date.setMinutes(date.getMinutes() + minutesOffset);
+        return date;
+    }
 }

@@ -22,6 +22,10 @@
                         :href="`?page=${PAGE_TESTS}`"
                         @click.left.prevent="setCurrentPage(PAGE_TESTS)">Tests</v-btn>
                     <v-btn flat 
+                        v-if="showPageMenu(PAGE_LOGS)"
+                        :href="`?page=${PAGE_LOGS}`"
+                        @click.left.prevent="setCurrentPage(PAGE_LOGS)">Logs</v-btn>
+                    <v-btn flat 
                         v-if="showPageMenu(PAGE_AUDITLOG)"
                         :href="`?page=${PAGE_AUDITLOG}`"
                         @click.left.prevent="setCurrentPage(PAGE_AUDITLOG)">Audit log</v-btn>
@@ -46,6 +50,10 @@
                 v-if="shouldIncludePage(PAGE_AUDITLOG)"
                 v-show="currentPage == PAGE_AUDITLOG"
                 :options="options" />
+            <log-viewer-page-component 
+                v-if="shouldIncludePage(PAGE_LOGS)"
+                v-show="currentPage == PAGE_LOGS"
+                :options="options" />
 
             <!-- FOOTER -->
             <!-- <v-footer app fixed>
@@ -61,6 +69,7 @@ import NoPageAvailablePageComponent from './Pages/NoPageAvailablePageComponent.v
 import TestSuitesPageComponent from './Pages/TestSuitesPageComponent.vue';
 import OverviewPageComponent from './Pages/OverviewPageComponent.vue';
 import AuditLogPageComponent from './Pages/AuditLogPageComponent.vue';
+import LogViewerPageComponent from './Pages/LogViewerPageComponent.vue';
 import FrontEndOptionsViewModel from '../models/Page/FrontEndOptionsViewModel';
 import UrlUtils from '../util/UrlUtils';
 
@@ -69,7 +78,8 @@ import UrlUtils from '../util/UrlUtils';
         NoPageAvailablePageComponent,
         TestSuitesPageComponent,
         OverviewPageComponent,
-        AuditLogPageComponent
+        AuditLogPageComponent,
+        LogViewerPageComponent
     }
 })
 export default class HealthCheckPageComponent extends Vue {
@@ -81,6 +91,7 @@ export default class HealthCheckPageComponent extends Vue {
     // Pages
     PAGE_OVERVIEW: string = "status";
     PAGE_TESTS: string = "tests";
+    PAGE_LOGS: string = "logviewer";
     PAGE_AUDITLOG: string = "auditlog";
     PAGE_NO_PAGES_AVAILABLE: string = "no_page";
     currentPage: string = this.PAGE_TESTS;

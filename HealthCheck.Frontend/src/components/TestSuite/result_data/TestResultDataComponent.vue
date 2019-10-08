@@ -136,7 +136,11 @@ export default class TestResultDataComponent extends Vue {
       }
 
       copySourceElement.setAttribute('style', 'display:none;');
-      window.getSelection().removeAllRanges()
+      
+      const selection = window.getSelection();
+      if (selection != null) {
+        selection.removeAllRanges();
+      }
     }
 
     ShowCopyAlert(msg: string, isSuccess: boolean): void {

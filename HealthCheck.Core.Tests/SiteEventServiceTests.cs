@@ -190,6 +190,63 @@ namespace HealthCheck.Core.Services
         }
 
         [Fact]
+        public async Task StoreEvent_ErrorWithPreviouslyResolvedEvent_ShouldExtendPreviousAndSetUnresolved()
+        {
+            var storage = new MemorySiteEventStorage();
+            var defaultMergeOptions = new SiteEventMergeOptions(allowEventMerge: true, maxMinutesSinceLastEventEnd: 10, lastEventDurationMultiplier: null);
+            var service = new SiteEventService(storage, defaultMergeOptions);
+
+            var previouslyResolvedEvent = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
+            {
+                Timestamp = DateTime.Now.AddMinutes(-15),
+                ResolvedAt = DateTime.Now.AddMinutes(-14),
+                Resolved = true,
+                ResolvedMessage = "Resolved"
+            };
+            await service.StoreEvent(previouslyResolvedEvent);
+
+            var newUnresolvedEvent = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
+            await service.StoreEvent(newUnresolvedEvent);
+
+            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            Assert.Single(items);
+
+            var item = items.Single();
+            Assert.False(item.Resolved);
+            Assert.Equal(15, item.Duration);
+        }
+
+        // ToDo
+        [Fact]
+        public async Task StoreEvent_ResolvedWithPreviouslyUnresolvedEvent_ShouldSetPreviousAsResolved()
+        {
+            var storage = new MemorySiteEventStorage();
+            var defaultMergeOptions = new SiteEventMergeOptions(allowEventMerge: true, maxMinutesSinceLastEventEnd: 10, lastEventDurationMultiplier: null);
+            var service = new SiteEventService(storage, defaultMergeOptions);
+
+            var previouslyUnresolvedEvent = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
+            {
+                Timestamp = DateTime.Now.AddMinutes(-15)
+            };
+            await service.StoreEvent(previouslyUnresolvedEvent);
+
+            var newResolvedEvent = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5)
+            {
+                ResolvedAt = DateTime.Now,
+                Resolved = true,
+                ResolvedMessage = "Resolved"
+            };
+            await service.StoreEvent(newResolvedEvent);
+
+            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            Assert.Single(items);
+
+            var item = items.Single();
+            Assert.True(item.Resolved);
+            Assert.Equal(15, item.Duration);
+        }
+
+        [Fact]
         public async Task StoreEvent_CustomMergeLocic_ShouldApply()
         {
             var NewDescription = "New description!";

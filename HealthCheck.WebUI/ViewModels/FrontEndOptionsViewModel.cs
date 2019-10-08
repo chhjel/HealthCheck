@@ -57,15 +57,61 @@ namespace HealthCheck.WebUI.ViewModels
         public string GetFilteredAuditLogEventsEndpoint { get; set; }
 
         /// <summary>
+        /// Url to the endpoint that searches logs.
+        /// <para>Is set from the constructor relative to the provided baseApiEndpoint.</para>
+        /// </summary>
+        public string GetLogSearchResultsEndpoint { get; set; }
+
+        /// <summary>
+        /// Url to the endpoint that cancels logs searches.
+        /// <para>Is set from the constructor relative to the provided baseApiEndpoint.</para>
+        /// </summary>
+        public string CancelLogSearchEndpoint { get; set; }
+
+        /// <summary>
+        /// Url to the endpoint that cancels all logs searches.
+        /// <para>Is set from the constructor relative to the provided baseApiEndpoint.</para>
+        /// </summary>
+        public string CancelAllLogSearchesEndpoint { get; set; }
+
+        /// <summary>
         /// Number of minutes past the end of a site event it will be displayed below "Current status" on the status page.
         /// <para>Defaults to 30 minutes.</para>
         /// </summary>
         public int CurrentEventBufferMinutes { get; set; } = 30;
 
         /// <summary>
+        /// Default value for custom columns regex pattern/delimiter.
+        /// <para>If regex, group names become headers, and groups without names are hidden. Timestamps are always shown in the first column.</para>
+        /// </summary>
+        public string DefaultColumnRule { get; set; } = "(.*,[0-9]{3}) \\[(?<Thread>[0-9]+)\\] (?<Severity>\\w+) (?<Message>[^\\n]*)";
+
+        /// <summary>
+        /// Default column mode will be set to Regex.
+        /// </summary>
+        public bool DefaultColumnModeIsRegex { get; set; } = true;
+
+        /// <summary>
+        /// Enables custom column rule by default.
+        /// </summary>
+        public bool ApplyCustomColumnRuleByDefault { get; set; }
+
+        /// <summary>
+        /// Max number of entries for the insights chart.
+        /// <para>Defaults to 5000.</para>
+        /// </summary>
+        public int MaxInsightsEntryCount { get; set; } = 5000;
+
+        /// <summary>
+        /// Number log searches currently running.
+        /// </summary>
+        [JsonProperty]
+        internal int CurrentlyRunningLogSearchCount { get; set; }
+
+        /// <summary>
         /// Default page to show on entering the Index action in prioritized order.
         /// <para>The first available page will be shown when ?page=x is omitted.</para>
-        /// <para>Defaults to overview, tests, auditlog.</para>
+        /// <para>Defaults to overview, tests, logviewer, auditlog.</para>
         /// <para>Types omitted will be placed last.</para>
         /// </summary>
         [JsonIgnore]
@@ -73,6 +119,7 @@ namespace HealthCheck.WebUI.ViewModels
         {
             HealthCheckPageType.Overview,
             HealthCheckPageType.Tests,
+            HealthCheckPageType.LogViewer,
             HealthCheckPageType.AuditLog
         };
 
@@ -93,6 +140,9 @@ namespace HealthCheck.WebUI.ViewModels
             GetTestsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetTests";
             GetSiteEventsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetSiteEvents";
             GetFilteredAuditLogEventsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetFilteredAudits";
+            GetLogSearchResultsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/SearchLogs";
+            CancelLogSearchEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/CancelLogSearch";
+            CancelAllLogSearchesEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/CancelAllLogSearches";
         }
 
         /// <summary>

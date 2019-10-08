@@ -5,7 +5,7 @@
 ## What is it
 Provides an abstract stand-alone controller that generates a web interface where given backend methods can be executed to check the status of integrations, run utility methods, dump some data and other things.
 
-Also exposes an optional service for registering events that can be shown in a generated interface inspired by http://status.github.com.
+Also exposes an optional service for registering events that can be shown in a generated status interface.
 
 ## Getting started
 
@@ -29,13 +29,17 @@ Also exposes an optional service for registering events that can be shown in a g
 ```csharp
 public class MyController : HealthCheckControllerBase<AccessRoles>
 {
-    // Optionally provide site event and audit services and set them.
+    // Optionally provide any extra services and set on the 'Service' property.
     // See the Services section further down in readme.
-    public MyController(ISiteEventService siteEventService, AuditEventService auditEventService)
+    public MyController(
+        ISiteEventService siteEventService,
+        IAuditEventStorage auditEventService,
+        ILogSearcherService logSearcherService)
         : base(assemblyContainingTests: typeof(MyController).Assembly)
     {
-        SiteEventService = siteEventService;
-        AuditEventService = auditEventService;
+        Services.SiteEventService = siteEventService;
+        Services.AuditEventService = auditEventService;
+        Services.LogSearcherService = logSearcherService;
     }
 
     // Set any options that will be passed to the front-end here, including the path to this controller.
@@ -63,6 +67,7 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
         AccessOptions.OverviewPageAccess = new Maybe<AccessRoles>(AccessRoles.Guest);
         AccessOptions.TestsPageAccess = new Maybe<AccessRoles>(AccessRoles.WebAdmins);
         AccessOptions.AuditLogAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);
+        AccessOptions.LogViewerPageAccess = new Maybe<RuntimeTestAccessRole>(AccessRoles.SystemAdmins);
         AccessOptions.InvalidTestsAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);
         AccessOptions.SiteEventDeveloperDetailsAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);
         
@@ -218,14 +223,23 @@ Can be applied to either the method itself using the `Target` property or the pa
 A few flatfile storage classes are included and should work fine as the amount of data should not be too large. If used make sure they are registered as singletons, they are thread safe but only within their own instances.
 
 ### IAuditEventStorage
-If a IAuditEventStorage is provided in the controller any test executions/cancellations will be logged to it. This also allows for the audit log interface to be shown.
+If an IAuditEventStorage is provided in the controller any test executions/cancellations will be logged to it. This also allows for the audit log interface to be shown.
 
 ```csharp
 IAuditEventStorage auditEventStorage = new FlatFileAuditEventStorage(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"), maxEventAge: TimeSpan.FromDays(30));
 ```
 
+### ILogSearcherService
+Specify a ILogSearcherService implementation to use to enable the log searcher tab. The provided FlatFileLogSearcherServiceOptions works for flatfile logs where entries start with a timestamp.
+
+```csharp
+var options = new FlatFileLogSearcherServiceOptions()
+    .IncludeLogFilesInDirectory(HostingEnvironment.MapPath("~/App_Data/TestLogs/"), filter: "*.log", recursive: true);
+ILogSearcherService logSearcherService = new FlatFileLogSearcherService(logSearcherOptions);
+```
+
 ### ISiteEventService
-If a ISiteEventService is provided in the controller any events will be retrieved from it and can be shown in a overview page. Call this service from other places in the code to register new events.
+If an ISiteEventService is provided in the controller any events will be retrieved from it and can be shown in a overview page. Call this service from other places in the code to register new events.
 
 Test methods can register events if executed through `<TestRunnerService>.ExecuteTests(..)`, a site event service is given, and the `TestResult` from a method includes a `SiteEvent`. When executing a method from the UI the site event data will be ignored. 
 

@@ -107,8 +107,8 @@ namespace HealthCheck.WebUI.Tests
         public HealthCheckControllerDotNet(AccessRoles allowedRoles)
             : base(assemblyContainingTests: typeof(HealthCheckControllerDotNet).Assembly)
         {
-            SiteEventService = new SiteEventService(new MemorySiteEventStorage());
-            AuditEventService = new MemoryAuditEventStorage();
+            Services.SiteEventService = new SiteEventService(new MemorySiteEventStorage());
+            Services.AuditEventService = new MemoryAuditEventStorage();
 
             AllowedRoles = allowedRoles;
             AccessOptions.AuditLogAccess = new Maybe<AccessRoles>(AccessRoles.WebAdmins);
@@ -117,8 +117,8 @@ namespace HealthCheck.WebUI.Tests
         public async Task InitTestData()
         {
             InitRequestAsync();
-            await SiteEventService.StoreEvent(new SiteEvent(Core.Enums.SiteEventSeverity.Error, "eventTypeA", "TitleA", "DescA", 12));
-            await AuditEventService.StoreEvent(
+            await Services.SiteEventService.StoreEvent(new SiteEvent(Core.Enums.SiteEventSeverity.Error, "eventTypeA", "TitleA", "DescA", 12));
+            await Services.AuditEventService.StoreEvent(
                 new AuditEvent(DateTime.Now, Core.Enums.AuditEventArea.Tests, "Title", "Subject", "123", "User 123", EnumUtils.GetFlaggedEnumValues(AllowedRoles).Select(x => x.ToString()).ToList())
             );
         }

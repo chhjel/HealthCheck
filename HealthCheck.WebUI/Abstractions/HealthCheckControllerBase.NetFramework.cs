@@ -18,6 +18,8 @@ using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Entities;
 using System.Collections.Generic;
 using HealthCheck.Core.Enums;
+using HealthCheck.Core.Modules.LogViewer.Models;
+using System.Web.SessionState;
 
 namespace HealthCheck.WebUI.Abstractions
 {
@@ -25,24 +27,20 @@ namespace HealthCheck.WebUI.Abstractions
     /// Base controller for the ui and api.
     /// </summary>
     /// <typeparam name="TAccessRole">Maybe{EnumType} used for access roles.</typeparam>
+    [SessionState(SessionStateBehavior.ReadOnly)]
     public abstract class HealthCheckControllerBase<TAccessRole>: Controller
         where TAccessRole: Enum
     {
-        /// <summary>
-        /// Must be set for any site statuses to be stored and returned.
-        /// </summary>
-        protected ISiteEventService SiteEventService { get; set; }
-
-        /// <summary>
-        /// Must be set for any site audits to be logged.
-        /// </summary>
-        protected IAuditEventStorage AuditEventService { get; set; }
-
         /// <summary>
         /// Set to false to return 404 for all actions.
         /// <para>Enabled by default.</para>
         /// </summary>
         protected bool Enabled { get; set; } = true;
+
+        /// <summary>
+        /// Contains services that enables extra functionality.
+        /// </summary>
+        protected HealthCheckServiceContainer Services { get; } = new HealthCheckServiceContainer();
 
         /// <summary>
         /// Service that executes tests.
@@ -71,13 +69,14 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         protected RequestInformation<TAccessRole> CurrentRequestInformation { get; set; }
 
-        private readonly HealthCheckControllerHelper<TAccessRole> Helper = new HealthCheckControllerHelper<TAccessRole>();
+        private readonly HealthCheckControllerHelper<TAccessRole> Helper;
 
         /// <summary>
         /// Base controller for the ui and api.
         /// </summary>
         public HealthCheckControllerBase(Assembly assemblyContainingTests)
         {
+            Helper = new HealthCheckControllerHelper<TAccessRole>(Services);
             Helper.TestDiscoverer.AssemblyContainingTests = assemblyContainingTests ?? throw new ArgumentNullException("An assembly to retrieve tests from must be provided.");
         }
 
@@ -124,7 +123,7 @@ namespace HealthCheck.WebUI.Abstractions
         public virtual ActionResult Index()
         {
             if (!Enabled) return HttpNotFound();
-            else if (!Helper.HasAccessToAnyContent(CurrentRequestAccessRoles, SiteEventService, AuditEventService))
+            else if (!Helper.HasAccessToAnyContent(CurrentRequestAccessRoles))
             {
                 if (!string.IsNullOrWhiteSpace(AccessOptions.RedirectTargetOnNoAccess)) {
                     return Redirect(AccessOptions.RedirectTargetOnNoAccess);
@@ -135,7 +134,7 @@ namespace HealthCheck.WebUI.Abstractions
 
             var frontEndOptions = GetFrontEndOptions();
             var pageOptions = GetPageOptions();
-            var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions, SiteEventService, AuditEventService);
+            var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions);
             return Content(html);
         }
 
@@ -145,10 +144,10 @@ namespace HealthCheck.WebUI.Abstractions
         [HttpPost]
         public virtual async Task<ActionResult> GetFilteredAudits(AuditEventFilterInputData input = null)
         {
-            if (!Enabled || !Helper.CanShowAuditPageTo(CurrentRequestAccessRoles, AuditEventService))
+            if (!Enabled || !Helper.CanShowAuditPageTo(CurrentRequestAccessRoles))
                 return HttpNotFound();
 
-            var filteredItems = await Helper.GetAuditEventsFilterViewModel(CurrentRequestAccessRoles, input, AuditEventService);
+            var filteredItems = await Helper.GetAuditEventsFilterViewModel(CurrentRequestAccessRoles, input);
             return CreateJsonResult(filteredItems);
         }
 
@@ -157,10 +156,10 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         public virtual async Task<ActionResult> GetSiteEvents()
         {
-            if (!Enabled || !Helper.CanShowOverviewPageTo(CurrentRequestAccessRoles, SiteEventService))
+            if (!Enabled || !Helper.CanShowOverviewPageTo(CurrentRequestAccessRoles))
                 return HttpNotFound();
 
-            var viewModel = await Helper.GetSiteEventsViewModel(CurrentRequestAccessRoles, SiteEventService);
+            var viewModel = await Helper.GetSiteEventsViewModel(CurrentRequestAccessRoles);
             return CreateJsonResult(viewModel);
         }
 
@@ -185,7 +184,7 @@ namespace HealthCheck.WebUI.Abstractions
             if (!Enabled || !Helper.CanShowTestsPageTo(CurrentRequestAccessRoles)) return HttpNotFound();
 
             var result = await Helper.ExecuteTest(CurrentRequestAccessRoles, data);
-            Helper.OnTestExecuted(AuditEventService, CurrentRequestInformation, data, result);
+            Helper.AuditLog_TestExecuted(CurrentRequestInformation, data, result);
 
             return CreateJsonResult(result);
         }
@@ -197,7 +196,52 @@ namespace HealthCheck.WebUI.Abstractions
         public virtual async Task<ActionResult> CancelTest(string testId)
         {
             if (!Enabled || !Helper.CanShowTestsPageTo(CurrentRequestAccessRoles)) return HttpNotFound();
-            return CreateJsonResult(Helper.CancelTest(CurrentRequestInformation, testId, AuditEventService));
+
+            await Task.Delay(TimeSpan.FromMilliseconds(1));
+            return CreateJsonResult(Helper.CancelTest(CurrentRequestInformation, testId));
+        }
+
+        /// <summary>
+        /// Get log entry search results.
+        /// </summary>
+        [HttpPost]
+        public virtual async Task<ActionResult> SearchLogs(LogSearchFilter filter)
+        {
+            if (!Enabled || !Helper.CanShowLogViewerPageTo(CurrentRequestAccessRoles))
+                return HttpNotFound();
+
+            var result = await Helper.SearchLogs(CurrentRequestAccessRoles, filter);
+            Helper.AuditLog_LogSearch(CurrentRequestInformation, filter, result);
+
+            return CreateJsonResult(result);
+        }
+
+        /// <summary>
+        /// Cancels the given log search.
+        /// </summary>
+        [HttpPost]
+        public virtual async Task<bool> CancelLogSearch(string searchId)
+        {
+            var cancelled = Helper.CancelLogSearch(searchId);
+            if (cancelled)
+            {
+                Helper.AuditLog_LogSearchCancel(CurrentRequestInformation, "Cancelled log search");
+            }
+            return await Task.FromResult(cancelled);
+        }
+
+        /// <summary>
+        /// Cancels all log searches.
+        /// </summary>
+        [HttpPost]
+        public virtual async Task<int> CancelAllLogSearches()
+        {
+            var count = Helper.CancelAllLogSearches();
+            if (count > 0)
+            {
+                Helper.AuditLog_LogSearchCancel(CurrentRequestInformation, "Cancelled all log searches", count);
+            }
+            return await Task.FromResult(count);
         }
 
         /// <summary>

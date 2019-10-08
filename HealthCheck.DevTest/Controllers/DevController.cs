@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using HealthCheck.Core.Services;
 using System.Collections.Generic;
+using HealthCheck.Core.Services.Models;
 
 namespace HealthCheck.DevTest.Controllers
 {
@@ -37,13 +38,20 @@ namespace HealthCheck.DevTest.Controllers
                 _auditEventService = CreateAuditEventService();
             }
 
-            SiteEventService = _siteEventService;
-            AuditEventService = _auditEventService;
+            Services.SiteEventService = _siteEventService;
+            Services.AuditEventService = _auditEventService;
+            Services.LogSearcherService = CreateLogSearcherService();
 
             if (!_hasInited)
             {
                 InitOnce();
             }
+        }
+
+        private ILogSearcherService CreateLogSearcherService()
+        {
+            return new FlatFileLogSearcherService(new FlatFileLogSearcherServiceOptions()
+                    .IncludeLogFilesInDirectory(HostingEnvironment.MapPath("~/App_Data/TestLogs/")));
         }
 
         private ISiteEventService CreateSiteEventService()
@@ -72,8 +80,10 @@ namespace HealthCheck.DevTest.Controllers
                 {
                     HealthCheckPageType.Tests,
                     HealthCheckPageType.Overview,
+                    HealthCheckPageType.LogViewer,
                     HealthCheckPageType.AuditLog,
-                }
+                },
+                ApplyCustomColumnRuleByDefault = true
             };
 
         protected override PageOptions GetPageOptions()
@@ -92,6 +102,7 @@ namespace HealthCheck.DevTest.Controllers
             AccessOptions.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.Guest);
             AccessOptions.TestsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
             AccessOptions.AuditLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            AccessOptions.LogViewerPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.InvalidTestsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.SiteEventDeveloperDetailsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
         }
@@ -107,6 +118,11 @@ namespace HealthCheck.DevTest.Controllers
         {
             var roles = RuntimeTestAccessRole.Guest;
             roles |= RuntimeTestAccessRole.SystemAdmins | RuntimeTestAccessRole.WebAdmins;
+
+            if (request.QueryString["notsysadmin"] != null)
+            {
+                roles &= ~RuntimeTestAccessRole.SystemAdmins;
+            }
 
             //if (request.QueryString["webadmin"] != null)
             //{
@@ -139,8 +155,8 @@ namespace HealthCheck.DevTest.Controllers
         {
             var results = await TestRunner.ExecuteTests(TestDiscoverer, 
                 testFilter: (test) => test.Categories.Contains(RuntimeTestConstants.Categories.ScheduledHealthCheck),
-                siteEventService: SiteEventService,
-                auditEventService: AuditEventService
+                siteEventService: Services.SiteEventService,
+                auditEventService: Services.AuditEventService
             );
             return CreateJsonResult(results.Select(x => new { Test = x.Test?.Name, Result = x.Message, SiteEventTitle = x.SiteEvent?.Title }));
         }
@@ -150,10 +166,10 @@ namespace HealthCheck.DevTest.Controllers
         {
             if (reInitService)
             {
-                SiteEventService = CreateSiteEventService();
+                Services.SiteEventService = CreateSiteEventService();
             }
 
-            if ((await SiteEventService.GetEvents(DateTime.MinValue, DateTime.MaxValue)).Count == 0)
+            if ((await Services.SiteEventService.GetEvents(DateTime.MinValue, DateTime.MaxValue)).Count == 0)
             {
                 for (int i = 0; i < 20; i++)
                 {
@@ -171,7 +187,7 @@ namespace HealthCheck.DevTest.Controllers
         private static readonly Random _rand = new Random();
         public async Task<ActionResult> AddEvent()
         {
-            if (!Enabled || SiteEventService == null) return HttpNotFound();
+            if (!Enabled || Services.SiteEventService == null) return HttpNotFound();
 
             CreateSomeData(out string title, out string description);
             var severity = (_rand.Next(100) < 10) ? SiteEventSeverity.Fatal
@@ -190,7 +206,7 @@ namespace HealthCheck.DevTest.Controllers
             .AddRelatedLink("Page that failed", "https://www.google.com?etc")
             .AddRelatedLink("Error log", "https://www.google.com?q=errorlog");
 
-            await SiteEventService.StoreEvent(ev);
+            await Services.SiteEventService.StoreEvent(ev);
             return CreateJsonResult(ev);
         }
 
