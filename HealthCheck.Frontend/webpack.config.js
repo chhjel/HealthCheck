@@ -82,7 +82,8 @@ module.exports = {
 module.exports.plugins = [
   new VueLoaderPlugin(),
   new BundleAnalyzerPlugin(),
-  new VuetifyLoaderPlugin()
+  new VuetifyLoaderPlugin(),
+  new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en-gb/)
 ];
 
 if (process.env.NODE_ENV === 'production') {
