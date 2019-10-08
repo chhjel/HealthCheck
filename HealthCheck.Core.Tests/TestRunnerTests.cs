@@ -111,6 +111,26 @@ namespace HealthCheck.Core.Services
         }
 
         [Fact]
+        public async Task ExecuteTests_WithSuccessAndWarningOnSameEventTypeId_IgnoresSuccess()
+        {
+            var discoverer = new TestDiscoveryService()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+            var runner = new TestRunnerService();
+            var eventService = new SiteEventService(new MemorySiteEventStorage());
+            var results = await runner.ExecuteTests(discoverer, (test) => test.Categories.Contains("DCategoryG"), siteEventService: eventService);
+
+            Assert.Equal(2, results.Count);
+            Assert.Contains(results, result => result.SiteEvent?.Resolved == true);
+            Assert.Contains(results, result => result.SiteEvent?.Title == "Oh no!");
+            var events = await eventService.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+
+            Assert.Single(events);
+            Assert.Contains(events, e => e.Title == "Oh no!" && e.Resolved == false);
+        }
+
+        [Fact]
         public async Task ExecuteTests_WithMultipleErrorsWithSameEventTypeId_MergesEventData()
         {
             var discoverer = new TestDiscoveryService()
@@ -428,6 +448,26 @@ namespace HealthCheck.Core.Services
             {
                 return TestResult.CreateError("Opsie!")
                     .SetSiteEvent(new SiteEvent(Enums.SiteEventSeverity.Error, EventTypeId, "Oh no!", "Desc!"));
+            }
+        }
+
+
+        [RuntimeTestClass(Id = "TestRunnerTestsSetG", Description = "Some test set G", Name = "Dev test set G", DefaultCategory = "DCategoryG")]
+        public class TestClassG
+        {
+            private const string EventTypeId = "DCategoryG-eventIdG";
+
+            [RuntimeTest]
+            public TestResult Success()
+            {
+                return TestResult.CreateResolvedSiteEvent("Ok", EventTypeId, "Resolved message!");
+            }
+
+            [RuntimeTest]
+            public TestResult WarningA()
+            {
+                return TestResult.CreateWarning("Opsie!")
+                    .SetSiteEvent(new SiteEvent(Enums.SiteEventSeverity.Warning, EventTypeId, "Oh no!", "Desc!"));
             }
         }
 

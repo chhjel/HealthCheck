@@ -60,7 +60,7 @@ namespace HealthCheck.Core.Services.Models
         /// Sets the old event duration to the highest of either (old.time + old.duration + new.duration) or the new events timestamp.
         /// <para>Duration will not be increased past the current time, and duration will not be decreased.</para>
         /// <para>Updates title, description and developer details if not null.</para>
-        /// <para>Updates severity and adds any new related links (distinct on url).</para>
+        /// <para>Updates severity, resolved status and adds any new related links (distinct on url).</para>
         /// </summary>
         public static void DefaultMergeLogic(SiteEvent existingEvent, SiteEvent newEvent, bool allowExtendPastCurrentTime = false)
         {
@@ -110,6 +110,14 @@ namespace HealthCheck.Core.Services.Models
             if (newEvent.DeveloperDetails != null)
             {
                 existingEvent.DeveloperDetails = newEvent.DeveloperDetails;
+            }
+
+            // Update resolved
+            existingEvent.Resolved = newEvent.Resolved;
+            if (!newEvent.Resolved)
+            {
+                existingEvent.ResolvedAt = null;
+                existingEvent.ResolvedMessage = null;
             }
 
             // Update severity
