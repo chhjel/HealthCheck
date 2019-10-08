@@ -1,5 +1,6 @@
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
 var path = require('path')
 var webpack = require('webpack')
 
@@ -30,8 +31,8 @@ module.exports = {
             // Since sass-loader (weirdly) has SCSS as its default parse mode, we map
             // the "scss" and "sass" values for the lang attribute to the right configs here.
             // other preprocessors should work out of the box, no loader config like this necessary.
-            'scss': 'vue-style-loader!css-loader!sass-loader',
-            'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax',
+            'scss': 'vue-style-loader!css-loader!sass-loader!stylus-loader',
+            'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax!stylus-loader',
           }
           // other vue-loader options go here
         }
@@ -43,6 +44,15 @@ module.exports = {
         options: {
           appendTsSuffixTo: [/\.vue$/],
         }
+      },
+      {
+        test: /\.styl$/,
+        loader: ['style-loader', 'css-loader', 'stylus-loader', {
+          loader: 'vuetify-loader',
+          options: {
+            theme: path.resolve('./node_modules/vuetify/src/stylus/theme.styl')
+          }
+        }]
       },
       {
         test: /\.(png|jpg|gif|svg)$/,
@@ -71,7 +81,8 @@ module.exports = {
 
 module.exports.plugins = [
   new VueLoaderPlugin(),
-  // new BundleAnalyzerPlugin()
+  new BundleAnalyzerPlugin(),
+  new VuetifyLoaderPlugin()
 ];
 
 if (process.env.NODE_ENV === 'production') {

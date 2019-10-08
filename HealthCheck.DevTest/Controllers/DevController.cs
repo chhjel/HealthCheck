@@ -144,7 +144,7 @@ namespace HealthCheck.DevTest.Controllers
             return new FileStreamResult(new FileStream(filepath, FileMode.Open), "content-disposition");
         }
 
-        [OutputCache(Duration = 1200, VaryByParam = "none")]
+        //[OutputCache(Duration = 1200, VaryByParam = "none")]
         public FileResult GetVendorScript()
         {
             var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheck.vendor.js");
