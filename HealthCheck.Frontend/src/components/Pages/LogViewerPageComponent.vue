@@ -225,7 +225,7 @@
                         <b>Search was cancelled</b>
                     </v-chip>
                     <v-chip v-if="searchResultData.HighestDate != null" class="mb-4">
-                        Total matches: {{ searchResultData.TotalCount }}
+                        Total results: {{ searchResultData.TotalCount }}
                     </v-chip>
                     <v-chip v-if="searchResultData.LowestDate != null" class="mb-4">
                         First matching entry @ {{ formatDateForChip(new Date(searchResultData.LowestDate)) }}

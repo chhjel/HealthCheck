@@ -146,11 +146,11 @@ export default class ItemPerDateChartComponent extends Vue {
                 },
                 tooltips: {
                     callbacks: {
-                        title: (tooltipItem, data) => {
+                        title: (tooltipItem:any, data:any) => {
                             const index = <number>tooltipItem[0].index;
                             return this.chartPoints[index].pointTitle || "";
                         },
-                        label: (tooltipItem, data) => {
+                        label: (tooltipItem:any, data:any) => {
                             const index = <number>tooltipItem.index;
                             return this.chartPoints[index].pointLabel || "";
                         }
