@@ -11,15 +11,24 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
     {
         public string FilePath { get; set; }
         public DateTime LastWriteTime { get; set; }
-        public DateTime FirstEntryTime { get; set; }
+        public DateTime FirstEntryTime { get
+            {
+                if (_firstEntryTimeCache == null)
+                {
+                    var firstLine = File.ReadLines(FilePath).FirstOrDefault(x => !string.IsNullOrWhiteSpace(x));
+                    _firstEntryTimeCache = _entryParser.ParseEntryDate(firstLine) ?? DateTime.MaxValue;
+                }
+                return _firstEntryTimeCache.Value;
+            }
+        }
+        private DateTime? _firstEntryTimeCache = null;
+        private ILogEntryParser _entryParser;
 
         public LogFile(string path, ILogEntryParser entryParser)
         {
             FilePath = path;
             LastWriteTime = File.GetLastWriteTime(FilePath);
-
-            var firstLine = File.ReadAllLines(FilePath).FirstOrDefault(x => !string.IsNullOrWhiteSpace(x));
-            FirstEntryTime = entryParser.ParseEntryDate(firstLine) ?? DateTime.MaxValue;
+            _entryParser = entryParser;
         }
 
         public IEnumerable<LogEntry> GetEntriesEnumerable(ILogEntryParser entryParser)

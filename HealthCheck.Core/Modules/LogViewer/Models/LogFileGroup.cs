@@ -32,12 +32,19 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
             DateTime? fromDate = null, DateTime? toDate = null,
             Func<string, LogSearchFilter, bool> allowFilePath = null, LogSearchFilter searchFilter = null
         )
-            => Files
+        {
+            DateTime? lastWriteLowThreshold = (fromDate == null) ? null : fromDate - TimeSpan.FromDays(1);
+            DateTime? lastWriteHighThreshold = (toDate == null) ? null : toDate + TimeSpan.FromDays(1);
+
+            return Files
                 .Where(x =>
                     allowFilePath(x.FilePath, searchFilter)
-                    && (toDate == null   || toDate   >= x.FirstEntryTime)
+                    && (lastWriteLowThreshold == null || x.LastWriteTime >= lastWriteLowThreshold)
+                    && (lastWriteHighThreshold == null || x.LastWriteTime <= lastWriteHighThreshold)
+                    && (toDate == null || toDate >= x.FirstEntryTime)
                     && (fromDate == null || fromDate <= x.LastWriteTime)
                 )
                 .Select(x => x.GetEntriesEnumerable(entryParser)).SelectMany(x => x);
+        }
     }
 }
