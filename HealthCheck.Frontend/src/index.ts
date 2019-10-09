@@ -3,18 +3,6 @@ import Vue from "vue";
 import HealthCheckPageComponent from "./components/HealthCheckPageComponent.vue";
 import Vuetify from 'vuetify'
 
-// Highlight.js
-import VueHighlightJS from 'vue-highlight.js';
-import xml from 'highlight.js/lib/languages/xml';
-import json from 'highlight.js/lib/languages/json';
-import 'highlight.js/styles/default.css';
-Vue.use(VueHighlightJS, {
-	languages: {
-		xml,
-		json
-	}
-});
-
 // Extensions
 import './util/extensions/StringExtensions';
 
