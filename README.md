@@ -233,7 +233,7 @@ IAuditEventStorage auditEventStorage = new FlatFileAuditEventStorage(HostingEnvi
 Specify a ILogSearcherService implementation to use to enable the log searcher tab. The provided FlatFileLogSearcherServiceOptions works for flatfile logs where entries start with a timestamp.
 
 ```csharp
-var options = new FlatFileLogSearcherServiceOptions()
+var logSearcherOptions = new FlatFileLogSearcherServiceOptions()
     .IncludeLogFilesInDirectory(HostingEnvironment.MapPath("~/App_Data/TestLogs/"), filter: "*.log", recursive: true);
 ILogSearcherService logSearcherService = new FlatFileLogSearcherService(logSearcherOptions);
 ```
