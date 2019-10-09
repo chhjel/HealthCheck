@@ -220,14 +220,14 @@ namespace HealthCheck.WebUI.Abstractions
         /// Cancels the given log search.
         /// </summary>
         [HttpPost]
-        public virtual async Task<bool> CancelLogSearch(string searchId)
+        public virtual async Task<ActionResult> CancelLogSearch(string searchId)
         {
             var cancelled = Helper.CancelLogSearch(searchId);
             if (cancelled)
             {
                 Helper.AuditLog_LogSearchCancel(CurrentRequestInformation, "Cancelled log search");
             }
-            return await Task.FromResult(cancelled);
+            return await Task.FromResult(CreateJsonResult(cancelled));
         }
 
         /// <summary>

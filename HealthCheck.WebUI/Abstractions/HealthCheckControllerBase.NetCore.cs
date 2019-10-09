@@ -228,14 +228,14 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         [HttpPost]
         [Route("CancelLogSearch")]
-        public virtual async Task<bool> CancelLogSearch([FromBody] string searchId)
+        public virtual async Task<ActionResult> CancelLogSearch([FromBody] string searchId)
         {
             var cancelled = Helper.CancelLogSearch(searchId);
             if (cancelled)
             {
                 Helper.AuditLog_LogSearchCancel(CurrentRequestInformation, "Cancelled log search");
             }
-            return await Task.FromResult(cancelled);
+            return await Task.FromResult(CreateJsonResult(cancelled));
         }
 
         /// <summary>

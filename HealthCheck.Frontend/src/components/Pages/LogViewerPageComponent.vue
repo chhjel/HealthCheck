@@ -535,7 +535,6 @@ export default class LogViewerPageComponent extends Vue {
 
         this.sendPOSTRequest<boolean>(this.options.CancelLogSearchEndpoint, { searchId: searchId },
             (result: boolean) => {
-                console.log(`Was cancelled: ${result}`);
                 this.cancellationInProgress = false;
             },
             (error) => {
@@ -573,7 +572,14 @@ export default class LogViewerPageComponent extends Vue {
                 Accept: 'application/json',
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            try { 
+                return response.json();
+            } catch(e) {
+                console.log(e);
+                return response;
+            }
+        })
         .then((data: TResponse) => onDataRetrieved(data))
         .catch((e) => {
             onError(e);
