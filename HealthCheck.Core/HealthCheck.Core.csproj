@@ -27,4 +27,8 @@
     <None Remove="LogViewer\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Util\HtmlPresets\" />
+  </ItemGroup>
+
 </Project>

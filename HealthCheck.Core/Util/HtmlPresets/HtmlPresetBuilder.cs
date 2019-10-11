@@ -1,0 +1,69 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace HealthCheck.Core.Util.HtmlPresets
+{
+    /// <summary>
+    /// Builds html from <see cref="IHtmlPreset"/>.
+    /// </summary>
+    public class HtmlPresetBuilder : IHtmlPreset
+    {
+        /// <summary>
+        /// Builds html from presets when added.
+        /// </summary>
+        protected StringBuilder HtmlBuilder { get; set; } = new StringBuilder();
+
+        /// <summary>
+        /// Add some raw html.
+        /// </summary>
+        public HtmlPresetBuilder AddRawHtml(string html)
+        {
+            if (!string.IsNullOrWhiteSpace(html))
+            {
+                HtmlBuilder.AppendLine(html);
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Add a html-preset object.
+        /// </summary>
+        public HtmlPresetBuilder AddItem(IHtmlPreset preset)
+        {
+            if (preset != null)
+            {
+                HtmlBuilder.AppendLine(preset.ToHtml());
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Add several html-presets.
+        /// </summary>
+        public HtmlPresetBuilder AddItems(IEnumerable<IHtmlPreset> presets)
+        {
+            if (presets != null)
+            {
+                foreach (var preset in presets.Where(x => x != null))
+                {
+                    AddItem(preset);
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Add several html-presets.
+        /// </summary>
+        public HtmlPresetBuilder AddItems(params IHtmlPreset[] presets)
+            => AddItems(presets.ToList());
+
+        /// <summary>
+        /// Build html from all the items added.
+        /// </summary>
+        /// <returns></returns>
+        public string ToHtml() => HtmlBuilder.ToString();
+    }
+}

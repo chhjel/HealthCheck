@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
+using HealthCheck.Core.Util.HtmlPresets;
 using HealthCheck.WebUI.Extensions;
 using HealthCheck.WebUI.Serializers;
 using System;
@@ -52,7 +53,33 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
                 .AddTextData("Some text data", "Text title")
                 .AddJsonData(LargeJson, "Big json data")
                 .AddUrlsData(Enumerable.Range(1, linkCount).Select(x => new HyperLink($"Link number #{x}", $"{"https://"}www.google.com?q={x}")))
-                .AddImageUrlsData(Enumerable.Range(1, imageCount).Select(x => $"{"https://"}loremflickr.com/{imageWidth}/{imageHeight}?v={x}"), $"{imageCount} images from https://loremflickr.com");
+                .AddImageUrlsData(Enumerable.Range(1, imageCount).Select(x => $"{"https://"}loremflickr.com/{imageWidth}/{imageHeight}?v={x}"), $"{imageCount} images from https://loremflickr.com")
+                .AddHtmlData(new HtmlPresetBuilder()
+                                .AddItems(
+                                    new HtmlPresetHeader("Title woop!"),
+                                    new HtmlPresetText(@"Some text 
+		                            here with <special\';.things>"),
+                                    new HtmlPresetSpace(),
+                                    new HtmlPresetIFrame("http://localhost:32350"),
+                                    new HtmlPresetProgressbar("200", "100"),
+                                    new HtmlPresetProgressbar(0.75f),
+                                    new HtmlPresetSpace(),
+                                    new HtmlPresetKeyValueList()
+                                        .UseTableStyle("Key", "Value here")
+                                        .AddItem("Price", "123.224,99")
+                                        .AddItem("Location", "Oslo")
+                                        .AddItem("Name", "Ulven T"),
+                                    new HtmlPresetKeyValueList(encodeData: false)
+                                        .UseTableStyle("Html test", "Should be progress below")
+                                        .AddItem("Progress", new HtmlPresetProgressbar(0.92f).ToHtml()),
+                                    new HtmlPresetRaw("<hr />"),
+                                    new HtmlPresetList()
+                                        .AddItem("Item A")
+                                        .AddItem("Item B")
+                                        .AddItem("Item C"),
+                                    new HtmlPresetImage("https://www.w3schools.com/w3css/img_lights.jpg")
+                                )
+                );
         }
 
         [RuntimeTest(
