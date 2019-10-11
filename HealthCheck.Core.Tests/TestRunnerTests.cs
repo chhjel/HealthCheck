@@ -91,6 +91,35 @@ namespace HealthCheck.Core.Services
         }
 
         [Fact]
+        public async Task ExecuteTests_WithSuccessAndErrorOnSameEventTypeIdAndExisting_IgnoresSuccess()
+        {
+            var discoverer = new TestDiscoveryService()
+            {
+                AssemblyContainingTests = GetType().Assembly
+            };
+            var runner = new TestRunnerService();
+            var eventService = new SiteEventService(new MemorySiteEventStorage());
+
+            var previouslyUnresolvedEvent = new SiteEvent(Enums.SiteEventSeverity.Error, "DCategoryE-eventIdE", "Titleasd", "Descriptionasd", duration: 5)
+            {
+                Timestamp = DateTime.Now.AddMinutes(-15),
+                Resolved = true,
+                ResolvedAt = DateTime.Now.AddMinutes(-10)
+            };
+            await eventService.StoreEvent(previouslyUnresolvedEvent);
+
+            var results = await runner.ExecuteTests(discoverer, (test) => test.Categories.Contains("DCategoryE"), siteEventService: eventService);
+
+            Assert.Equal(2, results.Count);
+            Assert.Contains(results, result => result.SiteEvent?.Resolved == true);
+            Assert.Contains(results, result => result.SiteEvent?.Title == "Oh no!");
+            var events = await eventService.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+
+            Assert.Single(events);
+            Assert.Contains(events, e => e.Title == "Oh no!" && e.Resolved == false);
+        }
+
+        [Fact]
         public async Task ExecuteTests_WithSuccessAndErrorOnSameEventTypeId_IgnoresSuccess()
         {
             var discoverer = new TestDiscoveryService()
@@ -99,6 +128,7 @@ namespace HealthCheck.Core.Services
             };
             var runner = new TestRunnerService();
             var eventService = new SiteEventService(new MemorySiteEventStorage());
+
             var results = await runner.ExecuteTests(discoverer, (test) => test.Categories.Contains("DCategoryE"), siteEventService: eventService);
 
             Assert.Equal(2, results.Count);
