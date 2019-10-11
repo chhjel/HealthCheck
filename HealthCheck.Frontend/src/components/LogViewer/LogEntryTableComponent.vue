@@ -58,6 +58,7 @@ import LinqUtils from "../../util/LinqUtils";
 import LogEntrySearchResultItem from '../../models/LogViewer/LogEntrySearchResultItem';
 import { FilterDelimiterMode } from '../../models/LogViewer/FilterDelimiterMode';
 import DateUtils from "../../util/DateUtils";
+import * as XRegExp from 'xregexp';
 
 interface TableEntryRow {
     Entry: LogEntrySearchResultItem;
@@ -155,11 +156,17 @@ export default class LogEntryTableComponent extends Vue {
             }
             else if (this.customColumnMode == FilterDelimiterMode.Regex)
             {
-                const regexp = new RegExp(this.customColumnRule, "gism");
-                const regexMatches = <any>regexp.exec(entry.Raw);
+                const regexp = XRegExp(this.customColumnRule, "gism");
+                const regexMatches = XRegExp.exec(entry.Raw, regexp);
+
                 if (regexMatches != null) {
-                    const groupNames = Object.keys(regexMatches.groups);
-                                        
+                    const matchWithoutGroupsKeys = XRegExp.exec('asdasd', XRegExp('asd', 'gism'));
+                    const discardedKeys = Object.keys(matchWithoutGroupsKeys);
+                    const matchKeys = Object.keys(regexMatches);
+                    const groupNames = matchKeys.filter(x => 
+                        discardedKeys.indexOf(x) == -1 && !/^[0-9]+$/.test(x)
+                    );
+                
                     // order columnNames by index of '(?<name>' in pattern
                     let groupPositions: Array<any> = [];
                     groupNames.forEach(groupName => {
@@ -173,7 +180,7 @@ export default class LogEntryTableComponent extends Vue {
 
                     groupPositions.forEach(group => {
                         item.Columns.push(group.name);
-                        item.Values.push(regexMatches.groups[group.name]);
+                        item.Values.push(regexMatches[group.name]);
                     });
                 }
             }

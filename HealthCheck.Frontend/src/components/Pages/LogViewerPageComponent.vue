@@ -315,7 +315,8 @@ import LogSearchFilter from '../../models/LogViewer/LogSearchFilter';
 import LogSearchResult from '../../models/LogViewer/LogSearchResult';
 import { FilterQueryMode } from '../../models/LogViewer/FilterQueryMode';
 import { FilterDelimiterMode } from '../../models/LogViewer/FilterDelimiterMode';
-import { ChartEntry } from '../LogViewer/ItemPerDateChartComponent.vue'; 
+import { ChartEntry } from '../LogViewer/ItemPerDateChartComponent.vue';
+import * as XRegExp from 'xregexp';
 
 interface DatePickerPreset {
     name: string;
@@ -671,7 +672,7 @@ export default class LogViewerPageComponent extends Vue {
 
     getRegexError(pattern: string): string | null {
         try {
-            new RegExp(pattern);
+            XRegExp(pattern);
             return null;
         } catch(e) {
             return e.message || e; 

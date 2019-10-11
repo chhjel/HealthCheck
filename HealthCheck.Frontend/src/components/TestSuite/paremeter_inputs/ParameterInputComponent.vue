@@ -68,10 +68,10 @@ export default class ParameterInputComponent extends Vue {
 
     getGenericListInputType(typeName: string): string | null
     {
-        let genericListPattern = /^List<(?<type>\w+)>$/;
+        let genericListPattern = /^List<(\w+)>$/;
         if (genericListPattern.test(typeName)) {
-            let match = (<any>typeName.match(genericListPattern));
-            let itemType: string = match == null ? null : match.groups["type"];
+            let match = typeName.match(genericListPattern);
+            let itemType: string | null = (match == null) ? null : match[1];
             return itemType;
         }
         return null;
