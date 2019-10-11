@@ -11,7 +11,7 @@
     <Description>Abstract HealthCheck controllers and web logic for .NET Framework and .NET Core.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>latest</LangVersion>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.WebUI.Core.xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.WebUI.xml</DocumentationFile>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-HealthCheck</PackageProjectUrl>
   </PropertyGroup>
 
