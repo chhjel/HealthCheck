@@ -28,6 +28,18 @@ namespace HealthCheck.Core.Util.HtmlPresets
 
         /// <summary>
         /// Add a html-preset object.
+        /// <para>
+        /// Built in presets:
+        /// <see cref="HtmlPresetHeader"/>,
+        /// <see cref="HtmlPresetIFrame"/>,
+        /// <see cref="HtmlPresetImage"/>,
+        /// <see cref="HtmlPresetKeyValueList"/>,
+        /// <see cref="HtmlPresetList"/>,
+        /// <see cref="HtmlPresetProgressbar"/>,
+        /// <see cref="HtmlPresetRaw"/>,
+        /// <see cref="HtmlPresetSpace"/>,
+        /// <see cref="HtmlPresetText"/>
+        /// </para>
         /// </summary>
         public HtmlPresetBuilder AddItem(IHtmlPreset preset)
         {
@@ -40,6 +52,18 @@ namespace HealthCheck.Core.Util.HtmlPresets
 
         /// <summary>
         /// Add several html-presets.
+        /// <para>
+        /// Built in presets:
+        /// <see cref="HtmlPresetHeader"/>,
+        /// <see cref="HtmlPresetIFrame"/>,
+        /// <see cref="HtmlPresetImage"/>,
+        /// <see cref="HtmlPresetKeyValueList"/>,
+        /// <see cref="HtmlPresetList"/>,
+        /// <see cref="HtmlPresetProgressbar"/>,
+        /// <see cref="HtmlPresetRaw"/>,
+        /// <see cref="HtmlPresetSpace"/>,
+        /// <see cref="HtmlPresetText"/>
+        /// </para>
         /// </summary>
         public HtmlPresetBuilder AddItems(IEnumerable<IHtmlPreset> presets)
         {
@@ -56,6 +80,18 @@ namespace HealthCheck.Core.Util.HtmlPresets
 
         /// <summary>
         /// Add several html-presets.
+        /// <para>
+        /// Built in presets:
+        /// <see cref="HtmlPresetHeader"/>,
+        /// <see cref="HtmlPresetIFrame"/>,
+        /// <see cref="HtmlPresetImage"/>,
+        /// <see cref="HtmlPresetKeyValueList"/>,
+        /// <see cref="HtmlPresetList"/>,
+        /// <see cref="HtmlPresetProgressbar"/>,
+        /// <see cref="HtmlPresetRaw"/>,
+        /// <see cref="HtmlPresetSpace"/>,
+        /// <see cref="HtmlPresetText"/>
+        /// </para>
         /// </summary>
         public HtmlPresetBuilder AddItems(params IHtmlPreset[] presets)
             => AddItems(presets.ToList());

@@ -171,10 +171,10 @@ The `TestResult` class has a few static factory methods for quick creation of a 
 |AddUrlsData|Will be shown as a list of links|
 |AddJsonData|Will be formatted as Json|
 |AddXmlData|Will be formatted as XML|
-|AddHtmlData|Will be rendered as HTML|
 |AddTextData|Just plain text|
-|AddSerializedData|Two variants of this method exists. Use the extension method variant unless you want to provide your own serializer implementation. The method simply serializes the given object to json and includes it.|
 |AddData|Adds string data and optionally define the type yourself.|
+|AddSerializedData|Two variants of this method exists. Use the extension method variant unless you want to provide your own serializer implementation. The method simply serializes the given object to json and includes it.|
+|AddHtmlData|Two variants of this method exists. Use the extension method variant for html presets or the non-extension method for raw html.|
 
 ### Attributes
 
