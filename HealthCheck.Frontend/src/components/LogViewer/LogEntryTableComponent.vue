@@ -18,7 +18,7 @@
                     <template 
                         v-for="(row, entryRowIndex) in rows">
                         <tr class="log-table-row"
-                            :class="{ 'log-table-row-margin': row.Entry.IsMargin }"
+                            :class="getEntryRowClasses(row.Entry)"
                             :key="`log-entry-row-${entryRowIndex}`"
                             @click="onRowClicked(entryRowIndex)">
 
@@ -36,7 +36,8 @@
                         </tr>
                         <tr v-if="isRowExpanded(entryRowIndex)"
                             :key="`log-entry-details-row-${entryRowIndex}`"
-                            class="log-entry-details-row">
+                            class="log-entry-details-row"
+                            :class="getEntrySeverityClass(row.Entry.Severity)">
                             <td :colspan="columnNames.length"
                                 valign="top">
                                 <span class="log-entry-fileref">
@@ -59,6 +60,7 @@ import LogEntrySearchResultItem from '../../models/LogViewer/LogEntrySearchResul
 import { FilterDelimiterMode } from '../../models/LogViewer/FilterDelimiterMode';
 import DateUtils from "../../util/DateUtils";
 import * as XRegExp from 'xregexp';
+import { LogEntrySeverity } from "../../models/LogViewer/LogEntrySeverity";
 
 interface TableEntryRow {
     Entry: LogEntrySearchResultItem;
@@ -103,6 +105,24 @@ export default class LogEntryTableComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    getEntryRowClasses(entry: LogEntrySearchResultItem): any
+    {
+        let classes: any = {};
+        classes['log-table-row-margin'] = entry.IsMargin;
+        classes[this.getEntrySeverityClass(entry.Severity)] = true;
+        return classes;
+    }
+
+    getEntrySeverityClass(severity: LogEntrySeverity): string
+    {
+        switch(severity)
+        {
+            case LogEntrySeverity.Error: return "log-entry-error";
+            case LogEntrySeverity.Warning: return "log-entry-warning";
+            default: return "log-entry-info";
+        }
+    }
+
     isRowExpanded(index: number): boolean {
         return this.expandAllRows || this.expandedRows.indexOf(index) != -1;
     }
@@ -229,14 +249,12 @@ export default class LogEntryTableComponent extends Vue {
 }
 .log-table-row-margin {
     background-color: #f3f2f2;
-    border-left: 5px solid #dadada;
 }
 .log-table-row-margin:hover {
     background-color: #eaeaea !important;
 }
 .log-entry-details-row td pre {
     padding-left: 20px;
-    border-left: 5px solid #e0e0e0;
 }
 .log-entry-fileref {
     padding: 1px;
@@ -246,5 +264,26 @@ export default class LogEntryTableComponent extends Vue {
     color: #808080;
     box-shadow: none;
     font-weight: 500;
+}
+.log-entry-info {
+    border-left: 25px solid #e0eefb;
+}
+.log-entry-info:hover {
+    border-left: 25px solid #edf7ff;
+}
+.log-entry-error {
+    border-left: 25px solid var(--v-error-lighten1);
+}
+.log-entry-error:hover {
+    border-left: 25px solid var(--v-error-lighten2);
+}
+.log-entry-warning {
+    border-left: 25px solid var(--v-warning-lighten1);
+}
+.log-entry-warning:hover {
+    border-left: 25px solid var(--v-warning-lighten2);
+}
+.log-entry-details-row {
+    border-left-width: 50px !important;
 }
 </style>

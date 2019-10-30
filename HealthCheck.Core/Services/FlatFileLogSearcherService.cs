@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Modules.LogViewer;
+using HealthCheck.Core.Modules.LogViewer.Enums;
 using HealthCheck.Core.Modules.LogViewer.Models;
 using HealthCheck.Core.Services.Models;
 using HealthCheck.Core.Util;
@@ -68,9 +69,39 @@ namespace HealthCheck.Core.Services
                     LineNumber = x.LineNumber,
                     IsMargin = x.IsMargin,
                     Raw = x.Raw,
-                    Timestamp = x.Timestamp
+                    Timestamp = x.Timestamp,
+                    Severity = ParseEntrySeverity(x)
                 }).ToList()
             };
+        }
+
+        private readonly Regex[] EntryErrorNeedles = new []
+        {
+            new Regex(@"exception", RegexOptions.IgnoreCase),
+            new Regex(@"error", RegexOptions.IgnoreCase),
+            new Regex(@"\serr\s", RegexOptions.IgnoreCase),
+            new Regex(@"critical", RegexOptions.IgnoreCase),
+            new Regex(@"fatal", RegexOptions.IgnoreCase)
+        };
+        private readonly Regex[] EntryWarningNeedles = new[]
+        {
+            new Regex(@"warning", RegexOptions.IgnoreCase),
+            new Regex(@"\swarn\s", RegexOptions.IgnoreCase)
+        };
+        private LogEntrySeverity ParseEntrySeverity(LogEntry entry)
+        {
+            var normalizedContent = entry.Raw.ToLower().Replace("\t", " ");
+            
+            if (EntryErrorNeedles.Any(x => x.IsMatch(normalizedContent)))
+            {
+                return LogEntrySeverity.Error;
+            }
+            else if (EntryWarningNeedles.Any(x => x.IsMatch(normalizedContent)))
+            {
+                return LogEntrySeverity.Warning;
+            }
+
+            return LogEntrySeverity.Info;
         }
 
         private LogEntrySearchResult SearchInternal(LogSearchFilter filter, CancellationToken cancellationToken)

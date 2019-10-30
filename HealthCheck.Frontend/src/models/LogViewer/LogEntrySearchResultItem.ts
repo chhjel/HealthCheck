@@ -1,3 +1,5 @@
+import { LogEntrySeverity } from "./LogEntrySeverity";
+
 export default interface LogEntrySearchResultItem {
     Timestamp: Date;
     FilePath: string;
@@ -5,4 +7,5 @@ export default interface LogEntrySearchResultItem {
     Raw: string;
     ColumnValues: Array<string>;
     IsMargin: boolean;
+    Severity: LogEntrySeverity;
 }

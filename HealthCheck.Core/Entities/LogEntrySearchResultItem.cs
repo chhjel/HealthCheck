@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Modules.LogViewer.Enums;
 using System;
 
 namespace HealthCheck.Core.Entities
@@ -37,5 +38,10 @@ namespace HealthCheck.Core.Entities
         /// Is not a direct match but a result included from setting a timestamp margin.
         /// </summary>
         public bool IsMargin { get; set; }
+
+        /// <summary>
+        /// Severity of the entry, attempted parsed from its content.
+        /// </summary>
+        public LogEntrySeverity Severity { get; set; }
     }
 }
