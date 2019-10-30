@@ -92,7 +92,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
         /// <summary>
         /// Max number of dates to include.
         /// </summary>
-        public int MaxDateCount { get; set; }
+        public int MaxStatisticsCount { get; set; }
 
         /// <summary>
         /// Optional number of milliseconds to include entries before/after any matches.

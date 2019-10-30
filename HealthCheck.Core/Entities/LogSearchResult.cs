@@ -70,13 +70,13 @@ namespace HealthCheck.Core.Entities
         public DateTime? HighestDate { get; set; }
 
         /// <summary>
-        /// First 1000 dates from matching entries.
+        /// First 5000 dates from matching entries.
         /// </summary>
-        public List<DateTime> Dates { get; set; } = new List<DateTime>();
+        public List<LogSearchStatisticsResult> Statistics { get; set; } = new List<LogSearchStatisticsResult>();
 
         /// <summary>
-        /// True if <see cref="Dates"/> contains all the dates and not just the 1000 first.
+        /// True if <see cref="Statistics"/> contains all the dates and not just the 5000 first.
         /// </summary>
-        public bool AllDatesIncluded => Dates.Count == TotalCount;
+        public bool StatisticsIsComplete => Statistics.Count == TotalCount;
     }
 }

@@ -397,20 +397,21 @@ export default class LogViewerPageComponent extends Vue {
     }
 
     get chartEntries(): Array<ChartEntry> {
-        return this.searchResultData.Dates.map(x => {
+        return this.searchResultData.Statistics.map(x => {
             return {
-                date: new Date(x),
-                label: `${new Date(x).toLocaleString()}`
+                date: x.Timestamp,
+                severity: x.Severity,
+                label: `${x.Timestamp.toLocaleString()}`
             };
         });
     }
 
     get insightsTitle(): string {
-        if (!this.hasSearched || this.searchResultData.Dates.length == 0) {
+        if (!this.hasSearched || this.searchResultData.Statistics.length == 0) {
             return 'Statistics';
         }
 
-        const dates = this.searchResultData.Dates.map(x => new Date(x));
+        const dates = this.searchResultData.Statistics.map(x => x.Timestamp);
         const lowestDate = dates.reduce((a, b) => { return a < b ? a : b; }); 
         const highestDate = dates.reduce((a, b) => { return a > b ? a : b; });
         const dateRange = highestDate.getTime() - lowestDate.getTime();
@@ -418,9 +419,9 @@ export default class LogViewerPageComponent extends Vue {
         const to = this.getGroupedDate(highestDate, dateRange);
 
         const rangeDetails = `(${from} - ${to})`;
-        return (this.searchResultData.AllDatesIncluded)
+        return (this.searchResultData.StatisticsIsComplete)
             ? `Statistics for matching entries ${rangeDetails}` 
-            : `Statistics for the first ${this.searchResultData.Dates.length} matching entries ${rangeDetails}`;
+            : `Statistics for the first ${this.searchResultData.Statistics.length} matching entries ${rangeDetails}`;
     }
 
     getGroupedDate(date: Date, dateRange: number): string {
@@ -609,6 +610,13 @@ export default class LogViewerPageComponent extends Vue {
         this.hasSearched = true;
         this.logDataLoadInProgress = false;
 
+        data.Statistics = data.Statistics.map(x => {
+            return {
+                Timestamp: new Date(x.Timestamp),
+                Severity: x.Severity
+            }
+        });
+
         this.searchResultData = data;
         this.currentPage = data.CurrentPage;
         
@@ -619,8 +627,8 @@ export default class LogViewerPageComponent extends Vue {
     createEmptyResultData(): LogSearchResult {
         return { 
             TotalCount: 0, Count: 0, Items: [], ColumnNames: [], DurationInMilliseconds: 0, 
-            WasCancelled: false, Error: null, HasError: false, Dates: [], HighestDate: null, LowestDate: null,
-            AllDatesIncluded: true, PageCount: 0, CurrentPage: 1
+            WasCancelled: false, Error: null, HasError: false, Statistics: [], HighestDate: null, LowestDate: null,
+            StatisticsIsComplete: true, PageCount: 0, CurrentPage: 1
         };
     } 
 
@@ -633,7 +641,7 @@ export default class LogViewerPageComponent extends Vue {
 
             FromDate: this.filterFromDate,
             ToDate: this.filterToDate,
-            MaxDateCount: this.options.MaxInsightsEntryCount,
+            MaxStatisticsCount: this.options.MaxInsightsEntryCount,
             // OrderDescending: boolean;
             
             Query: this.filterQuery,

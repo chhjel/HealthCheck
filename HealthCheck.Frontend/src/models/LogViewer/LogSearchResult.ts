@@ -1,4 +1,5 @@
 import LogEntrySearchResultItem from "./LogEntrySearchResultItem";
+import LogSearchStatisticsResult from "./LogSearchStatisticsResult";
 
 export default interface LogSearchResult {
     Error: string | null;
@@ -14,8 +15,8 @@ export default interface LogSearchResult {
     Items: Array<LogEntrySearchResultItem>;
     ColumnNames: Array<string>;
     
-    Dates: Array<Date>;
     HighestDate: Date | null;
     LowestDate: Date | null;
-    AllDatesIncluded: boolean;
+    Statistics: Array<LogSearchStatisticsResult>;
+    StatisticsIsComplete: boolean;
 }

@@ -1,3 +1,4 @@
+using HealthCheck.Core.Entities;
 using System;
 using System.Collections.Generic;
 
@@ -15,7 +16,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
 
         public DateTime? LowestDate { get; set; }
         public DateTime? HighestDate { get; set; }
-        public List<DateTime> Dates { get; set; } = new List<DateTime>();
-        public bool AllDatesIncluded => Dates.Count == TotalMatchCount;
+        public List<LogSearchStatisticsResult> Statistics { get; set; } = new List<LogSearchStatisticsResult>();
+        public bool StatisticsIsComplete => Statistics.Count == TotalMatchCount;
     }
 }

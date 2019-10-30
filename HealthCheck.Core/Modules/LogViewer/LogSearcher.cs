@@ -1,3 +1,4 @@
+using HealthCheck.Core.Entities;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.LogViewer.Enums;
 using HealthCheck.Core.Modules.LogViewer.Models;
@@ -26,8 +27,8 @@ namespace HealthCheck.Core.Modules.LogViewer
             public int TotalMatchCount { get; set; }
             public DateTime? LowestDate { get; set; }
             public DateTime? HighestDate { get; set; }
-            public List<DateTime> Dates { get; set; } = new List<DateTime>();
-            public bool AllDatesIncluded => Dates.Count == TotalMatchCount;
+            public List<LogSearchStatisticsResult> Statistics { get; set; } = new List<LogSearchStatisticsResult>();
+            public bool StatisticsIsComplete => Statistics.Count == TotalMatchCount;
         }
         public InternalLogSearchResult SearchEntries(LogSearchFilter filter, CancellationToken cancellationToken, out int totalMatchCount)
         {
@@ -49,7 +50,14 @@ namespace HealthCheck.Core.Modules.LogViewer
             entries = ProcessQueryFilter(entries, filter.ExcludedQuery, filter.ExcludedQueryMode, negate: true);
 
             var matchingEntries = entries.ToList();
-            var dates = matchingEntries.Select(x => x.Timestamp).Take(filter.MaxDateCount).ToList();
+            var statistics = matchingEntries
+                .Take(filter.MaxStatisticsCount)
+                .Select(x => new LogSearchStatisticsResult
+                {
+                    Timestamp = x.Timestamp,
+                    Severity = ParseEntrySeverity(x.Raw)
+                })
+                .ToList();
 
             if (filter.MarginMilliseconds > 0)
             {
@@ -70,13 +78,14 @@ namespace HealthCheck.Core.Modules.LogViewer
                 HighestDate = highestDate,
                 LowestDate = lowestDate,
                 TotalMatchCount = totalMatchCount,
-                Dates = dates,
+                Statistics = statistics,
                 MatchingEntries = matchingEntries
                     .Skip(filter.Skip)
                     .Take(filter.Take)
                     .ToList()
             };
         }
+
 
         private List<LogEntry> IncludeNeighbourEntries(List<LogEntry> matches, IEnumerable<LogEntry> allEntries, int marginMilliseconds)
         {
@@ -119,6 +128,35 @@ namespace HealthCheck.Core.Modules.LogViewer
             }
 
             return dateRanges;
+        }
+
+        private static readonly Regex[] EntryErrorNeedles = new[]
+        {
+            new Regex(@"exception", RegexOptions.IgnoreCase),
+            new Regex(@"error", RegexOptions.IgnoreCase),
+            new Regex(@"\serr\s", RegexOptions.IgnoreCase),
+            new Regex(@"critical", RegexOptions.IgnoreCase),
+            new Regex(@"fatal", RegexOptions.IgnoreCase)
+        };
+        private static readonly Regex[] EntryWarningNeedles = new[]
+        {
+            new Regex(@"warning", RegexOptions.IgnoreCase),
+            new Regex(@"\swarn\s", RegexOptions.IgnoreCase)
+        };
+        public static LogEntrySeverity ParseEntrySeverity(string rawEntry)
+        {
+            var normalizedContent = rawEntry.ToLower().Replace("\t", " ");
+
+            if (EntryErrorNeedles.Any(x => x.IsMatch(normalizedContent)))
+            {
+                return LogEntrySeverity.Error;
+            }
+            else if (EntryWarningNeedles.Any(x => x.IsMatch(normalizedContent)))
+            {
+                return LogEntrySeverity.Warning;
+            }
+
+            return LogEntrySeverity.Info;
         }
 
         private List<LogFileGroup> FindLogs()

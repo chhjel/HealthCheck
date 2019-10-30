@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Entities;
+using HealthCheck.Core.Modules.LogViewer;
+using HealthCheck.Core.Modules.LogViewer.Models;
+using HealthCheck.Core.Services.Models;
+using HealthCheck.Core.Util;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Entities;
-using HealthCheck.Core.Modules.LogViewer;
-using HealthCheck.Core.Modules.LogViewer.Enums;
-using HealthCheck.Core.Modules.LogViewer.Models;
-using HealthCheck.Core.Services.Models;
-using HealthCheck.Core.Util;
 using static HealthCheck.Core.Modules.LogViewer.LogSearcher;
 
 namespace HealthCheck.Core.Services
@@ -59,7 +57,7 @@ namespace HealthCheck.Core.Services
                 PageCount = pageCount,
                 CurrentPage = page,
                 WasCancelled = internalResult.WasCancelled,
-                Dates = internalResult.Dates,
+                Statistics = internalResult.Statistics,
                 HighestDate = internalResult.HighestDate,
                 LowestDate = internalResult.LowestDate,
                 Items = internalResult.MatchingEntries.Select(x => new LogEntrySearchResultItem()
@@ -70,40 +68,11 @@ namespace HealthCheck.Core.Services
                     IsMargin = x.IsMargin,
                     Raw = x.Raw,
                     Timestamp = x.Timestamp,
-                    Severity = ParseEntrySeverity(x)
+                    Severity = ParseEntrySeverity(x.Raw)
                 }).ToList()
             };
         }
-
-        private readonly Regex[] EntryErrorNeedles = new []
-        {
-            new Regex(@"exception", RegexOptions.IgnoreCase),
-            new Regex(@"error", RegexOptions.IgnoreCase),
-            new Regex(@"\serr\s", RegexOptions.IgnoreCase),
-            new Regex(@"critical", RegexOptions.IgnoreCase),
-            new Regex(@"fatal", RegexOptions.IgnoreCase)
-        };
-        private readonly Regex[] EntryWarningNeedles = new[]
-        {
-            new Regex(@"warning", RegexOptions.IgnoreCase),
-            new Regex(@"\swarn\s", RegexOptions.IgnoreCase)
-        };
-        private LogEntrySeverity ParseEntrySeverity(LogEntry entry)
-        {
-            var normalizedContent = entry.Raw.ToLower().Replace("\t", " ");
-            
-            if (EntryErrorNeedles.Any(x => x.IsMatch(normalizedContent)))
-            {
-                return LogEntrySeverity.Error;
-            }
-            else if (EntryWarningNeedles.Any(x => x.IsMatch(normalizedContent)))
-            {
-                return LogEntrySeverity.Warning;
-            }
-
-            return LogEntrySeverity.Info;
-        }
-
+        
         private LogEntrySearchResult SearchInternal(LogSearchFilter filter, CancellationToken cancellationToken)
         {
             var columnRegex = string.IsNullOrWhiteSpace(filter.ColumnRegexPattern)
@@ -152,7 +121,7 @@ namespace HealthCheck.Core.Services
             {
                 ColumnNames = columnNames,
                 MatchingEntries = internalSearchResult.MatchingEntries,
-                Dates = internalSearchResult.Dates,
+                Statistics = internalSearchResult.Statistics,
                 HighestDate = internalSearchResult.HighestDate,
                 LowestDate = internalSearchResult.LowestDate,
                 TotalMatchCount = totalMatchCount,

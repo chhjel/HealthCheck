@@ -12,14 +12,17 @@ import LogEntrySearchResultItem from '../../models/LogViewer/LogEntrySearchResul
 import { FilterDelimiterMode } from '../../models/LogViewer/FilterDelimiterMode';
 import DateUtils from "../../util/DateUtils";
 import { Chart, LinearTickOptions, ChartPoint } from 'chart.js';
+import { LogEntrySeverity } from "../../models/LogViewer/LogEntrySeverity";
 
 export interface ChartEntry {
     date: Date;
     label: string;
+    severity: LogEntrySeverity;
 }
 interface ChartDataPoint extends Chart.ChartPoint {
     pointTitle: string | null;
     pointLabel: string | null;
+    severity: LogEntrySeverity;
 }
 
 @Component({
@@ -53,10 +56,10 @@ export default class ItemPerDateChartComponent extends Vue {
         const max = dates.reduce((a, b) => { return a > b ? a : b; });
         return max.getTime() - min.getTime();
     }
-    createDateItems(): Array<ChartDataPoint> {
+    createDateItems(severity: LogEntrySeverity | null): Array<ChartDataPoint> {
         const dateRange = this.getDateRange();
         const groupedEntries = LinqUtils.GroupByInto(
-            this.entries,
+            this.entries.filter(x => severity === null || x.severity === severity),
             (entry) => this.getGroupedEntryKey(entry, dateRange),
             (key, items) => {
                 const date = items[0].date;
@@ -66,7 +69,8 @@ export default class ItemPerDateChartComponent extends Vue {
                     pointTitle: this.getPointTitle(date, dateRange),
                     pointLabel: `${count} ${entryWord}`,
                     x: date,
-                    y: count
+                    y: count,
+                    severity: items[0].severity
                 };
             });
 
@@ -117,13 +121,18 @@ export default class ItemPerDateChartComponent extends Vue {
 
     initChart(): void
     {
-        this.chartPoints = this.createDateItems();
+        // const errors = this.createDateItems(LogEntrySeverity.Error);
+        // const warnings = this.createDateItems(LogEntrySeverity.Warning);
+        // const infos = this.createDateItems(LogEntrySeverity.Info);
+        // this.chartPoints = errors.concat(warnings).concat(infos);
+        this.chartPoints = this.createDateItems(null);
+
 		var color = Chart.helpers.color;
 		var config: Chart.ChartConfiguration = {
 			type: 'bar',
 			data: {
 				datasets: [
-                    {
+                     {
                         pointHitRadius: 20,
                         label: this.getSeriesTitle(),
                         backgroundColor: color('#FF0000').alpha(0.5).rgbString(),
@@ -131,6 +140,30 @@ export default class ItemPerDateChartComponent extends Vue {
                         fill: true,
                         data: this.chartPoints
                     }
+                    // {
+                    //     pointHitRadius: 20,
+                    //     label: `${errors.length} errors`, //this.getSeriesTitle(),
+                    //     backgroundColor: color('#FF0000').alpha(0.5).rgbString(),
+                    //     borderColor: color('#FF0000'),
+                    //     fill: true,
+                    //     data: errors
+                    // },
+                    // {
+                    //     pointHitRadius: 20,
+                    //     label: `${warnings.length} warnings`, //this.getSeriesTitle(),
+                    //     backgroundColor: color('#ffb945').alpha(0.5).rgbString(),
+                    //     borderColor: color('#ffb945'),
+                    //     fill: true,
+                    //     data: this.chartPoints //warnings
+                    // },
+                    // {
+                    //     pointHitRadius: 20,
+                    //     label: `${infos.length} other`, //this.getSeriesTitle(),
+                    //     backgroundColor: color('#0000FF').alpha(0.5).rgbString(),
+                    //     borderColor: color('#0000FF'),
+                    //     fill: true,
+                    //     data: this.chartPoints //infos
+                    // }
                 ]
 			},
 			options: {
@@ -147,10 +180,12 @@ export default class ItemPerDateChartComponent extends Vue {
                 tooltips: {
                     callbacks: {
                         title: (tooltipItem:any, data:any) => {
+                            // console.log("title", data);
                             const index = <number>tooltipItem[0].index;
                             return this.chartPoints[index].pointTitle || "";
                         },
                         label: (tooltipItem:any, data:any) => {
+                            // console.log("label", data);
                             const index = <number>tooltipItem.index;
                             return this.chartPoints[index].pointLabel || "";
                         }
@@ -160,6 +195,7 @@ export default class ItemPerDateChartComponent extends Vue {
 					xAxes: [{
 						type: 'time',
 						display: true,
+                        // stacked: true,
 						scaleLabel: {
 							display: true,
 							labelString: 'Time'
@@ -181,6 +217,7 @@ export default class ItemPerDateChartComponent extends Vue {
 					}],
 					yAxes: [{
 						display: true,
+                        // stacked: true,
 						scaleLabel: {
 							display: true,
 							labelString: 'Matches'
@@ -201,9 +238,17 @@ export default class ItemPerDateChartComponent extends Vue {
     }
 
     updateChart(): void {
-        this.chartPoints = this.createDateItems();
+        // const errors = this.createDateItems(LogEntrySeverity.Error);
+        // const warnings = this.createDateItems(LogEntrySeverity.Warning);
+        // const infos = this.createDateItems(LogEntrySeverity.Info);
+        // this.chartPoints = errors.concat(warnings).concat(infos);
+        this.chartPoints = this.createDateItems(null);
+
         const datasets = this.chart.data.datasets;
         if (datasets != undefined) {
+            // datasets[0].data = errors;
+            // datasets[1].data = warnings;
+            // datasets[2].data = infos;
             datasets[0].data = this.chartPoints;
             datasets[0].label = this.getSeriesTitle();
         }
