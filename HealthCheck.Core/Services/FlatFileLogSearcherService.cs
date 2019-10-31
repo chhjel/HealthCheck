@@ -53,7 +53,7 @@ namespace HealthCheck.Core.Services
             var parsedLogPathQuery = QueryParser.ParseQuery(filter.LogPathQuery, filter.LogPathQueryIsRegex);
             var parsedExcludedLogPathQuery = QueryParser.ParseQuery(filter.ExcludedLogPathQuery, filter.ExcludedLogPathQueryIsRegex);
 
-            static LogEntrySearchResultItem entryViewModelFactory(LogEntry entry)
+            LogEntrySearchResultItem entryViewModelFactory(LogEntry entry)
             {
                 return new LogEntrySearchResultItem()
                 {
