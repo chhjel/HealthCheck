@@ -5,6 +5,7 @@ using HealthCheck.Core.Modules.LogViewer.Models;
 using HealthCheck.Core.Services.Models;
 using HealthCheck.Core.Util;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -52,6 +53,20 @@ namespace HealthCheck.Core.Services
             var parsedLogPathQuery = QueryParser.ParseQuery(filter.LogPathQuery, filter.LogPathQueryIsRegex);
             var parsedExcludedLogPathQuery = QueryParser.ParseQuery(filter.ExcludedLogPathQuery, filter.ExcludedLogPathQueryIsRegex);
 
+            static LogEntrySearchResultItem entryViewModelFactory(LogEntry entry)
+            {
+                return new LogEntrySearchResultItem()
+                {
+                    ColumnValues = entry.ColumnValues,
+                    FilePath = entry.FilePath,
+                    LineNumber = entry.LineNumber,
+                    IsMargin = entry.IsMargin,
+                    Raw = entry.Raw,
+                    Timestamp = entry.Timestamp,
+                    Severity = ParseEntrySeverity(entry.Raw)
+                };
+            };
+
             return new LogSearchResult()
             {
                 DurationInMilliseconds = duration,
@@ -65,16 +80,13 @@ namespace HealthCheck.Core.Services
                 Statistics = internalResult.Statistics,
                 HighestDate = internalResult.HighestDate,
                 LowestDate = internalResult.LowestDate,
-                Items = internalResult.MatchingEntries.Select(x => new LogEntrySearchResultItem()
-                {
-                    ColumnValues = x.ColumnValues,
-                    FilePath = x.FilePath,
-                    LineNumber = x.LineNumber,
-                    IsMargin = x.IsMargin,
-                    Raw = x.Raw,
-                    Timestamp = x.Timestamp,
-                    Severity = ParseEntrySeverity(x.Raw)
-                }).ToList(),
+                Items = internalResult.MatchingEntries.Select(x => entryViewModelFactory(x)).ToList(),
+                GroupedEntries = internalResult.GroupedEntries.Select(x => 
+                    new KeyValuePair<string, List<LogEntrySearchResultItem>>(
+                        x.Key,
+                        x.Value.Select(e => entryViewModelFactory(e)).ToList()
+                    )
+                ).ToDictionary(x => x.Key, x => x.Value),
                 ParsedQuery = parsedQuery,
                 ParsedExcludedQuery = parsedExcludedQuery,
                 ParsedLogPathQuery = parsedLogPathQuery,
@@ -130,6 +142,7 @@ namespace HealthCheck.Core.Services
             {
                 ColumnNames = columnNames,
                 MatchingEntries = internalSearchResult.MatchingEntries,
+                GroupedEntries = internalSearchResult.GroupedEntries,
                 Statistics = internalSearchResult.Statistics,
                 HighestDate = internalSearchResult.HighestDate,
                 LowestDate = internalSearchResult.LowestDate,

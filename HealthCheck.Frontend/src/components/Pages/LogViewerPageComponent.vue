@@ -262,6 +262,23 @@
                         </v-card>
                     </v-expansion-panel-content>
                 </v-expansion-panel>
+
+                <!-- GROUPED ENTRIES //todo -->
+                <v-expansion-panel popout v-if="Object.keys(searchResultData.GroupedEntries).length > 0" class="mb-4">
+                    <v-expansion-panel-content>
+                        <template v-slot:header>
+                            <div>Grouped entries (work in progress)</div>
+                        </template>
+                        <v-card>
+                            <ul class="ma-4">
+                                <li v-for="(groupKey, index) in Object.keys(searchResultData.GroupedEntries)"
+                                    :key="`grouped-entries-${index}`">
+                                    {{ groupKey }}: {{ searchResultData.GroupedEntries[groupKey].length }}
+                                </li>
+                            </ul>
+                        </v-card>
+                    </v-expansion-panel-content>
+                </v-expansion-panel>
             </v-container>
 
             <!-- PAGINATION -->
@@ -679,6 +696,7 @@ export default class LogViewerPageComponent extends Vue {
             ParsedLogPathQuery: { MustContain: [], MustContainOneOf: [], IsRegex: false, RegexPattern: '' },
             ParsedExcludedQuery: { MustContain: [], MustContainOneOf: [], IsRegex: false, RegexPattern: '' },
             ParsedExcludedLogPathQuery: { MustContain: [], MustContainOneOf: [], IsRegex: false, RegexPattern: '' },
+            GroupedEntries: []
         };
     } 
 

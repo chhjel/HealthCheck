@@ -36,6 +36,11 @@ namespace HealthCheck.Core.Entities
         public List<LogEntrySearchResultItem> Items { get; set; } = new List<LogEntrySearchResultItem>();
 
         /// <summary>
+        /// Grouped results.
+        /// </summary>
+        public Dictionary<string, List<LogEntrySearchResultItem>> GroupedEntries = new Dictionary<string, List<LogEntrySearchResultItem>>();
+
+        /// <summary>
         /// Result column names.
         /// </summary>
         public List<string> ColumnNames { get; set; } = new List<string>();

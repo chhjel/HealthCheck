@@ -25,6 +25,7 @@ namespace HealthCheck.Core.Modules.LogViewer
         public class InternalLogSearchResult
         {
             public List<LogEntry> MatchingEntries { get; set; } = new List<LogEntry>();
+            public Dictionary<string, List<LogEntry>> GroupedEntries { get; set; } = new Dictionary<string, List<LogEntry>>();
             public int TotalMatchCount { get; set; }
             public DateTime? LowestDate { get; set; }
             public DateTime? HighestDate { get; set; }
@@ -82,6 +83,14 @@ namespace HealthCheck.Core.Modules.LogViewer
             var highestDate = filter.OrderDescending ? firstDate : lastDate;
             var lowestDate = filter.OrderDescending ? lastDate : firstDate;
 
+            Dictionary<string, List<LogEntry>> groupedEntries = new Dictionary<string, List<LogEntry>>();
+            if (parsedQuery.IsRegex && parsedQuery.RegexPattern.Contains("(?<GroupBy>"))
+            {
+                groupedEntries = matchingEntries
+                    .GroupBy(x => parsedQuery.Regex.Match(x.Raw).Groups["GroupBy"].Value)
+                    .ToDictionary(x => x.Key, x => x.ToList());
+            }
+
             return new InternalLogSearchResult
             {
                 HighestDate = highestDate,
@@ -91,7 +100,8 @@ namespace HealthCheck.Core.Modules.LogViewer
                 MatchingEntries = matchingEntries
                     .Skip(filter.Skip)
                     .Take(filter.Take)
-                    .ToList()
+                    .ToList(),
+                GroupedEntries = groupedEntries
             };
         }
 

@@ -1,6 +1,7 @@
 import LogEntrySearchResultItem from "./LogEntrySearchResultItem";
 import LogSearchStatisticsResult from "./LogSearchStatisticsResult";
 import ParsedQuery from "./ParsedQuery";
+import KeyValuePair from "../Common/KeyValuePair";
 
 export default interface LogSearchResult {
     Error: string | null;
@@ -14,6 +15,7 @@ export default interface LogSearchResult {
     CurrentPage: number;
 
     Items: Array<LogEntrySearchResultItem>;
+    GroupedEntries: Array<KeyValuePair<string, Array<LogEntrySearchResultItem>>>;
     ColumnNames: Array<string>;
     
     HighestDate: Date | null;

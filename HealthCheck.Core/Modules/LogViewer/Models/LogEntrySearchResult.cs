@@ -8,6 +8,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
     {
         public List<string> ColumnNames { get; set; }
         public List<LogEntry> MatchingEntries { get; set; }
+        public Dictionary<string, List<LogEntry>> GroupedEntries = new Dictionary<string, List<LogEntry>>();
         public int TotalMatchCount { get; set; }
         public bool WasCancelled { get; set; }
 
