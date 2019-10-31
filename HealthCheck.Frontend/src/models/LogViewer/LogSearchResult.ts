@@ -1,5 +1,6 @@
 import LogEntrySearchResultItem from "./LogEntrySearchResultItem";
 import LogSearchStatisticsResult from "./LogSearchStatisticsResult";
+import ParsedQuery from "./ParsedQuery";
 
 export default interface LogSearchResult {
     Error: string | null;
@@ -19,4 +20,9 @@ export default interface LogSearchResult {
     LowestDate: Date | null;
     Statistics: Array<LogSearchStatisticsResult>;
     StatisticsIsComplete: boolean;
+
+    ParsedQuery: ParsedQuery;
+    ParsedExcludedQuery: ParsedQuery;
+    ParsedLogPathQuery: ParsedQuery;
+    ParsedExcludedLogPathQuery: ParsedQuery;
 }

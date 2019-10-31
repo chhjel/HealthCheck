@@ -30,7 +30,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
 
         public IEnumerable<LogEntry> GetEntriesEnumerable(ILogEntryParser entryParser,
             DateTime? fromDate = null, DateTime? toDate = null,
-            Func<string, LogSearchFilter, bool> allowFilePath = null, LogSearchFilter searchFilter = null
+            Func<string, bool> allowFilePath = null
         )
         {
             DateTime? lastWriteLowThreshold = (fromDate == null) ? null : fromDate - TimeSpan.FromDays(1);
@@ -38,7 +38,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
 
             return Files
                 .Where(x =>
-                    allowFilePath(x.FilePath, searchFilter)
+                    allowFilePath(x.FilePath)
                     && (lastWriteLowThreshold == null || x.LastWriteTime >= lastWriteLowThreshold)
                     && (lastWriteHighThreshold == null || x.LastWriteTime <= lastWriteHighThreshold)
                     && (toDate == null || toDate >= x.FirstEntryTime)

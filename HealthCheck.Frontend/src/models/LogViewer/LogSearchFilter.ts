@@ -1,5 +1,3 @@
-import { FilterQueryMode } from "./FilterQueryMode";
-
 export default interface LogSearchFilter {
     SearchId: string;
     Skip: number;
@@ -7,13 +5,13 @@ export default interface LogSearchFilter {
     FromDate: Date | null;
     ToDate: Date | null;
     Query: string;
-    QueryMode: FilterQueryMode;
+    QueryIsRegex: boolean;
     ExcludedQuery: string;
-    ExcludedQueryMode: FilterQueryMode;
+    ExcludedQueryIsRegex: boolean;
     LogPathQuery: string;
-    LogPathQueryMode: FilterQueryMode;
+    LogPathQueryIsRegex: boolean;
     ExcludedLogPathQuery: string;
-    ExcludedLogPathQueryMode: FilterQueryMode;
+    ExcludedLogPathQueryIsRegex: boolean;
     ColumnRegexPattern: string;
     ColumnDelimiter: string;
     OrderDescending: boolean;

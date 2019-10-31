@@ -5,6 +5,7 @@ import Vuetify from 'vuetify'
 
 // Extensions
 import './util/extensions/StringExtensions';
+import './util/extensions/ArrayExtensions';
 
 Vue.use(Vuetify, {
     iconfont: 'fa',

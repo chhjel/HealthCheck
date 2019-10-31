@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Util.Models;
 using System;
 using System.Collections.Generic;
 
@@ -78,5 +79,25 @@ namespace HealthCheck.Core.Entities
         /// True if <see cref="Statistics"/> contains all the dates and not just the 5000 first.
         /// </summary>
         public bool StatisticsIsComplete => Statistics.Count == TotalCount;
+
+        /// <summary>
+        /// Parsed query.
+        /// </summary>
+        public ParsedQuery ParsedQuery { get; set; } = new ParsedQuery();
+
+        /// <summary>
+        /// Parsed excluded query.
+        /// </summary>
+        public ParsedQuery ParsedExcludedQuery { get; set; } = new ParsedQuery();
+
+        /// <summary>
+        /// Parsed log path query.
+        /// </summary>
+        public ParsedQuery ParsedLogPathQuery { get; set; } = new ParsedQuery();
+
+        /// <summary>
+        /// Parsed excluded log path query.
+        /// </summary>
+        public ParsedQuery ParsedExcludedLogPathQuery { get; set; } = new ParsedQuery();
     }
 }

@@ -1,5 +1,4 @@
 using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Modules.LogViewer.Enums;
 using System;
 
 namespace HealthCheck.Core.Modules.LogViewer.Models
@@ -40,9 +39,9 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
         public string Query { get; set; }
 
         /// <summary>
-        /// Filter mode for <see cref="Query"/>.
+        /// If true then <see cref="Query"/> will be treated as RegExp.
         /// </summary>
-        public FilterQueryMode QueryMode { get; set; } = FilterQueryMode.Exact;
+        public bool QueryIsRegex { get; set; }
 
         /// <summary>
         /// Value that should not be included in the logs content.
@@ -50,9 +49,9 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
         public string ExcludedQuery { get; set; }
 
         /// <summary>
-        /// Filter mode for <see cref="ExcludedQuery"/>.
+        /// If true then <see cref="ExcludedQuery"/> will be treated as RegExp.
         /// </summary>
-        public FilterQueryMode ExcludedQueryMode { get; set; } = FilterQueryMode.Exact;
+        public bool ExcludedQueryIsRegex { get; set; }
 
         /// <summary>
         /// Value that should be included in the logs filepath or name.
@@ -60,9 +59,9 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
         public string LogPathQuery { get; set; }
 
         /// <summary>
-        /// Filter mode for <see cref="LogPathQuery"/>.
+        /// If true then <see cref="LogPathQuery"/> will be treated as RegExp.
         /// </summary>
-        public FilterQueryMode LogPathQueryMode { get; set; } = FilterQueryMode.Exact;
+        public bool LogPathQueryIsRegex { get; set; }
 
         /// <summary>
         /// Value that should not be included in the logs filepath or name.
@@ -70,9 +69,9 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
         public string ExcludedLogPathQuery { get; set; }
 
         /// <summary>
-        /// Filter mode for <see cref="ExcludedLogPathQuery"/>.
+        /// If true then <see cref="ExcludedLogPathQuery"/> will be treated as RegExp.
         /// </summary>
-        public FilterQueryMode ExcludedLogPathQueryMode { get; set; } = FilterQueryMode.Exact;
+        public bool ExcludedLogPathQueryIsRegex { get; set; }
 
         /// <summary>
         /// Optional regex pattern that columns should be created from.

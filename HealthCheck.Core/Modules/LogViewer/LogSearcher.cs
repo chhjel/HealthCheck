@@ -2,6 +2,7 @@ using HealthCheck.Core.Entities;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.LogViewer.Enums;
 using HealthCheck.Core.Modules.LogViewer.Models;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -32,10 +33,18 @@ namespace HealthCheck.Core.Modules.LogViewer
         }
         public InternalLogSearchResult SearchEntries(LogSearchFilter filter, CancellationToken cancellationToken, out int totalMatchCount)
         {
+            var parsedQuery = QueryParser.ParseQuery(filter.Query, filter.QueryIsRegex);
+            var parsedExcludedQuery = QueryParser.ParseQuery(filter.ExcludedQuery, filter.ExcludedQueryIsRegex);
+            var parsedLogPathQuery = QueryParser.ParseQuery(filter.LogPathQuery, filter.LogPathQueryIsRegex);
+            var parsedExcludedLogPathQuery = QueryParser.ParseQuery(filter.ExcludedLogPathQuery, filter.ExcludedLogPathQueryIsRegex);
+
             var logs = FindLogs();
             var entriesWithinDateThreshold = logs
                 .WithCancellation(cancellationToken)
-                .SelectMany(x => x.GetEntriesEnumerable(Options.EntryParser, filter.FromDate, filter.ToDate, AllowLogFile, filter))
+                .SelectMany(x => x.GetEntriesEnumerable(Options.EntryParser, filter.FromDate, filter.ToDate,
+                    allowFilePath: (path) =>
+                        parsedLogPathQuery.AllowItem(path, negate: false) && parsedExcludedLogPathQuery.AllowItem(path, negate: true)
+                ))
                 .Where(x =>
                     (filter.FromDate == null || x.Timestamp >= filter.FromDate)
                      && (filter.ToDate == null || x.Timestamp <= filter.ToDate)
@@ -46,8 +55,10 @@ namespace HealthCheck.Core.Modules.LogViewer
                 .Select(x => Options.EntryParser.ParseDetails(x))
                 .AsEnumerable();
 
-            entries = ProcessQueryFilter(entries, filter.Query, filter.QueryMode, negate: false);
-            entries = ProcessQueryFilter(entries, filter.ExcludedQuery, filter.ExcludedQueryMode, negate: true);
+            entries = entries.Where(x => x.IsMargin || parsedQuery.AllowItem(x.Raw, negate: false));
+            entries = entries.Where(x => x.IsMargin || parsedExcludedQuery.AllowItem(x.Raw, negate: true));
+            //entries = ProcessQueryFilter(entries, filter.Query, filter.QueryMode, negate: false);
+            //entries = ProcessQueryFilter(entries, filter.ExcludedQuery, filter.ExcludedQueryMode, negate: true);
 
             var matchingEntries = entries.ToList();
             var statistics = matchingEntries
@@ -178,23 +189,6 @@ namespace HealthCheck.Core.Modules.LogViewer
                 .ToList();
         }
 
-        private bool AllowLogFile(string logFilePath, LogSearchFilter filter)
-        {
-            return AllowLogFilePath(logFilePath, filter.LogPathQuery, filter.LogPathQueryMode, negate: false)
-                && AllowLogFilePath(logFilePath, filter.ExcludedLogPathQuery, filter.ExcludedLogPathQueryMode, negate: true);
-        }
-
-        private bool AllowLogFilePath(string logFilePath, string query, FilterQueryMode mode, bool negate)
-        {
-            if (string.IsNullOrWhiteSpace(query))
-            {
-                return true;
-            }
-
-            Func<string, bool> queryPredicate = CreateQueryPredicate(query, mode, negate);
-            return (queryPredicate != null) ? queryPredicate(logFilePath) : true;
-        }
-
         private IEnumerable<LogEntry> ProcessQueryFilter(IEnumerable<LogEntry> entries, string query, FilterQueryMode mode, bool negate)
         {
             if (string.IsNullOrWhiteSpace(query))
@@ -249,19 +243,19 @@ namespace HealthCheck.Core.Modules.LogViewer
         }
     }
 
-#if DEBUG
-    // For LinqPad use :-)
-#pragma warning disable CS1591
-    public class LogSearcherExt
-    {
-        public object SearchEntries(string dir, LogSearchFilter filter, CancellationToken cancellationToken, out int totalMatchCount)
-        {
-            return new LogSearcher(new LogSearcherOptions(new LogEntryParser()).IncludeLogFilesInDirectory(dir))
-                .SearchEntries(filter, cancellationToken, out totalMatchCount)
-                .MatchingEntries.Select(x => new { File = x.FilePath, Line = x.LineNumber, Raw = x.Raw })
-                .ToList();
-        }
-    }
-#pragma warning restore CS1591
-#endif
+//#if DEBUG
+//    // For LinqPad use :-)
+//#pragma warning disable CS1591
+//    public class LogSearcherExt
+//    {
+//        public object SearchEntries(string dir, LogSearchFilter filter, CancellationToken cancellationToken, out int totalMatchCount)
+//        {
+//            return new LogSearcher(new LogSearcherOptions(new LogEntryParser()).IncludeLogFilesInDirectory(dir))
+//                .SearchEntries(filter, cancellationToken, out totalMatchCount)
+//                .MatchingEntries.Select(x => new { File = x.FilePath, Line = x.LineNumber, Raw = x.Raw })
+//                .ToList();
+//        }
+//    }
+//#pragma warning restore CS1591
+//#endif
 }

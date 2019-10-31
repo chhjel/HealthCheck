@@ -47,6 +47,11 @@ namespace HealthCheck.Core.Services
             var pageCount = internalResult.TotalMatchCount / filter.Take;
             if (internalResult.TotalMatchCount % filter.Take != 0) pageCount++;
 
+            var parsedQuery = QueryParser.ParseQuery(filter.Query, filter.QueryIsRegex);
+            var parsedExcludedQuery = QueryParser.ParseQuery(filter.ExcludedQuery, filter.ExcludedQueryIsRegex);
+            var parsedLogPathQuery = QueryParser.ParseQuery(filter.LogPathQuery, filter.LogPathQueryIsRegex);
+            var parsedExcludedLogPathQuery = QueryParser.ParseQuery(filter.ExcludedLogPathQuery, filter.ExcludedLogPathQueryIsRegex);
+
             return new LogSearchResult()
             {
                 DurationInMilliseconds = duration,
@@ -69,7 +74,11 @@ namespace HealthCheck.Core.Services
                     Raw = x.Raw,
                     Timestamp = x.Timestamp,
                     Severity = ParseEntrySeverity(x.Raw)
-                }).ToList()
+                }).ToList(),
+                ParsedQuery = parsedQuery,
+                ParsedExcludedQuery = parsedExcludedQuery,
+                ParsedLogPathQuery = parsedLogPathQuery,
+                ParsedExcludedLogPathQuery = parsedExcludedLogPathQuery
             };
         }
         

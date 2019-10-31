@@ -59,18 +59,18 @@
                         <v-layout row xs12>
                             <v-flex xs10 sm10>
                                 <v-text-field type="text" clearable
+                                    label="Content filter"
                                     v-model="filterQuery"
-                                    :label="getQueryLabel('Entry', filterQueryMode)"
                                     :disabled="logDataLoadInProgress"
+                                    :error-messages="searchResultData.ParsedQuery.ParseError"
                                 ></v-text-field>
                             </v-flex>
-                            <v-flex xs2 sm2>
-                                <v-select
-                                    v-model="filterQueryMode"
-                                    :items="queryModeOptions"
-                                    :disabled="logDataLoadInProgress"
-                                    item-text="text" item-value="value" color="secondary">
-                                </v-select>
+                            <v-flex xs2 sm2 class="pa-3">
+                                <v-checkbox
+                                    class="options-checkbox"
+                                    v-model="filterQueryIsRegex"
+                                    label="Regex"
+                                ></v-checkbox>
                             </v-flex>
                         </v-layout>
                     </v-flex>
@@ -80,18 +80,18 @@
                         <v-layout row xs12>
                             <v-flex xs10 sm10>
                                 <v-text-field type="text" clearable
+                                    label="Content exclusion filter"
                                     v-model="filterExcludedQuery"
-                                    :label="getQueryLabel('Entry', filterExcludedQueryMode, true)"
                                     :disabled="logDataLoadInProgress"
+                                    :error-messages="searchResultData.ParsedExcludedQuery.ParseError"
                                 ></v-text-field>
                             </v-flex>
-                            <v-flex xs2 sm2>
-                                <v-select
-                                    v-model="filterExcludedQueryMode"
-                                    :items="queryModeOptions"
-                                    :disabled="logDataLoadInProgress"
-                                    item-text="text" item-value="value" color="secondary">
-                                </v-select>
+                            <v-flex xs2 sm2 class="pa-3">
+                                <v-checkbox
+                                    class="options-checkbox"
+                                    v-model="filterExcludedQueryIsRegex"
+                                    label="Regex"
+                                ></v-checkbox>
                             </v-flex>
                         </v-layout>
                     </v-flex>
@@ -101,18 +101,18 @@
                         <v-layout row xs12>
                             <v-flex xs10 sm10>
                                 <v-text-field type="text" clearable
+                                    label="File path filter"
                                     v-model="filterLogPathQuery"
-                                    :label="getQueryLabel('File path', filterLogPathQueryMode)"
                                     :disabled="logDataLoadInProgress"
+                                    :error-messages="searchResultData.ParsedLogPathQuery.ParseError"
                                 ></v-text-field>
                             </v-flex>
-                            <v-flex xs2 sm2>
-                                <v-select
-                                    v-model="filterLogPathQueryMode"
-                                    :items="queryModeOptions"
-                                    :disabled="logDataLoadInProgress"
-                                    item-text="text" item-value="value" color="secondary">
-                                </v-select>
+                            <v-flex xs2 sm2 class="pa-3">
+                                <v-checkbox
+                                    class="options-checkbox"
+                                    v-model="filterLogPathQueryIsRegex"
+                                    label="Regex"
+                                ></v-checkbox>
                             </v-flex>
                         </v-layout>
                     </v-flex>
@@ -122,18 +122,18 @@
                         <v-layout row xs12>
                             <v-flex xs10 sm10>
                                 <v-text-field type="text" clearable
+                                    label="File path exclusion filter"
                                     v-model="filterExcludedLogPathQuery"
-                                    :label="getQueryLabel('File path', filterExcludedLogPathQueryMode, true)"
                                     :disabled="logDataLoadInProgress"
+                                    :error-messages="searchResultData.ParsedExcludedLogPathQuery.ParseError"
                                 ></v-text-field>
                             </v-flex>
-                            <v-flex xs2 sm2>
-                                <v-select
-                                    v-model="filterExcludedLogPathQueryMode"
-                                    :items="queryModeOptions"
-                                    :disabled="logDataLoadInProgress"
-                                    item-text="text" item-value="value" color="secondary">
-                                </v-select>
+                            <v-flex xs2 sm2 class="pa-3">
+                                <v-checkbox
+                                    class="options-checkbox"
+                                    v-model="filterExcludedLogPathQueryIsRegex"
+                                    label="Regex"
+                                ></v-checkbox>
                             </v-flex>
                         </v-layout>
                     </v-flex>
@@ -177,7 +177,7 @@
                             <v-btn depressed small class="extra-filter-btn"
                                 @click="showLogPathQuery = true">
                                 <v-icon >add</v-icon>
-                                Limit log filepaths
+                                Filter log filepaths
                             </v-btn>
                         </v-flex>
                         <v-flex xs6 sm4 lg2 v-if="!showExcludedLogPathQuery">
@@ -294,6 +294,23 @@
                     :disabled="logDataLoadInProgress"></v-pagination>
             </div>
 
+            <!-- PARSED QUERY -->
+            <v-expansion-panel popout v-if="describedQuery.length > 0" class="mb-4">
+                <v-expansion-panel-content>
+                    <template v-slot:header>
+                        <div>Parsed query</div>
+                    </template>
+                    <v-card>
+                        <ul class="ma-4">
+                            <li v-for="(description, index) in describedQuery"
+                                :key="`filter-description-${index}`">
+                                {{ description }}
+                            </li>
+                        </ul>
+                    </v-card>
+                </v-expansion-panel-content>
+            </v-expansion-panel>
+
           <!-- CONTENT END -->
         </v-flex>
         </v-layout>
@@ -317,6 +334,7 @@ import { FilterQueryMode } from '../../models/LogViewer/FilterQueryMode';
 import { FilterDelimiterMode } from '../../models/LogViewer/FilterDelimiterMode';
 import { ChartEntry } from '../LogViewer/ItemPerDateChartComponent.vue';
 import * as XRegExp from 'xregexp';
+import ParsedQuery from "../../models/LogViewer/ParsedQuery";
 
 interface DatePickerPreset {
     name: string;
@@ -346,13 +364,13 @@ export default class LogViewerPageComponent extends Vue {
     filterTake: number = 50;
     filterMargin: number = 0;
     filterQuery: string = "";
-    filterQueryMode: FilterQueryMode = FilterQueryMode.Exact;
+    filterQueryIsRegex: boolean = false;
     filterExcludedQuery: string = "";
-    filterExcludedQueryMode: FilterQueryMode = FilterQueryMode.Exact;
+    filterExcludedQueryIsRegex: boolean = false;
     filterLogPathQuery: string = "";
-    filterLogPathQueryMode: FilterQueryMode = FilterQueryMode.Exact;
+    filterLogPathQueryIsRegex: boolean = false;
     filterExcludedLogPathQuery: string = "";
-    filterExcludedLogPathQueryMode: FilterQueryMode = FilterQueryMode.Exact;
+    filterExcludedLogPathQueryIsRegex: boolean = false;
 
     customColumnMode: FilterDelimiterMode = FilterDelimiterMode.Regex;
     customColumnRule: string = "";
@@ -380,6 +398,52 @@ export default class LogViewerPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get describedQuery(): Array<string>
+    {
+        let parts: Array<Array<string>> = [
+            this.describeParsedQuery('Result', this.searchResultData.ParsedQuery, false),
+            this.describeParsedQuery('Result', this.searchResultData.ParsedExcludedQuery, true),
+            this.describeParsedQuery('Log path', this.searchResultData.ParsedLogPathQuery, false),
+            this.describeParsedQuery('Log path', this.searchResultData.ParsedExcludedLogPathQuery, true)
+        ];
+
+        return <any>parts
+            .reduce((a, b) => [ ...a, ...b ], []);;
+    }
+
+    describeParsedQuery(name: string, query: ParsedQuery, negate: boolean): Array<string>
+    {
+        if (query.MustContain.length == 0 && query.MustContainOneOf.length == 0 && !query.IsRegex) {
+            return [];
+        }
+
+        let parts = new Array<string>();
+        let prefix = `${name} must `;
+        if (negate) {
+            prefix = `${prefix}not `;
+        }
+
+        if (query.MustContain.length > 0) {
+            let needles = "'" + query.MustContain.joinForSentence("', '", "and") + "'";
+            parts.push(`${prefix}contain ${needles}.`);
+        }
+
+        if (query.MustContainOneOf.length > 0) {
+            let needles = "['" + query.MustContainOneOf.join("'], ['") + "']";
+            if (query.MustContainOneOf.length == 1) {
+                parts.push(`${prefix}contain at least one of ${needles}.`);
+            } else {
+                parts.push(`${prefix}contain at least one item from each of ${needles}.`);
+            }
+        }
+
+        if (query.IsRegex) {
+            parts.push(`${prefix}match the regex '${query.RegexPattern}'.`);
+        }
+        
+        return parts;
+    }
+
     get datePickerPresets(): Array<DatePickerPreset> {
         const endOfToday = new Date();
         endOfToday.setHours(23);
@@ -522,10 +586,10 @@ export default class LogViewerPageComponent extends Vue {
         this.filterExcludedQuery = "";
         this.filterLogPathQuery = "";
         this.filterExcludedLogPathQuery = "";
-        this.filterQueryMode = FilterQueryMode.Exact;
-        this.filterExcludedQueryMode = FilterQueryMode.Exact;
-        this.filterLogPathQueryMode = FilterQueryMode.Exact;
-        this.filterExcludedLogPathQueryMode = FilterQueryMode.Exact;
+        this.filterQueryIsRegex = false;
+        this.filterExcludedQueryIsRegex = false;
+        this.filterLogPathQueryIsRegex = false;
+        this.filterExcludedLogPathQueryIsRegex = false;
         this.customColumnRule = (this.options.ApplyCustomColumnRuleByDefault)
             ? this.options.DefaultColumnRule : '';
         this.customColumnMode = (this.options.DefaultColumnModeIsRegex == true) 
@@ -628,7 +692,11 @@ export default class LogViewerPageComponent extends Vue {
         return { 
             TotalCount: 0, Count: 0, Items: [], ColumnNames: [], DurationInMilliseconds: 0, 
             WasCancelled: false, Error: null, HasError: false, Statistics: [], HighestDate: null, LowestDate: null,
-            StatisticsIsComplete: true, PageCount: 0, CurrentPage: 1
+            StatisticsIsComplete: true, PageCount: 0, CurrentPage: 1,
+            ParsedQuery: { MustContain: [], MustContainOneOf: [], IsRegex: false, RegexPattern: '' },
+            ParsedLogPathQuery: { MustContain: [], MustContainOneOf: [], IsRegex: false, RegexPattern: '' },
+            ParsedExcludedQuery: { MustContain: [], MustContainOneOf: [], IsRegex: false, RegexPattern: '' },
+            ParsedExcludedLogPathQuery: { MustContain: [], MustContainOneOf: [], IsRegex: false, RegexPattern: '' },
         };
     } 
 
@@ -645,13 +713,13 @@ export default class LogViewerPageComponent extends Vue {
             // OrderDescending: boolean;
             
             Query: this.filterQuery,
-            QueryMode: this.filterQueryMode,
+            QueryIsRegex: this.filterQueryIsRegex,
             ExcludedQuery: this.filterExcludedQuery,
-            ExcludedQueryMode: this.filterExcludedQueryMode,
+            ExcludedQueryIsRegex: this.filterExcludedQueryIsRegex,
             LogPathQuery: this.filterLogPathQuery,
-            LogPathQueryMode: this.filterLogPathQueryMode,
+            LogPathQueryIsRegex: this.filterLogPathQueryIsRegex,
             ExcludedLogPathQuery: this.filterExcludedLogPathQuery,
-            ExcludedLogPathQueryMode: this.filterExcludedLogPathQueryMode
+            ExcludedLogPathQueryIsRegex: this.filterExcludedLogPathQueryIsRegex
         };
     }
 
