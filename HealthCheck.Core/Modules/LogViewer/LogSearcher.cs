@@ -57,8 +57,6 @@ namespace HealthCheck.Core.Modules.LogViewer
 
             entries = entries.Where(x => x.IsMargin || parsedQuery.AllowItem(x.Raw, negate: false));
             entries = entries.Where(x => x.IsMargin || parsedExcludedQuery.AllowItem(x.Raw, negate: true));
-            //entries = ProcessQueryFilter(entries, filter.Query, filter.QueryMode, negate: false);
-            //entries = ProcessQueryFilter(entries, filter.ExcludedQuery, filter.ExcludedQueryMode, negate: true);
 
             var matchingEntries = entries.ToList();
             var statistics = matchingEntries
@@ -173,8 +171,6 @@ namespace HealthCheck.Core.Modules.LogViewer
         private List<LogFileGroup> FindLogs()
         {
             return GetLogFilepaths()
-                // .GroupBy(path => path.Substring(0, path.IndexOf(".")))
-                // .Select(group => LogFileGroup.FromFiles(group))
                 .Select(x => LogFileGroup.FromFiles(Options.EntryParser, x))
                 .Where(x => x.Files.Any())
                 .OrderByDescending(x => x.LastFileWriteTime)
@@ -188,74 +184,21 @@ namespace HealthCheck.Core.Modules.LogViewer
                 .Union(Options.LogFilepaths)
                 .ToList();
         }
-
-        private IEnumerable<LogEntry> ProcessQueryFilter(IEnumerable<LogEntry> entries, string query, FilterQueryMode mode, bool negate)
-        {
-            if (string.IsNullOrWhiteSpace(query))
-            {
-                return entries;
-            }
-
-            Func<string, bool> queryPredicate = CreateQueryPredicate(query, mode, negate);
-            if (queryPredicate != null)
-            {
-                entries = entries.Where(entry => !entry.IsMargin && queryPredicate(entry.Raw));
-            }
-
-            return entries;
-        }
-
-        private readonly Dictionary<string, Regex> RegexCache = new Dictionary<string, Regex>();
-        private Func<string, bool> CreateQueryPredicate(string query, FilterQueryMode mode, bool negate)
-        {
-            Func<string, bool> predicate = null;
-            if (mode == FilterQueryMode.Exact)
-            {
-                predicate = raw => raw.ToLower().Contains(query.ToLower());
-            }
-            else if (mode == FilterQueryMode.AnyWord)
-            {
-                var queryWords = query.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim().ToLower());
-                predicate = raw => queryWords.Any(word => raw.ToLower().Contains(word));
-            }
-            else if (mode == FilterQueryMode.AllWords)
-            {
-                var queryWords = query.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim().ToLower());
-                predicate = raw => queryWords.All(word => raw.ToLower().Contains(word));
-            }
-            else if (mode == FilterQueryMode.Regex)
-            {
-                Regex regex = null;
-                if (RegexCache.ContainsKey(query))
-                {
-                    regex = RegexCache[query];
-                }
-                else
-                {
-                    regex = new Regex(query, RegexOptions.IgnoreCase | RegexOptions.Singleline);
-                    RegexCache[query] = regex;
-                }
-
-                predicate = raw => regex.IsMatch(raw);
-            }
-
-            return negate ? (raw) => !predicate(raw) : predicate;
-        }
     }
 
-//#if DEBUG
-//    // For LinqPad use :-)
-//#pragma warning disable CS1591
-//    public class LogSearcherExt
-//    {
-//        public object SearchEntries(string dir, LogSearchFilter filter, CancellationToken cancellationToken, out int totalMatchCount)
-//        {
-//            return new LogSearcher(new LogSearcherOptions(new LogEntryParser()).IncludeLogFilesInDirectory(dir))
-//                .SearchEntries(filter, cancellationToken, out totalMatchCount)
-//                .MatchingEntries.Select(x => new { File = x.FilePath, Line = x.LineNumber, Raw = x.Raw })
-//                .ToList();
-//        }
-//    }
-//#pragma warning restore CS1591
-//#endif
+#if DEBUG
+    // For LinqPad use :-)
+#pragma warning disable CS1591
+    public class LogSearcherExt
+    {
+        public object SearchEntries(string dir, LogSearchFilter filter, CancellationToken cancellationToken, out int totalMatchCount)
+        {
+            return new LogSearcher(new LogSearcherOptions(new LogEntryParser()).IncludeLogFilesInDirectory(dir))
+                .SearchEntries(filter, cancellationToken, out totalMatchCount)
+                .MatchingEntries.Select(x => new { File = x.FilePath, Line = x.LineNumber, Raw = x.Raw })
+                .ToList();
+        }
+    }
+#pragma warning restore CS1591
+#endif
 }

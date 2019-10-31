@@ -330,7 +330,6 @@ import ItemPerDateChartComponent from '../LogViewer/ItemPerDateChartComponent.vu
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
 import LogSearchFilter from '../../models/LogViewer/LogSearchFilter';
 import LogSearchResult from '../../models/LogViewer/LogSearchResult';
-import { FilterQueryMode } from '../../models/LogViewer/FilterQueryMode';
 import { FilterDelimiterMode } from '../../models/LogViewer/FilterDelimiterMode';
 import { ChartEntry } from '../LogViewer/ItemPerDateChartComponent.vue';
 import * as XRegExp from 'xregexp';
@@ -506,15 +505,6 @@ export default class LogViewerPageComponent extends Vue {
         return `Cancel ${count} currently running ${searchesWord} (for all users)`;
     }
 
-    get queryModeOptions(): any {
-        return [
-            { text: 'Exact', value: FilterQueryMode.Exact},
-            { text: 'Any word', value: FilterQueryMode.AnyWord},
-            { text: 'All words', value: FilterQueryMode.AllWords},
-            { text: 'RegExp', value: FilterQueryMode.Regex}
-        ];
-    }
-
     get customColumnModeOptions(): any {
         return [
             { text: 'RegExp', value: FilterDelimiterMode.Regex},
@@ -533,22 +523,6 @@ export default class LogViewerPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
-    getQueryLabel(name: string, mode: FilterQueryMode, negate: boolean = false) {
-        const negateText = negate ? 'not ' : '';
-        if (mode == FilterQueryMode.Exact) {
-            return `${name} must ${negateText}contain exact match`;
-        } else if (mode == FilterQueryMode.AnyWord) {
-            return `${name} must ${negateText}contain any of the words`;
-        } else if (mode == FilterQueryMode.AllWords) {
-            return `${name} must ${negateText}contain all of the words`;
-        } else if (mode == FilterQueryMode.Regex) {
-            return `${name} must ${negateText}match the regex pattern`;
-        } else {
-            console.log(name, mode, negate);
-            return name;
-        }
-    }
-
     getDelimiterLabel(): string {
         return (this.customColumnMode == FilterDelimiterMode.Regex)
             ? "Create columns from RegExp group names"
