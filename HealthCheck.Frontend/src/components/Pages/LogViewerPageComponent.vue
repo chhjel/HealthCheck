@@ -202,6 +202,13 @@
                                 :label="`Expand all rows`"
                             ></v-checkbox>
                         </v-flex>
+                        <v-flex xs6 sm4 lg2 style="padding-left: 22px;">
+                            <v-checkbox
+                                class="options-checkbox"
+                                v-model="filterOrderDescending"
+                                :label="`Newest first`"
+                            ></v-checkbox>
+                        </v-flex>
                         <v-flex xs6 sm2 style="padding-left: 22px;">
                             <v-text-field type="number" label="Page size"
                                 class="options-input"
@@ -358,6 +365,7 @@ export default class LogViewerPageComponent extends Vue {
     showExcludedLogPathQuery: boolean = false;
     showcustomColumnRule: boolean = false;
     currentSearchId: string = "";
+    filterOrderDescending: boolean = false;
     filterFromDate: Date = new Date();
     filterToDate: Date = new Date();
     filterTake: number = 50;
@@ -684,7 +692,7 @@ export default class LogViewerPageComponent extends Vue {
             FromDate: this.filterFromDate,
             ToDate: this.filterToDate,
             MaxStatisticsCount: this.options.MaxInsightsEntryCount,
-            // OrderDescending: boolean;
+            OrderDescending: this.filterOrderDescending,
             
             Query: this.filterQuery,
             QueryIsRegex: this.filterQueryIsRegex,
