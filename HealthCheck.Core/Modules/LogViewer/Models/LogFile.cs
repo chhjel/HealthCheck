@@ -1,4 +1,5 @@
 using HealthCheck.Core.Modules.LogViewer.Abstractions;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +16,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
             {
                 if (_firstEntryTimeCache == null)
                 {
-                    var firstLine = File.ReadLines(FilePath).FirstOrDefault(x => !string.IsNullOrWhiteSpace(x));
+                    var firstLine = IOUtils.ReadLines(FilePath).FirstOrDefault(x => !string.IsNullOrWhiteSpace(x));
                     _firstEntryTimeCache = _entryParser.ParseEntryDate(firstLine) ?? DateTime.MaxValue;
                 }
                 return _firstEntryTimeCache.Value;
