@@ -41,6 +41,11 @@ namespace HealthCheck.WebUI.ViewModels
         public string StackTrace { get; set; }
 
         /// <summary>
+        /// Expand data in frontend by default.
+        /// </summary>
+        public bool ExpandDataByDefault { get; set; }
+
+        /// <summary>
         /// Any extra data.
         /// </summary>
         public List<TestResultDataDumpViewModel> Data { get; set; } = new List<TestResultDataDumpViewModel>();

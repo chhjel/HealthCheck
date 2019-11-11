@@ -29,6 +29,11 @@ namespace HealthCheck.Core.Entities
         public string StackTrace { get; set; }
 
         /// <summary>
+        /// Expand data in frontend by default.
+        /// </summary>
+        public bool ExpandDataByDefault { get; set; }
+
+        /// <summary>
         /// The test that was executed.
         /// </summary>
         public TestDefinition Test { get; set; }
@@ -109,6 +114,16 @@ namespace HealthCheck.Core.Entities
             => Create(TestResultStatus.Success, testResultMessage).SetResolvedSiteEvent(eventTypeId, resolvedMessage);
 
         #region Method-chaining
+        /// <summary>
+        /// Expand data in frontend by default.
+        /// </summary>
+        public TestResult SetDataExpandedByDefault(bool expandDataByDefault = true)
+        {
+            ExpandDataByDefault = expandDataByDefault;
+            return this;
+        }
+
+        //
         /// <summary>
         /// Include a serialized version of the given object in the result data.
         /// <para>If using HealthCheck.WebUI the NewtonsoftJsonSerializer() or just use the AddSerializedData(object data, string title=null) extension method from HealthCheck.WebUI.</para>

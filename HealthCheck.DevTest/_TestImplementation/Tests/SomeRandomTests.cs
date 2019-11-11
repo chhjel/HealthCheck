@@ -100,7 +100,8 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         [RuntimeTest]
         public TestResult TestTimeline()
         {
-            return TestResult.CreateSuccess($"Images has been served.")
+            return TestResult.CreateSuccess($"Timeline retrieved.")
+                .SetDataExpandedByDefault()
                 .AddTimelineData(new[]
                 {
                     new TimelineStep("Cart created", "A cart was created")

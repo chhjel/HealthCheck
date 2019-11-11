@@ -53,7 +53,7 @@ export default class TestResultComponent extends Vue {
     //  LIFECYCLE  //
     ////////////////
     mounted(): void {
-      if (this.expandDataOnLoad == true) {
+      if (this.expandDataOnLoad == true || this.testResult.ExpandDataByDefault == true) {
         this.dataExpandedState = 0;
       }
     }
