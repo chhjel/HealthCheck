@@ -189,7 +189,24 @@ namespace HealthCheck.Core.Entities
         /// Include the given image urls in the result data.
         /// </summary>
         public TestResult AddImageUrlsData(IEnumerable<string> urls, string title = null, bool onlyIfNotNullOrEmpty = true)
-            => AddData(string.Join(Environment.NewLine, urls ?? new string[0]), title, TestResultDataDumpType.ImageUrls, onlyIfNotNullOrEmpty);
+        {
+            urls = urls ?? new string[0];
+            if (onlyIfNotNullOrEmpty)
+            {
+                urls = urls.Where(x => !onlyIfNotNullOrEmpty || !string.IsNullOrWhiteSpace(x));
+                if (!urls.Any())
+                {
+                    return this;
+                }
+            }
+            return AddData(string.Join(Environment.NewLine, urls), title, TestResultDataDumpType.ImageUrls, onlyIfNotNullOrEmpty);
+        }
+
+        /// <summary>
+        /// Include the given image url in the result data.
+        /// </summary>
+        public TestResult AddImageUrlData(string url, string title = null, bool onlyIfNotNullOrEmpty = true)
+            => AddImageUrlsData(new[] { url }, title, onlyIfNotNullOrEmpty);
 
         /// <summary>
         /// Include the given urls in the result data.
@@ -208,6 +225,20 @@ namespace HealthCheck.Core.Entities
         /// </summary>
         public TestResult AddUrlsData(IEnumerable<string> urls, string title = null, bool onlyIfNotNullOrEmpty = true)
             => AddUrlsData(urls?.Select(x => new HyperLink(x, x)), title, onlyIfNotNullOrEmpty);
+
+        /// <summary>
+        /// Include the given url in the result data.
+        /// </summary>
+        public TestResult AddUrlData(string url, string title = null, bool onlyIfNotNullOrEmpty = true)
+            => AddUrlData(new HyperLink(url, url), title, onlyIfNotNullOrEmpty);
+
+        /// <summary>
+        /// Include the given url in the result data.
+        /// </summary>
+        public TestResult AddUrlData(HyperLink link, string title = null, bool onlyIfNotNullOrEmpty = true)
+            => AddUrlsData(
+                (string.IsNullOrWhiteSpace(link?.Url) && onlyIfNotNullOrEmpty) ? new HyperLink[0] : new[] { link },
+                title, onlyIfNotNullOrEmpty);
 
         /// <summary>
         /// Include the given <see cref="SiteEvent"/>.
