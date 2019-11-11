@@ -3,6 +3,7 @@ using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Serializers;
 using RuntimeCodeTest.Core.Entities;
 using System;
+using System.Web;
 
 namespace HealthCheck.Core.Util
 {
@@ -45,5 +46,25 @@ namespace HealthCheck.Core.Util
         }
 
         private static string CreateDumpName<T>(Type type) => type.GetFriendlyTypeName();
+
+        internal static string EncodeForJson(bool value)
+            => value ? "true" : "false";
+
+        internal static string EncodeForJson(string value)
+            => value != null ? $"\"{HttpUtility.JavaScriptStringEncode(value)}\"" : "null";
+
+        internal static string EncodeForJson(DateTime? date)
+        {
+            if (!date.HasValue)
+            {
+                return "null";
+            }
+            
+            var ticks = date.Value
+                .Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc))
+                .TotalMilliseconds;
+
+            return $"\"{ticks}\"";
+        }
     }
 }

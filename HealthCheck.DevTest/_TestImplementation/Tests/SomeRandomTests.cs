@@ -46,6 +46,21 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             var objectToSerialize = TestResult.CreateWarning($"Some random json object");
 
             return TestResult.CreateSuccess($"Images has been served.")
+                .AddTimelineData(new[]
+                {
+                    new TimelineStep("Cart created", "A cart was created")
+                        .SetTimestamp(DateTime.Now.AddMinutes(-15), hideTime: true)
+                        .SetIcon("shopping_cart")
+                        .SetCompleted(),
+                    new TimelineStep("Payment recieved", "The payment was recieved in the system etc", DateTime.Now.AddMinutes(-7))
+                        .SetUrl("https://www.google.com", "Some url here etc")
+                        .SetCompleted(),
+                    new TimelineStep("Order recieved", "The order was recieved in the system etc")
+                        .SetTimestamp(DateTime.Now.AddMinutes(-3)).SetIcon("receipt").SetError("Oh no! It failed! Some more descriptions here etc etc etc etc and some more!"),
+                    new TimelineStep("Order shipped", "Stuff was sent")
+                        .SetUrl("https://www.google.com", "Some url here")
+                        .SetIcon("local_shipping")
+                }, "Timeline test")
                 .AddCodeData("public class Test {\n\tpublic string Prop { get; set; }\n}\n", "Code test")
                 .AddXmlData("<test>\n\t<el test=\"asd\">Some Value</el>\n</test>\n", "Xml test")
                 .AddHtmlData($"Some <b>html</b> here!<br /><a href='https://www.google.com'>some link</a>", "Some html")
@@ -80,6 +95,27 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
                                     new HtmlPresetImage("https://www.w3schools.com/w3css/img_lights.jpg")
                                 )
                 );
+        }
+
+        [RuntimeTest]
+        public TestResult TestTimeline()
+        {
+            return TestResult.CreateSuccess($"Images has been served.")
+                .AddTimelineData(new[]
+                {
+                    new TimelineStep("Cart created", "A cart was created")
+                        .SetTimestamp(DateTime.Now.AddMinutes(-15), hideTime: true)
+                        .SetIcon("shopping_cart")
+                        .SetCompleted(),
+                    new TimelineStep("Payment recieved", "The payment was recieved in the system etc", DateTime.Now.AddMinutes(-7))
+                        .SetUrl("https://www.google.com", "Some url here etc")
+                        .SetCompleted(),
+                    new TimelineStep("Order recieved", "The order was recieved in the system etc")
+                        .SetTimestamp(DateTime.Now.AddMinutes(-3)).SetIcon("receipt").SetError("Oh no! It failed! Some more descriptions here etc etc etc etc and some more!"),
+                    new TimelineStep("Order shipped", "Stuff was sent")
+                        .SetUrl("https://www.google.com", "Some url here")
+                        .SetIcon("local_shipping")
+                }, "Timeline test");
         }
 
         [RuntimeTest(

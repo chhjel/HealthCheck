@@ -18,5 +18,10 @@ export enum TestResultDataDumpType
     /// <summary>
     /// Html data.
     /// </summary>
-    Html
+    Html,
+
+    /// <summary>
+    /// Timeline with some steps.
+    /// </summary>
+    Timeline
 }

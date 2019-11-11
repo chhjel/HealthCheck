@@ -4,7 +4,7 @@ using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
+using System.Text;
 
 namespace HealthCheck.Core.Entities
 {
@@ -239,6 +239,50 @@ namespace HealthCheck.Core.Entities
             => AddUrlsData(
                 (string.IsNullOrWhiteSpace(link?.Url) && onlyIfNotNullOrEmpty) ? new HyperLink[0] : new[] { link },
                 title, onlyIfNotNullOrEmpty);
+
+        /// <summary>
+        /// Include a timeline built from the given data in the result data.
+        /// </summary>
+        public TestResult AddTimelineData(IEnumerable<TimelineStep> steps, string title = null, bool onlyIfAnySteps = true)
+        {
+            steps = steps ?? Enumerable.Empty<TimelineStep>();
+            if (onlyIfAnySteps && !steps.Any())
+            {
+                return this;
+            }
+
+            var jsonBuilder = new StringBuilder();
+            jsonBuilder.AppendLine("[");
+            var stepList = steps.ToList();
+            for(int i=0; i < stepList.Count; i++)
+            {
+                var isLast = i == stepList.Count - 1;
+                var step = stepList[i];
+
+                jsonBuilder.AppendLine($@"
+{{
+    ""Title"": {DumpHelper.EncodeForJson(step.Title)},
+    ""Description"": {DumpHelper.EncodeForJson(step.Description)},
+    ""LinkUrl"": {DumpHelper.EncodeForJson(step.Link?.Url)},
+    ""LinkTitle"": {DumpHelper.EncodeForJson(step.Link?.Text)},
+    ""Error"": {DumpHelper.EncodeForJson(step.Error)},
+    ""Timestamp"": {DumpHelper.EncodeForJson(step.Timestamp)},
+    ""Icon"": {DumpHelper.EncodeForJson(step.Icon)},
+    ""HideTimeInTimestamp"": {DumpHelper.EncodeForJson(step.HideTimeInTimestamp)},
+    ""IsCompleted"": {DumpHelper.EncodeForJson(step.IsCompleted)},
+    ""Index"": {i}
+}}
+");
+                if (!isLast)
+                {
+                    jsonBuilder.Append(",");
+                }
+            }
+            jsonBuilder.AppendLine("]");
+
+            var json = jsonBuilder.ToString();
+            return AddData(json, title, TestResultDataDumpType.Timeline);
+        }
 
         /// <summary>
         /// Include the given <see cref="SiteEvent"/>.

@@ -38,6 +38,11 @@
         /// <summary>
         /// Urls. Separate with newlines if done manually.
         /// </summary>
-        Urls
+        Urls,
+
+        /// <summary>
+        /// Timeline consiting of some steps.
+        /// </summary>
+        Timeline
     }
 }
