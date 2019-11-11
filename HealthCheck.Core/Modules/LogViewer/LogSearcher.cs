@@ -152,7 +152,7 @@ namespace HealthCheck.Core.Modules.LogViewer
         private static readonly Regex[] EntryErrorNeedles = new[]
         {
             new Regex(@"exception", RegexOptions.IgnoreCase),
-            new Regex(@"error", RegexOptions.IgnoreCase),
+            new Regex(@"[^""]error", RegexOptions.IgnoreCase),
             new Regex(@"\serr\s", RegexOptions.IgnoreCase),
             new Regex(@"critical", RegexOptions.IgnoreCase),
             new Regex(@"fatal", RegexOptions.IgnoreCase)
