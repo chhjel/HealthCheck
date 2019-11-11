@@ -15,7 +15,7 @@
           v-if="showTestResultData"
           v-model="dataExpandedState">
           <v-expansion-panel-content>
-            <template v-slot:header>
+            <template v-slot:header v-if="testResult.AllowExpandData">
               <div>{{ testResultDataTitle }}</div>
             </template>
             <v-card v-if="dataExpandedState == 0">

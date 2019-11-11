@@ -34,6 +34,11 @@ namespace HealthCheck.Core.Entities
         public bool ExpandDataByDefault { get; set; }
 
         /// <summary>
+        /// Allow expanding the data in frontend. If false the expansion panel header will be hidden.
+        /// </summary>
+        public bool AllowExpandData { get; set; } = true;
+
+        /// <summary>
         /// The test that was executed.
         /// </summary>
         public TestDefinition Test { get; set; }
@@ -120,6 +125,16 @@ namespace HealthCheck.Core.Entities
         public TestResult SetDataExpandedByDefault(bool expandDataByDefault = true)
         {
             ExpandDataByDefault = expandDataByDefault;
+            return this;
+        }
+
+        /// <summary>
+        /// Disallow expanding the data in frontend, hiding the expansion panel header.
+        /// <para>If disallowed the data will be expanded by default.</para>
+        /// </summary>
+        public TestResult DisallowDataExpansion(bool disallowed = true)
+        {
+            AllowExpandData = !disallowed;
             return this;
         }
 

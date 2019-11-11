@@ -131,7 +131,8 @@ namespace HealthCheck.WebUI.Factories
                 Status = testResult.Status,
                 Message = testResult.Message,
                 StackTrace = testResult.StackTrace,
-                ExpandDataByDefault = testResult.ExpandDataByDefault,
+                AllowExpandData = testResult.AllowExpandData,
+                ExpandDataByDefault = testResult.ExpandDataByDefault || !testResult.AllowExpandData,
                 DurationInMilliseconds = testResult.DurationInMilliseconds,
                 Data = dumps
             };

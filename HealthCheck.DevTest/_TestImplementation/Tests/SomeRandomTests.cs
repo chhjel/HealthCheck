@@ -101,7 +101,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         public TestResult TestTimeline()
         {
             return TestResult.CreateSuccess($"Timeline retrieved.")
-                .SetDataExpandedByDefault()
+                .DisallowDataExpansion()
                 .AddTimelineData(new[]
                 {
                     new TimelineStep("Cart created", "A cart was created")
@@ -116,7 +116,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
                     new TimelineStep("Order shipped", "Stuff was sent")
                         .SetUrl("https://www.google.com", "Some url here")
                         .SetIcon("local_shipping")
-                }, "Timeline test");
+                });
         }
 
         [RuntimeTest(

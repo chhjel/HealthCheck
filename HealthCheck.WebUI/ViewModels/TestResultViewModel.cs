@@ -46,6 +46,11 @@ namespace HealthCheck.WebUI.ViewModels
         public bool ExpandDataByDefault { get; set; }
 
         /// <summary>
+        /// Allow expanding the data in frontend. If false the expansion panel header will be hidden.
+        /// </summary>
+        public bool AllowExpandData { get; set; } = true;
+
+        /// <summary>
         /// Any extra data.
         /// </summary>
         public List<TestResultDataDumpViewModel> Data { get; set; } = new List<TestResultDataDumpViewModel>();
