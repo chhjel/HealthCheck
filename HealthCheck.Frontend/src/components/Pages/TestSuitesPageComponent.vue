@@ -427,9 +427,6 @@ export default class TestSuitesPageComponent extends Vue {
 </style>
 
 <style>
-/* .application {
-    font-family: 'Helvetica, Arial, sans-serif';
-} */
 .testset-menu-item>a {
     color: #000;
 }

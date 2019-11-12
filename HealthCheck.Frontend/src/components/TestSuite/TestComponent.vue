@@ -1,7 +1,7 @@
 <!-- src/components/TestComponent.vue -->
 <template>
     <div>
-      <div class="test-item">
+      <div class="test-item pa-4">
           <!-- HEADER -->
           <div class="test-header" 
             :class="{'no-details': !showDetails}"
@@ -312,8 +312,10 @@ export default class TestComponent extends Vue {
 
 <style scoped>
 .test-item {
-  border-radius: 0 25px 0 25px;
+  /* border-radius: 0 25px 0 25px; */
+  border-radius: 25px;
   background-color: #fff;
+  box-shadow: #d5d7d5 4px 4px 6px 0px;
 }
 .test-header {
   display: flex;
@@ -328,7 +330,8 @@ export default class TestComponent extends Vue {
   font-size: 20px;
   min-width: 120px;
   min-height: 53px;
-  border-radius: 0 25px 0 25px;
+  border-radius: 25px;
+  /* border-radius: 0 25px 0 25px; */
   text-transform: inherit;
 }
 .run-test-button .v-icon {
