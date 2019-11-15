@@ -22,7 +22,7 @@
                         v-if="showPageMenu(PAGE_TESTS)"
                         :href="`?page=${PAGE_TESTS}`"
                         :class="{ 'active-tab': isCurrentPage(PAGE_TESTS) }"
-                        @click.left.prevent="setCurrentPage(PAGE_TESTS)">Tests</v-btn>
+                        @click.left.prevent="setCurrentPage(PAGE_TESTS)">{{ options.TestsTabName }}</v-btn>
                     <v-btn flat
                         v-if="showPageMenu(PAGE_LOGS)"
                         :href="`?page=${PAGE_LOGS}`"

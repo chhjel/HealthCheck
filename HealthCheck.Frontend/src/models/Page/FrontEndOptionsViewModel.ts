@@ -17,4 +17,5 @@ export default interface FrontEndOptionsViewModel {
     CurrentlyRunningLogSearchCount: number;
     Pages: string[];
     MaxInsightsEntryCount: number;
+    TestsTabName: string;
 }

@@ -21,6 +21,11 @@ namespace HealthCheck.WebUI.ViewModels
         public string ApplicationTitleLink { get; set; }
 
         /// <summary>
+        /// Text on the Tests-tab. Defaults to "Tests".
+        /// </summary>
+        public string TestsTabName { get; set; } = "Tests";
+
+        /// <summary>
         /// Include current query string in API calls to backend.
         /// <para>Enabled by default, can be used to set some roles based on query strings etc.</para>
         /// </summary>
