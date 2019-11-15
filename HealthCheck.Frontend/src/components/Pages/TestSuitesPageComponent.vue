@@ -451,6 +451,7 @@ export default class TestSuitesPageComponent extends Vue {
 }
 .testset-menu-item.active .v-list__tile {
     border-left: 4px solid var(--v-primary-base);
+    border-left: 4px solid #f78764;
     padding-left: 42px !important;
 }
 .v-list__group::before, .v-list__group::after {
