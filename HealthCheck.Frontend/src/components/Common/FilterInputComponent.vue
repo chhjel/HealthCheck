@@ -32,13 +32,14 @@ export default class FilterInputComponent extends Vue {
     align-items: center;
 }
 .filter-input {
-    border: 1px solid #e4e4e4;
-    border-radius: 10px;
+    border-bottom: 1px solid #e4e4e4;
     padding: 5px;
     flex: 1;
 }
 .icon {
-    margin-left: 5px;
+    position: absolute;
+    right: 0;
+    top: 0;
 }
 .label {
     margin-left: 5px;
