@@ -142,7 +142,10 @@ export default class TestResultTimelineDataComponent extends Vue {
 .stepper-step:hover {
   background-color: #eee;
 }
+</style>
+
+<style>
 .data-dump-timeline .v-stepper__label {
-    text-align: center;
+  text-align: center;
 }
 </style>
