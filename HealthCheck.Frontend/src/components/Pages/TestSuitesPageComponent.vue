@@ -28,7 +28,7 @@
                                     v-if="getTestSetGroupIcon(group) != null" 
                                     v-text="getTestSetGroupIcon(group)"></v-icon>
                                 <v-list-tile-title v-text="group.Name"></v-list-tile-title>
-                                <v-badge class="mr-2" v-if="showFilterCounts">
+                                <v-badge class="mr-3" v-if="showFilterCounts">
                                     <template v-slot:badge>
                                         <span>{{ getGroupFilterMatchCount(group) }}</span>
                                     </template>
@@ -48,7 +48,7 @@
                             <v-list-tile-title
                                 v-text="set.Name"
                                 :class="getTestSetTitleClass(set)"></v-list-tile-title>
-                            <v-badge class="mr-2" v-if="showFilterCounts">
+                            <v-badge class="mr-3" v-if="showFilterCounts">
                                 <template v-slot:badge>
                                     <span>{{ getSetFilterMatchCount(set) }}</span>
                                 </template>
@@ -443,6 +443,12 @@ export default class TestSuitesPageComponent extends Vue {
 .v-list__group__header--active .v-list__group__header__prepend-icon .v-icon {
     color: #fff;
 }
+.testset-menu-item.active a {
+    background: hsla(0,0%,100%,.08);
+}
+.testset-menu .v-list__tile--link:hover {
+    background: hsla(0,0%,100%,.08);
+}
 .testset-menu-item.active .v-list__tile {
     border-left: 4px solid var(--v-primary-base);
     padding-left: 42px !important;
@@ -455,6 +461,9 @@ export default class TestSuitesPageComponent extends Vue {
 }
 .v-list__group.v-list__group--active {
     margin-bottom: 15px;
+}
+.testset-menu .v-list__group__header .v-list__tile__title {
+    font-weight: 600;
 }
 .v-list__group {
     margin-bottom: 10px;
