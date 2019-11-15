@@ -8,7 +8,7 @@
                 clipped fixed floating app
                 mobile-break-point="1000"
                 dark
-                class="menu">
+                class="menu testset-menu">
                                 
                 <v-list expand class="menu-items">
                     <filter-input-component class="filter" v-model="testSetFilterText" />
@@ -428,6 +428,9 @@ export default class TestSuitesPageComponent extends Vue {
 </style>
 
 <style>
+.testset-menu {
+    background-color: hsla(0, 0%, 16%, 1) !important;
+}
 .testset-menu-item>a {
     /* color: #fff; */
 }
