@@ -7,6 +7,7 @@
                 v-model="drawerState"
                 clipped fixed floating app
                 mobile-break-point="1000"
+                dark
                 class="menu">
                                 
                 <v-list expand class="menu-items">
@@ -415,7 +416,7 @@ export default class TestSuitesPageComponent extends Vue {
 
 <style scoped>
 .menu {
-    background-color: #fff;
+    /* background-color: var(--v-primary-base); */
     box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 .filter { 
@@ -428,7 +429,10 @@ export default class TestSuitesPageComponent extends Vue {
 
 <style>
 .testset-menu-item>a {
-    color: #000;
+    /* color: #fff; */
+}
+.v-list__group__header--active .v-list__group__header__prepend-icon .v-icon {
+    color: #fff;
 }
 .testset-menu-item.active .v-list__tile {
     border-left: 4px solid var(--v-primary-base);
