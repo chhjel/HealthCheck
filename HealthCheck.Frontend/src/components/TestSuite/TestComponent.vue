@@ -10,7 +10,7 @@
 
             <div class="test-status-label subheading font-weight-bold"
               :class="statusClass"
-              v-if="hasStatus">{{statusText}}</div>
+              v-if="hasStatus && allowShowStatusLabel">{{statusText}}</div>
             <h4 class="test-name">
               {{ test.Name }}
               <!-- <v-icon>link</v-icon> -->
@@ -126,6 +126,23 @@ export default class TestComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get allowShowStatusLabel(): boolean {
+      // Not clean mode
+      if (this.testResult!.DisplayClean !== true)
+      {
+        // Always allow
+        return true;
+      }
+      // Clean mode
+      else
+      {
+        return this.testResult!.StatusCode !== 0
+                && this.testResult!.Message != null
+                && this.testResult!.Message!.length > 0;
+      }
+      return this.testResult!.DisplayClean !== true || this.testResult!.Message!.length > 0;
+    }
+
     get encodedTestTitle(): string {
       return UrlUtils.EncodeHashPart(this.test.Name);
     }

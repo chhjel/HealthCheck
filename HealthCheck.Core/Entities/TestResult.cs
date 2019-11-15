@@ -39,6 +39,11 @@ namespace HealthCheck.Core.Entities
         public bool AllowExpandData { get; set; } = true;
 
         /// <summary>
+        /// Removes expansion panel and copy/fullscreeen buttons.
+        /// </summary>
+        public bool DisplayClean { get; set; }
+
+        /// <summary>
         /// The test that was executed.
         /// </summary>
         public TestDefinition Test { get; set; }
@@ -138,7 +143,15 @@ namespace HealthCheck.Core.Entities
             return this;
         }
 
-        //
+        /// <summary>
+        /// Removes expansion panel and copy/fullscreeen buttons.
+        /// </summary>
+        public TestResult SetCleanMode(bool clean = true)
+        {
+            DisplayClean = clean;
+            return this;
+        }
+        
         /// <summary>
         /// Include a serialized version of the given object in the result data.
         /// <para>If using HealthCheck.WebUI the NewtonsoftJsonSerializer() or just use the AddSerializedData(object data, string title=null) extension method from HealthCheck.WebUI.</para>
