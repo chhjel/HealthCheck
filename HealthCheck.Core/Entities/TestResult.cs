@@ -302,12 +302,12 @@ namespace HealthCheck.Core.Entities
                 var isLast = i == stepList.Count - 1;
                 var step = stepList[i];
 
+                var linksJson = "[" + string.Join(", ", step.Links.Select(x => $"[{DumpHelper.EncodeForJson(x.Url)}, {DumpHelper.EncodeForJson(x.Text)}]")) + "]";
                 jsonBuilder.AppendLine($@"
 {{
     ""Title"": {DumpHelper.EncodeForJson(step.Title)},
     ""Description"": {DumpHelper.EncodeForJson(step.Description)},
-    ""LinkUrl"": {DumpHelper.EncodeForJson(step.Link?.Url)},
-    ""LinkTitle"": {DumpHelper.EncodeForJson(step.Link?.Text)},
+    ""Links"": {linksJson},
     ""Error"": {DumpHelper.EncodeForJson(step.Error)},
     ""Timestamp"": {DumpHelper.EncodeForJson(step.Timestamp)},
     ""Icon"": {DumpHelper.EncodeForJson(step.Icon)},

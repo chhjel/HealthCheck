@@ -27,7 +27,7 @@
       
       <v-dialog
         v-model="showStepDialog"
-        max-width="320">
+        max-width="640">
         <v-card v-if="dialogStep != null">
           <v-card-title class="headline">
             <v-icon large left v-if="dialogStep.Icon != null">
@@ -40,8 +40,13 @@
 
             {{ dialogStep.Description }}
 
-            <div v-if="dialogStep.LinkUrl != null" class="mt-2">
-              <a :href="dialogStep.LinkUrl" target="_blank">{{ dialogStep.LinkTitle || dialogStep.LinkUrl }}</a>
+            <div v-if="dialogStep.Links.length > 0" class="mt-2">
+              <ul>
+                <li v-for="(link, linkIndex) in dialogStep.Links"
+                    :key="`${id}-step-${linkIndex}`">
+                  <a :href="link[0]" target="_blank">{{ link[1] || link[0] }}</a>
+                </li>
+              </ul>
             </div>
 
             <div v-if="dialogStep.Error != null" class="step-error mt-3"><b>{{ dialogStep.Error }}</b></div>
@@ -136,5 +141,8 @@ export default class TestResultTimelineDataComponent extends Vue {
 }
 .stepper-step:hover {
   background-color: #eee;
+}
+.data-dump-timeline .v-stepper__label {
+    text-align: center;
 }
 </style>
