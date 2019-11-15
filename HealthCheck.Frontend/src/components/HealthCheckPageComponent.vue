@@ -193,6 +193,7 @@ export default class HealthCheckPageComponent extends Vue {
 <style scoped>
 .approot {
     background-color: #f4f4f4;
+    /* background-color: #f7f6f4; */
 }
 .apptitle a {
     color: inherit;
