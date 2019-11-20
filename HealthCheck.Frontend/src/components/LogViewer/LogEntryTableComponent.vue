@@ -253,6 +253,9 @@ export default class LogEntryTableComponent extends Vue {
 .log-table-row-margin:hover {
     background-color: #eaeaea !important;
 }
+.log-table-row td pre:last-child {
+    white-space: normal;
+}
 .log-entry-details-row td pre {
     padding-left: 20px;
     white-space: normal;
