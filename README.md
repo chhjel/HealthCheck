@@ -171,10 +171,21 @@ The `TestResult` class has a few static factory methods for quick creation of a 
 |AddUrlsData|Will be shown as a list of links|
 |AddJsonData|Will be formatted as Json|
 |AddXmlData|Will be formatted as XML|
+|AddCodeData|Text shown in a monaco-editor|
 |AddTextData|Just plain text|
 |AddData|Adds string data and optionally define the type yourself.|
 |AddSerializedData|Two variants of this method exists. Use the extension method variant unless you want to provide your own serializer implementation. The method simply serializes the given object to json and includes it.|
 |AddHtmlData|Two variants of this method exists. Use the extension method variant for html presets or the non-extension method for raw html.|
+|AddTimelineData|Creates a timeline from the given steps. Each step can show a dialog with more info/links.|
+
+#### Cosmetics
+The following methods can be called on the testresult instance to tweak the output look.
+
+|Method|Effect|
+|-|-|
+|`SetCleanMode()`|Removes expansion panel and copy/fullscreeen buttons. Always shows any dump data.|
+|`DisallowDataExpansion()`|Always shows any dump data.|
+|`SetDataExpandedByDefault()`|Expands any dump data by default.|
 
 ### Attributes
 
@@ -237,6 +248,14 @@ var logSearcherOptions = new FlatFileLogSearcherServiceOptions()
     .IncludeLogFilesInDirectory(HostingEnvironment.MapPath("~/App_Data/TestLogs/"), filter: "*.log", recursive: true);
 ILogSearcherService logSearcherService = new FlatFileLogSearcherService(logSearcherOptions);
 ```
+
+#### Log search query language
+When not using regex the search supports the following syntax:
+* Or: (a|b|c)
+* And: a b c
+* Exact: "a b c"
+
+E.g. the query `(Exception|Error) "XR 442" order details` means that the resulting contents must contain either `Exception` or `Error`, and contain both `order`, `details` and `XR 442`.
 
 ### ISiteEventService
 If an ISiteEventService is provided in the controller any events will be retrieved from it and can be shown in a overview page. Call this service from other places in the code to register new events.
