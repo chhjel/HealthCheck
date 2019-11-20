@@ -2,20 +2,23 @@
 <template>
     <div>
         <v-icon :color="testResultIconColor"
+          v-if="showResultMessage"
           class="mr-1">{{testResultIcon}}</v-icon>
         
-        <div class="result-message">{{ this.testResult.Message }}</div>
+        <div class="result-message" v-if="showResultMessage">{{ this.testResult.Message }}</div>
 
         <div v-if="hasStackTrace" class="mt-4">
           <code class="pa-2">{{ this.testResult.StackTrace }}</code>
         </div>
 
         <!-- DATA DUMPS -->
-        <v-expansion-panel class="mt-2"
+        <v-expansion-panel 
+          class="mt-2"
+          :class="{ 'clean-mode': testResult.DisplayClean }"
           v-if="showTestResultData"
           v-model="dataExpandedState">
           <v-expansion-panel-content>
-            <template v-slot:header v-if="testResult.AllowExpandData">
+            <template v-slot:header v-if="testResult.AllowExpandData && !testResult.DisplayClean">
               <div>{{ testResultDataTitle }}</div>
             </template>
             <v-card v-if="dataExpandedState == 0">
@@ -23,7 +26,8 @@
                 <test-result-data-component 
                   v-for="(data, index) in testResult.Data"
                   :key="`test-${testResult.TestId}-result-data`+index"
-                  :data="data" />
+                  :data="data"
+                  :clean="testResult.DisplayClean" />
               </v-card-text>
             </v-card>
           </v-expansion-panel-content>
@@ -53,7 +57,9 @@ export default class TestResultComponent extends Vue {
     //  LIFECYCLE  //
     ////////////////
     mounted(): void {
-      if (this.expandDataOnLoad == true || this.testResult.ExpandDataByDefault == true) {
+      if (this.expandDataOnLoad == true 
+          || this.testResult.ExpandDataByDefault == true
+          || this.testResult.DisplayClean == true) {
         this.dataExpandedState = 0;
       }
     }
@@ -69,6 +75,23 @@ export default class TestResultComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get showResultMessage(): boolean {
+      // Not clean mode
+      if (this.testResult!.DisplayClean !== true)
+      {
+        // Always show
+        return true;
+      }
+      // Clean mode
+      else
+      {
+        return this.testResult!.StatusCode !== 0
+                && this.testResult!.Message != null
+                && this.testResult!.Message!.length > 0;
+      }
+      return this.testResult!.DisplayClean !== true || this.testResult!.Message!.length > 0;
+    }
+
     get hasStackTrace(): boolean {
       return this.testResult!.StackTrace != null && this.testResult!.StackTrace!.length > 0;
     }
@@ -127,5 +150,9 @@ export default class TestResultComponent extends Vue {
 .result-message {
   font-size: 18px;
   display: inline;
+}
+.v-expansion-panel.clean-mode {
+  border: none;
+  box-shadow: none;
 }
 </style>

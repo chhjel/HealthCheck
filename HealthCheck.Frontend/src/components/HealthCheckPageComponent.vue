@@ -16,18 +16,22 @@
                     <v-btn flat
                         v-if="showPageMenu(PAGE_OVERVIEW)"
                         :href="`?page=${PAGE_OVERVIEW}`"
+                        :class="{ 'active-tab': isCurrentPage(PAGE_OVERVIEW) }"
                         @click.left.prevent="setCurrentPage(PAGE_OVERVIEW)">Status</v-btn>
                     <v-btn flat 
                         v-if="showPageMenu(PAGE_TESTS)"
                         :href="`?page=${PAGE_TESTS}`"
-                        @click.left.prevent="setCurrentPage(PAGE_TESTS)">Tests</v-btn>
-                    <v-btn flat 
+                        :class="{ 'active-tab': isCurrentPage(PAGE_TESTS) }"
+                        @click.left.prevent="setCurrentPage(PAGE_TESTS)">{{ options.TestsTabName }}</v-btn>
+                    <v-btn flat
                         v-if="showPageMenu(PAGE_LOGS)"
                         :href="`?page=${PAGE_LOGS}`"
+                        :class="{ 'active-tab': isCurrentPage(PAGE_LOGS) }"
                         @click.left.prevent="setCurrentPage(PAGE_LOGS)">Logs</v-btn>
                     <v-btn flat 
                         v-if="showPageMenu(PAGE_AUDITLOG)"
                         :href="`?page=${PAGE_AUDITLOG}`"
+                        :class="{ 'active-tab': isCurrentPage(PAGE_AUDITLOG) }"
                         @click.left.prevent="setCurrentPage(PAGE_AUDITLOG)">Audit log</v-btn>
                 </v-toolbar-items>
             </v-toolbar>
@@ -138,6 +142,11 @@ export default class HealthCheckPageComponent extends Vue {
         }
     }
 
+    isCurrentPage(page: string): boolean
+    {
+        return this.currentPage === page;
+    }
+
     setCurrentPage(page: string) {
         // Only allow pages in option.Pages 
         if (this.options.Pages.indexOf(page) == -1) {
@@ -184,6 +193,7 @@ export default class HealthCheckPageComponent extends Vue {
 <style scoped>
 .approot {
     background-color: #f4f4f4;
+    /* background-color: #f7f6f4; */
 }
 .apptitle a {
     color: inherit;
@@ -196,5 +206,11 @@ export default class HealthCheckPageComponent extends Vue {
 }
 .content-root {
     padding-right: 46px;
+}
+.active-tab {
+    font-weight: 900;
+}
+.application {
+    font-family: 'Montserrat';
 }
 </style>

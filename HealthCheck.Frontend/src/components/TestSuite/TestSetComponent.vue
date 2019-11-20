@@ -144,6 +144,8 @@ export default class TestSetComponent extends Vue {
     border-radius: 25px;
     text-transform: inherit;
     padding-right: 16px;
+    border-width: 2px;
+    font-weight: 600;
 }
 .run-all-tests-button .v-icon {
     margin-right: 5px;

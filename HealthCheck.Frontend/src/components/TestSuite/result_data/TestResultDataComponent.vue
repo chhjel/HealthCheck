@@ -8,7 +8,7 @@
             :is="getDataComponentNameFromType(data.Type)">
         </component>
 
-        <v-card-actions>
+        <v-card-actions v-if="clean == false">
           <v-btn flat color="secondary-darken2" @click="putDataOnCLipboard">Copy</v-btn>
 
           <v-dialog
@@ -94,6 +94,8 @@ import TestResultTimelineDataComponent from './data_types/TestResultTimelineData
 export default class TestResultDataComponent extends Vue {
     @Prop({ required: true })
     data!: TestResultDataDumpViewModel;
+    @Prop()
+    clean!: boolean;
 
     showCopyAlert: boolean = false;
     copyAlertText: string = "";

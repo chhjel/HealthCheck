@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Entities
 {
@@ -20,7 +21,7 @@ namespace HealthCheck.Core.Entities
         /// <summary>
         /// Optional url of the step.
         /// </summary>
-        public HyperLink Link { get; set; }
+        public List<HyperLink> Links { get; set; } = new List<HyperLink>();
 
         /// <summary>
         /// Optional error of the step.
@@ -105,11 +106,32 @@ namespace HealthCheck.Core.Entities
         }
 
         /// <summary>
-        /// Make this step link to the given url.
+        /// Add a link to the dialog for the step.
         /// </summary>
-        public TimelineStep SetUrl(string url, string title = null, bool openLinkInsteadOfDialog = false)
+        public TimelineStep AddUrl(string url, string title = null)
         {
-            Link = new HyperLink(url, title ?? url);
+            Links.Add(new HyperLink(url, title ?? url));
+            return this;
+        }
+
+        /// <summary>
+        /// Add a set of links to the dialog for the step.
+        /// </summary>
+        public TimelineStep AddUrls(IEnumerable<string> urls)
+        {
+            foreach(var url in urls)
+            {
+                AddUrl(url);
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Add a set of links to the dialog for the step.
+        /// </summary>
+        public TimelineStep AddUrls(IEnumerable<HyperLink> links)
+        {
+            Links.AddRange(links);
             return this;
         }
 

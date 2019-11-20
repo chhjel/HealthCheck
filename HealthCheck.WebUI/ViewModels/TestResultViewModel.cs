@@ -51,6 +51,11 @@ namespace HealthCheck.WebUI.ViewModels
         public bool AllowExpandData { get; set; } = true;
 
         /// <summary>
+        /// Removes expansion panel and copy/fullscreeen buttons.
+        /// </summary>
+        public bool DisplayClean { get; set; }
+
+        /// <summary>
         /// Any extra data.
         /// </summary>
         public List<TestResultDataDumpViewModel> Data { get; set; } = new List<TestResultDataDumpViewModel>();

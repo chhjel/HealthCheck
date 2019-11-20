@@ -1,7 +1,7 @@
 <!-- src/components/TestComponent.vue -->
 <template>
     <div>
-      <div class="test-item">
+      <div class="test-item pa-4">
           <!-- HEADER -->
           <div class="test-header" 
             :class="{'no-details': !showDetails}"
@@ -10,7 +10,7 @@
 
             <div class="test-status-label subheading font-weight-bold"
               :class="statusClass"
-              v-if="hasStatus">{{statusText}}</div>
+              v-if="hasStatus && allowShowStatusLabel">{{statusText}}</div>
             <h4 class="test-name">
               {{ test.Name }}
               <!-- <v-icon>link</v-icon> -->
@@ -126,6 +126,23 @@ export default class TestComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get allowShowStatusLabel(): boolean {
+      // Not clean mode
+      if (this.testResult!.DisplayClean !== true)
+      {
+        // Always allow
+        return true;
+      }
+      // Clean mode
+      else
+      {
+        return this.testResult!.StatusCode !== 0
+                && this.testResult!.Message != null
+                && this.testResult!.Message!.length > 0;
+      }
+      return this.testResult!.DisplayClean !== true || this.testResult!.Message!.length > 0;
+    }
+
     get encodedTestTitle(): string {
       return UrlUtils.EncodeHashPart(this.test.Name);
     }
@@ -312,8 +329,10 @@ export default class TestComponent extends Vue {
 
 <style scoped>
 .test-item {
-  border-radius: 0 25px 0 25px;
+  /* border-radius: 0 25px 0 25px; */
+  border-radius: 25px;
   background-color: #fff;
+  box-shadow: #d5d7d5 4px 4px 6px 0px;
 }
 .test-header {
   display: flex;
@@ -328,7 +347,8 @@ export default class TestComponent extends Vue {
   font-size: 20px;
   min-width: 120px;
   min-height: 53px;
-  border-radius: 0 25px 0 25px;
+  border-radius: 25px;
+  /* border-radius: 0 25px 0 25px; */
   text-transform: inherit;
 }
 .run-test-button .v-icon {

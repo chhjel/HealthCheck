@@ -255,6 +255,7 @@ export default class LogEntryTableComponent extends Vue {
 }
 .log-entry-details-row td pre {
     padding-left: 20px;
+    white-space: normal;
 }
 .log-entry-fileref {
     padding: 1px;
@@ -285,5 +286,12 @@ export default class LogEntryTableComponent extends Vue {
 }
 .log-entry-details-row {
     border-left-width: 50px !important;
+}
+</style>
+<style>
+.log-entry-table td,
+.log-entry-table th {
+    max-width: 25%;
+    word-break: break-all;
 }
 </style>

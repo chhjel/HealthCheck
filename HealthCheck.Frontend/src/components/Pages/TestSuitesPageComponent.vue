@@ -7,7 +7,8 @@
                 v-model="drawerState"
                 clipped fixed floating app
                 mobile-break-point="1000"
-                class="menu">
+                dark
+                class="menu testset-menu">
                                 
                 <v-list expand class="menu-items">
                     <filter-input-component class="filter" v-model="testSetFilterText" />
@@ -27,7 +28,7 @@
                                     v-if="getTestSetGroupIcon(group) != null" 
                                     v-text="getTestSetGroupIcon(group)"></v-icon>
                                 <v-list-tile-title v-text="group.Name"></v-list-tile-title>
-                                <v-badge class="mr-2" v-if="showFilterCounts">
+                                <v-badge class="mr-3" v-if="showFilterCounts">
                                     <template v-slot:badge>
                                         <span>{{ getGroupFilterMatchCount(group) }}</span>
                                     </template>
@@ -47,7 +48,7 @@
                             <v-list-tile-title
                                 v-text="set.Name"
                                 :class="getTestSetTitleClass(set)"></v-list-tile-title>
-                            <v-badge class="mr-2" v-if="showFilterCounts">
+                            <v-badge class="mr-3" v-if="showFilterCounts">
                                 <template v-slot:badge>
                                     <span>{{ getSetFilterMatchCount(set) }}</span>
                                 </template>
@@ -415,26 +416,42 @@ export default class TestSuitesPageComponent extends Vue {
 
 <style scoped>
 .menu {
-    background-color: #fff;
+    /* background-color: var(--v-primary-base); */
     box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
-.filter { 
+.filter {
+    position: relative;
     margin-left: 44px;
     margin-top: 26px;
     margin-bottom: 18px;
-    margin-right: 16px;
+    margin-right: 44px;
+}
+@media (max-width: 960px) {
+    .menu-items { 
+        margin-top: 67px;
+    }
 }
 </style>
 
 <style>
-/* .application {
-    font-family: 'Helvetica, Arial, sans-serif';
-} */
+.testset-menu {
+    background-color: hsla(0, 0%, 16%, 1) !important;
+}
 .testset-menu-item>a {
-    color: #000;
+    /* color: #fff; */
+}
+.v-list__group__header--active .v-list__group__header__prepend-icon .v-icon {
+    color: #fff;
+}
+.testset-menu-item.active a {
+    background: hsla(0,0%,100%,.08);
+}
+.testset-menu .v-list__tile--link:hover {
+    background: hsla(0,0%,100%,.08);
 }
 .testset-menu-item.active .v-list__tile {
-    border-left: 4px solid var(--v-primary-base);
+    /* border-left: 4px solid var(--v-primary-base); */
+    border-left: 4px solid #d1495b;
     padding-left: 42px !important;
 }
 .v-list__group::before, .v-list__group::after {
@@ -445,6 +462,9 @@ export default class TestSuitesPageComponent extends Vue {
 }
 .v-list__group.v-list__group--active {
     margin-bottom: 15px;
+}
+.testset-menu .v-list__group__header .v-list__tile__title {
+    font-weight: 600;
 }
 .v-list__group {
     margin-bottom: 10px;

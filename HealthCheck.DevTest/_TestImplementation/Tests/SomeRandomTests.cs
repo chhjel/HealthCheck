@@ -53,12 +53,12 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
                         .SetIcon("shopping_cart")
                         .SetCompleted(),
                     new TimelineStep("Payment recieved", "The payment was recieved in the system etc", DateTime.Now.AddMinutes(-7))
-                        .SetUrl("https://www.google.com", "Some url here etc")
+                        .AddUrl("https://www.google.com", "Some url here etc")
                         .SetCompleted(),
                     new TimelineStep("Order recieved", "The order was recieved in the system etc")
                         .SetTimestamp(DateTime.Now.AddMinutes(-3)).SetIcon("receipt").SetError("Oh no! It failed! Some more descriptions here etc etc etc etc and some more!"),
                     new TimelineStep("Order shipped", "Stuff was sent")
-                        .SetUrl("https://www.google.com", "Some url here")
+                        .AddUrl("https://www.google.com", "Some url here")
                         .SetIcon("local_shipping")
                 }, "Timeline test")
                 .AddCodeData("public class Test {\n\tpublic string Prop { get; set; }\n}\n", "Code test")
@@ -98,23 +98,26 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         }
 
         [RuntimeTest]
-        public TestResult TestTimeline()
+        public TestResult TestTimeline(int orderId)
         {
-            return TestResult.CreateSuccess($"Timeline retrieved.")
-                .DisallowDataExpansion()
+            return TestResult.CreateSuccess("")
+                .SetCleanMode()
                 .AddTimelineData(new[]
                 {
-                    new TimelineStep("Cart created", "A cart was created")
+                    new TimelineStep($"Cart #{orderId} created", "A cart was created")
                         .SetTimestamp(DateTime.Now.AddMinutes(-15), hideTime: true)
                         .SetIcon("shopping_cart")
                         .SetCompleted(),
                     new TimelineStep("Payment recieved", "The payment was recieved in the system etc", DateTime.Now.AddMinutes(-7))
-                        .SetUrl("https://www.google.com", "Some url here etc")
+                        .AddUrl("https://www.google.com", "Some url here etc")
                         .SetCompleted(),
                     new TimelineStep("Order recieved", "The order was recieved in the system etc")
                         .SetTimestamp(DateTime.Now.AddMinutes(-3)).SetIcon("receipt").SetError("Oh no! It failed! Some more descriptions here etc etc etc etc and some more!"),
                     new TimelineStep("Order shipped", "Stuff was sent")
-                        .SetUrl("https://www.google.com", "Some url here")
+                        .AddUrls(new [] {
+                            new HyperLink("Google", "https://www.google.com"),
+                            new HyperLink("VG", "https://www.vg.com")
+                        })
                         .SetIcon("local_shipping")
                 });
         }

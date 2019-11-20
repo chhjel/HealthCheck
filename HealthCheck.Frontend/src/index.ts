@@ -13,10 +13,12 @@ Vue.use(Vuetify, {
         customProperties: true
     },
     theme: {
-      primary: "#6908b9",
-      secondary: "#3c0777",
-      accent: "#6908b9",
-      error: "#de4a4a"
+    // 0a1925
+      primary: "#18618c",
+      secondary: "#263238",
+      accent: "#18618c",
+    //   error: "#de4a4a"
+      error: "#d62839"
     }
 });
 

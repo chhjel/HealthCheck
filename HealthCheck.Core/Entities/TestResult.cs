@@ -39,6 +39,11 @@ namespace HealthCheck.Core.Entities
         public bool AllowExpandData { get; set; } = true;
 
         /// <summary>
+        /// Removes expansion panel and copy/fullscreeen buttons.
+        /// </summary>
+        public bool DisplayClean { get; set; }
+
+        /// <summary>
         /// The test that was executed.
         /// </summary>
         public TestDefinition Test { get; set; }
@@ -138,7 +143,15 @@ namespace HealthCheck.Core.Entities
             return this;
         }
 
-        //
+        /// <summary>
+        /// Removes expansion panel and copy/fullscreeen buttons.
+        /// </summary>
+        public TestResult SetCleanMode(bool clean = true)
+        {
+            DisplayClean = clean;
+            return this;
+        }
+        
         /// <summary>
         /// Include a serialized version of the given object in the result data.
         /// <para>If using HealthCheck.WebUI the NewtonsoftJsonSerializer() or just use the AddSerializedData(object data, string title=null) extension method from HealthCheck.WebUI.</para>
@@ -289,12 +302,12 @@ namespace HealthCheck.Core.Entities
                 var isLast = i == stepList.Count - 1;
                 var step = stepList[i];
 
+                var linksJson = "[" + string.Join(", ", step.Links.Select(x => $"[{DumpHelper.EncodeForJson(x.Url)}, {DumpHelper.EncodeForJson(x.Text)}]")) + "]";
                 jsonBuilder.AppendLine($@"
 {{
     ""Title"": {DumpHelper.EncodeForJson(step.Title)},
     ""Description"": {DumpHelper.EncodeForJson(step.Description)},
-    ""LinkUrl"": {DumpHelper.EncodeForJson(step.Link?.Url)},
-    ""LinkTitle"": {DumpHelper.EncodeForJson(step.Link?.Text)},
+    ""Links"": {linksJson},
     ""Error"": {DumpHelper.EncodeForJson(step.Error)},
     ""Timestamp"": {DumpHelper.EncodeForJson(step.Timestamp)},
     ""Icon"": {DumpHelper.EncodeForJson(step.Icon)},

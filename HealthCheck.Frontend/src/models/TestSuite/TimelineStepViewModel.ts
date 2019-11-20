@@ -3,8 +3,7 @@ export default interface TimelineStepViewModel {
     Title: string;
     Description: string | null;
     Error: string | null;
-    LinkUrl: string | null;
-    LinkTitle: string | null;
+    Links: Array<string[]>; // [href, title]
     Icon: string | null;
     Timestamp: Date | null;
     HideTimeInTimestamp: boolean;

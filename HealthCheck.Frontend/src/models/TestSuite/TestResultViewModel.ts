@@ -7,6 +7,7 @@ export default interface TestResultViewModel {
     Message: string;
     StackTrace: string;
     AllowExpandData: boolean;
+    DisplayClean: boolean;
     ExpandDataByDefault: boolean;
     DurationInMilliseconds: number;
     Data: Array<TestResultDataDumpViewModel>;
