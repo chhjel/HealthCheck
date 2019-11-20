@@ -166,48 +166,26 @@
                 <div>
                     <!-- Options -->
                     <v-layout row wrap xs12>
-                        <v-flex xs6 sm4 lg2 v-if="!showExcludedQuery">
+                        <v-flex xs6 sm4 lg4 v-if="!showExcludedQuery">
                             <v-btn depressed small class="extra-filter-btn"
                                 @click="showExcludedQuery = true">
                                 <v-icon >add</v-icon>
                                 Exclude content
                             </v-btn>
                         </v-flex>
-                        <v-flex xs6 sm4 lg2 v-if="!showLogPathQuery">
+                        <v-flex xs6 sm4 lg4 v-if="!showLogPathQuery">
                             <v-btn depressed small class="extra-filter-btn"
                                 @click="showLogPathQuery = true">
                                 <v-icon >add</v-icon>
                                 Filter log filepaths
                             </v-btn>
                         </v-flex>
-                        <v-flex xs6 sm4 lg2 v-if="!showExcludedLogPathQuery">
+                        <v-flex xs12 sm4 lg4 v-if="!showExcludedLogPathQuery">
                             <v-btn depressed small class="extra-filter-btn"
                                 @click="showExcludedLogPathQuery = true">
                                 <v-icon >add</v-icon>
                                 Exclude log filepaths
                             </v-btn>
-                        </v-flex>
-                        <v-flex xs6 sm4 lg2 v-if="!showcustomColumnRule">
-                            <v-btn depressed small class="extra-filter-btn"
-                                @click="showcustomColumnRule = true; customColumnRule=options.DefaultColumnRule">
-                                <v-icon >add</v-icon>
-                                Custom columns
-                            </v-btn>
-                        </v-flex>
-                            
-                        <v-flex xs6 sm4 lg2 style="padding-left: 22px;">
-                            <v-checkbox
-                                class="options-checkbox"
-                                v-model="expandAllRows"
-                                :label="`Expand all rows`"
-                            ></v-checkbox>
-                        </v-flex>
-                        <v-flex xs6 sm4 lg2 style="padding-left: 22px;">
-                            <v-checkbox
-                                class="options-checkbox"
-                                v-model="filterOrderDescending"
-                                :label="`Newest first`"
-                            ></v-checkbox>
                         </v-flex>
                         <v-flex xs6 sm2 style="padding-left: 22px;">
                             <v-text-field type="number" label="Page size"
@@ -218,6 +196,27 @@
                             <v-text-field type="number" label="Margin (ms)"
                                 class="options-input"
                                 v-model.number="filterMargin" />
+                        </v-flex>          
+                        <v-flex xs6 sm4 lg2 style="padding-left: 22px;">
+                            <v-checkbox
+                                class="options-checkbox"
+                                v-model="filterOrderDescending"
+                                :label="`Newest first`"
+                            ></v-checkbox>
+                        </v-flex>            
+                        <v-flex xs6 sm4 lg2 style="padding-left: 22px;">
+                            <v-checkbox
+                                class="options-checkbox"
+                                v-model="expandAllRows"
+                                :label="`Expand all rows`"
+                            ></v-checkbox>
+                        </v-flex>
+                        <v-flex xs6 sm4 lg4 v-if="!showcustomColumnRule">
+                            <v-btn depressed small class="extra-filter-btn"
+                                @click="showcustomColumnRule = true; customColumnRule=options.DefaultColumnRule">
+                                <v-icon >add</v-icon>
+                                Custom columns
+                            </v-btn>
                         </v-flex>
                     </v-layout>
                     
