@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Abstractions;
+﻿using HealthCheck.ActionLog.Services;
+using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
@@ -38,10 +39,10 @@ namespace HealthCheck.DevTest.Controllers
                 _auditEventService = CreateAuditEventService();
             }
 
-            //Services.TestLogService = TestLogServiceAccessor.Current;
             Services.SiteEventService = _siteEventService;
             Services.AuditEventService = _auditEventService;
             Services.LogSearcherService = CreateLogSearcherService();
+            Services.TestLogService = TestLogServiceAccessor.Current;
 
             if (!_hasInited)
             {

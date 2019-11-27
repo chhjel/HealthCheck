@@ -10,6 +10,7 @@ export default interface FrontEndOptionsViewModel {
     GetLogSearchResultsEndpoint: string;
     CancelLogSearchEndpoint: string;
     CancelAllLogSearchesEndpoint: string;
+    GetRequestLogEndpoint: string;
     DefaultColumnRule: string;
     DefaultColumnModeIsRegex: boolean;
     ApplyCustomColumnRuleByDefault: boolean;

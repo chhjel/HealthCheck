@@ -21,5 +21,10 @@ namespace HealthCheck.WebUI.Models
         /// Must be set for the log viewer tab to be displayed.
         /// </summary>
         public ILogSearcherService LogSearcherService { get; set; }
+
+        /// <summary>
+        /// Must be set for the requestlog to be displayed.
+        /// </summary>
+        public ITestLogService TestLogService { get; set; }
     }
 }

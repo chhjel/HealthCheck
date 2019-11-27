@@ -2,6 +2,7 @@
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.ActionsTestLog.Models;
 using HealthCheck.Core.Modules.LogViewer.Models;
 using HealthCheck.Core.Services;
 using HealthCheck.Core.Util;
@@ -76,6 +77,7 @@ namespace HealthCheck.WebUI.Util
         private const string PAGE_TESTS = "tests";
         private const string PAGE_AUDITLOG = "auditlog";
         private const string PAGE_LOGS = "logviewer";
+        private const string PAGE_REQUESTLOG = "requestlog";
         private const string Q = "\"";
 
         /// <summary>
@@ -90,6 +92,19 @@ namespace HealthCheck.WebUI.Util
             settings.Converters.Add(new StringEnumConverter());
 
             return JsonConvert.SerializeObject(obj, settings);
+        }
+
+        /// <summary>
+        /// Get all request log actions.
+        /// </summary>
+        public List<LoggedActionEntry> GetRequestLogActions(Maybe<TAccessRole> accessRoles)
+        {
+            if (!CanShowRequestLogPageTo(accessRoles))
+            {
+                return new List<LoggedActionEntry>();
+            }
+
+            return Services?.TestLogService?.GetActions() ?? new List<LoggedActionEntry>();
         }
 
         /// <summary>
@@ -321,7 +336,8 @@ namespace HealthCheck.WebUI.Util
             => CanShowTestsPageTo(accessRoles)
             || CanShowOverviewPageTo(accessRoles)
             || CanShowAuditPageTo(accessRoles)
-            || CanShowLogViewerPageTo(accessRoles);
+            || CanShowLogViewerPageTo(accessRoles)
+            || CanShowRequestLogPageTo(accessRoles);
 
         /// <summary>
         /// Check if the given roles has access to the overview page.
@@ -346,6 +362,12 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public bool CanShowLogViewerPageTo(Maybe<TAccessRole> accessRoles)
             => Services.LogSearcherService != null && CanShowPageTo(accessRoles, AccessOptions.LogViewerPageAccess, defaultValue: false);
+
+        /// <summary>
+        /// Check if the given roles has access to the requestlog page.
+        /// </summary>
+        public bool CanShowRequestLogPageTo(Maybe<TAccessRole> accessRoles)
+            => Services.TestLogService != null && CanShowPageTo(accessRoles, AccessOptions.RequestLogPageAccess, defaultValue: false);
 
         private void CheckPageOptions(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
         {
@@ -390,6 +412,15 @@ namespace HealthCheck.WebUI.Util
                 frontEndOptions.CancelAllLogSearchesEndpoint = deniedEndpoint;
             }
 
+            if (CanShowRequestLogPageTo(accessRoles))
+            {
+                frontEndOptions.Pages.Add(PAGE_REQUESTLOG);
+            }
+            else
+            {
+                frontEndOptions.GetRequestLogEndpoint = deniedEndpoint;
+            }
+
             PrioritizePages(frontEndOptions.Pages, frontEndOptions.PagePriority);
 
             frontEndOptions.Validate();
@@ -414,6 +445,7 @@ namespace HealthCheck.WebUI.Util
             else if (type == HealthCheckPageType.Tests) return PAGE_TESTS;
             else if (type == HealthCheckPageType.AuditLog) return PAGE_AUDITLOG;
             else if (type == HealthCheckPageType.LogViewer) return PAGE_LOGS;
+            else if (type == HealthCheckPageType.RequestLog) return PAGE_REQUESTLOG;
             else throw new NotImplementedException($"Page type {type.ToString()} not fully implemented yet.");
         }
 

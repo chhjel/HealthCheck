@@ -24,6 +24,11 @@
                         :class="{ 'active-tab': isCurrentPage(PAGE_TESTS) }"
                         @click.left.prevent="setCurrentPage(PAGE_TESTS)">{{ options.TestsTabName }}</v-btn>
                     <v-btn flat
+                        v-if="showPageMenu(PAGE_REQUESTLOG)"
+                        :href="`?page=${PAGE_REQUESTLOG}`"
+                        :class="{ 'active-tab': isCurrentPage(PAGE_REQUESTLOG) }"
+                        @click.left.prevent="setCurrentPage(PAGE_REQUESTLOG)">Requests</v-btn>
+                    <v-btn flat
                         v-if="showPageMenu(PAGE_LOGS)"
                         :href="`?page=${PAGE_LOGS}`"
                         :class="{ 'active-tab': isCurrentPage(PAGE_LOGS) }"
@@ -58,6 +63,10 @@
                 v-if="shouldIncludePage(PAGE_LOGS)"
                 v-show="currentPage == PAGE_LOGS"
                 :options="options" />
+            <div
+                v-if="shouldIncludePage(PAGE_REQUESTLOG)"
+                v-show="currentPage == PAGE_REQUESTLOG"
+                ></div>
 
             <!-- FOOTER -->
             <!-- <v-footer app fixed>
@@ -97,6 +106,7 @@ export default class HealthCheckPageComponent extends Vue {
     PAGE_TESTS: string = "tests";
     PAGE_LOGS: string = "logviewer";
     PAGE_AUDITLOG: string = "auditlog";
+    PAGE_REQUESTLOG: string = "requestlog";
     PAGE_NO_PAGES_AVAILABLE: string = "no_page";
     currentPage: string = this.PAGE_TESTS;
     pagesWithMenu: string[] = [ this.PAGE_TESTS ];

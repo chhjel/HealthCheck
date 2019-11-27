@@ -152,6 +152,18 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
+        /// Get all request log actions.
+        /// </summary>
+        public ActionResult GetRequestLog()
+        {
+            if (!Enabled || !Helper.CanShowRequestLogPageTo(CurrentRequestAccessRoles))
+                return HttpNotFound();
+
+            var viewModel = Helper.GetRequestLogActions(CurrentRequestAccessRoles);
+            return CreateJsonResult(viewModel);
+        }
+
+        /// <summary>
         /// Get site events to show in the UI.
         /// </summary>
         public virtual async Task<ActionResult> GetSiteEvents()

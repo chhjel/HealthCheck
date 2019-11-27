@@ -80,6 +80,11 @@ namespace HealthCheck.WebUI.ViewModels
         public string CancelAllLogSearchesEndpoint { get; set; }
 
         /// <summary>
+        /// Url to the endpoint that returns all request log entries.
+        /// </summary>
+        public string GetRequestLogEndpoint { get; set; }
+
+        /// <summary>
         /// Number of minutes past the end of a site event it will be displayed below "Current status" on the status page.
         /// <para>Defaults to 30 minutes.</para>
         /// </summary>
@@ -148,6 +153,7 @@ namespace HealthCheck.WebUI.ViewModels
             GetLogSearchResultsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/SearchLogs";
             CancelLogSearchEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/CancelLogSearch";
             CancelAllLogSearchesEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/CancelAllLogSearches";
+            GetRequestLogEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetRequestLog";
         }
 
         /// <summary>
