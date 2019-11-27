@@ -160,6 +160,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\HealthCheck.ActionLog\HealthCheck.ActionLog.csproj">
+      <Project>{d0bbe13d-f559-4cbc-b071-cebff619be6c}</Project>
+      <Name>HealthCheck.ActionLog</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HealthCheck.Core\HealthCheck.Core.csproj">
       <Project>{df551db9-32a9-4519-b19c-2f306a486448}</Project>
       <Name>HealthCheck.Core</Name>

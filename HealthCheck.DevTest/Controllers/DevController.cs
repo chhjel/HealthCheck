@@ -1,23 +1,23 @@
-﻿using System.IO;
-using System.Web;
-using System.Web.Hosting;
-using System.Web.Mvc;
-using HealthCheck.Core.Util;
-using HealthCheck.DevTest._TestImplementation;
-using HealthCheck.WebUI.Models;
-using HealthCheck.WebUI.ViewModels;
-using HealthCheck.WebUI.Abstractions;
-using System;
+﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
-using HealthCheck.WebUI.Services;
-using HealthCheck.Core.Abstractions;
-using System.Threading.Tasks;
-using System.Linq;
 using HealthCheck.Core.Services;
-using System.Collections.Generic;
 using HealthCheck.Core.Services.Models;
+using HealthCheck.Core.Util;
+using HealthCheck.DevTest._TestImplementation;
+using HealthCheck.WebUI.Abstractions;
+using HealthCheck.WebUI.Models;
+using HealthCheck.WebUI.Services;
+using HealthCheck.WebUI.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web;
+using System.Web.Hosting;
+using System.Web.Mvc;
 
 namespace HealthCheck.DevTest.Controllers
 {
@@ -38,6 +38,7 @@ namespace HealthCheck.DevTest.Controllers
                 _auditEventService = CreateAuditEventService();
             }
 
+            //Services.TestLogService = TestLogServiceAccessor.Current;
             Services.SiteEventService = _siteEventService;
             Services.AuditEventService = _auditEventService;
             Services.LogSearcherService = CreateLogSearcherService();
@@ -49,10 +50,8 @@ namespace HealthCheck.DevTest.Controllers
         }
 
         private ILogSearcherService CreateLogSearcherService()
-        {
-            return new FlatFileLogSearcherService(new FlatFileLogSearcherServiceOptions()
+            => new FlatFileLogSearcherService(new FlatFileLogSearcherServiceOptions()
                     .IncludeLogFilesInDirectory(HostingEnvironment.MapPath("~/App_Data/TestLogs/")));
-        }
 
         private ISiteEventService CreateSiteEventService()
             => new SiteEventService(new FlatFileSiteEventStorage(HostingEnvironment.MapPath("~/App_Data/SiteEventStorage.json"),
