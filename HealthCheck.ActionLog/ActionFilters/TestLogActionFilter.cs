@@ -3,8 +3,10 @@ using HealthCheck.ActionLog.Services;
 using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Modules.ActionsTestLog.Enums;
 using HealthCheck.Core.Modules.ActionsTestLog.Models;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using System.Web.Mvc.Async;
 
 namespace HealthCheck.ActionLog.ActionFilters
 {
@@ -20,12 +22,19 @@ namespace HealthCheck.ActionLog.ActionFilters
         /// </summary>
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            if (context.ActionDescriptor is ReflectedActionDescriptor reflectedActionDescriptor)
+            // TaskAsyncActionDescriptor
+            if (context.Controller?.ViewBag != null)
             {
-                if (context.Controller?.ViewBag != null)
+                MethodInfo actionMethod = null;
+                if (context.ActionDescriptor is ReflectedActionDescriptor reflectedActionDescriptor)
                 {
-                    context.Controller.ViewBag.ActionsTestLog_ActionMethodInfo = reflectedActionDescriptor?.MethodInfo;
+                    actionMethod = reflectedActionDescriptor?.MethodInfo;
                 }
+                else if (context.ActionDescriptor is TaskAsyncActionDescriptor taskAsyncActionDescriptor)
+                {
+                    actionMethod = taskAsyncActionDescriptor?.TaskMethodInfo;
+                }
+                context.Controller.ViewBag.ActionsTestLog_ActionMethodInfo = actionMethod;
             }
             base.OnActionExecuting(context);
         }
