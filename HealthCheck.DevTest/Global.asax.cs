@@ -4,6 +4,7 @@ using HealthCheck.ActionLog.Util;
 using HealthCheck.DevTest.Controllers;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Hosting;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -20,7 +21,7 @@ namespace HealthCheck.DevTest
             RouteConfig.RegisterRoutes(RouteTable.Routes);
 
             TestLogServiceAccessor.Current = new TestLogService(
-                new FlatFileTestLogStorage(@"c:\temp\TestLogStore.json"),
+                new FlatFileTestLogStorage(HostingEnvironment.MapPath("~/App_Data/RequestLog.json")),
                 new TestLogServiceOptions
                 {
                     MaxCallCount = 3,
@@ -37,10 +38,11 @@ namespace HealthCheck.DevTest
                     }
                 });
 
-            if (TestLogServiceAccessor.Current != null)
-            {
-                Task.Run(() => TestLogUtil.EnsureDefinitionsFromTypes(TestLogServiceAccessor.Current, new[] { typeof(DevController).Assembly }));
-            }
+            TestLogUtil.EnsureDefinitionsFromTypes(TestLogServiceAccessor.Current, new[] { typeof(DevController).Assembly });
+            //if (TestLogServiceAccessor.Current != null)
+            //{
+            //    Task.Run(() => TestLogUtil.EnsureDefinitionsFromTypes(TestLogServiceAccessor.Current, new[] { typeof(DevController).Assembly }));
+            //}
         }
     }
 }

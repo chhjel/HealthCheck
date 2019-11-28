@@ -80,8 +80,9 @@ namespace HealthCheck.DevTest.Controllers
                 {
                     HealthCheckPageType.Tests,
                     HealthCheckPageType.Overview,
+                    HealthCheckPageType.RequestLog,
                     HealthCheckPageType.LogViewer,
-                    HealthCheckPageType.AuditLog,
+                    HealthCheckPageType.AuditLog
                 },
                 ApplyCustomColumnRuleByDefault = true
             };
@@ -105,6 +106,7 @@ namespace HealthCheck.DevTest.Controllers
             AccessOptions.LogViewerPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.InvalidTestsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.SiteEventDeveloperDetailsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            AccessOptions.RequestLogPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
         }
 
         protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)

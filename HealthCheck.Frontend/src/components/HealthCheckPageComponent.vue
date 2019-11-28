@@ -15,27 +15,27 @@
                 <v-toolbar-items v-if="showPagesMenu">
                     <v-btn flat
                         v-if="showPageMenu(PAGE_OVERVIEW)"
-                        :href="`?page=${PAGE_OVERVIEW}`"
+                        :href="`#/${PAGE_OVERVIEW}`"
                         :class="{ 'active-tab': isCurrentPage(PAGE_OVERVIEW) }"
                         @click.left.prevent="setCurrentPage(PAGE_OVERVIEW)">Status</v-btn>
                     <v-btn flat 
                         v-if="showPageMenu(PAGE_TESTS)"
-                        :href="`?page=${PAGE_TESTS}`"
+                        :href="`#/${PAGE_TESTS}`"
                         :class="{ 'active-tab': isCurrentPage(PAGE_TESTS) }"
                         @click.left.prevent="setCurrentPage(PAGE_TESTS)">{{ options.TestsTabName }}</v-btn>
                     <v-btn flat
                         v-if="showPageMenu(PAGE_REQUESTLOG)"
-                        :href="`?page=${PAGE_REQUESTLOG}`"
+                        :href="`#/${PAGE_REQUESTLOG}`"
                         :class="{ 'active-tab': isCurrentPage(PAGE_REQUESTLOG) }"
                         @click.left.prevent="setCurrentPage(PAGE_REQUESTLOG)">Requests</v-btn>
                     <v-btn flat
                         v-if="showPageMenu(PAGE_LOGS)"
-                        :href="`?page=${PAGE_LOGS}`"
+                        :href="`#/${PAGE_LOGS}`"
                         :class="{ 'active-tab': isCurrentPage(PAGE_LOGS) }"
                         @click.left.prevent="setCurrentPage(PAGE_LOGS)">Logs</v-btn>
                     <v-btn flat 
                         v-if="showPageMenu(PAGE_AUDITLOG)"
-                        :href="`?page=${PAGE_AUDITLOG}`"
+                        :href="`#/${PAGE_AUDITLOG}`"
                         :class="{ 'active-tab': isCurrentPage(PAGE_AUDITLOG) }"
                         @click.left.prevent="setCurrentPage(PAGE_AUDITLOG)">Audit log</v-btn>
                 </v-toolbar-items>
@@ -63,10 +63,10 @@
                 v-if="shouldIncludePage(PAGE_LOGS)"
                 v-show="currentPage == PAGE_LOGS"
                 :options="options" />
-            <div
+            <request-log-page-component
                 v-if="shouldIncludePage(PAGE_REQUESTLOG)"
                 v-show="currentPage == PAGE_REQUESTLOG"
-                ></div>
+                :options="options" />
 
             <!-- FOOTER -->
             <!-- <v-footer app fixed>
@@ -83,6 +83,7 @@ import TestSuitesPageComponent from './Pages/TestSuitesPageComponent.vue';
 import OverviewPageComponent from './Pages/OverviewPageComponent.vue';
 import AuditLogPageComponent from './Pages/AuditLogPageComponent.vue';
 import LogViewerPageComponent from './Pages/LogViewerPageComponent.vue';
+import RequestLogPageComponent from './Pages/RequestLogPageComponent.vue';
 import FrontEndOptionsViewModel from '../models/Page/FrontEndOptionsViewModel';
 import UrlUtils from '../util/UrlUtils';
 
@@ -92,7 +93,8 @@ import UrlUtils from '../util/UrlUtils';
         TestSuitesPageComponent,
         OverviewPageComponent,
         AuditLogPageComponent,
-        LogViewerPageComponent
+        LogViewerPageComponent,
+        RequestLogPageComponent
     }
 })
 export default class HealthCheckPageComponent extends Vue {

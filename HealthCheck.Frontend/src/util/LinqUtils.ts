@@ -5,7 +5,7 @@ export default class LinqUtils
     static SortByThenBy<TItem, TPropA, TPropB>(
         a:TItem, b:TItem,
         firstPropSelector: (item:TItem) => TPropA,
-        secondPropSelector: (item:TItem) => TPropB,
+        secondPropSelector: ((item:TItem) => TPropB) | null,
         invertFirst: boolean = false,
         invertSecond: boolean = false
     ): number {
@@ -14,6 +14,10 @@ export default class LinqUtils
             return invertFirst ? 1 : -1;
         } else if (firstPropSelector(a) < firstPropSelector(b)) { 
             return invertFirst ? -1 : 1;
+        }
+    
+        if (secondPropSelector === null) {
+            return 0;
         }
     
         // Then by..

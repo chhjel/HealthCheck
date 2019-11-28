@@ -49,6 +49,20 @@ namespace HealthCheck.WebUI.Tests
         [InlineData(AccessRoles.SystemAdmins)]
         [InlineData(AccessRoles.WebAdmins | AccessRoles.SystemAdmins)]
         [InlineData(AccessRoles.Everyone)]
+        public void GetRequestLogActions_DoesNotFail(AccessRoles roles)
+        {
+            var helper = CreateHelper<AccessRoles>();
+            var models = helper.GetRequestLogActions(new Maybe<AccessRoles>(roles));
+            Assert.NotEmpty(models);
+        }
+
+        [Theory]
+        [InlineData(AccessRoles.None)]
+        [InlineData(AccessRoles.Guest)]
+        [InlineData(AccessRoles.WebAdmins)]
+        [InlineData(AccessRoles.SystemAdmins)]
+        [InlineData(AccessRoles.WebAdmins | AccessRoles.SystemAdmins)]
+        [InlineData(AccessRoles.Everyone)]
         public void GetTestDefinitionsViewModel_DoesNotFail(AccessRoles roles)
         {
             var helper = CreateHelper<AccessRoles>();
