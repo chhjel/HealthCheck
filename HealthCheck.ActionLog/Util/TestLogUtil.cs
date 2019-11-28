@@ -71,7 +71,7 @@ namespace HealthCheck.ActionLog.Util
                     var info = CreateActionInfo(x.ControllerType, x.Action, x.ActionMethod);
                     return new LoggedActionEntry()
                     {
-                        EndpointId = service.CreateEndpointId(controllerType, x.ActionMethod),
+                        EndpointId = service.CreateEndpointId(controllerType, x.ActionMethod, x.Action),
                         Name = info.Name,
                         Description = info.Description,
                         Group = service.GetControllerGroupNameFactory()?.Invoke(controllerType),

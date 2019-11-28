@@ -37,7 +37,7 @@ namespace HealthCheck.ActionLog.Services
         /// </summary>
         public void HandleActionEvent(LogFilterEvent e)
         {
-            var endpointId = CreateEndpointId(e.ControllerType, e.ActionMethod);
+            var endpointId = CreateEndpointId(e.ControllerType, e.ActionMethod, e.Action);
             var entry = Store.GetEntryWithEndpointId(endpointId);
 
             if (entry == null)
@@ -128,12 +128,12 @@ namespace HealthCheck.ActionLog.Services
         /// <summary>
         /// Create an id for the given endpoint.
         /// </summary>
-        public string CreateEndpointId(Type controllerType, MethodInfo actionMethod)
-            => $"{controllerType?.FullName ?? "nullController"}=>{actionMethod?.ToString()?.Replace(" ", "_") ?? "nullAction"}".ToLower();
+        public string CreateEndpointId(Type controllerType, MethodInfo actionMethod, string actionName)
+            => $"{controllerType?.FullName ?? "nullController"}=>{(actionMethod?.ToString() ?? actionName)?.Replace(" ", "_") ?? "nullAction"}".ToLower();
 
         private LoggedActionEntry CreateNewEntry(LogFilterEvent e, string endpointId)
         {
-            var info = CreateActionInfo(e.ControllerType, e.Action, null);
+            var info = CreateActionInfo(e.ControllerType, e.Action, e.ActionMethod);
             var entry = new LoggedActionEntry()
             {
                 EndpointId = endpointId,

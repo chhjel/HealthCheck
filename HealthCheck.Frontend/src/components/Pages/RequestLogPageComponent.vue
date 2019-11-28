@@ -38,7 +38,7 @@
                     v-on:clickedRemaining="showOnlyState(STATE_UNDETERMINED)" />
                 <br />
 
-                Show:
+                Order by:
                 <div v-for="(sortOption, index) in sortOptions"
                      :key="`sortOption-${index}`">
                     <v-btn x-small @click="setSortOrder(sortOption)" >
@@ -46,7 +46,7 @@
                     </v-btn>
                 </div>
                 
-                Order by:
+                Show:
                 <v-checkbox v-model="visibleStates" label="Successes" :value="STATE_SUCCESS"></v-checkbox>
                 <v-checkbox v-model="visibleStates" label="Errors" :value="STATE_ERROR"></v-checkbox>
                 <v-checkbox v-model="visibleStates" label="Undetermined" :value="STATE_UNDETERMINED"></v-checkbox>
@@ -68,7 +68,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
 import LoggedActionEntryViewModel from '../../models/RequestLog/LoggedActionEntryViewModel';
 import LoggedActionCallEntryViewModel from '../../models/RequestLog/LoggedActionCallEntryViewModel';
@@ -231,31 +231,32 @@ export default class RequestLogPageComponent extends Vue {
     setFromUrl(): void {
         const parts = UrlUtils.GetHashParts();
         
-        // const sortBy = this.sortOptions.find(x => x.id == parts[0]);
-        // if (sortBy !== undefined) {
-        //     this.setSortOrder(sortBy);
-        // }
+        const sortBy = this.sortOptions.find(x => x.id == parts[1]);
+        if (sortBy !== undefined) {
+            this.setSortOrder(sortBy);
+        }
 
-        // const visible = parts[1];
-        // if (visible !== undefined) {
-        //     this.visibleStates = visible.split('.').map(x => parseInt(x));
-        // }
+        const visible = parts[2];
+        if (visible !== undefined) {
+            this.visibleStates = visible.split('.').map(x => parseInt(x));
+        }
     }
 
     updateUrl(): void {
-        // UrlUtils.SetHashParts([
-        //     this.currentlySortedBy.id,
-        //     this.visibleStates.join(".")
-        // ]);
+        UrlUtils.SetHashParts([
+            'requestlog',
+            this.currentlySortedBy.id,
+            this.visibleStates.join(".")
+        ]);
     }
 
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
-    // @Watch("visibleStates")
-    // onVisibleStatesChanged(): void {
-    //     this.updateUrl();
-    // }
+    @Watch("visibleStates")
+    onVisibleStatesChanged(): void {
+        this.updateUrl();
+    }
 }
 type NumberGetter<T> = (a: T) => number;
 interface OrderByOption {

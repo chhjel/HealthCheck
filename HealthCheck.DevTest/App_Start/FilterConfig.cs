@@ -8,8 +8,8 @@ namespace HealthCheck.DevTest
     {
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
-            filters.Add(new TestLogErrorFilter());
             filters.Add(new TestLogActionFilter());
+            filters.Add(new TestLogErrorFilter());
             filters.Add(new HandleErrorAttribute());
         }
 

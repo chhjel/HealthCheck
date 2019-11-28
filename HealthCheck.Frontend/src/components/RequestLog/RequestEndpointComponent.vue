@@ -3,7 +3,7 @@
     <div>
         <h3>
             <v-icon large :color="stateColor">{{ stateIcon }}</v-icon>
-            {{ entry.Name }}
+            {{ entry.Name }} <small style="color:gray">({{ entry.EndpointId }})</small>
         </h3>
         <p v-if="entry.Description != null" v-html="entry.Description"></p>
         <a v-if="entry.Url != null" :href="entry.Url">{{ entry.Url }}<br /></a>

@@ -19,7 +19,7 @@ namespace HealthCheck.Core.Abstractions
         /// <summary>
         /// Create an id for the given endpoint.
         /// </summary>
-        string CreateEndpointId(Type controllerType, MethodInfo actionMethod);
+        string CreateEndpointId(Type controllerType, MethodInfo actionMethod, string actionName);
 
         /// <summary>
         /// Clear all stored actions.
