@@ -3,33 +3,35 @@
     <div>
         <h3>
             <v-icon large :color="stateColor">{{ stateIcon }}</v-icon>
-            {{ entry.Name }} <small style="color:gray">({{ entry.EndpointId }})</small>
+            {{ entry.Name }}
         </h3>
         <p v-if="entry.Description != null" v-html="entry.Description"></p>
         <a v-if="entry.Url != null" :href="entry.Url">{{ entry.Url }}<br /></a>
         <i>
-            Controller: {{ entry.FullControllerName }}, 
+            Controller: {{ entry.FullControllerName }},
+            Type: {{ entry.ControllerType }},
             Action: {{ entry.Action }}, 
-            Verb: {{ entry.HttpVerb }}
+            Verb: {{ entry.HttpVerb }}<br />
+            <small style="color:gray">({{ entry.EndpointId }})</small>
         </i><br />
 
-        <div v-if="entry.Calls.length > 0">
-            <h4>Last {{ entry.Calls.length }} calls without errors:</h4>
+        <div v-if="visibleCalls.length > 0">
+            <h4>Last {{ visibleCalls.length }} calls without errors:</h4>
             <ul>
                 <li
-                    v-for="(call, index) in entry.Calls"
+                    v-for="(call, index) in visibleCalls"
                     :key="`entry-call-${entry.Id}-${index}`" >
-                    [{{ formatTimestamp(call.Timestamp) }}] {{ call.Url }} (Status code: {{ call.StatusCode }})
+                    [{{ formatTimestamp(call.Timestamp) }}] {{ call.Url }} (Status code: {{ call.StatusCode }}) (Version: {{ call.Version }})
                 </li>
             </ul>
             <br />
         </div>
 
-        <div v-if="entry.Errors.length > 0">
-            <h4>Last {{ entry.Errors.length }} errors:</h4>
+        <div v-if="visibleErrors.length > 0">
+            <h4>Last {{ visibleErrors.length }} errors:</h4>
             <ul>
                 <li
-                    v-for="(call, index) in entry.Errors"
+                    v-for="(call, index) in visibleErrors"
                     :key="`entry-error-${entry.Id}-${index}`" >
                     [{{ formatTimestamp(call.Timestamp) }}] {{ call.Url }} (Status code: {{ call.StatusCode }})<br />
                     <code>{{ call.ErrorDetails }}</code>
@@ -45,6 +47,7 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 import LoggedActionEntryViewModel from "../../models/RequestLog/LoggedActionEntryViewModel";
+import LoggedActionCallEntryViewModel from "../../models/RequestLog/LoggedActionCallEntryViewModel";
 import { EntryState } from '../../models/RequestLog/EntryState';
 import FrontEndOptionsViewModel from "../../models//Page/FrontEndOptionsViewModel";
 import DateUtils from "../../util/DateUtils";
@@ -71,6 +74,16 @@ export default class ActionLogEntryComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get visibleCalls(): Array<LoggedActionCallEntryViewModel>
+    {
+        return this.entry.Calls;//.filter(x => this.showCall(x));
+    }
+
+    get visibleErrors(): Array<LoggedActionCallEntryViewModel>
+    {
+        return this.entry.Errors;//.filter(x => this.showCall(x));
+    }
+
     get state(): EntryState {
         if (this.entry.Errors.length > 0) {
             return EntryState.Error;

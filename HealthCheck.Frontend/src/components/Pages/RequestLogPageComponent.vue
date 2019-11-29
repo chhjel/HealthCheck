@@ -36,25 +36,35 @@
                     v-on:clickedSuccess="showOnlyState(STATE_SUCCESS)"
                     v-on:clickedError="showOnlyState(STATE_ERROR)"
                     v-on:clickedRemaining="showOnlyState(STATE_UNDETERMINED)" />
+                
+                States:
+                <v-checkbox v-model="visibleStates" label="Successes" :value="STATE_SUCCESS" style="display:inline-block"></v-checkbox>
+                <v-checkbox v-model="visibleStates" label="Errors" :value="STATE_ERROR" style="display:inline-block"></v-checkbox>
+                <v-checkbox v-model="visibleStates" label="Undetermined" :value="STATE_UNDETERMINED" style="display:inline-block"></v-checkbox>
                 <br />
 
                 Order by:
-                <div v-for="(sortOption, index) in sortOptions"
-                     :key="`sortOption-${index}`">
-                    <v-btn x-small @click="setSortOrder(sortOption)" >
-                        {{ sortOption.name }}
-                    </v-btn>
-                </div>
-                
-                Show:
-                <v-checkbox v-model="visibleStates" label="Successes" :value="STATE_SUCCESS"></v-checkbox>
-                <v-checkbox v-model="visibleStates" label="Errors" :value="STATE_ERROR"></v-checkbox>
-                <v-checkbox v-model="visibleStates" label="Undetermined" :value="STATE_UNDETERMINED"></v-checkbox>
+                <v-btn x-small @click="setSortOrder(sortOption)"
+                    v-for="(sortOption, index) in sortOptions"
+                    :key="`sortOption-${index}`">
+                    {{ sortOption.name }}
+                </v-btn>
                 <br />
+                <br />
+
+                <!-- Versions:
+                <div v-for="(version, index) in versions"
+                     :key="`version-${index}`">
+                    <v-checkbox v-model="visibleVersions" :label="version" :value="version"></v-checkbox>
+                </div>
+                <br /> -->
 
                 <div v-for="(entry, index) in filteredEntries"
                     :key="`entry-${index}`">
-                    <request-endpoint-component :options="options" :entry="entry" />
+                    <request-endpoint-component
+                        :options="options"
+                        :entry="entry"
+                        />
                 </div>
             </div>
         </v-container>
@@ -95,6 +105,7 @@ export default class RequestLogPageComponent extends Vue {
     requestLogDataFailedErrorMessage: string = "";
 
     entries: Array<LoggedActionEntryViewModel> = [];
+    versions: Array<string> = [];
     sortOptions: Array<OrderByOption> = [
         {
             id: "successes",
@@ -116,6 +127,15 @@ export default class RequestLogPageComponent extends Vue {
             name: "Untested",
             sortedBy: (x: LoggedActionEntryViewModel) => -(x.Calls.length + x.Errors.length),
             thenBy: (x: LoggedActionEntryViewModel) => x.Errors.length,
+            state: EntryState.Undetermined
+        },
+        {
+            id: "latest",
+            name: "Latest calls",
+            sortedBy: (x: LoggedActionEntryViewModel) => Math.max(
+                ...x.Calls.map(c => c.Timestamp.getTime()).concat(x.Errors.map(c => c.Timestamp.getTime()))
+            ),
+            thenBy: null,
             state: EntryState.Undetermined
         }
     ];
@@ -139,18 +159,25 @@ export default class RequestLogPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get progressBarMax(): number {
-        return this.entries.length;
+        return this.entries
+            .filter(x => this.includeEntryInProgress(x))
+            .length;
     }
     get progressBarSuccess(): number {
-        return this.entries.filter(x => x.State == EntryState.Success).length;
+        return this.entries
+            .filter(x => this.includeEntryInProgress(x))
+            .filter(x => x.State == EntryState.Success).length;
     }
     get progressBarError(): number {
-        return this.entries.filter(x => x.State == EntryState.Error).length;
+        return this.entries
+            .filter(x => this.includeEntryInProgress(x))
+            .filter(x => x.State == EntryState.Error).length;
     }
 
     get filteredEntries(): Array<LoggedActionEntryViewModel> {
         return this.entries
             .filter(x => this.visibleStates.indexOf(x.State) !== -1)
+            // .filter(x => x.Calls.some(c => this.visibleVersions.indexOf(c.Version) !== -1))
             .sort((a, b) =>
                 LinqUtils.SortByThenBy(a, b, this.currentlySortedBy.sortedBy, this.currentlySortedBy.thenBy));
     }
@@ -158,6 +185,10 @@ export default class RequestLogPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    includeEntryInProgress(entry: LoggedActionEntryViewModel): boolean {
+        return true; //entry.Calls.length == 0 || entry.Calls.some(c => this.visibleVersions.indexOf(c.Version) !== -1);
+    }
+
     loadData(): void {
         this.requestLogDataLoadInProgress = true;
         this.requestLogDataLoadFailed = false;
@@ -206,6 +237,13 @@ export default class RequestLogPageComponent extends Vue {
                 })
             };
         });
+
+        this.versions = Array.from(new Set(
+            this.entries
+                .map(x => x.Calls.map(c => c.Version))
+                .reduce((prev, cur) => prev.concat(cur))
+        ));
+        // this.visibleVersions = this.versions;
 
         this.requestLogDataLoadInProgress = false;
     }

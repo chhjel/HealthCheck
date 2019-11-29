@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace HealthCheck.ActionLog.Attributes
+namespace HealthCheck.Core.Attributes
 {
     /// <summary>
     /// Decorate actions with this to set a custom name/description or hide it.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = true)]
     public class ActionsTestLogInfoAttribute : Attribute
     {
         /// <summary>

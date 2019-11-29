@@ -1,9 +1,9 @@
 ﻿#if NETFULL
 using HealthCheck.ActionLog.Abstractions;
-using HealthCheck.ActionLog.Attributes;
 using HealthCheck.ActionLog.Enums;
 using HealthCheck.ActionLog.Util;
 using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Modules.ActionsTestLog.Models;
 using System;
 using System.Collections.Generic;
@@ -37,6 +37,15 @@ namespace HealthCheck.ActionLog.Services
         /// </summary>
         public void HandleActionEvent(LogFilterEvent e)
         {
+            if (e.ActionMethod != null)
+            {
+                var attr = e.ActionMethod.GetCustomAttribute<ActionsTestLogInfoAttribute>(true);
+                if (attr?.Hidden == true)
+                {
+                    return;
+                }
+            }
+
             var endpointId = CreateEndpointId(e.ControllerType, e.ActionMethod, e.Action);
             var entry = Store.GetEntryWithEndpointId(endpointId);
 

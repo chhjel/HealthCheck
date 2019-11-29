@@ -1,6 +1,6 @@
 ﻿#if NETFULL
-using HealthCheck.ActionLog.Attributes;
 using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Modules.ActionsTestLog.Models;
 using System;
 using System.Collections.Generic;
