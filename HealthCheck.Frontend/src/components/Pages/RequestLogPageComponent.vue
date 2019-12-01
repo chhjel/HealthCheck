@@ -285,7 +285,7 @@ export default class RequestLogPageComponent extends Vue {
             };
         });
 
-        this.versions = Array.from(new Set(
+        this.versions = this.entries.length == 0 ? [] : Array.from(new Set(
             this.entries
                 .map(x => x.Calls.map(c => c.Version))
                 .reduce((prev, cur) => prev.concat(cur))

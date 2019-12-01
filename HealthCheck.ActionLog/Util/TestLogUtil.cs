@@ -137,7 +137,7 @@ namespace HealthCheck.ActionLog.Util
                 return matchingMethodName.ToUpper();
             }
 
-            return null;
+            return "GET";
         }
 
         private static List<MethodInfo> GetActionMethods(Type controllerType)
