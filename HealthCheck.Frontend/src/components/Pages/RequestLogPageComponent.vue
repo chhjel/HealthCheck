@@ -271,7 +271,6 @@ export default class RequestLogPageComponent extends Vue {
     }
 
     setFromUrl(): void {
-        console.log("setFromUrl");
         const parts = UrlUtils.GetHashParts();
         
         const sortBy = this.sortOptions.find(x => x.id == parts[1]);
@@ -286,7 +285,6 @@ export default class RequestLogPageComponent extends Vue {
     }
 
     updateUrl(): void {
-        console.log("updateUrl");
         UrlUtils.SetHashParts([
             'requestlog',
             this.currentlySortedBy.id,
