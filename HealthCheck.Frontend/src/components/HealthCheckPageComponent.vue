@@ -175,6 +175,8 @@ export default class HealthCheckPageComponent extends Vue {
                 if (testPage != undefined) {
                     testPage.onPageShow();
                 }
+            } else if (page == this.PAGE_REQUESTLOG) {
+                UrlUtils.SetHashPart(0, page);
             } else {
                 UrlUtils.SetHashParts([page]);
             }

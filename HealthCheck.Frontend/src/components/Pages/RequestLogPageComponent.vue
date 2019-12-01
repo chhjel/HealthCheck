@@ -108,7 +108,7 @@ export default class RequestLogPageComponent extends Vue {
     versions: Array<string> = [];
     sortOptions: Array<OrderByOption> = [
         {
-            id: "successes",
+            id: "successes-first",
             name: "Successes",
             sortedBy: (x: LoggedActionEntryViewModel) =>
                 x.Errors.length > 0 ? -99999 : x.Calls.length,
@@ -116,27 +116,27 @@ export default class RequestLogPageComponent extends Vue {
             state: EntryState.Success
         },
         {
-            id: "errors",
+            id: "errors-first",
             name: "Errors",
             sortedBy: (x: LoggedActionEntryViewModel) => x.Errors.length,
             thenBy: (x: LoggedActionEntryViewModel) => x.Calls.length,
             state: EntryState.Error
         },
         {
-            id: "untested",
+            id: "untested-first",
             name: "Untested",
             sortedBy: (x: LoggedActionEntryViewModel) => -(x.Calls.length + x.Errors.length),
             thenBy: (x: LoggedActionEntryViewModel) => x.Errors.length,
             state: EntryState.Undetermined
         },
         {
-            id: "latest",
+            id: "latest-first",
             name: "Latest calls",
             sortedBy: (x: LoggedActionEntryViewModel) => Math.max(
                 ...x.Calls.map(c => c.Timestamp.getTime()).concat(x.Errors.map(c => c.Timestamp.getTime()))
             ),
             thenBy: null,
-            state: EntryState.Undetermined
+            state: null
         }
     ];
     visibleStates: Array<EntryState> = [ EntryState.Success, EntryState.Error, EntryState.Undetermined ];
@@ -153,6 +153,7 @@ export default class RequestLogPageComponent extends Vue {
     mounted(): void
     {
         this.loadData();
+        this.setFromUrl();
     }
 
     ////////////////
@@ -260,13 +261,17 @@ export default class RequestLogPageComponent extends Vue {
     }
 
     setSortOrder(order: OrderByOption): void {
-        this.ensureStateIsVisible(order.state);
+        if (order.state != null)
+        {
+            this.ensureStateIsVisible(order.state);
+        }
         this.currentlySortedBy = order;
 
         this.updateUrl();
     }
 
     setFromUrl(): void {
+        console.log("setFromUrl");
         const parts = UrlUtils.GetHashParts();
         
         const sortBy = this.sortOptions.find(x => x.id == parts[1]);
@@ -281,6 +286,7 @@ export default class RequestLogPageComponent extends Vue {
     }
 
     updateUrl(): void {
+        console.log("updateUrl");
         UrlUtils.SetHashParts([
             'requestlog',
             this.currentlySortedBy.id,
@@ -302,7 +308,7 @@ interface OrderByOption {
     name: string;
     sortedBy: NumberGetter<LoggedActionEntryViewModel>;
     thenBy: NumberGetter<LoggedActionEntryViewModel> | null;
-    state: EntryState;
+    state: EntryState | null;
 }
 </script>
 
