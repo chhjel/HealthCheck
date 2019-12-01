@@ -401,7 +401,7 @@ export default class TestSuitesPageComponent extends Vue {
             if (testElement != null) {
                 window.scrollTo({
                     top: (window.pageYOffset || document.documentElement.scrollTop) 
-                        + testElement.getBoundingClientRect().top - 70,
+                        + testElement.getBoundingClientRect().top - 100,
                     behavior: 'smooth'
                 });
             }
