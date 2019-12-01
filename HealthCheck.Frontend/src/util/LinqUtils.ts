@@ -1,4 +1,5 @@
 import KeyArray from "./models/KeyArray";
+import KeyValuePair from "../models/Common/KeyValuePair";
 
 export default class LinqUtils
 {
@@ -52,5 +53,21 @@ export default class LinqUtils
         }
         return groups;
     }
-}
 
+    static GroupByIntoKVP<T>(
+        list: Array<T>,
+        keyFactory: (item:T) => string): Array<KeyValuePair<string, Array<T>>>
+    {
+        let groups = Array<KeyValuePair<string, Array<T>>>();
+        let groupedData = LinqUtils.GroupBy(list, keyFactory);
+        for (let key in groupedData)
+        {
+            groups.push({
+                Key: key,
+                Value: groupedData[key]
+            });
+        }
+        return groups;
+    }
+    
+}

@@ -66,6 +66,7 @@
             <request-log-page-component
                 v-if="shouldIncludePage(PAGE_REQUESTLOG)"
                 v-show="currentPage == PAGE_REQUESTLOG"
+                ref="requestLogPage"
                 :options="options" />
 
             <!-- FOOTER -->
@@ -177,6 +178,10 @@ export default class HealthCheckPageComponent extends Vue {
                 }
             } else if (page == this.PAGE_REQUESTLOG) {
                 UrlUtils.SetHashPart(0, page);
+                const requestLogPage = (<RequestLogPageComponent>this.$refs.requestLogPage);
+                if (requestLogPage != undefined) {
+                    requestLogPage.onPageShow();
+                }
             } else {
                 UrlUtils.SetHashParts([page]);
             }

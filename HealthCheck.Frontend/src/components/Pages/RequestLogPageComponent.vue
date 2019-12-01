@@ -50,6 +50,8 @@
                     {{ sortOption.name }}
                 </v-btn>
                 <br />
+
+                <v-checkbox v-model="groupEntries" label="Enable grouping" style="display:inline-block"></v-checkbox>
                 <br />
 
                 <!-- Versions:
@@ -59,13 +61,34 @@
                 </div>
                 <br /> -->
 
-                <div v-for="(entry, index) in filteredEntries"
-                    :key="`entry-${index}`">
-                    <request-endpoint-component
-                        :options="options"
-                        :entry="entry"
-                        />
+                <div v-if="groupEntries">
+                    <div v-for="(group, index) in groupedFilteredEntries"
+                        :key="`entry-group-${index}`">
+                        <h3>{{ group.Key }}</h3>
+                        <div v-for="(subgroup, subindex) in group.Value"
+                            :key="`entry-${index}-subgroup-${subindex}`">
+                            <h4>{{ subgroup.Key }}</h4>
+                            <div v-for="(entry, index) in subgroup.Value"
+                                :key="`entry-${index}-${subindex}`">
+                                <request-endpoint-component
+                                    :options="options"
+                                    :entry="entry"
+                                    />
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <div v-if="!groupEntries">
+                    <div v-for="(entry, index) in filteredEntries"
+                        :key="`entry-${index}`">
+                        <request-endpoint-component
+                            :options="options"
+                            :entry="entry"
+                            />
+                    </div>
+                </div>
+
             </div>
         </v-container>
 
@@ -88,6 +111,8 @@ import { EntryState } from '../../models/RequestLog/EntryState';
 import DateUtils from "../../util/DateUtils";
 import LinqUtils from "../../util/LinqUtils";
 import UrlUtils from "../../util/UrlUtils";
+import KeyArray from "../../util/models/KeyArray";
+import KeyValuePair from "../../models/Common/KeyValuePair";
 
 @Component({
     components: {
@@ -143,6 +168,7 @@ export default class RequestLogPageComponent extends Vue {
     currentlySortedBy: OrderByOption = this.sortOptions[0];
     sortedByDescending: boolean = true;
     sortedByThenDescending: boolean = true;
+    groupEntries: boolean = true;
     STATE_SUCCESS: number = EntryState.Success;
     STATE_ERROR: number = EntryState.Error;
     STATE_UNDETERMINED: number = EntryState.Undetermined;
@@ -181,6 +207,26 @@ export default class RequestLogPageComponent extends Vue {
             // .filter(x => x.Calls.some(c => this.visibleVersions.indexOf(c.Version) !== -1))
             .sort((a, b) =>
                 LinqUtils.SortByThenBy(a, b, this.currentlySortedBy.sortedBy, this.currentlySortedBy.thenBy));
+    }
+
+    get groupedFilteredEntries(): Array<EntryGroupGroup> {
+        let groups: Array<EntryGroup> = LinqUtils.GroupByIntoKVP(
+            this.filteredEntries,
+            x => x.Group || "No group"
+        );
+
+        let groupGroups = new Array<EntryGroupGroup>();
+        groups.forEach(group => {
+            let subgroups = LinqUtils.GroupByIntoKVP(
+                group.Value,
+                x => x.Controller
+            );
+            groupGroups.push({
+                Key: group.Key,
+                Value: subgroups
+            })
+        });
+        return groupGroups;
     }
 
     ////////////////
@@ -282,14 +328,33 @@ export default class RequestLogPageComponent extends Vue {
         if (visible !== undefined) {
             this.visibleStates = visible.split('.').map(x => parseInt(x));
         }
+
+        const grouped = parts[3];
+        if (grouped !== undefined) {
+            this.groupEntries = grouped === '1';
+        }
     }
 
-    updateUrl(): void {
-        UrlUtils.SetHashParts([
+    updateUrl(parts?: Array<string> | null): void {
+        parts = parts || [
             'requestlog',
             this.currentlySortedBy.id,
-            this.visibleStates.join(".")
-        ]);
+            this.visibleStates.join("."),
+            this.groupEntries ? "1" : "0"
+        ];
+
+        UrlUtils.SetHashParts(parts);
+        
+        // Some dirty technical debt before transitioning to propper routing :-)
+        (<any>window).requestLogState = parts;
+    }
+
+    // Invoked from parent
+    public onPageShow(): void {
+        const parts = (<any>window).requestLogState;
+        if (parts != null && parts != undefined) {
+            this.updateUrl(parts);
+        }
     }
 
     ///////////////////////
@@ -297,6 +362,11 @@ export default class RequestLogPageComponent extends Vue {
     /////////////////////
     @Watch("visibleStates")
     onVisibleStatesChanged(): void {
+        this.updateUrl();
+    }
+
+    @Watch("groupEntries")
+    onGroupEntriesChanged(): void {
         this.updateUrl();
     }
 }
@@ -308,6 +378,8 @@ interface OrderByOption {
     thenBy: NumberGetter<LoggedActionEntryViewModel> | null;
     state: EntryState | null;
 }
+type EntryGroupGroup = KeyValuePair<string, Array<EntryGroup>>;
+type EntryGroup = KeyValuePair<string, Array<LoggedActionEntryViewModel>>;
 </script>
 
 <style scoped>
