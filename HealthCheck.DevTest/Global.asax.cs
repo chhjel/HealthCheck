@@ -29,14 +29,14 @@ namespace HealthCheck.DevTest
                     MaxErrorCount = 5,
                     CallStoragePolicy = TestLogCallStoragePolicy.RemoveOldest,
                     ErrorStoragePolicy = TestLogCallStoragePolicy.RemoveOldest,
-                    ControllerGroupNameFactory = (ctype) =>
-                    {
-                        var ns = ctype.Namespace;
-                        var lastNsPart = ns.Split('.').Last();
-                        return (lastNsPart.ToLower().StartsWith("controller"))
-                            ? null
-                            : lastNsPart;
-                    }
+                    //ControllerGroupNameFactory = (ctype) =>
+                    //{
+                    //    var ns = ctype.Namespace;
+                    //    var lastNsPart = ns.Split('.').Last();
+                    //    return (lastNsPart.ToLower().StartsWith("controller"))
+                    //        ? null
+                    //        : lastNsPart;
+                    //}
                 });
 
             TestLogUtil.EnsureDefinitionsFromTypes(TestLogServiceAccessor.Current, new[] { typeof(DevController).Assembly });

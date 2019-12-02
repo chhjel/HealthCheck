@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "build": "set NODE_ENV=production&& webpack",
-    "watch": "webpack --watch --mode=development",
+    "watch": "yarn clean && webpack --watch --mode=development",
+    "clean": "rimraf ./dist/healthcheck*",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -33,11 +34,16 @@
     "@types/xregexp": "3.0.30",
     "css-loader": "^2.1.1",
     "ts-loader": "^5.3.3",
+    "deepmerge": "^4.2.1",
+    "fibers": "^4.0.2",
+    "sass": "^1.23.1",
+    "sass-loader": "^8.0.0",
     "typescript": "^3.3.3333",
     "vue-loader": "^15.7.0",
     "vue-template-compiler": "^2.6.9",
     "webpack": "^4.29.6",
     "webpack-bundle-analyzer": "^3.3.2",
-    "webpack-cli": "^3.3.0"
+    "webpack-cli": "^3.3.0",
+    "rimraf": "^3.0.0"
   }
 }

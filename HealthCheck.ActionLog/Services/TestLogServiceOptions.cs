@@ -1,6 +1,7 @@
 ﻿#if NETFULL
 using HealthCheck.ActionLog.Enums;
 using System;
+using System.Linq;
 
 namespace HealthCheck.ActionLog.Services
 {
@@ -36,8 +37,16 @@ namespace HealthCheck.ActionLog.Services
 
         /// <summary>
         /// Optionally create a group name from the given controller type.
+        /// <para>Defaults to last part of namespace if it does not start with 'controller'.</para>
         /// </summary>
-        public Func<Type, string> ControllerGroupNameFactory { get; set; }
+        public Func<Type, string> ControllerGroupNameFactory { get; set; } = (ctype) =>
+        {
+            var ns = ctype?.Namespace;
+            var lastNsPart = ns?.Split('.')?.LastOrDefault();
+            return (lastNsPart?.ToLower()?.StartsWith("controller") == true)
+                ? null
+                : lastNsPart;
+        };
     }
 }
 #endif

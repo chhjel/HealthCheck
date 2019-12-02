@@ -37,18 +37,32 @@
                     v-on:clickedError="showOnlyState(STATE_ERROR)"
                     v-on:clickedRemaining="showOnlyState(STATE_UNDETERMINED)" />
                 
+                <div>
                 States:
-                <v-checkbox v-model="visibleStates" label="Successes" :value="STATE_SUCCESS" style="display:inline-block"></v-checkbox>
-                <v-checkbox v-model="visibleStates" label="Errors" :value="STATE_ERROR" style="display:inline-block"></v-checkbox>
-                <v-checkbox v-model="visibleStates" label="Undetermined" :value="STATE_UNDETERMINED" style="display:inline-block"></v-checkbox>
+                    <v-checkbox v-model="visibleStates" label="Successes" :value="STATE_SUCCESS" style="display:inline-block"></v-checkbox>
+                    <v-checkbox v-model="visibleStates" label="Errors" :value="STATE_ERROR" style="display:inline-block"></v-checkbox>
+                    <v-checkbox v-model="visibleStates" label="Undetermined" :value="STATE_UNDETERMINED" style="display:inline-block"></v-checkbox>
+                </div>
+                <br />
+               
+                <div>
+                    Verbs:
+                    <v-checkbox
+                        v-for="(verb, index) in verbs"
+                        :key="`verb-${index}`"
+                        v-model="visibleVerbs" :label="verb" :value="verb"
+                        style="display:inline-block"></v-checkbox>
+                </div>
                 <br />
 
-                Order by:
-                <v-btn x-small @click="setSortOrder(sortOption)"
-                    v-for="(sortOption, index) in sortOptions"
-                    :key="`sortOption-${index}`">
-                    {{ sortOption.name }}
-                </v-btn>
+                <div>
+                    Order by:
+                    <v-btn x-small @click="setSortOrder(sortOption)"
+                        v-for="(sortOption, index) in sortOptions"
+                        :key="`sortOption-${index}`">
+                        {{ sortOption.name }}
+                    </v-btn>
+                </div>
                 <br />
 
                 <v-checkbox v-model="groupEntries" label="Enable grouping" style="display:inline-block"></v-checkbox>
@@ -63,30 +77,32 @@
 
                 <div v-if="groupEntries">
                     <div v-for="(group, index) in groupedFilteredEntries"
+                        class="endpoint-group"
                         :key="`entry-group-${index}`">
                         <h3>{{ group.Key }}</h3>
                         <div v-for="(subgroup, subindex) in group.Value"
+                            class="endpoint-subgroup"
                             :key="`entry-${index}-subgroup-${subindex}`">
                             <h4>{{ subgroup.Key }}</h4>
-                            <div v-for="(entry, index) in subgroup.Value"
-                                :key="`entry-${index}-${subindex}`">
-                                <request-endpoint-component
-                                    :options="options"
-                                    :entry="entry"
-                                    />
-                            </div>
+                            <request-endpoint-component
+                                v-for="(entry, index) in subgroup.Value"
+                                class="endpoint"
+                                :key="`entry-${index}-${subindex}`"
+                                :options="options"
+                                :entry="entry"
+                                />
                         </div>
                     </div>
                 </div>
 
                 <div v-if="!groupEntries">
-                    <div v-for="(entry, index) in filteredEntries"
-                        :key="`entry-${index}`">
-                        <request-endpoint-component
-                            :options="options"
-                            :entry="entry"
-                            />
-                    </div>
+                    <request-endpoint-component
+                        v-for="(entry, index) in filteredEntries"
+                        :key="`entry-${index}`"
+                        class="endpoint"
+                        :options="options"
+                        :entry="entry"
+                        />
                 </div>
 
             </div>
@@ -130,6 +146,7 @@ export default class RequestLogPageComponent extends Vue {
     requestLogDataFailedErrorMessage: string = "";
 
     entries: Array<LoggedActionEntryViewModel> = [];
+    verbs: Array<string> = [];
     versions: Array<string> = [];
     sortOptions: Array<OrderByOption> = [
         {
@@ -165,6 +182,7 @@ export default class RequestLogPageComponent extends Vue {
         }
     ];
     visibleStates: Array<EntryState> = [ EntryState.Success, EntryState.Error, EntryState.Undetermined ];
+    visibleVerbs: Array<string> = [];
     currentlySortedBy: OrderByOption = this.sortOptions[0];
     sortedByDescending: boolean = true;
     sortedByThenDescending: boolean = true;
@@ -204,6 +222,7 @@ export default class RequestLogPageComponent extends Vue {
     get filteredEntries(): Array<LoggedActionEntryViewModel> {
         return this.entries
             .filter(x => this.visibleStates.indexOf(x.State) !== -1)
+            .filter(x => this.visibleVerbs.indexOf(x.HttpVerb) !== -1)
             // .filter(x => x.Calls.some(c => this.visibleVersions.indexOf(c.Version) !== -1))
             .sort((a, b) =>
                 LinqUtils.SortByThenBy(a, b, this.currentlySortedBy.sortedBy, this.currentlySortedBy.thenBy));
@@ -291,6 +310,10 @@ export default class RequestLogPageComponent extends Vue {
                 .reduce((prev, cur) => prev.concat(cur))
         ));
         // this.visibleVersions = this.versions;
+
+        this.verbs = this.entries.length == 0 ? [] : Array.from(new Set(this.entries.map(x => x.HttpVerb)));
+        this.verbs.forEach(verb => this.visibleVerbs.push(verb));
+        
 
         this.requestLogDataLoadInProgress = false;
     }
@@ -382,13 +405,24 @@ type EntryGroupGroup = KeyValuePair<string, Array<EntryGroup>>;
 type EntryGroup = KeyValuePair<string, Array<LoggedActionEntryViewModel>>;
 </script>
 
-<style scoped>
-.progress {
+<style scoped lang="scss">
+.progress
+{
     max-width: 1280px;
     margin: auto;
     margin-top: 40px;
     margin-bottom: 40px;
     cursor: pointer;
+}
+.endpoint-group
+{
+    .endpoint-subgroup
+    {
+        .endpoint
+        {
+            
+        }
+    }
 }
 </style>
 

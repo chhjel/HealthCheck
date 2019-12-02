@@ -19,6 +19,23 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.s(c|a)ss$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              implementation: require('sass'),
+              sassOptions: {
+                fiber: require('fibers'),
+                // indentedSyntax: true // optional
+              },
+            }
+          }
+        ]
+      },
+      {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
       },
@@ -31,7 +48,7 @@ module.exports = {
             // the "scss" and "sass" values for the lang attribute to the right configs here.
             // other preprocessors should work out of the box, no loader config like this necessary.
             'scss': 'vue-style-loader!css-loader!sass-loader',
-            'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax',
+            'sass': 'vue-style-loader!css-loader!sass-loader',
           }
           // other vue-loader options go here
         }
