@@ -53,7 +53,7 @@ namespace HealthCheck.WebUI.Tests
         {
             var helper = CreateHelper<AccessRoles>();
             var models = helper.GetRequestLogActions(new Maybe<AccessRoles>(roles));
-            Assert.NotEmpty(models);
+            Assert.NotNull(models);
         }
 
         [Theory]
