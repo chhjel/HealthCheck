@@ -79,11 +79,11 @@
                     <div v-for="(group, index) in groupedFilteredEntries"
                         class="endpoint-group"
                         :key="`entry-group-${index}`">
-                        <h3>{{ group.Key }}</h3>
+                        <h3 class="endpoint-group-header">{{ group.Key }}</h3>
                         <div v-for="(subgroup, subindex) in group.Value"
                             class="endpoint-subgroup"
                             :key="`entry-${index}-subgroup-${subindex}`">
-                            <h4>{{ subgroup.Key }}</h4>
+                            <h4 class="endpoint-subgroup-header">{{ subgroup.Key }}</h4>
                             <request-endpoint-component
                                 v-for="(entry, index) in subgroup.Value"
                                 class="endpoint"
@@ -197,7 +197,6 @@ export default class RequestLogPageComponent extends Vue {
     mounted(): void
     {
         this.loadData();
-        this.setFromUrl();
     }
 
     ////////////////
@@ -281,6 +280,8 @@ export default class RequestLogPageComponent extends Vue {
     }
     
     onEventDataRetrieved(events: Array<LoggedActionEntryViewModel>): void {
+        const originalUrlHashParts = UrlUtils.GetHashParts();
+
         this.entries = events.map(x => {
             let state: EntryState =
                 x.Errors.length > 0 ? EntryState.Error
@@ -313,8 +314,8 @@ export default class RequestLogPageComponent extends Vue {
 
         this.verbs = this.entries.length == 0 ? [] : Array.from(new Set(this.entries.map(x => x.HttpVerb)));
         this.verbs.forEach(verb => this.visibleVerbs.push(verb));
-        
 
+        this.setFromUrl(originalUrlHashParts);
         this.requestLogDataLoadInProgress = false;
     }
     
@@ -339,8 +340,8 @@ export default class RequestLogPageComponent extends Vue {
         this.updateUrl();
     }
 
-    setFromUrl(): void {
-        const parts = UrlUtils.GetHashParts();
+    setFromUrl(forcedParts: Array<string> | null = null): void {
+        const parts = forcedParts || UrlUtils.GetHashParts();
         
         const sortBy = this.sortOptions.find(x => x.id == parts[1]);
         if (sortBy !== undefined) {
@@ -348,22 +349,31 @@ export default class RequestLogPageComponent extends Vue {
         }
 
         const visible = parts[2];
-        if (visible !== undefined) {
-            this.visibleStates = visible.split('.').map(x => parseInt(x));
+        if (visible !== undefined && visible !== '.') {
+            this.visibleStates = visible.split('.').filter(x => x.length > 0).map(x => parseInt(x));
         }
 
         const grouped = parts[3];
-        if (grouped !== undefined) {
-            this.groupEntries = grouped === '1';
+        if (grouped !== undefined && grouped !== '.') {
+            this.groupEntries = grouped === '0';
+        }
+
+        const verbs = parts[4];
+        if (verbs !== undefined && verbs !== '.') {
+            this.visibleVerbs = verbs.split('.').map(x => x.toUpperCase());
         }
     }
 
     updateUrl(parts?: Array<string> | null): void {
         parts = parts || [
             'requestlog',
-            this.currentlySortedBy.id,
-            this.visibleStates.join("."),
-            this.groupEntries ? "1" : "0"
+            (this.currentlySortedBy.id == this.sortOptions[0].id)
+                ? '.' : this.currentlySortedBy.id,
+            (this.visibleStates.length == 3)
+                ? '.' : this.visibleStates.join("."),
+            this.groupEntries ? '.' : '1',
+            (this.visibleVerbs.length == this.verbs.length)
+                ? '.' : this.visibleVerbs.map(x => x.toLowerCase()).join('.')
         ];
 
         UrlUtils.SetHashParts(parts);
@@ -392,6 +402,11 @@ export default class RequestLogPageComponent extends Vue {
     onGroupEntriesChanged(): void {
         this.updateUrl();
     }
+
+    @Watch("visibleVerbs")
+    onVisibleVerbsChanged(): void {
+        this.updateUrl();
+    }
 }
 type NumberGetter<T> = (a: T) => number;
 interface OrderByOption {
@@ -414,15 +429,35 @@ type EntryGroup = KeyValuePair<string, Array<LoggedActionEntryViewModel>>;
     margin-bottom: 40px;
     cursor: pointer;
 }
+
 .endpoint-group
 {
+    border-left: 5px solid gray;
+    padding: 10px;
+    margin-bottom: 40px;
+    
+    .endpoint-group-header
+    {
+        font-size: 22px;
+    }
+
     .endpoint-subgroup
     {
-        .endpoint
+        border-left: 5px solid lightblue;
+        padding: 10px;
+        margin-bottom: 30px;
+    
+        .endpoint-subgroup-header
         {
-            
+            font-size: 18px;
         }
     }
+}
+.endpoint
+{
+    border-left: 5px solid lightgreen;
+    padding: 10px;
+    margin-bottom: 20px;
 }
 </style>
 
