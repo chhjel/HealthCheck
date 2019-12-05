@@ -61,14 +61,12 @@
                     </v-btn>
                 </div>
                 <br />
-                
+
+                <v-checkbox v-model="groupEntries" label="Enable grouping" style="display:inline-block" class="mr-4"></v-checkbox>
                 <a @click="clearFilteredIpAddress()" v-if="filteredIPAddress != null">
                     Filtered to source IP: {{ filteredIPAddress }}
                     <v-icon size="20px">delete</v-icon>
                 </a>
-                <br />
-
-                <v-checkbox v-model="groupEntries" label="Enable grouping" style="display:inline-block"></v-checkbox>
                 <br />
 
                 <!-- Versions:
