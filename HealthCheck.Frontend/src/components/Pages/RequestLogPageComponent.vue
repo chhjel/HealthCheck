@@ -184,6 +184,7 @@ export default class RequestLogPageComponent extends Vue {
     ];
     visibleStates: Array<EntryState> = [ EntryState.Success, EntryState.Error, EntryState.Undetermined ];
     visibleVerbs: Array<string> = [];
+    filteredIPAddress: string | null = null;
     currentlySortedBy: OrderByOption = this.sortOptions[0];
     sortedByDescending: boolean = true;
     sortedByThenDescending: boolean = true;
@@ -314,6 +315,7 @@ export default class RequestLogPageComponent extends Vue {
         // this.visibleVersions = this.versions;
 
         this.verbs = this.entries.length == 0 ? [] : Array.from(new Set(this.entries.map(x => x.HttpVerb)));
+        this.verbs = this.verbs.map(x => x.length == 0 ? 'Unknown' : x);
         this.verbs.forEach(verb => this.visibleVerbs.push(verb));
 
         this.setFromUrl(originalUrlHashParts);
@@ -323,6 +325,7 @@ export default class RequestLogPageComponent extends Vue {
     showOnlyState(state: EntryState): void {
         this.visibleStates = [ state ];
         this.currentlySortedBy = this.sortOptions.find(x => x.state == state) || this.currentlySortedBy;
+        this.updateUrl();
     }
 
     ensureStateIsVisible(state: EntryState): void {
@@ -344,38 +347,47 @@ export default class RequestLogPageComponent extends Vue {
     setFromUrl(forcedParts: Array<string> | null = null): void {
         const parts = forcedParts || UrlUtils.GetHashParts();
         
-        const sortBy = this.sortOptions.find(x => x.id == parts[1]);
+        const sortById = parts.filter(x => x.startsWith('sort-')).map(x => x.substring(5))[0];
+        const sortBy = this.sortOptions.find(x => x.id === sortById);
         if (sortBy !== undefined) {
             this.setSortOrder(sortBy);
         }
 
-        const visible = parts[2];
+        const visible = parts.filter(x => x.startsWith('states-')).map(x => x.substring(7))[0];
         if (visible !== undefined && visible !== '.') {
             this.visibleStates = visible.split('.').filter(x => x.length > 0).map(x => parseInt(x));
         }
 
-        const grouped = parts[3];
-        if (grouped !== undefined && grouped !== '.') {
-            this.groupEntries = grouped === '0';
-        }
+        this.groupEntries = !parts.some(x => x === 'no-group');
 
-        const verbs = parts[4];
+        const verbs = parts.filter(x => x.startsWith('verbs-')).map(x => x.substring(6))[0];
         if (verbs !== undefined && verbs !== '.') {
             this.visibleVerbs = verbs.split('.').map(x => x.toUpperCase());
         }
     }
 
     updateUrl(parts?: Array<string> | null): void {
-        parts = parts || [
-            'requestlog',
-            (this.currentlySortedBy.id == this.sortOptions[0].id)
-                ? '.' : this.currentlySortedBy.id,
-            (this.visibleStates.length == 3)
-                ? '.' : this.visibleStates.join("."),
-            this.groupEntries ? '.' : '1',
-            (this.visibleVerbs.length == this.verbs.length)
-                ? '.' : this.visibleVerbs.map(x => x.toLowerCase()).join('.')
-        ];
+        if (parts == null)
+        {
+            parts = ['requestlog'];
+
+            if (this.currentlySortedBy.id != this.sortOptions[0].id)
+            {
+                parts.push(`sort-${this.currentlySortedBy.id}`);
+            }
+            if (this.visibleStates.length !== 3 && this.visibleStates.length > 0)
+            {
+                parts.push(`states-${this.visibleStates.join(".")}`);
+            }
+            if (!this.groupEntries)
+            {
+                parts.push(`no-group`);
+            }
+            if (this.visibleVerbs.length !== this.verbs.length && this.visibleVerbs.length > 0)
+            {
+                parts.push(`verbs-${this.visibleVerbs.map(x => x.toLowerCase()).join('.')}`);
+            }
+        }
 
         UrlUtils.SetHashParts(parts);
         
@@ -410,7 +422,8 @@ export default class RequestLogPageComponent extends Vue {
     }
 
     onIPClicked(ip: string): void {
-        console.log(ip);
+        this.filteredIPAddress = ip;
+        this.updateUrl();
     }
 }
 type NumberGetter<T> = (a: T) => number;
