@@ -61,6 +61,12 @@
                     </v-btn>
                 </div>
                 <br />
+                
+                <a @click="clearFilteredIpAddress()" v-if="filteredIPAddress != null">
+                    Filtered to source IP: {{ filteredIPAddress }}
+                    <v-icon size="20px">delete</v-icon>
+                </a>
+                <br />
 
                 <v-checkbox v-model="groupEntries" label="Enable grouping" style="display:inline-block"></v-checkbox>
                 <br />
@@ -224,7 +230,7 @@ export default class RequestLogPageComponent extends Vue {
         return this.entries
             .filter(x => this.visibleStates.indexOf(x.State) !== -1)
             .filter(x => this.visibleVerbs.indexOf(x.HttpVerb) !== -1)
-            // .filter(x => x.Calls.some(c => this.visibleVersions.indexOf(c.Version) !== -1))
+            .filter(x => this.filteredIPAddress == null || x.Calls.some(c => c.SourceIP === this.filteredIPAddress))
             .sort((a, b) =>
                 LinqUtils.SortByThenBy(a, b, this.currentlySortedBy.sortedBy, this.currentlySortedBy.thenBy));
     }
@@ -364,6 +370,11 @@ export default class RequestLogPageComponent extends Vue {
         if (verbs !== undefined && verbs !== '.') {
             this.visibleVerbs = verbs.split('.').map(x => x.toUpperCase());
         }
+
+        const ip = parts.filter(x => x.startsWith('ip-')).map(x => x.substring(3))[0];
+        if (ip !== undefined && ip.length > 0) {
+            this.filteredIPAddress = ip;
+        }
     }
 
     updateUrl(parts?: Array<string> | null): void {
@@ -387,6 +398,10 @@ export default class RequestLogPageComponent extends Vue {
             {
                 parts.push(`verbs-${this.visibleVerbs.map(x => x.toLowerCase()).join('.')}`);
             }
+            if (this.filteredIPAddress != null && this.filteredIPAddress.length > 0)
+            {
+                parts.push(`ip-${this.filteredIPAddress}`);
+            }
         }
 
         UrlUtils.SetHashParts(parts);
@@ -401,6 +416,11 @@ export default class RequestLogPageComponent extends Vue {
         if (parts != null && parts != undefined) {
             this.updateUrl(parts);
         }
+    }
+
+    clearFilteredIpAddress(): void {
+        this.filteredIPAddress = null;
+        this.updateUrl();
     }
 
     ///////////////////////
