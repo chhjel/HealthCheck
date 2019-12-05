@@ -3,15 +3,14 @@
     <div>
         <h3>
             <v-icon large :color="stateColor">{{ stateIcon }}</v-icon>
-            {{ entry.Name }}
+            <span v-if="!isGrouped">{{ entry.Controller }} - </span>{{ entry.Name }}
         </h3>
         <p v-if="entry.Description != null" v-html="entry.Description"></p>
-        <a v-if="entry.Url != null" :href="entry.Url">{{ entry.Url }}<br /></a>
+        <a v-if="entry.Url != null" :href="entry.Url">{{ entry.Url }}</a><br />
         <i>
-            Controller: {{ entry.FullControllerName }},
-            Type: {{ entry.ControllerType }},
-            Action: {{ entry.Action }}, 
-            Verb: {{ entry.HttpVerb }}<br />
+            {{ entry.FullControllerName }}.{{ entry.Action }}()
+            [{{ entry.ControllerType }}]
+            [{{ entry.HttpVerb }}]<br />
             <small style="color:gray">({{ entry.EndpointId }})</small>
         </i><br />
 
@@ -21,7 +20,11 @@
                 <li
                     v-for="(call, index) in visibleCalls"
                     :key="`entry-call-${entry.Id}-${index}`" >
-                    [{{ formatTimestamp(call.Timestamp) }}] {{ call.Url }} (Status code: {{ call.StatusCode }}) (Version: {{ call.Version }})
+                    [{{ formatTimestamp(call.Timestamp) }}]
+                    <a v-if="call.Url != null" :href="call.Url">{{ call.Url }}</a>
+                    <span class="label-blob" v-if="call.StatusCode != null">Status code: {{ call.StatusCode }}</span>
+                    <span class="label-blob" v-if="call.Version != null">Version: {{ call.Version }}</span>
+                    <span class="label-blob clickable" v-if="call.SourceIP != null" @click="onIPClicked(call.SourceIP)">IP: {{ call.SourceIP }}</span>
                 </li>
             </ul>
             <br />
@@ -33,7 +36,11 @@
                 <li
                     v-for="(call, index) in visibleErrors"
                     :key="`entry-error-${entry.Id}-${index}`" >
-                    [{{ formatTimestamp(call.Timestamp) }}] {{ call.Url }} (Status code: {{ call.StatusCode }})<br />
+                    [{{ formatTimestamp(call.Timestamp) }}]
+                    <a v-if="call.Url != null" :href="call.Url">{{ call.Url }}</a>
+                    <span class="label-blob" v-if="call.StatusCode != null">{{ call.StatusCode }}</span>
+                    <span class="label-blob" v-if="call.Version != null">{{ call.Version }}</span>
+                    <span class="label-blob clickable" v-if="call.SourceIP != null" @click="onIPClicked(call.SourceIP)">IP: {{ call.SourceIP }}</span>
                     <code>{{ call.ErrorDetails }}</code>
                 </li>
             </ul>
@@ -46,8 +53,8 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import LoggedActionEntryViewModel from "../../models/RequestLog/LoggedActionEntryViewModel";
-import LoggedActionCallEntryViewModel from "../../models/RequestLog/LoggedActionCallEntryViewModel";
+import LoggedEndpointDefinitionViewModel from "../../models/RequestLog/LoggedEndpointDefinitionViewModel";
+import LoggedEndpointRequestViewModel from "../../models/RequestLog/LoggedEndpointRequestViewModel";
 import { EntryState } from '../../models/RequestLog/EntryState';
 import FrontEndOptionsViewModel from "../../models//Page/FrontEndOptionsViewModel";
 import DateUtils from "../../util/DateUtils";
@@ -62,7 +69,10 @@ export default class ActionLogEntryComponent extends Vue {
     options!: FrontEndOptionsViewModel;
     
     @Prop({ required: true })
-    entry!: LoggedActionEntryViewModel;
+    entry!: LoggedEndpointDefinitionViewModel;
+    
+    @Prop({ required: true })
+    isGrouped!: boolean;
 
     //////////////////
     //  LIFECYCLE  //
@@ -74,12 +84,12 @@ export default class ActionLogEntryComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
-    get visibleCalls(): Array<LoggedActionCallEntryViewModel>
+    get visibleCalls(): Array<LoggedEndpointRequestViewModel>
     {
         return this.entry.Calls;//.filter(x => this.showCall(x));
     }
 
-    get visibleErrors(): Array<LoggedActionCallEntryViewModel>
+    get visibleErrors(): Array<LoggedEndpointRequestViewModel>
     {
         return this.entry.Errors;//.filter(x => this.showCall(x));
     }
@@ -134,9 +144,29 @@ export default class ActionLogEntryComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
-    
+    onIPClicked(ip: string): void {
+        this.$emit('IPClicked', ip);
+    }
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.label-blob
+{
+    border-radius: 3px;
+    border: 1px solid gray;
+    padding: 2px;
+    margin: 2px;
+    font-size: 10px;
+
+    &.clickable {
+        cursor: pointer;
+        text-decoration: underline;
+        transition: background-color 0.1s ease;
+
+        &:hover {
+            background-color: lightgray;
+        }
+    }
+}
 </style>

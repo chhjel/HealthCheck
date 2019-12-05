@@ -56,7 +56,7 @@ namespace HealthCheck.ActionLog.Services
                 return;
             }
 
-            var entryEvent = CreateNewEntryEvent(e);
+            var entryEvent = CreateNewRequest(e);
             var targetList = entryEvent.IsSuccess ? entry.Calls : entry.Errors;
             var targetListLimit = entryEvent.IsSuccess ? Options.MaxCallCount : Options.MaxErrorCount;
             var limitBehaviour = entryEvent.IsSuccess ? Options.CallStoragePolicy : Options.ErrorStoragePolicy;
@@ -103,13 +103,13 @@ namespace HealthCheck.ActionLog.Services
         /// <summary>
         /// Store the given entry.
         /// </summary>
-        public void StoreAction(LoggedActionEntry entry)
+        public void StoreAction(LoggedEndpointDefinition entry)
             => Store.Insert(entry);
 
         /// <summary>
         /// Get all stored actions.
         /// </summary>
-        public List<LoggedActionEntry> GetActions()
+        public List<LoggedEndpointDefinition> GetActions()
             => Store.GetAll();
 
         /// <summary>
@@ -140,10 +140,10 @@ namespace HealthCheck.ActionLog.Services
         public string CreateEndpointId(Type controllerType, MethodInfo actionMethod, string actionName)
             => $"{controllerType?.FullName ?? "nullController"}=>{(actionMethod?.ToString() ?? actionName)?.Replace(" ", "_") ?? "nullAction"}".ToLower();
 
-        private LoggedActionEntry CreateNewEntry(LogFilterEvent e, string endpointId)
+        private LoggedEndpointDefinition CreateNewEntry(LogFilterEvent e, string endpointId)
         {
             var info = CreateActionInfo(e.ControllerType, e.Action, e.ActionMethod);
-            var entry = new LoggedActionEntry()
+            var entry = new LoggedEndpointDefinition()
             {
                 EndpointId = endpointId,
                 Name = info.Name,
@@ -157,7 +157,7 @@ namespace HealthCheck.ActionLog.Services
                 HttpVerb = e.RequestMethod
             };
 
-            var entryEvent = CreateNewEntryEvent(e);
+            var entryEvent = CreateNewRequest(e);
             if (entryEvent.IsSuccess)
             {
                 entry.Calls.Add(entryEvent);
@@ -170,34 +170,29 @@ namespace HealthCheck.ActionLog.Services
             return entry;
         }
 
-        private LoggedActionCallEntry CreateNewEntryEvent(LogFilterEvent e)
+        private LoggedEndpointRequest CreateNewRequest(LogFilterEvent e)
         {
-            var entryEvent = new LoggedActionCallEntry()
+            var request = new LoggedEndpointRequest()
             {
                 Url = e.Url,
                 Timestamp = DateTime.Now,
                 Version = GetCurrentVersion(),
                 StatusCode = e.StatusCode,
-                ErrorDetails = e.Exception?.ToString()
+                ErrorDetails = e.Exception?.ToString(),
+                SourceIP = e.SourceIP
             };
-            return entryEvent;
+            return request;
         }
 
         private ActionInfo CreateActionInfo(Type controller, string action, MethodInfo actionMethod)
         {
-            string fallbackNameGen()
-            {
-                var prettifiedControllerName = controller?.Name?.Replace("Controller", "");
-                return $"{prettifiedControllerName} - {action}";
-            };
-
             actionMethod = actionMethod ?? controller.GetMethods().FirstOrDefault(x => x.Name == action);
             var infoAttribute = actionMethod?.GetCustomAttribute<ActionsTestLogInfoAttribute>();
             return new ActionInfo()
             {
                 Name = !string.IsNullOrWhiteSpace(infoAttribute?.Name)
                     ? infoAttribute?.Name
-                    : fallbackNameGen(),
+                    : (action ?? "Unknown action"),
                 Description = infoAttribute?.Description,
                 Url = infoAttribute?.Url
             };

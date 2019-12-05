@@ -50,6 +50,11 @@ namespace HealthCheck.Core.Modules.ActionsTestLog.Models
         public string StatusCode { get; set; }
 
         /// <summary>
+        /// Source IP address.
+        /// </summary>
+        public string SourceIP { get; set; }
+
+        /// <summary>
         /// Result data.
         /// </summary>
         public string Result { get; set; }

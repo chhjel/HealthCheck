@@ -29,12 +29,12 @@ namespace HealthCheck.Core.Abstractions
         /// <summary>
         /// Store the given entry.
         /// </summary>
-        void StoreAction(LoggedActionEntry entry);
+        void StoreAction(LoggedEndpointDefinition entry);
 
         /// <summary>
         /// Get all stored actions.
         /// </summary>
-        List<LoggedActionEntry> GetActions();
+        List<LoggedEndpointDefinition> GetActions();
 
         /// <summary>
         /// Get the current application version.

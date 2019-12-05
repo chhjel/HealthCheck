@@ -15,7 +15,7 @@ namespace HealthCheck.ActionLog.Services
     /// </summary>
     public class FlatFileTestLogStorage : ITestLogStorage
     {
-        private SimpleDataStoreWithId<LoggedActionEntry, Guid> Store { get; }
+        private SimpleDataStoreWithId<LoggedEndpointDefinition, Guid> Store { get; }
 
         /// <summary>
         /// Create a new <see cref="FlatFileTestLogStorage"/> with the given file path.
@@ -23,10 +23,10 @@ namespace HealthCheck.ActionLog.Services
         /// <param name="filepath">Filepath to where the data will be stored.</param>
         public FlatFileTestLogStorage(string filepath)
         {
-            Store = new SimpleDataStoreWithId<LoggedActionEntry, Guid>(
+            Store = new SimpleDataStoreWithId<LoggedEndpointDefinition, Guid>(
                 filepath,
-                serializer: new Func<LoggedActionEntry, string>((e) => JsonConvert.SerializeObject(e)),
-                deserializer: new Func<string, LoggedActionEntry>((row) => JsonConvert.DeserializeObject<LoggedActionEntry>(row)),
+                serializer: new Func<LoggedEndpointDefinition, string>((e) => JsonConvert.SerializeObject(e)),
+                deserializer: new Func<string, LoggedEndpointDefinition>((row) => JsonConvert.DeserializeObject<LoggedEndpointDefinition>(row)),
                 idSelector: (e) => e.Id,
                 idSetter: (e, id) => e.Id = id,
                 nextIdFactory: (events, e) => Guid.NewGuid()
@@ -36,25 +36,25 @@ namespace HealthCheck.ActionLog.Services
         /// <summary>
         /// Get the first entry with the given endpoint id.
         /// </summary>
-        public LoggedActionEntry GetEntryWithEndpointId(string endpointId)
+        public LoggedEndpointDefinition GetEntryWithEndpointId(string endpointId)
             => Store.GetEnumerable().FirstOrDefault(x => x.EndpointId == endpointId);
 
         /// <summary>
         /// Insert a new item or update existing with the entry id.
         /// </summary>
-        public void InsertOrUpdate(LoggedActionEntry entry)
+        public void InsertOrUpdate(LoggedEndpointDefinition entry)
             => Store.InsertOrUpdateItem(entry);
 
         /// <summary>
         /// Insert a new item.
         /// </summary>
-        public void Insert(LoggedActionEntry entry)
+        public void Insert(LoggedEndpointDefinition entry)
             => Store.InsertItem(entry);
 
         /// <summary>
         /// Get all items.
         /// </summary>
-        public List<LoggedActionEntry> GetAll()
+        public List<LoggedEndpointDefinition> GetAll()
             => Store.GetEnumerable().ToList();
         
         /// <summary>

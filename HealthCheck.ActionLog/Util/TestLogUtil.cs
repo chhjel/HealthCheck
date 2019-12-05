@@ -48,7 +48,7 @@ namespace HealthCheck.ActionLog.Util
             }
         }
 
-        private static List<LoggedActionEntry> GetControllerActions(ITestLogService service, Type controllerType, Func<Type, string, string> actionUrlResolver = null)
+        private static List<LoggedEndpointDefinition> GetControllerActions(ITestLogService service, Type controllerType, Func<Type, string, string> actionUrlResolver = null)
         {
             var actionMethods = GetActionMethods(controllerType)
                 .Select(x => new
@@ -69,7 +69,7 @@ namespace HealthCheck.ActionLog.Util
                 .Select(x =>
                 {
                     var info = CreateActionInfo(x.ControllerType, x.Action, x.ActionMethod);
-                    return new LoggedActionEntry()
+                    return new LoggedEndpointDefinition()
                     {
                         EndpointId = service.CreateEndpointId(controllerType, x.ActionMethod, x.Action),
                         Name = info.Name,

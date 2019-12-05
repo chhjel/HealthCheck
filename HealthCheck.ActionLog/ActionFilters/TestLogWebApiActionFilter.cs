@@ -1,5 +1,6 @@
 ﻿#if NETFULL
 using HealthCheck.ActionLog.Services;
+using HealthCheck.ActionLog.Util;
 using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Modules.ActionsTestLog.Enums;
 using HealthCheck.Core.Modules.ActionsTestLog.Models;
@@ -22,11 +23,16 @@ namespace HealthCheck.ActionLog.ActionFilters
         /// </summary>
         public override void OnActionExecuted(HttpActionExecutedContext context)
         {
-            Task.Run(() => SendActionEventToService(TestLogService, LogFilterMethod.OnActionExecuted, context));
+            var ip = RequestUtils.GetIPAddress(context?.Request);
+            if (ip == "::1")
+            {
+                ip = "localhost";
+            }
+            Task.Run(() => SendActionEventToService(TestLogService, LogFilterMethod.OnActionExecuted, context, ip));
             base.OnActionExecuted(context);
         }
 
-        internal static void SendActionEventToService(ITestLogService service, LogFilterMethod method, HttpActionExecutedContext context)
+        internal static void SendActionEventToService(ITestLogService service, LogFilterMethod method, HttpActionExecutedContext context, string ip)
         {
             var controllerType = context.ActionContext.ControllerContext.Controller?.GetType();
             var controllerName = context.ActionContext.ControllerContext?.ControllerDescriptor?.ControllerName;
@@ -51,8 +57,9 @@ namespace HealthCheck.ActionLog.ActionFilters
                 Url = url,
                 Result = result,
                 StatusCode = statusCode.ToString(),
-                Exception = context.Exception
-            });
+                Exception = context.Exception,
+                SourceIP = ip
+        });
         }
     }
 }

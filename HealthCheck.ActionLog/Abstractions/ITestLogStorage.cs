@@ -12,17 +12,17 @@ namespace HealthCheck.ActionLog.Abstractions
         /// <summary>
         /// Insert a new item or update existing with the entry id.
         /// </summary>
-        void InsertOrUpdate(LoggedActionEntry entry);
+        void InsertOrUpdate(LoggedEndpointDefinition entry);
 
         /// <summary>
         /// Insert a new item.
         /// </summary>
-        void Insert(LoggedActionEntry entry);
+        void Insert(LoggedEndpointDefinition entry);
 
         /// <summary>
         /// Get the first entry with the given endpoint id.
         /// </summary>
-        LoggedActionEntry GetEntryWithEndpointId(string endpointId);
+        LoggedEndpointDefinition GetEntryWithEndpointId(string endpointId);
 
         /// <summary>
         /// Clear all litems.
@@ -32,6 +32,6 @@ namespace HealthCheck.ActionLog.Abstractions
         /// <summary>
         /// Get all items.
         /// </summary>
-        List<LoggedActionEntry> GetAll();
+        List<LoggedEndpointDefinition> GetAll();
     }
 }

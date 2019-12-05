@@ -6,7 +6,7 @@ namespace HealthCheck.Core.Modules.ActionsTestLog.Models
     /// <summary>
     /// A group of requests/errors for a single endpoint.
     /// </summary>
-    public class LoggedActionEntry
+    public class LoggedEndpointDefinition
     {
         /// <summary>
         /// Entry id.
@@ -66,11 +66,11 @@ namespace HealthCheck.Core.Modules.ActionsTestLog.Models
         /// <summary>
         /// Any successfull calls.
         /// </summary>
-        public List<LoggedActionCallEntry> Calls { get; set; } = new List<LoggedActionCallEntry>();
+        public List<LoggedEndpointRequest> Calls { get; set; } = new List<LoggedEndpointRequest>();
 
         /// <summary>
         /// Any unsuccessfull calls.
         /// </summary>
-        public List<LoggedActionCallEntry> Errors { get; set; } = new List<LoggedActionCallEntry>();
+        public List<LoggedEndpointRequest> Errors { get; set; } = new List<LoggedEndpointRequest>();
     }
 }

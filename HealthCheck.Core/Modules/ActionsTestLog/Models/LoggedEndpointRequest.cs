@@ -5,7 +5,7 @@ namespace HealthCheck.Core.Modules.ActionsTestLog.Models
     /// <summary>
     /// A logged request.
     /// </summary>
-    public class LoggedActionCallEntry
+    public class LoggedEndpointRequest
     {
         /// <summary>
         /// Time the request was logged.
@@ -26,6 +26,11 @@ namespace HealthCheck.Core.Modules.ActionsTestLog.Models
         /// Exception if any.
         /// </summary>
         public string ErrorDetails { get; set; }
+
+        /// <summary>
+        /// Source IP address.
+        /// </summary>
+        public string SourceIP { get; set; }
 
         /// <summary>
         /// Url that was requested.

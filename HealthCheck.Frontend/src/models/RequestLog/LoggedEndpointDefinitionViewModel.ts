@@ -1,7 +1,7 @@
-import LoggedActionCallEntryViewModel from "./LoggedActionCallEntryViewModel";
+import LoggedEndpointRequestViewModel from "./LoggedEndpointRequestViewModel";
 import { EntryState } from "./EntryState";
 
-export default interface LoggedActionEntryViewModel
+export default interface LoggedEndpointDefinitionViewModel
 {
     Id: string;
     EndpointId: string;
@@ -14,8 +14,8 @@ export default interface LoggedActionEntryViewModel
     Action: string;
     HttpVerb: string;
     Url: string;
-    Calls: Array<LoggedActionCallEntryViewModel>;
-    Errors: Array<LoggedActionCallEntryViewModel>;
+    Calls: Array<LoggedEndpointRequestViewModel>;
+    Errors: Array<LoggedEndpointRequestViewModel>;
     
     // Frontend only
     State: EntryState

@@ -97,14 +97,14 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Get all request log actions.
         /// </summary>
-        public List<LoggedActionEntry> GetRequestLogActions(Maybe<TAccessRole> accessRoles)
+        public List<LoggedEndpointDefinition> GetRequestLogActions(Maybe<TAccessRole> accessRoles)
         {
             if (!CanShowRequestLogPageTo(accessRoles))
             {
-                return new List<LoggedActionEntry>();
+                return new List<LoggedEndpointDefinition>();
             }
 
-            return Services?.TestLogService?.GetActions() ?? new List<LoggedActionEntry>();
+            return Services?.TestLogService?.GetActions() ?? new List<LoggedEndpointDefinition>();
         }
 
         /// <summary>

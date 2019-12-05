@@ -28,7 +28,7 @@
                 </v-alert>
             </v-layout>
 
-            <div v-if="entries.length > 0">
+            <div v-if="entries.length > 0" class="filter">
                 <progress-bar-component class="progress" 
                     :max="progressBarMax" 
                     :success="progressBarSuccess" 
@@ -36,30 +36,27 @@
                     v-on:clickedSuccess="showOnlyState(STATE_SUCCESS)"
                     v-on:clickedError="showOnlyState(STATE_ERROR)"
                     v-on:clickedRemaining="showOnlyState(STATE_UNDETERMINED)" />
-                
-                <div>
-                States:
-                    <v-checkbox v-model="visibleStates" label="Successes" :value="STATE_SUCCESS" style="display:inline-block"></v-checkbox>
-                    <v-checkbox v-model="visibleStates" label="Errors" :value="STATE_ERROR" style="display:inline-block"></v-checkbox>
-                    <v-checkbox v-model="visibleStates" label="Undetermined" :value="STATE_UNDETERMINED" style="display:inline-block"></v-checkbox>
-                </div>
-                <br />
-               
-                <div>
-                    Verbs:
-                    <v-checkbox
-                        v-for="(verb, index) in verbs"
-                        :key="`verb-${index}`"
-                        v-model="visibleVerbs" :label="verb" :value="verb"
-                        style="display:inline-block"></v-checkbox>
-                </div>
-                <br />
+      
+                <v-layout row wrap>
+                    <v-flex xs12>
+                        <v-checkbox v-model="visibleStates" label="Successes" :value="STATE_SUCCESS" style="display:inline-block" class="mr-2"></v-checkbox>
+                        <v-checkbox v-model="visibleStates" label="Errors" :value="STATE_ERROR" style="display:inline-block" class="mr-2"></v-checkbox>
+                        <v-checkbox v-model="visibleStates" label="Undetermined" :value="STATE_UNDETERMINED" style="display:inline-block" class="mr-4"></v-checkbox>
+                        
+                        <v-checkbox
+                            v-for="(verb, index) in verbs"
+                            :key="`verb-${index}`"
+                            v-model="visibleVerbs" :label="verb" :value="verb"
+                            style="display:inline-block" class="mr-2"></v-checkbox>
+                    </v-flex>
+                </v-layout>
 
                 <div>
                     Order by:
                     <v-btn x-small @click="setSortOrder(sortOption)"
                         v-for="(sortOption, index) in sortOptions"
-                        :key="`sortOption-${index}`">
+                        :key="`sortOption-${index}`"
+                        :disabled="currentlySortedBy == sortOption">
                         {{ sortOption.name }}
                     </v-btn>
                 </div>
@@ -90,6 +87,8 @@
                                 :key="`entry-${index}-${subindex}`"
                                 :options="options"
                                 :entry="entry"
+                                :isGrouped="true"
+                                v-on:IPClicked="onIPClicked"
                                 />
                         </div>
                     </div>
@@ -102,6 +101,8 @@
                         class="endpoint"
                         :options="options"
                         :entry="entry"
+                        :isGrouped="false"
+                        v-on:IPClicked="onIPClicked"
                         />
                 </div>
 
@@ -119,8 +120,8 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
-import LoggedActionEntryViewModel from '../../models/RequestLog/LoggedActionEntryViewModel';
-import LoggedActionCallEntryViewModel from '../../models/RequestLog/LoggedActionCallEntryViewModel';
+import LoggedEndpointDefinitionViewModel from '../../models/RequestLog/LoggedEndpointDefinitionViewModel';
+import LoggedEndpointRequestViewModel from '../../models/RequestLog/LoggedEndpointRequestViewModel';
 import RequestEndpointComponent from '../RequestLog/RequestEndpointComponent.vue';
 import ProgressBarComponent from '../Common/ProgressBarComponent.vue';
 import { EntryState } from '../../models/RequestLog/EntryState';
@@ -145,14 +146,23 @@ export default class RequestLogPageComponent extends Vue {
     requestLogDataLoadFailed: boolean = false;
     requestLogDataFailedErrorMessage: string = "";
 
-    entries: Array<LoggedActionEntryViewModel> = [];
+    entries: Array<LoggedEndpointDefinitionViewModel> = [];
     verbs: Array<string> = [];
     versions: Array<string> = [];
     sortOptions: Array<OrderByOption> = [
         {
+            id: "latest-first",
+            name: "Latest calls",
+            sortedBy: (x: LoggedEndpointDefinitionViewModel) => Math.max(
+                ...x.Calls.map(c => c.Timestamp.getTime()).concat(x.Errors.map(c => c.Timestamp.getTime()))
+            ),
+            thenBy: null,
+            state: null
+        },
+        {
             id: "successes-first",
             name: "Successes",
-            sortedBy: (x: LoggedActionEntryViewModel) =>
+            sortedBy: (x: LoggedEndpointDefinitionViewModel) =>
                 x.Errors.length > 0 ? -99999 : x.Calls.length,
             thenBy: null,
             state: EntryState.Success
@@ -160,25 +170,16 @@ export default class RequestLogPageComponent extends Vue {
         {
             id: "errors-first",
             name: "Errors",
-            sortedBy: (x: LoggedActionEntryViewModel) => x.Errors.length,
-            thenBy: (x: LoggedActionEntryViewModel) => x.Calls.length,
+            sortedBy: (x: LoggedEndpointDefinitionViewModel) => x.Errors.length,
+            thenBy: (x: LoggedEndpointDefinitionViewModel) => x.Calls.length,
             state: EntryState.Error
         },
         {
             id: "untested-first",
             name: "Untested",
-            sortedBy: (x: LoggedActionEntryViewModel) => -(x.Calls.length + x.Errors.length),
-            thenBy: (x: LoggedActionEntryViewModel) => x.Errors.length,
+            sortedBy: (x: LoggedEndpointDefinitionViewModel) => -(x.Calls.length + x.Errors.length),
+            thenBy: (x: LoggedEndpointDefinitionViewModel) => x.Errors.length,
             state: EntryState.Undetermined
-        },
-        {
-            id: "latest-first",
-            name: "Latest calls",
-            sortedBy: (x: LoggedActionEntryViewModel) => Math.max(
-                ...x.Calls.map(c => c.Timestamp.getTime()).concat(x.Errors.map(c => c.Timestamp.getTime()))
-            ),
-            thenBy: null,
-            state: null
         }
     ];
     visibleStates: Array<EntryState> = [ EntryState.Success, EntryState.Error, EntryState.Undetermined ];
@@ -218,7 +219,7 @@ export default class RequestLogPageComponent extends Vue {
             .filter(x => x.State == EntryState.Error).length;
     }
 
-    get filteredEntries(): Array<LoggedActionEntryViewModel> {
+    get filteredEntries(): Array<LoggedEndpointDefinitionViewModel> {
         return this.entries
             .filter(x => this.visibleStates.indexOf(x.State) !== -1)
             .filter(x => this.visibleVerbs.indexOf(x.HttpVerb) !== -1)
@@ -230,7 +231,7 @@ export default class RequestLogPageComponent extends Vue {
     get groupedFilteredEntries(): Array<EntryGroupGroup> {
         let groups: Array<EntryGroup> = LinqUtils.GroupByIntoKVP(
             this.filteredEntries,
-            x => x.Group || "No group"
+            x => x.Group || "Other"
         );
 
         let groupGroups = new Array<EntryGroupGroup>();
@@ -250,7 +251,7 @@ export default class RequestLogPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
-    includeEntryInProgress(entry: LoggedActionEntryViewModel): boolean {
+    includeEntryInProgress(entry: LoggedEndpointDefinitionViewModel): boolean {
         return true; //entry.Calls.length == 0 || entry.Calls.some(c => this.visibleVersions.indexOf(c.Version) !== -1);
     }
 
@@ -269,8 +270,8 @@ export default class RequestLogPageComponent extends Vue {
             })
         })
         .then(response => response.json())
-        // .then(response => new Promise<Array<LoggedActionEntryViewModel>>(resolve => setTimeout(() => resolve(response), 3000)))
-        .then((events: Array<LoggedActionEntryViewModel>) => this.onEventDataRetrieved(events))
+        // .then(response => new Promise<Array<LoggedEndpointDefinitionViewModel>>(resolve => setTimeout(() => resolve(response), 3000)))
+        .then((events: Array<LoggedEndpointDefinitionViewModel>) => this.onEventDataRetrieved(events))
         .catch((e) => {
             this.requestLogDataLoadInProgress = false;
             this.requestLogDataLoadFailed = true;
@@ -279,7 +280,7 @@ export default class RequestLogPageComponent extends Vue {
         });
     }
     
-    onEventDataRetrieved(events: Array<LoggedActionEntryViewModel>): void {
+    onEventDataRetrieved(events: Array<LoggedEndpointDefinitionViewModel>): void {
         const originalUrlHashParts = UrlUtils.GetHashParts();
 
         this.entries = events.map(x => {
@@ -407,17 +408,21 @@ export default class RequestLogPageComponent extends Vue {
     onVisibleVerbsChanged(): void {
         this.updateUrl();
     }
+
+    onIPClicked(ip: string): void {
+        console.log(ip);
+    }
 }
 type NumberGetter<T> = (a: T) => number;
 interface OrderByOption {
     id: string;
     name: string;
-    sortedBy: NumberGetter<LoggedActionEntryViewModel>;
-    thenBy: NumberGetter<LoggedActionEntryViewModel> | null;
+    sortedBy: NumberGetter<LoggedEndpointDefinitionViewModel>;
+    thenBy: NumberGetter<LoggedEndpointDefinitionViewModel> | null;
     state: EntryState | null;
 }
 type EntryGroupGroup = KeyValuePair<string, Array<EntryGroup>>;
-type EntryGroup = KeyValuePair<string, Array<LoggedActionEntryViewModel>>;
+type EntryGroup = KeyValuePair<string, Array<LoggedEndpointDefinitionViewModel>>;
 </script>
 
 <style scoped lang="scss">

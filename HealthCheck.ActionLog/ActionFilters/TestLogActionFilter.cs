@@ -1,5 +1,6 @@
 ﻿#if NETFULL
 using HealthCheck.ActionLog.Services;
+using HealthCheck.ActionLog.Util;
 using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Modules.ActionsTestLog.Enums;
 using HealthCheck.Core.Modules.ActionsTestLog.Models;
@@ -35,6 +36,7 @@ namespace HealthCheck.ActionLog.ActionFilters
                     actionMethod = taskAsyncActionDescriptor?.TaskMethodInfo;
                 }
                 context.Controller.ViewBag.ActionsTestLog_ActionMethodInfo = actionMethod;
+                context.Controller.ViewBag.ActionsTestLog_SourceIP = RequestUtils.GetIPAddress(context?.HttpContext?.Request);
             }
             base.OnActionExecuting(context);
         }
@@ -70,8 +72,9 @@ namespace HealthCheck.ActionLog.ActionFilters
                 RequestMethod = requestMethod,
                 Url = url,
                 Result = result,
-                StatusCode = statusCode.ToString()
-            });
+                StatusCode = statusCode.ToString(),
+                SourceIP = context.Controller.ViewBag.ActionsTestLog_SourceIP as string
+        });
         }
     }
 }
