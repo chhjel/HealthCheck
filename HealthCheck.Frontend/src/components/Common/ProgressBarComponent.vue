@@ -91,7 +91,7 @@ export default class ProgressBarComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
-    
+    // ToDo click to switch between count/percentage
 }
 </script>
 
@@ -113,6 +113,9 @@ export default class ProgressBarComponent extends Vue {
     font-size: 16px;
     text-align: center;
     padding: 5px;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 0 5px var(--v-accent-darken2);
 }
 /* .progress-bar-value.success {
 }

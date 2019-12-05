@@ -29,7 +29,7 @@
             </v-layout>
 
             <div v-if="entries.length > 0" class="filter">
-                <progress-bar-component class="progress" 
+                <progress-bar-component class="progress elevation-4" 
                     :max="progressBarMax" 
                     :success="progressBarSuccess" 
                     :error="progressBarError"
