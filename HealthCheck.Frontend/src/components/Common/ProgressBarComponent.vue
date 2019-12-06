@@ -100,7 +100,7 @@ export default class ProgressBarComponent extends Vue {
     position: relative;
 }
 .progress-bar {
-    height: 30px;
+    /* height: 30px; */
     border: 1px solid gray;
     white-space: nowrap;
     font-size: 0px;
@@ -116,12 +116,13 @@ export default class ProgressBarComponent extends Vue {
     font-weight: 600;
     color: white;
     text-shadow: 0 0 5px var(--v-accent-darken2);
+    min-width: 26px;
 }
 /* .progress-bar-value.success {
 }
 .progress-bar-value.error {
 } */
 .progress-bar-value.remaining {
-    background-color: #c4c4c4;
+    background-color: var(--v-accent-lighten2)
 }
 </style>

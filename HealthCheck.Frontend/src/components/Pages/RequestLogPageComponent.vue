@@ -63,7 +63,7 @@
                 <br />
 
                 <v-checkbox v-model="groupEntries" label="Enable grouping" style="display:inline-block" class="mr-4"></v-checkbox>
-                <a @click="clearFilteredIpAddress()" v-if="filteredIPAddress != null">
+                <a @click="clearFilteredIpAddress()" v-if="filteredIPAddress != null" class="filtere-address-filter">
                     Filtered to source IP: {{ filteredIPAddress }}
                     <v-icon size="20px">delete</v-icon>
                 </a>
@@ -494,6 +494,9 @@ type EntryGroup = KeyValuePair<string, Array<LoggedEndpointDefinitionViewModel>>
     border-left: 5px solid lightgreen;
     padding: 10px;
     margin-bottom: 20px;
+}
+.filtere-address-filter {
+    vertical-align: text-bottom;
 }
 </style>
 
