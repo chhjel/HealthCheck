@@ -351,7 +351,7 @@ Task.Run(() => RequestLogUtil.EnsureDefinitionsFromTypes(RequestLogServiceAccess
 
 ## Scheduled health checks
 
-There is no built in scheduler but the `TestRunner` class can be used to easily execute a subset of the methods from e.g. a scheduled task and report the results to the given site `ISiteEventService`.
+There is no built in scheduler but the `TestRunnerService` can be used to easily execute a subset of the methods from e.g. a scheduled job and report the results to the given site `ISiteEventService`.
 
 ```csharp
 TestDiscoveryService testDiscovererService = ..;
