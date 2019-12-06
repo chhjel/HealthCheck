@@ -1,22 +1,22 @@
 ﻿#if NETFULL
-using HealthCheck.ActionLog.Services;
-using HealthCheck.ActionLog.Util;
+using HealthCheck.RequestLog.Services;
+using HealthCheck.RequestLog.Util;
 using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Modules.ActionsTestLog.Enums;
-using HealthCheck.Core.Modules.ActionsTestLog.Models;
+using HealthCheck.Core.Modules.RequestLog.Enums;
+using HealthCheck.Core.Modules.RequestLog.Models;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
 
-namespace HealthCheck.ActionLog.ActionFilters
+namespace HealthCheck.RequestLog.ActionFilters
 {
     /// <summary>
     /// Intercepts and logs successfull WebApi requests and unhandled exceptions.
     /// </summary>
-    public class TestLogWebApiActionFilter : ActionFilterAttribute
+    public class RequestLogWebApiActionFilter : ActionFilterAttribute
     {
-        private ITestLogService TestLogService => TestLogServiceAccessor.Current;
+        private IRequestLogService RequestLogService => RequestLogServiceAccessor.Current;
 
         /// <summary>
         /// Intercepts and logs successfull WebApi requests and unhandled exceptions.
@@ -28,11 +28,11 @@ namespace HealthCheck.ActionLog.ActionFilters
             {
                 ip = "localhost";
             }
-            Task.Run(() => SendActionEventToService(TestLogService, LogFilterMethod.OnActionExecuted, context, ip));
+            Task.Run(() => SendActionEventToService(RequestLogService, LogFilterMethod.OnActionExecuted, context, ip));
             base.OnActionExecuted(context);
         }
 
-        internal static void SendActionEventToService(ITestLogService service, LogFilterMethod method, HttpActionExecutedContext context, string ip)
+        internal static void SendActionEventToService(IRequestLogService service, LogFilterMethod method, HttpActionExecutedContext context, string ip)
         {
             var controllerType = context.ActionContext.ControllerContext.Controller?.GetType();
             var controllerName = context.ActionContext.ControllerContext?.ControllerDescriptor?.ControllerName;

@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Web;
 #endif
 
-namespace HealthCheck.ActionLog.Util
+namespace HealthCheck.RequestLog.Util
 {
     internal static class RequestUtils
     {

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461;net472</TargetFrameworks>
@@ -10,7 +10,7 @@
     <Description>Logs requests and errors.</Description>
     <Copyright>ChristianH</Copyright>
     <LangVersion>latest</LangVersion>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.ActionLog.xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.RequestLog.xml</DocumentationFile>
     <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-HealthCheck</PackageProjectUrl>
   </PropertyGroup>

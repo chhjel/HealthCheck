@@ -1,22 +1,22 @@
 ﻿#if NETFULL
-using HealthCheck.ActionLog.Services;
-using HealthCheck.ActionLog.Util;
+using HealthCheck.RequestLog.Services;
+using HealthCheck.RequestLog.Util;
 using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Modules.ActionsTestLog.Enums;
-using HealthCheck.Core.Modules.ActionsTestLog.Models;
+using HealthCheck.Core.Modules.RequestLog.Enums;
+using HealthCheck.Core.Modules.RequestLog.Models;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Mvc.Async;
 
-namespace HealthCheck.ActionLog.ActionFilters
+namespace HealthCheck.RequestLog.ActionFilters
 {
     /// <summary>
     /// Intercepts and logs successfull MVC requests.
     /// </summary>
-    public class TestLogActionFilter : ActionFilterAttribute
+    public class RequestLogActionFilter : ActionFilterAttribute
     {
-        private ITestLogService TestLogService => TestLogServiceAccessor.Current;
+        private IRequestLogService RequestLogService => RequestLogServiceAccessor.Current;
 
         /// <summary>
         /// Intercepts and logs successfull MVC requests.
@@ -35,8 +35,8 @@ namespace HealthCheck.ActionLog.ActionFilters
                 {
                     actionMethod = taskAsyncActionDescriptor?.TaskMethodInfo;
                 }
-                context.Controller.ViewBag.ActionsTestLog_ActionMethodInfo = actionMethod;
-                context.Controller.ViewBag.ActionsTestLog_SourceIP = RequestUtils.GetIPAddress(context?.HttpContext?.Request);
+                context.Controller.ViewBag.RequestLog_ActionMethodInfo = actionMethod;
+                context.Controller.ViewBag.RequestLog_SourceIP = RequestUtils.GetIPAddress(context?.HttpContext?.Request);
             }
             base.OnActionExecuting(context);
         }
@@ -56,13 +56,13 @@ namespace HealthCheck.ActionLog.ActionFilters
             var controllerType = context.Controller?.GetType();
             var controllerName = routeData.Values["controller"] as string;
             var actionName = routeData.Values["action"] as string;
-            var actionMethod = context.Controller?.ViewBag?.ActionsTestLog_ActionMethodInfo;
+            var actionMethod = context.Controller?.ViewBag?.RequestLog_ActionMethodInfo;
             var requestMethod = context?.RequestContext?.HttpContext?.Request?.HttpMethod;
             var url = context.HttpContext?.Request?.Url?.ToString();
             string result = context.Result?.ToString();
             int statusCode = context.HttpContext?.Response?.StatusCode ?? 0;
 
-            TestLogService.HandleActionEvent(new LogFilterEvent()
+            RequestLogService.HandleActionEvent(new LogFilterEvent()
             {
                 FilterMethod = method,
                 ControllerType = controllerType,
@@ -73,7 +73,7 @@ namespace HealthCheck.ActionLog.ActionFilters
                 Url = url,
                 Result = result,
                 StatusCode = statusCode.ToString(),
-                SourceIP = context.Controller.ViewBag.ActionsTestLog_SourceIP as string
+                SourceIP = context.Controller.ViewBag.RequestLog_SourceIP as string
         });
         }
     }

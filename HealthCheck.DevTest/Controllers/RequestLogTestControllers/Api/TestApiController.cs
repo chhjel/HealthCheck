@@ -36,7 +36,7 @@ namespace HealthCheck.DevTest.Controllers.RequestLogTestControllers.Api
         }
 
 
-        [ActionsTestLogInfo(hide: true)]
+        [RequestLogInfo(hide: true)]
         public void HiddenEndpoint(int id)
         {
         }

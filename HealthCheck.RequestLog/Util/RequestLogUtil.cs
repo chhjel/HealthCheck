@@ -1,7 +1,8 @@
 ﻿#if NETFULL
 using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Modules.ActionsTestLog.Models;
+using HealthCheck.Core.Modules.RequestLog.Models;
+using HealthCheck.RequestLog.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,12 +11,12 @@ using System.Runtime.CompilerServices;
 using System.Web.Http;
 using System.Web.Mvc;
 
-namespace HealthCheck.ActionLog.Util
+namespace HealthCheck.RequestLog.Util
 {
     /// <summary>
-    /// Utils related to the <see cref="ITestLogService"/>.
+    /// Utils related to the <see cref="IRequestLogService"/>.
     /// </summary>
-    public class TestLogUtil
+    public class RequestLogUtil
     {
         /// <summary>
         /// Find all MVC and WebApi controllers in the given assemblies and create entries from any not already existing.
@@ -26,7 +27,7 @@ namespace HealthCheck.ActionLog.Util
         /// <param name="includeMvc">Include MVC controllers</param>
         /// <param name="includeWebApi">Include WebApi controllers</param>
         public static void EnsureDefinitionsFromTypes(
-            ITestLogService service,
+            IRequestLogService service,
             IEnumerable<Assembly> assembliesWithControllers,
             Func<Type, string, string> actionUrlResolver = null, bool includeMvc = true, bool includeWebApi = true)
         {
@@ -34,7 +35,7 @@ namespace HealthCheck.ActionLog.Util
                .SelectMany(x => x.GetTypes().Where(t =>
                     (includeMvc && typeof(Controller).IsAssignableFrom(t)) || (includeWebApi && typeof(ApiController).IsAssignableFrom(t)))
                )
-               .Where(x => !x.IsAbstract && x.GetCustomAttribute<ActionsTestLogInfoAttribute>()?.Hidden != true);
+               .Where(x => !x.IsAbstract && x.GetCustomAttribute<RequestLogInfoAttribute>()?.Hidden != true);
 
             var existingActionEntries = service.GetActions();
             foreach (var actionEntry in controllerTypes.SelectMany(x => GetControllerActions(service, x, actionUrlResolver)))
@@ -48,7 +49,7 @@ namespace HealthCheck.ActionLog.Util
             }
         }
 
-        private static List<LoggedEndpointDefinition> GetControllerActions(ITestLogService service, Type controllerType, Func<Type, string, string> actionUrlResolver = null)
+        private static List<LoggedEndpointDefinition> GetControllerActions(IRequestLogService service, Type controllerType, Func<Type, string, string> actionUrlResolver = null)
         {
             var actionMethods = GetActionMethods(controllerType)
                 .Select(x => new
@@ -95,7 +96,7 @@ namespace HealthCheck.ActionLog.Util
             };
 
             actionMethod = actionMethod ?? controller.GetMethods().FirstOrDefault(x => x.Name == action);
-            var infoAttribute = actionMethod?.GetCustomAttribute<ActionsTestLogInfoAttribute>();
+            var infoAttribute = actionMethod?.GetCustomAttribute<RequestLogInfoAttribute>();
             return new ActionInfo()
             {
                 Name = !string.IsNullOrWhiteSpace(infoAttribute?.Name)
@@ -168,7 +169,7 @@ namespace HealthCheck.ActionLog.Util
 
             // Filter out hidden ones
             list = list
-                .Where(x => x.GetCustomAttribute<ActionsTestLogInfoAttribute>()?.Hidden != true)
+                .Where(x => x.GetCustomAttribute<RequestLogInfoAttribute>()?.Hidden != true)
                 .ToList();
 
             return list;

@@ -1,13 +1,13 @@
-﻿using HealthCheck.Core.Modules.ActionsTestLog.Models;
+﻿using HealthCheck.Core.Modules.RequestLog.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace HealthCheck.ActionLog.Abstractions
+namespace HealthCheck.RequestLog.Abstractions
 {
     /// <summary>
     /// Stores test log entries.
     /// </summary>
-    public interface ITestLogStorage
+    public interface IRequestLogStorage
     {
         /// <summary>
         /// Insert a new item or update existing with the entry id.

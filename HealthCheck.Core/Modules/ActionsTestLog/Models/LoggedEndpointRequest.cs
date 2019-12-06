@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HealthCheck.Core.Modules.ActionsTestLog.Models
+namespace HealthCheck.Core.Modules.RequestLog.Models
 {
     /// <summary>
     /// A logged request.

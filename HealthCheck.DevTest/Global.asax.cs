@@ -1,6 +1,6 @@
-﻿using HealthCheck.ActionLog.Enums;
-using HealthCheck.ActionLog.Services;
-using HealthCheck.ActionLog.Util;
+﻿using HealthCheck.RequestLog.Enums;
+using HealthCheck.RequestLog.Services;
+using HealthCheck.RequestLog.Util;
 using HealthCheck.DevTest.Controllers;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,14 +21,14 @@ namespace HealthCheck.DevTest
             FilterConfig.RegisterWebApiFilters(GlobalConfiguration.Configuration.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
 
-            TestLogServiceAccessor.Current = new TestLogService(
-                new FlatFileTestLogStorage(HostingEnvironment.MapPath("~/App_Data/RequestLog.json")),
-                new TestLogServiceOptions
+            RequestLogServiceAccessor.Current = new RequestLogService(
+                new FlatFileRequestLogStorage(HostingEnvironment.MapPath("~/App_Data/RequestLog.json")),
+                new RequestLogServiceOptions
                 {
                     MaxCallCount = 3,
                     MaxErrorCount = 5,
-                    CallStoragePolicy = TestLogCallStoragePolicy.RemoveOldest,
-                    ErrorStoragePolicy = TestLogCallStoragePolicy.RemoveOldest,
+                    CallStoragePolicy = RequestLogCallStoragePolicy.RemoveOldest,
+                    ErrorStoragePolicy = RequestLogCallStoragePolicy.RemoveOldest,
                     //ControllerGroupNameFactory = (ctype) =>
                     //{
                     //    var ns = ctype.Namespace;
@@ -39,10 +39,10 @@ namespace HealthCheck.DevTest
                     //}
                 });
 
-            TestLogUtil.EnsureDefinitionsFromTypes(TestLogServiceAccessor.Current, new[] { typeof(DevController).Assembly });
-            //if (TestLogServiceAccessor.Current != null)
+            RequestLogUtil.EnsureDefinitionsFromTypes(RequestLogServiceAccessor.Current, new[] { typeof(DevController).Assembly });
+            //if (RequestLogServiceAccessor.Current != null)
             //{
-            //    Task.Run(() => TestLogUtil.EnsureDefinitionsFromTypes(TestLogServiceAccessor.Current, new[] { typeof(DevController).Assembly }));
+            //    Task.Run(() => RequestLogUtil.EnsureDefinitionsFromTypes(RequestLogServiceAccessor.Current, new[] { typeof(DevController).Assembly }));
             //}
         }
     }

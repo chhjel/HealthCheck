@@ -1,21 +1,21 @@
 ﻿#if NETFULL
-using HealthCheck.ActionLog.Services;
-using HealthCheck.ActionLog.Util;
+using HealthCheck.RequestLog.Services;
+using HealthCheck.RequestLog.Util;
 using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Modules.ActionsTestLog.Enums;
-using HealthCheck.Core.Modules.ActionsTestLog.Models;
+using HealthCheck.Core.Modules.RequestLog.Enums;
+using HealthCheck.Core.Modules.RequestLog.Models;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
-namespace HealthCheck.ActionLog.ActionFilters
+namespace HealthCheck.RequestLog.ActionFilters
 {
     /// <summary>
     /// Intercepts and logs unhandled MVC exceptions.
     /// </summary>
-    public class TestLogErrorFilter : HandleErrorAttribute
+    public class RequestLogErrorFilter : HandleErrorAttribute
     {
-        private ITestLogService TestLogService => TestLogServiceAccessor.Current;
+        private IRequestLogService RequestLogService => RequestLogServiceAccessor.Current;
 
         /// <summary>
         /// Intercepts and logs unhandled MVC exceptions.
@@ -33,14 +33,14 @@ namespace HealthCheck.ActionLog.ActionFilters
             var controllerType = context.Controller?.GetType();
             var controllerName = routeData.Values["controller"] as string;
             var actionName = routeData.Values["action"] as string;
-            var actionMethod = context.Controller?.ViewBag?.ActionsTestLog_ActionMethodInfo;
+            var actionMethod = context.Controller?.ViewBag?.RequestLog_ActionMethodInfo;
             var requestMethod = context?.RequestContext?.HttpContext?.Request?.HttpMethod;
             var url = context.HttpContext?.Request?.Url?.ToString();
             int statusCode = (context.Exception != null)
                 ? new HttpException(null, context.Exception).GetHttpCode()
                 : context.HttpContext?.Response?.StatusCode ?? 500;
 
-            TestLogService.HandleActionEvent(new LogFilterEvent()
+            RequestLogService.HandleActionEvent(new LogFilterEvent()
             {
                 FilterMethod = LogFilterMethod.OnException,
                 ControllerType = controllerType,

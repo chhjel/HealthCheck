@@ -1,8 +1,8 @@
-﻿using HealthCheck.Core.Modules.ActionsTestLog.Enums;
+﻿using HealthCheck.Core.Modules.RequestLog.Enums;
 using System;
 using System.Reflection;
 
-namespace HealthCheck.Core.Modules.ActionsTestLog.Models
+namespace HealthCheck.Core.Modules.RequestLog.Models
 {
     /// <summary>
     /// Log event data sent from action filters.

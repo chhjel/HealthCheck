@@ -1,14 +1,14 @@
 ﻿#if NETFULL
-using HealthCheck.ActionLog.Enums;
+using HealthCheck.RequestLog.Enums;
 using System;
 using System.Linq;
 
-namespace HealthCheck.ActionLog.Services
+namespace HealthCheck.RequestLog.Services
 {
     /// <summary>
-    /// Options for the <see cref="TestLogService"/>.
+    /// Options for the <see cref="RequestLogService"/>.
     /// </summary>
-    public class TestLogServiceOptions
+    public class RequestLogServiceOptions
     {
         /// <summary>
         /// Max number of successfull calls to store.
@@ -23,12 +23,12 @@ namespace HealthCheck.ActionLog.Services
         /// <summary>
         /// Policy for successfull call storage.
         /// </summary>
-        public TestLogCallStoragePolicy CallStoragePolicy { get; set; }
+        public RequestLogCallStoragePolicy CallStoragePolicy { get; set; }
 
         /// <summary>
         /// Policy for failed call storage.
         /// </summary>
-        public TestLogCallStoragePolicy ErrorStoragePolicy { get; set; }
+        public RequestLogCallStoragePolicy ErrorStoragePolicy { get; set; }
 
         /// <summary>
         /// Version of the application. Is stored along with the any calls/errors.

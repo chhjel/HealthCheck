@@ -1,4 +1,4 @@
-﻿using HealthCheck.Core.Modules.ActionsTestLog.Models;
+﻿using HealthCheck.Core.Modules.RequestLog.Models;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace HealthCheck.Core.Abstractions
 {
     /// <summary>
-    /// Handles the request testlog.
+    /// Handles request log data.
     /// </summary>
-    public interface ITestLogService
+    public interface IRequestLogService
     {
         /// <summary>
         /// Handle a new event.

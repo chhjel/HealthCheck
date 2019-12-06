@@ -6,7 +6,7 @@ namespace HealthCheck.Core.Attributes
     /// Decorate actions with this to set a custom name/description or hide it.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = true)]
-    public class ActionsTestLogInfoAttribute : Attribute
+    public class RequestLogInfoAttribute : Attribute
     {
         /// <summary>
         /// Name of the decorated action method or controller.
@@ -31,7 +31,7 @@ namespace HealthCheck.Core.Attributes
         /// <summary>
         /// Decorate actions with this to set a custom name/description or hide it.
         /// </summary>
-        public ActionsTestLogInfoAttribute(string name = null, string description = null, string url = null, bool hide = false)
+        public RequestLogInfoAttribute(string name = null, string description = null, string url = null, bool hide = false)
         {
             Name = name;
             Description = description;

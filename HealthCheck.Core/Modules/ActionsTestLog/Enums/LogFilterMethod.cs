@@ -1,4 +1,4 @@
-﻿namespace HealthCheck.Core.Modules.ActionsTestLog.Enums
+﻿namespace HealthCheck.Core.Modules.RequestLog.Enums
 {
     /// <summary>
     /// 

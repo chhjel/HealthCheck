@@ -4,7 +4,7 @@ using System.Web.Http;
 
 namespace HealthCheck.DevTest.Controllers.RequestLogTestControllers.Api
 {
-    [ActionsTestLogInfo(hide: true)]
+    [RequestLogInfo(hide: true)]
     public class HiddenApiController : TestApiControllerBase
     {
         // GET: api/student

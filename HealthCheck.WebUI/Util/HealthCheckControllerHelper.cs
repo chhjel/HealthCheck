@@ -2,7 +2,7 @@
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
-using HealthCheck.Core.Modules.ActionsTestLog.Models;
+using HealthCheck.Core.Modules.RequestLog.Models;
 using HealthCheck.Core.Modules.LogViewer.Models;
 using HealthCheck.Core.Services;
 using HealthCheck.Core.Util;
@@ -104,7 +104,7 @@ namespace HealthCheck.WebUI.Util
                 return new List<LoggedEndpointDefinition>();
             }
 
-            return Services?.TestLogService?.GetActions() ?? new List<LoggedEndpointDefinition>();
+            return Services?.RequestLogService?.GetActions() ?? new List<LoggedEndpointDefinition>();
         }
 
         /// <summary>
@@ -367,7 +367,7 @@ namespace HealthCheck.WebUI.Util
         /// Check if the given roles has access to the requestlog page.
         /// </summary>
         public bool CanShowRequestLogPageTo(Maybe<TAccessRole> accessRoles)
-            => Services.TestLogService != null && CanShowPageTo(accessRoles, AccessOptions.RequestLogPageAccess, defaultValue: false);
+            => Services.RequestLogService != null && CanShowPageTo(accessRoles, AccessOptions.RequestLogPageAccess, defaultValue: false);
 
         private void CheckPageOptions(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
         {

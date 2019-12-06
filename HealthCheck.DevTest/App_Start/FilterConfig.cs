@@ -1,4 +1,4 @@
-﻿using HealthCheck.ActionLog.ActionFilters;
+﻿using HealthCheck.RequestLog.ActionFilters;
 using System.Web.Http.Filters;
 using System.Web.Mvc;
 
@@ -8,15 +8,15 @@ namespace HealthCheck.DevTest
     {
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
-            filters.Add(new TestLogActionFilter());
-            filters.Add(new TestLogErrorFilter());
+            filters.Add(new RequestLogActionFilter());
+            filters.Add(new RequestLogErrorFilter());
             filters.Add(new HandleErrorAttribute());
         }
 
         public static void RegisterWebApiFilters(HttpFilterCollection filters)
         {
-            filters.Add(new TestLogWebApiActionFilter());
-            //filters.Add(new TestLogWebApiErrorFilter());
+            filters.Add(new RequestLogWebApiActionFilter());
+            //filters.Add(new RequestLogWebApiErrorFilter());
         }
     }
 }

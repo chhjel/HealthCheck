@@ -1,6 +1,6 @@
 ﻿#if NETFULL
-using HealthCheck.ActionLog.Abstractions;
-using HealthCheck.Core.Modules.ActionsTestLog.Models;
+using HealthCheck.RequestLog.Abstractions;
+using HealthCheck.Core.Modules.RequestLog.Models;
 using HealthCheck.Core.Util;
 using Newtonsoft.Json;
 using System;
@@ -8,20 +8,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HealthCheck.ActionLog.Services
+namespace HealthCheck.RequestLog.Services
 {
     /// <summary>
     /// Stores entries in the test log.
     /// </summary>
-    public class FlatFileTestLogStorage : ITestLogStorage
+    public class FlatFileRequestLogStorage : IRequestLogStorage
     {
         private SimpleDataStoreWithId<LoggedEndpointDefinition, Guid> Store { get; }
 
         /// <summary>
-        /// Create a new <see cref="FlatFileTestLogStorage"/> with the given file path.
+        /// Create a new <see cref="FlatFileRequestLogStorage"/> with the given file path.
         /// </summary>
         /// <param name="filepath">Filepath to where the data will be stored.</param>
-        public FlatFileTestLogStorage(string filepath)
+        public FlatFileRequestLogStorage(string filepath)
         {
             Store = new SimpleDataStoreWithId<LoggedEndpointDefinition, Guid>(
                 filepath,

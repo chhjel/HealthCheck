@@ -1,9 +1,9 @@
-﻿namespace HealthCheck.ActionLog.Enums
+﻿namespace HealthCheck.RequestLog.Enums
 {
     /// <summary>
     /// Decides what to do when the limit is reached.
     /// </summary>
-    public enum TestLogCallStoragePolicy
+    public enum RequestLogCallStoragePolicy
     {
         /// <summary>
         /// Ignore any further potential entries.

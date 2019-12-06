@@ -1,10 +1,10 @@
 ﻿#if NETFULL
-using HealthCheck.ActionLog.Abstractions;
-using HealthCheck.ActionLog.Enums;
-using HealthCheck.ActionLog.Util;
+using HealthCheck.RequestLog.Abstractions;
+using HealthCheck.RequestLog.Enums;
+using HealthCheck.RequestLog.Util;
 using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Modules.ActionsTestLog.Models;
+using HealthCheck.Core.Modules.RequestLog.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,21 +12,22 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using HealthCheck.RequestLog.Models;
 
-namespace HealthCheck.ActionLog.Services
+namespace HealthCheck.RequestLog.Services
 {
     /// <summary>
-    /// Handles the request testlog.
+    /// Handles the request RequestLog.
     /// </summary>
-    public class TestLogService : ITestLogService
+    public class RequestLogService : IRequestLogService
     {
-        private TestLogServiceOptions Options { get; set; }
-        private ITestLogStorage Store { get; }
+        private RequestLogServiceOptions Options { get; set; }
+        private IRequestLogStorage Store { get; }
 
         /// <summary>
-        /// Handles the request testlog.
+        /// Handles the request RequestLog.
         /// </summary>
-        public TestLogService(ITestLogStorage storage, TestLogServiceOptions options)
+        public RequestLogService(IRequestLogStorage storage, RequestLogServiceOptions options)
         {
             Options = options;
             Store = storage;
@@ -39,7 +40,7 @@ namespace HealthCheck.ActionLog.Services
         {
             if (e.ActionMethod != null)
             {
-                var attr = e.ActionMethod.GetCustomAttribute<ActionsTestLogInfoAttribute>(true);
+                var attr = e.ActionMethod.GetCustomAttribute<RequestLogInfoAttribute>(true);
                 if (attr?.Hidden == true)
                 {
                     return;
@@ -79,7 +80,7 @@ namespace HealthCheck.ActionLog.Services
             }
 
             // Remove oldest item if full and behaviour is RemoveOldest
-            if (targetList.Count >= targetListLimit && limitBehaviour == TestLogCallStoragePolicy.RemoveOldest)
+            if (targetList.Count >= targetListLimit && limitBehaviour == RequestLogCallStoragePolicy.RemoveOldest)
             {
                 updateEntry = true;
                 targetList.RemoveAt(0);
@@ -191,7 +192,7 @@ namespace HealthCheck.ActionLog.Services
         private ActionInfo CreateActionInfo(Type controller, string action, MethodInfo actionMethod)
         {
             actionMethod = actionMethod ?? controller.GetMethods().FirstOrDefault(x => x.Name == action);
-            var infoAttribute = actionMethod?.GetCustomAttribute<ActionsTestLogInfoAttribute>();
+            var infoAttribute = actionMethod?.GetCustomAttribute<RequestLogInfoAttribute>();
             return new ActionInfo()
             {
                 Name = !string.IsNullOrWhiteSpace(infoAttribute?.Name)

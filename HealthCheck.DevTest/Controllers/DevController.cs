@@ -1,5 +1,4 @@
-﻿using HealthCheck.ActionLog.Services;
-using HealthCheck.Core.Abstractions;
+﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
@@ -8,6 +7,7 @@ using HealthCheck.Core.Services;
 using HealthCheck.Core.Services.Models;
 using HealthCheck.Core.Util;
 using HealthCheck.DevTest._TestImplementation;
+using HealthCheck.RequestLog.Services;
 using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Services;
@@ -43,7 +43,7 @@ namespace HealthCheck.DevTest.Controllers
             Services.SiteEventService = _siteEventService;
             Services.AuditEventService = _auditEventService;
             Services.LogSearcherService = CreateLogSearcherService();
-            Services.TestLogService = TestLogServiceAccessor.Current;
+            Services.RequestLogService = RequestLogServiceAccessor.Current;
 
             if (!_hasInited)
             {
@@ -141,7 +141,7 @@ namespace HealthCheck.DevTest.Controllers
         #endregion
 
         #region dev
-        [ActionsTestLogInfo(hide: true)]
+        [RequestLogInfo(hide: true)]
         public FileResult GetMainScript()
         {
             var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheck.js");
@@ -149,7 +149,7 @@ namespace HealthCheck.DevTest.Controllers
         }
 
         //[OutputCache(Duration = 1200, VaryByParam = "none")]
-        [ActionsTestLogInfo(hide: true)]
+        [RequestLogInfo(hide: true)]
         public FileResult GetVendorScript()
         {
             var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheck.vendor.js");

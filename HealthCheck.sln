@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.DevTest.NetCore
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.WebUI.Tests", "HealthCheck.WebUI.Tests\HealthCheck.WebUI.Tests.csproj", "{4E0CF690-86CF-47F1-86CE-D837FBA75EF6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.ActionLog", "HealthCheck.ActionLog\HealthCheck.ActionLog.csproj", "{E1337F9C-3E88-4453-BC84-B8FE52874C93}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.RequestLog", "HealthCheck.RequestLog\HealthCheck.RequestLog.csproj", "{E1337F9C-3E88-4453-BC84-B8FE52874C93}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
