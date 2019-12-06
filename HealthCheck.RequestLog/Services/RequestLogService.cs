@@ -47,6 +47,12 @@ namespace HealthCheck.RequestLog.Services
                 }
             }
 
+            // Custom filtering
+            if (Options?.RequestEventFilter(e) == false)
+            {
+                return;
+            }
+
             var endpointId = CreateEndpointId(e.ControllerType, e.ActionMethod, e.Action);
             var entry = Store.GetEntryWithEndpointId(endpointId);
 

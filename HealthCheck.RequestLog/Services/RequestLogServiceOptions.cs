@@ -1,4 +1,5 @@
 ﻿#if NETFULL
+using HealthCheck.Core.Modules.RequestLog.Models;
 using HealthCheck.RequestLog.Enums;
 using System;
 using System.Linq;
@@ -47,6 +48,12 @@ namespace HealthCheck.RequestLog.Services
                 ? null
                 : lastNsPart;
         };
+
+        /// <summary>
+        /// Optionally define custom logic to filter out requests.
+        /// <para>Return false to exclude from the log.</para>
+        /// </summary>
+        public Func<LogFilterEvent, bool> RequestEventFilter { get; set; }
     }
 }
 #endif
