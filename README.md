@@ -303,6 +303,52 @@ public TestResult CheckIntegrationX()
 </p>
 </details>
 
+### IRequestLogService
+For requests to be logged and viewable 2-3 things needs to be configured:
+* An IRequestLogService has to be provided in the healthcheck controller.
+* A set of action filters will need to be registered.
+* Optionally run a utility method on startup to generate definitions from all controller actions.
+
+<details><summary>Example setup</summary>
+<p>
+
+```csharp
+// Register the service with desired options
+IRequestLogStorage storage = new FlatFileRequestLogStorage(HostingEnvironment.MapPath("~/App_Data/RequestLog.json");
+var options = new RequestLogServiceOptions
+{
+    MaxCallCount = 3,
+    MaxErrorCount = 5,
+    CallStoragePolicy = RequestLogCallStoragePolicy.RemoveOldest,
+    ErrorStoragePolicy = RequestLogCallStoragePolicy.RemoveOldest
+};
+IRequestLogService service = new RequestLogService(storage, options);
+```
+
+```csharp
+// Register MVC action filters.
+public static void RegisterGlobalFilters(GlobalFilterCollection filters)
+{
+    filters.Add(new RequestLogActionFilter());
+    filters.Add(new RequestLogErrorFilter());
+    ..
+}
+
+// Register WebAPI action filter.
+public static void RegisterWebApiFilters(HttpFilterCollection filters)
+{
+    filters.Add(new RequestLogWebApiActionFilter());
+    ..
+}
+```
+
+```csharp
+// Optionally call this method on startup to generate endpoint definitions
+Task.Run(() => RequestLogUtil.EnsureDefinitionsFromTypes(RequestLogServiceAccessor.Current, new[] { <your assemblies that contain controllers> }));
+```
+</p>
+</details>
+
 ## Scheduled health checks
 
 There is no built in scheduler but the `TestRunner` class can be used to easily execute a subset of the methods from e.g. a scheduled task and report the results to the given site `ISiteEventService`.

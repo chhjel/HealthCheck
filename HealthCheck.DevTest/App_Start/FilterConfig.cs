@@ -16,7 +16,6 @@ namespace HealthCheck.DevTest
         public static void RegisterWebApiFilters(HttpFilterCollection filters)
         {
             filters.Add(new RequestLogWebApiActionFilter());
-            //filters.Add(new RequestLogWebApiErrorFilter());
         }
     }
 }
