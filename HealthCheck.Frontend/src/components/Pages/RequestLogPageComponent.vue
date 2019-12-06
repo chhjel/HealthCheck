@@ -63,10 +63,11 @@
                 <br />
 
                 <v-checkbox v-model="groupEntries" label="Enable grouping" style="display:inline-block" class="mr-4"></v-checkbox>
-                <a @click="clearFilteredIpAddress()" v-if="filteredIPAddress != null" class="filtere-address-filter">
+                <a @click="clearFilteredIpAddress()" v-if="filteredIPAddress != null" class="filtere-address-filter mr-2">
                     Filtered to source IP: {{ filteredIPAddress }}
                     <v-icon size="20px">delete</v-icon>
                 </a>
+                <v-btn small @click="resetFilters" class="reset-filters-button">Reset filters</v-btn>
                 <br />
 
                 <!-- Versions:
@@ -421,6 +422,14 @@ export default class RequestLogPageComponent extends Vue {
         this.updateUrl();
     }
 
+    resetFilters(): void {
+        this.visibleStates = [ EntryState.Success, EntryState.Error, EntryState.Undetermined ];
+        this.groupEntries = true;
+        this.visibleVerbs = this.verbs;
+        this.currentlySortedBy = this.sortOptions[0];
+        this.filteredIPAddress = null;
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
@@ -468,7 +477,7 @@ type EntryGroup = KeyValuePair<string, Array<LoggedEndpointDefinitionViewModel>>
 
 .endpoint-group
 {
-    border-left: 5px solid gray;
+    border-left: 5px solid var(--v-secondary-lighten5);
     padding: 10px;
     margin-bottom: 40px;
     
@@ -479,7 +488,7 @@ type EntryGroup = KeyValuePair<string, Array<LoggedEndpointDefinitionViewModel>>
 
     .endpoint-subgroup
     {
-        border-left: 5px solid lightblue;
+        border-left: 5px solid var(--v-accent-lighten4);
         padding: 10px;
         margin-bottom: 30px;
     
@@ -491,12 +500,15 @@ type EntryGroup = KeyValuePair<string, Array<LoggedEndpointDefinitionViewModel>>
 }
 .endpoint
 {
-    border-left: 5px solid lightgreen;
+    border-left: 5px solid var(--v-success-lighten2);
     padding: 10px;
     margin-bottom: 20px;
 }
 .filtere-address-filter {
     vertical-align: text-bottom;
+}
+.reset-filters-button {
+    vertical-align: super;
 }
 </style>
 
