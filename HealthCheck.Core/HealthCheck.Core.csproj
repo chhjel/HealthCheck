@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <!-- <TargetFrameworks>netstandard2.0;net461;net472</TargetFrameworks> -->
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.0.1</Version>
@@ -10,16 +11,32 @@
     <Description>Core logic &amp; services.</Description>
     <Copyright>ChristianH</Copyright>
     <LangVersion>latest</LangVersion>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.WebUI.xml</DocumentationFile>
+    <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-HealthCheck</PackageProjectUrl>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\HealthCheck.Core.xml</DocumentationFile>
+  <!-- .NET STANDARD ######################### -->
+  <!-- Compiler flags -->
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>NETSTANDARD;NETSTANDARD2_0</DefineConstants>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\HealthCheck.Core.xml</DocumentationFile>
+  <!-- ####################################### -->
+  
+  <!-- .NET FRAMEWORK ######################## -->
+  <!-- Compiler flags -->
+  <!-- <PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
+    <DefineConstants>NETFULL;NET461</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net472'">
+    <DefineConstants>NETFULL;NET472</DefineConstants>
+  </PropertyGroup> -->
+  <!-- References -->
+  <!-- <ItemGroup Condition=" '$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net472' ">
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.0.0" />
+    <Reference Include="System.Web" />
+  </ItemGroup> -->
+  <!-- ####################################### -->
 
   <ItemGroup>
     <Compile Remove="LogViewer\**" />

@@ -80,6 +80,11 @@ namespace HealthCheck.WebUI.ViewModels
         public string CancelAllLogSearchesEndpoint { get; set; }
 
         /// <summary>
+        /// Url to the endpoint that returns all request log entries.
+        /// </summary>
+        public string GetRequestLogEndpoint { get; set; }
+
+        /// <summary>
         /// Number of minutes past the end of a site event it will be displayed below "Current status" on the status page.
         /// <para>Defaults to 30 minutes.</para>
         /// </summary>
@@ -116,7 +121,7 @@ namespace HealthCheck.WebUI.ViewModels
         /// <summary>
         /// Default page to show on entering the Index action in prioritized order.
         /// <para>The first available page will be shown when ?page=x is omitted.</para>
-        /// <para>Defaults to overview, tests, logviewer, auditlog.</para>
+        /// <para>Defaults to overview, tests, request log, logviewer, auditlog.</para>
         /// <para>Types omitted will be placed last.</para>
         /// </summary>
         [JsonIgnore]
@@ -124,6 +129,7 @@ namespace HealthCheck.WebUI.ViewModels
         {
             HealthCheckPageType.Overview,
             HealthCheckPageType.Tests,
+            HealthCheckPageType.RequestLog,
             HealthCheckPageType.LogViewer,
             HealthCheckPageType.AuditLog
         };
@@ -148,6 +154,7 @@ namespace HealthCheck.WebUI.ViewModels
             GetLogSearchResultsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/SearchLogs";
             CancelLogSearchEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/CancelLogSearch";
             CancelAllLogSearchesEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/CancelAllLogSearches";
+            GetRequestLogEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetRequestLog";
         }
 
         /// <summary>

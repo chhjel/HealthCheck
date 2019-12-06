@@ -117,6 +117,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Returns the page html.
         /// </summary>
+        [RequestLogInfo(hide: true)]
         public virtual ActionResult Index()
         {
             if (!Enabled) return NotFound();
@@ -143,6 +144,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Get filtered audit events to show in the UI.
         /// </summary>
+        [RequestLogInfo(hide: true)]
         [Route("GetFilteredAudits")]
         public virtual async Task<ActionResult> GetFilteredAudits([FromBody] AuditEventFilterInputData input = null)
         {
@@ -154,8 +156,23 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
+        /// Get all request log actions.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        [Route("GetRequestLog")]
+        public ActionResult GetRequestLog()
+        {
+            if (!Enabled || !Helper.CanShowRequestLogPageTo(CurrentRequestAccessRoles))
+                return NotFound();
+
+            var viewModel = Helper.GetRequestLogActions(CurrentRequestAccessRoles);
+            return CreateJsonResult(viewModel);
+        }
+
+        /// <summary>
         /// Get site events to show in the UI.
         /// </summary>
+        [RequestLogInfo(hide: true)]
         [Route("GetSiteEvents")]
         public virtual async Task<ActionResult> GetSiteEvents()
         {
@@ -169,6 +186,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Get tests to show in the UI.
         /// </summary>
+        [RequestLogInfo(hide: true)]
         [Route("GetTests")]
         public virtual ActionResult GetTests()
         {
@@ -182,6 +200,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Execute the given test.
         /// </summary>
+        [RequestLogInfo(hide: true)]
         [HttpPost]
         [Route("ExecuteTest")]
         public virtual async Task<ActionResult> ExecuteTest([FromBody] ExecuteTestInputData data)
@@ -197,6 +216,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Execute the given test.
         /// </summary>
+        [RequestLogInfo(hide: true)]
         [HttpPost]
         [Route("CancelTest")]
         public virtual async Task<ActionResult> CancelTest([FromBody] string testId)
@@ -210,6 +230,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Get log entry search results.
         /// </summary>
+        [RequestLogInfo(hide: true)]
         [HttpPost]
         [Route("SearchLogs")]
         public virtual async Task<ActionResult> SearchLogs([FromBody] LogSearchFilter filter)
@@ -226,6 +247,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Cancels the given log search.
         /// </summary>
+        [RequestLogInfo(hide: true)]
         [HttpPost]
         [Route("CancelLogSearch")]
         public virtual async Task<ActionResult> CancelLogSearch([FromBody] string searchId)
@@ -241,6 +263,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Cancels all log searches.
         /// </summary>
+        [RequestLogInfo(hide: true)]
         [HttpPost]
         [Route("CancelAllLogSearches")]
         public virtual async Task<int> CancelAllLogSearches()

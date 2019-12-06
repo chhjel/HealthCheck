@@ -24,5 +24,10 @@
         /// Application log viewer
         /// </summary>
         LogViewer,
+
+        /// <summary>
+        /// Request/exception logs
+        /// </summary>
+        RequestLog,
     }
 }

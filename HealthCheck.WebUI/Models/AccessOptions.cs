@@ -27,6 +27,12 @@ namespace HealthCheck.WebUI.Models
         public Maybe<TAccessRole> LogViewerPageAccess { get; set; }
 
         /// <summary>
+        /// Roles with access to view the requestlog page.
+        /// <para>If null nobody can access it by default.</para>
+        /// </summary>
+        public Maybe<TAccessRole> RequestLogPageAccess { get; set; }
+
+        /// <summary>
         /// Roles with access to view the audit logs.
         /// <para>If null nobody can access it by default.</para>
         /// </summary>

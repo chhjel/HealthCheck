@@ -1,11 +1,20 @@
 import KeyArray from "./models/KeyArray";
+import KeyValuePair from "../models/Common/KeyValuePair";
 
 export default class LinqUtils
 {
+    static SortBy<TItem, TPropA>(
+        a:TItem, b:TItem,
+        firstPropSelector: (item:TItem) => TPropA,
+        invertFirst: boolean = false
+    ): number {
+        return LinqUtils.SortByThenBy(a, b, firstPropSelector, null, invertFirst, false);
+    }
+
     static SortByThenBy<TItem, TPropA, TPropB>(
         a:TItem, b:TItem,
         firstPropSelector: (item:TItem) => TPropA,
-        secondPropSelector: (item:TItem) => TPropB,
+        secondPropSelector: ((item:TItem) => TPropB) | null,
         invertFirst: boolean = false,
         invertSecond: boolean = false
     ): number {
@@ -14,6 +23,10 @@ export default class LinqUtils
             return invertFirst ? 1 : -1;
         } else if (firstPropSelector(a) < firstPropSelector(b)) { 
             return invertFirst ? -1 : 1;
+        }
+    
+        if (secondPropSelector === null) {
+            return 0;
         }
     
         // Then by..
@@ -48,5 +61,21 @@ export default class LinqUtils
         }
         return groups;
     }
-}
 
+    static GroupByIntoKVP<T>(
+        list: Array<T>,
+        keyFactory: (item:T) => string): Array<KeyValuePair<string, Array<T>>>
+    {
+        let groups = Array<KeyValuePair<string, Array<T>>>();
+        let groupedData = LinqUtils.GroupBy(list, keyFactory);
+        for (let key in groupedData)
+        {
+            groups.push({
+                Key: key,
+                Value: groupedData[key]
+            });
+        }
+        return groups;
+    }
+    
+}

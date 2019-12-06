@@ -1,23 +1,25 @@
-﻿using System.IO;
-using System.Web;
-using System.Web.Hosting;
-using System.Web.Mvc;
-using HealthCheck.Core.Util;
-using HealthCheck.DevTest._TestImplementation;
-using HealthCheck.WebUI.Models;
-using HealthCheck.WebUI.ViewModels;
-using HealthCheck.WebUI.Abstractions;
-using System;
+﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
-using HealthCheck.WebUI.Services;
-using HealthCheck.Core.Abstractions;
-using System.Threading.Tasks;
-using System.Linq;
 using HealthCheck.Core.Services;
-using System.Collections.Generic;
 using HealthCheck.Core.Services.Models;
+using HealthCheck.Core.Util;
+using HealthCheck.DevTest._TestImplementation;
+using HealthCheck.RequestLog.Services;
+using HealthCheck.WebUI.Abstractions;
+using HealthCheck.WebUI.Models;
+using HealthCheck.WebUI.Services;
+using HealthCheck.WebUI.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web;
+using System.Web.Hosting;
+using System.Web.Mvc;
 
 namespace HealthCheck.DevTest.Controllers
 {
@@ -41,6 +43,7 @@ namespace HealthCheck.DevTest.Controllers
             Services.SiteEventService = _siteEventService;
             Services.AuditEventService = _auditEventService;
             Services.LogSearcherService = CreateLogSearcherService();
+            Services.RequestLogService = RequestLogServiceAccessor.Current;
 
             if (!_hasInited)
             {
@@ -49,10 +52,8 @@ namespace HealthCheck.DevTest.Controllers
         }
 
         private ILogSearcherService CreateLogSearcherService()
-        {
-            return new FlatFileLogSearcherService(new FlatFileLogSearcherServiceOptions()
+            => new FlatFileLogSearcherService(new FlatFileLogSearcherServiceOptions()
                     .IncludeLogFilesInDirectory(HostingEnvironment.MapPath("~/App_Data/TestLogs/")));
-        }
 
         private ISiteEventService CreateSiteEventService()
             => new SiteEventService(new FlatFileSiteEventStorage(HostingEnvironment.MapPath("~/App_Data/SiteEventStorage.json"),
@@ -80,8 +81,9 @@ namespace HealthCheck.DevTest.Controllers
                 {
                     HealthCheckPageType.Tests,
                     HealthCheckPageType.Overview,
+                    HealthCheckPageType.RequestLog,
                     HealthCheckPageType.LogViewer,
-                    HealthCheckPageType.AuditLog,
+                    HealthCheckPageType.AuditLog
                 },
                 ApplyCustomColumnRuleByDefault = true
             };
@@ -105,6 +107,7 @@ namespace HealthCheck.DevTest.Controllers
             AccessOptions.LogViewerPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.InvalidTestsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.SiteEventDeveloperDetailsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            AccessOptions.RequestLogPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
         }
 
         protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)
@@ -138,6 +141,7 @@ namespace HealthCheck.DevTest.Controllers
         #endregion
 
         #region dev
+        [RequestLogInfo(hide: true)]
         public FileResult GetMainScript()
         {
             var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheck.js");
@@ -145,6 +149,7 @@ namespace HealthCheck.DevTest.Controllers
         }
 
         //[OutputCache(Duration = 1200, VaryByParam = "none")]
+        [RequestLogInfo(hide: true)]
         public FileResult GetVendorScript()
         {
             var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheck.vendor.js");
