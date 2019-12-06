@@ -63,10 +63,14 @@ namespace HealthCheck.ActionLog.Services
             var updateEntry = false;
 
             // Ensure data is up to date
-            if (string.IsNullOrWhiteSpace(entry.Url))
+            if (!string.IsNullOrWhiteSpace(e?.Url))
             {
-                entry.Url = e.Url?.Split('?')?[0]?.Split('#')?[0];
-                updateEntry = true;
+                var normalizedUrl = e.Url?.Split('?')?[0]?.Split('#')?[0];
+                if (normalizedUrl?.ToLower() != entry?.Url?.ToLower())
+                {
+                    entry.Url = normalizedUrl;
+                    updateEntry = true;
+                }
             }
             if (string.IsNullOrWhiteSpace(entry.HttpVerb))
             {

@@ -41,7 +41,7 @@
                     <v-flex xs12>
                         <v-checkbox v-model="visibleStates" label="Successes" :value="STATE_SUCCESS" style="display:inline-block" class="mr-2"></v-checkbox>
                         <v-checkbox v-model="visibleStates" label="Errors" :value="STATE_ERROR" style="display:inline-block" class="mr-2"></v-checkbox>
-                        <v-checkbox v-model="visibleStates" label="Undetermined" :value="STATE_UNDETERMINED" style="display:inline-block" class="mr-4"></v-checkbox>
+                        <v-checkbox v-model="visibleStates" label="Not Called" :value="STATE_UNDETERMINED" style="display:inline-block" class="mr-4"></v-checkbox>
                         
                         <v-checkbox
                             v-for="(verb, index) in verbs"
@@ -94,6 +94,7 @@
                                 :entry="entry"
                                 :isGrouped="true"
                                 v-on:IPClicked="onIPClicked"
+                                v-on:IdClicked="onIdClicked"
                                 />
                         </div>
                     </div>
@@ -108,6 +109,7 @@
                         :entry="entry"
                         :isGrouped="false"
                         v-on:IPClicked="onIPClicked"
+                        v-on:IdClicked="onIdClicked"
                         />
                 </div>
 
@@ -181,7 +183,7 @@ export default class RequestLogPageComponent extends Vue {
         },
         {
             id: "untested-first",
-            name: "Untested",
+            name: "Not called",
             sortedBy: (x: LoggedEndpointDefinitionViewModel) => -(x.Calls.length + x.Errors.length),
             thenBy: (x: LoggedEndpointDefinitionViewModel) => x.Errors.length,
             state: EntryState.Undetermined
@@ -191,6 +193,7 @@ export default class RequestLogPageComponent extends Vue {
     visibleVerbs: Array<string> = [];
     filteredIPAddress: string | null = null;
     currentlySortedBy: OrderByOption = this.sortOptions[0];
+    currentScrollTarget: string | null = null;
     sortedByDescending: boolean = true;
     sortedByThenDescending: boolean = true;
     groupEntries: boolean = true;
@@ -302,13 +305,13 @@ export default class RequestLogPageComponent extends Vue {
                         ...c,
                         Timestamp: new Date(c.Timestamp)
                     }
-                }),
+                }).sort((a, b) => LinqUtils.SortBy(a, b, (item => item.Timestamp.getTime()))),
                 Errors: x.Errors.map(c => {
                     return {
                         ...c,
                         Timestamp: new Date(c.Timestamp)
                     }
-                })
+                }).sort((a, b) => LinqUtils.SortBy(a, b, (item => item.Timestamp.getTime())))
             };
         });
 
@@ -374,6 +377,11 @@ export default class RequestLogPageComponent extends Vue {
         if (ip !== undefined && ip.length > 0) {
             this.filteredIPAddress = ip;
         }
+
+        const id = parts.filter(x => x.startsWith('id-')).map(x => x.substring(3))[0];
+        if (id !== undefined && id.length > 0) {
+            this.currentScrollTarget = decodeURI(id);
+        }
     }
 
     updateUrl(parts?: Array<string> | null): void {
@@ -400,6 +408,10 @@ export default class RequestLogPageComponent extends Vue {
             if (this.filteredIPAddress != null && this.filteredIPAddress.length > 0)
             {
                 parts.push(`ip-${this.filteredIPAddress}`);
+            }
+            if (this.currentScrollTarget != null && this.currentScrollTarget.length > 0)
+            {
+                parts.push(`id-${encodeURI(this.currentScrollTarget)}`);
             }
         }
 
@@ -428,6 +440,24 @@ export default class RequestLogPageComponent extends Vue {
         this.visibleVerbs = this.verbs;
         this.currentlySortedBy = this.sortOptions[0];
         this.filteredIPAddress = null;
+        this.currentScrollTarget = null;
+    }
+
+    scrollToEndpoint(endpointId: string | null): void {
+        if (endpointId == null || endpointId.length == 0) {
+            return;
+        }
+
+        setTimeout(() => {
+            const testElement = document.querySelector(`[data-endpoint-id='${encodeURI(endpointId)}']`);
+            if (testElement != null) {
+                window.scrollTo({
+                    top: (window.pageYOffset || document.documentElement.scrollTop) 
+                        + testElement.getBoundingClientRect().top - 78,
+                    behavior: 'smooth'
+                });
+            }
+        }, 10);
     }
 
     ///////////////////////
@@ -448,9 +478,19 @@ export default class RequestLogPageComponent extends Vue {
         this.updateUrl();
     }
 
+    @Watch("currentScrollTarget")
+    onCurrentScrollTargetChanged(): void {
+        this.updateUrl();
+        this.scrollToEndpoint(this.currentScrollTarget);
+    }
+
     onIPClicked(ip: string): void {
         this.filteredIPAddress = ip;
         this.updateUrl();
+    }
+
+    onIdClicked(id: string): void {
+        this.currentScrollTarget = id;
     }
 }
 type NumberGetter<T> = (a: T) => number;
@@ -495,6 +535,10 @@ type EntryGroup = KeyValuePair<string, Array<LoggedEndpointDefinitionViewModel>>
         .endpoint-subgroup-header
         {
             font-size: 18px;
+        }
+
+        &:last-child {
+            margin-bottom: 20px;
         }
     }
 }

@@ -1,50 +1,57 @@
 <!-- src/components/RequestLog/RequestEndpointComponent.vue -->
 <template>
     <div>
-        <h3>
+        <h3 :data-endpoint-id="encodedEndpointId">
             <v-icon large :color="stateColor">{{ stateIcon }}</v-icon>
-            <span v-if="!isGrouped">{{ entry.Controller }} - </span>{{ entry.Name }}
+            <span class="info-trigger" @click="showDetails = !showDetails">
+                <span v-if="!isGrouped">{{ entry.Controller }} - </span>{{ entry.Name }}
+            </span>
         </h3>
         <p v-if="entry.Description != null" v-html="entry.Description"></p>
-        <a v-if="entry.Url != null" :href="entry.Url">{{ entry.Url }}</a><br />
-        <i>
-            {{ entry.FullControllerName }}.{{ entry.Action }}()
-            [{{ entry.ControllerType }}]
-            [{{ entry.HttpVerb }}]<br />
-            <small style="color:gray">({{ entry.EndpointId }})</small>
-        </i><br />
+        <a target="_blank" v-if="entry.Url != null" :href="entry.Url">{{ entry.Url }}<br /></a>
+        <i v-if="showDetails">
+            <b>Controller:</b> {{ entry.FullControllerName }} | 
+            <b>Action:</b> {{ entry.Action }} | 
+            <b>Type:</b> {{ entry.ControllerType }} | 
+            <b>Verb:</b> {{ entry.HttpVerb }}<br />
+            <span style="white-space: nowrap; cursor: pointer;" @click="onIdClicked(entry.EndpointId)"><b>Id:</b> {{ entry.EndpointId }}</span>
+        </i>
 
         <div v-if="visibleCalls.length > 0">
+            <br />
             <h4>Last {{ visibleCalls.length }} calls without errors:</h4>
             <ul>
                 <li
                     v-for="(call, index) in visibleCalls"
                     :key="`entry-call-${entry.Id}-${index}`" >
                     [{{ formatTimestamp(call.Timestamp) }}]
-                    <a v-if="call.Url != null" :href="call.Url">{{ call.Url }}</a>
+                    <a target="_blank" v-if="call.Url != null" :href="call.Url">{{ call.Url }}</a>
                     <span class="label-blob" v-if="call.StatusCode != null">Status code: {{ call.StatusCode }}</span>
-                    <span class="label-blob" v-if="call.Version != null">Version: {{ call.Version }}</span>
+                    <span class="label-blob" v-if="call.Version != null">v{{ call.Version }}</span>
                     <span class="label-blob clickable" v-if="call.SourceIP != null" @click="onIPClicked(call.SourceIP)">IP: {{ call.SourceIP }}</span>
                 </li>
             </ul>
-            <br />
         </div>
 
         <div v-if="visibleErrors.length > 0">
+            <br />
             <h4>Last {{ visibleErrors.length }} errors:</h4>
             <ul>
                 <li
                     v-for="(call, index) in visibleErrors"
                     :key="`entry-error-${entry.Id}-${index}`" >
                     [{{ formatTimestamp(call.Timestamp) }}]
-                    <a v-if="call.Url != null" :href="call.Url">{{ call.Url }}</a>
-                    <span class="label-blob" v-if="call.StatusCode != null">{{ call.StatusCode }}</span>
-                    <span class="label-blob" v-if="call.Version != null">{{ call.Version }}</span>
+                    <a target="_blank" v-if="call.Url != null" :href="call.Url">{{ call.Url }}</a>
+                    <span class="label-blob" v-if="call.StatusCode != null">Status code: {{ call.StatusCode }}</span>
+                    <span class="label-blob" v-if="call.Version != null">v{{ call.Version }}</span>
                     <span class="label-blob clickable" v-if="call.SourceIP != null" @click="onIPClicked(call.SourceIP)">IP: {{ call.SourceIP }}</span>
                     <code>{{ call.ErrorDetails }}</code>
                 </li>
             </ul>
-            <br />
+        </div>
+
+        <div v-if="visibleCalls.length == 0 && visibleErrors.length == 0">
+            <small>No requests logged for this endpoint yet.</small>
         </div>
 
         <!-- <code>{{ JSON.stringify(entry, null, 2) }}</code> -->
@@ -74,6 +81,8 @@ export default class ActionLogEntryComponent extends Vue {
     @Prop({ required: true })
     isGrouped!: boolean;
 
+    showDetails: boolean = false;
+
     //////////////////
     //  LIFECYCLE  //
     ////////////////
@@ -84,6 +93,10 @@ export default class ActionLogEntryComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get encodedEndpointId(): string {
+      return encodeURI(this.entry.EndpointId);
+    }
+
     get visibleCalls(): Array<LoggedEndpointRequestViewModel>
     {
         return this.entry.Calls;//.filter(x => this.showCall(x));
@@ -147,10 +160,17 @@ export default class ActionLogEntryComponent extends Vue {
     onIPClicked(ip: string): void {
         this.$emit('IPClicked', ip);
     }
+
+    onIdClicked(id: string): void {
+        this.$emit('IdClicked', id);
+    }
 }
 </script>
 
 <style scoped lang="scss">
+.info-trigger {
+    cursor: help;
+}
 .label-blob
 {
     border-radius: 3px;

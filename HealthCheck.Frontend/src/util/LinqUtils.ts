@@ -3,6 +3,14 @@ import KeyValuePair from "../models/Common/KeyValuePair";
 
 export default class LinqUtils
 {
+    static SortBy<TItem, TPropA>(
+        a:TItem, b:TItem,
+        firstPropSelector: (item:TItem) => TPropA,
+        invertFirst: boolean = false
+    ): number {
+        return LinqUtils.SortByThenBy(a, b, firstPropSelector, null, invertFirst, false);
+    }
+
     static SortByThenBy<TItem, TPropA, TPropB>(
         a:TItem, b:TItem,
         firstPropSelector: (item:TItem) => TPropA,
