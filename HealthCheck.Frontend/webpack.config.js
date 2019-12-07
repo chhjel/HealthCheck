@@ -3,19 +3,7 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin')
 var path = require('path')
 var webpack = require('webpack')
 
-module.exports = {
-  entry: './src/index.ts',
-  output: {
-    path: path.resolve(__dirname, './dist'),
-    publicPath: '/dist/',
-    filename: 'healthcheck.js',
-    chunkFilename: 'healthcheck.vendor.js'
-  },
-  optimization: {
-    splitChunks: {
-      chunks: 'all'
-    }
-  },
+var config = {
   module: {
     rules: [
       {
@@ -83,18 +71,17 @@ module.exports = {
   performance: {
     hints: false
   },
-  devtool: '#eval-source-map'
+  devtool: '#eval-source-map',
+  plugins: [
+    new VueLoaderPlugin(),
+    // new BundleAnalyzerPlugin()
+  ]
 }
 
-module.exports.plugins = [
-  new VueLoaderPlugin(),
-  // new BundleAnalyzerPlugin()
-];
-
 if (process.env.NODE_ENV === 'production') {
-  module.exports.devtool = false //'#source-map'
+  config.devtool = false //'#source-map'
   // http://vue-loader.vuejs.org/en/workflow/production.html
-  module.exports.plugins = (module.exports.plugins || []).concat([
+  config.plugins = (config.plugins || []).concat([
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: '"production"'
@@ -105,3 +92,33 @@ if (process.env.NODE_ENV === 'production') {
     })
   ])
 }
+
+var healthcheckConfig = Object.assign({}, config, {
+  name: 'healthcheck',
+  entry: './src/entrypoints/healthcheck.index.ts',
+  output: {
+    path: path.resolve(__dirname, './dist'),
+    publicPath: '/dist/',
+    filename: 'healthcheck.js',
+    chunkFilename: 'healthcheck.vendor.js'
+  },
+  optimization: {
+    splitChunks: {
+      chunks: 'all'
+    }
+  }
+});
+
+var siteNotesConfig = Object.assign({}, config, {
+  name: 'sitenotes',
+  entry: './src/entrypoints/sitenotes.index.ts',
+  output: {
+    path: path.resolve(__dirname, './dist'),
+    publicPath: '/dist/',
+    filename: 'sitenotes.js'
+  }
+});
+
+module.exports = [
+  healthcheckConfig, siteNotesConfig,       
+];

@@ -1,11 +1,10 @@
 import 'babel-polyfill'
 import Vue from "vue";
-import HealthCheckPageComponent from "./components/HealthCheckPageComponent.vue";
 import Vuetify from 'vuetify'
 
 // Extensions
-import './util/extensions/StringExtensions';
-import './util/extensions/ArrayExtensions';
+import '../util/extensions/StringExtensions';
+import '../util/extensions/ArrayExtensions';
 
 Vue.use(Vuetify, {
     iconfont: 'fa',
@@ -22,17 +21,19 @@ Vue.use(Vuetify, {
     }
 });
 
+        // <health-check-page-component :options="options" />
+        
 let v = new Vue({
     el: "#app",
     template: `
     <div>
-        <health-check-page-component :options="options" />
+        woop
     </div>
     `,
     data: {
         options: (window as any).healthCheckOptions,
     },
     components: {
-        HealthCheckPageComponent
+        // HealthCheckPageComponent
     }
 });
