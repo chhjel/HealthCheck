@@ -48,7 +48,7 @@ namespace HealthCheck.RequestLog.Services
             }
 
             // Custom filtering
-            if (Options?.RequestEventFilter(e) == false)
+            if (Options?.RequestEventFilter?.Invoke(e) == false)
             {
                 return;
             }
