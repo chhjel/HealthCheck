@@ -6,6 +6,8 @@ import Vuetify from 'vuetify'
 import '../util/extensions/StringExtensions';
 import '../util/extensions/ArrayExtensions';
 
+import InjectedSiteNotesComponent from '../components/SiteNotes/InjectedSiteNotesComponent.vue';
+
 Vue.use(Vuetify, {
     iconfont: 'fa',
     options: {
@@ -30,14 +32,13 @@ let v = new Vue({
     el: `#${elId}`,
     template: `
     <div>
-        woop
+        <injected-site-notes-component />
     </div>
     `,
     data: {
         options: (window as any).healthCheckOptions,
     },
     components: {
-        // HealthCheckPageComponent
-        // <health-check-page-component :options="options" />
+        InjectedSiteNotesComponent
     }
 });

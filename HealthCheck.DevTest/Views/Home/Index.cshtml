@@ -1,2 +1,699 @@
-﻿<h2>Home Index</h2>
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="format-detection" content="telephone=no" />
 
+
+    <title>Legeforeningen</title>
+
+    <meta name="msapplication-TileImage" content="https://beta.legeforeningen.no/Images/favicon/152x152.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://beta.legeforeningen.no/Images/favicon/16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://beta.legeforeningen.no/Images/favicon/32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="https://beta.legeforeningen.no/Images/favicon/96x96.png">
+    <link rel="icon" type="image/png" sizes="120x120" href="https://beta.legeforeningen.no/Images/favicon/120x120.png">
+    <link rel="icon" type="image/png" sizes="152x152" href="https://beta.legeforeningen.no/Images/favicon/152x152.png">
+    <link rel="icon" type="image/png" sizes="167x167" href="https://beta.legeforeningen.no/Images/favicon/167x167.png">
+    <link rel="icon" type="image/png" sizes="180x180" href="https://beta.legeforeningen.no/Images/favicon/180x180.png">
+    <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="https://beta.legeforeningen.no/Images/favicon/120x120.png">
+    <link rel="apple-touch-icon" type="image/png" sizes="152x152" href="https://beta.legeforeningen.no/Images/favicon/152x152.png">
+    <link rel="apple-touch-icon" type="image/png" sizes="167x167" href="https://beta.legeforeningen.no/Images/favicon/167x167.png">
+    <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="https://beta.legeforeningen.no/Images/favicon/180x180.png">
+    <link href="/" rel="canonical" />
+
+
+    <meta name="google-site-verification" content="x2U27A3ElNjyjpcpPFD8O2tfVMQZyyAolBFyW_NbhQE" />
+
+    <script>
+        //bind              : Cutoff for Safari5
+        //addEventListener  : Cutoff for IE8
+        //visibilityState   : Cutoff for IE9 and Safari6.
+        //Also checks if the visiting client is a bot.
+        if ((!("addEventListener" in window) || !("bind" in Function) || !('visibilityState' in document)) &&
+            !/bot|googlebot|crawler|spider|robot|crawling|Google Page Speed Insights/i.test(navigator.userAgent)) {
+            window.location.href = "/browserSupport.html";
+        }
+
+        //DomMutation utils.
+        !function (a) { var b; !function (a) { "use strict"; var b = function () { function a() { } return a.createMutationObserver = function (b, c, d) { void 0 === c && (c = document.body); var e; return this._mutationObserverClassName = this._mutationObserverClassName || this._findMutationObservableMethodName(), this._mutationObserverClassName ? (d = Object.keys(a.DEFAULT_OPTIONS).reduce(function (b, c) { return b[c] = d && null != d[c] ? d[c] : a.DEFAULT_OPTIONS[c], b }, {}), e = new window[this._mutationObserverClassName](b), e.observe(c, d), e) : null }, a._findMutationObservableMethodName = function () { for (var a = ["", "WebKit", "Moz", "O", "Ms"], b = 0, c = a.length; b < c; ++b) if (a[b] + "MutationObserver" in window) return a[b] + "MutationObserver"; return null }, a.VERSION = "1.2.16", a.DEFAULT_OPTIONS = { childList: !0, attributes: !1, characterData: !1, subtree: !1, attributeOldValue: !1, characterDataOldValue: !1 }, a }(); a.DomMutation = b }(b = a.Utils || (a.Utils = {})) }(Oxx || (Oxx = {}));
+        //AssetsLoader.
+        var Oxx; !function (a) { var b; !function (a) { "use strict"; var b = function () { function a() { } return a.load = function (a) { return this._loaderStack.push(a), this._isLoaderStackRunning || this._runLoaderStack(), this }, a.complete = function (a) { return this._loaderStack.push(a), this._isLoaderStackRunning || this._runLoaderStack(), this }, a._runLoaderStack = function () { var a, b; this._loadCount = 0, this._loaderStack.length > 0 && (b = this._loaderStack.shift(), "function" == typeof b ? (a = b, a(), this._loaderStack.length > 0 ? this._runLoaderStack() : (this._isLoaderStackRunning = !1, this._createAndSendDOMEvent(this.ALL_ASSETS_LOADED))) : (Array.isArray(b) || "string" == typeof b) && (this._isLoaderStackRunning = !0, this._parseUrl(b))) }, a._parseUrl = function (a) { if (this._loadHandler = this._loadHandler || this._nodeLoadedHandler.bind(this), this._errorHandler = this._errorHandler || this._nodeLoadErrorHandler.bind(this), this._headElement = this._headElement || document.body, "string" == typeof a) this._checkTypeAndAddNode(a); else if (Array.isArray(a)) for (var b = 0, c = a.length; b < c; ++b) this._checkTypeAndAddNode(a[b]) }, a._checkTypeAndAddNode = function (a) { var b = a.split("?"); if (this._loadCount++ , b[0].search(/\.css$/gi) > -1) this._addLinkNode(b.join("?")); else { if (!(b[0].search(/\.js$/gi) > -1 || a.search(/\/$/gi) > -1)) throw new Error("ScriptAndCssLoader._checkTypeAndAddNode() - url of non .css / .js / signalR hub detected. This is not supported. Url :" + a); this._addScriptNode(b.join("?")) } }, a._addScriptNode = function (a) { var b = document.createElement("script"); b.addEventListener("load", this._loadHandler), b.addEventListener("error", this._errorHandler), b.type = "text/javascript", b.async = !0, b.src = a, this._headElement.appendChild(b) }, a._addLinkNode = function (a) { var b = document.createElement("link"); b.addEventListener("load", this._loadHandler), b.addEventListener("error", this._errorHandler), b.rel = "stylesheet", b.type = "text/css", b.href = a, this._headElement.appendChild(b) }, a._createAndSendDOMEvent = function (a, b) { var c; if (!document.createEvent) throw new ReferenceError("AssetsLoader.createAndSendDOMEvent - The document.createEvent is not supported in this browser."); c = document.createEvent("CustomEvent"), c.initCustomEvent(a, !0, !0, b), document.body.dispatchEvent(c) }, a._checkLoadedElement = function (a) { a.hasAttribute("data-loaded") || (a.setAttribute("data-loaded", "true"), a.removeEventListener("load", this._loadHandler), a.removeEventListener("error", this._errorHandler), this._loadCount-- , 0 === this._loadCount && (this._createAndSendDOMEvent(this.ASSETS_LOADED), this._loaderStack.length > 0 ? this._runLoaderStack() : (this._isLoaderStackRunning = !1, this._createAndSendDOMEvent(this.ALL_ASSETS_LOADED)))) }, a._nodeLoadedHandler = function (a) { var b = a.target; this._checkLoadedElement(b) }, a._nodeLoadErrorHandler = function (a) { var b, c = a.target; null != a.srcElement && (b = a.srcElement.src || a.srcElement.href, c.setAttribute("data-load-failed", "true"), this._createAndSendDOMEvent(this.ASSET_LOAD_FAILED, { message: "AssetsLoader failed to load the following data :" + b, src: b }), this._checkLoadedElement(c)) }, a.VERSION = "1.2.5", a.ASSETS_LOADED = "assetsLoaded", a.ALL_ASSETS_LOADED = "allAssetsLoaded", a.ASSET_LOAD_FAILED = "assetLoadFailed", a._loaderStack = [], a._isLoaderStackRunning = !1, a._loadCount = 0, a }(); a.AssetsLoader = b }(b = a.Html || (a.Html = {})) }(Oxx || (Oxx = {}));
+        //ImageLoader.
+        !function (a) { var b; !function (b) { "use strict"; var c = function () { function b() { } return b.crawlPageForUnloadedImages = function (b, c, d, e, f) { void 0 === e && (e = !1), void 0 === f && (f = !0); var g, h, i = document.querySelectorAll((b ? "." + b : "img") + ":not([data-il-id])"); this._lazyLoadImages = e; for (var j = 0, k = i.length; k > j; ++j) { var l = void 0, m = "il" + this._idCounter++, n = { id: m }, o = i[j]; o.setAttribute("data-il-id", m), o.complete || !("complete" in o) && o.naturalWidth > 0 && o.naturalHeight > 0 || (l = o.hasAttribute("width") && o.hasAttribute("height") ? o.getAttribute("width") + "x" + o.getAttribute("height") : o.getAttribute("data-size"), "string" == typeof l && l.length > 0 && (g = l.toLowerCase().split("x")), "undefined" == typeof this._cachedSvgStrings[l] && (h = this._svgImageString.replace(/\{fill\}/gi, c || "#f7f7f7").replace(/\{stroke\}/gi, d || "#f7f7f7").replace(/\{width\}/gi, g ? g[0] || "100%" : "100%").replace(/\{height\}/gi, g ? g[1] || "100%" : "100%"), this._cachedSvgStrings[l] = this._encodeBase64(h)), n.src = o.getAttribute("data-src") || o.src, o.src = this._svgDataUriString.replace(/\{image\}/gi, this._cachedSvgStrings[l]), o.classList.add("image-loader--loading"), n.rectangle = o.getBoundingClientRect(), o.hasAttribute("srcset") && a.PolyFills && a.PolyFills.ImageSrcSetPolyFill && a.PolyFills.ImageSrcSetPolyFill.isSrcSetNative() && (n.src = null, n.srcSet = o.getAttribute("srcset"), n.sizes = o.getAttribute("sizes"), o.removeAttribute("srcset"), o.removeAttribute("sizes")), !this._lazyLoadImages || this._lazyLoadImages && this._isImageInViewPort(n) ? this._loadImageAsync(n) : (n.index = this._nonLoadedImages.push(n) - 1, this._nonLoadedById[n.id] = n), this._nonLoadedImages.length > 0 && this._lazyLoadImages && "function" != typeof this._boundScrollHandler && (this._boundScrollHandler = this._domScrollHandler.bind(this), this._boundResizeHandler = this._domResizeHandler.bind(this), window.addEventListener("resize", this._boundResizeHandler), document.addEventListener("scroll", this._boundScrollHandler)), f && !this._domMutationObserver && (this._cachedImageSetup = { className: b, fillColor: c, strokeColor: d, lazyLoadImages: e }, this._domMutationObserver = a.Utils.DomMutation.createMutationObserver(this._domMutationCallback.bind(this), document.body, { childList: !0 }))) } }, b.forceLoadOfImage = function (a) { var b, c, d = this; a && ("img" === a.nodeName.toLowerCase() ? a.classList.contains("image-loaded") || (c = a.getAttribute("data-il-id"), this._loadImageAsync(this._nonLoadedById[c]), this._removeImageFromNonLoadedLists(c)) : (b = Array.prototype.slice.call(document.querySelectorAll("img[data-il-id]")), b.forEach(function (b) { a.classList.contains("image-loaded") || (c = b.getAttribute("data-il-id"), d._loadImageAsync(d._nonLoadedById[c]), d._removeImageFromNonLoadedLists(c)) }))) }, b._encodeBase64 = function (a) { var b = "", c = 0; for (a = this._utf8Encode(a); c < a.length;) { var d = a.charCodeAt(c++), e = a.charCodeAt(c++), f = a.charCodeAt(c++), g = d >> 2, h = (3 & d) << 4 | e >> 4, i = (15 & e) << 2 | f >> 6, j = 63 & f; isNaN(e) ? i = j = 64 : isNaN(f) && (j = 64), b = b + this._keyString.charAt(g) + this._keyString.charAt(h) + this._keyString.charAt(i) + this._keyString.charAt(j) } return b }, b._utf8Encode = function (a) { var b = ""; a = a.replace(/\r\n/g, "\n"); for (var c = 0, d = a.length; d > c; ++c) { var e = a.charCodeAt(c); 128 > e ? b += String.fromCharCode(e) : e > 127 && 2048 > e ? (b += String.fromCharCode(e >> 6 | 192), b += String.fromCharCode(63 & e | 128)) : (b += String.fromCharCode(e >> 12 | 224), b += String.fromCharCode(e >> 6 & 63 | 128), b += String.fromCharCode(63 & e | 128)) } return b }, b._loadImageAsync = function (a) { var b; a && (b = document.createElement("img"), b.id = a.id, "string" == typeof a.src ? b.src = a.src : a.srcSet && (b.setAttribute("sizes", a.sizes), b.setAttribute("srcset", a.srcSet)), this._boundLoadHandler = this._boundLoadHandler || this._imageLoadHandler.bind(this), b.addEventListener("load", this._boundLoadHandler), b.addEventListener("error", this._boundLoadHandler)) }, b._isImageInViewPort = function (a) { var b = 1.1 * (window.pageXOffset + window.innerWidth), c = 1.1 * (window.pageYOffset + window.innerHeight); return a.rectangle.left > b || a.rectangle.top < c }, b._checkAllImagesForViewPort = function () { for (var a = this._nonLoadedImages.length - 1; a > -1; --a) this._isImageInViewPort(this._nonLoadedImages[a]) && (this._loadImageAsync(this._nonLoadedImages[a]), this._removeImageFromNonLoadedLists(this._nonLoadedImages[a].id)); 0 === this._nonLoadedImages.length && (document.removeEventListener("scroll", this._boundLoadHandler), window.removeEventListener("resize", this._boundResizeHandler), this._boundLoadHandler = null) }, b._removeImageFromNonLoadedLists = function (a) { var b = this._nonLoadedById[a]; null != b && (this._nonLoadedImages.splice(b.index, 1), delete this._nonLoadedById[a], this._nonLoadedImages.forEach(function (a, b) { a.index = b })) }, b._domMutationCallback = function () { this.crawlPageForUnloadedImages(this._cachedImageSetup.className, this._cachedImageSetup.fillColor, this._cachedImageSetup.strokeColor, this._cachedImageSetup.lazyLoadImages) }, b._imageLoadHandler = function (a) { var b = a.target, c = b.id, d = this._nonLoadedById[c], e = document.querySelector("img[data-il-id=" + c + "]"); "string" == typeof b.srcset && b.srcset.length > 0 ? (e.setAttribute("sizes", b.sizes), e.setAttribute("srcset", b.srcset)) : e.src = b.src, e.classList.remove("image-loader--loading"), e.classList.add("image-loaded"), e.removeAttribute("data-il-id"), b.removeEventListener("load", this._boundLoadHandler), b.removeEventListener("error", this._boundLoadHandler), b = null, d && this._removeImageFromNonLoadedLists(c), 0 === this._nonLoadedImages.length && (window.removeEventListener("resize", this._boundResizeHandler), document.removeEventListener("scroll", this._boundScrollHandler), this._boundScrollHandler = null, this._boundResizeHandler = null) }, b._domScrollHandler = function (a) { var b = window.pageXOffset - this._lastCheckedScrollPos.x, c = window.pageYOffset - this._lastCheckedScrollPos.y; (Math.abs(b) > this.EVENT_THROTTLE_SIZE || Math.abs(c) > this.EVENT_THROTTLE_SIZE) && (this._lastCheckedScrollPos.x = window.pageXOffset, this._lastCheckedScrollPos.y = window.pageYOffset, this._checkAllImagesForViewPort()) }, b._domResizeHandler = function (a) { var b = window.innerWidth - this._lastCheckedSize.x, c = window.innerHeight - this._lastCheckedSize.y; (0 === this._lastCheckedSize.x || 0 === this._lastCheckedSize.y || Math.abs(b) > this.EVENT_THROTTLE_SIZE || Math.abs(c) > this.EVENT_THROTTLE_SIZE) && (this._lastCheckedScrollPos.x = window.innerWidth, this._lastCheckedScrollPos.y = window.innerHeight, this._checkAllImagesForViewPort()) }, b.VERSION = "1.2.4", b.EVENT_THROTTLE_SIZE = 10, b._idCounter = 1, b._keyString = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=", b._svgDataUriString = "data:image/svg+xml;base64,{image}", b._cachedSvgStrings = {}, b._nonLoadedById = {}, b._nonLoadedImages = [], b._lastCheckedScrollPos = { x: 0, y: 0 }, b._lastCheckedSize = { x: 0, y: 0 }, b._lazyLoadImages = !1, b._svgImageString = '<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}"><rect width="100%" height="100%" style="opacity:0.7;fill:{fill};stroke:{stroke};"/></svg>', b }(); b.ImageLoader = c }(b = a.Html || (a.Html = {})) }(Oxx || (Oxx = {})); var Oxx; !function (a) { var b; !function (a) { var b; !function (a) { "use strict" }(b = a.Interfaces || (a.Interfaces = {})) }(b = a.Html || (a.Html = {})) }(Oxx || (Oxx = {})); var Oxx; !function (a) { var b; !function (a) { var b; !function (a) { "use strict" }(b = a.Interfaces || (a.Interfaces = {})) }(b = a.Html || (a.Html = {})) }(Oxx || (Oxx = {}));
+        //Srcset polyfill.
+        !function (a) { var b; !function (b) { "use strict"; function c(a, b) { return { sources: d(a), sizes: e(b) } } function d(a) { var b, c, d, e, f, g = "width"; if ("string" == typeof a && a.length > 0) { e = [], b = a.split(","); for (var h = 0, i = b.length; i > h; ++h) c = b[h].trim(), f = c.split(" "), 2 === f.length && (d = { src: f[0].trim() }, f[1].search(/^\d+\.?\d*x$/) > -1 ? d.multiplier = parseFloat(f[1]) : f[1].search(/^\d+w$/) > -1 && (d.width = parseInt(f[1], 10)), e.push(d)) } return Array.isArray(e) && e.sort(function (a, b) { var c = parseFloat(a[g]), d = parseFloat(b[g]); return -1 * (d > c ? -1 : c > d ? 1 : 0) }), e } function e(a) { var b, c, d; if ("string" == typeof a && a.length > 0) { d = [], c = a.split(","); for (var e = 0, f = c.length; f > e; ++e) b = c[e].trim(), b.search(/[(?|:?|\s]/) > -1 ? d.push({ query: b.replace(/[\d.]+vw$/, "").trim(), widthRatio: parseFloat(b.substring(b.search(/[\d.]+vw$/))) }) : b.search(/^[\d.]+vw$/) > -1 && d.push({ widthRatio: parseFloat(b) }) } return d } function f(a) { var b, c, d, e, f = g(), i = window.devicePixelRatio || 1; if (a) { if (Array.isArray(a.sizes)) for (var j = 0, k = a.sizes.length; k > j; ++j) if (c = a.sizes[j], "string" == typeof c.query && window.matchMedia && window.matchMedia(c.query).matches) { b = c.widthRatio * i / 100 * f.width; break } if (c && (b = "undefined" != typeof b ? b : c.widthRatio * i / 100 * f.width), Array.isArray(a.sources)) for (var l = 0, m = a.sources.length; m > l; ++l) e = a.sources[l], (!d || d && h(i, d.multiplier, e.multiplier) || h(b, d.width, e.width, !0)) && (d = e); d && (d.widthRatio = c ? c.widthRatio : null, d.viewPortWidth = f.width) } return d } function g() { var a = window, b = "inner"; return "innerWidth" in window || (a = document.documentElement || document.body, b = "client"), { width: a[b + "Width"], height: a[b + "Height"] } } function h(a, b, c, d) { void 0 === d && (d = !1); var e; return b = isNaN(b) ? 0 : b, c = isNaN(c) ? 0 : c, e = d ? 0 > a - c ? a - c >= a - b : !1 : Math.abs(a - b) >= Math.abs(a - c), e && c >= a } var i = !0, j = function () { function b() { } return b.initImages = function () { var a, b, c; if (!this.hasSrcSetSupport()) { c = document.querySelectorAll("img"); for (var d = 0, e = c.length; e > d; ++d) b = c[d], a = this.getImageSourceObject(b), a && (("undefined" == typeof b.src || -1 === b.src.search(a.src)) && (b.src = a.src), a.widthRatio && a.viewPortWidth && (b.width = Math.min(a.widthRatio / 100 * a.viewPortWidth, a.width))) } }, b.getImageSourceObject = function (b) { var d, e, g; return b.hasAttribute("data-srcset") || b.hasAttribute("srcset") ? (b.hasAttribute("srcset") && (b.setAttribute("data-srcset", b.getAttribute("srcset")), b.removeAttribute("srcset")), b.hasAttribute("sizes") && (b.setAttribute("data-sizes", b.getAttribute("sizes")), b.removeAttribute("sizes")), e = b.getAttribute("data-srcset"), g = b.getAttribute("data-sizes"), a.Utils && a.Utils.ObjectDictionary && (!this._srcSetCache || this._srcSetCache && !this._srcSetCache.hasKey(b)) && (this._srcSetCache = this._srcSetCache || new a.Utils.ObjectDictionary, this._srcSetCache.setValue(b, c(e, g))), d = this._srcSetCache ? this._srcSetCache.getValue(b) : c(e, g), f(d)) : null }, b.hasSrcSetSupport = function () { return this._srcSetSupport && this._sizesSupport }, b.isSrcSetNative = function () { return i }, b.VERSION = "1.1.0", b._image = document.createElement("img"), b._srcSetSupport = "srcset" in b._image, b._sizesSupport = "sizes" in b._image, b }(); b.ImageSrcSetPolyFill = j, a.PolyFills.ImageSrcSetPolyFill.hasSrcSetSupport() || (a.PolyFills.ImageSrcSetPolyFill.initImages(), i = !1, window.addEventListener("resize", function (b) { a.PolyFills.ImageSrcSetPolyFill.initImages() }, !1)) }(b = a.PolyFills || (a.PolyFills = {})) }(Oxx || (Oxx = {})); var Oxx; !function (a) { var b; !function (a) { var b; !function (a) { "use strict" }(b = a.Interfaces || (a.Interfaces = {})) }(b = a.PolyFills || (a.PolyFills = {})) }(Oxx || (Oxx = {})); var Oxx; !function (a) { var b; !function (a) { var b; !function (a) { "use strict" }(b = a.Interfaces || (a.Interfaces = {})) }(b = a.PolyFills || (a.PolyFills = {})) }(Oxx || (Oxx = {})); var Oxx; !function (a) { var b; !function (a) { var b; !function (a) { "use strict" }(b = a.Interfaces || (a.Interfaces = {})) }(b = a.PolyFills || (a.PolyFills = {})) }(Oxx || (Oxx = {}));
+    </script>
+
+    <!--Google Tag Manager-->
+    <script>
+        (function (w, d, s, l, i) {
+        w[l] = w[l] || []; w[l].push({
+            'gtm.start':
+                new Date().getTime(), event: 'gtm.js'
+        }); var f = d.getElementsByTagName(s)[0],
+            j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-W567SWT');
+    </script>
+    <!--End Google Tag Manager-->
+
+    <meta property="og:title" content="Den norske legeforening" />
+    <meta property="og:description" content="Legeforeningen jobber for felles faglige, sosiale og &#248;konomiske interesser for sine medlemmer." />
+    <meta property="og:url" content="https://beta.legeforeningen.no/" />
+    <meta property="og:image" content="https://beta.legeforeningen.no/globalassets/bilder/den-norske-legeforening.png" />
+
+
+
+    <script type="text/javascript">
+        var appInsights = window.appInsights || function (a) {
+            function b(a) { c[a] = function () { var b = arguments; c.queue.push(function () { c[a].apply(c, b) }) } } var c = { config: a }, d = document, e = window; setTimeout(function () { var b = d.createElement("script"); b.src = a.url || "https://az416426.vo.msecnd.net/scripts/a/ai.0.js", d.getElementsByTagName("script")[0].parentNode.appendChild(b) }); try { c.cookie = d.cookie } catch (a) { } c.queue = []; for (var f = ["Event", "Exception", "Metric", "PageView", "Trace", "Dependency"]; f.length;)b("track" + f.pop()); if (b("setAuthenticatedUserContext"), b("clearAuthenticatedUserContext"), b("startTrackEvent"), b("stopTrackEvent"), b("startTrackPage"), b("stopTrackPage"), b("flush"), !a.disableExceptionTracking) { f = "onerror", b("_" + f); var g = e[f]; e[f] = function (a, b, d, e, h) { var i = g && g(a, b, d, e, h); return !0 !== i && c["_" + f](a, b, d, e, h), i } } return c
+        }({
+            instrumentationKey: "32e7a188-0d61-4107-abac-38a3730bf659"
+        });
+
+        window.appInsights = appInsights, appInsights.queue && 0 === appInsights.queue.length && appInsights.trackPageView();
+    </script>
+
+
+
+
+
+
+    <script async src="https://www.legejobber.no/dist/scripts/tracking.js"></script>
+
+
+
+    <script async src="https://beta.legeforeningen.no/Scripts/js/libraries/quill.min.js"></script>
+
+    <script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?flags=gated&features=Element.prototype.remove%2CNodeList.prototype.forEach"></script>
+</head>
+<body style="display:none;background-color: white;">
+
+
+
+
+    <header class="page-header">
+        <div class="page-header__search-form" style="display:none;" data-modal-content="header:search">
+            <div class="wrapper">
+                <form action="/sok/" method="get" class="search-input--shadow">
+                    <div class="search-input__field">
+                        <input type="text" tabindex="1" placeholder="Søk i hele Legeforeningen" name="searchPhrase" data-js-hook="setFocusOnOpen">
+                        <input type="hidden" name="union" />
+                        <button type="submit" tabindex="2">
+                            <i class="icon-link__svg-wrapper icon-default svg-search_circle_red"></i>
+                        </button>
+                    </div>
+                    <div class="search__hint">Begynn å skrive og trykk ENTER for å søke </div>
+                </form>
+                <a class="icon-link" data-modal-btn-close="header:search">
+                    <div>Lukk</div>
+                    <div><i class="icon-link__svg-wrapper svg-close_circle"></i></div>
+                </a>
+            </div>
+        </div>
+
+
+
+        <div class="page-header__mobile" style="display:none" data-modal-content="header:menu">
+
+            <div class="page-header__top">
+                <div class="page-header__logo">
+                    <a href="/">
+                        <img src"https://beta.legeforeningen.no/Images/logos/legeforeningen/logo-normal-hvit.svg" alt="Legeforeningen logo" />
+                    </a>
+                </div>
+                <div class="page-header__cell">
+                    <div class="page-header__icon-links">
+
+
+                        <a class="icon-link page-header__login hide-before-mobile" href="/login?returnUrl=%2f">
+                            <div class="">Logg inn</div>
+                            <div><i class="icon-link__svg-wrapper  svg-user_icon"></i></div>
+                        </a>
+
+
+                        <a class="icon-link page-header__btn-close" href="#"
+                           data-modal-btn-close="header:menu">
+                            <div>Lukk</div>
+                            <div><i class="icon-link__svg-wrapper page-header__close svg-close_circle"></i></div>
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="link-list">
+                <div class="page-header__mobile-login">
+                    <a class="icon-link page-header__login " href="/login?returnUrl=%2f">
+                        <div class="">Logg inn</div>
+                        <div>
+                            <i class="icon-link__svg-wrapper  svg-user_icon"></i>
+                        </div>
+                    </a>
+
+                </div>
+
+                <ul>
+                    <li><a class="" href="/politikk-og-samfunn/">Politikk og samfunn</a></li>
+                    <li><a class="" href="/fag/">Fag</a></li>
+                    <li><a class="" href="/utdanning/">Utdanning</a></li>
+                    <li><a class="" href="/jus-og-arbeidsliv/">Jus og arbeidsliv</a></li>
+                    <li><a class="" href="/medlemsfordeler/">Medlemsfordeler</a></li>
+                    <li><a class="" href="/om-oss/">Om oss</a></li>
+
+                    <li>
+                        <div class="page-header__search-form">
+                            <form action="/sok/" method="get" class="search-input--shadow">
+                                <div class="search-input__field">
+                                    <input type="text" tabindex="1" placeholder="Søk i hele Legeforeningen" name="searchPhrase">
+                                    <button type="submit" tabindex="2">
+                                        <i class="icon-link__svg-wrapper icon-default svg-search_circle_red"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="page-header__top">
+            <div class="page-header__logo">
+                <a class="desktop-only" href="/"><img src"https://beta.legeforeningen.no/Images/logos/legeforeningen/logo-liggende.svg" alt="Legeforeningen logo" /></a>
+                <a class="mobile-only" href="/"><img src"https://beta.legeforeningen.no/Images/logos/legeforeningen/logo-normal-hvit.svg" alt="Legeforeningen logo" /></a>
+            </div>
+
+            <div class="page-header__links page-header__icon-links">
+
+                <a class="icon-link page-header__login hide-before-mobile" href="/login?returnUrl=%2f">
+                    <div class="hide-before-mobile">Logg inn</div><div><i class="icon-link__svg-wrapper  svg-user_icon"></i></div>
+                </a>
+
+
+                <div class="page-header__btn-menu" style="display:none">
+                    <a class="icon-link page-header__login" href="#" data-modal-btn-open="header:menu" data-js-options="{ closeOnOverlayClick: false}">
+                        <div>Meny</div>
+                        <div><i class="icon-link__svg-wrapper svg-hamburger_menu"></i></div>
+                    </a>
+                </div>
+
+
+                <a class="icon-link page-header__search" href="#"
+                   data-modal-btn-open="header:search" data-js-options="{ closeOnOverlayClick:false, modalOverlayClassName:'header-search', overflowHidden:false, jsHookSetFocusOnOpen:'setFocusOnOpen' }">
+                    <div class="hide-before-mobile">Søk</div>
+                    <div class="page-header__search--icon">
+                        <i class="icon-link__svg-wrapper icon-default svg-search_circle_white"></i>
+                        <i class="icon-link__svg-wrapper icon-hover svg-search_circle_white"></i>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+
+        <div class="navigation">
+            <div class="navigation__links-wrapper">
+                <a class="navigation__link" href="/politikk-og-samfunn/">Politikk og samfunn</a>
+                <a class="navigation__link" href="/fag/">Fag</a>
+                <a class="navigation__link" href="/utdanning/">Utdanning</a>
+                <a class="navigation__link" href="/jus-og-arbeidsliv/">Jus og arbeidsliv</a>
+                <a class="navigation__link" href="/medlemsfordeler/">Medlemsfordeler</a>
+                <a class="navigation__link" href="/om-oss/">Om oss</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="content-area">
+
+
+        <main class="start-page">
+            <div class="hero--start-page">
+                <div class="watermark"><div class="watermark__asklepios"></div></div>
+                <div>
+                    <div>
+                        <div class="block top-module-block">
+                            <a href="/nyheter/2019/bli-med-a-markere-fastlegedagen-5.-desember/">
+                                <div class="top-module-block__image">
+                                    <img alt="Foto: Privat/Legeforeningen" sizes="100vw" src="https://beta.legeforeningen.no/contentassets/6e2d98a96cf74a59bd7cafb6f7b21033/17-aif-s-6-fastlegedagen.jpg?quality=80&amp;width=862&amp;height=340&amp;mode=crop&amp;center=0.3333333,0.49875" srcset="/contentassets/6e2d98a96cf74a59bd7cafb6f7b21033/17-aif-s-6-fastlegedagen.jpg?quality=80&amp;width=480&amp;height=189&amp;mode=crop&amp;center=0.3333333,0.49875 480w, /contentassets/6e2d98a96cf74a59bd7cafb6f7b21033/17-aif-s-6-fastlegedagen.jpg?quality=80&amp;width=768&amp;height=302&amp;mode=crop&amp;center=0.3333333,0.49875 768w, /contentassets/6e2d98a96cf74a59bd7cafb6f7b21033/17-aif-s-6-fastlegedagen.jpg?quality=80&amp;width=862&amp;height=340&amp;mode=crop&amp;center=0.3333333,0.49875 862w" />
+                                </div>
+                                <div class="top-module-block__image-overlay">
+                                    <h2> Bli med &#229; markere fastlegedagen 5. desember</h2>
+                                    <p>Fastlegeordningen er grunnmuren i helsevesenet. Derfor markerer Legeforeningen Fastlegedagen for andre &#229;ret p&#229; rad!</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div><div>
+                        <div class="navigation-block navigation-block--icon">
+                            <div class="navigation-block__wrapper">
+                                <div class="navigation-block__content">
+                                </div>
+                                <div class="navigation-block__content">
+                                    <div class="link-grid">
+                                        <div class="link-grid__flex-wrapper">
+                                            <div>
+                                                <div>
+                                                    <div class="icon-button-block">
+                                                        <a class="navigation-card color__icon-calendar" href="/utdanning/kurs/" target="_self">
+                                                            <div class="icon-calendar"></div>
+                                                            <div class="navigation-card__link-text ">Kurs</div>
+                                                        </a>
+                                                    </div>
+                                                </div><div>
+                                                    <div class="icon-button-block">
+                                                        <a class="navigation-card color__icon-clipboard" href="/hoeringer/" target="_self">
+                                                            <div class="icon-clipboard"></div>
+                                                            <div class="navigation-card__link-text ">H&#248;ringer</div>
+                                                        </a>
+                                                    </div>
+                                                </div><div>
+                                                    <div class="icon-button-block">
+                                                        <a class="navigation-card color__icon-dialog" href="/om-oss/helse-og-omsorgstilbud-for-alle-leger-og-medisinstudenter/" target="_self">
+                                                            <div class="icon-dialog"></div>
+                                                            <div class="navigation-card__link-text ">Legehelse</div>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div>
+
+                    <section class="block latest-news-block" data-js-control="SliderControl" data-js-options='{"sliderLoopOnEndPoints":false,"maxContentCount":3,"minContentSizeInPixels":320}'>
+                        <div class="latest-news-block__heading"><h2>Aktuelt</h2></div>
+                        <div class="link-grid target multi-slider has-bottom-link" data-js-hook="slider:target">
+                            <div class="slide slider__content" style="display:none">
+                                <a class="navigation-card__top-image" href="/nyheter/2019/i-retten-i-legelistesaken/">
+                                    <div class="navigation-card__image-wrapper">
+                                        <img alt="Advokatene i retten" src="https://beta.legeforeningen.no/contentassets/66caa38e18fd4389aaf11aeea91cab06/legelisten_liggende.jpg?quality=80&amp;width=334&amp;height=200&amp;mode=crop&amp;center=0.5,0.5" />
+                                    </div>
+                                    <div class="navigation-card__teaser">29. november 2019 </div>
+                                    <div class="navigation-card__link-text ">I retten i Legelistesaken</div>
+                                </a>
+                            </div>
+                            <div class="slide slider__content" style="display:none">
+                                <a class="navigation-card__top-image" href="/nyheter/2019/ny-nasjonal-helse-og-sykehusplan/">
+                                    <div class="navigation-card__image-wrapper">
+                                        <img alt="Foto: Arne Vatnøy" src="https://beta.legeforeningen.no/contentassets/18f3057870ef4fd78ac60097e8e2d546/maritkontor1.jpg?quality=80&amp;width=334&amp;height=200&amp;mode=crop&amp;center=0.3433396,0.36375" />
+                                    </div>
+                                    <div class="navigation-card__teaser">22. november 2019 </div>
+                                    <div class="navigation-card__link-text ">Ny Nasjonal helse- og sykehusplan</div>
+                                </a>
+                            </div>
+                            <div class="slide slider__content" style="display:none">
+                                <a class="navigation-card__top-image" href="/nyheter/2019/vil-ha-klimakrisen-inn-i-medisinsk-grunnutdanning/">
+                                    <div class="navigation-card__image-wrapper">
+                                        <img alt="Trær sett ovenifra, formet som en hjerterytme fra en monitor. Illustrasjon: Istockphoto.com leonard_c" src="https://beta.legeforeningen.no/contentassets/1a8053a0e8d24adfb1d7301ef9ee1f90/istock-471280329.jpg?quality=80&amp;width=334&amp;height=200&amp;mode=crop&amp;center=0.4852399,0.5778816" />
+                                    </div>
+                                    <div class="navigation-card__teaser">27. november 2019 </div>
+                                    <div class="navigation-card__link-text ">Vil ha klimakrisen inn i medisinsk grunnutdanning</div>
+                                </a>
+                            </div>
+
+                            <div class="slide slider__content slider__content--last-slide " style="display:none" )>
+                                <div class="slide-wrapper">
+                                    <a href="/link/d1a6f22c2b9c49b3bbff02b09f115d83.aspx" target="_self" class="button-primary button-primary--small">Flere saker</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sliderButtons" data-js-hook="slider:buttons">
+                            <div class="radio-button">
+                                <input name="radio:3862b9e9-8436-4baf-9d7d-3dc29b284047" id="radio:3862b9e9-8436-4baf-9d7d-3dc29b284047-0" type="radio" value="0">
+                                <label for="radio:3862b9e9-8436-4baf-9d7d-3dc29b284047-0"></label>
+                            </div>
+                            <div class="radio-button">
+                                <input name="radio:3862b9e9-8436-4baf-9d7d-3dc29b284047" id="radio:3862b9e9-8436-4baf-9d7d-3dc29b284047-1" type="radio" value="1">
+                                <label for="radio:3862b9e9-8436-4baf-9d7d-3dc29b284047-1"></label>
+                            </div>
+                            <div class="radio-button">
+                                <input name="radio:3862b9e9-8436-4baf-9d7d-3dc29b284047" id="radio:3862b9e9-8436-4baf-9d7d-3dc29b284047-2" type="radio" value="2">
+                                <label for="radio:3862b9e9-8436-4baf-9d7d-3dc29b284047-2"></label>
+                            </div>
+                            <div class="radio-button slider__button--last-slide">
+                                <input name="radio:3862b9e9-8436-4baf-9d7d-3dc29b284047" id="radio:3862b9e9-8436-4baf-9d7d-3dc29b284047-3" type="radio" value="3">
+                                <label for="radio:3862b9e9-8436-4baf-9d7d-3dc29b284047-3"></label>
+                            </div>
+
+                        </div>
+
+
+                        <div class="latest-news-block__bottom-link slider__bottom-link">
+                            <a href="/nyheter/" target="_self">Flere saker</a>
+                        </div>
+                    </section>
+                </div><div>
+                    <div class="navigation-block">
+                        <div class="navigation-block__wrapper">
+                            <div class="navigation-block__content">
+                            </div>
+                            <div class="navigation-block__content">
+                                <div class="link-grid">
+                                    <div class="link-grid__flex-wrapper">
+                                        <a class="navigation-card" href="/jus-og-arbeidsliv/avtaler/Normaltariffen/">
+                                            <div class="navigation-card__link-text">Normaltariffen </div>
+                                            <div class="navigation-card__description"></div>
+                                        </a>
+                                        <a class="navigation-card" href="/om-oss/organisasjonen/rad-og-utvalg/landsstyret/avsluttede-landstyremoter/landsstyremote-2019/">
+                                            <div class="navigation-card__link-text">Landsstyrem&#248;te 2019 </div>
+                                            <div class="navigation-card__description"></div>
+                                        </a>
+                                        <a class="navigation-card" href="/om-oss/Styrende-dokumenter/fond-og-legater/">
+                                            <div class="navigation-card__link-text">Fond og legater </div>
+                                            <div class="navigation-card__description"></div>
+                                        </a>
+                                        <a class="navigation-card" href="/jus-og-arbeidsliv/avtaler-for/">
+                                            <div class="navigation-card__link-text">Tariffavtaler </div>
+                                            <div class="navigation-card__description"></div>
+                                        </a>
+                                        <a class="navigation-card" href="/om-oss/etikk/">
+                                            <div class="navigation-card__link-text">Etikk </div>
+                                            <div class="navigation-card__description"></div>
+                                        </a>
+                                        <a class="navigation-card" href="/om-oss/legestatistikk/">
+                                            <div class="navigation-card__link-text">Legestatistikk </div>
+                                            <div class="navigation-card__description"></div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><div>
+                    <div class="block">
+                        <div class="member-block">
+
+                            <h2>Medlem</h2>
+
+                            <div class="member-block__button">
+
+                                <a href="https://legeforeningen.no/login.aspx?returnUrl=https:%2f%2fbeta.legeforeningen.no" target="_self" class="button-primary">Logg inn</a>
+                            </div>
+
+                            <div class="member-block__button">
+
+                                <a href="/innmelding/" target="_self" class="button-secondary button-secondary--small">Bli medlem</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><div>
+                    <div class="unions-block block">
+                        <script type="application/json" data-js-client-state="UnionSearchState">
+                            [{"id":"a22a4e31-2076-4e06-b6e1-2e107855ced1","name":"Den norske patologforening","keyWords":"patologi DNP","url":"/foreningsledd/fagmed/den-norske-patologforening/"},{"id":"f3298724-5ca3-4625-9b57-ed08acbc47b4","name":"Norsk anestesiologisk forening","keyWords":"anestesiologi anestesi naf","url":"/foreningsledd/fagmed/norsk-anestesiologisk-forening/"},{"id":"757051fb-f51b-46f5-8c94-e0afc2b4c172","name":"Norsk barne- og ungdomspsykiatrisk forening","keyWords":"nbupf bup barnepsykiatri ungdomspsykiatri","url":"/foreningsledd/fagmed/norsk-barne--og-ungdomspsykiatrisk-forening/"},{"id":"c486564d-5f45-4390-9ad4-42f4d3b73170","name":"Norsk barnekirurgisk forening","keyWords":"barnekirurgi barn kirurgi","url":"/foreningsledd/fagmed/norsk-barnekirurgisk-forening/"},{"id":"3f371d5a-205f-4670-aed5-da32e1aaaa47","name":"Norsk barnelegeforening","keyWords":"barnelege barn","url":"/foreningsledd/fagmed/norsk-barnelegeforening/"},{"id":"d10735ac-0846-4579-b84c-cc05a883c341","name":"Norsk cardiologisk selskap","keyWords":"cardiologi kardiologi ncs hjerte ","url":"/foreningsledd/fagmed/norsk-cardiologisk-selskap/"},{"id":"e15fee5a-79fb-4884-89bc-5a4af8e2698a","name":"Norsk endokrinologisk forening","keyWords":"endokrinologi nef","url":"/foreningsledd/fagmed/norsk-endokrinologisk-forening/"},{"id":"a362d8e4-ed17-49d4-8df8-afd29c01a676","name":"Norsk forening for allmennmedisin","keyWords":"nfa allmennmedisin allmennlege fastlege","url":"/foreningsledd/fagmed/norsk-forening-for-allmennmedisin/"},{"id":"0d6f51b7-6fe1-40a0-8ce7-e1c436dffefd","name":"Norsk forening for arbeidsmedisin","keyWords":"arbeidsmedisin nfam","url":"/foreningsledd/fagmed/norsk-forening-for-arbeidsmedisin/"},{"id":"717e4141-dc09-45f3-b0a8-2952a9299880","name":"Norsk forening for bryst- og endokrinkirurgi","keyWords":"bryst- og endokrinkirurgi nfbe","url":"/foreningsledd/fagmed/norsk-forening-for-bryst--og-endokrinkirurgi-/"},{"id":"056d18fc-617e-4332-8182-3ed8552b1415","name":"Norsk forening for dermatologi og venerologi","keyWords":"nfdv dermatologi og venerologi hud","url":"/foreningsledd/fagmed/norsk-forening-for-dermatologi-og-venerologi/"},{"id":"3dac86fb-2e68-485e-9cc5-5ee489547193","name":"Norsk forening for fysikalsk medisin og rehabilitering","keyWords":"nffr fysikalsk medisin rehabilitering","url":"/foreningsledd/fagmed/norsk-forening-for-fysikalsk-medisin-og-rehabilitering/"},{"id":"ca28a6f5-9c97-4074-aaaa-da35560f388d","name":"Norsk forening for gastroenterologisk kirurgi","keyWords":"gastroenterologisk kirurgi nfgk","url":"/foreningsledd/fagmed/norsk-forening-for-gastroenterologisk-kirurgi/"},{"id":"f4a4870b-bf2a-42ba-9493-d07f36748eea","name":"Norsk forening for immunologi og transfusjonsmedisin","keyWords":"immunologi transfusjon nfit","url":"/foreningsledd/fagmed/norsk-forening-for-immunologi-og-transfusjonsmedisin/"},{"id":"e517e674-40fb-4bbd-9310-ed4313fbf536","name":"Norsk forening for infeksjonsmedisin","keyWords":"infeksjonsmedisin nfim","url":"/foreningsledd/fagmed/norsk-forening-for-infeksjonsmedisin/"},{"id":"621e5f13-8e54-4468-a97a-e9bc02fd367a","name":"Norsk forening for klinisk farmakologi","keyWords":"klinisk farmakologi nfkf","url":"/foreningsledd/fagmed/norsk-forening-for-klinisk-farmakologi/"},{"id":"adb65142-f0c4-4372-8efe-44ab3ff5b56a","name":"Norsk forening for klinisk nevrofysiologi","keyWords":"klinisk nevrofysiologi nfkn","url":"/foreningsledd/fagmed/norsk-forening-for-klinisk-nevrofysiologi/"},{"id":"ee5a6f0c-f2c4-4a16-9b1e-2999e310a510","name":"Norsk forening for lungemedisin","keyWords":"lungemedisin lunge nflm","url":"/foreningsledd/fagmed/norsk-forening-for-lungemedisin/"},{"id":"aaefcaba-e365-4540-b586-ed90c86715be","name":"Norsk forening for maxillofacial kirurgi","keyWords":"maxillofacial kirurgi ","url":"/foreningsledd/fagmed/norsk-forening-for-maxillofacial-kirurgi/"},{"id":"0b03f148-cf95-42b7-81b7-bc626e9b2693","name":"Norsk forening for medisinsk biokjemi","keyWords":"nfmb medisinsk biokjemi","url":"/foreningsledd/fagmed/norsk-forening-for-medisinsk-biokjemi/"},{"id":"a879ea6f-ef71-45c2-84ec-f879b16e1c24","name":"Norsk forening for medisinsk genetikk","keyWords":"medisinsk genetikk nfmg","url":"/foreningsledd/fagmed/norsk-forening-for-medisinsk-genetikk/"},{"id":"1e947b50-00e2-4def-90e1-9432027aa3b5","name":"Norsk forening for medisinsk mikrobiologi","keyWords":"medisinsk mikrobiologi","url":"/foreningsledd/fagmed/norsk-forening-for-medisinsk-mikrobiologi/"},{"id":"2428bf59-7b4e-4afa-9b61-4dd20b015b8d","name":"Norsk forening for nuklærmedisin og molekylær avbildning","keyWords":"nukleærmedisin nfnm molekylær avbildning","url":"/foreningsledd/fagmed/norsk-forening-for-nuklearmedisin-og-molekylar-avbildning/"},{"id":"1c765a7e-6214-4555-9f17-ea904c4de12c","name":"Norsk forening for otorhinolaryngologi, hode- og halskirurgi","keyWords":"otorhinolaryngologi hode hals kirurgi","url":"/foreningsledd/fagmed/norsk-forening-for-otorhinolaryngologi-hode-og-halskirurgi/"},{"id":"66b854d3-f8f6-4dc0-a586-644daf907382","name":"Norsk forening for rus- og avhengighetsmedisin","keyWords":"rus avhengighet","url":"/foreningsledd/fagmed/norsk-forening-for-rus--og-avhengighetsmedisin/"},{"id":"4541eb8e-5ba8-4926-b4f7-d08c2e1fc9df","name":"Norsk gastroenterologisk forening","keyWords":"gastroenterologi mage","url":"/foreningsledd/fagmed/norsk-gastroenterologisk-forening/"},{"id":"da8637c6-afce-41dc-afb7-a6f9927a98f2","name":"Norsk forening for geriatri","keyWords":"Geriatri geriatrisk","url":"/foreningsledd/fagmed/norsk-forening-for-geriatri/"},{"id":"4de00a68-7a9d-4030-b981-eaa54060a408","name":"Norsk gynekologisk forening","keyWords":"gynekologi","url":"/foreningsledd/fagmed/norsk-gynekologisk-forening/"},{"id":"6cbcedcb-2a67-49fb-9eb7-bbe591b8789c","name":"Norsk indremedisinsk forening","keyWords":"indremedisin","url":"/foreningsledd/fagmed/norsk-indremedisinsk-forening/"},{"id":"55814e87-1005-47c3-bdc8-57ad0da7cbcb","name":"Norsk karkirurgisk forening","keyWords":"karkirurgi ","url":"/foreningsledd/fagmed/norsk-karkirurgisk-forening/"},{"id":"9e5bef7f-147a-47a2-902c-5c112c6d86e8","name":"Norsk kirurgisk forening","keyWords":"kirurgisk nkf kirurgi","url":"/foreningsledd/fagmed/norsk-kirurgisk-forening/"},{"id":"c47aa895-07c6-431b-9c6b-31fbd9866fe6","name":"Norsk nevrokirurgisk forening","keyWords":"nevrokirurgi kirurgi","url":"/foreningsledd/fagmed/norsk-nevrokirurgisk-forening/"},{"id":"268b43c4-5c52-4914-9945-8401d9046965","name":"Norsk nevrologisk forening","keyWords":"nevrologi","url":"/foreningsledd/fagmed/norsk-nevrologisk-forening/"},{"id":"0bb9a6b5-c4e7-40f3-9277-80d2fa01dc17","name":"Norsk nyremedisinsk forening","keyWords":"nyremedisin nyre","url":"/foreningsledd/fagmed/norsk-nyremedisinsk-forening/"},{"id":"fecca8a1-95f0-424d-87df-d84d3f344751","name":"Norsk oftalmologisk forening","keyWords":"øye oftalmologi nof","url":"/foreningsledd/fagmed/norsk-oftalmologisk-forening/"},{"id":"b04bfc2a-5a28-4ec5-b09d-5e5916556328","name":"Norsk onkologisk forening","keyWords":"onkologi","url":"/foreningsledd/fagmed/norsk-onkologisk-forening/"},{"id":"6fb7cd9c-c889-4ffb-a41c-1d05781836db","name":"Norsk ortopedisk forening","keyWords":"ortopedi","url":"/foreningsledd/fagmed/norsk-ortopedisk-forening/"},{"id":"e7e37247-eabc-4337-8e01-716a10cdc951","name":"Norsk plastikkirurgisk forening","keyWords":"plastikkirurgi","url":"/foreningsledd/fagmed/norsk-plastikkirurgisk-forening/"},{"id":"3bad5f7f-c0b5-4caf-81d4-61b53bdf787b","name":"Norsk psykiatrisk forening","keyWords":"psykiatri norskpsykiatri npf","url":"/foreningsledd/fagmed/norskpsykiatri/"},{"id":"a6ba729f-a735-4c61-be02-5f57b8b08628","name":"Norsk radiologisk forening","keyWords":"radiologi radiolog","url":"/foreningsledd/fagmed/norsk-radiologisk-forening/"},{"id":"be0b8a2b-684e-4b81-a7f3-91d3678fc333","name":"Norsk revmatologisk forening","keyWords":"revmatologi","url":"/foreningsledd/fagmed/Norsk-revmatologisk-forening/"},{"id":"12ecc885-40e2-414c-b570-ca26eca8cf24","name":"Norsk samfunnsmedisinsk forening","keyWords":"samfunnsmedisinsk","url":"/foreningsledd/fagmed/Norsk-samfunnsmedisinsk-forening/"},{"id":"8df228b9-83f7-4a75-b68a-3caca2e65244","name":"Norsk selskap for hematologi","keyWords":"hematologi blod blodsykdommer","url":"/foreningsledd/fagmed/Norsk-selskap-for-hematologi/"},{"id":"d7a7b5da-4762-4bc0-98e1-a3ef91d8f1d2","name":"Norsk thoraxkirurgisk forening","keyWords":"thorax kirurgi","url":"/foreningsledd/fagmed/Norsk-thoraxkirurgisk-forening/"},{"id":"32624aa9-d2e6-4185-8cec-209f590126a4","name":"Norsk urologisk forening","keyWords":"urologi nuf","url":"/foreningsledd/fagmed/Norsk-urologisk-forening/"},{"id":"bf8a1a7c-1f04-4d2c-ab7c-70ede13942fa","name":"Eldre legers forening","keyWords":"Eldre pensjon","url":"/foreningsledd/spesial/eldre-legers-forening/"},{"id":"a4d83193-26d8-453d-aa15-9f3877c533b5","name":"Medisinsk forening for nevrohabilitering","keyWords":"nevrohabilitering","url":"/foreningsledd/spesial/medisinsk-forening-for-nevrohabilitering/"},{"id":"59374451-0554-4414-998f-28ef997d6a38","name":"Norsk flymedisinsk forening","keyWords":"fly flymedisin","url":"/foreningsledd/spesial/norsk-flymedisinsk-forening/"},{"id":"d1980d1e-af3c-43c9-95dd-887833bcb140","name":"Norsk forening for alders- og sykehjemsmedisin","keyWords":"alders sykehjemsmedisin","url":"/foreningsledd/spesial/norsk-forening-for-alders-og-sykehjemsmedisin/"},{"id":"05b05010-1800-41e0-b769-182410733558","name":"Norsk forening for allergologi og immunpatologi","keyWords":"allergologi immunpatologi","url":"/foreningsledd/spesial/norsk-forening-for-allergologi-og-immunpatologi/"},{"id":"71f78c7b-7bb5-4be2-bbd9-bb366a5b017d","name":"Norsk forening for idrettsmedisin og fysisk aktivitet","keyWords":"idrettsmedisin fysisk aktivitet nimf","url":"/foreningsledd/spesial/norsk-forening-for-idrettsmedisin-og-fysisk-aktivitet/"},{"id":"5631048f-4701-419c-8b97-cb93e1aab109","name":"Norsk forening for intervensjonsradiologi","keyWords":"intervensjonsradiologi","url":"/foreningsledd/spesial/norsk-forening-for-intervensjonsradiologi/"},{"id":"562dad05-6e7d-4565-8f8d-c6c9617ee3d3","name":"Norsk forening for leger i legemiddelindustrien","keyWords":"legemiddelindustrien","url":"/foreningsledd/spesial/norsk-forening-for-leger-i-legemiddelindustrien/"},{"id":"90855543-990e-4e56-b101-8c7d7bfc9a10","name":"Norsk forening for palliativ medisin","keyWords":"palliativ ","url":"/foreningsledd/spesial/norsk-forening-for-palliativ-medisin/"},{"id":"8c59433a-143b-4d72-b9ea-25e0008a956b","name":"Norsk forening for smertemedisin","keyWords":"smertemedisin","url":"/foreningsledd/spesial/norsk-forening-for-smertemedisin/"},{"id":"5405c7ab-507e-45f1-89a2-ad2dba795c74","name":"Norsk forening for traumatologi, akutt- og katastrofemedisin","keyWords":"traume akutt katastrofe","url":"/foreningsledd/spesial/norsk-forening-for-traumatologi-akutt--og-katastrofemedisin/"},{"id":"a3af4546-7ed2-4955-ba51-c273bf9a4e99","name":"Norsk hjerneslagforening","keyWords":"slag hjerneslag","url":"/foreningsledd/spesial/norsk-hjerneslagforening/"},{"id":"4d8de865-bac3-44f2-8f05-ac91600d9b6d","name":"Norsk militærmedisinsk forening","keyWords":"militærmedisin","url":"/foreningsledd/spesial/norsk-militarmedisinsk-forening/"},{"id":"555b0e2a-34b0-432b-a685-544a559eae5c","name":"Norsk selskap for akuttmedisin","keyWords":"akuttmedisin","url":"/foreningsledd/spesial/norsk-selskap-for-akuttmedisin/"},{"id":"23b1d2e7-cbb7-4afb-8a1c-156534e92021","name":"Norsk selskap for craniofacial kirurgi","keyWords":"craniofacial kirurgi","url":"/foreningsledd/spesial/norsk-selskap-for-craniofacial-kirurgi/"},{"id":"069b249c-98b1-4dac-b22d-0a8478854e37","name":"Norsk selskap for trombose og hemostase","keyWords":"trombose hemostase","url":"/foreningsledd/spesial/norsk-selskap-for-trombose-og-hemostase/"},{"id":"46d4f060-ecd6-4f1f-9524-6c1bddeee3e7","name":"Norsk trygdemedisinsk forening","keyWords":"trygd trygdemedisin","url":"/foreningsledd/spesial/norsk-trygdemedisinsk-forening/"},{"id":"80cc74c8-9399-4a23-85b2-c41eab2cf854","name":"Akershus legeforening","keyWords":"akershus","url":"/foreningsledd/lokal/akershus-legeforening/"},{"id":"568c42a1-9ea4-472c-891f-cc231c7a3fe3","name":"Aust-Agder legeforening","keyWords":"Aust-Agder","url":"/foreningsledd/lokal/aust-agder/"},{"id":"20c182a0-9701-493d-b884-fe3513194eda","name":"Buskerud legeforening","keyWords":"Buskerud ","url":"/foreningsledd/lokal/buskerud/"},{"id":"154004df-e1e1-47d5-beef-6b8fd99e24df","name":"Finnmark legeforening","keyWords":"Finnmark ","url":"/foreningsledd/lokal/finnmark/"},{"id":"6049934f-110a-49d6-9144-debd5c08f983","name":"Hedmark legeforening","keyWords":"Hedmark ","url":"/foreningsledd/lokal/hedmark/"},{"id":"b8bcc5b9-ddd9-4b83-a5df-0d6cf58eb2ef","name":"Hordaland legeforening","keyWords":"Hordaland","url":"/foreningsledd/lokal/hordaland/"},{"id":"e768cd7c-6db2-4c18-8db9-d5de458b33f1","name":"Møre og Romsdal legeforening","keyWords":"Møre Romsdal","url":"/foreningsledd/lokal/more-og-romsdal/"},{"id":"ef5a1a51-0071-4ee0-84e9-8ab2b5248d04","name":"Nordland legeforening","keyWords":"Nordland ","url":"/foreningsledd/lokal/nordland/"},{"id":"1fc23408-2318-4dcc-9ca0-61c503013793","name":"Nord-Trøndelag legeforening","keyWords":"Nord-Trøndelag","url":"/foreningsledd/lokal/nord-trondelag/"},{"id":"57581254-243c-4cdb-ab16-20f3542f74e8","name":"Oppland legeforening","keyWords":"Oppland ","url":"/foreningsledd/lokal/oppland/"},{"id":"08c147d9-ec55-41ed-a74d-ac3253f35f04","name":"Oslo legeforening","keyWords":"oslo","url":"/foreningsledd/lokal/oslo-legeforening/"},{"id":"7730e482-c21a-4684-90ae-5ceea4c7ab91","name":"Rogaland legeforening","keyWords":"Rogaland ","url":"/foreningsledd/lokal/rogaland/"},{"id":"c809bde7-c019-4d4e-8ca6-fc2ded03a126","name":"Sogn og Fjordane legeforening","keyWords":"Sogn Fjordane","url":"/foreningsledd/lokal/sogn-og-fjordane/"},{"id":"92dcfb83-0c53-4c0c-8a02-e6afe3e0bbcf","name":"Sør-Trøndelag legeforening","keyWords":"Sør-Trøndelag","url":"/foreningsledd/lokal/sor-trondelag/"},{"id":"4a20df68-5423-40b6-a888-d73590506401","name":"Telemark legeforening","keyWords":"Telemark ","url":"/foreningsledd/lokal/telemark/"},{"id":"05be1a5d-9c4e-4208-918e-aa8ae9858b78","name":"Troms legeforening","keyWords":"Troms","url":"/foreningsledd/lokal/troms/"},{"id":"decee960-1764-46c7-a5b5-5e6634c2b3d8","name":"Vest-Agder legeforening","keyWords":"Vest-Agder","url":"/foreningsledd/lokal/vest-agder/"},{"id":"622babb4-d513-44d3-ac9b-60b2593dd4af","name":"Vestfold legeforening","keyWords":"Vestfold ","url":"/foreningsledd/lokal/vestfold/"},{"id":"3f8a7730-a7ca-4c07-9af1-1931306df888","name":"Østfold legeforening","keyWords":"Østfold ","url":"/foreningsledd/lokal/ostfold/"},{"id":"5bd6f394-6dff-46f3-a53b-690983da4d16","name":"Allmennlegeforeningen","keyWords":"allmennlegeforeningen af allmennmedisin allmennlege fastlege yrkesforening","url":"/foreningsledd/yf/allmennlegeforeningen/"},{"id":"c52d7b68-39cd-4e16-aec9-43224f4abe51","name":"Foreningen for leger i vitenskapelige stillinger","keyWords":"vitenskapelig lvs yrkesforening","url":"/foreningsledd/yf/leger-i-vitenskapelige-stillinger/"},{"id":"7dc989dd-bb8d-452b-80e3-fe081a968c3d","name":"Leger i samfunnsmedisinsk arbeid","keyWords":"lsa samfunnsmedisin yrkesforening","url":"/foreningsledd/yf/leger-i-samfunnsmedisinsk-arbeid/"},{"id":"b1fb7009-37b4-4029-9202-be2da675d847","name":"Norsk arbeidsmedisinsk forening","keyWords":"arbeidsmedisin namf yrkesforening","url":"/foreningsledd/yf/norsk-arbeidsmedisinsk-forening/"},{"id":"641b685a-0463-4dd9-b029-fac2c317e2dc","name":"Norsk overlegeforening","keyWords":"overlege of overlegeforening spesialist yrkesforening","url":"/foreningsledd/yf/norsk-overlegeforening/"},{"id":"d8c64bd6-59d2-4f33-8760-f4352732a649","name":"Praktiserende spesialisters landsforening","keyWords":"psl Praktiserende spesialister yrkesforening","url":"/foreningsledd/yf/praktiserende-spesialisters-landsforening/"},{"id":"ee2ecffc-6db0-4f47-a392-5d5698b1133b","name":"Norsk medisinstudentforening","keyWords":"student medisinstudent nmf","url":"/foreningsledd/student/norsk-medisinstudentforening/"},{"id":"ce8d4b3e-474a-46b5-b6a0-864aee36f08b","name":"Yngre legers forening","keyWords":"ylf yngre lis lege spesialisering turnus lis1 lis2 lis3 yrkesforening","url":"/foreningsledd/yf/yngre-legers-forening/"},{"id":"a35f4a87-4cd4-4dae-a850-3bc3b4378268","name":"Norsk Hodepineselskap","keyWords":"hodepine","url":"/foreningsledd/spesial/norsk-hodepineselskap/"},{"id":"10ae389a-7b54-40f2-a2a8-3be61d863f3a","name":"Legenes forening for kvalitetsforbedring og pasientsikkerhet","keyWords":"kvalitet pasientsikkerhet LFKP","url":"/foreningsledd/spesial/legenes-forening-for-kvalitetsforbedring-og-pasientsikkerhet/"}]
+                        </script>
+
+                        <h2 class="unions-block__title">Foreningsleddenes sider </h2>
+
+                        <div class="unions-block__search" data-js-control="UnionSearchControl" data-js-options='{"jsHookUnionSearchInput":"union-search-input","clientStateObjectId":"UnionSearchState"}'>
+                            <div data-js-hook="union-search-input">
+                                <div class="auto-complete__container auto-complete__container--search">
+                                    <div class="auto_complete__input-container search-input search-input--shadow">
+                                        <span class="auto_complete__input-container-span  search-input__field">
+                                            <input class="auto_complete__input" type="text" aria-autocomplete="both" aria-haspopup="true" placeholder="Søk etter forening" name="autoCompleteInput" autocomplete="on">
+                                            <button>
+                                                <i class="icon-link__svg-wrapper icon-default svg-search_circle_red"></i>
+                                            </button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="unions-block__bottom-link">
+                            <a href="/foreningsledd/">Alle foreninger</a>
+                        </div>
+                    </div>
+
+
+
+                </div><div>
+                    <div class="block news-block">
+                        <a class="news-block__wrapper" href="https://tidsskriftet.no/2019/11/aktuelt-i-foreningen/internasjonalt-arbeid-gir-muligheter">
+                            <div class="news-block__image">
+                                <img alt="Marit Hermansen" src="/globalassets/bilder/sentralstyret/tbe_landsstyremotet-8385.png?quality=80&amp;width=519&amp;height=300&amp;mode=crop&amp;center=0.4071294,0.43375" />
+                            </div>
+                            <div class="news-block__text">
+                                <div class="news-block__teaser">29. oktober 2019</div>
+                                <div class="news-block__title">Internasjonalt arbeid gir muligheter</div>
+                                <div class="news-block__description">Norge er et lite land p&#229; toppen av verden. Vi er ikke s&#229; mange, og vi snakker et spr&#229;k f&#229; andre forst&#229;r. Men vi er ogs&#229; et land i verden.</div>
+                            </div>
+                        </a>
+                    </div>
+
+
+                </div><div>
+                    <section class="block rss-feed-block font-ts" data-js-control="SliderControl" data-js-options='{"sliderLoopOnEndPoints":false,"maxContentCount":3,"minContentSizeInPixels":320}'>
+                        <div class="rss-feed-block__logo">
+                            <img src"https://beta.legeforeningen.no/contentassets/81a4c7c75d6948348d0ec5d035967e26/logo-tidsskriftet1x.svg?quality=80&amp;mode=crop&amp;center=0.5,0.5" />
+                        </div>
+
+                        <div class="link-grid target" data-js-hook="slider:target">
+                            <div class="slide slider__content" style="display:none">
+
+                                <a class="navigation-card__top-image" href="https://tidsskriftet.no/2019/11/fra-andre-tidsskrifter/tarmfloraen-forandrer-legemidler" target="_blank">
+                                    <div class="navigation-card__image-wrapper">
+                                        <img src="https://tidsskriftet.no/sites/default/files/styles/500x300_with_focalpoint/public/fat_tarmflora_forandrer_legemilder.jpg" alt="Article image" />
+                                    </div>
+
+                                    <div class="navigation-card__teaser">Fra andre tidsskrifter</div>
+
+                                    <div class="navigation-card__link-text">Tarmfloraen forandrer legemidler</div>
+
+                                </a>
+                            </div>
+                            <div class="slide slider__content" style="display:none">
+
+                                <a class="navigation-card__top-image" href="https://tidsskriftet.no/2019/11/noe-laere-av/en-mann-i-40-arene-med-akutt-innsettende-talevansker-og-ensidig-lammelse" target="_blank">
+                                    <div class="navigation-card__image-wrapper">
+                                        <img src="https://tidsskriftet.no/sites/default/files/styles/500x300_with_focalpoint/public/nol_en_mann_med_akutt_innsettende_talevansker.jpg" alt="Article image" />
+                                    </div>
+
+                                    <div class="navigation-card__teaser">Noe &#229; l&#230;re av</div>
+
+                                    <div class="navigation-card__link-text">En mann i 40-&#229;rene med akutt innsettende talevansker og ensidig lammelse</div>
+
+                                </a>
+                            </div>
+                            <div class="slide slider__content" style="display:none">
+
+                                <a class="navigation-card__top-image" href="https://tidsskriftet.no/2019/11/originalartikkel/sarbarhetsfaktorer-hos-eldre-med-kreft" target="_blank">
+                                    <div class="navigation-card__image-wrapper">
+                                        <img src="https://tidsskriftet.no/sites/default/files/styles/500x300_with_focalpoint/public/ori_sarbarhetsfaktorer_hos_eldre_med_kreft.jpg" alt="Article image" />
+                                    </div>
+
+                                    <div class="navigation-card__teaser">Originalartikkel</div>
+
+                                    <div class="navigation-card__link-text">S&#229;rbarhetsfaktorer hos eldre med kreft</div>
+
+                                </a>
+                            </div>
+                            <div class="slide slider__content slider__content--last-slide" style="display:none">
+                                <div class="slide-wrapper">
+                                    <a href="https://tidsskriftet.no/artikler" target="_blank" class="button-primary button-primary--small">Les flere saker fra Tidsskriftet <i class="svg-link_external icon-link txt-color"></i></a>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="sliderButtons" data-js-hook="slider:buttons">
+                            <div class="radio-button">
+                                <input name="radio:5e6c09bd-3c1a-4d0f-a7be-e931f58e583e" id="radio:5e6c09bd-3c1a-4d0f-a7be-e931f58e583e-0" type="radio" value="0">
+                                <label for="radio:5e6c09bd-3c1a-4d0f-a7be-e931f58e583e-0"></label>
+                            </div>
+                            <div class="radio-button">
+                                <input name="radio:5e6c09bd-3c1a-4d0f-a7be-e931f58e583e" id="radio:5e6c09bd-3c1a-4d0f-a7be-e931f58e583e-1" type="radio" value="1">
+                                <label for="radio:5e6c09bd-3c1a-4d0f-a7be-e931f58e583e-1"></label>
+                            </div>
+                            <div class="radio-button">
+                                <input name="radio:5e6c09bd-3c1a-4d0f-a7be-e931f58e583e" id="radio:5e6c09bd-3c1a-4d0f-a7be-e931f58e583e-2" type="radio" value="2">
+                                <label for="radio:5e6c09bd-3c1a-4d0f-a7be-e931f58e583e-2"></label>
+                            </div>
+                            <div class="radio-button slider__button--last-slide">
+                                <input name="radio:5e6c09bd-3c1a-4d0f-a7be-e931f58e583e" id="radio:5e6c09bd-3c1a-4d0f-a7be-e931f58e583e-3" type="radio" value="3">
+                                <label for="radio:5e6c09bd-3c1a-4d0f-a7be-e931f58e583e-3"></label>
+                            </div>
+
+                        </div>
+
+
+                        <div class="rss-feed-block__bottom-link slider__bottom-link">
+                            <a href="https://tidsskriftet.no/artikler" target="_blank">Les flere saker fra Tidsskriftet<i class="svg-link_external icon-link"></i></a>
+                        </div>
+                    </section>
+                </div><div>
+                    <div class="block job-advertisement-block">
+                        <div class="job-advertisement-block__logo">
+                            <img src"https://beta.legeforeningen.no/Images/logos/legejobber/logo-legejobber.svg" alt="Legejobber logo">
+                        </div>
+
+                        <div class="job-advertisement-block__content">
+                            <div class="job-advertisement-block__content-wrapper">
+                                <div class="job-advertisement-block__title ">Ledige stillinger p&#229; Legejobber.no</div>
+                                <div class="job-advertisement-block__advertisement-wrapper">
+                                    <a href="https://marked.legejobber.no/redirect.spark?MID=172018&amp;plid=1073225&amp;setID=304105&amp;channelID=0&amp;CID=347831&amp;banID=519804687&amp;PID=0&amp;textadID=0&amp;tc=1&amp;mt=1575807995206663&amp;spr=1&amp;hc=ae3561d72da1bbd6d33b05b8e381a36f5f3c7f97&amp;location=" class="job-advertisement-block__advertisement--webad" data-viewUrl="https://marked.legejobber.no/adserve/;ID=172018;size=1x1;type=pixel;setID=304105;plid=1073225;BID=519804687;wt=1575811595;rnd=24391;v=0" data-trid="i6090107c-4691-4db1-95b1-e1fbe58f040d">
+                                        <h2 class="job-advertisement-block__job-title">Fastlegehjemmel ved Elavit legesenter</h2>
+                                        <div class="job-advertisement-block__employee">L&#248;renskog kommune</div>
+                                        <div class="job-advertisement-block__details">
+                                            <div class="job-advertisement-block__jobtype job-advertisement-block__details-item">Fast stilling</div>
+                                            <div class="job-advertisement-block__speciality job-advertisement-block__details-item">Allmennmedisin</div>
+                                        </div>
+                                        <img class="job-advertisement-block__ad-logo" src="https://www.legejobber.no/globalassets/profilelogo/637090825178416084.jpg?preset=webAdImage" alt="Fastlegehjemmel ved Elavit legesenter" />
+                                    </a>
+                                    <a href="https://marked.legejobber.no/redirect.spark?MID=172018&amp;plid=1073200&amp;setID=304105&amp;channelID=0&amp;CID=353596&amp;banID=519818367&amp;PID=0&amp;textadID=0&amp;tc=1&amp;mt=1575807995205818&amp;spr=1&amp;hc=c28c6a955a28356975c75aad0c80beb5cd988d80&amp;location=" class="job-advertisement-block__advertisement--webad" data-viewUrl="https://marked.legejobber.no/adserve/;ID=172018;size=1x1;type=pixel;setID=304105;plid=1073200;BID=519818367;wt=1575811595;rnd=84580;v=0" data-trid="iee8745ba-1ed1-40f0-a335-0d444d954be3">
+                                        <h2 class="job-advertisement-block__job-title">Forsikringsmedisinsk r&#229;dgiver</h2>
+                                        <div class="job-advertisement-block__employee">Mavera AB</div>
+                                        <div class="job-advertisement-block__details">
+                                            <div class="job-advertisement-block__jobtype job-advertisement-block__details-item">Fast stilling</div>
+                                            <div class="job-advertisement-block__speciality job-advertisement-block__details-item">Nevrologi</div>
+                                            <div class="job-advertisement-block__speciality job-advertisement-block__details-item">Urologi</div>
+                                            <div class="job-advertisement-block__speciality job-advertisement-block__details-item">&#216;re-nese-halssykdommer</div>
+                                        </div>
+                                    </a>
+                                    <a href="https://marked.legejobber.no/redirect.spark?MID=172018&amp;plid=1048828&amp;setID=304105&amp;channelID=0&amp;CID=344233&amp;banID=519796885&amp;PID=0&amp;textadID=0&amp;tc=1&amp;mt=1575807995204585&amp;spr=1&amp;hc=b5b259359612dd6e9f660c06e8646b228e8bb9f1&amp;location=" class="job-advertisement-block__advertisement--webad" data-viewUrl="https://marked.legejobber.no/adserve/;ID=172018;size=1x1;type=pixel;setID=304105;plid=1048828;BID=519796885;wt=1575811595;rnd=26442;v=0" data-trid="ie86df773-39fb-4cfb-90e7-7b7824882398">
+                                        <h2 class="job-advertisement-block__job-title">Overlege </h2>
+                                        <div class="job-advertisement-block__employee">S&#248;rlandet Sykehus HF</div>
+                                        <div class="job-advertisement-block__details">
+                                            <div class="job-advertisement-block__jobtype job-advertisement-block__details-item">Fast stilling</div>
+                                            <div class="job-advertisement-block__speciality job-advertisement-block__details-item">Barne- og ungdomspsykiatri</div>
+                                        </div>
+                                        <img class="job-advertisement-block__ad-logo" src="https://www.legejobber.no/globalassets/profilelogo/634859006919846145.png?preset=webAdImage" alt="Overlege " />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="job-advertisement-block__bottom-link">
+                            <a href="https://www.legejobber.no/" target="_blank">Se alle ledige stillinger hos Legejobber <i class="svg-link_external"></i> </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="feed-back-link">
+        <p class="medium">
+            Hva synes du om denne siden?
+            <a class="link medium" href="/feedback/">Gi oss tilbakemelding</a>
+    </div>
+
+
+    <footer class="page-footer">
+        <div class="page-footer__wrapper ">
+            <div class="page-footer__top">
+                <div class="page-footer__element page-footer__logo">
+                    <img src"https://beta.legeforeningen.no/Images/logos/legeforeningen/logo-normal-hvit.svg" alt="Legeforeningen logo" />
+                </div>
+                <div class="page-footer__element ">
+                    <div>
+                        <p>Nyhetsredakt&oslash;r<br /><strong>Knut E. Braaten</strong></p>
+                        <p>Ansvarlig redakt&oslash;r<br /><strong>Samfunnspolitisk avdeling</strong></p>
+                        <p><strong><a title="webmaster@legeforeningen.no" href="mailto:webmaster@legeforeningen.no">Henvendelser om nettsidene</a></strong></p>
+                    </div>
+                </div>
+                <div class="page-footer__element ">
+                    <div>
+                        <p>Telefon<br /><strong>23 10 90 00</strong></p>
+                        <p><a title="Kontakt oss" href="/om-oss/kontakt-oss/">Kontakt oss</a><br /><a href="/om-oss/">Om Legeforeningen</a><br /><a title="Legeforeningens underforeninger" href="/foreningsledd/">Foreningsledd</a></p>
+                    </div>
+                </div>
+                <div class="page-footer__element">
+                    <div class="page-footer__element-custom ">
+                        <div>
+                            <p>Sosiale medier</p>
+                        </div>
+                    </div>
+                    <div class="page-footer__social">
+                        <a class="link-svg" href="https://www.facebook.com/Legeforeningen">
+                            <i class="svg-social_facebook txt-color"></i><span class="link-svg__text">Facebook</span>
+                        </a>
+                        <a class="link-svg" href="https://twitter.com/legeforeningen">
+                            <i class="svg-social_twitter txt-color"></i><span class="link-svg__text">Twitter</span>
+                        </a>
+                        <a class="link-svg" href="https://www.youtube.com/user/Legeforeningen">
+                            <i class="svg-social_youtube txt-color"></i><span class="link-svg__text">YouTube</span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            <div class="page-footer__bottom">
+                <div>
+                    Organisasjonsnummer: 960 474 341
+                </div>
+                <div>
+                    <a href="/link/8b9a73565ae3480cbdb4a1483712c0ed.aspx">Personvern og informasjonskapsler</a>
+                </div>
+                <div>
+                    <a href="/link/c2d94558992b4a5f87162fe887010277.aspx">For pressen</a>
+                </div>
+                <div>
+                    <a href="/link/3c1db288b76f488aa53b17416a98e158.aspx">English </a>
+                </div>
+
+                <div>© 2019 Legeforeningen</div>
+            </div>
+        </div>
+    </footer>
+    <script type="text/javascript" src="https://dl.episerver.net/13.2.5/epi-util/find.js"></script>
+    <script type="text/javascript">
+        if (FindApi) { var api = new FindApi(); api.setApplicationUrl('/'); api.setServiceApiBaseUrl('/find_v2/'); api.processEventFromCurrentUri(); api.bindWindowEvents(); api.bindAClickEvent(); api.sendBufferedEvents(); }
+    </script>
+
+
+    <script>
+        // Load CSS
+        Oxx.Html.AssetsLoader.load([
+            "https://cloud.typography.com/7748956/6079172/css/fonts.css",
+            "https://beta.legeforeningen.no/Content/css/themes/default-theme.min.css?v=20191206010123"
+        ]).complete(function () {
+            document.body.removeAttribute("style");
+        });
+
+        // Load js
+        Oxx.Html.AssetsLoader
+            .load([
+                "https://beta.legeforeningen.no/Scripts/legeforeningen.min.js?v=20191206130115",
+
+            ]).complete(function () {
+                $(document).ready(function () {
+                    // Add google map script to DOM (AssetLoader.load function does not support external urls)
+                    var googleMapScript = document.createElement("script");
+                    googleMapScript.src = "//maps.googleapis.com/maps/api/js?key=AIzaSyBiuHW67OFuK5vz0XjLk4bmu6_PU6KLqy8&callback=Legeforeningen.Application.onGoogleMapAPILoaded";
+                    googleMapScript.async = true;
+                    googleMapScript.defer = true;
+                    document.body.appendChild(googleMapScript);
+
+                    // Expressive Annotation debug mode
+                    window.ea.settings.debug = false;
+
+                    // Expressive Annotation date format
+                    window.ea.addValueParser('norwegiandateparser', function (value) {
+                        var arr = value.split('.');
+                        var date = new Date(arr[2], arr[1] - 1, arr[0]);
+                        return date.getTime(); // return msecs since January 1, 1970, 00:00:00 UTC
+                    });
+
+                    // Initialize application scripts
+                    Legeforeningen.Application.init({
+                        debug: false
+                    });
+
+                    // Initialize trackingscript for ads from "legejobber.no"
+                    AddTracker.VPT.startTracker();
+                });
+            });
+    </script>
+
+
+</body>
+</html>
