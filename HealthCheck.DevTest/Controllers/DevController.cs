@@ -157,6 +157,13 @@ namespace HealthCheck.DevTest.Controllers
             return new FileStreamResult(new FileStream(filepath, FileMode.Open), "content-disposition");
         }
 
+        [RequestLogInfo(hide: true)]
+        public FileResult GetSiteNotesScript()
+        {
+            var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\sitenotes.js");
+            return new FileStreamResult(new FileStream(filepath, FileMode.Open), "content-disposition");
+        }
+
         public async Task<ActionResult> RunHealthChecks()
         {
             var results = await TestRunner.ExecuteTests(TestDiscoverer, 
