@@ -113,8 +113,30 @@
                         />
                 </div>
 
+                <v-layout row wrap v-if="options.HasAccessToClearRequestLog">
+                    <v-flex xs12>
+                        <v-btn
+                            :loading="requestLogClearInProgress"
+                            :disabled="requestLogClearInProgress"
+                            color="error"
+                            @click="clearRequestLog"
+                            >
+                            <v-icon size="20px" class="mr-2">delete</v-icon>
+                            Clear all
+                        </v-btn>
+                    </v-flex>
+
+                    <v-flex xs12 v-if="requestLogClearLoadFailed">
+                        <v-alert
+                            :value="requestLogClearLoadFailed"
+                            type="error">
+                        {{ requestLogClearFailedErrorMessage }}
+                        </v-alert>
+                    </v-flex>
+                </v-layout>
             </div>
         </v-container>
+
 
           <!-- CONTENT END -->
         </v-flex>
@@ -152,6 +174,9 @@ export default class RequestLogPageComponent extends Vue {
     requestLogDataLoadInProgress: boolean = false;
     requestLogDataLoadFailed: boolean = false;
     requestLogDataFailedErrorMessage: string = "";
+    requestLogClearInProgress: boolean = false;
+    requestLogClearLoadFailed: boolean = false;
+    requestLogClearFailedErrorMessage: string = "";
 
     entries: Array<LoggedEndpointDefinitionViewModel> = [];
     verbs: Array<string> = [];
@@ -328,6 +353,32 @@ export default class RequestLogPageComponent extends Vue {
 
         this.setFromUrl(originalUrlHashParts);
         this.requestLogDataLoadInProgress = false;
+    }
+
+    clearRequestLog(): void {
+        this.requestLogClearInProgress = true;
+        this.requestLogClearLoadFailed = false;
+
+        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
+        let url = `${this.options.ClearRequestLogEndpoint}${queryStringIfEnabled}`;
+        fetch(url, {
+            credentials: 'include',
+            method: "DELETE",
+            headers: new Headers({
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            })
+        })
+        .then(() => {
+            this.requestLogClearInProgress = false;
+            this.entries = [];
+        })
+        .catch((e) => {
+            this.requestLogClearInProgress = false;
+            this.requestLogClearLoadFailed = true;
+            this.requestLogClearFailedErrorMessage = `Failed to clear log with the following error. ${e}.`;
+            console.error(e);
+        });
     }
     
     showOnlyState(state: EntryState): void {

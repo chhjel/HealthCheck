@@ -62,7 +62,7 @@ namespace HealthCheck.RequestLog.ActionFilters
             string result = context.Result?.ToString();
             int statusCode = context.HttpContext?.Response?.StatusCode ?? 0;
 
-            RequestLogService.HandleActionEvent(new LogFilterEvent()
+            RequestLogService.HandleRequestEvent(new LogFilterEvent()
             {
                 FilterMethod = method,
                 ControllerType = controllerType,

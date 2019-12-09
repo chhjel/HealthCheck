@@ -33,6 +33,13 @@ namespace HealthCheck.WebUI.Models
         public Maybe<TAccessRole> RequestLogPageAccess { get; set; }
 
         /// <summary>
+        /// Roles with access to clear the requestlog.
+        /// <para>If null nobody can clear it by default.</para>
+        /// <para>The role must also have RequestLogPageAccess in order to see the clear-button.</para>
+        /// </summary>
+        public Maybe<TAccessRole> ClearRequestLogAccess { get; set; }
+
+        /// <summary>
         /// Roles with access to view the audit logs.
         /// <para>If null nobody can access it by default.</para>
         /// </summary>

@@ -46,7 +46,7 @@ namespace HealthCheck.RequestLog.ActionFilters
                 ? (int)context.Response.StatusCode 
                 : (context.Exception != null) ? new HttpException(null, context.Exception).GetHttpCode() : 0;
 
-            service.HandleActionEvent(new LogFilterEvent()
+            service.HandleRequestEvent(new LogFilterEvent()
             {
                 FilterMethod = method,
                 ControllerType = controllerType,

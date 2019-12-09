@@ -104,7 +104,20 @@ namespace HealthCheck.WebUI.Util
                 return new List<LoggedEndpointDefinition>();
             }
 
-            return Services?.RequestLogService?.GetActions() ?? new List<LoggedEndpointDefinition>();
+            return Services?.RequestLogService?.GetRequests() ?? new List<LoggedEndpointDefinition>();
+        }
+
+        /// <summary>
+        /// Clear the requestlog.
+        /// </summary>
+        public void ClearRequestLog(Maybe<TAccessRole> accessRoles)
+        {
+            if (!CanClearRequestLog(accessRoles))
+            {
+                return;
+            }
+
+            Services?.RequestLogService?.ClearRequests();
         }
 
         /// <summary>
@@ -369,6 +382,12 @@ namespace HealthCheck.WebUI.Util
         public bool CanShowRequestLogPageTo(Maybe<TAccessRole> accessRoles)
             => Services.RequestLogService != null && CanShowPageTo(accessRoles, AccessOptions.RequestLogPageAccess, defaultValue: false);
 
+        /// <summary>
+        /// Check if the given roles has access to clearing the requestlog.
+        /// </summary>
+        public bool CanClearRequestLog(Maybe<TAccessRole> accessRoles)
+            => Services.RequestLogService != null && CanShowPageTo(accessRoles, AccessOptions.ClearRequestLogAccess, defaultValue: false);
+
         private void CheckPageOptions(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
         {
             var deniedEndpoint = "0x90";
@@ -419,6 +438,12 @@ namespace HealthCheck.WebUI.Util
             else
             {
                 frontEndOptions.GetRequestLogEndpoint = deniedEndpoint;
+            }
+
+            if (!CanClearRequestLog(accessRoles))
+            {
+                frontEndOptions.ClearRequestLogEndpoint = deniedEndpoint;
+                frontEndOptions.HasAccessToClearRequestLog = false;
             }
 
             PrioritizePages(frontEndOptions.Pages, frontEndOptions.PagePriority);

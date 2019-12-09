@@ -108,6 +108,7 @@ namespace HealthCheck.DevTest.Controllers
             AccessOptions.InvalidTestsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.SiteEventDeveloperDetailsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.RequestLogPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            AccessOptions.ClearRequestLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
         }
 
         protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)

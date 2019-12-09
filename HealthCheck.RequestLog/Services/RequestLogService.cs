@@ -36,7 +36,7 @@ namespace HealthCheck.RequestLog.Services
         /// <summary>
         /// Handle a new event.
         /// </summary>
-        public void HandleActionEvent(LogFilterEvent e)
+        public void HandleRequestEvent(LogFilterEvent e)
         {
             if (e.ActionMethod != null)
             {
@@ -114,19 +114,19 @@ namespace HealthCheck.RequestLog.Services
         /// <summary>
         /// Store the given entry.
         /// </summary>
-        public void StoreAction(LoggedEndpointDefinition entry)
+        public void StoreRequest(LoggedEndpointDefinition entry)
             => Store.Insert(entry);
 
         /// <summary>
         /// Get all stored actions.
         /// </summary>
-        public List<LoggedEndpointDefinition> GetActions()
+        public List<LoggedEndpointDefinition> GetRequests()
             => Store.GetAll();
 
         /// <summary>
         /// Clear all stored actions.
         /// </summary>
-        public async Task ClearActions()
+        public async Task ClearRequests()
             => await Store.ClearAll();
 
         /// <summary>

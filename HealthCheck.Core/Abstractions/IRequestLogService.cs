@@ -14,7 +14,7 @@ namespace HealthCheck.Core.Abstractions
         /// <summary>
         /// Handle a new event.
         /// </summary>
-        void HandleActionEvent(LogFilterEvent e);
+        void HandleRequestEvent(LogFilterEvent e);
 
         /// <summary>
         /// Create an id for the given endpoint.
@@ -22,19 +22,19 @@ namespace HealthCheck.Core.Abstractions
         string CreateEndpointId(Type controllerType, MethodInfo actionMethod, string actionName);
 
         /// <summary>
-        /// Clear all stored actions.
+        /// Clear all stored requests.
         /// </summary>
-        Task ClearActions();
+        Task ClearRequests();
 
         /// <summary>
         /// Store the given entry.
         /// </summary>
-        void StoreAction(LoggedEndpointDefinition entry);
+        void StoreRequest(LoggedEndpointDefinition entry);
 
         /// <summary>
         /// Get all stored actions.
         /// </summary>
-        List<LoggedEndpointDefinition> GetActions();
+        List<LoggedEndpointDefinition> GetRequests();
 
         /// <summary>
         /// Get the current application version.

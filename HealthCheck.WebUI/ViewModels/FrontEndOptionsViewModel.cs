@@ -85,6 +85,11 @@ namespace HealthCheck.WebUI.ViewModels
         public string GetRequestLogEndpoint { get; set; }
 
         /// <summary>
+        /// Url to the endpoint that clears all request log entries.
+        /// </summary>
+        public string ClearRequestLogEndpoint { get; set; }
+
+        /// <summary>
         /// Number of minutes past the end of a site event it will be displayed below "Current status" on the status page.
         /// <para>Defaults to 30 minutes.</para>
         /// </summary>
@@ -117,6 +122,12 @@ namespace HealthCheck.WebUI.ViewModels
         /// </summary>
         [JsonProperty]
         internal int CurrentlyRunningLogSearchCount { get; set; }
+
+        /// <summary>
+        /// Has access to clearing the requestlog.
+        /// </summary>
+        [JsonProperty]
+        internal bool HasAccessToClearRequestLog { get; set; }
 
         /// <summary>
         /// Default page to show on entering the Index action in prioritized order.
@@ -155,6 +166,8 @@ namespace HealthCheck.WebUI.ViewModels
             CancelLogSearchEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/CancelLogSearch";
             CancelAllLogSearchesEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/CancelAllLogSearches";
             GetRequestLogEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetRequestLog";
+            ClearRequestLogEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/ClearRequestLog";
+            HasAccessToClearRequestLog = true;
         }
 
         /// <summary>

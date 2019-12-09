@@ -11,7 +11,9 @@ export default interface FrontEndOptionsViewModel {
     CancelLogSearchEndpoint: string;
     CancelAllLogSearchesEndpoint: string;
     GetRequestLogEndpoint: string;
+    ClearRequestLogEndpoint: string;
     DefaultColumnRule: string;
+    HasAccessToClearRequestLog: boolean;
     DefaultColumnModeIsRegex: boolean;
     ApplyCustomColumnRuleByDefault: boolean;
     CurrentEventBufferMinutes: number;

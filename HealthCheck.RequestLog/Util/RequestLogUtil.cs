@@ -37,7 +37,7 @@ namespace HealthCheck.RequestLog.Util
                )
                .Where(x => !x.IsAbstract && x.GetCustomAttribute<RequestLogInfoAttribute>()?.Hidden != true);
 
-            var existingActionEntries = service.GetActions();
+            var existingActionEntries = service.GetRequests();
             foreach (var actionEntry in controllerTypes.SelectMany(x => GetControllerActions(service, x, actionUrlResolver)))
             {
                 if (existingActionEntries.Any(x => x.EndpointId == actionEntry.EndpointId))
@@ -45,7 +45,7 @@ namespace HealthCheck.RequestLog.Util
                     continue;
                 }
 
-                service.StoreAction(actionEntry);
+                service.StoreRequest(actionEntry);
             }
         }
 

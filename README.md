@@ -67,9 +67,11 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
         AccessOptions.OverviewPageAccess = new Maybe<AccessRoles>(AccessRoles.Guest);
         AccessOptions.TestsPageAccess = new Maybe<AccessRoles>(AccessRoles.WebAdmins);
         AccessOptions.AuditLogAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);
-        AccessOptions.LogViewerPageAccess = new Maybe<RuntimeTestAccessRole>(AccessRoles.SystemAdmins);
+        AccessOptions.LogViewerPageAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);
         AccessOptions.InvalidTestsAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);
         AccessOptions.SiteEventDeveloperDetailsAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);
+        AccessOptions.RequestLogPageAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);
+        AccessOptions.ClearRequestLogAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);
         
         // If the current request does not have access to any of the pages they will be redirected to the given url. If not set they will get a 404.
         // AccessOptions.RedirectTargetOnNoAccess = "/login?redirect=..";
@@ -308,6 +310,10 @@ For requests to be logged and viewable 2-3 things needs to be configured:
 * An IRequestLogService has to be provided in the healthcheck controller.
 * A set of action filters will need to be registered.
 * Optionally run a utility method on startup to generate definitions from all controller actions.
+
+To clear the requestlog use the button at the bottom of the requestlog page. It will be visible for selected roles when the access option `ClearRequestLogAccess` is set.
+
+AccessOptions.ClearRequestLogAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);
 
 <details><summary>Example setup</summary>
 <p>

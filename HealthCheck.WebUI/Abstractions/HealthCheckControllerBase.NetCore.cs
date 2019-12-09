@@ -170,6 +170,21 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
+        /// Clears the requestlog.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        [Route("ClearRequestLog")]
+        [HttpDelete]
+        public ActionResult ClearRequestLog()
+        {
+            if (!Enabled || !Helper.CanClearRequestLog(CurrentRequestAccessRoles))
+                return NotFound();
+
+            Helper.ClearRequestLog(CurrentRequestAccessRoles);
+            return Content("Cleared");
+        }
+
+        /// <summary>
         /// Get site events to show in the UI.
         /// </summary>
         [RequestLogInfo(hide: true)]
