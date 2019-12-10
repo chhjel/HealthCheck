@@ -114,15 +114,27 @@
                 </div>
 
                 <v-layout row wrap v-if="options.HasAccessToClearRequestLog">
-                    <v-flex xs12>
+                    <v-flex xs12 sm6 md4>
                         <v-btn
                             :loading="requestLogClearInProgress"
                             :disabled="requestLogClearInProgress"
                             color="error"
-                            @click="clearRequestLog"
+                            @click="clearRequestLog(true)"
+                            >
+                            <v-icon size="20px" class="mr-2">delete_forever</v-icon>
+                            Clear requests + definitions
+                        </v-btn>
+                    </v-flex>
+
+                    <v-flex xs12 sm6 md4>
+                        <v-btn
+                            :loading="requestLogClearInProgress"
+                            :disabled="requestLogClearInProgress"
+                            color="error"
+                            @click="clearRequestLog(false)"
                             >
                             <v-icon size="20px" class="mr-2">delete</v-icon>
-                            Clear all
+                            Clear requests
                         </v-btn>
                     </v-flex>
 
@@ -355,12 +367,12 @@ export default class RequestLogPageComponent extends Vue {
         this.requestLogDataLoadInProgress = false;
     }
 
-    clearRequestLog(): void {
+    clearRequestLog(includeDefinitions: boolean): void {
         this.requestLogClearInProgress = true;
         this.requestLogClearLoadFailed = false;
 
-        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
-        let url = `${this.options.ClearRequestLogEndpoint}${queryStringIfEnabled}`;
+        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? `&${window.location.search.replace('?', '')}` : '';
+        let url = `${this.options.ClearRequestLogEndpoint}?includeDefinitions=${includeDefinitions}${queryStringIfEnabled}`;
         fetch(url, {
             credentials: 'include',
             method: "DELETE",
@@ -371,7 +383,19 @@ export default class RequestLogPageComponent extends Vue {
         })
         .then(() => {
             this.requestLogClearInProgress = false;
-            this.entries = [];
+
+            if (includeDefinitions)
+            {
+                this.entries = [];
+            }
+            else
+            {
+                this.entries = this.entries.map(x => {
+                    x.Calls = [];
+                    x.Errors = [];
+                    return x;
+                });
+            }
         })
         .catch((e) => {
             this.requestLogClearInProgress = false;

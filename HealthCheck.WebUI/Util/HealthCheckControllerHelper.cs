@@ -110,14 +110,18 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Clear the requestlog.
         /// </summary>
-        public void ClearRequestLog(Maybe<TAccessRole> accessRoles)
+        public void ClearRequestLog(RequestInformation<TAccessRole> requestInformation, bool includeDefinitions)
         {
-            if (!CanClearRequestLog(accessRoles))
+            if (!CanClearRequestLog(requestInformation.AccessRole))
             {
                 return;
             }
 
-            Services?.RequestLogService?.ClearRequests();
+            var auditAction = (includeDefinitions) ? "Cleared request log + definitions" : "Cleared request log";
+            Services.AuditEventService?.StoreEvent(
+                CreateAuditEventFor(requestInformation, AuditEventArea.RequestLog, action: auditAction)
+            );
+            Services?.RequestLogService?.ClearRequests(includeDefinitions);
         }
 
         /// <summary>

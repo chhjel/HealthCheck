@@ -124,10 +124,12 @@ namespace HealthCheck.RequestLog.Services
             => Store.GetAll();
 
         /// <summary>
-        /// Clear all stored actions.
+        /// Clear all calls/errors, and optionally definitions.
         /// </summary>
-        public async Task ClearRequests()
-            => await Store.ClearAll();
+        public async Task ClearRequests(bool includeDefinitions = false)
+        {
+            await Store.ClearAll(includeDefinitions);
+        }
 
         /// <summary>
         /// Get the current application version.

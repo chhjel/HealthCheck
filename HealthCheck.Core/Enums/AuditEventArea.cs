@@ -13,6 +13,11 @@
         /// <summary>
         /// The log search page.
         /// </summary>
-        LogSearch
+        LogSearch,
+
+        /// <summary>
+        /// Request log.
+        /// </summary>
+        RequestLog
     }
 }

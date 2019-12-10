@@ -25,9 +25,9 @@ namespace HealthCheck.RequestLog.Abstractions
         LoggedEndpointDefinition GetEntryWithEndpointId(string endpointId);
 
         /// <summary>
-        /// Clear all litems.
+        /// Clear all calls/errors, and optionally definitions.
         /// </summary>
-        Task ClearAll();
+        Task ClearAll(bool includeDefinitions = false);
 
         /// <summary>
         /// Get all items.

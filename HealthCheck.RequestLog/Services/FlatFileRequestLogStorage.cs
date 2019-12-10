@@ -56,12 +56,28 @@ namespace HealthCheck.RequestLog.Services
         /// </summary>
         public List<LoggedEndpointDefinition> GetAll()
             => Store.GetEnumerable().ToList();
-        
+
         /// <summary>
-        /// Clear all litems.
+        /// Clear all calls/errors, and optionally definitions.
         /// </summary>
-        public async Task ClearAll()
-            => await Store.ClearDataAsync();
+        public async Task ClearAll(bool includeDefinitions = false)
+        {
+            if (includeDefinitions)
+            {
+                await Store.ClearDataAsync();
+                return;
+            }
+
+            Store.UpdateWhere(
+                x => x.Calls.Any() || x.Errors.Any(),
+                (entry) =>
+                {
+                    entry.Calls.Clear();
+                    entry.Errors.Clear();
+                    return entry;
+                }
+            );
+        }
     }
 }
 #endif

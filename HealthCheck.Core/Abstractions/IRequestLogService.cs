@@ -22,9 +22,9 @@ namespace HealthCheck.Core.Abstractions
         string CreateEndpointId(Type controllerType, MethodInfo actionMethod, string actionName);
 
         /// <summary>
-        /// Clear all stored requests.
+        /// Clear all calls/errors, and optionally definitions.
         /// </summary>
-        Task ClearRequests();
+        Task ClearRequests(bool includeDefinitions = false);
 
         /// <summary>
         /// Store the given entry.

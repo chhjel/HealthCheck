@@ -175,12 +175,12 @@ namespace HealthCheck.WebUI.Abstractions
         [RequestLogInfo(hide: true)]
         [Route("ClearRequestLog")]
         [HttpDelete]
-        public ActionResult ClearRequestLog()
+        public ActionResult ClearRequestLog([FromQuery] bool includeDefinitions = false)
         {
             if (!Enabled || !Helper.CanClearRequestLog(CurrentRequestAccessRoles))
                 return NotFound();
 
-            Helper.ClearRequestLog(CurrentRequestAccessRoles);
+            Helper.ClearRequestLog(CurrentRequestInformation, includeDefinitions);
             return Content("Cleared");
         }
 
