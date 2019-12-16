@@ -114,8 +114,10 @@ namespace HealthCheck.DevTest.Controllers
         protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)
         {
             options
-            .SetOptionsFor(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
-            .SetOptionsFor(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50);
+                .SetOptionsFor(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
+                .SetOptionsFor(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)
+                .SetOptionsFor(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
+                .SetOptionsFor(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50);
         }
 
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequestBase request)

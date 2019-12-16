@@ -277,7 +277,7 @@ export default class TestSuitesPageComponent extends Vue {
             });
         }
 
-        this.testSetGroups = this.testSetGroups.sort((a,b) => b.UIOrder - a.UIOrder)
+        this.testSetGroups = this.testSetGroups.sort((a,b) => b.UIOrder - a.UIOrder);
 
         this.testSetDataLoadInProgress = false;
         this.setInitialActiveTestSet();

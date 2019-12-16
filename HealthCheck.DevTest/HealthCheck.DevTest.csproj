@@ -146,6 +146,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="_TestImplementation\RuntimeTestAccessRole.cs" />
     <Compile Include="_TestImplementation\RuntimeTestConstants.cs" />
+    <Compile Include="_TestImplementation\Tests\AlmostAtTheBottomTests.cs" />
+    <Compile Include="_TestImplementation\Tests\AlmostAtTheTopTests.cs" />
     <Compile Include="_TestImplementation\Tests\TestsForAdminsWithOneForGuests.cs" />
     <Compile Include="_TestImplementation\Tests\TestsWithWebAdminRequirements.cs" />
     <Compile Include="_TestImplementation\Tests\TestsWithSysAdminRequirements.cs" />
