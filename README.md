@@ -429,3 +429,4 @@ var results = await runner.ExecuteTests(testDiscovererService,
 A few utility classes are included below `HealthCheck.Core.Util`:
 * `ExceptionUtils` - Get a summary of exceptions to include in results.
 * `ConnectivityUtils` - Ping or send webrequests to check if a host is alive and return `TestResult` objects.
+* `TimeUtils` - Prettify durations.
