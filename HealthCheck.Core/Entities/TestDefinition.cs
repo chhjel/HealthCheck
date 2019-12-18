@@ -93,7 +93,7 @@ namespace HealthCheck.Core.Entities
 
             Name = testAttribute.Name ?? Method.Name.SpacifySentence();
             Description = testAttribute.Description.EnsureDotAtEndIfNotNull();
-            AllowParallelExecution = (testAttribute.AllowParallelExecution is bool allowParallelExecution && allowParallelExecution);
+            AllowParallelExecution = testAttribute.AllowParallelExecution == null ? default(bool?) : (bool)testAttribute.AllowParallelExecution;
             AllowManualExecution = (testAttribute.AllowManualExecution is bool allowManualExecution ? allowManualExecution : parentClass.DefaultAllowManualExecution);
             RolesWithAccess =  testAttribute.RolesWithAccess ?? parentClass.DefaultRolesWithAccess;
             RunButtonText = testAttribute.RunButtonText;

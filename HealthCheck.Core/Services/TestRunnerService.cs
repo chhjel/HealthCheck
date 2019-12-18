@@ -177,6 +177,8 @@ namespace HealthCheck.Core.Services
                         tasks.Add(task);
                     }
                     await Task.WhenAll(tasks);
+
+                    tasks.ForEach(x => results.Add(x.Result));
                 }
 
                 // Run other tests after
