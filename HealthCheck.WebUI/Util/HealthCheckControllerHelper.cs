@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using HealthCheck.WebUI.Models.Api;
 
 namespace HealthCheck.WebUI.Util
 {
@@ -192,6 +193,50 @@ namespace HealthCheck.WebUI.Util
             {
                 var message = $"Exception: {(ex.InnerException ?? ex).Message}";
                 return TestResultViewModel.CreateError(message, test.Id, test.Name);
+            }
+        }
+
+        /// <summary>
+        /// Execute tests in the given category and return a result view model.
+        /// </summary>
+        public async Task<ExecuteTestsResult> ExecuteTests(RequestInformation<TAccessRole> requestInformation, string testCategory)
+        {
+            if (testCategory == null)
+            {
+                return new ExecuteTestsResult { TotalResult = TestResultStatus.Error, ErrorMessage = "No category to test was given." };
+            }
+
+            try
+            {
+                var results = await TestRunner.ExecuteTests(TestDiscoverer,
+                    testFilter: (test) => 
+                        test.Categories.Contains(testCategory)
+                        && EnumUtils.EnumFlagHasAnyFlagsSet(requestInformation.AccessRole.Value, test.RolesWithAccess),
+                    auditEventService: Services.AuditEventService,
+                    auditUserId: requestInformation?.UserId,
+                    auditUsername: requestInformation?.UserName
+                );
+                var testResults = results.Select(x => new ExecuteTestsTestResult()
+                {
+                    TestId = x.Test?.Id,
+                    TestName = x.Test?.Name,
+                    Result = x.Status,
+                    Message = x.Message,
+                    StackTrace = x.StackTrace
+                }).ToList();
+
+                return new ExecuteTestsResult()
+                {
+                    TotalResult = testResults.Any() 
+                        ? testResults.OrderByDescending(x => (int)x.Result).First().Result
+                        : TestResultStatus.Success,
+                    Results = testResults
+                };
+            }
+            catch (Exception ex)
+            {
+                var message = $"Exception: {(ex.InnerException ?? ex).Message}";
+                return new ExecuteTestsResult { TotalResult = TestResultStatus.Error, ErrorMessage = $"An exception occured during test execution. {message}" };
             }
         }
 
@@ -391,6 +436,12 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public bool CanClearRequestLog(Maybe<TAccessRole> accessRoles)
             => Services.RequestLogService != null && CanShowPageTo(accessRoles, AccessOptions.ClearRequestLogAccess, defaultValue: false);
+
+        /// <summary>
+        /// Check if the given roles has access to calling the ping endpoint.
+        /// </summary>
+        public bool CanUsePingEndpoint(Maybe<TAccessRole> accessRoles)
+            => CanShowPageTo(accessRoles, AccessOptions.PingAccess, defaultValue: true);
 
         private void CheckPageOptions(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
         {

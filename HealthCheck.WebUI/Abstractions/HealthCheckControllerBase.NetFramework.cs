@@ -140,6 +140,18 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
+        /// Returns 'OK' and 200 status code.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        public virtual ActionResult Ping()
+        {
+            if (!Enabled || !Helper.CanUsePingEndpoint(CurrentRequestAccessRoles))
+                return HttpNotFound();
+
+            return Content("OK");
+        }
+
+        /// <summary>
         /// Get filtered audit events to show in the UI.
         /// </summary>
         [RequestLogInfo(hide: true)]
@@ -218,6 +230,19 @@ namespace HealthCheck.WebUI.Abstractions
             var result = await Helper.ExecuteTest(CurrentRequestAccessRoles, data);
             Helper.AuditLog_TestExecuted(CurrentRequestInformation, data, result);
 
+            return CreateJsonResult(result);
+        }
+
+        /// <summary>
+        /// Execute tests in the given category.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        [HttpPost]
+        public virtual async Task<ActionResult> ExecuteTests(ExecuteTestsInputData data)
+        {
+            if (!Enabled || !Helper.CanShowTestsPageTo(CurrentRequestAccessRoles) || data == null) return HttpNotFound();
+
+            var result = await Helper.ExecuteTests(CurrentRequestInformation, data.TestCategory);
             return CreateJsonResult(result);
         }
 

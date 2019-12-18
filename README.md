@@ -235,6 +235,59 @@ Can be applied to either the method itself using the `Target` property or the pa
 ## Services
 A few flatfile storage classes are included and should work fine as the amount of data should not be too large. If used make sure they are registered as singletons, they are thread safe but only within their own instances.
 
+## API
+An `/ExecuteTests` endpoint exists to execute all tests within a given category and return the results. Only tests the request has access to will be executed. The request must also have the `TestsPageAccess`. There is also a `/Ping` endpoint that can be used that just returns 'OK' and 200 status code.
+
+Example request:
+```
+Invoke-WebRequest -Uri "https://server/ExecuteTests?key=something" -Method "POST" -Headers @{ -ContentType "application/x-www-form-urlencoded" -Body "TestCategory=IntegrationTests"
+``` 
+
+<details><summary>Example response:</summary>
+<p>
+
+```json
+{
+    "TotalResult": "Error",
+    "SuccessCount": 2,
+    "WarningCount": 1,
+    "ErrorCount": 1,
+    "ErrorMessage": null,
+    "Results": [
+        {
+            "TestId": "HealthCheckTests.SomeAPITests.TestServiceX",
+            "TestName": "Check integration X",
+            "Result": "Error",
+            "Message": "Failed to execute test with the exception: Input string was not in a correct format.",
+            "StackTrace": "System.FormatException: Input string was not in a correct format.\r\n   at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)\r\n   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)\r\n   at System.Int32.Parse(String s)\r\n   at HealthCheckTests.SomeAPITests.<TestSomething>d__4.MoveNext() in D:\\...\\SomeAPITests.cs:line 47\r\n--- End of stack trace from previous location where exception was thrown ---\r\n   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)\r\n   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)\r\n   at System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()\r\n   at HealthCheck.Core.Entities.TestDefinition.<ExecuteTest>d__58.MoveNext()\r\n--- End of stack trace from previous location where exception was thrown ---\r\n   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)\r\n   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)\r\n   at System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()\r\n   at HealthCheck.Core.Services.TestRunnerService.<ExecuteTest>d__9.MoveNext()"
+        },
+        {
+            "TestId": "HealthCheckTests.SomeAPITests.TestServiceY",
+            "TestName": "Check integration Y",
+            "Result": "Success",
+            "Message": "Success, it took about 3 seconds.",
+            "StackTrace": null
+        },
+        {
+            "TestId": "HealthCheckTests.SomeAPITests.TestServiceZ",
+            "TestName": "Check integration Z",
+            "Result": "Warning",
+            "Message": "Success, it took about a second.",
+            "StackTrace": null
+        },
+        {
+            "TestId": "HealthCheckTests.SomeAPITests.TestServiceF.Int32-String-Boolean-Int32",
+            "TestName": "Test Service A",
+            "Result": "Success",
+            "Message": "Retrieved id ('1234') successfully.",
+            "StackTrace": null
+        }
+    ]
+}
+```
+</p>
+</details>
+
 ### IAuditEventStorage
 If an IAuditEventStorage is provided in the controller any test executions/cancellations will be logged to it. This also allows for the audit log interface to be shown.
 

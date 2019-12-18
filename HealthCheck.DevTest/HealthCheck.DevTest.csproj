@@ -149,6 +149,7 @@
     <Compile Include="_TestImplementation\Tests\AlmostAtTheBottomTests.cs" />
     <Compile Include="_TestImplementation\Tests\AlmostAtTheTopTests.cs" />
     <Compile Include="_TestImplementation\Tests\TestsForAdminsWithOneForGuests.cs" />
+    <Compile Include="_TestImplementation\Tests\SomeAPITests.cs" />
     <Compile Include="_TestImplementation\Tests\TestsWithWebAdminRequirements.cs" />
     <Compile Include="_TestImplementation\Tests\TestsWithSysAdminRequirements.cs" />
     <Compile Include="_TestImplementation\Tests\SomeServiceIntegrationTests.cs" />

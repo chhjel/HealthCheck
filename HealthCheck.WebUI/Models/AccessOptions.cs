@@ -58,6 +58,12 @@ namespace HealthCheck.WebUI.Models
         public Maybe<TAccessRole> SiteEventDeveloperDetailsAccess { get; set; }
 
         /// <summary>
+        /// Roles with access to call the Ping endpoint.
+        /// <para>If null anyone can access it by default.</para>
+        /// </summary>
+        public Maybe<TAccessRole> PingAccess { get; set; }
+
+        /// <summary>
         /// Redirect url if the request does not have access to any of the content.
         /// <para>If not set a 404 will be returned.</para>
         /// </summary>

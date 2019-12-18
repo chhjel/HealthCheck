@@ -13,6 +13,7 @@
         public static class Categories
         {
             public const string ScheduledHealthCheck = "healthcheck";
+            public const string APIChecks = "api";
         }
     }
 }
