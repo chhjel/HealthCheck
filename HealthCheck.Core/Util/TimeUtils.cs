@@ -12,7 +12,7 @@ namespace HealthCheck.Core.Util
     {
         /// <summary>
         /// Translates the given number of milliseconds into text.
-        /// <para>E.g: "2 seconds" or "9minutes, 15 seconds"</para>
+        /// <para>E.g: "2 seconds" or "9 minutes, 15 seconds"</para>
         /// </summary>
         public static string PrettifyDuration(long ms, string zero = "0 milliseconds")
         {

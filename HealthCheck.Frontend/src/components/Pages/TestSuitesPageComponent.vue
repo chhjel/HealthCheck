@@ -437,9 +437,9 @@ export default class TestSuitesPageComponent extends Vue {
 .testset-menu {
     background-color: hsla(0, 0%, 16%, 1) !important;
 }
-.testset-menu-item>a {
-    /* color: #fff; */
-}
+/* .testset-menu-item>a {
+    color: #fff;
+} */
 .v-list__group__header--active .v-list__group__header__prepend-icon .v-icon {
     color: #fff;
 }

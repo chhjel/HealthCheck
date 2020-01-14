@@ -110,7 +110,6 @@ export default class OverviewPageComponent extends Vue {
     get calendarEvents(): Array<CalendarEvent<SiteEventViewModel>>
     {
         // Duplicate events that go across several days
-        let newEvents = new Array<SiteEventViewModel>();
         let mappedEvents = this.events.map(x =>
         {
             return {
@@ -138,24 +137,49 @@ export default class OverviewPageComponent extends Vue {
                 let toDate = new Date(x.EndTime);
                 toDate.setHours(toDate.getHours() + 24);
                 let now = new Date();
+                let secondLastDay = new Date(x.EndTime);
+                secondLastDay.setDate(x.EndTime.getDate() - 1)
+
                 for (let d = new Date(fromDate); d <= toDate; d.setDate(d.getDate() + 1)) {
                     if (DateUtils.IsDatePastDay(d, x.EndTime)) {
                         break;
                     }
 
                     let date = new Date(d);
+                    let timestamp = new Date(x.Timestamp);
+                    let duration = x.Duration;
+                    let endTime = this.getEventEndTime(x);
+
+                    let isLastDay = DateUtils.IsDatePastDay(d, secondLastDay);
+                    if (isLastDay === true)
+                    {
+                        duration = (x.EndTime.getHours() * 60) + x.EndTime.getMinutes();
+                        timestamp.setHours(0);
+                        timestamp.setMinutes(0);
+                        timestamp.setMilliseconds(0);
+                    }
+                    else
+                    {
+                        duration = 24 * 60;
+                        timestamp.setHours(0);
+                        timestamp.setMinutes(0);
+                        timestamp.setMilliseconds(0);
+                    }
+
                     mappedEvents.push({
                         id: x.Id,
                         title: x.Title,
                         details: x.Description,
                         date: this.getCalendarDateFormat(date),
-                        time: this.getCalendarTimeFormat(x.Timestamp),
-                        endTime: this.getEventEndTime(x),
+                        time: this.getCalendarTimeFormat(timestamp),
+                        endTime: endTime,
                         open: false,
                         data: x,
-                        duration: x.Duration,
-                        dateTime: x.Timestamp
+                        duration: duration,
+                        dateTime: timestamp
                     });
+
+                    console.log({ isLastDay: isLastDay, mappedEvents: mappedEvents });
                 }
             });
 
