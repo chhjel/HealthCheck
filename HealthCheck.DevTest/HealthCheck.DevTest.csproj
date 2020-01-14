@@ -144,6 +144,13 @@
     </Compile>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WebFormsTest\SomeTestWebFormsPage.aspx.cs">
+      <DependentUpon>SomeTestWebFormsPage.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebFormsTest\SomeTestWebFormsPage.aspx.designer.cs">
+      <DependentUpon>SomeTestWebFormsPage.aspx</DependentUpon>
+    </Compile>
     <Compile Include="_TestImplementation\RuntimeTestAccessRole.cs" />
     <Compile Include="_TestImplementation\RuntimeTestConstants.cs" />
     <Compile Include="_TestImplementation\Tests\AlmostAtTheBottomTests.cs" />
@@ -166,6 +173,7 @@
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
+    <Content Include="WebFormsTest\SomeTestWebFormsPage.aspx" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

@@ -162,7 +162,7 @@ namespace HealthCheck.RequestLog.Services
                 Name = info.Name,
                 Description = info.Description,
                 Group = Options.ControllerGroupNameFactory?.Invoke(e.ControllerType),
-                ControllerType = typeof(Controller).IsAssignableFrom(e.ControllerType) ? "MVC" : "Web API",
+                ControllerType = e.ForcedControllerType ?? (typeof(Controller).IsAssignableFrom(e.ControllerType) ? "MVC" : "Web API"),
                 Controller = e.Controller,
                 FullControllerName = e.ControllerType.FullName,
                 Action = e.Action,

@@ -60,6 +60,11 @@ namespace HealthCheck.Core.Modules.RequestLog.Models
         public string Result { get; set; }
 
         /// <summary>
+        /// Optionally force a certain type.
+        /// </summary>
+        public string ForcedControllerType { get; set; }
+
+        /// <summary>
         /// Exception if any.
         /// </summary>
         public Exception Exception { get; set; }
