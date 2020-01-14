@@ -220,4 +220,11 @@ export default class DateUtils
         date.setMinutes(date.getMinutes() + minutesOffset);
         return date;
     }
+
+    static DateRangeOverlaps(a_start: Date, a_end: Date, b_start: Date, b_end: Date): boolean {
+        if (a_start.getTime() <= b_start.getTime() && b_start.getTime() <= a_end.getTime()) return true; // b starts in a
+        if (a_start.getTime() <= b_end.getTime()   && b_end.getTime()   <= a_end.getTime()) return true; // b ends in a
+        if (b_start.getTime() <  a_start.getTime() && a_end.getTime()   <  b_end.getTime()) return true; // a in b
+        return false;
+    }
 }

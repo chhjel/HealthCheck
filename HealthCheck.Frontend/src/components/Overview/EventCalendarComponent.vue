@@ -59,7 +59,9 @@
                         :style="{
                             top: timeToY(event.time) + 'px',
                             height: minutesToPixels(event.duration) + 'px',
-                            'min-height': '20px'
+                            'min-height': '20px',
+                            width: getEventWithTimeWidth(event.data),
+                            left: getEventWithTimeLeft(event.data)
                         }"
                         class="calendar-event with-time"
                         :class="getEventSeverityClass(event.data.Severity)"
@@ -178,8 +180,6 @@ export default class OverviewPageComponent extends Vue {
                         duration: duration,
                         dateTime: timestamp
                     });
-
-                    console.log({ isLastDay: isLastDay, mappedEvents: mappedEvents });
                 }
             });
 
@@ -279,6 +279,37 @@ export default class OverviewPageComponent extends Vue {
         } else {
             return '';
         }
+    }
+
+    getEventWithTimeWidth(event: SiteEventViewModel): string
+    {
+        let numberOfCollidingEvents = this.events
+            .filter(x => DateUtils.DateRangeOverlaps(x.Timestamp, x.EndTime, event.Timestamp, event.EndTime))
+            .length;
+        return `${Math.floor(100 / numberOfCollidingEvents)}%`;
+    }
+
+    getEventWithTimeLeft(event: SiteEventViewModel): string
+    {
+        let numberOfCollidingEvents = this.events
+            .filter(x => DateUtils.DateRangeOverlaps(x.Timestamp, x.EndTime, event.Timestamp, event.EndTime))
+            .length;
+        let numberOfCollidingEventsBeforeIt = 0;
+        for(let i=0; i<this.events.length; i++)
+        {
+            let ev = this.events[i];
+            if (ev === event) {
+                break;
+            }
+
+            if (DateUtils.DateRangeOverlaps(ev.Timestamp, ev.EndTime, event.Timestamp, event.EndTime))
+            {
+                numberOfCollidingEventsBeforeIt++;
+            }
+        }
+
+        let width = Math.floor(100 / numberOfCollidingEvents);
+        return `${width * numberOfCollidingEventsBeforeIt}%`;
     }
 
     ///////////////////////
