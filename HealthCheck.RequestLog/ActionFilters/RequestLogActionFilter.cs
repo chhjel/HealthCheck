@@ -61,7 +61,7 @@ namespace HealthCheck.RequestLog.ActionFilters
                 var actionName = routeData.Values["action"] as string;
                 var actionMethod = context.Controller?.ViewBag?.RequestLog_ActionMethodInfo;
                 var requestMethod = context?.RequestContext?.HttpContext?.Request?.HttpMethod;
-                var url = context.HttpContext?.Request?.Url?.ToString();
+                var url = RequestUtils.GetUrl(context.HttpContext?.Request);
                 string result = context.Result?.ToString();
                 int statusCode = context.HttpContext?.Response?.StatusCode ?? 0;
 

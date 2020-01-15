@@ -43,7 +43,7 @@ namespace HealthCheck.RequestLog.ActionFilters
                 var actionMethod = (context.ActionContext?.ActionDescriptor is ReflectedHttpActionDescriptor reflectedHttpActionDescriptor)
                     ? reflectedHttpActionDescriptor.MethodInfo : null;
                 var requestMethod = context.Request.Method?.ToString();
-                var url = context.ActionContext.Request.RequestUri?.ToString();
+                var url = RequestUtils.GetUrl(context.ActionContext.Request);
                 string result = context.Exception?.ToString();
                 int statusCode = (context.Response?.StatusCode != null)
                     ? (int)context.Response.StatusCode

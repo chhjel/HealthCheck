@@ -20,7 +20,7 @@ namespace HealthCheck.RequestLog.Util
             try
             {
                 var requestMethod = request?.HttpMethod;
-                var url = request?.Url?.ToString();
+                var url = RequestUtils.GetUrl(request);
 
                 service.HandleRequestEvent(new LogFilterEvent()
                 {
