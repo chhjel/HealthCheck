@@ -1,5 +1,6 @@
 # HealthCheck
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI?label=HealthCheck.WebUI&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI)
+[![Nuget](https://img.shields.io/nuget/v/HealthCheck.RequestLog?label=HealthCheck.RequestLog&logo=nuget)](https://www.nuget.org/packages/HealthCheck.RequestLog)
 [![npm](https://img.shields.io/npm/v/christianh-healthcheck?label=christianh-healthcheck&logo=npm)](https://www.npmjs.com/package/christianh-healthcheck)
 
 ## What is it
@@ -404,6 +405,11 @@ public static void RegisterWebApiFilters(HttpFilterCollection filters)
 ```csharp
 // Optionally call this method on startup to generate endpoint definitions
 Task.Run(() => RequestLogUtil.EnsureDefinitionsFromTypes(RequestLogServiceAccessor.Current, new[] { <your assemblies that contain controllers> }));
+```
+
+```csharp
+// The following utility method can be called to register requests that the filters can't capture
+RequestLogUtils.HandleRequest(RequestLogServiceAccessor.Current, GetType(), Request);
 ```
 </p>
 </details>

@@ -144,6 +144,13 @@
     </Compile>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WebFormsTest\AnotherWebFormsPage.aspx.cs">
+      <DependentUpon>AnotherWebFormsPage.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebFormsTest\AnotherWebFormsPage.aspx.designer.cs">
+      <DependentUpon>AnotherWebFormsPage.aspx</DependentUpon>
+    </Compile>
     <Compile Include="WebFormsTest\SomeTestWebFormsPage.aspx.cs">
       <DependentUpon>SomeTestWebFormsPage.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -173,6 +180,7 @@
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
+    <Content Include="WebFormsTest\AnotherWebFormsPage.aspx" />
     <Content Include="WebFormsTest\SomeTestWebFormsPage.aspx" />
   </ItemGroup>
   <ItemGroup />

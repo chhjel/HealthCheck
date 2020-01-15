@@ -26,10 +26,14 @@ namespace HealthCheck.RequestLog.Util
         /// <param name="actionUrlResolver">Resolve url from the given controller type and action name.</param>
         /// <param name="includeMvc">Include MVC controllers</param>
         /// <param name="includeWebApi">Include WebApi controllers</param>
+        /// <param name="includeWebForms">Include WebForms pages</param>
+        /// <param name="webFormsTypeFilter">Optionally filter webforms pages</param>
         public static void EnsureDefinitionsFromTypes(
             IRequestLogService service,
             IEnumerable<Assembly> assembliesWithControllers,
-            Func<Type, string, string> actionUrlResolver = null, bool includeMvc = true, bool includeWebApi = true)
+            Func<Type, string, string> actionUrlResolver = null,
+            bool includeMvc = true, bool includeWebApi = true, bool includeWebForms = true,
+            Func<Type, bool> webFormsTypeFilter = null)
         {
             var controllerTypes = assembliesWithControllers
                .SelectMany(x => x.GetTypes().Where(t =>
@@ -46,6 +50,39 @@ namespace HealthCheck.RequestLog.Util
                 }
 
                 service.StoreRequest(actionEntry);
+            }
+
+            if (includeWebForms)
+            {
+                var webformsTemplates = assembliesWithControllers
+                    .SelectMany(x => x.ExportedTypes)
+                    .Where(x => typeof(System.Web.UI.Page).IsAssignableFrom(x) && !x.IsAbstract)
+                    .Where(x => webFormsTypeFilter?.Invoke(x) != false)
+                    .Select(x =>
+                        new LoggedEndpointDefinition()
+                        {
+                            EndpointId = service.CreateEndpointId(x, null, "PageLoad"),
+                            Name = x.Name.Split('_').Last(),
+                            Description = null,
+                            Group = service.GetControllerGroupNameFactory()?.Invoke(x),
+                            ControllerType = "WebForms",
+                            Controller = x.Name,
+                            FullControllerName = x.FullName,
+                            Action = "PageLoad",
+                            Url = null,
+                            HttpVerb = "GET"
+                        }
+                    );
+
+                foreach(var template in webformsTemplates)
+                {
+                    if (existingActionEntries.Any(x => x.EndpointId == template.EndpointId))
+                    {
+                        continue;
+                    }
+
+                    service.StoreRequest(template);
+                }
             }
         }
 
