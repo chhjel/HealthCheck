@@ -18,6 +18,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HealthCheck.WebUI.Models.Api;
+using System.Web;
+using System.IO;
 
 namespace HealthCheck.WebUI.Util
 {
@@ -32,6 +34,24 @@ namespace HealthCheck.WebUI.Util
         public HealthCheckControllerHelper(HealthCheckServiceContainer serviceContainer)
         {
             Services = serviceContainer ?? new HealthCheckServiceContainer();
+
+#if NETFULL
+            ParameterConverter.RegisterConverter<HttpPostedFileBase>((input) =>
+            {
+                if (input == null) return null;
+
+                var parts = input.Split('|');
+                if (parts.Length < 3) return null;
+
+                var bytes = Convert.FromBase64String(parts[2]);
+                return new MemoryFile(
+                    contentType: parts[0],
+                    fileName: parts[1],
+                    stream: new MemoryStream(bytes)
+                );
+            },
+            (file) => throw new NotImplementedException());
+#endif
         }
 
         /// <summary>

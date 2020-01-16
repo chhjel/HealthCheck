@@ -103,7 +103,8 @@ namespace HealthCheck.Core.Util
 
             var genericMethod = method.MakeGenericMethod(type);
             var value = genericMethod.Invoke(this, new object[] { input });
-            return Convert.ChangeType(value, type);
+            if (value != null && (value.GetType() == type || type.IsAssignableFrom(value.GetType()))) return value;
+            else return Convert.ChangeType(value, type);
         }
 
         /// <summary>
@@ -146,9 +147,11 @@ namespace HealthCheck.Core.Util
             }
 
             // Use registered handler if any.
-                if (ConversionHandlers.ContainsKey(inputType) && ConversionHandlers[inputType].StringToObjConverter != null)
+            if (ConversionHandlers.ContainsKey(inputType) && ConversionHandlers[inputType].StringToObjConverter != null)
             {
-                return (T)Convert.ChangeType(ConversionHandlers[inputType].StringToObjConverter(input), typeof(T));
+                var obj = ConversionHandlers[inputType].StringToObjConverter(input);
+                if (obj is T) return (T)obj;
+                else return (T)Convert.ChangeType(ConversionHandlers[inputType].StringToObjConverter(input), typeof(T));
             }
 
             // Fallback to default built in logic

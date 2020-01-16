@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace HealthCheck.DevTest._TestImplementation.Tests
 {
@@ -41,11 +42,12 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         }
 
         [RuntimeTest]
-        public TestResult TestAllDataDumpTypes(int imageWidth = 640, int imageHeight = 480, int imageCount = 10, int linkCount = 4)
+        public TestResult TestAllDataDumpTypes(int imageWidth = 640, int imageHeight = 480, int imageCount = 10, int linkCount = 4, HttpPostedFileBase file = null)
         {
             var objectToSerialize = TestResult.CreateWarning($"Some random json object");
 
-            return TestResult.CreateSuccess($"Images has been served.")
+            return TestResult.CreateSuccess($"Data has been served.")
+                .AddTextData($"File: {file?.FileName ?? "no file selected"}")
                 .AddTimelineData(new[]
                 {
                     new TimelineStep("Cart created", "A cart was created")
