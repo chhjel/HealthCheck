@@ -10,8 +10,8 @@
             
             <v-flex xs2
                 :xs3="isListItem"
-                class="text-sm-right"
-                v-if="!parameter.NotNull">
+                class="text-sm-right pa-0"
+                v-if="parameter.Value != null">
                 <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
                         <span v-on="on">

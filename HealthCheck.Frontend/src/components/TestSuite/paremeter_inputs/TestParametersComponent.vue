@@ -3,7 +3,7 @@
     <div>
         <v-container grid-list-lg class="parameter-container">
           <v-layout row wrap>
-              <v-flex xs12 sm12 md6 lg3
+              <v-flex xs12 sm12 md6 :lg3="allowSmallSize(parameter)"
                   v-for="(parameter, index) in test.Parameters"
                   :key="`test-${test.Id}-parameter`+index"
                   class="parameter-block">
@@ -18,6 +18,7 @@
 import { Vue, Component, Prop } from "vue-property-decorator";
 import TestViewModel from '../../../models/TestSuite/TestViewModel';
 import ParameterInputComponent from './ParameterInputComponent.vue';
+import TestParameterViewModel from '../../../models/TestSuite/TestParameterViewModel';
 
 @Component({
     components: {
@@ -29,6 +30,11 @@ export default class TestParametersComponent extends Vue {
     test!: TestViewModel;
 
     mounted(): void {
+    }
+
+    allowSmallSize(parameter: TestParameterViewModel): boolean
+    {
+      return parameter.Type !== 'HttpPostedFileBase';
     }
 }
 </script>
