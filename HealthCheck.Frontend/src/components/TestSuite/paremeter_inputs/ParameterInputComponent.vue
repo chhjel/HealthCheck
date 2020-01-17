@@ -36,6 +36,7 @@ import ParameterInputTypeNullableDateTimeComponent from './input_types/Parameter
 import ParameterInputTypeEnumComponent from './input_types/ParameterInputTypeEnumComponent.vue';
 import ParameterInputTypeFlaggedEnumComponent from './input_types/ParameterInputTypeFlaggedEnumComponent.vue';
 import ParameterInputTypeGenericListComponent from './input_types/ParameterInputTypeGenericListComponent.vue';
+import ParameterInputTypeHttpPostedFileBaseComponent from './input_types/ParameterInputTypeHttpPostedFileBaseComponent.vue';
 
 @Component({
     components: {
@@ -50,7 +51,8 @@ import ParameterInputTypeGenericListComponent from './input_types/ParameterInput
       ParameterInputTypeNullableDateTimeComponent,
       ParameterInputTypeEnumComponent,
       ParameterInputTypeFlaggedEnumComponent,
-      ParameterInputTypeGenericListComponent
+      ParameterInputTypeGenericListComponent,
+      ParameterInputTypeHttpPostedFileBaseComponent
     }
 })
 export default class ParameterInputComponent extends Vue {

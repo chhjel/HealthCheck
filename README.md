@@ -157,6 +157,7 @@ Supported parameter types:
 * `DateTime`, `DateTime?`
 * `Enum` (=> select)
 * `Enum with `[Flags]` (=> multiselect)
+* `HttpPostedFileBase` (.net framework only for now)
 * `List<T>` where `<T>` is any of the above types (w/ option for readable list for setting order only)
 * `CancellationToken` to make the method cancellable, see below.
 

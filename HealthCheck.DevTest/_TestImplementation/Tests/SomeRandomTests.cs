@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace HealthCheck.DevTest._TestImplementation.Tests
 {
@@ -41,11 +42,12 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         }
 
         [RuntimeTest]
-        public TestResult TestAllDataDumpTypes(int imageWidth = 640, int imageHeight = 480, int imageCount = 10, int linkCount = 4)
+        public TestResult TestAllDataDumpTypes(int imageWidth = 640, int imageHeight = 480, int imageCount = 10, int linkCount = 4, HttpPostedFileBase file = null)
         {
             var objectToSerialize = TestResult.CreateWarning($"Some random json object");
 
-            return TestResult.CreateSuccess($"Images has been served.")
+            return TestResult.CreateSuccess($"Data has been served.")
+                .AddTextData($"File: {file?.FileName ?? "no file selected"}")
                 .AddTimelineData(new[]
                 {
                     new TimelineStep("Cart created", "A cart was created")
@@ -127,15 +129,17 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             RunButtonText = "Import", RunningButtonText = "Importing")]
         [RuntimeTestParameter(Target = "number", Description = "Some <b>fancy</b> text! :D <a href=\"https://www.google.com\">woop</a>")]
         public async Task<TestResult> TestWithoutDefaultValues(int number, string text, bool toggle, DateTime date,
-            EnumTestType enumParam, EnumFlagsTestType enumFlagsParam, List<string> stringList, List<DateTime> dateList, List<bool> boolList, List<EnumTestType> enumList)
+            EnumTestType enumParam, EnumFlagsTestType enumFlagsParam, HttpPostedFileBase file,
+            List<string> stringList, List<DateTime> dateList, List<bool> boolList, List<EnumTestType> enumList, List<HttpPostedFileBase> fileList)
         {
             await Task.Delay(TimeSpan.FromSeconds(2));
             var result = TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(text)}, " +
-                $"{PrettifyValue(toggle)}, {PrettifyValue(date)}, {PrettifyValue(enumParam)}, {PrettifyValue(enumFlagsParam)}]")
+                $"{PrettifyValue(toggle)}, {PrettifyValue(date)}, {PrettifyValue(enumParam)}, {PrettifyValue(enumFlagsParam)}, {PrettifyValue(file)}]")
                 .AddSerializedData(stringList, "stringList")
                 .AddSerializedData(dateList, "dateList")
                 .AddSerializedData(boolList, "boolList")
-                .AddSerializedData(enumList, "enumList");
+                .AddSerializedData(enumList, "enumList")
+                .AddSerializedData(fileList.Select(x => x?.FileName).Where(x => x != null).ToArray(), "fileList");
             return await Task.FromResult(result);
         }
 
@@ -192,7 +196,12 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
 
         private string PrettifyValue(object value)
         {
-            return (value != null) 
+            if (value is HttpPostedFileBase file)
+            {
+                return file.FileName;
+            }
+
+            return (value != null)
                 ? (value.GetType().IsValueType) ? value.ToString() : $"'{value.ToString()}'" 
                 : "null";
         }

@@ -17,7 +17,7 @@
                                 <v-icon>remove</v-icon>
                             </v-btn>
                         </v-list-tile-action>
-                        <v-list-tile-content>
+                        <v-list-tile-content style="overflow: visible">
                             <parameter-input-component v-if="!parameter.ReadOnlyList" :parameter="item" :isListItem="true" />
                             <span v-if="parameter.ReadOnlyList">{{ item.Value }}</span>
                         </v-list-tile-content>
