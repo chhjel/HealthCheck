@@ -129,15 +129,17 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             RunButtonText = "Import", RunningButtonText = "Importing")]
         [RuntimeTestParameter(Target = "number", Description = "Some <b>fancy</b> text! :D <a href=\"https://www.google.com\">woop</a>")]
         public async Task<TestResult> TestWithoutDefaultValues(int number, string text, bool toggle, DateTime date,
-            EnumTestType enumParam, EnumFlagsTestType enumFlagsParam, List<string> stringList, List<DateTime> dateList, List<bool> boolList, List<EnumTestType> enumList)
+            EnumTestType enumParam, EnumFlagsTestType enumFlagsParam, HttpPostedFileBase file,
+            List<string> stringList, List<DateTime> dateList, List<bool> boolList, List<EnumTestType> enumList, List<HttpPostedFileBase> fileList)
         {
             await Task.Delay(TimeSpan.FromSeconds(2));
             var result = TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(text)}, " +
-                $"{PrettifyValue(toggle)}, {PrettifyValue(date)}, {PrettifyValue(enumParam)}, {PrettifyValue(enumFlagsParam)}]")
+                $"{PrettifyValue(toggle)}, {PrettifyValue(date)}, {PrettifyValue(enumParam)}, {PrettifyValue(enumFlagsParam)}, {PrettifyValue(file)}]")
                 .AddSerializedData(stringList, "stringList")
                 .AddSerializedData(dateList, "dateList")
                 .AddSerializedData(boolList, "boolList")
-                .AddSerializedData(enumList, "enumList");
+                .AddSerializedData(enumList, "enumList")
+                .AddSerializedData(fileList.Select(x => x?.FileName).Where(x => x != null).ToArray(), "fileList");
             return await Task.FromResult(result);
         }
 
@@ -194,7 +196,12 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
 
         private string PrettifyValue(object value)
         {
-            return (value != null) 
+            if (value is HttpPostedFileBase file)
+            {
+                return file.FileName;
+            }
+
+            return (value != null)
                 ? (value.GetType().IsValueType) ? value.ToString() : $"'{value.ToString()}'" 
                 : "null";
         }

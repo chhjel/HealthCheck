@@ -34,7 +34,11 @@ export default class TestParametersComponent extends Vue {
 
     allowSmallSize(parameter: TestParameterViewModel): boolean
     {
-      return parameter.Type !== 'HttpPostedFileBase';
+      const largerParameters = [
+        'HttpPostedFileBase',
+        'List<HttpPostedFileBase>'
+      ];
+      return !largerParameters.some(x => parameter.Type == x);
     }
 }
 </script>

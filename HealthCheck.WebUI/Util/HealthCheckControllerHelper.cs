@@ -36,23 +36,45 @@ namespace HealthCheck.WebUI.Util
             Services = serviceContainer ?? new HealthCheckServiceContainer();
 
 #if NETFULL
-            ParameterConverter.RegisterConverter<HttpPostedFileBase>((input) =>
-            {
-                if (input == null) return null;
+            ParameterConverter.RegisterConverter<HttpPostedFileBase>(
+                (input) => ConvertInputToMemoryFile(input),
+                (file) => throw new NotImplementedException());
 
-                var parts = input.Split('|');
-                if (parts.Length < 3) return null;
+            ParameterConverter.RegisterConverter<List<HttpPostedFileBase>>(
+                (input) =>
+                {
+                    var list = new List<HttpPostedFileBase>();
+                    if (input == null || string.IsNullOrWhiteSpace(input)) return list;
 
-                var bytes = Convert.FromBase64String(parts[2]);
-                return new MemoryFile(
-                    contentType: parts[0],
-                    fileName: parts[1],
-                    stream: new MemoryStream(bytes)
-                );
-            },
-            (file) => throw new NotImplementedException());
+                    var listItems = JsonConvert.DeserializeObject<List<string>>(input);
+                    list.AddRange(
+                        listItems
+                        .Select(x => ConvertInputToMemoryFile(x))
+                        .Where(x => x != null)
+                    );
+
+                    return list;
+                },
+                (file) => throw new NotImplementedException());
 #endif
         }
+
+#if NETFULL
+        private MemoryFile ConvertInputToMemoryFile(string input)
+        {
+            if (input == null) return null;
+
+            var parts = input.Split('|');
+            if (parts.Length < 3) return null;
+
+            var bytes = Convert.FromBase64String(parts[2]);
+            return new MemoryFile(
+                contentType: parts[0],
+                fileName: parts[1],
+                stream: new MemoryStream(bytes)
+            );
+        }
+#endif
 
         /// <summary>
         /// Contains services that enables extra functionality.

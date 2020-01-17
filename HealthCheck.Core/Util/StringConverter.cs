@@ -140,18 +140,23 @@ namespace HealthCheck.Core.Util
                 enumNames.Select(x => Enum.Parse(enumType, x)).ToList().ForEach(x => listAddMethod.Invoke(listInstance, new object[] { x }));
                 return (T)listInstance;
             }
+            // Use registered handler if any.
+            else if (ConversionHandlers.ContainsKey(inputType) && ConversionHandlers[inputType].StringToObjConverter != null)
+            {
+                var obj = ConversionHandlers[inputType].StringToObjConverter(input);
+                if (
+                    obj is T
+                    || (typeof(T).IsGenericType && typeof(T).GetGenericArguments()[0].IsAssignableFrom(obj.GetType().GetGenericArguments()[0]))
+                )
+                {
+                    return (T)obj;
+                }
+                else return (T)Convert.ChangeType(ConversionHandlers[inputType].StringToObjConverter(input), typeof(T));
+            }
             else if (inputType.IsGenericType
                && inputType.GetGenericTypeDefinition() == typeof(List<>))
             {
                 return (T)JsonDeserialize(inputType, input);
-            }
-
-            // Use registered handler if any.
-            if (ConversionHandlers.ContainsKey(inputType) && ConversionHandlers[inputType].StringToObjConverter != null)
-            {
-                var obj = ConversionHandlers[inputType].StringToObjConverter(input);
-                if (obj is T) return (T)obj;
-                else return (T)Convert.ChangeType(ConversionHandlers[inputType].StringToObjConverter(input), typeof(T));
             }
 
             // Fallback to default built in logic
