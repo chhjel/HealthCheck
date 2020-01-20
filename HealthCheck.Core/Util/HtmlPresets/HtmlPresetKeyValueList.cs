@@ -67,19 +67,24 @@ namespace HealthCheck.Core.Util.HtmlPresets
         /// <param name="key">The first key in the list.</param>
         /// <param name="value">The first value in the list.</param>
         /// <param name="encodeData">True to html-encode values.</param>
-        public HtmlPresetKeyValueList(string key, string value, bool encodeData = true) : this(encodeData)
-            => AddItem(key, value);
+        /// <param name="excludeNullValues">If true null-values will be excluded.</param>
+        public HtmlPresetKeyValueList(string key, string value, bool encodeData = true, bool excludeNullValues = true) : this(encodeData)
+            => AddItem(key, value, excludeNullValues);
 
         /// <summary>
         /// A key-value list. Either a simple list or a 2-column table.
         /// </summary>
         /// <param name="values">List entries.</param>
         /// <param name="encodeData">True to html-encode values.</param>
-        public HtmlPresetKeyValueList(Dictionary<string, string> values, bool encodeData = true) : this(encodeData)
+        /// <param name="excludeNullValues">If true null-values will be excluded.</param>
+        public HtmlPresetKeyValueList(Dictionary<string, string> values, bool encodeData = true, bool excludeNullValues = true) : this(encodeData)
         {
             values.ToList().ForEach((x) =>
             {
-                Items.Add(new KeyValuePair<string, string>(x.Key, x.Value));
+                if (x.Value != null || !excludeNullValues)
+                {
+                    Items.Add(new KeyValuePair<string, string>(x.Key, x.Value));
+                }
             });
         }
 
@@ -88,19 +93,26 @@ namespace HealthCheck.Core.Util.HtmlPresets
         /// </summary>
         /// <param name="values">List entries.</param>
         /// <param name="encodeData">True to html-encode values.</param>
-        public HtmlPresetKeyValueList(NameValueCollection values, bool encodeData = true) : this(encodeData)
+        /// <param name="excludeNullValues">If true null-values will be excluded.</param>
+        public HtmlPresetKeyValueList(NameValueCollection values, bool encodeData = true, bool excludeNullValues = true) : this(encodeData)
         {
             values.AllKeys.ToList().ForEach((x) =>
             {
-                Items.Add(new KeyValuePair<string, string>(x, values[x]));
+                if (values[x] != null || !excludeNullValues)
+                {
+                    Items.Add(new KeyValuePair<string, string>(x, values[x]));
+                }
             });
         }
 
         /// <summary>
         /// Add an item to the list.
         /// </summary>
-        public HtmlPresetKeyValueList AddItem(string key, string value)
+        public HtmlPresetKeyValueList AddItem(string key, string value, bool onlyIfNotNull = true)
         {
+            if (value == null && onlyIfNotNull)
+                return this;
+            
             Items.Add(new KeyValuePair<string, string>(key, value));
             return this;
         }
