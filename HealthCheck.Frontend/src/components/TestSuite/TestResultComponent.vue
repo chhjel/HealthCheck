@@ -2,7 +2,7 @@
 <template>
     <div>
         <v-icon :color="testResultIconColor"
-          v-if="showResultMessage"
+          v-if="showResultStatusIcon"
           class="mr-1">{{testResultIcon}}</v-icon>
         
         <div class="result-message" v-if="showResultMessage">{{ this.testResult.Message }}</div>
@@ -75,7 +75,7 @@ export default class TestResultComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
-    get showResultMessage(): boolean {
+    get showResultStatusIcon(): boolean {
       // Not clean mode
       if (this.testResult!.DisplayClean !== true)
       {
@@ -89,7 +89,21 @@ export default class TestResultComponent extends Vue {
                 && this.testResult!.Message != null
                 && this.testResult!.Message!.length > 0;
       }
-      return this.testResult!.DisplayClean !== true || this.testResult!.Message!.length > 0;
+    }
+
+    get showResultMessage(): boolean {
+      // Not clean mode
+      if (this.testResult!.DisplayClean !== true)
+      {
+        // Always show
+        return true;
+      }
+      // Clean mode
+      else
+      {
+        return this.testResult!.Message != null
+                && this.testResult!.Message!.length > 0;
+      }
     }
 
     get hasStackTrace(): boolean {

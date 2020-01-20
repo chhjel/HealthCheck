@@ -98,6 +98,13 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
                                 )
                 );
         }
+        [RuntimeTest]
+        public TestResult TestCleanMode()
+        {
+            return TestResult.CreateSuccess("This is clean mode.")
+                .SetCleanMode()
+                .AddCodeData("// Some code here");
+        }
 
         [RuntimeTest]
         public TestResult TestTimeline(int orderId)
