@@ -3,6 +3,7 @@ using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
 using HealthCheck.Core.Services;
 using HealthCheck.Core.Services.Models;
 using HealthCheck.Core.Util;
@@ -44,6 +45,7 @@ namespace HealthCheck.DevTest.Controllers
             Services.AuditEventService = _auditEventService;
             Services.LogSearcherService = CreateLogSearcherService();
             Services.RequestLogService = RequestLogServiceAccessor.Current;
+            Services.SequenceDiagramService = new DefaultSequenceDiagramService();
 
             if (!_hasInited)
             {

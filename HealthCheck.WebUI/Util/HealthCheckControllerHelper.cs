@@ -120,6 +120,7 @@ namespace HealthCheck.WebUI.Util
         private const string PAGE_TESTS = "tests";
         private const string PAGE_AUDITLOG = "auditlog";
         private const string PAGE_LOGS = "logviewer";
+        private const string PAGE_DOCUMENTATION = "documentation";
         private const string PAGE_REQUESTLOG = "requestlog";
         private const string Q = "\"";
 
@@ -441,6 +442,7 @@ namespace HealthCheck.WebUI.Util
             || CanShowOverviewPageTo(accessRoles)
             || CanShowAuditPageTo(accessRoles)
             || CanShowLogViewerPageTo(accessRoles)
+            || CanShowDocumentationPageTo(accessRoles)
             || CanShowRequestLogPageTo(accessRoles);
 
         /// <summary>
@@ -478,6 +480,12 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public bool CanClearRequestLog(Maybe<TAccessRole> accessRoles)
             => Services.RequestLogService != null && CanShowPageTo(accessRoles, AccessOptions.ClearRequestLogAccess, defaultValue: false);
+
+        /// <summary>
+        /// Check if the given roles has access to view the documentation page.
+        /// </summary>
+        public bool CanShowDocumentationPageTo(Maybe<TAccessRole> accessRoles)
+            => Services.SequenceDiagramService != null && CanShowPageTo(accessRoles, AccessOptions.DocumentationPageAccess, defaultValue: false);
 
         /// <summary>
         /// Check if the given roles has access to calling the ping endpoint.
@@ -535,6 +543,11 @@ namespace HealthCheck.WebUI.Util
             else
             {
                 frontEndOptions.GetRequestLogEndpoint = deniedEndpoint;
+            }
+
+            if (CanShowDocumentationPageTo(accessRoles))
+            {
+                frontEndOptions.Pages.Add(PAGE_DOCUMENTATION);
             }
 
             if (!CanClearRequestLog(accessRoles))
