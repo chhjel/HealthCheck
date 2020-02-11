@@ -581,6 +581,7 @@ namespace HealthCheck.WebUI.Util
             else if (type == HealthCheckPageType.AuditLog) return PAGE_AUDITLOG;
             else if (type == HealthCheckPageType.LogViewer) return PAGE_LOGS;
             else if (type == HealthCheckPageType.RequestLog) return PAGE_REQUESTLOG;
+            else if (type == HealthCheckPageType.Documentation) return PAGE_DOCUMENTATION;
             else throw new NotImplementedException($"Page type {type.ToString()} not fully implemented yet.");
         }
 
