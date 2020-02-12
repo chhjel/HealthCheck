@@ -8,7 +8,7 @@
           <!-- CONTENT BEGIN -->
             
         <v-container grid-list-md>
-            todo get data and show stuff categorized
+            <sequence-diagram-component class="diagram" />
         </v-container>
 
           <!-- CONTENT END -->
@@ -30,9 +30,11 @@ import LinqUtils from "../../util/LinqUtils";
 import UrlUtils from "../../util/UrlUtils";
 import KeyArray from "../../util/models/KeyArray";
 import KeyValuePair from "../../models/Common/KeyValuePair";
+import SequenceDiagramComponent from "../Common/SequenceDiagramComponent.vue";
 
 @Component({
     components: {
+        SequenceDiagramComponent
     }
 })
 export default class DocumentationPageComponent extends Vue {
@@ -61,4 +63,9 @@ export default class DocumentationPageComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
+.diagram {
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #353535;
+}
 </style>
