@@ -125,7 +125,7 @@ export default class HealthCheckPageComponent extends Vue {
     PAGE_DOCUMENTATION: string = "documentation";
     PAGE_NO_PAGES_AVAILABLE: string = "no_page";
     currentPage: string = this.PAGE_TESTS;
-    pagesWithMenu: string[] = [ this.PAGE_TESTS ];
+    pagesWithMenu: string[] = [ this.PAGE_TESTS, this.PAGE_DOCUMENTATION ];
     pagesShownAtLeastOnce: string[] = [];
 
     //////////////////

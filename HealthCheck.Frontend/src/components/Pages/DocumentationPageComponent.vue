@@ -1,35 +1,57 @@
 <!-- src/components/Pages/DocumentationPageComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex class="pl-4 pr-4 pb-4">
-          <!-- CONTENT BEGIN -->
-        
-        <v-select
-            v-model="diagramStyle"
-            :items="diagramStyles"
-            item-text="text" item-value="value" color="secondary">
-        </v-select>
-
-        <textarea
-            style="width: 100%"
-            rows="10"
-            v-model="test"
-            />
+        <v-content>
+            <!-- NAVIGATION DRAWER -->
+            <v-navigation-drawer
+                v-model="drawerState"
+                clipped fixed floating app
+                mobile-break-point="1000"
+                dark
+                class="menu testset-menu">
+                                
+                <v-list expand class="menu-items">
+                    <v-list-tile ripple
+                        v-for="(diagram, diagramIndex) in diagrams"
+                        :key="`testset-menu-${diagramIndex}`"
+                        @click="setActveDiagram(diagram)">
+                        <v-list-tile-title v-text="diagram.title"></v-list-tile-title>
+                    </v-list-tile>
+                </v-list>
+            </v-navigation-drawer>
             
-        <v-container grid-list-md>
-            <sequence-diagram-component
-                class="diagram"
-                :steps="steps"
-                :diagramStyle="diagramStyle" />
-        </v-container>
+            <!-- CONTENT -->
+            <v-container fluid fill-height class="content-root">
+                <v-layout>
+                    <v-flex>
+                        <v-select
+                            v-model="diagramStyle"
+                            :items="diagramStyles"
+                            item-text="text" item-value="value" color="secondary">
+                        </v-select>
 
+                        <v-layout>
+                            <v-flex sm12 lg4>
+                                <textarea
+                                    style="width: 100%; border: 1px solid gray;"
+                                    rows="10"
+                                    v-model="test"
+                                    />
+                            </v-flex>
+                                
+                            <v-flex sm12 lg8>
+                                <v-container grid-list-md>
+                                    <sequence-diagram-component
+                                        class="diagram"
+                                        :steps="steps"
+                                        :diagramStyle="diagramStyle" />
+                                </v-container>
+                            </v-flex>
+                        </v-layout>
+                    </v-flex>
+                </v-layout>
+            </v-container>
           <!-- CONTENT END -->
-        </v-flex>
-        </v-layout>
-        </v-container>
         </v-content>
     </div>
 </template>
@@ -47,6 +69,12 @@ import KeyArray from "../../util/models/KeyArray";
 import KeyValuePair from "../../models/Common/KeyValuePair";
 import SequenceDiagramComponent, { DiagramStep, DiagramLineStyle, DiagramStyle } from "../Common/SequenceDiagramComponent.vue";
 
+interface DiagramData
+{
+    title: string;
+    steps: Array<DiagramStep>;
+}
+
 @Component({
     components: {
         SequenceDiagramComponent
@@ -55,6 +83,9 @@ import SequenceDiagramComponent, { DiagramStep, DiagramLineStyle, DiagramStyle }
 export default class DocumentationPageComponent extends Vue {
     @Prop({ required: true })
     options!: FrontEndOptionsViewModel;
+
+    // UI STATE
+    drawerState: boolean = true;
 
     diagramStyle: DiagramStyle = DiagramStyle.Default;
     test: string = `
@@ -67,11 +98,30 @@ end
 Web -> Frontend: Confirmation is delivered
 `;
 
+    diagrams: Array<DiagramData> = [
+        {
+            title: "Test Diagram A",
+            steps: this.convertStringToSteps(this.test)
+        },
+        {
+            title: "Test Diagram B",
+            steps: this.convertStringToSteps(this.test)
+        }
+    ];
+
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     mounted(): void
     {
+    }
+
+    created(): void {
+        this.$parent.$parent.$on("onSideMenuToggleButtonClicked", this.toggleSideMenu);
+    }
+
+    beforeDestroy(): void {
+      this.$parent.$parent.$off('onSideMenuToggleButtonClicked', this.toggleSideMenu);
     }
 
     ////////////////
@@ -165,10 +215,17 @@ Web -> Frontend: Confirmation is delivered
         }
         return steps;
     }
+    
+    toggleSideMenu(): void {
+        this.drawerState = !this.drawerState;
+    }
 
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    setActveDiagram(diagram: DiagramData): void {
+        console.log(diagram);
+    }
 }
 </script>
 

@@ -2,7 +2,7 @@
 <template>
     <div>
         <div class="sequence-diagram" :class="diagramClasses">
-            <div class="sequence-diagram__header">Some diagram</div>
+            <div class="sequence-diagram__header" v-if="title != null">{{ title }}</div>
 
             <div class="sequence-diagram__grid">
                 <!-- VERTICAL LINES -->
@@ -80,6 +80,9 @@ export enum DiagramStyle {
 })
 export default class SequenceDiagramComponent extends Vue
 {
+    @Prop({ required: false, default: null })
+    title!: string | null;
+
     @Prop({ required: true, default: true })
     steps!: Array<DiagramStep>;
 
