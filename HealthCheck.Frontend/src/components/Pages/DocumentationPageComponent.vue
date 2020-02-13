@@ -6,9 +6,24 @@
         <v-layout>
         <v-flex class="pl-4 pr-4 pb-4">
           <!-- CONTENT BEGIN -->
+        
+        <v-select
+            v-model="diagramStyle"
+            :items="diagramStyles"
+            item-text="text" item-value="value" color="secondary">
+        </v-select>
+
+        <textarea
+            style="width: 100%"
+            rows="10"
+            v-model="test"
+            />
             
         <v-container grid-list-md>
-            <sequence-diagram-component class="diagram" />
+            <sequence-diagram-component
+                class="diagram"
+                :steps="steps"
+                :diagramStyle="diagramStyle" />
         </v-container>
 
           <!-- CONTENT END -->
@@ -30,7 +45,7 @@ import LinqUtils from "../../util/LinqUtils";
 import UrlUtils from "../../util/UrlUtils";
 import KeyArray from "../../util/models/KeyArray";
 import KeyValuePair from "../../models/Common/KeyValuePair";
-import SequenceDiagramComponent from "../Common/SequenceDiagramComponent.vue";
+import SequenceDiagramComponent, { DiagramStep, DiagramLineStyle, DiagramStyle } from "../Common/SequenceDiagramComponent.vue";
 
 @Component({
     components: {
@@ -40,6 +55,17 @@ import SequenceDiagramComponent from "../Common/SequenceDiagramComponent.vue";
 export default class DocumentationPageComponent extends Vue {
     @Prop({ required: true })
     options!: FrontEndOptionsViewModel;
+
+    diagramStyle: DiagramStyle = DiagramStyle.Default;
+    test: string = `
+Frontend --> Web: User sends form
+Web -> Web: Validate input
+opt Invoice only
+Web -> External Service: Data is sent to 3rd party | remark: Some remark here
+Web -> Database: Backup of data is stored in database
+end
+Web -> Frontend: Confirmation is delivered
+`;
 
     //////////////////
     //  LIFECYCLE  //
@@ -51,10 +77,94 @@ export default class DocumentationPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get steps(): Array<DiagramStep>
+    {
+        return this.convertStringToSteps(this.test);
+    }
+
+    get diagramStyles(): Array<any>
+    {
+        return [
+            { text: "Default", value: DiagramStyle.Default },
+            { text: "Test", value: DiagramStyle.Test }
+        ];
+    }
 
     ////////////////
     //  METHODS  //
     //////////////
+    convertStringToSteps(text: string): Array<DiagramStep>
+    {
+        let lines = text.split('\n');
+        
+        let currentOptional: string | undefined = undefined;
+        let steps: Array<DiagramStep> = [];
+        for(let i=0; i<lines.length; i++)
+        {
+            let line = lines[i];
+            
+            let isNormalLine = line.indexOf('->') > -1 && line.indexOf(':') > line.indexOf('->');
+            if (!isNormalLine)
+            {
+                if (line.startsWith('opt '))
+                {
+                    currentOptional = line.substring(4).trim();
+                }
+                else if(line.trim() == 'end')
+                {
+                    currentOptional = undefined;
+                }
+                continue;
+            }
+
+            // ["A -> B", ": note"]
+            let mainParts = line.split(':');
+
+            // A -> B
+            let fromTo = mainParts[0].split('->');
+            let style: DiagramLineStyle | undefined = undefined;
+            let from = fromTo[0].trim();
+            let to = fromTo[1].trim();
+            // --> arrow means dashed style
+            if (from.endsWith('-'))
+            {
+                from = from.substring(0, from.length - 1).trim();
+                style = DiagramLineStyle.Dashed;
+            }
+
+            // : note
+            let otherParts = line.split('|');
+            let description = otherParts[0].split(':')[1].trim();
+            let note: undefined | string = undefined;
+            let remark: undefined | string = undefined;
+            for (let p=1; p < otherParts.length; p++)
+            {
+                let part = otherParts[p].split(':', 2).map(a => a.trim());
+                let partKey = part[0];
+                let partValue = part[1];
+                if (partKey == "note")
+                {
+                    note = partValue;
+                }
+                else if (partKey == "remark")
+                {
+                    remark = partValue;
+                }
+            }
+
+            let step = {
+                from: from,
+                to: to,
+                description: description,
+                note: note,
+                remark: remark,
+                optional: currentOptional,
+                style: style
+            };
+            steps.push(step);
+        }
+        return steps;
+    }
 
     ///////////////////////
     //  EVENT HANDLERS  //

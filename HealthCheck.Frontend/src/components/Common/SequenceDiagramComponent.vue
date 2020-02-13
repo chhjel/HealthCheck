@@ -1,7 +1,7 @@
 <!-- src/components/common/SequenceDiagramComponent.vue -->
 <template>
     <div>
-        <div class="sequence-diagram sequence-diagram__style--default">
+        <div class="sequence-diagram" :class="diagramClasses">
             <div class="sequence-diagram__header">Some diagram</div>
 
             <div class="sequence-diagram__grid">
@@ -56,6 +56,23 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
+export interface DiagramStep {
+    from: string;
+    to: string;
+    description: string;
+    note?: string;
+    remark?: string;
+    optional?: string;
+    style?: DiagramLineStyle;
+}
+export enum DiagramLineStyle {
+    Default = 0,
+    Dashed = 1
+}
+export enum DiagramStyle {
+    Default = 'Default',
+    Test = 'Test'
+}
 
 @Component({
     components: {
@@ -63,11 +80,17 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 })
 export default class SequenceDiagramComponent extends Vue
 {
+    @Prop({ required: true, default: true })
+    steps!: Array<DiagramStep>;
+
     @Prop({ required: false, default: true })
     showRemarks!: boolean
 
-    // Arrow to self: from == to
-    steps: Array<DiagramStep> = [
+    @Prop({ required: false, default: DiagramStyle.Default })
+    diagramStyle!: DiagramStyle;
+
+    defaultSteps: Array<DiagramStep> = 
+    [
         {
             from: 'Frontend',
             to: 'Web',
@@ -126,6 +149,7 @@ export default class SequenceDiagramComponent extends Vue
     ////////////////
     mounted(): void
     {
+        // this.steps = this.defaultSteps;
     }
 
     ////////////////
@@ -191,8 +215,10 @@ export default class SequenceDiagramComponent extends Vue
                 continue;
             }
 
-            let stepColumnStart = this.columns.indexOf(step.from) + 2;
-            let stepColumnEnd = this.columns.indexOf(step.to) + 2;
+            let fromColumn = this.columns.indexOf(step.from) + 2;
+            let toColumn = this.columns.indexOf(step.to) + 2;
+            let stepColumnStart = Math.min(fromColumn, toColumn);
+            let stepColumnEnd = Math.max(fromColumn, toColumn);
             let stepRow = i + 2;
 
             // No existing area or is optional and not same as last
@@ -216,6 +242,13 @@ export default class SequenceDiagramComponent extends Vue
             }
         }
         return areas;
+    }
+
+    get diagramClasses(): Array<string>
+    {
+        return [
+            `sequence-diagram__style--${this.diagramStyle.toLowerCase()}`
+        ];
     }
     
     ////////////////
@@ -267,6 +300,11 @@ export default class SequenceDiagramComponent extends Vue
         let isGoingLeft = step.columnEnd < step.columnStart;
         let isGoingRight = step.columnEnd > step.columnStart;
         let isGoingToSelf = step.columnEnd == step.columnStart;
+
+        let prevStep = this.stepData[stepIndex-1];
+        let nextStep = this.stepData[stepIndex+1];
+        let isFirstInOptional = (step.data.optional != undefined && (prevStep == null || step.data.optional != prevStep.data.optional));
+        let isLastInOptional = (step.data.optional != undefined && (nextStep == null || step.data.optional != nextStep.data.optional));
         
         let styleName = 'style--default';
         if (isGoingLeft)
@@ -284,6 +322,7 @@ export default class SequenceDiagramComponent extends Vue
         {
             classes.push('last-step');
         }
+
         if (isGoingLeft)
         {
             classes.push('direction--left');
@@ -295,6 +334,15 @@ export default class SequenceDiagramComponent extends Vue
         else if (isGoingToSelf)
         {
             classes.push('direction--self');
+        }
+
+        if (isFirstInOptional)
+        {
+            classes.push('first-in-optional-group');
+        }
+        if (isLastInOptional)
+        {
+            classes.push('last-in-optional-group');
         }
 
         return classes;
@@ -326,19 +374,6 @@ export default class SequenceDiagramComponent extends Vue
     //  EVENT HANDLERS  //
     /////////////////////
     // ToDo click to switch between count/percentage
-}
-export interface DiagramStep {
-    from: string;
-    to: string;
-    description: string;
-    note?: string;
-    remark?: string;
-    optional?: string;
-    style?: DiagramLineStyle;
-}
-export enum DiagramLineStyle {
-    Default = 0,
-    Dashed = 1
 }
 interface InternalDiagramStep {
     data: DiagramStep;
@@ -393,10 +428,12 @@ interface InternalOptionalArea {
         .sequence-diagram__grid-header {
             grid-row-start: 1;
             grid-row-end: 1;
+            margin-bottom: -10px;
         }
 
-        /* .sequence-diagram__grid-footer {
-        } */
+        .sequence-diagram__grid-footer {
+            margin-top: -10px;
+        }
 
         .sequence-diagram__grid-column-line {
             border-left: 1px dashed #c4c4c4;
@@ -420,6 +457,16 @@ interface InternalOptionalArea {
 
             &.last-step {
                 margin-bottom: 20px;
+            }
+
+            &.first-in-optional-group
+            {
+                margin-top: 30px;
+            }
+
+            &.last-in-optional-group
+            {
+                margin-bottom: 22px;
             }
 
             &.direction--right,
@@ -478,6 +525,8 @@ interface InternalOptionalArea {
             border-right-width: 2px;
             border-radius: 5px;
             margin: -6px;
+            margin-bottom: 5px;
+            margin-top: 5px;
             z-index: 1;
 
             .sequence-diagram__grid-optional-area-text {
@@ -500,23 +549,69 @@ interface InternalOptionalArea {
         }
     }
 
-    &.sequence-diagram__style--default {
-        /* .sequence-diagram__grid-header {
-        } */
+    &.sequence-diagram__style--test {
+        color: #226622;
+        font-family: 'Courier New', Courier, monospace;
+        
+        .sequence-diagram__grid-header {
+            font-weight: 600;
+            font-size: 20px;
+            border: none;
+            border-bottom: 3px solid green;
+            border-radius: 0;
+        }
 
-        /* .sequence-diagram__grid-footer {
-        } */
+        .sequence-diagram__grid-footer {
+            display: none;
+        }
 
-        /* .sequence-diagram__grid-column-line {
-        } */
+        .sequence-diagram__grid-optional-area {
+            border-radius: 0;
+            border-color: gray; 
+            
+            .sequence-diagram__grid-optional-area-text {
+                color: white;
+                border-color: gray;
+                background-color: gray;
+                font-weight: 600;
+            }
+        }
 
-        /* .sequence-diagram__grid-item {
-        } */
+        .direction--right,
+        .direction--left {
+            border-bottom-color: lightgray !important;
+        }
 
-        /* .sequence-diagram__grid-optional-area {
+        .arrow-right {
+            border-left-color: lightgray !important;
+        }
+
+        .arrow-left {
+            border-right-color: lightgray !important;
+        }
+
+        .arrow-self {
+            border-top-color: lightgray !important;
+            border-right-color: lightgray !important;
+            border-bottom-color: lightgray !important;
+        }
+    }
+
+    /* &.sequence-diagram__style--default {
+        .sequence-diagram__grid-header,
+        .sequence-diagram__grid-footer {
+        }
+
+        .sequence-diagram__grid-column-line {
+        }
+
+        .sequence-diagram__grid-item {
+        }
+
+        .sequence-diagram__grid-optional-area {
             .sequence-diagram__grid-optional-area-text {
             }
-        } */
-    }
+        }
+    } */
 }
 </style>
