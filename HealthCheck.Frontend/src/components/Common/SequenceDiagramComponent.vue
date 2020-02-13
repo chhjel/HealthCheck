@@ -597,21 +597,24 @@ interface InternalOptionalArea {
         }
     }
 
-    /* &.sequence-diagram__style--default {
-        .sequence-diagram__grid-header,
+    &.sequence-diagram__style--default {
+        /* .sequence-diagram__grid-header,
         .sequence-diagram__grid-footer {
-        }
+        } */
 
-        .sequence-diagram__grid-column-line {
-        }
+        /* .sequence-diagram__grid-column-line {
+        } */
 
         .sequence-diagram__grid-item {
-        }
-
-        .sequence-diagram__grid-optional-area {
-            .sequence-diagram__grid-optional-area-text {
+            .description {
+                text-shadow: 0 0 10px #ffffff;
             }
         }
-    } */
+
+        /* .sequence-diagram__grid-optional-area {
+            .sequence-diagram__grid-optional-area-text {
+            }
+        } */
+    }
 }
 </style>
