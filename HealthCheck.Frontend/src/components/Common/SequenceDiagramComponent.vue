@@ -93,67 +93,11 @@ export default class SequenceDiagramComponent extends Vue
     @Prop({ required: false, default: DiagramStyle.Default })
     diagramStyle!: DiagramStyle;
 
-    defaultSteps: Array<DiagramStep> = 
-    [
-        {
-            from: 'Frontend',
-            to: 'Web',
-            description: 'Initiate some stuff',
-        },
-        {
-            from: 'Web',
-            to: 'Web',
-            description: 'Verify self',
-            remark: 'Link to something important here perhaps',
-            note: 'Extra note here'
-        },
-        {
-            from: 'Web',
-            to: 'OrderFileWatcher Service',
-            description: 'Something else',
-            style: DiagramLineStyle.Dashed
-        },
-        {
-            from: 'OrderFileWatcher Service',
-            to: 'File',
-            description: 'Store some things and do some other things.\nAnd a bit more stuff etc etc.\nAnd one more.',
-        },
-        {
-            from: 'File',
-            to: 'CRM',
-            description: 'Read some things',
-        },
-        {
-            from: 'CRM',
-            to: 'OrderFileWatcher Service',
-            description: 'Verify some things',
-            optional: 'invoice only',
-        },
-        {
-            from: 'OrderFileWatcher Service',
-            to: 'CRM',
-            description: 'Approve some things',
-            optional: 'invoice only',
-        },
-        {
-            from: 'CRM',
-            to: 'Web',
-            description: 'Notify',
-            remark: 'Using SignalR, view https://asd.com for more details'
-        },
-        {
-            from: 'Web',
-            to: 'Frontend',
-            description: 'Report back',
-        }
-    ];
-
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     mounted(): void
     {
-        // this.steps = this.defaultSteps;
     }
 
     ////////////////

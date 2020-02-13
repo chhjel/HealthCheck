@@ -148,6 +148,12 @@ Web -> Frontend: Confirmation is delivered
     ////////////////
     mounted(): void
     {
+        let restoredSandbox = localStorage.getItem("sandbox_sequencediagram_script");
+        if (restoredSandbox != null)
+        {
+            this.sandboxScript = restoredSandbox;
+        }
+
         this.loadData();
     }
 
@@ -309,6 +315,12 @@ Web -> Frontend: Confirmation is delivered
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    @Watch("sandboxScript")
+    onSandboxScriptChanged(): void
+    {
+        localStorage.setItem("sandbox_sequencediagram_script", this.sandboxScript);
+    }
+
     setActveDiagram(diagram: DiagramData): void {
         this.sandboxMode = false;
         this.currentDiagram = diagram;
