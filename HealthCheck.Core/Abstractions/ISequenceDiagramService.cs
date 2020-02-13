@@ -12,6 +12,6 @@ namespace HealthCheck.Core.Abstractions
         /// <summary>
         /// Generates sequence diagram data from <see cref="SequenceDiagramStepAttribute"/>s in the given assemblies.
         /// </summary>
-        List<SequenceDiagram> Generate(IEnumerable<Assembly> sourceAssemblies);
+        List<SequenceDiagram> Generate(IEnumerable<Assembly> sourceAssemblies = null);
     }
 }

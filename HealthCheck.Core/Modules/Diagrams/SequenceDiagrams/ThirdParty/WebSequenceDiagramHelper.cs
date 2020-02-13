@@ -18,16 +18,16 @@ namespace HealthCheck.Core.Modules.Diagrams.SequenceDiagrams.ThirdParty
             string currentOptionalGroup = null;
             foreach (var step in diagram.Steps)
             {
-                if (step.OptionalId != currentOptionalGroup && currentOptionalGroup != null)
+                if (step.OptionalGroupName != currentOptionalGroup && currentOptionalGroup != null)
                 {
                     builder.AppendLine($"end");
                     currentOptionalGroup = null;
                 }
 
-                if (step.OptionalId != null && step.OptionalId != currentOptionalGroup)
+                if (step.OptionalGroupName != null && step.OptionalGroupName != currentOptionalGroup)
                 {
-                    builder.AppendLine($"opt {step.OptionalId}");
-                    currentOptionalGroup = step.OptionalId;
+                    builder.AppendLine($"opt {step.OptionalGroupName}");
+                    currentOptionalGroup = step.OptionalGroupName;
                 }
 
                 if (step.Note != null)

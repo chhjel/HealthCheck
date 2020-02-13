@@ -43,7 +43,8 @@
                     :style="getFooterStyle(cindex)">{{ column }}</div>
             </div>
 
-            <div v-if="hasRemarks" class="sequence-diagram__remarks">
+            <!-- REMARKS -->
+            <div v-if="hasRemarks && showRemarks" class="sequence-diagram__remarks">
                 <div class="sequence-diagram__remarks-item"
                     v-for="(remark, rindex) in stepRemarks"
                     :key="`remark-${rindex}`">

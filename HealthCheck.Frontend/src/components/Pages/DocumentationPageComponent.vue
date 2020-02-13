@@ -17,6 +17,12 @@
                         @click="setActveDiagram(diagram)">
                         <v-list-tile-title v-text="diagram.title"></v-list-tile-title>
                     </v-list-tile>
+
+                    <v-divider />
+
+                    <v-list-tile ripple @click="sandboxMode = true">
+                        <v-list-tile-title v-text="'Sandbox'"></v-list-tile-title>
+                    </v-list-tile>
                 </v-list>
             </v-navigation-drawer>
             
@@ -24,28 +30,59 @@
             <v-container fluid fill-height class="content-root">
                 <v-layout>
                     <v-flex>
-                        <v-select
-                            v-model="diagramStyle"
-                            :items="diagramStyles"
-                            item-text="text" item-value="value" color="secondary">
-                        </v-select>
+                        <v-container>
+                            <!-- DATA LOAD ERROR -->
+                            <v-alert :value="diagramsDataLoadFailed" type="error">
+                            {{ diagramsDataFailedErrorMessage }}
+                            </v-alert>
 
-                        <v-layout>
-                            <v-flex sm12 lg4>
-                                <textarea
-                                    style="width: 100%; border: 1px solid gray;"
-                                    rows="10"
-                                    v-model="test"
-                                    />
-                            </v-flex>
-                                
-                            <v-flex sm12 lg8>
-                                <v-container grid-list-md>
+                            <!-- LOAD PROGRESS -->
+                            <v-progress-linear 
+                                v-if="diagramsDataLoadInProgress"
+                                indeterminate color="green"></v-progress-linear>
+
+                            <!-- SELECTED DIAGRAM -->
+                            <v-layout v-if="currentDiagram != null && !sandboxMode" style="flex-direction: column;">
+                                <v-flex sm12 md12 lg12>
                                     <sequence-diagram-component
                                         class="diagram"
-                                        :steps="steps"
+                                        :title="currentDiagram.title"
+                                        :steps="currentDiagram.steps"
+                                        :showRemarks="showRemarks"
                                         :diagramStyle="diagramStyle" />
-                                </v-container>
+                                </v-flex>
+
+                                <v-checkbox v-model="showRemarks" label="Show remarks" style="display:block"></v-checkbox>
+                            </v-layout>
+                        </v-container>
+
+                        <!-- SANDBOX -->
+                        <v-layout v-if="sandboxMode">
+                            <v-flex>
+                                <v-select
+                                    v-if="false"
+                                    v-model="diagramStyle"
+                                    :items="diagramStyles"
+                                    item-text="text" item-value="value" color="secondary">
+                                </v-select>
+
+                                <v-layout>
+                                    <v-flex sm12 lg4>
+                                        <textarea
+                                            style="width: 100%; border: 1px solid #ccc; height: 100%; padding: 5px;"
+                                            v-model="sandboxScript"
+                                            />
+                                    </v-flex>
+                                        
+                                    <v-flex sm12 lg8>
+                                        <v-container grid-list-md>
+                                            <sequence-diagram-component
+                                                class="diagram"
+                                                :steps="sandboxSteps"
+                                                :diagramStyle="diagramStyle" />
+                                        </v-container>
+                                    </v-flex>
+                                </v-layout>
                             </v-flex>
                         </v-layout>
                     </v-flex>
@@ -62,6 +99,7 @@ import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel
 import LoggedEndpointDefinitionViewModel from '../../models/RequestLog/LoggedEndpointDefinitionViewModel';
 import LoggedEndpointRequestViewModel from '../../models/RequestLog/LoggedEndpointRequestViewModel';
 import { EntryState } from '../../models/RequestLog/EntryState';
+import DiagramsDataViewModel from '../../models/Documentation/DiagramsDataViewModel';
 import DateUtils from "../../util/DateUtils";
 import LinqUtils from "../../util/LinqUtils";
 import UrlUtils from "../../util/UrlUtils";
@@ -86,9 +124,16 @@ export default class DocumentationPageComponent extends Vue {
 
     // UI STATE
     drawerState: boolean = true;
+    diagramsDataLoadInProgress: boolean = false;
+    diagramsDataLoadFailed: boolean = true;
+    diagramsDataFailedErrorMessage: string = '';
+    sandboxMode: boolean = false;
 
+    showRemarks: boolean = true;
+    diagrams: Array<DiagramData> = [];
+    currentDiagram: DiagramData | null = null;
     diagramStyle: DiagramStyle = DiagramStyle.Default;
-    test: string = `
+    sandboxScript: string = `
 Frontend --> Web: User sends form
 Web -> Web: Validate input
 opt Invoice only
@@ -98,22 +143,12 @@ end
 Web -> Frontend: Confirmation is delivered
 `;
 
-    diagrams: Array<DiagramData> = [
-        {
-            title: "Test Diagram A",
-            steps: this.convertStringToSteps(this.test)
-        },
-        {
-            title: "Test Diagram B",
-            steps: this.convertStringToSteps(this.test)
-        }
-    ];
-
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     mounted(): void
     {
+        this.loadData();
     }
 
     created(): void {
@@ -127,9 +162,9 @@ Web -> Frontend: Confirmation is delivered
     ////////////////
     //  GETTERS  //
     //////////////
-    get steps(): Array<DiagramStep>
+    get sandboxSteps(): Array<DiagramStep>
     {
-        return this.convertStringToSteps(this.test);
+        return this.convertStringToSteps(this.sandboxScript);
     }
 
     get diagramStyles(): Array<any>
@@ -143,6 +178,57 @@ Web -> Frontend: Confirmation is delivered
     ////////////////
     //  METHODS  //
     //////////////
+    loadData(): void {
+        this.diagramsDataLoadInProgress = true;
+        this.diagramsDataLoadFailed = false;
+
+        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
+        let url = `${this.options.DiagramsDataEndpoint}${queryStringIfEnabled}`;
+        fetch(url, {
+            credentials: 'include',
+            method: "GET",
+            headers: new Headers({
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            })
+        })
+        .then(response => response.json())
+        .then((diagramsData: DiagramsDataViewModel) => this.onDiagramsDataRetrieved(diagramsData))
+        .catch((e) => {
+            this.diagramsDataLoadInProgress = false;
+            this.diagramsDataLoadFailed = true;
+            this.diagramsDataFailedErrorMessage = `Failed to load data with the following error. ${e}.`;
+            console.error(e);
+        });
+    }
+
+    onDiagramsDataRetrieved(diagramsData: DiagramsDataViewModel): void {
+        this.diagrams = diagramsData
+            .SequenceDiagrams
+            .map((x) => {
+                return {
+                    title: x.Name,
+                    steps: x.Steps.map(s => {
+                        return {
+                            from: s.From,
+                            to: s.To,
+                            description: s.Description || '',
+                            note: s.Note || undefined,
+                            remark: s.Remarks || undefined,
+                            optional: s.OptionalGroupName || undefined
+                            // style: s.Direction
+                        }
+                    })
+                }
+            });
+        
+        this.diagramsDataLoadInProgress = false;
+        if (this.currentDiagram == null && this.diagrams.length > 0)
+        {
+            this.setActveDiagram(this.diagrams[0]);
+        }
+    }
+
     convertStringToSteps(text: string): Array<DiagramStep>
     {
         let lines = text.split('\n');
@@ -224,7 +310,8 @@ Web -> Frontend: Confirmation is delivered
     //  EVENT HANDLERS  //
     /////////////////////
     setActveDiagram(diagram: DiagramData): void {
-        console.log(diagram);
+        this.sandboxMode = false;
+        this.currentDiagram = diagram;
     }
 }
 </script>

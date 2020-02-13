@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using HealthCheck.Core.Abstractions;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.Diagrams.SequenceDiagrams
 {
     /// <summary>
-    /// Data object created from <see cref=""/>
+    /// Data object created from <see cref="ISequenceDiagramService"/>
     /// </summary>
     public class SequenceDiagram
     {

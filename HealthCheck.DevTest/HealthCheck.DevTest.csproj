@@ -158,6 +158,7 @@
     <Compile Include="WebFormsTest\SomeTestWebFormsPage.aspx.designer.cs">
       <DependentUpon>SomeTestWebFormsPage.aspx</DependentUpon>
     </Compile>
+    <Compile Include="_TestImplementation\Diagrams\DiagramTestData.cs" />
     <Compile Include="_TestImplementation\RuntimeTestAccessRole.cs" />
     <Compile Include="_TestImplementation\RuntimeTestConstants.cs" />
     <Compile Include="_TestImplementation\Tests\AlmostAtTheBottomTests.cs" />

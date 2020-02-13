@@ -90,6 +90,11 @@ namespace HealthCheck.WebUI.ViewModels
         public string ClearRequestLogEndpoint { get; set; }
 
         /// <summary>
+        /// Url to the endpoint that returns diagram data.
+        /// </summary>
+        public string DiagramsDataEndpoint { get; set; }
+
+        /// <summary>
         /// Number of minutes past the end of a site event it will be displayed below "Current status" on the status page.
         /// <para>Defaults to 30 minutes.</para>
         /// </summary>
@@ -168,6 +173,7 @@ namespace HealthCheck.WebUI.ViewModels
             CancelAllLogSearchesEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/CancelAllLogSearches";
             GetRequestLogEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetRequestLog";
             ClearRequestLogEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/ClearRequestLog";
+            DiagramsDataEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetDiagrams";
             HasAccessToClearRequestLog = true;
         }
 

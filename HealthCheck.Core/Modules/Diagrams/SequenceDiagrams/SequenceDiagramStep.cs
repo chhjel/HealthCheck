@@ -46,7 +46,7 @@ namespace HealthCheck.Core.Modules.Diagrams.SequenceDiagrams
         /// If given this step is an optional part of the process.
         /// <para>Steps next to eachother with the same optional id are grouped together.</para>
         /// </summary>
-        public string OptionalId { get; set; }
+        public string OptionalGroupName { get; set; }
 
         /// <summary>
         /// Direction of this step.

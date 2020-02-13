@@ -10,6 +10,16 @@ namespace HealthCheck.Core.Modules.Diagrams.SequenceDiagrams
     /// </summary>
     public class DefaultSequenceDiagramService : ISequenceDiagramService
     {
+        private DefaultSequenceDiagramServiceOptions Options { get; }
+
+        /// <summary>
+        /// Generates sequence diagram data from <see cref="SequenceDiagramStepAttribute"/>s.
+        /// </summary>
+        public DefaultSequenceDiagramService(DefaultSequenceDiagramServiceOptions options)
+        {
+            Options = options ?? new DefaultSequenceDiagramServiceOptions();
+        }
+
         /// <summary>
         /// Generates sequence diagram data from <see cref="SequenceDiagramStepAttribute"/>s in the given assemblies.
         /// </summary>
@@ -25,8 +35,12 @@ namespace HealthCheck.Core.Modules.Diagrams.SequenceDiagrams
         /// <summary>
         /// Generates sequence diagram data from <see cref="SequenceDiagramStepAttribute"/>s in the given assemblies.
         /// </summary>
-        public List<SequenceDiagram> Generate(IEnumerable<Assembly> sourceAssemblies)
+        public List<SequenceDiagram> Generate(IEnumerable<Assembly> sourceAssemblies = null)
         {
+            sourceAssemblies = sourceAssemblies
+                ?? Options.DefaultSourceAssemblies
+                ?? Enumerable.Empty<Assembly>();
+
             var attributeGroups = FindAttributes(sourceAssemblies);
             var diagrams = new List<SequenceDiagram>();
             foreach (var group in attributeGroups)
@@ -43,23 +57,36 @@ namespace HealthCheck.Core.Modules.Diagrams.SequenceDiagrams
                 {
                     var diagram = kvp.Value;
                     var attributes = group.Attributes
-                        .Where(x => x.Branches.Contains(diagram.Name) || x.Branches.Contains(x.DiagramId))
+                        .Where(x => x.Branches.Contains(diagram.Name) || x.Branches.Contains(x.DiagramName))
                         .ToArray();
 
                     for (int i = 1; i < attributes.Length; i++)
                     {
-                        var a = attributes[i - 1];
-                        var b = attributes[i];
+                        var fromAtr = attributes[i - 1];
+                        var toAtr = attributes[i];
+
+                        if (fromAtr.OptionalGroupName != toAtr.OptionalGroupName && fromAtr.OptionalGroupName != null)
+                        {
+                            for (int j = i-2; j >= 0; j--)
+                            {
+                                fromAtr = attributes[j];
+                                if (fromAtr.OptionalGroupName == toAtr.OptionalGroupName || fromAtr.OptionalGroupName == null)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+
                         diagram.Steps.Add(new SequenceDiagramStep()
                         {
                             Index = i - 1,
-                            Branches = b.Branches,
-                            From = a.Name,
-                            To = b.Name,
-                            Description = b.Description,
-                            Note = b.Note,
-                            Remarks = b.Remarks,
-                            OptionalId = b.OptionalId
+                            Branches = toAtr.Branches,
+                            From = fromAtr.Name,
+                            To = toAtr.Name,
+                            Description = toAtr.Description,
+                            Note = toAtr.Note,
+                            Remarks = toAtr.Remarks,
+                            OptionalGroupName = toAtr.OptionalGroupName
                         });
                     }
 
@@ -124,19 +151,19 @@ namespace HealthCheck.Core.Modules.Diagrams.SequenceDiagrams
                 {
                     var atr = method.Attributes[i];
                     SequenceDiagramAttributeGroup group = null;
-                    if (groups.ContainsKey(atr.DiagramId))
+                    if (groups.ContainsKey(atr.DiagramName))
                     {
-                        group = groups[atr.DiagramId];
+                        group = groups[atr.DiagramName];
                     }
                     else
                     {
                         group = new SequenceDiagramAttributeGroup()
                         {
-                            DiagramId = atr.DiagramId,
+                            DiagramId = atr.DiagramName,
                             Method = method.Method,
                             Attributes = new List<SequenceDiagramStepAttribute>()
                         };
-                        groups[atr.DiagramId] = group;
+                        groups[atr.DiagramName] = group;
                     }
 
                     atr.ClassName = method.Method.DeclaringType.Name;
@@ -161,11 +188,12 @@ namespace HealthCheck.Core.Modules.Diagrams.SequenceDiagrams
             {
                 foreach (var atr in group.Attributes)
                 {
-                    if (atr.NextId != null)
+                    if (atr.NextClass != null)
                     {
                         var match = group.Attributes.FirstOrDefault(x =>
-                            atr.DiagramId == x.DiagramId
-                            && atr.NextId == $"{x.ClassName}.{x.MethodName}");
+                            atr.DiagramName == x.DiagramName
+                            && atr.NextClass == x.ClassName && atr.NextMethod == x.MethodName);
+
                         if (match != null)
                         {
                             atr.SetNext(match);

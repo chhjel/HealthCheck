@@ -386,6 +386,28 @@ namespace HealthCheck.WebUI.Util
         public int CancelAllLogSearches() => AbortLogSearches();
 
         /// <summary>
+        /// Get viewmodel for diagrams data.
+        /// </summary>
+        public DiagramDataViewModel GetDiagramsViewModel(Maybe<TAccessRole> accessRoles)
+        {
+            if (Services.SequenceDiagramService == null || !CanShowDocumentationPageTo(accessRoles))
+                return new DiagramDataViewModel();
+
+            if (DiagramDataViewModelCache != null)
+            {
+                return DiagramDataViewModelCache;
+            }
+
+            var sequenceDiagrams = Services.SequenceDiagramService.Generate();
+            DiagramDataViewModelCache = new DiagramDataViewModel()
+            {
+                SequenceDiagrams = sequenceDiagrams
+            };
+            return DiagramDataViewModelCache;
+        }
+        private static DiagramDataViewModel DiagramDataViewModelCache { get; set; }
+
+        /// <summary>
         /// Create view html from the given options.
         /// </summary>
         /// <exception cref="ConfigValidationException"></exception>
@@ -548,6 +570,10 @@ namespace HealthCheck.WebUI.Util
             if (CanShowDocumentationPageTo(accessRoles))
             {
                 frontEndOptions.Pages.Add(PAGE_DOCUMENTATION);
+            }
+            else
+            {
+                frontEndOptions.DiagramsDataEndpoint = deniedEndpoint;
             }
 
             if (!CanClearRequestLog(accessRoles))

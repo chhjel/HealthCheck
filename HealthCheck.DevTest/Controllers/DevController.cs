@@ -45,7 +45,10 @@ namespace HealthCheck.DevTest.Controllers
             Services.AuditEventService = _auditEventService;
             Services.LogSearcherService = CreateLogSearcherService();
             Services.RequestLogService = RequestLogServiceAccessor.Current;
-            Services.SequenceDiagramService = new DefaultSequenceDiagramService();
+            Services.SequenceDiagramService = new DefaultSequenceDiagramService(new DefaultSequenceDiagramServiceOptions()
+            {
+                DefaultSourceAssemblies = new[] { typeof(DevController).Assembly }
+            });
 
             if (!_hasInited)
             {
