@@ -22,4 +22,6 @@ export default interface FrontEndOptionsViewModel {
     Pages: string[];
     MaxInsightsEntryCount: number;
     TestsTabName: string;
+    EnableDiagramSandbox: boolean;
+    EnableDiagramDetails: boolean;
 }

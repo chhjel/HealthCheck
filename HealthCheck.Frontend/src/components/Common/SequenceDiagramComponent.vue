@@ -22,7 +22,8 @@
                     v-for="(step, sindex) in stepData"
                     :key="`column-step-${sindex}`"
                     :style="getStepStyle(sindex, step)"
-                    :class="getStepClasses(sindex, step)">
+                    :class="getStepClasses(sindex, step)"
+                    @click="onStepClicked(step)">
                         <span class="description">{{ step.data.description }}<sup v-if="showRemarks && step.remarkNumber != null"> {{ step.remarkNumber }}</sup></span>
                         <div class="arrow-self" v-if="step.columnEnd == step.columnStart"></div>
                         <div :class="getStepArrowClasses(sindex, step)"></div>
@@ -57,7 +58,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-export interface DiagramStep {
+export interface DiagramStep<T> {
     from: string;
     to: string;
     description: string;
@@ -65,6 +66,7 @@ export interface DiagramStep {
     remark?: string;
     optional?: string;
     style?: DiagramLineStyle;
+    data: T;
 }
 export enum DiagramLineStyle {
     Default = 0,
@@ -79,16 +81,19 @@ export enum DiagramStyle {
     components: {
     }
 })
-export default class SequenceDiagramComponent extends Vue
+export default class SequenceDiagramComponent<T> extends Vue
 {
     @Prop({ required: false, default: null })
     title!: string | null;
 
     @Prop({ required: true, default: true })
-    steps!: Array<DiagramStep>;
+    steps!: Array<DiagramStep<T>>;
 
     @Prop({ required: false, default: true })
-    showRemarks!: boolean
+    showRemarks!: boolean;
+
+    @Prop({ required: false, default: false })
+    clickable!: boolean;
 
     @Prop({ required: false, default: DiagramStyle.Default })
     diagramStyle!: DiagramStyle;
@@ -110,7 +115,7 @@ export default class SequenceDiagramComponent extends Vue
         return Array.from(values);
     }
 
-    get stepData(): Array<InternalDiagramStep>
+    get stepData(): Array<InternalDiagramStep<T>>
     {
         let remarkCounter = 0;
         return this.steps.map(x => {
@@ -130,7 +135,7 @@ export default class SequenceDiagramComponent extends Vue
         });
     }
 
-    get stepRemarks(): Array<InternalStepRemark>
+    get stepRemarks(): Array<InternalStepRemark<T>>
     {
         return this.stepData
             .filter(x => x.remarkNumber != null)
@@ -194,9 +199,16 @@ export default class SequenceDiagramComponent extends Vue
 
     get diagramClasses(): Array<string>
     {
-        return [
+        let classes = [
             `sequence-diagram__style--${this.diagramStyle.toLowerCase()}`
         ];
+
+        if (this.clickable == true)
+        {
+            classes.push('clickable');
+        }
+        
+        return classes;
     }
     
     ////////////////
@@ -227,7 +239,7 @@ export default class SequenceDiagramComponent extends Vue
         };
     }
 
-    getStepStyle(stepIndex: number, step: InternalDiagramStep): any {
+    getStepStyle(stepIndex: number, step: InternalDiagramStep<T>): any {
         let start = step.columnStart + 1;
         let end = step.columnEnd + 1;
         let isGoingToSelf = step.columnEnd == step.columnStart;
@@ -243,7 +255,7 @@ export default class SequenceDiagramComponent extends Vue
         return style;
     }
 
-    getStepClasses(stepIndex: number, step: InternalDiagramStep): any {
+    getStepClasses(stepIndex: number, step: InternalDiagramStep<T>): any {
         let isLast = (stepIndex == this.steps.length - 1);
         let isGoingLeft = step.columnEnd < step.columnStart;
         let isGoingRight = step.columnEnd > step.columnStart;
@@ -296,7 +308,7 @@ export default class SequenceDiagramComponent extends Vue
         return classes;
     }
 
-    getStepArrowClasses(stepIndex: number, step: InternalDiagramStep): any {
+    getStepArrowClasses(stepIndex: number, step: InternalDiagramStep<T>): any {
         let isGoingLeft = step.columnEnd < step.columnStart;
         let isGoingRight = step.columnEnd > step.columnStart;
         let isGoingToSelf = step.columnEnd == step.columnStart;
@@ -321,16 +333,19 @@ export default class SequenceDiagramComponent extends Vue
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
-    // ToDo click to switch between count/percentage
+    onStepClicked(step: InternalDiagramStep<T>): void
+    {
+        this.$emit('stepClicked', step.data);
+    }
 }
-interface InternalDiagramStep {
-    data: DiagramStep;
+interface InternalDiagramStep<T> {
+    data: DiagramStep<T>;
     remarkNumber: number | null;
     columnStart: number;
     columnEnd: number;
 }
-interface InternalStepRemark {
-    step: InternalDiagramStep;
+interface InternalStepRemark<T> {
+    step: InternalDiagramStep<T>;
     remarkNumber: number;
     text: string;
 }
@@ -345,6 +360,24 @@ interface InternalOptionalArea {
 
 <style scoped lang="scss">
 .sequence-diagram {
+
+    &.clickable {
+        .sequence-diagram__grid-item {
+            cursor: pointer;
+
+            &:hover {
+                &::after {
+                    content: " ";
+                    border: 2px solid #e0e0e0;
+                    position: absolute;
+                    left: -5px;
+                    top: 0px;
+                    right: -5px;
+                    bottom: -15px;
+                }
+            }
+        }
+    }
 
     .sequence-diagram__header {
         font-weight: 600;
@@ -476,6 +509,7 @@ interface InternalOptionalArea {
             margin-bottom: 5px;
             margin-top: 5px;
             z-index: 1;
+            pointer-events: none;
 
             .sequence-diagram__grid-optional-area-text {
                 display: inline-block;

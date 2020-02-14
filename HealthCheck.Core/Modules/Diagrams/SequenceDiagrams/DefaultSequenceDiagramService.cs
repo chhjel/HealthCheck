@@ -86,7 +86,11 @@ namespace HealthCheck.Core.Modules.Diagrams.SequenceDiagrams
                             Description = toAtr.Description,
                             Note = toAtr.Note,
                             Remarks = toAtr.Remarks,
-                            OptionalGroupName = toAtr.OptionalGroupName
+                            OptionalGroupName = toAtr.OptionalGroupName,
+                            ClassNameFrom = fromAtr.Class?.FullName,
+                            MethodNameFrom = fromAtr.Method?.ToString(),
+                            ClassNameTo = toAtr.Class?.FullName,
+                            MethodNameTo = toAtr.Method?.ToString()
                         });
                     }
 
@@ -166,7 +170,9 @@ namespace HealthCheck.Core.Modules.Diagrams.SequenceDiagrams
                         groups[atr.DiagramName] = group;
                     }
 
+                    atr.Class = method.Method.DeclaringType;
                     atr.ClassName = method.Method.DeclaringType.Name;
+                    atr.Method = method.Method;
                     atr.MethodName = method.Method.Name;
 
                     var previousAttributeOnSameMethod = group.Attributes

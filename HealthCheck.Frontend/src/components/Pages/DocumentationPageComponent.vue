@@ -9,7 +9,7 @@
                 mobile-break-point="1000"
                 dark
                 class="menu testset-menu">
-                                
+
                 <v-list expand class="menu-items">
                     <v-list-tile ripple
                         v-for="(diagram, diagramIndex) in diagrams"
@@ -20,7 +20,9 @@
 
                     <v-divider />
 
-                    <v-list-tile ripple @click="sandboxMode = true">
+                    <v-list-tile ripple 
+                        v-if="options.EnableDiagramSandbox"
+                        @click="sandboxMode = true">
                         <v-list-tile-title v-text="'Sandbox'"></v-list-tile-title>
                     </v-list-tile>
                 </v-list>
@@ -31,6 +33,12 @@
                 <v-layout>
                     <v-flex>
                         <v-container>
+                            <!-- NO DIAGRAMS INFO -->
+                            <v-alert :value="diagrams.length == 0 && !diagramsDataLoadInProgress" type="info">
+                                No documentation was found.<br />
+                                Decorate backend code with <code>[SequenceDiagramStepAttribute]</code> for sequence diagrams to be generated.
+                            </v-alert>
+
                             <!-- DATA LOAD ERROR -->
                             <v-alert :value="diagramsDataLoadFailed" type="error">
                             {{ diagramsDataFailedErrorMessage }}
@@ -49,10 +57,25 @@
                                         :title="currentDiagram.title"
                                         :steps="currentDiagram.steps"
                                         :showRemarks="showRemarks"
-                                        :diagramStyle="diagramStyle" />
+                                        :diagramStyle="diagramStyle"
+                                        :clickable="options.EnableDiagramDetails"
+                                        v-on:stepClicked="onStepClicked" />
                                 </v-flex>
 
-                                <v-checkbox v-model="showRemarks" label="Show remarks" style="display:block"></v-checkbox>
+                                <div v-if="selectedStep != null" class="selected-step-details">
+                                    <b>{{ selectedStep.description }}</b><br />
+                                    <b>From:</b>
+                                    <code>{{ selectedStep.data.classNameFrom }}</code>
+                                    <code>{{ selectedStep.data.methodNameFrom }}</code><br />
+                                    <b>To:</b>
+                                    <code>{{ selectedStep.data.classNameTo }}</code>
+                                    <code>{{ selectedStep.data.methodNameTo }}</code>
+                                </div>
+
+                                <v-checkbox
+                                    v-if="showToggleRemarks"
+                                    v-model="showRemarks"
+                                    label="Show remarks" style="display:block"></v-checkbox>
                             </v-layout>
                         </v-container>
 
@@ -110,7 +133,14 @@ import SequenceDiagramComponent, { DiagramStep, DiagramLineStyle, DiagramStyle }
 interface DiagramData
 {
     title: string;
-    steps: Array<DiagramStep>;
+    steps: Array<DiagramStep<DiagramStepDetails | null>>;
+}
+interface DiagramStepDetails
+{
+    classNameFrom: string,
+    classNameTo: string,
+    methodNameFrom: string,
+    methodNameTo: string
 }
 
 @Component({
@@ -132,6 +162,7 @@ export default class DocumentationPageComponent extends Vue {
     showRemarks: boolean = true;
     diagrams: Array<DiagramData> = [];
     currentDiagram: DiagramData | null = null;
+    selectedStep: DiagramStep<DiagramStepDetails> | null = null;
     diagramStyle: DiagramStyle = DiagramStyle.Default;
     sandboxScript: string = `
 Frontend --> Web: User sends form
@@ -168,7 +199,17 @@ Web -> Frontend: Confirmation is delivered
     ////////////////
     //  GETTERS  //
     //////////////
-    get sandboxSteps(): Array<DiagramStep>
+    get showToggleRemarks(): boolean
+    {
+        if (this.currentDiagram == null)
+        {
+            return false;
+        }
+        
+        return this.currentDiagram.steps.some(x => x.remark != null && x.remark.trim().length > 0);
+    }
+
+    get sandboxSteps(): Array<DiagramStep<DiagramStepDetails | null>>
     {
         return this.convertStringToSteps(this.sandboxScript);
     }
@@ -221,8 +262,14 @@ Web -> Frontend: Confirmation is delivered
                             description: s.Description || '',
                             note: s.Note || undefined,
                             remark: s.Remarks || undefined,
-                            optional: s.OptionalGroupName || undefined
+                            optional: s.OptionalGroupName || undefined,
                             // style: s.Direction
+                            data: {
+                                classNameFrom: s.ClassNameFrom,
+                                classNameTo: s.ClassNameTo,
+                                methodNameFrom: s.MethodNameFrom,
+                                methodNameTo: s.MethodNameTo
+                            }
                         }
                     })
                 }
@@ -235,12 +282,12 @@ Web -> Frontend: Confirmation is delivered
         }
     }
 
-    convertStringToSteps(text: string): Array<DiagramStep>
+    convertStringToSteps(text: string): Array<DiagramStep<DiagramStepDetails | null>>
     {
         let lines = text.split('\n');
         
         let currentOptional: string | undefined = undefined;
-        let steps: Array<DiagramStep> = [];
+        let steps: Array<DiagramStep<DiagramStepDetails | null>> = [];
         for(let i=0; i<lines.length; i++)
         {
             let line = lines[i];
@@ -301,7 +348,8 @@ Web -> Frontend: Confirmation is delivered
                 note: note,
                 remark: remark,
                 optional: currentOptional,
-                style: style
+                style: style,
+                data: null
             };
             steps.push(step);
         }
@@ -324,6 +372,15 @@ Web -> Frontend: Confirmation is delivered
     setActveDiagram(diagram: DiagramData): void {
         this.sandboxMode = false;
         this.currentDiagram = diagram;
+        this.selectedStep = null;
+    }
+    
+    onStepClicked(step: DiagramStep<DiagramStepDetails>): void
+    {
+        if (this.options.EnableDiagramDetails == true)
+        {
+            this.selectedStep = step;
+        }
     }
 }
 </script>
@@ -333,5 +390,11 @@ Web -> Frontend: Confirmation is delivered
     background-color: #fff;
     padding: 20px;
     border: 1px solid #353535;
+}
+.selected-step-details {
+    padding: 20px;
+    margin-top: 10px;
+    background-color: #fff;
+    border: 1px solid gray;
 }
 </style>

@@ -11,4 +11,10 @@ export default interface SequenceDiagramStepViewModel {
     OptionalGroupName: string | null;
     Direction: SequenceDiagramDirection,
     Branches: Array<string>;
+    ClassName: string;
+    MethodName: string;
+    ClassNameFrom: string;
+    MethodNameFrom: string;
+    ClassNameTo: string;
+    MethodNameTo: string;
 }

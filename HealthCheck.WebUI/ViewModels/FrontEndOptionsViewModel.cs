@@ -123,6 +123,19 @@ namespace HealthCheck.WebUI.ViewModels
         public int MaxInsightsEntryCount { get; set; } = 5000;
 
         /// <summary>
+        /// Show a diagram sandbox.
+        /// <para>Defaults to false.</para>
+        /// </summary>
+        public bool EnableDiagramSandbox { get; set; }
+
+        /// <summary>
+        /// Show extra diagram details.
+        /// <para>For sequence diagrams class/method names will be shown on step clicks.</para>
+        /// <para>Defaults to false.</para>
+        /// </summary>
+        public bool EnableDiagramDetails { get; set; }
+
+        /// <summary>
         /// Number log searches currently running.
         /// </summary>
         [JsonProperty]

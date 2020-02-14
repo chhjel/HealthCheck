@@ -59,6 +59,26 @@ namespace HealthCheck.Core.Modules.Diagrams.SequenceDiagrams
         public List<string> Branches { get; set; }
 
         /// <summary>
+        /// Name of the class the previous attribute was placed on.
+        /// </summary>
+        public string ClassNameFrom { get; set; }
+
+        /// <summary>
+        /// Name of the class the attribute was placed on.
+        /// </summary>
+        public string ClassNameTo { get; set; }
+
+        /// <summary>
+        /// Name of the method the previous attribute was placed on.
+        /// </summary>
+        public string MethodNameFrom { get; set; }
+
+        /// <summary>
+        /// Name of the method the attribute was placed on.
+        /// </summary>
+        public string MethodNameTo { get; set; }
+
+        /// <summary>
         /// $"{From} -> {To}: {Description} ({Note})";
         /// </summary>
         public override string ToString() => $"{From} -> {To}: {Description} ({Note})";

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace HealthCheck.Core.Modules.Diagrams.SequenceDiagrams
 {
@@ -58,6 +59,8 @@ namespace HealthCheck.Core.Modules.Diagrams.SequenceDiagrams
         internal List<string> Branches { get; private set; }
         internal string ClassName { get; set; }
         internal string MethodName { get; set; }
+        internal Type Class { get; set; }
+        internal MethodInfo Method { get; set; }
         internal SequenceDiagramStepAttribute Next { get; set; }
         internal SequenceDiagramStepAttribute Previous { get; set; }
 

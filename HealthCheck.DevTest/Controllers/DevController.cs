@@ -91,7 +91,9 @@ namespace HealthCheck.DevTest.Controllers
                     HealthCheckPageType.LogViewer,
                     HealthCheckPageType.AuditLog
                 },
-                ApplyCustomColumnRuleByDefault = true
+                ApplyCustomColumnRuleByDefault = true,
+                EnableDiagramSandbox = true,
+                EnableDiagramDetails = true
             };
 
         protected override PageOptions GetPageOptions()
