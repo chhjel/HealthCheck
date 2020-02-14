@@ -4,9 +4,16 @@
 [![npm](https://img.shields.io/npm/v/christianh-healthcheck?label=christianh-healthcheck&logo=npm)](https://www.npmjs.com/package/christianh-healthcheck)
 
 ## What is it
-Provides an abstract stand-alone controller that generates a web interface where given backend methods can be executed to check the status of integrations, run utility methods, dump some data and other things.
+Provides an almost plug and play web interface with a few different utility modules that can enabled as needed and access to each module can be restricted.
 
-Also exposes an optional service for registering events that can be shown in a generated status interface.
+Modules:
+
+* Test module where given backend methods can be executed to check the status of integrations, run utility methods and other things.
+* Overview module where registed events that can be shown in a status interface, e.g. showing the stability of integrations.
+* Audit module where actions from other modules are logged.
+* Log searcher module for searching through logfiles on disk.
+* Request log module that lists controllers and actions with their latest requests and errors.
+* Documentation module that shows generated sequence diagrams from code decorated with attributes.
 
 ## Getting started
 
@@ -24,6 +31,8 @@ Also exposes an optional service for registering events that can be shown in a g
     ```
 3. Create a controller and inherit `HealthCheckControllerBase<AccessRoles>`, where AccessRoles is your enum from the step above.
 
+4. Optionally set any extra services on the `Services` property to enable their modules.
+
 <details><summary>Example controller</summary>
 <p>
 
@@ -34,16 +43,16 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
     // See the Services section further down in readme.
     public MyController(
         ISiteEventService siteEventService,
-        IAuditEventStorage auditEventService,
-        ILogSearcherService logSearcherService)
+        IAuditEventStorage auditEventService)
         : base(assemblyContainingTests: typeof(MyController).Assembly)
     {
         Services.SiteEventService = siteEventService;
         Services.AuditEventService = auditEventService;
-        Services.LogSearcherService = logSearcherService;
+        // ...
     }
 
-    // Set any options that will be passed to the front-end here, including the path to this controller.
+    // Set any options that will be passed to the front-end here,
+    // including the path to this controller.
     protected override FrontEndOptionsViewModel GetFrontEndOptions()
         => new FrontEndOptionsViewModel("/HealthCheck")
         {
@@ -51,7 +60,7 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
             //...
         };
 
-    // Set any options for the razor view here.
+    // Set any options for the view here.
     protected override PageOptions GetPageOptions()
         => new PageOptions()
         {
@@ -60,7 +69,8 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
         };
 
     // Access options and other configs here.
-    // CurrentRequestAccessRoles is returned from GetRequestInformation method below.
+    // CurrentRequestAccessRoles is returned from your implementation
+    // of the GetRequestInformation method below.
     protected override void Configure(HttpRequestBase request)
     {
         TestRunner.IncludeExceptionStackTraces = CurrentRequestAccessRoles.HasValue && CurrentRequestAccessRoles.Value.HasFlag(AccessRoles.SystemAdmins);
@@ -83,8 +93,8 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
     protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)
     {
         options
-            .SetOptionsFor(MyHealthCheckConstants.Group.GroupA, uiOrder: 100)
-            .SetOptionsFor(MyHealthCheckConstants.Group.GroupB, uiOrder: 90);
+            .SetOptionsFor(MyHealthCheckConstants.Groups.GroupA, uiOrder: 100)
+            .SetOptionsFor(MyHealthCheckConstants.Groups.GroupB, uiOrder: 90);
     }
 
     // Return the user id/name and any roles the the current request have here.
@@ -155,8 +165,8 @@ Supported parameter types:
 * `int`, `int?`
 * `bool`, `bool?`
 * `DateTime`, `DateTime?`
-* `Enum` (=> select)
-* `Enum with `[Flags]` (=> multiselect)
+* `Enum` (-> select)
+* `Enum` with `[Flags]` (-> multiselect)
 * `HttpPostedFileBase` (.net framework only for now)
 * `List<T>` where `<T>` is any of the above types (w/ option for readable list for setting order only)
 * `CancellationToken` to make the method cancellable, see below.
@@ -179,7 +189,7 @@ The `TestResult` class has a few static factory methods for quick creation of a 
 |AddTextData|Just plain text|
 |AddData|Adds string data and optionally define the type yourself.|
 |AddSerializedData|Two variants of this method exists. Use the extension method variant unless you want to provide your own serializer implementation. The method simply serializes the given object to json and includes it.|
-|AddHtmlData|Two variants of this method exists. Use the extension method variant for html presets or the non-extension method for raw html.|
+|AddHtmlData|Two variants of this method exists. Use the extension method variant for html presets using `new HtmlPresetBuilder()` or the non-extension method for raw html.|
 |AddTimelineData|Creates a timeline from the given steps. Each step can show a dialog with more info/links.|
 
 #### Cosmetics
@@ -362,13 +372,14 @@ public TestResult CheckIntegrationX()
 
 ### IRequestLogService
 For requests to be logged and viewable 2-3 things needs to be configured:
-* An IRequestLogService has to be provided in the healthcheck controller.
+* [![Nuget](https://img.shields.io/nuget/v/HealthCheck.RequestLog?label=HealthCheck.RequestLog&logo=nuget)](https://www.nuget.org/packages/HealthCheck.RequestLog) nuget package must be added.
+* An IRequestLogService has to be provided in the healthcheck controller. The default one `RequestLogService` can be used.
 * A set of action filters will need to be registered.
 * Optionally run a utility method on startup to generate definitions from all controller actions.
 
 To clear the requestlog use the button at the bottom of the requestlog page. It will be visible for selected roles when the access option `ClearRequestLogAccess` is set.
 
-AccessOptions.ClearRequestLogAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);
+`AccessOptions.ClearRequestLogAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);`
 
 <details><summary>Example setup</summary>
 <p>
@@ -412,8 +423,28 @@ Task.Run(() => RequestLogUtil.EnsureDefinitionsFromTypes(RequestLogServiceAccess
 // The following utility method can be called to register requests that the filters can't capture
 RequestLogUtils.HandleRequest(RequestLogServiceAccessor.Current, GetType(), Request);
 ```
+
+```csharp
+// In some cases or if IoC is not used the static
+// RequestLogServiceAccessor.Current property must be set to an instance of the service.
+RequestLogServiceAccessor.Current = .. service instance
+```
+
 </p>
 </details>
+
+### ISequenceDiagramService
+If an `ISequenceDiagramService` is provided in the controller the documentation tab will become available where generated diagrams are shown.
+
+A default implementation `DefaultSequenceDiagramService` is provided. It will search through any assemblies provided through its options property for any methods decorated with `SequenceDiagramStepAttribute` and generate diagrams using them.
+
+```csharp
+var options = new DefaultSequenceDiagramServiceOptions()
+{
+    DefaultSourceAssemblies = new[] { <your assemblies> }
+};
+ISequenceDiagramService service = new DefaultSequenceDiagramService(options);
+```
 
 ## Scheduled health checks
 
