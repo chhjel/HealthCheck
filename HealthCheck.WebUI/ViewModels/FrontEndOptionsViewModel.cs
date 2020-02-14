@@ -90,6 +90,11 @@ namespace HealthCheck.WebUI.ViewModels
         public string ClearRequestLogEndpoint { get; set; }
 
         /// <summary>
+        /// Url to the endpoint that returns diagram data.
+        /// </summary>
+        public string DiagramsDataEndpoint { get; set; }
+
+        /// <summary>
         /// Number of minutes past the end of a site event it will be displayed below "Current status" on the status page.
         /// <para>Defaults to 30 minutes.</para>
         /// </summary>
@@ -118,6 +123,19 @@ namespace HealthCheck.WebUI.ViewModels
         public int MaxInsightsEntryCount { get; set; } = 5000;
 
         /// <summary>
+        /// Show a diagram sandbox.
+        /// <para>Defaults to false.</para>
+        /// </summary>
+        public bool EnableDiagramSandbox { get; set; }
+
+        /// <summary>
+        /// Show extra diagram details.
+        /// <para>For sequence diagrams class/method names will be shown on step clicks.</para>
+        /// <para>Defaults to false.</para>
+        /// </summary>
+        public bool EnableDiagramDetails { get; set; }
+
+        /// <summary>
         /// Number log searches currently running.
         /// </summary>
         [JsonProperty]
@@ -141,6 +159,7 @@ namespace HealthCheck.WebUI.ViewModels
             HealthCheckPageType.Overview,
             HealthCheckPageType.Tests,
             HealthCheckPageType.RequestLog,
+            HealthCheckPageType.Documentation,
             HealthCheckPageType.LogViewer,
             HealthCheckPageType.AuditLog
         };
@@ -167,6 +186,7 @@ namespace HealthCheck.WebUI.ViewModels
             CancelAllLogSearchesEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/CancelAllLogSearches";
             GetRequestLogEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetRequestLog";
             ClearRequestLogEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/ClearRequestLog";
+            DiagramsDataEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetDiagrams";
             HasAccessToClearRequestLog = true;
         }
 

@@ -29,6 +29,11 @@
                         :class="{ 'active-tab': isCurrentPage(PAGE_REQUESTLOG) }"
                         @click.left.prevent="setCurrentPage(PAGE_REQUESTLOG)">Requests</v-btn>
                     <v-btn flat
+                        v-if="showPageMenu(PAGE_DOCUMENTATION)"
+                        :href="`#/${PAGE_DOCUMENTATION}`"
+                        :class="{ 'active-tab': isCurrentPage(PAGE_DOCUMENTATION) }"
+                        @click.left.prevent="setCurrentPage(PAGE_DOCUMENTATION)">Documentation</v-btn>
+                    <v-btn flat
                         v-if="showPageMenu(PAGE_LOGS)"
                         :href="`#/${PAGE_LOGS}`"
                         :class="{ 'active-tab': isCurrentPage(PAGE_LOGS) }"
@@ -68,6 +73,11 @@
                 v-show="currentPage == PAGE_REQUESTLOG"
                 ref="requestLogPage"
                 :options="options" />
+            <documentation-page-component
+                v-if="shouldIncludePage(PAGE_DOCUMENTATION)"
+                v-show="currentPage == PAGE_DOCUMENTATION"
+                ref="documentationPage"
+                :options="options" />
 
             <!-- FOOTER -->
             <!-- <v-footer app fixed>
@@ -85,6 +95,7 @@ import OverviewPageComponent from './Pages/OverviewPageComponent.vue';
 import AuditLogPageComponent from './Pages/AuditLogPageComponent.vue';
 import LogViewerPageComponent from './Pages/LogViewerPageComponent.vue';
 import RequestLogPageComponent from './Pages/RequestLogPageComponent.vue';
+import DocumentationPageComponent from './Pages/DocumentationPageComponent.vue';
 import FrontEndOptionsViewModel from '../models/Page/FrontEndOptionsViewModel';
 import UrlUtils from '../util/UrlUtils';
 
@@ -95,7 +106,8 @@ import UrlUtils from '../util/UrlUtils';
         OverviewPageComponent,
         AuditLogPageComponent,
         LogViewerPageComponent,
-        RequestLogPageComponent
+        RequestLogPageComponent,
+        DocumentationPageComponent
     }
 })
 export default class HealthCheckPageComponent extends Vue {
@@ -110,9 +122,10 @@ export default class HealthCheckPageComponent extends Vue {
     PAGE_LOGS: string = "logviewer";
     PAGE_AUDITLOG: string = "auditlog";
     PAGE_REQUESTLOG: string = "requestlog";
+    PAGE_DOCUMENTATION: string = "documentation";
     PAGE_NO_PAGES_AVAILABLE: string = "no_page";
     currentPage: string = this.PAGE_TESTS;
-    pagesWithMenu: string[] = [ this.PAGE_TESTS ];
+    pagesWithMenu: string[] = [ this.PAGE_TESTS, this.PAGE_DOCUMENTATION ];
     pagesShownAtLeastOnce: string[] = [];
 
     //////////////////

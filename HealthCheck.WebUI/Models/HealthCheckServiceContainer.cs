@@ -26,5 +26,10 @@ namespace HealthCheck.WebUI.Models
         /// Must be set for the requestlog to be displayed.
         /// </summary>
         public IRequestLogService RequestLogService { get; set; }
+
+        /// <summary>
+        /// Must be set for the documentation tab to be shown.
+        /// </summary>
+        public ISequenceDiagramService SequenceDiagramService { get; set; }
     }
 }

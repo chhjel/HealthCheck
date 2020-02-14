@@ -29,5 +29,10 @@
         /// Request/exception logs
         /// </summary>
         RequestLog,
+
+        /// <summary>
+        /// Diagrams
+        /// </summary>
+        Documentation,
     }
 }

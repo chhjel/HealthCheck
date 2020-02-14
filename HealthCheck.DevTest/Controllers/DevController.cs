@@ -3,6 +3,7 @@ using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
 using HealthCheck.Core.Services;
 using HealthCheck.Core.Services.Models;
 using HealthCheck.Core.Util;
@@ -44,6 +45,10 @@ namespace HealthCheck.DevTest.Controllers
             Services.AuditEventService = _auditEventService;
             Services.LogSearcherService = CreateLogSearcherService();
             Services.RequestLogService = RequestLogServiceAccessor.Current;
+            Services.SequenceDiagramService = new DefaultSequenceDiagramService(new DefaultSequenceDiagramServiceOptions()
+            {
+                DefaultSourceAssemblies = new[] { typeof(DevController).Assembly }
+            });
 
             if (!_hasInited)
             {
@@ -82,10 +87,13 @@ namespace HealthCheck.DevTest.Controllers
                     HealthCheckPageType.Tests,
                     HealthCheckPageType.Overview,
                     HealthCheckPageType.RequestLog,
+                    HealthCheckPageType.Documentation,
                     HealthCheckPageType.LogViewer,
                     HealthCheckPageType.AuditLog
                 },
-                ApplyCustomColumnRuleByDefault = true
+                ApplyCustomColumnRuleByDefault = true,
+                EnableDiagramSandbox = true,
+                EnableDiagramDetails = true
             };
 
         protected override PageOptions GetPageOptions()
@@ -102,6 +110,7 @@ namespace HealthCheck.DevTest.Controllers
         {
             TestRunner.IncludeExceptionStackTraces = CurrentRequestAccessRoles.HasValue && CurrentRequestAccessRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.Guest);
+            AccessOptions.DocumentationPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
             AccessOptions.TestsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins | RuntimeTestAccessRole.API);
             AccessOptions.AuditLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.LogViewerPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);

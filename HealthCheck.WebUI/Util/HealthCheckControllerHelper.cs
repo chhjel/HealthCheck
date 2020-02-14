@@ -120,6 +120,7 @@ namespace HealthCheck.WebUI.Util
         private const string PAGE_TESTS = "tests";
         private const string PAGE_AUDITLOG = "auditlog";
         private const string PAGE_LOGS = "logviewer";
+        private const string PAGE_DOCUMENTATION = "documentation";
         private const string PAGE_REQUESTLOG = "requestlog";
         private const string Q = "\"";
 
@@ -385,6 +386,28 @@ namespace HealthCheck.WebUI.Util
         public int CancelAllLogSearches() => AbortLogSearches();
 
         /// <summary>
+        /// Get viewmodel for diagrams data.
+        /// </summary>
+        public DiagramDataViewModel GetDiagramsViewModel(Maybe<TAccessRole> accessRoles)
+        {
+            if (Services.SequenceDiagramService == null || !CanShowDocumentationPageTo(accessRoles))
+                return new DiagramDataViewModel();
+
+            if (DiagramDataViewModelCache != null)
+            {
+                return DiagramDataViewModelCache;
+            }
+
+            var sequenceDiagrams = Services.SequenceDiagramService.Generate();
+            DiagramDataViewModelCache = new DiagramDataViewModel()
+            {
+                SequenceDiagrams = sequenceDiagrams
+            };
+            return DiagramDataViewModelCache;
+        }
+        private static DiagramDataViewModel DiagramDataViewModelCache { get; set; }
+
+        /// <summary>
         /// Create view html from the given options.
         /// </summary>
         /// <exception cref="ConfigValidationException"></exception>
@@ -441,6 +464,7 @@ namespace HealthCheck.WebUI.Util
             || CanShowOverviewPageTo(accessRoles)
             || CanShowAuditPageTo(accessRoles)
             || CanShowLogViewerPageTo(accessRoles)
+            || CanShowDocumentationPageTo(accessRoles)
             || CanShowRequestLogPageTo(accessRoles);
 
         /// <summary>
@@ -478,6 +502,12 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public bool CanClearRequestLog(Maybe<TAccessRole> accessRoles)
             => Services.RequestLogService != null && CanShowPageTo(accessRoles, AccessOptions.ClearRequestLogAccess, defaultValue: false);
+
+        /// <summary>
+        /// Check if the given roles has access to view the documentation page.
+        /// </summary>
+        public bool CanShowDocumentationPageTo(Maybe<TAccessRole> accessRoles)
+            => Services.SequenceDiagramService != null && CanShowPageTo(accessRoles, AccessOptions.DocumentationPageAccess, defaultValue: false);
 
         /// <summary>
         /// Check if the given roles has access to calling the ping endpoint.
@@ -537,6 +567,15 @@ namespace HealthCheck.WebUI.Util
                 frontEndOptions.GetRequestLogEndpoint = deniedEndpoint;
             }
 
+            if (CanShowDocumentationPageTo(accessRoles))
+            {
+                frontEndOptions.Pages.Add(PAGE_DOCUMENTATION);
+            }
+            else
+            {
+                frontEndOptions.DiagramsDataEndpoint = deniedEndpoint;
+            }
+
             if (!CanClearRequestLog(accessRoles))
             {
                 frontEndOptions.ClearRequestLogEndpoint = deniedEndpoint;
@@ -568,6 +607,7 @@ namespace HealthCheck.WebUI.Util
             else if (type == HealthCheckPageType.AuditLog) return PAGE_AUDITLOG;
             else if (type == HealthCheckPageType.LogViewer) return PAGE_LOGS;
             else if (type == HealthCheckPageType.RequestLog) return PAGE_REQUESTLOG;
+            else if (type == HealthCheckPageType.Documentation) return PAGE_DOCUMENTATION;
             else throw new NotImplementedException($"Page type {type.ToString()} not fully implemented yet.");
         }
 

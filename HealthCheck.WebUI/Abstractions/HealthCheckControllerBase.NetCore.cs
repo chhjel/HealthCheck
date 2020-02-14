@@ -319,6 +319,19 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
+        /// Get diagrams to show in the UI.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        [Route("GetDiagrams")]
+        public virtual ActionResult GetDiagrams()
+        {
+            if (!Enabled || !Helper.CanShowDocumentationPageTo(CurrentRequestAccessRoles)) return NotFound();
+
+            var viewModel = Helper.GetDiagramsViewModel(CurrentRequestAccessRoles);
+            return CreateJsonResult(viewModel);
+        }
+
+        /// <summary>
         /// Serializes the given object into a json result.
         /// </summary>
         protected ActionResult CreateJsonResult(object obj)

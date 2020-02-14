@@ -12,6 +12,7 @@ export default interface FrontEndOptionsViewModel {
     CancelAllLogSearchesEndpoint: string;
     GetRequestLogEndpoint: string;
     ClearRequestLogEndpoint: string;
+    DiagramsDataEndpoint: string;
     DefaultColumnRule: string;
     HasAccessToClearRequestLog: boolean;
     DefaultColumnModeIsRegex: boolean;
@@ -21,4 +22,6 @@ export default interface FrontEndOptionsViewModel {
     Pages: string[];
     MaxInsightsEntryCount: number;
     TestsTabName: string;
+    EnableDiagramSandbox: boolean;
+    EnableDiagramDetails: boolean;
 }
