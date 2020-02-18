@@ -29,6 +29,11 @@
                         :class="{ 'active-tab': isCurrentPage(PAGE_REQUESTLOG) }"
                         @click.left.prevent="setCurrentPage(PAGE_REQUESTLOG)">Requests</v-btn>
                     <v-btn flat
+                        v-if="showPageMenu(PAGE_DATAFLOW)"
+                        :href="`#/${PAGE_DATAFLOW}`"
+                        :class="{ 'active-tab': isCurrentPage(PAGE_DATAFLOW) }"
+                        @click.left.prevent="setCurrentPage(PAGE_DATAFLOW)">Dataflow</v-btn>
+                    <v-btn flat
                         v-if="showPageMenu(PAGE_DOCUMENTATION)"
                         :href="`#/${PAGE_DOCUMENTATION}`"
                         :class="{ 'active-tab': isCurrentPage(PAGE_DOCUMENTATION) }"
@@ -78,6 +83,11 @@
                 v-show="currentPage == PAGE_DOCUMENTATION"
                 ref="documentationPage"
                 :options="options" />
+            <dataflow-page-component
+                v-if="shouldIncludePage(PAGE_DATAFLOW)"
+                v-show="currentPage == PAGE_DATAFLOW"
+                ref="dataflowPage"
+                :options="options" />
 
             <!-- FOOTER -->
             <!-- <v-footer app fixed>
@@ -96,6 +106,7 @@ import AuditLogPageComponent from './Pages/AuditLogPageComponent.vue';
 import LogViewerPageComponent from './Pages/LogViewerPageComponent.vue';
 import RequestLogPageComponent from './Pages/RequestLogPageComponent.vue';
 import DocumentationPageComponent from './Pages/DocumentationPageComponent.vue';
+import DataflowPageComponent from './Pages/DataflowPageComponent.vue';
 import FrontEndOptionsViewModel from '../models/Page/FrontEndOptionsViewModel';
 import UrlUtils from '../util/UrlUtils';
 
@@ -107,7 +118,8 @@ import UrlUtils from '../util/UrlUtils';
         AuditLogPageComponent,
         LogViewerPageComponent,
         RequestLogPageComponent,
-        DocumentationPageComponent
+        DocumentationPageComponent,
+        DataflowPageComponent
     }
 })
 export default class HealthCheckPageComponent extends Vue {
@@ -123,9 +135,14 @@ export default class HealthCheckPageComponent extends Vue {
     PAGE_AUDITLOG: string = "auditlog";
     PAGE_REQUESTLOG: string = "requestlog";
     PAGE_DOCUMENTATION: string = "documentation";
+    PAGE_DATAFLOW: string = "dataflow";
     PAGE_NO_PAGES_AVAILABLE: string = "no_page";
     currentPage: string = this.PAGE_TESTS;
-    pagesWithMenu: string[] = [ this.PAGE_TESTS, this.PAGE_DOCUMENTATION ];
+    pagesWithMenu: string[] = [
+        this.PAGE_TESTS,
+        this.PAGE_DOCUMENTATION,
+        this.PAGE_DATAFLOW
+    ];
     pagesShownAtLeastOnce: string[] = [];
 
     //////////////////

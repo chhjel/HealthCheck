@@ -114,6 +114,36 @@ namespace HealthCheck.Core.Util
             }
         }
 
+        /// <summary>
+        /// Add the item and autoincrements id if it does not already exist, or updates existing items with the same id as the given item if it does.
+        /// <para>Id will be auto-incremented.</para>
+        /// </summary>
+        public void InsertOrUpdateItems(IEnumerable<TItem> items)
+        {
+            var existingIds = GetEnumerable().Select(x => GetItemId(x)).ToArray();
+            var itemsToInsert = items.Where(x => !existingIds.Any(i => IdsMatch(i, GetItemId(x)))).ToArray();
+            var itemsToUpdate = items.Where(x => !itemsToInsert.Contains(x)).ToArray();
+
+            foreach (var item in itemsToInsert)
+            {
+                InsertItem(item);
+            }
+
+            string[] mustContainAny = null;
+            if (typeof(TId) == typeof(string)
+                || typeof(TId) == typeof(Guid)
+                || typeof(TId) == typeof(int))
+            {
+                mustContainAny = itemsToUpdate.Select(x => GetItemId(x).ToString()).ToArray();
+            }
+
+            UpdateWhereInternal(
+                x => itemsToUpdate.Any(i => ItemHasId(x, GetItemId(i))),
+                (old) => itemsToUpdate.FirstOrDefault(x => ItemHasId(old, GetItemId(x))),
+                mustContainAny
+            );
+        }
+
         internal TId GetNextIdFor(TItem item)
             => NextIdFactory(GetEnumerable(), item);
 
