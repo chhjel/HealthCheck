@@ -3,11 +3,13 @@ using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
 using HealthCheck.Core.Services;
 using HealthCheck.Core.Services.Models;
 using HealthCheck.Core.Util;
 using HealthCheck.DevTest._TestImplementation;
+using HealthCheck.DevTest._TestImplementation.Dataflow;
 using HealthCheck.RequestLog.Services;
 using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.Models;
@@ -29,6 +31,7 @@ namespace HealthCheck.DevTest.Controllers
         private const string EndpointBase = "/dev";
         private static ISiteEventService _siteEventService;
         private static IAuditEventStorage _auditEventService;
+        private TestStream TestStream { get; set; } = new TestStream("A");
 
         #region Init
         public DevController()
@@ -48,6 +51,15 @@ namespace HealthCheck.DevTest.Controllers
             Services.SequenceDiagramService = new DefaultSequenceDiagramService(new DefaultSequenceDiagramServiceOptions()
             {
                 DefaultSourceAssemblies = new[] { typeof(DevController).Assembly }
+            });
+            Services.DataflowService = new DefaultDataflowService(new DefaultDataflowServiceOptions()
+            {
+                Streams = new[]
+                {
+                    TestStream,
+                    new TestStream("B"),
+                    new TestStream("C"),
+                }
             });
 
             if (!_hasInited)
@@ -207,6 +219,21 @@ namespace HealthCheck.DevTest.Controllers
             {
                 return Content("Already have some mock events in place");
             }
+        }
+
+        public ActionResult AddDataflow(int count = 10)
+        {
+            var entriesToInsert = Enumerable.Range(1, count)
+                .Select(i => new TestEntry
+                {
+                    Code = $"000{i}-P",
+                    Name = $"Entry [{DateTime.Now.ToLongTimeString()}]",
+                    ExpiresAt = DateTime.Now.AddSeconds(59)
+                })
+                .ToList();
+            TestStream.InsertEntries(entriesToInsert);
+
+            return Content("OK :]");
         }
 
         // New mock data

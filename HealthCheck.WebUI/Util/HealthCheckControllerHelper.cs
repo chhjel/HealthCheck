@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using HealthCheck.WebUI.Models.Api;
 using System.Web;
 using System.IO;
+using HealthCheck.Core.Modules.Dataflow;
 
 namespace HealthCheck.WebUI.Util
 {
@@ -589,7 +590,8 @@ namespace HealthCheck.WebUI.Util
             }
             else
             {
-                //frontEndOptions.DataFlowEndpoint = deniedEndpoint;
+                frontEndOptions.GetDataflowStreamsMetadataEndpoint = deniedEndpoint;
+                frontEndOptions.GetDataflowStreamEntriesEndpoint = deniedEndpoint;
             }
 
             if (!CanClearRequestLog(accessRoles))
@@ -759,6 +761,28 @@ namespace HealthCheck.WebUI.Util
             return events
                 .Where(x => AuditEventMatchesFilter(x, filter))
                 .Select(x => TestsViewModelsFactory.CreateViewModel(x));
+        }
+
+        /// <summary>
+        /// Get viewmodel for dataflow entries result.
+        /// </summary>
+        public async Task<IEnumerable<IDataflowEntry>> GetDataflowEntries(string streamId, DataflowStreamFilter filter, Maybe<TAccessRole> accessRoles)
+        {
+            if (Services.DataflowService == null || !CanShowDataflowPageTo(accessRoles))
+                return Enumerable.Empty<IDataflowEntry>();
+
+            return await Services.DataflowService.GetEntries(streamId, filter);
+        }
+
+        /// <summary>
+        /// Get viewmodel for dataflow streams metadata result.
+        /// </summary>
+        public IEnumerable<DataflowStreamMetadata> GetDataflowStreamsMetadata(Maybe<TAccessRole> accessRoles)
+        {
+            if (Services.DataflowService == null || !CanShowDataflowPageTo(accessRoles))
+                return Enumerable.Empty<DataflowStreamMetadata>();
+
+            return Services.DataflowService.GetStreamMetadata();
         }
 
         private bool AuditEventMatchesFilter(AuditEvent e, AuditEventFilterInputData filter)

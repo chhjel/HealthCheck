@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Modules.Dataflow;
 
 namespace HealthCheck.WebUI.Models
 {
@@ -31,5 +32,10 @@ namespace HealthCheck.WebUI.Models
         /// Must be set for the documentation tab to be shown.
         /// </summary>
         public ISequenceDiagramService SequenceDiagramService { get; set; }
+
+        /// <summary>
+        /// Must be set for the dataflow tab to be shown.
+        /// </summary>
+        public IDataflowService DataflowService { get; set; }
     }
 }

@@ -13,6 +13,8 @@ export default interface FrontEndOptionsViewModel {
     GetRequestLogEndpoint: string;
     ClearRequestLogEndpoint: string;
     DiagramsDataEndpoint: string;
+    GetDataflowStreamsMetadataEndpoint: string;
+    GetDataflowStreamEntriesEndpoint: string;
     DefaultColumnRule: string;
     HasAccessToClearRequestLog: boolean;
     DefaultColumnModeIsRegex: boolean;
