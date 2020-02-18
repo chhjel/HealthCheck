@@ -64,10 +64,16 @@ namespace HealthCheck.WebUI.Models
         public Maybe<TAccessRole> PingAccess { get; set; }
 
         /// <summary>
-        /// Roles with access to view the log documentation page.
+        /// Roles with access to view the documentation page.
         /// <para>If null nobody can access it by default.</para>
         /// </summary>
         public Maybe<TAccessRole> DocumentationPageAccess { get; set; }
+
+        /// <summary>
+        /// Roles with access to view the dataflow page.
+        /// <para>If null nobody can access it by default.</para>
+        /// </summary>
+        public Maybe<TAccessRole> DataflowPageAccess { get; set; }
 
         /// <summary>
         /// Redirect url if the request does not have access to any of the content.

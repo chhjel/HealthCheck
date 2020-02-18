@@ -87,6 +87,7 @@ namespace HealthCheck.DevTest.Controllers
                     HealthCheckPageType.Tests,
                     HealthCheckPageType.Overview,
                     HealthCheckPageType.RequestLog,
+                    HealthCheckPageType.Dataflow,
                     HealthCheckPageType.Documentation,
                     HealthCheckPageType.LogViewer,
                     HealthCheckPageType.AuditLog

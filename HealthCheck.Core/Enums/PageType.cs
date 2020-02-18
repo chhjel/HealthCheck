@@ -34,5 +34,10 @@
         /// Diagrams
         /// </summary>
         Documentation,
+
+        /// <summary>
+        /// Preview data streams
+        /// </summary>
+        Dataflow,
     }
 }

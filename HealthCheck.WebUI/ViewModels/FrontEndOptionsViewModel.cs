@@ -159,6 +159,7 @@ namespace HealthCheck.WebUI.ViewModels
             HealthCheckPageType.Overview,
             HealthCheckPageType.Tests,
             HealthCheckPageType.RequestLog,
+            HealthCheckPageType.Dataflow,
             HealthCheckPageType.Documentation,
             HealthCheckPageType.LogViewer,
             HealthCheckPageType.AuditLog
