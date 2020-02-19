@@ -19,6 +19,11 @@ namespace HealthCheck.Core.Modules.Dataflow
         string Name { get; }
 
         /// <summary>
+        /// Description of the stream to show in the UI.
+        /// </summary>
+        public string Description { get; }
+
+        /// <summary>
         /// True if the stream supports datetime filtering in <see cref="GetLatestStreamEntriesAsync"/>.
         /// </summary>
         bool SupportsFilterByDate { get; }
@@ -27,6 +32,11 @@ namespace HealthCheck.Core.Modules.Dataflow
         /// Returns the latest entries filtered.
         /// </summary>
         Task<IEnumerable<IDataflowEntry>> GetLatestStreamEntriesAsync(DataflowStreamFilter filter);
+
+        /// <summary>
+        /// Get information about the properties to display.
+        /// </summary>
+        IEnumerable<DataFlowPropertyDisplayInfo> GetEntryPropertiesInfo();
     }
 
 }

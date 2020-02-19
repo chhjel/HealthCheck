@@ -1,5 +1,6 @@
 ﻿using HealthCheck.WebUI.Services;
 using System;
+using System.Collections.Generic;
 
 namespace HealthCheck.DevTest._TestImplementation.Dataflow
 {
@@ -9,6 +10,7 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
 
         public string Code { get; set; }
         public string Name { get; set; }
-        public DateTime ExpiresAt { get; set; }
+
+        public Dictionary<string, string> Properties { get; set; }
     }
 }

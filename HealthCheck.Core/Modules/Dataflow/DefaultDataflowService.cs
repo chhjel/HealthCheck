@@ -31,7 +31,9 @@ namespace HealthCheck.Core.Modules.Dataflow
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    SupportsFilterByDate = x.SupportsFilterByDate
+                    Description = x.Description,
+                    SupportsFilterByDate = x.SupportsFilterByDate,
+                    PropertyDisplayInfo = x.GetEntryPropertiesInfo()?.ToList() ?? new List<DataFlowPropertyDisplayInfo>()
                 })
                 .ToList();
         }

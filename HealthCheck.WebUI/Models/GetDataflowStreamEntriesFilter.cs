@@ -3,7 +3,7 @@
 namespace HealthCheck.WebUI.Models
 {
     /// <summary>
-    /// Model sent to <see cref="HealthCheck.WebUI.Abstractions.HealthCheckControllerBase{TAccessRole}.GetDataflowStreamEntries"/>
+    /// Model sent to <see cref="HealthCheck.WebUI.Abstractions.HealthCheckControllerBase{TAccessRole}.GetDataflowStreamEntries(GetDataflowStreamEntriesFilter)"/>
     /// </summary>
     public class GetDataflowStreamEntriesFilter
     {

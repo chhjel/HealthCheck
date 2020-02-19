@@ -20,6 +20,11 @@ namespace HealthCheck.WebUI.Services
         public abstract string Name { get; }
 
         /// <summary>
+        /// Description of the stream.
+        /// </summary>
+        public abstract string Description { get; }
+
+        /// <summary>
         /// Id of the stream.
         /// </summary>
         public abstract string Id { get; }
@@ -36,6 +41,7 @@ namespace HealthCheck.WebUI.Services
 
         private Func<bool> IsEnabledGetter { get; }
         private SimpleDataStoreWithId<TEntry, TEntryId> Store { get; set; }
+        private readonly Dictionary<string, DataFlowPropertyDisplayInfo> PropertyInfos = new Dictionary<string, DataFlowPropertyDisplayInfo>();
 
         /// <summary>
         /// A built in dataflow stream that stores and retrieves entries from a flatfile.
@@ -71,6 +77,18 @@ namespace HealthCheck.WebUI.Services
             }
         }
 
+        /// <summary>
+        /// Register display info about a property.
+        /// </summary>
+        public void RegisterPropertyDisplayInfo(DataFlowPropertyDisplayInfo info)
+        {
+            if (info == null) return;
+            PropertyInfos[info.PropertyName] = info;
+        }
+
+        /// <summary>
+        /// Store a single entry. If it already exists it will be updated.
+        /// </summary>
         public TEntry InsertEntry(TEntry entry, DateTime? timestamp = null)
         {
             if (!IsEnabled) return entry;
@@ -81,6 +99,9 @@ namespace HealthCheck.WebUI.Services
             return entry;
         }
 
+        /// <summary>
+        /// Store multiple entries. The ones that already exists will be updated.
+        /// </summary>
         public void InsertEntries(IList<TEntry> entries, DateTime? timestamp = null)
         {
             if (!IsEnabled) return;
@@ -93,6 +114,9 @@ namespace HealthCheck.WebUI.Services
             Store.InsertOrUpdateItems(entries);
         }
 
+        /// <summary>
+        /// Get filtered stored entries.
+        /// </summary>
         public virtual async Task<IEnumerable<IDataflowEntry>> GetLatestStreamEntriesAsync(DataflowStreamFilter filter)
         {
             if (!IsEnabled) return await Task.FromResult(Enumerable.Empty<IDataflowEntry>());
@@ -113,5 +137,12 @@ namespace HealthCheck.WebUI.Services
 
             return items.Cast<IDataflowEntry>();
         }
+
+        /// <summary>
+        /// Get any registered property infos.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<DataFlowPropertyDisplayInfo> GetEntryPropertiesInfo()
+            => PropertyInfos.Select(x => x.Value).ToList();
     }
 }

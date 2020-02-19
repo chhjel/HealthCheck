@@ -227,8 +227,7 @@ namespace HealthCheck.DevTest.Controllers
                 .Select(i => new TestEntry
                 {
                     Code = $"000{i}-P",
-                    Name = $"Entry [{DateTime.Now.ToLongTimeString()}]",
-                    ExpiresAt = DateTime.Now.AddSeconds(59)
+                    Name = $"Entry [{DateTime.Now.ToLongTimeString()}]"
                 })
                 .ToList();
             TestStream.InsertEntries(entriesToInsert);
