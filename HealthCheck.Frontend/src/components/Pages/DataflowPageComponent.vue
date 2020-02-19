@@ -18,6 +18,8 @@
                     <v-list-tile ripple
                         v-for="(stream, streamIndex) in streamMetadatas"
                         :key="`stream-menu-${streamIndex}`"
+                        class="testset-menu-item"
+                        :class="{ 'active': (selectedStream == stream) }"
                         @click="setActveStream(stream)"
                         :disabled="dataLoadInProgress">
                         <v-list-tile-title v-text="stream.Name"></v-list-tile-title>
@@ -30,12 +32,6 @@
                 <v-layout>
                     <v-flex>
                         <v-container>
-                            <!-- NO DIAGRAMS INFO -->
-                            <!-- <v-alert :value="diagrams.length == 0 && !dataLoadInProgress" type="info">
-                                No documentation was found.<br />
-                                Decorate backend code with <code>[SequenceDiagramStepAttribute]</code> for sequence diagrams to be generated.
-                            </v-alert> -->
-
                             <!-- DATA LOAD ERROR -->
                             <v-alert :value="dataLoadFailed" type="error">
                             {{ dataFailedErrorMessage }}
@@ -57,12 +53,11 @@
                                 :custom-sort="tableSorter"
                                 item-key="Internal__Table__Id"
                                 expand
-                                class="elevation-1 audit-table"
-                                v-if="streamEntries.length > 0">
+                                class="elevation-1 audit-table">
                                 <v-progress-linear v-slot:progress color="primary" indeterminate></v-progress-linear>
                                 <template v-slot:no-data>
-                                <v-alert :value="true" color="error" icon="warning" v-if="auditDataLoadFailed">
-                                    {{ auditDataFailedErrorMessage }}
+                                <v-alert :value="true" color="error" icon="warning" v-if="dataLoadFailed">
+                                    {{ dataFailedErrorMessage }}
                                 </v-alert>
                                 </template>
                                 <template v-slot:items="props">
