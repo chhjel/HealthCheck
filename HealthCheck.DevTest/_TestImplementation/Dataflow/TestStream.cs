@@ -1,4 +1,5 @@
-﻿using HealthCheck.WebUI.Services;
+﻿using HealthCheck.Core.Modules.Dataflow;
+using HealthCheck.WebUI.Services;
 using System;
 
 namespace HealthCheck.DevTest._TestImplementation.Dataflow
@@ -20,6 +21,27 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
             )
         {
             Suffix = suffix;
+
+            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.Code))
+            {
+                DisplayName = "The product code",
+                UIOrder = 0
+            });
+            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.Name))
+            {
+                DisplayName = "The product name",
+                UIOrder = 1
+            });
+            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.InsertionTime))
+            {
+                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.DateTime,
+                UIOrder = 2
+            });
+            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.Properties))
+            {
+                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.Raw,
+                Visibility = DataFlowPropertyDisplayInfo.DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded
+            });
         }
     }
 }

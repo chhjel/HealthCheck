@@ -335,7 +335,6 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         [RequestLogInfo(hide: true)]
         [HttpPost]
-        [Route("GetDataflowStreamEntries")]
         public virtual async Task<ActionResult> GetDataflowStreamEntries(GetDataflowStreamEntriesFilter filter)
         {
             if (!Enabled || !Helper.CanShowDataflowPageTo(CurrentRequestAccessRoles)) return HttpNotFound();

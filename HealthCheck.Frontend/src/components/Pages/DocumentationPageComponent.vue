@@ -13,7 +13,7 @@
                 <v-list expand class="menu-items">
                     <v-list-tile ripple
                         v-for="(diagram, diagramIndex) in diagrams"
-                        :key="`testset-menu-${diagramIndex}`"
+                        :key="`diagram-menu-${diagramIndex}`"
                         @click="setActveDiagram(diagram)">
                         <v-list-tile-title v-text="diagram.title"></v-list-tile-title>
                     </v-list-tile>
