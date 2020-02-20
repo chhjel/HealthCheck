@@ -15,6 +15,11 @@ namespace HealthCheck.WebUI.Services
         where TEntry : IDataflowEntryWithInsertionTime
     {
         /// <summary>
+        /// Id of the stream.
+        /// </summary>
+        public abstract string Id { get; }
+
+        /// <summary>
         /// Name of the stream.
         /// </summary>
         public abstract string Name { get; }
@@ -25,9 +30,9 @@ namespace HealthCheck.WebUI.Services
         public abstract string Description { get; }
 
         /// <summary>
-        /// Id of the stream.
+        /// True if the stream supports property value filtering in <see cref="IDataflowStream.GetLatestStreamEntriesAsync(DataflowStreamFilter)"/>.
         /// </summary>
-        public abstract string Id { get; }
+        public abstract bool SupportsFilterByPropertyValue { get; }
 
         /// <summary>
         /// True if the stream allows to filter by date.

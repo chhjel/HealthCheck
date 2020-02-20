@@ -33,7 +33,7 @@
                     <v-flex>
                         <v-container>
                             <!-- DATA LOAD ERROR -->
-                            <v-alert :value="dataLoadFailed" type="error">
+                            <v-alert :value="dataLoadFailed && selectedStream == null" type="error">
                             {{ dataFailedErrorMessage }}
                             </v-alert>
 
@@ -42,9 +42,84 @@
                                 <h3>{{ selectedStream.Name }}</h3>
                                 <p>{{ selectedStream.Description }}</p>
                             </v-layout>
+                            
+                            <!-- NO DATAFLOW SELECTED INFO -->
+                            <v-layout v-if="selectedStream == null && streamMetadatas.length > 0" style="flex-direction: column;">
+                                <h3>No dataflow selected</h3>
+                                <p>← Select one over there.</p>
+                            </v-layout>
+
+                            <!-- FILTERS -->
+                            <div v-show="selectedStream != null">
+                                <v-layout>
+                                    <v-flex xs12 sm12 md8 style="position:relative"
+                                        v-show="selectedStream != null && selectedStream.SupportsFilterByDate">
+                                        <v-menu
+                                            transition="slide-y-transition"
+                                            bottom>
+                                            <template v-slot:activator="{ on }">
+                                                <v-btn flat icon color="primary" class="datepicker-button" v-on="on">
+                                                    <v-icon>date_range</v-icon>
+                                                </v-btn>
+                                            </template>
+                                            <v-list>
+                                                <v-list-tile
+                                                    v-for="(preset, i) in datePickerPresets"
+                                                    :key="`datepicker-preset-${i}`"
+                                                    @click="setDatePickerValue(preset)">
+                                                    <v-list-tile-title>{{ preset.name }}</v-list-tile-title>
+                                                </v-list-tile>
+                                            </v-list>
+                                        </v-menu>
+
+                                        <date-time-picker
+                                            ref="filterDate"
+                                            :startDate="filterFromDate"
+                                            :endDate="filterToDate"
+                                            :singleDate="false"
+                                            :disabled="dataLoadInProgress"
+                                            timeFormat="HH:mm"
+                                            @onChange="onDateRangeChanged"
+                                        />
+                                    </v-flex>
+                                </v-layout>
+                                
+                                <v-layout>
+                                    <v-flex xs6 sm2 style="margin-top: 22px;">
+                                        <v-text-field type="number" label="Max entries to fetch"
+                                            class="options-input"
+                                            v-model.number="filterTake" />
+                                    </v-flex>
+                                    <v-flex xs6 sm2 style="margin-top: 17px; margin-left: 40px;">
+                                        <v-btn 
+                                            @click="loadStreamEntries()" 
+                                            :disabled="dataLoadInProgress" 
+                                            class="primary">Fetch data</v-btn>
+                                    </v-flex>
+                                    
+                                </v-layout>
+
+                                <v-select
+                                    :items="filterChoices"
+                                    item-text="text"
+                                    item-value="value"
+                                    label="Filter on property"
+                                    v-model="selectedFilter"
+                                    v-on:change="onFilterSelected"
+                                ></v-select>
+                                <div v-for="(filter, findex) in filters"
+                                    :key="`dataflow-filter-${findex}`">
+                                    <v-text-field
+                                        v-model="filter.value"
+                                        :label="filter.text"
+                                        clearable
+                                    ></v-text-field>
+                                </div>
+                            </div>
 
                             <!-- TABLE START -->
                             <v-data-table
+                                v-if="selectedStream != null"
                                 :headers="tableHeaders"
                                 :items="streamEntries"
                                 :loading="dataLoadInProgress"
@@ -80,8 +155,10 @@
                                                 v-for="(col, colIndex) in getTableColumns(props.item, true)"
                                                 :key="`dataflow-row-expanded-${props.index}-col-${colIndex}`"
                                                 class="expanded-item-details">
-                                                <div class="expanded-item-details-title">{{ col.key }}</div>:
-                                                <div class="expanded-item-details-value">{{ col.value }}</div>
+                                                <dataflow-entry-property-value-component
+                                                    :type="col.uiHint"
+                                                    :raw="col.value"
+                                                    :title="col.key" />
                                             </div>
                                         </v-card-text>
                                     </v-card>
@@ -113,9 +190,31 @@ import DataflowStreamMetadata from "../../models/Dataflow/DataflowStreamMetadata
 import DataflowEntry from "../../models/Dataflow/DataflowEntry";
 import GetDataflowEntriesRequestModel from "../../models/Dataflow/GetDataflowEntriesRequestModel";
 import { DataFlowPropertyUIHint, DataFlowPropertyUIVisibilityOption } from "../../models/Dataflow/DataFlowPropertyDisplayInfo";
+import DataflowEntryPropertyValueComponent from '../Dataflow/EntryProperties/DataflowEntryPropertyValueComponent.vue';
+import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
+// @ts-ignore
+import { DateTimePicker } from "@lazy-copilot/datetimepicker";
+
+interface PropFilter
+{
+    propertyName: string;
+    text: string;
+    value: string;
+}
+interface StreamPropFilters {
+   [key: string]: Array<PropFilter>;
+} 
+
+interface DatePickerPreset {
+    name: string;
+    from: Date;
+    to: Date;
+}
 
 @Component({
     components: {
+        DataflowEntryPropertyValueComponent,
+        DateTimePicker
     }
 })
 export default class DataflowPageComponent extends Vue {
@@ -133,9 +232,19 @@ export default class DataflowPageComponent extends Vue {
     selectedStream: DataflowStreamMetadata | null = null;
     streamEntries: Array<DataflowEntry> = [];
 
+    filters: Array<PropFilter> = [
+        {propertyName: "Code", text: "aaa", value: "1234" },
+        { propertyName: "InsertionTime", text: "bbb", value: "17" }
+    ];
+    selectedFilter: string | null = null;
+    filtersPerStream: StreamPropFilters = {};
+    filterFromDate: Date = new Date();
+    filterToDate: Date = new Date();
+    filterTake: number = 50;
+
     // Table
     tableRowsPerPageItems: Array<any> 
-        = [10, 25, 50, {"text":"$vuetify.dataIterator.rowsPerPageAll","value":-1}];
+        = [25, 50, 100, {"text":"$vuetify.dataIterator.rowsPerPageAll","value":-1}];
     tablePagination: any = {
         rowsPerPage: 25
     };
@@ -145,6 +254,7 @@ export default class DataflowPageComponent extends Vue {
     ////////////////
     mounted(): void
     {
+        this.resetFilter();
         this.loadData();
     }
 
@@ -163,9 +273,72 @@ export default class DataflowPageComponent extends Vue {
         return this.getTableHeaders(false);
     }
 
+    get filterChoices(): Array<any> {
+        if (this.selectedStream == null)
+        {
+            return [];
+        }
+        
+        return this.selectedStream.PropertyDisplayInfo
+            .filter(x => 
+                x.IsFilterable == true
+                && x.Visibility != DataFlowPropertyUIVisibilityOption.Hidden
+                && !this.filters.some(f => f.propertyName == x.PropertyName))
+            .map(x => {
+                return {
+                    text: x.DisplayName || x.PropertyName,
+                    value: x.PropertyName
+                };
+            });
+    }
+
+    get datePickerPresets(): Array<DatePickerPreset> {
+        const endOfToday = new Date();
+        endOfToday.setHours(23);
+        endOfToday.setMinutes(59);
+
+        return [
+            { name: 'Last hour', from: DateUtils.CreateDateWithMinutesOffset(-60), to: endOfToday },
+            { name: 'Today', from: DateUtils.CreateDateWithDayOffset(0), to: endOfToday },
+            { name: 'Last 3 days', from: DateUtils.CreateDateWithDayOffset(-3), to: endOfToday },
+            { name: 'Last 7 days', from: DateUtils.CreateDateWithDayOffset(-7), to: endOfToday },
+            { name: 'Last 30 days', from: DateUtils.CreateDateWithDayOffset(-30), to: endOfToday },
+            { name: 'Last 60 days', from: DateUtils.CreateDateWithDayOffset(-60), to: endOfToday },
+            { name: 'Last 90 days', from: DateUtils.CreateDateWithDayOffset(-90), to: endOfToday }
+        ];
+    }
+
     ////////////////
     //  METHODS  //
     //////////////
+    resetFilter(): void {
+        this.filterFromDate = new Date();
+        this.filterFromDate.setDate(this.filterFromDate.getDate() - 7);
+        this.filterFromDate.setHours(0);
+        this.filterFromDate.setMinutes(0);
+        this.filterToDate = new Date();
+        this.filterToDate.setHours(23);
+        this.filterToDate.setMinutes(59);
+
+        this.setDatePickerDate(this.filterFromDate, this.filterToDate);
+
+        this.filterTake = 50;
+        this.filters = [];
+    }
+
+    setDatePickerValue(preset: DatePickerPreset): void {
+        this.setDatePickerDate(preset.from, preset.to);
+    }
+
+    setDatePickerDate(from: Date, to: Date): void {
+        this.filterFromDate = from;
+        this.filterToDate = to;
+
+        let dateFilterFormat = 'yyyy MMM d  HH:mm';
+        (<any>this.$refs.filterDate).selectDateString 
+            = `${DateUtils.FormatDate(this.filterFromDate, dateFilterFormat)} - ${DateUtils.FormatDate(this.filterToDate, dateFilterFormat)}`;
+    }
+
     loadData(): void {
         this.metadataLoadInProgress = true;
         this.dataLoadFailed = false;
@@ -194,7 +367,38 @@ export default class DataflowPageComponent extends Vue {
         this.streamMetadatas = data;
     }
 
-    loadStreamEntries(filter: GetDataflowEntriesRequestModel): void {
+    loadStreamEntries(): void {
+        if (this.selectedStream == null)
+        {
+            return;
+        }
+
+        let fromDate = null;
+        let toDate = null;
+        if (this.selectedStream.SupportsFilterByDate)
+        {
+            fromDate = this.filterFromDate;
+            toDate = this.filterToDate;
+        }
+
+        let propFilters: any = {};
+        this.filters
+            .filter(x => x.value != null && x.value.length > 0)
+            .forEach(item => {
+                propFilters[item.propertyName] = item.value;
+            });
+
+        let filter: GetDataflowEntriesRequestModel = {
+            StreamId: this.selectedStream.Id,
+            StreamFilter: {
+                Take: this.filterTake,
+                Skip: 0,
+                FromDate: fromDate,
+                ToDate: toDate,
+                PropertyFilters: propFilters
+            }
+        };
+
         this.streamEntries = [];
         this.dataLoadInProgress = true;
         this.dataLoadFailed = false;
@@ -232,17 +436,45 @@ export default class DataflowPageComponent extends Vue {
         });
     }
 
-    setActveStream(stream: DataflowStreamMetadata): void {
-        this.selectedStream = stream;
-        this.loadStreamEntries({
-            StreamId: this.selectedStream.Id,
-            StreamFilter: {
-                Take: 500,
-                Skip: 0,
-                FromDate: null,
-                ToDate: null
+    onFilterSelected(): void {
+        if (this.selectedFilter != null && this.filters.findIndex(x => x.propertyName == this.selectedFilter) == -1)
+        {
+            let text = this.selectedFilter;
+            let info = null;
+            if(this.selectedStream != null)
+            {
+                info = this.selectedStream.PropertyDisplayInfo.filter(x => x.PropertyName == this.selectedFilter)[0];
             }
+            if (info != null)
+            {
+                text = info.DisplayName || info.PropertyName;
+            }
+
+            this.filters.push({
+                propertyName: this.selectedFilter,
+                text: text,
+                value: ''
+            });
+        }
+
+        this.$nextTick(() => {
+            this.selectedFilter = '';
         });
+    }
+
+    setActveStream(stream: DataflowStreamMetadata): void {
+        if (this.dataLoadInProgress) {
+            return;
+        }
+
+        if (this.selectedStream != null)
+        {
+            this.filtersPerStream[this.selectedStream.Id] = this.filters;
+        }
+
+        this.selectedStream = stream;
+        
+        this.filters = this.filtersPerStream[this.selectedStream.Id] || [];
     }
     
     toggleSideMenu(): void {
@@ -272,7 +504,8 @@ export default class DataflowPageComponent extends Vue {
                 align: 'left',
                 uiOrder: 99999999,
                 visibility: DataFlowPropertyUIVisibilityOption.Always,
-                type: 'text'
+                type: DataFlowPropertyUIHint.Raw,
+                isFilterable: false
             });
         }
         
@@ -289,9 +522,10 @@ export default class DataflowPageComponent extends Vue {
             header.text = info.DisplayName || info.PropertyName;
             header.value = info.PropertyName,
             header.uiOrder = info.UIOrder,
-            header.uiHint = info.UIHint || 'text',
+            header.uiHint = info.UIHint || DataFlowPropertyUIHint.Raw,
             header.dateTimeFormat = info.DateTimeFormat,
-            header.visibility = info.Visibility
+            header.visibility = info.Visibility,
+            header.isFilterable = info.IsFilterable
         }
 
         headers = headers
@@ -309,12 +543,13 @@ export default class DataflowPageComponent extends Vue {
             .map(x => {
                 return {
                     key: x.text,
-                    value: this.getTableColumnValue((<any>entry)[x.value], x)
+                    value: this.getTableColumnValue((<any>entry)[x.value], x, isExpanded),
+                    uiHint: x.uiHint
                 };
             });
     }
 
-    getTableColumnValue(raw: any, header: any): any
+    getTableColumnValue(raw: any, header: any, isExpanded: boolean): any
     {
         let uiHint = (header != null) ? header.uiHint : null;
         if (uiHint == DataFlowPropertyUIHint.DateTime)
@@ -358,6 +593,10 @@ export default class DataflowPageComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    onDateRangeChanged(data: any): void {
+        this.filterFromDate = data.startDate;
+        this.filterToDate = data.endDate;
+    }
 }
 </script>
 
@@ -374,5 +613,12 @@ export default class DataflowPageComponent extends Vue {
     .expanded-item-details-value {
         display: inline-block;
     }
+}
+.datepicker-button {
+    float: right;
+    position: absolute;
+    right: 2px;
+    top: 5px;
+    z-index: 2;
 }
 </style>

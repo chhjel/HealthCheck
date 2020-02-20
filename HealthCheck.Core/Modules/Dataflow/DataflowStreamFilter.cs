@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.Dataflow
 {
@@ -26,6 +27,12 @@ namespace HealthCheck.Core.Modules.Dataflow
         /// If not null, only include up until the given date.
         /// </summary>
         public DateTime? ToDate { get; set; }
+
+        /// <summary>
+        /// Filter on property values.
+        /// <para>Keys are property names and values are input values.</para>
+        /// </summary>
+        public Dictionary<string, string> PropertyFilters { get; set; }
     }
 
 }

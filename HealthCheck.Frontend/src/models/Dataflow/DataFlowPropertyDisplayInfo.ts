@@ -1,7 +1,7 @@
 export default interface DataFlowPropertyDisplayInfo {
     PropertyName: string;
     DisplayName: string;
-    Hidden: boolean;
+    IsFilterable: boolean;
     Visibility: DataFlowPropertyUIVisibilityOption,
     UIOrder: number;
     UIHint: DataFlowPropertyUIHint;
@@ -11,7 +11,11 @@ export default interface DataFlowPropertyDisplayInfo {
 export enum DataFlowPropertyUIHint
 {
     Raw = 'Raw',
-    DateTime = 'DateTime'
+    DateTime = 'DateTime',
+    Dictionary = 'Dictionary',
+    List = 'List',
+    Link = 'Link',
+    Image = 'Image'
 }
 
 export enum DataFlowPropertyUIVisibilityOption

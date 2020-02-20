@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.Dataflow
 {
@@ -19,8 +20,9 @@ namespace HealthCheck.Core.Modules.Dataflow
 
         /// <summary>
         /// Order of this property. Lower = earlier.
+        /// <para>Default: 99999999</para>
         /// </summary>
-        public int UIOrder { get; set; }
+        public int UIOrder { get; set; } = 99999999;
 
         /// <summary>
         /// Hint of how to display this field.
@@ -31,6 +33,11 @@ namespace HealthCheck.Core.Modules.Dataflow
         /// Option for the properties visibility.
         /// </summary>
         public DataFlowPropertyUIVisibilityOption Visibility { get; set; } = DataFlowPropertyUIVisibilityOption.Always;
+
+        /// <summary>
+        /// True if a filter should be shown for this property.
+        /// </summary>
+        public bool IsFilterable { get; set; }
 
         /// <summary>
         /// Options for a property on an entry coming from a dataflow source.
@@ -46,15 +53,35 @@ namespace HealthCheck.Core.Modules.Dataflow
         public enum DataFlowPropertyUIHint
         {
             /// <summary>
-            /// Display the data as it is.
+            /// Display the data as it is serialized.
             /// </summary>
             Raw = 0,
 
             /// <summary>
-            /// Display as date, time or both.
+            /// Display as date, time or both. Can be used for <see cref="DateTime"/> property types.
             /// <para>Defaults to 'MMMM d, yyyy @ HH:mm:ss' and can be customized through <see cref="DateTimeFormat"/>.</para>
             /// </summary>
-            DateTime
+            DateTime,
+
+            /// <summary>
+            /// Display as a key/value list. Can be used for <see cref="Dictionary{T,Y}"/> property types.
+            /// </summary>
+            Dictionary,
+
+            /// <summary>
+            /// Display as a list. Can be used for array/list property types.
+            /// </summary>
+            List,
+
+            /// <summary>
+            /// Display as a link using the value as href.
+            /// </summary>
+            Link,
+
+            /// <summary>
+            /// Display as an image using the value as src.
+            /// </summary>
+            Image
         }
 
         /// <summary>

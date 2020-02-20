@@ -29,6 +29,11 @@ namespace HealthCheck.Core.Modules.Dataflow
         bool SupportsFilterByDate { get; }
 
         /// <summary>
+        /// True if the stream supports property value filtering in <see cref="GetLatestStreamEntriesAsync"/>.
+        /// </summary>
+        bool SupportsFilterByPropertyValue { get; }
+
+        /// <summary>
         /// Returns the latest entries filtered.
         /// </summary>
         Task<IEnumerable<IDataflowEntry>> GetLatestStreamEntriesAsync(DataflowStreamFilter filter);

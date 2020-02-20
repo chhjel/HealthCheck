@@ -12,5 +12,9 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
         public string Name { get; set; }
 
         public Dictionary<string, string> Properties { get; set; }
+
+        public List<string> TestList => new List<string>() { "EntryPointNotFoundException", "DuplicateWaitObjectException", "ExecutionEngineException" };
+        public string TestLink => "https://www.google.com";
+        public string TestImage => "https://previews.123rf.com/images/victoroancea/victoroancea1201/victoroancea120100059/12055848-tv-color-test-pattern-test-card-for-pal-and-ntsc.jpg";
     }
 }

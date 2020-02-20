@@ -3,4 +3,5 @@ export default interface DataflowStreamFilter {
     Take: number;
     FromDate: Date | null;
     ToDate: Date | null;
+    PropertyFilters: any;
 }

@@ -10,6 +10,7 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
         public override string Name => $"Dev Stream {Suffix}";
         public override string Description => $"Description for stream '{Name}'.";
         public override bool SupportsFilterByDate => (Suffix == "A");
+        public override bool SupportsFilterByPropertyValue => (Suffix == "A");
         private string Suffix { get; }
 
         public TestStream(string suffix)
@@ -25,12 +26,14 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
             RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.Code))
             {
                 DisplayName = "The product code",
-                UIOrder = 0
+                UIOrder = 0,
+                IsFilterable = true
             });
             RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.Name))
             {
                 DisplayName = "The product name",
-                UIOrder = 1
+                UIOrder = 1,
+                IsFilterable = true
             });
             RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.InsertionTime))
             {
@@ -39,7 +42,23 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
             });
             RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.Properties))
             {
-                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.Raw,
+                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.Dictionary,
+                Visibility = DataFlowPropertyDisplayInfo.DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded
+            });
+            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.TestList))
+            {
+                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.List,
+                Visibility = DataFlowPropertyDisplayInfo.DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded
+            });
+            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.TestLink))
+            {
+                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.Link,
+                Visibility = DataFlowPropertyDisplayInfo.DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded,
+                IsFilterable = true
+            });
+            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.TestImage))
+            {
+                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.Image,
                 Visibility = DataFlowPropertyDisplayInfo.DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded
             });
         }
