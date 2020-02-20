@@ -137,11 +137,27 @@ namespace HealthCheck.Core.Util
         /// Perform the given changes on all rows that match the given condition.
         /// </summary>
         public void UpdateWhere(Func<TItem, bool> condition, Func<TItem, TItem> update)
+            => UpdateWhereInternal(condition, update);
+
+        /// <summary>
+        /// Perform the given changes on all rows that match the given condition.
+        /// </summary>
+        internal void UpdateWhereInternal(Func<TItem, bool> condition, Func<TItem, TItem> update, IEnumerable<string> mustContainAny = null)
         {
+            bool mustContainCheck(string line)
+            {
+                return mustContainAny == null || mustContainAny.Any(x => line.Contains(x));
+            }
+
             lock (NewRowsBuffer)
             {
                 for (int i = 0; i < NewRowsBuffer.Count; i++)
                 {
+                    if (!mustContainCheck(NewRowsBuffer[i]))
+                    {
+                        continue;
+                    }
+
                     var item = DeserializeRow(NewRowsBuffer[i]);
                     if (item != null && condition(item))
                     {
@@ -156,10 +172,10 @@ namespace HealthCheck.Core.Util
                 var tempFile = Path.GetTempFileName();
 
                 var updatedLines = File.ReadLines(FilePath)
-                    .Select(row => new { row, item = DeserializeRow(row) })
+                    .Select(row => new { row, item = mustContainCheck(row) ? new Maybe<TItem>(DeserializeRow(row)) : null })
                     .Select(x =>
-                        (x.item != null && condition(x.item))
-                            ? SerializeItem(update(x.item))
+                        (x.item != null && x.item.HasValue && condition(x.item.Value))
+                            ? SerializeItem(update(x.item.Value))
                             : x.row
                     );
 

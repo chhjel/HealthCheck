@@ -13,7 +13,9 @@
                 <v-list expand class="menu-items">
                     <v-list-tile ripple
                         v-for="(diagram, diagramIndex) in diagrams"
-                        :key="`testset-menu-${diagramIndex}`"
+                        :key="`diagram-menu-${diagramIndex}`"
+                        class="testset-menu-item"
+                        :class="{ 'active': (currentDiagram == diagram && !sandboxMode) }"
                         @click="setActveDiagram(diagram)">
                         <v-list-tile-title v-text="diagram.title"></v-list-tile-title>
                     </v-list-tile>
@@ -22,6 +24,8 @@
 
                     <v-list-tile ripple 
                         v-if="options.EnableDiagramSandbox"
+                        class="testset-menu-item"
+                        :class="{ 'active': (sandboxMode) }"
                         @click="sandboxMode = true">
                         <v-list-tile-title v-text="'Sandbox'"></v-list-tile-title>
                     </v-list-tile>

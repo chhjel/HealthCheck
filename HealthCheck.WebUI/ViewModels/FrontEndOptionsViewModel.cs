@@ -95,6 +95,16 @@ namespace HealthCheck.WebUI.ViewModels
         public string DiagramsDataEndpoint { get; set; }
 
         /// <summary>
+        /// Url to the endpoint that returns dataflow stream metadata.
+        /// </summary>
+        public string GetDataflowStreamEntriesEndpoint { get; set; }
+
+        /// <summary>
+        /// Url to the endpoint that returns dataflow stream entries.
+        /// </summary>
+        public string GetDataflowStreamsMetadataEndpoint { get; set; }
+
+        /// <summary>
         /// Number of minutes past the end of a site event it will be displayed below "Current status" on the status page.
         /// <para>Defaults to 30 minutes.</para>
         /// </summary>
@@ -159,6 +169,7 @@ namespace HealthCheck.WebUI.ViewModels
             HealthCheckPageType.Overview,
             HealthCheckPageType.Tests,
             HealthCheckPageType.RequestLog,
+            HealthCheckPageType.Dataflow,
             HealthCheckPageType.Documentation,
             HealthCheckPageType.LogViewer,
             HealthCheckPageType.AuditLog
@@ -187,6 +198,8 @@ namespace HealthCheck.WebUI.ViewModels
             GetRequestLogEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetRequestLog";
             ClearRequestLogEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/ClearRequestLog";
             DiagramsDataEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetDiagrams";
+            GetDataflowStreamsMetadataEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetDataflowStreamsMetadata";
+            GetDataflowStreamEntriesEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetDataflowStreamEntries";
             HasAccessToClearRequestLog = true;
         }
 

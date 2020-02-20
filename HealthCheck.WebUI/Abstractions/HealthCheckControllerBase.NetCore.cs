@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Modules.LogViewer.Models;
 using System.Collections.Generic;
+using HealthCheck.Core.Modules.Dataflow;
 
 namespace HealthCheck.WebUI.Abstractions
 {
@@ -328,6 +329,33 @@ namespace HealthCheck.WebUI.Abstractions
             if (!Enabled || !Helper.CanShowDocumentationPageTo(CurrentRequestAccessRoles)) return NotFound();
 
             var viewModel = Helper.GetDiagramsViewModel(CurrentRequestAccessRoles);
+            return CreateJsonResult(viewModel);
+        }
+
+        /// <summary>
+        /// Get dataflow streams metadata to show in the UI.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        [Route("GetDataflowStreamsMetadata")]
+        public virtual ActionResult GetDataflowStreamsMetadata()
+        {
+            if (!Enabled || !Helper.CanShowDataflowPageTo(CurrentRequestAccessRoles)) return NotFound();
+
+            var viewModel = Helper.GetDataflowStreamsMetadata(CurrentRequestAccessRoles);
+            return CreateJsonResult(viewModel);
+        }
+
+        /// <summary>
+        /// Get dataflow streams metadata to show in the UI.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        [HttpPost]
+        [Route("GetDataflowStreamEntries")]
+        public virtual async Task<ActionResult> GetDataflowStreamEntries([FromBody] GetDataflowStreamEntriesFilter filter)
+        {
+            if (!Enabled || !Helper.CanShowDataflowPageTo(CurrentRequestAccessRoles)) return NotFound();
+
+            var viewModel = await Helper.GetDataflowEntries(filter.StreamId, filter.StreamFilter, CurrentRequestAccessRoles);
             return CreateJsonResult(viewModel);
         }
 

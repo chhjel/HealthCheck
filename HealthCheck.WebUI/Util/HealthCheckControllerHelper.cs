@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using HealthCheck.WebUI.Models.Api;
 using System.Web;
 using System.IO;
+using HealthCheck.Core.Modules.Dataflow;
 
 namespace HealthCheck.WebUI.Util
 {
@@ -120,8 +121,9 @@ namespace HealthCheck.WebUI.Util
         private const string PAGE_TESTS = "tests";
         private const string PAGE_AUDITLOG = "auditlog";
         private const string PAGE_LOGS = "logviewer";
-        private const string PAGE_DOCUMENTATION = "documentation";
         private const string PAGE_REQUESTLOG = "requestlog";
+        private const string PAGE_DOCUMENTATION = "documentation";
+        private const string PAGE_DATAFLOW = "dataflow";
         private const string Q = "\"";
 
         /// <summary>
@@ -510,6 +512,12 @@ namespace HealthCheck.WebUI.Util
             => Services.SequenceDiagramService != null && CanShowPageTo(accessRoles, AccessOptions.DocumentationPageAccess, defaultValue: false);
 
         /// <summary>
+        /// Check if the given roles has access to view the dataflow page.
+        /// </summary>
+        public bool CanShowDataflowPageTo(Maybe<TAccessRole> accessRoles)
+            => Services.DataflowService != null && CanShowPageTo(accessRoles, AccessOptions.DataflowPageAccess, defaultValue: false);
+
+        /// <summary>
         /// Check if the given roles has access to calling the ping endpoint.
         /// </summary>
         public bool CanUsePingEndpoint(Maybe<TAccessRole> accessRoles)
@@ -576,6 +584,16 @@ namespace HealthCheck.WebUI.Util
                 frontEndOptions.DiagramsDataEndpoint = deniedEndpoint;
             }
 
+            if (CanShowDataflowPageTo(accessRoles))
+            {
+                frontEndOptions.Pages.Add(PAGE_DATAFLOW);
+            }
+            else
+            {
+                frontEndOptions.GetDataflowStreamsMetadataEndpoint = deniedEndpoint;
+                frontEndOptions.GetDataflowStreamEntriesEndpoint = deniedEndpoint;
+            }
+
             if (!CanClearRequestLog(accessRoles))
             {
                 frontEndOptions.ClearRequestLogEndpoint = deniedEndpoint;
@@ -608,6 +626,7 @@ namespace HealthCheck.WebUI.Util
             else if (type == HealthCheckPageType.LogViewer) return PAGE_LOGS;
             else if (type == HealthCheckPageType.RequestLog) return PAGE_REQUESTLOG;
             else if (type == HealthCheckPageType.Documentation) return PAGE_DOCUMENTATION;
+            else if (type == HealthCheckPageType.Dataflow) return PAGE_DATAFLOW;
             else throw new NotImplementedException($"Page type {type.ToString()} not fully implemented yet.");
         }
 
@@ -742,6 +761,28 @@ namespace HealthCheck.WebUI.Util
             return events
                 .Where(x => AuditEventMatchesFilter(x, filter))
                 .Select(x => TestsViewModelsFactory.CreateViewModel(x));
+        }
+
+        /// <summary>
+        /// Get viewmodel for dataflow entries result.
+        /// </summary>
+        public async Task<IEnumerable<IDataflowEntry>> GetDataflowEntries(string streamId, DataflowStreamFilter filter, Maybe<TAccessRole> accessRoles)
+        {
+            if (Services.DataflowService == null || !CanShowDataflowPageTo(accessRoles))
+                return Enumerable.Empty<IDataflowEntry>();
+
+            return await Services.DataflowService.GetEntries(streamId, filter);
+        }
+
+        /// <summary>
+        /// Get viewmodel for dataflow streams metadata result.
+        /// </summary>
+        public IEnumerable<DataflowStreamMetadata> GetDataflowStreamsMetadata(Maybe<TAccessRole> accessRoles)
+        {
+            if (Services.DataflowService == null || !CanShowDataflowPageTo(accessRoles))
+                return Enumerable.Empty<DataflowStreamMetadata>();
+
+            return Services.DataflowService.GetStreamMetadata();
         }
 
         private bool AuditEventMatchesFilter(AuditEvent e, AuditEventFilterInputData filter)
