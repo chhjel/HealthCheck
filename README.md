@@ -460,27 +460,54 @@ var options = new DefaultDataflowServiceOptions() {
 IDataflowService service = new DefaultDataflowService(options);
 ```
 
-A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is provided and can be used to store and retrieve latest entries per id to a flatfile + optionally limit the age of entries. Use `.InsertEntries(..)` to insert entries. If used make sure the services are registered as singletons, they are thread safe but only within their own instances.
+A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is provided and can be used to store and retrieve latest entries per id to a flatfile + optionally limit the age of entries.
+* Use `.InsertEntries(..)` method to insert new entries.
+* Use `IsVisible` property to set stream visibility in the UI.
+* Use `AllowInsert` property to optionally ignore any new data attempted to be inserted.
+* If used make sure the services are registered as singletons, they are thread safe but only within their own instances.
 
-<details><summary>Example stream</summary>
+<details><summary>Simple example stream</summary>
 <p>
 
 ```csharp
+    public class MySimpleStream : FlatFileStoredDataflowStream<YourDataModel, string>
+    {
+        public override string Name => $"My Simple Stream";
+        public override string Description => $"The simplest of streams.";
 
+        public MySimpleStream()
+            : base(
+                @"e:\storage\path\my_simple_stream.json",
+                idSelector: (e) => e.Code,
+                idSetter: (e, id) => e.Code = id
+            ) {}
+    }
+```
+</p>
+</details>
+
+<details><summary>Example stream using a few more options</summary>
+<p>
+
+```csharp
     public class MyStream : FlatFileStoredDataflowStream<YourDataModel, string>
     {
-        public override string Id => $"unique_stream_id";
         public override string Name => $"My Stream";
-        public override string Description => $"Description for my stream.";
+        public override string Description => $"A stream using a few more options.";
 
-        public MyStream()
+        public MyStream(IConfig yourOptionalConfigService)
             : base(
-                @"e:\storage\path\mystream.json",
+                @"e:\storage\path\my_stream.json",
                 idSelector: (e) => e.Code,
                 idSetter: (e, id) => e.Code = id,
                 maxEntryAge: TimeSpan.FromDays(7)
             )
         {
+            // Optionally toggle some options at runtime
+            IsVisible = () => yourOptionalConfigService.ShowMyStream;
+            AllowInsert = () => yourOptionalConfigService.EnableMyStreamInserts;
+
+            // Optionally customize object property data
             RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(YourDataModel.Code))
             {
                 DisplayName = "Product Code",

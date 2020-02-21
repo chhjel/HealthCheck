@@ -15,9 +15,9 @@ namespace HealthCheck.WebUI.Services
         where TEntry : IDataflowEntryWithInsertionTime
     {
         /// <summary>
-        /// Id of the stream.
+        /// Id of the stream. Defaults to full typename.
         /// </summary>
-        public abstract string Id { get; }
+        public virtual string Id => GetType().FullName;
 
         /// <summary>
         /// Name of the stream.
@@ -35,11 +35,20 @@ namespace HealthCheck.WebUI.Services
         public virtual bool SupportsFilterByDate => true;
 
         /// <summary>
-        /// Return true to enable the stream.
+        /// Return true to enable the stream in the UI.
+        /// <para>Defaults to true.</para>
         /// </summary>
-        protected bool IsEnabled => IsEnabledGetter?.Invoke() != false;
+        public Func<bool> IsVisible { get; set; } = () => true;
 
-        private Func<bool> IsEnabledGetter { get; }
+        /// <summary>
+        /// Return true to allow insertion of new entries. If false <see cref="InsertEntries(IList{TEntry}, DateTime?)"/> will do nothing.
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public Func<bool> AllowInsert { get; set; } = () => true;
+
+        private bool AllowInsertSafe => AllowInsert == null || AllowInsert() == true;
+        private bool IsVisibleSafe => IsVisible == null || IsVisible() == true;
+
         private SimpleDataStoreWithId<TEntry, TEntryId> Store { get; set; }
         private readonly Dictionary<string, DataFlowPropertyDisplayInfo> PropertyInfos = new Dictionary<string, DataFlowPropertyDisplayInfo>();
 
@@ -50,12 +59,9 @@ namespace HealthCheck.WebUI.Services
             string filepath,
             Func<TEntry, TEntryId> idSelector,
             Action<TEntry, TEntryId> idSetter,
-            TimeSpan? maxEntryAge = null,
-            Func<bool> isEnabled = null
+            TimeSpan? maxEntryAge = null
         )
         {
-            IsEnabledGetter = isEnabled;
-
             Store = new SimpleDataStoreWithId<TEntry, TEntryId>(
                 filepath,
                 serializer: new Func<TEntry, string>((e) => JsonConvert.SerializeObject(e)),
@@ -91,7 +97,7 @@ namespace HealthCheck.WebUI.Services
         /// </summary>
         public TEntry InsertEntry(TEntry entry, DateTime? timestamp = null)
         {
-            if (!IsEnabled) return entry;
+            if (!AllowInsertSafe || entry == null) return entry;
 
             entry.InsertionTime = timestamp ?? DateTime.Now;
             entry = Store.InsertOrUpdateItem(entry);
@@ -104,7 +110,7 @@ namespace HealthCheck.WebUI.Services
         /// </summary>
         public void InsertEntries(IList<TEntry> entries, DateTime? timestamp = null)
         {
-            if (!IsEnabled) return;
+            if (!AllowInsertSafe || entries == null) return;
 
             foreach (var entry in entries)
             {
@@ -119,7 +125,7 @@ namespace HealthCheck.WebUI.Services
         /// </summary>
         public virtual async Task<IEnumerable<IDataflowEntry>> GetLatestStreamEntriesAsync(DataflowStreamFilter filter)
         {
-            if (!IsEnabled) return await Task.FromResult(Enumerable.Empty<IDataflowEntry>());
+            if (!IsVisibleSafe) return await Task.FromResult(Enumerable.Empty<IDataflowEntry>());
 
             var items = Store.GetEnumerable();
 

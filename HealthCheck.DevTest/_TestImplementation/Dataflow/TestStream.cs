@@ -9,7 +9,6 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
 {
     public class TestStream : FlatFileStoredDataflowStream<TestEntry, string>
     {
-        public override string Id => $"dev_stream_{Suffix}";
         public override string Name => $"Dev Stream {Suffix}";
         public override string Description => $"Description for stream '{Name}'.";
         public override bool SupportsFilterByDate => (Suffix == "A");
@@ -21,6 +20,7 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
                 idSelector: (e) => e.Code,
                 idSetter: (e, id) => e.Code = id,
                 maxEntryAge: TimeSpan.FromDays(1)
+                //isEnabled: () => someConfigService.EnableMyStream
             )
         {
             Suffix = suffix;

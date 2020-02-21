@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.Dataflow
@@ -21,7 +22,12 @@ namespace HealthCheck.Core.Modules.Dataflow
         /// <summary>
         /// Description of the stream to show in the UI.
         /// </summary>
-        public string Description { get; }
+        string Description { get; }
+
+        /// <summary>
+        /// True if the stream should be visible.
+        /// </summary>
+        Func<bool> IsVisible { get; }
 
         /// <summary>
         /// True if the stream supports datetime filtering in <see cref="GetLatestStreamEntriesAsync"/>.

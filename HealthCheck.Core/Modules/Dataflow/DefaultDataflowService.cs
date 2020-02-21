@@ -27,6 +27,7 @@ namespace HealthCheck.Core.Modules.Dataflow
         public List<DataflowStreamMetadata> GetStreamMetadata()
         {
             return (Options.Streams ?? Enumerable.Empty<IDataflowStream>())
+                .Where(x => x.IsVisible?.Invoke() != false)
                 .Select(x => new DataflowStreamMetadata
                 {
                     Id = x.Id,
@@ -44,7 +45,7 @@ namespace HealthCheck.Core.Modules.Dataflow
         public async Task<IEnumerable<IDataflowEntry>> GetEntries(string streamId, DataflowStreamFilter filter)
         {
             var stream = Options.Streams?.FirstOrDefault(x => x.Id == streamId);
-            if (stream == null)
+            if (stream == null || stream.IsVisible?.Invoke() == false)
             {
                 return Enumerable.Empty<IDataflowEntry>();
             }

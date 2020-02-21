@@ -335,7 +335,7 @@ export default class DataflowPageComponent extends Vue {
         let didSelectStream = false;
         const selectedItem = parts[1];
         if (selectedItem !== undefined && selectedItem.length > 0) {
-            let stream = this.streamMetadatas.filter(x => UrlUtils.EncodeHashPart(x.Id) == selectedItem)[0];
+            let stream = this.streamMetadatas.filter(x => UrlUtils.EncodeHashPart(x.Name) == selectedItem)[0];
             if (stream != null)
             {
                 didSelectStream = true;
@@ -356,7 +356,7 @@ export default class DataflowPageComponent extends Vue {
 
             if (this.selectedStream != null)
             {
-                parts.push(UrlUtils.EncodeHashPart(this.selectedStream.Id));
+                parts.push(UrlUtils.EncodeHashPart(this.selectedStream.Name));
             }
         }
 
