@@ -108,6 +108,7 @@
                                     label="Filter on property"
                                     v-model="selectedFilter"
                                     v-on:change="onFilterSelected"
+                                    v-show="filterChoices.length > 0"
                                 ></v-select>
                                 <div v-for="(filter, findex) in filters"
                                     :key="`dataflow-filter-${findex}`">

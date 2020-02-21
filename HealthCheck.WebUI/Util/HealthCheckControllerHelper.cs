@@ -771,6 +771,8 @@ namespace HealthCheck.WebUI.Util
             if (Services.DataflowService == null || !CanShowDataflowPageTo(accessRoles))
                 return Enumerable.Empty<IDataflowEntry>();
 
+            filter = filter ?? new DataflowStreamFilter();
+            filter.PropertyFilters = filter.PropertyFilters ?? new Dictionary<string, string>();
             return await Services.DataflowService.GetEntries(streamId, filter);
         }
 

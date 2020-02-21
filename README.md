@@ -14,6 +14,7 @@ Modules:
 * Log searcher module for searching through logfiles on disk.
 * Request log module that lists controllers and actions with their latest requests and errors.
 * Documentation module that shows generated sequence diagrams from code decorated with attributes.
+* Dataflow module that can show filtered custom data. For e.g. previewing the latest imported/exported data.
 
 ## Getting started
 
@@ -445,6 +446,73 @@ var options = new DefaultSequenceDiagramServiceOptions()
 };
 ISequenceDiagramService service = new DefaultSequenceDiagramService(options);
 ```
+
+
+### IDataflowService
+If an `IDataflowService` is provided in the controller the dataflow tab will become available where custom data can be shown.
+
+A default implementation `DefaultDataflowService` is provided where custom data streams can be registered. Data can be fetched in the ui for each registered stream, optionally filtered on and each property given a hint for how to be displayed. 
+
+```csharp
+var options = new DefaultDataflowServiceOptions() {
+    Streams = <your streams>
+};
+IDataflowService service = new DefaultDataflowService(options);
+```
+
+A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is provided and can be used to store and retrieve latest entries per id to a flatfile + optionally limit the age of entries. Use `.InsertEntries(..)` to insert entries. If used make sure the services are registered as singletons, they are thread safe but only within their own instances.
+
+<details><summary>Example stream</summary>
+<p>
+
+```csharp
+
+    public class MyStream : FlatFileStoredDataflowStream<YourDataModel, string>
+    {
+        public override string Id => $"unique_stream_id";
+        public override string Name => $"My Stream";
+        public override string Description => $"Description for my stream.";
+
+        public MyStream()
+            : base(
+                @"e:\storage\path\mystream.json",
+                idSelector: (e) => e.Code,
+                idSetter: (e, id) => e.Code = id,
+                maxEntryAge: TimeSpan.FromDays(7)
+            )
+        {
+            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(YourDataModel.Code))
+            {
+                DisplayName = "Product Code",
+                UIOrder = 0,
+                IsFilterable = true,
+            });
+            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(YourDataModel.Details))
+            {
+                UIOrder = 1,
+                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.Dictionary,
+                Visibility = DataFlowPropertyDisplayInfo.DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded
+            });
+        }
+        
+        // Override FilterEntries method to implement any custom filtering.
+        // To show a filter in frontend IsFilterable must be set to true in RegisterPropertyDisplayInfo above.
+        protected override Task<IEnumerable<YourDataModel>> FilterEntries(DataflowStreamFilter filter, IEnumerable<YourDataModel> entries)
+        {
+            // Get user input for Code property
+            var codeFilter = filter.GetPropertyFilterInput(nameof(YourDataModel.Code));
+            // Filter on property
+            entries = entries.Where(x => codeFilter == null || x.Code.ToLower().Contains(codeFilter));
+            
+            // Or use the FilterContains shortcut for the same effect
+            entries = filter.FilterContains(entries, nameof(YourDataModel.Code), x => x.Code);
+
+            return Task.FromResult(entries);
+        }
+    }
+```
+</p>
+</details>
 
 ## Scheduled health checks
 

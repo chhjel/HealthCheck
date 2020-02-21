@@ -30,11 +30,6 @@ namespace HealthCheck.WebUI.Services
         public abstract string Description { get; }
 
         /// <summary>
-        /// True if the stream supports property value filtering in <see cref="IDataflowStream.GetLatestStreamEntriesAsync(DataflowStreamFilter)"/>.
-        /// </summary>
-        public abstract bool SupportsFilterByPropertyValue { get; }
-
-        /// <summary>
         /// True if the stream allows to filter by date.
         /// </summary>
         public virtual bool SupportsFilterByDate => true;
@@ -126,9 +121,7 @@ namespace HealthCheck.WebUI.Services
         {
             if (!IsEnabled) return await Task.FromResult(Enumerable.Empty<IDataflowEntry>());
 
-            var items = Store.GetEnumerable()
-                .Skip(filter.Skip)
-                .Take(filter.Take);
+            var items = Store.GetEnumerable();
 
             if (filter.FromDate != null)
             {
@@ -140,8 +133,19 @@ namespace HealthCheck.WebUI.Services
                 items = items.Where(x => x.InsertionTime <= filter.ToDate);
             }
 
-            return items.Cast<IDataflowEntry>();
+            items = await FilterEntries(filter, items);
+
+            return items
+                .Skip(filter.Skip)
+                .Take(filter.Take)
+                .Cast<IDataflowEntry>();
         }
+
+        /// <summary>
+        /// Optionally filter entries here.
+        /// </summary>
+        protected virtual async Task<IEnumerable<TEntry>> FilterEntries(DataflowStreamFilter filter, IEnumerable<TEntry> entries)
+            => await Task.FromResult(entries).ConfigureAwait(false);
 
         /// <summary>
         /// Get any registered property infos.

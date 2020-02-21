@@ -1,6 +1,9 @@
 ﻿using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.WebUI.Services;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HealthCheck.DevTest._TestImplementation.Dataflow
 {
@@ -10,7 +13,6 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
         public override string Name => $"Dev Stream {Suffix}";
         public override string Description => $"Description for stream '{Name}'.";
         public override bool SupportsFilterByDate => (Suffix == "A");
-        public override bool SupportsFilterByPropertyValue => (Suffix == "A");
         private string Suffix { get; }
 
         public TestStream(string suffix)
@@ -71,6 +73,18 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
                 UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.Image,
                 Visibility = DataFlowPropertyDisplayInfo.DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded
             });
+        }
+
+        protected override Task<IEnumerable<TestEntry>> FilterEntries(DataflowStreamFilter filter, IEnumerable<TestEntry> entries)
+        {
+            // Get user input for Code property
+            var codeFilter = filter.GetPropertyFilterInput(nameof(TestEntry.Code));
+            // Filter on property
+            entries = entries.Where(x => codeFilter == null || x.Code.ToLower().Contains(codeFilter));
+
+            entries = filter.FilterContains(entries, nameof(TestEntry.Name), x => x.Name);
+
+            return Task.FromResult(entries);
         }
     }
 }
