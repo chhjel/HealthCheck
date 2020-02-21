@@ -28,7 +28,7 @@
                         v-if="options.EnableDiagramSandbox"
                         class="testset-menu-item"
                         :class="{ 'active': (sandboxMode) }"
-                        @click="sandboxMode = true">
+                        @click="showSandboxMode">
                         <v-list-tile-title v-text="'Sandbox'"></v-list-tile-title>
                     </v-list-tile>
                 </v-list>
@@ -239,6 +239,59 @@ Web -> Frontend: Confirmation is delivered
     ////////////////
     //  METHODS  //
     //////////////
+    // Invoked from parent
+    public onPageShow(): void {
+        const parts = (<any>window).documentationState;
+        if (parts != null && parts != undefined) {
+            this.updateUrl(parts);
+        }
+    }
+
+    setFromUrl(forcedParts: Array<string> | null = null): void {
+        const parts = forcedParts || UrlUtils.GetHashParts();
+        
+        const selectedItem = parts[1];
+        if (selectedItem !== undefined && selectedItem.length > 0) {
+            let doc = this.diagrams.filter(x => UrlUtils.EncodeHashPart(x.title) == selectedItem)[0];
+            if (doc != null)
+            {
+                this.setActveDiagram(doc);
+            }
+        }
+
+        if (this.currentDiagram == null && this.diagrams.length > 0)
+        {
+            this.setActveDiagram(this.diagrams[0]);
+        }
+
+        if (selectedItem == 'sandbox')
+        {
+            this.sandboxMode = true;
+            this.updateUrl();
+        }
+    }
+
+    updateUrl(parts?: Array<string> | null): void {
+        if (parts == null)
+        {
+            parts = ['documentation'];
+
+            if (this.sandboxMode == true)
+            {
+                parts.push('sandbox');
+            }
+            else if (this.currentDiagram != null)
+            {
+                parts.push(UrlUtils.EncodeHashPart(this.currentDiagram.title));
+            }
+        }
+
+        UrlUtils.SetHashParts(parts);
+        
+        // Some dirty technical debt before transitioning to propper routing :-)
+        (<any>window).documentationState = parts;
+    }
+
     loadData(): void {
         this.diagramsDataLoadInProgress = true;
         this.diagramsDataLoadFailed = false;
@@ -291,10 +344,9 @@ Web -> Frontend: Confirmation is delivered
             });
         
         this.diagramsDataLoadInProgress = false;
-        if (this.currentDiagram == null && this.diagrams.length > 0)
-        {
-            this.setActveDiagram(this.diagrams[0]);
-        }
+
+        const originalUrlHashParts = UrlUtils.GetHashParts();
+        this.setFromUrl(originalUrlHashParts);
     }
 
     convertStringToSteps(text: string): Array<DiagramStep<DiagramStepDetails | null>>
@@ -394,10 +446,16 @@ Web -> Frontend: Confirmation is delivered
         localStorage.setItem("sandbox_sequencediagram_script", this.sandboxScript);
     }
 
+    showSandboxMode(): void {
+        this.sandboxMode = true;
+        this.updateUrl();
+    }
+
     setActveDiagram(diagram: DiagramData): void {
         this.sandboxMode = false;
         this.currentDiagram = diagram;
         this.selectedStep = null;
+        this.updateUrl();
     }
     
     onStepClicked(step: DiagramStep<DiagramStepDetails>): void

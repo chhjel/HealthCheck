@@ -212,6 +212,18 @@ export default class HealthCheckPageComponent extends Vue {
                 if (requestLogPage != undefined) {
                     requestLogPage.onPageShow();
                 }
+            } else if (page == this.PAGE_DATAFLOW) {
+                UrlUtils.SetHashPart(0, page);
+                const dataflowPage = (<DataflowPageComponent>this.$refs.dataflowPage);
+                if (dataflowPage != undefined) {
+                    dataflowPage.onPageShow();
+                }
+            } else if (page == this.PAGE_DOCUMENTATION) {
+                UrlUtils.SetHashPart(0, page);
+                const documentationPage = (<DocumentationPageComponent>this.$refs.documentationPage);
+                if (documentationPage != undefined) {
+                    documentationPage.onPageShow();
+                }
             } else {
                 UrlUtils.SetHashParts([page]);
             }

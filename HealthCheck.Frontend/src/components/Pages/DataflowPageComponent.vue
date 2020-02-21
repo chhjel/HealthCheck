@@ -320,6 +320,51 @@ export default class DataflowPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    // Invoked from parent
+    public onPageShow(): void {
+        const parts = (<any>window).dataflowState;
+        if (parts != null && parts != undefined) {
+            this.updateUrl(parts);
+        }
+    }
+
+    setFromUrl(forcedParts: Array<string> | null = null): void {
+        const parts = forcedParts || UrlUtils.GetHashParts();
+        
+        let didSelectStream = false;
+        const selectedItem = parts[1];
+        if (selectedItem !== undefined && selectedItem.length > 0) {
+            let stream = this.streamMetadatas.filter(x => UrlUtils.EncodeHashPart(x.Id) == selectedItem)[0];
+            if (stream != null)
+            {
+                didSelectStream = true;
+                this.setActveStream(stream);
+            }
+        }
+
+        if (!didSelectStream && this.streamMetadatas.length > 0)
+        {
+            this.setActveStream(this.streamMetadatas[0]);
+        }
+    }
+
+    updateUrl(parts?: Array<string> | null): void {
+        if (parts == null)
+        {
+            parts = ['dataflow'];
+
+            if (this.selectedStream != null)
+            {
+                parts.push(UrlUtils.EncodeHashPart(this.selectedStream.Id));
+            }
+        }
+
+        UrlUtils.SetHashParts(parts);
+        
+        // Some dirty technical debt before transitioning to propper routing :-)
+        (<any>window).dataflowState = parts;
+    }
+
     resetFilter(): void {
         this.filterFromDate = new Date();
         this.filterFromDate.setDate(this.filterFromDate.getDate() - 7);
@@ -374,6 +419,9 @@ export default class DataflowPageComponent extends Vue {
     onDataFlowMetaDataRetrieved(data: Array<DataflowStreamMetadata>): void {
         this.metadataLoadInProgress = false;
         this.streamMetadatas = data;
+
+        const originalUrlHashParts = UrlUtils.GetHashParts();
+        this.setFromUrl(originalUrlHashParts);
     }
 
     loadStreamEntries(): void {
@@ -484,6 +532,7 @@ export default class DataflowPageComponent extends Vue {
         this.selectedStream = stream;
         
         this.filters = this.filtersPerStream[this.selectedStream.Id] || [];
+        this.updateUrl();
     }
     
     toggleSideMenu(): void {
