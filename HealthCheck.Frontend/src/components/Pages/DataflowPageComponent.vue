@@ -11,12 +11,14 @@
                 class="menu testset-menu">
 
                 <v-list expand class="menu-items">
+                    <filter-input-component class="filter" v-model="streamsFilterText" />
+
                     <v-progress-linear 
                         v-if="metadataLoadInProgress"
                         indeterminate color="green"></v-progress-linear>
                     
                     <v-list-tile ripple
-                        v-for="(stream, streamIndex) in streamMetadatas"
+                        v-for="(stream, streamIndex) in filterStreams(streamMetadatas)"
                         :key="`stream-menu-${streamIndex}`"
                         class="testset-menu-item"
                         :class="{ 'active': (selectedStream == stream) }"
@@ -194,6 +196,7 @@ import DataflowEntryPropertyValueComponent from '../Dataflow/EntryProperties/Dat
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
+import FilterInputComponent from '.././Common/FilterInputComponent.vue';
 
 interface PropFilter
 {
@@ -214,7 +217,8 @@ interface DatePickerPreset {
 @Component({
     components: {
         DataflowEntryPropertyValueComponent,
-        DateTimePicker
+        DateTimePicker,
+        FilterInputComponent
     }
 })
 export default class DataflowPageComponent extends Vue {
@@ -223,6 +227,7 @@ export default class DataflowPageComponent extends Vue {
 
     // UI STATE
     drawerState: boolean = true;
+    streamsFilterText: string = "";
     metadataLoadInProgress: boolean = false;
     dataLoadInProgress: boolean = false;
     dataLoadFailed: boolean = true;
@@ -306,6 +311,10 @@ export default class DataflowPageComponent extends Vue {
             { name: 'Last 60 days', from: DateUtils.CreateDateWithDayOffset(-60), to: endOfToday },
             { name: 'Last 90 days', from: DateUtils.CreateDateWithDayOffset(-90), to: endOfToday }
         ];
+    }
+
+    get showFilterCounts(): boolean {
+        return this.streamsFilterText.length > 0;
     }
 
     ////////////////
@@ -590,6 +599,16 @@ export default class DataflowPageComponent extends Vue {
         return items;
     }
 
+    filterStreams(data: Array<DataflowStreamMetadata>) : Array<DataflowStreamMetadata> {
+        return data.filter(x => this.streamFilterMatches(x));
+    }
+
+    streamFilterMatches(data: DataflowStreamMetadata): boolean {
+        return data.Name.toLowerCase().indexOf(this.streamsFilterText.toLowerCase().trim()) != -1
+            || (data.Description != null 
+                && data.Description.toLowerCase().indexOf(this.streamsFilterText.toLowerCase().trim()) != -1);
+    }
+    
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////

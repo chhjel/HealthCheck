@@ -11,8 +11,10 @@
                 class="menu testset-menu">
 
                 <v-list expand class="menu-items">
+                    <filter-input-component class="filter" v-model="diagramFilterText" />
+
                     <v-list-tile ripple
-                        v-for="(diagram, diagramIndex) in diagrams"
+                        v-for="(diagram, diagramIndex) in filterDocumentation(diagrams)"
                         :key="`diagram-menu-${diagramIndex}`"
                         class="testset-menu-item"
                         :class="{ 'active': (currentDiagram == diagram && !sandboxMode) }"
@@ -133,10 +135,12 @@ import UrlUtils from "../../util/UrlUtils";
 import KeyArray from "../../util/models/KeyArray";
 import KeyValuePair from "../../models/Common/KeyValuePair";
 import SequenceDiagramComponent, { DiagramStep, DiagramLineStyle, DiagramStyle } from "../Common/SequenceDiagramComponent.vue";
+import FilterInputComponent from '.././Common/FilterInputComponent.vue';
 
 interface DiagramData
 {
     title: string;
+    // description: string | null;
     steps: Array<DiagramStep<DiagramStepDetails | null>>;
 }
 interface DiagramStepDetails
@@ -149,7 +153,8 @@ interface DiagramStepDetails
 
 @Component({
     components: {
-        SequenceDiagramComponent
+        SequenceDiagramComponent,
+        FilterInputComponent
     }
 })
 export default class DocumentationPageComponent extends Vue {
@@ -158,6 +163,7 @@ export default class DocumentationPageComponent extends Vue {
 
     // UI STATE
     drawerState: boolean = true;
+    diagramFilterText: string = "";
     diagramsDataLoadInProgress: boolean = false;
     diagramsDataLoadFailed: boolean = true;
     diagramsDataFailedErrorMessage: string = '';
@@ -226,6 +232,10 @@ Web -> Frontend: Confirmation is delivered
         ];
     }
 
+    get showFilterCounts(): boolean {
+        return this.diagramFilterText.length > 0;
+    }
+
     ////////////////
     //  METHODS  //
     //////////////
@@ -259,6 +269,7 @@ Web -> Frontend: Confirmation is delivered
             .map((x) => {
                 return {
                     title: x.Name,
+                    // description: x.Description,
                     steps: x.Steps.map(s => {
                         return {
                             from: s.From,
@@ -362,6 +373,16 @@ Web -> Frontend: Confirmation is delivered
     
     toggleSideMenu(): void {
         this.drawerState = !this.drawerState;
+    }
+
+    filterDocumentation(data: Array<DiagramData>) : Array<DiagramData> {
+        return data.filter(x => this.documentationFilterMatches(x));
+    }
+
+    documentationFilterMatches(data: DiagramData): boolean {
+        return data.title.toLowerCase().indexOf(this.diagramFilterText.toLowerCase().trim()) != -1;
+            // || (data.description != null 
+            //     && data.description.toLowerCase().indexOf(this.diagramFilterText.toLowerCase().trim()) != -1);
     }
 
     ///////////////////////
