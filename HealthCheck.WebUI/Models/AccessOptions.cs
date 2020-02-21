@@ -1,5 +1,14 @@
 ﻿using HealthCheck.Core.Entities;
 using HealthCheck.Core.Util;
+using System;
+
+#if NETFULL
+using System.Web;
+#endif
+
+#if NETCORE
+using Microsoft.AspNetCore.Http;
+#endif
 
 namespace HealthCheck.WebUI.Models
 {
@@ -80,5 +89,23 @@ namespace HealthCheck.WebUI.Models
         /// <para>If not set a 404 will be returned.</para>
         /// </summary>
         public string RedirectTargetOnNoAccess { get; set; }
+
+#if NETFULL
+        /// <summary>
+        /// Redirect url if the request does not have access to any of the content.
+        /// <para>If not set a 404 will be returned.</para>
+        /// <para>Takes priority over <see cref="RedirectTargetOnNoAccess"/>.</para>
+        /// </summary>
+        public Func<HttpRequestBase, string> RedirectTargetOnNoAccessUsingRequest { get; set; }
+#endif
+
+#if NETCORE
+        /// <summary>
+        /// Redirect url if the request does not have access to any of the content.
+        /// <para>If not set a 404 will be returned.</para>
+        /// <para>Takes priority over <see cref="RedirectTargetOnNoAccess"/>.</para>
+        /// </summary>
+        public Func<HttpRequest, string> RedirectTargetOnNoAccessUsingRequest { get; set; }
+#endif
     }
 }

@@ -127,7 +127,10 @@ namespace HealthCheck.WebUI.Abstractions
             if (!Enabled) return HttpNotFound();
             else if (!Helper.HasAccessToAnyContent(CurrentRequestAccessRoles))
             {
-                if (!string.IsNullOrWhiteSpace(AccessOptions.RedirectTargetOnNoAccess)) {
+                var redirectTarget = AccessOptions.RedirectTargetOnNoAccessUsingRequest?.Invoke(Request);
+                if (!string.IsNullOrWhiteSpace(redirectTarget)) {
+                    return Redirect(redirectTarget);
+                } else if (!string.IsNullOrWhiteSpace(AccessOptions.RedirectTargetOnNoAccess)) {
                     return Redirect(AccessOptions.RedirectTargetOnNoAccess);
                 } else {
                     return HttpNotFound();
