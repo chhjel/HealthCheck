@@ -21,6 +21,8 @@ import DataflowEntryPropertyValueListComponent from './DataflowEntryPropertyValu
 import DataflowEntryPropertyValueDictionaryComponent from './DataflowEntryPropertyValueDictionaryComponent.vue';
 import DataflowEntryPropertyValueLinkComponent from './DataflowEntryPropertyValueLinkComponent.vue';
 import DataflowEntryPropertyValueImageComponent from './DataflowEntryPropertyValueImageComponent.vue';
+import DataflowEntryPropertyValuePreformattedComponent from './DataflowEntryPropertyValuePreformattedComponent.vue';
+import DataflowEntryPropertyValueHTMLComponent from './DataflowEntryPropertyValueHTMLComponent.vue';
 import { DataFlowPropertyUIHint } from "../../../models/Dataflow/DataFlowPropertyDisplayInfo";
 
 @Component({
@@ -31,7 +33,9 @@ import { DataFlowPropertyUIHint } from "../../../models/Dataflow/DataFlowPropert
       DataflowEntryPropertyValueListComponent,
       DataflowEntryPropertyValueDictionaryComponent,
       DataflowEntryPropertyValueLinkComponent,
-      DataflowEntryPropertyValueImageComponent
+      DataflowEntryPropertyValueImageComponent,
+      DataflowEntryPropertyValuePreformattedComponent,
+      DataflowEntryPropertyValueHTMLComponent
     }
 })
 export default class DataflowEntryPropertyValueComponent extends Vue {

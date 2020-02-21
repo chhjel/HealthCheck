@@ -81,7 +81,17 @@ namespace HealthCheck.Core.Modules.Dataflow
             /// <summary>
             /// Display as an image using the value as src.
             /// </summary>
-            Image
+            Image,
+
+            /// <summary>
+            /// Display in a pre-tag.
+            /// </summary>
+            Preformatted,
+
+            /// <summary>
+            /// Display as HTML
+            /// </summary>
+            HTML
         }
 
         /// <summary>

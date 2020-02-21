@@ -15,7 +15,9 @@ export enum DataFlowPropertyUIHint
     Dictionary = 'Dictionary',
     List = 'List',
     Link = 'Link',
-    Image = 'Image'
+    Image = 'Image',
+    Preformatted = 'Preformatted',
+    HTML = 'HTML'
 }
 
 export enum DataFlowPropertyUIVisibilityOption

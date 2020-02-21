@@ -10,6 +10,8 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
 
         public string Code { get; set; }
         public string Name { get; set; }
+        public string PreformattedTest => "\tSomething\n\t\there!";
+        public string HtmlTest => "<i>something</i> html <a href=\"#\">here</a>!";
 
         public Dictionary<string, string> Properties { get; set; }
 

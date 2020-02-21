@@ -40,6 +40,16 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
                 UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.DateTime,
                 UIOrder = 2
             });
+            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.PreformattedTest))
+            {
+                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.Preformatted,
+                UIOrder = 3
+            });
+            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.HtmlTest))
+            {
+                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.HTML,
+                UIOrder = 4
+            });
             RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.Properties))
             {
                 UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.Dictionary,
