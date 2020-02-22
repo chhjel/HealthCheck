@@ -1,7 +1,8 @@
 <!-- src/components/common/FlowDiagramComponent.vue -->
 <template>
-	<div>
-		<div ref="diagram"></div>
+	<div class="flowchart">
+		<div class="flowchart__header" v-if="title != null">{{ title }}</div>
+		<div ref="diagram" style="margin: auto;"></div>
     </div>
 </template>
 
@@ -35,6 +36,9 @@ export interface FlowDiagramConnection {
 export default class FlowDiagramComponent<T> extends Vue
 {
 	@Prop({ required: true})
+	title!: string;
+
+	@Prop({ required: true})
 	steps!: Array<FlowDiagramStep<T>>;
 
 	shapeDefault!: joint.dia.Cell.Constructor<joint.dia.Element>;
@@ -64,19 +68,26 @@ export default class FlowDiagramComponent<T> extends Vue
 						refWidth: "100%",
 						refHeight: "100%",
 						fill: "white",
-						stroke: "gray",
-						strokeWidth: 1,
+						// stroke: "gray",
+						// strokeWidth: 1,
 						rx: 0,
 						ry: 0,
-						cursor: 'default',
+						cursor: 'default'
 					},
+					// bodyline: {
+					// 	refWidth: "100%",
+					// 	// refHeight: "100%",
+					// 	height: 1,
+					// 	fill: "gray",
+					// 	cursor: 'default'
+					// },
 					label: {
 						refX: "50%",
 						refY: "50%",
 						yAlignment: "middle",
 						xAlignment: "middle",
 						fontSize: 18,
-						fontFamily: 'monospace',
+						// fontFamily: 'monospace',
 						cursor: 'default'
 					}
 				}
@@ -84,9 +95,24 @@ export default class FlowDiagramComponent<T> extends Vue
 			{
 				markup: [
 					{
+						tagName: 'path',
+						selector: 'line',
+						attributes: {
+							z: -1,
+							type: "path",
+							fill: "red",
+							stroke: "none",
+							cursor: 'default'
+						}
+					},
+					{
 						tagName: "rect",
 						selector: "body"
 					},
+					// {
+					// 	tagName: "rect",
+					// 	selector: "bodyline"
+					// },
 					{
 						tagName: "text",
 						selector: "label"
@@ -99,8 +125,8 @@ export default class FlowDiagramComponent<T> extends Vue
 
 					let lineLengths = text.split('\n').map(x => x.length);
 					let maxLineLength = lineLengths.reduce((a, b) => Math.max(a, b));
-					let width = (maxLineLength * 11) + 10;
-					let height = (lineLengths.length * 20) + 10;
+					let width = (maxLineLength * 11) + 20;
+					let height = (lineLengths.length * 20) + 20;
 
 					this.prop("size/width", width);
 					this.prop("size/height", height);
@@ -108,6 +134,7 @@ export default class FlowDiagramComponent<T> extends Vue
 					if (step.type == FlowDiagramStepType.Start
 						|| step.type == FlowDiagramStepType.End)
 					{
+						this.attr("label/fontWeight", 600);
 						this.attr("body/rx", 10);
 						this.attr("body/ry", 10);
 					}
@@ -118,11 +145,28 @@ export default class FlowDiagramComponent<T> extends Vue
 					}
 					else if (step.type == FlowDiagramStepType.End)
 					{
-						this.attr("body/fill", "#ff5722");
+						this.attr("body/fill", "#babaa5");
 					}
 					else if (step.type == FlowDiagramStepType.If)
 					{
-						this.attr("body/fill", "#ffd54f");
+						this.attr("body/fill", "#d6cba4");
+						this.attr("line/fill", "#d6cba4");
+
+						let arrowSize = 10;
+						let polyPoints = [
+							{ x: -arrowSize,     y: height/2 }, // Left mid
+							{ x:   1, 	  y: 0 },		 // Left top
+							{ x: width-1, y: 0 },		 // Right top
+							{ x: width+arrowSize, y: height/2 },// Right mid
+							{ x: width-1, y: height },   // Right bottom
+							{ x:   1,     y: height }	 // Left bottom
+						];
+						let polyD = polyPoints.map(x => `L ${x.x} ${x.y}`).join(' ');
+						polyD = polyD.substring(2);
+						this.attr("line/d", `M ${polyD} Z`);
+					}
+					else {
+						this.attr("body/fill", "#e3e0d3");
 					}
 
 					return this.attr("label/text", text || "");
@@ -141,12 +185,12 @@ export default class FlowDiagramComponent<T> extends Vue
 				attrs: {
 					line: {
 						connection: true,
-						stroke: "gray",
+						stroke: "#afafaf",
 						strokeWidth: 2,
 						pointerEvents: "none",
 						targetMarker: {
 							type: "path",
-							fill: "gray",
+							fill: "#afafaf",
 							stroke: "none",
 							d: "M 10 -10 0 0 10 10 z"
 						}
@@ -183,12 +227,12 @@ export default class FlowDiagramComponent<T> extends Vue
 								refY: 5,
 								refY2: "-50%",
 								fontSize: 16,
-								fontFamily: 'monospace'
+								// fontFamily: 'monospace'
 								// cursor: "pointer"
 							},
 							labelBody: {
 								fill: "#eeeeee",
-								stroke: "#90a4ae",
+								stroke: "#afafaf",
 								strokeWidth: 1,
 								refWidth: "100%",
 								refHeight: "100%",
@@ -257,7 +301,7 @@ export default class FlowDiagramComponent<T> extends Vue
 				padding:
 				{
 					left: 200,
-					top: 50,
+					top: 30,
 					right: 200,
 					bottom: 50
 				}
@@ -408,4 +452,13 @@ export default class FlowDiagramComponent<T> extends Vue
 </script>
 
 <style scoped lang="scss">
+.flowchart {
+    overflow: auto;
+
+	.flowchart__header {
+        font-weight: 600;
+        text-align: center;
+        font-size: 20px;
+    }
+}
 </style>

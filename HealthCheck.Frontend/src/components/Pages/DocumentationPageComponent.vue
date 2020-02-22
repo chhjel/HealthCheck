@@ -40,7 +40,11 @@
                     <v-flex>
                         <v-container>
                             <!-- TEST_BEGIN -->
-                            <flow-diagram-component :steps="testSteps" />
+                            <flow-diagram-component
+                                class="diagram"
+                                title="Test Flowchart"
+                                :steps="testSteps" />
+                            <br />
                             <!-- TEST_END -->
 
                             <!-- NO DIAGRAMS INFO -->
@@ -190,14 +194,14 @@ export default class DocumentationPageComponent extends Vue {
 			title: 'Pls fix',
 			data: <any>{},
 			connections: [
-				{ target: 'Is it still broken?', label: null }
+				{ target: 'Is it still broken?', label: "Check again" }
 			]
 		},
 		{
 			title: 'Seems everything\nis ok then!',
 			data: <any>{},
 			connections: [
-				{ target: 'End', label: 'Good! Some long label text here!\nAnd a new line :]\nAnd one more!' }
+				{ target: 'End', label: 'Good!' }
 			]
 		},
 		{

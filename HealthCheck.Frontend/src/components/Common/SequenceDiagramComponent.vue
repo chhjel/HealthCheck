@@ -360,6 +360,7 @@ interface InternalOptionalArea {
 
 <style scoped lang="scss">
 .sequence-diagram {
+    overflow: auto;
 
     &.clickable {
         .sequence-diagram__grid-item {
