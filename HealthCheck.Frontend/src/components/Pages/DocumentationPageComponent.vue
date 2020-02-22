@@ -39,6 +39,10 @@
                 <v-layout>
                     <v-flex>
                         <v-container>
+                            <!-- TEST_BEGIN -->
+                            <flow-diagram-component :steps="testSteps" />
+                            <!-- TEST_END -->
+
                             <!-- NO DIAGRAMS INFO -->
                             <v-alert :value="diagrams.length == 0 && !diagramsDataLoadInProgress" type="info">
                                 No documentation was found.<br />
@@ -136,6 +140,7 @@ import KeyArray from "../../util/models/KeyArray";
 import KeyValuePair from "../../models/Common/KeyValuePair";
 import SequenceDiagramComponent, { DiagramStep, DiagramLineStyle, DiagramStyle } from "../Common/SequenceDiagramComponent.vue";
 import FilterInputComponent from '.././Common/FilterInputComponent.vue';
+import FlowDiagramComponent, { FlowDiagramStep, FlowDiagramStepType } from '.././Common/FlowDiagramComponent.vue';
 
 interface DiagramData
 {
@@ -154,12 +159,55 @@ interface DiagramStepDetails
 @Component({
     components: {
         SequenceDiagramComponent,
-        FilterInputComponent
+        FilterInputComponent,
+        FlowDiagramComponent
     }
 })
 export default class DocumentationPageComponent extends Vue {
     @Prop({ required: true })
     options!: FrontEndOptionsViewModel;
+
+    ////
+    testSteps: Array<FlowDiagramStep<DiagramStepDetails>> = [
+		{
+			title: 'Start',
+            data: <any>{},
+            type: FlowDiagramStepType.Start,
+			connections: [
+				{ target: 'Is it still broken?', label: null }
+			]
+		},
+		{
+			title: 'Is it still broken?',
+			data: <any>{},
+            type: FlowDiagramStepType.If,
+			connections: [
+				{ target: 'Seems everything\nis ok then!', label: 'Yes' },
+				{ target: 'Pls fix', label: 'No' }
+			]
+		},
+		{
+			title: 'Pls fix',
+			data: <any>{},
+			connections: [
+				{ target: 'Is it still broken?', label: null }
+			]
+		},
+		{
+			title: 'Seems everything\nis ok then!',
+			data: <any>{},
+			connections: [
+				{ target: 'End', label: 'Good! Some long label text here!\nAnd a new line :]\nAnd one more!' }
+			]
+		},
+		{
+			title: 'End',
+            type: FlowDiagramStepType.End,
+			data: <any>{},
+			connections: []
+		}
+	];
+    ////
 
     // UI STATE
     drawerState: boolean = true;

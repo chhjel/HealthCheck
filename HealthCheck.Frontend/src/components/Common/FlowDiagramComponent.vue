@@ -1,0 +1,411 @@
+<!-- src/components/common/FlowDiagramComponent.vue -->
+<template>
+	<div>
+		<div ref="diagram"></div>
+    </div>
+</template>
+
+<script lang="ts">
+import { Vue, Component, Prop } from "vue-property-decorator";
+import * as joint from "jointjs";
+import 'jointjs/dist/joint.min.css'
+import * as dagre from 'dagre/index';
+import IdUtils from "../../util/IdUtils";
+
+export interface FlowDiagramStep<T> {
+    title: string;
+	connections: Array<FlowDiagramConnection>;
+	type?: FlowDiagramStepType;
+    data: T;
+}
+export enum FlowDiagramStepType {
+	Element = 'Element',
+	If = 'If',
+	Start = 'Start',
+	End = 'End'
+}
+export interface FlowDiagramConnection {
+	target: string;
+	label: string | null;
+}
+
+@Component({
+	components: {}
+})
+export default class FlowDiagramComponent<T> extends Vue
+{
+	@Prop({ required: true})
+	steps!: Array<FlowDiagramStep<T>>;
+
+	shapeDefault!: joint.dia.Cell.Constructor<joint.dia.Element>;
+	shapeIf!: joint.dia.Cell.Constructor<joint.dia.Element>;
+
+	//////////////////
+	//  LIFECYCLE  //
+	////////////////
+	mounted(): void {
+		this.initDiagram();
+	}
+
+	//////////////
+	initDiagram(): void {
+		let self = this;
+
+		var Shape = joint.dia.Element.define(
+			"flowchart-element-default",
+			{
+				z: 2,
+				size: {
+					width: 100,
+					height: 50
+				},
+				attrs: {
+					body: {
+						refWidth: "100%",
+						refHeight: "100%",
+						fill: "white",
+						stroke: "gray",
+						strokeWidth: 1,
+						rx: 0,
+						ry: 0,
+						cursor: 'default',
+					},
+					label: {
+						refX: "50%",
+						refY: "50%",
+						yAlignment: "middle",
+						xAlignment: "middle",
+						fontSize: 18,
+						fontFamily: 'monospace',
+						cursor: 'default'
+					}
+				}
+			},
+			{
+				markup: [
+					{
+						tagName: "rect",
+						selector: "body"
+					},
+					{
+						tagName: "text",
+						selector: "label"
+					}
+				],
+
+				setStepData: function(step: FlowDiagramStep<T>)
+				{
+					let text = step.title;
+
+					let lineLengths = text.split('\n').map(x => x.length);
+					let maxLineLength = lineLengths.reduce((a, b) => Math.max(a, b));
+					let width = (maxLineLength * 11) + 10;
+					let height = (lineLengths.length * 20) + 10;
+
+					this.prop("size/width", width);
+					this.prop("size/height", height);
+					
+					if (step.type == FlowDiagramStepType.Start
+						|| step.type == FlowDiagramStepType.End)
+					{
+						this.attr("body/rx", 10);
+						this.attr("body/ry", 10);
+					}
+
+					if (step.type == FlowDiagramStepType.Start)
+					{
+						this.attr("body/fill", "#aed581");
+					}
+					else if (step.type == FlowDiagramStepType.End)
+					{
+						this.attr("body/fill", "#ff5722");
+					}
+					else if (step.type == FlowDiagramStepType.If)
+					{
+						this.attr("body/fill", "#ffd54f");
+					}
+
+					return this.attr("label/text", text || "");
+				}
+			}
+		);
+		
+		var ShapeIf = Shape;
+
+		this.shapeDefault = Shape;
+		this.shapeIf = ShapeIf;
+
+		var Link: joint.dia.Cell.Constructor<joint.dia.Link> = joint.dia.Link.define(
+			"flowchart-link",
+			{
+				attrs: {
+					line: {
+						connection: true,
+						stroke: "gray",
+						strokeWidth: 2,
+						pointerEvents: "none",
+						targetMarker: {
+							type: "path",
+							fill: "gray",
+							stroke: "none",
+							d: "M 10 -10 0 0 10 10 z"
+						}
+					}
+				},
+				connector: {
+					name: "rounded"
+				},
+				z: 1,
+				weight: 1,
+				minLen: 1,
+				labelPosition: "c",
+				labelOffset: 10,
+				labelSize: {
+					width: 50,
+					height: 30
+				},
+				labels: [
+					{
+						markup: [
+							{
+								tagName: "rect",
+								selector: "labelBody"
+							},
+							{
+								tagName: "text",
+								selector: "labelText"
+							}
+						],
+						attrs: {
+							labelText: {
+								fill: "#90a4ae",
+								textAnchor: "middle",
+								refY: 5,
+								refY2: "-50%",
+								fontSize: 16,
+								fontFamily: 'monospace'
+								// cursor: "pointer"
+							},
+							labelBody: {
+								fill: "#eeeeee",
+								stroke: "#90a4ae",
+								strokeWidth: 1,
+								refWidth: "100%",
+								refHeight: "100%",
+								refX: "-50%",
+								refY: "-50%",
+								rx: 5,
+								ry: 5
+							}
+						},
+						size: {
+							width: 50,
+							height: 30
+						}
+					}
+				]
+			},
+			{
+				markup: [
+					{
+						tagName: "path",
+						selector: "line",
+						attributes: {
+							fill: "none"
+						}
+					}
+				],
+
+				connect: function(sourceId: string, targetId: string) {
+					return this.set({
+						source: { id: sourceId },
+						target: { id: targetId }
+					});
+				},
+
+				setConnectionData: function(connection: FlowDiagramConnection)
+				{
+					let text = connection.label;
+
+					if (text == null || text.trim().length == 0)
+					{
+						this.prop("labels/0/attrs/labelBody/hidden", true);
+						this.prop("labels/0/attrs/labelText/hidden", true);
+					}
+					else
+					{
+						let lineLengths = text.split('\n').map(x => x.length);
+						let maxLineLength = lineLengths.reduce((a, b) => Math.max(a, b));
+						let width = (maxLineLength * 9) + 10;
+						let height = (lineLengths.length * 16) + 10;
+						this.prop("labels/0/size/width", width);
+						this.prop("labels/0/size/height", height);
+					}
+
+					return this.prop("labels/0/attrs/labelText/text", text || "");
+				}
+			}
+		);
+
+		var LayoutControls = (<any>joint.mvc.View).extend({
+			events: {
+				change: "onChange",
+				input: "onChange"
+			},
+
+			options: {
+				padding:
+				{
+					left: 200,
+					top: 50,
+					right: 200,
+					bottom: 50
+				}
+			},
+
+			init: function() {
+				var options = this.options;
+				options.cells = this.buildGraphFromAdjacencyList();
+			},
+
+			onChange: function() {
+				this.layout();
+				this.trigger("layout");
+			},
+
+			layout: function() {
+				var paper = this.options.paper;
+				var graph = paper.model;
+				var cells = this.options.cells;
+
+				paper.freeze();
+
+				joint.layout.DirectedGraph.layout(cells, this.getLayoutOptions());
+
+				if (graph.getCells().length === 0) {
+					// The graph could be empty at the beginning to avoid cells rendering
+					// and their subsequent update when elements are translated
+					graph.resetCells(cells);
+				}
+
+				paper.fitToContent({
+					padding: this.options.padding,
+					allowNewOrigin: "any",
+					useModelGeometry: true
+				});
+
+				paper.unfreeze();
+			},
+
+			getLayoutOptions: function() {
+				return <joint.layout.DirectedGraph.LayoutOptions>{
+					dagre: dagre,
+					graphlib: dagre.graphlib,
+					setVertices: true,
+					setLabels: true,
+					ranker: 'longest-path',
+					rankDir: 'TB',
+					align: 'DL',
+					rankSep: 70,
+					edgeSep: 50,
+					nodeSep: 60
+				};
+			},
+
+			buildGraphFromAdjacencyList: () => {
+				let elementIds: any = {};
+				let elements: Array<any> = [];
+				let links: Array<any> = [];
+
+				// Add elements
+				self.steps.forEach(step => {
+					let id = elementIds[step.title] || IdUtils.generateId();
+					elementIds[step.title] = id;
+					let ctor = self.getStepElementType(step);
+					elements.push((<any>new ctor({id: id })).setStepData(step));
+				});
+
+				// Add links
+				self.steps.forEach(step => {
+					let fromId = elementIds[step.title];
+					step.connections.forEach(connection => {
+						let toId = elementIds[connection.target];
+						links.push((<any>new Link())
+							.connect(fromId, toId)
+							.setConnectionData(connection)
+						);
+					});
+				});
+				
+				return elements.concat(links);
+			}
+		});
+
+		var controls = new LayoutControls({
+			paper: new joint.dia.Paper(<any>{
+				el: this.$refs.diagram,
+				sorting: joint.dia.Paper.sorting.APPROX,
+				interactive: (cellView: any) => {
+					return false; //cellView.model.isElement();
+				}
+			})
+		});
+
+		controls.layout();
+	}
+
+	////////////////
+	//  GETTERS  //
+	//////////////
+
+	////////////////
+	//  METHODS  //
+	//////////////
+	getStepElementType(step: FlowDiagramStep<T>): joint.dia.Cell.Constructor<joint.dia.Element>
+	{
+		let type = this.getStepType(step);
+		if (type == FlowDiagramStepType.If)
+		{
+			return this.shapeIf;
+		}
+		else
+		{
+			return this.shapeDefault;
+		}
+	}
+
+	getStepType(step: FlowDiagramStep<T>): FlowDiagramStepType
+	{
+		let type = step.type;
+		let text = step.title;
+
+		if (type != null)
+		{
+			return type;
+		}
+		
+		if (text.trim().endsWith("?"))
+		{
+			return FlowDiagramStepType.If;
+		}
+		else if (text.trim().toLowerCase() == "start" 
+				|| !this.steps.some(x => x.connections.some(c => c.target == text)))
+		{
+			return FlowDiagramStepType.Start;
+		}
+		else if (step.connections == null || step.connections.length == 0)
+		{
+			return FlowDiagramStepType.End;
+		}
+
+		return FlowDiagramStepType.Element;
+	}
+
+	///////////////////////
+	//  EVENT HANDLERS  //
+	/////////////////////
+}
+</script>
+
+<style scoped lang="scss">
+</style>
