@@ -16,7 +16,7 @@ import IdUtils from "../../util/IdUtils";
 export interface FlowDiagramStep<T> {
     title: string;
 	connections: Array<FlowDiagramConnection>;
-	type?: FlowDiagramStepType;
+	type?: FlowDiagramStepType | undefined | null;
     data: T;
 }
 export enum FlowDiagramStepType {
@@ -347,10 +347,10 @@ export default class FlowDiagramComponent<T> extends Vue
 					graphlib: dagre.graphlib,
 					setVertices: true,
 					setLabels: true,
-					ranker: 'longest-path',
+					ranker: 'network-simplex',
 					rankDir: 'TB',
 					align: 'DL',
-					rankSep: 70,
+					rankSep: 60,
 					edgeSep: 50,
 					nodeSep: 60
 				};
@@ -408,6 +408,7 @@ export default class FlowDiagramComponent<T> extends Vue
 	getStepElementType(step: FlowDiagramStep<T>): joint.dia.Cell.Constructor<joint.dia.Element>
 	{
 		let type = this.getStepType(step);
+		step.type = type;
 		if (type == FlowDiagramStepType.If)
 		{
 			return this.shapeIf;

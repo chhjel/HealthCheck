@@ -4,6 +4,7 @@ using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Dataflow;
+using HealthCheck.Core.Modules.Diagrams.FlowCharts;
 using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
 using HealthCheck.Core.Services;
 using HealthCheck.Core.Services.Models;
@@ -49,6 +50,10 @@ namespace HealthCheck.DevTest.Controllers
             Services.LogSearcherService = CreateLogSearcherService();
             Services.RequestLogService = RequestLogServiceAccessor.Current;
             Services.SequenceDiagramService = new DefaultSequenceDiagramService(new DefaultSequenceDiagramServiceOptions()
+            {
+                DefaultSourceAssemblies = new[] { typeof(DevController).Assembly }
+            });
+            Services.FlowChartsService = new DefaultFlowChartService(new DefaultFlowChartServiceOptions()
             {
                 DefaultSourceAssemblies = new[] { typeof(DevController).Assembly }
             });

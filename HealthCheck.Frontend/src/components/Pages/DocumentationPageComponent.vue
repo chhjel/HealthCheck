@@ -14,15 +14,15 @@
                     <filter-input-component class="filter" v-model="diagramFilterText" />
 
                     <v-list-tile ripple
-                        v-for="(diagram, diagramIndex) in filterDocumentation(diagrams)"
+                        v-for="(menuItem, diagramIndex) in menuItems"
                         :key="`diagram-menu-${diagramIndex}`"
                         class="testset-menu-item"
-                        :class="{ 'active': (currentDiagram == diagram && !sandboxMode) }"
-                        @click="setActveDiagram(diagram)">
+                        :class="{ 'active': ((currentSequenceDiagram == menuItem.data || currentFlowChart == menuItem.data) && !sandboxMode) }"
+                        @click="setActiveDiagram(menuItem)">
                         <v-list-tile-title>
-                            {{ diagram.title }}
+                            {{ menuItem.title }}
                             <br>
-                            <span style="color: darkgray;">Sequence diagram</span>
+                            <span style="color: darkgray;">{{ menuItem.subTitle }}</span>
                         </v-list-tile-title>
                     </v-list-tile>
 
@@ -43,18 +43,10 @@
                 <v-layout>
                     <v-flex>
                         <v-container>
-                            <!-- TEST_BEGIN -->
-                            <flow-diagram-component
-                                class="diagram"
-                                title="Test Flowchart"
-                                :steps="testSteps" />
-                            <br />
-                            <!-- TEST_END -->
-
                             <!-- NO DIAGRAMS INFO -->
-                            <v-alert :value="diagrams.length == 0 && !diagramsDataLoadInProgress" type="info">
+                            <v-alert :value="sequenceDiagrams.length == 0 && !diagramsDataLoadInProgress" type="info">
                                 No documentation was found.<br />
-                                Decorate backend code with <code>[SequenceDiagramStepAttribute]</code> for sequence diagrams to be generated.
+                                Decorate backend code with <code>[SequenceDiagramStepAttribute]</code> for sequence sequenceDiagrams to be generated.
                             </v-alert>
 
                             <!-- DATA LOAD ERROR -->
@@ -68,12 +60,20 @@
                                 indeterminate color="green"></v-progress-linear>
 
                             <!-- SELECTED DIAGRAM -->
-                            <v-layout v-if="currentDiagram != null && !sandboxMode" style="flex-direction: column;">
+                            <v-layout v-if="(currentSequenceDiagram != null || currentFlowChart != null) && !sandboxMode"
+                                style="flex-direction: column;">
                                 <v-flex sm12 md12 lg12>
+                                    <flow-diagram-component
+                                        class="diagram"
+                                        v-if="currentFlowChart != null"
+                                        :steps="currentFlowChart.steps"
+                                        :title="currentFlowChart.title" />
+
                                     <sequence-diagram-component
                                         class="diagram"
-                                        :title="currentDiagram.title"
-                                        :steps="currentDiagram.steps"
+                                        v-if="currentSequenceDiagram != null"
+                                        :title="currentSequenceDiagram.title"
+                                        :steps="currentSequenceDiagram.steps"
                                         :showRemarks="showRemarks"
                                         :diagramStyle="diagramStyle"
                                         :clickable="options.EnableDiagramDetails"
@@ -146,22 +146,38 @@ import LinqUtils from "../../util/LinqUtils";
 import UrlUtils from "../../util/UrlUtils";
 import KeyArray from "../../util/models/KeyArray";
 import KeyValuePair from "../../models/Common/KeyValuePair";
-import SequenceDiagramComponent, { DiagramStep, DiagramLineStyle, DiagramStyle } from "../Common/SequenceDiagramComponent.vue";
+import SequenceDiagramComponent, { SequenceDiagramStep, SequenceDiagramLineStyle, SequenceDiagramStyle } from "../Common/SequenceDiagramComponent.vue";
 import FilterInputComponent from '.././Common/FilterInputComponent.vue';
 import FlowDiagramComponent, { FlowDiagramStep, FlowDiagramStepType } from '.././Common/FlowDiagramComponent.vue';
 
-interface DiagramData
+interface FlowChartData
 {
     title: string;
-    // description: string | null;
-    steps: Array<DiagramStep<DiagramStepDetails | null>>;
+    steps: Array<FlowDiagramStep<FlowChartStepDetails | null>>;
 }
-interface DiagramStepDetails
+interface FlowChartStepDetails
+{
+    className: string,
+    methodName: string,
+}
+interface SequenceDiagramData
+{
+    title: string;
+    steps: Array<SequenceDiagramStep<SequenceDiagramStepDetails | null>>;
+}
+interface SequenceDiagramStepDetails
 {
     classNameFrom: string,
     classNameTo: string,
     methodNameFrom: string,
     methodNameTo: string
+}
+interface DocMenuItem
+{
+    title: string;
+    subTitle: string | null;
+    type: 'sequence-diagram' | 'flow-chart';
+    data: any;
 }
 
 @Component({
@@ -175,47 +191,8 @@ export default class DocumentationPageComponent extends Vue {
     @Prop({ required: true })
     options!: FrontEndOptionsViewModel;
 
-    ////
-    testSteps: Array<FlowDiagramStep<DiagramStepDetails>> = [
-		{
-			title: 'Start',
-            data: <any>{},
-            type: FlowDiagramStepType.Start,
-			connections: [
-				{ target: 'Is it still broken?', label: null }
-			]
-		},
-		{
-			title: 'Is it still broken?',
-			data: <any>{},
-            type: FlowDiagramStepType.If,
-			connections: [
-				{ target: 'Seems everything\nis ok then!', label: 'Yes' },
-				{ target: 'Pls fix', label: 'No' }
-			]
-		},
-		{
-			title: 'Pls fix',
-			data: <any>{},
-			connections: [
-				{ target: 'Is it still broken?', label: "Check again" }
-			]
-		},
-		{
-			title: 'Seems everything\nis ok then!',
-			data: <any>{},
-			connections: [
-				{ target: 'End', label: 'Good!' }
-			]
-		},
-		{
-			title: 'End',
-            type: FlowDiagramStepType.End,
-			data: <any>{},
-			connections: []
-		}
-	];
-    ////
+    sequenceDiagrams: Array<SequenceDiagramData> = [];
+    flowCharts: Array<FlowChartData> = [];
 
     // UI STATE
     drawerState: boolean = true;
@@ -224,12 +201,13 @@ export default class DocumentationPageComponent extends Vue {
     diagramsDataLoadFailed: boolean = true;
     diagramsDataFailedErrorMessage: string = '';
     sandboxMode: boolean = false;
-
     showRemarks: boolean = true;
-    diagrams: Array<DiagramData> = [];
-    currentDiagram: DiagramData | null = null;
-    selectedStep: DiagramStep<DiagramStepDetails> | null = null;
-    diagramStyle: DiagramStyle = DiagramStyle.Default;
+
+    currentSequenceDiagram: SequenceDiagramData | null = null;
+    currentFlowChart: FlowChartData | null = null;
+
+    selectedStep: SequenceDiagramStep<SequenceDiagramStepDetails> | null = null;
+    diagramStyle: SequenceDiagramStyle = SequenceDiagramStyle.Default;
     sandboxScript: string = `
 Frontend --> Web: User sends form
 Web -> Web: Validate input
@@ -267,15 +245,15 @@ Web -> Frontend: Confirmation is delivered
     //////////////
     get showToggleRemarks(): boolean
     {
-        if (this.currentDiagram == null)
+        if (this.currentSequenceDiagram == null)
         {
             return false;
         }
         
-        return this.currentDiagram.steps.some(x => x.remark != null && x.remark.trim().length > 0);
+        return this.currentSequenceDiagram.steps.some(x => x.remark != null && x.remark.trim().length > 0);
     }
 
-    get sandboxSteps(): Array<DiagramStep<DiagramStepDetails | null>>
+    get sandboxSteps(): Array<SequenceDiagramStep<SequenceDiagramStepDetails | null>>
     {
         return this.convertStringToSteps(this.sandboxScript);
     }
@@ -283,8 +261,8 @@ Web -> Frontend: Confirmation is delivered
     get diagramStyles(): Array<any>
     {
         return [
-            { text: "Default", value: DiagramStyle.Default },
-            { text: "Test", value: DiagramStyle.Test }
+            { text: "Default", value: SequenceDiagramStyle.Default },
+            { text: "Test", value: SequenceDiagramStyle.Test }
         ];
     }
 
@@ -308,16 +286,29 @@ Web -> Frontend: Confirmation is delivered
         
         const selectedItem = parts[1];
         if (selectedItem !== undefined && selectedItem.length > 0) {
-            let doc = this.diagrams.filter(x => UrlUtils.EncodeHashPart(x.title) == selectedItem)[0];
-            if (doc != null)
+            let seqDiagram = this.sequenceDiagrams.filter(x => UrlUtils.EncodeHashPart(x.title) == selectedItem)[0];
+            if (seqDiagram != null)
             {
-                this.setActveDiagram(doc);
+                this.setActiveSequenceDiagram(seqDiagram);
+            }
+
+            let flowchart = this.flowCharts.filter(x => UrlUtils.EncodeHashPart(x.title) == selectedItem)[0];
+            if (flowchart != null)
+            {
+                this.setActiveFlowChart(flowchart);
             }
         }
 
-        if (this.currentDiagram == null && this.diagrams.length > 0)
+        if (this.currentSequenceDiagram == null && this.currentFlowChart == null)
         {
-            this.setActveDiagram(this.diagrams[0]);
+            if (this.sequenceDiagrams.length > 0)
+            {
+                this.setActiveSequenceDiagram(this.sequenceDiagrams[0]);
+            }
+            else if (this.flowCharts.length > 0)
+            {
+                this.setActiveFlowChart(this.flowCharts[0]);
+            }
         }
 
         if (selectedItem == 'sandbox')
@@ -336,9 +327,13 @@ Web -> Frontend: Confirmation is delivered
             {
                 parts.push('sandbox');
             }
-            else if (this.currentDiagram != null)
+            else if (this.currentSequenceDiagram != null)
             {
-                parts.push(UrlUtils.EncodeHashPart(this.currentDiagram.title));
+                parts.push(UrlUtils.EncodeHashPart(this.currentSequenceDiagram.title));
+            }
+            else if (this.currentFlowChart != null)
+            {
+                parts.push(UrlUtils.EncodeHashPart(this.currentFlowChart.title));
             }
         }
 
@@ -373,7 +368,7 @@ Web -> Frontend: Confirmation is delivered
     }
 
     onDiagramsDataRetrieved(diagramsData: DiagramsDataViewModel): void {
-        this.diagrams = diagramsData
+        this.sequenceDiagrams = diagramsData
             .SequenceDiagrams
             .map((x) => {
                 return {
@@ -399,18 +394,42 @@ Web -> Frontend: Confirmation is delivered
                 }
             });
         
+        this.flowCharts = diagramsData
+            .FlowCharts
+            .map((x:any) => {
+                return {
+                    title: this.sequenceDiagrams.some(s => s.title == x.Name) ? `${x.Name} flow` : x.Name,
+                    steps: x.Steps.map((s:any) => {
+                        return {
+                            title: s.Title,
+                            type: s.Type,
+                            data: {
+                                className: s.ClassName,
+                                methodName: s.MethodName
+                            },
+                            connections: s.Connections.map((c:any) => {
+                                return {
+                                    target: c.Target,
+                                    label: c.Label
+                                }
+                            })
+                        }
+                    })
+                }
+            });
+        
         this.diagramsDataLoadInProgress = false;
 
         const originalUrlHashParts = UrlUtils.GetHashParts();
         this.setFromUrl(originalUrlHashParts);
     }
 
-    convertStringToSteps(text: string): Array<DiagramStep<DiagramStepDetails | null>>
+    convertStringToSteps(text: string): Array<SequenceDiagramStep<SequenceDiagramStepDetails | null>>
     {
         let lines = text.split('\n');
         
         let currentOptional: string | undefined = undefined;
-        let steps: Array<DiagramStep<DiagramStepDetails | null>> = [];
+        let steps: Array<SequenceDiagramStep<SequenceDiagramStepDetails | null>> = [];
         for(let i=0; i<lines.length; i++)
         {
             let line = lines[i];
@@ -434,14 +453,14 @@ Web -> Frontend: Confirmation is delivered
 
             // A -> B
             let fromTo = mainParts[0].split('->');
-            let style: DiagramLineStyle | undefined = undefined;
+            let style: SequenceDiagramLineStyle | undefined = undefined;
             let from = fromTo[0].trim();
             let to = fromTo[1].trim();
             // --> arrow means dashed style
             if (from.endsWith('-'))
             {
                 from = from.substring(0, from.length - 1).trim();
-                style = DiagramLineStyle.Dashed;
+                style = SequenceDiagramLineStyle.Dashed;
             }
 
             // : note
@@ -483,14 +502,37 @@ Web -> Frontend: Confirmation is delivered
         this.drawerState = !this.drawerState;
     }
 
-    filterDocumentation(data: Array<DiagramData>) : Array<DiagramData> {
-        return data.filter(x => this.documentationFilterMatches(x));
+    get menuItems(): Array<DocMenuItem>
+    {
+        let items: Array<DocMenuItem> = [];
+
+        this.sequenceDiagrams.filter(x => this.sequenceDiagramMatches(x)).forEach(element => {
+            items.push({
+                title: element.title,
+                subTitle: 'Sequence diagram',
+                data: element,
+                type: "sequence-diagram"
+            });
+        });
+        this.flowCharts.filter(x => this.flowChartMatches(x)).forEach(element => {
+            items.push({
+                title: element.title,
+                subTitle: 'Flow chart',
+                data: element,
+                type: "flow-chart"
+            });
+        });
+
+        items = items.sort((a, b) => LinqUtils.SortBy(a, b, x => x.title));
+        return items;
     }
 
-    documentationFilterMatches(data: DiagramData): boolean {
+    sequenceDiagramMatches(data: SequenceDiagramData): boolean {
         return data.title.toLowerCase().indexOf(this.diagramFilterText.toLowerCase().trim()) != -1;
-            // || (data.description != null 
-            //     && data.description.toLowerCase().indexOf(this.diagramFilterText.toLowerCase().trim()) != -1);
+    }
+
+    flowChartMatches(data: FlowChartData): boolean {
+        return data.title.toLowerCase().indexOf(this.diagramFilterText.toLowerCase().trim()) != -1;
     }
 
     ///////////////////////
@@ -507,14 +549,36 @@ Web -> Frontend: Confirmation is delivered
         this.updateUrl();
     }
 
-    setActveDiagram(diagram: DiagramData): void {
+    setActiveDiagram(item: DocMenuItem): void {
+        let flowChart = this.flowCharts.filter(x => x == item.data)[0];
+        let sequenceDiagram = this.sequenceDiagrams.filter(x => x == item.data)[0];
+        if (flowChart != null)
+        {
+            this.setActiveFlowChart(flowChart);
+        }
+        else if (sequenceDiagram != null)
+        {
+            this.setActiveSequenceDiagram(sequenceDiagram);
+        }
+    }
+
+    setActiveSequenceDiagram(diagram: SequenceDiagramData): void {
         this.sandboxMode = false;
-        this.currentDiagram = diagram;
+        this.currentSequenceDiagram = diagram;
+        this.currentFlowChart = null;
         this.selectedStep = null;
         this.updateUrl();
     }
     
-    onStepClicked(step: DiagramStep<DiagramStepDetails>): void
+    setActiveFlowChart(chart: FlowChartData): void {
+        this.sandboxMode = false;
+        this.currentFlowChart = chart;
+        this.currentSequenceDiagram = null;
+        this.selectedStep = null;
+        this.updateUrl();
+    }
+
+    onStepClicked(step: SequenceDiagramStep<SequenceDiagramStepDetails>): void
     {
         if (this.options.EnableDiagramDetails == true)
         {

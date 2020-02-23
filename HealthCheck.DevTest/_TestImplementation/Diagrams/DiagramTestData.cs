@@ -1,7 +1,39 @@
-﻿using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
+﻿using HealthCheck.Core.Modules.Diagrams.FlowCharts;
+using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
 
 namespace HealthCheck.DevTest._TestImplementation.Diagrams
 {
+    #region Flow charts
+    public class FlowLoginController
+    {
+        [FlowChartStep("Login", "Start", connection: "Login")]
+        [FlowChartStep("Login", "Login", connection: "User exists?")]
+        public void Login() { }
+    }
+
+    public class MyPageController
+    {
+        [FlowChartStep("Login", "Show My Page")]
+        public void IndexAsync() { }
+    }
+
+    public class CRMService
+    {
+        [FlowChartStep("Login", "User exists?", connections: new[] {
+            "Yes => Password is correct?",
+            "No => Show error"
+        })]
+        [FlowChartStep("Login", "Password is correct?", type: FlowChartStepType.If, connections: new[] {
+            "Yes => Redirect to mypage",
+            "No => Show error"
+        })]
+        [FlowChartStep("Login", "Show error", connection: "Try Again => Login")]
+        [FlowChartStep("Login", "Redirect to mypage", connection: "Show My Page")]
+        public void UserExists() { }
+    }
+    #endregion
+
+    #region Sequence Diagrams
     public class CheckoutController
     {
         [SequenceDiagramStep("Payment", "Web")]
@@ -40,4 +72,5 @@ namespace HealthCheck.DevTest._TestImplementation.Diagrams
         [SequenceDiagramStep("Login", "Frontend", "Shown error", optionalGroupName: "Wrong login")]
         public void Login() { }
     }
+    #endregion
 }
