@@ -1,6 +1,6 @@
 <!-- src/components/Pages/DocumentationPageComponent.vue -->
 <template>
-    <div>
+    <div class="docpage">
         <v-content>
             <!-- NAVIGATION DRAWER -->
             <v-navigation-drawer
@@ -19,7 +19,11 @@
                         class="testset-menu-item"
                         :class="{ 'active': (currentDiagram == diagram && !sandboxMode) }"
                         @click="setActveDiagram(diagram)">
-                        <v-list-tile-title v-text="diagram.title"></v-list-tile-title>
+                        <v-list-tile-title>
+                            {{ diagram.title }}
+                            <br>
+                            <span style="color: darkgray;">Sequence diagram</span>
+                        </v-list-tile-title>
                     </v-list-tile>
 
                     <v-divider />
@@ -545,6 +549,13 @@ Web -> Frontend: Confirmation is delivered
 @media (max-width: 960px) {
     .menu-items { 
         margin-top: 67px;
+    }
+}
+.docpage >>> .v-list__tile {
+    height: 62px;
+
+    .v-list__tile__title {
+        height: 48px;
     }
 }
 </style>
