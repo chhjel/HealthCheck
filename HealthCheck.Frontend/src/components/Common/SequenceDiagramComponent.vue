@@ -58,21 +58,21 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-export interface DiagramStep<T> {
+export interface SequenceDiagramStep<T> {
     from: string;
     to: string;
     description: string;
     note?: string;
     remark?: string;
     optional?: string;
-    style?: DiagramLineStyle;
+    style?: SequenceDiagramLineStyle;
     data: T;
 }
-export enum DiagramLineStyle {
+export enum SequenceDiagramLineStyle {
     Default = 0,
     Dashed = 1
 }
-export enum DiagramStyle {
+export enum SequenceDiagramStyle {
     Default = 'Default',
     Test = 'Test'
 }
@@ -87,7 +87,7 @@ export default class SequenceDiagramComponent<T> extends Vue
     title!: string | null;
 
     @Prop({ required: true, default: true })
-    steps!: Array<DiagramStep<T>>;
+    steps!: Array<SequenceDiagramStep<T>>;
 
     @Prop({ required: false, default: true })
     showRemarks!: boolean;
@@ -95,8 +95,8 @@ export default class SequenceDiagramComponent<T> extends Vue
     @Prop({ required: false, default: false })
     clickable!: boolean;
 
-    @Prop({ required: false, default: DiagramStyle.Default })
-    diagramStyle!: DiagramStyle;
+    @Prop({ required: false, default: SequenceDiagramStyle.Default })
+    diagramStyle!: SequenceDiagramStyle;
 
     //////////////////
     //  LIFECYCLE  //
@@ -272,7 +272,7 @@ export default class SequenceDiagramComponent<T> extends Vue
             styleName = 'style--dashed';
         }
         // Custom overrides
-        if (step.data.style === DiagramLineStyle.Dashed)
+        if (step.data.style === SequenceDiagramLineStyle.Dashed)
         {
             styleName = 'style--dashed';
         }
@@ -339,7 +339,7 @@ export default class SequenceDiagramComponent<T> extends Vue
     }
 }
 interface InternalDiagramStep<T> {
-    data: DiagramStep<T>;
+    data: SequenceDiagramStep<T>;
     remarkNumber: number | null;
     columnStart: number;
     columnEnd: number;
@@ -360,6 +360,7 @@ interface InternalOptionalArea {
 
 <style scoped lang="scss">
 .sequence-diagram {
+    overflow: auto;
 
     &.clickable {
         .sequence-diagram__grid-item {
@@ -389,6 +390,7 @@ interface InternalOptionalArea {
     .sequence-diagram__grid {
         display: grid;
         row-gap: 12px;
+        margin-left: 15px;
 
         .sequence-diagram__grid-header,
         .sequence-diagram__grid-footer {

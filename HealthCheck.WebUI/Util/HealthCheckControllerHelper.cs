@@ -21,6 +21,8 @@ using HealthCheck.WebUI.Models.Api;
 using System.Web;
 using System.IO;
 using HealthCheck.Core.Modules.Dataflow;
+using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
+using HealthCheck.Core.Modules.Diagrams.FlowCharts;
 
 namespace HealthCheck.WebUI.Util
 {
@@ -392,7 +394,7 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public DiagramDataViewModel GetDiagramsViewModel(Maybe<TAccessRole> accessRoles)
         {
-            if (Services.SequenceDiagramService == null || !CanShowDocumentationPageTo(accessRoles))
+            if (!Services.IsAnyDocumentationServiceSet || !CanShowDocumentationPageTo(accessRoles))
                 return new DiagramDataViewModel();
 
             if (DiagramDataViewModelCache != null)
@@ -400,10 +402,10 @@ namespace HealthCheck.WebUI.Util
                 return DiagramDataViewModelCache;
             }
 
-            var sequenceDiagrams = Services.SequenceDiagramService.Generate();
             DiagramDataViewModelCache = new DiagramDataViewModel()
             {
-                SequenceDiagrams = sequenceDiagrams
+                SequenceDiagrams = Services.SequenceDiagramService?.Generate() ?? new List<SequenceDiagram>(),
+                FlowCharts = Services.FlowChartsService?.Generate() ?? new List<FlowChart>()
             };
             return DiagramDataViewModelCache;
         }
@@ -509,7 +511,7 @@ namespace HealthCheck.WebUI.Util
         /// Check if the given roles has access to view the documentation page.
         /// </summary>
         public bool CanShowDocumentationPageTo(Maybe<TAccessRole> accessRoles)
-            => Services.SequenceDiagramService != null && CanShowPageTo(accessRoles, AccessOptions.DocumentationPageAccess, defaultValue: false);
+            => Services.IsAnyDocumentationServiceSet && CanShowPageTo(accessRoles, AccessOptions.DocumentationPageAccess, defaultValue: false);
 
         /// <summary>
         /// Check if the given roles has access to view the dataflow page.

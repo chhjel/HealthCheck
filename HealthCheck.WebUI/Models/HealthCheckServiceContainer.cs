@@ -29,13 +29,20 @@ namespace HealthCheck.WebUI.Models
         public IRequestLogService RequestLogService { get; set; }
 
         /// <summary>
-        /// Must be set for the documentation tab to be shown.
+        /// Either this or <see cref="FlowChartsService"/> must be set for the documentation tab to be shown.
         /// </summary>
         public ISequenceDiagramService SequenceDiagramService { get; set; }
+
+        /// <summary>
+        /// Either this or <see cref="SequenceDiagramService"/> must be set for the documentation tab to be shown.
+        /// </summary>
+        public IFlowChartsService FlowChartsService { get; set; }
 
         /// <summary>
         /// Must be set for the dataflow tab to be shown.
         /// </summary>
         public IDataflowService<TAccessRole> DataflowService { get; set; }
+
+        internal bool IsAnyDocumentationServiceSet => SequenceDiagramService != null || FlowChartsService != null;
     }
 }
