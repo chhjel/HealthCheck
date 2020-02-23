@@ -5,18 +5,18 @@ using System.Threading.Tasks;
 namespace HealthCheck.Core.Modules.Dataflow
 {
     /// <summary>
-    /// Default implementation of <see cref="IDataflowService"/>.
+    /// Default implementation of <see cref="IDataflowService{TAccessRole}"/>.
     /// <para>Allows for multiple streams to be registered in the options object.</para>
     /// </summary>
-    public class DefaultDataflowService : IDataflowService
+    public class DefaultDataflowService<TAccessRole> : IDataflowService<TAccessRole>
     {
-        private DefaultDataflowServiceOptions Options { get; }
+        private DefaultDataflowServiceOptions<TAccessRole> Options { get; }
 
         /// <summary>
-        /// Default implementation of <see cref="IDataflowService"/>.
+        /// Default implementation of <see cref="IDataflowService{TAccessRole}"/>.
         /// <para>Allows for multiple streams to be registered in the options object.</para>
         /// </summary>
-        public DefaultDataflowService(DefaultDataflowServiceOptions options)
+        public DefaultDataflowService(DefaultDataflowServiceOptions<TAccessRole> options)
         {
             Options = options;
         }
@@ -24,17 +24,18 @@ namespace HealthCheck.Core.Modules.Dataflow
         /// <summary>
         /// Get metadata for all the available streams.
         /// </summary>
-        public List<DataflowStreamMetadata> GetStreamMetadata()
+        public List<DataflowStreamMetadata<TAccessRole>> GetStreamMetadata()
         {
-            return (Options.Streams ?? Enumerable.Empty<IDataflowStream>())
+            return (Options.Streams ?? Enumerable.Empty<IDataflowStream<TAccessRole>>())
                 .Where(x => x.IsVisible?.Invoke() != false)
-                .Select(x => new DataflowStreamMetadata
+                .Select(x => new DataflowStreamMetadata<TAccessRole>
                 {
                     Id = x.Id,
                     Name = x.Name,
                     Description = x.Description,
                     SupportsFilterByDate = x.SupportsFilterByDate,
-                    PropertyDisplayInfo = x.GetEntryPropertiesInfo()?.ToList() ?? new List<DataFlowPropertyDisplayInfo>()
+                    PropertyDisplayInfo = x.GetEntryPropertiesInfo()?.ToList() ?? new List<DataFlowPropertyDisplayInfo>(),
+                    RolesWithAccess = x.RolesWithAccess
                 })
                 .ToList();
         }

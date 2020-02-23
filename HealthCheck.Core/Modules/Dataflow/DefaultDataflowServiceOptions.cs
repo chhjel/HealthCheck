@@ -3,14 +3,13 @@
 namespace HealthCheck.Core.Modules.Dataflow
 {
     /// <summary>
-    /// Options for <see cref="DefaultDataflowService"/>.
+    /// Options for <see cref="DefaultDataflowService{TAccessRole}"/>.
     /// </summary>
-    public class DefaultDataflowServiceOptions
+    public class DefaultDataflowServiceOptions<TAccessRole>
     {
         /// <summary>
         /// Streams that returns data to display.
         /// </summary>
-        public IEnumerable<IDataflowStream> Streams { get; set; }
+        public IEnumerable<IDataflowStream<TAccessRole>> Streams { get; set; }
     }
-
 }

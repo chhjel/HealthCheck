@@ -5,7 +5,7 @@ using System.Linq;
 namespace HealthCheck.Core.Modules.Dataflow
 {
     /// <summary>
-    /// Filter options for <see cref="IDataflowStream.GetLatestStreamEntriesAsync(DataflowStreamFilter)"/>.
+    /// Filter options for <see cref="IDataflowStream{TAccessRole}.GetLatestStreamEntriesAsync(DataflowStreamFilter)"/>.
     /// </summary>
     public class DataflowStreamFilter
     {

@@ -89,7 +89,7 @@ namespace HealthCheck.WebUI.Tests
 
         private HealthCheckControllerHelper<AccessRoles> CreateHelper<AccessRoles>()
         {
-            var helper = new HealthCheckControllerHelper<AccessRoles>(new HealthCheckServiceContainer());
+            var helper = new HealthCheckControllerHelper<AccessRoles>(new HealthCheckServiceContainer<AccessRoles>());
             helper.TestDiscoverer.AssemblyContainingTests = GetType().Assembly;
             return helper;
         }

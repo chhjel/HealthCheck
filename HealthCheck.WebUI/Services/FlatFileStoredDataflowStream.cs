@@ -11,9 +11,15 @@ namespace HealthCheck.WebUI.Services
     /// <summary>
     /// A built in dataflow stream that stores and retrieves entries from a flatfile.
     /// </summary>
-    public abstract class FlatFileStoredDataflowStream<TEntry, TEntryId> : IDataflowStream
+    public abstract class FlatFileStoredDataflowStream<TAccessRole, TEntry, TEntryId> : IDataflowStream<TAccessRole>
         where TEntry : IDataflowEntryWithInsertionTime
     {
+        /// <summary>
+        /// Optionally set roles that have access to this stream.
+        /// <para>Defaults to null, giving anyone with access to the dataflow page access.</para>
+        /// </summary>
+        public virtual Maybe<TAccessRole> RolesWithAccess { get; }
+
         /// <summary>
         /// Id of the stream. Defaults to full typename.
         /// </summary>

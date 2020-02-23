@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using HealthCheck.Core.Util;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.Dataflow
 {
     /// <summary>
-    /// Metadata describing an <see cref="IDataflowStream"/>.
+    /// Metadata describing an <see cref="IDataflowStream{TAccessRole}"/>.
     /// </summary>
-    public class DataflowStreamMetadata
+    public class DataflowStreamMetadata<TAccessRole>
     {
         /// <summary>
         /// Unique id of the stream.
@@ -23,7 +24,7 @@ namespace HealthCheck.Core.Modules.Dataflow
         public string Description { get; set; }
 
         /// <summary>
-        /// True if the stream supports datetime filtering in <see cref="IDataflowStream.GetLatestStreamEntriesAsync(DataflowStreamFilter)"/>.
+        /// True if the stream supports datetime filtering in <see cref="IDataflowStream{TAccessRole}.GetLatestStreamEntriesAsync(DataflowStreamFilter)"/>.
         /// </summary>
         public bool SupportsFilterByDate { get; set; }
 
@@ -31,5 +32,10 @@ namespace HealthCheck.Core.Modules.Dataflow
         /// Display options for properties.
         /// </summary>
         public List<DataFlowPropertyDisplayInfo> PropertyDisplayInfo { get; set; }
+
+        /// <summary>
+        /// Optionally set roles that have access to this stream.
+        /// </summary>
+        public Maybe<TAccessRole> RolesWithAccess { get; set; }
     }
 }

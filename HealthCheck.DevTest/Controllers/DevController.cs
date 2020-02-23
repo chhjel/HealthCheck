@@ -52,7 +52,7 @@ namespace HealthCheck.DevTest.Controllers
             {
                 DefaultSourceAssemblies = new[] { typeof(DevController).Assembly }
             });
-            Services.DataflowService = new DefaultDataflowService(new DefaultDataflowServiceOptions()
+            Services.DataflowService = new DefaultDataflowService<RuntimeTestAccessRole>(new DefaultDataflowServiceOptions<RuntimeTestAccessRole>()
             {
                 Streams = new[]
                 {
@@ -132,7 +132,7 @@ namespace HealthCheck.DevTest.Controllers
             AccessOptions.RequestLogPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.ClearRequestLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
-            AccessOptions.DataflowPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            AccessOptions.DataflowPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
         }
 
         protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)

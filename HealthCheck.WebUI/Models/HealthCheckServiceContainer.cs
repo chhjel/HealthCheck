@@ -6,7 +6,7 @@ namespace HealthCheck.WebUI.Models
     /// <summary>
     /// Services related to the HealthCheck namespace.
     /// </summary>
-    public class HealthCheckServiceContainer
+    public class HealthCheckServiceContainer<TAccessRole>
     {
         /// <summary>
         /// Must be set for any site statuses to be stored and returned.
@@ -36,6 +36,6 @@ namespace HealthCheck.WebUI.Models
         /// <summary>
         /// Must be set for the dataflow tab to be shown.
         /// </summary>
-        public IDataflowService DataflowService { get; set; }
+        public IDataflowService<TAccessRole> DataflowService { get; set; }
     }
 }

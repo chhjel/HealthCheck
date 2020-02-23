@@ -5,7 +5,7 @@ namespace HealthCheck.WebUI.Services
 {
     /// <summary>
     /// A <see cref="IDataflowEntry"/> with an <see cref="InsertionTime"/> property.
-    /// <para>Used in <see cref="FlatFileStoredDataflowStream{TEntry, TEntryId}"/>.</para>
+    /// <para>Used in <see cref="FlatFileStoredDataflowStream{TAccessRole, TEntry, TEntryId}"/>.</para>
     /// </summary>
     public interface IDataflowEntryWithInsertionTime : IDataflowEntry
     {

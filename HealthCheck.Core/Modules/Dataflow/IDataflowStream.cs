@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Util;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -7,8 +8,14 @@ namespace HealthCheck.Core.Modules.Dataflow
     /// <summary>
     /// A stream that can return data to display.
     /// </summary>
-    public interface IDataflowStream
+    public interface IDataflowStream<TAccessRole>
     {
+        /// <summary>
+        /// Optionally set roles that have access to this stream.
+        /// <para>Defaults to null, giving anyone with access to the dataflow page access.</para>
+        /// </summary>
+        public Maybe<TAccessRole> RolesWithAccess { get; }
+
         /// <summary>
         /// Unique id of the stream.
         /// </summary>

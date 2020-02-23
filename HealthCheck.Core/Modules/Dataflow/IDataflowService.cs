@@ -6,12 +6,12 @@ namespace HealthCheck.Core.Modules.Dataflow
     /// <summary>
     /// Handles multiple streams for use in the dataflow page.
     /// </summary>
-    public interface IDataflowService
+    public interface IDataflowService<TAccessRole>
     {
         /// <summary>
         /// Get metadata for all the available streams.
         /// </summary>
-        List<DataflowStreamMetadata> GetStreamMetadata();
+        List<DataflowStreamMetadata<TAccessRole>> GetStreamMetadata();
 
         /// <summary>
         /// Get filtered entries from the given stream.

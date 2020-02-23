@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Modules.Dataflow;
+using HealthCheck.Core.Util;
 using HealthCheck.WebUI.Services;
 using System;
 using System.Collections.Generic;
@@ -7,8 +8,9 @@ using System.Threading.Tasks;
 
 namespace HealthCheck.DevTest._TestImplementation.Dataflow
 {
-    public class TestStream : FlatFileStoredDataflowStream<TestEntry, string>
+    public class TestStream : FlatFileStoredDataflowStream<RuntimeTestAccessRole, TestEntry, string>
     {
+        public override Maybe<RuntimeTestAccessRole> RolesWithAccess => (Suffix == "A") ? new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins) : null;
         public override string Name => $"Dev Stream {Suffix}";
         public override string Description => $"Description for stream '{Name}'.";
         public override bool SupportsFilterByDate => (Suffix == "A");

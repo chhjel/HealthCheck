@@ -41,7 +41,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Contains services that enables extra functionality.
         /// </summary>
-        protected HealthCheckServiceContainer Services { get; } = new HealthCheckServiceContainer();
+        protected HealthCheckServiceContainer<TAccessRole> Services { get; } = new HealthCheckServiceContainer<TAccessRole>();
 
         /// <summary>
         /// Service that executes tests.

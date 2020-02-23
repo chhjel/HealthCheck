@@ -32,9 +32,9 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Initialize a new HealthCheck helper with the given services.
         /// </summary>
-        public HealthCheckControllerHelper(HealthCheckServiceContainer serviceContainer)
+        public HealthCheckControllerHelper(HealthCheckServiceContainer<TAccessRole> serviceContainer)
         {
-            Services = serviceContainer ?? new HealthCheckServiceContainer();
+            Services = serviceContainer ?? new HealthCheckServiceContainer<TAccessRole>();
 
 #if NETFULL
             ParameterConverter.RegisterConverter<HttpPostedFileBase>(
@@ -80,7 +80,7 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Contains services that enables extra functionality.
         /// </summary>
-        public HealthCheckServiceContainer Services { get; } = new HealthCheckServiceContainer();
+        public HealthCheckServiceContainer<TAccessRole> Services { get; } = new HealthCheckServiceContainer<TAccessRole>();
 
         /// <summary>
         /// Executes tests.
@@ -514,8 +514,10 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Check if the given roles has access to view the dataflow page.
         /// </summary>
-        public bool CanShowDataflowPageTo(Maybe<TAccessRole> accessRoles)
-            => Services.DataflowService != null && CanShowPageTo(accessRoles, AccessOptions.DataflowPageAccess, defaultValue: false);
+        public bool CanShowDataflowPageTo(Maybe<TAccessRole> accessRoles, bool checkCount = true)
+            => Services.DataflowService != null 
+            && CanShowPageTo(accessRoles, AccessOptions.DataflowPageAccess, defaultValue: false)
+            && (!checkCount || GetDataflowStreamsMetadata(accessRoles).Any());
 
         /// <summary>
         /// Check if the given roles has access to calling the ping endpoint.
@@ -768,7 +770,8 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public async Task<IEnumerable<IDataflowEntry>> GetDataflowEntries(string streamId, DataflowStreamFilter filter, Maybe<TAccessRole> accessRoles)
         {
-            if (Services.DataflowService == null || !CanShowDataflowPageTo(accessRoles))
+            if (Services.DataflowService == null 
+                || !GetDataflowStreamsMetadata(accessRoles).Any())
                 return Enumerable.Empty<IDataflowEntry>();
 
             filter = filter ?? new DataflowStreamFilter();
@@ -779,12 +782,13 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Get viewmodel for dataflow streams metadata result.
         /// </summary>
-        public IEnumerable<DataflowStreamMetadata> GetDataflowStreamsMetadata(Maybe<TAccessRole> accessRoles)
+        public IEnumerable<DataflowStreamMetadata<TAccessRole>> GetDataflowStreamsMetadata(Maybe<TAccessRole> accessRoles)
         {
-            if (Services.DataflowService == null || !CanShowDataflowPageTo(accessRoles))
-                return Enumerable.Empty<DataflowStreamMetadata>();
+            if (Services.DataflowService == null || !CanShowDataflowPageTo(accessRoles, checkCount: false))
+                return Enumerable.Empty<DataflowStreamMetadata<TAccessRole>>();
 
-            return Services.DataflowService.GetStreamMetadata();
+            return Services.DataflowService.GetStreamMetadata()
+                .Where(x => CanShowPageTo(accessRoles, x.RolesWithAccess, defaultValue: true));
         }
 
         private bool AuditEventMatchesFilter(AuditEvent e, AuditEventFilterInputData filter)
