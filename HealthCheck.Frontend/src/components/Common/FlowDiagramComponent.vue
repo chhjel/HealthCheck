@@ -141,11 +141,11 @@ export default class FlowDiagramComponent<T> extends Vue
 
 					if (step.type == FlowDiagramStepType.Start)
 					{
-						this.attr("body/fill", "#aed581");
+						this.attr("body/fill", "#babaa5");
 					}
 					else if (step.type == FlowDiagramStepType.End)
 					{
-						this.attr("body/fill", "#babaa5");
+						this.attr("body/fill", "#aed581");
 					}
 					else if (step.type == FlowDiagramStepType.If)
 					{
