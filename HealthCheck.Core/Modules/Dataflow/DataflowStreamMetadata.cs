@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Util;
+using System;
 using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.Dataflow
@@ -37,5 +38,10 @@ namespace HealthCheck.Core.Modules.Dataflow
         /// Optionally set roles that have access to this stream.
         /// </summary>
         public Maybe<TAccessRole> RolesWithAccess { get; set; }
+
+        /// <summary>
+        /// Optional name of a <see cref="DateTime"/> property that will be used for grouping in frontend.
+        /// </summary>
+        public string DateTimePropertyNameForUI { get; internal set; }
     }
 }

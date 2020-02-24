@@ -32,7 +32,6 @@ namespace HealthCheck.DevTest.Controllers
         private const string EndpointBase = "/dev";
         private static ISiteEventService _siteEventService;
         private static IAuditEventStorage _auditEventService;
-        private TestStream TestStream { get; set; } = new TestStream("A");
 
         #region Init
         public DevController()
@@ -59,11 +58,11 @@ namespace HealthCheck.DevTest.Controllers
             });
             Services.DataflowService = new DefaultDataflowService<RuntimeTestAccessRole>(new DefaultDataflowServiceOptions<RuntimeTestAccessRole>()
             {
-                Streams = new[]
+                Streams = new FlatFileStoredDataflowStream<RuntimeTestAccessRole, TestEntry, string>[]
                 {
-                    TestStream,
-                    new TestStream("B"),
-                    new TestStream("C"),
+                    new TestStreamA(),
+                    new TestStreamB(),
+                    new TestStreamC()
                 }
             });
 
@@ -240,7 +239,8 @@ namespace HealthCheck.DevTest.Controllers
                     Name = $"Entry [{DateTime.Now.ToLongTimeString()}]"
                 })
                 .ToList();
-            TestStream.InsertEntries(entriesToInsert);
+
+            TestStream.Current.InsertEntries(entriesToInsert);
 
             return Content("OK :]");
         }

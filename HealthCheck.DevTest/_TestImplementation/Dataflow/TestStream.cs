@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace HealthCheck.DevTest._TestImplementation.Dataflow
 {
+    public class TestStreamA : TestStream { public TestStreamA() : base("A") { } }
+    public class TestStreamB : TestStream { public TestStreamB() : base("B") { } }
+    public class TestStreamC : TestStream { public TestStreamC() : base("C") { DateTimePropertyNameForUI = null; } }
     public class TestStream : FlatFileStoredDataflowStream<RuntimeTestAccessRole, TestEntry, string>
     {
         public override Maybe<RuntimeTestAccessRole> RolesWithAccess => (Suffix == "A") ? new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins) : null;

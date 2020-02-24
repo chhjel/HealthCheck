@@ -451,7 +451,7 @@ ISequenceDiagramService service = new DefaultSequenceDiagramService(options);
 ### IDataflowService
 If an `IDataflowService` is provided in the controller the dataflow tab will become available where custom data can be shown.
 
-A default implementation `DefaultDataflowService` is provided where custom data streams can be registered. Data can be fetched in the ui for each registered stream, optionally filtered on and each property given a hint for how to be displayed. 
+A default implementation `DefaultDataflowService` is provided where custom data streams can be registered. Data can be fetched in the ui for each registered stream, optionally filtered on and each property given a hint for how to be displayed. Only `Raw` and `HTML` types have any effect when not expanded.
 
 ```csharp
 var options = new DefaultDataflowServiceOptions() {
@@ -464,14 +464,16 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
 * Use `.InsertEntries(..)` method to insert new entries.
 * Use `IsVisible` property to set stream visibility in the UI.
 * Use `AllowInsert` property to optionally ignore any new data attempted to be inserted.
-* If used make sure the services are registered as singletons, they are thread safe but only within their own instances.
+* Override `RolesWithAccess` property to set who has access to view the stream data.
+* If used make sure the services are registered as singletons, they are thread safe but only within their own instances. The `FlatFileStoredDataflowStream` exposes a static `Current` property that can optionally be used for quick access on the inherited class.
 
 <details><summary>Simple example stream</summary>
 <p>
 
 ```csharp
-    public class MySimpleStream : FlatFileStoredDataflowStream<YourDataModel, string>
+    public class MySimpleStream : FlatFileStoredDataflowStream<YourAccessRolesEnum, YourDataModel, string>
     {
+        public override Maybe<YourAccessRolesEnum> RolesWithAccess =>new Maybe<YourAccessRolesEnum>(YourAccessRolesEnum.SystemAdmins);
         public override string Name => $"My Simple Stream";
         public override string Description => $"The simplest of streams.";
 
@@ -490,8 +492,9 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
 <p>
 
 ```csharp
-    public class MyStream : FlatFileStoredDataflowStream<YourDataModel, string>
+    public class MyStream : FlatFileStoredDataflowStream<YourAccessRolesEnum, YourDataModel, string>
     {
+        public override Maybe<YourAccessRolesEnum> RolesWithAccess =>new Maybe<YourAccessRolesEnum>(YourAccessRolesEnum.SystemAdmins);
         public override string Name => $"My Stream";
         public override string Description => $"A stream using a few more options.";
 

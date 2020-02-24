@@ -42,6 +42,11 @@ namespace HealthCheck.Core.Modules.Dataflow
         bool SupportsFilterByDate { get; }
 
         /// <summary>
+        /// Optional name of a <see cref="DateTime"/> property that will be used for grouping in frontend.
+        /// </summary>
+        string DateTimePropertyNameForUI { get; set; }
+
+        /// <summary>
         /// Returns the latest entries filtered.
         /// </summary>
         Task<IEnumerable<IDataflowEntry>> GetLatestStreamEntriesAsync(DataflowStreamFilter filter);
