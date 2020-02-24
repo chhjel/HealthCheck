@@ -5,5 +5,6 @@ export default interface DataflowStreamMetadata {
     Name: string;
     Description: string | null;
     SupportsFilterByDate: boolean;
+    DateTimePropertyNameForUI: string | null;
     PropertyDisplayInfo: Array<DataFlowPropertyDisplayInfo>;
 }

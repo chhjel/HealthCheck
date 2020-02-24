@@ -34,6 +34,7 @@ namespace HealthCheck.Core.Modules.Dataflow
                     Name = x.Name,
                     Description = x.Description,
                     SupportsFilterByDate = x.SupportsFilterByDate,
+                    DateTimePropertyNameForUI = x.DateTimePropertyNameForUI,
                     PropertyDisplayInfo = x.GetEntryPropertiesInfo()?.ToList() ?? new List<DataFlowPropertyDisplayInfo>(),
                     RolesWithAccess = x.RolesWithAccess
                 })

@@ -13,7 +13,8 @@
                 <template v-for="(group, groupIndex) in groups">
                     <!-- HEADER -->
                     <tr class="data-table--row-group-header"
-                        :key="`dtable-group-${groupIndex}-header`">
+                        :key="`dtable-group-${groupIndex}-header`"
+                        v-if="group.title.length > 0">
                         <td :colspan="headers.length">{{ group.title }}</td>
                     </tr>
 
@@ -45,22 +46,36 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 
+export interface DataTableGroup
+{
+    title: string;
+    items: Array<DataTableItem>;
+}
+export interface DataTableItem
+{
+    values: Array<any>;
+}
+
 @Component({
     components: {}
 })
 export default class DataTableComponent extends Vue
 {
-    headers: Array<string> = [];
-    groups: Array<any> = [];
+    @Prop({ required: true })
+    groups!: Array<DataTableGroup>;
+
+    @Prop({ required: true })
+    headers!: Array<string>;
+
     expandedRows: Array<string> = [];
 
     mounted(): void {
-        this.headers = [ 'Timestamp', 'Display name', 'Details', 'Price', 'More things', 'Expires at', 'Something else' ];
+        // this.headers = [ 'Timestamp', 'Display name', 'Details', 'Price', 'More things', 'Expires at', 'Something else' ];
         
-        this.createGroup('Last hour', 3);
-        this.createGroup('Earlier today', 11);
-        this.createGroup('Yesterday', 24);
-        this.createGroup('Earlier', 82);
+        // this.createGroup('Last hour', 3);
+        // this.createGroup('Earlier today', 11);
+        // this.createGroup('Yesterday', 24);
+        // this.createGroup('Earlier', 82);
     }
 
     isExpanded(id: string): boolean
@@ -75,25 +90,6 @@ export default class DataTableComponent extends Vue
         } else {
             this.expandedRows.push(id);
         }
-    }
-
-    createGroup(title: string, count: number): any {
-        this.groups.push({
-            title: title,
-            items: this.createItems(count)
-        });
-    }
-
-    createItems(count: number): any {
-        let list: Array<any> = [];
-        for(let i=0;i<count;i++)
-        {
-            list.push({
-                expanded: false,
-                values: [ `12:52 12. asdsdg ${(2000+i)}`, `Some name ${i}`, 'ethwlgjn egrsg', '199,-', 'More stuff here etc etc etc! And some more!', '44. April 2033', 'Woop woop woop woop woop woop.' ]
-            });
-        }
-        return list;
     }
 
     @Watch("groups")
@@ -121,12 +117,13 @@ export default class DataTableComponent extends Vue
 
         th {
             text-align: left;
+            padding-right: 10px;
         }
 
         td {
             padding-top: 10px;
             padding-bottom: 10px;
-            padding-right: 10px;
+            padding-right: 20px;
 
             &:first-child {
                 padding-left: 10px;
@@ -141,6 +138,8 @@ export default class DataTableComponent extends Vue
     }
 
     .data-table--row-values {
+        cursor: pointer;
+
         td {
             border-top: 1px solid #ccc;
         }

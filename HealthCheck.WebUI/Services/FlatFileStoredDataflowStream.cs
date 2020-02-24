@@ -46,6 +46,12 @@ namespace HealthCheck.WebUI.Services
         public virtual bool SupportsFilterByDate => true;
 
         /// <summary>
+        /// Optional name of a <see cref="DateTime"/> property that will be used for grouping in frontend.
+        /// <para>Defaults to 'InsertionTime' to match <see cref="IDataflowEntryWithInsertionTime.InsertionTime"/>.</para>
+        /// </summary>
+        public virtual string DateTimePropertyNameForUI { get; set; } = "InsertionTime";
+
+        /// <summary>
         /// Return true to enable the stream in the UI.
         /// <para>Defaults to true.</para>
         /// </summary>
@@ -61,6 +67,7 @@ namespace HealthCheck.WebUI.Services
         private bool IsVisibleSafe => IsVisible == null || IsVisible() == true;
 
         private SimpleDataStoreWithId<TEntry, TEntryId> Store { get; set; }
+
         private readonly Dictionary<string, DataFlowPropertyDisplayInfo> PropertyInfos = new Dictionary<string, DataFlowPropertyDisplayInfo>();
 
         /// <summary>
@@ -150,6 +157,8 @@ namespace HealthCheck.WebUI.Services
             {
                 items = items.Where(x => x.InsertionTime <= filter.ToDate);
             }
+
+            items = items.OrderByDescending(x => x.InsertionTime);
 
             items = await FilterEntries(filter, items);
 

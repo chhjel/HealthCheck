@@ -58,11 +58,11 @@ namespace HealthCheck.DevTest.Controllers
             });
             Services.DataflowService = new DefaultDataflowService<RuntimeTestAccessRole>(new DefaultDataflowServiceOptions<RuntimeTestAccessRole>()
             {
-                Streams = new[]
+                Streams = new FlatFileStoredDataflowStream<RuntimeTestAccessRole, TestEntry, string>[]
                 {
-                    new TestStream("A"),
-                    new TestStream("B"),
-                    new TestStream("C"),
+                    new TestStreamA(),
+                    new TestStreamB(),
+                    new TestStreamC()
                 }
             });
 

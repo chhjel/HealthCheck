@@ -34,14 +34,10 @@
                 <v-layout>
                     <v-flex>
                         <v-container>
-                            <data-table-component class="elevation-2">
-                                <template v-slot:cell="{ value }">
-                                    {{ value }}
-                                </template>
-                                <template v-slot:expandedItem="{ item }">
-                                    <code>{{ item.values }}</code>
-                                </template>
-                            </data-table-component>
+                            <!-- LOAD PROGRESS -->
+                            <v-progress-linear 
+                                v-if="dataLoadInProgress"
+                                indeterminate color="green"></v-progress-linear>
 
                             <!-- DATA LOAD ERROR -->
                             <v-alert :value="dataLoadFailed && selectedStream == null" type="error">
@@ -51,7 +47,7 @@
                             <!-- SELECTED DATAFLOW INFO -->
                             <v-layout v-if="selectedStream != null" style="flex-direction: column;">
                                 <h3>{{ selectedStream.Name }}</h3>
-                                <p>{{ selectedStream.Description }}</p>
+                                <p v-html="selectedStream.Description"></p>
                             </v-layout>
                             
                             <!-- NO DATAFLOW SELECTED INFO -->
@@ -95,21 +91,6 @@
                                     </v-flex>
                                 </v-layout>
                                 
-                                <v-layout>
-                                    <v-flex xs6 sm2 style="margin-top: 22px;">
-                                        <v-text-field type="number" label="Max entries to fetch"
-                                            class="options-input"
-                                            v-model.number="filterTake" />
-                                    </v-flex>
-                                    <v-flex xs6 sm2 style="margin-top: 17px; margin-left: 40px;">
-                                        <v-btn 
-                                            @click="loadStreamEntries()" 
-                                            :disabled="dataLoadInProgress" 
-                                            class="primary">Fetch data</v-btn>
-                                    </v-flex>
-                                    
-                                </v-layout>
-
                                 <v-select
                                     :items="filterChoices"
                                     item-text="text"
@@ -127,56 +108,60 @@
                                         clearable
                                     ></v-text-field>
                                 </div>
+
+                                <v-layout>
+                                    <v-flex xs6 sm2 style="margin-top: 22px;">
+                                        <v-text-field type="number" label="Max items to fetch"
+                                            class="options-input"
+                                            v-model.number="filterTake" />
+                                    </v-flex>
+                                    <v-flex xs6 sm2 style="margin-top: 17px; margin-left: 40px;">
+                                        <v-btn 
+                                            @click="loadStreamEntries()" 
+                                            :disabled="dataLoadInProgress" 
+                                            class="primary">Fetch data</v-btn>
+                                    </v-flex>
+                                    <v-flex xs6 sm2 style="margin-top: 17px; margin-left: 25px;">
+                                        <v-btn 
+                                            @click="clearResults()" 
+                                            :disabled="dataLoadInProgress"
+                                            >Clear data</v-btn>
+                                    </v-flex>
+                                    
+                                </v-layout>
                             </div>
 
-                            <!-- TABLE START -->
-                            <v-data-table
-                                v-if="selectedStream != null"
-                                :headers="tableHeaders"
-                                :items="streamEntries"
-                                :loading="dataLoadInProgress"
-                                :rows-per-page-items="tableRowsPerPageItems"
-                                :pagination.sync="tablePagination"
-                                :custom-sort="tableSorter"
-                                item-key="Internal__Table__Id"
-                                expand
-                                class="elevation-1 audit-table">
-                                <v-progress-linear v-slot:progress color="primary" indeterminate></v-progress-linear>
-                                <template v-slot:no-data>
-                                <v-alert :value="true" color="error" icon="warning" v-if="dataLoadFailed">
-                                    {{ dataFailedErrorMessage }}
-                                </v-alert>
-                                </template>
-                                <template v-slot:items="props">
-                                    <tr
-                                        @click="props.expanded = !props.expanded"
-                                        class="audit-table-row">
-                                        <td
-                                            v-for="(col, colIndex) in getTableColumns(props.item, false)"
-                                            :key="`dataflow-row-${props.index}-col-${colIndex}`">
-                                            {{ col.value }}
-                                        </td>
-                                        <!-- <td width="200">{{ props }}</td> -->
-                                        <!-- <td class="text-xs-left">{{ props }}</td> -->
-                                    </tr>
-                                </template>
-                                <template v-slot:expand="props">
-                                    <v-card flat>
-                                        <v-card-text class="row-details">
-                                            <div
-                                                v-for="(col, colIndex) in getTableColumns(props.item, true)"
-                                                :key="`dataflow-row-expanded-${props.index}-col-${colIndex}`"
-                                                class="expanded-item-details">
-                                                <dataflow-entry-property-value-component
-                                                    :type="col.uiHint"
-                                                    :raw="col.value"
-                                                    :title="col.key" />
-                                            </div>
-                                        </v-card-text>
-                                    </v-card>
-                                </template>
-                            </v-data-table>
-                            <!-- TABLE END -->
+                            <div v-if="selectedStream != null">
+                                <!-- Results info -->
+                                <v-layout style="flex-direction: column;">
+                                    <i v-if="resultCount == 0 && streamsWithDataAttemptedLoadedAtLeastOnce.indexOf(selectedStream.Id) != -1">Could not find any matching items</i>
+                                    <i v-if="resultCount > 0">Result count: {{ resultCount }}</i>
+                                </v-layout>
+
+                                <!-- TABLE START -->
+                                <data-table-component
+                                    v-if="resultCount > 0"
+                                    :groups="streamEntryGroups"
+                                    :headers="tableHeaders.map(x => x.text)"
+                                    class="elevation-2">
+                                    <template v-slot:cell="{ value }">
+                                        <span v-if="value.uiHint=='HTML'" v-html="value.value"></span>
+                                        <span v-else>{{ value.value }}</span>
+                                    </template>
+                                    <template v-slot:expandedItem="{ item }">
+                                        <div
+                                            v-for="(col, colIndex) in item.expandedValues"
+                                            :key="`dataflow-row-expanded-${item.Internal__Table__Id}-col-${colIndex}`"
+                                            class="expanded-item-details">
+                                            <dataflow-entry-property-value-component
+                                                :type="col.uiHint"
+                                                :raw="col.value"
+                                                :title="col.key" />
+                                        </div>
+                                    </template>
+                                </data-table-component>
+                                <!-- TABLE END -->
+                            </div>
 
                         </v-container>
                     </v-flex>
@@ -207,7 +192,7 @@ import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
 import FilterInputComponent from '.././Common/FilterInputComponent.vue';
-import DataTableComponent from '.././Common/DataTableComponent.vue';
+import DataTableComponent, { DataTableGroup } from '.././Common/DataTableComponent.vue';
 
 interface PropFilter
 {
@@ -217,12 +202,19 @@ interface PropFilter
 }
 interface StreamPropFilters {
    [key: string]: Array<PropFilter>;
-} 
-
+}
+interface ResultCachePerStream {
+   [key: string]: Array<DataTableGroup>;
+}
 interface DatePickerPreset {
     name: string;
     from: Date;
     to: Date;
+}
+interface DateRangeGroup {
+    title: string;
+    minDate: Date;
+    maxDate: Date;
 }
 
 @Component({
@@ -247,7 +239,11 @@ export default class DataflowPageComponent extends Vue {
 
     streamMetadatas: Array<DataflowStreamMetadata> = [];
     selectedStream: DataflowStreamMetadata | null = null;
-    streamEntries: Array<DataflowEntry> = [];
+    firstEntry: DataflowEntry | null = null;
+
+    resultCache: ResultCachePerStream = {};
+    streamEntryGroups: Array<DataTableGroup> = [];
+    streamsWithDataAttemptedLoadedAtLeastOnce: Array<string> = [];
 
     filters: Array<PropFilter> = [
         {propertyName: "Code", text: "aaa", value: "1234" },
@@ -286,6 +282,14 @@ export default class DataflowPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get resultCount(): number {
+        if (this.streamEntryGroups.length == 0) {
+            return 0;
+        } else {
+            return this.streamEntryGroups.map(x => x.items.length).reduce((a, b) => a + b);
+        }
+    }
+
     get tableHeaders(): Array<any> {
         return this.getTableHeaders(false);
     }
@@ -468,7 +472,6 @@ export default class DataflowPageComponent extends Vue {
             }
         };
 
-        this.streamEntries = [];
         this.dataLoadInProgress = true;
         this.dataLoadFailed = false;
 
@@ -495,14 +498,102 @@ export default class DataflowPageComponent extends Vue {
 
     onDataFlowDataRetrieved(data: Array<DataflowEntry>): void {
         this.dataLoadInProgress = false;
+        this.firstEntry = data[0];
         let idCounter = 1;
-        this.streamEntries = data.map(x => {
-            let extra = {
-                Internal__Table__Id: idCounter++
-            };
+
+        if (this.selectedStream != null && this.streamsWithDataAttemptedLoadedAtLeastOnce.indexOf(this.selectedStream.Id) == -1)
+        {
+            this.streamsWithDataAttemptedLoadedAtLeastOnce.push(this.selectedStream.Id);
+        }
+
+        if (this.selectedStream != null
+            && this.selectedStream.DateTimePropertyNameForUI != null
+            && this.selectedStream.DateTimePropertyNameForUI.trim().length > 0)
+        {
+            let ranges = this.createDateRangeGroups(data);
+            let propName: string = (this.selectedStream || { DateTimePropertyNameForUI: '' }).DateTimePropertyNameForUI || '';
             
-            return { ...extra, ... x };
-        });
+            let groups: Array<DataTableGroup> = [];
+            for (let i=0; i<ranges.length; i++)
+            {
+                let range = ranges[i];
+                let itemsInGroup = data.filter(x => {
+                    let time = new Date((<any>x)[propName]).getTime();
+                    return time >= range.minDate.getTime() && time <= range.maxDate.getTime();
+                });
+
+                let group: DataTableGroup = { title: range.title, items: [] };
+                group.items = itemsInGroup.map(x => {
+                    return {
+                        Internal__Table__Id: idCounter++,
+                        values: this.getTableColumns(x, false),
+                        expandedValues: this.getTableColumns(x, true)
+                    };
+                });
+                groups.push(group);
+            }
+
+            this.streamEntryGroups = groups;
+        }
+        else
+        {
+            let group: DataTableGroup = { title: '', items: [] };
+            group.items = data.map(x => {
+                return {
+                    Internal__Table__Id: idCounter++,
+                    values: this.getTableColumns(x, false),
+                    expandedValues: this.getTableColumns(x, true)
+                };
+            });
+            this.streamEntryGroups = [ group ];
+        }
+    }
+
+    clearResults(): void {
+        if (this.selectedStream != null)
+        {
+            this.resultCache[this.selectedStream.Id] = [];
+        }
+        this.streamEntryGroups = [];
+    }
+
+    createDateRangeGroups(data: Array<DataflowEntry>): Array<DateRangeGroup> {
+        if (this.selectedStream == null)
+            throw Error('Selected stream is null');
+
+        let propName: string = this.selectedStream.DateTimePropertyNameForUI || '';
+        if (propName == null || propName.trim().length == 0)
+            throw Error('DateTimePropertyNameForUI is null or empty');
+        
+        let dates = data.map(x => new Date((<any>x)[propName]).getTime());
+        
+        let minDate = new Date(Math.min(...dates));
+        let maxDate = new Date(Math.max(...dates));
+        
+        let range = maxDate.getTime() - minDate.getTime();
+        let seconds = range * 1000;
+        let minutes = seconds * 60;
+        let hours = minutes * 60;
+        let days = hours * 24;
+
+        let startOfToday = new Date();
+        startOfToday.setHours(0);
+        startOfToday.setMinutes(0);
+        startOfToday.setMilliseconds(0);
+
+        // if (days > 30)
+        // {
+        //     return [
+        //         { title: 'Today', minDate: startOfToday, maxDate: maxDate },
+        //         { title: 'Yesterday', minDate: minDate, maxDate: maxDate },
+        //         { title: 'E', minDate: minDate, maxDate: maxDate }
+        //     ];
+        // }
+        // else
+        // {
+        //     return [ { title: 'Last hours', minDate: minDate, maxDate: maxDate } ];
+        // }
+        return [ { title: '', minDate: minDate, maxDate: maxDate } ];
     }
 
     onFilterSelected(): void {
@@ -539,11 +630,13 @@ export default class DataflowPageComponent extends Vue {
         if (this.selectedStream != null)
         {
             this.filtersPerStream[this.selectedStream.Id] = this.filters;
+            this.resultCache[this.selectedStream.Id] = this.streamEntryGroups;
         }
 
         this.selectedStream = stream;
         
         this.filters = this.filtersPerStream[this.selectedStream.Id] || [];
+        this.streamEntryGroups = this.resultCache[this.selectedStream.Id] || [];
         this.updateUrl();
     }
     
@@ -557,7 +650,7 @@ export default class DataflowPageComponent extends Vue {
             return [];
         }
 
-        let entry = this.streamEntries[0];
+        let entry = this.firstEntry;
         if (entry == null) return [];
 
         let headers: Array<any> = [];
@@ -632,34 +725,6 @@ export default class DataflowPageComponent extends Vue {
         }
     }
 
-    tableSorter(items: DataflowEntry[], propertyName: string, isDescending: boolean): DataflowEntry[]
-    {
-        if (propertyName == null) {
-            return items;
-        }
-
-        let header = this.tableHeaders.filter(x => x.value == propertyName)[0];
-        let uiHint = (header != null) ? header.uiHint : null;
-
-        if (uiHint === DataFlowPropertyUIHint.DateTime)
-        {
-            items = items.sort((a:DataflowEntry, b:DataflowEntry) => new Date((<any>b)[propertyName]).getTime() - new Date((<any>a)[propertyName]).getTime());
-        }
-        else {
-            items = items.sort((a:DataflowEntry, b:DataflowEntry) => {
-                var textA = (<any>a)[propertyName].toUpperCase();
-                var textB = (<any>b)[propertyName].toUpperCase();
-                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-            });
-        }
-        
-        if (isDescending === true) {
-            items = items.reverse();
-        }
-
-        return items;
-    }
-
     filterStreams(data: Array<DataflowStreamMetadata>) : Array<DataflowStreamMetadata> {
         return data.filter(x => this.streamFilterMatches(x));
     }
@@ -684,6 +749,7 @@ export default class DataflowPageComponent extends Vue {
 .expanded-item-details
 {
     padding: 5px;
+    padding-left: 10px;
     border-left: 4px solid #EEE;
 
     .expanded-item-details-title {

@@ -451,7 +451,7 @@ ISequenceDiagramService service = new DefaultSequenceDiagramService(options);
 ### IDataflowService
 If an `IDataflowService` is provided in the controller the dataflow tab will become available where custom data can be shown.
 
-A default implementation `DefaultDataflowService` is provided where custom data streams can be registered. Data can be fetched in the ui for each registered stream, optionally filtered on and each property given a hint for how to be displayed. 
+A default implementation `DefaultDataflowService` is provided where custom data streams can be registered. Data can be fetched in the ui for each registered stream, optionally filtered on and each property given a hint for how to be displayed. Only `Raw` and `HTML` types have any effect when not expanded.
 
 ```csharp
 var options = new DefaultDataflowServiceOptions() {
