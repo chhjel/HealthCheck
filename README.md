@@ -471,7 +471,7 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
 <p>
 
 ```csharp
-    public class MySimpleStream : FlatFileStoredDataflowStream<YourDataModel, string>
+    public class MySimpleStream : FlatFileStoredDataflowStream<YourAccessRolesEnum, YourDataModel, string>
     {
         public override Maybe<YourAccessRolesEnum> RolesWithAccess =>new Maybe<YourAccessRolesEnum>(YourAccessRolesEnum.SystemAdmins);
         public override string Name => $"My Simple Stream";
