@@ -34,6 +34,15 @@
                 <v-layout>
                     <v-flex>
                         <v-container>
+                            <data-table-component class="elevation-2">
+                                <template v-slot:cell="{ value }">
+                                    {{ value }}
+                                </template>
+                                <template v-slot:expandedItem="{ item }">
+                                    <code>{{ item.values }}</code>
+                                </template>
+                            </data-table-component>
+
                             <!-- DATA LOAD ERROR -->
                             <v-alert :value="dataLoadFailed && selectedStream == null" type="error">
                             {{ dataFailedErrorMessage }}
@@ -198,6 +207,7 @@ import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
 import FilterInputComponent from '.././Common/FilterInputComponent.vue';
+import DataTableComponent from '.././Common/DataTableComponent.vue';
 
 interface PropFilter
 {
@@ -219,7 +229,8 @@ interface DatePickerPreset {
     components: {
         DataflowEntryPropertyValueComponent,
         DateTimePicker,
-        FilterInputComponent
+        FilterInputComponent,
+        DataTableComponent
     }
 })
 export default class DataflowPageComponent extends Vue {
