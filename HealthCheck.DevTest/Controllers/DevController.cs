@@ -32,7 +32,6 @@ namespace HealthCheck.DevTest.Controllers
         private const string EndpointBase = "/dev";
         private static ISiteEventService _siteEventService;
         private static IAuditEventStorage _auditEventService;
-        private TestStream TestStream { get; set; } = new TestStream("A");
 
         #region Init
         public DevController()
@@ -61,7 +60,7 @@ namespace HealthCheck.DevTest.Controllers
             {
                 Streams = new[]
                 {
-                    TestStream,
+                    new TestStream("A"),
                     new TestStream("B"),
                     new TestStream("C"),
                 }
@@ -240,7 +239,8 @@ namespace HealthCheck.DevTest.Controllers
                     Name = $"Entry [{DateTime.Now.ToLongTimeString()}]"
                 })
                 .ToList();
-            TestStream.InsertEntries(entriesToInsert);
+
+            TestStream.Current.InsertEntries(entriesToInsert);
 
             return Content("OK :]");
         }
