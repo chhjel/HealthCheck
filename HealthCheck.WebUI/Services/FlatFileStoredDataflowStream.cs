@@ -106,6 +106,24 @@ namespace HealthCheck.WebUI.Services
         }
 
         /// <summary>
+        /// Store a single entry on a new thread. If it already exists it will be updated.
+        /// <para>Catches and ignores exceptions.</para>
+        /// </summary>
+        public void TryFireAndForgetInsertEntry(TEntry entry, DateTime? timestamp = null)
+        {
+            Task.Run(() => { try { InsertEntry(entry, timestamp); } catch (Exception) { } });
+        }
+
+        /// <summary>
+        /// Store multiple entries on a new thread. The ones that already exists will be updated.
+        /// <para>Catches and ignores exceptions.</para>
+        /// </summary>
+        public void TryFireAndForgetInsertEntries(IList<TEntry> entries, DateTime? timestamp = null)
+        {
+            Task.Run(() => { try { InsertEntries(entries, timestamp); } catch (Exception) { } });
+        }
+
+        /// <summary>
         /// Store a single entry. If it already exists it will be updated.
         /// </summary>
         public TEntry InsertEntry(TEntry entry, DateTime? timestamp = null)

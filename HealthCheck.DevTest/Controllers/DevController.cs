@@ -32,7 +32,7 @@ namespace HealthCheck.DevTest.Controllers
         private const string EndpointBase = "/dev";
         private static ISiteEventService _siteEventService;
         private static IAuditEventStorage _auditEventService;
-        private static TestStreamA testStreamA = new TestStreamA();
+        private static readonly TestStreamA testStreamA = new TestStreamA();
 
         #region Init
         public DevController()
