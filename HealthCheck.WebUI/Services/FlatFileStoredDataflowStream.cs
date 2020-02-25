@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static HealthCheck.Core.Modules.Dataflow.DataFlowPropertyDisplayInfo;
 
 namespace HealthCheck.WebUI.Services
 {
@@ -97,12 +98,48 @@ namespace HealthCheck.WebUI.Services
         }
 
         /// <summary>
+        /// Register display info about a property. UIOrder will be set to the invoke count of this method instance.
+        /// </summary>
+        public DataFlowPropertyDisplayInfo ConfigureProperty(string propertyName, string displayName,
+            DataFlowPropertyUIHint? uiHint = null, DataFlowPropertyUIVisibilityOption? visibility = null)
+            => ConfigureProperty(propertyName, uiHint, visibility).SetDisplayName(displayName);
+
+        /// <summary>
+        /// Register display info about a property. UIOrder will be set to the invoke count of this method instance.
+        /// </summary>
+        public DataFlowPropertyDisplayInfo ConfigureProperty(string propertyName,
+            DataFlowPropertyUIHint? uiHint = null, DataFlowPropertyUIVisibilityOption? visibility = null)
+        {
+            var info = new DataFlowPropertyDisplayInfo(propertyName, uiHint, visibility)
+                .SetUIOrder(RegisterPropertyDisplayInfoInvokeCount++);
+
+            PropertyInfos[info.PropertyName] = info;
+            return info;
+        }
+        private int RegisterPropertyDisplayInfoInvokeCount = 0;
+
+        /// <summary>
         /// Register display info about a property.
         /// </summary>
-        public void RegisterPropertyDisplayInfo(DataFlowPropertyDisplayInfo info)
+        public void ConfigureProperty(DataFlowPropertyDisplayInfo info)
         {
             if (info == null) return;
             PropertyInfos[info.PropertyName] = info;
+        }
+
+        /// <summary>
+        /// Register display info about multiple properties.
+        /// <para>UI order will be set according to the order of the items.</para>
+        /// </summary>
+        public void ConfigureProperties(params DataFlowPropertyDisplayInfo[] infos)
+        {
+            if (infos == null || !infos.Any()) return;
+            var order = 0;
+            foreach(var info in infos)
+            {
+                info.UIOrder = order++;
+                PropertyInfos[info.PropertyName] = info;
+            }
         }
 
         /// <summary>

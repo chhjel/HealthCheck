@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static HealthCheck.Core.Modules.Dataflow.DataFlowPropertyDisplayInfo;
 
 namespace HealthCheck.DevTest._TestImplementation.Dataflow
 {
@@ -30,54 +31,15 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
         {
             Suffix = suffix;
 
-            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.Code))
-            {
-                DisplayName = "The product code",
-                UIOrder = 0,
-                IsFilterable = true
-            });
-            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.Name))
-            {
-                DisplayName = "The product name",
-                UIOrder = 1,
-                IsFilterable = true
-            });
-            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.InsertionTime))
-            {
-                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.DateTime,
-                UIOrder = 2
-            });
-            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.PreformattedTest))
-            {
-                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.Preformatted,
-                UIOrder = 3
-            });
-            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.HtmlTest))
-            {
-                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.HTML,
-                UIOrder = 4
-            });
-            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.Properties))
-            {
-                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.Dictionary,
-                Visibility = DataFlowPropertyDisplayInfo.DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded
-            });
-            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.TestList))
-            {
-                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.List,
-                Visibility = DataFlowPropertyDisplayInfo.DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded
-            });
-            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.TestLink))
-            {
-                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.Link,
-                Visibility = DataFlowPropertyDisplayInfo.DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded,
-                IsFilterable = true
-            });
-            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.TestImage))
-            {
-                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.Image,
-                Visibility = DataFlowPropertyDisplayInfo.DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded
-            });
+            ConfigureProperty(nameof(TestEntry.Code)).SetDisplayName("The product code").SetFilterable();
+            ConfigureProperty(nameof(TestEntry.Name)).SetDisplayName("The product name").SetFilterable();
+            ConfigureProperty(nameof(TestEntry.InsertionTime)).SetUIHint(DataFlowPropertyUIHint.DateTime).PrettifyDisplayName();
+            ConfigureProperty(nameof(TestEntry.PreformattedTest)).SetUIHint(DataFlowPropertyUIHint.Preformatted);
+            ConfigureProperty(nameof(TestEntry.HtmlTest)).SetUIHint(DataFlowPropertyUIHint.HTML);
+            ConfigureProperty(nameof(TestEntry.Properties)).SetUIHint(DataFlowPropertyUIHint.Dictionary).SetVisibility(DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded);
+            ConfigureProperty(nameof(TestEntry.TestList)).SetUIHint(DataFlowPropertyUIHint.List).SetVisibility(DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded);
+            ConfigureProperty(nameof(TestEntry.TestLink)).SetUIHint(DataFlowPropertyUIHint.Link).SetVisibility(DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded);
+            ConfigureProperty(nameof(TestEntry.TestImage)).SetUIHint(DataFlowPropertyUIHint.Image).SetVisibility(DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded);
         }
 
         protected override Task<IEnumerable<TestEntry>> FilterEntries(DataflowStreamFilter filter, IEnumerable<TestEntry> entries)
@@ -110,10 +72,7 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
         {
             Suffix = suffix;
 
-            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.Code))
-            {
-                IsFilterable = true
-            });
+            ConfigureProperty(nameof(TestEntry.Code)).SetFilterable();
         }
 
         protected override Task<IEnumerable<GenericDataflowStreamObject>> FilterEntries(DataflowStreamFilter filter, IEnumerable<GenericDataflowStreamObject> entries)

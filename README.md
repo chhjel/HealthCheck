@@ -512,22 +512,14 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
             AllowInsert = () => yourOptionalConfigService.EnableMyStreamInserts;
 
             // Optionally customize object property data
-            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(YourDataModel.Code))
-            {
-                DisplayName = "Product Code",
-                UIOrder = 0,
-                IsFilterable = true,
-            });
-            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(YourDataModel.Details))
-            {
-                UIOrder = 1,
-                UIHint = DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.Dictionary,
-                Visibility = DataFlowPropertyDisplayInfo.DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded
-            });
+            ConfigureProperty(nameof(YourDataModel.Code), "Product Code").SetFilterable();
+            ConfigureProperty(nameof(YourDataModel.Details))
+                .SetUIHint(DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.Dictionary);
+                .SetVisibility(DataFlowPropertyDisplayInfo.DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded);
         }
         
         // Override FilterEntries method to implement any custom filtering.
-        // To show a filter in frontend IsFilterable must be set to true in RegisterPropertyDisplayInfo above.
+        // To show a filter in frontend IsFilterable must be set to true in ConfigureProperty above.
         protected override Task<IEnumerable<YourDataModel>> FilterEntries(DataflowStreamFilter filter, IEnumerable<YourDataModel> entries)
         {
             // Get user input for Code property

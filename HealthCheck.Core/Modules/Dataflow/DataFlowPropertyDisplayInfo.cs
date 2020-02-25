@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Extensions;
+using System;
 using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.Dataflow
@@ -36,16 +37,84 @@ namespace HealthCheck.Core.Modules.Dataflow
 
         /// <summary>
         /// True if a filter should be shown for this property.
+        /// <para>Custom filter logic must be added in <see cref="IDataflowStream{TAccessRole}.GetLatestStreamEntriesAsync(DataflowStreamFilter)"/>
+        /// or in FilterEntries(..) if FlatFileStoredDataflowStream is used.</para>
         /// </summary>
         public bool IsFilterable { get; set; }
 
         /// <summary>
         /// Options for a property on an entry coming from a dataflow source.
         /// </summary>
-        public DataFlowPropertyDisplayInfo(string propertyName)
+        public DataFlowPropertyDisplayInfo(string propertyName,
+            DataFlowPropertyUIHint? uiHint = null, DataFlowPropertyUIVisibilityOption? visibility = null)
         {
             PropertyName = propertyName;
+            if (uiHint != null)
+            {
+                UIHint = uiHint.Value;
+            }
+            if (visibility != null)
+            {
+                Visibility = visibility.Value;
+            }
         }
+
+        #region Method chaining
+        /// <summary>
+        /// Order of this property. Lower = earlier.
+        /// <para>Default: 99999999</para>
+        /// </summary>
+        public DataFlowPropertyDisplayInfo SetUIOrder(int order)
+        {
+            UIOrder = order;
+            return this;
+        }
+
+        /// <summary>
+        /// Option for the properties visibility.
+        /// </summary>
+        public DataFlowPropertyDisplayInfo SetVisibility(DataFlowPropertyUIVisibilityOption visibility)
+        {
+            Visibility = visibility;
+            return this;
+        }
+
+        /// <summary>
+        /// Hint of how to display this field.
+        /// </summary>
+        public DataFlowPropertyDisplayInfo SetUIHint(DataFlowPropertyUIHint uiHint)
+        {
+            UIHint = uiHint;
+            return this;
+        }
+
+        /// <summary>
+        /// Name of the property to display.
+        /// </summary>
+        public DataFlowPropertyDisplayInfo SetDisplayName(string displayName)
+        {
+            DisplayName = displayName;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the display name to a prettified version of the property name.
+        /// </summary>
+        public DataFlowPropertyDisplayInfo PrettifyDisplayName()
+        {
+            DisplayName = PropertyName.SpacifySentence();
+            return this;
+        }
+
+        /// <summary>
+        /// Allow the property to be filtered upon.
+        /// </summary>
+        public DataFlowPropertyDisplayInfo SetFilterable(bool isFilterable = true)
+        {
+            IsFilterable = isFilterable;
+            return this;
+        }
+        #endregion
 
         /// <summary>
         /// Hint for how to display this property in the ui.
