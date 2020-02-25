@@ -18,6 +18,11 @@
         /// <summary>
         /// Request log.
         /// </summary>
-        RequestLog
+        RequestLog,
+
+        /// <summary>
+        /// Dataflow streams.
+        /// </summary>
+        Dataflow
     }
 }

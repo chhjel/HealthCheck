@@ -358,7 +358,7 @@ namespace HealthCheck.WebUI.Abstractions
         {
             if (!Enabled || !Helper.CanShowDataflowPageTo(CurrentRequestAccessRoles)) return NotFound();
 
-            var viewModel = await Helper.GetDataflowEntries(filter.StreamId, filter.StreamFilter, CurrentRequestAccessRoles);
+            var viewModel = await Helper.GetDataflowEntries(filter.StreamId, filter.StreamFilter, CurrentRequestInformation);
             return CreateJsonResult(viewModel);
         }
 

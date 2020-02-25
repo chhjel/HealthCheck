@@ -707,6 +707,19 @@ namespace HealthCheck.WebUI.Util
             };
 
         /// <summary>
+        /// When data has been fetched from a datastream this should be called.
+        /// </summary>
+        public void AuditLog_DatastreamFetched(RequestInformation<TAccessRole> requestInformation,
+            DataflowStreamMetadata<TAccessRole> stream, DataflowStreamFilter filter)
+        {
+            Services.AuditEventService?.StoreEvent(
+                CreateAuditEventFor(requestInformation, AuditEventArea.Dataflow, action: "Dataflow stream fetched", subject: stream?.Name)
+                .AddDetail("Stream id", stream?.Id)
+                .AddDetail("Filter input", (filter == null) ? null : SerializeJson(filter))
+            );
+        }
+
+        /// <summary>
         /// When a test has executed this should be called.
         /// </summary>
         public void AuditLog_TestExecuted(RequestInformation<TAccessRole> requestInformation, ExecuteTestInputData input, TestResultViewModel result)
@@ -770,11 +783,19 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Get viewmodel for dataflow entries result.
         /// </summary>
-        public async Task<IEnumerable<IDataflowEntry>> GetDataflowEntries(string streamId, DataflowStreamFilter filter, Maybe<TAccessRole> accessRoles)
+        public async Task<IEnumerable<IDataflowEntry>> GetDataflowEntries(string streamId, DataflowStreamFilter filter,
+            RequestInformation<TAccessRole> requestInformation)
         {
             if (Services.DataflowService == null 
-                || !GetDataflowStreamsMetadata(accessRoles).Any())
+                || !GetDataflowStreamsMetadata(requestInformation.AccessRole).Any())
                 return Enumerable.Empty<IDataflowEntry>();
+
+            var stream = this.GetDataflowStreamsMetadata(requestInformation.AccessRole)
+                .FirstOrDefault(x => x.Id == streamId);
+            if (stream != null)
+            {
+                AuditLog_DatastreamFetched(requestInformation, stream, filter);
+            }
 
             filter = filter ?? new DataflowStreamFilter();
             filter.PropertyFilters = filter.PropertyFilters ?? new Dictionary<string, string>();

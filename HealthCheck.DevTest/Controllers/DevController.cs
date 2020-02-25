@@ -46,9 +46,11 @@ namespace HealthCheck.DevTest.Controllers
             }
 
             var simpleStream = new SimpleStream("Simple A");
-            simpleStream.InsertEntry(GenericDataflowStreamObject.Create(new TestEntry() { Code = "6235235", Name = "Name A" }));
-            simpleStream.InsertEntry(GenericDataflowStreamObject.Create(new TestEntry() { Code = "1234", Name = "Name B" }));
-            simpleStream.InsertEntry(GenericDataflowStreamObject.Create(new TestEntry() { Code = "235235", Name = "Name C" }));
+            simpleStream.InsertEntries(new[] {
+                GenericDataflowStreamObject.Create(new TestEntry() { Code = "6235235", Name = "Name A" }),
+                GenericDataflowStreamObject.Create(new TestEntry() { Code = "1234", Name = "Name B" }),
+                GenericDataflowStreamObject.Create(new TestEntry() { Code = "235235", Name = "Name C" })
+            });
 
             Services.SiteEventService = _siteEventService;
             Services.AuditEventService = _auditEventService;
