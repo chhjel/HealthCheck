@@ -15,11 +15,6 @@ namespace HealthCheck.WebUI.Services
         where TEntry : IDataflowEntryWithInsertionTime
     {
         /// <summary>
-        /// References the latest instance that was instantiated if any.
-        /// </summary>
-        public static FlatFileStoredDataflowStream<TAccessRole, TEntry, TEntryId> Current { get; private set; }
-
-        /// <summary>
         /// Optionally set roles that have access to this stream.
         /// <para>Defaults to null, giving anyone with access to the dataflow page access.</para>
         /// </summary>
@@ -80,7 +75,6 @@ namespace HealthCheck.WebUI.Services
             TimeSpan? maxEntryAge = null
         )
         {
-            Current = this;
             Store = new SimpleDataStoreWithId<TEntry, TEntryId>(
                 filepath,
                 serializer: new Func<TEntry, string>((e) => JsonConvert.SerializeObject(e)),

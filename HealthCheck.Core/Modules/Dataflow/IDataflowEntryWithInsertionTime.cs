@@ -1,11 +1,9 @@
-﻿using HealthCheck.Core.Modules.Dataflow;
-using System;
+﻿using System;
 
-namespace HealthCheck.WebUI.Services
+namespace HealthCheck.Core.Modules.Dataflow
 {
     /// <summary>
     /// A <see cref="IDataflowEntry"/> with an <see cref="InsertionTime"/> property.
-    /// <para>Used in <see cref="FlatFileStoredDataflowStream{TAccessRole, TEntry, TEntryId}"/>.</para>
     /// </summary>
     public interface IDataflowEntryWithInsertionTime : IDataflowEntry
     {

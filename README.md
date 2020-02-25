@@ -465,7 +465,8 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
 * Use `IsVisible` property to set stream visibility in the UI.
 * Use `AllowInsert` property to optionally ignore any new data attempted to be inserted.
 * Override `RolesWithAccess` property to set who has access to view the stream data.
-* If used make sure the services are registered as singletons, they are thread safe but only within their own instances. The `FlatFileStoredDataflowStream` exposes a static `Current` property that can optionally be used for quick access on the inherited class.
+* If used make sure the services are registered as singletons, they are thread safe but only within their own instances.
+* `GenericDataflowStreamObject.Create` can optionally be used to include a subset of an existing types properties instead of creating a new model.
 
 <details><summary>Simple example stream</summary>
 <p>

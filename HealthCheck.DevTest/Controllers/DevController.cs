@@ -32,6 +32,7 @@ namespace HealthCheck.DevTest.Controllers
         private const string EndpointBase = "/dev";
         private static ISiteEventService _siteEventService;
         private static IAuditEventStorage _auditEventService;
+        private static TestStreamA testStreamA = new TestStreamA();
 
         #region Init
         public DevController()
@@ -43,6 +44,11 @@ namespace HealthCheck.DevTest.Controllers
                 _siteEventService = CreateSiteEventService();
                 _auditEventService = CreateAuditEventService();
             }
+
+            var simpleStream = new SimpleStream("Simple A");
+            simpleStream.InsertEntry(GenericDataflowStreamObject.Create(new TestEntry() { Code = "6235235", Name = "Name A" }));
+            simpleStream.InsertEntry(GenericDataflowStreamObject.Create(new TestEntry() { Code = "1234", Name = "Name B" }));
+            simpleStream.InsertEntry(GenericDataflowStreamObject.Create(new TestEntry() { Code = "235235", Name = "Name C" }));
 
             Services.SiteEventService = _siteEventService;
             Services.AuditEventService = _auditEventService;
@@ -58,11 +64,12 @@ namespace HealthCheck.DevTest.Controllers
             });
             Services.DataflowService = new DefaultDataflowService<RuntimeTestAccessRole>(new DefaultDataflowServiceOptions<RuntimeTestAccessRole>()
             {
-                Streams = new FlatFileStoredDataflowStream<RuntimeTestAccessRole, TestEntry, string>[]
+                Streams = new IDataflowStream<RuntimeTestAccessRole>[]
                 {
-                    new TestStreamA(),
+                    testStreamA,
                     new TestStreamB(),
-                    new TestStreamC()
+                    new TestStreamC(),
+                    simpleStream
                 }
             });
 
@@ -240,7 +247,7 @@ namespace HealthCheck.DevTest.Controllers
                 })
                 .ToList();
 
-            TestStream.Current.InsertEntries(entriesToInsert);
+            testStreamA.InsertEntries(entriesToInsert);
 
             return Content("OK :]");
         }

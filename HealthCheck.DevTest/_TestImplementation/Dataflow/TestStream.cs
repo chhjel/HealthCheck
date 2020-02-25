@@ -92,4 +92,34 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
             return Task.FromResult(entries);
         }
     }
+
+    public class SimpleStream : FlatFileStoredDataflowStream<RuntimeTestAccessRole, GenericDataflowStreamObject, string>
+    {
+        public override string Name => $"Simple Stream {Suffix}";
+        public override string Description => $"Description for simple stream '{Name}'.";
+        public override bool SupportsFilterByDate => true;
+        private string Suffix { get; }
+
+        public SimpleStream(string suffix)
+            : base(
+                @"c:\temp\simplestream_" + suffix + ".json",
+                idSelector: (e) => e.Get<string>(nameof(TestEntry.Code)),
+                idSetter: (e, id) => e[nameof(TestEntry.Code)] = id,
+                maxEntryAge: TimeSpan.FromDays(1)
+            )
+        {
+            Suffix = suffix;
+
+            RegisterPropertyDisplayInfo(new DataFlowPropertyDisplayInfo(nameof(TestEntry.Code))
+            {
+                IsFilterable = true
+            });
+        }
+
+        protected override Task<IEnumerable<GenericDataflowStreamObject>> FilterEntries(DataflowStreamFilter filter, IEnumerable<GenericDataflowStreamObject> entries)
+        {
+            entries = filter.FilterContains(entries, nameof(TestEntry.Code), x => x.Get<string>(nameof(TestEntry.Code)));
+            return Task.FromResult(entries);
+        }
+    }
 }
