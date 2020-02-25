@@ -44,9 +44,10 @@
                     <v-flex>
                         <v-container>
                             <!-- NO DIAGRAMS INFO -->
-                            <v-alert :value="sequenceDiagrams.length == 0 && !diagramsDataLoadInProgress" type="info">
+                            <v-alert :value="sequenceDiagrams.length == 0 && !diagramsDataLoadInProgress && !diagramsDataLoadFailed" type="info">
                                 No documentation was found.<br />
-                                Decorate backend code with <code>[SequenceDiagramStepAttribute]</code> for sequence sequenceDiagrams to be generated.
+                                Decorate backend code with <code>[SequenceDiagramStepAttribute]</code> for sequence diagrams to be generated,<br />
+                                or with <code>[FlowChartStepAttribute]</code> for flow charts to be generated.
                             </v-alert>
 
                             <!-- DATA LOAD ERROR -->

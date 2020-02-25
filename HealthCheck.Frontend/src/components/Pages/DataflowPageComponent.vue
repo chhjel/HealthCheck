@@ -40,7 +40,7 @@
                                 indeterminate color="green"></v-progress-linear>
 
                             <!-- DATA LOAD ERROR -->
-                            <v-alert :value="dataLoadFailed && selectedStream == null" type="error">
+                            <v-alert :value="dataLoadFailed" v-if="dataLoadFailed" type="error">
                             {{ dataFailedErrorMessage }}
                             </v-alert>
 
@@ -234,7 +234,7 @@ export default class DataflowPageComponent extends Vue {
     streamsFilterText: string = "";
     metadataLoadInProgress: boolean = false;
     dataLoadInProgress: boolean = false;
-    dataLoadFailed: boolean = true;
+    dataLoadFailed: boolean = false;
     dataFailedErrorMessage: string = '';
 
     streamMetadatas: Array<DataflowStreamMetadata> = [];
@@ -426,6 +426,7 @@ export default class DataflowPageComponent extends Vue {
         .then(response => response.json())
         .then((diagramsData: Array<DataflowStreamMetadata>) => this.onDataFlowMetaDataRetrieved(diagramsData))
         .catch((e) => {
+            this.dataLoadFailed = true;
             this.metadataLoadInProgress = false;
             this.dataFailedErrorMessage = `Failed to load data with the following error. ${e}.`;
             console.error(e);
@@ -707,7 +708,7 @@ export default class DataflowPageComponent extends Vue {
                 return {
                     key: x.text,
                     value: this.getTableColumnValue((<any>entry)[x.value], x, isExpanded),
-                    uiHint: x.uiHint
+                    uiHint: x.uiHint || DataFlowPropertyUIHint.Raw
                 };
             });
     }

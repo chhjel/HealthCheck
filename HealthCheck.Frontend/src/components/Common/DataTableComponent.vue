@@ -127,7 +127,7 @@ export default class DataTableComponent extends Vue
 
             &:first-child {
                 padding-left: 10px;
-                padding-right: 0;
+                /* padding-right: 0; */
             }
         }
     }

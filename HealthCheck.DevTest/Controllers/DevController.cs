@@ -33,6 +33,9 @@ namespace HealthCheck.DevTest.Controllers
         private static ISiteEventService _siteEventService;
         private static IAuditEventStorage _auditEventService;
         private static readonly TestStreamA testStreamA = new TestStreamA();
+        private static readonly TestStreamB testStreamB = new TestStreamB();
+        private static readonly TestStreamC testStreamC = new TestStreamC();
+        private static readonly SimpleStream simpleStream = new SimpleStream("Simple A");
 
         #region Init
         public DevController()
@@ -45,7 +48,6 @@ namespace HealthCheck.DevTest.Controllers
                 _auditEventService = CreateAuditEventService();
             }
 
-            var simpleStream = new SimpleStream("Simple A");
             simpleStream.InsertEntries(new[] {
                 GenericDataflowStreamObject.Create(new TestEntry() { Code = "6235235", Name = "Name A" }),
                 GenericDataflowStreamObject.Create(new TestEntry() { Code = "1234", Name = "Name B" }),
@@ -69,8 +71,8 @@ namespace HealthCheck.DevTest.Controllers
                 Streams = new IDataflowStream<RuntimeTestAccessRole>[]
                 {
                     testStreamA,
-                    new TestStreamB(),
-                    new TestStreamC(),
+                    testStreamB,
+                    testStreamC,
                     simpleStream
                 }
             });
