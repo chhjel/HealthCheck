@@ -162,7 +162,7 @@ namespace HealthCheck.WebUI.Abstractions
         [HttpPost]
         public virtual async Task<ActionResult> GetFilteredAudits(AuditEventFilterInputData input = null)
         {
-            if (!Enabled || !Helper.CanShowAuditPageTo(CurrentRequestAccessRoles))
+            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.AuditLog, CurrentRequestAccessRoles))
                 return HttpNotFound();
 
             var filteredItems = await Helper.GetAuditEventsFilterViewModel(CurrentRequestAccessRoles, input);
@@ -175,7 +175,7 @@ namespace HealthCheck.WebUI.Abstractions
         [RequestLogInfo(hide: true)]
         public ActionResult GetRequestLog()
         {
-            if (!Enabled || !Helper.CanShowRequestLogPageTo(CurrentRequestAccessRoles))
+            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.RequestLog, CurrentRequestAccessRoles))
                 return HttpNotFound();
 
             var viewModel = Helper.GetRequestLogActions(CurrentRequestAccessRoles);
@@ -202,7 +202,7 @@ namespace HealthCheck.WebUI.Abstractions
         [RequestLogInfo(hide: true)]
         public virtual async Task<ActionResult> GetSiteEvents()
         {
-            if (!Enabled || !Helper.CanShowOverviewPageTo(CurrentRequestAccessRoles))
+            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.Overview, CurrentRequestAccessRoles))
                 return HttpNotFound();
 
             var viewModel = await Helper.GetSiteEventsViewModel(CurrentRequestAccessRoles);
@@ -215,7 +215,7 @@ namespace HealthCheck.WebUI.Abstractions
         [RequestLogInfo(hide: true)]
         public virtual ActionResult GetTests()
         {
-            if (!Enabled || !Helper.CanShowTestsPageTo(CurrentRequestAccessRoles)) return HttpNotFound();
+            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.Tests, CurrentRequestAccessRoles)) return HttpNotFound();
 
             SetTestSetGroupsOptions(Helper.TestSetGroupsOptions);
             var viewModel = Helper.GetTestDefinitionsViewModel(CurrentRequestAccessRoles);
@@ -229,7 +229,7 @@ namespace HealthCheck.WebUI.Abstractions
         [HttpPost]
         public virtual async Task<ActionResult> ExecuteTest(ExecuteTestInputData data)
         {
-            if (!Enabled || !Helper.CanShowTestsPageTo(CurrentRequestAccessRoles)) return HttpNotFound();
+            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.Tests, CurrentRequestAccessRoles)) return HttpNotFound();
 
             var result = await Helper.ExecuteTest(CurrentRequestAccessRoles, data);
             Helper.AuditLog_TestExecuted(CurrentRequestInformation, data, result);
@@ -244,7 +244,7 @@ namespace HealthCheck.WebUI.Abstractions
         [HttpPost]
         public virtual async Task<ActionResult> ExecuteTests(ExecuteTestsInputData data)
         {
-            if (!Enabled || !Helper.CanShowTestsPageTo(CurrentRequestAccessRoles) || data == null) return HttpNotFound();
+            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.Tests, CurrentRequestAccessRoles) || data == null) return HttpNotFound();
 
             var result = await Helper.ExecuteTests(CurrentRequestInformation, data.TestCategory);
             return CreateJsonResult(result);
@@ -257,7 +257,7 @@ namespace HealthCheck.WebUI.Abstractions
         [HttpPost]
         public virtual async Task<ActionResult> CancelTest(string testId)
         {
-            if (!Enabled || !Helper.CanShowTestsPageTo(CurrentRequestAccessRoles)) return HttpNotFound();
+            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.Tests, CurrentRequestAccessRoles)) return HttpNotFound();
 
             await Task.Delay(TimeSpan.FromMilliseconds(1));
             return CreateJsonResult(Helper.CancelTest(CurrentRequestInformation, testId));
@@ -270,7 +270,7 @@ namespace HealthCheck.WebUI.Abstractions
         [HttpPost]
         public virtual async Task<ActionResult> SearchLogs(LogSearchFilter filter)
         {
-            if (!Enabled || !Helper.CanShowLogViewerPageTo(CurrentRequestAccessRoles))
+            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.LogViewer, CurrentRequestAccessRoles))
                 return HttpNotFound();
 
             var result = await Helper.SearchLogs(CurrentRequestAccessRoles, filter);
@@ -315,7 +315,7 @@ namespace HealthCheck.WebUI.Abstractions
         [RequestLogInfo(hide: true)]
         public virtual ActionResult GetDiagrams()
         {
-            if (!Enabled || !Helper.CanShowDocumentationPageTo(CurrentRequestAccessRoles)) return HttpNotFound();
+            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.Documentation, CurrentRequestAccessRoles)) return HttpNotFound();
 
             var viewModel = Helper.GetDiagramsViewModel(CurrentRequestAccessRoles);
             return CreateJsonResult(viewModel);
