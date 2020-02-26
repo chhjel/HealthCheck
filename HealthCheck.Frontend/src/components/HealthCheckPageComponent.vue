@@ -48,6 +48,11 @@
                         :href="`#/${PAGE_AUDITLOG}`"
                         :class="{ 'active-tab': isCurrentPage(PAGE_AUDITLOG) }"
                         @click.left.prevent="setCurrentPage(PAGE_AUDITLOG)">Audit log</v-btn>
+                    <v-btn flat 
+                        v-if="showPageMenu(PAGE_SETTINGS)"
+                        :href="`#/${PAGE_SETTINGS}`"
+                        :class="{ 'active-tab': isCurrentPage(PAGE_SETTINGS) }"
+                        @click.left.prevent="setCurrentPage(PAGE_SETTINGS)">Settings</v-btn>
                 </v-toolbar-items>
             </v-toolbar>
 
@@ -88,6 +93,10 @@
                 v-show="currentPage == PAGE_DATAFLOW"
                 ref="dataflowPage"
                 :options="options" />
+            <settings-page-component
+                v-if="shouldIncludePage(PAGE_SETTINGS)"
+                v-show="currentPage == PAGE_SETTINGS"
+                :options="options" />
 
             <!-- FOOTER -->
             <!-- <v-footer app fixed>
@@ -107,6 +116,7 @@ import LogViewerPageComponent from './Pages/LogViewerPageComponent.vue';
 import RequestLogPageComponent from './Pages/RequestLogPageComponent.vue';
 import DocumentationPageComponent from './Pages/DocumentationPageComponent.vue';
 import DataflowPageComponent from './Pages/DataflowPageComponent.vue';
+import SettingsPageComponent from './Pages/SettingsPageComponent.vue';
 import FrontEndOptionsViewModel from '../models/Page/FrontEndOptionsViewModel';
 import UrlUtils from '../util/UrlUtils';
 
@@ -119,7 +129,8 @@ import UrlUtils from '../util/UrlUtils';
         LogViewerPageComponent,
         RequestLogPageComponent,
         DocumentationPageComponent,
-        DataflowPageComponent
+        DataflowPageComponent,
+        SettingsPageComponent
     }
 })
 export default class HealthCheckPageComponent extends Vue {
@@ -136,6 +147,7 @@ export default class HealthCheckPageComponent extends Vue {
     PAGE_REQUESTLOG: string = "requestlog";
     PAGE_DOCUMENTATION: string = "documentation";
     PAGE_DATAFLOW: string = "dataflow";
+    PAGE_SETTINGS: string = "settings";
     PAGE_NO_PAGES_AVAILABLE: string = "no_page";
     currentPage: string = this.PAGE_TESTS;
     pagesWithMenu: string[] = [
