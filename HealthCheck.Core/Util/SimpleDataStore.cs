@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace HealthCheck.Core.Util
     /// <para>Requires your own item serialization/deserialization logic.</para>
     /// <para>If you need item ids use <see cref="SimpleDataStoreWithId{TItem, TId}"/> instead.</para>
     /// </summary>
-    public class SimpleDataStore<TItem>
+    public class SimpleDataStore<TItem> : IDataStore<TItem>
     {
         /// <summary>
         /// Options for automatic storage cleanup.
@@ -215,6 +216,12 @@ namespace HealthCheck.Core.Util
                 }
             }
         }
+
+        /// <summary>
+        /// Get all rows as enumerable, reading one line at a time. Also reads buffered lines.
+        /// </summary>
+        public IEnumerable<TItem> GetEnumerable()
+            => GetEnumerable(fromEnd: false);
 
         /// <summary>
         /// Get all rows as enumerable, reading one line at a time. Also reads buffered lines.

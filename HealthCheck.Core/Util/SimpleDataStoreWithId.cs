@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,7 +9,7 @@ namespace HealthCheck.Core.Util
     /// Simple data storage to flatfile.
     /// <para>Requires your own item serialization/deserialization logic.</para>
     /// </summary>
-    public class SimpleDataStoreWithId<TItem, TId> : SimpleDataStore<TItem>
+    public class SimpleDataStoreWithId<TItem, TId> : SimpleDataStore<TItem>, IDataStoreWithEntryId<TItem>
     {
         private Func<TItem, TId> IdSelector { get; set; }
         private Action<TItem, TId> IdSetter { get; set; }
