@@ -23,6 +23,7 @@ using System.IO;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
 using HealthCheck.Core.Modules.Diagrams.FlowCharts;
+using HealthCheck.Core.Modules.Settings;
 
 namespace HealthCheck.WebUI.Util
 {
@@ -151,8 +152,8 @@ namespace HealthCheck.WebUI.Util
                 onAccessDenied: (o) => o.GetDataflowStreamsMetadataEndpoint = o.GetDataflowStreamEntriesEndpoint = deniedEndpoint),
 
             new PageType("settings", HealthCheckPageType.Settings,
-                isVisible: (c, a) => true, //c.CanShowDataflowPageTo(a),
-                onAccessDenied: (o) => { }) // o.GetDataflowStreamsMetadataEndpoint = o.GetDataflowStreamEntriesEndpoint = deniedEndpoint);
+                isVisible: (c, a) => c.Services.SettingsService != null && c.AccessRolesHasAccessTo(a, c.AccessOptions.SettingsPageAccess, defaultValue: false),
+                onAccessDenied: (o) => o.GetSettingsEndpoint = o.SetSettingsEndpoint = deniedEndpoint)
         };
 
         /// <summary>
@@ -634,6 +635,19 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// When data has been fetched from a datastream this should be called.
         /// </summary>
+        public void AuditLog_SettingsSaved(RequestInformation<TAccessRole> requestInformation, IEnumerable<HealthCheckSetting> settings)
+        {
+            string settingsString = JsonConvert.SerializeObject(settings);
+
+            Services.AuditEventService?.StoreEvent(
+                CreateAuditEventFor(requestInformation, AuditEventArea.Settings, action: "Settings updated", subject: "Settings")
+                .AddDetail("Values", settingsString)
+            );
+        }
+
+        /// <summary>
+        /// When data has been fetched from a datastream this should be called.
+        /// </summary>
         public void AuditLog_DatastreamFetched(RequestInformation<TAccessRole> requestInformation,
             DataflowStreamMetadata<TAccessRole> stream, DataflowStreamFilter filter)
         {
@@ -737,6 +751,33 @@ namespace HealthCheck.WebUI.Util
 
             return Services.DataflowService.GetStreamMetadata()
                 .Where(x => AccessRolesHasAccessTo(accessRoles, x.RolesWithAccess, defaultValue: true));
+        }
+
+        /// <summary>
+        /// Get viewmodel for dataflow streams metadata result.
+        /// </summary>
+        public GetSettingsViewModel GetSettings(Maybe<TAccessRole> accessRoles)
+        {
+            if (Services.SettingsService == null || !CanShowPageTo(HealthCheckPageType.Settings, accessRoles))
+                return new GetSettingsViewModel();
+
+            var settings = Services.SettingsService.GetSettingItems();
+            return new GetSettingsViewModel()
+            {
+                Settings = settings
+            };
+        }
+
+        /// <summary>
+        /// Save the given settings.
+        /// </summary>
+        public void SetSettings(RequestInformation<TAccessRole> requestInformation, SetSettingsViewModel model)
+        {
+            if (Services.SettingsService == null || !CanShowPageTo(HealthCheckPageType.Settings, requestInformation.AccessRole))
+                return;
+
+            AuditLog_SettingsSaved(requestInformation, model.Settings);
+            Services.SettingsService.SaveSettings(model.Settings);
         }
 
         private bool AuditEventMatchesFilter(AuditEvent e, AuditEventFilterInputData filter)

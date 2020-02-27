@@ -6,32 +6,50 @@
         <v-layout>
         <v-flex class="pl-4 pr-4 pb-4">
           <!-- CONTENT BEGIN -->
+            <v-container>
+                <h1 class="mb-4">Settings</h1>
 
-            <!-- LOAD PROGRESS -->
-            <v-progress-linear 
-                v-if="dataLoadInProgress"
-                indeterminate color="green"></v-progress-linear>
+                <!-- LOAD PROGRESS -->
+                <v-progress-linear 
+                    v-if="dataLoadInProgress"
+                    indeterminate color="green"></v-progress-linear>
 
-            <!-- DATA LOAD ERROR -->
-            <v-alert :value="dataLoadFailed" v-if="dataLoadFailed" type="error">
-            {{ dataFailedErrorMessage }}
-            </v-alert>
+                <!-- DATA LOAD ERROR -->
+                <v-alert :value="dataLoadFailed" v-if="dataLoadFailed" type="error">
+                {{ dataFailedErrorMessage }}
+                </v-alert>
 
-            <div v-for="(group, gIndex) in settingGroups"
-                :key="`setting-group-${gIndex}`"
-                class="setting-group"
-                :class="{ 'without-header': group.name == null, 'with-header': group.name != null }">
-                
-                <div v-if="group.name != null" class="setting-group-header">
-                    <h2 class="setting-group-header--name">{{ group.name }}</h2>
-                    <p v-if="group.description != null" class="setting-group-header--desc">{{ group.description }}}</p>
+                <div v-for="(group, gIndex) in settingGroups"
+                    :key="`setting-group-${gIndex}`"
+                    class="setting-group"
+                    :class="{ 'without-header': group.name == null, 'with-header': group.name != null }">
+                    
+                    <div v-if="group.name != null" class="setting-group-header">
+                        <h2 class="setting-group-header--name">{{ group.name }}</h2>
+                        <p v-if="group.description != null" class="setting-group-header--desc">{{ group.description }}}</p>
+                    </div>
+                    
+                    <setting-input-component v-for="(setting, sIndex) in group.settings"
+                        :key="`setting-group-${gIndex}-${sIndex}`"
+                        class="setting-item"
+                        :setting="setting" />
                 </div>
-                
-                <setting-input-component v-for="(setting, sIndex) in group.settings"
-                    :key="`setting-group-${gIndex}-${sIndex}`"
-                    class="setting-item"
-                    :setting="setting" />
-            </div>
+
+                <v-layout>
+                    <v-flex xs6 sm2 class="mb-2">
+                        <v-btn 
+                            @click="saveSettings()" 
+                            class="primary"
+                            :disabled="isSaving">{{ saveButtonText }}</v-btn>
+                    </v-flex>
+
+                    <!-- SAVE ERROR -->
+                    <div v-if="saveError != null" class="save-error">
+                    {{ saveError }}
+                    </div>
+                </v-layout>
+
+            </v-container>
         </v-flex>
         </v-layout>
         </v-container>
@@ -49,9 +67,11 @@ import SettingInputComponent from '../Settings/SettingInputComponent.vue';
 
 export interface CustomSetting
 {
-    name: string;
+    id: string;
+    displayName: string;
     description: string | null;
     type: 'Boolean' | 'String' | 'Int32';
+    value: any;
     validationError: string | null;
 }
 
@@ -59,6 +79,19 @@ interface CustomSettingGroup
 {
     name: string | null;
     settings: Array<CustomSetting>;
+}
+
+interface GetSettingsModel {
+    Settings: Array<BackendSetting>;
+}
+interface BackendSetting
+{
+    Id: string;
+    DisplayName: string;
+    Description: string | null;
+    Type: 'Boolean' | 'String' | 'Int32';
+    Value: any;
+    GroupName: string | null;
 }
 
 @Component({
@@ -74,48 +107,10 @@ export default class SettingsPageComponent extends Vue {
     dataLoadFailed: boolean = false;
     dataFailedErrorMessage: string = '';
 
-    settingGroups: Array<CustomSettingGroup> = [
-        {
-            name: null,
-            settings: [
-                {
-                    name: 'Some string',
-                    description: 'A description goes here.',
-                    type: 'String',
-                    validationError: null
-                },
-                {
-                    name: 'Checky check',
-                    description: 'Checky check check.',
-                    type: 'Boolean',
-                    validationError: null
-                }
-            ]
-        },
-        {
-            name: 'Data flows',
-            settings: [
-                {
-                    name: 'A bool',
-                    description: 'Something here.',
-                    type: 'Boolean',
-                    validationError: 'Some validation issue!'
-                },
-                {
-                    name: 'A string',
-                    description: null,
-                    type: 'Int32',
-                    validationError: null
-                },
-                {
-                    name: 'A string',
-                    description: null,
-                    type: 'String',
-                    validationError: null
-                }
-            ]
-        }
-    ];
+    isSaving: boolean = false;
+    saveError: string | null = null;
+
+    settingGroups: Array<CustomSettingGroup> = [];
 
     //////////////////
     //  LIFECYCLE  //
@@ -134,6 +129,9 @@ export default class SettingsPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get saveButtonText(): string {
+        return (this.isSaving) ? 'Saving..' : 'Save';
+    }
     
     ////////////////
     //  METHODS  //
@@ -143,7 +141,7 @@ export default class SettingsPageComponent extends Vue {
         this.dataLoadFailed = false;
 
         let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
-        let url = `${this.options.DiagramsDataEndpoint}${queryStringIfEnabled}`;
+        let url = `${this.options.GetSettingsEndpoint}${queryStringIfEnabled}`;
         fetch(url, {
             credentials: 'include',
             method: "GET",
@@ -153,7 +151,7 @@ export default class SettingsPageComponent extends Vue {
             })
         })
         .then(response => response.json())
-        .then((data: any) => this.onDataRetrieved(data))
+        .then((data: GetSettingsModel) => this.onDataRetrieved(data))
         .catch((e) => {
             this.dataLoadInProgress = false;
             this.dataLoadFailed = true;
@@ -162,8 +160,62 @@ export default class SettingsPageComponent extends Vue {
         });
     }
 
-    onDataRetrieved(data: any): void {
+    onDataRetrieved(data: GetSettingsModel): void {
         this.dataLoadInProgress = false;
+
+        this.settingGroups = LinqUtils.GroupByInto(data.Settings, (item) => item.GroupName || "", (key, items) => {
+            return {
+                name: (key === "") ? null : key,
+                settings: items.map(s => {
+                    return {
+                        id: s.Id,
+                        displayName: s.DisplayName,
+                        description: s.Description,
+                        type: s.Type,
+                        value: s.Value,
+                        validationError: null,
+                    };
+                })
+            }
+        });
+    }
+
+    saveSettings(): void {
+        this.isSaving = true;
+        this.saveError = null;
+
+        let settings = this.settingGroups
+                .map(x => x.settings)
+                .reduce((a: CustomSetting[], b: CustomSetting[]) => a.concat(b))
+                .map((x: CustomSetting) => {
+                    return {
+                        Id: x.id,
+                        Value: x.value
+                    };
+                });
+
+        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
+        let url = `${this.options.SetSettingsEndpoint}${queryStringIfEnabled}`;
+        let payload = {
+            settings: settings
+        };
+        fetch(url, {
+            credentials: 'include',
+            method: "POST",
+            body: JSON.stringify(payload),
+            headers: new Headers({
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            })
+        })
+        // .then(response => response.json())
+        // .then((data: any) => this.onDataRetrieved(data))
+        .then(response => this.isSaving = false)
+        .catch((e) => {
+            this.isSaving = false;
+            this.saveError = `Failed to load data with the following error. ${e}.`;
+            console.error(e);
+        });
     }
 
     ///////////////////////
@@ -196,6 +248,13 @@ export default class SettingsPageComponent extends Vue {
         .setting-item {
             padding-bottom: 10px;
         }
+    }
+
+    .save-error {
+        color: red;
+        display: flex;
+        align-items: center;
+        padding-bottom: 5px;
     }
 }
 </style>

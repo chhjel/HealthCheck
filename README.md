@@ -15,6 +15,7 @@ Modules:
 * Request log module that lists controllers and actions with their latest requests and errors.
 * Documentation module that shows generated sequence diagrams from code decorated with attributes.
 * Dataflow module that can show filtered custom data. For e.g. previewing the latest imported/exported data.
+* Settings module for custom settings related to healthcheck.
 
 ## Getting started
 
@@ -536,6 +537,45 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
 ```
 </p>
 </details>
+
+### IHealthCheckSettingsService
+
+If an `IHealthCheckSettingsService` is provided in the controller the settings tab will become available where custom settings can be configured. Only string, int and boolean properties are supported. A `FlatFileHealthCheckSettingsService` is provided for simple use cases.
+
+<details><summary>Example</summary>
+<p>
+
+```csharp
+// Create a custom model for your settings
+public class TestSettings
+{
+    public string PropertyX { get; set; }
+
+    [HealthCheckSetting(GroupName = "Service X")]
+    public bool Enabled { get; set; }
+
+    [HealthCheckSetting(GroupName = "Service X")]
+    public int ThreadLimit { get; set; } = 2;
+
+    [HealthCheckSetting(GroupName = "Service X", description: "Some description here")]
+    public int NumberOfThings { get; set; } = 321;
+}
+```
+
+```csharp
+// Register the service in controller
+// IoC a singleton of the default FlatFileHealthCheckSettingsService if used.
+Services.SettingsService = new FlatFileHealthCheckSettingsService<TestSettings>(@"e:\config\settings.json");
+```
+
+```csharp
+// Retrieve settings using the GetValue method.
+service.GetValue<bool>(nameof(TestSettings.Enabled))
+```
+
+</p>
+</details>
+
 
 ## Scheduled health checks
 

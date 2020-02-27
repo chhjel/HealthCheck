@@ -6,6 +6,7 @@ using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.Diagrams.FlowCharts;
 using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
+using HealthCheck.Core.Modules.Settings;
 using HealthCheck.Core.Services;
 using HealthCheck.Core.Services.Models;
 using HealthCheck.Core.Util;
@@ -76,11 +77,32 @@ namespace HealthCheck.DevTest.Controllers
                     simpleStream
                 }
             });
+            Services.SettingsService = new FlatFileHealthCheckSettingsService<TestSettings>(@"C:\temp\settings.json");
 
             if (!_hasInited)
             {
                 InitOnce();
             }
+        }
+
+        public class TestSettings
+        {
+            [HealthCheckSetting(description: "Some description here")]
+            public string StringProp { get; set; }
+            public bool BoolProp { get; set; } = false;
+            public int IntProp { get; set; } = 15523;
+
+            [HealthCheckSetting(GroupName = "Service X")]
+            public bool EnableX { get; set; }
+
+            [HealthCheckSetting(GroupName = "Service X")]
+            public string ConnectionString{ get; set; }
+
+            [HealthCheckSetting(GroupName = "Service X")]
+            public int Threads { get; set; } = 2;
+
+            [HealthCheckSetting(GroupName = "Service X")]
+            public int NumberOfThings { get; set; } = 321;
         }
 
         private ILogSearcherService CreateLogSearcherService()
@@ -117,7 +139,8 @@ namespace HealthCheck.DevTest.Controllers
                     HealthCheckPageType.Dataflow,
                     HealthCheckPageType.Documentation,
                     HealthCheckPageType.LogViewer,
-                    HealthCheckPageType.AuditLog
+                    HealthCheckPageType.AuditLog,
+                    HealthCheckPageType.Settings
                 },
                 ApplyCustomColumnRuleByDefault = true,
                 EnableDiagramSandbox = true,
@@ -148,6 +171,7 @@ namespace HealthCheck.DevTest.Controllers
             AccessOptions.ClearRequestLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
             AccessOptions.DataflowPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
+            AccessOptions.SettingsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
         }
 
         protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)

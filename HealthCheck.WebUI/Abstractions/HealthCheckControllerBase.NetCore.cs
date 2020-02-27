@@ -364,6 +364,33 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
+        /// Get dataflow streams metadata to show in the UI.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        [Route("GetSettings")]
+        public virtual ActionResult GetSettings()
+        {
+            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.Settings, CurrentRequestAccessRoles)) return NotFound();
+
+            var viewModel = Helper.GetSettings(CurrentRequestAccessRoles);
+            return CreateJsonResult(viewModel);
+        }
+
+        /// <summary>
+        /// Get dataflow streams metadata to show in the UI.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        [HttpPost]
+        [Route("SetSettings")]
+        public virtual ActionResult SetSettings([FromBody] SetSettingsViewModel model)
+        {
+            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.Settings, CurrentRequestAccessRoles)) return NotFound();
+
+            Helper.SetSettings(CurrentRequestInformation, model);
+            return CreateJsonResult(new { Success = true });
+        }
+
+        /// <summary>
         /// Serializes the given object into a json result.
         /// </summary>
         protected ActionResult CreateJsonResult(object obj)

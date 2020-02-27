@@ -43,6 +43,11 @@ namespace HealthCheck.WebUI.Models
         /// </summary>
         public IDataflowService<TAccessRole> DataflowService { get; set; }
 
+        /// <summary>
+        /// Must be set for the settings tab to be shown.
+        /// </summary>
+        public IHealthCheckSettingsService SettingsService { get; set; }
+
         internal bool IsAnyDocumentationServiceSet => SequenceDiagramService != null || FlowChartsService != null;
     }
 }

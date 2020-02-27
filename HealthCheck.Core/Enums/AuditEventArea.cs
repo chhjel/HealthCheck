@@ -23,6 +23,11 @@
         /// <summary>
         /// Dataflow streams.
         /// </summary>
-        Dataflow
+        Dataflow,
+
+        /// <summary>
+        /// Custom settings.
+        /// </summary>
+        Settings
     }
 }

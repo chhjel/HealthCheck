@@ -2,7 +2,7 @@
 <template>
     <div>
         <div class="setting-header">
-            <div class="setting-name">{{ setting.name }}</div>
+            <div class="setting-name">{{ setting.displayName }}</div>
             <v-icon small v-if="setting.description != null"
                 color="gray" class="setting-help-icon"
                 @click="toggleDescription">help</v-icon>
@@ -23,12 +23,17 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 import { CustomSetting } from "../Pages/SettingsPageComponent.vue";
 // Input components
 import UnknownSettingInputComponent from './InputTypes/UnknownSettingInputComponent.vue';
-// import ParameterInputTypeInt32Component from './input_types/ParameterInputTypeInt32Component.vue';
+import SettingInputTypeBooleanComponent from './InputTypes/SettingInputTypeBooleanComponent.vue';
+import SettingInputTypeInt32Component from './InputTypes/SettingInputTypeInt32Component.vue';
+import SettingInputTypeStringComponent from './InputTypes/SettingInputTypeStringComponent.vue';
 
 @Component({
     components: {
-      // Parameter input components
-      UnknownSettingInputComponent
+        // Parameter input components
+        UnknownSettingInputComponent,
+        SettingInputTypeBooleanComponent,
+        SettingInputTypeInt32Component,
+        SettingInputTypeStringComponent 
     }
 })
 export default class ParameterInputComponent extends Vue {
