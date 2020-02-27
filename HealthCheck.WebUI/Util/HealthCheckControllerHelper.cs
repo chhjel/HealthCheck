@@ -23,6 +23,7 @@ using System.IO;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
 using HealthCheck.Core.Modules.Diagrams.FlowCharts;
+using HealthCheck.Core.Modules.Settings;
 
 namespace HealthCheck.WebUI.Util
 {
@@ -119,14 +120,41 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public AccessOptions<TAccessRole> AccessOptions { get; set; } = new AccessOptions<TAccessRole>();
 
-        private const string PAGE_OVERVIEW = "status";
-        private const string PAGE_TESTS = "tests";
-        private const string PAGE_AUDITLOG = "auditlog";
-        private const string PAGE_LOGS = "logviewer";
-        private const string PAGE_REQUESTLOG = "requestlog";
-        private const string PAGE_DOCUMENTATION = "documentation";
-        private const string PAGE_DATAFLOW = "dataflow";
-        private const string Q = "\"";
+        private const string deniedEndpoint = "0x90";
+        private readonly PageType[] Pages = new[]
+        {
+            new PageType("status", HealthCheckPageType.Overview,
+                isVisible: (c, a) => c.Services.SiteEventService != null && c.AccessRolesHasAccessTo(a, c.AccessOptions.OverviewPageAccess),
+                onAccessDenied: (o) => o.GetSiteEventsEndpoint = deniedEndpoint),
+
+            new PageType("tests", HealthCheckPageType.Tests,
+                isVisible: (c, a) => c.AccessRolesHasAccessTo(a, c.AccessOptions.TestsPageAccess),
+                onAccessDenied: (o) => o.CancelTestEndpoint = o.ExecuteTestEndpoint = o.GetTestsEndpoint = deniedEndpoint),
+
+            new PageType("auditlog", HealthCheckPageType.AuditLog,
+                isVisible: (c, a) => c.Services.AuditEventService != null && c.AccessRolesHasAccessTo(a, c.AccessOptions.AuditLogAccess, defaultValue: false),
+                onAccessDenied: (o) => o.GetFilteredAuditLogEventsEndpoint = deniedEndpoint),
+
+            new PageType("logviewer", HealthCheckPageType.LogViewer,
+                isVisible: (c, a) => c.Services.LogSearcherService != null && c.AccessRolesHasAccessTo(a, c.AccessOptions.LogViewerPageAccess, defaultValue: false),
+                onAccessDenied: (o) => o.GetLogSearchResultsEndpoint = o.CancelLogSearchEndpoint = o.CancelAllLogSearchesEndpoint = deniedEndpoint),
+
+            new PageType("requestlog", HealthCheckPageType.RequestLog,
+                isVisible: (c, a) => c.Services.RequestLogService != null && c.AccessRolesHasAccessTo(a, c.AccessOptions.RequestLogPageAccess, defaultValue: false),
+                onAccessDenied: (o) => o.GetRequestLogEndpoint = deniedEndpoint),
+
+            new PageType("documentation", HealthCheckPageType.Documentation,
+                isVisible: (c, a) => c.Services.IsAnyDocumentationServiceSet && c.AccessRolesHasAccessTo(a, c.AccessOptions.DocumentationPageAccess, defaultValue: false),
+                onAccessDenied: (o) => o.DiagramsDataEndpoint = deniedEndpoint),
+
+            new PageType("dataflow", HealthCheckPageType.Dataflow,
+                isVisible: (c, a) => c.CanShowDataflowPageTo(a),
+                onAccessDenied: (o) => o.GetDataflowStreamsMetadataEndpoint = o.GetDataflowStreamEntriesEndpoint = deniedEndpoint),
+
+            new PageType("settings", HealthCheckPageType.Settings,
+                isVisible: (c, a) => c.Services.SettingsService != null && c.AccessRolesHasAccessTo(a, c.AccessOptions.SettingsPageAccess, defaultValue: false),
+                onAccessDenied: (o) => o.GetSettingsEndpoint = o.SetSettingsEndpoint = deniedEndpoint)
+        };
 
         /// <summary>
         /// Serializes the given object into a json string.
@@ -147,7 +175,7 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public List<LoggedEndpointDefinition> GetRequestLogActions(Maybe<TAccessRole> accessRoles)
         {
-            if (!CanShowRequestLogPageTo(accessRoles))
+            if (!CanShowPageTo(HealthCheckPageType.RequestLog, accessRoles))
             {
                 return new List<LoggedEndpointDefinition>();
             }
@@ -179,12 +207,12 @@ namespace HealthCheck.WebUI.Util
             Maybe<TAccessRole> accessRoles,
             DateTime? from = null, DateTime? to = null)
         {
-            if (!CanShowOverviewPageTo(accessRoles))
+            if (!CanShowPageTo(HealthCheckPageType.Overview, accessRoles))
             {
                 return new List<SiteEventViewModel>();
             }
 
-            var includeDeveloperDetails = CanShowPageTo(accessRoles, AccessOptions.SiteEventDeveloperDetailsAccess, false);
+            var includeDeveloperDetails = AccessRolesHasAccessTo(accessRoles, AccessOptions.SiteEventDeveloperDetailsAccess, false);
             from = from ?? DateTime.Now.AddDays(-30);
             to = to ?? DateTime.Now;
             var viewModel = (await Services.SiteEventService.GetEvents(from.Value, to.Value))
@@ -199,7 +227,7 @@ namespace HealthCheck.WebUI.Util
         public TestsDataViewModel GetTestDefinitionsViewModel(Maybe<TAccessRole> accessRoles)
         {
             var invalidTests = new List<TestDefinitionValidationResult>();
-            if (CanShowPageTo(accessRoles, AccessOptions.InvalidTestsAccess))
+            if (AccessRolesHasAccessTo(accessRoles, AccessOptions.InvalidTestsAccess))
             {
                 invalidTests = TestDiscoverer.GetInvalidTests();
             }
@@ -319,7 +347,7 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public async Task<LogSearchResult> SearchLogs(Maybe<TAccessRole> accessRoles, LogSearchFilter filter)
         {
-            if (Services.LogSearcherService == null || !CanShowLogViewerPageTo(accessRoles))
+            if (Services.LogSearcherService == null || !CanShowPageTo(HealthCheckPageType.LogViewer, accessRoles))
                 return new LogSearchResult();
 
             CancellationTokenSource cts = new CancellationTokenSource();
@@ -394,7 +422,7 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public DiagramDataViewModel GetDiagramsViewModel(Maybe<TAccessRole> accessRoles)
         {
-            if (!Services.IsAnyDocumentationServiceSet || !CanShowDocumentationPageTo(accessRoles))
+            if (!Services.IsAnyDocumentationServiceSet || !CanShowPageTo(HealthCheckPageType.Documentation, accessRoles))
                 return new DiagramDataViewModel();
 
             if (DiagramDataViewModelCache != null)
@@ -410,6 +438,7 @@ namespace HealthCheck.WebUI.Util
             return DiagramDataViewModelCache;
         }
         private static DiagramDataViewModel DiagramDataViewModelCache { get; set; }
+        private const string Q = "\"";
 
         /// <summary>
         /// Create view html from the given options.
@@ -464,138 +493,40 @@ namespace HealthCheck.WebUI.Util
         /// Check if the given roles has access to the any of the pages.
         /// </summary>
         public bool HasAccessToAnyContent(Maybe<TAccessRole> accessRoles)
-            => CanShowTestsPageTo(accessRoles)
-            || CanShowOverviewPageTo(accessRoles)
-            || CanShowAuditPageTo(accessRoles)
-            || CanShowLogViewerPageTo(accessRoles)
-            || CanShowDocumentationPageTo(accessRoles)
-            || CanShowRequestLogPageTo(accessRoles);
-
-        /// <summary>
-        /// Check if the given roles has access to the overview page.
-        /// </summary>
-        public bool CanShowOverviewPageTo(Maybe<TAccessRole> accessRoles)
-            => Services.SiteEventService != null && CanShowPageTo(accessRoles, AccessOptions.OverviewPageAccess);
-
-        /// <summary>
-        /// Check if the given roles has access to the tests page.
-        /// </summary>
-        public bool CanShowTestsPageTo(Maybe<TAccessRole> accessRoles)
-            => CanShowPageTo(accessRoles, AccessOptions.TestsPageAccess);
-
-        /// <summary>
-        /// Check if the given roles has access to the audit log page.
-        /// </summary>
-        public bool CanShowAuditPageTo(Maybe<TAccessRole> accessRoles)
-            => Services.AuditEventService != null && CanShowPageTo(accessRoles, AccessOptions.AuditLogAccess, defaultValue: false);
-
-        /// <summary>
-        /// Check if the given roles has access to the logviewer page.
-        /// </summary>
-        public bool CanShowLogViewerPageTo(Maybe<TAccessRole> accessRoles)
-            => Services.LogSearcherService != null && CanShowPageTo(accessRoles, AccessOptions.LogViewerPageAccess, defaultValue: false);
-
-        /// <summary>
-        /// Check if the given roles has access to the requestlog page.
-        /// </summary>
-        public bool CanShowRequestLogPageTo(Maybe<TAccessRole> accessRoles)
-            => Services.RequestLogService != null && CanShowPageTo(accessRoles, AccessOptions.RequestLogPageAccess, defaultValue: false);
+            => Pages.Any(x => x.IsVisible(this, accessRoles));
 
         /// <summary>
         /// Check if the given roles has access to clearing the requestlog.
         /// </summary>
         public bool CanClearRequestLog(Maybe<TAccessRole> accessRoles)
-            => Services.RequestLogService != null && CanShowPageTo(accessRoles, AccessOptions.ClearRequestLogAccess, defaultValue: false);
-
-        /// <summary>
-        /// Check if the given roles has access to view the documentation page.
-        /// </summary>
-        public bool CanShowDocumentationPageTo(Maybe<TAccessRole> accessRoles)
-            => Services.IsAnyDocumentationServiceSet && CanShowPageTo(accessRoles, AccessOptions.DocumentationPageAccess, defaultValue: false);
+            => Services.RequestLogService != null && AccessRolesHasAccessTo(accessRoles, AccessOptions.ClearRequestLogAccess, defaultValue: false);
 
         /// <summary>
         /// Check if the given roles has access to view the dataflow page.
         /// </summary>
         public bool CanShowDataflowPageTo(Maybe<TAccessRole> accessRoles, bool checkCount = true)
             => Services.DataflowService != null 
-            && CanShowPageTo(accessRoles, AccessOptions.DataflowPageAccess, defaultValue: false)
+            && AccessRolesHasAccessTo(accessRoles, AccessOptions.DataflowPageAccess, defaultValue: false)
             && (!checkCount || GetDataflowStreamsMetadata(accessRoles).Any());
 
         /// <summary>
         /// Check if the given roles has access to calling the ping endpoint.
         /// </summary>
         public bool CanUsePingEndpoint(Maybe<TAccessRole> accessRoles)
-            => CanShowPageTo(accessRoles, AccessOptions.PingAccess, defaultValue: true);
+            => AccessRolesHasAccessTo(accessRoles, AccessOptions.PingAccess, defaultValue: true);
 
         private void CheckPageOptions(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
         {
-            var deniedEndpoint = "0x90";
-            if (CanShowOverviewPageTo(accessRoles))
+            foreach(var page in Pages)
             {
-                frontEndOptions.Pages.Add(PAGE_OVERVIEW);
-            }
-            else
-            {
-                frontEndOptions.GetSiteEventsEndpoint = deniedEndpoint;
-            }
-
-            if (CanShowTestsPageTo(accessRoles))
-            {
-                frontEndOptions.Pages.Add(PAGE_TESTS);
-            }
-            else
-            {
-                frontEndOptions.CancelTestEndpoint = deniedEndpoint;
-                frontEndOptions.ExecuteTestEndpoint = deniedEndpoint;
-                frontEndOptions.GetTestsEndpoint = deniedEndpoint;
-            }
-
-            if (CanShowAuditPageTo(accessRoles))
-            {
-                frontEndOptions.Pages.Add(PAGE_AUDITLOG);
-            }
-            else
-            {
-                frontEndOptions.GetFilteredAuditLogEventsEndpoint = deniedEndpoint;
-            }
-
-            if (CanShowLogViewerPageTo(accessRoles))
-            {
-                frontEndOptions.Pages.Add(PAGE_LOGS);
-            }
-            else
-            {
-                frontEndOptions.GetLogSearchResultsEndpoint = deniedEndpoint;
-                frontEndOptions.CancelLogSearchEndpoint = deniedEndpoint;
-                frontEndOptions.CancelAllLogSearchesEndpoint = deniedEndpoint;
-            }
-
-            if (CanShowRequestLogPageTo(accessRoles))
-            {
-                frontEndOptions.Pages.Add(PAGE_REQUESTLOG);
-            }
-            else
-            {
-                frontEndOptions.GetRequestLogEndpoint = deniedEndpoint;
-            }
-
-            if (CanShowDocumentationPageTo(accessRoles))
-            {
-                frontEndOptions.Pages.Add(PAGE_DOCUMENTATION);
-            }
-            else
-            {
-                frontEndOptions.DiagramsDataEndpoint = deniedEndpoint;
-            }
-
-            if (CanShowDataflowPageTo(accessRoles))
-            {
-                frontEndOptions.Pages.Add(PAGE_DATAFLOW);
-            }
-            else
-            {
-                frontEndOptions.GetDataflowStreamsMetadataEndpoint = deniedEndpoint;
-                frontEndOptions.GetDataflowStreamEntriesEndpoint = deniedEndpoint;
+                if (page.IsVisible(this, accessRoles))
+                {
+                    frontEndOptions.Pages.Add(page.Id);
+                }
+                else
+                {
+                    page.OnAccessDenied(frontEndOptions);
+                }
             }
 
             if (!CanClearRequestLog(accessRoles))
@@ -623,16 +554,8 @@ namespace HealthCheck.WebUI.Util
         }
 
         private string GetPageTypeString(HealthCheckPageType type)
-        {
-            if (type == HealthCheckPageType.Overview) return PAGE_OVERVIEW;
-            else if (type == HealthCheckPageType.Tests) return PAGE_TESTS;
-            else if (type == HealthCheckPageType.AuditLog) return PAGE_AUDITLOG;
-            else if (type == HealthCheckPageType.LogViewer) return PAGE_LOGS;
-            else if (type == HealthCheckPageType.RequestLog) return PAGE_REQUESTLOG;
-            else if (type == HealthCheckPageType.Documentation) return PAGE_DOCUMENTATION;
-            else if (type == HealthCheckPageType.Dataflow) return PAGE_DATAFLOW;
-            else throw new NotImplementedException($"Page type {type.ToString()} not fully implemented yet.");
-        }
+            => Pages.FirstOrDefault(x => x.Type == type)?.Id
+                ?? throw new NotImplementedException($"Page type {type.ToString()} not fully implemented yet.");
 
         private List<TestClassDefinition> GetTestDefinitions(Maybe<TAccessRole> accessRoles)
         {
@@ -644,10 +567,13 @@ namespace HealthCheck.WebUI.Util
         private TestDefinition GetTest(Maybe<TAccessRole> accessRoles, string testId)
             => GetTestDefinitions(accessRoles).SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == testId);
 
+        internal bool CanShowPageTo(HealthCheckPageType type, Maybe<TAccessRole> accessRoles)
+            => Pages.FirstOrDefault(x => x.Type == type)?.IsVisible(this, accessRoles) == true;
+
         /// <summary>
         /// Default value if pageAccess is null, false if no roles were given.
         /// </summary>
-        private bool CanShowPageTo(Maybe<TAccessRole> accessRoles, Maybe<TAccessRole> pageAccess, bool defaultValue = true)
+        private bool AccessRolesHasAccessTo(Maybe<TAccessRole> accessRoles, Maybe<TAccessRole> pageAccess, bool defaultValue = true)
         {
             // No access defined => default
             if (pageAccess == null || !pageAccess.HasValue)
@@ -705,6 +631,19 @@ namespace HealthCheck.WebUI.Util
                 UserName = request?.UserName,
                 UserAccessRoles = EnumUtils.TryGetEnumFlaggedValueNames(request?.AccessRole.ValueOrNull())
             };
+
+        /// <summary>
+        /// When data has been fetched from a datastream this should be called.
+        /// </summary>
+        public void AuditLog_SettingsSaved(RequestInformation<TAccessRole> requestInformation, IEnumerable<HealthCheckSetting> settings)
+        {
+            string settingsString = JsonConvert.SerializeObject(settings);
+
+            Services.AuditEventService?.StoreEvent(
+                CreateAuditEventFor(requestInformation, AuditEventArea.Settings, action: "Settings updated", subject: "Settings")
+                .AddDetail("Values", settingsString)
+            );
+        }
 
         /// <summary>
         /// When data has been fetched from a datastream this should be called.
@@ -811,7 +750,34 @@ namespace HealthCheck.WebUI.Util
                 return Enumerable.Empty<DataflowStreamMetadata<TAccessRole>>();
 
             return Services.DataflowService.GetStreamMetadata()
-                .Where(x => CanShowPageTo(accessRoles, x.RolesWithAccess, defaultValue: true));
+                .Where(x => AccessRolesHasAccessTo(accessRoles, x.RolesWithAccess, defaultValue: true));
+        }
+
+        /// <summary>
+        /// Get viewmodel for dataflow streams metadata result.
+        /// </summary>
+        public GetSettingsViewModel GetSettings(Maybe<TAccessRole> accessRoles)
+        {
+            if (Services.SettingsService == null || !CanShowPageTo(HealthCheckPageType.Settings, accessRoles))
+                return new GetSettingsViewModel();
+
+            var settings = Services.SettingsService.GetSettingItems();
+            return new GetSettingsViewModel()
+            {
+                Settings = settings
+            };
+        }
+
+        /// <summary>
+        /// Save the given settings.
+        /// </summary>
+        public void SetSettings(RequestInformation<TAccessRole> requestInformation, SetSettingsViewModel model)
+        {
+            if (Services.SettingsService == null || !CanShowPageTo(HealthCheckPageType.Settings, requestInformation.AccessRole))
+                return;
+
+            AuditLog_SettingsSaved(requestInformation, model.Settings);
+            Services.SettingsService.SaveSettings(model.Settings);
         }
 
         private bool AuditEventMatchesFilter(AuditEvent e, AuditEventFilterInputData filter)
@@ -836,6 +802,26 @@ namespace HealthCheck.WebUI.Util
             }
 
             return EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, AccessOptions.AuditLogAccess.Value);
+        }
+        #endregion
+
+        #region Helper classes
+        internal class PageType
+        {
+            public string Id { get; set; }
+            public HealthCheckPageType Type { get; set; }
+            public Func<HealthCheckControllerHelper<TAccessRole>, Maybe<TAccessRole>, bool> IsVisible { get; set; }
+            public Action<FrontEndOptionsViewModel> OnAccessDenied { get; set; }
+
+            public PageType(string id, HealthCheckPageType type,
+                Func<HealthCheckControllerHelper<TAccessRole>, Maybe<TAccessRole>, bool> isVisible,
+                Action<FrontEndOptionsViewModel> onAccessDenied = null)
+            {
+                Id = id;
+                Type = type;
+                IsVisible = isVisible;
+                OnAccessDenied = onAccessDenied;
+            }
         }
         #endregion
     }

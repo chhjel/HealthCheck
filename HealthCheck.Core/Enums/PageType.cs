@@ -39,5 +39,10 @@
         /// Preview data streams
         /// </summary>
         Dataflow,
+
+        /// <summary>
+        /// Custom configuration
+        /// </summary>
+        Settings,
     }
 }

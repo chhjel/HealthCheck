@@ -105,6 +105,16 @@ namespace HealthCheck.WebUI.ViewModels
         public string GetDataflowStreamsMetadataEndpoint { get; set; }
 
         /// <summary>
+        /// Url to the endpoint where settings are retrieved from.
+        /// </summary>
+        public string GetSettingsEndpoint { get; set; }
+
+        /// <summary>
+        /// Url to the endpoint where settings are updated.
+        /// </summary>
+        public string SetSettingsEndpoint { get; set; }
+
+        /// <summary>
         /// Number of minutes past the end of a site event it will be displayed below "Current status" on the status page.
         /// <para>Defaults to 30 minutes.</para>
         /// </summary>
@@ -200,6 +210,8 @@ namespace HealthCheck.WebUI.ViewModels
             DiagramsDataEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetDiagrams";
             GetDataflowStreamsMetadataEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetDataflowStreamsMetadata";
             GetDataflowStreamEntriesEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetDataflowStreamEntries";
+            GetSettingsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetSettings";
+            SetSettingsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/SetSettings";
             HasAccessToClearRequestLog = true;
         }
 

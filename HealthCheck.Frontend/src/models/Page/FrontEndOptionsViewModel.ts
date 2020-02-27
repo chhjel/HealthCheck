@@ -26,4 +26,6 @@ export default interface FrontEndOptionsViewModel {
     TestsTabName: string;
     EnableDiagramSandbox: boolean;
     EnableDiagramDetails: boolean;
+    GetSettingsEndpoint: string;
+    SetSettingsEndpoint: string;
 }

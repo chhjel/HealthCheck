@@ -85,6 +85,12 @@ namespace HealthCheck.WebUI.Models
         public Maybe<TAccessRole> DataflowPageAccess { get; set; }
 
         /// <summary>
+        /// Roles with access to view the settings page.
+        /// <para>If null nobody can access it by default.</para>
+        /// </summary>
+        public Maybe<TAccessRole> SettingsPageAccess { get; set; }
+
+        /// <summary>
         /// Redirect url if the request does not have access to any of the content.
         /// <para>If not set a 404 will be returned.</para>
         /// </summary>
