@@ -22,6 +22,8 @@ namespace HealthCheck.WebUI.Services
         protected string FilePath { get; set; }
 
         private readonly object _fileLock = new object();
+        private static readonly Dictionary<string, List<HealthCheckSetting>> _defaultSettingsCache = new Dictionary<string, List<HealthCheckSetting>>();
+        private static readonly Dictionary<string, List<HealthCheckSetting>> _settingsCache = new Dictionary<string, List<HealthCheckSetting>>();
 
         /// <summary>
         /// Provides load/save capabilities to a flatfile for settings.
@@ -54,8 +56,27 @@ namespace HealthCheck.WebUI.Services
         /// </summary>
         public virtual List<HealthCheckSetting> GetSettingItems()
         {
-            string contents;
+            lock (_settingsCache)
+            {
+                if (_settingsCache.ContainsKey(FilePath))
+                {
+                    return _settingsCache[FilePath];
+                }
+            }
 
+            var settings = GetSettingItemsInternal();
+
+            lock (_settingsCache)
+            {
+                _settingsCache[FilePath] = settings;
+            }
+
+            return settings;
+        }
+
+        private List<HealthCheckSetting> GetSettingItemsInternal()
+        {
+            string contents;
             try
             {
                 var settingsFromFile = new List<HealthCheckSettingProxy>();
@@ -69,7 +90,7 @@ namespace HealthCheck.WebUI.Services
                 }
 
                 var defaultSettings = GetDefaultSettings();
-                foreach(var defSetting in defaultSettings)
+                foreach (var defSetting in defaultSettings)
                 {
                     var setting = settingsFromFile?.FirstOrDefault(x => x.Id == defSetting.Id);
                     if (setting != null)
@@ -111,15 +132,13 @@ namespace HealthCheck.WebUI.Services
             {
                 File.WriteAllText(FilePath, json);
             }
+
+            lock (_settingsCache)
+            {
+                _settingsCache[FilePath] = defaultSettings;
+            }
         }
 
-        private class HealthCheckSettingProxy
-        {
-            public string Id { get; set; }
-            public object Value { get; set; }
-        }
-
-        private static readonly Dictionary<string, List<HealthCheckSetting>> _defaultSettingsCache = new Dictionary<string, List<HealthCheckSetting>>();
         private List<HealthCheckSetting> GetDefaultSettings()
         {
             lock(_defaultSettingsCache)
@@ -175,5 +194,11 @@ namespace HealthCheck.WebUI.Services
         //public void AddValidationFor<TPropertyType>(string propertyName, Func<TPropertyType, bool> validator)
         //{
         //}
+
+        private class HealthCheckSettingProxy
+        {
+            public string Id { get; set; }
+            public object Value { get; set; }
+        }
     }
 }
