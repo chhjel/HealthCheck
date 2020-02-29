@@ -9,7 +9,8 @@ namespace HealthCheck.Core.Modules.Dataflow
     /// <summary>
     /// An object that can be used instead of creating a custom type for dataflow streams.
     /// </summary>
-    public class GenericDataflowStreamObject : Dictionary<string, object>, IDataflowEntryWithInsertionTime
+    public class GenericDataflowStreamObject : Dictionary<string, object>,
+        IDataflowEntryWithInsertionTime
     {
         /// <summary>
         /// Time of insertion.
@@ -18,6 +19,9 @@ namespace HealthCheck.Core.Modules.Dataflow
             get => this[nameof(InsertionTime)] as DateTime?;
             set => this[nameof(InsertionTime)] = value;
         }
+
+        internal List<Func<IEnumerable<GenericDataflowStreamObject>, DataflowStreamFilter, IEnumerable<GenericDataflowStreamObject>>>
+            PropertyFilters = new List<Func<IEnumerable<GenericDataflowStreamObject>, DataflowStreamFilter, IEnumerable<GenericDataflowStreamObject>>>();
 
         /// <summary>
         /// Get value of a field/property name that was stored.
@@ -53,7 +57,24 @@ namespace HealthCheck.Core.Modules.Dataflow
                 return streamObj;
             }
 
-            var type = obj.GetType();
+            var type = typeof(T);
+            memberNames = GatherMemberNames(memberNames, excludedMemberNames, type);
+
+            foreach (var memberName in memberNames)
+            {
+                try
+                {
+                    var value = GenericDataflowStreamObject.GetPropValue(type, obj, memberName);
+                    streamObj.Add(memberName, value);
+                }
+                catch (Exception) { }
+            }
+
+            return streamObj;
+        }
+
+        private static IEnumerable<string> GatherMemberNames(IEnumerable<string> memberNames, IEnumerable<string> excludedMemberNames, Type type)
+        {
             if (memberNames == null)
             {
                 memberNames =
@@ -69,23 +90,48 @@ namespace HealthCheck.Core.Modules.Dataflow
             excludedMemberNames = excludedMemberNames ?? Enumerable.Empty<string>();
             memberNames = memberNames.Where(x => !excludedMemberNames.Contains(x)).ToList();
 
+            return memberNames;
+        }
+
+        internal class AutoFilter
+        {
+            public string MemberName { get; set; }
+            public Func<IEnumerable<GenericDataflowStreamObject>, DataflowStreamFilter, IEnumerable<GenericDataflowStreamObject>> Filter { get; set; }
+        }
+        internal static List<AutoFilter>
+            CreateAutoFilters<TEntry>(
+                IEnumerable<string> memberNames = null,
+                IEnumerable<string> excludedMemberNames = null)
+        {
+            var itemType = typeof(TEntry);
+            memberNames = GatherMemberNames(memberNames, excludedMemberNames, itemType);
+
+            var filters = new List<AutoFilter>();
             foreach (var memberName in memberNames)
             {
                 try
                 {
-                    var value = streamObj.GetPropValue(type, obj, memberName);
-                    streamObj.Add(memberName, value);
+                    var filter = new Func<IEnumerable<GenericDataflowStreamObject>, DataflowStreamFilter, IEnumerable<GenericDataflowStreamObject>>(
+                        (items, filter) => filter.FilterContains(items, memberName, x => x.Get<object>(memberName)?.ToString()));
+
+                    if (filter != null)
+                    {
+                        filters.Add(new AutoFilter
+                        {
+                            MemberName = memberName,
+                            Filter = filter
+                        });
+                    }
                 }
                 catch (Exception) { }
             }
-
-            return streamObj;
+            return filters;
         }
 
         private static readonly BindingFlags MemberBindingFlags =
             BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
 
-        private object GetPropValue(Type type, object obj, string memberName)
+        private static object GetPropValue(Type type, object obj, string memberName)
         {
 
             if (type.GetProperty(memberName, MemberBindingFlags) != null)

@@ -72,13 +72,14 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
         {
             Suffix = suffix;
 
-            ConfigureProperty(nameof(TestEntry.Code)).SetFilterable();
+            AutoCreateFilters<TestEntry>();
+            ConfigureProperty(nameof(TestEntry.Code)).SetDisplayName("Custom Code Display Name");
         }
 
-        protected override Task<IEnumerable<GenericDataflowStreamObject>> FilterEntries(DataflowStreamFilter filter, IEnumerable<GenericDataflowStreamObject> entries)
+        protected override async Task<IEnumerable<GenericDataflowStreamObject>> FilterEntries(DataflowStreamFilter filter, IEnumerable<GenericDataflowStreamObject> entries)
         {
             entries = filter.FilterContains(entries, nameof(TestEntry.Code), x => x.Get<string>(nameof(TestEntry.Code)));
-            return Task.FromResult(entries);
+            return await base.FilterEntries(filter, entries);
         }
     }
 }

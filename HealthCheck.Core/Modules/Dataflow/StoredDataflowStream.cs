@@ -53,7 +53,7 @@ namespace HealthCheck.Core.Modules.Dataflow
         public Func<bool> IsVisible { get; set; } = () => true;
 
         /// <summary>
-        /// Return true to allow insertion of new entries. If false <see cref="InsertEntries(IList{TEntry}, DateTime?)"/> will do nothing.
+        /// Return true to allow insertion of new entries. If false <see cref="InsertEntries(IEnumerable{TEntry}, DateTime?)"/> will do nothing.
         /// <para>Defaults to true.</para>
         /// </summary>
         public Func<bool> AllowInsert { get; set; } = () => true;
@@ -67,6 +67,8 @@ namespace HealthCheck.Core.Modules.Dataflow
         protected IDataStoreWithEntryId<TEntry> Store { get; set; }
 
         private readonly Dictionary<string, DataFlowPropertyDisplayInfo> PropertyInfos = new Dictionary<string, DataFlowPropertyDisplayInfo>();
+        private List<Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>>
+            InternalPropertyFilters = new List<Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>>();
 
         /// <summary>
         /// A built in dataflow stream that stores and retrieves entries from a flatfile.
@@ -89,10 +91,19 @@ namespace HealthCheck.Core.Modules.Dataflow
         public DataFlowPropertyDisplayInfo ConfigureProperty(string propertyName,
             DataFlowPropertyUIHint? uiHint = null, DataFlowPropertyUIVisibilityOption? visibility = null)
         {
-            var info = new DataFlowPropertyDisplayInfo(propertyName, uiHint, visibility)
-                .SetUIOrder(RegisterPropertyDisplayInfoInvokeCount++);
+            var info = PropertyInfos.ContainsKey(propertyName) 
+                ? PropertyInfos[propertyName]
+                : PropertyInfos[propertyName] = new DataFlowPropertyDisplayInfo(propertyName).SetUIOrder(RegisterPropertyDisplayInfoInvokeCount++);
 
-            PropertyInfos[info.PropertyName] = info;
+            if (uiHint != null)
+            {
+                info.SetUIHint(uiHint.Value);
+            }
+            if (visibility != null)
+            {
+                info.SetVisibility(visibility.Value);
+            }
+
             return info;
         }
         private int RegisterPropertyDisplayInfoInvokeCount = 0;
@@ -155,16 +166,17 @@ namespace HealthCheck.Core.Modules.Dataflow
         /// <summary>
         /// Store multiple entries. The ones that already exists will be updated.
         /// </summary>
-        public void InsertEntries(IList<TEntry> entries, DateTime? timestamp = null)
+        public void InsertEntries(IEnumerable<TEntry> entries, DateTime? timestamp = null)
         {
             if (!AllowInsertSafe || entries == null) return;
 
-            foreach (var entry in entries)
+            var entriesList = entries.ToList();
+            for (var i=0; i< entriesList.Count; i++)
             {
-                entry.InsertionTime = timestamp ?? DateTime.Now;
+                entriesList[i].InsertionTime = timestamp ?? DateTime.Now;
             }
 
-            Store.InsertOrUpdateItems(entries);
+            Store.InsertOrUpdateItems(entriesList);
         }
 
         /// <summary>
@@ -200,7 +212,13 @@ namespace HealthCheck.Core.Modules.Dataflow
         /// Optionally filter entries here.
         /// </summary>
         protected virtual async Task<IEnumerable<TEntry>> FilterEntries(DataflowStreamFilter filter, IEnumerable<TEntry> entries)
-            => await Task.FromResult(entries).ConfigureAwait(false);
+        {
+            foreach(var internalFilter in InternalPropertyFilters)
+            {
+                entries = internalFilter(entries, filter);
+            }
+            return await Task.FromResult(entries).ConfigureAwait(false);
+        }
 
         /// <summary>
         /// Get any registered property infos.
@@ -208,5 +226,22 @@ namespace HealthCheck.Core.Modules.Dataflow
         /// <returns></returns>
         public IEnumerable<DataFlowPropertyDisplayInfo> GetEntryPropertiesInfo()
             => PropertyInfos.Select(x => x.Value).ToList();
+
+        /// <summary>
+        /// Create filter for suitable property types automatically.
+        /// </summary>
+        public void AutoCreateFilters<TItem>(
+                IEnumerable<string> memberNames = null,
+                IEnumerable<string> excludedMemberNames = null)
+        {
+            var filters = GenericDataflowStreamObject.CreateAutoFilters<TItem>(memberNames, excludedMemberNames)
+                .Where(x => x.Filter is Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>);
+
+            foreach(var filter in filters)
+            {
+                ConfigureProperty(filter.MemberName).SetFilterable();
+                InternalPropertyFilters.Add((Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>)filter.Filter);
+            }
+        }
     }
 }

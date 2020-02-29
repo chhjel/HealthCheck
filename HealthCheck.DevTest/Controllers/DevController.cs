@@ -49,11 +49,13 @@ namespace HealthCheck.DevTest.Controllers
                 _auditEventService = CreateAuditEventService();
             }
 
-            simpleStream.InsertEntries(new[] {
-                GenericDataflowStreamObject.Create(new TestEntry() { Code = "6235235", Name = "Name A" }),
-                GenericDataflowStreamObject.Create(new TestEntry() { Code = "1234", Name = "Name B" }),
-                GenericDataflowStreamObject.Create(new TestEntry() { Code = "235235", Name = "Name C" })
-            });
+            var someExternalItems = new[]
+            {
+                new TestEntry() { Code = "6235235", Name = "Name A" },
+                new TestEntry() { Code = "1234", Name = "Name B" },
+                new TestEntry() { Code = "235235", Name = "Name C" }
+            };
+            simpleStream.InsertEntries(someExternalItems.Select(x => GenericDataflowStreamObject.Create(x)));
 
             Services.SiteEventService = _siteEventService;
             Services.AuditEventService = _auditEventService;

@@ -484,7 +484,11 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
                 @"e:\storage\path\my_simple_stream.json",
                 idSelector: (e) => e.Code,
                 idSetter: (e, id) => e.Code = id
-            ) {}
+            ) {
+            // To attempt auto-creation of filters for some suitable
+            // property types the AutoCreateFilters method can be used.
+            AutoCreateFilters<YourDataModel>();
+        }
     }
 ```
 </p>

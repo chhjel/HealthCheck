@@ -67,7 +67,7 @@ namespace HealthCheck.Core.Modules.Dataflow
             }
             else
             {
-                return entries.Where(x => string.IsNullOrWhiteSpace(input) || propertyGetter(x)?.ToLower().Contains(input.Trim()) == true);
+                return entries.Where(x => string.IsNullOrWhiteSpace(input) || propertyGetter(x)?.ToLower().Contains(input.ToLower().Trim()) == true);
             }
         }
     }
