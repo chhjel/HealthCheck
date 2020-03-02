@@ -9,6 +9,29 @@ using static HealthCheck.Core.Modules.Dataflow.DataFlowPropertyDisplayInfo;
 
 namespace HealthCheck.DevTest._TestImplementation.Dataflow
 {
+    public class TestMemoryStreamItem : IDataflowEntryWithInsertionTime
+    {
+        public Guid Id { get; set; }
+        public string Message { get; set; }
+        public DateTime? InsertionTime { get; set; }
+
+        public static implicit operator TestMemoryStreamItem(string message)
+            => new TestMemoryStreamItem { Message = message };
+    }
+
+    public class TestMemoryStream : MemoryDataflowStream<RuntimeTestAccessRole, TestMemoryStreamItem>
+    {
+        public override string Name => "TestMemoryStream";
+        public override string Description => "asd dgsdkg";
+
+        public TestMemoryStream()
+            : base(maxItemCount: 20, maxDuration: TimeSpan.FromSeconds(30), idSetter: (x, id) => x.Id = id)
+        {
+            ConfigureProperty("Id").SetVisibility(DataFlowPropertyUIVisibilityOption.Hidden);
+            ConfigureProperty("InsertionTime").SetUIHint(DataFlowPropertyUIHint.DateTime).SetUIOrder(0);
+        }
+    }
+
     public class TestStreamA : TestStream { public TestStreamA() : base("A") { } }
     public class TestStreamB : TestStream { public TestStreamB() : base("B") { } }
     public class TestStreamC : TestStream { public TestStreamC() : base("C") { DateTimePropertyNameForUI = null; } }

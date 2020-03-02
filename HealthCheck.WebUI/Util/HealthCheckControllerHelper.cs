@@ -637,7 +637,7 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public void AuditLog_SettingsSaved(RequestInformation<TAccessRole> requestInformation, IEnumerable<HealthCheckSetting> settings)
         {
-            string settingsString = JsonConvert.SerializeObject(settings);
+            string settingsString = JsonConvert.SerializeObject(settings.Select(x => new { Id = x.Id, Value = x.Value }));
 
             Services.AuditEventService?.StoreEvent(
                 CreateAuditEventFor(requestInformation, AuditEventArea.Settings, action: "Settings updated", subject: "Settings")

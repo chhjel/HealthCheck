@@ -37,6 +37,7 @@ namespace HealthCheck.DevTest.Controllers
         private static readonly TestStreamB testStreamB = new TestStreamB();
         private static readonly TestStreamC testStreamC = new TestStreamC();
         private static readonly SimpleStream simpleStream = new SimpleStream("Simple A");
+        private static readonly TestMemoryStream memoryStream = new TestMemoryStream();
 
         #region Init
         public DevController()
@@ -56,6 +57,7 @@ namespace HealthCheck.DevTest.Controllers
                 new TestEntry() { Code = "235235", Name = "Name C" }
             };
             simpleStream.InsertEntries(someExternalItems.Select(x => GenericDataflowStreamObject.Create(x)));
+            memoryStream.InsertEntry($"Test item @ {DateTime.Now.ToLongTimeString()}");
 
             Services.SiteEventService = _siteEventService;
             Services.AuditEventService = _auditEventService;
@@ -76,7 +78,8 @@ namespace HealthCheck.DevTest.Controllers
                     testStreamA,
                     testStreamB,
                     testStreamC,
-                    simpleStream
+                    simpleStream,
+                    memoryStream
                 }
             });
             Services.SettingsService = new FlatFileHealthCheckSettingsService<TestSettings>(@"C:\temp\settings.json");

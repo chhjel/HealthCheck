@@ -286,4 +286,7 @@ export default class HealthCheckPageComponent extends Vue {
 .application {
     font-family: 'Montserrat';
 }
+.v-toolbar__items {
+    overflow: overlay hidden;
+}
 </style>

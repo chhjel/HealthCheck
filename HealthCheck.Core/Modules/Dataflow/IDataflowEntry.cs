@@ -5,7 +5,6 @@
     /// </summary>
     public interface IDataflowEntry
     {
-        // todo: decorate props with hints of how to display? image url, link, textarea
     }
 
 }

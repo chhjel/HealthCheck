@@ -125,7 +125,7 @@
                                         <v-btn 
                                             @click="clearResults()" 
                                             :disabled="dataLoadInProgress"
-                                            >Clear data</v-btn>
+                                            >Clear view</v-btn>
                                     </v-flex>
                                     
                                 </v-layout>
@@ -556,6 +556,7 @@ export default class DataflowPageComponent extends Vue {
             this.resultCache[this.selectedStream.Id] = [];
         }
         this.streamEntryGroups = [];
+        this.resetFilter();
     }
 
     createDateRangeGroups(data: Array<DataflowEntry>): Array<DateRangeGroup> {
