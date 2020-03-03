@@ -25,6 +25,11 @@ namespace HealthCheck.Core.Modules.Dataflow
         public string Description { get; set; }
 
         /// <summary>
+        /// Optionally group the stream within the given group name.
+        /// </summary>
+        public string GroupName { get; set; }
+
+        /// <summary>
         /// True if the stream supports datetime filtering in <see cref="IDataflowStream{TAccessRole}.GetLatestStreamEntriesAsync(DataflowStreamFilter)"/>.
         /// </summary>
         public bool SupportsFilterByDate { get; set; }

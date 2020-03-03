@@ -32,6 +32,11 @@ namespace HealthCheck.Core.Modules.Dataflow
         string Description { get; }
 
         /// <summary>
+        /// Optionally group the stream within the given group name.
+        /// </summary>
+        string GroupName { get; }
+
+        /// <summary>
         /// True if the stream should be visible.
         /// </summary>
         Func<bool> IsVisible { get; }

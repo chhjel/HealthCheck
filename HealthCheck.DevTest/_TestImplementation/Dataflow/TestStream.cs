@@ -23,12 +23,18 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
     {
         public override string Name => "TestMemoryStream";
         public override string Description => "asd dgsdkg";
+        public override string GroupName => _groupName;
+        public override string Id => _id;
+        private string _groupName { get; }
+        private string _id { get; }
 
-        public TestMemoryStream()
+        public TestMemoryStream(string groupName)
             : base(maxItemCount: 20, maxDuration: TimeSpan.FromSeconds(30), idSetter: (x, id) => x.Id = id)
         {
             ConfigureProperty("Id").SetVisibility(DataFlowPropertyUIVisibilityOption.Hidden);
             ConfigureProperty("InsertionTime").SetUIHint(DataFlowPropertyUIHint.DateTime).SetUIOrder(0);
+            _groupName = groupName;
+            _id = Guid.NewGuid().ToString();
         }
     }
 
@@ -42,6 +48,7 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
         public override string Description => $"Description for stream '{Name}'.";
         public override bool SupportsFilterByDate => (Suffix == "A");
         private string Suffix { get; }
+        public override string GroupName => "Test";
 
         public TestStream(string suffix)
             : base(
@@ -84,6 +91,7 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
         public override string Description => $"Description for simple stream '{Name}'.";
         public override bool SupportsFilterByDate => true;
         private string Suffix { get; }
+        public override string GroupName => "Simple";
 
         public SimpleStream(string suffix)
             : base(

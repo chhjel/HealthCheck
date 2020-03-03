@@ -10,23 +10,18 @@
                 dark
                 class="menu testset-menu">
 
-                <v-list expand class="menu-items">
-                    <filter-input-component class="filter" v-model="streamsFilterText" />
-
-                    <v-progress-linear 
-                        v-if="metadataLoadInProgress"
-                        indeterminate color="green"></v-progress-linear>
-                    
-                    <v-list-tile ripple
-                        v-for="(stream, streamIndex) in filterStreams(streamMetadatas)"
-                        :key="`stream-menu-${streamIndex}`"
-                        class="testset-menu-item"
-                        :class="{ 'active': (selectedStream == stream) }"
-                        @click="setActveStream(stream)"
-                        :disabled="dataLoadInProgress">
-                        <v-list-tile-title v-text="stream.Name"></v-list-tile-title>
-                    </v-list-tile>
-                </v-list>
+                <hr />
+                <filterable-list-component 
+                    :items="menuItems"
+                    :groupByKey="`GroupName`"
+                    :sortByKey="`GroupName`"
+                    :filterKeys="[ 'Name', 'Description' ]"
+                    :loading="metadataLoadInProgress"
+                    :disabled="dataLoadInProgress"
+                    ref="filterableList"
+                    v-on:itemClicked="onMenuItemClicked"
+                    />
+                <hr />
             </v-navigation-drawer>
             
             <!-- CONTENT -->
@@ -193,6 +188,7 @@ import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
 import FilterInputComponent from '.././Common/FilterInputComponent.vue';
 import DataTableComponent, { DataTableGroup } from '.././Common/DataTableComponent.vue';
+import FilterableListComponent, { FilterableListItem } from '.././Common/FilterableListComponent.vue';
 
 interface PropFilter
 {
@@ -216,13 +212,19 @@ interface DateRangeGroup {
     minDate: Date;
     maxDate: Date;
 }
+interface StreamGroup
+{
+    title: string;
+    streams: Array<DataflowStreamMetadata>;
+}
 
 @Component({
     components: {
         DataflowEntryPropertyValueComponent,
         DateTimePicker,
         FilterInputComponent,
-        DataTableComponent
+        DataTableComponent,
+        FilterableListComponent
     }
 })
 export default class DataflowPageComponent extends Vue {
@@ -237,6 +239,7 @@ export default class DataflowPageComponent extends Vue {
     dataLoadFailed: boolean = false;
     dataFailedErrorMessage: string = '';
 
+    streamGroups: Array<StreamGroup> = [];
     streamMetadatas: Array<DataflowStreamMetadata> = [];
     selectedStream: DataflowStreamMetadata | null = null;
     firstEntry: DataflowEntry | null = null;
@@ -282,6 +285,17 @@ export default class DataflowPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get menuItems(): Array<FilterableListItem>
+    {
+        return this.streamMetadatas.map(x => {
+            return {
+                title: x.Name,
+                subtitle: 'woot',
+                data: x
+            };
+        });
+    }
+
     get resultCount(): number {
         if (this.streamEntryGroups.length == 0) {
             return 0;
@@ -435,7 +449,11 @@ export default class DataflowPageComponent extends Vue {
 
     onDataFlowMetaDataRetrieved(data: Array<DataflowStreamMetadata>): void {
         this.metadataLoadInProgress = false;
-        this.streamMetadatas = data;
+        
+        this.streamMetadatas = data.map(x => {
+            x.GroupName = x.GroupName || 'Other';
+            return x;
+        });
 
         const originalUrlHashParts = UrlUtils.GetHashParts();
         this.setFromUrl(originalUrlHashParts);
@@ -636,6 +654,7 @@ export default class DataflowPageComponent extends Vue {
         }
 
         this.selectedStream = stream;
+        (<FilterableListComponent>this.$refs.filterableList).setSelectedItem(stream);
         
         this.filters = this.filtersPerStream[this.selectedStream.Id] || [];
         this.streamEntryGroups = this.resultCache[this.selectedStream.Id] || [];
@@ -726,20 +745,14 @@ export default class DataflowPageComponent extends Vue {
             return raw;
         }
     }
-
-    filterStreams(data: Array<DataflowStreamMetadata>) : Array<DataflowStreamMetadata> {
-        return data.filter(x => this.streamFilterMatches(x));
-    }
-
-    streamFilterMatches(data: DataflowStreamMetadata): boolean {
-        return data.Name.toLowerCase().indexOf(this.streamsFilterText.toLowerCase().trim()) != -1
-            || (data.Description != null 
-                && data.Description.toLowerCase().indexOf(this.streamsFilterText.toLowerCase().trim()) != -1);
-    }
     
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    onMenuItemClicked(item: FilterableListItem): void {
+        this.setActveStream(item.data);
+    }
+
     onDateRangeChanged(data: any): void {
         this.filterFromDate = data.startDate;
         this.filterToDate = data.endDate;

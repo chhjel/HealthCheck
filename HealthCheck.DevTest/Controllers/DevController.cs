@@ -37,7 +37,9 @@ namespace HealthCheck.DevTest.Controllers
         private static readonly TestStreamB testStreamB = new TestStreamB();
         private static readonly TestStreamC testStreamC = new TestStreamC();
         private static readonly SimpleStream simpleStream = new SimpleStream("Simple A");
-        private static readonly TestMemoryStream memoryStream = new TestMemoryStream();
+        private static readonly TestMemoryStream memoryStream = new TestMemoryStream("Memory");
+        private static readonly TestMemoryStream otherStream1 = new TestMemoryStream(null);
+        private static readonly TestMemoryStream otherStream2 = new TestMemoryStream(null);
 
         #region Init
         public DevController()
@@ -79,7 +81,9 @@ namespace HealthCheck.DevTest.Controllers
                     testStreamB,
                     testStreamC,
                     simpleStream,
-                    memoryStream
+                    memoryStream,
+                    otherStream1,
+                    otherStream2
                 }
             });
             Services.SettingsService = new FlatFileHealthCheckSettingsService<TestSettings>(@"C:\temp\settings.json");

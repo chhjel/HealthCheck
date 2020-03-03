@@ -35,6 +35,11 @@ namespace HealthCheck.Core.Modules.Dataflow
         public abstract string Description { get; }
 
         /// <summary>
+        /// Optionally group the stream within the given group name.
+        /// </summary>
+        public abstract string GroupName { get; }
+
+        /// <summary>
         /// True if the stream allows to filter by date.
         /// </summary>
         public virtual bool SupportsFilterByDate => true;
