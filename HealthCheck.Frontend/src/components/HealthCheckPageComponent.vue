@@ -263,7 +263,7 @@ export default class HealthCheckPageComponent extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .approot {
     background-color: #f4f4f4;
     /* background-color: #f7f6f4; */
@@ -287,6 +287,23 @@ export default class HealthCheckPageComponent extends Vue {
     font-family: 'Montserrat';
 }
 .v-toolbar__items {
+    overflow-y: hidden;
+    overflow-x: auto;
     overflow: overlay hidden;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+</style>
+
+<style lang="scss">
+input[type=number] {
+    -moz-appearance:textfield;
+}
+input[type=number]:hover,
+input[type=number]:focus {
+    -moz-appearance: number-input;
 }
 </style>

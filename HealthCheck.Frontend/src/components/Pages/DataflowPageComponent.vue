@@ -10,7 +10,6 @@
                 dark
                 class="menu testset-menu">
 
-                <hr />
                 <filterable-list-component 
                     :items="menuItems"
                     :groupByKey="`GroupName`"
@@ -21,7 +20,6 @@
                     ref="filterableList"
                     v-on:itemClicked="onMenuItemClicked"
                     />
-                <hr />
             </v-navigation-drawer>
             
             <!-- CONTENT -->
