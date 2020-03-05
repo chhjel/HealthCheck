@@ -80,11 +80,42 @@ namespace HealthCheck.Core.Modules.Dataflow
         }
 
         /// <summary>
-        /// Hint of how to display this field.
+        /// Shortcut for: SetVisibility(DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded)
         /// </summary>
-        public DataFlowPropertyDisplayInfo SetUIHint(DataFlowPropertyUIHint uiHint)
+        public DataFlowPropertyDisplayInfo OnlyShowWhenExpanded()
+        {
+            SetVisibility(DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded);
+            return this;
+        }
+
+        /// <summary>
+        /// Shortcut for: SetVisibility(DataFlowPropertyUIVisibilityOption.OnlyInList)
+        /// </summary>
+        public DataFlowPropertyDisplayInfo OnlyShowInList()
+        {
+            SetVisibility(DataFlowPropertyUIVisibilityOption.OnlyInList);
+            return this;
+        }
+
+        /// <summary>
+        /// Hint of how to display this field.
+        /// <para>The following hints will default to only show in expanded mode unless <paramref name="attemptToBeClever"/> is set to false:</para>
+        /// <para>Dictionary, List, Image, Preformatted</para>
+        /// </summary>
+        public DataFlowPropertyDisplayInfo SetUIHint(DataFlowPropertyUIHint uiHint, bool attemptToBeClever = true)
         {
             UIHint = uiHint;
+
+            if (attemptToBeClever == true)
+            {
+                if (uiHint == DataFlowPropertyUIHint.Dictionary
+                    || uiHint == DataFlowPropertyUIHint.Preformatted
+                    || uiHint == DataFlowPropertyUIHint.List
+                    || uiHint == DataFlowPropertyUIHint.Image)
+                {
+                    OnlyShowWhenExpanded();
+                }
+            }
             return this;
         }
 
@@ -94,6 +125,16 @@ namespace HealthCheck.Core.Modules.Dataflow
         public DataFlowPropertyDisplayInfo SetDisplayName(string displayName)
         {
             DisplayName = displayName;
+            return this;
+        }
+
+        /// <summary>
+        /// Show the property as html, hide title and only show in list.
+        /// <para>Shortcut to: .SetDisplayName("").SetUIHint(DataFlowPropertyUIHint.HTML).OnlyShowInList()</para>
+        /// </summary>
+        public DataFlowPropertyDisplayInfo SetHtmlIcon()
+        {
+            SetDisplayName("").SetUIHint(DataFlowPropertyUIHint.HTML).OnlyShowInList();
             return this;
         }
 

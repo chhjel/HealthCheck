@@ -111,13 +111,14 @@ export default class DataTableComponent extends Vue
         width: 100%;
         border-collapse: collapse;
 
-        th, td {
+        /* th, td {
             min-width: 100px;
-        }
+        } */
 
         th {
             text-align: left;
             padding-right: 10px;
+            white-space: pre;
         }
 
         td {

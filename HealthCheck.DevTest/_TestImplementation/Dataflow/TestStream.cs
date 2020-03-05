@@ -61,27 +61,19 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
         {
             Suffix = suffix;
 
-            ConfigureProperty(nameof(TestEntry.Code)).SetDisplayName("The product code").SetFilterable();
-            ConfigureProperty(nameof(TestEntry.Name)).SetDisplayName("The product name").SetFilterable();
+            ConfigureProperty(nameof(TestEntry.Icon)).SetHtmlIcon();
             ConfigureProperty(nameof(TestEntry.InsertionTime)).SetUIHint(DataFlowPropertyUIHint.DateTime).PrettifyDisplayName();
+            ConfigureProperty(nameof(TestEntry.Code)).SetDisplayName("The product code");
+            ConfigureProperty(nameof(TestEntry.Name)).SetDisplayName("The product name");
             ConfigureProperty(nameof(TestEntry.PreformattedTest)).SetUIHint(DataFlowPropertyUIHint.Preformatted);
             ConfigureProperty(nameof(TestEntry.HtmlTest)).SetUIHint(DataFlowPropertyUIHint.HTML);
-            ConfigureProperty(nameof(TestEntry.Properties)).SetUIHint(DataFlowPropertyUIHint.Dictionary).SetVisibility(DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded);
-            ConfigureProperty(nameof(TestEntry.TestList)).SetUIHint(DataFlowPropertyUIHint.List).SetVisibility(DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded);
-            ConfigureProperty(nameof(TestEntry.TestLink)).SetUIHint(DataFlowPropertyUIHint.Link).SetVisibility(DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded);
-            ConfigureProperty(nameof(TestEntry.TestImage)).SetUIHint(DataFlowPropertyUIHint.Image).SetVisibility(DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded);
-        }
+            ConfigureProperty(nameof(TestEntry.Properties)).SetUIHint(DataFlowPropertyUIHint.Dictionary);
+            ConfigureProperty(nameof(TestEntry.TestList)).SetUIHint(DataFlowPropertyUIHint.List);
+            ConfigureProperty(nameof(TestEntry.TestLink)).SetUIHint(DataFlowPropertyUIHint.Link);
+            ConfigureProperty(nameof(TestEntry.TestImage)).SetUIHint(DataFlowPropertyUIHint.Image);
 
-        protected override Task<IEnumerable<TestEntry>> FilterEntries(DataflowStreamFilter filter, IEnumerable<TestEntry> entries)
-        {
-            // Get user input for Code property
-            var codeFilter = filter.GetPropertyFilterInput(nameof(TestEntry.Code));
-            // Filter on property
-            entries = entries.Where(x => codeFilter == null || x.Code.ToLower().Contains(codeFilter));
-
-            entries = filter.FilterContains(entries, nameof(TestEntry.Name), x => x.Name);
-
-            return Task.FromResult(entries);
+            AutoCreateFilters<TestEntry>(excludedMemberNames: new [] { nameof(TestEntry.Icon) });
+            //ConfigureProperty(nameof(TestEntry.Icon)).SetFilterable(false);
         }
     }
 

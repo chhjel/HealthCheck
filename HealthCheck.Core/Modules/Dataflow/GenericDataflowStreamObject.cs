@@ -93,12 +93,12 @@ namespace HealthCheck.Core.Modules.Dataflow
             return memberNames;
         }
 
-        internal class AutoFilter
+        internal class AutoFilter<TEntry>
         {
             public string MemberName { get; set; }
-            public Func<IEnumerable<GenericDataflowStreamObject>, DataflowStreamFilter, IEnumerable<GenericDataflowStreamObject>> Filter { get; set; }
+            public Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>> Filter { get; set; }
         }
-        internal static List<AutoFilter>
+        internal static List<AutoFilter<TEntry>>
             CreateAutoFilters<TEntry>(
                 IEnumerable<string> memberNames = null,
                 IEnumerable<string> excludedMemberNames = null)
@@ -106,17 +106,53 @@ namespace HealthCheck.Core.Modules.Dataflow
             var itemType = typeof(TEntry);
             memberNames = GatherMemberNames(memberNames, excludedMemberNames, itemType);
 
-            var filters = new List<AutoFilter>();
+            var filters = new List<AutoFilter<TEntry>>();
             foreach (var memberName in memberNames)
             {
                 try
                 {
-                    var filter = new Func<IEnumerable<GenericDataflowStreamObject>, DataflowStreamFilter, IEnumerable<GenericDataflowStreamObject>>(
-                        (items, filter) => filter.FilterContains(items, memberName, x => x.Get<object>(memberName)?.ToString()));
+                    Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>> filter = null;
+
+                    if (typeof(TEntry) == typeof(GenericDataflowStreamObject))
+                    {
+                        filter = (Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>)
+                            new Func<IEnumerable<GenericDataflowStreamObject>, DataflowStreamFilter, IEnumerable<GenericDataflowStreamObject>>(
+                            (items, filter) => filter.FilterContains(items, memberName, x => x.Get<object>(memberName)?.ToString()));
+                    }
+                    else
+                    {
+                        Func<TEntry, string> valueGetter = null;
+                        var prop = typeof(TEntry).GetProperty(memberName);
+                        if (prop != null)
+                        {
+                            valueGetter = (e) => (prop.GetValue(e) as object)?.ToString();
+                        }
+                        if (valueGetter == null)
+                        {
+                            var field = typeof(TEntry).GetField(memberName);
+                            if (field != null)
+                            {
+                                valueGetter = (e) => (field.GetValue(e) as object)?.ToString();
+                            }
+                        }
+
+                        if (valueGetter != null)
+                        {
+                            filter = new Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>(
+                                (items, filter) =>
+                                {
+                                    try
+                                    {
+                                        return filter.FilterContains(items, memberName, x => valueGetter(x));
+                                    }
+                                    catch (Exception) { return items; }
+                                });
+                        }
+                    }
 
                     if (filter != null)
                     {
-                        filters.Add(new AutoFilter
+                        filters.Add(new AutoFilter<TEntry>
                         {
                             MemberName = memberName,
                             Filter = filter

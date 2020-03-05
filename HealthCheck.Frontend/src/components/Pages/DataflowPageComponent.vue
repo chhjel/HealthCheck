@@ -138,7 +138,8 @@
                                     :headers="tableHeaders.map(x => x.text)"
                                     class="elevation-2">
                                     <template v-slot:cell="{ value }">
-                                        <span v-if="value.uiHint=='HTML'" v-html="value.value"></span>
+                                        <span v-if="value.uiHint=='HTML'" v-html="value.value" @click.stop=""></span>
+                                        <span v-else-if="value.uiHint=='Link'"><a :href="value.value" target="_blank" @click.stop="">{{ value.key }}</a></span>
                                         <span v-else>{{ value.value }}</span>
                                     </template>
                                     <template v-slot:expandedItem="{ item }">
@@ -701,7 +702,7 @@ export default class DataflowPageComponent extends Vue {
                 headers.push(header);
             }
 
-            header.text = info.DisplayName || info.PropertyName;
+            header.text = (info.DisplayName != null) ? info.DisplayName : info.PropertyName;
             header.value = info.PropertyName,
             header.uiOrder = info.UIOrder,
             header.uiHint = info.UIHint || DataFlowPropertyUIHint.Raw,
