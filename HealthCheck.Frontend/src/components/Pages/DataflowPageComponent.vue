@@ -201,6 +201,9 @@ interface StreamPropFilters {
 interface ResultCachePerStream {
    [key: string]: Array<DataTableGroup>;
 }
+interface FirstEntryPerStream {
+   [key: string]: DataflowEntry;
+}
 interface DatePickerPreset {
     name: string;
     from: Date;
@@ -241,7 +244,6 @@ export default class DataflowPageComponent extends Vue {
     streamGroups: Array<StreamGroup> = [];
     streamMetadatas: Array<DataflowStreamMetadata> = [];
     selectedStream: DataflowStreamMetadata | null = null;
-    firstEntry: DataflowEntry | null = null;
 
     resultCache: ResultCachePerStream = {};
     streamEntryGroups: Array<DataTableGroup> = [];
@@ -253,6 +255,7 @@ export default class DataflowPageComponent extends Vue {
     ];
     selectedFilter: string | null = null;
     filtersPerStream: StreamPropFilters = {};
+    firstEntryPerStream: FirstEntryPerStream = {};
     filterFromDate: Date = new Date();
     filterToDate: Date = new Date();
     filterTake: number = 50;
@@ -516,7 +519,10 @@ export default class DataflowPageComponent extends Vue {
 
     onDataFlowDataRetrieved(data: Array<DataflowEntry>): void {
         this.dataLoadInProgress = false;
-        this.firstEntry = data[0];
+        if (this.selectedStream != null)
+        {
+            this.firstEntryPerStream[this.selectedStream.Id] = data[0];
+        }
         let idCounter = 1;
 
         if (this.selectedStream != null && this.streamsWithDataAttemptedLoadedAtLeastOnce.indexOf(this.selectedStream.Id) == -1)
@@ -657,6 +663,7 @@ export default class DataflowPageComponent extends Vue {
         
         this.filters = this.filtersPerStream[this.selectedStream.Id] || [];
         this.streamEntryGroups = this.resultCache[this.selectedStream.Id] || [];
+
         this.updateUrl();
     }
     
@@ -670,7 +677,7 @@ export default class DataflowPageComponent extends Vue {
             return [];
         }
 
-        let entry = this.firstEntry;
+        let entry = this.firstEntryPerStream[this.selectedStream.Id];
         if (entry == null) return [];
 
         let headers: Array<any> = [];
