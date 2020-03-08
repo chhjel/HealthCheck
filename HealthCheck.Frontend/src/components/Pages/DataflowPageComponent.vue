@@ -84,21 +84,31 @@
                                     </v-flex>
                                 </v-layout>
                                 
-                                <v-select
-                                    :items="filterChoices"
-                                    item-text="text"
-                                    item-value="value"
-                                    label="Filter on property"
-                                    v-model="selectedFilter"
-                                    v-on:change="onFilterSelected"
-                                    v-show="filterChoices.length > 0"
-                                ></v-select>
+                                <b>Filter on</b>
+                                <v-chip
+                                    color="primary"
+                                    v-for="(filterChoice, fcIndex) in filterChoices"
+                                    :key="`filter-choice-${fcIndex}`"
+                                    :outline="!filters.some(x => x.propertyName == filterChoice.value)"
+                                    class="filter-choice"
+                                    :class="{ 'selected': filters.some(x => x.propertyName == filterChoice.value) }"
+                                    @click="togglePropertyFilter(filterChoice.value, filterChoice.text)">
+                                        {{ filterChoice.text }}
+                                        <v-icon right
+                                            v-if="!filters.some(x => x.propertyName == filterChoice.value)"
+                                            >add</v-icon>
+                                        <v-icon right
+                                            v-if="filters.some(x => x.propertyName == filterChoice.value)"
+                                            >close</v-icon>
+                                    </v-chip>
+
                                 <div v-for="(filter, findex) in filters"
                                     :key="`dataflow-filter-${findex}`">
                                     <v-text-field
                                         v-model="filter.value"
                                         :label="filter.text"
                                         clearable
+                                        class="filter-input"
                                     ></v-text-field>
                                 </div>
 
@@ -320,7 +330,8 @@ export default class DataflowPageComponent extends Vue {
             .filter(x => 
                 x.IsFilterable == true
                 && x.Visibility != DataFlowPropertyUIVisibilityOption.Hidden
-                && !this.filters.some(f => f.propertyName == x.PropertyName))
+                // && !this.filters.some(f => f.propertyName == x.PropertyName)
+            )
             .map(x => {
                 return {
                     text: x.DisplayName || x.PropertyName,
@@ -621,30 +632,35 @@ export default class DataflowPageComponent extends Vue {
         return [ { title: '', minDate: minDate, maxDate: maxDate } ];
     }
 
-    onFilterSelected(): void {
-        if (this.selectedFilter != null && this.filters.findIndex(x => x.propertyName == this.selectedFilter) == -1)
+    togglePropertyFilter(propertyName: string, displayName: string): void {
+        if (propertyName == null)
         {
-            let text = this.selectedFilter;
-            let info = null;
-            if(this.selectedStream != null)
-            {
-                info = this.selectedStream.PropertyDisplayInfo.filter(x => x.PropertyName == this.selectedFilter)[0];
-            }
-            if (info != null)
-            {
-                text = info.DisplayName || info.PropertyName;
-            }
-
-            this.filters.push({
-                propertyName: this.selectedFilter,
-                text: text,
-                value: ''
-            });
+            return;
         }
 
-        this.$nextTick(() => {
-            this.selectedFilter = '';
-        });
+        const add = this.filters.findIndex(x => x.propertyName == propertyName) == -1;
+
+        if (add)
+        {
+            this.filters.push({
+                propertyName: propertyName,
+                text: displayName,
+                value: ''
+            });
+
+            this.$nextTick(() => {
+                const filterInputs = this.$el.querySelectorAll(".filter-input input");
+                if (filterInputs.length > 0)
+                {
+                    const lastInput = filterInputs[filterInputs.length - 1] as HTMLInputElement;
+                    lastInput.focus();
+                }
+            });
+        }
+        else
+        {
+            this.filters = this.filters.filter(x => x.propertyName != propertyName);
+        }
     }
 
     setActveStream(stream: DataflowStreamMetadata): void {
@@ -767,6 +783,12 @@ export default class DataflowPageComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
+.filter-choice {
+    &.selected {
+        color: #fff;
+        font-weight: 600;
+    }
+}
 .expanded-item-details
 {
     padding: 5px;
