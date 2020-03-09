@@ -66,7 +66,13 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
     protected override PageOptions GetPageOptions()
         => new PageOptions()
         {
-            PageTitle = "My Title | My Site"
+            PageTitle = "My Title | My Site",
+            // In order to not use a cdn for the main healthcheck scripts
+            // you can override them using the 'JavaScriptUrls' property.
+            JavaScriptUrls = new List<string> {
+                "/scripts/healthcheck.js",
+                "/scripts/healthcheck.vendor.js"
+            },
             //...
         };
 
