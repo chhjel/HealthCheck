@@ -42,6 +42,25 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         }
 
         [RuntimeTest]
+        [RuntimeTestParameter(target: "textArea", "Text Area", "Testing a text area here", RuntimeTestParameterAttribute.UIHint.TextArea)]
+        public TestResult TestParameterTypes(
+            DateTime date, DateTime? nullableDate = null,
+            string text = "abc",
+            string textArea = "abc\ndef",
+            int number = 123, int? nullableNumber = 321,
+            bool boolean = true, bool? nullableBool = null,
+            float flooot = 12.34f, float? nullableFlooot = null,
+            decimal dec = 11.22m, decimal? nullableDec = null,
+            double dbl = 22.33, double? nullableDbl = null,
+            EnumTestType enm = EnumTestType.SecondValue,
+            EnumFlagsTestType enumFlags = EnumFlagsTestType.A | EnumFlagsTestType.B | EnumFlagsTestType.C,
+            HttpPostedFileBase file = null
+        )
+        {
+            return TestResult.CreateSuccess("Ok");
+        }
+
+        [RuntimeTest]
         public TestResult TestAllDataDumpTypes(int imageWidth = 640, int imageHeight = 480, int imageCount = 10, int linkCount = 4, HttpPostedFileBase file = null)
         {
             var objectToSerialize = TestResult.CreateWarning($"Some random json object");
@@ -161,8 +180,10 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         }
 
         [RuntimeTest]
-        [RuntimeTestParameter("stringList", "A read only string list", "Fancy description 1", readOnlyList: true, DefaultValueFactoryMethod = nameof(ReadOnlyListTest_Default))]
-        [RuntimeTestParameter("enumList", "A read only enum list", "Fancy description 2", readOnlyList: true, DefaultValueFactoryMethod = nameof(ReadOnlyListEnumTest_Default))]
+        [RuntimeTestParameter("stringList", "A read only string list", "Fancy description 1", 
+            uIHints: RuntimeTestParameterAttribute.UIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListTest_Default))]
+        [RuntimeTestParameter("enumList", "A read only enum list", "Fancy description 2",
+            uIHints: RuntimeTestParameterAttribute.UIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListEnumTest_Default))]
         public TestResult ReadOnlyListTest(List<string> stringList, List<EnumTestType> enumList)
         {
             return TestResult.CreateSuccess($"Got lists")
@@ -219,7 +240,8 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             Description = "Retrieve some data from some service."
         )]
         [RuntimeTestParameter(target: "id", name: "Data id", description: "Id of the thing to get")]
-        [RuntimeTestParameter(target: "orgName", name: "Organization name", description: "Name of the organization the data belongs to", notNull: true)]
+        [RuntimeTestParameter(target: "orgName", name: "Organization name", description: "Name of the organization the data belongs to",
+            uIHints: RuntimeTestParameterAttribute.UIHint.NotNull)]
         [RuntimeTestParameter(target: "latestOnly", name: "Only get the latest data", description: "If true only the latest data will be retrieved")]
         public async Task<TestResult> GetDataFromX(int id = 123, string orgName = "Test Organization", bool latestOnly = false, int someNumber = 42)
         {

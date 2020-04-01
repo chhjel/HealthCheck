@@ -4,6 +4,13 @@
         <v-layout>
             <v-flex :xs10="parameter.NotNull" :xs12="!parameter.NotNull">
                 <v-text-field
+                    v-if="!parameter.ShowTextArea"
+                    class="pt-0"
+                    v-model="parameter.Value"
+                    :placeholder="placeholderText"
+                    required />
+                <v-textarea
+                    v-if="parameter.ShowTextArea"
                     class="pt-0"
                     v-model="parameter.Value"
                     :placeholder="placeholderText"
