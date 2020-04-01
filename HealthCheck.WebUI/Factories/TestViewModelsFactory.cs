@@ -110,7 +110,8 @@ namespace HealthCheck.WebUI.Factories
                 PossibleValues = testParameter?.PossibleValues?.Select(x => stringConverter.ConvertToString(x))?.ToList(),
                 Type = type,
                 NotNull = testParameter.NotNull,
-                ReadOnlyList = testParameter.ReadOnlyList
+                ReadOnlyList = testParameter.ReadOnlyList,
+                ShowTextArea = testParameter.ShowTextArea
             };
 
             return vm;

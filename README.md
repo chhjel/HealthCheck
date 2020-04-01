@@ -171,6 +171,9 @@ Executable methods can have parameter with or without default values. Default va
 Supported parameter types:
 * `string`
 * `int`, `int?`
+* `float/single`, `float/single?`
+* `double`, `double?`
+* `decimal`, `decimal?`
 * `bool`, `bool?`
 * `DateTime`, `DateTime?`
 * `Enum` (-> select)

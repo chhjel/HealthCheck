@@ -38,7 +38,8 @@ export default class TestParametersComponent extends Vue {
         'HttpPostedFileBase',
         'List<HttpPostedFileBase>'
       ];
-      return !largerParameters.some(x => parameter.Type == x);
+      return !largerParameters.some(x => parameter.Type == x)
+        && !(parameter.Type == 'String' && parameter.ShowTextArea);
     }
 }
 </script>

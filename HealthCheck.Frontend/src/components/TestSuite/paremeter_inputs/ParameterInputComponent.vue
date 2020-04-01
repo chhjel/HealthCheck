@@ -28,6 +28,12 @@ import TestParameterViewModel from '../../../models/TestSuite/TestParameterViewM
 import UnknownParameterInputComponent from './UnknownParameterInputComponent.vue';
 import ParameterInputTypeInt32Component from './input_types/ParameterInputTypeInt32Component.vue';
 import ParameterInputTypeNullableInt32Component from './input_types/ParameterInputTypeNullableInt32Component.vue';
+import ParameterInputTypeDecimalComponent from './input_types/ParameterInputTypeDecimalComponent.vue';
+import ParameterInputTypeNullableDecimalComponent from './input_types/ParameterInputTypeNullableDecimalComponent.vue';
+import ParameterInputTypeSingleComponent from './input_types/ParameterInputTypeSingleComponent.vue';
+import ParameterInputTypeNullableSingleComponent from './input_types/ParameterInputTypeNullableSingleComponent.vue';
+import ParameterInputTypeDoubleComponent from './input_types/ParameterInputTypeDoubleComponent.vue';
+import ParameterInputTypeNullableDoubleComponent from './input_types/ParameterInputTypeNullableDoubleComponent.vue';
 import ParameterInputTypeStringComponent from './input_types/ParameterInputTypeStringComponent.vue';
 import ParameterInputTypeBooleanComponent from './input_types/ParameterInputTypeBooleanComponent.vue';
 import ParameterInputTypeNullableBooleanComponent from './input_types/ParameterInputTypeNullableBooleanComponent.vue';
@@ -44,6 +50,12 @@ import ParameterInputTypeHttpPostedFileBaseComponent from './input_types/Paramet
       UnknownParameterInputComponent,
       ParameterInputTypeInt32Component,
       ParameterInputTypeNullableInt32Component,
+      ParameterInputTypeDecimalComponent,
+      ParameterInputTypeNullableDecimalComponent,
+      ParameterInputTypeSingleComponent,
+      ParameterInputTypeNullableSingleComponent,
+      ParameterInputTypeDoubleComponent,
+      ParameterInputTypeNullableDoubleComponent,
       ParameterInputTypeStringComponent,
       ParameterInputTypeBooleanComponent,
       ParameterInputTypeNullableBooleanComponent,

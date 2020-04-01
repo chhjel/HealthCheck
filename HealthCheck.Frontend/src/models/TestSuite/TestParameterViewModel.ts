@@ -8,4 +8,5 @@ export default interface TestParameterViewModel {
     Value: string | null;
     NotNull: boolean;
     ReadOnlyList: boolean;
+    ShowTextArea: boolean;
 }
