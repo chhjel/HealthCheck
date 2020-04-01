@@ -48,28 +48,57 @@ namespace HealthCheck.RequestLog.Util
                 }
 
                 // Web-hosting. Needs reference to System.Web.dll
-                if (request.Properties.ContainsKey(HttpContext))
+                try
                 {
-                    dynamic ctx = request.Properties[HttpContext];
-                    if (ctx != null)
+                    if (request.Properties.ContainsKey(HttpContext))
                     {
-                        if (ctx.Request.IsLocal == true)
+                        dynamic ctx = request.Properties[HttpContext];
+                        if (ctx != null)
                         {
-                            return "localhost";
-                        }
-                        return ctx.Request.UserHostAddress;
-                    }
-                }
+                            if (ctx.Request.IsLocal == true)
+                            {
+                                return "localhost";
+                            }
 
-                // Self-hosting. Needs reference to System.ServiceModel.dll. 
-                if (request.Properties.ContainsKey(RemoteEndpointMessage))
-                {
-                    dynamic remoteEndpoint = request.Properties[RemoteEndpointMessage];
-                    if (remoteEndpoint != null)
-                    {
-                        return remoteEndpoint.Address;
+                            try
+                            {
+                                string ipAddress = ctx.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+                                if (!string.IsNullOrEmpty(ipAddress))
+                                {
+                                    string[] addresses = ipAddress.Split(',');
+                                    if (addresses.Length != 0)
+                                    {
+                                        return addresses[0];
+                                    }
+                                }
+                            }
+                            catch (Exception) {}
+
+                            try
+                            {
+                                return ctx.Request.ServerVariables["REMOTE_ADDR"];
+                            }
+                            catch (Exception) {}
+
+                            return ctx.Request.UserHostAddress;
+                        }
                     }
                 }
+                catch (Exception) {}
+
+                // Self-hosting. Needs reference to System.ServiceModel.dll.
+                try
+                {
+                    if (request.Properties.ContainsKey(RemoteEndpointMessage))
+                    {
+                        dynamic remoteEndpoint = request.Properties[RemoteEndpointMessage];
+                        if (remoteEndpoint != null)
+                        {
+                            return remoteEndpoint.Address;
+                        }
+                    }
+                }
+                catch (Exception) {}
 
                 // Self-hosting using Owin. Needs reference to Microsoft.Owin.dll. 
                 if (request.Properties.ContainsKey(OwinContext))
