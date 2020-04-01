@@ -153,7 +153,7 @@ public class MyClass
 
 [RuntimeTest("Get data from somewhere", "Retrieves data from service X and shows the response data.")]
 [RuntimeTestParameter(target: "id", name: "Data id", description: "Id of the thing to get")]
-[RuntimeTestParameter(target: "orgName", name: "Organization name", description: "Name of the organization the data belongs to", notNull: true)]
+[RuntimeTestParameter(target: "orgName", name: "Organization name", description: "Name of the organization the data belongs to", uIHints: RuntimeTestParameterAttribute.UIHint.NotNull)]
 public async Task<TestResult> GetDataFromServiceX(int id = 42, string orgName = "Test Organization")
 {
     var data = await dataService.GetData(id, orgName, allowCache, maxResults);
@@ -251,8 +251,7 @@ Can be applied to either the method itself using the `Target` property or the pa
 |Target|If the attribute is placed on a method this needs to be the name of the target property.|
 |Name|Name of the property. Defaults to a prettified name.|
 |Description|Description of the property. Shown as a help text and can contain html.|
-|NotNull|Set to true to not allow null values to be entered in the interface.|
-|ReadOnlyList|Only affects generic lists. Does not allow new entries to be added, or existing entries to be changed. Only the order of the items can be changed.|
+|UIHint|Options for parameter display can be set here. Read only lists, prevent null-values, text areas etc.|
 |DefaultValueFactoryMethod|For property types that cannot have default values (e.g. lists), use this to specify the name of a public static method in the same class as the method. The method should have the same return type as this parameter, and have zero parameters.|
 
 ## Services
