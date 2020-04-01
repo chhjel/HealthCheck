@@ -35,7 +35,7 @@
                         :setting="setting" />
                 </div>
 
-                <v-layout>
+                <v-layout v-if="settingGroups.length > 0">
                     <v-flex xs6 sm2 class="mb-2">
                         <v-btn 
                             @click="saveSettings()" 
