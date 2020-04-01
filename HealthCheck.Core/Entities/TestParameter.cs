@@ -47,5 +47,10 @@ namespace HealthCheck.Core.Entities
         /// Only affects generic lists. Does not allow new entries to be added, or existing entries to be changed.
         /// </summary>
         public bool ReadOnlyList { get; set; }
+
+        /// <summary>
+        /// Show as text area if this is a string.
+        /// </summary>
+        public bool ShowTextArea { get; set; }
     }
 }

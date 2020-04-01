@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using static HealthCheck.Core.Attributes.RuntimeTestParameterAttribute;
 
 namespace HealthCheck.Core.Entities
 {
@@ -146,8 +147,9 @@ namespace HealthCheck.Core.Entities
                     Description = parameterAttribute?.Description.EnsureDotAtEndIfNotNull(),
                     DefaultValue = GetDefaultValue(parameter, parameterAttribute),
                     ParameterType = parameter.ParameterType,
-                    NotNull = parameterAttribute?.NotNull == true,
-                    ReadOnlyList = parameterAttribute?.ReadOnlyList == true,
+                    NotNull = parameterAttribute?.UIHints.HasFlag(UIHint.NotNull) == true,
+                    ReadOnlyList = parameterAttribute?.UIHints.HasFlag(UIHint.ReadOnlyList) == true,
+                    ShowTextArea = parameterAttribute?.UIHints.HasFlag(UIHint.TextArea) == true,
                     PossibleValues = GetPossibleValues(parameter.ParameterType)
                 };
             }

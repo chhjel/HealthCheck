@@ -26,19 +26,14 @@ namespace HealthCheck.Core.Attributes
         public string Description { get; set; }
 
         /// <summary>
-        /// Do not allow null-values to be entered in the user interface. Does not affect nullable parameters.
-        /// </summary>
-        public bool NotNull { get; set; }
-
-        /// <summary>
-        /// Only affects generic lists. Does not allow new entries to be added, or existing entries to be changed.
-        /// </summary>
-        public bool ReadOnlyList { get; set; }
-
-        /// <summary>
         /// Method name of a public static method in the same class as this method. The method should have the same return type as this parameter, and have zero parameters.
         /// </summary>
         public string DefaultValueFactoryMethod { get; set; }
+
+        /// <summary>
+        /// Hint of how to display a parameter input.
+        /// </summary>
+        public UIHint UIHints { get; set; }
 
         /// <summary>
         /// Sets parameters options.
@@ -46,15 +41,13 @@ namespace HealthCheck.Core.Attributes
         /// <param name="target">Target parameter name.</param>
         /// <param name="name">New name of the property.</param>
         /// <param name="description">Description text that will be visible as a help text.</param>
-        /// <param name="notNull">If true null-values will not be allowed to be entered in the user interface. Does not affect nullable parameters.</param>
-        /// <param name="readOnlyList">Only affects generic lists. Does not allow new entries to be added, or existing entries to be changed.</param>
-        public RuntimeTestParameterAttribute(string target, string name, string description, bool notNull = false, bool readOnlyList = false)
+        /// <param name="uIHints">Optional hints for display options.</param>
+        public RuntimeTestParameterAttribute(string target, string name, string description, UIHint uIHints = UIHint.None)
         {
             Target = target;
             Name = name;
             Description = description;
-            NotNull = notNull;
-            ReadOnlyList = readOnlyList;
+            UIHints = uIHints;
         }
 
         /// <summary>
@@ -63,14 +56,12 @@ namespace HealthCheck.Core.Attributes
         /// </summary>
         /// <param name="name">New name of the property.</param>
         /// <param name="description">Description text that will be visible as a help text.</param>
-        /// <param name="notNull">If true null-values will not be allowed to be entered in the user interface. Does not affect nullable parameters.</param>
-        /// <param name="readOnlyList">Only affects generic lists. Does not allow new entries to be added, or existing entries to be changed. Entries can only be sorted.</param>
-        public RuntimeTestParameterAttribute(string name = null, string description = null, bool notNull = false, bool readOnlyList = false)
+        /// <param name="uIHints">Optional hints for display options.</param>
+        public RuntimeTestParameterAttribute(string name = null, string description = null, UIHint uIHints = UIHint.None)
         {
             Name = name;
             Description = description;
-            NotNull = notNull;
-            ReadOnlyList = readOnlyList;
+            UIHints = uIHints;
         }
 
         /// <summary>
@@ -79,5 +70,33 @@ namespace HealthCheck.Core.Attributes
         /// <para>* Decorating methods and use the <see cref="Target"/> property to select what parameter to target by its name.</para>
         /// </summary>
         public RuntimeTestParameterAttribute() { }
+
+        /// <summary>
+        /// Hint of how to display a parameter input.
+        /// </summary>
+        [Flags]
+        public enum UIHint
+        {
+            /// <summary>
+            /// Default.
+            /// </summary>
+            None = 0,
+
+            /// <summary>
+            /// Null-values will not be allowed to be entered in the user interface. Does not affect nullable parameters.
+            /// </summary>
+            NotNull = 1,
+
+            /// <summary>
+            /// Only affects strings. Shows a multi-line text area instead of a small input field.
+            /// </summary>
+            TextArea = 2,
+
+            /// <summary>
+            /// Only affects generic lists. Does not allow new entries to be added, or existing entries to be changed.
+            /// </summary>
+            ReadOnlyList = 4
+        }
+
     }
 }
