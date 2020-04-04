@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Modules.Dataflow;
+using HealthCheck.Core.Modules.EventNotifications;
 
 namespace HealthCheck.WebUI.Models
 {
@@ -47,6 +48,11 @@ namespace HealthCheck.WebUI.Models
         /// Must be set for the settings tab to be shown.
         /// </summary>
         public IHealthCheckSettingsService SettingsService { get; set; }
+
+        /// <summary>
+        /// Must be set for the event notifications tab to be shown.
+        /// </summary>
+        public IEventDataSink EventSink { get; set; }
 
         internal bool IsAnyDocumentationServiceSet => SequenceDiagramService != null || FlowChartsService != null;
     }

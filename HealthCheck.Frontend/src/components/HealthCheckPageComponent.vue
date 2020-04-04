@@ -34,6 +34,11 @@
                         :class="{ 'active-tab': isCurrentPage(PAGE_DATAFLOW) }"
                         @click.left.prevent="setCurrentPage(PAGE_DATAFLOW)">Dataflow</v-btn>
                     <v-btn flat
+                        v-if="showPageMenu(PAGE_EVENTNOTIFICATIONS)"
+                        :href="`#/${PAGE_EVENTNOTIFICATIONS}`"
+                        :class="{ 'active-tab': isCurrentPage(PAGE_EVENTNOTIFICATIONS) }"
+                        @click.left.prevent="setCurrentPage(PAGE_EVENTNOTIFICATIONS)">Event Notifications</v-btn>
+                    <v-btn flat
                         v-if="showPageMenu(PAGE_DOCUMENTATION)"
                         :href="`#/${PAGE_DOCUMENTATION}`"
                         :class="{ 'active-tab': isCurrentPage(PAGE_DOCUMENTATION) }"
@@ -87,6 +92,11 @@
                 v-if="shouldIncludePage(PAGE_DOCUMENTATION)"
                 v-show="currentPage == PAGE_DOCUMENTATION"
                 ref="documentationPage"
+                :options="options" />
+            <dataflow-page-component
+                v-if="shouldIncludePage(PAGE_EVENTNOTIFICATIONS)"
+                v-show="currentPage == PAGE_EVENTNOTIFICATIONS"
+                ref="eventNotificationsPage"
                 :options="options" />
             <dataflow-page-component
                 v-if="shouldIncludePage(PAGE_DATAFLOW)"
@@ -148,6 +158,7 @@ export default class HealthCheckPageComponent extends Vue {
     PAGE_DOCUMENTATION: string = "documentation";
     PAGE_DATAFLOW: string = "dataflow";
     PAGE_SETTINGS: string = "settings";
+    PAGE_EVENTNOTIFICATIONS: string = "eventnotifications";
     PAGE_NO_PAGES_AVAILABLE: string = "no_page";
     currentPage: string = this.PAGE_TESTS;
     pagesWithMenu: string[] = [
