@@ -9,7 +9,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Notifiers
     /// <summary>
     /// Sends a GET request to the given url.
     /// </summary>
-    public class EventWebHookNotifier : IEventNotifier
+    public class WebHookEventNotifier : IEventNotifier
     {
         /// <summary>
         /// Unique id of this notifier.

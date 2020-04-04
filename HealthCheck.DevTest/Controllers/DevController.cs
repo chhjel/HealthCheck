@@ -6,6 +6,8 @@ using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.Diagrams.FlowCharts;
 using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
+using HealthCheck.Core.Modules.EventNotifications;
+using HealthCheck.Core.Modules.EventNotifications.Notifiers;
 using HealthCheck.Core.Modules.Settings;
 using HealthCheck.Core.Services;
 using HealthCheck.Core.Services.Models;
@@ -40,6 +42,8 @@ namespace HealthCheck.DevTest.Controllers
         private static readonly TestMemoryStream memoryStream = new TestMemoryStream("Memory");
         private static readonly TestMemoryStream otherStream1 = new TestMemoryStream(null);
         private static readonly TestMemoryStream otherStream2 = new TestMemoryStream(null);
+        private static readonly FlatFileEventSinkNotificationConfigStorage EventSinkNotificationConfigStorage
+            = new FlatFileEventSinkNotificationConfigStorage(@"c:\temp\eventconfigs.json");
 
         #region Init
         public DevController()
@@ -87,6 +91,8 @@ namespace HealthCheck.DevTest.Controllers
                 }
             });
             Services.SettingsService = new FlatFileHealthCheckSettingsService<TestSettings>(@"C:\temp\settings.json");
+            Services.EventSink = new DefaultEventDataSink(EventSinkNotificationConfigStorage)
+                .AddNotifier(new WebHookEventNotifier());
 
             if (!_hasInited)
             {
@@ -135,6 +141,15 @@ namespace HealthCheck.DevTest.Controllers
         #endregion
 
         #region Overrides
+        public override ActionResult Index()
+        {
+            Services.EventSink.RegisterEvent("pageload", new {
+                Url = Request.RawUrl,
+                User = CurrentRequestInformation?.UserName
+            });
+            return base.Index();
+        }
+
         protected override FrontEndOptionsViewModel GetFrontEndOptions()
             => new FrontEndOptionsViewModel(EndpointBase)
             {
@@ -182,6 +197,7 @@ namespace HealthCheck.DevTest.Controllers
             AccessOptions.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
             AccessOptions.DataflowPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
             AccessOptions.SettingsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            AccessOptions.EventNotificationsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
         }
 
         protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)
