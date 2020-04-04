@@ -50,6 +50,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
         /// <param name="payload">Optional payload.
         /// <para>It should either be stringifiable or contain public properties that can be filtered upon.</para>
         /// <para>An anonymous object works fine.</para>
+        /// </param>
         void RegisterEvent<T>(string eventId, T payload);
     }
 }

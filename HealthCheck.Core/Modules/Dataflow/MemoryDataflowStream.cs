@@ -49,7 +49,7 @@ namespace HealthCheck.Core.Modules.Dataflow
                 }
             }
 
-            public TEntry InsertOrUpdateItem(TEntry entry)
+            public TEntry InsertOrUpdateItem(TEntry entry, Func<TEntry, TEntry> update = null)
             {
                 lock(Items)
                 {

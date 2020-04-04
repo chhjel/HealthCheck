@@ -93,7 +93,7 @@
                 v-show="currentPage == PAGE_DOCUMENTATION"
                 ref="documentationPage"
                 :options="options" />
-            <dataflow-page-component
+            <event-notifications-page-component
                 v-if="shouldIncludePage(PAGE_EVENTNOTIFICATIONS)"
                 v-show="currentPage == PAGE_EVENTNOTIFICATIONS"
                 ref="eventNotificationsPage"
@@ -127,6 +127,7 @@ import RequestLogPageComponent from './Pages/RequestLogPageComponent.vue';
 import DocumentationPageComponent from './Pages/DocumentationPageComponent.vue';
 import DataflowPageComponent from './Pages/DataflowPageComponent.vue';
 import SettingsPageComponent from './Pages/SettingsPageComponent.vue';
+import EventNotificationsPageComponent from './Pages/EventNotificationsPageComponent.vue';
 import FrontEndOptionsViewModel from '../models/Page/FrontEndOptionsViewModel';
 import UrlUtils from '../util/UrlUtils';
 
@@ -140,7 +141,8 @@ import UrlUtils from '../util/UrlUtils';
         RequestLogPageComponent,
         DocumentationPageComponent,
         DataflowPageComponent,
-        SettingsPageComponent
+        SettingsPageComponent,
+        EventNotificationsPageComponent
     }
 })
 export default class HealthCheckPageComponent extends Vue {

@@ -145,6 +145,7 @@ namespace HealthCheck.DevTest.Controllers
                     HealthCheckPageType.Tests,
                     HealthCheckPageType.Overview,
                     HealthCheckPageType.RequestLog,
+                    HealthCheckPageType.EventNotifications,
                     HealthCheckPageType.Dataflow,
                     HealthCheckPageType.Documentation,
                     HealthCheckPageType.LogViewer,
