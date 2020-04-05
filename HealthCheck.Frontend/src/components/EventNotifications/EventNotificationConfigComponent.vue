@@ -78,7 +78,13 @@
         <h3>Notify using</h3>
         <div v-for="(notifierConfig, ncindex) in getValidNotifierConfigs(config)"
             :key="`notifierConfig-${ncindex}`">
+
             <b>{{ notifierConfig.Notifier.Name }}</b>
+            <v-btn color="error"
+                @click="removeValidNotifierConfig(ncindex)"
+                :disabled="allowChanges">
+                <v-icon size="20px" class="mr-2">delete</v-icon>
+            </v-btn>
             
             <div v-for="(notifierConfigOption, ncoindex) in getNotifierConfigOptions(notifierConfig.Notifier, notifierConfig.Options)"
                 :key="`notifierConfig-${ncindex}-option-${ncoindex}`"
@@ -158,6 +164,24 @@ export default class EventNotificationConfigComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    removeValidNotifierConfig(visibleIndex: number): void {
+        let index = -1;
+        for(let i=0;i<this.config.NotifierConfigs.length;i++)
+        {
+            if (this.config.NotifierConfigs[i].Notifier == null)
+            {
+                continue;
+            }
+            index++;
+
+            if (index == visibleIndex)
+            {
+                this.config.NotifierConfigs.splice(i, 1);
+                return;
+            }
+        }
+    }
+
     getValidNotifierConfigs(config: EventSinkNotificationConfig): Array<NotifierConfig> {
         return config.NotifierConfigs.filter(x => x.Notifier != null);
     }
