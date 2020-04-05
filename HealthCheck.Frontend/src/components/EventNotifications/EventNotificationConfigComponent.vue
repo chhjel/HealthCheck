@@ -73,7 +73,15 @@
             v-model="config.PayloadFilters[pfindex]"
             :readonly="allowChanges"
             :allow-property-name="true"
+            :allow-delete="true"
+            @delete="onConfigFilterDelete(pfindex)"
             />
+        <small v-if="config.PayloadFilters.length == 0">No payload filters added.</small>
+        <v-btn :disabled="allowChanges"
+            @click="onAddPayloadFilterClicked">
+            <v-icon size="20px" class="mr-2">add</v-icon>
+            Add payload filter
+        </v-btn>
 
         <h3>Notify using</h3>
         <div v-for="(notifierConfig, ncindex) in getValidNotifierConfigs(config)"
@@ -100,6 +108,7 @@
                     required clearable />
             </div>
         </div>
+        <small v-if="getValidNotifierConfigs(config).length == 0">No notifiers added, config will be disabled.</small>
         <v-btn :disabled="allowChanges" @click.stop="notifierDialogVisible = true" v-if="notifiers != null">
             <v-icon size="20px" class="mr-2">add</v-icon>
             Add notifier
@@ -340,6 +349,23 @@ export default class EventNotificationConfigComponent extends Vue {
             Notifier: notifier,
             Options: this.createOptionsObjectFor(notifier)
         });
+    }
+
+    onAddPayloadFilterClicked(): void {
+        this.config.PayloadFilters.push({
+            PropertyName: null,
+            Filter: '',
+            MatchType: FilterMatchType.Contains,
+            CaseSensitive: false
+        });
+    }
+
+    onConfigFilterDelete(filterIndex: number): void {
+        // todo: data is correct, view in list is not
+        console.log(`onConfigFilterDelete(${filterIndex})`)
+        console.log({ state: "Before", value: this.config.PayloadFilters.map(x => x.Filter) });
+        this.config.PayloadFilters.splice(filterIndex, 1);
+        console.log({ state: "After", value: this.config.PayloadFilters.map(x => x.Filter) });
     }
 }
 </script>

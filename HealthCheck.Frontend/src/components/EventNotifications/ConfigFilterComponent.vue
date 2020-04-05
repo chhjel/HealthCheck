@@ -1,6 +1,13 @@
 <!-- src/components/Common/ConfigFilterComponent.vue -->
 <template>
     <div class="root">
+        <v-btn v-if="allowDelete"
+            color="error"
+            @click="remove()"
+            :disabled="readonly">
+            <v-icon size="20px" class="mr-2">delete</v-icon>
+        </v-btn>
+
         <v-switch
             v-if="allowPropertyName"
             v-model="isMatchingOnStringified" 
@@ -60,6 +67,8 @@ export default class ConfigFilterComponent extends Vue {
     allowPropertyName!: boolean;
     @Prop({ required: false, default: false })
     readonly!: boolean;
+    @Prop({ required: false, default: false })
+    allowDelete!: boolean;
 
     filter!: string;
     propertyName!: string | null;
@@ -104,7 +113,9 @@ export default class ConfigFilterComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
-
+    remove(): void {
+        this.$emit('delete', this.value);
+    }
 
     ///////////////////////
     //  EVENT HANDLERS  //
