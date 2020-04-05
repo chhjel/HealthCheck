@@ -42,7 +42,11 @@ namespace HealthCheck.WebUI.Services
         public EventSinkNotificationConfig SaveConfig(EventSinkNotificationConfig config)
             => Store.InsertOrUpdateItem(config, (old) =>
             {
-                config.LatestResults = old.LatestResults;
+                config.LatestResults = config
+                    ?.LatestResults
+                    ?.Union(old?.LatestResults ?? Enumerable.Empty<string>())
+                    ?.ToList()
+                    ?? new List<string>();
                 return config;
             });
 

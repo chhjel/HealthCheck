@@ -28,6 +28,7 @@
                     v-for="(config, cindex) in configs"
                     :key="`config-${cindex}-${config.Id}`"
                     :config="config"
+                    :notifiers="notifiers"
                     :readonly="!allowConfigChanges"
                     :options="options"
                     v-on:configDeleted="onConfigDeleted"
@@ -205,7 +206,7 @@ export default class EventNotificationsPageComponent extends Vue {
         return {
             PropertyName: null,
             Filter: '',
-            MatchType: FilterMatchType.Contains,
+            MatchType: FilterMatchType.Matches,
             CaseSensitive: false
         };
     }

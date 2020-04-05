@@ -100,7 +100,7 @@
                     required clearable />
             </div>
         </div>
-        <v-btn :disabled="allowChanges">
+        <v-btn :disabled="allowChanges" @click.stop="notifierDialogVisible = true" v-if="notifiers != null">
             <v-icon size="20px" class="mr-2">add</v-icon>
             Add notifier
         </v-btn>
@@ -116,6 +116,37 @@
         </ul>
         
         <small>{{ config }}</small>
+
+        <v-dialog v-model="notifierDialogVisible"
+            scrollable
+            v-if="notifiers != null"
+            content-class="possible-notifiers-dialog">
+            <v-card>
+                <v-card-title>Select type of notifier to add</v-card-title>
+                <v-divider></v-divider>
+                <v-card-text style="max-height: 500px;">
+                    <v-list class="possible-notifiers-list">
+                        <v-list-tile v-for="(notifier, nindex) in notifiers"
+                            :key="`possible-notifier-${nindex}`"
+                            @click="onAddNotifierClicked(notifier)"
+                            class="possible-notifiers-list-item">
+                            <v-list-tile-action>
+                                <v-icon>add</v-icon>
+                            </v-list-tile-action>
+
+                            <v-list-tile-content>
+                                <v-list-tile-title class="possible-notifier-item-title">{{ notifier.Name }}</v-list-tile-title>
+                                <v-list-tile-sub-title class="possible-notifier-item-description">{{ notifier.Description }}</v-list-tile-sub-title>
+                            </v-list-tile-content>
+                        </v-list-tile>
+                    </v-list>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-btn color="secondary" flat @click="notifierDialogVisible = false">Cancel</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -140,9 +171,13 @@ export default class EventNotificationConfigComponent extends Vue {
     @Prop({ required: true })
     config!: EventSinkNotificationConfig;
 
+    @Prop({ required: false, default: null })
+    notifiers!: Array<IEventNotifier> | null;
+
     @Prop({ required: false, default: false })
     readonly!: boolean;
 
+    notifierDialogVisible: boolean = false;
     isSaving: boolean = false;
     isDeleting: boolean = false;
     serverInteractionError: string | null = null;
@@ -281,6 +316,12 @@ export default class EventNotificationConfigComponent extends Vue {
         return DateUtils.FormatDate(date, 'yyyy MMM d HH:mm:ss');
     }
 
+    createOptionsObjectFor(notifier: IEventNotifier): Dictionary<string> {
+        return notifier.Options
+            .map(x => x.Id)
+            .reduce((a: any, b: any) => { a[b] = ""; return a; }, {});
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
@@ -291,10 +332,29 @@ export default class EventNotificationConfigComponent extends Vue {
     onDeleteConfigClicked(): void {
         this.deleteConfig();
     }
+
+    onAddNotifierClicked(notifier: IEventNotifier): void {
+        this.notifierDialogVisible = false;
+        this.config.NotifierConfigs.push({
+            NotifierId: notifier.Id,
+            Notifier: notifier,
+            Options: this.createOptionsObjectFor(notifier)
+        });
+    }
 }
 </script>
 
 <style scoped lang="scss">
-.root {
+/* .root {
+} */
+</style>
+
+<style lang="scss">
+.possible-notifiers-dialog {
+    max-width: 700px;
+
+    .possible-notifiers-list-item {
+        margin-bottom: 10px;
+    }
 }
 </style>
