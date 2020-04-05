@@ -28,6 +28,11 @@
         /// <summary>
         /// Custom settings.
         /// </summary>
-        Settings
+        Settings,
+
+        /// <summary>
+        /// Event notification.
+        /// </summary>
+        EventNotifications
     }
 }

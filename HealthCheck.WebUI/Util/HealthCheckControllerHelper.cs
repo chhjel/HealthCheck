@@ -708,6 +708,33 @@ namespace HealthCheck.WebUI.Util
         }
 
         /// <summary>
+        /// When an event notification is deleted.
+        /// </summary>
+        private void AuditLog_EventNotificationConfigDelete(RequestInformation<TAccessRole> requestInformation, Guid configId)
+        {
+            var config = Services.EventSink?.GetConfigs()?.FirstOrDefault(x => x.Id == configId);
+            if (config != null)
+            {
+                Services.AuditEventService?.StoreEvent(
+                    CreateAuditEventFor(requestInformation, AuditEventArea.EventNotifications, action: "Deleted event notification config")
+                );
+            }
+        }
+
+        /// <summary>
+        /// When an event notification is created/updated.
+        /// </summary>
+        private void AuditLog_EventNotificationConfigSaved(RequestInformation<TAccessRole> requestInformation, EventSinkNotificationConfig config)
+        {
+            if (config != null)
+            {
+                Services.AuditEventService?.StoreEvent(
+                    CreateAuditEventFor(requestInformation, AuditEventArea.EventNotifications, action: "Saved event notification config")
+                );
+            }
+        }
+
+        /// <summary>
         /// Get viewmodel for audit filter results.
         /// </summary>
         public async Task<IEnumerable<AuditEventViewModel>> GetAuditEventsFilterViewModel(
@@ -824,19 +851,10 @@ namespace HealthCheck.WebUI.Util
             if (Services.EventSink == null || !CanShowPageTo(HealthCheckPageType.EventNotifications, requestInformation.AccessRole))
                 return config;
 
+            config.CreatedBy = requestInformation?.UserName ?? "Anonymous";
             config = Services.EventSink.SaveConfig(config);
             AuditLog_EventNotificationConfigSaved(requestInformation, config);
             return config;
-        }
-
-        private void AuditLog_EventNotificationConfigDelete(RequestInformation<TAccessRole> requestInformation, Guid configId)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void AuditLog_EventNotificationConfigSaved(RequestInformation<TAccessRole> requestInformation, EventSinkNotificationConfig config)
-        {
-            throw new NotImplementedException();
         }
 
         private bool AuditEventMatchesFilter(AuditEvent e, AuditEventFilterInputData filter)

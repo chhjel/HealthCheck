@@ -161,6 +161,7 @@
     <Compile Include="_TestImplementation\Dataflow\TestEntry.cs" />
     <Compile Include="_TestImplementation\Dataflow\TestStream.cs" />
     <Compile Include="_TestImplementation\Diagrams\DiagramTestData.cs" />
+    <Compile Include="_TestImplementation\EventNotifier\DevNotifier.cs" />
     <Compile Include="_TestImplementation\RuntimeTestAccessRole.cs" />
     <Compile Include="_TestImplementation\RuntimeTestConstants.cs" />
     <Compile Include="_TestImplementation\Tests\AlmostAtTheBottomTests.cs" />

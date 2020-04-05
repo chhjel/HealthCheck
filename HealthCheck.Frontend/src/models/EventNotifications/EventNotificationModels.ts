@@ -22,6 +22,7 @@ export interface EventNotifierOptionDefinition {
 
 export interface EventSinkNotificationConfig {
     Id: string;
+    CreatedBy: string;
     Enabled: boolean;
     NotificationCountLimit: number | null;
     FromTime: Date | null;
@@ -35,17 +36,24 @@ export interface EventSinkNotificationConfig {
 export interface NotifierConfig {
     NotifierId: string;
     Options: Dictionary<string>;
+    Notifier: IEventNotifier | null;
+}
+
+export interface NotifierConfigOptionsItem {
+    key: string;
+    definition: EventNotifierOptionDefinition;
+    value: string;
 }
 
 export interface EventSinkNotificationConfigFilter {
-    PropertyName: string;
+    PropertyName: string | null;
     Filter: string;
     MatchType: FilterMatchType;
     CaseSensitive: boolean;
 }
 
 export enum FilterMatchType {
-    Contains = 0,
-    Matches,
-    RegEx
+    Contains = 'Contains',
+    Matches = 'Matches',
+    RegEx = 'RegEx'
 }

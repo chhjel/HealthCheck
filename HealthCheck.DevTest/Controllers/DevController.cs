@@ -14,6 +14,7 @@ using HealthCheck.Core.Services.Models;
 using HealthCheck.Core.Util;
 using HealthCheck.DevTest._TestImplementation;
 using HealthCheck.DevTest._TestImplementation.Dataflow;
+using HealthCheck.DevTest._TestImplementation.EventNotifier;
 using HealthCheck.RequestLog.Services;
 using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.Models;
@@ -92,7 +93,8 @@ namespace HealthCheck.DevTest.Controllers
             });
             Services.SettingsService = new FlatFileHealthCheckSettingsService<TestSettings>(@"C:\temp\settings.json");
             Services.EventSink = new DefaultEventDataSink(EventSinkNotificationConfigStorage)
-                .AddNotifier(new WebHookEventNotifier());
+                .AddNotifier(new WebHookEventNotifier())
+                .AddNotifier(new DevNotifier());
 
             if (!_hasInited)
             {

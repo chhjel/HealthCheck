@@ -15,6 +15,11 @@ namespace HealthCheck.Core.Modules.EventNotifications
         public Guid Id { get; set; }
 
         /// <summary>
+        /// Name of user that created this notifier.
+        /// </summary>
+        public string CreatedBy { get; set; }
+
+        /// <summary>
         /// Enable this config.
         /// </summary>
         public bool Enabled { get; set; }
