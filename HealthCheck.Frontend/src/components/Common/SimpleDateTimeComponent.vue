@@ -8,6 +8,7 @@
             v-on:change="onTextChanged"
             v-on:click:clear="onTextChanged"
             :error-messages="error"
+            :disabled="readonly"
             clearable />
     </div>
 </template>
@@ -28,6 +29,9 @@ export default class SimpleDateTimeComponent extends Vue {
 
     @Prop({ required: false, default: 'yyyy/MM/dd HH:mm:ss' })
     dateFormat!: string;
+
+    @Prop({ required: false, default: false })
+    readonly!: boolean;
 
     content!: string;
     error: string = "";

@@ -7,6 +7,7 @@
             :label="payloadMatchTypeToggleLable"
             color="secondary"
             v-on:change="onDataChanged"
+            :disabled="readonly"
         ></v-switch>
 
         <div class="horizontal-layout">
@@ -15,12 +16,14 @@
                 label="Target payload property name"
                 v-model="propertyName"
                 v-on:change="onDataChanged"
+                :disabled="readonly"
             ></v-text-field>
 
             <v-text-field type="text"
                 label="Filter"
                 v-model="filter"
                 v-on:change="onDataChanged"
+                :disabled="readonly"
             ></v-text-field>
 
             <v-select
@@ -28,6 +31,7 @@
                 :items="matchTypeOptions"
                 item-text="text" item-value="value" color="secondary"
                 v-on:change="onDataChanged"
+                :disabled="readonly"
                 >
             </v-select>
 
@@ -36,6 +40,7 @@
                 label="Case sensitive"
                 color="secondary"
                 v-on:change="onDataChanged"
+                :disabled="readonly"
             ></v-switch>
         </div>
     </div>
@@ -53,6 +58,8 @@ export default class ConfigFilterComponent extends Vue {
     value!: EventSinkNotificationConfigFilter;
     @Prop({ required: true })
     allowPropertyName!: boolean;
+    @Prop({ required: false, default: false })
+    readonly!: boolean;
 
     filter!: string;
     propertyName!: string | null;

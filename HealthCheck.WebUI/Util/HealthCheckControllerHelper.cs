@@ -851,8 +851,15 @@ namespace HealthCheck.WebUI.Util
             if (Services.EventSink == null || !CanShowPageTo(HealthCheckPageType.EventNotifications, requestInformation.AccessRole))
                 return config;
 
-            config.CreatedBy = requestInformation?.UserName ?? "Anonymous";
+            config.LastChangedBy = requestInformation?.UserName ?? "Anonymous";
+            config.LastChangedAt = DateTime.Now;
+
+            config.LatestResults = config.LatestResults ?? new List<string>();
+            config.PayloadFilters = config.PayloadFilters ?? new List<EventSinkNotificationConfigFilter>();
+            config.EventIdFilter = config.EventIdFilter ?? new EventSinkNotificationConfigFilter();
+            config.NotifierConfigs = config.NotifierConfigs ?? new List<NotifierConfig>();
             config = Services.EventSink.SaveConfig(config);
+
             AuditLog_EventNotificationConfigSaved(requestInformation, config);
             return config;
         }

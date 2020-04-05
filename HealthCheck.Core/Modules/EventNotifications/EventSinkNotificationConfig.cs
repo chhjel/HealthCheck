@@ -15,9 +15,19 @@ namespace HealthCheck.Core.Modules.EventNotifications
         public Guid Id { get; set; }
 
         /// <summary>
-        /// Name of user that created this notifier.
+        /// Name of user that last changed this notifier.
         /// </summary>
-        public string CreatedBy { get; set; }
+        public string LastChangedBy { get; set; }
+
+        /// <summary>
+        /// Date when last changed.
+        /// </summary>
+        public DateTime LastChangedAt { get; set; }
+
+        /// <summary>
+        /// Date of latest notification.
+        /// </summary>
+        public DateTime? LastNotifiedAt { get; set; }
 
         /// <summary>
         /// Enable this config.

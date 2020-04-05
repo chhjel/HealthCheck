@@ -173,18 +173,16 @@ namespace HealthCheck.Core.Modules.EventNotifications
 
         private void OnEventNotified(EventSinkNotificationConfig config, string result)
         {
-            var saveChanges = false;
+            config.LastNotifiedAt = DateTime.Now;
 
             if (config.NotificationCountLimit != null)
             {
                 config.NotificationCountLimit--;
-                saveChanges = true;
             }
 
             if (config.LimitHasBeenReached())
             {
                 config.Enabled = false;
-                saveChanges = true;
             }
 
             if (!string.IsNullOrWhiteSpace(result))
@@ -194,13 +192,9 @@ namespace HealthCheck.Core.Modules.EventNotifications
                 {
                     config.LatestResults = config.LatestResults.Take(10).ToList();
                 }
-                saveChanges = true;
             }
 
-            if (saveChanges)
-            {
-                EventSinkNotificationConfigStorage.SaveConfig(config);
-            }
+            EventSinkNotificationConfigStorage.SaveConfig(config);
         }
 
         private async Task<string> NotifyEventAsync(EventSinkNotificationConfig config, IEventNotifier notifier,

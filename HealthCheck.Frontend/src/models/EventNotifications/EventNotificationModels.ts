@@ -21,12 +21,14 @@ export interface EventNotifierOptionDefinition {
 }
 
 export interface EventSinkNotificationConfig {
-    Id: string;
-    CreatedBy: string;
+    Id: string | null;
+    LastChangedBy: string;
     Enabled: boolean;
     NotificationCountLimit: number | null;
     FromTime: Date | null;
     ToTime: Date | null;
+    LastChangedAt: Date;
+    LastNotifiedAt: Date | null;
     NotifierConfigs: Array<NotifierConfig>;
     EventIdFilter: EventSinkNotificationConfigFilter;
     PayloadFilters: Array<EventSinkNotificationConfigFilter>;

@@ -17,92 +17,22 @@
                 </v-alert>
 
                 <h2>Configured notifications</h2>
+               
+                <v-btn :disabled="!allowConfigChanges"
+                    @click="onAddNewConfigClicked">
+                    <v-icon size="20px" class="mr-2">add</v-icon>
+                    Add new config
+                </v-btn>
 
-                <div v-for="(config, cindex) in configs"
-                    :key="`config-${cindex}`">
-
-                    <v-switch 
-                        v-model="config.Enabled" 
-                        label="Enabled"
-                        color="secondary"
-                    ></v-switch>
-
-                    <v-btn color="error" @click="deleteConfig(config)"
-                        :disabled="deleteInProgress">
-                        <v-icon size="20px" class="mr-2">delete</v-icon>
-                        Delete
-                    </v-btn>
-
-                    <pre>Created by: {{ config.CreatedBy }}</pre>
-
-                    <h3>Limits</h3>
-
-                    <v-text-field
-                        type="number"
-                        label="Notification count limit"
-                        v-model="config.NotificationCountLimit"
-                        required clearable />
-                        <!-- v-on:change="onValueChanged" -->
-                    
-                    <simple-date-time-component
-                        v-model="config.FromTime"
-                        label="From"
-                        />
-                    
-                    <simple-date-time-component
-                        v-model="config.ToTime"
-                        label="To"
-                        />
-
-                    <h3>Event id filter</h3>
-                    <config-filter-component
-                        v-model="config.EventIdFilter"
-                        :allow-property-name="false"
-                        />
-                    
-                    <h3>Payload filters</h3>
-                    <config-filter-component
-                        v-for="(payloadFilter, pfindex) in config.PayloadFilters"
-                        :key="`payloadFilter-${pfindex}`"
-                        v-model="config.PayloadFilters[pfindex]"
-                        :allow-property-name="true"
-                        />
-
-                    <h3>Notify using</h3>
-                    <div v-for="(notifierConfig, ncindex) in getValidNotifierConfigs(config)"
-                        :key="`notifierConfig-${ncindex}`">
-                        <b>{{ notifierConfig.Notifier.Name }}</b>
-                        
-                        <div v-for="(notifierConfigOption, ncoindex) in getNotifierConfigOptions(notifierConfig.Notifier, notifierConfig.Options)"
-                            :key="`notifierConfig-${ncindex}-option-${ncoindex}`"
-                            style="margin-left:20px">
-
-                            <v-text-field
-                                :label="notifierConfigOption.definition.Name"
-                                v-model="notifierConfigOption.value"
-                                v-on:input="notifierConfig.Options[notifierConfigOption.key] = $event"
-                                :hint="notifierConfigOption.definition.Description"
-                                persistent-hint
-                                required clearable />
-                        </div>
-                    </div>
-                    <v-btn>
-                        <v-icon size="20px" class="mr-2">add</v-icon>
-                        Add notifier
-                    </v-btn>
-
-                    <h3>10 last notification results</h3>
-                    <ul>
-                        <li v-if="config.LatestResults.length == 0">No results yet</li>
-                        <li
-                            v-for="(result, rindex) in config.LatestResults"
-                            :key="`LatestResults-${rindex}`">
-                            {{ result }}
-                        </li>
-                    </ul>
-                    
-                    <small>{{ config }}</small>
-                </div>
+                <event-notification-config-component
+                    v-for="(config, cindex) in configs"
+                    :key="`config-${cindex}-${config.Id}`"
+                    :config="config"
+                    :readonly="!allowConfigChanges"
+                    :options="options"
+                    v-on:configDeleted="onConfigDeleted"
+                    v-on:configSaved="onConfigSaved"
+                    />
 
                 <br /><br />
                 <hr />
@@ -134,7 +64,7 @@ import LinqUtils from "../../util/LinqUtils";
 import UrlUtils from "../../util/UrlUtils";
 import KeyArray from "../../util/models/KeyArray";
 import KeyValuePair from "../../models/Common/KeyValuePair";
-import { GetEventNotificationConfigsViewModel, IEventNotifier, EventSinkNotificationConfig, FilterMatchType, NotifierConfig, Dictionary, NotifierConfigOptionsItem } from "../../models/EventNotifications/EventNotificationModels";
+import { GetEventNotificationConfigsViewModel, IEventNotifier, EventSinkNotificationConfig, FilterMatchType, NotifierConfig, Dictionary, NotifierConfigOptionsItem, EventSinkNotificationConfigFilter } from "../../models/EventNotifications/EventNotificationModels";
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
@@ -143,12 +73,13 @@ import DataTableComponent, { DataTableGroup } from '.././Common/DataTableCompone
 import SimpleDateTimeComponent from '.././Common/SimpleDateTimeComponent.vue';
 import FilterableListComponent, { FilterableListItem } from '.././Common/FilterableListComponent.vue';
 import ConfigFilterComponent from '.././EventNotifications/ConfigFilterComponent.vue';
+import EventNotificationConfigComponent from '.././EventNotifications/EventNotificationConfigComponent.vue';
 
 @Component({
     components: {
-        DataTableComponent,
         ConfigFilterComponent,
-        SimpleDateTimeComponent
+        SimpleDateTimeComponent,
+        EventNotificationConfigComponent
     }
 })
 export default class EventNotificationsPageComponent extends Vue {
@@ -159,7 +90,7 @@ export default class EventNotificationsPageComponent extends Vue {
     dataLoadInProgress: boolean = false;
     dataLoadFailed: boolean = false;
     dataFailedErrorMessage: string = '';
-    deleteInProgress: boolean = false;
+    allowConfigChanges: boolean = true;
 
     data: GetEventNotificationConfigsViewModel | null = null;
 
@@ -182,7 +113,12 @@ export default class EventNotificationsPageComponent extends Vue {
     get configs(): Array<EventSinkNotificationConfig>
     {
         let configs = (this.data == null) ? [] : this.data.Configs;
-        configs = configs.sort((a, b) => LinqUtils.SortBy(a, b, x => x.Enabled ? 1 : 0));
+        configs = configs.sort(
+            (a, b) => LinqUtils.SortByThenBy(a, b,
+                x => x.Enabled ? 1 : 0,
+                x => (x.LastNotifiedAt == null) ? 32503676400000 : x.LastNotifiedAt.getTime(),
+                false, true)
+            );
 
         return configs;
     };
@@ -217,47 +153,88 @@ export default class EventNotificationsPageComponent extends Vue {
     onDataRetrieved(data: GetEventNotificationConfigsViewModel): void {
         this.data = data;
         this.data.Configs.forEach(config => {
-            config.FromTime = (config.FromTime == null) ? null : new Date(config.FromTime);
-            config.ToTime = (config.ToTime == null) ? null : new Date(config.ToTime);
-            
-            config.NotifierConfigs.forEach(nconfig => {
-                nconfig.Notifier = data.Notifiers.filter(x => x.Id == nconfig.NotifierId)[0];
-            });
+            this.postProcessConfig(config);
         });
 
         this.dataLoadInProgress = false;
     }
 
-    deleteConfig(config: EventSinkNotificationConfig): void {
-        this.deleteInProgress = true;
-        // this.deleteInProgress = false;
+    postProcessConfig(config: EventSinkNotificationConfig): void {
+        config.FromTime = (config.FromTime == null) ? null : new Date(config.FromTime);
+        config.ToTime = (config.ToTime == null) ? null : new Date(config.ToTime);
+        config.LastNotifiedAt = (config.LastNotifiedAt == null) ? null : new Date(config.LastNotifiedAt);
+        config.LastChangedAt = new Date(config.LastChangedAt);
+        
+        config.NotifierConfigs.forEach(nconfig => {
+            if (this.data != null)
+            {
+                nconfig.Notifier = this.data.Notifiers.filter(x => x.Id == nconfig.NotifierId)[0];
+            }
+        });
     }
 
-    getValidNotifierConfigs(config: EventSinkNotificationConfig): Array<NotifierConfig> {
-        return config.NotifierConfigs.filter(x => x.Notifier != null);
+    onConfigSaved(config: EventSinkNotificationConfig): void {
+        if (this.data == null)
+        {
+            return;
+        }
+        this.postProcessConfig(config);
+
+        console.log("Saved");
+        console.log(config);
+
+        this.data.Configs = this.data.Configs.filter(x => x.Id != config.Id);
+        this.data.Configs.push(config);
+        this.$forceUpdate();
     }
 
-    getNotifierConfigOptions(notifier: IEventNotifier, options: Dictionary<string>): Array<NotifierConfigOptionsItem> {
-        let keys = Object.keys(options);
-        return <any>keys
-            .map(key => {
-                let def = notifier.Options.filter(x => x.Id == key)[0];
-                if (def == null)
-                {
-                    return null;
-                }
-                return {
-                    key: key,
-                    definition: def,
-                    value: options[key]
-                };
-            })
-            .filter(x => x != null);
+    onConfigDeleted(config: EventSinkNotificationConfig): void {
+        if (this.data == null)
+        {
+            return;
+        }
+
+        console.log("Deleted");
+        console.log(config);
+        
+        this.data.Configs = this.data.Configs.filter(x => x.Id != config.Id);
     }
-    
+
+    createNewEventSinkNotificationConfigFilter(): EventSinkNotificationConfigFilter
+    {
+        return {
+            PropertyName: null,
+            Filter: '',
+            MatchType: FilterMatchType.Contains,
+            CaseSensitive: false
+        };
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    onAddNewConfigClicked(): void {
+        // Todo: dont add to data.Configs until it has been saved. id == null wont be removed.
+        if (this.data == null)
+        {
+            return;
+        }
+
+        this.data.Configs.push({
+            Id: null,
+            LastChangedBy: 'You',
+            Enabled: true,
+            NotificationCountLimit: null,
+            FromTime: null,
+            ToTime: null,
+            LastChangedAt: new Date(),
+            LastNotifiedAt: null,
+            NotifierConfigs: [],
+            EventIdFilter: this.createNewEventSinkNotificationConfigFilter(),
+            PayloadFilters: [],
+            LatestResults: []
+        });
+    }
 }
 </script>
 
