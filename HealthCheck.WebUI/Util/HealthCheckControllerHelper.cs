@@ -854,15 +854,11 @@ namespace HealthCheck.WebUI.Util
             config.LastChangedBy = requestInformation?.UserName ?? "Anonymous";
             config.LastChangedAt = DateTime.Now;
 
-            if (config.Enabled && config.NotifierConfigs.Count == 0)
-            {
-                config.Enabled = false;
-            }
-
             config.LatestResults = config.LatestResults ?? new List<string>();
             config.PayloadFilters = config.PayloadFilters ?? new List<EventSinkNotificationConfigFilter>();
             config.EventIdFilter = config.EventIdFilter ?? new EventSinkNotificationConfigFilter();
             config.NotifierConfigs = config.NotifierConfigs ?? new List<NotifierConfig>();
+
             config = Services.EventSink.SaveConfig(config);
 
             AuditLog_EventNotificationConfigSaved(requestInformation, config);

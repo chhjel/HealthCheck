@@ -24,16 +24,15 @@
                     Add new config
                 </v-btn>
 
-                <event-notification-config-component
+
+                <div
                     v-for="(config, cindex) in configs"
                     :key="`config-${cindex}-${config.Id}`"
-                    :config="config"
-                    :notifiers="notifiers"
-                    :readonly="!allowConfigChanges"
-                    :options="options"
-                    v-on:configDeleted="onConfigDeleted"
-                    v-on:configSaved="onConfigSaved"
-                    />
+                    @click="showConfig(config)"
+                    style="cursor: pointer"
+                    >
+                    {{ config.Id }}: {{ config.Enabled }}
+                </div>
 
                 <br /><br />
                 <hr />
@@ -50,6 +49,47 @@
             </v-flex>
             </v-layout>
             </v-container>
+            
+            <v-dialog v-model="configDialogVisible"
+                scrollable
+                persistent
+                content-class="current-config-dialog">
+                <v-card v-if="currentConfig != null">
+                    <v-toolbar class="elevation-0">
+                        <v-toolbar-title class="current-config-dialog__title">{{ currentDialogTitle }}</v-toolbar-title>
+                        <v-spacer></v-spacer>
+                        <v-btn icon
+                            @click="hideCurrentConfig()"
+                            :disabled="serverInteractionInProgress">
+                            <v-icon>close</v-icon>
+                        </v-btn>
+                    </v-toolbar>
+
+                    <v-divider></v-divider>
+                    <v-card-text style="max-height: 500px;">
+                        <event-notification-config-component
+                            :config="currentConfig"
+                            :notifiers="notifiers"
+                            :readonly="!allowConfigChanges"
+                            :options="options"
+                            v-on:configDeleted="onConfigDeleted"
+                            v-on:configSaved="onConfigSaved"
+                            v-on:serverInteractionInProgress="setServerInteractionInProgress"
+                            ref="currentConfigComponent"
+                            />
+                    </v-card-text>
+                    <v-divider></v-divider>
+                    <v-card-actions >
+                        <v-spacer></v-spacer>
+                        <v-btn color="error" flat
+                        :disabled="serverInteractionInProgress"
+                        @click="$refs.currentConfigComponent.tryDeleteConfig()">Delete</v-btn>
+                        <v-btn color="success"
+                        :disabled="serverInteractionInProgress"
+                        @click="$refs.currentConfigComponent.saveConfig()">Save</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         </v-content>
     </div>
 </template>
@@ -92,8 +132,10 @@ export default class EventNotificationsPageComponent extends Vue {
     dataLoadFailed: boolean = false;
     dataFailedErrorMessage: string = '';
     allowConfigChanges: boolean = true;
+    serverInteractionInProgress: boolean = false;
 
     data: GetEventNotificationConfigsViewModel | null = null;
+    currentConfig: EventSinkNotificationConfig | null = null;
 
     //////////////////
     //  LIFECYCLE  //
@@ -106,6 +148,18 @@ export default class EventNotificationsPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get currentDialogTitle(): string
+    {
+        return (this.currentConfig != null && this.currentConfig.Id != null)
+            ? 'Edit notification config'
+            : 'Create new notification config';
+    }
+
+    get configDialogVisible(): boolean
+    {
+        return this.currentConfig != null;
+    }
+
     get notifiers(): Array<IEventNotifier>
     {
         return (this.data == null) ? [] : this.data.Notifiers;
@@ -181,12 +235,11 @@ export default class EventNotificationsPageComponent extends Vue {
         }
         this.postProcessConfig(config);
 
-        console.log("Saved");
-        console.log(config);
-
         this.data.Configs = this.data.Configs.filter(x => x.Id != config.Id);
         this.data.Configs.push(config);
-        this.$forceUpdate();
+        // this.$forceUpdate();
+
+        this.hideCurrentConfig();
     }
 
     onConfigDeleted(config: EventSinkNotificationConfig): void {
@@ -195,33 +248,34 @@ export default class EventNotificationsPageComponent extends Vue {
             return;
         }
 
-        console.log("Deleted");
-        console.log(config);
-        
         this.data.Configs = this.data.Configs.filter(x => x.Id != config.Id);
+        this.hideCurrentConfig();
+
     }
 
-    createNewEventSinkNotificationConfigFilter(): EventSinkNotificationConfigFilter
+    showConfig(config: EventSinkNotificationConfig): void {
+        this.currentConfig = config;
+    }
+
+    hideCurrentConfig(): void {
+        this.currentConfig = null;
+    }
+    
+    setServerInteractionInProgress(inProgress: boolean): void
     {
-        return {
-            PropertyName: null,
-            Filter: '',
-            MatchType: FilterMatchType.Matches,
-            CaseSensitive: false
-        };
+        this.serverInteractionInProgress = inProgress;
     }
 
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
     onAddNewConfigClicked(): void {
-        // Todo: dont add to data.Configs until it has been saved. id == null wont be removed.
         if (this.data == null)
         {
             return;
         }
 
-        this.data.Configs.push({
+        let config = {
             Id: null,
             LastChangedBy: 'You',
             Enabled: true,
@@ -231,13 +285,24 @@ export default class EventNotificationsPageComponent extends Vue {
             LastChangedAt: new Date(),
             LastNotifiedAt: null,
             NotifierConfigs: [],
-            EventIdFilter: this.createNewEventSinkNotificationConfigFilter(),
+            EventIdFilter: {
+                PropertyName: null,
+                Filter: '',
+                MatchType: FilterMatchType.Matches,
+                CaseSensitive: false
+            },
             PayloadFilters: [],
             LatestResults: []
-        });
+        };
+
+        this.showConfig(config);
     }
 }
 </script>
 
 <style scoped lang="scss">
+.current-config-dialog__title {
+    font-size: 34px;
+    font-weight: 600;
+}
 </style>

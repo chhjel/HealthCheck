@@ -8,7 +8,7 @@
             color="secondary"
         ></v-switch>
 
-        <v-btn color="success"
+        <!-- <v-btn color="success"
             @click="onSaveConfigClicked()"
             :loading="isSaving"
             :disabled="allowChanges">
@@ -22,7 +22,7 @@
             :disabled="allowChanges">
             <v-icon size="20px" class="mr-2">delete</v-icon>
             Delete
-        </v-btn>
+        </v-btn> -->
         
         <v-alert
             :value="serverInteractionError != null && serverInteractionError.length > 0"
@@ -124,7 +124,7 @@
             </li>
         </ul>
         
-        <small>{{ config }}</small>
+        <!-- <small>{{ config }}</small> -->
 
         <v-dialog v-model="notifierDialogVisible"
             scrollable
@@ -152,7 +152,25 @@
                 </v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions>
+                    <v-spacer></v-spacer>
                     <v-btn color="secondary" flat @click="notifierDialogVisible = false">Cancel</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <v-dialog v-model="deleteDialogVisible"
+            max-width="290"
+            content-class="confirm-dialog">
+            <v-card>
+                <v-card-title class="headline">Confirm deletion</v-card-title>
+                <v-card-text>
+                    Are you sure you want to delete this configuration?
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary" @click="deleteDialogVisible = false">Cancel</v-btn>
+                    <v-btn color="error" @click="deleteConfig()">Delete it</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -187,6 +205,7 @@ export default class EventNotificationConfigComponent extends Vue {
     readonly!: boolean;
 
     notifierDialogVisible: boolean = false;
+    deleteDialogVisible: boolean = false;
     isSaving: boolean = false;
     isDeleting: boolean = false;
     serverInteractionError: string | null = null;
@@ -252,9 +271,10 @@ export default class EventNotificationConfigComponent extends Vue {
     {
         this.serverInteractionError = err;
         this.serverInteractionInProgress = inProgress;
+        this.$emit('serverInteractionInProgress', inProgress);
     }
 
-    saveConfig(): void {
+    public saveConfig(): void {
         this.isSaving = true;
         this.setServerInteractionInProgress(true);
 
@@ -287,7 +307,12 @@ export default class EventNotificationConfigComponent extends Vue {
         this.$emit('configSaved', config);
     }
 
-    deleteConfig(): void {
+    public tryDeleteConfig(): void {
+        this.deleteDialogVisible = true;
+    }
+
+    public deleteConfig(): void {
+        this.deleteDialogVisible = false;
         this.isDeleting = true;
         this.setServerInteractionInProgress(true);
 
