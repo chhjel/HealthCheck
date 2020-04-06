@@ -31,19 +31,18 @@
                     @click="showConfig(config)"
                     style="cursor: pointer"
                     >
-                    {{ config.Id }}: {{ config.Enabled }}
+                    
+                    <v-switch 
+                        v-model="config.Enabled"
+                        :disabled="!allowConfigChanges"
+                        label="Enabled"
+                        color="secondary"
+                        ></v-switch>
+                    [{{ config.Id }}] {{ config.LastChangedBy }}
+                    <br />
+
+                    <code>{{ describeConfig(config).description }}</code>
                 </div>
-
-                <br /><br />
-                <hr />
-
-                <div v-for="(notifier, nindex) in notifiers"
-                    :key="`notifier-${nindex}`">
-                    <b>{{ notifier.Name }}</b>: {{ notifier.Description }}<br />
-                    <small>{{ notifier }}</small>
-                </div>
-
-                {{ data }}
 
             </v-container>
             </v-flex>
@@ -53,6 +52,7 @@
             <v-dialog v-model="configDialogVisible"
                 scrollable
                 persistent
+                max-width="1200"
                 content-class="current-config-dialog">
                 <v-card v-if="currentConfig != null">
                     <v-toolbar class="elevation-0">
@@ -66,10 +66,12 @@
                     </v-toolbar>
 
                     <v-divider></v-divider>
+                    
                     <v-card-text style="max-height: 500px;">
                         <event-notification-config-component
                             :config="currentConfig"
                             :notifiers="notifiers"
+                            :eventdefinitions="eventDefinitions"
                             :readonly="!allowConfigChanges"
                             :options="options"
                             v-on:configDeleted="onConfigDeleted"
@@ -105,7 +107,7 @@ import LinqUtils from "../../util/LinqUtils";
 import UrlUtils from "../../util/UrlUtils";
 import KeyArray from "../../util/models/KeyArray";
 import KeyValuePair from "../../models/Common/KeyValuePair";
-import { GetEventNotificationConfigsViewModel, IEventNotifier, EventSinkNotificationConfig, FilterMatchType, NotifierConfig, Dictionary, NotifierConfigOptionsItem, EventSinkNotificationConfigFilter } from "../../models/EventNotifications/EventNotificationModels";
+import { GetEventNotificationConfigsViewModel, IEventNotifier, EventSinkNotificationConfig, FilterMatchType, NotifierConfig, Dictionary, NotifierConfigOptionsItem, EventSinkNotificationConfigFilter, KnownEventDefinition } from "../../models/EventNotifications/EventNotificationModels";
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
@@ -115,6 +117,8 @@ import SimpleDateTimeComponent from '.././Common/SimpleDateTimeComponent.vue';
 import FilterableListComponent, { FilterableListItem } from '.././Common/FilterableListComponent.vue';
 import ConfigFilterComponent from '.././EventNotifications/ConfigFilterComponent.vue';
 import EventNotificationConfigComponent from '.././EventNotifications/EventNotificationConfigComponent.vue';
+import IdUtils from "../../util/IdUtils";
+import EventSinkNotificationConfigUtils, { ConfigDescription } from "../../util/EventNotifications/EventSinkNotificationConfigUtils";
 
 @Component({
     components: {
@@ -165,6 +169,11 @@ export default class EventNotificationsPageComponent extends Vue {
         return (this.data == null) ? [] : this.data.Notifiers;
     };
 
+    get eventDefinitions(): Array<KnownEventDefinition>
+    {
+        return (this.data == null) ? [] : this.data.KnownEventDefinitions;
+    };
+
     get configs(): Array<EventSinkNotificationConfig>
     {
         let configs = (this.data == null) ? [] : this.data.Configs;
@@ -181,6 +190,45 @@ export default class EventNotificationsPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    // Invoked from parent
+    public onPageShow(): void {
+        const parts = (<any>window).eventnotificationsState;
+        if (parts != null && parts != undefined) {
+            this.updateUrl(parts);
+        }
+    }
+
+    setFromUrl(forcedParts: Array<string> | null = null): void {
+        const parts = forcedParts || UrlUtils.GetHashParts();
+        
+        let didSelectConfig = false;
+        const selectedItem = parts[1];
+        if (selectedItem !== undefined && selectedItem.length > 0) {
+            let configFromUrl = this.configs.filter(x => x.Id != null && UrlUtils.EncodeHashPart(x.Id) == selectedItem)[0];
+            if (configFromUrl != null)
+            {
+                didSelectConfig = true;
+                this.showConfig(configFromUrl);
+            }
+        }
+    }
+
+    updateUrl(parts?: Array<string> | null): void {
+        if (parts == null)
+        {
+            parts = ['eventnotifications'];
+
+            if (this.currentConfig != null && this.currentConfig.Id != null)
+            {
+                parts.push(UrlUtils.EncodeHashPart(this.currentConfig.Id));
+            }
+        }
+
+        UrlUtils.SetHashParts(parts);
+        
+        (<any>window).eventnotificationsState = parts;
+    }
+
     loadData(): void {
         this.dataLoadInProgress = true;
         this.dataLoadFailed = false;
@@ -208,32 +256,22 @@ export default class EventNotificationsPageComponent extends Vue {
     onDataRetrieved(data: GetEventNotificationConfigsViewModel): void {
         this.data = data;
         this.data.Configs.forEach(config => {
-            this.postProcessConfig(config);
+            EventSinkNotificationConfigUtils.postProcessConfig(config, this.notifiers);
         });
 
         this.dataLoadInProgress = false;
+        
+        const originalUrlHashParts = UrlUtils.GetHashParts();
+        this.setFromUrl(originalUrlHashParts);
     }
 
-    postProcessConfig(config: EventSinkNotificationConfig): void {
-        config.FromTime = (config.FromTime == null) ? null : new Date(config.FromTime);
-        config.ToTime = (config.ToTime == null) ? null : new Date(config.ToTime);
-        config.LastNotifiedAt = (config.LastNotifiedAt == null) ? null : new Date(config.LastNotifiedAt);
-        config.LastChangedAt = new Date(config.LastChangedAt);
-        
-        config.NotifierConfigs.forEach(nconfig => {
-            if (this.data != null)
-            {
-                nconfig.Notifier = this.data.Notifiers.filter(x => x.Id == nconfig.NotifierId)[0];
-            }
-        });
-    }
 
     onConfigSaved(config: EventSinkNotificationConfig): void {
         if (this.data == null)
         {
             return;
         }
-        this.postProcessConfig(config);
+        EventSinkNotificationConfigUtils.postProcessConfig(config, this.notifiers);
 
         this.data.Configs = this.data.Configs.filter(x => x.Id != config.Id);
         this.data.Configs.push(config);
@@ -255,15 +293,22 @@ export default class EventNotificationsPageComponent extends Vue {
 
     showConfig(config: EventSinkNotificationConfig): void {
         this.currentConfig = config;
+        this.updateUrl();
     }
 
     hideCurrentConfig(): void {
         this.currentConfig = null;
+        this.updateUrl();
     }
     
     setServerInteractionInProgress(inProgress: boolean): void
     {
         this.serverInteractionInProgress = inProgress;
+    }
+
+    describeConfig(config: EventSinkNotificationConfig): ConfigDescription
+    {
+        return EventSinkNotificationConfigUtils.describeConfig(config);
     }
 
     ///////////////////////
@@ -289,7 +334,8 @@ export default class EventNotificationsPageComponent extends Vue {
                 PropertyName: null,
                 Filter: '',
                 MatchType: FilterMatchType.Matches,
-                CaseSensitive: false
+                CaseSensitive: false,
+                _frontendId: IdUtils.generateId()
             },
             PayloadFilters: [],
             LatestResults: []

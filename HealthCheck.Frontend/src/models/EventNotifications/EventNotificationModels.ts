@@ -5,6 +5,7 @@ export interface Dictionary<T> {
 export interface GetEventNotificationConfigsViewModel {
     Notifiers: Array<IEventNotifier>;
     Configs: Array<EventSinkNotificationConfig>;
+    KnownEventDefinitions: Array<KnownEventDefinition>;
 }
 
 export interface IEventNotifier {
@@ -52,10 +53,18 @@ export interface EventSinkNotificationConfigFilter {
     Filter: string;
     MatchType: FilterMatchType;
     CaseSensitive: boolean;
+
+    _frontendId: string;
 }
 
 export enum FilterMatchType {
     Contains = 'Contains',
     Matches = 'Matches',
     RegEx = 'RegEx'
+}
+
+export interface KnownEventDefinition {
+    EventId: string;
+    PayloadProperties: Array<string>;
+    IsStringified: boolean;
 }

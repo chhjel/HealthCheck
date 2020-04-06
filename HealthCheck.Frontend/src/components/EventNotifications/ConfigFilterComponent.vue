@@ -62,7 +62,7 @@ import { EventSinkNotificationConfigFilter, FilterMatchType } from "../../models
 })
 export default class ConfigFilterComponent extends Vue {
     @Prop({ required: true })
-    value!: EventSinkNotificationConfigFilter;
+    config!: EventSinkNotificationConfigFilter;
     @Prop({ required: true })
     allowPropertyName!: boolean;
     @Prop({ required: false, default: false })
@@ -80,11 +80,11 @@ export default class ConfigFilterComponent extends Vue {
     //  LIFECYCLE  //
     ////////////////
     beforeMount(): void {
-        this.matchType = this.value.MatchType;
-        this.filter = this.value.Filter || '';
-        this.propertyName = this.value.PropertyName;
-        this.caseSensitive = this.value.CaseSensitive;
-        this.isMatchingOnStringified = this.showPropertyName && this.propertyName == null;
+        this.matchType = this.config.MatchType;
+        this.filter = this.config.Filter || '';
+        this.propertyName = this.config.PropertyName;
+        this.caseSensitive = this.config.CaseSensitive;
+        this.isMatchingOnStringified = !this.allowPropertyName || this.propertyName == null;
     }
 
     ////////////////
@@ -114,7 +114,7 @@ export default class ConfigFilterComponent extends Vue {
     //  METHODS  //
     //////////////
     remove(): void {
-        this.$emit('delete', this.value);
+        this.$emit('delete', this.config);
     }
 
     ///////////////////////
@@ -137,8 +137,8 @@ export default class ConfigFilterComponent extends Vue {
             CaseSensitive: this.caseSensitive
         }
 
-        let updatedObject = {...this.value, ...freshValues };
-        this.$emit('input', updatedObject);
+        let updatedObject = {...this.config, ...freshValues };
+        this.$emit('change', updatedObject);
     }
 }
 </script>

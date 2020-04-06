@@ -17,6 +17,11 @@ namespace HealthCheck.WebUI.Models
         /// <summary>
         /// All defined configs.
         /// </summary>
-        public IEnumerable<EventSinkNotificationConfig> Configs { get; internal set; }
+        public IEnumerable<EventSinkNotificationConfig> Configs { get; set; }
+        
+        /// <summary>
+        /// All known event definitions.
+        /// </summary>
+        public IEnumerable<KnownEventDefinition> KnownEventDefinitions { get; set; }
     }
 }

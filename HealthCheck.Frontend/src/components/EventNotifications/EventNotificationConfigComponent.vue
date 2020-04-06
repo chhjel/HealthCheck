@@ -1,8 +1,11 @@
 <!-- src/components/Common/EventNotificationConfigComponent.vue -->
 <template>
     <div class="root">
+
+        {{ description }}
+
         <v-switch 
-            v-model="config.Enabled" 
+            v-model="internalConfig.Enabled" 
             :disabled="allowChanges"
             label="Enabled"
             color="secondary"
@@ -13,7 +16,7 @@
             :loading="isSaving"
             :disabled="allowChanges">
             <v-icon size="20px" class="mr-2">save</v-icon>
-            {{ (config.Id == null ? 'Save new notification config' : 'Save changes') }}
+            {{ (internalConfig.Id == null ? 'Save new notification config' : 'Save changes') }}
         </v-btn>
 
         <v-btn color="error"
@@ -30,11 +33,11 @@
             {{ serverInteractionError }}
         </v-alert>
 
-        <pre v-if="config.LastChangedBy != null && config.LastChangedBy.length > 0">
-            Last changed at {{ formatDate(config.LastChangedAt) }} by '{{ config.LastChangedBy }}' 
+        <pre v-if="internalConfig.LastChangedBy != null && internalConfig.LastChangedBy.length > 0">
+            Last changed at {{ formatDate(internalConfig.LastChangedAt) }} by '{{ internalConfig.LastChangedBy }}' 
         </pre>
-        <pre v-if="config.LastNotifiedAt != null">
-            Last notified at {{ formatDate(config.LastNotifiedAt) }}
+        <pre v-if="internalConfig.LastNotifiedAt != null">
+            Last notified at {{ formatDate(internalConfig.LastNotifiedAt) }}
         </pre>
 
         <h3>Limits</h3>
@@ -42,41 +45,43 @@
         <v-text-field
             type="number"
             label="Notification count remaining"
-            v-model="config.NotificationCountLimit"
+            v-model="internalConfig.NotificationCountLimit"
             :disabled="allowChanges"
             required clearable />
             <!-- v-on:change="onValueChanged" -->
         
         <simple-date-time-component
-            v-model="config.FromTime"
+            v-model="internalConfig.FromTime"
             :readonly="allowChanges"
             label="From"
             />
         
         <simple-date-time-component
-            v-model="config.ToTime"
+            v-model="internalConfig.ToTime"
             :readonly="allowChanges"
             label="To"
             />
 
         <h3>Event id filter</h3>
         <config-filter-component
-            v-model="config.EventIdFilter"
+            :config="internalConfig.EventIdFilter"
             :allow-property-name="false"
             :readonly="allowChanges"
+            @change="internalConfig.EventIdFilter = $event"
             />
         
         <h3>Payload filters</h3>
         <config-filter-component
-            v-for="(payloadFilter, pfindex) in config.PayloadFilters"
-            :key="`payloadFilter-${pfindex}`"
-            v-model="config.PayloadFilters[pfindex]"
+            v-for="(payloadFilter, pfindex) in internalConfig.PayloadFilters"
+            :key="`payloadFilter-${pfindex}-${payloadFilter._frontendId}`"
+            :config="payloadFilter"
             :readonly="allowChanges"
             :allow-property-name="true"
             :allow-delete="true"
             @delete="onConfigFilterDelete(pfindex)"
+            @change="internalConfig.PayloadFilters[pfindex] = $event"
             />
-        <small v-if="config.PayloadFilters.length == 0">No payload filters added.</small>
+        <small v-if="internalConfig.PayloadFilters.length == 0">No payload filters added.</small>
         <v-btn :disabled="allowChanges"
             @click="onAddPayloadFilterClicked">
             <v-icon size="20px" class="mr-2">add</v-icon>
@@ -84,7 +89,7 @@
         </v-btn>
 
         <h3>Notify using</h3>
-        <div v-for="(notifierConfig, ncindex) in getValidNotifierConfigs(config)"
+        <div v-for="(notifierConfig, ncindex) in getValidNotifierConfigs()"
             :key="`notifierConfig-${ncindex}`">
 
             <b>{{ notifierConfig.Notifier.Name }}</b>
@@ -116,15 +121,13 @@
 
         <h3>10 last notification results</h3>
         <ul>
-            <li v-if="config.LatestResults.length == 0">No results yet</li>
+            <li v-if="internalConfig.LatestResults.length == 0">No results yet</li>
             <li
-                v-for="(result, rindex) in config.LatestResults"
+                v-for="(result, rindex) in internalConfig.LatestResults"
                 :key="`LatestResults-${rindex}`">
                 {{ result }}
             </li>
         </ul>
-        
-        <!-- <small>{{ config }}</small> -->
 
         <v-dialog v-model="notifierDialogVisible"
             scrollable
@@ -178,12 +181,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import { EventSinkNotificationConfigFilter, FilterMatchType, EventSinkNotificationConfig, NotifierConfig, Dictionary, IEventNotifier, NotifierConfigOptionsItem } from "../../models/EventNotifications/EventNotificationModels";
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { EventSinkNotificationConfigFilter, FilterMatchType, EventSinkNotificationConfig, NotifierConfig, Dictionary, IEventNotifier, NotifierConfigOptionsItem, KnownEventDefinition } from "../../models/EventNotifications/EventNotificationModels";
 import SimpleDateTimeComponent from '.././Common/SimpleDateTimeComponent.vue';
 import ConfigFilterComponent from '.././EventNotifications/ConfigFilterComponent.vue';
 import FrontEndOptionsViewModel from "../../models/Page/FrontEndOptionsViewModel";
 import DateUtils from "../../util/DateUtils";
+import IdUtils from "../../util/IdUtils";
+import EventSinkNotificationConfigUtils from "../../util/EventNotifications/EventSinkNotificationConfigUtils";
 
 @Component({
     components: {
@@ -201,9 +206,15 @@ export default class EventNotificationConfigComponent extends Vue {
     @Prop({ required: false, default: null })
     notifiers!: Array<IEventNotifier> | null;
 
+    @Prop({ required: false, default: null})
+    eventdefinitions!: Array<KnownEventDefinition> | null;
+
     @Prop({ required: false, default: false })
     readonly!: boolean;
 
+    // @ts-ignore
+    internalConfig: EventSinkNotificationConfig = null;
+    ASD!: EventSinkNotificationConfig;
     notifierDialogVisible: boolean = false;
     deleteDialogVisible: boolean = false;
     isSaving: boolean = false;
@@ -214,7 +225,15 @@ export default class EventNotificationConfigComponent extends Vue {
     //////////////////
     //  LIFECYCLE  //
     ////////////////
-    beforeMount(): void {
+    created(): void {
+        this.onConfigChanged();
+    }
+
+    @Watch("config")
+    onConfigChanged(): void {
+        let intConfig = JSON.parse(JSON.stringify(this.config));
+        EventSinkNotificationConfigUtils.postProcessConfig(intConfig, this.notifiers);
+        this.internalConfig = intConfig;
     }
 
     ////////////////
@@ -224,14 +243,19 @@ export default class EventNotificationConfigComponent extends Vue {
         return this.readonly || this.serverInteractionInProgress;
     }
 
+    get description(): string
+    {
+        return EventSinkNotificationConfigUtils.describeConfig(this.internalConfig).description;
+    }
+
     ////////////////
     //  METHODS  //
     //////////////
     removeValidNotifierConfig(visibleIndex: number): void {
         let index = -1;
-        for(let i=0;i<this.config.NotifierConfigs.length;i++)
+        for(let i=0;i<this.internalConfig.NotifierConfigs.length;i++)
         {
-            if (this.config.NotifierConfigs[i].Notifier == null)
+            if (this.internalConfig.NotifierConfigs[i].Notifier == null)
             {
                 continue;
             }
@@ -239,14 +263,14 @@ export default class EventNotificationConfigComponent extends Vue {
 
             if (index == visibleIndex)
             {
-                this.config.NotifierConfigs.splice(i, 1);
+                this.internalConfig.NotifierConfigs.splice(i, 1);
                 return;
             }
         }
     }
 
-    getValidNotifierConfigs(config: EventSinkNotificationConfig): Array<NotifierConfig> {
-        return config.NotifierConfigs.filter(x => x.Notifier != null);
+    getValidNotifierConfigs(): Array<NotifierConfig> {
+        return this.internalConfig.NotifierConfigs.filter(x => x.Notifier != null);
     }
 
     getNotifierConfigOptions(notifier: IEventNotifier, options: Dictionary<string>): Array<NotifierConfigOptionsItem> {
@@ -281,7 +305,7 @@ export default class EventNotificationConfigComponent extends Vue {
         let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
         let url = `${this.options.SaveEventNotificationConfigEndpoint}${queryStringIfEnabled}`;
         let payload = {
-            config: this.config
+            config: this.internalConfig
         };
         fetch(url, {
             credentials: 'include',
@@ -301,10 +325,10 @@ export default class EventNotificationConfigComponent extends Vue {
         });
     }
 
-    onConfigSaved(config: EventSinkNotificationConfig): void {
+    onConfigSaved(newConfig: EventSinkNotificationConfig): void {
         this.isSaving = false;
         this.setServerInteractionInProgress(false);
-        this.$emit('configSaved', config);
+        this.$emit('configSaved', newConfig);
     }
 
     public tryDeleteConfig(): void {
@@ -319,7 +343,7 @@ export default class EventNotificationConfigComponent extends Vue {
         let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
         let url = `${this.options.DeleteEventNotificationConfigEndpoint}${queryStringIfEnabled}`;
         let payload = {
-            configId: this.config.Id
+            configId: this.internalConfig.Id
         };
         fetch(url, {
             credentials: 'include',
@@ -369,7 +393,7 @@ export default class EventNotificationConfigComponent extends Vue {
 
     onAddNotifierClicked(notifier: IEventNotifier): void {
         this.notifierDialogVisible = false;
-        this.config.NotifierConfigs.push({
+        this.internalConfig.NotifierConfigs.push({
             NotifierId: notifier.Id,
             Notifier: notifier,
             Options: this.createOptionsObjectFor(notifier)
@@ -377,20 +401,17 @@ export default class EventNotificationConfigComponent extends Vue {
     }
 
     onAddPayloadFilterClicked(): void {
-        this.config.PayloadFilters.push({
+        this.internalConfig.PayloadFilters.push({
             PropertyName: null,
             Filter: '',
             MatchType: FilterMatchType.Contains,
-            CaseSensitive: false
+            CaseSensitive: false,
+            _frontendId: IdUtils.generateId()
         });
     }
 
     onConfigFilterDelete(filterIndex: number): void {
-        // todo: data is correct, view in list is not
-        console.log(`onConfigFilterDelete(${filterIndex})`)
-        console.log({ state: "Before", value: this.config.PayloadFilters.map(x => x.Filter) });
-        this.config.PayloadFilters.splice(filterIndex, 1);
-        console.log({ state: "After", value: this.config.PayloadFilters.map(x => x.Filter) });
+        this.internalConfig.PayloadFilters.splice(filterIndex, 1);
     }
 }
 </script>

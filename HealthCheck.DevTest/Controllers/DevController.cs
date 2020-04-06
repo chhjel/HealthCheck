@@ -45,6 +45,9 @@ namespace HealthCheck.DevTest.Controllers
         private static readonly TestMemoryStream otherStream2 = new TestMemoryStream(null);
         private static readonly FlatFileEventSinkNotificationConfigStorage EventSinkNotificationConfigStorage
             = new FlatFileEventSinkNotificationConfigStorage(@"c:\temp\eventconfigs.json");
+        private static readonly FlatFileEventSinkKnownEventDefinitionsStorage EventSinkNotificationDefinitionStorage
+            = new FlatFileEventSinkKnownEventDefinitionsStorage(@"c:\temp\eventconfig_defs.json");
+        
 
         #region Init
         public DevController()
@@ -92,7 +95,7 @@ namespace HealthCheck.DevTest.Controllers
                 }
             });
             Services.SettingsService = new FlatFileHealthCheckSettingsService<TestSettings>(@"C:\temp\settings.json");
-            Services.EventSink = new DefaultEventDataSink(EventSinkNotificationConfigStorage)
+            Services.EventSink = new DefaultEventDataSink(EventSinkNotificationConfigStorage, EventSinkNotificationDefinitionStorage)
                 .AddNotifier(new WebHookEventNotifier())
                 .AddNotifier(new DevNotifier());
 
@@ -213,6 +216,12 @@ namespace HealthCheck.DevTest.Controllers
 
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequestBase request)
         {
+            Services.EventSink.RegisterEvent("GetRequestInfo", new
+            {
+                Type = this.GetType().Name,
+                Path = Request?.Path
+            });
+
             var roles = RuntimeTestAccessRole.Guest;
             if (request.QueryString["noaccess"] != null)
             {

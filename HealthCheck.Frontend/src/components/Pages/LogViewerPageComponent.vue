@@ -447,7 +447,7 @@ export default class LogViewerPageComponent extends Vue {
         }
 
         if (query.MustContain.length > 0) {
-            let needles = "'" + query.MustContain.joinForSentence("', '", "and") + "'";
+            let needles = "'" + query.MustContain.joinForSentence("', '", "' and '") + "'";
             parts.push(`${prefix}contain ${needles}.`);
         }
 

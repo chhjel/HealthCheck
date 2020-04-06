@@ -10,15 +10,42 @@ namespace HealthCheck.Core.Modules.EventNotifications
     /// </summary>
     public class DefaultEventDataSink : IEventDataSink
     {
+        /// <summary>
+        /// Only store this amount of event definitions. Defaults to 1000.
+        /// </summary>
+        public int EventDefinitionSizeLimit { get; set; } = 1000;
+
         private IEventSinkNotificationConfigStorage EventSinkNotificationConfigStorage { get; set; }
+        private IEventSinkKnownEventDefinitionsStorage EventSinkKnownEventDefinitionsStorage { get; }
         private List<IEventNotifier> Notifiers { get; set; } = new List<IEventNotifier>();
+
+        private static object _cacheUpdateLock = new object();
+        private static Dictionary<string, KnownEventDefinition> KnownEventDefinitionsCache { get; set; }
+        private static List<KnownEventDefinition> KnownEventDefinitionsListCache { get; set; }
+        private static int KnownEventDefinitionsCacheSize { get; set; }
 
         /// <summary>
         /// Collects generic events, runs them through any custom filters and notifies any connected <see cref="IEventNotifier"/>
         /// </summary>
-        public DefaultEventDataSink(IEventSinkNotificationConfigStorage eventSinkNotificationConfigStorage)
+        public DefaultEventDataSink(
+            IEventSinkNotificationConfigStorage eventSinkNotificationConfigStorage,
+            IEventSinkKnownEventDefinitionsStorage eventSinkKnownEventDefinitionsStorage
+        )
         {
             EventSinkNotificationConfigStorage = eventSinkNotificationConfigStorage;
+            EventSinkKnownEventDefinitionsStorage = eventSinkKnownEventDefinitionsStorage;
+
+            EnsureDefinitionsAreLoaded();
+        }
+
+        /// <summary>
+        /// Get definitionss of all known event ids.
+        /// </summary>
+        public IEnumerable<KnownEventDefinition> GetKnownEventDefinitions()
+        {
+            lock (_cacheUpdateLock) {
+                return KnownEventDefinitionsListCache;
+            }
         }
 
         /// <summary>
@@ -137,6 +164,8 @@ namespace HealthCheck.Core.Modules.EventNotifications
                 }
             }
 
+            EnsureDefinition(eventId, payloadProperties, payloadIsComplex);
+
             foreach (var config in configs)
             {
                 var notifiersForThisConfig = notifiers
@@ -168,6 +197,49 @@ namespace HealthCheck.Core.Modules.EventNotifications
                         });
                     }
                 }
+            }
+        }
+
+        private void EnsureDefinitionsAreLoaded()
+        {
+            lock (_cacheUpdateLock)
+            {
+                if (KnownEventDefinitionsListCache == null)
+                {
+                    KnownEventDefinitionsCache = new Dictionary<string, KnownEventDefinition>();
+                    KnownEventDefinitionsListCache = new List<KnownEventDefinition>();
+
+                    var defs = EventSinkKnownEventDefinitionsStorage?.GetDefinitions()?.Where(x => x?.EventId != null) ?? Enumerable.Empty<KnownEventDefinition>();
+                    foreach (var def in defs)
+                    {
+                        KnownEventDefinitionsCache[def.EventId] = def;
+                        KnownEventDefinitionsListCache.Add(def);
+                    }
+                }
+            }
+        }
+
+        private void EnsureDefinition(string eventId, Dictionary<string, string> payloadProperties, bool payloadIsComplex)
+        {
+            lock(_cacheUpdateLock)
+            {
+                if (KnownEventDefinitionsCache.ContainsKey(eventId) || KnownEventDefinitionsCacheSize > EventDefinitionSizeLimit)
+                {
+                    return;
+                }
+
+                var newDefinition = new KnownEventDefinition()
+                {
+                    EventId = eventId,
+                    IsStringified = !payloadIsComplex,
+                    PayloadProperties = payloadProperties.Select(x => x.Key).ToList()
+                };
+
+                KnownEventDefinitionsCache[eventId] = newDefinition;
+                KnownEventDefinitionsListCache.Add(newDefinition);
+                KnownEventDefinitionsCacheSize++;
+
+                EventSinkKnownEventDefinitionsStorage.InsertDefinition(newDefinition);
             }
         }
 

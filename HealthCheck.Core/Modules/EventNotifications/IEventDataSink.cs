@@ -52,5 +52,10 @@ namespace HealthCheck.Core.Modules.EventNotifications
         /// <para>An anonymous object works fine.</para>
         /// </param>
         void RegisterEvent<T>(string eventId, T payload);
+
+        /// <summary>
+        /// Get definitions of all known event ids.
+        /// </summary>
+        IEnumerable<KnownEventDefinition> GetKnownEventDefinitions();
     }
 }

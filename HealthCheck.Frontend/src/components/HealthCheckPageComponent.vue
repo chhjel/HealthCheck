@@ -249,6 +249,12 @@ export default class HealthCheckPageComponent extends Vue {
                 if (documentationPage != undefined) {
                     documentationPage.onPageShow();
                 }
+            } else if (page == this.PAGE_EVENTNOTIFICATIONS) {
+                UrlUtils.SetHashPart(0, page);
+                const eventNotificationsPage = (<EventNotificationsPageComponent>this.$refs.eventNotificationsPage);
+                if (eventNotificationsPage != undefined) {
+                    eventNotificationsPage.onPageShow();
+                }
             } else {
                 UrlUtils.SetHashParts([page]);
             }

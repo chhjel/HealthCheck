@@ -823,10 +823,12 @@ namespace HealthCheck.WebUI.Util
 
             var notifiers = Services.EventSink.GetNotifiers();
             var configs = Services.EventSink.GetConfigs();
+            var definitions = Services.EventSink.GetKnownEventDefinitions();
             return new GetEventNotificationConfigsViewModel()
             {
                 Notifiers = notifiers,
-                Configs = configs
+                Configs = configs,
+                KnownEventDefinitions = definitions
             };
         }
 
