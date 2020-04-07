@@ -1,133 +1,187 @@
 <!-- src/components/Common/EventNotificationConfigComponent.vue -->
 <template>
     <div class="root">
-
-        {{ description }}
-
-        <v-switch 
-            v-model="internalConfig.Enabled" 
-            :disabled="allowChanges"
-            label="Enabled"
-            color="secondary"
-        ></v-switch>
-
-        <!-- <v-btn color="success"
-            @click="onSaveConfigClicked()"
-            :loading="isSaving"
-            :disabled="allowChanges">
-            <v-icon size="20px" class="mr-2">save</v-icon>
-            {{ (internalConfig.Id == null ? 'Save new notification config' : 'Save changes') }}
-        </v-btn>
-
-        <v-btn color="error"
-            @click="onDeleteConfigClicked()"
-            :loading="isDeleting"
-            :disabled="allowChanges">
-            <v-icon size="20px" class="mr-2">delete</v-icon>
-            Delete
-        </v-btn> -->
-        
         <v-alert
             :value="serverInteractionError != null && serverInteractionError.length > 0"
             type="error" >
             {{ serverInteractionError }}
         </v-alert>
 
-        <pre v-if="internalConfig.LastChangedBy != null && internalConfig.LastChangedBy.length > 0">
-            Last changed at {{ formatDate(internalConfig.LastChangedAt) }} by '{{ internalConfig.LastChangedBy }}' 
-        </pre>
-        <pre v-if="internalConfig.LastNotifiedAt != null">
-            Last notified at {{ formatDate(internalConfig.LastNotifiedAt) }}
-        </pre>
-
-        <h3>Limits</h3>
-
-        <v-text-field
-            type="number"
-            label="Notification count remaining"
-            v-model="internalConfig.NotificationCountLimit"
-            :disabled="allowChanges"
-            required clearable />
-            <!-- v-on:change="onValueChanged" -->
-        
-        <simple-date-time-component
-            v-model="internalConfig.FromTime"
-            :readonly="allowChanges"
-            label="From"
-            />
-        
-        <simple-date-time-component
-            v-model="internalConfig.ToTime"
-            :readonly="allowChanges"
-            label="To"
-            />
-
-        <h3>Event id filter</h3>
-        <config-filter-component
-            :config="internalConfig.EventIdFilter"
-            :allow-property-name="false"
-            :readonly="allowChanges"
-            @change="internalConfig.EventIdFilter = $event"
-            />
-        
-        <h3>Payload filters</h3>
-        <config-filter-component
-            v-for="(payloadFilter, pfindex) in internalConfig.PayloadFilters"
-            :key="`payloadFilter-${pfindex}-${payloadFilter._frontendId}`"
-            :config="payloadFilter"
-            :readonly="allowChanges"
-            :allow-property-name="true"
-            :allow-delete="true"
-            @delete="onConfigFilterDelete(pfindex)"
-            @change="internalConfig.PayloadFilters[pfindex] = $event"
-            />
-        <small v-if="internalConfig.PayloadFilters.length == 0">No payload filters added.</small>
-        <v-btn :disabled="allowChanges"
-            @click="onAddPayloadFilterClicked">
-            <v-icon size="20px" class="mr-2">add</v-icon>
-            Add payload filter
-        </v-btn>
-
-        <h3>Notify using</h3>
-        <div v-for="(notifierConfig, ncindex) in getValidNotifierConfigs()"
-            :key="`notifierConfig-${ncindex}`">
-
-            <b>{{ notifierConfig.Notifier.Name }}</b>
-            <v-btn color="error"
-                @click="removeValidNotifierConfig(ncindex)"
-                :disabled="allowChanges">
-                <v-icon size="20px" class="mr-2">delete</v-icon>
-            </v-btn>
-            
-            <div v-for="(notifierConfigOption, ncoindex) in getNotifierConfigOptions(notifierConfig.Notifier, notifierConfig.Options)"
-                :key="`notifierConfig-${ncindex}-option-${ncoindex}`"
-                style="margin-left:20px">
-
-                <v-text-field
-                    :label="notifierConfigOption.definition.Name"
-                    v-model="notifierConfigOption.value"
-                    v-on:input="notifierConfig.Options[notifierConfigOption.key] = $event"
-                    :hint="notifierConfigOption.definition.Description"
-                    :disabled="allowChanges"
-                    persistent-hint
-                    required clearable />
+        <div class="right">
+            <div class="metadata-chip"
+                v-if="internalConfig.LastChangedBy != null && internalConfig.LastChangedBy.length > 0">
+                Last changed at {{ formatDate(internalConfig.LastChangedAt) }} by '{{ internalConfig.LastChangedBy }}'
+            </div>
+            <div class="metadata-chip"
+                v-if="internalConfig.LastNotifiedAt != null">
+                Last notified at {{ formatDate(internalConfig.LastNotifiedAt) }}
             </div>
         </div>
-        <small v-if="getValidNotifierConfigs(config).length == 0">No notifiers added, config will be disabled.</small>
-        <v-btn :disabled="allowChanges" @click.stop="notifierDialogVisible = true" v-if="notifiers != null">
-            <v-icon size="20px" class="mr-2">add</v-icon>
-            Add notifier
-        </v-btn>
+        <v-switch 
+            v-model="internalConfig.Enabled" 
+            :disabled="!allowChanges"
+            label="Enabled"
+            color="secondary"
+            class="left mr-2"
+        ></v-switch>
+        <div style="clear:both"></div>
 
-        <h3>10 last notification results</h3>
-        <ul>
-            <li v-if="internalConfig.LatestResults.length == 0">No results yet</li>
-            <li
-                v-for="(result, rindex) in internalConfig.LatestResults"
-                :key="`LatestResults-${rindex}`">
-                {{ result }}
-            </li>
-        </ul>
+        <h5>Summary</h5>
+        <code style="color: #333">{{ description }}</code>
+
+        <!-- ###### EVENT ID ###### -->
+        <div class="config-section">
+            <h3>Event id to listen for</h3>
+            <v-combobox
+                v-model="internalConfig.EventIdFilter.Filter"
+                :items="knownEventIds"
+                :readonly="!allowChanges"
+                no-data-text="Unknown event id."
+                placeholder="Event id"
+                class="without-label"
+                >
+            </v-combobox>
+        <!-- label="Event id" -->
+        <!-- </div> -->
+        <!-- prepend-icon="mdi-city" -->
+        <!-- :hint="!isEditing ? 'Click the icon to edit' : 'Click the icon to save'" -->
+        <!-- <config-filter-component
+            :config="internalConfig.EventIdFilter"
+            :allow-property-name="false"
+            :readonly="!allowChanges"
+            @change="internalConfig.EventIdFilter = $event"
+            /> -->
+        
+        <!-- ###### PAYLOAD FILTERS ###### -->
+        <!-- <div class="config-section"> -->
+            <h3>Filters</h3>
+            <config-filter-component
+                v-for="(payloadFilter, pfindex) in internalConfig.PayloadFilters"
+                :key="`payloadFilter-${pfindex}-${payloadFilter._frontendId}`"
+                class="payload-filter"
+                :config="payloadFilter"
+                :readonly="!allowChanges"
+                :allow-property-name="true"
+                :allow-delete="true"
+                @delete="onConfigFilterDelete(pfindex)"
+                @change="onConfigFilterChanged(pfindex, $event)"
+                />
+            <small v-if="internalConfig.PayloadFilters.length == 0">No event payload filters added.</small>
+
+            <div style="margin-top: 20px;">
+                <v-btn :disabled="!allowChanges"
+                    @click="onAddPayloadFilterClicked(null)">
+                    <v-icon size="20px" class="mr-2">add</v-icon>
+                    Add payload filter
+                </v-btn>
+
+                <div v-if="suggestedPayloadProperties.length > 0" style="display: inline-block;">
+                    <small>Suggested for selected event id:</small>
+                    <v-chip
+                        v-for="(suggestedPayloadProperty, sppIndex) in suggestedPayloadProperties"
+                        :key="`suggested-payload-property-${sppIndex}`"
+                        color="primary" outline
+                        class="suggested-payload-property-choice"
+                        @click="onSuggestedPayloadFilterClicked(suggestedPayloadProperty)">
+                        {{ suggestedPayloadProperty }}
+                        <v-icon right>add</v-icon>
+                    </v-chip>
+                    <!-- <v-chip
+                        color="primary" outline
+                        class="suggested-payload-property-choice"
+                        @click="onAddPayloadFilterClicked">
+                        Other
+                        <v-icon right>add</v-icon>
+                    </v-chip> -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ###### NOTIFICATION ###### -->
+        <div class="config-section">
+            <h3>Notifications</h3>
+            <div v-for="(notifierConfig, ncindex) in getValidNotifierConfigs()"
+                :key="`notifierConfig-${ncindex}`">
+
+                <b>{{ notifierConfig.Notifier.Name }}</b>
+                <v-btn color="error"
+                    @click="removeValidNotifierConfig(ncindex)"
+                    :disabled="!allowChanges">
+                    <v-icon size="20px" class="mr-2">delete</v-icon>
+                </v-btn>
+                
+                <div v-for="(notifierConfigOption, ncoindex) in getNotifierConfigOptions(notifierConfig.Notifier, notifierConfig.Options)"
+                    :key="`notifierConfig-${ncindex}-option-${ncoindex}`"
+                    style="margin-left:20px">
+
+                    <v-text-field
+                        :label="notifierConfigOption.definition.Name"
+                        v-model="notifierConfigOption.value"
+                        v-on:input="notifierConfig.Options[notifierConfigOption.key] = $event"
+                        :hint="notifierConfigOption.definition.Description"
+                        :disabled="!allowChanges"
+                        persistent-hint
+                        required clearable />
+                </div>
+            </div>
+            <small v-if="getValidNotifierConfigs(config).length == 0">No notifiers added, config will be disabled.</small>
+            <v-btn :disabled="!allowChanges" @click.stop="notifierDialogVisible = true" v-if="notifiers != null">
+                <v-icon size="20px" class="mr-2">add</v-icon>
+                Add notifier
+            </v-btn>
+
+            <!-- 
+                //TODO: move to popup button on the right of input fields
+                <div v-if="possiblePlaceholders.length > 0"> 
+                <small>Known available placeholders:</small>
+                <v-chip
+                    v-for="(placeholder, placeholderIndex) in possiblePlaceholders"
+                    :key="`suggested-placeholder-${placeholderIndex}`"
+                    color="primary" outline
+                    class="suggested-payload-property-choice"
+                    @click="onSuggestedPlaceholderClicked(placeholder)">
+                    {{ `\{${placeholder.toUpperCase().trim()}\}` }}
+                    <v-icon right>add</v-icon>
+                </v-chip>
+            </div> -->
+        </div>
+
+        <!-- ###### LIMITS ###### -->
+        <div class="config-section">
+            <h3>Limits</h3>
+            <v-text-field
+                type="number"
+                label="Notification count remaining"
+                v-model="internalConfig.NotificationCountLimit"
+                :disabled="!allowChanges"
+                required clearable />
+                <!-- v-on:change="onValueChanged" -->
+            
+            <simple-date-time-component
+                v-model="internalConfig.FromTime"
+                :readonly="!allowChanges"
+                label="From"
+                />
+            
+            <simple-date-time-component
+                v-model="internalConfig.ToTime"
+                :readonly="!allowChanges"
+                label="To"
+                />
+        </div>
+
+        <!-- ###### LOG ###### -->
+        <div class="config-section">
+            <h3>Last 10 notification results</h3>
+            <ul>
+                <li v-if="internalConfig.LatestResults.length == 0">No results yet</li>
+                <li
+                    v-for="(result, rindex) in internalConfig.LatestResults"
+                    :key="`LatestResults-${rindex}`">
+                    {{ result }}
+                </li>
+            </ul>
+        </div>
 
         <v-dialog v-model="notifierDialogVisible"
             scrollable
@@ -240,12 +294,54 @@ export default class EventNotificationConfigComponent extends Vue {
     //  GETTERS  //
     //////////////
     get allowChanges(): boolean {
-        return this.readonly || this.serverInteractionInProgress;
+        return !this.readonly && !this.serverInteractionInProgress;
     }
 
     get description(): string
     {
         return EventSinkNotificationConfigUtils.describeConfig(this.internalConfig).description;
+    }
+
+    get knownEventIds(): Array<string> {
+        if (this.eventdefinitions == null) return [];
+        else return this.eventdefinitions.map(x => x.EventId);
+    }
+
+    get possiblePlaceholders(): Array<string> {
+        return this.currentEventDefinitionProperties;
+    }
+
+    get currentEventDefinition(): KnownEventDefinition | null {
+        if (this.eventdefinitions == null) return null;
+        
+        return this.eventdefinitions.filter(x => 
+            x.EventId != null && this.internalConfig.EventIdFilter.Filter != null
+            && x.EventId.toLowerCase().trim() == this.internalConfig.EventIdFilter.Filter.toLowerCase().trim()
+        )[0];
+    }
+
+    get currentEventDefinitionProperties(): Array<string> {
+        if (this.currentEventDefinition == null) return [];
+        else return this.currentEventDefinition.PayloadProperties || [];
+    }
+
+    get suggestedPayloadProperties(): Array<string> {
+        if (this.eventdefinitions == null) return [];
+        
+        const currentEventDefinition = this.eventdefinitions.filter(x => 
+            x.EventId != null && this.internalConfig.EventIdFilter.Filter != null
+            && x.EventId.toLowerCase().trim() == this.internalConfig.EventIdFilter.Filter.toLowerCase().trim()
+        )[0];
+        if (currentEventDefinition == null) return [];
+        
+        const currentPayloadFilterProps = this.internalConfig.PayloadFilters
+            .map(x => (x.PropertyName || '').toLowerCase().trim());
+        
+        const suggestions: Array<string>
+            = currentEventDefinition.PayloadProperties
+            .filter(x => x != null && currentPayloadFilterProps.indexOf(x.toLowerCase().trim()) == -1)
+        
+        return suggestions;
     }
 
     ////////////////
@@ -400,9 +496,21 @@ export default class EventNotificationConfigComponent extends Vue {
         });
     }
 
-    onAddPayloadFilterClicked(): void {
+    onSuggestedPayloadFilterClicked(propName: string): void {
+        this.onAddPayloadFilterClicked(propName);
+    }
+
+    onAddPayloadFilterClicked(propName: string | null = null): void {
+        if (propName == null && this.currentEventDefinition != null)
+        {
+            if (!this.currentEventDefinition.IsStringified)
+            {
+                propName = '';
+            }
+        }
+
         this.internalConfig.PayloadFilters.push({
-            PropertyName: null,
+            PropertyName: propName,
             Filter: '',
             MatchType: FilterMatchType.Contains,
             CaseSensitive: false,
@@ -413,12 +521,33 @@ export default class EventNotificationConfigComponent extends Vue {
     onConfigFilterDelete(filterIndex: number): void {
         this.internalConfig.PayloadFilters.splice(filterIndex, 1);
     }
+
+    onConfigFilterChanged(index: number, filter: EventSinkNotificationConfigFilter): void {
+        Vue.set(this.internalConfig.PayloadFilters, index, filter);
+    }
 }
 </script>
 
 <style scoped lang="scss">
-/* .root {
-} */
+.metadata-chip {
+    display: inline-block;
+    border: 1px solid gray;
+    padding: 5px;
+    margin: 5px;
+    font-size: 12px;
+}
+.config-section {
+    padding: 10px;
+    margin-top: 30px;
+    border: 1px solid var(--v-secondary-base);
+}
+.without-label {
+    margin-top: 0;
+    padding-top: 0;
+}
+.payload-filter {
+    border-bottom: solid 1px #ccc;
+}
 </style>
 
 <style lang="scss">

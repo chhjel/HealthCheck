@@ -53,7 +53,6 @@ namespace HealthCheck.DevTest.Controllers
         #region Init
         public DevController()
             : base(assemblyContainingTests: typeof(DevController).Assembly) {
-            new FlatFileHealthCheckSettingsService<TestSettings>(null).GetValue(s => s.IntProp);
             if (_siteEventService == null)
             {
 

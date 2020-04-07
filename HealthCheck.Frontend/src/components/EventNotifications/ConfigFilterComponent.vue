@@ -1,34 +1,27 @@
 <!-- src/components/Common/ConfigFilterComponent.vue -->
 <template>
     <div class="root">
-        <v-btn v-if="allowDelete"
-            color="error"
-            @click="remove()"
-            :disabled="readonly">
-            <v-icon size="20px" class="mr-2">delete</v-icon>
-        </v-btn>
-
-        <v-switch
-            v-if="allowPropertyName"
-            v-model="isMatchingOnStringified" 
-            :label="payloadMatchTypeToggleLable"
-            color="secondary"
-            v-on:change="onDataChanged"
-            :disabled="readonly"
-        ></v-switch>
-
         <div class="horizontal-layout">
+            
+            <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                    <v-btn v-on="on"
+                        dark icon outline small
+                        color="primary"
+                        @click="isMatchingOnStringified = !isMatchingOnStringified"
+                        :disabled="readonly">
+                        <v-icon>code</v-icon>
+                    </v-btn>
+                </template>
+                <span>
+                    Toggle between filtering on a <b>property</b> or the <b>whole stringified event payload</b> itself.
+                </span>
+            </v-tooltip>
+            
             <v-text-field type="text"
                 v-if="showPropertyName"
-                label="Target payload property name"
+                label="Property name"
                 v-model="propertyName"
-                v-on:change="onDataChanged"
-                :disabled="readonly"
-            ></v-text-field>
-
-            <v-text-field type="text"
-                label="Filter"
-                v-model="filter"
                 v-on:change="onDataChanged"
                 :disabled="readonly"
             ></v-text-field>
@@ -42,6 +35,13 @@
                 >
             </v-select>
 
+            <v-text-field type="text"
+                label="Value to search for"
+                v-model="filter"
+                v-on:change="onDataChanged"
+                :disabled="readonly"
+            ></v-text-field>
+
             <v-switch
                 v-model="caseSensitive" 
                 label="Case sensitive"
@@ -49,6 +49,14 @@
                 v-on:change="onDataChanged"
                 :disabled="readonly"
             ></v-switch>
+            
+            <v-btn v-if="allowDelete"
+                dark outline small
+                color="error"
+                @click="remove()"
+                :disabled="readonly">
+                <v-icon>delete</v-icon>
+            </v-btn>
         </div>
     </div>
 </template>
@@ -93,13 +101,6 @@ export default class ConfigFilterComponent extends Vue {
     get showPropertyName(): boolean
     {
         return this.allowPropertyName && !this.isMatchingOnStringified;
-    }
-
-    get payloadMatchTypeToggleLable(): string
-    {
-        return this.isMatchingOnStringified
-            ? "Now matching on stringified payload"
-            : "Now matching on payload property values";
     }
 
     get matchTypeOptions(): any {
@@ -147,11 +148,16 @@ export default class ConfigFilterComponent extends Vue {
 .root {
     margin-left: 20px;
     padding-left: 20px;
-    border-left: 2px solid gray;
 
     .horizontal-layout {
         display: flex;
         align-items: center;
+        flex-direction: row;
+        flex-wrap: wrap;
+
+        div {
+            margin-right: 10px;
+        }
     }
 }
 </style>

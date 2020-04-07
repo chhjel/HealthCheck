@@ -45,6 +45,7 @@ namespace HealthCheck.WebUI.Services
                 config.LatestResults = config
                     ?.LatestResults
                     ?.Union(old?.LatestResults ?? Enumerable.Empty<string>())
+                    ?.Take(10)
                     ?.ToList()
                     ?? new List<string>();
                 return config;

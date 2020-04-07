@@ -38,9 +38,9 @@
                         label="Enabled"
                         color="secondary"
                         ></v-switch>
-                    [{{ config.Id }}] {{ config.LastChangedBy }}
-                    <br />
+                    [{{ config.LastChangedBy }}]
 
+                    (ToDo: indicate if limit reached)
                     <code>{{ describeConfig(config).description }}</code>
                 </div>
 
@@ -67,7 +67,7 @@
 
                     <v-divider></v-divider>
                     
-                    <v-card-text style="max-height: 500px;">
+                    <v-card-text>
                         <event-notification-config-component
                             :config="currentConfig"
                             :notifiers="notifiers"

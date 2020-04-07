@@ -31,7 +31,7 @@ namespace HealthCheck.WebUI.Services
         /// </summary>
         public FlatFileHealthCheckSettingsService(string filePath)
         {
-            FilePath = filePath;
+            FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
         }
 
         /// <summary>
@@ -45,8 +45,17 @@ namespace HealthCheck.WebUI.Services
             {
                 try
                 {
-                    return (T)setting.Value;
+                    if (setting.Value is T)
+                    {
+                        return (T)setting.Value;
+                    }
                 } catch(Exception) { }
+
+                try
+                {
+                    return (T)Convert.ChangeType(setting.Value, typeof(T));
+                }
+                catch (Exception) { }
             }
 
             return default(T);

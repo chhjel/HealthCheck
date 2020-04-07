@@ -46,18 +46,19 @@ export default class EventSinkNotificationConfigUtils
         let actions = config.NotifierConfigs
             .map(x => x.Notifier != null ? x.Notifier.Name : '')
             .filter(x => x != '');
+        actions = Array.from(new Set(actions));
         let actionsDescription = actions.joinForSentence(', ', ' and ');
         if (actionsDescription != null && actionsDescription.length > 0)
         {
-            actionsDescription = `notify through ${actionsDescription}`;
+            actionsDescription = `then notify through ${actionsDescription}`;
         }
         else
         {
-            actionsDescription = '<do nothing>';
+            actionsDescription = 'then <do nothing>';
         }
 
         let description = 
-            `When ${conditions.joinForSentence(', ', ' and ')} ${actionsDescription}.`;
+            `If ${conditions.joinForSentence(', ', ' and ')} ${actionsDescription}.`;
 
         return {
             description: description,
