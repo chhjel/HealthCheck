@@ -1,7 +1,7 @@
 <!-- src/components/Pages/EventNotificationsPageComponent.vue -->
 <template>
     <div>
-        <v-content>
+        <v-content class="pl-0">
             <v-container fluid fill-height class="content-root">
             <v-layout>
             <v-flex>
