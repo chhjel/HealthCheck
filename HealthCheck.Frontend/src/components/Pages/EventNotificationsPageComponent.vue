@@ -38,7 +38,7 @@
                         style="flex: 0"
                         ></v-switch>
                     
-                    <div style="flex: 1; cursor: pointer;"
+                    <div class="config-list-item--rule"
                         @click="showConfig(config)"
                         >
                         <span class="config-list-item--operator">IF</span>
@@ -46,24 +46,44 @@
                             :key="`condition-${condIndex}`">
                             <span class="config-list-item--condition">
                                 {{ condition.description }}
-                                <span v-if="condIndex < describeConditions(config).length - 1"> and </span>
                             </span>
+                            <span v-if="condIndex < describeConditions(config).length - 1"> and </span>
                         </span>
 
                         <br />
                         <span class="config-list-item--operator">THEN</span>
+                        <span v-if="describeActions(config).length == 0">&lt;do nothing&gt;</span>
                         <span v-for="(action, actIndex) in describeActions(config)"
                             :key="`action-${actIndex}`">
                             <span class="config-list-item--action">
                                 {{ action.description }}
-                                <span v-if="actIndex < describeActions(config).length - 1"> and </span>
                             </span>
+                            <span v-if="actIndex < describeActions(config).length - 1"> and </span>
                         </span>
                     </div>
                     
-                    <v-icon v-if="configIsOutsideLimit(config)">timer_off</v-icon>
-                    <v-icon>person</v-icon>
-                    [{{ config.LastChangedBy }}]
+                    <v-tooltip bottom v-if="getConfigWarning(config) != null">
+                        <template v-slot:activator="{ on }">
+                            <v-icon style="cursor: help;" color="warning" v-on="on">warning</v-icon>
+                        </template>
+                        <span>{{getConfigWarning(config)}}</span>
+                    </v-tooltip>
+
+                    <v-tooltip bottom v-if="configIsOutsideLimit(config)">
+                        <template v-slot:activator="{ on }">
+                            <v-icon v-on="on" style="cursor: help;">timer_off</v-icon>
+                        </template>
+                        <span>This configs' limits has been reached</span>
+                    </v-tooltip>
+
+                    <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                            <v-icon style="cursor: help;" v-on="on">person</v-icon>
+                            <code style="color: var(--v-primary-base); cursor: help;" v-on="on">{{ config.LastChangedBy }}</code>
+                        </template>
+                        <span>Last modified by '{{ config.LastChangedBy }}'</span>
+                    </v-tooltip>
+                    
                     
                 </div>
 
@@ -333,6 +353,16 @@ export default class EventNotificationsPageComponent extends Vue {
         return EventSinkNotificationConfigUtils.describeConfig(config);
     }
 
+    getConfigWarning(config: EventSinkNotificationConfig): string | null
+    {
+        if (config.NotifierConfigs.length == 0)
+        {
+            return 'Config has no effect because it has zero notifiers configured.';
+        }
+
+        return null;
+    }
+
     configIsOutsideLimit(config: EventSinkNotificationConfig): boolean
     {
         if (config.ToTime != null && config.ToTime.getTime() > new Date().getTime())
@@ -406,17 +436,29 @@ export default class EventNotificationsPageComponent extends Vue {
     align-items: center;
     flex-direction: row;
     flex-wrap: nowrap;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ccc;
 
-    .config-list-item--operator {
-        font-weight: 600;
-    }
-    .config-list-item--condition {
-        font-weight: 400;
-        color: var(--v-primary-base);
-    }
-    .config-list-item--action {
-        font-weight: 400;
-        color: var(--v-secondary-base);
+    .config-list-item--rule {
+        flex: 1;
+        cursor: pointer;
+        font-size: 16px;
+        margin-left: 20px;
+        margin-right: 20px;
+        
+        .config-list-item--operator {
+            font-weight: 600;
+        }
+        .config-list-item--condition {
+            color: var(--v-primary-base);
+        }
+        .config-list-item--action {
+            color: var(--v-secondary-base);
+        }
+        .config-list-item--condition,
+        .config-list-item--action {
+            /* font-weight: 600; */
+        }
     }
 }
 </style>

@@ -39,6 +39,7 @@
 
             <br />
             <b>THEN</b>
+            <span v-if="descriptionActions.length == 0">&lt;do nothing&gt;</span>
             <span v-for="(action, actIndex) in descriptionActions"
                 :key="`action-${actIndex}`">
                 <a @click.prevent.stop="onSummaryActionClicked(action)"
