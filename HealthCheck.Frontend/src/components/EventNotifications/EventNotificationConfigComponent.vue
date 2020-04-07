@@ -7,24 +7,26 @@
             {{ serverInteractionError }}
         </v-alert>
 
-        <div class="right">
-            <div class="metadata-chip"
-                v-if="internalConfig.LastChangedBy != null && internalConfig.LastChangedBy.length > 0">
-                Last changed at {{ formatDate(internalConfig.LastChangedAt) }} by '{{ internalConfig.LastChangedBy }}'
-            </div>
-            <div class="metadata-chip"
-                v-if="internalConfig.LastNotifiedAt != null">
-                Last notified at {{ formatDate(internalConfig.LastNotifiedAt) }}
+        <div class="header-data">
+            <v-switch
+                v-model="internalConfig.Enabled" 
+                :disabled="!allowChanges"
+                label="Enabled"
+                color="secondary"
+                class="left mr-2"
+                style="flex: 1"
+            ></v-switch>
+            <div>
+                <div class="metadata-chip"
+                    v-if="internalConfig.LastChangedBy != null && internalConfig.LastChangedBy.length > 0">
+                    Last changed at {{ formatDate(internalConfig.LastChangedAt) }} by '{{ internalConfig.LastChangedBy }}'
+                </div>
+                <div class="metadata-chip"
+                    v-if="internalConfig.LastNotifiedAt != null">
+                    Last notified at {{ formatDate(internalConfig.LastNotifiedAt) }}
+                </div>
             </div>
         </div>
-        <v-switch 
-            v-model="internalConfig.Enabled" 
-            :disabled="!allowChanges"
-            label="Enabled"
-            color="secondary"
-            class="left mr-2"
-        ></v-switch>
-        <div style="clear:both"></div>
 
         <div class="config-section config-summary" style="border: none">
             <b>IF</b>
@@ -619,6 +621,12 @@ export default class EventNotificationConfigComponent extends Vue {
     a {
         text-decoration: underline;
     }
+}
+.header-data {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap-reverse;
 }
 </style>
 

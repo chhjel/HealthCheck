@@ -104,11 +104,19 @@ export default class ConfigFilterComponent extends Vue {
     }
 
     get matchTypeOptions(): any {
-        return [
+        let items = [
             { text: 'Contains', value: FilterMatchType.Contains},
             { text: 'Matches', value: FilterMatchType.Matches},
             { text: 'RegEx', value: FilterMatchType.RegEx}
         ];
+
+        if (this.isMatchingOnStringified)
+        {
+            items.forEach(x => {
+                x.text = `Stringified payload ${x.text.toLowerCase()}`;
+            });
+        }
+        return items;
     }
 
     ////////////////

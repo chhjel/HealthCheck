@@ -21,15 +21,13 @@
                 <v-btn :disabled="!allowConfigChanges"
                     @click="onAddNewConfigClicked">
                     <v-icon size="20px" class="mr-2">add</v-icon>
-                    Add new config
+                    Add new
                 </v-btn>
-
 
                 <div
                     v-for="(config, cindex) in configs"
                     :key="`config-${cindex}-${config.Id}`"
-                    @click="showConfig(config)"
-                    style="cursor: pointer"
+                    class="config-list-item"
                     >
                     
                     <v-switch 
@@ -37,11 +35,36 @@
                         :disabled="!allowConfigChanges"
                         label="Enabled"
                         color="secondary"
+                        style="flex: 0"
                         ></v-switch>
                     
-                    <code>{{ describeConfig(config).description }}</code>
+                    <div style="flex: 1; cursor: pointer;"
+                        @click="showConfig(config)"
+                        >
+                        <span class="config-list-item--operator">IF</span>
+                        <span v-for="(condition, condIndex) in describeConditions(config)"
+                            :key="`condition-${condIndex}`">
+                            <span class="config-list-item--condition">
+                                {{ condition.description }}
+                                <span v-if="condIndex < describeConditions(config).length - 1"> and </span>
+                            </span>
+                        </span>
+
+                        <br />
+                        <span class="config-list-item--operator">THEN</span>
+                        <span v-for="(action, actIndex) in describeActions(config)"
+                            :key="`action-${actIndex}`">
+                            <span class="config-list-item--action">
+                                {{ action.description }}
+                                <span v-if="actIndex < describeActions(config).length - 1"> and </span>
+                            </span>
+                        </span>
+                    </div>
+                    
+                    <v-icon v-if="configIsOutsideLimit(config)">timer_off</v-icon>
+                    <v-icon>person</v-icon>
                     [{{ config.LastChangedBy }}]
-                    <span v-if="configIsOutsideLimit(config)">Limited</span>
+                    
                 </div>
 
             </v-container>
@@ -118,7 +141,7 @@ import FilterableListComponent, { FilterableListItem } from '.././Common/Filtera
 import ConfigFilterComponent from '.././EventNotifications/ConfigFilterComponent.vue';
 import EventNotificationConfigComponent from '.././EventNotifications/EventNotificationConfigComponent.vue';
 import IdUtils from "../../util/IdUtils";
-import EventSinkNotificationConfigUtils, { ConfigDescription } from "../../util/EventNotifications/EventSinkNotificationConfigUtils";
+import EventSinkNotificationConfigUtils, { ConfigDescription, ConfigFilterDescription, ConfigActionDescription } from "../../util/EventNotifications/EventSinkNotificationConfigUtils";
 
 @Component({
     components: {
@@ -328,6 +351,16 @@ export default class EventNotificationsPageComponent extends Vue {
         return false;
     }
 
+    describeConditions(config: EventSinkNotificationConfig): Array<ConfigFilterDescription>
+    {
+        return EventSinkNotificationConfigUtils.describeConfig(config).conditions;
+    }
+
+    describeActions(config: EventSinkNotificationConfig): Array<ConfigActionDescription>
+    {
+        return EventSinkNotificationConfigUtils.describeConfig(config).actions;
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
@@ -367,5 +400,23 @@ export default class EventNotificationsPageComponent extends Vue {
 .current-config-dialog__title {
     font-size: 34px;
     font-weight: 600;
+}
+.config-list-item {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: nowrap;
+
+    .config-list-item--operator {
+        font-weight: 600;
+    }
+    .config-list-item--condition {
+        font-weight: 400;
+        color: var(--v-primary-base);
+    }
+    .config-list-item--action {
+        font-weight: 400;
+        color: var(--v-secondary-base);
+    }
 }
 </style>
