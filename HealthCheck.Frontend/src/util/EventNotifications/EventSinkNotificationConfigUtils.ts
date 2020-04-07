@@ -4,8 +4,18 @@ import IdUtils from "../IdUtils";
 export interface ConfigDescription
 {
     description: string;
-    conditions: Array<string>;
-    actions: Array<string>;
+    conditions: Array<ConfigFilterDescription>;
+    actions: Array<ConfigActionDescription>;
+}
+export interface ConfigFilterDescription
+{
+    id: string;
+    description: string;
+}
+export interface ConfigActionDescription
+{
+    id: string;
+    description: string;
 }
 
 export default class EventSinkNotificationConfigUtils
@@ -36,18 +46,28 @@ export default class EventSinkNotificationConfigUtils
 
     static describeConfig(config: EventSinkNotificationConfig): ConfigDescription {
         
-        let conditions = [
-            `event id ${this.describeFilter(config.EventIdFilter)}`
+        let conditions: Array<ConfigFilterDescription> = [
+            {
+                id: config.EventIdFilter._frontendId,
+                description: `event id ${this.describeFilter(config.EventIdFilter)}`
+            }
         ];
         config.PayloadFilters
-            .map(x => `payload ${this.describeFilter(x)}`)
-            .forEach(x => conditions.push(x));
+            .forEach(x => conditions.push({
+                id: x._frontendId,
+                description: `payload ${this.describeFilter(x)}`
+            }));
 
         let actions = config.NotifierConfigs
-            .map(x => x.Notifier != null ? x.Notifier.Name : '')
-            .filter(x => x != '');
-        actions = Array.from(new Set(actions));
-        let actionsDescription = actions.joinForSentence(', ', ' and ');
+            .map(x => {
+                return {
+                    id: x.NotifierId,
+                    description: x.Notifier != null ? x.Notifier.Name : ''
+                };
+            });
+        // todo: distinct
+
+        let actionsDescription = actions.map(x => x.description).joinForSentence(', ', ' and ');
         if (actionsDescription != null && actionsDescription.length > 0)
         {
             actionsDescription = `then notify through ${actionsDescription}`;
@@ -58,12 +78,15 @@ export default class EventSinkNotificationConfigUtils
         }
 
         let description = 
-            `If ${conditions.joinForSentence(', ', ' and ')} ${actionsDescription}.`;
+            `If ${conditions.map(x => x.description).joinForSentence(', ', ' and ')} ${actionsDescription}.`;
 
         return {
             description: description,
             conditions: conditions,
-            actions: actions.map(x => `notify through ${x}`)
+            actions: actions.map(x => {
+                x.description = `notify through ${x.description}`;
+                return x;
+            })
         };
     }
 

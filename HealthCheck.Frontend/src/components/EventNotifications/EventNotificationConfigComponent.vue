@@ -26,8 +26,24 @@
         ></v-switch>
         <div style="clear:both"></div>
 
-        <h5>Summary</h5>
-        <code style="color: #333">{{ description }}</code>
+        <div class="config-section config-summary" style="border: none">
+            <b>IF</b>
+            <span v-for="(condition, condIndex) in descriptionConditions"
+                :key="`condition-${condIndex}`">
+                <a @click.prevent.stop="onSummaryConditionClicked(condition)"
+                    >{{ condition.description }}</a>
+                <span v-if="condIndex < descriptionConditions.length - 1"> and </span>
+            </span>
+
+            <br />
+            <b>THEN</b>
+            <span v-for="(action, actIndex) in descriptionActions"
+                :key="`action-${actIndex}`">
+                <a @click.prevent.stop="onSummaryActionClicked(action)"
+                    >{{ action.description }}</a>
+                <span v-if="actIndex < descriptionActions.length - 1"> and </span>
+            </span>
+        </div>
 
         <!-- ###### EVENT ID ###### -->
         <div class="config-section">
@@ -39,25 +55,27 @@
                 no-data-text="Unknown event id."
                 placeholder="Event id"
                 class="without-label"
+                ref="eventIdFilter"
                 >
             </v-combobox>
-        <!-- label="Event id" -->
-        <!-- </div> -->
-        <!-- prepend-icon="mdi-city" -->
-        <!-- :hint="!isEditing ? 'Click the icon to edit' : 'Click the icon to save'" -->
-        <!-- <config-filter-component
-            :config="internalConfig.EventIdFilter"
-            :allow-property-name="false"
-            :readonly="!allowChanges"
-            @change="internalConfig.EventIdFilter = $event"
-            /> -->
-        
-        <!-- ###### PAYLOAD FILTERS ###### -->
-        <!-- <div class="config-section"> -->
+            <!-- label="Event id" -->
+            <!-- </div> -->
+            <!-- prepend-icon="mdi-city" -->
+            <!-- :hint="!isEditing ? 'Click the icon to edit' : 'Click the icon to save'" -->
+            <!-- <config-filter-component
+                :config="internalConfig.EventIdFilter"
+                :allow-property-name="false"
+                :readonly="!allowChanges"
+                @change="internalConfig.EventIdFilter = $event"
+                /> -->
+            
+            <!-- ###### PAYLOAD FILTERS ###### -->
+            <!-- <div class="config-section"> -->
             <h3>Filters</h3>
             <config-filter-component
                 v-for="(payloadFilter, pfindex) in internalConfig.PayloadFilters"
                 :key="`payloadFilter-${pfindex}-${payloadFilter._frontendId}`"
+                ref="payloadFilters"
                 class="payload-filter"
                 :config="payloadFilter"
                 :readonly="!allowChanges"
@@ -101,7 +119,8 @@
         <div class="config-section">
             <h3>Notifications</h3>
             <div v-for="(notifierConfig, ncindex) in getValidNotifierConfigs()"
-                :key="`notifierConfig-${ncindex}`">
+                :key="`notifierConfig-${ncindex}`"
+                ref="notifiers">
 
                 <b>{{ notifierConfig.Notifier.Name }}</b>
                 <v-btn color="error"
@@ -171,7 +190,7 @@
         </div>
 
         <!-- ###### LOG ###### -->
-        <div class="config-section">
+        <div class="config-section config-section--last">
             <h3>Last 10 notification results</h3>
             <ul>
                 <li v-if="internalConfig.LatestResults.length == 0">No results yet</li>
@@ -242,7 +261,7 @@ import ConfigFilterComponent from '.././EventNotifications/ConfigFilterComponent
 import FrontEndOptionsViewModel from "../../models/Page/FrontEndOptionsViewModel";
 import DateUtils from "../../util/DateUtils";
 import IdUtils from "../../util/IdUtils";
-import EventSinkNotificationConfigUtils from "../../util/EventNotifications/EventSinkNotificationConfigUtils";
+import EventSinkNotificationConfigUtils, { ConfigFilterDescription, ConfigDescription, ConfigActionDescription } from "../../util/EventNotifications/EventSinkNotificationConfigUtils";
 
 @Component({
     components: {
@@ -300,6 +319,16 @@ export default class EventNotificationConfigComponent extends Vue {
     get description(): string
     {
         return EventSinkNotificationConfigUtils.describeConfig(this.internalConfig).description;
+    }
+
+    get descriptionConditions(): Array<ConfigFilterDescription>
+    {
+        return EventSinkNotificationConfigUtils.describeConfig(this.internalConfig).conditions;
+    }
+
+    get descriptionActions(): Array<ConfigActionDescription>
+    {
+        return EventSinkNotificationConfigUtils.describeConfig(this.internalConfig).actions;
     }
 
     get knownEventIds(): Array<string> {
@@ -525,6 +554,37 @@ export default class EventNotificationConfigComponent extends Vue {
     onConfigFilterChanged(index: number, filter: EventSinkNotificationConfigFilter): void {
         Vue.set(this.internalConfig.PayloadFilters, index, filter);
     }
+
+    onSummaryConditionClicked(condition: ConfigFilterDescription): void {
+        let targetElement: HTMLElement | null = null;
+        if (condition.id == this.internalConfig.EventIdFilter._frontendId) 
+        {
+            targetElement = this.$refs.eventIdFilter as HTMLElement;
+        }
+        else
+        {
+            const index = this.internalConfig.PayloadFilters.findIndex(x => x._frontendId == condition.id);
+            const comp = (<Vue[]>this.$refs.payloadFilters)[index] as ConfigFilterComponent;
+            targetElement = (comp.$el.querySelectorAll("input")[0]) as HTMLElement;
+        }
+
+        if (targetElement != null)
+        {
+            targetElement.focus();
+        }
+    }
+
+    onSummaryActionClicked(action: ConfigActionDescription): void
+    {
+        const index = this.internalConfig.NotifierConfigs.findIndex(x => x.NotifierId == action.id);
+        const el = (<Element[]>this.$refs.notifiers)[index];
+        let targetElement = (el.querySelectorAll("input")[0]) as HTMLElement;
+        
+        if (targetElement != null)
+        {
+            targetElement.focus();
+        }
+    }
 }
 </script>
 
@@ -540,6 +600,10 @@ export default class EventNotificationConfigComponent extends Vue {
     padding: 10px;
     margin-top: 30px;
     border: 1px solid var(--v-secondary-base);
+
+    &.config-section--last {
+        margin-bottom: 20px;
+    }
 }
 .without-label {
     margin-top: 0;
@@ -547,6 +611,14 @@ export default class EventNotificationConfigComponent extends Vue {
 }
 .payload-filter {
     border-bottom: solid 1px #ccc;
+}
+.config-summary {
+    text-align: center;
+    font-size: 26px;
+
+    a {
+        text-decoration: underline;
+    }
 }
 </style>
 

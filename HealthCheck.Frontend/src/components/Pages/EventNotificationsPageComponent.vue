@@ -38,10 +38,10 @@
                         label="Enabled"
                         color="secondary"
                         ></v-switch>
-                    [{{ config.LastChangedBy }}]
-
-                    (ToDo: indicate if limit reached)
+                    
                     <code>{{ describeConfig(config).description }}</code>
+                    [{{ config.LastChangedBy }}]
+                    <span v-if="configIsOutsideLimit(config)">Limited</span>
                 </div>
 
             </v-container>
@@ -265,7 +265,6 @@ export default class EventNotificationsPageComponent extends Vue {
         this.setFromUrl(originalUrlHashParts);
     }
 
-
     onConfigSaved(config: EventSinkNotificationConfig): void {
         if (this.data == null)
         {
@@ -309,6 +308,24 @@ export default class EventNotificationsPageComponent extends Vue {
     describeConfig(config: EventSinkNotificationConfig): ConfigDescription
     {
         return EventSinkNotificationConfigUtils.describeConfig(config);
+    }
+
+    configIsOutsideLimit(config: EventSinkNotificationConfig): boolean
+    {
+        if (config.ToTime != null && config.ToTime.getTime() > new Date().getTime())
+        {
+            return true;
+        }
+        else if (config.FromTime != null && config.FromTime.getTime() < new Date().getTime())
+        {
+            return true;
+        }
+        else if (config.NotificationCountLimit != null && config.NotificationCountLimit <= 0)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     ///////////////////////
