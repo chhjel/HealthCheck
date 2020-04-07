@@ -47,12 +47,13 @@ namespace HealthCheck.DevTest.Controllers
             = new FlatFileEventSinkNotificationConfigStorage(@"c:\temp\eventconfigs.json");
         private static readonly FlatFileEventSinkKnownEventDefinitionsStorage EventSinkNotificationDefinitionStorage
             = new FlatFileEventSinkKnownEventDefinitionsStorage(@"c:\temp\eventconfig_defs.json");
-        
+        private IHealthCheckSettingsService SettingsService { get; set; } = new FlatFileHealthCheckSettingsService<TestSettings>(@"C:\temp\settings.json");
+
 
         #region Init
         public DevController()
             : base(assemblyContainingTests: typeof(DevController).Assembly) {
-
+            new FlatFileHealthCheckSettingsService<TestSettings>(null).GetValue(s => s.IntProp);
             if (_siteEventService == null)
             {
 
@@ -94,7 +95,7 @@ namespace HealthCheck.DevTest.Controllers
                     otherStream2
                 }
             });
-            Services.SettingsService = new FlatFileHealthCheckSettingsService<TestSettings>(@"C:\temp\settings.json");
+            Services.SettingsService = SettingsService;
             Services.EventSink = new DefaultEventDataSink(EventSinkNotificationConfigStorage, EventSinkNotificationDefinitionStorage)
                 .AddNotifier(new WebHookEventNotifier())
                 .AddNotifier(new DevNotifier());
@@ -150,7 +151,8 @@ namespace HealthCheck.DevTest.Controllers
         {
             Services.EventSink.RegisterEvent("pageload", new {
                 Url = Request.RawUrl,
-                User = CurrentRequestInformation?.UserName
+                User = CurrentRequestInformation?.UserName,
+                SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp)
             });
             return base.Index();
         }
