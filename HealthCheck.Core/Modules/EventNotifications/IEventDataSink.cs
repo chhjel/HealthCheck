@@ -57,5 +57,10 @@ namespace HealthCheck.Core.Modules.EventNotifications
         /// Get definitions of all known event ids.
         /// </summary>
         IEnumerable<KnownEventDefinition> GetKnownEventDefinitions();
+
+        /// <summary>
+        /// Get a list of custom placeholders that all notifier options should support.
+        /// </summary>
+        IEnumerable<string> GetPlaceholders();
     }
 }

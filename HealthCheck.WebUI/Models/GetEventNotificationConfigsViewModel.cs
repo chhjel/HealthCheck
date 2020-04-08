@@ -23,5 +23,10 @@ namespace HealthCheck.WebUI.Models
         /// All known event definitions.
         /// </summary>
         public IEnumerable<KnownEventDefinition> KnownEventDefinitions { get; set; }
+
+        /// <summary>
+        /// All placeholders that should work for all notifier options.
+        /// </summary>
+        public IEnumerable<string> Placeholders { get; set; }
     }
 }

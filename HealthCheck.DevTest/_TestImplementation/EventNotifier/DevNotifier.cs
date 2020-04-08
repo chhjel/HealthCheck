@@ -14,7 +14,7 @@ namespace HealthCheck.DevTest._TestImplementation.EventNotifier
         public Func<bool> IsEnabled { get; set; } = () => true;
         public IEnumerable<EventNotifierOptionDefinition> Options => new[]
         {
-            new EventNotifierOptionDefinition(OPTION_URL, "Url", "Placeholders can be used."),
+            new EventNotifierOptionDefinition(OPTION_URL, "Url", "Placeholders can be used.", new []{ "NOW", "dev_test" }),
             new EventNotifierOptionDefinition(OPTION_A, "Another field"),
             new EventNotifierOptionDefinition(OPTION_B, "Test", "Something here"),
         };
@@ -34,6 +34,9 @@ namespace HealthCheck.DevTest._TestImplementation.EventNotifier
                     var value = HttpUtility.UrlEncode(kvp.Value ?? "");
                     url = url.Replace($"{{{kvp.Key?.ToUpper()}}}", value);
                 }
+
+                url = url.Replace("{NOW}", DateTime.Now.ToString());
+                url = url.Replace("{DEV_TEST}", "Dev placeholder replaced successfully :-)");
 
                 return await Task.FromResult($"Sent GET request to '{url}'");
             }

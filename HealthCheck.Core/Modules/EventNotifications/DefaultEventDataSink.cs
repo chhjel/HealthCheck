@@ -19,7 +19,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
         private IEventSinkKnownEventDefinitionsStorage EventSinkKnownEventDefinitionsStorage { get; }
         private List<IEventNotifier> Notifiers { get; set; } = new List<IEventNotifier>();
 
-        // todo: cache configs?
+        private Dictionary<string, Func<string>> Placeholders { get; set; } = new Dictionary<string, Func<string>>();
 
         private static object _cacheUpdateLock = new object();
         private static Dictionary<string, KnownEventDefinition> KnownEventDefinitionsCache { get; set; }
@@ -48,6 +48,19 @@ namespace HealthCheck.Core.Modules.EventNotifications
             lock (_cacheUpdateLock) {
                 return KnownEventDefinitionsListCache;
             }
+        }
+
+        /// <summary>
+        /// Get a list of custom placeholders that all notifier options support.
+        /// </summary>
+        public IEnumerable<string> GetPlaceholders() => Placeholders.Keys;
+
+        /// <summary>
+        /// Register a custom placeholder that all notifier options will support.
+        /// </summary>
+        public void AddPlaceholder(string key, Func<string> valueFactory)
+        {
+            Placeholders[key] = valueFactory;
         }
 
         /// <summary>
@@ -294,6 +307,13 @@ namespace HealthCheck.Core.Modules.EventNotifications
             foreach (var kvp in values)
             {
                 template = template.Replace($"{{{kvp.Key?.ToUpper()}}}", kvp.Value ?? "");
+            }
+
+            foreach (var placeholder in Placeholders)
+            {
+                var key = placeholder.Key;
+                var value = placeholder.Value?.Invoke();
+                template = template.Replace($"{{{key?.ToUpper()}}}", value ?? "");
             }
             return template;
         }

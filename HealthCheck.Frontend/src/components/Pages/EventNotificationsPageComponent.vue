@@ -123,6 +123,7 @@
                             :config="currentConfig"
                             :notifiers="notifiers"
                             :eventdefinitions="eventDefinitions"
+                            :placeholders="placeholders"
                             :readonly="!allowConfigChanges"
                             :options="options"
                             v-on:configDeleted="onConfigDeleted"
@@ -227,6 +228,11 @@ export default class EventNotificationsPageComponent extends Vue {
     get eventDefinitions(): Array<KnownEventDefinition>
     {
         return (this.data == null) ? [] : this.data.KnownEventDefinitions;
+    };
+
+    get placeholders(): Array<string>
+    {
+        return (this.data == null) ? [] : this.data.Placeholders;
     };
 
     get configs(): Array<EventSinkNotificationConfig>
@@ -376,7 +382,6 @@ export default class EventNotificationsPageComponent extends Vue {
 
         this.data.Configs = this.data.Configs.filter(x => x.Id != config.Id);
         this.hideCurrentConfig();
-
     }
 
     showConfig(config: EventSinkNotificationConfig): void {

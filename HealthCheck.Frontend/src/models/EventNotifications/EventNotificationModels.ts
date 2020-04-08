@@ -6,6 +6,7 @@ export interface GetEventNotificationConfigsViewModel {
     Notifiers: Array<IEventNotifier>;
     Configs: Array<EventSinkNotificationConfig>;
     KnownEventDefinitions: Array<KnownEventDefinition>;
+    Placeholders: Array<string>;
 }
 
 export interface IEventNotifier {
@@ -19,6 +20,8 @@ export interface EventNotifierOptionDefinition {
     Id: string;
     Name: string;
     Description: string;
+    SupportsPlaceholders: boolean;
+    CustomPlaceholders: Array<string> | null;
 }
 
 export interface EventSinkNotificationConfig {

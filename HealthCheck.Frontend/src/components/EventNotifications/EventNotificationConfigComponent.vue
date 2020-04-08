@@ -147,6 +147,8 @@
                         :disabled="!allowChanges"
                         persistent-hint
                         required clearable />
+
+                    {{ getPlaceholdersFor(notifierConfigOption) }}
                 </div>
             </div>
             <small v-if="getValidNotifierConfigs(config).length == 0">No notifiers added, config will be disabled.</small>
@@ -288,6 +290,9 @@ export default class EventNotificationConfigComponent extends Vue {
     @Prop({ required: false, default: null})
     eventdefinitions!: Array<KnownEventDefinition> | null;
 
+    @Prop({ required: false, default: [] })
+    placeholders!: Array<string>;
+
     @Prop({ required: false, default: false })
     readonly!: boolean;
 
@@ -402,6 +407,23 @@ export default class EventNotificationConfigComponent extends Vue {
 
     getValidNotifierConfigs(): Array<NotifierConfig> {
         return this.internalConfig.NotifierConfigs.filter(x => x.Notifier != null);
+    }
+
+    getPlaceholdersFor(option: NotifierConfigOptionsItem): Array<string>
+    {
+        if (!option.definition.SupportsPlaceholders)
+        {
+            return [];
+        }
+
+        const customPlaceholders = option.definition.CustomPlaceholders || [];
+        const currentEventPlaceholders = this.currentEventDefinitionProperties;
+
+        return customPlaceholders
+            .concat(currentEventPlaceholders)
+            .concat(this.placeholders)
+            .filter(x => x != null)
+            .map(x => x.toUpperCase());
     }
 
     getNotifierConfigOptions(notifier: IEventNotifier, options: Dictionary<string>): Array<NotifierConfigOptionsItem> {
