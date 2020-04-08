@@ -65,7 +65,7 @@ export default class EventSinkNotificationConfigUtils
                     description: x.Notifier != null ? x.Notifier.Name : ''
                 };
             });
-        // todo: distinct
+        actions = actions.filter((x, i) => actions.findIndex(y => y.description == x.description) == i);
 
         let actionsDescription = actions.map(x => x.description).joinForSentence(', ', ' and ');
         if (actionsDescription != null && actionsDescription.length > 0)
@@ -84,7 +84,7 @@ export default class EventSinkNotificationConfigUtils
             description: description,
             conditions: conditions,
             actions: actions.map(x => {
-                x.description = `notify through ${x.description}`;
+                // x.description = `notify through ${x.description}`;
                 return x;
             })
         };

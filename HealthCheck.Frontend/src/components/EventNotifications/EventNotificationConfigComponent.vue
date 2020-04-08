@@ -34,17 +34,20 @@
                 :key="`condition-${condIndex}`">
                 <a @click.prevent.stop="onSummaryConditionClicked(condition)"
                     >{{ condition.description }}</a>
-                <span v-if="condIndex < descriptionConditions.length - 1"> and </span>
+                <span v-if="condIndex == descriptionConditions.length - 2"> and </span>
+                <span v-else-if="condIndex < descriptionConditions.length - 1">, </span>
             </span>
 
             <br />
             <b>THEN</b>
             <span v-if="descriptionActions.length == 0">&lt;do nothing&gt;</span>
+            <span v-else>notify using</span>
             <span v-for="(action, actIndex) in descriptionActions"
                 :key="`action-${actIndex}`">
                 <a @click.prevent.stop="onSummaryActionClicked(action)"
                     >{{ action.description }}</a>
-                <span v-if="actIndex < descriptionActions.length - 1"> and </span>
+                <span v-if="actIndex == descriptionActions.length - 2"> and </span>
+                <span v-else-if="actIndex < descriptionActions.length - 1">, </span>
             </span>
         </div>
 

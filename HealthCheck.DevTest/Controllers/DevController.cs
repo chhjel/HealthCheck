@@ -22,6 +22,7 @@ using HealthCheck.WebUI.Services;
 using HealthCheck.WebUI.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -59,15 +60,6 @@ namespace HealthCheck.DevTest.Controllers
                 _siteEventService = CreateSiteEventService();
                 _auditEventService = CreateAuditEventService();
             }
-
-            var someExternalItems = new[]
-            {
-                new TestEntry() { Code = "6235235", Name = "Name A" },
-                new TestEntry() { Code = "1234", Name = "Name B" },
-                new TestEntry() { Code = "235235", Name = "Name C" }
-            };
-            simpleStream.InsertEntries(someExternalItems.Select(x => GenericDataflowStreamObject.Create(x)));
-            memoryStream.InsertEntry($"Test item @ {DateTime.Now.ToLongTimeString()}");
 
             Services.SiteEventService = _siteEventService;
             Services.AuditEventService = _auditEventService;
@@ -153,6 +145,36 @@ namespace HealthCheck.DevTest.Controllers
                 User = CurrentRequestInformation?.UserName,
                 SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp)
             });
+
+            if (Request.QueryString.AllKeys.Contains("stream"))
+            {
+                var someExternalItems = new[]
+                {
+                    new TestEntry() { Code = "6235235", Name = "Name A" },
+                    new TestEntry() { Code = "1234", Name = "Name B" },
+                    new TestEntry() { Code = "235235", Name = "Name C" }
+                };
+
+                simpleStream.InsertEntries(someExternalItems.Select(x => GenericDataflowStreamObject.Create(x)));
+                memoryStream.InsertEntry($"Test item @ {DateTime.Now.ToLongTimeString()}");
+            }
+
+            if (Request.QueryString.AllKeys.Contains("events") && int.TryParse(Request.QueryString["events"], out int eventCount))
+            {
+                var watch = new Stopwatch();
+                watch.Start();
+                for (int i=0;i< eventCount; i++)
+                {
+                    Services.EventSink.RegisterEvent("thing_imported", new
+                    {
+                        Code = 9999 + i,
+                        DisplayName = $"Some item #{(9999 + i)}",
+                        PublicUrl = $"/products/item_{i}"
+                    });
+                }
+                var elapsed = watch.ElapsedMilliseconds;
+            }
+
             return base.Index();
         }
 

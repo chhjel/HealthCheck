@@ -47,18 +47,21 @@
                             <span class="config-list-item--condition">
                                 {{ condition.description }}
                             </span>
-                            <span v-if="condIndex < describeConditions(config).length - 1"> and </span>
+                            <span v-if="condIndex == describeConditions(config).length - 2"> and </span>
+                            <span v-else-if="condIndex < describeConditions(config).length - 1">, </span>
                         </span>
 
                         <br />
                         <span class="config-list-item--operator">THEN</span>
                         <span v-if="describeActions(config).length == 0">&lt;do nothing&gt;</span>
+                        <span v-else>notify using</span>
                         <span v-for="(action, actIndex) in describeActions(config)"
                             :key="`action-${actIndex}`">
                             <span class="config-list-item--action">
                                 {{ action.description }}
                             </span>
-                            <span v-if="actIndex < describeActions(config).length - 1"> and </span>
+                            <span v-if="actIndex == describeActions(config).length - 2"> and </span>
+                            <span v-else-if="actIndex < describeActions(config).length - 1">, </span>
                         </span>
                     </div>
                     
@@ -238,6 +241,8 @@ export default class EventNotificationsPageComponent extends Vue {
         const parts = (<any>window).eventnotificationsState;
         if (parts != null && parts != undefined) {
             this.updateUrl(parts);
+        } else {
+            this.updateUrl(['eventnotifications']);
         }
     }
 
@@ -455,10 +460,10 @@ export default class EventNotificationsPageComponent extends Vue {
         .config-list-item--action {
             color: var(--v-secondary-base);
         }
-        .config-list-item--condition,
+        /* .config-list-item--condition,
         .config-list-item--action {
-            /* font-weight: 600; */
-        }
+            font-weight: 600;
+        } */
     }
 }
 </style>

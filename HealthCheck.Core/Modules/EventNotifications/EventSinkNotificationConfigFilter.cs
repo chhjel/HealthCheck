@@ -90,22 +90,31 @@ namespace HealthCheck.Core.Modules.EventNotifications
         private Regex GetRegexFor(string pattern, bool caseSensitive)
         {
             var key = $"{(caseSensitive ? "cs______" : "")}_{pattern}";
-            if (!_regexCache.ContainsKey(key))
+            lock (_regexCache)
             {
-                Regex regex = null;
-                try {
-                    regex = new Regex(pattern, caseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase);
-                } catch (Exception) {
-                    return null;
-                }
+                if (!_regexCache.ContainsKey(key))
+                {
+                    Regex regex = null;
+                    try
+                    {
+                        regex = new Regex(pattern, caseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase);
+                    }
+                    catch (Exception)
+                    {
+                        return null;
+                    }
 
-                try {
-                    _regexCache[key] = regex;
-                } catch (Exception) {
-                    return regex;
+                    try
+                    {
+                        _regexCache[key] = regex;
+                    }
+                    catch (Exception)
+                    {
+                        return regex;
+                    }
                 }
+                return _regexCache[key];
             }
-            return _regexCache[key];
         }
 
         /// <summary>
