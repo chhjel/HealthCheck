@@ -145,10 +145,10 @@
                         v-on:input="notifierConfig.Options[notifierConfigOption.key] = $event"
                         :hint="notifierConfigOption.definition.Description"
                         :disabled="!allowChanges"
+                        :append-outer-icon="getPlaceholdersFor(notifierConfigOption).length == 0 ? '' : 'insert_link'"
+                        @click:append-outer="showPlaceholdersFor(notifierConfig, notifierConfigOption.key, notifierConfigOption)"
                         persistent-hint
                         required clearable />
-
-                    {{ getPlaceholdersFor(notifierConfigOption) }}
                 </div>
             </div>
             <small v-if="getValidNotifierConfigs(config).length == 0">No notifiers added, config will be disabled.</small>
@@ -258,6 +258,36 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+
+        <v-dialog v-model="placeholderDialogVisible"
+            scrollable
+            content-class="possible-placeholders-dialog">
+            <v-card>
+                <v-card-title>Select placeholder to add</v-card-title>
+                <v-divider></v-divider>
+                <v-card-text style="max-height: 500px;">
+                    <v-list class="possible-placeholders-list">
+                        <v-list-tile v-for="(placeholder, placeholderIndex) in getPlaceholdersFor(currentPlaceholderDialogTarget)"
+                            :key="`possible-placeholder-${placeholderIndex}`"
+                            @click="onAddPlaceholderClicked(placeholder, currentPlaceholderDialogTarget)"
+                            class="possible-placeholder-list-item">
+                            <v-list-tile-action>
+                                <v-icon>add</v-icon>
+                            </v-list-tile-action>
+
+                            <v-list-tile-content>
+                                <v-list-tile-title class="possible-placeholder-item-title">{{ `\{${placeholder.toUpperCase()}\}` }}</v-list-tile-title>
+                            </v-list-tile-content>
+                        </v-list-tile>
+                    </v-list>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary" flat @click="hidePlaceholderDialog()">Cancel</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -301,6 +331,10 @@ export default class EventNotificationConfigComponent extends Vue {
     ASD!: EventSinkNotificationConfig;
     notifierDialogVisible: boolean = false;
     deleteDialogVisible: boolean = false;
+    placeholderDialogVisible: boolean = false;
+    currentPlaceholderDialogTarget: NotifierConfigOptionsItem | null = null;
+    currentPlaceholderDialogTargetConfig: NotifierConfig | null = null;
+    currentPlaceholderDialogTargetOptionKey: string | null = null;
     isSaving: boolean = false;
     isDeleting: boolean = false;
     serverInteractionError: string | null = null;
@@ -409,9 +443,44 @@ export default class EventNotificationConfigComponent extends Vue {
         return this.internalConfig.NotifierConfigs.filter(x => x.Notifier != null);
     }
 
+    showPlaceholdersFor(config: NotifierConfig, optionKey: string, option: NotifierConfigOptionsItem): void
+    {
+        console.log({
+            config: config,
+            key: optionKey,
+            option: option
+        });
+        this.currentPlaceholderDialogTarget = option;
+        this.currentPlaceholderDialogTargetConfig = config;
+        this.currentPlaceholderDialogTargetOptionKey = optionKey;
+        this.placeholderDialogVisible = true;
+    }
+
+    hidePlaceholderDialog(): void {
+        this.placeholderDialogVisible = false;
+        this.currentPlaceholderDialogTarget = null;
+        this.currentPlaceholderDialogTargetConfig = null;
+        this.currentPlaceholderDialogTargetOptionKey = null;
+    }
+
+    onAddPlaceholderClicked(placeholder: string, option: NotifierConfigOptionsItem): void {
+        if (this.currentPlaceholderDialogTargetConfig == null
+            || this.currentPlaceholderDialogTargetOptionKey == null)
+        {
+            return;
+        }
+
+        // todo: test
+        let value = this.currentPlaceholderDialogTargetConfig.Options[this.currentPlaceholderDialogTargetOptionKey];
+        value = `${value}${placeholder}`;
+        this.currentPlaceholderDialogTargetConfig.Options[this.currentPlaceholderDialogTargetOptionKey] = value;
+
+        this.hidePlaceholderDialog();
+    }
+
     getPlaceholdersFor(option: NotifierConfigOptionsItem): Array<string>
     {
-        if (!option.definition.SupportsPlaceholders)
+        if (option == null || !option.definition.SupportsPlaceholders)
         {
             return [];
         }
@@ -661,6 +730,13 @@ export default class EventNotificationConfigComponent extends Vue {
     max-width: 700px;
 
     .possible-notifiers-list-item {
+        margin-bottom: 10px;
+    }
+}
+.possible-placeholders-dialog {
+    max-width: 700px;
+
+    .possible-placeholder-list-item {
         margin-bottom: 10px;
     }
 }
