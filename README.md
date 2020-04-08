@@ -15,6 +15,7 @@ Modules:
 * Request log module that lists controllers and actions with their latest requests and errors.
 * Documentation module that shows generated sequence diagrams from code decorated with attributes.
 * Dataflow module that can show filtered custom data. For e.g. previewing the latest imported/exported data.
+* Event notifications module for notifying through custom implementations when custom events occur.
 * Settings module for custom settings related to healthcheck.
 
 ## Getting started
@@ -588,6 +589,41 @@ service.GetValue<bool>(nameof(TestSettings.Enabled))
 </p>
 </details>
 
+### IEventDataSink
+
+If an `IEventDataSink` is provided in the controller the Event Notifications tab will become available where configurations for notifications can be created. Notifications are delivered through implementations of `IEventNotifier`.
+Built-in implementations: `DefaultEventDataSink`, `WebHookEventNotifier`.
+
+Events can be filtered on their id, stringified payload or properties on their payload. Limits can also be set to restrict number of notifications and between dates.
+
+<details><summary>Example</summary>
+<p>
+
+```csharp
+// Register the service in controller
+// Use singletons of the flatfile storages if used.
+var notificationConfigStorage = new FlatFileEventSinkNotificationConfigStorage(@"e:\config\eventconfigs.json");
+var notificationDefinitionStorage = new FlatFileEventSinkKnownEventDefinitionsStorage(@"e:\config\eventconfig_defs.json");
+Services.EventSink = new DefaultEventDataSink(notificationConfigStorage, notificationDefinitionStorage)
+    .AddNotifier(new MyCustomEmailEventNotifier())
+    .AddNotifier(new WebHookEventNotifier());
+```
+
+```csharp
+// Register events
+
+// Either without any additional details
+eventSink.RegisterEvent("new_order");
+
+// Or with a payload that can be stringified
+eventSink.RegisterEvent("order_exception", errorMessage);
+
+// Or with a payload with stringifiable properties
+eventSink.RegisterEvent("new_order", new { PaymentType = 'Invoice', Warnings = 0 });
+```
+
+</p>
+</details>
 
 ## Scheduled health checks
 
