@@ -130,6 +130,11 @@ namespace HealthCheck.WebUI.ViewModels
         public string DeleteEventNotificationConfigEndpoint { get; set; }
 
         /// <summary>
+        /// Url to the endpoint where event notification configs are toggled.
+        /// </summary>
+        public string SetEventNotificationConfigEnabledEndpoint { get; set; }
+
+        /// <summary>
         /// Number of minutes past the end of a site event it will be displayed below "Current status" on the status page.
         /// <para>Defaults to 30 minutes.</para>
         /// </summary>
@@ -231,6 +236,7 @@ namespace HealthCheck.WebUI.ViewModels
             GetEventNotificationConfigsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetEventNotificationConfigs";
             DeleteEventNotificationConfigEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/DeleteEventNotificationConfig";
             SaveEventNotificationConfigEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/SaveEventNotificationConfig";
+            SetEventNotificationConfigEnabledEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/SetEventNotificationConfigEnabled";
 
             HasAccessToClearRequestLog = true;
         }

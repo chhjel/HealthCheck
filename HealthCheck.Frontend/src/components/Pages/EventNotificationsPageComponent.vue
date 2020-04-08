@@ -30,13 +30,18 @@
                     class="config-list-item"
                     >
                     
-                    <v-switch 
-                        v-model="config.Enabled"
-                        :disabled="!allowConfigChanges"
-                        label="Enabled"
-                        color="secondary"
-                        style="flex: 0"
-                        ></v-switch>
+                    <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                        <v-switch v-on="on"
+                            v-model="config.Enabled"
+                            :disabled="!allowConfigChanges"
+                            color="secondary"
+                            style="flex: 0"
+                            @click="setConfigEnabled(config, !config.Enabled)"
+                            ></v-switch>
+                        </template>
+                        <span>Enable or disable this configuration</span>
+                    </v-tooltip>
                     
                     <div class="config-list-item--rule"
                         @click="showConfig(config)"
@@ -181,7 +186,6 @@ export default class EventNotificationsPageComponent extends Vue {
     dataLoadInProgress: boolean = false;
     dataLoadFailed: boolean = false;
     dataFailedErrorMessage: string = '';
-    allowConfigChanges: boolean = true;
     serverInteractionInProgress: boolean = false;
 
     data: GetEventNotificationConfigsViewModel | null = null;
@@ -198,6 +202,11 @@ export default class EventNotificationsPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get allowConfigChanges(): boolean
+    {
+        return !this.serverInteractionInProgress;
+    };
+
     get currentDialogTitle(): string
     {
         return (this.currentConfig != null && this.currentConfig.Id != null)
@@ -311,6 +320,38 @@ export default class EventNotificationsPageComponent extends Vue {
         
         const originalUrlHashParts = UrlUtils.GetHashParts();
         this.setFromUrl(originalUrlHashParts);
+    }
+
+    setConfigEnabled(config: EventSinkNotificationConfig, enabled: boolean): void {
+        this.serverInteractionInProgress = true;
+
+        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
+        let url = `${this.options.SetEventNotificationConfigEnabledEndpoint}${queryStringIfEnabled}`;
+        let payload = {
+            configId: config.Id,
+            enabled: enabled
+        };
+        fetch(url, {
+            credentials: 'include',
+            method: "POST",
+            body: JSON.stringify(payload),
+            headers: new Headers({
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            })
+        })
+        .then(response => response.json())
+        .then((data: any) => {
+            this.serverInteractionInProgress = false;
+
+            if (data.Success == true) {
+                config.Enabled = enabled;
+            }
+        })
+        .catch((e) => {
+            this.serverInteractionInProgress = false;
+            console.error(e);
+        });
     }
 
     onConfigSaved(config: EventSinkNotificationConfig): void {

@@ -158,8 +158,9 @@ namespace HealthCheck.WebUI.Util
             
             new PageType("eventnotifications", HealthCheckPageType.EventNotifications,
                 isVisible: (c, a) => c.Services.EventSink != null && c.AccessRolesHasAccessTo(a, c.AccessOptions.EventNotificationsPageAccess, defaultValue: false),
-                onAccessDenied: (o) => o.GetEventNotificationConfigsEndpoint = o.SaveEventNotificationConfigEndpoint 
-                                     = o.DeleteEventNotificationConfigEndpoint = deniedEndpoint)
+                onAccessDenied: (o) => o.GetEventNotificationConfigsEndpoint = o.SaveEventNotificationConfigEndpoint
+                                     = o.DeleteEventNotificationConfigEndpoint = o.SetEventNotificationConfigEnabledEndpoint
+                                     = deniedEndpoint)
         };
 
         /// <summary>
@@ -842,6 +843,28 @@ namespace HealthCheck.WebUI.Util
 
             AuditLog_EventNotificationConfigDelete(requestInformation, configId);
             Services.EventSink.DeleteConfig(configId);
+            return true;
+        }
+
+        /// <summary>
+        /// Enable/disable notification config with the given id.
+        /// </summary>
+        public bool SetEventNotificationConfigEnabled(RequestInformation<TAccessRole> requestInformation, Guid configId, bool enabled)
+        {
+            if (Services.EventSink == null || !CanShowPageTo(HealthCheckPageType.EventNotifications, requestInformation.AccessRole))
+                return false;
+
+            var config = Services.EventSink.GetConfigs().FirstOrDefault(x => x.Id == configId);
+            if (config == null)
+                return false;
+
+            config.Enabled = enabled;
+            config.LastChangedBy = requestInformation?.UserName ?? "Anonymous";
+            config.LastChangedAt = DateTime.Now;
+
+            config = Services.EventSink.SaveConfig(config);
+
+            AuditLog_EventNotificationConfigSaved(requestInformation, config);
             return true;
         }
 

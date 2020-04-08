@@ -398,6 +398,19 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
+        /// Enable/disable notification config with the given id.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        [HttpPost]
+        public virtual ActionResult SetEventNotificationConfigEnabled(Guid configId, bool enabled)
+        {
+            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.EventNotifications, CurrentRequestAccessRoles)) return HttpNotFound();
+
+            var success = Helper.SetEventNotificationConfigEnabled(CurrentRequestInformation, configId, enabled);
+            return CreateJsonResult(new { Success = success });
+        }
+
+        /// <summary>
         /// Save an event notification config.
         /// </summary>
         [RequestLogInfo(hide: true)]

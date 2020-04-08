@@ -41,7 +41,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
         /// <param name="eventId">Id of the event.</param>
         /// <param name="payloadValues">Values from the payload. If payload is a value type or string and was stringified it will be under the 'payload' key.</param>
         /// <param name="templateResolver">Can optionally be used to resolve placeholders from payload values on the given string. Format: {KEY} in uppercase.</param>
-        /// <returns>Result text or null.</returns>
+        /// <returns>Result text or null. If not null the latest 10 values will be stored and shown in the UI per configuration.</returns>
         Task<string> NotifyEvent(NotifierConfig notifierConfig, string eventId, Dictionary<string, string> payloadValues, Func<string, string> templateResolver);
     }
 }
