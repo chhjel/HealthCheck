@@ -53,7 +53,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
             }
         }
 
-        private static Dictionary<string, Regex> _regexCache = new Dictionary<string, Regex>();
+        private static readonly Dictionary<string, Regex> _regexCache = new Dictionary<string, Regex>();
 
         private bool ValueMatchesFilter(string value)
         {
@@ -92,13 +92,17 @@ namespace HealthCheck.Core.Modules.EventNotifications
             var key = $"{(caseSensitive ? "cs______" : "")}_{pattern}";
             if (!_regexCache.ContainsKey(key))
             {
-                try
-                {
-                    _regexCache[key] = new Regex(pattern, caseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase);
-                }
-                catch (Exception)
-                {
+                Regex regex = null;
+                try {
+                    regex = new Regex(pattern, caseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase);
+                } catch (Exception) {
                     return null;
+                }
+
+                try {
+                    _regexCache[key] = regex;
+                } catch (Exception) {
+                    return regex;
                 }
             }
             return _regexCache[key];

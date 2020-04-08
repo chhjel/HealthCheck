@@ -14,6 +14,10 @@ namespace HealthCheck.WebUI.Services
     {
         private SimpleDataStoreWithId<EventSinkNotificationConfig, Guid> Store { get; set; }
 
+        private static object _cacheUpdateLock = new object();
+        private static Dictionary<string, IEnumerable<EventSinkNotificationConfig>> ConfigCache { get; set; } = new Dictionary<string, IEnumerable<EventSinkNotificationConfig>>();
+        private string CacheKey => Store.FilePath.ToLower();
+
         /// <summary>
         /// Create a new <see cref="FlatFileEventSinkNotificationConfigStorage"/> with the given file path.
         /// </summary>
@@ -34,22 +38,42 @@ namespace HealthCheck.WebUI.Services
         /// Get all configs.
         /// </summary>
         public IEnumerable<EventSinkNotificationConfig> GetConfigs()
-            => Store.GetEnumerable().ToList();
+        {
+            lock(_cacheUpdateLock)
+            {
+                var key = CacheKey;
+                if (!ConfigCache.ContainsKey(key))
+                {
+                    ConfigCache[key] = Store.GetEnumerable().ToList();
+                }
+                return ConfigCache[key];
+            }
+        }
 
         /// <summary>
         /// Inserts or updates the given config.
         /// </summary>
         public EventSinkNotificationConfig SaveConfig(EventSinkNotificationConfig config)
-            => Store.InsertOrUpdateItem(config, (old) =>
+        {
+            lock (_cacheUpdateLock)
             {
-                config.LatestResults = config
-                    ?.LatestResults
-                    ?.Union(old?.LatestResults ?? Enumerable.Empty<string>())
-                    ?.Take(10)
-                    ?.ToList()
-                    ?? new List<string>();
-                return config;
-            });
+                var updatedConfig = Store.InsertOrUpdateItem(config, (old) =>
+                {
+                    config.LatestResults = config
+                        ?.LatestResults
+                        ?.Union(old?.LatestResults ?? Enumerable.Empty<string>())
+                        ?.Take(10)
+                        ?.ToList()
+                        ?? new List<string>();
+                    return config;
+                });
+
+                var key = CacheKey;
+                ConfigCache.Remove(key);
+
+                return updatedConfig;
+            }
+        }
 
         /// <summary>
         /// Deletes the config with the given id.

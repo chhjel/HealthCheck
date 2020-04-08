@@ -19,6 +19,8 @@ namespace HealthCheck.Core.Modules.EventNotifications
         private IEventSinkKnownEventDefinitionsStorage EventSinkKnownEventDefinitionsStorage { get; }
         private List<IEventNotifier> Notifiers { get; set; } = new List<IEventNotifier>();
 
+        // todo: cache configs?
+
         private static object _cacheUpdateLock = new object();
         private static Dictionary<string, KnownEventDefinition> KnownEventDefinitionsCache { get; set; }
         private static List<KnownEventDefinition> KnownEventDefinitionsListCache { get; set; }
