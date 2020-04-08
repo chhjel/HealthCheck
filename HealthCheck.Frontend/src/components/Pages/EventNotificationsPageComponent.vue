@@ -34,11 +34,11 @@
                         <template v-slot:activator="{ on }">
                         <v-switch v-on="on"
                             v-model="config.Enabled"
-                            :disabled="!allowConfigChanges"
                             color="secondary"
                             style="flex: 0"
                             @click="setConfigEnabled(config, !config.Enabled)"
                             ></v-switch>
+                            <!-- :disabled="!allowConfigChanges" -->
                         </template>
                         <span>Enable or disable this configuration</span>
                     </v-tooltip>
@@ -232,13 +232,6 @@ export default class EventNotificationsPageComponent extends Vue {
     get configs(): Array<EventSinkNotificationConfig>
     {
         let configs = (this.data == null) ? [] : this.data.Configs;
-        configs = configs.sort(
-            (a, b) => LinqUtils.SortByThenBy(a, b,
-                x => x.Enabled ? 1 : 0,
-                x => (x.LastNotifiedAt == null) ? 32503676400000 : x.LastNotifiedAt.getTime(),
-                false, true)
-            );
-
         return configs;
     };
 
@@ -320,6 +313,13 @@ export default class EventNotificationsPageComponent extends Vue {
         
         const originalUrlHashParts = UrlUtils.GetHashParts();
         this.setFromUrl(originalUrlHashParts);
+        
+        this.data.Configs = this.data.Configs.sort(
+            (a, b) => LinqUtils.SortByThenBy(a, b,
+                x => x.Enabled ? 1 : 0,
+                x => (x.LastChangedAt == null) ? 32503676400000 : x.LastChangedAt.getTime(),
+                false, true)
+            );
     }
 
     setConfigEnabled(config: EventSinkNotificationConfig, enabled: boolean): void {
