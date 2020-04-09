@@ -6,6 +6,8 @@
             <v-layout>
             <v-flex>
             <v-container>
+                <h1 class="mb-1">Configured notifications</h1>
+
                 <!-- LOAD PROGRESS -->
                 <v-progress-linear 
                     v-if="dataLoadInProgress"
@@ -16,8 +18,6 @@
                 {{ dataFailedErrorMessage }}
                 </v-alert>
 
-                <h2>Configured notifications</h2>
-               
                 <v-btn :disabled="!allowConfigChanges"
                     @click="onAddNewConfigClicked"
                     class="mb-3">
