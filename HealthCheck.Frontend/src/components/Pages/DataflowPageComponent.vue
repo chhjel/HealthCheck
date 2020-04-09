@@ -84,7 +84,7 @@
                                     </v-flex>
                                 </v-layout>
                                 
-                                <b>Filter on</b>
+                                <b v-if="filterChoices.length > 0">Filter on</b>
                                 <v-chip
                                     color="primary"
                                     v-for="(filterChoice, fcIndex) in filterChoices"
