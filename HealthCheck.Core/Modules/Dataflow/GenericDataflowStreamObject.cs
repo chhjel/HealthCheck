@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace HealthCheck.Core.Modules.Dataflow
 {
@@ -121,29 +122,34 @@ namespace HealthCheck.Core.Modules.Dataflow
                     }
                     else
                     {
-                        Func<TEntry, string> valueGetter = null;
+                        Func<TEntry, object> valueGetter = null;
+                        Type memberType = null;
                         var prop = typeof(TEntry).GetProperty(memberName);
                         if (prop != null)
                         {
-                            valueGetter = (e) => (prop.GetValue(e) as object)?.ToString();
+                            memberType = prop.PropertyType;
+                            valueGetter = (e) => prop.GetValue(e) as object;
                         }
                         if (valueGetter == null)
                         {
                             var field = typeof(TEntry).GetField(memberName);
                             if (field != null)
                             {
-                                valueGetter = (e) => (field.GetValue(e) as object)?.ToString();
+                                memberType = field.FieldType;
+                                valueGetter = (e) => field.GetValue(e) as object;
                             }
                         }
 
-                        if (valueGetter != null)
+                        var stringifiedGetter = CreateValueGetter(valueGetter, memberType);
+
+                        if (stringifiedGetter != null)
                         {
                             filter = new Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>(
                                 (items, filter) =>
                                 {
                                     try
                                     {
-                                        return filter.FilterContains(items, memberName, x => valueGetter(x));
+                                        return filter.FilterContains(items, memberName, x => stringifiedGetter(x));
                                     }
                                     catch (Exception) { return items; }
                                 });
@@ -162,6 +168,59 @@ namespace HealthCheck.Core.Modules.Dataflow
                 catch (Exception) { }
             }
             return filters;
+        }
+
+        private static Func<TEntry, string> CreateValueGetter<TEntry>(Func<TEntry, object> objectGetter, Type memberType)
+        {
+            if (objectGetter == null || memberType == null)
+            {
+                return null;
+            }
+            // Lists && arrays
+            else if (memberType.IsGenericType 
+                && memberType.GenericTypeArguments.Length == 1
+                && memberType.GetInterfaces().Contains(typeof(System.Collections.IList)))
+            {
+                return (entry) =>
+                {
+                    var memberValue = objectGetter?.Invoke(entry);
+                    if (!(memberValue is System.Collections.IList list))
+                    {
+                        return "";
+                    }
+
+                    var builder = new StringBuilder();
+                    foreach(var item in list)
+                    {
+                        builder.AppendLine(item?.ToString());
+                    }
+                    return builder.ToString();
+                };
+            }
+            // Dictionaries
+            else if (memberType.IsGenericType
+                && memberType.GenericTypeArguments.Length == 2
+                && memberType.GetInterfaces().Contains(typeof(System.Collections.IDictionary)))
+            {
+                return (entry) =>
+                {
+                    var memberValue = objectGetter?.Invoke(entry);
+                    if (!(memberValue is System.Collections.IDictionary dictionary))
+                    {
+                        return "";
+                    }
+
+                    var builder = new StringBuilder();
+                    foreach (var key in dictionary.Keys)
+                    {
+                        builder.AppendLine($"{key}:{dictionary[key]}");
+                    }
+                    return builder.ToString();
+                };
+            }
+
+            // Fallback to stringified member value
+            return (entry) => objectGetter?.Invoke(entry)?.ToString();
         }
 
         private static readonly BindingFlags MemberBindingFlags =

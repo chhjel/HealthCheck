@@ -15,7 +15,12 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
         public string PreformattedTest => "\tSomething\n\t\there!";
         public string HtmlTest => "<i>something</i> html <a href=\"#\">here</a>!";
 
-        public Dictionary<string, string> Properties { get; set; }
+        public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>
+        {
+            { "KeyA", "Value A" },
+            { "KeyB", "Value B" },
+            { "KeyC", "Value C" },
+        };
 
         public List<string> TestList => new List<string>() { "EntryPointNotFoundException", "DuplicateWaitObjectException", "ExecutionEngineException" };
         public string TestLink => "https://www.google.com";

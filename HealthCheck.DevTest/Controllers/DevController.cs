@@ -159,6 +159,7 @@ namespace HealthCheck.DevTest.Controllers
 
                 simpleStream.InsertEntries(someExternalItems.Select(x => GenericDataflowStreamObject.Create(x)));
                 memoryStream.InsertEntry($"Test item @ {DateTime.Now.ToLongTimeString()}");
+                testStreamA.InsertEntries(someExternalItems);
             }
 
             if (Request.QueryString.AllKeys.Contains("events") && int.TryParse(Request.QueryString["events"], out int eventCount))
