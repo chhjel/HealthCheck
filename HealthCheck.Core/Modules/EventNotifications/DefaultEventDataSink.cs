@@ -58,9 +58,22 @@ namespace HealthCheck.Core.Modules.EventNotifications
         /// <summary>
         /// Register a custom placeholder that all notifier options will support.
         /// </summary>
-        public void AddPlaceholder(string key, Func<string> valueFactory)
+        public DefaultEventDataSink AddPlaceholder(string key, Func<string> valueFactory)
         {
             Placeholders[key] = valueFactory;
+            return this;
+        }
+
+        /// <summary>
+        /// Register custom placeholders that all notifier options will support.
+        /// </summary>
+        public DefaultEventDataSink AddPlaceholders(Dictionary<string, Func<string>> placeholderFactories)
+        {
+            foreach(var kvp in placeholderFactories)
+            {
+                AddPlaceholder(kvp.Key, kvp.Value);
+            }
+            return this;
         }
 
         /// <summary>
@@ -292,7 +305,9 @@ namespace HealthCheck.Core.Modules.EventNotifications
 
             try
             {
-                result = await notifier.NotifyEvent(notifierConfig, eventId, payloadValues, (template) => ResolvePlaceholders(template, payloadValues));
+                notifierConfig.Placeholders = CreatePlaceholdersDictionary(payloadValues, notifier);
+
+                result = await notifier.NotifyEvent(notifierConfig, eventId, payloadValues);
             }
             catch (Exception ex)
             {
@@ -302,20 +317,35 @@ namespace HealthCheck.Core.Modules.EventNotifications
             return result;
         }
 
-        private string ResolvePlaceholders(string template, Dictionary<string, string> values)
+        private Dictionary<string, string> CreatePlaceholdersDictionary(Dictionary<string, string> payloadValues, IEventNotifier notifier)
         {
-            foreach (var kvp in values)
+            var dict = new Dictionary<string, string>();
+
+            if (Placeholders != null)
             {
-                template = template.Replace($"{{{kvp.Key?.ToUpper()}}}", kvp.Value ?? "");
+                foreach (var kvp in Placeholders)
+                {
+                    dict[kvp.Key.ToUpper().Trim()] = kvp.Value?.Invoke() ?? "";
+                }
             }
 
-            foreach (var placeholder in Placeholders)
+            if (notifier.Placeholders != null)
             {
-                var key = placeholder.Key;
-                var value = placeholder.Value?.Invoke();
-                template = template.Replace($"{{{key?.ToUpper()}}}", value ?? "");
+                foreach (var kvp in notifier.Placeholders)
+                {
+                    dict[kvp.Key.ToUpper().Trim()] = kvp.Value?.Invoke() ?? "";
+                }
             }
-            return template;
+
+            if (payloadValues != null)
+            {
+                foreach (var kvp in payloadValues)
+                {
+                    dict[kvp.Key.ToUpper().Trim()] = kvp.Value;
+                }
+            }
+
+            return dict;
         }
     }
 }

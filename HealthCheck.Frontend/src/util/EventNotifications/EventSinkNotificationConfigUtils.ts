@@ -59,13 +59,25 @@ export default class EventSinkNotificationConfigUtils
             }));
 
         let actions = config.NotifierConfigs
+            .filter(x => x.Notifier != null)
             .map(x => {
                 return {
                     id: x.NotifierId,
                     description: x.Notifier != null ? x.Notifier.Name : ''
                 };
             });
-        actions = actions.filter((x, i) => actions.findIndex(y => y.description == x.description) == i);
+        
+        // counts
+        actions = actions.map(x => {
+            const count = actions.filter(y => y.description == x.description).length;
+            if (count > 1) {
+                x.description = `${x.description} (x${count})`;
+            }
+            return x;
+        });
+
+        // distinct
+        actions = actions.filter((x, i) => actions.findIndex(y => y.id == x.id) == i);
 
         let actionsDescription = actions.map(x => x.description).joinForSentence(', ', ' and ');
         if (actionsDescription != null && actionsDescription.length > 0)

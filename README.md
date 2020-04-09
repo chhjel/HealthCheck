@@ -605,20 +605,69 @@ Events can be filtered on their id, stringified payload or properties on their p
 var notificationConfigStorage = new FlatFileEventSinkNotificationConfigStorage(@"e:\config\eventconfigs.json");
 var notificationDefinitionStorage = new FlatFileEventSinkKnownEventDefinitionsStorage(@"e:\config\eventconfig_defs.json");
 Services.EventSink = new DefaultEventDataSink(notificationConfigStorage, notificationDefinitionStorage)
-    .AddNotifier(new MyCustomEmailEventNotifier())
-    .AddNotifier(new WebHookEventNotifier());
+    // Setup any notifiers that should be available
+    .AddNotifier(new MyNotifier())
+    .AddNotifier(new WebHookEventNotifier())
+    // Add any custom placeholders
+    .AddPlaceholder("NOW", () => DateTime.Now.ToString())
+    .AddPlaceholder("ServerName", () => Environment.MachineName);
 ```
 
 ```csharp
-// Register events
+// Implement any custom notifiers
+public class MyNotifier : IEventNotifier
+{
+    public string Id => "my_notifier";
+    public string Name => "My Notifier";
+    public string Description => "Does nothing, just an example.";
+    public Func<bool> IsEnabled { get; set; } = () => true;
+    public HashSet<string> PlaceholdersWithOnlyNames => null;
+    public Dictionary<string, Func<string>> Placeholders { get; } = new Dictionary<string, Func<string>>
+    {
+        { "Custom_Placeholder", () => "Custom placeholder replaced successfully." }
+    };
 
-// Either without any additional details
+    private const string OPTION_MESSAGE = "message";
+
+    public IEnumerable<EventNotifierOptionDefinition> Options => new[]
+    {
+        new EventNotifierOptionDefinition(
+            id: OPTION_MESSAGE,
+            name: "Message",
+            description: "Text that will be outputted."
+        )
+    };
+
+    public async Task<string> NotifyEvent(NotifierConfig notifierConfig, string eventId, Dictionary<string, string> payloadValues)
+    {
+        // Placeholders will be replaced when calling GetOption()
+        var message = notifierConfig.GetOption(OPTION_MESSAGE);
+
+        try
+        {
+            Console.WriteLine(message);
+
+            // The latest 10 returned strings will be stored and displayed in the UI.
+            return await Task.FromResult($"Message '{message}' was outputted.");
+        }
+        catch (Exception ex)
+        {
+            return $"Failed to create message '{message}'. {ex.Message}";
+        }
+    }
+}
+```
+
+```csharp
+// Register events from interesting places..
+
+// ..without any additional details
 eventSink.RegisterEvent("new_order");
 
-// Or with a payload that can be stringified
+// ..with a payload that can be stringified
 eventSink.RegisterEvent("order_exception", errorMessage);
 
-// Or with a payload with stringifiable properties
+// ..with a payload with stringifiable properties
 eventSink.RegisterEvent("new_order", new { PaymentType = 'Invoice', Warnings = 0 });
 ```
 

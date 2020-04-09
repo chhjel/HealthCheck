@@ -825,11 +825,13 @@ namespace HealthCheck.WebUI.Util
             var notifiers = Services.EventSink.GetNotifiers();
             var configs = Services.EventSink.GetConfigs();
             var definitions = Services.EventSink.GetKnownEventDefinitions();
+            var placeholders = Services.EventSink.GetPlaceholders();
             return new GetEventNotificationConfigsViewModel()
             {
-                Notifiers = notifiers,
+                Notifiers = notifiers.Select(x => new EventNotifierViewModel(x)),
                 Configs = configs,
-                KnownEventDefinitions = definitions
+                KnownEventDefinitions = definitions,
+                Placeholders = placeholders
             };
         }
 

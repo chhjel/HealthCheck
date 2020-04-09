@@ -89,7 +89,9 @@ namespace HealthCheck.DevTest.Controllers
             Services.SettingsService = SettingsService;
             Services.EventSink = new DefaultEventDataSink(EventSinkNotificationConfigStorage, EventSinkNotificationDefinitionStorage)
                 .AddNotifier(new WebHookEventNotifier())
-                .AddNotifier(new DevNotifier());
+                .AddNotifier(new MyNotifier())
+                .AddPlaceholder("NOW", () => DateTime.Now.ToString())
+                .AddPlaceholder("ServerName", () => Environment.MachineName);
 
             if (!_hasInited)
             {

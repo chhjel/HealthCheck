@@ -14,6 +14,7 @@ export interface IEventNotifier {
     Name: string;
     Description: string;
     Options: Array<EventNotifierOptionDefinition>;
+    Placeholders: Array<string>;
 }
 
 export interface EventNotifierOptionDefinition {
@@ -21,7 +22,6 @@ export interface EventNotifierOptionDefinition {
     Name: string;
     Description: string;
     SupportsPlaceholders: boolean;
-    CustomPlaceholders: Array<string> | null;
 }
 
 export interface EventSinkNotificationConfig {

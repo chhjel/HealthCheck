@@ -14,46 +14,54 @@ namespace HealthCheck.Core.Modules.EventNotifications.Notifiers
         /// <summary>
         /// Unique id of this notifier.
         /// </summary>
-        public string Id => "__WebHookNotifier";
+        public virtual string Id => "__WebHookNotifier";
 
         /// <summary>
         /// Name of this notifier to display in the user interface.
         /// </summary>
-        public string Name => "WebHook";
+        public virtual string Name => "WebHook";
 
         /// <summary>
         /// Optional description of this notifier to display in the user interface.
         /// </summary>
-        public string Description => "Sends a GET request to the given url.";
+        public virtual string Description => "Sends a GET request to the given url.";
 
         /// <summary>
         /// Is this notifier enabled?
         /// </summary>
-        public Func<bool> IsEnabled { get; set; } = () => true;
+        public virtual Func<bool> IsEnabled { get; set; } = () => true;
+
+        /// <summary>
+        /// No special placeholders for this one.
+        /// </summary>
+        public virtual Dictionary<string, Func<string>> Placeholders => null;
+
+        /// <summary>
+        /// No special placeholders for this one.
+        /// </summary>
+        public virtual HashSet<string> PlaceholdersWithOnlyNames => null;
 
         /// <summary>
         /// Options for this notifier.
         /// </summary>
         public IEnumerable<EventNotifierOptionDefinition> Options => new[]
         {
-            new EventNotifierOptionDefinition(OPTION_URL, "Url", "Placeholders can be used.")
+            new EventNotifierOptionDefinition(OPTION_URL, "Url", "Where the GET request will be sent.")
         };
-        
+
         private const string OPTION_URL = "url";
 
         /// <summary>Sends a GET request.</summary>
-        public async Task<string> NotifyEvent(NotifierConfig notifierConfig, string eventId, Dictionary<string, string> payloadValues, Func<string, string> templateResolver)
+        public virtual async Task<string> NotifyEvent(NotifierConfig notifierConfig, string eventId, Dictionary<string, string> payloadValues)
         {
-            var url = notifierConfig.GetOption(OPTION_URL);
+            var url = notifierConfig.GetOption(
+                id: OPTION_URL,
+                resolvePlaceholders: true,
+                placeholderValueTransformer: (v) => HttpUtility.UrlEncode(v ?? "")
+            );
 
             try
             {
-                foreach(var kvp in payloadValues)
-                {
-                    var value = HttpUtility.UrlEncode(kvp.Value ?? "");
-                    url = url.Replace($"{{{kvp.Key?.ToUpper()}}}", value);
-                }
-
                 using (var client = new WebClient())
                 {
                     await client.DownloadStringTaskAsync(url);

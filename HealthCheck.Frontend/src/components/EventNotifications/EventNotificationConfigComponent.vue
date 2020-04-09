@@ -28,7 +28,7 @@
             </div>
         </div>
 
-        <div class="config-section config-summary" style="border: none">
+        <div class="config-summary">
             <b>IF</b>
             <span v-for="(condition, condIndex) in descriptionConditions"
                 :key="`condition-${condIndex}`">
@@ -52,7 +52,7 @@
         </div>
 
         <!-- ###### EVENT ID ###### -->
-        <div class="config-section">
+        <block-component class="mb-4">
             <h3>Event id to listen for</h3>
             <v-combobox
                 v-model="internalConfig.EventIdFilter.Filter"
@@ -76,7 +76,6 @@
                 /> -->
             
             <!-- ###### PAYLOAD FILTERS ###### -->
-            <!-- <div class="config-section"> -->
             <h3>Filters</h3>
             <config-filter-component
                 v-for="(payloadFilter, pfindex) in internalConfig.PayloadFilters"
@@ -92,7 +91,7 @@
                 />
             <small v-if="internalConfig.PayloadFilters.length == 0">No event payload filters added.</small>
 
-            <div style="margin-top: 20px;">
+            <div class="mt-4">
                 <v-btn :disabled="!allowChanges"
                     @click="onAddPayloadFilterClicked(null)">
                     <v-icon size="20px" class="mr-2">add</v-icon>
@@ -119,14 +118,14 @@
                     </v-chip> -->
                 </div>
             </div>
-        </div>
+        </block-component>
 
         <!-- ###### NOTIFICATION ###### -->
-        <div class="config-section">
-            <h3>Notifications</h3>
+        <block-component class="mb-4" title="Notifications">
             <div v-for="(notifierConfig, ncindex) in getValidNotifierConfigs()"
                 :key="`notifierConfig-${ncindex}`"
-                ref="notifiers">
+                ref="notifiers"
+                class="mb-3">
 
                 <b>{{ notifierConfig.Notifier.Name }}</b>
                 <v-btn color="error"
@@ -145,37 +144,26 @@
                         v-on:input="notifierConfig.Options[notifierConfigOption.key] = $event"
                         :hint="notifierConfigOption.definition.Description"
                         :disabled="!allowChanges"
-                        :append-outer-icon="getPlaceholdersFor(notifierConfigOption).length == 0 ? '' : 'insert_link'"
+                        :append-outer-icon="getPlaceholdersFor(notifierConfig.Notifier, notifierConfigOption).length == 0 ? '' : 'insert_link'"
                         @click:append-outer="showPlaceholdersFor(notifierConfig, notifierConfigOption.key, notifierConfigOption)"
                         persistent-hint
                         required clearable />
                 </div>
             </div>
+            
             <small v-if="getValidNotifierConfigs(config).length == 0">No notifiers added, config will be disabled.</small>
-            <v-btn :disabled="!allowChanges" @click.stop="notifierDialogVisible = true" v-if="notifiers != null">
+
+            <v-btn
+                :disabled="!allowChanges" 
+                @click.stop="notifierDialogVisible = true" 
+                v-if="notifiers != null">
                 <v-icon size="20px" class="mr-2">add</v-icon>
                 Add notifier
             </v-btn>
-
-            <!-- 
-                //TODO: move to popup button on the right of input fields
-                <div v-if="possiblePlaceholders.length > 0"> 
-                <small>Known available placeholders:</small>
-                <v-chip
-                    v-for="(placeholder, placeholderIndex) in possiblePlaceholders"
-                    :key="`suggested-placeholder-${placeholderIndex}`"
-                    color="primary" outline
-                    class="suggested-payload-property-choice"
-                    @click="onSuggestedPlaceholderClicked(placeholder)">
-                    {{ `\{${placeholder.toUpperCase().trim()}\}` }}
-                    <v-icon right>add</v-icon>
-                </v-chip>
-            </div> -->
-        </div>
+        </block-component>
 
         <!-- ###### LIMITS ###### -->
-        <div class="config-section">
-            <h3>Limits</h3>
+        <block-component class="mb-4" title="Limits">
             <v-text-field
                 type="number"
                 label="Notification count remaining"
@@ -195,11 +183,10 @@
                 :readonly="!allowChanges"
                 label="To"
                 />
-        </div>
+        </block-component>
 
         <!-- ###### LOG ###### -->
-        <div class="config-section config-section--last">
-            <h3>Last 10 notification results</h3>
+        <block-component class="mb-5" title="Last 10 notification results">
             <ul>
                 <li v-if="internalConfig.LatestResults.length == 0">No results yet</li>
                 <li
@@ -208,7 +195,7 @@
                     {{ result }}
                 </li>
             </ul>
-        </div>
+        </block-component>
 
         <v-dialog v-model="notifierDialogVisible"
             scrollable
@@ -267,7 +254,7 @@
                 <v-divider></v-divider>
                 <v-card-text style="max-height: 500px;">
                     <v-list class="possible-placeholders-list">
-                        <v-list-tile v-for="(placeholder, placeholderIndex) in getPlaceholdersFor(currentPlaceholderDialogTarget)"
+                        <v-list-tile v-for="(placeholder, placeholderIndex) in getPlaceholdersFor((currentPlaceholderDialogTargetConfig == null ? null :currentPlaceholderDialogTargetConfig.Notifier), currentPlaceholderDialogTarget)"
                             :key="`possible-placeholder-${placeholderIndex}`"
                             @click="onAddPlaceholderClicked(placeholder, currentPlaceholderDialogTarget)"
                             class="possible-placeholder-list-item">
@@ -300,11 +287,13 @@ import FrontEndOptionsViewModel from "../../models/Page/FrontEndOptionsViewModel
 import DateUtils from "../../util/DateUtils";
 import IdUtils from "../../util/IdUtils";
 import EventSinkNotificationConfigUtils, { ConfigFilterDescription, ConfigDescription, ConfigActionDescription } from "../../util/EventNotifications/EventSinkNotificationConfigUtils";
+import BlockComponent from '../../components/Common/Basic/BlockComponent.vue';
 
 @Component({
     components: {
         ConfigFilterComponent,
-        SimpleDateTimeComponent
+        SimpleDateTimeComponent,
+        BlockComponent
     }
 })
 export default class EventNotificationConfigComponent extends Vue {
@@ -445,11 +434,6 @@ export default class EventNotificationConfigComponent extends Vue {
 
     showPlaceholdersFor(config: NotifierConfig, optionKey: string, option: NotifierConfigOptionsItem): void
     {
-        console.log({
-            config: config,
-            key: optionKey,
-            option: option
-        });
         this.currentPlaceholderDialogTarget = option;
         this.currentPlaceholderDialogTargetConfig = config;
         this.currentPlaceholderDialogTargetOptionKey = optionKey;
@@ -470,22 +454,21 @@ export default class EventNotificationConfigComponent extends Vue {
             return;
         }
 
-        // todo: test
         let value = this.currentPlaceholderDialogTargetConfig.Options[this.currentPlaceholderDialogTargetOptionKey];
-        value = `${value}${placeholder}`;
+        value = `${value}\{${placeholder.toUpperCase()}\}`;
         this.currentPlaceholderDialogTargetConfig.Options[this.currentPlaceholderDialogTargetOptionKey] = value;
 
         this.hidePlaceholderDialog();
     }
 
-    getPlaceholdersFor(option: NotifierConfigOptionsItem): Array<string>
+    getPlaceholdersFor(notifier: IEventNotifier, option: NotifierConfigOptionsItem): Array<string>
     {
-        if (option == null || !option.definition.SupportsPlaceholders)
+        if (notifier == null || option == null || !option.definition.SupportsPlaceholders)
         {
             return [];
         }
 
-        const customPlaceholders = option.definition.CustomPlaceholders || [];
+        const customPlaceholders = notifier.Placeholders || [];
         const currentEventPlaceholders = this.currentEventDefinitionProperties;
 
         return customPlaceholders
@@ -673,7 +656,9 @@ export default class EventNotificationConfigComponent extends Vue {
 
     onSummaryActionClicked(action: ConfigActionDescription): void
     {
-        const index = this.internalConfig.NotifierConfigs.findIndex(x => x.NotifierId == action.id);
+        const index = this.internalConfig.NotifierConfigs
+            .filter(x => x.Notifier != null)
+            .findIndex(x => x.NotifierId == action.id);
         const el = (<Element[]>this.$refs.notifiers)[index];
         let targetElement = (el.querySelectorAll("input")[0]) as HTMLElement;
         
@@ -693,15 +678,6 @@ export default class EventNotificationConfigComponent extends Vue {
     margin: 5px;
     font-size: 12px;
 }
-.config-section {
-    padding: 10px;
-    margin-top: 30px;
-    border: 1px solid var(--v-secondary-base);
-
-    &.config-section--last {
-        margin-bottom: 20px;
-    }
-}
 .without-label {
     margin-top: 0;
     padding-top: 0;
@@ -710,6 +686,9 @@ export default class EventNotificationConfigComponent extends Vue {
     border-bottom: solid 1px #ccc;
 }
 .config-summary {
+    padding: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
     text-align: center;
     font-size: 26px;
 

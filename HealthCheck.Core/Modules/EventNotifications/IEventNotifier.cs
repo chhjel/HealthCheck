@@ -35,13 +35,22 @@ namespace HealthCheck.Core.Modules.EventNotifications
         IEnumerable<EventNotifierOptionDefinition> Options { get; }
 
         /// <summary>
+        /// Any custom placeholders for this notifier. Can return null.
+        /// </summary>
+        Dictionary<string, Func<string>> Placeholders { get; }
+
+        /// <summary>
+        /// Any custom placeholders for this notifier that won't be automatically replaced and have to be implemented yourself. Can return null.
+        /// </summary>
+        HashSet<string> PlaceholdersWithOnlyNames { get; }
+
+        /// <summary>
         /// Notify using the provided config and payload values.
         /// </summary>
         /// <param name="notifierConfig">Config for this notification instance.</param>
         /// <param name="eventId">Id of the event.</param>
         /// <param name="payloadValues">Values from the payload. If payload is a value type or string and was stringified it will be under the 'payload' key.</param>
-        /// <param name="templateResolver">Can optionally be used to resolve placeholders from payload values on the given string. Format: {KEY} in uppercase.</param>
         /// <returns>Result text or null. If not null the latest 10 values will be stored and shown in the UI per configuration.</returns>
-        Task<string> NotifyEvent(NotifierConfig notifierConfig, string eventId, Dictionary<string, string> payloadValues, Func<string, string> templateResolver);
+        Task<string> NotifyEvent(NotifierConfig notifierConfig, string eventId, Dictionary<string, string> payloadValues);
     }
 }
