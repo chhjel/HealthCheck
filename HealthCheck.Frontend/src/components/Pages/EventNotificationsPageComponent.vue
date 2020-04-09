@@ -19,7 +19,8 @@
                 <h2>Configured notifications</h2>
                
                 <v-btn :disabled="!allowConfigChanges"
-                    @click="onAddNewConfigClicked">
+                    @click="onAddNewConfigClicked"
+                    class="mb-3">
                     <v-icon size="20px" class="mr-2">add</v-icon>
                     Add new
                 </v-btn>
@@ -368,8 +369,17 @@ export default class EventNotificationsPageComponent extends Vue {
         }
         EventSinkNotificationConfigUtils.postProcessConfig(config, this.notifiers);
 
+        const position = this.data.Configs.findIndex(x => x.Id == config.Id);
         this.data.Configs = this.data.Configs.filter(x => x.Id != config.Id);
-        this.data.Configs.push(config);
+
+        if (position == -1)
+        {
+            this.data.Configs.push(config);
+        }
+        else {
+            Vue.set(this.data.Configs, position, config);
+            // this.data.Configs.unshift(config);
+        }
         // this.$forceUpdate();
 
         this.hideCurrentConfig();

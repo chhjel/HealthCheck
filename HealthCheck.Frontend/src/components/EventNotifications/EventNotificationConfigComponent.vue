@@ -507,6 +507,16 @@ export default class EventNotificationConfigComponent extends Vue {
         this.isSaving = true;
         this.setServerInteractionInProgress(true);
 
+        // Need timeout to first apply any changes from currently selected field.
+        setTimeout(() => {
+            this.saveConfigInternal();
+        }, 50);
+    }
+
+    saveConfigInternal(): void {
+        this.isSaving = true;
+        this.setServerInteractionInProgress(true);
+
         let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
         let url = `${this.options.SaveEventNotificationConfigEndpoint}${queryStringIfEnabled}`;
         let payload = {
@@ -588,14 +598,6 @@ export default class EventNotificationConfigComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
-    onSaveConfigClicked(): void {
-        this.saveConfig();
-    }
-
-    onDeleteConfigClicked(): void {
-        this.deleteConfig();
-    }
-
     onAddNotifierClicked(notifier: IEventNotifier): void {
         this.notifierDialogVisible = false;
         this.internalConfig.NotifierConfigs.push({
