@@ -1,39 +1,42 @@
 <!-- src/components/Common/ConfigFilterComponent.vue -->
 <template>
     <div class="root">
-        <div class="horizontal-layout">
+        <div class="field-list horizontal-layout">
             
-            <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                    <v-btn v-on="on"
-                        dark icon outline small
-                        color="primary"
-                        @click="isMatchingOnStringified = !isMatchingOnStringified"
-                        :disabled="readonly">
-                        <v-icon>code</v-icon>
-                    </v-btn>
-                </template>
-                <span>
-                    Toggle between filtering on a <b>property</b> or the <b>whole stringified event payload</b> itself.
-                </span>
-            </v-tooltip>
-            
-            <v-text-field type="text"
-                v-if="showPropertyName"
-                label="Property name"
-                v-model="propertyName"
-                v-on:change="onDataChanged"
-                :disabled="readonly"
-            ></v-text-field>
+            <div class="horizontal-layout">
+                <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                        <v-btn v-on="on"
+                            dark icon small
+                            :color="!isMatchingOnStringified ? `primary` : 'secondary'"
+                            :class="{ 'lighten-5': isMatchingOnStringified }"
+                            @click="isMatchingOnStringified = !isMatchingOnStringified"
+                            :disabled="readonly">
+                            <v-icon>code</v-icon>
+                        </v-btn>
+                    </template>
+                    <span>
+                        Toggle between filtering on a <b>property</b> or the <b>whole stringified event payload</b> itself.
+                    </span>
+                </v-tooltip>
+                
+                <v-text-field type="text"
+                    v-if="showPropertyName"
+                    label="Property name"
+                    v-model="propertyName"
+                    v-on:change="onDataChanged"
+                    :disabled="readonly"
+                ></v-text-field>
 
-            <v-select
-                v-model="matchType"
-                :items="matchTypeOptions"
-                item-text="text" item-value="value" color="secondary"
-                v-on:change="onDataChanged"
-                :disabled="readonly"
-                >
-            </v-select>
+                <v-select
+                    v-model="matchType"
+                    :items="matchTypeOptions"
+                    item-text="text" item-value="value" color="secondary"
+                    v-on:change="onDataChanged"
+                    :disabled="readonly"
+                    >
+                </v-select>
+            </div>
 
             <v-text-field type="text"
                 label="Value to search for"
@@ -42,21 +45,40 @@
                 :disabled="readonly"
             ></v-text-field>
 
-            <v-switch
-                v-model="caseSensitive" 
-                label="Case sensitive"
-                color="secondary"
-                v-on:change="onDataChanged"
-                :disabled="readonly"
-            ></v-switch>
-            
-            <v-btn v-if="allowDelete"
-                dark outline small
-                color="error"
-                @click="remove()"
-                :disabled="readonly">
-                <v-icon>delete</v-icon>
-            </v-btn>
+            <div class="horizontal-layout">
+                <v-switch
+                    v-model="caseSensitive" 
+                    label="Case sensitive"
+                    color="secondary"
+                    v-on:change="onDataChanged"
+                    :disabled="readonly"
+                ></v-switch>
+                
+                <!-- <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                        <v-btn v-on="on"
+                            dark icon small
+                            :color="caseSensitive ? `primary` : 'secondary'"
+                            :class="{ 'lighten-5': !caseSensitive }"
+                            @click="caseSensitive = !caseSensitive; onDataChanged();"
+                            :disabled="readonly">
+                            <v-icon small>text_fields</v-icon>
+                        </v-btn>
+                    </template>
+                    <span>
+                        Toggle case-sensitive filtering.
+                    </span>
+                </v-tooltip> -->
+                
+                <v-btn v-if="allowDelete"
+                    dark small flat
+                    color="error"
+                    @click="remove()"
+                    :disabled="readonly">
+                    Remove
+                    <!-- <v-icon>delete</v-icon> -->
+                </v-btn>
+            </div>
         </div>
     </div>
 </template>
@@ -157,14 +179,30 @@ export default class ConfigFilterComponent extends Vue {
     margin-left: 20px;
     padding-left: 20px;
 
+    @media (max-width: 900px) {
+        margin-left: 0;
+        padding-left: 0;
+        margin-bottom: 40px;;
+    }
+
     .horizontal-layout {
         display: flex;
         align-items: center;
         flex-direction: row;
-        flex-wrap: wrap;
+    }
+
+    .field-list {
+        @media (max-width: 900px) {
+            align-items: start;
+            flex-direction: column;
+        }
 
         div {
             margin-right: 10px;
+            
+            @media (max-width: 900px) {
+                width: 100%;
+            }
         }
     }
 }

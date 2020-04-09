@@ -1,6 +1,6 @@
-<!-- src/components/Common/SimpleDateTimeComponent.vue -->
+<!-- src/components/Common/Basic/InputComponent.vue -->
 <template>
-    <div class="root input-component">
+    <div class="input-component">
         <div class="input-component--header" v-if="showHeader">
             <div class="input-component--header-name">{{ name }}</div>
             <v-icon small v-if="hasDescription"
@@ -11,52 +11,65 @@
         <div v-show="showDescription" class="input-component--description" v-html="description"></div>
         
         <v-text-field
-            class="filter-input" type="text"
-            v-model="content"
-            v-on:change="onTextChanged"
-            v-on:click:clear="onTextChanged"
-            :error-messages="error"
-            :disabled="readonly"
-            clearable />
+            v-model="currentValue"
+            @input="onInput($event)"
+            @click:clear="onClearClicked()"
+            :disabled="disabled"
+            :type="type"
+            clearable>
+
+            <v-tooltip slot="append-outer" bottom v-if="showActionIcon">
+                <v-icon slot="activator" @click="onActionIconClicked">{{ actionIcon }}</v-icon>
+                Insert placeholder
+            </v-tooltip>
+        </v-text-field>
     </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import DateUtils from "../../util/DateUtils";
 
 @Component({
     components: {}
 })
-export default class SimpleDateTimeComponent extends Vue {
+export default class InputComponent extends Vue
+{
     @Prop({ required: true })
-    value!: Date | null;
-
+    value!: string;
+    
     @Prop({ required: false, default: '' })
     name!: string;
-
+    
     @Prop({ required: false, default: '' })
     description!: string;
-
-    @Prop({ required: false, default: 'yyyy/MM/dd HH:mm:ss' })
-    dateFormat!: string;
-
+    
+    @Prop({ required: false, default: '' })
+    actionIcon!: string;
+    
+    @Prop({ required: false, default: 'text' })
+    type!: string;
+    
     @Prop({ required: false, default: false })
-    readonly!: boolean;
+    disabled!: boolean;
 
-    content!: string;
-    error: string = "";
     showDescription: boolean = false;
+    currentValue: string = '';
 
-    beforeMount(): void {
-        if (this.value == null)
-        {
-            this.content = '';
-        }
-        else
-        {
-            this.content = DateUtils.FormatDate(this.value, this.dateFormat);
-        }
+    //////////////////
+    //  LIFECYCLE  //
+    ////////////////
+    created(): void {
+        this.currentValue = this.value;
+    }
+
+    mounted(): void {
+    }
+
+    ////////////////
+    //  GETTERS  //
+    //////////////
+    get showActionIcon(): boolean {
+        return this.actionIcon != null && this.actionIcon.length > 0;
     }
 
     get showHeader(): boolean {
@@ -67,39 +80,31 @@ export default class SimpleDateTimeComponent extends Vue {
         return this.description != null && this.description.length > 0;
     }
 
+    ////////////////
+    //  METHODS  //
+    //////////////
     toggleDescription(): void {
         this.showDescription = !this.showDescription;
     }
 
-    onTextChanged(): void {
-        this.$nextTick(() => this.notifyTextChanged());
+    ///////////////////////
+    //  EVENT HANDLERS  //
+    /////////////////////
+    @Watch('value')
+    onValueChanged(): void {
+        this.currentValue = this.value;
     }
 
-    notifyTextChanged(): void {
-        this.error = "";
+    onInput(newValue: string): void {
+        this.$emit('input', newValue);
+    }
 
-        if (this.content == null || this.content.length == 0)
-        {
-            this.$emit('input', null);
-            return;
-        }
+    onClearClicked(): void {
+        this.$emit('input', '');
+    }
 
-        try 
-        {
-            const parsedDate = new Date(this.content);
-            if (isNaN(parsedDate.getTime()))
-            {
-                this.error = `Invalid date. Must be empty or on on the format '${this.dateFormat}'.`;
-                this.$emit('input', null);
-            } else {
-                this.$emit('input', parsedDate);
-            }
-            return;
-        }
-        catch(ex) {
-            this.error = ex;
-        }
-        this.$emit('input', null);
+    onActionIconClicked(): void {
+        this.$emit('actionIconClicked');
     }
 }
 </script>

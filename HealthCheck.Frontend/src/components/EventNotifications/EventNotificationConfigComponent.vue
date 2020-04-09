@@ -127,27 +127,28 @@
                 ref="notifiers"
                 class="mb-3">
 
-                <b>{{ notifierConfig.Notifier.Name }}</b>
-                <v-btn color="error"
-                    @click="removeValidNotifierConfig(ncindex)"
-                    :disabled="!allowChanges">
-                    <v-icon size="20px" class="mr-2">delete</v-icon>
-                </v-btn>
+                <div style="display: flex; align-items: baseline; flex-direction: row; flex-wrap: nowrap;">
+                    <h3 class="notifier-title">{{ notifierConfig.Notifier.Name }}</h3>
+                    <v-btn color="error" right flat small
+                        @click="removeValidNotifierConfig(ncindex)"
+                        :disabled="!allowChanges">
+                        Remove
+                    </v-btn>
+                </div>
                 
                 <div v-for="(notifierConfigOption, ncoindex) in getNotifierConfigOptions(notifierConfig.Notifier, notifierConfig.Options)"
                     :key="`notifierConfig-${ncindex}-option-${ncoindex}`"
                     style="margin-left:20px">
 
-                    <v-text-field
-                        :label="notifierConfigOption.definition.Name"
+                    <input-component
                         v-model="notifierConfigOption.value"
                         v-on:input="notifierConfig.Options[notifierConfigOption.key] = $event"
-                        :hint="notifierConfigOption.definition.Description"
                         :disabled="!allowChanges"
-                        :append-outer-icon="getPlaceholdersFor(notifierConfig.Notifier, notifierConfigOption).length == 0 ? '' : 'insert_link'"
-                        @click:append-outer="showPlaceholdersFor(notifierConfig, notifierConfigOption.key, notifierConfigOption)"
-                        persistent-hint
-                        required clearable />
+                        :name="notifierConfigOption.definition.Name"
+                        :description="notifierConfigOption.definition.Description"
+                        :action-icon="getPlaceholdersFor(notifierConfig.Notifier, notifierConfigOption).length > 0 ? 'insert_link' : ''"
+                        @actionIconClicked="showPlaceholdersFor(notifierConfig, notifierConfigOption.key, notifierConfigOption)"
+                        />
                 </div>
             </div>
             
@@ -164,24 +165,27 @@
 
         <!-- ###### LIMITS ###### -->
         <block-component class="mb-4" title="Limits">
-            <v-text-field
-                type="number"
-                label="Notification count remaining"
+            <input-component
+                class="mt-2"
                 v-model="internalConfig.NotificationCountLimit"
                 :disabled="!allowChanges"
-                required clearable />
-                <!-- v-on:change="onValueChanged" -->
+                name="Notification count remaining"
+                description="Remaining number of times to allow notification. When zero is reached the config will be disabled."
+                type="number"
+                />
             
             <simple-date-time-component
                 v-model="internalConfig.FromTime"
                 :readonly="!allowChanges"
-                label="From"
+                name="From"
+                description="Only allow notifications after this datetime."
                 />
             
             <simple-date-time-component
                 v-model="internalConfig.ToTime"
                 :readonly="!allowChanges"
-                label="To"
+                name="To"
+                description="Only allow notifications before this datetime. After this datetime the config will be disabled."
                 />
         </block-component>
 
@@ -288,12 +292,14 @@ import DateUtils from "../../util/DateUtils";
 import IdUtils from "../../util/IdUtils";
 import EventSinkNotificationConfigUtils, { ConfigFilterDescription, ConfigDescription, ConfigActionDescription } from "../../util/EventNotifications/EventSinkNotificationConfigUtils";
 import BlockComponent from '../../components/Common/Basic/BlockComponent.vue';
+import InputComponent from '../../components/Common/Basic/InputComponent.vue';
 
 @Component({
     components: {
         ConfigFilterComponent,
         SimpleDateTimeComponent,
-        BlockComponent
+        BlockComponent,
+        InputComponent
     }
 })
 export default class EventNotificationConfigComponent extends Vue {
@@ -456,7 +462,9 @@ export default class EventNotificationConfigComponent extends Vue {
 
         let value = this.currentPlaceholderDialogTargetConfig.Options[this.currentPlaceholderDialogTargetOptionKey];
         value = `${value}\{${placeholder.toUpperCase()}\}`;
-        this.currentPlaceholderDialogTargetConfig.Options[this.currentPlaceholderDialogTargetOptionKey] = value;
+
+        Vue.set(this.currentPlaceholderDialogTargetConfig.Options, this.currentPlaceholderDialogTargetOptionKey, value);
+        // this.currentPlaceholderDialogTargetConfig.Options[this.currentPlaceholderDialogTargetOptionKey] = value;
 
         this.hidePlaceholderDialog();
     }
@@ -694,6 +702,10 @@ export default class EventNotificationConfigComponent extends Vue {
     text-align: center;
     font-size: 26px;
 
+    @media (max-width: 900px) {
+        font-size: 22px;
+    }
+
     a {
         text-decoration: underline;
     }
@@ -703,6 +715,11 @@ export default class EventNotificationConfigComponent extends Vue {
     align-items: center;
     flex-direction: row;
     flex-wrap: wrap-reverse;
+}
+.notifier-title {
+    font-size: 18px;
+    margin-bottom: 10px;
+    margin-right: 10px;
 }
 </style>
 
