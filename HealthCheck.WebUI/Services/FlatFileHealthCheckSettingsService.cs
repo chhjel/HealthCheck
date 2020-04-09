@@ -7,6 +7,7 @@ using System.Linq;
 using HealthCheck.Core.Extensions;
 using Newtonsoft.Json;
 using System.IO;
+using System.Linq.Expressions;
 
 namespace HealthCheck.WebUI.Services
 {
@@ -30,7 +31,7 @@ namespace HealthCheck.WebUI.Services
         /// </summary>
         public FlatFileHealthCheckSettingsService(string filePath)
         {
-            FilePath = filePath;
+            FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
         }
 
         /// <summary>
@@ -44,12 +45,43 @@ namespace HealthCheck.WebUI.Services
             {
                 try
                 {
-                    return (T)setting.Value;
+                    if (setting.Value is T)
+                    {
+                        return (T)setting.Value;
+                    }
                 } catch(Exception) { }
+
+                try
+                {
+                    return (T)Convert.ChangeType(setting.Value, typeof(T));
+                }
+                catch (Exception) { }
             }
 
             return default(T);
         }
+
+        /// <summary>
+        /// Get the value of the setting with the given property.
+        /// <para>E.g. (setting) => setting.ThingIsEnabled</para>
+        /// </summary>
+        public TValue GetValue<TSetting, TValue>(Expression<Func<TSetting, TValue>> settingProperty)
+        {
+            var settingId = (settingProperty.Body as MemberExpression)?.Member?.Name;
+            if (settingId == null)
+            {
+                return default(TValue);
+            }
+
+            return GetValue<TValue>(settingId);
+        }
+
+        /// <summary>
+        /// Get the value of the setting with the given property.
+        /// <para>E.g. (setting) => setting.ThingIsEnabled</para>
+        /// </summary>
+        public TValue GetValue<TValue>(Expression<Func<TSettings, TValue>> settingProperty)
+            => GetValue<TSettings, TValue>(settingProperty);
 
         /// <summary>
         /// Load settings from the file.

@@ -100,7 +100,7 @@ namespace HealthCheck.Core.Util
         /// Add the item and autoincrements id if it does not already exist, or updates existing items with the same id as the given item if it does.
         /// <para>Id will be auto-incremented.</para>
         /// </summary>
-        public TItem InsertOrUpdateItem(TItem item)
+        public TItem InsertOrUpdateItem(TItem item, Func<TItem, TItem> update = null)
         {
             var id = GetItemId(item);
             var existingItem = GetItem(id);
@@ -110,7 +110,7 @@ namespace HealthCheck.Core.Util
             }
             else
             {
-                UpdateWhere(x => ItemHasId(x, id), (old) => item);
+                UpdateWhere(x => ItemHasId(x, id), update ?? ((old) => item));
                 return item;
             }
         }

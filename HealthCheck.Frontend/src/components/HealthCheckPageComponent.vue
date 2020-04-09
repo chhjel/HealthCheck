@@ -34,6 +34,11 @@
                         :class="{ 'active-tab': isCurrentPage(PAGE_DATAFLOW) }"
                         @click.left.prevent="setCurrentPage(PAGE_DATAFLOW)">Dataflow</v-btn>
                     <v-btn flat
+                        v-if="showPageMenu(PAGE_EVENTNOTIFICATIONS)"
+                        :href="`#/${PAGE_EVENTNOTIFICATIONS}`"
+                        :class="{ 'active-tab': isCurrentPage(PAGE_EVENTNOTIFICATIONS) }"
+                        @click.left.prevent="setCurrentPage(PAGE_EVENTNOTIFICATIONS)">Event Notifications</v-btn>
+                    <v-btn flat
                         v-if="showPageMenu(PAGE_DOCUMENTATION)"
                         :href="`#/${PAGE_DOCUMENTATION}`"
                         :class="{ 'active-tab': isCurrentPage(PAGE_DOCUMENTATION) }"
@@ -88,6 +93,11 @@
                 v-show="currentPage == PAGE_DOCUMENTATION"
                 ref="documentationPage"
                 :options="options" />
+            <event-notifications-page-component
+                v-if="shouldIncludePage(PAGE_EVENTNOTIFICATIONS)"
+                v-show="currentPage == PAGE_EVENTNOTIFICATIONS"
+                ref="eventNotificationsPage"
+                :options="options" />
             <dataflow-page-component
                 v-if="shouldIncludePage(PAGE_DATAFLOW)"
                 v-show="currentPage == PAGE_DATAFLOW"
@@ -117,6 +127,7 @@ import RequestLogPageComponent from './Pages/RequestLogPageComponent.vue';
 import DocumentationPageComponent from './Pages/DocumentationPageComponent.vue';
 import DataflowPageComponent from './Pages/DataflowPageComponent.vue';
 import SettingsPageComponent from './Pages/SettingsPageComponent.vue';
+import EventNotificationsPageComponent from './Pages/EventNotificationsPageComponent.vue';
 import FrontEndOptionsViewModel from '../models/Page/FrontEndOptionsViewModel';
 import UrlUtils from '../util/UrlUtils';
 
@@ -130,7 +141,8 @@ import UrlUtils from '../util/UrlUtils';
         RequestLogPageComponent,
         DocumentationPageComponent,
         DataflowPageComponent,
-        SettingsPageComponent
+        SettingsPageComponent,
+        EventNotificationsPageComponent
     }
 })
 export default class HealthCheckPageComponent extends Vue {
@@ -148,6 +160,7 @@ export default class HealthCheckPageComponent extends Vue {
     PAGE_DOCUMENTATION: string = "documentation";
     PAGE_DATAFLOW: string = "dataflow";
     PAGE_SETTINGS: string = "settings";
+    PAGE_EVENTNOTIFICATIONS: string = "eventnotifications";
     PAGE_NO_PAGES_AVAILABLE: string = "no_page";
     currentPage: string = this.PAGE_TESTS;
     pagesWithMenu: string[] = [
@@ -235,6 +248,12 @@ export default class HealthCheckPageComponent extends Vue {
                 const documentationPage = (<DocumentationPageComponent>this.$refs.documentationPage);
                 if (documentationPage != undefined) {
                     documentationPage.onPageShow();
+                }
+            } else if (page == this.PAGE_EVENTNOTIFICATIONS) {
+                UrlUtils.SetHashPart(0, page);
+                const eventNotificationsPage = (<EventNotificationsPageComponent>this.$refs.eventNotificationsPage);
+                if (eventNotificationsPage != undefined) {
+                    eventNotificationsPage.onPageShow();
                 }
             } else {
                 UrlUtils.SetHashParts([page]);

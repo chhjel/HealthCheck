@@ -24,6 +24,7 @@ using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
 using HealthCheck.Core.Modules.Diagrams.FlowCharts;
 using HealthCheck.Core.Modules.Settings;
+using HealthCheck.Core.Modules.EventNotifications;
 
 namespace HealthCheck.WebUI.Util
 {
@@ -153,7 +154,13 @@ namespace HealthCheck.WebUI.Util
 
             new PageType("settings", HealthCheckPageType.Settings,
                 isVisible: (c, a) => c.Services.SettingsService != null && c.AccessRolesHasAccessTo(a, c.AccessOptions.SettingsPageAccess, defaultValue: false),
-                onAccessDenied: (o) => o.GetSettingsEndpoint = o.SetSettingsEndpoint = deniedEndpoint)
+                onAccessDenied: (o) => o.GetSettingsEndpoint = o.SetSettingsEndpoint = deniedEndpoint),
+            
+            new PageType("eventnotifications", HealthCheckPageType.EventNotifications,
+                isVisible: (c, a) => c.Services.EventSink != null && c.AccessRolesHasAccessTo(a, c.AccessOptions.EventNotificationsPageAccess, defaultValue: false),
+                onAccessDenied: (o) => o.GetEventNotificationConfigsEndpoint = o.SaveEventNotificationConfigEndpoint
+                                     = o.DeleteEventNotificationConfigEndpoint = o.SetEventNotificationConfigEnabledEndpoint
+                                     = deniedEndpoint)
         };
 
         /// <summary>
@@ -702,6 +709,33 @@ namespace HealthCheck.WebUI.Util
         }
 
         /// <summary>
+        /// When an event notification is deleted.
+        /// </summary>
+        private void AuditLog_EventNotificationConfigDelete(RequestInformation<TAccessRole> requestInformation, Guid configId)
+        {
+            var config = Services.EventSink?.GetConfigs()?.FirstOrDefault(x => x.Id == configId);
+            if (config != null)
+            {
+                Services.AuditEventService?.StoreEvent(
+                    CreateAuditEventFor(requestInformation, AuditEventArea.EventNotifications, action: "Deleted event notification config")
+                );
+            }
+        }
+
+        /// <summary>
+        /// When an event notification is created/updated.
+        /// </summary>
+        private void AuditLog_EventNotificationConfigSaved(RequestInformation<TAccessRole> requestInformation, EventSinkNotificationConfig config)
+        {
+            if (config != null)
+            {
+                Services.AuditEventService?.StoreEvent(
+                    CreateAuditEventFor(requestInformation, AuditEventArea.EventNotifications, action: "Saved event notification config")
+                );
+            }
+        }
+
+        /// <summary>
         /// Get viewmodel for audit filter results.
         /// </summary>
         public async Task<IEnumerable<AuditEventViewModel>> GetAuditEventsFilterViewModel(
@@ -754,7 +788,7 @@ namespace HealthCheck.WebUI.Util
         }
 
         /// <summary>
-        /// Get viewmodel for dataflow streams metadata result.
+        /// Get viewmodel for retrieving settings.
         /// </summary>
         public GetSettingsViewModel GetSettings(Maybe<TAccessRole> accessRoles)
         {
@@ -778,6 +812,84 @@ namespace HealthCheck.WebUI.Util
 
             AuditLog_SettingsSaved(requestInformation, model.Settings);
             Services.SettingsService.SaveSettings(model.Settings);
+        }
+
+        /// <summary>
+        /// Get viewmodel for the event notification configs
+        /// </summary>
+        public GetEventNotificationConfigsViewModel GetEventNotificationConfigs(Maybe<TAccessRole> accessRoles)
+        {
+            if (Services.EventSink == null || !CanShowPageTo(HealthCheckPageType.EventNotifications, accessRoles))
+                return new GetEventNotificationConfigsViewModel();
+
+            var notifiers = Services.EventSink.GetNotifiers();
+            var configs = Services.EventSink.GetConfigs();
+            var definitions = Services.EventSink.GetKnownEventDefinitions();
+            var placeholders = Services.EventSink.GetPlaceholders();
+            return new GetEventNotificationConfigsViewModel()
+            {
+                Notifiers = notifiers.Select(x => new EventNotifierViewModel(x)),
+                Configs = configs,
+                KnownEventDefinitions = definitions,
+                Placeholders = placeholders
+            };
+        }
+
+        /// <summary>
+        /// Delete the event notification config with the given id.
+        /// </summary>
+        public bool DeleteEventNotificationConfig(RequestInformation<TAccessRole> requestInformation, Guid configId)
+        {
+            if (Services.EventSink == null || !CanShowPageTo(HealthCheckPageType.EventNotifications, requestInformation.AccessRole))
+                return false;
+
+            AuditLog_EventNotificationConfigDelete(requestInformation, configId);
+            Services.EventSink.DeleteConfig(configId);
+            return true;
+        }
+
+        /// <summary>
+        /// Enable/disable notification config with the given id.
+        /// </summary>
+        public bool SetEventNotificationConfigEnabled(RequestInformation<TAccessRole> requestInformation, Guid configId, bool enabled)
+        {
+            if (Services.EventSink == null || !CanShowPageTo(HealthCheckPageType.EventNotifications, requestInformation.AccessRole))
+                return false;
+
+            var config = Services.EventSink.GetConfigs().FirstOrDefault(x => x.Id == configId);
+            if (config == null)
+                return false;
+
+            config.Enabled = enabled;
+            config.LastChangedBy = requestInformation?.UserName ?? "Anonymous";
+            config.LastChangedAt = DateTime.Now;
+
+            config = Services.EventSink.SaveConfig(config);
+
+            AuditLog_EventNotificationConfigSaved(requestInformation, config);
+            return true;
+        }
+
+        /// <summary>
+        /// Save the event notification config with the given id.
+        /// </summary>
+        public EventSinkNotificationConfig SaveEventNotificationConfig(RequestInformation<TAccessRole> requestInformation, EventSinkNotificationConfig config)
+        {
+            if (Services.EventSink == null || !CanShowPageTo(HealthCheckPageType.EventNotifications, requestInformation.AccessRole))
+                return config;
+
+            config.LastChangedBy = requestInformation?.UserName ?? "Anonymous";
+            config.LastChangedAt = DateTime.Now;
+
+            config.LatestResults = config.LatestResults ?? new List<string>();
+            config.PayloadFilters = config.PayloadFilters ?? new List<EventSinkNotificationConfigFilter>();
+            config.EventIdFilter = config.EventIdFilter ?? new EventSinkNotificationConfigFilter();
+            config.NotifierConfigs = config.NotifierConfigs ?? new List<NotifierConfig>();
+
+            config = Services.EventSink.SaveConfig(config);
+
+            AuditLog_EventNotificationConfigSaved(requestInformation, config);
+            return config;
         }
 
         private bool AuditEventMatchesFilter(AuditEvent e, AuditEventFilterInputData filter)

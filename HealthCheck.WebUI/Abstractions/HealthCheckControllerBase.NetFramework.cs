@@ -21,6 +21,7 @@ using HealthCheck.Core.Enums;
 using HealthCheck.Core.Modules.LogViewer.Models;
 using System.Web.SessionState;
 using HealthCheck.Core.Modules.Dataflow;
+using HealthCheck.Core.Modules.EventNotifications;
 
 namespace HealthCheck.WebUI.Abstractions
 {
@@ -369,6 +370,57 @@ namespace HealthCheck.WebUI.Abstractions
 
             Helper.SetSettings(CurrentRequestInformation, model);
             return CreateJsonResult(new { Success = true });
+        }
+
+        /// <summary>
+        /// Get viewmodel for the event notification configs
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        public virtual ActionResult GetEventNotificationConfigs()
+        {
+            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.EventNotifications, CurrentRequestAccessRoles)) return HttpNotFound();
+
+            var viewModel = Helper.GetEventNotificationConfigs(CurrentRequestAccessRoles);
+            return CreateJsonResult(viewModel);
+        }
+
+        /// <summary>
+        /// Delete the event notification config with the given id.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        [HttpPost]
+        public virtual ActionResult DeleteEventNotificationConfig(Guid configId)
+        {
+            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.EventNotifications, CurrentRequestAccessRoles)) return HttpNotFound();
+
+            var success = Helper.DeleteEventNotificationConfig(CurrentRequestInformation, configId);
+            return CreateJsonResult(new { Success = success });
+        }
+
+        /// <summary>
+        /// Enable/disable notification config with the given id.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        [HttpPost]
+        public virtual ActionResult SetEventNotificationConfigEnabled(Guid configId, bool enabled)
+        {
+            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.EventNotifications, CurrentRequestAccessRoles)) return HttpNotFound();
+
+            var success = Helper.SetEventNotificationConfigEnabled(CurrentRequestInformation, configId, enabled);
+            return CreateJsonResult(new { Success = success });
+        }
+
+        /// <summary>
+        /// Save an event notification config.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        [HttpPost]
+        public virtual ActionResult SaveEventNotificationConfig(EventSinkNotificationConfig config)
+        {
+            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.EventNotifications, CurrentRequestAccessRoles)) return HttpNotFound();
+
+            config = Helper.SaveEventNotificationConfig(CurrentRequestInformation, config);
+            return CreateJsonResult(config);
         }
 
         /// <summary>

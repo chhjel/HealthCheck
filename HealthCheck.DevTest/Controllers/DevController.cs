@@ -6,12 +6,15 @@ using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.Diagrams.FlowCharts;
 using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
+using HealthCheck.Core.Modules.EventNotifications;
+using HealthCheck.Core.Modules.EventNotifications.Notifiers;
 using HealthCheck.Core.Modules.Settings;
 using HealthCheck.Core.Services;
 using HealthCheck.Core.Services.Models;
 using HealthCheck.Core.Util;
 using HealthCheck.DevTest._TestImplementation;
 using HealthCheck.DevTest._TestImplementation.Dataflow;
+using HealthCheck.DevTest._TestImplementation.EventNotifier;
 using HealthCheck.RequestLog.Services;
 using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.Models;
@@ -19,6 +22,7 @@ using HealthCheck.WebUI.Services;
 using HealthCheck.WebUI.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -40,26 +44,22 @@ namespace HealthCheck.DevTest.Controllers
         private static readonly TestMemoryStream memoryStream = new TestMemoryStream("Memory");
         private static readonly TestMemoryStream otherStream1 = new TestMemoryStream(null);
         private static readonly TestMemoryStream otherStream2 = new TestMemoryStream(null);
+        private static readonly FlatFileEventSinkNotificationConfigStorage EventSinkNotificationConfigStorage
+            = new FlatFileEventSinkNotificationConfigStorage(@"c:\temp\eventconfigs.json");
+        private static readonly FlatFileEventSinkKnownEventDefinitionsStorage EventSinkNotificationDefinitionStorage
+            = new FlatFileEventSinkKnownEventDefinitionsStorage(@"c:\temp\eventconfig_defs.json");
+        private IHealthCheckSettingsService SettingsService { get; set; } = new FlatFileHealthCheckSettingsService<TestSettings>(@"C:\temp\settings.json");
+
 
         #region Init
         public DevController()
             : base(assemblyContainingTests: typeof(DevController).Assembly) {
-
             if (_siteEventService == null)
             {
 
                 _siteEventService = CreateSiteEventService();
                 _auditEventService = CreateAuditEventService();
             }
-
-            var someExternalItems = new[]
-            {
-                new TestEntry() { Code = "6235235", Name = "Name A" },
-                new TestEntry() { Code = "1234", Name = "Name B" },
-                new TestEntry() { Code = "235235", Name = "Name C" }
-            };
-            simpleStream.InsertEntries(someExternalItems.Select(x => GenericDataflowStreamObject.Create(x)));
-            memoryStream.InsertEntry($"Test item @ {DateTime.Now.ToLongTimeString()}");
 
             Services.SiteEventService = _siteEventService;
             Services.AuditEventService = _auditEventService;
@@ -86,7 +86,12 @@ namespace HealthCheck.DevTest.Controllers
                     otherStream2
                 }
             });
-            Services.SettingsService = new FlatFileHealthCheckSettingsService<TestSettings>(@"C:\temp\settings.json");
+            Services.SettingsService = SettingsService;
+            Services.EventSink = new DefaultEventDataSink(EventSinkNotificationConfigStorage, EventSinkNotificationDefinitionStorage)
+                .AddNotifier(new WebHookEventNotifier())
+                .AddNotifier(new MyNotifier())
+                .AddPlaceholder("NOW", () => DateTime.Now.ToString())
+                .AddPlaceholder("ServerName", () => Environment.MachineName);
 
             if (!_hasInited)
             {
@@ -135,6 +140,46 @@ namespace HealthCheck.DevTest.Controllers
         #endregion
 
         #region Overrides
+        public override ActionResult Index()
+        {
+            Services.EventSink.RegisterEvent("pageload", new {
+                Url = Request.RawUrl,
+                User = CurrentRequestInformation?.UserName,
+                SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp)
+            });
+
+            if (Request.QueryString.AllKeys.Contains("stream"))
+            {
+                var someExternalItems = new[]
+                {
+                    new TestEntry() { Code = "6235235", Name = "Name A" },
+                    new TestEntry() { Code = "1234", Name = "Name B" },
+                    new TestEntry() { Code = "235235", Name = "Name C" }
+                };
+
+                simpleStream.InsertEntries(someExternalItems.Select(x => GenericDataflowStreamObject.Create(x)));
+                memoryStream.InsertEntry($"Test item @ {DateTime.Now.ToLongTimeString()}");
+            }
+
+            if (Request.QueryString.AllKeys.Contains("events") && int.TryParse(Request.QueryString["events"], out int eventCount))
+            {
+                var watch = new Stopwatch();
+                watch.Start();
+                for (int i=0;i< eventCount; i++)
+                {
+                    Services.EventSink.RegisterEvent("thing_imported", new
+                    {
+                        Code = 9999 + i,
+                        DisplayName = $"Some item #{(9999 + i)}",
+                        PublicUrl = $"/products/item_{i}"
+                    });
+                }
+                var elapsed = watch.ElapsedMilliseconds;
+            }
+
+            return base.Index();
+        }
+
         protected override FrontEndOptionsViewModel GetFrontEndOptions()
             => new FrontEndOptionsViewModel(EndpointBase)
             {
@@ -145,6 +190,7 @@ namespace HealthCheck.DevTest.Controllers
                     HealthCheckPageType.Tests,
                     HealthCheckPageType.Overview,
                     HealthCheckPageType.RequestLog,
+                    HealthCheckPageType.EventNotifications,
                     HealthCheckPageType.Dataflow,
                     HealthCheckPageType.Documentation,
                     HealthCheckPageType.LogViewer,
@@ -181,6 +227,7 @@ namespace HealthCheck.DevTest.Controllers
             AccessOptions.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
             AccessOptions.DataflowPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
             AccessOptions.SettingsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            AccessOptions.EventNotificationsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
         }
 
         protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)
@@ -194,6 +241,12 @@ namespace HealthCheck.DevTest.Controllers
 
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequestBase request)
         {
+            Services.EventSink.RegisterEvent("GetRequestInfo", new
+            {
+                Type = this.GetType().Name,
+                Path = Request?.Path
+            });
+
             var roles = RuntimeTestAccessRole.Guest;
             if (request.QueryString["noaccess"] != null)
             {

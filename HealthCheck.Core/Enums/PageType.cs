@@ -44,5 +44,10 @@
         /// Custom configuration
         /// </summary>
         Settings,
+
+        /// <summary>
+        /// Event notifications
+        /// </summary>
+        EventNotifications,
     }
 }

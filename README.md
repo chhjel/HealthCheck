@@ -15,6 +15,7 @@ Modules:
 * Request log module that lists controllers and actions with their latest requests and errors.
 * Documentation module that shows generated sequence diagrams from code decorated with attributes.
 * Dataflow module that can show filtered custom data. For e.g. previewing the latest imported/exported data.
+* Event notifications module for notifying through custom implementations when custom events occur.
 * Settings module for custom settings related to healthcheck.
 
 ## Getting started
@@ -588,6 +589,90 @@ service.GetValue<bool>(nameof(TestSettings.Enabled))
 </p>
 </details>
 
+### IEventDataSink
+
+If an `IEventDataSink` is provided in the controller the Event Notifications tab will become available where configurations for notifications can be created. Notifications are delivered through implementations of `IEventNotifier`.
+Built-in implementations: `DefaultEventDataSink`, `WebHookEventNotifier`.
+
+Events can be filtered on their id, stringified payload or properties on their payload. Limits can also be set to restrict number of notifications and between dates.
+
+<details><summary>Example</summary>
+<p>
+
+```csharp
+// Register the service in controller
+// Use singletons of the flatfile storages if used.
+var notificationConfigStorage = new FlatFileEventSinkNotificationConfigStorage(@"e:\config\eventconfigs.json");
+var notificationDefinitionStorage = new FlatFileEventSinkKnownEventDefinitionsStorage(@"e:\config\eventconfig_defs.json");
+Services.EventSink = new DefaultEventDataSink(notificationConfigStorage, notificationDefinitionStorage)
+    // Setup any notifiers that should be available
+    .AddNotifier(new MyNotifier())
+    .AddNotifier(new WebHookEventNotifier())
+    // Add any custom placeholders
+    .AddPlaceholder("NOW", () => DateTime.Now.ToString())
+    .AddPlaceholder("ServerName", () => Environment.MachineName);
+```
+
+```csharp
+// Implement any custom notifiers
+public class MyNotifier : IEventNotifier
+{
+    public string Id => "my_notifier";
+    public string Name => "My Notifier";
+    public string Description => "Does nothing, just an example.";
+    public Func<bool> IsEnabled { get; set; } = () => true;
+    public HashSet<string> PlaceholdersWithOnlyNames => null;
+    public Dictionary<string, Func<string>> Placeholders { get; } = new Dictionary<string, Func<string>>
+    {
+        { "Custom_Placeholder", () => "Custom placeholder replaced successfully." }
+    };
+
+    private const string OPTION_MESSAGE = "message";
+
+    public IEnumerable<EventNotifierOptionDefinition> Options => new[]
+    {
+        new EventNotifierOptionDefinition(
+            id: OPTION_MESSAGE,
+            name: "Message",
+            description: "Text that will be outputted."
+        )
+    };
+
+    public async Task<string> NotifyEvent(NotifierConfig notifierConfig, string eventId, Dictionary<string, string> payloadValues)
+    {
+        // Placeholders will be replaced when calling GetOption()
+        var message = notifierConfig.GetOption(OPTION_MESSAGE);
+
+        try
+        {
+            Console.WriteLine(message);
+
+            // The latest 10 returned strings will be stored and displayed in the UI.
+            return await Task.FromResult($"Message '{message}' was outputted.");
+        }
+        catch (Exception ex)
+        {
+            return $"Failed to create message '{message}'. {ex.Message}";
+        }
+    }
+}
+```
+
+```csharp
+// Register events from interesting places..
+
+// ..without any additional details
+eventSink.RegisterEvent("new_order");
+
+// ..with a payload that can be stringified
+eventSink.RegisterEvent("order_exception", errorMessage);
+
+// ..with a payload with stringifiable properties
+eventSink.RegisterEvent("new_order", new { PaymentType = 'Invoice', Warnings = 0 });
+```
+
+</p>
+</details>
 
 ## Scheduled health checks
 

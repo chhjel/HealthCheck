@@ -115,6 +115,26 @@ namespace HealthCheck.WebUI.ViewModels
         public string SetSettingsEndpoint { get; set; }
 
         /// <summary>
+        /// Url to the endpoint where event notification configs are retrieved from.
+        /// </summary>
+        public string GetEventNotificationConfigsEndpoint { get; set; }
+
+        /// <summary>
+        /// Url to the endpoint where event notification configs are saved.
+        /// </summary>
+        public string SaveEventNotificationConfigEndpoint { get; set; }
+
+        /// <summary>
+        /// Url to the endpoint where event notification configs are deleted.
+        /// </summary>
+        public string DeleteEventNotificationConfigEndpoint { get; set; }
+
+        /// <summary>
+        /// Url to the endpoint where event notification configs are toggled.
+        /// </summary>
+        public string SetEventNotificationConfigEnabledEndpoint { get; set; }
+
+        /// <summary>
         /// Number of minutes past the end of a site event it will be displayed below "Current status" on the status page.
         /// <para>Defaults to 30 minutes.</para>
         /// </summary>
@@ -179,6 +199,7 @@ namespace HealthCheck.WebUI.ViewModels
             HealthCheckPageType.Overview,
             HealthCheckPageType.Tests,
             HealthCheckPageType.RequestLog,
+            HealthCheckPageType.EventNotifications,
             HealthCheckPageType.Dataflow,
             HealthCheckPageType.Documentation,
             HealthCheckPageType.LogViewer,
@@ -212,6 +233,11 @@ namespace HealthCheck.WebUI.ViewModels
             GetDataflowStreamEntriesEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetDataflowStreamEntries";
             GetSettingsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetSettings";
             SetSettingsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/SetSettings";
+            GetEventNotificationConfigsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetEventNotificationConfigs";
+            DeleteEventNotificationConfigEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/DeleteEventNotificationConfig";
+            SaveEventNotificationConfigEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/SaveEventNotificationConfig";
+            SetEventNotificationConfigEnabledEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/SetEventNotificationConfigEnabled";
+
             HasAccessToClearRequestLog = true;
         }
 

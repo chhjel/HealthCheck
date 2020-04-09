@@ -28,4 +28,8 @@ export default interface FrontEndOptionsViewModel {
     EnableDiagramDetails: boolean;
     GetSettingsEndpoint: string;
     SetSettingsEndpoint: string;
+    GetEventNotificationConfigsEndpoint: string;
+    SaveEventNotificationConfigEndpoint: string;
+    DeleteEventNotificationConfigEndpoint: string;
+    SetEventNotificationConfigEnabledEndpoint: string;
 }
