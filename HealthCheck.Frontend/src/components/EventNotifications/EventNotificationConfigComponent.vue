@@ -206,7 +206,7 @@
             v-if="notifiers != null"
             content-class="possible-notifiers-dialog">
             <v-card>
-                <v-card-title>Select type of notifier to add</v-card-title>
+                <v-card-title class="headline">Select type of notifier to add</v-card-title>
                 <v-divider></v-divider>
                 <v-card-text style="max-height: 500px;">
                     <v-list class="possible-notifiers-list">
@@ -254,7 +254,7 @@
             scrollable
             content-class="possible-placeholders-dialog">
             <v-card>
-                <v-card-title>Select placeholder to add</v-card-title>
+                <v-card-title class="headline">Select placeholder to add</v-card-title>
                 <v-divider></v-divider>
                 <v-card-text style="max-height: 500px;">
                     <v-list class="possible-placeholders-list">
