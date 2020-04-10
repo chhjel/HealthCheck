@@ -133,6 +133,16 @@ namespace HealthCheck.Core.Modules.EventNotifications
         }
 
         /// <summary>
+        /// If disabled the sink will ignore any attempts to register events.
+        /// <para>Enabled by default. Null value/exception = false.</para>
+        /// </summary>
+        public DefaultEventDataSink SetIsEnabled(Func<bool> isEnabledFunc)
+        {
+            IsEnabled = isEnabledFunc;
+            return this;
+        }
+
+        /// <summary>
         /// Send an event without any payload data.
         /// </summary>
         /// <param name="eventId">Id of the event that can be filtered upon.</param>

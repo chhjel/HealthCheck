@@ -93,6 +93,7 @@ namespace HealthCheck.DevTest.Controllers
                 .AddNotifier(new SimpleNotifier())
                 .AddPlaceholder("NOW", () => DateTime.Now.ToString())
                 .AddPlaceholder("ServerName", () => Environment.MachineName);
+            (Services.EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableEventRegistering);
 
             if (!_hasInited)
             {
@@ -118,6 +119,9 @@ namespace HealthCheck.DevTest.Controllers
 
             [HealthCheckSetting(GroupName = "Service X")]
             public int NumberOfThings { get; set; } = 321;
+
+            [HealthCheckSetting(GroupName = "Event Notifications")]
+            public bool EnableEventRegistering { get; set; }
         }
 
         private ILogSearcherService CreateLogSearcherService()
