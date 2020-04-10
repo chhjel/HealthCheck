@@ -23,6 +23,12 @@ namespace HealthCheck.Core.Modules.EventNotifications
         /// </summary>
         public readonly StringConverter InputConverter = new StringConverter();
 
+        /// <summary>
+        /// If disabled the sink will ignore any attempts to register events.
+        /// <para>Enabled by default. Null value/exception = false.</para>
+        /// </summary>
+        public Func<bool> IsEnabled { get; set; } = () => true;
+
         private IEventSinkNotificationConfigStorage EventSinkNotificationConfigStorage { get; set; }
         private IEventSinkKnownEventDefinitionsStorage EventSinkKnownEventDefinitionsStorage { get; }
         private List<IEventNotifier> Notifiers { get; set; } = new List<IEventNotifier>();
@@ -157,6 +163,15 @@ namespace HealthCheck.Core.Modules.EventNotifications
 
         private void RegisterEventInternal(string eventId, object payload = null)
         {
+            try
+            {
+                if (IsEnabled?.Invoke() != true)
+                {
+                    return;
+                }
+            }
+            catch (Exception) { return; }
+
             // Check that we have any enabled notifiers
             var notifiers = Notifiers?.Where(x => x.IsEnabled())?.ToList();
             if (notifiers == null || notifiers.Count == 0)
