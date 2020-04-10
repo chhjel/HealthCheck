@@ -148,6 +148,8 @@
                         :description="notifierConfigOption.definition.Description"
                         :action-icon="getPlaceholdersFor(notifierConfig.Notifier, notifierConfigOption).length > 0 ? 'insert_link' : ''"
                         @actionIconClicked="showPlaceholdersFor(notifierConfig, notifierConfigOption.key, notifierConfigOption)"
+                        :ui-hints="notifierConfigOption.definition.UIHints"
+                        :type="getNotifierOptionInputType(notifierConfigOption.definition.Type)"
                         />
                 </div>
             </div>
@@ -438,6 +440,15 @@ export default class EventNotificationConfigComponent extends Vue {
         return this.internalConfig.NotifierConfigs.filter(x => x.Notifier != null);
     }
 
+    getNotifierOptionInputType(type: string): string {
+        if (type == 'Int32' || type == 'Int64')
+        {
+            return 'number';
+        }
+
+        return 'text';
+    }
+
     showPlaceholdersFor(config: NotifierConfig, optionKey: string, option: NotifierConfigOptionsItem): void
     {
         this.currentPlaceholderDialogTarget = option;
@@ -478,27 +489,24 @@ export default class EventNotificationConfigComponent extends Vue {
 
         const customPlaceholders = notifier.Placeholders || [];
         const currentEventPlaceholders = this.currentEventDefinitionProperties;
+        const extra = (this.currentEventDefinition == null || this.currentEventDefinition.IsStringified)
+            ? ["payload"] : [];
 
         return customPlaceholders
             .concat(currentEventPlaceholders)
+            .concat(extra)
             .concat(this.placeholders)
             .filter(x => x != null)
             .map(x => x.toUpperCase());
     }
 
     getNotifierConfigOptions(notifier: IEventNotifier, options: Dictionary<string>): Array<NotifierConfigOptionsItem> {
-        let keys = Object.keys(options);
-        return <any>keys
-            .map(key => {
-                let def = notifier.Options.filter(x => x.Id == key)[0];
-                if (def == null)
-                {
-                    return null;
-                }
+        return notifier.Options
+            .map(def => {
                 return {
-                    key: key,
+                    key: def.Id,
                     definition: def,
-                    value: options[key]
+                    value: options[def.Id]
                 };
             })
             .filter(x => x != null);

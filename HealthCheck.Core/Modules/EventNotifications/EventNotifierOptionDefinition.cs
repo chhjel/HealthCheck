@@ -28,6 +28,16 @@
         public bool SupportsPlaceholders { get; set; } = true;
 
         /// <summary>
+        /// Type of the option property.
+        /// </summary>
+        public string Type { get; set; }
+
+        /// <summary>
+        /// Hint of how to display a parameter input.
+        /// </summary>
+        public EventNotifierOptionAttribute.UIHint UIHints { get; set; }
+
+        /// <summary>
         /// A custom config for this notifier.
         /// <para>Will be displayed as a input field.</para>
         /// </summary>

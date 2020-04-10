@@ -90,6 +90,7 @@ namespace HealthCheck.DevTest.Controllers
             Services.EventSink = new DefaultEventDataSink(EventSinkNotificationConfigStorage, EventSinkNotificationDefinitionStorage)
                 .AddNotifier(new WebHookEventNotifier())
                 .AddNotifier(new MyNotifier())
+                .AddNotifier(new SimpleNotifier())
                 .AddPlaceholder("NOW", () => DateTime.Now.ToString())
                 .AddPlaceholder("ServerName", () => Environment.MachineName);
 

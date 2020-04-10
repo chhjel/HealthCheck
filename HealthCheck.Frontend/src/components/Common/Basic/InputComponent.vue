@@ -11,6 +11,7 @@
         <div v-show="showDescription" class="input-component--description" v-html="description"></div>
         
         <v-text-field
+            v-if="!isTextArea"
             v-model="currentValue"
             @input="onInput($event)"
             @click:clear="onClearClicked()"
@@ -23,6 +24,19 @@
                 Insert placeholder
             </v-tooltip>
         </v-text-field>
+        
+        <v-textarea
+            v-if="isTextArea"
+            v-model="currentValue"
+            @input="onInput($event)"
+            @click:clear="onClearClicked()"
+            :disabled="disabled"
+            clearable>
+            <v-tooltip slot="append-outer" bottom v-if="showActionIcon">
+                <v-icon slot="activator" @click="onActionIconClicked">{{ actionIcon }}</v-icon>
+                Insert placeholder
+            </v-tooltip>
+        </v-textarea>
     </div>
 </template>
 
@@ -49,11 +63,16 @@ export default class InputComponent extends Vue
     @Prop({ required: false, default: 'text' })
     type!: string;
     
+    @Prop({ required: false, default: '' })
+    uiHints!: string;
+    
     @Prop({ required: false, default: false })
     disabled!: boolean;
 
     showDescription: boolean = false;
     currentValue: string = '';
+
+    get isTextArea(): boolean { return this.uiHints.indexOf('TextArea') != -1; }
 
     //////////////////
     //  LIFECYCLE  //

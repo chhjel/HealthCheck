@@ -42,23 +42,15 @@ namespace HealthCheck.Core.Modules.EventNotifications.Notifiers
         public virtual HashSet<string> PlaceholdersWithOnlyNames => null;
 
         /// <summary>
-        /// Options for this notifier.
+        /// Provide the options model type.
         /// </summary>
-        public IEnumerable<EventNotifierOptionDefinition> Options => new[]
-        {
-            new EventNotifierOptionDefinition(OPTION_URL, "Url", "Where the GET request will be sent.")
-        };
-
-        private const string OPTION_URL = "url";
+        public Type OptionsModelType => typeof(WebHookEventNotifierOptions);
 
         /// <summary>Sends a GET request.</summary>
-        public virtual async Task<string> NotifyEvent(NotifierConfig notifierConfig, string eventId, Dictionary<string, string> payloadValues)
+        public virtual async Task<string> NotifyEvent(NotifierConfig notifierConfig, string eventId, Dictionary<string, string> payloadValues, object optionsObject)
         {
-            var url = notifierConfig.GetOption(
-                id: OPTION_URL,
-                resolvePlaceholders: true,
-                placeholderValueTransformer: (v) => HttpUtility.UrlEncode(v ?? "")
-            );
+            var options = optionsObject as WebHookEventNotifierOptions;
+            var url = options.Url;
 
             try
             {
@@ -73,6 +65,23 @@ namespace HealthCheck.Core.Modules.EventNotifications.Notifiers
             {
                 return $"Failed to send GET request to '{url}'. {ex.Message}";
             }
+        }
+
+        /// <summary>
+        /// Options model for <see cref="WebHookEventNotifier"/>.
+        /// </summary>
+        public class WebHookEventNotifierOptions
+        {
+            /// <summary>
+            /// Where the GET request will be sent.
+            /// </summary>
+            [EventNotifierOption(description: "Where the GET request will be sent.", placeholderTransformerMethod: nameof(UrlEncoder))]
+            public string Url { get; set; }
+
+            /// <summary>
+            /// Encodes any placeholders in the Url property.
+            /// </summary>
+            public static string UrlEncoder(string value) => HttpUtility.UrlEncode(value ?? "");
         }
     }
 }

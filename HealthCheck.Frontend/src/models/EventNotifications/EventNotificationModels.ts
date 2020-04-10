@@ -22,6 +22,8 @@ export interface EventNotifierOptionDefinition {
     Name: string;
     Description: string;
     SupportsPlaceholders: boolean;
+    Type: string;
+    UIHints: string;
 }
 
 export interface EventSinkNotificationConfig {

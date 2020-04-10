@@ -1,6 +1,9 @@
-﻿using System;
+﻿using HealthCheck.Core.Exceptions;
+using HealthCheck.Core.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.EventNotifications
@@ -14,6 +17,11 @@ namespace HealthCheck.Core.Modules.EventNotifications
         /// Only store this amount of event definitions. Defaults to 1000.
         /// </summary>
         public int EventDefinitionSizeLimit { get; set; } = 1000;
+
+        /// <summary>
+        /// Converts string input from the UI into the types of the notification option properties.
+        /// </summary>
+        public readonly StringConverter InputConverter = new StringConverter();
 
         private IEventSinkNotificationConfigStorage EventSinkNotificationConfigStorage { get; set; }
         private IEventSinkKnownEventDefinitionsStorage EventSinkKnownEventDefinitionsStorage { get; }
@@ -305,9 +313,10 @@ namespace HealthCheck.Core.Modules.EventNotifications
 
             try
             {
-                notifierConfig.Placeholders = CreatePlaceholdersDictionary(payloadValues, notifier);
+                var placeholders = CreatePlaceholdersDictionary(payloadValues, notifier);
+                var options = CreateOptionsObject(notifier, notifierConfig, placeholders);
 
-                result = await notifier.NotifyEvent(notifierConfig, eventId, payloadValues);
+                result = await notifier.NotifyEvent(notifierConfig, eventId, payloadValues, options);
             }
             catch (Exception ex)
             {
@@ -315,6 +324,89 @@ namespace HealthCheck.Core.Modules.EventNotifications
             }
 
             return result;
+        }
+
+        private object CreateOptionsObject(IEventNotifier notifier, NotifierConfig notifierConfig, Dictionary<string, string> placeholders)
+        {
+            var type = notifier.OptionsModelType;
+            if (type == null)
+            {
+                return null;
+            }
+
+            object instance = null;
+            try
+            {
+                instance = Activator.CreateInstance(type);
+            } catch(Exception) { return null; }
+
+            var options = type.GetProperties()
+                .Select(x => new
+                {
+                    Attribute = x.GetCustomAttributes(typeof(EventNotifierOptionAttribute), true).FirstOrDefault() as EventNotifierOptionAttribute,
+                    Property = x
+                })
+                .Where(x => x.Attribute != null
+                    && notifierConfig.Options.ContainsKey(x.Property.Name));
+
+            foreach (var option in options)
+            {
+                var value = notifierConfig.Options[option.Property.Name];
+
+                if (option.Attribute.ReplacePlaceholders && option.Property.PropertyType == typeof(string))
+                {
+                    Func<string, string> placeholderTransformer = null;
+                    if (option.Attribute.PlaceholderTransformerMethod != null)
+                    {
+                        var methodInfo = type.GetMethod(option.Attribute.PlaceholderTransformerMethod, BindingFlags.Static | BindingFlags.Public);
+                        if (methodInfo == null)
+                            throw new ArgumentException($"Placeholder transformation method '{option.Attribute.PlaceholderTransformerMethod}' was not found on '{type.Name}'.");
+
+                        placeholderTransformer = (v) => methodInfo.Invoke(null, new[] { value }) as string;
+                    }
+
+                    value = ResolvePlaceholders(value, placeholderTransformer, placeholders);
+                }
+
+                if (option.Property.PropertyType == typeof(string))
+                {
+                    option.Property.SetValue(instance, value);
+                }
+                else
+                {
+                    try
+                    {
+                        var convertedValue = InputConverter.ConvertStringTo(option.Property.PropertyType, value);
+                        option.Property.SetValue(instance, convertedValue);
+                    }
+                    catch(Exception) {}
+                }
+            }
+
+            return instance;
+        }
+
+        private string ResolvePlaceholders(string value, Func<string, string> transformer, Dictionary<string, string> placeholders)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+
+            foreach (var kvp in placeholders)
+            {
+                var key = kvp.Key;
+                var placeholderValue = kvp.Value ?? "";
+
+                if (transformer != null)
+                {
+                    placeholderValue = transformer.Invoke(placeholderValue) ?? "";
+                }
+
+                value = value.Replace($"{{{key?.ToUpper()}}}", placeholderValue);
+            }
+
+            return value;
         }
 
         private Dictionary<string, string> CreatePlaceholdersDictionary(Dictionary<string, string> payloadValues, IEventNotifier notifier)

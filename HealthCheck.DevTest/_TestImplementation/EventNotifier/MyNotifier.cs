@@ -17,23 +17,12 @@ namespace HealthCheck.DevTest._TestImplementation.EventNotifier
             { "Custom_Placeholder", () => "Custom placeholder replaced successfully." }
         };
 
-        private const string OPTION_MESSAGE = "message";
-        private const string OPTION_TIMEOUT = "timeout";
+        public Type OptionsModelType => typeof(MyNotifierOptions);
 
-        public IEnumerable<EventNotifierOptionDefinition> Options => new[]
+        public async Task<string> NotifyEvent(NotifierConfig notifierConfig, string eventId, Dictionary<string, string> payloadValues, object optionsObject)
         {
-            new EventNotifierOptionDefinition(
-                id: OPTION_MESSAGE,
-                name: "Message",
-                description: "Text that will be outputted."
-            ),
-            new EventNotifierOptionDefinition(OPTION_TIMEOUT, "Timeout in seconds"),
-        };
-
-        public async Task<string> NotifyEvent(NotifierConfig notifierConfig, string eventId, Dictionary<string, string> payloadValues)
-        {
-            // Placeholders will be replaced when calling GetOption()
-            var message = notifierConfig.GetOption(OPTION_MESSAGE);
+            var options = optionsObject as MyNotifierOptions;
+            var message = options.Message;
 
             try
             {
@@ -46,6 +35,21 @@ namespace HealthCheck.DevTest._TestImplementation.EventNotifier
             {
                 return $"Failed to create message '{message}'. {ex.Message}";
             }
+        }
+
+        public class MyNotifierOptions
+        {
+            [EventNotifierOption(description: "Text that will be outputted")]
+            public string Message { get; set; }
+
+            [EventNotifierOption(description: "Timeout in seconds")]
+            public int Timeout { get; set; }
+
+            [EventNotifierOption(description: "A test of TextArea UIHint", uiHints: EventNotifierOptionAttribute.UIHint.TextArea)]
+            public string BodyTest { get; set; }
+
+            [EventNotifierOption]
+            public DateTime DateTest { get; set; }
         }
     }
 }
