@@ -627,21 +627,12 @@ public class MyNotifier : IEventNotifier
         { "Custom_Placeholder", () => "Custom placeholder replaced successfully." }
     };
 
-    private const string OPTION_MESSAGE = "message";
-
-    public IEnumerable<EventNotifierOptionDefinition> Options => new[]
-    {
-        new EventNotifierOptionDefinition(
-            id: OPTION_MESSAGE,
-            name: "Message",
-            description: "Text that will be outputted."
-        )
-    };
+    public Type OptionsModelType => typeof(MyNotifierOptions);
 
     public async Task<string> NotifyEvent(NotifierConfig notifierConfig, string eventId, Dictionary<string, string> payloadValues)
     {
-        // Placeholders will be replaced when calling GetOption()
-        var message = notifierConfig.GetOption(OPTION_MESSAGE);
+        var options = optionsObject as MyNotifierOptions;
+        var message = options.Message;
 
         try
         {
@@ -654,6 +645,12 @@ public class MyNotifier : IEventNotifier
         {
             return $"Failed to create message '{message}'. {ex.Message}";
         }
+    }
+    
+    public class MyNotifierOptions
+    {
+        [EventNotifierOption(description: "Text that will be outputted")]
+        public string Message { get; set; }
     }
 }
 ```
