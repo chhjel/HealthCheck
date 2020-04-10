@@ -136,11 +136,12 @@
                     <v-card-actions >
                         <v-spacer></v-spacer>
                         <v-btn color="error" flat
-                        :disabled="serverInteractionInProgress"
-                        @click="$refs.currentConfigComponent.tryDeleteConfig()">Delete</v-btn>
+                            v-if="showDeleteConfig"
+                            :disabled="serverInteractionInProgress"
+                            @click="$refs.currentConfigComponent.tryDeleteConfig()">Delete</v-btn>
                         <v-btn color="success"
-                        :disabled="serverInteractionInProgress"
-                        @click="$refs.currentConfigComponent.saveConfig()">Save</v-btn>
+                            :disabled="serverInteractionInProgress"
+                            @click="$refs.currentConfigComponent.saveConfig()">Save</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -205,6 +206,11 @@ export default class EventNotificationsPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get showDeleteConfig(): boolean
+    {
+        return this.currentConfig != null && this.currentConfig.Id != null;
+    }
+
     get allowConfigChanges(): boolean
     {
         return !this.serverInteractionInProgress;
