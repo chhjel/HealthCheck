@@ -182,22 +182,6 @@ namespace HealthCheck.Core.Modules.EventNotifications
             }
             catch (Exception) { return; }
 
-            // Check that we have any enabled notifiers
-            var notifiers = Notifiers?.Where(x => x.IsEnabled())?.ToList();
-            if (notifiers == null || notifiers.Count == 0)
-            {
-                return;
-            }
-
-            // Check that we have any enabled configs
-            var configs = EventSinkNotificationConfigStorage.GetConfigs()
-                ?.Where(x => x.Enabled && x.NotifierConfigs.Any(nConfig => notifiers.Any(n => n.Id == nConfig.NotifierId)))
-                ?.ToList();
-            if (configs == null || configs.Count == 0)
-            {
-                return;
-            }
-
             var payloadIsComplex = false;
             var payloadProperties = new Dictionary<string, string>();
             var stringifiedPayload = payload?.ToString();
@@ -225,7 +209,24 @@ namespace HealthCheck.Core.Modules.EventNotifications
                 }
             }
 
+            // Create definition of payload if not existing
             EnsureDefinition(eventId, payloadProperties, payloadIsComplex);
+
+            // Check that we have any enabled notifiers
+            var notifiers = Notifiers?.Where(x => x.IsEnabled())?.ToList();
+            if (notifiers == null || notifiers.Count == 0)
+            {
+                return;
+            }
+
+            // Check that we have any enabled configs
+            var configs = EventSinkNotificationConfigStorage.GetConfigs()
+                ?.Where(x => x.Enabled && x.NotifierConfigs.Any(nConfig => notifiers.Any(n => n.Id == nConfig.NotifierId)))
+                ?.ToList();
+            if (configs == null || configs.Count == 0)
+            {
+                return;
+            }
 
             foreach (var config in configs)
             {
@@ -311,6 +312,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
             if (config.NotificationCountLimit != null)
             {
                 config.NotificationCountLimit--;
+                if (config.NotificationCountLimit < 0) config.NotificationCountLimit = 0;
             }
 
             if (config.LimitHasBeenReached())
