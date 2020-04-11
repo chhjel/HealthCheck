@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace HealthCheck.WebUI.Services
 {
@@ -17,6 +18,9 @@ namespace HealthCheck.WebUI.Services
         private static object _cacheUpdateLock = new object();
         private static Dictionary<string, IEnumerable<EventSinkNotificationConfig>> ConfigCache { get; set; } = new Dictionary<string, IEnumerable<EventSinkNotificationConfig>>();
         private string CacheKey => Store.FilePath.ToLower();
+        private static Dictionary<string, EventSinkNotificationConfig> SaveBuffer { get; set; } = new Dictionary<string, EventSinkNotificationConfig>();
+        private static bool IsWriteQueued { get; set; }
+        private float WriteDelay = 2f;
 
         /// <summary>
         /// Create a new <see cref="FlatFileEventSinkNotificationConfigStorage"/> with the given file path.
@@ -30,7 +34,7 @@ namespace HealthCheck.WebUI.Services
                 deserializer: new Func<string, EventSinkNotificationConfig>((row) => JsonConvert.DeserializeObject<EventSinkNotificationConfig>(row)),
                 idSelector: (e) => e.Id,
                 idSetter: (e, id) => e.Id = id,
-                nextIdFactory: (events, e) => Guid.NewGuid()
+                nextIdFactory: (events, e) => (e.Id == Guid.Empty ? Guid.NewGuid() : e.Id)
             );
         }
 
@@ -46,7 +50,13 @@ namespace HealthCheck.WebUI.Services
                 {
                     ConfigCache[key] = Store.GetEnumerable().ToList();
                 }
-                return ConfigCache[key];
+
+                var cachedConfigs = ConfigCache[key];
+                
+                return SaveBuffer
+                    .Values
+                    .Union(cachedConfigs.Where(x => !SaveBuffer.Any(s => s.Value.Id == x.Id)))
+                    .ToArray();
             }
         }
 
@@ -57,21 +67,14 @@ namespace HealthCheck.WebUI.Services
         {
             lock (_cacheUpdateLock)
             {
-                var updatedConfig = Store.InsertOrUpdateItem(config, (old) =>
-                {
-                    config.LatestResults = config
-                        ?.LatestResults
-                        ?.Union(old?.LatestResults ?? Enumerable.Empty<string>())
-                        ?.Take(10)
-                        ?.ToList()
-                        ?? new List<string>();
-                    return config;
-                });
+                var id = config.Id == Guid.Empty ? Guid.NewGuid() : config.Id;
+                config.Id = id;
 
-                var key = CacheKey;
-                ConfigCache.Remove(key);
+                SaveBuffer[id.ToString()] = config;
 
-                return updatedConfig;
+                QueueWriteBufferToFile();
+
+                return config;
             }
         }
 
@@ -79,6 +82,78 @@ namespace HealthCheck.WebUI.Services
         /// Deletes the config with the given id.
         /// </summary>
         public void DeleteConfig(Guid configId)
-            => Store.DeleteItem(configId);
+        {
+            lock (_cacheUpdateLock)
+            {
+                if (SaveBuffer.ContainsKey(configId.ToString()))
+                {
+                    SaveBuffer.Remove(configId.ToString());
+                }
+            }
+            Store.DeleteItem(configId);
+        }
+
+        /// <summary>
+        /// Deconstructor. Stores any buffered data before self destructing.
+        /// </summary>
+        ~FlatFileEventSinkNotificationConfigStorage()
+        {
+            WriteBufferToFile();
+        }
+
+        private void QueueWriteBufferToFile()
+        {
+            lock (_cacheUpdateLock)
+            {
+                // Return if already queued a write
+                if (IsWriteQueued)
+                {
+                    return;
+                }
+                IsWriteQueued = true;
+            }
+
+            // Wait to write
+            Task.Run(async () =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(WriteDelay));
+                WriteBufferToFile();
+            });
+        }
+
+        internal void WriteBufferToFile()
+        {
+            try
+            {
+                lock (_cacheUpdateLock)
+                {
+                    if (SaveBuffer.Count == 0)
+                    {
+                        IsWriteQueued = false;
+                        return;
+                    }
+
+                    foreach (var config in SaveBuffer.Values)
+                    {
+                        Store.InsertOrUpdateItem(config, (old) =>
+                        {
+                            config.LatestResults = config
+                                ?.LatestResults
+                                ?.Union(old?.LatestResults ?? Enumerable.Empty<string>())
+                                ?.Take(10)
+                                ?.ToList()
+                                ?? new List<string>();
+                            return config;
+                        });
+                    }
+
+                    SaveBuffer.Clear();
+                    var key = CacheKey;
+                    ConfigCache.Remove(key);
+                }
+            }
+            catch (Exception) { }
+            IsWriteQueued = false;
+        }
     }
 }

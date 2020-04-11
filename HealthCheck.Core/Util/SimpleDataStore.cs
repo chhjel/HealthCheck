@@ -380,7 +380,11 @@ namespace HealthCheck.Core.Util
         {
             lock (NewRowsBuffer)
             {
-                if (NewRowsBuffer.Count == 0) return;
+                if (NewRowsBuffer.Count == 0)
+                {
+                    IsWriteQueued = false;
+                    return;
+                }
 
                 try
                 {
