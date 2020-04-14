@@ -89,6 +89,14 @@ namespace HealthCheck.WebUI.Services
                 {
                     SaveBuffer.Remove(configId.ToString());
                 }
+
+                var cacheKey = CacheKey;
+                if (ConfigCache.ContainsKey(cacheKey))
+                {
+                    ConfigCache[cacheKey] = ConfigCache[cacheKey]
+                        .Where(x => x?.Id != configId)
+                        .ToList();
+                }
             }
             Store.DeleteItem(configId);
         }
