@@ -9,4 +9,5 @@ export default interface TestParameterViewModel {
     NotNull: boolean;
     ReadOnlyList: boolean;
     ShowTextArea: boolean;
+    FullWidth: boolean;
 }

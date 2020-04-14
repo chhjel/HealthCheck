@@ -111,7 +111,8 @@ namespace HealthCheck.WebUI.Factories
                 Type = type,
                 NotNull = testParameter.NotNull,
                 ReadOnlyList = testParameter.ReadOnlyList,
-                ShowTextArea = testParameter.ShowTextArea
+                ShowTextArea = testParameter.ShowTextArea,
+                FullWidth = testParameter.FullWidth
             };
 
             return vm;

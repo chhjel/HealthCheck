@@ -47,5 +47,10 @@ namespace HealthCheck.WebUI.ViewModels
         /// Show as text area if this is a string.
         /// </summary>
         public bool ShowTextArea { get; set; }
+
+        /// <summary>
+        /// Make the input field full width in size.
+        /// </summary>
+        public bool FullWidth { get; set; }
     }
 }

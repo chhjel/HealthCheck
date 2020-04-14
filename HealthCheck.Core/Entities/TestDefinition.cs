@@ -150,6 +150,7 @@ namespace HealthCheck.Core.Entities
                     NotNull = parameterAttribute?.UIHints.HasFlag(UIHint.NotNull) == true,
                     ReadOnlyList = parameterAttribute?.UIHints.HasFlag(UIHint.ReadOnlyList) == true,
                     ShowTextArea = parameterAttribute?.UIHints.HasFlag(UIHint.TextArea) == true,
+                    FullWidth = parameterAttribute?.UIHints.HasFlag(UIHint.FullWidth) == true,
                     PossibleValues = GetPossibleValues(parameter.ParameterType)
                 };
             }

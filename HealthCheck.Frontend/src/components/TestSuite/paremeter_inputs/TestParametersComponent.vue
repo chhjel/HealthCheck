@@ -3,7 +3,7 @@
     <div>
         <v-container grid-list-lg class="parameter-container">
           <v-layout row wrap>
-              <v-flex xs12 sm12 md6 :lg3="allowSmallSize(parameter)"
+              <v-flex xs12 sm12 :md6="allowMediumSize(parameter)" :lg3="allowSmallSize(parameter)"
                   v-for="(parameter, index) in test.Parameters"
                   :key="`test-${test.Id}-parameter`+index"
                   class="parameter-block">
@@ -38,8 +38,14 @@ export default class TestParametersComponent extends Vue {
         'HttpPostedFileBase',
         'List<HttpPostedFileBase>'
       ];
-      return !largerParameters.some(x => parameter.Type == x)
+      return !parameter.FullWidth
+        && !largerParameters.some(x => parameter.Type == x)
         && !(parameter.Type == 'String' && parameter.ShowTextArea);
+    }
+
+    allowMediumSize(parameter: TestParameterViewModel): boolean
+    {
+      return !parameter.FullWidth;
     }
 }
 </script>

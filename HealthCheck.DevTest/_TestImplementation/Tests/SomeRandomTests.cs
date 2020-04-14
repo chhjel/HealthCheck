@@ -42,7 +42,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         }
 
         [RuntimeTest]
-        [RuntimeTestParameter(target: "textArea", "Text Area", "Testing a text area here", RuntimeTestParameterAttribute.UIHint.TextArea)]
+        [RuntimeTestParameter(target: "textArea", "Text Area", "Testing a text area here", RuntimeTestParameterAttribute.UIHint.TextArea | RuntimeTestParameterAttribute.UIHint.FullWidth)]
         public TestResult TestParameterTypes(
             DateTime date, DateTime? nullableDate = null,
             string text = "abc",

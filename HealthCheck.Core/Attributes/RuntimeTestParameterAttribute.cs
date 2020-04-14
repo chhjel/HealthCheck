@@ -95,7 +95,12 @@ namespace HealthCheck.Core.Attributes
             /// <summary>
             /// Only affects generic lists. Does not allow new entries to be added, or existing entries to be changed.
             /// </summary>
-            ReadOnlyList = 4
+            ReadOnlyList = 4,
+
+            /// <summary>
+            /// Make the input field full width in size.
+            /// </summary>
+            FullWidth = 8
         }
 
     }
