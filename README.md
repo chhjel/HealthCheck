@@ -666,6 +666,10 @@ eventSink.RegisterEvent("order_exception", errorMessage);
 
 // ..with a payload with stringifiable properties
 eventSink.RegisterEvent("new_order", new { PaymentType = 'Invoice', Warnings = 0 });
+
+// The static TryRegisterEvent method can be used for quick and easy access.
+EventSinkUtil.TryRegisterEvent("thing_imported", () => new { Type = "etc", Value = 321 })
+
 ```
 
 </p>
