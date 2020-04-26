@@ -153,6 +153,29 @@ namespace HealthCheck.DevTest.Controllers
                 SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp)
             });
 
+            if (Request.QueryString.AllKeys.Contains("eventsink"))
+            {
+                var count = 10;
+                if (int.TryParse(Request.QueryString["eventsink"], out int eventSinkCount))
+                {
+                    count = eventSinkCount;
+                }
+
+                Task.Run(() =>
+                {
+                    Parallel.ForEach(Enumerable.Range(1, count), (i) =>
+                    {
+                        Services.EventSink.RegisterEvent("event_parallel_test", new
+                        {
+                            Number = i,
+                            TimeStamp = DateTime.Now,
+                            RandomValue = new Random().Next(1000),
+                            Guid = Guid.NewGuid()
+                        });
+                    });
+                });
+            }
+
             if (Request.QueryString.AllKeys.Contains("stream"))
             {
                 var someExternalItems = new[]

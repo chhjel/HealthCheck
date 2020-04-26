@@ -255,7 +255,10 @@ namespace HealthCheck.Core.Modules.EventNotifications
                             {
                                 result = $"{DateTime.Now.ToString("ddd. d. MMMM @6 HH:mm:ss")} - {result}";
                             }
-                            OnEventNotified(config, result);
+                            lock (_cacheUpdateLock)
+                            {
+                                OnEventNotified(config, result);
+                            }
                         });
                     }
                 }
