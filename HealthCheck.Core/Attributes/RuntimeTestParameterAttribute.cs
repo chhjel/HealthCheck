@@ -41,13 +41,13 @@ namespace HealthCheck.Core.Attributes
         /// <param name="target">Target parameter name.</param>
         /// <param name="name">New name of the property.</param>
         /// <param name="description">Description text that will be visible as a help text.</param>
-        /// <param name="uIHints">Optional hints for display options.</param>
-        public RuntimeTestParameterAttribute(string target, string name, string description, UIHint uIHints = UIHint.None)
+        /// <param name="uiHints">Optional hints for display options.</param>
+        public RuntimeTestParameterAttribute(string target, string name, string description, UIHint uiHints = UIHint.None)
         {
             Target = target;
             Name = name;
             Description = description;
-            UIHints = uIHints;
+            UIHints = uiHints;
         }
 
         /// <summary>

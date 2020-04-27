@@ -181,9 +181,9 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
 
         [RuntimeTest]
         [RuntimeTestParameter("stringList", "A read only string list", "Fancy description 1", 
-            uIHints: RuntimeTestParameterAttribute.UIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListTest_Default))]
+            uiHints: RuntimeTestParameterAttribute.UIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListTest_Default))]
         [RuntimeTestParameter("enumList", "A read only enum list", "Fancy description 2",
-            uIHints: RuntimeTestParameterAttribute.UIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListEnumTest_Default))]
+            uiHints: RuntimeTestParameterAttribute.UIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListEnumTest_Default))]
         public TestResult ReadOnlyListTest(List<string> stringList, List<EnumTestType> enumList)
         {
             return TestResult.CreateSuccess($"Got lists")
@@ -241,7 +241,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         )]
         [RuntimeTestParameter(target: "id", name: "Data id", description: "Id of the thing to get")]
         [RuntimeTestParameter(target: "orgName", name: "Organization name", description: "Name of the organization the data belongs to",
-            uIHints: RuntimeTestParameterAttribute.UIHint.NotNull)]
+            uiHints: RuntimeTestParameterAttribute.UIHint.NotNull)]
         [RuntimeTestParameter(target: "latestOnly", name: "Only get the latest data", description: "If true only the latest data will be retrieved")]
         public async Task<TestResult> GetDataFromX(int id = 123, string orgName = "Test Organization", bool latestOnly = false, int someNumber = 42)
         {
