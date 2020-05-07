@@ -14,6 +14,14 @@ export interface ServiceFetchCallbacks<T>
     onDone?: (() => void) | null;
 }
 
+/*
+this.service.PerformOperation(this.internalConfig.Id, null, {
+    // onSuccess: (data) => etc,
+    // onError: (message) => etc,
+    // onDone: () => etc
+});
+*/
+
 export default class HCServiceBase
 {
     public options: FrontEndOptionsViewModel;
@@ -23,12 +31,13 @@ export default class HCServiceBase
         this.options = options;
     }
 
-    public fetchExt<T>(
+    public fetchExt<T = unknown>(
         url: string,
         method: string,
         payload: any | null = null,
         statusObject: FetchStatus | null = null,
-        callbacks: ServiceFetchCallbacks<T> | null = null
+        callbacks: ServiceFetchCallbacks<T> | null = null,
+        json: boolean = true,
     ): void
     {
         if (statusObject != null)
@@ -38,7 +47,11 @@ export default class HCServiceBase
             statusObject.errorMessage = null;
         }
 
-        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
+        let queryStringIfEnabled = '';
+        if (this.options.InludeQueryStringInApiCalls)
+        {
+            queryStringIfEnabled = url.includes('?') ? `&${window.location.search.replace('?', '')}` : window.location.search;
+        }
         url = `${url}${queryStringIfEnabled}`;
 
         let payloadJson = (payload == null) ? null : JSON.stringify(payload);
@@ -57,8 +70,9 @@ export default class HCServiceBase
                 throw new Error('Was redirected. Probably not logged in.');
             }
 
-            return response.json();
+            return json ? response.json() : response;
         })
+        // .then(response => new Promise<Array<T>>(resolve => setTimeout(() => resolve(response), 3000)))
         .then((data: T) => {
             if (statusObject != null)
             {
