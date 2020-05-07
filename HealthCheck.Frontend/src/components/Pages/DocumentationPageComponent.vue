@@ -44,20 +44,20 @@
                     <v-flex>
                         <v-container>
                             <!-- NO DIAGRAMS INFO -->
-                            <v-alert :value="sequenceDiagrams.length == 0 && !diagramsDataLoadInProgress && !diagramsDataLoadFailed" type="info">
+                            <v-alert :value="sequenceDiagrams.length == 0 && !loadStatus.inProgress && !loadStatus.failed" type="info">
                                 No documentation was found.<br />
                                 Decorate backend code with <code>[SequenceDiagramStepAttribute]</code> for sequence diagrams to be generated,<br />
                                 or with <code>[FlowChartStepAttribute]</code> for flow charts to be generated.
                             </v-alert>
 
                             <!-- DATA LOAD ERROR -->
-                            <v-alert :value="diagramsDataLoadFailed" type="error">
-                            {{ diagramsDataFailedErrorMessage }}
+                            <v-alert :value="loadStatus.failed" type="error">
+                            {{ loadStatus.errorMessage }}
                             </v-alert>
 
                             <!-- LOAD PROGRESS -->
                             <v-progress-linear 
-                                v-if="diagramsDataLoadInProgress"
+                                v-if="loadStatus.inProgress"
                                 indeterminate color="green"></v-progress-linear>
 
                             <!-- SELECTED DIAGRAM -->
@@ -150,6 +150,8 @@ import KeyValuePair from "../../models/Common/KeyValuePair";
 import SequenceDiagramComponent, { SequenceDiagramStep, SequenceDiagramLineStyle, SequenceDiagramStyle } from "../Common/SequenceDiagramComponent.vue";
 import FilterInputComponent from '.././Common/FilterInputComponent.vue';
 import FlowDiagramComponent, { FlowDiagramStep, FlowDiagramStepType } from '.././Common/FlowDiagramComponent.vue';
+import { FetchStatus } from "../../services/abstractions/HCServiceBase";
+import DocumentationService from "../../services/DocumentationService";
 
 interface FlowChartData
 {
@@ -195,12 +197,12 @@ export default class DocumentationPageComponent extends Vue {
     sequenceDiagrams: Array<SequenceDiagramData> = [];
     flowCharts: Array<FlowChartData> = [];
 
+    service: DocumentationService = new DocumentationService(this.options);
+    loadStatus: FetchStatus = new FetchStatus();
+
     // UI STATE
     drawerState: boolean = true;
     diagramFilterText: string = "";
-    diagramsDataLoadInProgress: boolean = false;
-    diagramsDataLoadFailed: boolean = true;
-    diagramsDataFailedErrorMessage: string = '';
     sandboxMode: boolean = false;
     showRemarks: boolean = true;
 
@@ -345,27 +347,7 @@ Web -> Frontend: Confirmation is delivered
     }
 
     loadData(): void {
-        this.diagramsDataLoadInProgress = true;
-        this.diagramsDataLoadFailed = false;
-
-        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
-        let url = `${this.options.DiagramsDataEndpoint}${queryStringIfEnabled}`;
-        fetch(url, {
-            credentials: 'include',
-            method: "GET",
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            })
-        })
-        .then(response => response.json())
-        .then((diagramsData: DiagramsDataViewModel) => this.onDiagramsDataRetrieved(diagramsData))
-        .catch((e) => {
-            this.diagramsDataLoadInProgress = false;
-            this.diagramsDataLoadFailed = true;
-            this.diagramsDataFailedErrorMessage = `Failed to load data with the following error. ${e}.`;
-            console.error(e);
-        });
+        this.service.GetDiagramsData(this.loadStatus, { onSuccess: (data) => this.onDiagramsDataRetrieved(data)});
     }
 
     onDiagramsDataRetrieved(diagramsData: DiagramsDataViewModel): void {
@@ -419,8 +401,6 @@ Web -> Frontend: Confirmation is delivered
                 }
             });
         
-        this.diagramsDataLoadInProgress = false;
-
         const originalUrlHashParts = UrlUtils.GetHashParts();
         this.setFromUrl(originalUrlHashParts);
     }

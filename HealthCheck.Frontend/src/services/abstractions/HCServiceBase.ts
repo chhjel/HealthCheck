@@ -15,6 +15,13 @@ export interface ServiceFetchCallbacks<T>
 }
 
 /*
+import RequestLogService from "../../services/RequestLogService";
+import { FetchStatus } from "../../services/abstractions/HCServiceBase";
+
+service: RequestLogService = new RequestLogService(this.options);
+loadStatus: FetchStatus = new FetchStatus();
+clearStatus: FetchStatus = new FetchStatus();
+
 this.service.PerformOperation(this.internalConfig.Id, null, {
     // onSuccess: (data) => etc,
     // onError: (message) => etc,
