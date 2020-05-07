@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import { CustomSetting }  from '../../services/HCSettingsService';
+import { CustomSetting }  from '../../services/SettingsService';
 // Input components
 import UnknownSettingInputComponent from './InputTypes/UnknownSettingInputComponent.vue';
 import SettingInputTypeBooleanComponent from './InputTypes/SettingInputTypeBooleanComponent.vue';

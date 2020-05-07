@@ -64,7 +64,7 @@ import DateUtils from "../../util/DateUtils";
 import LinqUtils from "../../util/LinqUtils";
 import UrlUtils from "../../util/UrlUtils";
 import SettingInputComponent from '../Settings/SettingInputComponent.vue';
-import HCSettingsService, { GetSettingsModel, BackendSetting, CustomSetting, CustomSettingGroup }  from '../../services/HCSettingsService';
+import SettingsService, { GetSettingsModel, BackendSetting, CustomSetting, CustomSettingGroup }  from '../../services/SettingsService';
 import { FetchStatus,  } from "../../services/abstractions/HCServiceBase";
 
 @Component({
@@ -76,7 +76,7 @@ export default class SettingsPageComponent extends Vue {
     @Prop({ required: true })
     options!: FrontEndOptionsViewModel;
 
-    service: HCSettingsService = new HCSettingsService(this.options);
+    service: SettingsService = new SettingsService(this.options);
     loadStatus: FetchStatus = new FetchStatus();
     saveStatus: FetchStatus = new FetchStatus();
 
@@ -107,7 +107,7 @@ export default class SettingsPageComponent extends Vue {
     //  METHODS  //
     //////////////
     loadData(): void {
-        this.service.GetSettings(this.loadStatus, (data) => this.onDataRetrieved(data));
+        this.service.GetSettings(this.loadStatus, { onSuccess: (data) => this.onDataRetrieved(data) });
     }
 
     onDataRetrieved(data: GetSettingsModel): void {

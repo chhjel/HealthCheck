@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import { CustomSetting }  from '../../../services/HCSettingsService';
+import { CustomSetting }  from '../../../services/SettingsService';
 
 @Component({
     components: {

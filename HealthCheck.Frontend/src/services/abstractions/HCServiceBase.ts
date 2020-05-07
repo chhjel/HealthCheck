@@ -7,6 +7,13 @@ export class FetchStatus
     public errorMessage: string | null = null;
 }
 
+export interface ServiceFetchCallbacks<T>
+{
+    onSuccess?: ((data: T) => void ) | null;
+    onError?: ((message: string) => void) | null;
+    onDone?: (() => void) | null;
+}
+
 export default class HCServiceBase
 {
     public options: FrontEndOptionsViewModel;
@@ -21,8 +28,7 @@ export default class HCServiceBase
         method: string,
         payload: any | null = null,
         statusObject: FetchStatus | null = null,
-        onSuccess: ((data: T) => void ) | null = null,
-        onError: ((message: string) => void) | null = null
+        callbacks: ServiceFetchCallbacks<T> | null = null
     ): void
     {
         if (statusObject != null)
@@ -59,9 +65,14 @@ export default class HCServiceBase
                 statusObject.inProgress = false;
             }
 
-            if (onSuccess != null)
+            if (callbacks != null && callbacks.onSuccess != null)
             {
-                onSuccess(data);
+                callbacks.onSuccess(data);
+            }
+
+            if (callbacks != null && callbacks.onDone != null)
+            {
+                callbacks.onDone();
             }
         })
         .catch((e) => {
@@ -74,9 +85,14 @@ export default class HCServiceBase
                 statusObject.errorMessage = `Failed to load data with the following error. ${e}.`;
             }
 
-            if (onError != null)
+            if (callbacks != null && callbacks.onError != null)
             {
-                onError(`Failed to load data with the following error. ${e}.`);
+                callbacks.onError(`Failed to load data with the following error. ${e}.`);
+            }
+
+            if (callbacks != null && callbacks.onDone != null)
+            {
+                callbacks.onDone();
             }
         });
     }

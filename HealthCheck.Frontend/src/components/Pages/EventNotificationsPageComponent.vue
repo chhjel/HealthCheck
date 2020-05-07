@@ -10,12 +10,12 @@
 
                 <!-- LOAD PROGRESS -->
                 <v-progress-linear 
-                    v-if="dataLoadInProgress"
+                    v-if="loadStatus.inProgress"
                     indeterminate color="green"></v-progress-linear>
 
                 <!-- DATA LOAD ERROR -->
-                <v-alert :value="dataLoadFailed" v-if="dataLoadFailed" type="error">
-                {{ dataFailedErrorMessage }}
+                <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+                {{ loadStatus.errorMessage }}
                 </v-alert>
 
                 <v-btn :disabled="!allowConfigChanges"
@@ -173,6 +173,8 @@ import EventNotificationConfigComponent from '.././EventNotifications/EventNotif
 import IdUtils from "../../util/IdUtils";
 import EventSinkNotificationConfigUtils, { ConfigDescription, ConfigFilterDescription, ConfigActionDescription } from "../../util/EventNotifications/EventSinkNotificationConfigUtils";
 import BlockComponent from '../../components/Common/Basic/BlockComponent.vue';
+import { FetchStatus } from "../../services/abstractions/HCServiceBase";
+import EventNotificationService from "../../services/EventNotificationService";
 
 @Component({
     components: {
@@ -186,10 +188,10 @@ export default class EventNotificationsPageComponent extends Vue {
     @Prop({ required: true })
     options!: FrontEndOptionsViewModel;
 
+    service: EventNotificationService = new EventNotificationService(this.options);
+
     // UI STATE
-    dataLoadInProgress: boolean = false;
-    dataLoadFailed: boolean = false;
-    dataFailedErrorMessage: string = '';
+    loadStatus: FetchStatus = new FetchStatus();
     serverInteractionInProgress: boolean = false;
 
     data: GetEventNotificationConfigsViewModel | null = null;
@@ -294,27 +296,7 @@ export default class EventNotificationsPageComponent extends Vue {
     }
 
     loadData(): void {
-        this.dataLoadInProgress = true;
-        this.dataLoadFailed = false;
-
-        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
-        let url = `${this.options.GetEventNotificationConfigsEndpoint}${queryStringIfEnabled}`;
-        fetch(url, {
-            credentials: 'include',
-            method: "GET",
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            })
-        })
-        .then(response => response.json())
-        .then((data: GetEventNotificationConfigsViewModel) => this.onDataRetrieved(data))
-        .catch((e) => {
-            this.dataLoadFailed = true;
-            this.dataLoadInProgress = false;
-            this.dataFailedErrorMessage = `Failed to load data with the following error. ${e}.`;
-            console.error(e);
-        });
+        this.service.GetEventNotifications(this.loadStatus, { onSuccess: (data) => this.onDataRetrieved(data) });
     }
 
     onDataRetrieved(data: GetEventNotificationConfigsViewModel): void {
@@ -323,8 +305,6 @@ export default class EventNotificationsPageComponent extends Vue {
             EventSinkNotificationConfigUtils.postProcessConfig(config, this.notifiers);
         });
 
-        this.dataLoadInProgress = false;
-        
         const originalUrlHashParts = UrlUtils.GetHashParts();
         this.setFromUrl(originalUrlHashParts);
         
@@ -338,33 +318,14 @@ export default class EventNotificationsPageComponent extends Vue {
 
     setConfigEnabled(config: EventSinkNotificationConfig, enabled: boolean): void {
         this.serverInteractionInProgress = true;
-
-        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
-        let url = `${this.options.SetEventNotificationConfigEnabledEndpoint}${queryStringIfEnabled}`;
-        let payload = {
-            configId: config.Id,
-            enabled: enabled
-        };
-        fetch(url, {
-            credentials: 'include',
-            method: "POST",
-            body: JSON.stringify(payload),
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            })
-        })
-        .then(response => response.json())
-        .then((data: any) => {
-            this.serverInteractionInProgress = false;
-
-            if (data.Success == true) {
-                config.Enabled = enabled;
-            }
-        })
-        .catch((e) => {
-            this.serverInteractionInProgress = false;
-            console.error(e);
+        
+        this.service.SetConfigEnabled(config, enabled, this.loadStatus, {
+            onSuccess: (data) => {
+                if (data.Success == true) {
+                    config.Enabled = enabled;
+                }
+            },
+            onDone: () => this.serverInteractionInProgress = false
         });
     }
 
