@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import { CustomSetting } from "../../Pages/SettingsPageComponent.vue";
+import { CustomSetting }  from '../../../services/SettingsService';
 
 @Component({
     components: {

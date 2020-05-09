@@ -43,6 +43,7 @@ namespace HealthCheck.DevTest.NetCore.Controllers
         protected override void Configure(HttpRequest request)
         {
             TestRunner.IncludeExceptionStackTraces = CurrentRequestAccessRoles.HasValue && CurrentRequestAccessRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);
+            AccessOptions.RedirectTargetOnNoAccess = "/no-access";
         }
 
         protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)

@@ -295,6 +295,7 @@ import IdUtils from "../../util/IdUtils";
 import EventSinkNotificationConfigUtils, { ConfigFilterDescription, ConfigDescription, ConfigActionDescription } from "../../util/EventNotifications/EventSinkNotificationConfigUtils";
 import BlockComponent from '../../components/Common/Basic/BlockComponent.vue';
 import InputComponent from '../../components/Common/Basic/InputComponent.vue';
+import EventNotificationService from "../../services/EventNotificationService";
 
 @Component({
     components: {
@@ -325,6 +326,7 @@ export default class EventNotificationConfigComponent extends Vue {
 
     // @ts-ignore
     internalConfig: EventSinkNotificationConfig = null;
+    service: EventNotificationService = new EventNotificationService(this.options);
     ASD!: EventSinkNotificationConfig;
     notifierDialogVisible: boolean = false;
     deleteDialogVisible: boolean = false;
@@ -533,26 +535,10 @@ export default class EventNotificationConfigComponent extends Vue {
         this.isSaving = true;
         this.setServerInteractionInProgress(true);
 
-        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
-        let url = `${this.options.SaveEventNotificationConfigEndpoint}${queryStringIfEnabled}`;
-        let payload = {
-            config: this.internalConfig
-        };
-        fetch(url, {
-            credentials: 'include',
-            method: "POST",
-            body: JSON.stringify(payload),
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            })
-        })
-        .then(response => response.json())
-        .then((data: EventSinkNotificationConfig) => this.onConfigSaved(data))
-        .catch((e) => {
-            this.isSaving = false;
-            this.setServerInteractionInProgress(false, e);
-            console.error(e);
+        this.service.SaveConfig(this.internalConfig, null, {
+            onSuccess: (data) => this.onConfigSaved(data),
+            onError: (message) => this.setServerInteractionInProgress(false, message),
+            onDone: () => { this.isSaving = false }
         });
     }
 
@@ -567,30 +553,19 @@ export default class EventNotificationConfigComponent extends Vue {
     }
 
     public deleteConfig(): void {
+        if (this.internalConfig.Id == null)
+        {
+            return;
+        }
+
         this.deleteDialogVisible = false;
         this.isDeleting = true;
         this.setServerInteractionInProgress(true);
 
-        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
-        let url = `${this.options.DeleteEventNotificationConfigEndpoint}${queryStringIfEnabled}`;
-        let payload = {
-            configId: this.internalConfig.Id
-        };
-        fetch(url, {
-            credentials: 'include',
-            method: "POST",
-            body: JSON.stringify(payload),
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            })
-        })
-        .then(response => response.json())
-        .then((data: EventSinkNotificationConfig) => this.onConfigDeleted(data))
-        .catch((e) => {
-            this.isDeleting = false;
-            this.setServerInteractionInProgress(false, e);
-            console.error(e);
+        this.service.DeleteConfig(this.internalConfig.Id, null, {
+            onSuccess: (data) => this.onConfigDeleted(data),
+            onError: (message) => this.setServerInteractionInProgress(false, message),
+            onDone: () => { this.isDeleting = false }
         });
     }
 
