@@ -27,6 +27,7 @@
         <test-component
             v-for="(test) in filteredTests"
             :key="`set-${testSet.Id}-test-${test.Id}`"
+            :options="options"
             :test="test"
             :executeTestEndpoint="executeTestEndpoint"
             :cancelTestEndpoint="cancelTestEndpoint"
@@ -46,6 +47,7 @@ import TestSetViewModel from '../../models/TestSuite/TestSetViewModel';
 import TestViewModel from '../../models/TestSuite/TestViewModel';
 import TestComponent from './TestComponent.vue';
 import UrlUtils from "../../util/UrlUtils";
+import FrontEndOptionsViewModel from "../../models/Page/FrontEndOptionsViewModel";
 
 @Component({
     components: {
@@ -53,6 +55,9 @@ import UrlUtils from "../../util/UrlUtils";
     }
 })
 export default class TestSetComponent extends Vue {
+    @Prop({ required: true })
+    options!: FrontEndOptionsViewModel;
+    
     @Prop({ required: true })
     testSet!: TestSetViewModel;
     

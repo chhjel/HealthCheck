@@ -8,21 +8,21 @@
           <!-- CONTENT BEGIN -->
             
         <v-container grid-list-md>
-            <v-layout align-content-center wrap v-if="requestLogDataLoadInProgress || requestLogDataLoadFailed">
+            <v-layout align-content-center wrap v-if="loadStatus.inProgress || loadStatus.failed">
                 <!-- LOAD ERROR -->
                 <v-alert
-                    :value="requestLogDataLoadFailed"
+                    :value="loadStatus.failed"
                     type="error">
-                {{ requestLogDataFailedErrorMessage }}
+                {{ loadStatus.errorMessage }}
                 </v-alert>
 
                 <!-- PROGRESS BAR -->
                 <v-progress-linear
-                    v-if="requestLogDataLoadInProgress"
+                    v-if="loadStatus.inProgress"
                     indeterminate color="green"></v-progress-linear>
             </v-layout>
 
-            <v-layout align-content-center wrap v-if="entries.length == 0 && !requestLogDataLoadInProgress && !requestLogDataLoadFailed">
+            <v-layout align-content-center wrap v-if="entries.length == 0 && !loadStatus.inProgress && !loadStatus.failed">
                 <v-alert type="info" :value="true">
                     No requests has been logged yet.
                 </v-alert>
@@ -116,8 +116,8 @@
                 <v-layout row wrap v-if="options.HasAccessToClearRequestLog">
                     <v-flex xs12 sm6 md4>
                         <v-btn
-                            :loading="requestLogClearInProgress"
-                            :disabled="requestLogClearInProgress"
+                            :loading="clearStatus.inProgress"
+                            :disabled="clearStatus.inProgress"
                             color="error"
                             @click="clearRequestLog(true)"
                             >
@@ -128,8 +128,8 @@
 
                     <v-flex xs12 sm6 md4>
                         <v-btn
-                            :loading="requestLogClearInProgress"
-                            :disabled="requestLogClearInProgress"
+                            :loading="clearStatus.inProgress"
+                            :disabled="clearStatus.inProgress"
                             color="error"
                             @click="clearRequestLog(false)"
                             >
@@ -138,11 +138,11 @@
                         </v-btn>
                     </v-flex>
 
-                    <v-flex xs12 v-if="requestLogClearLoadFailed">
+                    <v-flex xs12 v-if="clearStatus.failed">
                         <v-alert
-                            :value="requestLogClearLoadFailed"
+                            :value="clearStatus.failed"
                             type="error">
-                        {{ requestLogClearFailedErrorMessage }}
+                        {{ clearStatus.errorMessage }}
                         </v-alert>
                     </v-flex>
                 </v-layout>
@@ -171,6 +171,8 @@ import LinqUtils from "../../util/LinqUtils";
 import UrlUtils from "../../util/UrlUtils";
 import KeyArray from "../../util/models/KeyArray";
 import KeyValuePair from "../../models/Common/KeyValuePair";
+import RequestLogService from "../../services/RequestLogService";
+import { FetchStatus } from "../../services/abstractions/HCServiceBase";
 
 @Component({
     components: {
@@ -182,13 +184,9 @@ export default class RequestLogPageComponent extends Vue {
     @Prop({ required: true })
     options!: FrontEndOptionsViewModel;
 
-    // Loading
-    requestLogDataLoadInProgress: boolean = false;
-    requestLogDataLoadFailed: boolean = false;
-    requestLogDataFailedErrorMessage: string = "";
-    requestLogClearInProgress: boolean = false;
-    requestLogClearLoadFailed: boolean = false;
-    requestLogClearFailedErrorMessage: string = "";
+    service: RequestLogService = new RequestLogService(this.options);
+    loadStatus: FetchStatus = new FetchStatus();
+    clearStatus: FetchStatus = new FetchStatus();
 
     entries: Array<LoggedEndpointDefinitionViewModel> = [];
     verbs: Array<string> = [];
@@ -302,28 +300,7 @@ export default class RequestLogPageComponent extends Vue {
     }
 
     loadData(): void {
-        this.requestLogDataLoadInProgress = true;
-        this.requestLogDataLoadFailed = false;
-
-        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
-        let url = `${this.options.GetRequestLogEndpoint}${queryStringIfEnabled}`;
-        fetch(url, {
-            credentials: 'include',
-            method: "GET",
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            })
-        })
-        .then(response => response.json())
-        // .then(response => new Promise<Array<LoggedEndpointDefinitionViewModel>>(resolve => setTimeout(() => resolve(response), 3000)))
-        .then((events: Array<LoggedEndpointDefinitionViewModel>) => this.onEventDataRetrieved(events))
-        .catch((e) => {
-            this.requestLogDataLoadInProgress = false;
-            this.requestLogDataLoadFailed = true;
-            this.requestLogDataFailedErrorMessage = `Failed to load data with the following error. ${e}.`;
-            console.error(e);
-        });
+        this.service.GetRequestLog(this.loadStatus, { onSuccess: (data) => this.onEventDataRetrieved(data)});
     }
     
     onEventDataRetrieved(events: Array<LoggedEndpointDefinitionViewModel>): void {
@@ -364,44 +341,25 @@ export default class RequestLogPageComponent extends Vue {
         this.verbs.forEach(verb => this.visibleVerbs.push(verb));
 
         this.setFromUrl(originalUrlHashParts);
-        this.requestLogDataLoadInProgress = false;
+        this.loadStatus.inProgress = false;
     }
 
     clearRequestLog(includeDefinitions: boolean): void {
-        this.requestLogClearInProgress = true;
-        this.requestLogClearLoadFailed = false;
-
-        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? `&${window.location.search.replace('?', '')}` : '';
-        let url = `${this.options.ClearRequestLogEndpoint}?includeDefinitions=${includeDefinitions}${queryStringIfEnabled}`;
-        fetch(url, {
-            credentials: 'include',
-            method: "DELETE",
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            })
-        })
-        .then(() => {
-            this.requestLogClearInProgress = false;
-
-            if (includeDefinitions)
-            {
-                this.entries = [];
+        this.service.ClearRequestLog(includeDefinitions, this.clearStatus, {
+            onSuccess: (data) => {
+                if (includeDefinitions)
+                {
+                    this.entries = [];
+                }
+                else
+                {
+                    this.entries = this.entries.map(x => {
+                        x.Calls = [];
+                        x.Errors = [];
+                        return x;
+                    });
+                }
             }
-            else
-            {
-                this.entries = this.entries.map(x => {
-                    x.Calls = [];
-                    x.Errors = [];
-                    return x;
-                });
-            }
-        })
-        .catch((e) => {
-            this.requestLogClearInProgress = false;
-            this.requestLogClearLoadFailed = true;
-            this.requestLogClearFailedErrorMessage = `Failed to clear log with the following error. ${e}.`;
-            console.error(e);
         });
     }
     

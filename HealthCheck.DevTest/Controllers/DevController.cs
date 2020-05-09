@@ -49,7 +49,7 @@ namespace HealthCheck.DevTest.Controllers
         private static readonly FlatFileEventSinkKnownEventDefinitionsStorage EventSinkNotificationDefinitionStorage
             = new FlatFileEventSinkKnownEventDefinitionsStorage(@"c:\temp\eventconfig_defs.json");
         private IHealthCheckSettingsService SettingsService { get; set; } = new FlatFileHealthCheckSettingsService<TestSettings>(@"C:\temp\settings.json");
-
+        private static bool ForceLogout { get; set; }
 
         #region Init
         public DevController()
@@ -99,6 +99,18 @@ namespace HealthCheck.DevTest.Controllers
             {
                 InitOnce();
             }
+        }
+
+        public ActionResult Logout()
+        {
+            ForceLogout = true;
+            return Content("Logged out");
+        }
+
+        public ActionResult Login()
+        {
+            ForceLogout = false;
+            return Content("Logged in");
         }
 
         public class TestSettings
@@ -257,6 +269,8 @@ namespace HealthCheck.DevTest.Controllers
             AccessOptions.DataflowPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
             AccessOptions.SettingsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.EventNotificationsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+
+            AccessOptions.RedirectTargetOnNoAccess = "/no-access";
         }
 
         protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)
@@ -281,6 +295,11 @@ namespace HealthCheck.DevTest.Controllers
             {
                 roles = RuntimeTestAccessRole.None;
                 return new RequestInformation<RuntimeTestAccessRole>(roles, "no_access_test", "No user");
+            }
+
+            if (ForceLogout)
+            {
+                return new RequestInformation<RuntimeTestAccessRole>(roles, "force_logout_test", "No user");
             }
 
             roles |= RuntimeTestAccessRole.SystemAdmins | RuntimeTestAccessRole.WebAdmins;

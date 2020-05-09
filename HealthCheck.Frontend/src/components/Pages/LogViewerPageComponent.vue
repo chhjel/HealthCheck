@@ -36,7 +36,7 @@
                             :startDate="filterFromDate"
                             :endDate="filterToDate"
                             :singleDate="false"
-                            :disabled="logDataLoadInProgress"
+                            :disabled="searchLoadStatus.inProgress"
                             timeFormat="HH:mm"
                             @onChange="onDateRangeChanged"
                         />
@@ -45,13 +45,13 @@
                     <v-flex xs12 sm12 md4 style="text-align: right;">
                         <v-btn ripple color="error"
                             @click.stop.prevent="cancelSearch(currentSearchId)"
-                            v-if="logDataLoadInProgress && currentSearchId != ''"
-                            :disabled="cancellationInProgress">
+                            v-if="searchLoadStatus.inProgress && currentSearchId != ''"
+                            :disabled="cancelSearchStatus.inProgress">
                             <v-icon color="white">cancel</v-icon>
                             Cancel
                         </v-btn>
-                        <v-btn @click="currentPage=1;loadData()" :disabled="logDataLoadInProgress" class="primary">Search</v-btn>
-                        <v-btn @click="resetFilters" :disabled="logDataLoadInProgress">Reset</v-btn>
+                        <v-btn @click="currentPage=1;loadData()" :disabled="searchLoadStatus.inProgress" class="primary">Search</v-btn>
+                        <v-btn @click="resetFilters" :disabled="searchLoadStatus.inProgress">Reset</v-btn>
                     </v-flex>
                     
                     <!-- QUERY -->
@@ -61,7 +61,7 @@
                                 <v-text-field type="text" clearable
                                     label="Content filter"
                                     v-model="filterQuery"
-                                    :disabled="logDataLoadInProgress"
+                                    :disabled="searchLoadStatus.inProgress"
                                     :error-messages="searchResultData.ParsedQuery.ParseError"
                                 ></v-text-field>
                             </v-flex>
@@ -82,7 +82,7 @@
                                 <v-text-field type="text" clearable
                                     label="Content exclusion filter"
                                     v-model="filterExcludedQuery"
-                                    :disabled="logDataLoadInProgress"
+                                    :disabled="searchLoadStatus.inProgress"
                                     :error-messages="searchResultData.ParsedExcludedQuery.ParseError"
                                 ></v-text-field>
                             </v-flex>
@@ -103,7 +103,7 @@
                                 <v-text-field type="text" clearable
                                     label="File path filter"
                                     v-model="filterLogPathQuery"
-                                    :disabled="logDataLoadInProgress"
+                                    :disabled="searchLoadStatus.inProgress"
                                     :error-messages="searchResultData.ParsedLogPathQuery.ParseError"
                                 ></v-text-field>
                             </v-flex>
@@ -124,7 +124,7 @@
                                 <v-text-field type="text" clearable
                                     label="File path exclusion filter"
                                     v-model="filterExcludedLogPathQuery"
-                                    :disabled="logDataLoadInProgress"
+                                    :disabled="searchLoadStatus.inProgress"
                                     :error-messages="searchResultData.ParsedExcludedLogPathQuery.ParseError"
                                 ></v-text-field>
                             </v-flex>
@@ -145,7 +145,7 @@
                                 <v-text-field type="text" clearable
                                     v-model="customColumnRule"
                                     :label="getDelimiterLabel()"
-                                    :disabled="logDataLoadInProgress"
+                                    :disabled="searchLoadStatus.inProgress"
                                     :error-messages="getCustomColumnRuleError()"
                                     append-icon="keyboard_tab"
                                     @click:append="customColumnRule = (customColumnRule || '') +'\t'"
@@ -155,7 +155,7 @@
                                 <v-select
                                     v-model="customColumnMode"
                                     :items="customColumnModeOptions"
-                                    :disabled="logDataLoadInProgress"
+                                    :disabled="searchLoadStatus.inProgress"
                                     item-text="text" item-value="value" color="secondary">
                                 </v-select>
                             </v-flex>
@@ -242,7 +242,7 @@
                     <v-btn ripple color="error"
                         @click.stop.prevent="cancelAllSearches()"
                         v-if="options.CurrentlyRunningLogSearchCount > 0 && !hasCancelledAll"
-                        :disabled="allCancellationInProgress"
+                        :disabled="cancelAllSearchesStatus.inProgress"
                         class="mb-4">
                         <v-icon color="white">cancel</v-icon>
                         {{ cancelAllSearchesButtonText }}
@@ -285,21 +285,21 @@
                 <v-pagination
                     v-model="currentPage"
                     :length="searchResultData.PageCount"
-                    :disabled="logDataLoadInProgress"></v-pagination>
+                    :disabled="searchLoadStatus.inProgress"></v-pagination>
             </div>
 
             <!-- PROGRESS -->
             <v-progress-linear
-              v-if="allCancellationInProgress || logDataLoadInProgress || cancellationInProgress"
+              v-if="cancelAllSearchesStatus.inProgress || searchLoadStatus.inProgress || cancelSearchStatus.inProgress"
               :indeterminate="true"
               height="4"
               class="mt-4"></v-progress-linear>
 
             <!-- ERRORS -->
             <v-alert
-              :value="logDataLoadFailed"
+              :value="searchLoadStatus.failed"
               type="error">
-              {{ logDataFailedErrorMessage }}
+              {{ searchLoadStatus.errorMessage }}
             </v-alert>
 
             <log-entry-table-component
@@ -314,7 +314,7 @@
                 <v-pagination
                     v-model="currentPage"
                     :length="searchResultData.PageCount"
-                    :disabled="logDataLoadInProgress"></v-pagination>
+                    :disabled="searchLoadStatus.inProgress"></v-pagination>
             </div>
 
             <!-- PARSED QUERY -->
@@ -357,6 +357,8 @@ import { FilterDelimiterMode } from '../../models/LogViewer/FilterDelimiterMode'
 import { ChartEntry } from '../LogViewer/ItemPerDateChartComponent.vue';
 import * as XRegExp from 'xregexp';
 import ParsedQuery from "../../models/LogViewer/ParsedQuery";
+import LogService from "../../services/LogService";
+import { FetchStatus } from "../../services/abstractions/HCServiceBase";
 
 interface DatePickerPreset {
     name: string;
@@ -402,13 +404,14 @@ export default class LogViewerPageComponent extends Vue {
     currentPage: number = 1;
 
     searchResultData: LogSearchResult = this.createEmptyResultData();
-    cancellationInProgress: boolean = false;
-    allCancellationInProgress: boolean = false;
     hasCancelledAll: boolean = false;
-    logDataLoadInProgress: boolean = false;
-    logDataLoadFailed: boolean = false;
-    logDataFailedErrorMessage: string = "";
     hasSearched: boolean = false;
+
+    // Service
+    service: LogService = new LogService(this.options);
+    searchLoadStatus: FetchStatus = new FetchStatus();
+    cancelSearchStatus: FetchStatus = new FetchStatus();
+    cancelAllSearchesStatus: FetchStatus = new FetchStatus();
 
     //////////////////
     //  LIFECYCLE  //
@@ -595,83 +598,30 @@ export default class LogViewerPageComponent extends Vue {
     }
 
     cancelSearch(searchId: string): void {
-        this.cancellationInProgress = true;
-
-        this.sendPOSTRequest<boolean>(this.options.CancelLogSearchEndpoint, { searchId: searchId },
-            (result: boolean) => {
-                this.cancellationInProgress = false;
-            },
-            (error) => {
-                this.cancellationInProgress = false;
-            });
+        this.service.CancelSearch(searchId, this.cancelSearchStatus);
     }
     
     cancelAllSearches(): void {
-        this.allCancellationInProgress = true;
-
-        this.sendPOSTRequest<number>(this.options.CancelAllLogSearchesEndpoint, null,
-            (count: number) => {
+        this.service.CancelAllSearches(this.cancelAllSearchesStatus, {
+            onSuccess: (count) => {
                 console.log(`Cancelled searches: ${count}`);
-                this.allCancellationInProgress = false;
                 this.hasCancelledAll = true;
             },
-            (error) => {
-                this.allCancellationInProgress = false;
-            });
-    }
-    
-    sendPOSTRequest<TResponse>(
-        url: string,
-        payload: any,
-        onDataRetrieved: (response: TResponse) => void,
-        onError: (error: any) => void
-    ) : void {
-        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
-        fetch(`${url}${queryStringIfEnabled}`, {
-            credentials: 'include',
-            method: "POST",
-            body: JSON.stringify(payload),
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            })
+            onError: (err) => this.searchResultData = this.createEmptyResultData()
         })
-        .then(response => {
-            try { 
-                return response.json();
-            } catch(e) {
-                console.log(e);
-                return response;
-            }
-        })
-        .then((data: TResponse) => onDataRetrieved(data))
-        .catch((e) => {
-            onError(e);
-            console.error(e);
-        });
     }
 
     loadData(): void {
-        this.logDataLoadInProgress = true;
-        this.logDataLoadFailed = false;
-
         let payload = this.generateFilterPayload();
         this.currentSearchId = payload.SearchId || "";
 
-        this.sendPOSTRequest(this.options.GetLogSearchResultsEndpoint, payload,
-            this.onSearchResultRetrieved,
-            (error) => {
-                this.searchResultData = this.createEmptyResultData();
-                this.logDataLoadInProgress = false;
-                this.logDataLoadFailed = true;
-                this.logDataFailedErrorMessage = `Failed to load data with the following error. ${error}.`;
-            });
+        this.service.Search(payload, this.searchLoadStatus, {
+            onSuccess: (data) => this.onSearchResultRetrieved(data),
+            onError: (err) => this.searchResultData = this.createEmptyResultData()
+        })
     }
 
     onSearchResultRetrieved(data: LogSearchResult): void {
-        this.hasSearched = true;
-        this.logDataLoadInProgress = false;
-
         data.Statistics = data.Statistics.map(x => {
             return {
                 Timestamp: new Date(x.Timestamp),
@@ -682,8 +632,8 @@ export default class LogViewerPageComponent extends Vue {
         this.searchResultData = data;
         this.currentPage = data.CurrentPage;
         
-        this.logDataLoadFailed = data.HasError;
-        this.logDataFailedErrorMessage = data.Error || "";
+        this.searchLoadStatus.failed = data.HasError;
+        this.searchLoadStatus.errorMessage = data.Error || "";
     }
 
     createEmptyResultData(): LogSearchResult {
@@ -776,7 +726,7 @@ export default class LogViewerPageComponent extends Vue {
     /////////////////////
     @Watch("currentPage")
     onCurrentPageChanged(): void {
-        if (!this.logDataLoadInProgress) {
+        if (!this.searchLoadStatus.inProgress) {
             this.loadData();
         }
     }

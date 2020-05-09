@@ -11,12 +11,12 @@
 
                 <!-- LOAD PROGRESS -->
                 <v-progress-linear 
-                    v-if="dataLoadInProgress"
+                    v-if="loadStatus.inProgress"
                     indeterminate color="green"></v-progress-linear>
 
                 <!-- DATA LOAD ERROR -->
-                <v-alert :value="dataLoadFailed" v-if="dataLoadFailed" type="error">
-                {{ dataFailedErrorMessage }}
+                <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+                {{ loadStatus.errorMessage }}
                 </v-alert>
 
                 <div v-for="(group, gIndex) in settingGroups"
@@ -40,12 +40,12 @@
                         <v-btn 
                             @click="saveSettings()" 
                             class="primary"
-                            :disabled="isSaving">{{ saveButtonText }}</v-btn>
+                            :disabled="saveStatus.inProgress">{{ saveButtonText }}</v-btn>
                     </v-flex>
 
                     <!-- SAVE ERROR -->
-                    <div v-if="saveError != null" class="save-error">
-                    {{ saveError }}
+                    <div v-if="saveStatus.failed" class="save-error">
+                    {{ saveStatus.errorMessage }}
                     </div>
                 </v-layout>
 
@@ -64,35 +64,8 @@ import DateUtils from "../../util/DateUtils";
 import LinqUtils from "../../util/LinqUtils";
 import UrlUtils from "../../util/UrlUtils";
 import SettingInputComponent from '../Settings/SettingInputComponent.vue';
-
-export interface CustomSetting
-{
-    id: string;
-    displayName: string;
-    description: string | null;
-    type: 'Boolean' | 'String' | 'Int32';
-    value: any;
-    validationError: string | null;
-}
-
-interface CustomSettingGroup
-{
-    name: string | null;
-    settings: Array<CustomSetting>;
-}
-
-interface GetSettingsModel {
-    Settings: Array<BackendSetting>;
-}
-interface BackendSetting
-{
-    Id: string;
-    DisplayName: string;
-    Description: string | null;
-    Type: 'Boolean' | 'String' | 'Int32';
-    Value: any;
-    GroupName: string | null;
-}
+import SettingsService, { GetSettingsModel, BackendSetting, CustomSetting, CustomSettingGroup }  from '../../services/SettingsService';
+import { FetchStatus,  } from "../../services/abstractions/HCServiceBase";
 
 @Component({
     components: {
@@ -103,12 +76,9 @@ export default class SettingsPageComponent extends Vue {
     @Prop({ required: true })
     options!: FrontEndOptionsViewModel;
 
-    dataLoadInProgress: boolean = false;
-    dataLoadFailed: boolean = false;
-    dataFailedErrorMessage: string = '';
-
-    isSaving: boolean = false;
-    saveError: string | null = null;
+    service: SettingsService = new SettingsService(this.options);
+    loadStatus: FetchStatus = new FetchStatus();
+    saveStatus: FetchStatus = new FetchStatus();
 
     settingGroups: Array<CustomSettingGroup> = [];
 
@@ -130,39 +100,17 @@ export default class SettingsPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get saveButtonText(): string {
-        return (this.isSaving) ? 'Saving..' : 'Save';
+        return (this.saveStatus.inProgress) ? 'Saving..' : 'Save';
     }
     
     ////////////////
     //  METHODS  //
     //////////////
     loadData(): void {
-        this.dataLoadInProgress = true;
-        this.dataLoadFailed = false;
-
-        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
-        let url = `${this.options.GetSettingsEndpoint}${queryStringIfEnabled}`;
-        fetch(url, {
-            credentials: 'include',
-            method: "GET",
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            })
-        })
-        .then(response => response.json())
-        .then((data: GetSettingsModel) => this.onDataRetrieved(data))
-        .catch((e) => {
-            this.dataLoadInProgress = false;
-            this.dataLoadFailed = true;
-            this.dataFailedErrorMessage = `Failed to load data with the following error. ${e}.`;
-            console.error(e);
-        });
+        this.service.GetSettings(this.loadStatus, { onSuccess: (data) => this.onDataRetrieved(data) });
     }
 
     onDataRetrieved(data: GetSettingsModel): void {
-        this.dataLoadInProgress = false;
-
         this.settingGroups = LinqUtils.GroupByInto(data.Settings, (item) => item.GroupName || "", (key, items) => {
             return {
                 name: (key === "") ? null : key,
@@ -181,41 +129,7 @@ export default class SettingsPageComponent extends Vue {
     }
 
     saveSettings(): void {
-        this.isSaving = true;
-        this.saveError = null;
-
-        let settings = this.settingGroups
-                .map(x => x.settings)
-                .reduce((a: CustomSetting[], b: CustomSetting[]) => a.concat(b))
-                .map((x: CustomSetting) => {
-                    return {
-                        Id: x.id,
-                        Value: x.value
-                    };
-                });
-
-        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
-        let url = `${this.options.SetSettingsEndpoint}${queryStringIfEnabled}`;
-        let payload = {
-            settings: settings
-        };
-        fetch(url, {
-            credentials: 'include',
-            method: "POST",
-            body: JSON.stringify(payload),
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            })
-        })
-        // .then(response => response.json())
-        // .then((data: any) => this.onDataRetrieved(data))
-        .then(response => this.isSaving = false)
-        .catch((e) => {
-            this.isSaving = false;
-            this.saveError = `Failed to load data with the following error. ${e}.`;
-            console.error(e);
-        });
+        this.service.SaveSettings(this.settingGroups, this.saveStatus);
     }
 
     ///////////////////////
