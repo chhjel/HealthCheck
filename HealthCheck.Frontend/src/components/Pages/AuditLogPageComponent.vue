@@ -24,7 +24,7 @@
                     </v-flex>
 
                     <v-flex xs12 sm12 md4 style="text-align: right;">
-                        <v-btn @click="loadData" :disabled="auditDataLoadInProgress" class="primary">Search</v-btn>
+                        <v-btn @click="loadData" :disabled="loadStatus.inProgress" class="primary">Search</v-btn>
                         <v-btn @click="resetFilters">Reset</v-btn>
                     </v-flex>
 
@@ -53,7 +53,7 @@
                 <v-data-table
                     :headers="tableHeaders"
                     :items="filteredAuditEvents"
-                    :loading="auditDataLoadInProgress"
+                    :loading="loadStatus.inProgress"
                     :rows-per-page-items="tableRowsPerPageItems"
                     :pagination.sync="tablePagination"
                     :custom-sort="tableSorter"
@@ -62,8 +62,8 @@
                     class="elevation-1 audit-table">
                     <v-progress-linear v-slot:progress color="primary" indeterminate></v-progress-linear>
                     <template v-slot:no-data>
-                    <v-alert :value="true" color="error" icon="warning" v-if="auditDataLoadFailed">
-                        {{ auditDataFailedErrorMessage }}
+                    <v-alert :value="true" color="error" icon="warning" v-if="loadStatus.failed">
+                        {{ loadStatus.errorMessage }}
                     </v-alert>
                     </template>
                     <template v-slot:items="props">
@@ -123,6 +123,8 @@ import DateUtils from '../../util/DateUtils';
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
+import AuditLogService from "../../services/AuditLogService";
+import { FetchStatus } from "../../services/abstractions/HCServiceBase";
 
 @Component({
     components: {
@@ -160,9 +162,9 @@ export default class AuditLogPageComponent extends Vue {
         rowsPerPage: 25
     };
 
-    auditDataLoadInProgress: boolean = false;
-    auditDataLoadFailed: boolean = false;
-    auditDataFailedErrorMessage: string = "";
+    // Service
+    service: AuditLogService = new AuditLogService(this.options);
+    loadStatus: FetchStatus = new FetchStatus();
     
     filteredAuditEvents: Array<AuditEventViewModel> = [];
 
@@ -211,30 +213,10 @@ export default class AuditLogPageComponent extends Vue {
     }
 
     loadData(): void {
-        this.auditDataLoadInProgress = true;
-        this.auditDataLoadFailed = false;
-
-        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
-        let url = `${this.options.GetFilteredAuditLogEventsEndpoint}${queryStringIfEnabled}`;
         let payload = this.generateFilterPayload();
-        fetch(url, {
-            credentials: 'include',
-            method: "POST",
-            body: JSON.stringify(payload),
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            })
-        })
-        .then(response => response.json())
-        // .then(response => new Promise<Array<AuditEventViewModel>>(resolve => setTimeout(() => resolve(response), 3000)))
-        .then((events: Array<AuditEventViewModel>) => this.onEventDataRetrieved(events))
-        .catch((e) => {
-            this.filteredAuditEvents = [];
-            this.auditDataLoadInProgress = false;
-            this.auditDataLoadFailed = true;
-            this.auditDataFailedErrorMessage = `Failed to load data with the following error. ${e}.`;
-            console.error(e);
+        this.service.Search(payload, this.loadStatus, {
+            onSuccess: (data) => this.onEventDataRetrieved(data),
+            onError: (err) => this.filteredAuditEvents = []
         });
     }
 
@@ -251,7 +233,6 @@ export default class AuditLogPageComponent extends Vue {
     }
     
     onEventDataRetrieved(events: Array<AuditEventViewModel>): void {
-        this.auditDataLoadInProgress = false;
         let index = -1;
         events.forEach(x => {
             index++;
@@ -355,8 +336,8 @@ export default class AuditLogPageComponent extends Vue {
 .audit-table-row {
     cursor: pointer;
 }
-.dateTimePickerWrapper {
-}
+/* .dateTimePickerWrapper {
+} */
 input.calendarInput {
     color: #000 !important;
 }
