@@ -13,14 +13,14 @@
             <v-layout align-content-center wrap>
                 <!-- LOAD ERROR -->
                 <v-alert
-                    :value="overviewDataLoadFailed"
+                    :value="loadStatus.failed"
                     type="error">
-                {{ overviewDataFailedErrorMessage }}
+                {{ loadStatus.errorMessage }}
                 </v-alert>
 
                 <!-- PROGRESS BAR -->
                 <v-progress-linear
-                    v-if="overviewDataLoadInProgress"
+                    v-if="loadStatus.inProgress"
                     indeterminate color="green"></v-progress-linear>
                 
                 <!-- SUMMARY -->
@@ -88,6 +88,8 @@ import SiteEventsSummaryComponent from '../Overview/SiteEventsSummaryComponent.v
 import StatusComponent from '../Overview/StatusComponent.vue';
 import DateUtils from "../../util/DateUtils";
 import LinqUtils from "../../util/LinqUtils";
+import OverviewService from "../../services/OverviewService";
+import { FetchStatus } from "../../services/abstractions/HCServiceBase";
 
 @Component({
     components: {
@@ -105,11 +107,10 @@ export default class OverviewPageComponent extends Vue {
     // Dialogs
     eventDetailsDialogState: boolean = false;
     selectedEventForDetails: SiteEventViewModel | null = null;
-
-    // Loading
-    overviewDataLoadInProgress: boolean = false;
-    overviewDataLoadFailed: boolean = false;
-    overviewDataFailedErrorMessage: string = "";
+    
+    // Service
+    service: OverviewService = new OverviewService(this.options);
+    loadStatus: FetchStatus = new FetchStatus();
 
     siteEvents: Array<SiteEventViewModel> = [];
 
@@ -160,7 +161,7 @@ export default class OverviewPageComponent extends Vue {
     }
 
     get showContent(): boolean {
-        return !this.overviewDataLoadInProgress && !this.overviewDataLoadFailed;
+        return !this.loadStatus.inProgress && !this.loadStatus.failed;
     }
 
     get summaryText(): string {
@@ -218,32 +219,11 @@ export default class OverviewPageComponent extends Vue {
     //  METHODS  //
     //////////////
     loadData(): void {
-        this.overviewDataLoadInProgress = true;
-        this.overviewDataLoadFailed = false;
-
-        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
-        let url = `${this.options.GetSiteEventsEndpoint}${queryStringIfEnabled}`;
-        fetch(url, {
-            credentials: 'include',
-            method: "GET",
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            })
-        })
-        .then(response => response.json())
-        // .then(response => new Promise<Array<SiteEventViewModel>>(resolve => setTimeout(() => resolve(response), 3000)))
-        .then((events: Array<SiteEventViewModel>) => this.onEventDataRetrieved(events))
-        .catch((e) => {
-            this.overviewDataLoadInProgress = false;
-            this.overviewDataLoadFailed = true;
-            this.overviewDataFailedErrorMessage = `Failed to load data with the following error. ${e}.`;
-            console.error(e);
-        });
+        this.service.GetSiteEvents(this.loadStatus, { onSuccess: (data) => this.onEventDataRetrieved(data) });
     }
     
     onEventDataRetrieved(events: Array<SiteEventViewModel>): void {
-        this.overviewDataLoadInProgress = false;
+        this.loadStatus.inProgress = false;
         let index = -1;
         events.forEach(x => {
             index++;
