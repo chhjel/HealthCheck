@@ -72,9 +72,9 @@ export default class HCServiceBase
             })
         })
         .then(response => {
-            if (response.redirected)
+            if (response.redirected || response.status == 404 || response.status == 403)
             {
-                throw new Error('Was redirected. Probably not logged in.');
+                return Promise.reject('Not logged in.');
             }
 
             return json ? response.json() : response;
