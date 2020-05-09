@@ -101,18 +101,19 @@
                         </v-alert>
 
                         <!-- DATA LOAD ERROR -->
-                        <v-alert :value="testSetDataLoadFailed" type="error">
-                        {{ testSetDataFailedErrorMessage }}
+                        <v-alert :value="setSetsLoadStatus.failed" type="error">
+                        {{ setSetsLoadStatus.errorMessage }}
                         </v-alert>
 
                         <!-- LOAD PROGRESS -->
                         <v-progress-linear 
-                            v-if="testSetDataLoadInProgress"
+                            v-if="setSetsLoadStatus.inProgress"
                             indeterminate color="green"></v-progress-linear>
 
                         <!-- TESTS -->
                         <test-set-component
                             v-if="activeSet != null"
+                            :options="options"
                             :testSet="activeSet"
                             :executeTestEndpoint="options.ExecuteTestEndpoint"
                             :cancelTestEndpoint="options.CancelTestEndpoint"
@@ -137,6 +138,8 @@ import FilterInputComponent from '.././Common/FilterInputComponent.vue';
 import LinqUtils from '../../util/LinqUtils';
 import UrlUtils from '../../util/UrlUtils';
 import TestViewModel from "../../models/TestSuite/TestViewModel";
+import TestService from  "../../services/TestService";
+import { FetchStatus } from "../../services/abstractions/HCServiceBase";
 
 @Component({
     components: {
@@ -156,9 +159,9 @@ export default class TestSuitesPageComponent extends Vue {
     activeSet: TestSetViewModel | null = null;
     invalidTests: Array<InvalidTestViewModel> = new Array<InvalidTestViewModel>();
 
-    testSetDataLoadInProgress: boolean = false;
-    testSetDataLoadFailed: boolean = false;
-    testSetDataFailedErrorMessage: string = "";
+    // Service
+    service: TestService = new TestService(this.options);
+    setSetsLoadStatus: FetchStatus = new FetchStatus();
 
     //////////////////
     //  LIFECYCLE  //
@@ -215,29 +218,7 @@ export default class TestSuitesPageComponent extends Vue {
     //  METHODS  //
     //////////////
     loadData(): void {
-        this.testSetDataLoadInProgress = true;
-        this.testSetDataLoadFailed = false;
-
-        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
-        let url = `${this.options.GetTestsEndpoint}${queryStringIfEnabled}`;
-        fetch(url, {
-            credentials: 'include',
-            method: "GET",
-            // body: JSON.stringify(payload),
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            })
-        })
-        .then(response => response.json())
-        // .then(response => new Promise<TestsDataViewModel>(resolve => setTimeout(() => resolve(response), 3000)))
-        .then((testsData: TestsDataViewModel) => this.onTestSetDataRetrieved(testsData))
-        .catch((e) => {
-            this.testSetDataLoadInProgress = false;
-            this.testSetDataLoadFailed = true;
-            this.testSetDataFailedErrorMessage = `Failed to load data with the following error. ${e}.`;
-            console.error(e);
-        });
+        this.service.GetTests(this.setSetsLoadStatus, { onSuccess: (data) => this.onTestSetDataRetrieved(data) })
     }
 
     onTestSetDataRetrieved(testsData: TestsDataViewModel): void {
@@ -279,7 +260,7 @@ export default class TestSuitesPageComponent extends Vue {
 
         this.testSetGroups = this.testSetGroups.sort((a,b) => b.UIOrder - a.UIOrder);
 
-        this.testSetDataLoadInProgress = false;
+        this.setSetsLoadStatus.inProgress = false;
         this.setInitialActiveTestSet();
     }
 
