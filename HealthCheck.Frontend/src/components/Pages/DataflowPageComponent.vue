@@ -15,8 +15,8 @@
                     :groupByKey="`GroupName`"
                     :sortByKey="`GroupName`"
                     :filterKeys="[ 'Name', 'Description' ]"
-                    :loading="metadataLoadInProgress"
-                    :disabled="dataLoadInProgress"
+                    :loading="metadataLoadStatus.inProgress"
+                    :disabled="dataLoadStatus.inProgress"
                     ref="filterableList"
                     v-on:itemClicked="onMenuItemClicked"
                     />
@@ -29,12 +29,12 @@
                         <v-container>
                             <!-- LOAD PROGRESS -->
                             <v-progress-linear 
-                                v-if="dataLoadInProgress"
+                                v-if="dataLoadStatus.inProgress"
                                 indeterminate color="green"></v-progress-linear>
 
                             <!-- DATA LOAD ERROR -->
-                            <v-alert :value="dataLoadFailed" v-if="dataLoadFailed" type="error">
-                            {{ dataFailedErrorMessage }}
+                            <v-alert :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
+                            {{ dataLoadStatus.errorMessage }}
                             </v-alert>
 
                             <!-- SELECTED DATAFLOW INFO -->
@@ -77,7 +77,7 @@
                                             :startDate="filterFromDate"
                                             :endDate="filterToDate"
                                             :singleDate="false"
-                                            :disabled="dataLoadInProgress"
+                                            :disabled="dataLoadStatus.inProgress"
                                             timeFormat="HH:mm"
                                             @onChange="onDateRangeChanged"
                                         />
@@ -121,13 +121,13 @@
                                     <v-flex xs6 sm2 style="margin-top: 17px; margin-left: 40px;">
                                         <v-btn 
                                             @click="loadStreamEntries()" 
-                                            :disabled="dataLoadInProgress" 
+                                            :disabled="dataLoadStatus.inProgress" 
                                             class="primary">Fetch data</v-btn>
                                     </v-flex>
                                     <v-flex xs6 sm2 style="margin-top: 17px; margin-left: 25px;">
                                         <v-btn 
                                             @click="clearResults()" 
-                                            :disabled="dataLoadInProgress"
+                                            :disabled="dataLoadStatus.inProgress"
                                             >Clear view</v-btn>
                                     </v-flex>
                                     
@@ -198,6 +198,8 @@ import { DateTimePicker } from "@lazy-copilot/datetimepicker";
 import FilterInputComponent from '.././Common/FilterInputComponent.vue';
 import DataTableComponent, { DataTableGroup } from '.././Common/DataTableComponent.vue';
 import FilterableListComponent, { FilterableListItem } from '.././Common/FilterableListComponent.vue';
+import DataflowService from "../../services/DataflowService";
+import { FetchStatus } from "../../services/abstractions/HCServiceBase";
 
 interface PropFilter
 {
@@ -246,10 +248,11 @@ export default class DataflowPageComponent extends Vue {
     // UI STATE
     drawerState: boolean = true;
     streamsFilterText: string = "";
-    metadataLoadInProgress: boolean = false;
-    dataLoadInProgress: boolean = false;
-    dataLoadFailed: boolean = false;
-    dataFailedErrorMessage: string = '';
+    
+    // Service
+    service: DataflowService = new DataflowService(this.options);
+    dataLoadStatus: FetchStatus = new FetchStatus();
+    metadataLoadStatus: FetchStatus = new FetchStatus();
 
     streamGroups: Array<StreamGroup> = [];
     streamMetadatas: Array<DataflowStreamMetadata> = [];
@@ -437,32 +440,12 @@ export default class DataflowPageComponent extends Vue {
     }
 
     loadData(): void {
-        this.metadataLoadInProgress = true;
-        this.dataLoadFailed = false;
-
-        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
-        let url = `${this.options.GetDataflowStreamsMetadataEndpoint}${queryStringIfEnabled}`;
-        fetch(url, {
-            credentials: 'include',
-            method: "GET",
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            })
-        })
-        .then(response => response.json())
-        .then((diagramsData: Array<DataflowStreamMetadata>) => this.onDataFlowMetaDataRetrieved(diagramsData))
-        .catch((e) => {
-            this.dataLoadFailed = true;
-            this.metadataLoadInProgress = false;
-            this.dataFailedErrorMessage = `Failed to load data with the following error. ${e}.`;
-            console.error(e);
+        this.service.GetStreamMetadata(this.metadataLoadStatus, {
+            onSuccess: (data) => this.onDataFlowMetaDataRetrieved(data)
         });
     }
 
     onDataFlowMetaDataRetrieved(data: Array<DataflowStreamMetadata>): void {
-        this.metadataLoadInProgress = false;
-        
         this.streamMetadatas = data.map(x => {
             x.GroupName = x.GroupName || 'Other';
             return x;
@@ -504,32 +487,12 @@ export default class DataflowPageComponent extends Vue {
             }
         };
 
-        this.dataLoadInProgress = true;
-        this.dataLoadFailed = false;
-
-        let queryStringIfEnabled = this.options.InludeQueryStringInApiCalls ? window.location.search : '';
-        let url = `${this.options.GetDataflowStreamEntriesEndpoint}${queryStringIfEnabled}`;
-        fetch(url, {
-            credentials: 'include',
-            method: "POST",
-            body: JSON.stringify(filter),
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                Accept: 'application/json'
-            })
-        })
-        .then(response => response.json())
-        .then((diagramsData: Array<DataflowEntry>) => this.onDataFlowDataRetrieved(diagramsData))
-        .catch((e) => {
-            this.dataLoadInProgress = false;
-            this.dataLoadFailed = true;
-            this.dataFailedErrorMessage = `Failed to load data with the following error. ${e}.`;
-            console.error(e);
+        this.service.GetStreamEntries(filter, this.dataLoadStatus, {
+            onSuccess: (data) => this.onDataFlowDataRetrieved(data)
         });
     }
 
     onDataFlowDataRetrieved(data: Array<DataflowEntry>): void {
-        this.dataLoadInProgress = false;
         if (this.selectedStream != null)
         {
             this.firstEntryPerStream[this.selectedStream.Id] = data[0];
@@ -664,7 +627,7 @@ export default class DataflowPageComponent extends Vue {
     }
 
     setActveStream(stream: DataflowStreamMetadata): void {
-        if (this.dataLoadInProgress) {
+        if (this.dataLoadStatus.inProgress) {
             return;
         }
 
