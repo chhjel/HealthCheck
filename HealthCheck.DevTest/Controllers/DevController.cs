@@ -269,6 +269,8 @@ namespace HealthCheck.DevTest.Controllers
             AccessOptions.DataflowPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
             AccessOptions.SettingsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.EventNotificationsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+
+            AccessOptions.RedirectTargetOnNoAccess = "/no-access";
         }
 
         protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)
