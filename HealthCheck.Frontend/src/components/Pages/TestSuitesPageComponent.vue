@@ -82,43 +82,45 @@
             <v-container fluid fill-height class="content-root">
                 <v-layout>
                     <v-flex>
-                        <!-- INVALID TESTS -->
-                        <v-alert :value="hasInvalidTests" type="error">
-                            <h3>Some invalid tests were found:</h3>
-                            <ul>
-                                <li v-for="(invalidTest, index) in invalidTests"
-                                    :key="`invalidtest-${index}-${invalidTest.Id}`"
-                                    class="mt-2 mb-2">
-                                    <h4 style="display: flex; align-items: center;">
-                                        "{{ invalidTest.Name }}" 
-                                        <span class="caption ml-2" style="font-family: monospace;">({{ invalidTest.Id }})</span>
-                                    </h4>
-                                    <div class="ma-1">
-                                        {{ invalidTest.Reason }}
-                                    </div>
-                                </li>
-                            </ul>
-                        </v-alert>
+                        <v-container>
+                            <!-- INVALID TESTS -->
+                            <v-alert :value="hasInvalidTests" type="error">
+                                <h3>Some invalid tests were found:</h3>
+                                <ul>
+                                    <li v-for="(invalidTest, index) in invalidTests"
+                                        :key="`invalidtest-${index}-${invalidTest.Id}`"
+                                        class="mt-2 mb-2">
+                                        <h4 style="display: flex; align-items: center;">
+                                            "{{ invalidTest.Name }}" 
+                                            <span class="caption ml-2" style="font-family: monospace;">({{ invalidTest.Id }})</span>
+                                        </h4>
+                                        <div class="ma-1">
+                                            {{ invalidTest.Reason }}
+                                        </div>
+                                    </li>
+                                </ul>
+                            </v-alert>
 
-                        <!-- DATA LOAD ERROR -->
-                        <v-alert :value="setSetsLoadStatus.failed" type="error">
-                        {{ setSetsLoadStatus.errorMessage }}
-                        </v-alert>
+                            <!-- DATA LOAD ERROR -->
+                            <v-alert :value="setSetsLoadStatus.failed" type="error">
+                            {{ setSetsLoadStatus.errorMessage }}
+                            </v-alert>
 
-                        <!-- LOAD PROGRESS -->
-                        <v-progress-linear 
-                            v-if="setSetsLoadStatus.inProgress"
-                            indeterminate color="green"></v-progress-linear>
+                            <!-- LOAD PROGRESS -->
+                            <v-progress-linear 
+                                v-if="setSetsLoadStatus.inProgress"
+                                indeterminate color="green"></v-progress-linear>
 
-                        <!-- TESTS -->
-                        <test-set-component
-                            v-if="activeSet != null"
-                            :options="options"
-                            :testSet="activeSet"
-                            :executeTestEndpoint="options.ExecuteTestEndpoint"
-                            :cancelTestEndpoint="options.CancelTestEndpoint"
-                            :inludeQueryStringInApiCalls="options.InludeQueryStringInApiCalls"
-                            v-on:testClicked="onTestClicked" />
+                            <!-- TESTS -->
+                            <test-set-component
+                                v-if="activeSet != null"
+                                :options="options"
+                                :testSet="activeSet"
+                                :executeTestEndpoint="options.ExecuteTestEndpoint"
+                                :cancelTestEndpoint="options.CancelTestEndpoint"
+                                :inludeQueryStringInApiCalls="options.InludeQueryStringInApiCalls"
+                                v-on:testClicked="onTestClicked" />
+                        </v-container>
                     </v-flex>
                 </v-layout>
             </v-container>
