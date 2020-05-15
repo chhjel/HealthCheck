@@ -253,7 +253,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
                             var result = await NotifyEventAsync(config, notifier, notifierConfig, eventId, payloadProperties);
                             if (!string.IsNullOrWhiteSpace(result))
                             {
-                                result = $"{DateTime.Now.ToString("ddd. d. MMMM @6 HH:mm:ss")} - {result}";
+                                result = $"{DateTime.Now.ToString("ddd d. MMMM @ HH:mm:ss")} - {result}";
                             }
                             lock (_cacheUpdateLock)
                             {
