@@ -41,5 +41,11 @@ namespace HealthCheck.WebUI.Services
         /// </summary>
         public KnownEventDefinition InsertDefinition(KnownEventDefinition definition)
             => Store.InsertItem(definition);
+
+        /// <summary>
+        /// Updates the given definition.
+        /// </summary>
+        public KnownEventDefinition UpdateDefinition(KnownEventDefinition definition)
+            => Store.InsertOrUpdateItem(definition);
     }
 }

@@ -101,6 +101,43 @@ namespace HealthCheck.DevTest.Controllers
             }
         }
 
+        public ActionResult TestEvent(int v = 1)
+        {
+            object payload = null;
+            switch(v)
+            {
+                case 3:
+                    payload = new
+                    {
+                        Url = Request.RawUrl,
+                        User = CurrentRequestInformation?.UserName,
+                        SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp),
+                        ExtraB = "BBBB"
+                    };
+                    break;
+                case 2:
+                    payload = new
+                    {
+                        Url = Request.RawUrl,
+                        User = CurrentRequestInformation?.UserName,
+                        SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp),
+                        ExtraA = "AAAA"
+                    };
+                    break;
+                case 1:
+                default:
+                    payload = new
+                    {
+                        Url = Request.RawUrl,
+                        User = CurrentRequestInformation?.UserName,
+                        SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp)
+                    };
+                    break;
+            }
+            Services.EventSink.RegisterEvent("pageload", payload);
+            return Content($"Registered variant #{v}");
+        }
+
         public ActionResult Logout()
         {
             ForceLogout = true;

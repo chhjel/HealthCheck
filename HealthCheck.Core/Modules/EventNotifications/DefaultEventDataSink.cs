@@ -288,9 +288,36 @@ namespace HealthCheck.Core.Modules.EventNotifications
         {
             lock(_cacheUpdateLock)
             {
-                if (KnownEventDefinitionsCache.ContainsKey(eventId) || KnownEventDefinitionsCacheSize > EventDefinitionSizeLimit)
+                var idIsKnown = KnownEventDefinitionsCache.ContainsKey(eventId);
+                var countLimitIsReached = KnownEventDefinitionsCacheSize > EventDefinitionSizeLimit;
+
+                // Do not insert new when count limit is reached
+                if (!idIsKnown && countLimitIsReached)
                 {
                     return;
+                }
+
+                // If already known, diff keys if complex.
+                if (idIsKnown && payloadIsComplex)
+                {
+                    var existingDef = KnownEventDefinitionsCache[eventId];
+                    if (existingDef.PayloadProperties != null)
+                    {
+                        var newKeys = payloadProperties.Keys.Except(existingDef.PayloadProperties);
+
+                        // Abort if no new keys
+                        // * Only add new ones & don't remove any missing,
+                        //   to prevent constant updates if there's calls with different payloads on the same id.
+                        if (!newKeys.Any())
+                        {
+                            return;
+                        }
+
+                        // Update existing def with new payload parameters
+                        existingDef.PayloadProperties.AddRange(newKeys);
+                        EventSinkKnownEventDefinitionsStorage.UpdateDefinition(existingDef);
+                        return;
+                    }
                 }
 
                 var newDefinition = new KnownEventDefinition()

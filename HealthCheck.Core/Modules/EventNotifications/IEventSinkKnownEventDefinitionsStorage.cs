@@ -17,5 +17,10 @@ namespace HealthCheck.Core.Modules.EventNotifications
         /// Insert the given definition.
         /// </summary>
         KnownEventDefinition InsertDefinition(KnownEventDefinition definition);
+
+        /// <summary>
+        /// Updates the given definition.
+        /// </summary>
+        KnownEventDefinition UpdateDefinition(KnownEventDefinition definition);
     }
 }
