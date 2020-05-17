@@ -33,6 +33,7 @@ namespace HealthCheck.WebUI.Abstractions
     public abstract class HealthCheckControllerBase<TAccessRole>: Controller
         where TAccessRole: Enum
     {
+        #region Properties & Fields
         /// <summary>
         /// Set to false to return 404 for all actions.
         /// <para>Enabled by default.</para>
@@ -72,6 +73,7 @@ namespace HealthCheck.WebUI.Abstractions
         protected RequestInformation<TAccessRole> CurrentRequestInformation { get; set; }
 
         private readonly HealthCheckControllerHelper<TAccessRole> Helper;
+        #endregion
 
         /// <summary>
         /// Base controller for the ui and api.
@@ -80,6 +82,37 @@ namespace HealthCheck.WebUI.Abstractions
         {
             Helper = new HealthCheckControllerHelper<TAccessRole>(Services);
             Helper.TestDiscoverer.AssemblyContainingTests = assemblyContainingTests ?? throw new ArgumentNullException("An assembly to retrieve tests from must be provided.");
+        }
+
+        #region Abstract/Virtual
+        /// <summary>
+        /// Returns the page html.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        public virtual ActionResult Index()
+        {
+            if (!Enabled) return HttpNotFound();
+            else if (!Helper.HasAccessToAnyContent(CurrentRequestAccessRoles))
+            {
+                var redirectTarget = AccessOptions.RedirectTargetOnNoAccessUsingRequest?.Invoke(Request);
+                if (!string.IsNullOrWhiteSpace(redirectTarget))
+                {
+                    return Redirect(redirectTarget);
+                }
+                else if (!string.IsNullOrWhiteSpace(AccessOptions.RedirectTargetOnNoAccess))
+                {
+                    return Redirect(AccessOptions.RedirectTargetOnNoAccess);
+                }
+                else
+                {
+                    return HttpNotFound();
+                }
+            }
+
+            var frontEndOptions = GetFrontEndOptions();
+            var pageOptions = GetPageOptions();
+            var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions);
+            return Content(html);
         }
 
         /// <summary>
@@ -118,32 +151,9 @@ namespace HealthCheck.WebUI.Abstractions
             Configure(request);
             return base.BeginExecute(requestContext, callback, state);
         }
+        #endregion
 
-        /// <summary>
-        /// Returns the page html.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        public virtual ActionResult Index()
-        {
-            if (!Enabled) return HttpNotFound();
-            else if (!Helper.HasAccessToAnyContent(CurrentRequestAccessRoles))
-            {
-                var redirectTarget = AccessOptions.RedirectTargetOnNoAccessUsingRequest?.Invoke(Request);
-                if (!string.IsNullOrWhiteSpace(redirectTarget)) {
-                    return Redirect(redirectTarget);
-                } else if (!string.IsNullOrWhiteSpace(AccessOptions.RedirectTargetOnNoAccess)) {
-                    return Redirect(AccessOptions.RedirectTargetOnNoAccess);
-                } else {
-                    return HttpNotFound();
-                }
-            }
-
-            var frontEndOptions = GetFrontEndOptions();
-            var pageOptions = GetPageOptions();
-            var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions);
-            return Content(html);
-        }
-
+        #region Misc/Utils
         /// <summary>
         /// Returns 'OK' and 200 status code.
         /// </summary>
@@ -155,7 +165,9 @@ namespace HealthCheck.WebUI.Abstractions
 
             return Content("OK");
         }
+        #endregion
 
+        #region AuditLog
         /// <summary>
         /// Get filtered audit events to show in the UI.
         /// </summary>
@@ -169,7 +181,9 @@ namespace HealthCheck.WebUI.Abstractions
             var filteredItems = await Helper.GetAuditEventsFilterViewModel(CurrentRequestAccessRoles, input);
             return CreateJsonResult(filteredItems);
         }
+        #endregion
 
+        #region RequestLog
         /// <summary>
         /// Get all request log actions.
         /// </summary>
@@ -196,7 +210,9 @@ namespace HealthCheck.WebUI.Abstractions
             Helper.ClearRequestLog(CurrentRequestInformation, includeDefinitions);
             return Content("Cleared");
         }
+        #endregion
 
+        #region SiteEvents
         /// <summary>
         /// Get site events to show in the UI.
         /// </summary>
@@ -209,7 +225,9 @@ namespace HealthCheck.WebUI.Abstractions
             var viewModel = await Helper.GetSiteEventsViewModel(CurrentRequestAccessRoles);
             return CreateJsonResult(viewModel);
         }
+        #endregion
 
+        #region Test
         /// <summary>
         /// Get tests to show in the UI.
         /// </summary>
@@ -263,7 +281,9 @@ namespace HealthCheck.WebUI.Abstractions
             await Task.Delay(TimeSpan.FromMilliseconds(1));
             return CreateJsonResult(Helper.CancelTest(CurrentRequestInformation, testId));
         }
+        #endregion
 
+        #region LogSearch
         /// <summary>
         /// Get log entry search results.
         /// </summary>
@@ -309,19 +329,23 @@ namespace HealthCheck.WebUI.Abstractions
             }
             return await Task.FromResult(count);
         }
+        #endregion
 
+        #region Diagrams
         /// <summary>
         /// Get diagrams to show in the UI.
         /// </summary>
         [RequestLogInfo(hide: true)]
         public virtual ActionResult GetDiagrams()
-        {
+        {   
             if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.Documentation, CurrentRequestAccessRoles)) return HttpNotFound();
 
             var viewModel = Helper.GetDiagramsViewModel(CurrentRequestAccessRoles);
             return CreateJsonResult(viewModel);
         }
+        #endregion
 
+        #region Dataflow
         /// <summary>
         /// Get dataflow streams metadata to show in the UI.
         /// </summary>
@@ -346,7 +370,9 @@ namespace HealthCheck.WebUI.Abstractions
             var viewModel = await Helper.GetDataflowEntries(filter.StreamId, filter.StreamFilter, CurrentRequestInformation);
             return CreateJsonResult(viewModel);
         }
+        #endregion
 
+        #region Settings
         /// <summary>
         /// Get dataflow streams metadata to show in the UI.
         /// </summary>
@@ -371,7 +397,9 @@ namespace HealthCheck.WebUI.Abstractions
             Helper.SetSettings(CurrentRequestInformation, model);
             return CreateJsonResult(new { Success = true });
         }
+        #endregion
 
+        #region EventNotificationConfig
         /// <summary>
         /// Get viewmodel for the event notification configs
         /// </summary>
@@ -424,10 +452,39 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
+        /// Delete a single event definition.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        [HttpPost]
+        public virtual ActionResult DeleteEventDefinition(string eventId)
+        {
+            if (!Enabled || !Helper.CanEditEventDefinitions(CurrentRequestAccessRoles)) return HttpNotFound();
+
+            Helper.DeleteEventDefinition(CurrentRequestInformation, eventId);
+            return CreateJsonResult(true);
+        }
+
+        /// <summary>
+        /// Delete all event definitions.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        [HttpPost]
+        public virtual ActionResult DeleteEventDefinitions()
+        {
+            if (!Enabled || !Helper.CanEditEventDefinitions(CurrentRequestAccessRoles)) return HttpNotFound();
+
+            Helper.DeleteEventDefinitions(CurrentRequestInformation);
+            return CreateJsonResult(true);
+        }
+        #endregion
+
+        #region Helpers
+        /// <summary>
         /// Serializes the given object into a json result.
         /// </summary>
         protected ActionResult CreateJsonResult(object obj)
             => Content(Helper.SerializeJson(obj), "application/json");
+        #endregion
     }
 }
 #endif

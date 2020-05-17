@@ -32,4 +32,7 @@ export default interface FrontEndOptionsViewModel {
     SaveEventNotificationConfigEndpoint: string;
     DeleteEventNotificationConfigEndpoint: string;
     SetEventNotificationConfigEnabledEndpoint: string;
+    DeleteEventDefinitionEndpoint: string;
+    DeleteEventDefinitionsEndpoint: string;
+    HasAccessToEditEventDefinitions: boolean;
 }

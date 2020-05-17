@@ -81,7 +81,7 @@ namespace HealthCheck.Core.Util
         }
 
         /// <summary>
-        /// Get any items with the given id.
+        /// Deletes the item with the given id.
         /// </summary>
         public void DeleteItem(TId id)
             => DeleteWhere(x => ItemHasId(x, id));

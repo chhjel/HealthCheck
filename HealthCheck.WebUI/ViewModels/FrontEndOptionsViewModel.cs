@@ -135,6 +135,16 @@ namespace HealthCheck.WebUI.ViewModels
         public string SetEventNotificationConfigEnabledEndpoint { get; set; }
 
         /// <summary>
+        /// Url to the endpoint where event notification definitions are deleted.
+        /// </summary>
+        public string DeleteEventDefinitionEndpoint  { get; set; }
+
+        /// <summary>
+        /// Url to the endpoint where event notification definitions are deleted.
+        /// </summary>
+        public string DeleteEventDefinitionsEndpoint { get; set; }
+
+        /// <summary>
         /// Number of minutes past the end of a site event it will be displayed below "Current status" on the status page.
         /// <para>Defaults to 30 minutes.</para>
         /// </summary>
@@ -188,6 +198,12 @@ namespace HealthCheck.WebUI.ViewModels
         internal bool HasAccessToClearRequestLog { get; set; }
 
         /// <summary>
+        /// Has access to editing event notification definitions.
+        /// </summary>
+        [JsonProperty]
+        internal bool HasAccessToEditEventDefinitions { get; set; }
+
+        /// <summary>
         /// Default page to show on entering the Index action in prioritized order.
         /// <para>The first available page will be shown when ?page=x is omitted.</para>
         /// <para>Defaults to overview, tests, request log, logviewer, auditlog.</para>
@@ -237,8 +253,11 @@ namespace HealthCheck.WebUI.ViewModels
             DeleteEventNotificationConfigEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/DeleteEventNotificationConfig";
             SaveEventNotificationConfigEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/SaveEventNotificationConfig";
             SetEventNotificationConfigEnabledEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/SetEventNotificationConfigEnabled";
+            DeleteEventDefinitionEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/DeleteEventDefinition";
+            DeleteEventDefinitionsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/DeleteEventDefinitions";
 
             HasAccessToClearRequestLog = true;
+            HasAccessToEditEventDefinitions = true;
         }
 
         /// <summary>

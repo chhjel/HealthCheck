@@ -47,4 +47,25 @@ export default class EventNotificationService extends HCServiceBase
         };
         this.fetchExt<EventSinkNotificationConfig>(url, 'POST', payload, statusObject, callbacks);
     }
+
+    public DeleteDefintion(eventId: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<boolean> | null = null
+    ): void
+    {
+        let url = this.options.DeleteEventDefinitionEndpoint;
+        let payload = {
+            eventId: eventId
+        };
+        this.fetchExt<boolean>(url, 'POST', payload, statusObject, callbacks);
+    }
+
+    public DeleteDefintions(
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<boolean> | null = null
+    ): void
+    {
+        let url = this.options.DeleteEventDefinitionsEndpoint;
+        this.fetchExt<boolean>(url, 'POST', null, statusObject, callbacks);
+    }
 }

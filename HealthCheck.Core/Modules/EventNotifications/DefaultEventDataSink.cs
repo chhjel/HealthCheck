@@ -109,6 +109,24 @@ namespace HealthCheck.Core.Modules.EventNotifications
             => EventSinkNotificationConfigStorage.SaveConfig(config);
 
         /// <summary>
+        /// Delete event definition for the given event id.
+        /// </summary>
+        public void DeleteDefinition(string eventId)
+        {
+            EventSinkKnownEventDefinitionsStorage.DeleteDefinition(eventId);
+            DeleteDefinitionFromCache(eventId);
+        }
+
+        /// <summary>
+        /// Delete all event definitions.
+        /// </summary>
+        public void DeleteDefinitions()
+        {
+            EventSinkKnownEventDefinitionsStorage.DeleteDefinitions();
+            ClearDefinitionCache();
+        }
+
+        /// <summary>
         /// Get all enabled notifiers for this sink.
         /// </summary>
         public IEnumerable<IEventNotifier> GetNotifiers()
@@ -281,6 +299,32 @@ namespace HealthCheck.Core.Modules.EventNotifications
                         KnownEventDefinitionsListCache.Add(def);
                     }
                 }
+            }
+        }
+
+        private void ClearDefinitionCache()
+        {
+            lock (_cacheUpdateLock)
+            {
+                KnownEventDefinitionsListCache?.Clear();
+                KnownEventDefinitionsCache?.Clear();
+                KnownEventDefinitionsCacheSize = 0;
+            }
+        }
+
+        private void DeleteDefinitionFromCache(string eventId)
+        {
+            lock (_cacheUpdateLock)
+            {
+                var index = KnownEventDefinitionsListCache.FindIndex(x => x.EventId == eventId);
+                if (index == -1)
+                {
+                    return;
+                }
+
+                KnownEventDefinitionsListCache.RemoveAt(index);
+                KnownEventDefinitionsCache.Remove(eventId);
+                KnownEventDefinitionsCacheSize--;
             }
         }
 

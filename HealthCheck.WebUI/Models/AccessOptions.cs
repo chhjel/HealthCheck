@@ -49,6 +49,13 @@ namespace HealthCheck.WebUI.Models
         public Maybe<TAccessRole> ClearRequestLogAccess { get; set; }
 
         /// <summary>
+        /// Roles with access to edit event definitions.
+        /// <para>If null nobody can edit them by default.</para>
+        /// <para>The role must also have EventNotificationsPageAccess in order to access the page to edit.</para>
+        /// </summary>
+        public Maybe<TAccessRole> EditEventDefinitionsAccess { get; set; }
+
+        /// <summary>
         /// Roles with access to view the audit logs.
         /// <para>If null nobody can access it by default.</para>
         /// </summary>

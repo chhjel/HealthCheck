@@ -160,6 +160,7 @@ namespace HealthCheck.WebUI.Util
                 isVisible: (c, a) => c.Services.EventSink != null && c.AccessRolesHasAccessTo(a, c.AccessOptions.EventNotificationsPageAccess, defaultValue: false),
                 onAccessDenied: (o) => o.GetEventNotificationConfigsEndpoint = o.SaveEventNotificationConfigEndpoint
                                      = o.DeleteEventNotificationConfigEndpoint = o.SetEventNotificationConfigEnabledEndpoint
+                                     = o.DeleteEventDefinitionEndpoint = o.DeleteEventDefinitionsEndpoint
                                      = deniedEndpoint)
         };
 
@@ -444,6 +445,7 @@ namespace HealthCheck.WebUI.Util
             };
             return DiagramDataViewModelCache;
         }
+
         private static DiagramDataViewModel DiagramDataViewModelCache { get; set; }
         private const string Q = "\"";
 
@@ -522,6 +524,14 @@ namespace HealthCheck.WebUI.Util
         public bool CanUsePingEndpoint(Maybe<TAccessRole> accessRoles)
             => AccessRolesHasAccessTo(accessRoles, AccessOptions.PingAccess, defaultValue: true);
 
+        /// <summary>
+        /// Check if the given roles has access to editing event definitions.
+        /// </summary>
+        public bool CanEditEventDefinitions(Maybe<TAccessRole> accessRoles)
+            => Services.EventSink != null 
+            && CanShowPageTo(HealthCheckPageType.EventNotifications, accessRoles)
+            && AccessRolesHasAccessTo(accessRoles, AccessOptions.EditEventDefinitionsAccess, defaultValue: false);
+
         private void CheckPageOptions(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
         {
             foreach(var page in Pages)
@@ -540,6 +550,11 @@ namespace HealthCheck.WebUI.Util
             {
                 frontEndOptions.ClearRequestLogEndpoint = deniedEndpoint;
                 frontEndOptions.HasAccessToClearRequestLog = false;
+            }
+
+            if (!CanEditEventDefinitions(accessRoles))
+            {
+                frontEndOptions.HasAccessToEditEventDefinitions = false;
             }
 
             PrioritizePages(frontEndOptions.Pages, frontEndOptions.PagePriority);
@@ -890,6 +905,28 @@ namespace HealthCheck.WebUI.Util
 
             AuditLog_EventNotificationConfigSaved(requestInformation, config);
             return config;
+        }
+
+        /// <summary>
+        /// Delete a single event definition.
+        /// </summary>
+        public void DeleteEventDefinition(RequestInformation<TAccessRole> requestInformation, string eventId)
+        {
+            Services.EventSink?.DeleteDefinition(eventId);
+            Services.AuditEventService?.StoreEvent(
+                CreateAuditEventFor(requestInformation, AuditEventArea.EventNotifications, action: "Delete event definition", eventId)
+            );
+        }
+
+        /// <summary>
+        /// Delete all event definitions.
+        /// </summary>
+        public void DeleteEventDefinitions(RequestInformation<TAccessRole> requestInformation)
+        {
+            Services.EventSink?.DeleteDefinitions();
+            Services.AuditEventService?.StoreEvent(
+                CreateAuditEventFor(requestInformation, AuditEventArea.EventNotifications, action: "Delete all event definitions")
+            );
         }
 
         private bool AuditEventMatchesFilter(AuditEvent e, AuditEventFilterInputData filter)

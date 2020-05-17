@@ -29,6 +29,17 @@ namespace HealthCheck.Core.Modules.EventNotifications
         EventSinkNotificationConfig SaveConfig(EventSinkNotificationConfig config);
 
         /// <summary>
+        /// Delete event definition for the given event id.
+        /// </summary>
+        void DeleteDefinition(string eventId);
+
+        /// <summary>
+        /// Delete all event definitions.
+        /// </summary>
+        /// <returns>Number of deleted definitions.</returns>
+        void DeleteDefinitions();
+
+        /// <summary>
         /// Send an event without any payload data.
         /// </summary>
         void RegisterEvent(string eventId);

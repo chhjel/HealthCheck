@@ -22,5 +22,16 @@ namespace HealthCheck.Core.Modules.EventNotifications
         /// Updates the given definition.
         /// </summary>
         KnownEventDefinition UpdateDefinition(KnownEventDefinition definition);
+
+        /// <summary>
+        /// Delete event definition for the given event id.
+        /// </summary>
+        void DeleteDefinition(string eventId);
+
+        /// <summary>
+        /// Delete all event definitions.
+        /// </summary>
+        /// <returns>Number of deleted definitions.</returns>
+        void DeleteDefinitions();
     }
 }

@@ -9,7 +9,7 @@
                 <h1 class="mb-1">Configured notifications</h1>
 
                 <!-- LOAD PROGRESS -->
-                <v-progress-linear 
+                <v-progress-linear
                     v-if="loadStatus.inProgress"
                     indeterminate color="green"></v-progress-linear>
 
@@ -23,6 +23,12 @@
                     class="mb-3">
                     <v-icon size="20px" class="mr-2">add</v-icon>
                     Add new
+                </v-btn>
+
+                <v-btn v-if="options.HasAccessToEditEventDefinitions"
+                    @click="editDefinitionsDialogVisible = true"
+                    class="mb-3 ml-2 right">
+                    Edit payload definitions
                 </v-btn>
 
                 <block-component
@@ -145,6 +151,85 @@
                     </v-card-actions>
                 </v-card>
             </v-dialog>
+
+            <v-dialog v-model="deleteDefinitionDialogVisible"
+                max-width="290"
+                content-class="confirm-dialog">
+                <v-card>
+                    <v-card-title class="headline">Confirm deletion</v-card-title>
+                    <v-card-text>
+                        {{ deleteDefinitionDialogText }}
+                    </v-card-text>
+                    <v-divider></v-divider>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="secondary" @click="deleteDefinitionDialogVisible = false">Cancel</v-btn>
+                        <v-btn color="error"
+                            :loading="loadStatus.inProgress"
+                            :disabled="loadStatus.inProgress"
+                            @click="confirmDeleteEventDefinition()">Delete</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+            
+            <v-dialog v-model="editDefinitionsDialogVisible"
+                scrollable
+                max-width="1200"
+                content-class="current-config-dialog">
+                <v-card style="background-color: #f4f4f4">
+                    <v-toolbar class="elevation-0">
+                        <v-toolbar-title class="current-config-dialog__title">Edit event payload definitions</v-toolbar-title>
+                        <v-spacer></v-spacer>
+                        <v-btn icon
+                            @click="editDefinitionsDialogVisible = false">
+                            <v-icon>close</v-icon>
+                        </v-btn>
+                    </v-toolbar>
+
+                    <v-divider></v-divider>
+                    
+                    <v-card-text>
+                        <block-component
+                            v-for="(def, dindex) in eventDefinitions"
+                            :key="`eventdef-${dindex}-${def.EventId}`"
+                            class="definition-list-item mb-2">
+                            <v-btn
+                                :loading="loadStatus.inProgress"
+                                :disabled="loadStatus.inProgress"
+                                color="error" class="right"
+                                @click="showDeleteDefinitionDialog(def.EventId)">
+                                <v-icon size="20px" class="mr-2">delete</v-icon>
+                                Delete
+                            </v-btn>
+
+                            <h3>{{ def.EventId }}</h3>
+
+                            <div v-if="!def.IsStringified">
+                                <h4 class="mt-2 mr-1" style="display:inline-block">Properties:</h4>
+                                <code
+                                    v-for="(defProp, dpindex) in def.PayloadProperties"
+                                    :key="`eventdefprop-${dindex}-${dpindex}`"
+                                    class="mr-2">{{ defProp }}</code>
+                            </div>
+                            <div style="clear:both;"></div>
+                        </block-component>
+                    </v-card-text>
+                    <v-divider></v-divider>
+                    <v-card-actions >
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            :loading="loadStatus.inProgress"
+                            :disabled="loadStatus.inProgress"
+                            color="error"
+                            @click="showDeleteDefinitionDialog(null)">
+                            <v-icon size="20px" class="mr-2">delete_forever</v-icon>
+                            Delete all definitions
+                        </v-btn>
+                        <v-btn color="success"
+                            @click="editDefinitionsDialogVisible = false">Close</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         </v-content>
     </div>
 </template>
@@ -193,6 +278,10 @@ export default class EventNotificationsPageComponent extends Vue {
     // UI STATE
     loadStatus: FetchStatus = new FetchStatus();
     serverInteractionInProgress: boolean = false;
+    editDefinitionsDialogVisible: boolean = false;
+    deleteDefinitionDialogVisible: boolean = false;
+    deleteDefinitionDialogText: string = "";
+    eventDefinitionIdToDelete: string | null = null;
 
     data: GetEventNotificationConfigsViewModel | null = null;
     currentConfig: EventSinkNotificationConfig | null = null;
@@ -420,9 +509,46 @@ export default class EventNotificationsPageComponent extends Vue {
         return EventSinkNotificationConfigUtils.describeConfig(config).actions;
     }
 
+    showDeleteDefinitionDialog(eventId: string | null): void
+    {
+        this.deleteDefinitionDialogVisible = true;
+        this.eventDefinitionIdToDelete = eventId;
+        this.deleteDefinitionDialogText = (eventId == null)
+            ? `Delete all event definitions?`
+            : `Delete event definition '${eventId}'?`;
+    }
+
+    confirmDeleteEventDefinition(): void {
+        this.deleteDefinitionDialogVisible = false;
+
+        if (this.eventDefinitionIdToDelete != null)
+        {
+            this.service.DeleteDefintion(this.eventDefinitionIdToDelete, this.loadStatus, {
+                onSuccess: (r) => {
+                    if (this.data != null)
+                    {
+                        this.data.KnownEventDefinitions = this.data.KnownEventDefinitions
+                            .filter(x => x.EventId != this.eventDefinitionIdToDelete);
+                    }
+                }
+            });
+        }
+        else
+        {
+            this.service.DeleteDefintions(this.loadStatus, {
+                onSuccess: (r) => {
+                    if (this.data != null)
+                    {
+                        this.data.KnownEventDefinitions = [];
+                    }
+                }
+            });
+        }
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
-    /////////////////////
+    /////////////////////    
     onAddNewConfigClicked(): void {
         if (this.data == null)
         {

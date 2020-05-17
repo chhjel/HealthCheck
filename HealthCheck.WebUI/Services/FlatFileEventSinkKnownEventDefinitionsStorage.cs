@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace HealthCheck.WebUI.Services
 {
@@ -47,5 +48,21 @@ namespace HealthCheck.WebUI.Services
         /// </summary>
         public KnownEventDefinition UpdateDefinition(KnownEventDefinition definition)
             => Store.InsertOrUpdateItem(definition);
+
+        /// <summary>
+        /// Delete event definition for the given event id.
+        /// </summary>
+        public void DeleteDefinition(string eventId)
+        {
+            Store.DeleteItem(eventId);
+        }
+
+        /// <summary>
+        /// Delete all event definitions.
+        /// </summary>
+        public void DeleteDefinitions()
+        {
+            Task.Run(() => Store.ClearDataAsync());
+        }
     }
 }
