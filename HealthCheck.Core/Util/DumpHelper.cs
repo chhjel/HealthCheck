@@ -1,14 +1,14 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Entities;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Serializers;
-using RuntimeCodeTest.Core.Entities;
 using System;
 using System.Web;
 
 namespace HealthCheck.Core.Util
 {
     /// <summary>
-    /// Helpers for the dump and diff extension methods.
+    /// Helpers for the dump extension methods.
     /// </summary>
     public static class DumpHelper
     {

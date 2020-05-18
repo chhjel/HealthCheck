@@ -1,4 +1,4 @@
-﻿namespace RuntimeCodeTest.Core.Entities
+﻿namespace HealthCheck.Core.Entities
 {
     /// <summary>
     /// Represents a dump of data.
