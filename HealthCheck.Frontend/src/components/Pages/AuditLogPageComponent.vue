@@ -115,7 +115,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
+import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
 import AuditEventViewModel from '../../models/AuditLog/AuditEventViewModel';
 import AuditEventFilterInputData from '../../models/AuditLog/AuditEventFilterInputData';
 import { AuditEventArea } from '../../models/AuditLog/AuditEventArea';
@@ -132,9 +132,6 @@ import { FetchStatus } from "../../services/abstractions/HCServiceBase";
     }
 })
 export default class AuditLogPageComponent extends Vue {
-    @Prop({ required: true })
-    options!: FrontEndOptionsViewModel;
-
     // Filter fields
     filterArea: AuditEventArea | null = null;
     filterSubject: string = "";
@@ -163,7 +160,7 @@ export default class AuditLogPageComponent extends Vue {
     };
 
     // Service
-    service: AuditLogService = new AuditLogService(this.options);
+    service: AuditLogService = new AuditLogService(this.globalOptions);
     loadStatus: FetchStatus = new FetchStatus();
     
     filteredAuditEvents: Array<AuditEventViewModel> = [];
@@ -180,14 +177,9 @@ export default class AuditLogPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
-    // get AreaChoices(): Array<AuditEventArea | null> {
-    //     let choices = new Array<AuditEventArea | null>();
-    //     choices.push(null);
-    //     for (let value in AuditEventArea) {
-    //         choices.push(value as AuditEventArea);
-    //     }
-    //     return choices;
-    // }
+    get globalOptions(): FrontEndOptionsViewModel {
+        return this.$store.state.globalOptions;
+    }
 
     ////////////////
     //  METHODS  //

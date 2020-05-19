@@ -61,11 +61,10 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
+import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
 import { EntryState } from '../../models/RequestLog/EntryState';
 import DateUtils from "../../util/DateUtils";
 import LinqUtils from "../../util/LinqUtils";
-import UrlUtils from "../../util/UrlUtils";
 import KeyArray from "../../util/models/KeyArray";
 import KeyValuePair from "../../models/Common/KeyValuePair";
 // @ts-ignore

@@ -29,7 +29,7 @@
                     <v-divider />
 
                     <v-list-tile ripple 
-                        v-if="options.EnableDiagramSandbox"
+                        v-if="globalOptions.EnableDiagramSandbox"
                         class="testset-menu-item"
                         :class="{ 'active': (sandboxMode) }"
                         @click="showSandboxMode">
@@ -77,7 +77,7 @@
                                         :steps="currentSequenceDiagram.steps"
                                         :showRemarks="showRemarks"
                                         :diagramStyle="diagramStyle"
-                                        :clickable="options.EnableDiagramDetails"
+                                        :clickable="globalOptions.EnableDiagramDetails"
                                         v-on:stepClicked="onStepClicked" />
                                 </v-flex>
 
@@ -137,14 +137,13 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
+import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
 import LoggedEndpointDefinitionViewModel from '../../models/RequestLog/LoggedEndpointDefinitionViewModel';
 import LoggedEndpointRequestViewModel from '../../models/RequestLog/LoggedEndpointRequestViewModel';
 import { EntryState } from '../../models/RequestLog/EntryState';
 import DiagramsDataViewModel from '../../models/Documentation/DiagramsDataViewModel';
 import DateUtils from "../../util/DateUtils";
 import LinqUtils from "../../util/LinqUtils";
-import UrlUtils from "../../util/UrlUtils";
 import KeyArray from "../../util/models/KeyArray";
 import KeyValuePair from "../../models/Common/KeyValuePair";
 import SequenceDiagramComponent, { SequenceDiagramStep, SequenceDiagramLineStyle, SequenceDiagramStyle } from "../Common/SequenceDiagramComponent.vue";
@@ -191,13 +190,10 @@ interface DocMenuItem
     }
 })
 export default class DocumentationPageComponent extends Vue {
-    @Prop({ required: true })
-    options!: FrontEndOptionsViewModel;
-
     sequenceDiagrams: Array<SequenceDiagramData> = [];
     flowCharts: Array<FlowChartData> = [];
 
-    service: DocumentationService = new DocumentationService(this.options);
+    service: DocumentationService = new DocumentationService(this.globalOptions);
     loadStatus: FetchStatus = new FetchStatus();
 
     // UI STATE
@@ -246,6 +242,10 @@ Web -> Frontend: Confirmation is delivered
     ////////////////
     //  GETTERS  //
     //////////////
+    get globalOptions(): FrontEndOptionsViewModel {
+        return this.$store.state.globalOptions;
+    }
+    
     get showToggleRemarks(): boolean
     {
         if (this.currentSequenceDiagram == null)
@@ -285,65 +285,65 @@ Web -> Frontend: Confirmation is delivered
     }
 
     setFromUrl(forcedParts: Array<string> | null = null): void {
-        const parts = forcedParts || UrlUtils.GetHashParts();
+        // const parts = forcedParts || UrlUtils.GetHashParts();
         
-        const selectedItem = parts[1];
-        if (selectedItem !== undefined && selectedItem.length > 0) {
-            let seqDiagram = this.sequenceDiagrams.filter(x => UrlUtils.EncodeHashPart(x.title) == selectedItem)[0];
-            if (seqDiagram != null)
-            {
-                this.setActiveSequenceDiagram(seqDiagram);
-            }
+        // const selectedItem = parts[1];
+        // if (selectedItem !== undefined && selectedItem.length > 0) {
+        //     let seqDiagram = this.sequenceDiagrams.filter(x => UrlUtils.EncodeHashPart(x.title) == selectedItem)[0];
+        //     if (seqDiagram != null)
+        //     {
+        //         this.setActiveSequenceDiagram(seqDiagram);
+        //     }
 
-            let flowchart = this.flowCharts.filter(x => UrlUtils.EncodeHashPart(x.title) == selectedItem)[0];
-            if (flowchart != null)
-            {
-                this.setActiveFlowChart(flowchart);
-            }
-        }
+        //     let flowchart = this.flowCharts.filter(x => UrlUtils.EncodeHashPart(x.title) == selectedItem)[0];
+        //     if (flowchart != null)
+        //     {
+        //         this.setActiveFlowChart(flowchart);
+        //     }
+        // }
 
-        if (this.currentSequenceDiagram == null && this.currentFlowChart == null)
-        {
-            if (this.sequenceDiagrams.length > 0)
-            {
-                this.setActiveSequenceDiagram(this.sequenceDiagrams[0]);
-            }
-            else if (this.flowCharts.length > 0)
-            {
-                this.setActiveFlowChart(this.flowCharts[0]);
-            }
-        }
+        // if (this.currentSequenceDiagram == null && this.currentFlowChart == null)
+        // {
+        //     if (this.sequenceDiagrams.length > 0)
+        //     {
+        //         this.setActiveSequenceDiagram(this.sequenceDiagrams[0]);
+        //     }
+        //     else if (this.flowCharts.length > 0)
+        //     {
+        //         this.setActiveFlowChart(this.flowCharts[0]);
+        //     }
+        // }
 
-        if (selectedItem == 'sandbox')
-        {
-            this.sandboxMode = true;
-            this.updateUrl();
-        }
+        // if (selectedItem == 'sandbox')
+        // {
+        //     this.sandboxMode = true;
+        //     this.updateUrl();
+        // }
     }
 
     updateUrl(parts?: Array<string> | null): void {
-        if (parts == null)
-        {
-            parts = ['documentation'];
+        // if (parts == null)
+        // {
+        //     parts = ['documentation'];
 
-            if (this.sandboxMode == true)
-            {
-                parts.push('sandbox');
-            }
-            else if (this.currentSequenceDiagram != null)
-            {
-                parts.push(UrlUtils.EncodeHashPart(this.currentSequenceDiagram.title));
-            }
-            else if (this.currentFlowChart != null)
-            {
-                parts.push(UrlUtils.EncodeHashPart(this.currentFlowChart.title));
-            }
-        }
+        //     if (this.sandboxMode == true)
+        //     {
+        //         parts.push('sandbox');
+        //     }
+        //     else if (this.currentSequenceDiagram != null)
+        //     {
+        //         parts.push(UrlUtils.EncodeHashPart(this.currentSequenceDiagram.title));
+        //     }
+        //     else if (this.currentFlowChart != null)
+        //     {
+        //         parts.push(UrlUtils.EncodeHashPart(this.currentFlowChart.title));
+        //     }
+        // }
 
-        UrlUtils.SetHashParts(parts);
+        // UrlUtils.SetHashParts(parts);
         
-        // Some dirty technical debt before transitioning to propper routing :-)
-        (<any>window).documentationState = parts;
+        // // Some dirty technical debt before transitioning to propper routing :-)
+        // (<any>window).documentationState = parts;
     }
 
     loadData(): void {
@@ -401,8 +401,8 @@ Web -> Frontend: Confirmation is delivered
                 }
             });
         
-        const originalUrlHashParts = UrlUtils.GetHashParts();
-        this.setFromUrl(originalUrlHashParts);
+        // const originalUrlHashParts = UrlUtils.GetHashParts();
+        // this.setFromUrl(originalUrlHashParts);
     }
 
     convertStringToSteps(text: string): Array<SequenceDiagramStep<SequenceDiagramStepDetails | null>>
@@ -561,7 +561,7 @@ Web -> Frontend: Confirmation is delivered
 
     onStepClicked(step: SequenceDiagramStep<SequenceDiagramStepDetails>): void
     {
-        if (this.options.EnableDiagramDetails == true)
+        if (this.globalOptions.EnableDiagramDetails == true)
         {
             this.selectedStep = step;
         }

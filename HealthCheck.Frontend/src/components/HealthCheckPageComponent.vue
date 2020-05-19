@@ -8,126 +8,26 @@
                     @click.stop="onSideMenuToggleButtonClicked"
                     v-if="showMenuButton"></v-toolbar-side-icon>
                 <v-toolbar-title class="apptitle">
-                    <a v-if="hasTitleLink" :href="titleLink">{{ options.ApplicationTitle }}</a>
-                    <span v-else>{{ options.ApplicationTitle }}</span>
+                    <a v-if="hasTitleLink" :href="titleLink">{{ globalOptions.ApplicationTitle }}</a>
+                    <span v-else>{{ globalOptions.ApplicationTitle }}</span>
                 </v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-toolbar-items v-if="showPagesMenu">
                     <v-btn flat
-                        v-if="showPageMenu(PAGE_OVERVIEW)"
-                        :href="`#/${PAGE_OVERVIEW}`"
-                        :class="{ 'active-tab': isCurrentPage(PAGE_OVERVIEW) }"
-                        @click.left.prevent="setCurrentPage(PAGE_OVERVIEW)">Status</v-btn>
-                    <v-btn flat 
-                        v-if="showPageMenu(PAGE_TESTS)"
-                        :href="`#/${PAGE_TESTS}`"
-                        :class="{ 'active-tab': isCurrentPage(PAGE_TESTS) }"
-                        @click.left.prevent="setCurrentPage(PAGE_TESTS)">{{ options.TestsTabName }}</v-btn>
-                    <v-btn flat
-                        v-if="showPageMenu(PAGE_REQUESTLOG)"
-                        :href="`#/${PAGE_REQUESTLOG}`"
-                        :class="{ 'active-tab': isCurrentPage(PAGE_REQUESTLOG) }"
-                        @click.left.prevent="setCurrentPage(PAGE_REQUESTLOG)">Requests</v-btn>
-                    <v-btn flat
-                        v-if="showPageMenu(PAGE_DATAFLOW)"
-                        :href="`#/${PAGE_DATAFLOW}`"
-                        :class="{ 'active-tab': isCurrentPage(PAGE_DATAFLOW) }"
-                        @click.left.prevent="setCurrentPage(PAGE_DATAFLOW)">Dataflow</v-btn>
-                    <v-btn flat
-                        v-if="showPageMenu(PAGE_EVENTNOTIFICATIONS)"
-                        :href="`#/${PAGE_EVENTNOTIFICATIONS}`"
-                        :class="{ 'active-tab': isCurrentPage(PAGE_EVENTNOTIFICATIONS) }"
-                        @click.left.prevent="setCurrentPage(PAGE_EVENTNOTIFICATIONS)">Event Notifications</v-btn>
-                    <v-btn flat
-                        v-if="showPageMenu(PAGE_DOCUMENTATION)"
-                        :href="`#/${PAGE_DOCUMENTATION}`"
-                        :class="{ 'active-tab': isCurrentPage(PAGE_DOCUMENTATION) }"
-                        @click.left.prevent="setCurrentPage(PAGE_DOCUMENTATION)">Documentation</v-btn>
-                    <v-btn flat
-                        v-if="showPageMenu(PAGE_LOGS)"
-                        :href="`#/${PAGE_LOGS}`"
-                        :class="{ 'active-tab': isCurrentPage(PAGE_LOGS) }"
-                        @click.left.prevent="setCurrentPage(PAGE_LOGS)">Logs</v-btn>
-                    <v-btn flat 
-                        v-if="showPageMenu(PAGE_AUDITLOG)"
-                        :href="`#/${PAGE_AUDITLOG}`"
-                        :class="{ 'active-tab': isCurrentPage(PAGE_AUDITLOG) }"
-                        @click.left.prevent="setCurrentPage(PAGE_AUDITLOG)">Audit log</v-btn>
-                    <v-btn flat 
-                        v-if="showPageMenu(PAGE_SETTINGS)"
-                        :href="`#/${PAGE_SETTINGS}`"
-                        :class="{ 'active-tab': isCurrentPage(PAGE_SETTINGS) }"
-                        @click.left.prevent="setCurrentPage(PAGE_SETTINGS)">Settings</v-btn>
+                        v-for="(mconf, mindex) in this.moduleConfig"
+                        :key="`module-menu-${mindex}`"
+                        :href="`#${mconf.InitialRoute}`"
+                        :class="{ 'active-tab': isModuleShowing(mconf) }"
+                        @click.left.prevent="showModule(mconf)">{{ mconf.Name }}</v-btn>
                 </v-toolbar-items>
             </v-toolbar>
 
             <!-- CONTENT -->
-            <!--
-            foreach module {
-                <component
-                :is="`module.ComponentName`"
-                v-if="shouldIncludePage(module.Id)"
-                v-show="currentPage == module.Id"
-                :options="getModuleOptions(module.Id)"
-                ref="..." />
-            }
-            <component
-                :is="`test-module-1`"
-                :global-options="options"
-                :options="getModuleOptions('HealthCheck.Modules.DevModule.TestModule')"
-                />
-             -->
-            <!-- asd  -->
-            <no-page-available-page-component
-                v-if="shouldIncludePage(PAGE_NO_PAGES_AVAILABLE)"
-                v-show="currentPage == PAGE_NO_PAGES_AVAILABLE"
-                :options="options" />
-            <overview-page-component
-                v-if="shouldIncludePage(PAGE_OVERVIEW)"
-                v-show="currentPage == PAGE_OVERVIEW"
-                :options="options" />
-            <test-suites-page-component 
-                v-if="shouldIncludePage(PAGE_TESTS)"
-                v-show="currentPage == PAGE_TESTS"
-                ref="testsPage"
-                :options="options" />
-            <audit-log-page-component 
-                v-if="shouldIncludePage(PAGE_AUDITLOG)"
-                v-show="currentPage == PAGE_AUDITLOG"
-                :options="options" />
-            <log-viewer-page-component 
-                v-if="shouldIncludePage(PAGE_LOGS)"
-                v-show="currentPage == PAGE_LOGS"
-                :options="options" />
-            <request-log-page-component
-                v-if="shouldIncludePage(PAGE_REQUESTLOG)"
-                v-show="currentPage == PAGE_REQUESTLOG"
-                ref="requestLogPage"
-                :options="options" />
-            <documentation-page-component
-                v-if="shouldIncludePage(PAGE_DOCUMENTATION)"
-                v-show="currentPage == PAGE_DOCUMENTATION"
-                ref="documentationPage"
-                :options="options" />
-            <event-notifications-page-component
-                v-if="shouldIncludePage(PAGE_EVENTNOTIFICATIONS)"
-                v-show="currentPage == PAGE_EVENTNOTIFICATIONS"
-                ref="eventNotificationsPage"
-                :options="options" />
-            <dataflow-page-component
-                v-if="shouldIncludePage(PAGE_DATAFLOW)"
-                v-show="currentPage == PAGE_DATAFLOW"
-                ref="dataflowPage"
-                :options="options" />
-            <settings-page-component
-                v-if="shouldIncludePage(PAGE_SETTINGS)"
-                v-show="currentPage == PAGE_SETTINGS"
-                :options="options" />
+            <router-view></router-view>
 
-            <!-- FOOTER -->
-            <!-- <v-footer app fixed>
-                <span>&copy; {{ new Date().getFullYear() }}</span>
-            </v-footer> -->
+            <no-page-available-page-component
+                v-if="noModuleAccess"
+                v-show="noModuleAccess" />
         </v-app>
     </div>
 </template>
@@ -135,58 +35,17 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 import NoPageAvailablePageComponent from './Pages/NoPageAvailablePageComponent.vue';
-import TestSuitesPageComponent from './Pages/TestSuitesPageComponent.vue';
-import OverviewPageComponent from './Pages/OverviewPageComponent.vue';
-import AuditLogPageComponent from './Pages/AuditLogPageComponent.vue';
-import LogViewerPageComponent from './Pages/LogViewerPageComponent.vue';
-import RequestLogPageComponent from './Pages/RequestLogPageComponent.vue';
-import DocumentationPageComponent from './Pages/DocumentationPageComponent.vue';
-import DataflowPageComponent from './Pages/DataflowPageComponent.vue';
-import SettingsPageComponent from './Pages/SettingsPageComponent.vue';
-import EventNotificationsPageComponent from './Pages/EventNotificationsPageComponent.vue';
-import FrontEndOptionsViewModel from '../models/Page/FrontEndOptionsViewModel';
-import UrlUtils from '../util/UrlUtils';
-import TestModule1PageComponent from './Pages/TestModule1PageComponent.vue';
+import FrontEndOptionsViewModel from '../models/Common/FrontEndOptionsViewModel';
+import ModuleConfig from "../models/Common/ModuleConfig";
 
 @Component({
     components: {
-        NoPageAvailablePageComponent,
-        TestSuitesPageComponent,
-        OverviewPageComponent,
-        AuditLogPageComponent,
-        LogViewerPageComponent,
-        RequestLogPageComponent,
-        DocumentationPageComponent,
-        DataflowPageComponent,
-        SettingsPageComponent,
-        EventNotificationsPageComponent,
-        'test-module-1': TestModule1PageComponent
+        NoPageAvailablePageComponent
     }
 })
 export default class HealthCheckPageComponent extends Vue {
     @Prop({ required: true })
-    options!: FrontEndOptionsViewModel;
-    
-    showMenuButton: boolean = true;
-    
-    // Pages
-    PAGE_OVERVIEW: string = "status";
-    PAGE_TESTS: string = "tests";
-    PAGE_LOGS: string = "logviewer";
-    PAGE_AUDITLOG: string = "auditlog";
-    PAGE_REQUESTLOG: string = "requestlog";
-    PAGE_DOCUMENTATION: string = "documentation";
-    PAGE_DATAFLOW: string = "dataflow";
-    PAGE_SETTINGS: string = "settings";
-    PAGE_EVENTNOTIFICATIONS: string = "eventnotifications";
-    PAGE_NO_PAGES_AVAILABLE: string = "no_page";
-    currentPage: string = this.PAGE_TESTS;
-    pagesWithMenu: string[] = [
-        this.PAGE_TESTS,
-        this.PAGE_DOCUMENTATION,
-        this.PAGE_DATAFLOW
-    ];
-    pagesShownAtLeastOnce: string[] = [];
+    moduleConfig!: Array<ModuleConfig>;
 
     //////////////////
     //  LIFECYCLE  //
@@ -199,8 +58,20 @@ export default class HealthCheckPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get globalOptions(): FrontEndOptionsViewModel {
+        return this.$store.state.globalOptions;
+    }
+    
+    get showMenuButton(): boolean {
+        return this.$store.state.ui.menuButtonVisible;
+    }
+    
+    get noModuleAccess(): boolean {
+        return this.moduleConfig.length == 0;
+    }
+
     get showPagesMenu(): boolean {
-        return this.options.Pages.length > 1;
+        return this.moduleConfig.length > 1;
     }
 
     get hasTitleLink(): boolean {
@@ -209,7 +80,7 @@ export default class HealthCheckPageComponent extends Vue {
     }
 
     get titleLink(): string {
-        return this.options.ApplicationTitleLink;
+        return this.globalOptions.ApplicationTitleLink;
     }
     
     ////////////////
@@ -221,80 +92,31 @@ export default class HealthCheckPageComponent extends Vue {
         return options[moduleId];
     }
 
+    showModule(module: ModuleConfig): void
+    {
+        if (this.isModuleShowing(module))
+        {
+            return;
+        }
+
+        this.$store.commit('showMenuButton', false);
+        this.$router.push(module.InitialRoute);
+    }
+
+    isModuleShowing(module: ModuleConfig): boolean
+    {
+        return this.$route.matched.some(({ name }) => name === module.Id);
+    }
+
     setInitialPage(): void
     {
-        // Attempt to get from query string first
-        const pageFromHash = UrlUtils.GetHashPart(0);
-        if (pageFromHash != null && this.options.Pages.indexOf(pageFromHash) != -1) {
-            this.setCurrentPage(pageFromHash);
-        } else if(this.options.Pages.length > 0) {
-            this.setCurrentPage(this.options.Pages[0]);
-        } else {
-            this.setCurrentPage(this.currentPage);
+        // X:ToDo: set based on prioritized order if nothing active.
+        
+        let anyRouteActive = this.$route.matched.length > 0;
+        if (!anyRouteActive && this.moduleConfig.length > 0)
+        {
+            this.showModule(this.moduleConfig[0]);
         }
-    }
-
-    isCurrentPage(page: string): boolean
-    {
-        return this.currentPage === page;
-    }
-
-    setCurrentPage(page: string) {
-        // Only allow pages in option.Pages 
-        if (this.options.Pages.indexOf(page) == -1) {
-            page = (this.options.Pages.length > 0) ? this.options.Pages[0] : this.PAGE_NO_PAGES_AVAILABLE;
-        }
-
-        this.showMenuButton = this.pagesWithMenu.indexOf(page) != -1;
-        this.currentPage = page;
-
-        if (page !== this.PAGE_NO_PAGES_AVAILABLE) {
-            if (page == this.PAGE_TESTS) {
-                UrlUtils.SetHashPart(0, page);
-                const testPage = (<TestSuitesPageComponent>this.$refs.testsPage);
-                if (testPage != undefined) {
-                    testPage.onPageShow();
-                }
-            } else if (page == this.PAGE_REQUESTLOG) {
-                UrlUtils.SetHashPart(0, page);
-                const requestLogPage = (<RequestLogPageComponent>this.$refs.requestLogPage);
-                if (requestLogPage != undefined) {
-                    requestLogPage.onPageShow();
-                }
-            } else if (page == this.PAGE_DATAFLOW) {
-                UrlUtils.SetHashPart(0, page);
-                const dataflowPage = (<DataflowPageComponent>this.$refs.dataflowPage);
-                if (dataflowPage != undefined) {
-                    dataflowPage.onPageShow();
-                }
-            } else if (page == this.PAGE_DOCUMENTATION) {
-                UrlUtils.SetHashPart(0, page);
-                const documentationPage = (<DocumentationPageComponent>this.$refs.documentationPage);
-                if (documentationPage != undefined) {
-                    documentationPage.onPageShow();
-                }
-            } else if (page == this.PAGE_EVENTNOTIFICATIONS) {
-                UrlUtils.SetHashPart(0, page);
-                const eventNotificationsPage = (<EventNotificationsPageComponent>this.$refs.eventNotificationsPage);
-                if (eventNotificationsPage != undefined) {
-                    eventNotificationsPage.onPageShow();
-                }
-            } else {
-                UrlUtils.SetHashParts([page]);
-            }
-        }
-
-        if (this.pagesShownAtLeastOnce.indexOf(page) == -1) {
-            this.pagesShownAtLeastOnce.push(page);
-        }
-    }
-
-    showPageMenu(page: string): boolean {
-        return this.options.Pages.indexOf(page) != -1;
-    }
-
-    shouldIncludePage(page: string): boolean {
-        return this.pagesShownAtLeastOnce.indexOf(page) != -1;
     }
 
     ///////////////////////

@@ -21,15 +21,13 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
+import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
 
 @Component({
     components: {
     }
 })
 export default class NoPageAvailablePageComponent extends Vue {
-    @Prop({ required: true })
-    options!: FrontEndOptionsViewModel;
 }
 </script>
 

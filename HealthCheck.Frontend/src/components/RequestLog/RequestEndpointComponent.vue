@@ -63,7 +63,6 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 import LoggedEndpointDefinitionViewModel from "../../models/RequestLog/LoggedEndpointDefinitionViewModel";
 import LoggedEndpointRequestViewModel from "../../models/RequestLog/LoggedEndpointRequestViewModel";
 import { EntryState } from '../../models/RequestLog/EntryState';
-import FrontEndOptionsViewModel from "../../models//Page/FrontEndOptionsViewModel";
 import DateUtils from "../../util/DateUtils";
 import LinqUtils from "../../util/LinqUtils";
 
@@ -72,9 +71,6 @@ import LinqUtils from "../../util/LinqUtils";
     }
 })
 export default class ActionLogEntryComponent extends Vue {
-    @Prop({ required: true })
-    options!: FrontEndOptionsViewModel;
-    
     @Prop({ required: true })
     entry!: LoggedEndpointDefinitionViewModel;
     

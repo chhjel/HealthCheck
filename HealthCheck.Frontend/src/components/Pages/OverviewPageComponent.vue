@@ -77,7 +77,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
+import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
 import CalendarEvent from '../../models/Common/CalendarEvent';
 import SiteEventViewModel from '../../models/SiteEvents/SiteEventViewModel';
 import { SiteEventSeverity } from '../../models/SiteEvents/SiteEventSeverity';
@@ -101,15 +101,12 @@ import { FetchStatus } from "../../services/abstractions/HCServiceBase";
     }
 })
 export default class OverviewPageComponent extends Vue {
-    @Prop({ required: true })
-    options!: FrontEndOptionsViewModel;
-
     // Dialogs
     eventDetailsDialogState: boolean = false;
     selectedEventForDetails: SiteEventViewModel | null = null;
     
     // Service
-    service: OverviewService = new OverviewService(this.options);
+    service: OverviewService = new OverviewService(this.globalOptions);
     loadStatus: FetchStatus = new FetchStatus();
 
     siteEvents: Array<SiteEventViewModel> = [];
@@ -125,6 +122,10 @@ export default class OverviewPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get globalOptions(): FrontEndOptionsViewModel {
+        return this.$store.state.globalOptions;
+    }
+    
     get calendarEvents(): Array<SiteEventViewModel> {
         return this.siteEvents;
     }
@@ -153,7 +154,7 @@ export default class OverviewPageComponent extends Vue {
         }
 
         let thresholdDate = new Date();
-        thresholdDate.setMinutes(thresholdDate.getMinutes() - this.options.CurrentEventBufferMinutes);
+        thresholdDate.setMinutes(thresholdDate.getMinutes() - this.globalOptions.CurrentEventBufferMinutes);
         
         let eventEndDate = new Date(event.Timestamp);
         eventEndDate.setMinutes(eventEndDate.getMinutes() + event.Duration);

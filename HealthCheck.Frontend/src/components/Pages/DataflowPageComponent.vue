@@ -178,13 +178,12 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
+import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
 import LoggedEndpointDefinitionViewModel from '../../models/RequestLog/LoggedEndpointDefinitionViewModel';
 import LoggedEndpointRequestViewModel from '../../models/RequestLog/LoggedEndpointRequestViewModel';
 import { EntryState } from '../../models/RequestLog/EntryState';
 import DateUtils from "../../util/DateUtils";
 import LinqUtils from "../../util/LinqUtils";
-import UrlUtils from "../../util/UrlUtils";
 import KeyArray from "../../util/models/KeyArray";
 import KeyValuePair from "../../models/Common/KeyValuePair";
 import DataflowStreamMetadata from "../../models/Dataflow/DataflowStreamMetadata";
@@ -242,15 +241,12 @@ interface StreamGroup
     }
 })
 export default class DataflowPageComponent extends Vue {
-    @Prop({ required: true })
-    options!: FrontEndOptionsViewModel;
-
     // UI STATE
     drawerState: boolean = true;
     streamsFilterText: string = "";
     
     // Service
-    service: DataflowService = new DataflowService(this.options);
+    service: DataflowService = new DataflowService(this.globalOptions);
     dataLoadStatus: FetchStatus = new FetchStatus();
     metadataLoadStatus: FetchStatus = new FetchStatus();
 
@@ -300,6 +296,10 @@ export default class DataflowPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get globalOptions(): FrontEndOptionsViewModel {
+        return this.$store.state.globalOptions;
+    }
+    
     get menuItems(): Array<FilterableListItem>
     {
         return this.streamMetadatas.map(x => {
@@ -375,40 +375,40 @@ export default class DataflowPageComponent extends Vue {
     }
 
     setFromUrl(forcedParts: Array<string> | null = null): void {
-        const parts = forcedParts || UrlUtils.GetHashParts();
+        // const parts = forcedParts || UrlUtils.GetHashParts();
         
-        let didSelectStream = false;
-        const selectedItem = parts[1];
-        if (selectedItem !== undefined && selectedItem.length > 0) {
-            let stream = this.streamMetadatas.filter(x => UrlUtils.EncodeHashPart(x.Name) == selectedItem)[0];
-            if (stream != null)
-            {
-                didSelectStream = true;
-                this.setActveStream(stream);
-            }
-        }
+        // let didSelectStream = false;
+        // const selectedItem = parts[1];
+        // if (selectedItem !== undefined && selectedItem.length > 0) {
+        //     let stream = this.streamMetadatas.filter(x => UrlUtils.EncodeHashPart(x.Name) == selectedItem)[0];
+        //     if (stream != null)
+        //     {
+        //         didSelectStream = true;
+        //         this.setActveStream(stream);
+        //     }
+        // }
 
-        if (!didSelectStream && this.streamMetadatas.length > 0)
-        {
-            this.setActveStream(this.streamMetadatas[0]);
-        }
+        // if (!didSelectStream && this.streamMetadatas.length > 0)
+        // {
+        //     this.setActveStream(this.streamMetadatas[0]);
+        // }
     }
 
     updateUrl(parts?: Array<string> | null): void {
-        if (parts == null)
-        {
-            parts = ['dataflow'];
+        // if (parts == null)
+        // {
+        //     parts = ['dataflow'];
 
-            if (this.selectedStream != null)
-            {
-                parts.push(UrlUtils.EncodeHashPart(this.selectedStream.Name));
-            }
-        }
+        //     if (this.selectedStream != null)
+        //     {
+        //         parts.push(UrlUtils.EncodeHashPart(this.selectedStream.Name));
+        //     }
+        // }
 
-        UrlUtils.SetHashParts(parts);
+        // UrlUtils.SetHashParts(parts);
         
-        // Some dirty technical debt before transitioning to propper routing :-)
-        (<any>window).dataflowState = parts;
+        // // Some dirty technical debt before transitioning to propper routing :-)
+        // (<any>window).dataflowState = parts;
     }
 
     resetFilter(): void {
@@ -451,8 +451,8 @@ export default class DataflowPageComponent extends Vue {
             return x;
         });
 
-        const originalUrlHashParts = UrlUtils.GetHashParts();
-        this.setFromUrl(originalUrlHashParts);
+        // const originalUrlHashParts = UrlUtils.GetHashParts();
+        // this.setFromUrl(originalUrlHashParts);
     }
 
     loadStreamEntries(): void {

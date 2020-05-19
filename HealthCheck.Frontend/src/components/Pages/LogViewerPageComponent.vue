@@ -164,7 +164,7 @@
                 </v-layout>
 
                 <div>
-                    <!-- Options -->
+                    <!-- globalOptions -->
                     <v-layout row wrap xs12>
                         <v-flex xs6 sm4 lg4 v-if="!showExcludedQuery">
                             <v-btn depressed small class="extra-filter-btn"
@@ -241,7 +241,7 @@
                     </v-chip>
                     <v-btn ripple color="error"
                         @click.stop.prevent="cancelAllSearches()"
-                        v-if="options.CurrentlyRunningLogSearchCount > 0 && !hasCancelledAll"
+                        v-if="globalOptions.CurrentlyRunningLogSearchCount > 0 && !hasCancelledAll"
                         :disabled="cancelAllSearchesStatus.inProgress"
                         class="mb-4">
                         <v-icon color="white">cancel</v-icon>
@@ -344,7 +344,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
+import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
 import DateUtils from '../../util/DateUtils';
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 import LogEntryTableComponent from '../LogViewer/LogEntryTableComponent.vue';
@@ -374,9 +374,6 @@ interface DatePickerPreset {
     }
 })
 export default class LogViewerPageComponent extends Vue {
-    @Prop({ required: true })
-    options!: FrontEndOptionsViewModel;
-
     // Filter fields
     showExcludedQuery: boolean = false;
     showLogPathQuery: boolean = false;
@@ -408,7 +405,7 @@ export default class LogViewerPageComponent extends Vue {
     hasSearched: boolean = false;
 
     // Service
-    service: LogService = new LogService(this.options);
+    service: LogService = new LogService(this.globalOptions);
     searchLoadStatus: FetchStatus = new FetchStatus();
     cancelSearchStatus: FetchStatus = new FetchStatus();
     cancelAllSearchesStatus: FetchStatus = new FetchStatus();
@@ -424,6 +421,10 @@ export default class LogViewerPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get globalOptions(): FrontEndOptionsViewModel {
+        return this.$store.state.globalOptions;
+    }
+    
     get describedQuery(): Array<string>
     {
         let parts: Array<Array<string>> = [
@@ -527,7 +528,7 @@ export default class LogViewerPageComponent extends Vue {
     }
 
     get cancelAllSearchesButtonText(): string {
-        const count = this.options.CurrentlyRunningLogSearchCount;
+        const count = this.globalOptions.CurrentlyRunningLogSearchCount;
         const searchesWord = (count == 1) ? "search" : "searches";
         return `Cancel ${count} currently running ${searchesWord} (for all users)`;
     }
@@ -569,7 +570,7 @@ export default class LogViewerPageComponent extends Vue {
         this.showExcludedQuery = false;
         this.showLogPathQuery = false;
         this.showExcludedLogPathQuery = false;
-        this.showcustomColumnRule = this.options.ApplyCustomColumnRuleByDefault;
+        this.showcustomColumnRule = this.globalOptions.ApplyCustomColumnRuleByDefault;
 
         this.filterFromDate = new Date();
         this.filterFromDate.setDate(this.filterFromDate.getDate() - 7);
@@ -591,9 +592,9 @@ export default class LogViewerPageComponent extends Vue {
         this.filterExcludedQueryIsRegex = false;
         this.filterLogPathQueryIsRegex = false;
         this.filterExcludedLogPathQueryIsRegex = false;
-        this.customColumnRule = (this.options.ApplyCustomColumnRuleByDefault)
-            ? this.options.DefaultColumnRule : '';
-        this.customColumnMode = (this.options.DefaultColumnModeIsRegex == true) 
+        this.customColumnRule = (this.globalOptions.ApplyCustomColumnRuleByDefault)
+            ? this.globalOptions.DefaultColumnRule : '';
+        this.customColumnMode = (this.globalOptions.DefaultColumnModeIsRegex == true) 
             ? FilterDelimiterMode.Regex : FilterDelimiterMode.Delimiter;
     }
 
@@ -658,7 +659,7 @@ export default class LogViewerPageComponent extends Vue {
 
             FromDate: this.filterFromDate,
             ToDate: this.filterToDate,
-            MaxStatisticsCount: this.options.MaxInsightsEntryCount,
+            MaxStatisticsCount: this.globalOptions.MaxInsightsEntryCount,
             OrderDescending: this.filterOrderDescending,
             
             Query: this.filterQuery,

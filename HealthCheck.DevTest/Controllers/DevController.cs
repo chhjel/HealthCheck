@@ -9,6 +9,7 @@ using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
 using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.EventNotifications.Notifiers;
 using HealthCheck.Core.Modules.Settings;
+using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Services;
 using HealthCheck.Core.Services.Models;
 using HealthCheck.Core.Util;
@@ -96,8 +97,9 @@ namespace HealthCheck.DevTest.Controllers
                 .AddPlaceholder("ServerName", () => Environment.MachineName);
             (Services.EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableEventRegistering);
 
-            UseModule(new TestModule());
-            UseModule(new TestModule2());
+            UseModule(new TestsModule());
+            UseModule(new TestModuleA(), "Custom A", "custom_a");
+            UseModule(new TestModuleB());
 
             if (!_hasInited)
             {
@@ -297,11 +299,14 @@ namespace HealthCheck.DevTest.Controllers
         protected override void Configure(HttpRequestBase request)
         {
             /// MODULES //
-            GiveSingleRoleAccessToModule(RuntimeTestAccessRole.Guest, TestModule.TestModuleAccessOption.EditThing);
-            GiveSingleRoleAccessToModule(RuntimeTestAccessRole.WebAdmins, TestModule.TestModuleAccessOption.DeleteThing | TestModule.TestModuleAccessOption.EditThing);
+            GiveSingleRoleAccessToModule(RuntimeTestAccessRole.Guest, TestModuleA.TestModuleAAccessOption.EditThing);
+            GiveSingleRoleAccessToModule(RuntimeTestAccessRole.WebAdmins, TestModuleA.TestModuleAAccessOption.DeleteThing | TestModuleA.TestModuleAAccessOption.EditThing);
 
             GiveSingleRoleAccessToModule(RuntimeTestAccessRole.SystemAdmins,
-                TestModule2.TestModule2AccessOption.NumberOne);
+                TestModuleB.TestModuleBAccessOption.NumberOne);
+
+            GiveSingleRoleAccessToModule(RuntimeTestAccessRole.SystemAdmins,
+                TestsModule.TestsModuleAccessOption.None);
             //////////////
 
             TestRunner.IncludeExceptionStackTraces = CurrentRequestAccessRoles.HasValue && CurrentRequestAccessRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);

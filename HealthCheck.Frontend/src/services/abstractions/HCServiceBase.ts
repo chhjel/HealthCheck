@@ -1,4 +1,4 @@
-import FrontEndOptionsViewModel from "../../models/Page/FrontEndOptionsViewModel";
+import FrontEndOptionsViewModel from "../../models/Common/FrontEndOptionsViewModel";
 
 export class FetchStatus
 {

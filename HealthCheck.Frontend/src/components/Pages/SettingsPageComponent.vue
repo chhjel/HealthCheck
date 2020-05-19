@@ -59,10 +59,9 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
+import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
 import DateUtils from "../../util/DateUtils";
 import LinqUtils from "../../util/LinqUtils";
-import UrlUtils from "../../util/UrlUtils";
 import SettingInputComponent from '../Settings/SettingInputComponent.vue';
 import SettingsService, { GetSettingsModel, BackendSetting, CustomSetting, CustomSettingGroup }  from '../../services/SettingsService';
 import { FetchStatus,  } from "../../services/abstractions/HCServiceBase";
@@ -73,10 +72,7 @@ import { FetchStatus,  } from "../../services/abstractions/HCServiceBase";
     }
 })
 export default class SettingsPageComponent extends Vue {
-    @Prop({ required: true })
-    options!: FrontEndOptionsViewModel;
-
-    service: SettingsService = new SettingsService(this.options);
+    service: SettingsService = new SettingsService(this.globalOptions);
     loadStatus: FetchStatus = new FetchStatus();
     saveStatus: FetchStatus = new FetchStatus();
 
@@ -99,6 +95,10 @@ export default class SettingsPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get globalOptions(): FrontEndOptionsViewModel {
+        return this.$store.state.globalOptions;
+    }
+    
     get saveButtonText(): string {
         return (this.saveStatus.inProgress) ? 'Saving..' : 'Save';
     }

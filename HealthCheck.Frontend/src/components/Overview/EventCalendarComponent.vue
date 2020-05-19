@@ -76,7 +76,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
+import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
 import CalendarEvent from '../../models/Common/CalendarEvent';
 import SiteEventViewModel from '../../models/SiteEvents/SiteEventViewModel';
 import { SiteEventSeverity } from '../../models/SiteEvents/SiteEventSeverity';

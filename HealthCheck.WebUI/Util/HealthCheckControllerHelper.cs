@@ -126,7 +126,13 @@ namespace HealthCheck.WebUI.Util
         #region Modules
         private List<HealthCheckModuleLoader.HealthCheckLoadedModule> LoadedModules { get; set; }
             = new List<HealthCheckModuleLoader.HealthCheckLoadedModule>();
-        private List<IHealthCheckModule> RegisteredModules { get; set; } = new List<IHealthCheckModule>();
+        private List<RegisteredModuleData> RegisteredModules { get; set; } = new List<RegisteredModuleData>();
+        private class RegisteredModuleData
+        {
+            public IHealthCheckModule Module { get; set; }
+            public string NameOverride { get; set; }
+            public string IdOverride { get; set; }
+        }
         private List<ModuleAccessData> RoleModuleAccessLevels { get; set; } = new List<ModuleAccessData>();
         private class ModuleAccessData
         {
@@ -220,6 +226,7 @@ namespace HealthCheck.WebUI.Util
             {
                 configs.Add(new HealthCheckModuleConfigWrapper {
                     Id = module.Id,
+                    Name = module.Name,
                     Config = module.Config
                 });
             }
@@ -229,15 +236,22 @@ namespace HealthCheck.WebUI.Util
         private class HealthCheckModuleConfigWrapper
         {
             public string Id { get; set; }
+            public string Name { get; set; }
             public IHealthCheckModuleConfig Config { get; set; }
         }
 
         /// <summary>
         /// Register a module that will be available.
+        /// <para>Optionally override name or id of module.</para>
         /// </summary>
-        public void UseModule(IHealthCheckModule module)
+        public void UseModule(IHealthCheckModule module, string name = null, string id = null)
         {
-            RegisteredModules.Add(module);
+            RegisteredModules.Add(new RegisteredModuleData
+            {
+                Module = module,
+                IdOverride = id,
+                NameOverride = name
+            });
         }
 
         /// <summary>
@@ -298,7 +312,10 @@ namespace HealthCheck.WebUI.Util
         internal void AfterConfigure(RequestInformation<TAccessRole> currentRequestInformation)
         {
             var loader = new HealthCheckModuleLoader();
-            LoadedModules = loader.Load(RegisteredModules);
+            LoadedModules = RegisteredModules
+                .Select(x => loader.Load(x.Module, x.NameOverride, x.IdOverride))
+                .Where(x => x != null)
+                .ToList();
         }
 
         /// <summary>
@@ -603,8 +620,11 @@ namespace HealthCheck.WebUI.Util
             var moduleConfigs = GetModuleConfigs(accessRoles);
             var moduleConfigData = moduleConfigs.Select(x => new {
                 x.Id,
-                x.Config.Name,
-                x.Config.ComponentName
+                x.Name,
+                x.Config.ComponentName,
+                // todo allow override on UseModule(..)
+                InitialRoute = string.Format(x.Config.InitialRoute, x.Config.DefaultRootRouteSegment),
+                RoutePath = string.Format(x.Config.RoutePath, x.Config.DefaultRootRouteSegment)
             });
             var moduleStyleAssets = moduleConfigs.Select(x => x.Config)
                 .Where(x => x.LinkTags != null).SelectMany(x => x.LinkTags.Select(t => t.ToString()));

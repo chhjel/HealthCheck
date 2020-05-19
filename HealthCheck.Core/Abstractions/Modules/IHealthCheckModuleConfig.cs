@@ -13,6 +13,24 @@ namespace HealthCheck.Core.Abstractions.Modules
         string Name { get; }
 
         /// <summary>
+        /// Default segment value to use.
+        /// <para>Value will be used in <see cref="InitialRoute"/> and <see cref="RoutePath"/> unless overridden.</para>
+        /// </summary>
+        string DefaultRootRouteSegment { get; }
+
+        /// <summary>
+        /// Initial route with {0} instead of the first segment name.
+        /// <para>{0} will be replaced with <see cref="DefaultRootRouteSegment"/> or overridden value.</para>
+        /// </summary>
+        string InitialRoute { get; }
+
+        /// <summary>
+        /// Full VueRouter route path with {0} instead of the first segment name.
+        /// <para>{0} will be replaced with <see cref="DefaultRootRouteSegment"/> or overridden value.</para>
+        /// </summary>
+        string RoutePath { get; }
+
+        /// <summary>
         /// Vue component name for the module page in frontend.
         /// </summary>
         string ComponentName { get; }

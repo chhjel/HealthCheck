@@ -84,10 +84,10 @@ import TestResultViewModel from '../../models/TestSuite/TestResultViewModel';
 import ExecuteTestPayload from '../../models/TestSuite/ExecuteTestPayload';
 import TestParametersComponent from './paremeter_inputs/TestParametersComponent.vue';
 import TestResultComponent from './TestResultComponent.vue';
-import UrlUtils from '../../util/UrlUtils';
 import TestService from "../../services/TestService";
 import { FetchStatus } from "../../services/abstractions/HCServiceBase";
-import FrontEndOptionsViewModel from "../../models/Page/FrontEndOptionsViewModel";
+import FrontEndOptionsViewModel from "../../models/Common/FrontEndOptionsViewModel";
+import UrlUtils from "../../util/UrlUtils";
 
 @Component({
     components: {
@@ -97,24 +97,14 @@ import FrontEndOptionsViewModel from "../../models/Page/FrontEndOptionsViewModel
 })
 export default class TestComponent extends Vue {
     @Prop({ required: true })
-    options!: FrontEndOptionsViewModel;
-    
-    @Prop({ required: true })
     test!: TestViewModel;
-
-    @Prop({ required: true })
-    executeTestEndpoint!: string;
-    @Prop({ required: true })
-    cancelTestEndpoint!: string;
-    @Prop({ required: true })
-    inludeQueryStringInApiCalls!: string;
 
     testResult: TestResultViewModel | null = null;
     showCancellationButtonUntilNextRun: boolean = false;
     resultDataExpandedState: boolean = false;
 
     // Service
-    service: TestService = new TestService(this.options);
+    service: TestService = new TestService(this.globalOptions);
     executeTestStatus: FetchStatus = new FetchStatus();
     cancelTestStatus: FetchStatus = new FetchStatus();
 
@@ -133,6 +123,10 @@ export default class TestComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get globalOptions(): FrontEndOptionsViewModel {
+        return this.$store.state.globalOptions;
+    }
+    
     get allowShowStatusLabel(): boolean {
       // Not clean mode
       if (this.testResult!.DisplayClean !== true)

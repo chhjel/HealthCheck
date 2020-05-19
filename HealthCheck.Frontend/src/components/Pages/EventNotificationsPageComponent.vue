@@ -25,7 +25,7 @@
                     Add new
                 </v-btn>
 
-                <v-btn v-if="options.HasAccessToEditEventDefinitions"
+                <v-btn v-if="globalOptions.HasAccessToEditEventDefinitions"
                     @click="editDefinitionsDialogVisible = true"
                     class="mb-3 ml-2 right">
                     Edit payload definitions
@@ -131,7 +131,6 @@
                             :eventdefinitions="eventDefinitions"
                             :placeholders="placeholders"
                             :readonly="!allowConfigChanges"
-                            :options="options"
                             v-on:configDeleted="onConfigDeleted"
                             v-on:configSaved="onConfigSaved"
                             v-on:serverInteractionInProgress="setServerInteractionInProgress"
@@ -236,13 +235,12 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
+import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
 import LoggedEndpointDefinitionViewModel from '../../models/RequestLog/LoggedEndpointDefinitionViewModel';
 import LoggedEndpointRequestViewModel from '../../models/RequestLog/LoggedEndpointRequestViewModel';
 import { EntryState } from '../../models/RequestLog/EntryState';
 import DateUtils from "../../util/DateUtils";
 import LinqUtils from "../../util/LinqUtils";
-import UrlUtils from "../../util/UrlUtils";
 import KeyArray from "../../util/models/KeyArray";
 import KeyValuePair from "../../models/Common/KeyValuePair";
 import { GetEventNotificationConfigsViewModel, IEventNotifier, EventSinkNotificationConfig, FilterMatchType, NotifierConfig, Dictionary, NotifierConfigOptionsItem, EventSinkNotificationConfigFilter, KnownEventDefinition } from "../../models/EventNotifications/EventNotificationModels";
@@ -270,10 +268,7 @@ import EventNotificationService from "../../services/EventNotificationService";
     }
 })
 export default class EventNotificationsPageComponent extends Vue {
-    @Prop({ required: true })
-    options!: FrontEndOptionsViewModel;
-
-    service: EventNotificationService = new EventNotificationService(this.options);
+    service: EventNotificationService = new EventNotificationService(this.globalOptions);
 
     // UI STATE
     loadStatus: FetchStatus = new FetchStatus();
@@ -297,6 +292,10 @@ export default class EventNotificationsPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get globalOptions(): FrontEndOptionsViewModel {
+        return this.$store.state.globalOptions;
+    }
+    
     get showDeleteConfig(): boolean
     {
         return this.currentConfig != null && this.currentConfig.Id != null;
@@ -354,34 +353,34 @@ export default class EventNotificationsPageComponent extends Vue {
     }
 
     setFromUrl(forcedParts: Array<string> | null = null): void {
-        const parts = forcedParts || UrlUtils.GetHashParts();
+        // const parts = forcedParts || UrlUtils.GetHashParts();
         
-        let didSelectConfig = false;
-        const selectedItem = parts[1];
-        if (selectedItem !== undefined && selectedItem.length > 0) {
-            let configFromUrl = this.configs.filter(x => x.Id != null && UrlUtils.EncodeHashPart(x.Id) == selectedItem)[0];
-            if (configFromUrl != null)
-            {
-                didSelectConfig = true;
-                this.showConfig(configFromUrl);
-            }
-        }
+        // let didSelectConfig = false;
+        // const selectedItem = parts[1];
+        // if (selectedItem !== undefined && selectedItem.length > 0) {
+        //     let configFromUrl = this.configs.filter(x => x.Id != null && UrlUtils.EncodeHashPart(x.Id) == selectedItem)[0];
+        //     if (configFromUrl != null)
+        //     {
+        //         didSelectConfig = true;
+        //         this.showConfig(configFromUrl);
+        //     }
+        // }
     }
 
     updateUrl(parts?: Array<string> | null): void {
-        if (parts == null)
-        {
-            parts = ['eventnotifications'];
+        // if (parts == null)
+        // {
+        //     parts = ['eventnotifications'];
 
-            if (this.currentConfig != null && this.currentConfig.Id != null)
-            {
-                parts.push(UrlUtils.EncodeHashPart(this.currentConfig.Id));
-            }
-        }
+        //     if (this.currentConfig != null && this.currentConfig.Id != null)
+        //     {
+        //         parts.push(UrlUtils.EncodeHashPart(this.currentConfig.Id));
+        //     }
+        // }
 
-        UrlUtils.SetHashParts(parts);
+        // UrlUtils.SetHashParts(parts);
         
-        (<any>window).eventnotificationsState = parts;
+        // (<any>window).eventnotificationsState = parts;
     }
 
     loadData(): void {
@@ -394,8 +393,8 @@ export default class EventNotificationsPageComponent extends Vue {
             EventSinkNotificationConfigUtils.postProcessConfig(config, this.notifiers);
         });
 
-        const originalUrlHashParts = UrlUtils.GetHashParts();
-        this.setFromUrl(originalUrlHashParts);
+        // const originalUrlHashParts = UrlUtils.GetHashParts();
+        // this.setFromUrl(originalUrlHashParts);
         
         this.data.Configs = this.data.Configs.sort(
             (a, b) => LinqUtils.SortByThenBy(a, b,

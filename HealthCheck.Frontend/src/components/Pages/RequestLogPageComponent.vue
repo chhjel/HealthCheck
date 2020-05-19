@@ -90,7 +90,6 @@
                                 v-for="(entry, index) in subgroup.Value"
                                 class="endpoint"
                                 :key="`entry-${index}-${subindex}`"
-                                :options="options"
                                 :entry="entry"
                                 :isGrouped="true"
                                 v-on:IPClicked="onIPClicked"
@@ -105,7 +104,6 @@
                         v-for="(entry, index) in filteredEntries"
                         :key="`entry-${index}`"
                         class="endpoint"
-                        :options="options"
                         :entry="entry"
                         :isGrouped="false"
                         v-on:IPClicked="onIPClicked"
@@ -113,7 +111,7 @@
                         />
                 </div>
 
-                <v-layout row wrap v-if="options.HasAccessToClearRequestLog">
+                <v-layout row wrap v-if="globalOptions.HasAccessToClearRequestLog">
                     <v-flex xs12 sm6 md4>
                         <v-btn
                             :loading="clearStatus.inProgress"
@@ -160,7 +158,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
+import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
 import LoggedEndpointDefinitionViewModel from '../../models/RequestLog/LoggedEndpointDefinitionViewModel';
 import LoggedEndpointRequestViewModel from '../../models/RequestLog/LoggedEndpointRequestViewModel';
 import RequestEndpointComponent from '../RequestLog/RequestEndpointComponent.vue';
@@ -168,7 +166,6 @@ import ProgressBarComponent from '../Common/ProgressBarComponent.vue';
 import { EntryState } from '../../models/RequestLog/EntryState';
 import DateUtils from "../../util/DateUtils";
 import LinqUtils from "../../util/LinqUtils";
-import UrlUtils from "../../util/UrlUtils";
 import KeyArray from "../../util/models/KeyArray";
 import KeyValuePair from "../../models/Common/KeyValuePair";
 import RequestLogService from "../../services/RequestLogService";
@@ -181,10 +178,7 @@ import { FetchStatus } from "../../services/abstractions/HCServiceBase";
     }
 })
 export default class RequestLogPageComponent extends Vue {
-    @Prop({ required: true })
-    options!: FrontEndOptionsViewModel;
-
-    service: RequestLogService = new RequestLogService(this.options);
+    service: RequestLogService = new RequestLogService(this.globalOptions);
     loadStatus: FetchStatus = new FetchStatus();
     clearStatus: FetchStatus = new FetchStatus();
 
@@ -247,6 +241,10 @@ export default class RequestLogPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get globalOptions(): FrontEndOptionsViewModel {
+        return this.$store.state.globalOptions;
+    }
+    
     get progressBarMax(): number {
         return this.entries
             .filter(x => this.includeEntryInProgress(x))
@@ -304,7 +302,7 @@ export default class RequestLogPageComponent extends Vue {
     }
     
     onEventDataRetrieved(events: Array<LoggedEndpointDefinitionViewModel>): void {
-        const originalUrlHashParts = UrlUtils.GetHashParts();
+        // const originalUrlHashParts = UrlUtils.GetHashParts();
 
         this.entries = events.map(x => {
             let state: EntryState =
@@ -340,7 +338,7 @@ export default class RequestLogPageComponent extends Vue {
         this.verbs = this.verbs.map(x => x.length == 0 ? 'Unknown' : x);
         this.verbs.forEach(verb => this.visibleVerbs.push(verb));
 
-        this.setFromUrl(originalUrlHashParts);
+        // this.setFromUrl(originalUrlHashParts);
         this.loadStatus.inProgress = false;
     }
 
@@ -386,35 +384,35 @@ export default class RequestLogPageComponent extends Vue {
     }
 
     setFromUrl(forcedParts: Array<string> | null = null): void {
-        const parts = forcedParts || UrlUtils.GetHashParts();
+        // const parts = forcedParts || UrlUtils.GetHashParts();
         
-        const sortById = parts.filter(x => x.startsWith('sort-')).map(x => x.substring(5))[0];
-        const sortBy = this.sortOptions.find(x => x.id === sortById);
-        if (sortBy !== undefined) {
-            this.setSortOrder(sortBy);
-        }
+        // const sortById = parts.filter(x => x.startsWith('sort-')).map(x => x.substring(5))[0];
+        // const sortBy = this.sortOptions.find(x => x.id === sortById);
+        // if (sortBy !== undefined) {
+        //     this.setSortOrder(sortBy);
+        // }
 
-        const visible = parts.filter(x => x.startsWith('states-')).map(x => x.substring(7))[0];
-        if (visible !== undefined && visible !== '.') {
-            this.visibleStates = visible.split('.').filter(x => x.length > 0).map(x => parseInt(x));
-        }
+        // const visible = parts.filter(x => x.startsWith('states-')).map(x => x.substring(7))[0];
+        // if (visible !== undefined && visible !== '.') {
+        //     this.visibleStates = visible.split('.').filter(x => x.length > 0).map(x => parseInt(x));
+        // }
 
-        this.groupEntries = !parts.some(x => x === 'no-group');
+        // this.groupEntries = !parts.some(x => x === 'no-group');
 
-        const verbs = parts.filter(x => x.startsWith('verbs-')).map(x => x.substring(6))[0];
-        if (verbs !== undefined && verbs !== '.') {
-            this.visibleVerbs = verbs.split('.').map(x => x.toUpperCase());
-        }
+        // const verbs = parts.filter(x => x.startsWith('verbs-')).map(x => x.substring(6))[0];
+        // if (verbs !== undefined && verbs !== '.') {
+        //     this.visibleVerbs = verbs.split('.').map(x => x.toUpperCase());
+        // }
 
-        const ip = parts.filter(x => x.startsWith('ip-')).map(x => x.substring(3))[0];
-        if (ip !== undefined && ip.length > 0) {
-            this.filteredIPAddress = ip;
-        }
+        // const ip = parts.filter(x => x.startsWith('ip-')).map(x => x.substring(3))[0];
+        // if (ip !== undefined && ip.length > 0) {
+        //     this.filteredIPAddress = ip;
+        // }
 
-        const id = parts.filter(x => x.startsWith('id-')).map(x => x.substring(3))[0];
-        if (id !== undefined && id.length > 0) {
-            this.currentScrollTarget = decodeURI(id);
-        }
+        // const id = parts.filter(x => x.startsWith('id-')).map(x => x.substring(3))[0];
+        // if (id !== undefined && id.length > 0) {
+        //     this.currentScrollTarget = decodeURI(id);
+        // }
     }
 
     updateUrl(parts?: Array<string> | null): void {
@@ -448,7 +446,7 @@ export default class RequestLogPageComponent extends Vue {
             }
         }
 
-        UrlUtils.SetHashParts(parts);
+        // UrlUtils.SetHashParts(parts);
         
         // Some dirty technical debt before transitioning to propper routing :-)
         (<any>window).requestLogState = parts;

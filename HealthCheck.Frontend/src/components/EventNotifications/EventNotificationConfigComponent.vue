@@ -289,7 +289,7 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import { EventSinkNotificationConfigFilter, FilterMatchType, EventSinkNotificationConfig, NotifierConfig, Dictionary, IEventNotifier, NotifierConfigOptionsItem, KnownEventDefinition } from "../../models/EventNotifications/EventNotificationModels";
 import SimpleDateTimeComponent from '.././Common/SimpleDateTimeComponent.vue';
 import ConfigFilterComponent from '.././EventNotifications/ConfigFilterComponent.vue';
-import FrontEndOptionsViewModel from "../../models/Page/FrontEndOptionsViewModel";
+import FrontEndOptionsViewModel from "../../models/Common/FrontEndOptionsViewModel";
 import DateUtils from "../../util/DateUtils";
 import IdUtils from "../../util/IdUtils";
 import EventSinkNotificationConfigUtils, { ConfigFilterDescription, ConfigDescription, ConfigActionDescription } from "../../util/EventNotifications/EventSinkNotificationConfigUtils";
@@ -305,10 +305,7 @@ import EventNotificationService from "../../services/EventNotificationService";
         InputComponent
     }
 })
-export default class EventNotificationConfigComponent extends Vue {
-    @Prop({ required: true })
-    options!: FrontEndOptionsViewModel;
-    
+export default class EventNotificationConfigComponent extends Vue {    
     @Prop({ required: true })
     config!: EventSinkNotificationConfig;
 
@@ -326,7 +323,7 @@ export default class EventNotificationConfigComponent extends Vue {
 
     // @ts-ignore
     internalConfig: EventSinkNotificationConfig = null;
-    service: EventNotificationService = new EventNotificationService(this.options);
+    service: EventNotificationService = new EventNotificationService(this.globalOptions);
     ASD!: EventSinkNotificationConfig;
     notifierDialogVisible: boolean = false;
     deleteDialogVisible: boolean = false;
@@ -356,6 +353,10 @@ export default class EventNotificationConfigComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get globalOptions(): FrontEndOptionsViewModel {
+        return this.$store.state.globalOptions;
+    }
+    
     get allowChanges(): boolean {
         return !this.readonly && !this.serverInteractionInProgress;
     }

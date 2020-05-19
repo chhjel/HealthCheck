@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
+import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
 
 @Component({
     components: {
@@ -29,10 +29,10 @@ import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel
 })
 export default class TestModule1PageComponent extends Vue {
     @Prop({ required: true })
-    globalOptions!: FrontEndOptionsViewModel;
+    XglobalOptions!: FrontEndOptionsViewModel;
 
     @Prop({ required: true })
-    options!: any;
+    Xoptions!: any;
 
     //////////////////
     //  LIFECYCLE  //
@@ -40,8 +40,8 @@ export default class TestModule1PageComponent extends Vue {
     mounted(): void
     {
         console.log({
-            Global: this.globalOptions,
-            Local: this.options
+            Global: this.XglobalOptions,
+            Local: this.Xoptions
         });
     }
 }

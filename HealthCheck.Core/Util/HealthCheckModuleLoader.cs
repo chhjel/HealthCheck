@@ -14,26 +14,17 @@ namespace HealthCheck.Core.Util
 	public class HealthCheckModuleLoader
 	{
 		/// <summary>
-		/// Load the given modules.
-		/// </summary>
-		public List<HealthCheckLoadedModule> Load(List<IHealthCheckModule> modules)
-		{
-			return modules
-				.Select(x => Load(x))
-				.Where(x => x != null)
-				.ToList();
-		}
-
-		/// <summary>
 		/// Load the given module.
 		/// </summary>
-		public HealthCheckLoadedModule Load(IHealthCheckModule module)
+		public HealthCheckLoadedModule Load(IHealthCheckModule module, string name = null, string id = null)
 		{
 			var type = module.GetType();
 			var loadedModule = new HealthCheckLoadedModule
 			{
 				Type = type,
-				Module = module
+				Module = module,
+				Id = id ?? type.FullName,
+				Name = name
 			};
 
 			try
@@ -60,6 +51,11 @@ namespace HealthCheck.Core.Util
 				if (loadedModule.Config == null)
 				{
 					loadedModule.LoadErrors.Add($"GetModuleConfig should return something not null.");
+				}
+
+				if (loadedModule.Config != null && name == null)
+				{
+					loadedModule.Name = loadedModule?.Config?.Name ?? name;
 				}
 
 				loadedModule.InvokableMethods = type.GetMethods()
@@ -113,7 +109,7 @@ namespace HealthCheck.Core.Util
 			/// <summary>
 			/// Unique id of the module.
 			/// </summary>
-			public string Id => Type.FullName;
+			public string Id { get; set; }
 
 			/// <summary>
 			/// Type of the module.
@@ -143,7 +139,7 @@ namespace HealthCheck.Core.Util
 			/// <summary>
 			/// Name of the module.
 			/// </summary>
-			public string Name => Config?.Name;
+			public string Name { get; set; }
 
 			/// <summary>
 			/// Module config object.
