@@ -89,8 +89,8 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Register a module that will be available.
         /// </summary>
-        protected void UseModule(IHealthCheckModule module, string name = null, string id = null)
-            => Helper.UseModule(module, name, id);
+        protected void UseModule(IHealthCheckModule module, string name = null)
+            => Helper.UseModule(module, name);
 
         /// <summary>
         /// Grants the given role access to a module and assign the given accesses.

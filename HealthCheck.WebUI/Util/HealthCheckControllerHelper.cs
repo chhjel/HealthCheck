@@ -131,7 +131,6 @@ namespace HealthCheck.WebUI.Util
         {
             public IHealthCheckModule Module { get; set; }
             public string NameOverride { get; set; }
-            public string IdOverride { get; set; }
         }
         private List<ModuleAccessData> RoleModuleAccessLevels { get; set; } = new List<ModuleAccessData>();
         private class ModuleAccessData
@@ -244,12 +243,11 @@ namespace HealthCheck.WebUI.Util
         /// Register a module that will be available.
         /// <para>Optionally override name or id of module.</para>
         /// </summary>
-        public void UseModule(IHealthCheckModule module, string name = null, string id = null)
+        public void UseModule(IHealthCheckModule module, string name = null)
         {
             RegisteredModules.Add(new RegisteredModuleData
             {
                 Module = module,
-                IdOverride = id,
                 NameOverride = name
             });
         }
@@ -313,7 +311,7 @@ namespace HealthCheck.WebUI.Util
         {
             var loader = new HealthCheckModuleLoader();
             LoadedModules = RegisteredModules
-                .Select(x => loader.Load(x.Module, x.NameOverride, x.IdOverride))
+                .Select(x => loader.Load(x.Module, x.NameOverride))
                 .Where(x => x != null)
                 .ToList();
         }

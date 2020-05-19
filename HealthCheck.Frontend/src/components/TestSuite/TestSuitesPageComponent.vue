@@ -114,6 +114,7 @@
                             <!-- TESTS -->
                             <test-set-component
                                 v-if="activeSet != null"
+                                :module-id="config.Id"
                                 :testSet="activeSet"
                                 v-on:testClicked="onTestClicked" />
                         </v-container>
@@ -163,7 +164,7 @@ export default class TestSuitesPageComponent extends Vue {
     invalidTests: Array<InvalidTestViewModel> = new Array<InvalidTestViewModel>();
 
     // Service
-    service: TestService = new TestService(this.globalOptions);
+    service: TestService = new TestService(this.globalOptions, this.config.Id);
     setSetsLoadStatus: FetchStatus = new FetchStatus();
 
     //////////////////

@@ -28,6 +28,7 @@
             v-for="(test) in filteredTests"
             :key="`set-${testSet.Id}-test-${test.Id}`"
             :test="test"
+            :module-id="moduleId"
             v-on:testStarted="onTestStarted"
             v-on:testStopped="onTestStopped"
             v-on:testClicked="onTestClicked"
@@ -50,6 +51,9 @@ import FrontEndOptionsViewModel from "../../models/Common/FrontEndOptionsViewMod
     }
 })
 export default class TestSetComponent extends Vue {
+    @Prop({ required: true })
+    moduleId!: string;
+
     @Prop({ required: true })
     testSet!: TestSetViewModel;
 

@@ -98,7 +98,7 @@ namespace HealthCheck.DevTest.Controllers
             (Services.EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableEventRegistering);
 
             UseModule(new TestsModule());
-            UseModule(new TestModuleA(), "Custom A", "custom_a");
+            UseModule(new TestModuleA(), "Custom A");
             UseModule(new TestModuleB());
 
             if (!_hasInited)

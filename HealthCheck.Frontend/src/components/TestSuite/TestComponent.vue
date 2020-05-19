@@ -97,6 +97,9 @@ import UrlUtils from "../../util/UrlUtils";
 })
 export default class TestComponent extends Vue {
     @Prop({ required: true })
+    moduleId!: string;
+
+    @Prop({ required: true })
     test!: TestViewModel;
 
     testResult: TestResultViewModel | null = null;
@@ -104,7 +107,7 @@ export default class TestComponent extends Vue {
     resultDataExpandedState: boolean = false;
 
     // Service
-    service: TestService = new TestService(this.globalOptions);
+    service: TestService = new TestService(this.globalOptions, this.moduleId);
     executeTestStatus: FetchStatus = new FetchStatus();
     cancelTestStatus: FetchStatus = new FetchStatus();
 

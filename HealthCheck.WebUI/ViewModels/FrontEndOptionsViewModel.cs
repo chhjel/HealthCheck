@@ -32,6 +32,11 @@ namespace HealthCheck.WebUI.ViewModels
         public bool InludeQueryStringInApiCalls { get; set; } = true;
 
         /// <summary>
+        /// Url to the endpoint that invokes module methods.
+        /// </summary>
+        public string InvokeModuleMethodEndpoint { get; set; }
+
+        /// <summary>
         /// Url to the endpoint that returns tests.
         /// <para>Is set from the constructor relative to the provided baseApiEndpoint.</para>
         /// </summary>
@@ -234,6 +239,8 @@ namespace HealthCheck.WebUI.ViewModels
         /// <param name="baseApiEndpoint"></param>
         public FrontEndOptionsViewModel(string baseApiEndpoint)
         {
+            InvokeModuleMethodEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/InvokeModuleMethod";
+
             ExecuteTestEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/ExecuteTest";
             CancelTestEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/CancelTest";
             GetTestsEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/GetTests";

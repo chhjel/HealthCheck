@@ -16,14 +16,13 @@ namespace HealthCheck.Core.Util
 		/// <summary>
 		/// Load the given module.
 		/// </summary>
-		public HealthCheckLoadedModule Load(IHealthCheckModule module, string name = null, string id = null)
+		public HealthCheckLoadedModule Load(IHealthCheckModule module, string name = null)
 		{
 			var type = module.GetType();
 			var loadedModule = new HealthCheckLoadedModule
 			{
 				Type = type,
 				Module = module,
-				Id = id ?? type.FullName,
 				Name = name
 			};
 
@@ -109,7 +108,7 @@ namespace HealthCheck.Core.Util
 			/// <summary>
 			/// Unique id of the module.
 			/// </summary>
-			public string Id { get; set; }
+			public string Id => Type.Name;
 
 			/// <summary>
 			/// Type of the module.
