@@ -156,7 +156,7 @@ namespace HealthCheck.Core.Entities
         /// Include a serialized version of the given object in the result data.
         /// <para>If using HealthCheck.WebUI the NewtonsoftJsonSerializer() or just use the AddSerializedData(object data, string title=null) extension method from HealthCheck.WebUI.</para>
         /// </summary>
-        public TestResult AddSerializedData(object data, IDumpJsonSerializer serializer, string title = null, bool onlyIfNotNull = true)
+        public TestResult AddSerializedData(object data, IJsonSerializer serializer, string title = null, bool onlyIfNotNull = true)
         {
             if (data == null && onlyIfNotNull)
                 return this;

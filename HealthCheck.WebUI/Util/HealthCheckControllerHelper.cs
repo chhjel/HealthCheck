@@ -25,6 +25,8 @@ using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
 using HealthCheck.Core.Modules.Diagrams.FlowCharts;
 using HealthCheck.Core.Modules.Settings;
 using HealthCheck.Core.Modules.EventNotifications;
+using HealthCheck.Core.Abstractions.Modules;
+using HealthCheck.WebUI.Serializers;
 
 namespace HealthCheck.WebUI.Util
 {
@@ -63,7 +65,7 @@ namespace HealthCheck.WebUI.Util
                 (file) => throw new NotImplementedException());
 #endif
         }
-
+        
 #if NETFULL
         private MemoryFile ConvertInputToMemoryFile(string input)
         {
@@ -121,6 +123,133 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public AccessOptions<TAccessRole> AccessOptions { get; set; } = new AccessOptions<TAccessRole>();
 
+        #region Modules
+        private List<HealthCheckModuleLoader.HealthCheckLoadedModule> LoadedModules { get; set; }
+            = new List<HealthCheckModuleLoader.HealthCheckLoadedModule>();
+        private List<IHealthCheckModule> RegisteredModules { get; set; } = new List<IHealthCheckModule>();
+        private List<ModuleAccessData> RoleModuleAccessLevels { get; set; } = new List<ModuleAccessData>();
+        private class ModuleAccessData
+        {
+            public TAccessRole Role { get; set; }
+            public Type AccessOptionsType => AccessOptions.GetType();
+            public object AccessOptions { get; set; }
+        }
+
+        private List<HealthCheckModuleLoader.HealthCheckLoadedModule> GetModulesRequestHasAccessTo(Maybe<TAccessRole> accessRoles)
+            => LoadedModules.Where(x => RequestCanViewModule(accessRoles, x)).ToList();
+
+        private bool RequestCanViewModule(Maybe<TAccessRole> accessRoles, HealthCheckModuleLoader.HealthCheckLoadedModule module)
+        {
+            if (accessRoles == null)
+            {
+                return false;
+            }
+
+            return RoleModuleAccessLevels.Any(x => 
+                x.AccessOptionsType == module.AccessOptionsType
+                && EnumUtils.IsFlagSet(accessRoles.Value, x.Role));
+        }
+
+        private bool RequestHasAccessToModuleMethod(Maybe<TAccessRole> accessRoles, HealthCheckModuleLoader.InvokableMethod method)
+        {
+            var requiredAccessOptions = method.RequiresAccessTo;
+            var accessOptionsType = requiredAccessOptions.GetType();
+
+            return EnumUtils.GetFlaggedEnumValues(requiredAccessOptions).All(opt =>
+                RoleModuleAccessLevels.Any(x =>
+                    x.AccessOptionsType == accessOptionsType
+                    && EnumUtils.IsFlagSet(accessRoles.Value, x.Role)
+                    && EnumUtils.IsFlagSet(x.AccessOptions, opt))
+            );
+        }
+
+        internal async Task<InvokeModuleMethodResult> InvokeModuleMethod(Maybe<TAccessRole> accessRoles, string moduleId, string methodName, string jsonPayload)
+        {
+            var module = GetModulesRequestHasAccessTo(accessRoles).FirstOrDefault(x => x.Id == moduleId);
+            if (module == null)
+            {
+                return new InvokeModuleMethodResult();
+            }
+
+            var method = module.InvokableMethods.FirstOrDefault(x => x.Name == methodName);
+            if (method == null || !RequestHasAccessToModuleMethod(accessRoles, method))
+            {
+                return new InvokeModuleMethodResult();
+            }
+
+            var result = await method.Invoke(module.Module, jsonPayload, new NewtonsoftJsonSerializer());
+            return new InvokeModuleMethodResult()
+            {
+                HasAccess = true,
+                Result = result
+            };
+        }
+
+        internal class InvokeModuleMethodResult
+        {
+            public string Result { get; set; }
+            public bool HasAccess { get; set; }
+        }
+
+        private object GetModuleFrontendOptions(Maybe<TAccessRole> accessRoles)
+        {
+            var availableModules = GetModulesRequestHasAccessTo(accessRoles);
+            var options = new Dictionary<string, object>();
+            foreach (var module in availableModules)
+            {
+                var accessOptions = RoleModuleAccessLevels
+                    .Where(x => x.AccessOptionsType == module.AccessOptionsType
+                                && EnumUtils.IsFlagSet(accessRoles.Value, x.Role))
+                    .SelectMany(x => EnumUtils.GetFlaggedEnumValues(x.AccessOptions))
+                    .Distinct()
+                    .Select(x => x?.ToString());
+                options[module.Id] = new
+                {
+                    Options = module.FrontendOptions,
+                    AccessOptions = accessOptions
+                };
+            }
+            return options;
+        }
+
+        private List<HealthCheckModuleConfigWrapper> GetModuleConfigs(Maybe<TAccessRole> accessRoles)
+        {
+            var availableModules = GetModulesRequestHasAccessTo(accessRoles);
+            var configs = new List<HealthCheckModuleConfigWrapper>();
+            foreach (var module in availableModules)
+            {
+                configs.Add(new HealthCheckModuleConfigWrapper {
+                    Id = module.Id,
+                    Config = module.Config
+                });
+            }
+            return configs;
+        }
+
+        private class HealthCheckModuleConfigWrapper
+        {
+            public string Id { get; set; }
+            public IHealthCheckModuleConfig Config { get; set; }
+        }
+
+        /// <summary>
+        /// Register a module that will be available.
+        /// </summary>
+        public void UseModule(IHealthCheckModule module)
+        {
+            RegisteredModules.Add(module);
+        }
+
+        /// <summary>
+        /// Grants the given role access to a module.
+        /// <para>ConfigureModuleAccess(MyAccessRoles.Member, TestModule.ViewThing </para>
+        /// <para>ConfigureModuleAccess(MyAccessRoles.Admin, TestModule.EditThing | TestModule.CreateThing)</para>
+        /// </summary>
+        public void GiveSingleRoleAccessToModule<TModuleAccessOptionsEnum>(TAccessRole role, TModuleAccessOptionsEnum access)
+            where TModuleAccessOptionsEnum : Enum
+            => RoleModuleAccessLevels.Add(new ModuleAccessData { Role = role, AccessOptions = access });
+        #endregion
+
         private const string deniedEndpoint = "0x90";
         private readonly PageType[] Pages = new[]
         {
@@ -163,6 +292,14 @@ namespace HealthCheck.WebUI.Util
                                      = o.DeleteEventDefinitionEndpoint = o.DeleteEventDefinitionsEndpoint
                                      = deniedEndpoint)
         };
+
+        internal void BeforeConfigure(RequestInformation<TAccessRole> currentRequestInformation) { }
+
+        internal void AfterConfigure(RequestInformation<TAccessRole> currentRequestInformation)
+        {
+            var loader = new HealthCheckModuleLoader();
+            LoadedModules = loader.Load(RegisteredModules);
+        }
 
         /// <summary>
         /// Serializes the given object into a json string.
@@ -462,6 +599,22 @@ namespace HealthCheck.WebUI.Util
             }
 
             CheckPageOptions(accessRoles, frontEndOptions, pageOptions);
+
+            var moduleConfigs = GetModuleConfigs(accessRoles);
+            var moduleConfigData = moduleConfigs.Select(x => new {
+                x.Id,
+                x.Config.Name,
+                x.Config.ComponentName
+            });
+            var moduleStyleAssets = moduleConfigs.Select(x => x.Config)
+                .Where(x => x.LinkTags != null).SelectMany(x => x.LinkTags.Select(t => t.ToString()));
+            var moduleScriptAssets = moduleConfigs.Select(x => x.Config)
+                .Where(x => x.ScriptTags != null).SelectMany(x => x.ScriptTags.Select(t => t.ToString()));
+            var moduleStyleAssetsHtml = string.Join("\n", moduleStyleAssets);
+            var moduleScriptAssetsHtml = string.Join("\n", moduleScriptAssets);
+
+            var moduleOptions = GetModuleFrontendOptions(accessRoles);
+
             var javascriptUrlTags = pageOptions.JavaScriptUrls
                 .Select(url => $"<script src=\"{url}\"></script>")
                 .ToList();
@@ -482,6 +635,7 @@ namespace HealthCheck.WebUI.Util
     <title>{pageOptions.PageTitle}</title>
     {noIndexMeta}
     <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
+    {moduleStyleAssetsHtml}
     {defaultAssets}
     {pageOptions.CustomHeadHtml}
 </head>
@@ -490,8 +644,11 @@ namespace HealthCheck.WebUI.Util
     <div id={Q}app{Q}></div>
 
     <script>
-        window.healthCheckOptions = {JsonConvert.SerializeObject(frontEndOptions)};
+        window.healthCheckOptions = {JsonConvert.SerializeObject(frontEndOptions) ?? "{}"};
+        window.healthCheckModuleOptions = {JsonConvert.SerializeObject(moduleOptions) ?? "{}"};
+        window.healthCheckModuleConfigs = {JsonConvert.SerializeObject(moduleConfigData) ?? "{}"};
     </script>
+    {moduleScriptAssetsHtml}
     {javascriptUrlTagsHtml}
     {pageOptions.CustomBodyHtml}
 </body>

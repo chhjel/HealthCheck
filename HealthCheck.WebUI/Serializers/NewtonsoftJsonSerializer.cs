@@ -1,12 +1,13 @@
 ﻿using HealthCheck.Core.Abstractions;
 using Newtonsoft.Json;
+using System;
 
 namespace HealthCheck.WebUI.Serializers
 {
     /// <summary>
-    /// Serializes dumps using Newtonsoft, ignoring any errors.
+    /// Serializes data using Newtonsoft, ignoring any errors.
     /// </summary>
-    public class NewtonsoftJsonSerializer : IDumpJsonSerializer
+    public class NewtonsoftJsonSerializer : IJsonSerializer
     {
         /// <summary>
         /// Serializes dumps using Newtonsoft, ignoring any errors.
@@ -23,6 +24,36 @@ namespace HealthCheck.WebUI.Serializers
                 }
             };
             return JsonConvert.SerializeObject(obj, settings);
+        }
+
+        /// <summary>
+        /// Deserialize the given json into an object of the given type.
+        /// </summary>
+        public T Deserialize<T>(string json)
+        {
+            try
+            {
+                return (T)Deserialize(json, typeof(T));
+            }
+            catch (Exception)
+            {
+                return default;
+            }
+        }
+
+        /// <summary>
+        /// Deserialize the given json into an object of the given type.
+        /// </summary>
+        public object Deserialize(string json, Type type)
+        {
+            try
+            {
+                return JsonConvert.DeserializeObject(json, type);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

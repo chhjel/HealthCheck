@@ -11,6 +11,24 @@ namespace HealthCheck.Core.Extensions
     public static class StringExtensions
     {
         /// <summary>
+        /// Prepends the given affix if the string is not null and does not already end with it.
+        /// </summary>
+        public static string EnsureStartsWithIfNotNullOrEmpty(this string text, string affix)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+            else return text.StartsWith(affix) ? text : $"{affix}{text}";
+        }
+
+        /// <summary>
+        /// Appends the given suffix if the string is not null and does not already end with it.
+        /// </summary>
+        public static string EnsureEndsWithIfNotNullOrEmpty(this string text, string affix)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+            else return text.EndsWith(affix) ? text : $"{text}{affix}";
+        }
+
+        /// <summary>
         /// Appends the given suffix if the string is not null and does not already end with it.
         /// </summary>
         public static string EnsureEndsWithIfNotNull(this string text, string suffix)

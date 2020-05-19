@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Modules.EventNotifications;
+using HealthCheck.Core.Abstractions.Modules;
 
 namespace HealthCheck.WebUI.Abstractions
 {
@@ -81,7 +82,38 @@ namespace HealthCheck.WebUI.Abstractions
             Helper.TestDiscoverer.AssemblyContainingTests = assemblyContainingTests ?? throw new ArgumentNullException("An assembly to retrieve tests from must be provided.");
         }
 
-#region Abstract/Virtual
+        #region Modules
+        /// <summary>
+        /// Register a module that will be available.
+        /// </summary>
+        protected void UseModule(IHealthCheckModule module)
+            => Helper.UseModule(module);
+
+        /// <summary>
+        /// Grants the given role access to a module and assign the given accesses.
+        /// <para>ConfigureModuleAccess(MyAccessRoles.Member, TestModule.ViewThing </para>
+        /// <para>ConfigureModuleAccess(MyAccessRoles.Admin, TestModule.EditThing | TestModule.CreateThing)</para>
+        /// </summary>
+        protected void GiveSingleRoleAccessToModule<TModuleAccessOptionsEnum>(TAccessRole role, TModuleAccessOptionsEnum access)
+            where TModuleAccessOptionsEnum : Enum
+            => Helper.GiveSingleRoleAccessToModule(role, access);
+
+        /// <summary>
+        /// Invokes a module method.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        public async Task<ActionResult> InvokeModuleMethod(string moduleId, string methodName, string jsonPayload)
+        {
+            var result = await Helper.InvokeModuleMethod(CurrentRequestAccessRoles, moduleId, methodName, jsonPayload);
+            if (!result.HasAccess)
+            {
+                return NotFound();
+            }
+            return Content(result.Result);
+        }
+        #endregion
+
+        #region Abstract/Virtual
         /// <summary>
         /// Returns the page html.
         /// </summary>
@@ -151,7 +183,9 @@ namespace HealthCheck.WebUI.Abstractions
             var request = context?.HttpContext?.Request;
             CurrentRequestInformation = GetRequestInformation(request);
             CurrentRequestAccessRoles = CurrentRequestInformation?.AccessRole;
+            Helper.BeforeConfigure(CurrentRequestInformation);
             Configure(request);
+            Helper.AfterConfigure(CurrentRequestInformation);
             await base.OnActionExecutionAsync(context, next);
         }
 #endregion

@@ -62,6 +62,22 @@
             </v-toolbar>
 
             <!-- CONTENT -->
+            <!--
+            foreach module {
+                <component
+                :is="`module.ComponentName`"
+                v-if="shouldIncludePage(module.Id)"
+                v-show="currentPage == module.Id"
+                :options="getModuleOptions(module.Id)"
+                ref="..." />
+            }
+            <component
+                :is="`test-module-1`"
+                :global-options="options"
+                :options="getModuleOptions('HealthCheck.Modules.DevModule.TestModule')"
+                />
+             -->
+            <!-- asd  -->
             <no-page-available-page-component
                 v-if="shouldIncludePage(PAGE_NO_PAGES_AVAILABLE)"
                 v-show="currentPage == PAGE_NO_PAGES_AVAILABLE"
@@ -130,6 +146,7 @@ import SettingsPageComponent from './Pages/SettingsPageComponent.vue';
 import EventNotificationsPageComponent from './Pages/EventNotificationsPageComponent.vue';
 import FrontEndOptionsViewModel from '../models/Page/FrontEndOptionsViewModel';
 import UrlUtils from '../util/UrlUtils';
+import TestModule1PageComponent from './Pages/TestModule1PageComponent.vue';
 
 @Component({
     components: {
@@ -142,7 +159,8 @@ import UrlUtils from '../util/UrlUtils';
         DocumentationPageComponent,
         DataflowPageComponent,
         SettingsPageComponent,
-        EventNotificationsPageComponent
+        EventNotificationsPageComponent,
+        'test-module-1': TestModule1PageComponent
     }
 })
 export default class HealthCheckPageComponent extends Vue {
@@ -197,6 +215,12 @@ export default class HealthCheckPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    getModuleOptions(moduleId: string): any
+    {
+        var options = (<any>window).healthCheckModuleOptions;
+        return options[moduleId];
+    }
+
     setInitialPage(): void
     {
         // Attempt to get from query string first

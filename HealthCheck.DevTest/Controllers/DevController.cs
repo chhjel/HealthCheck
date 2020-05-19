@@ -15,6 +15,7 @@ using HealthCheck.Core.Util;
 using HealthCheck.DevTest._TestImplementation;
 using HealthCheck.DevTest._TestImplementation.Dataflow;
 using HealthCheck.DevTest._TestImplementation.EventNotifier;
+using HealthCheck.Modules.DevModule;
 using HealthCheck.RequestLog.Services;
 using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.Models;
@@ -94,6 +95,9 @@ namespace HealthCheck.DevTest.Controllers
                 .AddPlaceholder("NOW", () => DateTime.Now.ToString())
                 .AddPlaceholder("ServerName", () => Environment.MachineName);
             (Services.EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableEventRegistering);
+
+            UseModule(new TestModule());
+            UseModule(new TestModule2());
 
             if (!_hasInited)
             {
@@ -292,6 +296,14 @@ namespace HealthCheck.DevTest.Controllers
 
         protected override void Configure(HttpRequestBase request)
         {
+            /// MODULES //
+            GiveSingleRoleAccessToModule(RuntimeTestAccessRole.Guest, TestModule.TestModuleAccessOption.EditThing);
+            GiveSingleRoleAccessToModule(RuntimeTestAccessRole.WebAdmins, TestModule.TestModuleAccessOption.DeleteThing | TestModule.TestModuleAccessOption.EditThing);
+
+            GiveSingleRoleAccessToModule(RuntimeTestAccessRole.SystemAdmins,
+                TestModule2.TestModule2AccessOption.NumberOne);
+            //////////////
+
             TestRunner.IncludeExceptionStackTraces = CurrentRequestAccessRoles.HasValue && CurrentRequestAccessRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);
             AccessOptions.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.Guest);
             AccessOptions.DocumentationPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
