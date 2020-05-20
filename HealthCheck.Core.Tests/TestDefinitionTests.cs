@@ -1,5 +1,6 @@
 using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Entities;
+using HealthCheck.Core.Modules.Tests.Models;
+using HealthCheck.Core.Modules.Tests.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;

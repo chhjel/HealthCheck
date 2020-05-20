@@ -54,11 +54,9 @@ namespace HealthCheck.DevTest.Controllers
         private static bool ForceLogout { get; set; }
 
         #region Init
-        public DevController()
-            : base(assemblyContainingTests: typeof(DevController).Assembly) {
+        public DevController() : base() {
             if (_siteEventService == null)
             {
-
                 _siteEventService = CreateSiteEventService();
                 _auditEventService = CreateAuditEventService();
             }
@@ -97,105 +95,21 @@ namespace HealthCheck.DevTest.Controllers
                 .AddPlaceholder("ServerName", () => Environment.MachineName);
             (Services.EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableEventRegistering);
 
-            UseModule(new TestsModule());
             UseModule(new TestModuleA(), "Custom A");
             UseModule(new TestModuleB());
+
+            UseModule(new TestsModule(new TestsModuleOptions() { AssemblyContainingTests = typeof(DevController).Assembly }))
+                .ConfigureGroups((options) => options
+                    .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
+                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)
+                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
+                    .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
+                );
 
             if (!_hasInited)
             {
                 InitOnce();
             }
-        }
-
-        public ActionResult TestEvent(int v = 1)
-        {
-            object payload = null;
-            switch(v)
-            {
-                case 3:
-                    payload = new
-                    {
-                        Url = Request.RawUrl,
-                        User = CurrentRequestInformation?.UserName,
-                        SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp),
-                        ExtraB = "BBBB"
-                    };
-                    break;
-                case 2:
-                    payload = new
-                    {
-                        Url = Request.RawUrl,
-                        User = CurrentRequestInformation?.UserName,
-                        SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp),
-                        ExtraA = "AAAA"
-                    };
-                    break;
-                case 1:
-                default:
-                    payload = new
-                    {
-                        Url = Request.RawUrl,
-                        User = CurrentRequestInformation?.UserName,
-                        SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp)
-                    };
-                    break;
-            }
-            Services.EventSink.RegisterEvent("pageload", payload);
-            return Content($"Registered variant #{v}");
-        }
-
-        public ActionResult Logout()
-        {
-            ForceLogout = true;
-            return Content("Logged out");
-        }
-
-        public ActionResult Login()
-        {
-            ForceLogout = false;
-            return Content("Logged in");
-        }
-
-        public class TestSettings
-        {
-            [HealthCheckSetting(description: "Some description here")]
-            public string StringProp { get; set; }
-            public bool BoolProp { get; set; } = false;
-            public int IntProp { get; set; } = 15523;
-
-            [HealthCheckSetting(GroupName = "Service X")]
-            public bool EnableX { get; set; }
-
-            [HealthCheckSetting(GroupName = "Service X")]
-            public string ConnectionString{ get; set; }
-
-            [HealthCheckSetting(GroupName = "Service X")]
-            public int Threads { get; set; } = 2;
-
-            [HealthCheckSetting(GroupName = "Service X")]
-            public int NumberOfThings { get; set; } = 321;
-
-            [HealthCheckSetting(GroupName = "Event Notifications")]
-            public bool EnableEventRegistering { get; set; }
-        }
-
-        private ILogSearcherService CreateLogSearcherService()
-            => new FlatFileLogSearcherService(new FlatFileLogSearcherServiceOptions()
-                    .IncludeLogFilesInDirectory(HostingEnvironment.MapPath("~/App_Data/TestLogs/")));
-
-        private ISiteEventService CreateSiteEventService()
-            => new SiteEventService(new FlatFileSiteEventStorage(HostingEnvironment.MapPath("~/App_Data/SiteEventStorage.json"),
-                maxEventAge: TimeSpan.FromDays(5), delayFirstCleanup: false));
-
-        private IAuditEventStorage CreateAuditEventService()
-            => new FlatFileAuditEventStorage(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"),
-                maxEventAge: TimeSpan.FromDays(30), delayFirstCleanup: false);
-
-        private static bool _hasInited = false;
-        private void InitOnce()
-        {
-            _hasInited = true;
-            Task.Run(() => AddEvents(false));
         }
         #endregion
 
@@ -296,43 +210,39 @@ namespace HealthCheck.DevTest.Controllers
                 PageTitle = "Test Monitor"
             };
 
-        protected override void Configure(HttpRequestBase request)
+        // ToDo:
+        // Zero random properties to access
+        // Move things into accessoptions
+        // Move SetTestSetGroupsOptions into testmodule options
+
+        protected override void ConfigureAccess(HttpRequestBase request, AccessOptions<RuntimeTestAccessRole> options)
         {
             /// MODULES //
-            GiveSingleRoleAccessToModule(RuntimeTestAccessRole.Guest, TestModuleA.TestModuleAAccessOption.EditThing);
-            GiveSingleRoleAccessToModule(RuntimeTestAccessRole.WebAdmins, TestModuleA.TestModuleAAccessOption.DeleteThing | TestModuleA.TestModuleAAccessOption.EditThing);
+            /// ToDo: options.GiveRolesAccess...
+            GiveRolesAccessToModule(RuntimeTestAccessRole.Guest | RuntimeTestAccessRole.WebAdmins,
+                TestModuleA.TestModuleAAccessOption.DeleteThing | TestModuleA.TestModuleAAccessOption.EditThing);
 
-            GiveSingleRoleAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestModuleB.TestModuleBAccessOption.NumberOne);
+            GiveRolesAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestModuleB.TestModuleBAccessOption.NumberOne);
 
-            GiveSingleRoleAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestsModule.TestsModuleAccessOption.None);
+            GiveRolesAccessToModuleWithFullAccess<TestsModule.TestsModuleAccessOption>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
-            TestRunner.IncludeExceptionStackTraces = CurrentRequestAccessRoles.HasValue && CurrentRequestAccessRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);
-            AccessOptions.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.Guest);
-            AccessOptions.DocumentationPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
-            AccessOptions.TestsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins | RuntimeTestAccessRole.API);
-            AccessOptions.AuditLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            AccessOptions.LogViewerPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            AccessOptions.InvalidTestsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            AccessOptions.SiteEventDeveloperDetailsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            AccessOptions.RequestLogPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            AccessOptions.ClearRequestLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            AccessOptions.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
-            AccessOptions.DataflowPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
-            AccessOptions.SettingsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            AccessOptions.EventNotificationsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            AccessOptions.EditEventDefinitionsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            options.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.Guest);
+            options.DocumentationPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
+            options.TestsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins | RuntimeTestAccessRole.API);
+            options.AuditLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            options.LogViewerPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            options.InvalidTestsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            options.SiteEventDeveloperDetailsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            options.RequestLogPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            options.ClearRequestLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            options.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
+            options.DataflowPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
+            options.SettingsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            options.EventNotificationsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            options.EditEventDefinitionsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
 
-            AccessOptions.RedirectTargetOnNoAccess = "/no-access";
-        }
-
-        protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)
-        {
-            options
-                .SetOptionsFor(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
-                .SetOptionsFor(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)
-                .SetOptionsFor(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
-                .SetOptionsFor(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50);
+            options.RedirectTargetOnNoAccess = "/no-access";
         }
 
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequestBase request)
@@ -396,14 +306,88 @@ namespace HealthCheck.DevTest.Controllers
             return new FileStreamResult(new FileStream(filepath, FileMode.Open), "content-disposition");
         }
 
-        public async Task<ActionResult> RunHealthChecks()
+        public ActionResult TestEvent(int v = 1)
         {
-            var results = await TestRunner.ExecuteTests(TestDiscoverer, 
-                testFilter: (test) => test.Categories.Contains(RuntimeTestConstants.Categories.ScheduledHealthCheck),
-                siteEventService: Services.SiteEventService,
-                auditEventService: Services.AuditEventService
-            );
-            return CreateJsonResult(results.Select(x => new { Test = x.Test?.Name, Result = x.Message, SiteEventTitle = x.SiteEvent?.Title }));
+            object payload = null;
+            payload = v switch
+            {
+                3 => new
+                {
+                    Url = Request.RawUrl,
+                    User = CurrentRequestInformation?.UserName,
+                    SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp),
+                    ExtraB = "BBBB"
+                },
+                2 => new
+                {
+                    Url = Request.RawUrl,
+                    User = CurrentRequestInformation?.UserName,
+                    SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp),
+                    ExtraA = "AAAA"
+                },
+                _ => new
+                {
+                    Url = Request.RawUrl,
+                    User = CurrentRequestInformation?.UserName,
+                    SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp)
+                },
+            };
+            Services.EventSink.RegisterEvent("pageload", payload);
+            return Content($"Registered variant #{v}");
+        }
+        
+        public ActionResult Logout()
+        {
+            ForceLogout = true;
+            return Content("Logged out");
+        }
+
+        public ActionResult Login()
+        {
+            ForceLogout = false;
+            return Content("Logged in");
+        }
+
+        public class TestSettings
+        {
+            [HealthCheckSetting(description: "Some description here")]
+            public string StringProp { get; set; }
+            public bool BoolProp { get; set; } = false;
+            public int IntProp { get; set; } = 15523;
+
+            [HealthCheckSetting(GroupName = "Service X")]
+            public bool EnableX { get; set; }
+
+            [HealthCheckSetting(GroupName = "Service X")]
+            public string ConnectionString { get; set; }
+
+            [HealthCheckSetting(GroupName = "Service X")]
+            public int Threads { get; set; } = 2;
+
+            [HealthCheckSetting(GroupName = "Service X")]
+            public int NumberOfThings { get; set; } = 321;
+
+            [HealthCheckSetting(GroupName = "Event Notifications")]
+            public bool EnableEventRegistering { get; set; }
+        }
+
+        private ILogSearcherService CreateLogSearcherService()
+            => new FlatFileLogSearcherService(new FlatFileLogSearcherServiceOptions()
+                    .IncludeLogFilesInDirectory(HostingEnvironment.MapPath("~/App_Data/TestLogs/")));
+
+        private ISiteEventService CreateSiteEventService()
+            => new SiteEventService(new FlatFileSiteEventStorage(HostingEnvironment.MapPath("~/App_Data/SiteEventStorage.json"),
+                maxEventAge: TimeSpan.FromDays(5), delayFirstCleanup: false));
+
+        private IAuditEventStorage CreateAuditEventService()
+            => new FlatFileAuditEventStorage(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"),
+                maxEventAge: TimeSpan.FromDays(30), delayFirstCleanup: false);
+
+        private static bool _hasInited = false;
+        private void InitOnce()
+        {
+            _hasInited = true;
+            Task.Run(() => AddEvents(false));
         }
 
         // New mock data

@@ -17,8 +17,7 @@ namespace HealthCheck.DevTest.NetCore.Controllers
         private readonly IHostingEnvironment _env;
         private const string EndpointBase = "/";
 
-        public DevController(IHostingEnvironment env)
-            : base(assemblyContainingTests: typeof(DevController).Assembly)
+        public DevController(IHostingEnvironment env) : base()
         {
             _env = env;
         }
@@ -40,15 +39,9 @@ namespace HealthCheck.DevTest.NetCore.Controllers
                 PageTitle = "Dev Checks"
             };
 
-        protected override void Configure(HttpRequest request)
+        protected override void ConfigureAccess(HttpRequest request, AccessOptions<RuntimeTestAccessRole> options)
         {
-            TestRunner.IncludeExceptionStackTraces = CurrentRequestAccessRoles.HasValue && CurrentRequestAccessRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);
-            AccessOptions.RedirectTargetOnNoAccess = "/no-access";
-        }
-
-        protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)
-        {
-            options.SetOptionsFor(RuntimeTestConstants.Group.AdminStuff, uiOrder: -100);
+            options.RedirectTargetOnNoAccess = "/no-access";
         }
 
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequest request)

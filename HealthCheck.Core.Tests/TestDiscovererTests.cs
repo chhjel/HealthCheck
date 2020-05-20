@@ -1,6 +1,7 @@
 using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Entities;
 using HealthCheck.Core.Exceptions;
+using HealthCheck.Core.Modules.Tests.Models;
+using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Tests.Helpers;
 using System;
 using System.Linq;

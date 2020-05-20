@@ -1,4 +1,4 @@
-﻿using HealthCheck.Core.Entities;
+﻿using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Util.HtmlPresets;
 using HealthCheck.WebUI.Serializers;
 

@@ -1,6 +1,7 @@
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Entities;
-using HealthCheck.Core.Enums;
+using HealthCheck.Core.Modules.Tests.Models;
+using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Services.Storage;
 using System;
 using System.Linq;
@@ -198,7 +199,7 @@ namespace HealthCheck.Core.Services
             };
             var runner = new TestRunnerService();
             var auditService = new MemoryAuditEventStorage();
-            var results = await runner.ExecuteTests(discoverer, (test) => true, auditEventService: auditService);
+            var results = await runner.ExecuteTests(discoverer, (test) => true, onAuditEvent: (e) => auditService.StoreEvent(e));
             Assert.Contains(results, result => result.SiteEvent?.Title == "EventA");
 
             var events = await auditService.GetEvents(DateTime.MinValue, DateTime.MaxValue);

@@ -1,5 +1,5 @@
 ﻿using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Entities;
+using HealthCheck.Core.Modules.Tests.Models;
 
 namespace HealthCheck.DevTest._TestImplementation.Tests
 {

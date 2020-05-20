@@ -18,12 +18,7 @@ namespace HealthCheck.WebUI.ViewModels
         /// <summary>
         /// What area the event is related to.
         /// </summary>
-        public AuditEventArea Area { get; set; }
-
-        /// <summary>
-        /// What area the event is related to as an int.
-        /// </summary>
-        public int AreaCode { get; set; }
+        public string Area { get; set; }
 
         /// <summary>
         /// Action that was performed.

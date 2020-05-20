@@ -11,7 +11,7 @@ namespace HealthCheck.WebUI.Models
         /// <summary>
         /// Filter on area.
         /// </summary>
-        public AuditEventArea? AreaFilter { get; set; }
+        public string AreaFilter { get; set; }
 
         /// <summary>
         /// Filter on action that was performed.

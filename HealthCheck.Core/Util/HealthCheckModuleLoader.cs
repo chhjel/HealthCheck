@@ -40,10 +40,10 @@ namespace HealthCheck.Core.Util
 				}
 
 				var getOptionsMethod = type.GetMethods()
-					.FirstOrDefault(x => x.Name == nameof(HealthCheckModuleBase<AuditEventArea>.GetFrontendOptionsObject)
+					.FirstOrDefault(x => x.Name == nameof(HealthCheckModuleBase<StringSplitOptions>.GetFrontendOptionsObject)
 										&& x.GetParameters().Length == 1);
 				var getConfigMethod = type.GetMethods()
-					.FirstOrDefault(x => x.Name == nameof(HealthCheckModuleBase<AuditEventArea>.GetModuleConfig)
+					.FirstOrDefault(x => x.Name == nameof(HealthCheckModuleBase<StringSplitOptions>.GetModuleConfig)
 										&& x.GetParameters().Length == 1
 										&& typeof(IHealthCheckModuleConfig).IsAssignableFrom(x.ReturnType));
 
@@ -63,7 +63,7 @@ namespace HealthCheck.Core.Util
 				loadedModule.InvokableMethods = type.GetMethods()
 					.Where(x =>
 						x.GetCustomAttributes(true)
-						.Any(a => typeof(HealthCheckModuleAccessAttribute).IsAssignableFrom(a.GetType()))
+						.Any(a => typeof(HealthCheckModuleMethodAttribute).IsAssignableFrom(a.GetType()))
 					)
 					.Select(x => new InvokableMethod(x))
 					.ToList();
@@ -203,6 +203,11 @@ namespace HealthCheck.Core.Util
 			public bool HasParameterType => ParameterType != null;
 
 			/// <summary>
+			/// True if the first parameter is a <see cref="HealthCheckModuleContext"/>.
+			/// </summary>
+			public bool HasContextParameter { get; set; }
+
+			/// <summary>
 			/// Return type from the method.
 			/// </summary>
 			public Type ReturnType { get; set; }
@@ -221,32 +226,41 @@ namespace HealthCheck.Core.Util
 			{
 				Method = method;
 				var attribute = method.GetCustomAttributes(true)
-					.FirstOrDefault(a => typeof(HealthCheckModuleAccessAttribute).IsAssignableFrom(a.GetType()))
-					as HealthCheckModuleAccessAttribute;
+					.FirstOrDefault(a => typeof(HealthCheckModuleMethodAttribute).IsAssignableFrom(a.GetType()))
+					as HealthCheckModuleMethodAttribute;
 
 				RequiresAccessTo = attribute.RequiresAccessTo;
 
 				IsAsync = MethodIsAsync(method);
 				ReturnType = GetReturnType(method);
-				ParameterType = (method.GetParameters().Length == 0) ? null : method.GetParameters()[0].ParameterType;
+
+				var parameters = method.GetParameters();
+				if (parameters.Length > 0)
+				{
+					HasContextParameter = parameters[0].ParameterType == typeof(HealthCheckModuleContext);
+					if (parameters.Length > 1 || !HasContextParameter)
+					{
+						ParameterType = parameters.Last().ParameterType;
+					}
+				}
 			}
 
 			/// <summary>
 			/// Invoke the method with the given serialized parameter. Returns a serialized response.
 			/// </summary>
-			public async Task<string> Invoke(IHealthCheckModule instance, string jsonPayload, IJsonSerializer serializer)
+			public async Task<string> Invoke(IHealthCheckModule instance, HealthCheckModuleContext context, string jsonPayload, IJsonSerializer serializer)
 			{
-				object[] parameters;
+				List<object> parameters = new List<object>();
+				if (HasContextParameter)
+				{
+					parameters.Add(context);
+				}
 				if (HasParameterType)
 				{
-					parameters = new object[] { serializer.Deserialize(jsonPayload, ParameterType) };
-				}
-				else
-				{
-					parameters = new object[0];
+					parameters.Add(serializer.Deserialize(jsonPayload, ParameterType));
 				}
 
-				var result = Method.Invoke(instance, parameters);
+				var result = Method.Invoke(instance, (parameters.Count == 0) ? null : parameters.ToArray());
 				if (result is Task resultTask)
 				{
 					await resultTask.ConfigureAwait(false);

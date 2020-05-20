@@ -45,25 +45,6 @@ namespace HealthCheck.WebUI.Tests
         }
 
         [Theory]
-        [InlineData(AccessRoles.None)]
-        [InlineData(AccessRoles.Guest)]
-        [InlineData(AccessRoles.WebAdmins)]
-        [InlineData(AccessRoles.SystemAdmins)]
-        [InlineData(AccessRoles.WebAdmins | AccessRoles.SystemAdmins)]
-        [InlineData(AccessRoles.Everyone)]
-        public async Task GetTests_DoesNotFail(AccessRoles roles)
-        {
-            var controller = await CreateController(roles);
-            var result = controller.GetTests();
-            Assert.NotNull(result);
-
-            Assert.IsType<ContentResult>(result);
-            var content = (ContentResult)result;
-            var contentBody = content.Content;
-            Assert.Contains("TestSetIdA2", contentBody);
-        }
-
-        [Theory]
         [InlineData(AccessRoles.WebAdmins)]
         [InlineData(AccessRoles.WebAdmins | AccessRoles.SystemAdmins)]
         [InlineData(AccessRoles.Everyone)]
@@ -104,14 +85,13 @@ namespace HealthCheck.WebUI.Tests
     {
         private AccessRoles AllowedRoles { get; set; }
 
-        public HealthCheckControllerDotNet(AccessRoles allowedRoles)
-            : base(assemblyContainingTests: typeof(HealthCheckControllerDotNet).Assembly)
+        public HealthCheckControllerDotNet(AccessRoles allowedRoles) : base()
         {
             Services.SiteEventService = new SiteEventService(new MemorySiteEventStorage());
             Services.AuditEventService = new MemoryAuditEventStorage();
 
             AllowedRoles = allowedRoles;
-            AccessOptions.AuditLogAccess = new Maybe<AccessRoles>(AccessRoles.WebAdmins);
+            //AccessOptions.AuditLogAccess = new Maybe<AccessRoles>(AccessRoles.WebAdmins);
         }
 
         public async Task InitTestData()
@@ -119,7 +99,7 @@ namespace HealthCheck.WebUI.Tests
             InitRequestAsync();
             await Services.SiteEventService.StoreEvent(new SiteEvent(Core.Enums.SiteEventSeverity.Error, "eventTypeA", "TitleA", "DescA", 12));
             await Services.AuditEventService.StoreEvent(
-                new AuditEvent(DateTime.Now, Core.Enums.AuditEventArea.Tests, "Title", "Subject", "123", "User 123", EnumUtils.GetFlaggedEnumValues(AllowedRoles).Select(x => x.ToString()).ToList())
+                new AuditEvent(DateTime.Now, "Tests", "Title", "Subject", "123", "User 123", EnumUtils.GetFlaggedEnumValues(AllowedRoles).Select(x => x.ToString()).ToList())
             );
         }
 
@@ -132,5 +112,6 @@ namespace HealthCheck.WebUI.Tests
         protected override FrontEndOptionsViewModel GetFrontEndOptions() => new FrontEndOptionsViewModel("/HealthCheck");
         protected override PageOptions GetPageOptions() => new PageOptions();
         protected override RequestInformation<AccessRoles> GetRequestInformation(HttpRequestBase request) => new RequestInformation<AccessRoles>(AllowedRoles);
+        protected override void ConfigureAccess(HttpRequestBase request, AccessOptions<AccessRoles> options) {}
     }
 }

@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Enums;
+using HealthCheck.Core.Modules.Tests.Models;
 using System;
 using System.Collections.Generic;
 

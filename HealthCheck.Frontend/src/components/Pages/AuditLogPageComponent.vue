@@ -118,7 +118,6 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
 import AuditEventViewModel from '../../models/AuditLog/AuditEventViewModel';
 import AuditEventFilterInputData from '../../models/AuditLog/AuditEventFilterInputData';
-import { AuditEventArea } from '../../models/AuditLog/AuditEventArea';
 import DateUtils from '../../util/DateUtils';
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
@@ -133,7 +132,7 @@ import { FetchStatus } from "../../services/abstractions/HCServiceBase";
 })
 export default class AuditLogPageComponent extends Vue {
     // Filter fields
-    filterArea: AuditEventArea | null = null;
+    filterArea: string | null = null;
     filterSubject: string = "";
     filterAction: string = "";
     filterUserId: string = "";

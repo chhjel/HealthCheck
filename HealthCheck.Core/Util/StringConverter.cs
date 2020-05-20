@@ -115,7 +115,7 @@ namespace HealthCheck.Core.Util
             var inputType = typeof(T);
             if (input == null && inputType != typeof(string))
             {
-                input = input ?? "";
+                input ??= "";
             }
 
             if (inputType.IsEnum)
@@ -222,26 +222,20 @@ namespace HealthCheck.Core.Util
         private string JsonSerialize(object obj)
         {
             var objType = obj.GetType();
-            using (var memStream = new MemoryStream())
-            {
-                var ser = new DataContractJsonSerializer(objType);
-                ser.WriteObject(memStream, obj);
+            using var memStream = new MemoryStream();
+            var ser = new DataContractJsonSerializer(objType);
+            ser.WriteObject(memStream, obj);
 
-                memStream.Position = 0;
-                using (var reader = new StreamReader(memStream))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
+            memStream.Position = 0;
+            using var reader = new StreamReader(memStream);
+            return reader.ReadToEnd();
         }
 
         private object JsonDeserialize(Type type, string json)
         {
-            using (var memStream = new MemoryStream(Encoding.Unicode.GetBytes(json)))
-            {
-                var deserializer = new DataContractJsonSerializer(type);
-                return deserializer.ReadObject(memStream);
-            }
+            using var memStream = new MemoryStream(Encoding.Unicode.GetBytes(json));
+            var deserializer = new DataContractJsonSerializer(type);
+            return deserializer.ReadObject(memStream);
         }
 
         private string SerializeCollection(object list, Type itemType)

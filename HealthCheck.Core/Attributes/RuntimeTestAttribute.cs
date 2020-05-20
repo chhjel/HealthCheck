@@ -1,4 +1,4 @@
-﻿using HealthCheck.Core.Entities;
+﻿using HealthCheck.Core.Modules.Tests.Models;
 using System;
 
 namespace HealthCheck.Core.Attributes
@@ -72,7 +72,7 @@ namespace HealthCheck.Core.Attributes
 
         /// <summary>
         /// Text on the button when the check is executing.
-        /// <para>Defaults to "Runnings.."</para>
+        /// <para>Defaults to "Running.."</para>
         /// </summary>
         public string RunningButtonText { get; set; }
     }

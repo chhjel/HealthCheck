@@ -1,5 +1,4 @@
-﻿using HealthCheck.Core.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace HealthCheck.Core.Entities
@@ -17,7 +16,7 @@ namespace HealthCheck.Core.Entities
         /// <summary>
         /// What area the event is related to.
         /// </summary>
-        public AuditEventArea Area { get; set; }
+        public string Area { get; set; }
 
         /// <summary>
         /// Action that was performed.
@@ -57,7 +56,7 @@ namespace HealthCheck.Core.Entities
         /// <summary>
         /// Create a new <see cref="AuditEvent"/>.
         /// </summary>
-        public AuditEvent(DateTime timestamp, AuditEventArea area, string title, string subject, string userId, string userName, List<string> userAccessRoles)
+        public AuditEvent(DateTime timestamp, string area, string title, string subject, string userId, string userName, List<string> userAccessRoles)
         {
             Timestamp = timestamp;
             Area = area;

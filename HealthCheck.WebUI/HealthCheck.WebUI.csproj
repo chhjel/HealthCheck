@@ -15,6 +15,18 @@
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-HealthCheck</PackageProjectUrl>
   </PropertyGroup>
 
+  <!-- ALLOW UNIT TEST OF INTERNALS ########## -->
+  <PropertyGroup>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>HealthCheck.WebUI.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+  <!-- ####################################### -->
+
   <!-- .NET STANDARD ######################### -->
   <!-- Compiler flags -->
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">

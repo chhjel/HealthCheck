@@ -44,21 +44,6 @@ namespace HealthCheck.WebUI.Abstractions
         protected HealthCheckServiceContainer<TAccessRole> Services { get; } = new HealthCheckServiceContainer<TAccessRole>();
 
         /// <summary>
-        /// Service that executes tests.
-        /// </summary>
-        protected TestRunnerService TestRunner => Helper.TestRunner;
-
-        /// <summary>
-        /// Service that discovers tests.
-        /// </summary>
-        protected TestDiscoveryService TestDiscoverer => Helper.TestDiscoverer;
-
-        /// <summary>
-        /// Options for page access etc.
-        /// </summary>
-        protected AccessOptions<TAccessRole> AccessOptions => Helper.AccessOptions;
-
-        /// <summary>
         /// Access roles for the current request. Is only set after BeginExecute has been called for the request.
         /// <para>Value equals what you return from GetRequestInformation().AccessRole.</para>
         /// </summary>
@@ -76,27 +61,41 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Base controller for the ui and api.
         /// </summary>
-        public HealthCheckControllerBase(Assembly assemblyContainingTests)
+        public HealthCheckControllerBase()
         {
             Helper = new HealthCheckControllerHelper<TAccessRole>(Services);
-            Helper.TestDiscoverer.AssemblyContainingTests = assemblyContainingTests ?? throw new ArgumentNullException("An assembly to retrieve tests from must be provided.");
         }
 
         #region Modules
         /// <summary>
         /// Register a module that will be available.
         /// </summary>
-        protected void UseModule(IHealthCheckModule module, string name = null)
-            => Helper.UseModule(module, name);
+        protected TModule UseModule<TModule>(TModule module, string name = null)
+            where TModule : IHealthCheckModule
+            => Helper.UseModule<TModule>(module, name);
 
         /// <summary>
-        /// Grants the given role access to a module and assign the given accesses.
+        /// Grants the given roles access to a module and assign the given accesses.
         /// <para>ConfigureModuleAccess(MyAccessRoles.Member, TestModule.ViewThing </para>
         /// <para>ConfigureModuleAccess(MyAccessRoles.Admin, TestModule.EditThing | TestModule.CreateThing)</para>
         /// </summary>
-        protected void GiveSingleRoleAccessToModule<TModuleAccessOptionsEnum>(TAccessRole role, TModuleAccessOptionsEnum access)
+        protected void GiveRolesAccessToModule<TModuleAccessOptionsEnum>(TAccessRole roles, TModuleAccessOptionsEnum access)
             where TModuleAccessOptionsEnum : Enum
-            => Helper.GiveSingleRoleAccessToModule(role, access);
+            => Helper.GiveRolesAccessToModule(roles, access);
+
+        /// <summary>
+        /// Grants the given roles access to a module without any specific access options.
+        /// </summary>
+        protected void GiveRolesAccessToModule<TModuleAccessOptionsEnum>(TAccessRole roles)
+            where TModuleAccessOptionsEnum : Enum
+            => Helper.GiveRolesAccessToModule<TModuleAccessOptionsEnum>(roles);
+
+        /// <summary>
+        /// Grants the given roles access to a module with full access.
+        /// </summary>
+        protected void GiveRolesAccessToModuleWithFullAccess<TModuleAccessOptionsEnum>(TAccessRole roles)
+            where TModuleAccessOptionsEnum : Enum
+            => Helper.GiveRolesAccessToModuleWithFullAccess<TModuleAccessOptionsEnum>(roles);
 
         /// <summary>
         /// Invokes a module method.
@@ -104,7 +103,7 @@ namespace HealthCheck.WebUI.Abstractions
         [RequestLogInfo(hide: true)]
         public async Task<ActionResult> InvokeModuleMethod(string moduleId, string methodName, string jsonPayload)
         {
-            var result = await Helper.InvokeModuleMethod(CurrentRequestAccessRoles, moduleId, methodName, jsonPayload);
+            var result = await Helper.InvokeModuleMethod(CurrentRequestInformation, moduleId, methodName, jsonPayload);
             if (!result.HasAccess)
             {
                 return NotFound();
@@ -123,14 +122,14 @@ namespace HealthCheck.WebUI.Abstractions
             if (!Enabled) return NotFound();
             else if (!Helper.HasAccessToAnyContent(CurrentRequestAccessRoles))
             {
-                var redirectTarget = AccessOptions.RedirectTargetOnNoAccessUsingRequest?.Invoke(Request);
+                var redirectTarget = Helper.AccessOptions.RedirectTargetOnNoAccessUsingRequest?.Invoke(Request);
                 if (!string.IsNullOrWhiteSpace(redirectTarget))
                 {
                     return Redirect(redirectTarget);
                 }
-                else if (!string.IsNullOrWhiteSpace(AccessOptions.RedirectTargetOnNoAccess))
+                else if (!string.IsNullOrWhiteSpace(Helper.AccessOptions.RedirectTargetOnNoAccess))
                 {
-                    return Redirect(AccessOptions.RedirectTargetOnNoAccess);
+                    return Redirect(Helper.AccessOptions.RedirectTargetOnNoAccess);
                 }
                 else
                 {
@@ -166,14 +165,9 @@ namespace HealthCheck.WebUI.Abstractions
         protected abstract RequestInformation<TAccessRole> GetRequestInformation(HttpRequest request);
 
         /// <summary>
-        /// Optionally set config for test set groups. Use the options.SetOptionsFor method to add config for a group by name.
+        /// Set any options here. Method is invoked from BeginExecute.
         /// </summary>
-        protected virtual void SetTestSetGroupsOptions(TestSetGroupsOptions options) { }
-
-        /// <summary>
-        /// Set any options on the test managers here. Method is invoked from BeginExecute.
-        /// </summary>
-        protected virtual void Configure(HttpRequest request) { }
+        protected abstract void ConfigureAccess(HttpRequest request, AccessOptions<TAccessRole> options);
 
         /// <summary>
         /// Calls GetRequestInformation and SetOptions.
@@ -184,7 +178,7 @@ namespace HealthCheck.WebUI.Abstractions
             CurrentRequestInformation = GetRequestInformation(request);
             CurrentRequestAccessRoles = CurrentRequestInformation?.AccessRole;
             Helper.BeforeConfigure(CurrentRequestInformation);
-            Configure(request);
+            ConfigureAccess(request, Helper.AccessOptions);
             Helper.AfterConfigure(CurrentRequestInformation);
             await base.OnActionExecutionAsync(context, next);
         }
@@ -265,66 +259,6 @@ namespace HealthCheck.WebUI.Abstractions
 
             var viewModel = await Helper.GetSiteEventsViewModel(CurrentRequestAccessRoles);
             return CreateJsonResult(viewModel);
-        }
-#endregion
-
-#region Test
-        /// <summary>
-        /// Get tests to show in the UI.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [Route("GetTests")]
-        public virtual ActionResult GetTests()
-        {
-            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.Tests, CurrentRequestAccessRoles)) return NotFound();
-
-            SetTestSetGroupsOptions(Helper.TestSetGroupsOptions);
-            var viewModel = Helper.GetTestDefinitionsViewModel(CurrentRequestAccessRoles);
-            return CreateJsonResult(viewModel);
-        }
-
-        /// <summary>
-        /// Execute the given test.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [HttpPost]
-        [Route("ExecuteTest")]
-        public virtual async Task<ActionResult> ExecuteTest([FromBody] ExecuteTestInputData data)
-        {
-            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.Tests, CurrentRequestAccessRoles)) return NotFound();
-
-            var result = await Helper.ExecuteTest(CurrentRequestAccessRoles, data);
-            Helper.AuditLog_TestExecuted(CurrentRequestInformation, data, result);
-
-            return CreateJsonResult(result);
-        }
-
-        /// <summary>
-        /// Execute tests in the given category.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [HttpPost]
-        [Route("ExecuteTests")]
-        public virtual async Task<ActionResult> ExecuteTests(ExecuteTestsInputData data)
-        {
-            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.Tests, CurrentRequestAccessRoles) || data == null) return NotFound();
-
-            var result = await Helper.ExecuteTests(CurrentRequestInformation, data.TestCategory);
-            return CreateJsonResult(result);
-        }
-
-        /// <summary>
-        /// Execute the given test.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [HttpPost]
-        [Route("CancelTest")]
-        public virtual async Task<ActionResult> CancelTest([FromBody] string testId)
-        {
-            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.Tests, CurrentRequestAccessRoles)) return NotFound();
-
-            await Task.Delay(TimeSpan.FromMilliseconds(1));
-            return CreateJsonResult(Helper.CancelTest(CurrentRequestInformation, testId));
         }
 #endregion
 

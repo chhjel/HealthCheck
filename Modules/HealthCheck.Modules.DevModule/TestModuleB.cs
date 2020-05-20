@@ -11,28 +11,28 @@ namespace HealthCheck.Modules.DevModule
         public override IHealthCheckModuleConfig GetModuleConfig(TestModuleBAccessOption access) 
             => new TestModuleBConfig();
 
-        [HealthCheckModuleAccess(TestModuleBAccessOption.NumberOne)]
+        [HealthCheckModuleMethod(TestModuleBAccessOption.NumberOne)]
         public void TestSimple() { }
 
-        [HealthCheckModuleAccess(TestModuleBAccessOption.NumberOne)]
+        [HealthCheckModuleMethod(TestModuleBAccessOption.NumberOne)]
         public void TestNoReturn(int id) { Console.WriteLine(id); }
 
-        [HealthCheckModuleAccess(TestModuleBAccessOption.NumberOne)]
+        [HealthCheckModuleMethod(TestModuleBAccessOption.NumberOne)]
         public object Test(int id) => new { Success = true, Message = $"Your id is '{id}'." };
 
-        [HealthCheckModuleAccess(TestModuleBAccessOption.NumberOne)]
+        [HealthCheckModuleMethod(TestModuleBAccessOption.NumberOne)]
         public string TestSimpleReturn(int id) => $"Your id is '{id}'.";
 
-        [HealthCheckModuleAccess(TestModuleBAccessOption.NumberTwo)]
+        [HealthCheckModuleMethod(TestModuleBAccessOption.NumberTwo)]
         public async Task TestSimpleAsync() => await Task.Delay(10);
 
-        [HealthCheckModuleAccess(TestModuleBAccessOption.NumberTwo | TestModuleBAccessOption.NumberOne)]
+        [HealthCheckModuleMethod(TestModuleBAccessOption.NumberTwo | TestModuleBAccessOption.NumberOne)]
         public async Task TestNoReturnAsync(int id) => await Task.Delay((id * 0) + 1);
 
-        [HealthCheckModuleAccess(TestModuleBAccessOption.NumberTwo)]
+        [HealthCheckModuleMethod(TestModuleBAccessOption.NumberTwo)]
         public async Task<object> TestAsync(int id) => await Task.FromResult(new { Success = true, Message = $"Your id is '{id}'." });
 
-        [HealthCheckModuleAccess(TestModuleBAccessOption.NumberTwo)]
+        [HealthCheckModuleMethod(TestModuleBAccessOption.NumberTwo)]
         public async Task<string> TestSimpleReturnAsync(int id) => await Task.FromResult($"Your id is '{id}'.");
 
         [Flags]

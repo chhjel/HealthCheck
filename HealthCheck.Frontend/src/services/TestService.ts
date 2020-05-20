@@ -20,13 +20,7 @@ export default class TestService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<TestsDataViewModel> | null = null
     ) : void
     {
-        let url = this.options.GetTestsEndpoint;
-        this.fetchExt<TestsDataViewModel>(url, 'GET', null, statusObject, callbacks);
-
-        this.invokeModuleMethod('TestModuleA', 'TestAsync', 123, null, {
-            onSuccess: (d) => console.log(d)
-        });
-        // let asd = this.invokeModuleMethod(this.config.Id, '');
+        this.invokeModuleMethod(this.moduleId, 'GetTests', null, statusObject, callbacks);
     }
 
     public CancelTest(testId: string,
@@ -34,8 +28,7 @@ export default class TestService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<any> | null = null
     ) : void
     {
-        let url = `${this.options.CancelTestEndpoint}?testId=${testId}`;
-        this.fetchExt<any>(url, 'POST', null, statusObject, callbacks, false);
+        this.invokeModuleMethod(this.moduleId, 'CancelTest', testId, statusObject, callbacks);
     }
 
     public ExecuteTest(payload: ExecuteTestPayload,
@@ -43,7 +36,6 @@ export default class TestService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<TestResultViewModel> | null = null
     ) : void
     {
-        let url = this.options.ExecuteTestEndpoint;
-        this.fetchExt<TestResultViewModel>(url, 'POST', payload, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, 'ExecuteTest', payload, statusObject, callbacks);
     }
 }

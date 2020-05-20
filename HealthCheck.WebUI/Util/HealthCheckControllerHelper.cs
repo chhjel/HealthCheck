@@ -1,39 +1,37 @@
-﻿using HealthCheck.Core.Abstractions;
+﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
-using HealthCheck.Core.Modules.RequestLog.Models;
+using HealthCheck.Core.Modules.Dataflow;
+using HealthCheck.Core.Modules.Diagrams.FlowCharts;
+using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
+using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.LogViewer.Models;
-using HealthCheck.Core.Services;
+using HealthCheck.Core.Modules.RequestLog.Models;
+using HealthCheck.Core.Modules.Settings;
+using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Util;
 using HealthCheck.WebUI.Exceptions;
 using HealthCheck.WebUI.Factories;
 using HealthCheck.WebUI.Models;
+using HealthCheck.WebUI.Serializers;
 using HealthCheck.WebUI.ViewModels;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using HealthCheck.WebUI.Models.Api;
 using System.Web;
-using System.IO;
-using HealthCheck.Core.Modules.Dataflow;
-using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
-using HealthCheck.Core.Modules.Diagrams.FlowCharts;
-using HealthCheck.Core.Modules.Settings;
-using HealthCheck.Core.Modules.EventNotifications;
-using HealthCheck.Core.Abstractions.Modules;
-using HealthCheck.WebUI.Serializers;
 
 namespace HealthCheck.WebUI.Util
 {
     /// <summary>
     /// Shared code for .net framework/core controllers.
     /// </summary>
-    public class HealthCheckControllerHelper<TAccessRole>
+    internal class HealthCheckControllerHelper<TAccessRole>
     {
         /// <summary>
         /// Initialize a new HealthCheck helper with the given services.
@@ -41,47 +39,7 @@ namespace HealthCheck.WebUI.Util
         public HealthCheckControllerHelper(HealthCheckServiceContainer<TAccessRole> serviceContainer)
         {
             Services = serviceContainer ?? new HealthCheckServiceContainer<TAccessRole>();
-
-#if NETFULL
-            ParameterConverter.RegisterConverter<HttpPostedFileBase>(
-                (input) => ConvertInputToMemoryFile(input),
-                (file) => throw new NotImplementedException());
-
-            ParameterConverter.RegisterConverter<List<HttpPostedFileBase>>(
-                (input) =>
-                {
-                    var list = new List<HttpPostedFileBase>();
-                    if (input == null || string.IsNullOrWhiteSpace(input)) return list;
-
-                    var listItems = JsonConvert.DeserializeObject<List<string>>(input);
-                    list.AddRange(
-                        listItems
-                        .Select(x => ConvertInputToMemoryFile(x))
-                        .Where(x => x != null)
-                    );
-
-                    return list;
-                },
-                (file) => throw new NotImplementedException());
-#endif
         }
-        
-#if NETFULL
-        private MemoryFile ConvertInputToMemoryFile(string input)
-        {
-            if (input == null) return null;
-
-            var parts = input.Split('|');
-            if (parts.Length < 3) return null;
-
-            var bytes = Convert.FromBase64String(parts[2]);
-            return new MemoryFile(
-                contentType: parts[0],
-                fileName: parts[1],
-                stream: new MemoryStream(bytes)
-            );
-        }
-#endif
 
         /// <summary>
         /// Contains services that enables extra functionality.
@@ -89,34 +47,9 @@ namespace HealthCheck.WebUI.Util
         public HealthCheckServiceContainer<TAccessRole> Services { get; } = new HealthCheckServiceContainer<TAccessRole>();
 
         /// <summary>
-        /// Executes tests.
-        /// </summary>
-        public TestRunnerService TestRunner = new TestRunnerService();
-
-        /// <summary>
-        /// Discovers tests.
-        /// </summary>
-        public TestDiscoveryService TestDiscoverer = new TestDiscoveryService();
-
-        /// <summary>
-        /// Converts string input from the UI into the types of the method parameters.
-        /// </summary>
-        public readonly StringConverter ParameterConverter = new StringConverter();
-
-        /// <summary>
-        /// Factory for test view models.
-        /// </summary>
-        public readonly TestViewModelsFactory TestsViewModelsFactory = new TestViewModelsFactory();
-
-        /// <summary>
         /// Factory for site event view models.
         /// </summary>
         public readonly SiteEventViewModelsFactory SiteEventViewModelsFactory = new SiteEventViewModelsFactory();
-
-        /// <summary>
-        /// Optional config for test set groups.
-        /// </summary>
-        public TestSetGroupsOptions TestSetGroupsOptions { get; set; } = new TestSetGroupsOptions();
 
         /// <summary>
         /// Access related options.
@@ -132,12 +65,33 @@ namespace HealthCheck.WebUI.Util
             public IHealthCheckModule Module { get; set; }
             public string NameOverride { get; set; }
         }
+
         private List<ModuleAccessData> RoleModuleAccessLevels { get; set; } = new List<ModuleAccessData>();
         private class ModuleAccessData
         {
-            public TAccessRole Role { get; set; }
-            public Type AccessOptionsType => AccessOptions.GetType();
+            public TAccessRole Roles { get; set; }
+            public Type AccessOptionsType { get; set; }
             public object AccessOptions { get; set; }
+            public bool FullAccess { get; set; }
+
+            public List<object> GetAllSelectedAccessOptions()
+            {
+                if (FullAccess)
+                {
+                    return Enum.GetValues(AccessOptionsType)
+                        .OfType<object>()
+                        .Where(x => (int)x != 0)
+                        .ToList();
+                }
+                else if (AccessOptions == null)
+                {
+                    return new List<object>();
+                }
+                else
+                {
+                    return EnumUtils.GetFlaggedEnumValues(AccessOptions);
+                }
+            }
         }
 
         private List<HealthCheckModuleLoader.HealthCheckLoadedModule> GetModulesRequestHasAccessTo(Maybe<TAccessRole> accessRoles)
@@ -152,32 +106,38 @@ namespace HealthCheck.WebUI.Util
 
             return RoleModuleAccessLevels.Any(x => 
                 x.AccessOptionsType == module.AccessOptionsType
-                && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Role));
+                && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles));
         }
 
-        private bool RequestHasAccessToModuleMethod(Maybe<TAccessRole> accessRoles, HealthCheckModuleLoader.InvokableMethod method)
+        private bool RequestHasAccessToModuleMethod(Maybe<TAccessRole> accessRoles,
+            HealthCheckModuleLoader.HealthCheckLoadedModule module, HealthCheckModuleLoader.InvokableMethod method)
         {
             var requiredAccessOptions = method.RequiresAccessTo;
+            if (requiredAccessOptions == null)
+            {
+                return RequestCanViewModule(accessRoles, module);
+            }
+
             var accessOptionsType = requiredAccessOptions.GetType();
 
             return EnumUtils.GetFlaggedEnumValues(requiredAccessOptions).All(opt =>
                 RoleModuleAccessLevels.Any(x =>
                     x.AccessOptionsType == accessOptionsType
-                    && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Role)
-                    && EnumUtils.IsFlagSet(x.AccessOptions, opt))
+                    && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles)
+                    && x.GetAllSelectedAccessOptions().Contains(opt))
             );
         }
 
         private object GetCurrentRequestModuleAccessOptions(
-            RequestInformation<TAccessRole> currentRequestInformation, RegisteredModuleData module)
+            Maybe<TAccessRole> currentRequestAccessRoles, Type moduleType)
         {
             try
             {
-                var accessOptionsType = HealthCheckModuleLoader.GetModuleAccessOptionsType(module.Module.GetType());
+                var accessOptionsType = HealthCheckModuleLoader.GetModuleAccessOptionsType(moduleType);
                 var entriesForCurrentRole = RoleModuleAccessLevels
-                    .Where(x => EnumUtils.EnumFlagHasAnyFlagsSet(currentRequestInformation.AccessRole.Value, x.Role)
+                    .Where(x => EnumUtils.EnumFlagHasAnyFlagsSet(currentRequestAccessRoles.Value, x.Roles)
                                 && x.AccessOptionsType == accessOptionsType);
-                var values = entriesForCurrentRole.SelectMany(x => EnumUtils.GetFlaggedEnumValues(x.AccessOptions)).ToList();
+                var values = entriesForCurrentRole.SelectMany(x => x.GetAllSelectedAccessOptions()).ToList();
                 var joinedValue = 0;
                 foreach(var value in values)
                 {
@@ -187,12 +147,14 @@ namespace HealthCheck.WebUI.Util
             }
             catch (Exception)
             {
-                throw new Exception($"Invalid module '{module?.Module?.GetType()?.Name}' registered.");
+                throw new Exception($"Invalid module '{moduleType?.Name}' registered.");
             }
         }
 
-        internal async Task<InvokeModuleMethodResult> InvokeModuleMethod(Maybe<TAccessRole> accessRoles, string moduleId, string methodName, string jsonPayload)
+        internal async Task<InvokeModuleMethodResult> InvokeModuleMethod(RequestInformation<TAccessRole> requestInfo, string moduleId, string methodName, string jsonPayload)
         {
+            var accessRoles = requestInfo.AccessRole;
+
             var module = GetModulesRequestHasAccessTo(accessRoles).FirstOrDefault(x => x.Id == moduleId);
             if (module == null)
             {
@@ -200,17 +162,48 @@ namespace HealthCheck.WebUI.Util
             }
 
             var method = module.InvokableMethods.FirstOrDefault(x => x.Name == methodName);
-            if (method == null || !RequestHasAccessToModuleMethod(accessRoles, method))
+            if (method == null || !RequestHasAccessToModuleMethod(accessRoles, module, method))
             {
                 return new InvokeModuleMethodResult();
             }
 
-            var result = await method.Invoke(module.Module, jsonPayload, new NewtonsoftJsonSerializer());
-            return new InvokeModuleMethodResult()
+            var context = new HealthCheckModuleContext()
             {
-                HasAccess = true,
-                Result = result
+                UserId = requestInfo.UserId,
+                UserName = requestInfo.UserName,
+                ModuleName = module.Name,
+
+                CurrentRequestRoles = accessRoles.Value,
+                CurrentRequestModuleAccessOptions = GetCurrentRequestModuleAccessOptions(accessRoles, module?.Module?.GetType())
             };
+
+            try
+            {
+                var result = await method.Invoke(module.Module, context, jsonPayload, new NewtonsoftJsonSerializer());
+                return new InvokeModuleMethodResult()
+                {
+                    HasAccess = true,
+                    Result = result
+                };
+            }
+            catch(Exception ex)
+            {
+                return new InvokeModuleMethodResult()
+                {
+                    HasAccess = true,
+                    Result = $"Exception: {ex.Message}"
+                };
+            }
+            finally
+            {
+                if (context?.AuditEvents != null && context.AuditEvents.Count > 0)
+                {
+                    foreach (var e in context.AuditEvents)
+                    {
+                        await Services.AuditEventService.StoreEvent(e);
+                    }
+                }
+            }
         }
 
         internal class InvokeModuleMethodResult
@@ -227,7 +220,7 @@ namespace HealthCheck.WebUI.Util
             {
                 var accessOptions = RoleModuleAccessLevels
                     .Where(x => x.AccessOptionsType == module.AccessOptionsType
-                                && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Role))
+                                && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles))
                     .SelectMany(x => EnumUtils.GetFlaggedEnumValues(x.AccessOptions))
                     .Distinct()
                     .Select(x => x?.ToString());
@@ -266,23 +259,41 @@ namespace HealthCheck.WebUI.Util
         /// Register a module that will be available.
         /// <para>Optionally override name or id of module.</para>
         /// </summary>
-        public void UseModule(IHealthCheckModule module, string name = null)
+        public TModule UseModule<TModule>(TModule module, string name = null)
+            where TModule : IHealthCheckModule
         {
             RegisteredModules.Add(new RegisteredModuleData
             {
                 Module = module,
                 NameOverride = name
             });
+            return module;
         }
 
         /// <summary>
-        /// Grants the given role access to a module.
-        /// <para>ConfigureModuleAccess(MyAccessRoles.Member, TestModule.ViewThing </para>
-        /// <para>ConfigureModuleAccess(MyAccessRoles.Admin, TestModule.EditThing | TestModule.CreateThing)</para>
+        /// Grants the given roles access to a module.
+        /// <para>ConfigureModuleAccess(MyAccessRoles.Member, ModuleAccess.ViewThing </para>
+        /// <para>ConfigureModuleAccess(MyAccessRoles.Admin, ModuleAccess.EditThing | ModuleAccess.CreateThing)</para>
+        /// <para>ConfigureModuleAccess(MyAccessRoles.Guest | MyAccessRoles.Member, ModuleAccess.AnotherThing)</para>
         /// </summary>
-        public void GiveSingleRoleAccessToModule<TModuleAccessOptionsEnum>(TAccessRole role, TModuleAccessOptionsEnum access)
+        public void GiveRolesAccessToModule<TModuleAccessOptionsEnum>(TAccessRole roles, TModuleAccessOptionsEnum access)
             where TModuleAccessOptionsEnum : Enum
-            => RoleModuleAccessLevels.Add(new ModuleAccessData { Role = role, AccessOptions = access });
+            => RoleModuleAccessLevels.Add(new ModuleAccessData { Roles = roles, AccessOptions = access, AccessOptionsType = typeof(TModuleAccessOptionsEnum) });
+
+        /// <summary>
+        /// Grants the given roles access to a module without any specific access options.
+        /// </summary>
+        public void GiveRolesAccessToModule<TModuleAccessOptionsEnum>(TAccessRole roles)
+            where TModuleAccessOptionsEnum : Enum
+            => RoleModuleAccessLevels.Add(new ModuleAccessData { Roles = roles, AccessOptions = null, AccessOptionsType = typeof(TModuleAccessOptionsEnum) });
+
+        /// <summary>
+        /// Grants the given roles access to a module with full access.
+        /// </summary>
+        public void GiveRolesAccessToModuleWithFullAccess<TModuleAccessOptionsEnum>(TAccessRole roles)
+            where TModuleAccessOptionsEnum : Enum
+            => RoleModuleAccessLevels.Add(new ModuleAccessData { Roles = roles, AccessOptions = null,
+                AccessOptionsType = typeof(TModuleAccessOptionsEnum), FullAccess = true });
         #endregion
 
         private const string deniedEndpoint = "0x90";
@@ -328,15 +339,23 @@ namespace HealthCheck.WebUI.Util
                                      = deniedEndpoint)
         };
 
+#pragma warning disable IDE0060 // Remove unused parameter
         internal void BeforeConfigure(RequestInformation<TAccessRole> currentRequestInformation) { }
+#pragma warning restore IDE0060 // Remove unused parameter
 
         internal void AfterConfigure(RequestInformation<TAccessRole> currentRequestInformation)
         {
             var loader = new HealthCheckModuleLoader();
             LoadedModules = RegisteredModules
-                .Select(x => loader.Load(x.Module, GetCurrentRequestModuleAccessOptions(currentRequestInformation, x), x.NameOverride))
+                .Select(x => loader.Load(x.Module, GetCurrentRequestModuleAccessOptions(currentRequestInformation.AccessRole, x?.Module?.GetType()), x.NameOverride))
                 .Where(x => x != null)
                 .ToList();
+
+            foreach (var loadedModule in LoadedModules.Where(x => x.Module is TestsModule))
+            {
+                var module = loadedModule.Module as TestsModule;
+                InitStringConverter(module.ParameterConverter);
+            }
         }
 
         /// <summary>
@@ -378,7 +397,7 @@ namespace HealthCheck.WebUI.Util
 
             var auditAction = (includeDefinitions) ? "Cleared request log + definitions" : "Cleared request log";
             Services.AuditEventService?.StoreEvent(
-                CreateAuditEventFor(requestInformation, AuditEventArea.RequestLog, action: auditAction)
+                CreateAuditEventFor(requestInformation, "RequestLog", action: auditAction)
             );
             Services?.RequestLogService?.ClearRequests(includeDefinitions);
         }
@@ -396,133 +415,12 @@ namespace HealthCheck.WebUI.Util
             }
 
             var includeDeveloperDetails = AccessRolesHasAccessTo(accessRoles, AccessOptions.SiteEventDeveloperDetailsAccess, false);
-            from = from ?? DateTime.Now.AddDays(-30);
-            to = to ?? DateTime.Now;
+            from ??= DateTime.Now.AddDays(-30);
+            to ??= DateTime.Now;
             var viewModel = (await Services.SiteEventService.GetEvents(from.Value, to.Value))
                 .Select(x => SiteEventViewModelsFactory.CreateViewModel(x, includeDeveloperDetails))
                 .ToList();
             return viewModel;
-        }
-
-        /// <summary>
-        /// Get viewmodel for test sets data.
-        /// </summary>
-        public TestsDataViewModel GetTestDefinitionsViewModel(Maybe<TAccessRole> accessRoles)
-        {
-            var invalidTests = new List<TestDefinitionValidationResult>();
-            if (AccessRolesHasAccessTo(accessRoles, AccessOptions.InvalidTestsAccess))
-            {
-                invalidTests = TestDiscoverer.GetInvalidTests();
-            }
-
-            TestDiscoverer.GetInvalidTests();
-            var model = new TestsDataViewModel()
-            {
-                TestSets = TestsViewModelsFactory.CreateViewModel(GetTestDefinitions(accessRoles)),
-                GroupOptions = TestsViewModelsFactory.CreateViewModel(TestSetGroupsOptions),
-                InvalidTests = invalidTests.Select(x => (TestsViewModelsFactory.CreateViewModel(x))).ToList()
-            };
-            return model;
-        }
-
-        /// <summary>
-        /// Execute the given test and return a result view model.
-        /// </summary>
-        public async Task<TestResultViewModel> ExecuteTest(Maybe<TAccessRole> accessRoles, ExecuteTestInputData data)
-        {
-            if (data == null || data.TestId == null)
-            {
-                return TestResultViewModel.CreateError("No test id was given.", null, "<Unknown>");
-            }
-
-            var test = GetTest(accessRoles, data.TestId);
-            if (test == null)
-            {
-                return TestResultViewModel.CreateError($"Test with id '{data.TestId}' not found.", data.TestId, "<Unknown>");
-            }
-
-            try
-            {
-                var parameters = data?.GetParametersWithConvertedTypes(test.Parameters.Select(x => x.ParameterType).ToArray(), ParameterConverter);
-                var result = await TestRunner.ExecuteTest(test, parameters, allowDefaultValues: false);
-                return TestsViewModelsFactory.CreateViewModel(result);
-            }
-            catch (Exception ex)
-            {
-                var message = $"Exception: {(ex.InnerException ?? ex).Message}";
-                return TestResultViewModel.CreateError(message, test.Id, test.Name);
-            }
-        }
-
-        /// <summary>
-        /// Execute tests in the given category and return a result view model.
-        /// </summary>
-        public async Task<ExecuteTestsResult> ExecuteTests(RequestInformation<TAccessRole> requestInformation, string testCategory)
-        {
-            if (testCategory == null)
-            {
-                return new ExecuteTestsResult { TotalResult = TestResultStatus.Error, ErrorMessage = "No category to test was given." };
-            }
-
-            try
-            {
-                var results = await TestRunner.ExecuteTests(TestDiscoverer,
-                    testFilter: (test) => 
-                        test.Categories.Contains(testCategory)
-                        && EnumUtils.EnumFlagHasAnyFlagsSet(requestInformation.AccessRole.Value, test.RolesWithAccess),
-                    auditEventService: Services.AuditEventService,
-                    auditUserId: requestInformation?.UserId,
-                    auditUsername: requestInformation?.UserName
-                );
-                var testResults = results.Select(x => new ExecuteTestsTestResult()
-                {
-                    TestId = x.Test?.Id,
-                    TestName = x.Test?.Name,
-                    Result = x.Status,
-                    Message = x.Message,
-                    StackTrace = x.StackTrace
-                }).ToList();
-
-                return new ExecuteTestsResult()
-                {
-                    TotalResult = testResults.Any() 
-                        ? testResults.OrderByDescending(x => (int)x.Result).First().Result
-                        : TestResultStatus.Success,
-                    Results = testResults
-                };
-            }
-            catch (Exception ex)
-            {
-                var message = $"Exception: {(ex.InnerException ?? ex).Message}";
-                return new ExecuteTestsResult { TotalResult = TestResultStatus.Error, ErrorMessage = $"An exception occured during test execution. {message}" };
-            }
-        }
-
-        /// <summary>
-        /// Requests cancellation of the given cancellable test.
-        /// </summary>
-        public bool CancelTest(RequestInformation<TAccessRole> requestInfo, string testId)
-        {
-            if (testId == null)
-            {
-                return false;
-            }
-
-            var test = GetTest(requestInfo.AccessRole, testId);
-            if (test == null)
-            {
-                return false;
-            }
-
-            var registered = TestRunner.RequestTestCancellation(testId);
-            if (registered)
-            {
-                Services.AuditEventService?.StoreEvent(
-                    CreateAuditEventFor(requestInfo, AuditEventArea.Tests, action: "Test cancellation requested", subject: test?.Name)
-                    .AddDetail("Test id", test?.Id)
-                );
-            }
-            return registered;
         }
 
         /// <summary>
@@ -775,17 +673,7 @@ namespace HealthCheck.WebUI.Util
 
         private string GetPageTypeString(HealthCheckPageType type)
             => Pages.FirstOrDefault(x => x.Type == type)?.Id
-                ?? throw new NotImplementedException($"Page type {type.ToString()} not fully implemented yet.");
-
-        private List<TestClassDefinition> GetTestDefinitions(Maybe<TAccessRole> accessRoles)
-        {
-            var userRolesMaybe = accessRoles ?? new Maybe<TAccessRole>();
-            var userRoles = userRolesMaybe.HasValue ? (object)userRolesMaybe.Value : null;
-            return TestDiscoverer.DiscoverTestDefinitions(onlyTestsAllowedToBeManuallyExecuted: true, userRolesEnum: userRoles);
-        }
-        
-        private TestDefinition GetTest(Maybe<TAccessRole> accessRoles, string testId)
-            => GetTestDefinitions(accessRoles).SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == testId);
+                ?? throw new NotImplementedException($"Page type {type} not fully implemented yet.");
 
         internal bool CanShowPageTo(HealthCheckPageType type, Maybe<TAccessRole> accessRoles)
             => Pages.FirstOrDefault(x => x.Type == type)?.IsVisible(this, accessRoles) == true;
@@ -839,7 +727,7 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Create a new <see cref="AuditEvent"/> from the given request data and values.
         /// </summary>
-        public AuditEvent CreateAuditEventFor(RequestInformation<TAccessRole> request, AuditEventArea area,
+        public AuditEvent CreateAuditEventFor(RequestInformation<TAccessRole> request, string area,
             string action, string subject = null)
             => new AuditEvent()
             {
@@ -857,10 +745,10 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public void AuditLog_SettingsSaved(RequestInformation<TAccessRole> requestInformation, IEnumerable<HealthCheckSetting> settings)
         {
-            string settingsString = JsonConvert.SerializeObject(settings.Select(x => new { Id = x.Id, Value = x.Value }));
+            string settingsString = JsonConvert.SerializeObject(settings.Select(x => new { x.Id, x.Value }));
 
             Services.AuditEventService?.StoreEvent(
-                CreateAuditEventFor(requestInformation, AuditEventArea.Settings, action: "Settings updated", subject: "Settings")
+                CreateAuditEventFor(requestInformation, "Settings", action: "Settings updated", subject: "Settings")
                 .AddDetail("Values", settingsString)
             );
         }
@@ -872,23 +760,9 @@ namespace HealthCheck.WebUI.Util
             DataflowStreamMetadata<TAccessRole> stream, DataflowStreamFilter filter)
         {
             Services.AuditEventService?.StoreEvent(
-                CreateAuditEventFor(requestInformation, AuditEventArea.Dataflow, action: "Dataflow stream fetched", subject: stream?.Name)
+                CreateAuditEventFor(requestInformation, "Dataflow", action: "Dataflow stream fetched", subject: stream?.Name)
                 .AddDetail("Stream id", stream?.Id)
                 .AddDetail("Filter input", (filter == null) ? null : SerializeJson(filter))
-            );
-        }
-
-        /// <summary>
-        /// When a test has executed this should be called.
-        /// </summary>
-        public void AuditLog_TestExecuted(RequestInformation<TAccessRole> requestInformation, ExecuteTestInputData input, TestResultViewModel result)
-        {
-            Services.AuditEventService?.StoreEvent(
-                CreateAuditEventFor(requestInformation, AuditEventArea.Tests, action: "Test executed", subject: result?.TestName)
-                .AddDetail("Test id", input?.TestId)
-                .AddDetail("Parameters", $"[{string.Join(", ", (input?.Parameters ?? new List<string>()))}]")
-                .AddDetail("Result", result?.Message)
-                .AddDetail("Duration", $"{result?.DurationInMilliseconds}ms")
             );
         }
 
@@ -901,7 +775,7 @@ namespace HealthCheck.WebUI.Util
                 return;
 
             Services.AuditEventService?.StoreEvent(
-                CreateAuditEventFor(requestInformation, AuditEventArea.LogSearch, action: "Searched logs", subject: filter?.Query)
+                CreateAuditEventFor(requestInformation, "LogSearch", action: "Searched logs", subject: filter?.Query)
                 .AddDetail("Skip", filter?.Skip.ToString() ?? "null")
                 .AddDetail("Take", filter?.Take.ToString() ?? "null")
                 .AddDetail("Range", $"{filter?.FromDate?.ToString() ?? "min"} -> {filter?.ToDate?.ToString() ?? "max"}")
@@ -916,7 +790,7 @@ namespace HealthCheck.WebUI.Util
         public void AuditLog_LogSearchCancel(RequestInformation<TAccessRole> requestInformation, string action, int? count = null)
         {
             Services.AuditEventService?.StoreEvent(
-                CreateAuditEventFor(requestInformation, AuditEventArea.LogSearch, action: action)
+                CreateAuditEventFor(requestInformation, "LogSearch", action: action)
                     .AddDetail("Count", count?.ToString(), onlyIfNotNull: true)
             );
         }
@@ -930,7 +804,7 @@ namespace HealthCheck.WebUI.Util
             if (config != null)
             {
                 Services.AuditEventService?.StoreEvent(
-                    CreateAuditEventFor(requestInformation, AuditEventArea.EventNotifications, action: "Deleted event notification config")
+                    CreateAuditEventFor(requestInformation, "EventNotifications", action: "Deleted event notification config")
                 );
             }
         }
@@ -943,7 +817,7 @@ namespace HealthCheck.WebUI.Util
             if (config != null)
             {
                 Services.AuditEventService?.StoreEvent(
-                    CreateAuditEventFor(requestInformation, AuditEventArea.EventNotifications, action: "Saved event notification config")
+                    CreateAuditEventFor(requestInformation, "EventNotifications", action: "Saved event notification config")
                 );
             }
         }
@@ -963,7 +837,17 @@ namespace HealthCheck.WebUI.Util
             var events = await Services.AuditEventService.GetEvents(from, to);
             return events
                 .Where(x => AuditEventMatchesFilter(x, filter))
-                .Select(x => TestsViewModelsFactory.CreateViewModel(x));
+                .Select(x => new AuditEventViewModel()
+                {
+                    Timestamp = x.Timestamp,
+                    Area = x.Area,
+                    Action = x.Action,
+                    Subject = x.Subject,
+                    Details = x.Details,
+                    UserId = x.UserId,
+                    UserName = x.UserName,
+                    UserAccessRoles = x.UserAccessRoles,
+                });
         }
 
         /// <summary>
@@ -983,8 +867,8 @@ namespace HealthCheck.WebUI.Util
                 AuditLog_DatastreamFetched(requestInformation, stream, filter);
             }
 
-            filter = filter ?? new DataflowStreamFilter();
-            filter.PropertyFilters = filter.PropertyFilters ?? new Dictionary<string, string>();
+            filter ??= new DataflowStreamFilter();
+            filter.PropertyFilters ??= new Dictionary<string, string>();
             return await Services.DataflowService.GetEntries(streamId, filter);
         }
 
@@ -1094,10 +978,10 @@ namespace HealthCheck.WebUI.Util
             config.LastChangedBy = requestInformation?.UserName ?? "Anonymous";
             config.LastChangedAt = DateTime.Now;
 
-            config.LatestResults = config.LatestResults ?? new List<string>();
-            config.PayloadFilters = config.PayloadFilters ?? new List<EventSinkNotificationConfigFilter>();
-            config.EventIdFilter = config.EventIdFilter ?? new EventSinkNotificationConfigFilter();
-            config.NotifierConfigs = config.NotifierConfigs ?? new List<NotifierConfig>();
+            config.LatestResults ??= new List<string>();
+            config.PayloadFilters ??= new List<EventSinkNotificationConfigFilter>();
+            config.EventIdFilter ??= new EventSinkNotificationConfigFilter();
+            config.NotifierConfigs ??= new List<NotifierConfig>();
 
             config = Services.EventSink.SaveConfig(config);
 
@@ -1112,7 +996,7 @@ namespace HealthCheck.WebUI.Util
         {
             Services.EventSink?.DeleteDefinition(eventId);
             Services.AuditEventService?.StoreEvent(
-                CreateAuditEventFor(requestInformation, AuditEventArea.EventNotifications, action: "Delete event definition", eventId)
+                CreateAuditEventFor(requestInformation, "EventNotifications", action: "Delete event definition", eventId)
             );
         }
 
@@ -1123,7 +1007,7 @@ namespace HealthCheck.WebUI.Util
         {
             Services.EventSink?.DeleteDefinitions();
             Services.AuditEventService?.StoreEvent(
-                CreateAuditEventFor(requestInformation, AuditEventArea.EventNotifications, action: "Delete all event definitions")
+                CreateAuditEventFor(requestInformation, "EventNotifications", action: "Delete all event definitions")
             );
         }
 
@@ -1150,6 +1034,51 @@ namespace HealthCheck.WebUI.Util
 
             return EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, AccessOptions.AuditLogAccess.Value);
         }
+        #endregion
+
+        #region Helpers
+        private void InitStringConverter(StringConverter converter)
+        {
+#if NETFULL
+            converter.RegisterConverter<HttpPostedFileBase>(
+                (input) => ConvertInputToMemoryFile(input),
+                (file) => throw new NotImplementedException());
+
+            converter.RegisterConverter<List<HttpPostedFileBase>>(
+                (input) =>
+                {
+                    var list = new List<HttpPostedFileBase>();
+                    if (input == null || string.IsNullOrWhiteSpace(input)) return list;
+
+                    var listItems = JsonConvert.DeserializeObject<List<string>>(input);
+                    list.AddRange(
+                        listItems
+                        .Select(x => ConvertInputToMemoryFile(x))
+                        .Where(x => x != null)
+                    );
+
+                    return list;
+                },
+                (file) => throw new NotImplementedException());
+#endif
+        }
+
+#if NETFULL
+        private MemoryFile ConvertInputToMemoryFile(string input)
+        {
+            if (input == null) return null;
+
+            var parts = input.Split('|');
+            if (parts.Length < 3) return null;
+
+            var bytes = Convert.FromBase64String(parts[2]);
+            return new MemoryFile(
+                contentType: parts[0],
+                fileName: parts[1],
+                stream: new MemoryStream(bytes)
+            );
+        }
+#endif
         #endregion
 
         #region Helper classes

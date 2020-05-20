@@ -1,9 +1,7 @@
-import { AuditEventArea } from "./AuditEventArea";
-
 export default interface AuditEventFilterInputData {
     FromFilter?: Date | null;
     ToFilter?: Date | null;
-    AreaFilter?: AuditEventArea | null;
+    AreaFilter: string | null;
     SubjectFilter: string;
     ActionFilter: string;
     UserIdFilter: string;

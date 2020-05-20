@@ -1,6 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Entities;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Serializers;
 using System;
 using System.Web;
@@ -20,7 +20,7 @@ namespace HealthCheck.Core.Util
         /// <param name="title">Title of the dump</param>
         public static DataDump Dump<T>(this T obj, IJsonSerializer serializer, string title = null)
         {
-            serializer = serializer ?? new DumpNullJsonSerializer();
+            serializer ??= new DumpNullJsonSerializer();
             var data = CreateDumpData(obj, serializer);
             return CreateDump<T>(obj?.GetType(), title, data);
         }
