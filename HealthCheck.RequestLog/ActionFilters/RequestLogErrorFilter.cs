@@ -1,13 +1,13 @@
 ﻿#if NETFULL
+using HealthCheck.RequestLog.Abstractions;
+using HealthCheck.RequestLog.Enums;
+using HealthCheck.RequestLog.Models;
 using HealthCheck.RequestLog.Services;
 using HealthCheck.RequestLog.Util;
-using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Modules.RequestLog.Enums;
-using HealthCheck.Core.Modules.RequestLog.Models;
+using System;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using System;
 
 namespace HealthCheck.RequestLog.ActionFilters
 {

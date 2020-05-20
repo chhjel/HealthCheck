@@ -1,10 +1,9 @@
 ﻿#if NETFULL
+using HealthCheck.Core.Attributes;
 using HealthCheck.RequestLog.Abstractions;
 using HealthCheck.RequestLog.Enums;
+using HealthCheck.RequestLog.Models;
 using HealthCheck.RequestLog.Util;
-using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Modules.RequestLog.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,7 +11,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using HealthCheck.RequestLog.Models;
 
 namespace HealthCheck.RequestLog.Services
 {
@@ -199,7 +197,7 @@ namespace HealthCheck.RequestLog.Services
 
         private ActionInfo CreateActionInfo(Type controller, string action, MethodInfo actionMethod)
         {
-            actionMethod = actionMethod ?? controller.GetMethods().FirstOrDefault(x => x.Name == action);
+            actionMethod ??= controller.GetMethods().FirstOrDefault(x => x.Name == action);
             var infoAttribute = actionMethod?.GetCustomAttribute<RequestLogInfoAttribute>();
             return new ActionInfo()
             {

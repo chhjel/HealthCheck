@@ -44,19 +44,19 @@ namespace HealthCheck.WebUI.Tests
             Assert.NotEmpty(models);
         }
 
-        [Theory]
-        [InlineData(AccessRoles.None)]
-        [InlineData(AccessRoles.Guest)]
-        [InlineData(AccessRoles.WebAdmins)]
-        [InlineData(AccessRoles.SystemAdmins)]
-        [InlineData(AccessRoles.WebAdmins | AccessRoles.SystemAdmins)]
-        [InlineData(AccessRoles.Everyone)]
-        public void GetRequestLogActions_DoesNotFail(AccessRoles roles)
-        {
-            var helper = CreateHelper<AccessRoles>();
-            var models = helper.GetRequestLogActions(new Maybe<AccessRoles>(roles));
-            Assert.NotNull(models);
-        }
+        //[Theory]
+        //[InlineData(AccessRoles.None)]
+        //[InlineData(AccessRoles.Guest)]
+        //[InlineData(AccessRoles.WebAdmins)]
+        //[InlineData(AccessRoles.SystemAdmins)]
+        //[InlineData(AccessRoles.WebAdmins | AccessRoles.SystemAdmins)]
+        //[InlineData(AccessRoles.Everyone)]
+        //public void GetRequestLogActions_DoesNotFail(AccessRoles roles)
+        //{
+        //    var helper = CreateHelper<AccessRoles>();
+        //    var models = helper.GetRequestLogActions(new Maybe<AccessRoles>(roles));
+        //    Assert.NotNull(models);
+        //}
 
         //[Theory]
         //[InlineData(AccessRoles.None)]

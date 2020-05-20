@@ -1,7 +1,6 @@
 ﻿#if NETFULL
-using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Modules.RequestLog.Models;
+using HealthCheck.RequestLog.Abstractions;
 using HealthCheck.RequestLog.Models;
 using System;
 using System.Collections.Generic;
@@ -132,7 +131,7 @@ namespace HealthCheck.RequestLog.Util
                 return $"{prettifiedControllerName} - {action}";
             };
 
-            actionMethod = actionMethod ?? controller.GetMethods().FirstOrDefault(x => x.Name == action);
+            actionMethod ??= controller.GetMethods().FirstOrDefault(x => x.Name == action);
             var infoAttribute = actionMethod?.GetCustomAttribute<RequestLogInfoAttribute>();
             return new ActionInfo()
             {

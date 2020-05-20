@@ -1,5 +1,5 @@
 ﻿#if NETFULL
-using HealthCheck.Core.Abstractions;
+using HealthCheck.RequestLog.Abstractions;
 using System;
 using System.Linq;
 using System.Web.Mvc;

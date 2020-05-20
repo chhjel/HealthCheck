@@ -21,7 +21,7 @@ import TestSuitesPageComponent from './components/TestSuite/TestSuitesPageCompon
 import OverviewPageComponent from './components/Pages/OverviewPageComponent.vue';
 import AuditLogPageComponent from './components/Pages/AuditLogPageComponent.vue';
 import LogViewerPageComponent from './components/Pages/LogViewerPageComponent.vue';
-import RequestLogPageComponent from './components/Pages/RequestLogPageComponent.vue';
+import RequestLogPageComponent from './components/RequestLog/RequestLogPageComponent.vue';
 import DocumentationPageComponent from './components/Pages/DocumentationPageComponent.vue';
 import DataflowPageComponent from './components/Pages/DataflowPageComponent.vue';
 import SettingsPageComponent from './components/Settings/SettingsPageComponent.vue';

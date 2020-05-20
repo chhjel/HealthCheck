@@ -1,7 +1,7 @@
 ﻿#if NETFULL
-using HealthCheck.RequestLog.Abstractions;
-using HealthCheck.Core.Modules.RequestLog.Models;
 using HealthCheck.Core.Util;
+using HealthCheck.RequestLog.Abstractions;
+using HealthCheck.RequestLog.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

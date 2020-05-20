@@ -25,11 +25,6 @@ namespace HealthCheck.WebUI.Models
         public ILogSearcherService LogSearcherService { get; set; }
 
         /// <summary>
-        /// Must be set for the requestlog to be displayed.
-        /// </summary>
-        public IRequestLogService RequestLogService { get; set; }
-
-        /// <summary>
         /// Either this or <see cref="FlowChartsService"/> must be set for the documentation tab to be shown.
         /// </summary>
         public ISequenceDiagramService SequenceDiagramService { get; set; }

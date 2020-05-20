@@ -1,4 +1,4 @@
-﻿using HealthCheck.Core.Modules.RequestLog.Models;
+﻿using HealthCheck.RequestLog.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

@@ -212,35 +212,6 @@ namespace HealthCheck.WebUI.Abstractions
         }
         #endregion
 
-        #region RequestLog
-        /// <summary>
-        /// Get all request log actions.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        public ActionResult GetRequestLog()
-        {
-            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.RequestLog, CurrentRequestAccessRoles))
-                return HttpNotFound();
-
-            var viewModel = Helper.GetRequestLogActions(CurrentRequestAccessRoles);
-            return CreateJsonResult(viewModel);
-        }
-
-        /// <summary>
-        /// Clears the requestlog.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [HttpDelete]
-        public ActionResult ClearRequestLog(bool includeDefinitions = false)
-        {
-            if (!Enabled || !Helper.CanClearRequestLog(CurrentRequestAccessRoles))
-                return HttpNotFound();
-
-            Helper.ClearRequestLog(CurrentRequestInformation, includeDefinitions);
-            return Content("Cleared");
-        }
-        #endregion
-
         #region SiteEvents
         /// <summary>
         /// Get site events to show in the UI.

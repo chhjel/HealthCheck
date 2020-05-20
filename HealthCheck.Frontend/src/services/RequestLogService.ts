@@ -1,15 +1,23 @@
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
 import LoggedEndpointDefinitionViewModel from "../models/RequestLog/LoggedEndpointDefinitionViewModel";
+import FrontEndOptionsViewModel from "../models/Common/FrontEndOptionsViewModel";
 
 export default class RequestLogService extends HCServiceBase
 {
+    public moduleId: string;
+
+    constructor(options: FrontEndOptionsViewModel, moduleId: string)
+    {
+        super(options);
+        this.moduleId = moduleId;
+    }
+    
     public GetRequestLog(
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<Array<LoggedEndpointDefinitionViewModel>> | null = null
     ) : void
     {
-        let url = this.options.GetRequestLogEndpoint;
-        this.fetchExt<Array<LoggedEndpointDefinitionViewModel>>(url, 'GET', null, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, 'GetRequestLog', null, statusObject, callbacks);
     }
 
     public ClearRequestLog(includeDefinitions: boolean,
@@ -17,7 +25,6 @@ export default class RequestLogService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<any> | null = null
     ): void
     {
-        let url = `${this.options.ClearRequestLogEndpoint}?includeDefinitions=${includeDefinitions}`;
-        this.fetchExt<any>(url, 'DELETE', null, statusObject, callbacks, false);
+        this.invokeModuleMethod(this.moduleId, 'ClearRequestLog', includeDefinitions, statusObject, callbacks);
     }
 }

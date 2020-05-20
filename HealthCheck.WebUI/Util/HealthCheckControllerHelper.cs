@@ -7,7 +7,6 @@ using HealthCheck.Core.Modules.Diagrams.FlowCharts;
 using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
 using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.LogViewer.Models;
-using HealthCheck.Core.Modules.RequestLog.Models;
 using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Util;
 using HealthCheck.WebUI.Exceptions;
@@ -341,36 +340,6 @@ namespace HealthCheck.WebUI.Util
         }
 
         /// <summary>
-        /// Get all request log actions.
-        /// </summary>
-        public List<LoggedEndpointDefinition> GetRequestLogActions(Maybe<TAccessRole> accessRoles)
-        {
-            if (!CanShowPageTo(HealthCheckPageType.RequestLog, accessRoles))
-            {
-                return new List<LoggedEndpointDefinition>();
-            }
-
-            return Services?.RequestLogService?.GetRequests() ?? new List<LoggedEndpointDefinition>();
-        }
-
-        /// <summary>
-        /// Clear the requestlog.
-        /// </summary>
-        public void ClearRequestLog(RequestInformation<TAccessRole> requestInformation, bool includeDefinitions)
-        {
-            if (!CanClearRequestLog(requestInformation.AccessRole))
-            {
-                return;
-            }
-
-            var auditAction = (includeDefinitions) ? "Cleared request log + definitions" : "Cleared request log";
-            Services.AuditEventService?.StoreEvent(
-                CreateAuditEventFor(requestInformation, "RequestLog", action: auditAction)
-            );
-            Services?.RequestLogService?.ClearRequests(includeDefinitions);
-        }
-
-        /// <summary>
         /// Get viewmodel for test sets data.
         /// </summary>
         public async Task<List<SiteEventViewModel>> GetSiteEventsViewModel(
@@ -562,13 +531,7 @@ namespace HealthCheck.WebUI.Util
 </body>
 </html>";
         }
-
-        /// <summary>
-        /// Check if the given roles has access to clearing the requestlog.
-        /// </summary>
-        public bool CanClearRequestLog(Maybe<TAccessRole> accessRoles)
-            => Services.RequestLogService != null && AccessRolesHasAccessTo(accessRoles, AccessOptions.ClearRequestLogAccess, defaultValue: false);
-
+        
         /// <summary>
         /// Check if the given roles has access to view the dataflow page.
         /// </summary>

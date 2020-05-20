@@ -1,6 +1,7 @@
 ﻿#if NETFULL
-using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Modules.RequestLog.Models;
+using HealthCheck.RequestLog.Abstractions;
+using HealthCheck.RequestLog.Enums;
+using HealthCheck.RequestLog.Models;
 using System;
 using System.Web;
 
@@ -24,7 +25,7 @@ namespace HealthCheck.RequestLog.Util
 
                 service.HandleRequestEvent(new LogFilterEvent()
                 {
-                    FilterMethod = Core.Modules.RequestLog.Enums.LogFilterMethod.OnResultExecuted,
+                    FilterMethod = LogFilterMethod.OnResultExecuted,
                     ControllerType = controllerType,
                     Controller = controllerName ?? controllerType.Name,
                     Action = action,

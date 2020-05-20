@@ -1,6 +1,6 @@
 ﻿#if NETFULL
-using HealthCheck.Core.Modules.RequestLog.Models;
 using HealthCheck.RequestLog.Enums;
+using HealthCheck.RequestLog.Models;
 using System;
 using System.Linq;
 
