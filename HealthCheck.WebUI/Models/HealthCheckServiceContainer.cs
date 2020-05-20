@@ -15,11 +15,6 @@ namespace HealthCheck.WebUI.Models
         public IAuditEventStorage AuditEventService { get; set; }
 
         /// <summary>
-        /// Must be set for any site statuses to be stored and returned.
-        /// </summary>
-        public ISiteEventService SiteEventService { get; set; }
-
-        /// <summary>
         /// Must be set for the log viewer tab to be displayed.
         /// </summary>
         public ILogSearcherService LogSearcherService { get; set; }

@@ -1,5 +1,4 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
-using HealthCheck.Core.Modules.Settings.Models;
 using HealthCheck.RequestLog.Models;
 using System;
 using System.Collections.Generic;

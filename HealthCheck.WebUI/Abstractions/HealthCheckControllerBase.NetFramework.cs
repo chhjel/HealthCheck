@@ -212,21 +212,6 @@ namespace HealthCheck.WebUI.Abstractions
         }
         #endregion
 
-        #region SiteEvents
-        /// <summary>
-        /// Get site events to show in the UI.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        public virtual async Task<ActionResult> GetSiteEvents()
-        {
-            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.Overview, CurrentRequestAccessRoles))
-                return HttpNotFound();
-
-            var viewModel = await Helper.GetSiteEventsViewModel(CurrentRequestAccessRoles);
-            return CreateJsonResult(viewModel);
-        }
-        #endregion
-
         #region LogSearch
         /// <summary>
         /// Get log entry search results.

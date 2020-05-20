@@ -1,5 +1,5 @@
-﻿using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Entities;
+﻿using HealthCheck.Core.Modules.SiteEvents.Abstractions;
+using HealthCheck.Core.Modules.SiteEvents.Models;
 using HealthCheck.Core.Util;
 using Newtonsoft.Json;
 using System;

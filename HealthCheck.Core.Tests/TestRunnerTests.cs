@@ -1,5 +1,5 @@
-using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Entities;
+using HealthCheck.Core.Modules.SiteEvents.Models;
+using HealthCheck.Core.Modules.SiteEvents.Services;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Modules.Tests.Services;

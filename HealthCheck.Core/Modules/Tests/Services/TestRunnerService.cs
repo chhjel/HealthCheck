@@ -1,5 +1,7 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Entities;
+using HealthCheck.Core.Modules.SiteEvents.Abstractions;
+using HealthCheck.Core.Modules.SiteEvents.Models;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Util;
 using System;

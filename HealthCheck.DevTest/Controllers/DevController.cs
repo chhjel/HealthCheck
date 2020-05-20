@@ -1,6 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Dataflow;
@@ -10,6 +9,10 @@ using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.EventNotifications.Notifiers;
 using HealthCheck.Core.Modules.Settings;
 using HealthCheck.Core.Modules.Settings.Attributes;
+using HealthCheck.Core.Modules.SiteEvents;
+using HealthCheck.Core.Modules.SiteEvents.Abstractions;
+using HealthCheck.Core.Modules.SiteEvents.Models;
+using HealthCheck.Core.Modules.SiteEvents.Services;
 using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Services;
 using HealthCheck.Core.Services.Models;
@@ -62,7 +65,6 @@ namespace HealthCheck.DevTest.Controllers
                 _auditEventService = CreateAuditEventService();
             }
 
-            Services.SiteEventService = _siteEventService;
             Services.AuditEventService = _auditEventService;
             Services.LogSearcherService = CreateLogSearcherService();
             Services.SequenceDiagramService = new DefaultSequenceDiagramService(new DefaultSequenceDiagramServiceOptions()
@@ -94,6 +96,7 @@ namespace HealthCheck.DevTest.Controllers
                 .AddPlaceholder("ServerName", () => Environment.MachineName);
             (Services.EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableEventRegistering);
 
+            UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = _siteEventService }));
             UseModule(new HCRequestLogModule(new HCRequestLogModuleOptions() { RequestLogService = RequestLogServiceAccessor.Current }));
             UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { SettingsService = SettingsService }));
             UseModule(new HCTestsModule(new HCTestsModuleOptions() { AssemblyContainingTests = typeof(DevController).Assembly }))
@@ -131,6 +134,7 @@ namespace HealthCheck.DevTest.Controllers
             GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(RuntimeTestAccessRole.WebAdmins);
             GiveRolesAccessToModuleWithFullAccess<HCSettingsModule>(RuntimeTestAccessRole.WebAdmins);
             GiveRolesAccessToModuleWithFullAccess<HCRequestLogModule>(RuntimeTestAccessRole.WebAdmins);
+            GiveRolesAccessToModuleWithFullAccess<HCSiteEventsModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             options.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.Guest);
@@ -389,18 +393,13 @@ namespace HealthCheck.DevTest.Controllers
         private void InitOnce()
         {
             _hasInited = true;
-            Task.Run(() => AddEvents(false));
+            Task.Run(() => AddEvents());
         }
 
         // New mock data
-        public async Task<ActionResult> AddEvents(bool reInitService = true)
+        public async Task<ActionResult> AddEvents()
         {
-            if (reInitService)
-            {
-                Services.SiteEventService = CreateSiteEventService();
-            }
-
-            if ((await Services.SiteEventService.GetEvents(DateTime.MinValue, DateTime.MaxValue)).Count == 0)
+            if ((await _siteEventService.GetEvents(DateTime.MinValue, DateTime.MaxValue)).Count == 0)
             {
                 for (int i = 0; i < 20; i++)
                 {
@@ -433,7 +432,7 @@ namespace HealthCheck.DevTest.Controllers
         private static readonly Random _rand = new Random();
         public async Task<ActionResult> AddEvent()
         {
-            if (!Enabled || Services.SiteEventService == null) return HttpNotFound();
+            if (!Enabled || _siteEventService == null) return HttpNotFound();
 
             CreateSomeData(out string title, out string description);
             var severity = (_rand.Next(100) < 10) ? SiteEventSeverity.Fatal
@@ -452,7 +451,7 @@ namespace HealthCheck.DevTest.Controllers
             .AddRelatedLink("Page that failed", "https://www.google.com?etc")
             .AddRelatedLink("Error log", "https://www.google.com?q=errorlog");
 
-            await Services.SiteEventService.StoreEvent(ev);
+            await _siteEventService.StoreEvent(ev);
             return CreateJsonResult(ev);
         }
 

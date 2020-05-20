@@ -10,7 +10,6 @@ using HealthCheck.Core.Modules.LogViewer.Models;
 using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Util;
 using HealthCheck.WebUI.Exceptions;
-using HealthCheck.WebUI.Factories;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Serializers;
 using HealthCheck.WebUI.ViewModels;
@@ -43,11 +42,6 @@ namespace HealthCheck.WebUI.Util
         /// Contains services that enables extra functionality.
         /// </summary>
         public HealthCheckServiceContainer<TAccessRole> Services { get; } = new HealthCheckServiceContainer<TAccessRole>();
-
-        /// <summary>
-        /// Factory for site event view models.
-        /// </summary>
-        public readonly SiteEventViewModelsFactory SiteEventViewModelsFactory = new SiteEventViewModelsFactory();
 
         /// <summary>
         /// Access related options.
@@ -337,27 +331,6 @@ namespace HealthCheck.WebUI.Util
             settings.Converters.Add(new StringEnumConverter());
 
             return JsonConvert.SerializeObject(obj, settings);
-        }
-
-        /// <summary>
-        /// Get viewmodel for test sets data.
-        /// </summary>
-        public async Task<List<SiteEventViewModel>> GetSiteEventsViewModel(
-            Maybe<TAccessRole> accessRoles,
-            DateTime? from = null, DateTime? to = null)
-        {
-            if (!CanShowPageTo(HealthCheckPageType.Overview, accessRoles))
-            {
-                return new List<SiteEventViewModel>();
-            }
-
-            var includeDeveloperDetails = AccessRolesHasAccessTo(accessRoles, AccessOptions.SiteEventDeveloperDetailsAccess, false);
-            from ??= DateTime.Now.AddDays(-30);
-            to ??= DateTime.Now;
-            var viewModel = (await Services.SiteEventService.GetEvents(from.Value, to.Value))
-                .Select(x => SiteEventViewModelsFactory.CreateViewModel(x, includeDeveloperDetails))
-                .ToList();
-            return viewModel;
         }
 
         /// <summary>

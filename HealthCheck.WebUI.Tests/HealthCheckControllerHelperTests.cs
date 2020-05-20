@@ -1,8 +1,8 @@
-using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Entities;
+using HealthCheck.Core.Modules.SiteEvents.Models;
+using HealthCheck.Core.Modules.SiteEvents.Services;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
-using HealthCheck.Core.Services;
 using HealthCheck.Core.Services.Storage;
 using HealthCheck.Core.Util;
 using HealthCheck.WebUI.Models;
@@ -25,22 +25,14 @@ namespace HealthCheck.WebUI.Tests
             Output = output;
         }
 
-        [Theory]
-        [InlineData(AccessRoles.None)]
-        [InlineData(AccessRoles.Guest)]
-        [InlineData(AccessRoles.WebAdmins)]
-        [InlineData(AccessRoles.SystemAdmins)]
-        [InlineData(AccessRoles.WebAdmins | AccessRoles.SystemAdmins)]
-        [InlineData(AccessRoles.Everyone)]
-        public async Task GetSiteEventsViewModel_DoesNotFail(AccessRoles roles)
+        [Fact]
+        public async Task GetSiteEventsViewModel_DoesNotFail()
         {
-            var helper = CreateHelper<AccessRoles>();
             var siteEventStorage = new MemorySiteEventStorage();
             var siteEventService = new SiteEventService(siteEventStorage);
-            helper.Services.SiteEventService = siteEventService;
             await siteEventService.StoreEvent(new SiteEvent(Core.Enums.SiteEventSeverity.Error, "typeId", "Title", "Desc", 17));
 
-            var models = await helper.GetSiteEventsViewModel(new Maybe<AccessRoles>(roles));
+            var models = await siteEventService.GetEvents(default, default);
             Assert.NotEmpty(models);
         }
 

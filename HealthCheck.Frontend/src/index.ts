@@ -18,7 +18,7 @@ import "es6-promise/auto";
 // Modules
 import NoPageAvailablePageComponent from './components/Pages/NoPageAvailablePageComponent.vue';
 import TestSuitesPageComponent from './components/TestSuite/TestSuitesPageComponent.vue';
-import OverviewPageComponent from './components/Pages/OverviewPageComponent.vue';
+import OverviewPageComponent from './components/Overview/OverviewPageComponent.vue';
 import AuditLogPageComponent from './components/Pages/AuditLogPageComponent.vue';
 import LogViewerPageComponent from './components/Pages/LogViewerPageComponent.vue';
 import RequestLogPageComponent from './components/RequestLog/RequestLogPageComponent.vue';
