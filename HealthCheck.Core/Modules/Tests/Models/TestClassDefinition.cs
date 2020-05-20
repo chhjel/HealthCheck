@@ -1,5 +1,5 @@
-﻿using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Extensions;
+﻿using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.Tests.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;

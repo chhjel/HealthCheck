@@ -1,4 +1,4 @@
-﻿using HealthCheck.Core.Attributes;
+﻿using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Util;
 using System.Threading.Tasks;

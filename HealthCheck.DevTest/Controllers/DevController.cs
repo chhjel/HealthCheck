@@ -9,6 +9,7 @@ using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
 using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.EventNotifications.Notifiers;
 using HealthCheck.Core.Modules.Settings;
+using HealthCheck.Core.Modules.Settings.Attributes;
 using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Services;
 using HealthCheck.Core.Services.Models;
@@ -86,7 +87,6 @@ namespace HealthCheck.DevTest.Controllers
                     otherStream2
                 }
             });
-            Services.SettingsService = SettingsService;
             Services.EventSink = new DefaultEventDataSink(EventSinkNotificationConfigStorage, EventSinkNotificationDefinitionStorage)
                 .AddNotifier(new WebHookEventNotifier())
                 .AddNotifier(new MyNotifier())
@@ -98,7 +98,8 @@ namespace HealthCheck.DevTest.Controllers
             UseModule(new TestModuleA(), "Custom A");
             UseModule(new TestModuleB());
 
-            UseModule(new TestsModule(new TestsModuleOptions() { AssemblyContainingTests = typeof(DevController).Assembly }))
+            UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { SettingsService = SettingsService }));
+            UseModule(new HCTestsModule(new HCTestsModuleOptions() { AssemblyContainingTests = typeof(DevController).Assembly }))
                 .ConfigureGroups((options) => options
                     .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
                     .ConfigureGroup(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)
@@ -114,6 +115,42 @@ namespace HealthCheck.DevTest.Controllers
         #endregion
 
         #region Overrides
+        // ToDo:
+        // Zero random properties to access
+        // Move things into accessoptions
+        // Move SetTestSetGroupsOptions into testmodule options
+
+        protected override void ConfigureAccess(HttpRequestBase request, AccessOptions<RuntimeTestAccessRole> options)
+        {
+            /// MODULES //
+            /// ToDo: options.GiveRolesAccess...
+            GiveRolesAccessToModule(RuntimeTestAccessRole.Guest | RuntimeTestAccessRole.WebAdmins,
+                TestModuleA.TestModuleAAccessOption.DeleteThing | TestModuleA.TestModuleAAccessOption.EditThing);
+
+            GiveRolesAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestModuleB.TestModuleBAccessOption.NumberOne);
+
+            GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(RuntimeTestAccessRole.WebAdmins);
+            GiveRolesAccessToModuleWithFullAccess<HCSettingsModule>(RuntimeTestAccessRole.WebAdmins);
+            //////////////
+
+            options.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.Guest);
+            options.DocumentationPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
+            options.TestsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins | RuntimeTestAccessRole.API);
+            options.AuditLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            options.LogViewerPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            options.InvalidTestsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            options.SiteEventDeveloperDetailsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            options.RequestLogPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            options.ClearRequestLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            options.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
+            options.DataflowPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
+            options.SettingsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            options.EventNotificationsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+            options.EditEventDefinitionsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
+
+            options.RedirectTargetOnNoAccess = "/no-access";
+        }
+
         public override ActionResult Index()
         {
             Services.EventSink.RegisterEvent("pageload", new {
@@ -209,41 +246,6 @@ namespace HealthCheck.DevTest.Controllers
                 },
                 PageTitle = "Test Monitor"
             };
-
-        // ToDo:
-        // Zero random properties to access
-        // Move things into accessoptions
-        // Move SetTestSetGroupsOptions into testmodule options
-
-        protected override void ConfigureAccess(HttpRequestBase request, AccessOptions<RuntimeTestAccessRole> options)
-        {
-            /// MODULES //
-            /// ToDo: options.GiveRolesAccess...
-            GiveRolesAccessToModule(RuntimeTestAccessRole.Guest | RuntimeTestAccessRole.WebAdmins,
-                TestModuleA.TestModuleAAccessOption.DeleteThing | TestModuleA.TestModuleAAccessOption.EditThing);
-
-            GiveRolesAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestModuleB.TestModuleBAccessOption.NumberOne);
-
-            GiveRolesAccessToModuleWithFullAccess<TestsModule.TestsModuleAccessOption>(RuntimeTestAccessRole.WebAdmins);
-            //////////////
-
-            options.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.Guest);
-            options.DocumentationPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
-            options.TestsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins | RuntimeTestAccessRole.API);
-            options.AuditLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            options.LogViewerPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            options.InvalidTestsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            options.SiteEventDeveloperDetailsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            options.RequestLogPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            options.ClearRequestLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            options.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
-            options.DataflowPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
-            options.SettingsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            options.EventNotificationsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            options.EditEventDefinitionsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-
-            options.RedirectTargetOnNoAccess = "/no-access";
-        }
 
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequestBase request)
         {

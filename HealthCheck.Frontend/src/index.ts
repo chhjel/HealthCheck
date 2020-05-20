@@ -24,7 +24,7 @@ import LogViewerPageComponent from './components/Pages/LogViewerPageComponent.vu
 import RequestLogPageComponent from './components/Pages/RequestLogPageComponent.vue';
 import DocumentationPageComponent from './components/Pages/DocumentationPageComponent.vue';
 import DataflowPageComponent from './components/Pages/DataflowPageComponent.vue';
-import SettingsPageComponent from './components/Pages/SettingsPageComponent.vue';
+import SettingsPageComponent from './components/Settings/SettingsPageComponent.vue';
 import EventNotificationsPageComponent from './components/Pages/EventNotificationsPageComponent.vue';
 let moduleComponents = [
     TestSuitesPageComponent,

@@ -35,7 +35,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
 
         private Dictionary<string, Func<string>> Placeholders { get; set; } = new Dictionary<string, Func<string>>();
 
-        private static object _cacheUpdateLock = new object();
+        private static readonly object _cacheUpdateLock = new object();
         private static Dictionary<string, KnownEventDefinition> KnownEventDefinitionsCache { get; set; }
         private static List<KnownEventDefinition> KnownEventDefinitionsListCache { get; set; }
         private static int KnownEventDefinitionsCacheSize { get; set; }
@@ -268,10 +268,10 @@ namespace HealthCheck.Core.Modules.EventNotifications
 
                         Task.Run(async () =>
                         {
-                            var result = await NotifyEventAsync(config, notifier, notifierConfig, eventId, payloadProperties);
+                            var result = await NotifyEventAsync(notifier, notifierConfig, eventId, payloadProperties);
                             if (!string.IsNullOrWhiteSpace(result))
                             {
-                                result = $"{DateTime.Now.ToString("ddd d. MMMM @ HH:mm:ss")} - {result}";
+                                result = $"{DateTime.Now:ddd d. MMMM @ HH:mm:ss} - {result}";
                             }
                             lock (_cacheUpdateLock)
                             {
@@ -406,7 +406,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
             EventSinkNotificationConfigStorage.SaveConfig(config);
         }
 
-        private async Task<string> NotifyEventAsync(EventSinkNotificationConfig config, IEventNotifier notifier,
+        private async Task<string> NotifyEventAsync(IEventNotifier notifier,
             NotifierConfig notifierConfig,
             string eventId, Dictionary<string, string> payloadValues)
         {

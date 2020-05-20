@@ -1,6 +1,6 @@
-﻿using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Exceptions;
+﻿using HealthCheck.Core.Exceptions;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using static HealthCheck.Core.Attributes.RuntimeTestParameterAttribute;
+using static HealthCheck.Core.Modules.Tests.Attributes.RuntimeTestParameterAttribute;
 
 namespace HealthCheck.Core.Modules.Tests.Models
 {

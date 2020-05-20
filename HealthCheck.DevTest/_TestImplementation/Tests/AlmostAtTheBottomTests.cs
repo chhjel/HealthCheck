@@ -1,4 +1,4 @@
-﻿using HealthCheck.Core.Attributes;
+﻿using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
 
 namespace HealthCheck.DevTest._TestImplementation.Tests

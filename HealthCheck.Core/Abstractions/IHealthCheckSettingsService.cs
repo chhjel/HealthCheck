@@ -1,4 +1,4 @@
-﻿using HealthCheck.Core.Modules.Settings;
+﻿using HealthCheck.Core.Modules.Settings.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;

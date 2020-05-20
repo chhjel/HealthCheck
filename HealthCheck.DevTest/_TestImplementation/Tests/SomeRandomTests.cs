@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
+using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Util.HtmlPresets;
 using HealthCheck.WebUI.Extensions;

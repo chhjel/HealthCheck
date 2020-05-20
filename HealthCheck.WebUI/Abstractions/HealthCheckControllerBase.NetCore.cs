@@ -1,26 +1,27 @@
 ﻿#if NETCORE
+using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Abstractions.Modules;
+using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Enums;
+using HealthCheck.Core.Modules.Dataflow;
+using HealthCheck.Core.Modules.EventNotifications;
+using HealthCheck.Core.Modules.LogViewer.Models;
+using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Services;
 using HealthCheck.Core.Util;
-using HealthCheck.Core.Attributes;
-using HealthCheck.WebUI.ViewModels;
-using HealthCheck.WebUI.Util;
-using Newtonsoft.Json;
-using System;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Converters;
-using System.Reflection;
-using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI;
-using Microsoft.AspNetCore.Mvc;
+using HealthCheck.WebUI.Models;
+using HealthCheck.WebUI.Util;
+using HealthCheck.WebUI.ViewModels;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Modules.LogViewer.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System;
 using System.Collections.Generic;
-using HealthCheck.Core.Modules.Dataflow;
-using HealthCheck.Core.Enums;
-using HealthCheck.Core.Modules.EventNotifications;
-using HealthCheck.Core.Abstractions.Modules;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace HealthCheck.WebUI.Abstractions
 {
@@ -66,13 +67,13 @@ namespace HealthCheck.WebUI.Abstractions
             Helper = new HealthCheckControllerHelper<TAccessRole>(Services);
         }
 
-        #region Modules
+#region Modules
         /// <summary>
         /// Register a module that will be available.
         /// </summary>
         protected TModule UseModule<TModule>(TModule module, string name = null)
-            where TModule : IHealthCheckModule
-            => Helper.UseModule<TModule>(module, name);
+            where TModule: IHealthCheckModule
+            => Helper.UseModule(module, name);
 
         /// <summary>
         /// Grants the given roles access to a module and assign the given accesses.
@@ -86,16 +87,16 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Grants the given roles access to a module without any specific access options.
         /// </summary>
-        protected void GiveRolesAccessToModule<TModuleAccessOptionsEnum>(TAccessRole roles)
-            where TModuleAccessOptionsEnum : Enum
-            => Helper.GiveRolesAccessToModule<TModuleAccessOptionsEnum>(roles);
+        protected void GiveRolesAccessToModule<TModule>(TAccessRole roles)
+            where TModule : IHealthCheckModule
+            => Helper.GiveRolesAccessToModule<TModule>(roles);
 
         /// <summary>
         /// Grants the given roles access to a module with full access.
         /// </summary>
-        protected void GiveRolesAccessToModuleWithFullAccess<TModuleAccessOptionsEnum>(TAccessRole roles)
-            where TModuleAccessOptionsEnum : Enum
-            => Helper.GiveRolesAccessToModuleWithFullAccess<TModuleAccessOptionsEnum>(roles);
+        protected void GiveRolesAccessToModuleWithFullAccess<TModule>(TAccessRole roles)
+            where TModule : IHealthCheckModule
+            => Helper.GiveRolesAccessToModuleWithFullAccess<TModule>(roles);
 
         /// <summary>
         /// Invokes a module method.
@@ -110,9 +111,9 @@ namespace HealthCheck.WebUI.Abstractions
             }
             return Content(result.Result);
         }
-        #endregion
+#endregion
 
-        #region Abstract/Virtual
+#region Abstract/Virtual
         /// <summary>
         /// Returns the page html.
         /// </summary>
@@ -354,35 +355,6 @@ namespace HealthCheck.WebUI.Abstractions
 
             var viewModel = await Helper.GetDataflowEntries(filter.StreamId, filter.StreamFilter, CurrentRequestInformation);
             return CreateJsonResult(viewModel);
-        }
-#endregion
-
-#region Settings
-        /// <summary>
-        /// Get dataflow streams metadata to show in the UI.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [Route("GetSettings")]
-        public virtual ActionResult GetSettings()
-        {
-            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.Settings, CurrentRequestAccessRoles)) return NotFound();
-
-            var viewModel = Helper.GetSettings(CurrentRequestAccessRoles);
-            return CreateJsonResult(viewModel);
-        }
-
-        /// <summary>
-        /// Get dataflow streams metadata to show in the UI.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [HttpPost]
-        [Route("SetSettings")]
-        public virtual ActionResult SetSettings([FromBody] SetSettingsViewModel model)
-        {
-            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.Settings, CurrentRequestAccessRoles)) return NotFound();
-
-            Helper.SetSettings(CurrentRequestInformation, model);
-            return CreateJsonResult(new { Success = true });
         }
 #endregion
 

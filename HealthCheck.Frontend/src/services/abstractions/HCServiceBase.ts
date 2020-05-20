@@ -43,7 +43,8 @@ export default class HCServiceBase
         methodName: string,
         payload: any | null = null,
         statusObject: FetchStatus | null = null,
-        callbacks: ServiceFetchCallbacks<T> | null = null
+        callbacks: ServiceFetchCallbacks<T> | null = null,
+        json: boolean = true
     ): void
     {
         let url = this.options.InvokeModuleMethodEndpoint;
@@ -55,7 +56,7 @@ export default class HCServiceBase
             jsonPayload: payloadJson
         };
 
-        this.fetchExt<T>(url, 'POST', wrapperPayload, statusObject, callbacks, true);
+        this.fetchExt<T>(url, 'POST', wrapperPayload, statusObject, callbacks, json);
     }
 
     public fetchExt<T = unknown>(
@@ -64,7 +65,7 @@ export default class HCServiceBase
         payload: any | null = null,
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<T> | null = null,
-        json: boolean = true,
+        json: boolean = true
     ): void
     {
         if (statusObject != null)
@@ -99,9 +100,7 @@ export default class HCServiceBase
 
             if (json)
             {
-                try {
-                    return response.json();
-                } catch {}
+                return response.json();
             }
             
             return response;

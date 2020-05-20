@@ -8,7 +8,6 @@ using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
 using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.LogViewer.Models;
 using HealthCheck.Core.Modules.RequestLog.Models;
-using HealthCheck.Core.Modules.Settings;
 using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Util;
 using HealthCheck.WebUI.Exceptions;
@@ -55,6 +54,9 @@ namespace HealthCheck.WebUI.Util
         /// Access related options.
         /// </summary>
         public AccessOptions<TAccessRole> AccessOptions { get; set; } = new AccessOptions<TAccessRole>();
+
+        internal bool HasAccessToAnyContent(Maybe<TAccessRole> currentRequestAccessRoles)
+            => GetModulesRequestHasAccessTo(currentRequestAccessRoles).Count > 0;
 
         #region Modules
         private List<HealthCheckModuleLoader.HealthCheckLoadedModule> LoadedModules { get; set; }
@@ -221,9 +223,10 @@ namespace HealthCheck.WebUI.Util
                 var accessOptions = RoleModuleAccessLevels
                     .Where(x => x.AccessOptionsType == module.AccessOptionsType
                                 && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles))
-                    .SelectMany(x => EnumUtils.GetFlaggedEnumValues(x.AccessOptions))
+                    .SelectMany(x => x.GetAllSelectedAccessOptions())
                     .Distinct()
-                    .Select(x => x?.ToString());
+                    .Select(x => x?.ToString())
+                    .ToArray();
                 options[module.Id] = new
                 {
                     Options = module.FrontendOptions,
@@ -283,61 +286,26 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Grants the given roles access to a module without any specific access options.
         /// </summary>
-        public void GiveRolesAccessToModule<TModuleAccessOptionsEnum>(TAccessRole roles)
-            where TModuleAccessOptionsEnum : Enum
-            => RoleModuleAccessLevels.Add(new ModuleAccessData { Roles = roles, AccessOptions = null, AccessOptionsType = typeof(TModuleAccessOptionsEnum) });
+        public void GiveRolesAccessToModule<TModule>(TAccessRole roles)
+            where TModule : IHealthCheckModule
+            => RoleModuleAccessLevels.Add(new ModuleAccessData {
+                Roles = roles,
+                AccessOptions = null,
+                AccessOptionsType = HealthCheckModuleLoader.GetModuleAccessOptionsType(typeof(TModule))
+            });
 
         /// <summary>
         /// Grants the given roles access to a module with full access.
         /// </summary>
-        public void GiveRolesAccessToModuleWithFullAccess<TModuleAccessOptionsEnum>(TAccessRole roles)
-            where TModuleAccessOptionsEnum : Enum
-            => RoleModuleAccessLevels.Add(new ModuleAccessData { Roles = roles, AccessOptions = null,
-                AccessOptionsType = typeof(TModuleAccessOptionsEnum), FullAccess = true });
+        public void GiveRolesAccessToModuleWithFullAccess<TModule>(TAccessRole roles)
+            where TModule : IHealthCheckModule
+            => RoleModuleAccessLevels.Add(new ModuleAccessData {
+                Roles = roles,
+                AccessOptions = null,
+                FullAccess = true,
+                AccessOptionsType = HealthCheckModuleLoader.GetModuleAccessOptionsType(typeof(TModule))
+            });
         #endregion
-
-        private const string deniedEndpoint = "0x90";
-        private readonly PageType[] Pages = new[]
-        {
-            new PageType("status", HealthCheckPageType.Overview,
-                isVisible: (c, a) => c.Services.SiteEventService != null && c.AccessRolesHasAccessTo(a, c.AccessOptions.OverviewPageAccess),
-                onAccessDenied: (o) => o.GetSiteEventsEndpoint = deniedEndpoint),
-
-            new PageType("tests", HealthCheckPageType.Tests,
-                isVisible: (c, a) => c.AccessRolesHasAccessTo(a, c.AccessOptions.TestsPageAccess),
-                onAccessDenied: (o) => o.CancelTestEndpoint = o.ExecuteTestEndpoint = o.GetTestsEndpoint = deniedEndpoint),
-
-            new PageType("auditlog", HealthCheckPageType.AuditLog,
-                isVisible: (c, a) => c.Services.AuditEventService != null && c.AccessRolesHasAccessTo(a, c.AccessOptions.AuditLogAccess, defaultValue: false),
-                onAccessDenied: (o) => o.GetFilteredAuditLogEventsEndpoint = deniedEndpoint),
-
-            new PageType("logviewer", HealthCheckPageType.LogViewer,
-                isVisible: (c, a) => c.Services.LogSearcherService != null && c.AccessRolesHasAccessTo(a, c.AccessOptions.LogViewerPageAccess, defaultValue: false),
-                onAccessDenied: (o) => o.GetLogSearchResultsEndpoint = o.CancelLogSearchEndpoint = o.CancelAllLogSearchesEndpoint = deniedEndpoint),
-
-            new PageType("requestlog", HealthCheckPageType.RequestLog,
-                isVisible: (c, a) => c.Services.RequestLogService != null && c.AccessRolesHasAccessTo(a, c.AccessOptions.RequestLogPageAccess, defaultValue: false),
-                onAccessDenied: (o) => o.GetRequestLogEndpoint = deniedEndpoint),
-
-            new PageType("documentation", HealthCheckPageType.Documentation,
-                isVisible: (c, a) => c.Services.IsAnyDocumentationServiceSet && c.AccessRolesHasAccessTo(a, c.AccessOptions.DocumentationPageAccess, defaultValue: false),
-                onAccessDenied: (o) => o.DiagramsDataEndpoint = deniedEndpoint),
-
-            new PageType("dataflow", HealthCheckPageType.Dataflow,
-                isVisible: (c, a) => c.CanShowDataflowPageTo(a),
-                onAccessDenied: (o) => o.GetDataflowStreamsMetadataEndpoint = o.GetDataflowStreamEntriesEndpoint = deniedEndpoint),
-
-            new PageType("settings", HealthCheckPageType.Settings,
-                isVisible: (c, a) => c.Services.SettingsService != null && c.AccessRolesHasAccessTo(a, c.AccessOptions.SettingsPageAccess, defaultValue: false),
-                onAccessDenied: (o) => o.GetSettingsEndpoint = o.SetSettingsEndpoint = deniedEndpoint),
-            
-            new PageType("eventnotifications", HealthCheckPageType.EventNotifications,
-                isVisible: (c, a) => c.Services.EventSink != null && c.AccessRolesHasAccessTo(a, c.AccessOptions.EventNotificationsPageAccess, defaultValue: false),
-                onAccessDenied: (o) => o.GetEventNotificationConfigsEndpoint = o.SaveEventNotificationConfigEndpoint
-                                     = o.DeleteEventNotificationConfigEndpoint = o.SetEventNotificationConfigEnabledEndpoint
-                                     = o.DeleteEventDefinitionEndpoint = o.DeleteEventDefinitionsEndpoint
-                                     = deniedEndpoint)
-        };
 
 #pragma warning disable IDE0060 // Remove unused parameter
         internal void BeforeConfigure(RequestInformation<TAccessRole> currentRequestInformation) { }
@@ -351,9 +319,9 @@ namespace HealthCheck.WebUI.Util
                 .Where(x => x != null)
                 .ToList();
 
-            foreach (var loadedModule in LoadedModules.Where(x => x.Module is TestsModule))
+            foreach (var loadedModule in LoadedModules.Where(x => x.Module is HCTestsModule))
             {
-                var module = loadedModule.Module as TestsModule;
+                var module = loadedModule.Module as HCTestsModule;
                 InitStringConverter(module.ParameterConverter);
             }
         }
@@ -519,6 +487,8 @@ namespace HealthCheck.WebUI.Util
             return DiagramDataViewModelCache;
         }
 
+        public bool CanShowPageTo(HealthCheckPageType requestLog, Maybe<TAccessRole> accessRoles) => true;
+
         private static DiagramDataViewModel DiagramDataViewModelCache { get; set; }
         private const string Q = "\"";
 
@@ -534,14 +504,13 @@ namespace HealthCheck.WebUI.Util
                 frontEndOptions.CurrentlyRunningLogSearchCount = GetCurrentlyRunningLogSearchCount();
             }
 
-            CheckPageOptions(accessRoles, frontEndOptions, pageOptions);
+            ValidateConfig(frontEndOptions, pageOptions);
 
             var moduleConfigs = GetModuleConfigs(accessRoles);
             var moduleConfigData = moduleConfigs.Select(x => new {
                 x.Id,
                 x.Name,
                 x.Config.ComponentName,
-                // todo allow override on UseModule(..)
                 InitialRoute = string.Format(x.Config.InitialRoute, x.Config.DefaultRootRouteSegment),
                 RoutePath = string.Format(x.Config.RoutePath, x.Config.DefaultRootRouteSegment)
             });
@@ -595,12 +564,6 @@ namespace HealthCheck.WebUI.Util
         }
 
         /// <summary>
-        /// Check if the given roles has access to the any of the pages.
-        /// </summary>
-        public bool HasAccessToAnyContent(Maybe<TAccessRole> accessRoles)
-            => Pages.Any(x => x.IsVisible(this, accessRoles));
-
-        /// <summary>
         /// Check if the given roles has access to clearing the requestlog.
         /// </summary>
         public bool CanClearRequestLog(Maybe<TAccessRole> accessRoles)
@@ -628,55 +591,11 @@ namespace HealthCheck.WebUI.Util
             && CanShowPageTo(HealthCheckPageType.EventNotifications, accessRoles)
             && AccessRolesHasAccessTo(accessRoles, AccessOptions.EditEventDefinitionsAccess, defaultValue: false);
 
-        private void CheckPageOptions(Maybe<TAccessRole> accessRoles, FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
+        private void ValidateConfig(FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
         {
-            foreach(var page in Pages)
-            {
-                if (page.IsVisible(this, accessRoles))
-                {
-                    frontEndOptions.Pages.Add(page.Id);
-                }
-                else
-                {
-                    page.OnAccessDenied(frontEndOptions);
-                }
-            }
-
-            if (!CanClearRequestLog(accessRoles))
-            {
-                frontEndOptions.ClearRequestLogEndpoint = deniedEndpoint;
-                frontEndOptions.HasAccessToClearRequestLog = false;
-            }
-
-            if (!CanEditEventDefinitions(accessRoles))
-            {
-                frontEndOptions.HasAccessToEditEventDefinitions = false;
-            }
-
-            PrioritizePages(frontEndOptions.Pages, frontEndOptions.PagePriority);
-
             frontEndOptions.Validate();
             pageOptions.Validate();
         }
-
-        private void PrioritizePages(List<string> pages, List<HealthCheckPageType> priority)
-        {
-            foreach(var prio in priority.Reverse<HealthCheckPageType>().Select(x => GetPageTypeString(x)))
-            {
-                if (pages.Contains(prio))
-                {
-                    pages.Remove(prio);
-                    pages.Insert(0, prio);
-                }
-            }
-        }
-
-        private string GetPageTypeString(HealthCheckPageType type)
-            => Pages.FirstOrDefault(x => x.Type == type)?.Id
-                ?? throw new NotImplementedException($"Page type {type} not fully implemented yet.");
-
-        internal bool CanShowPageTo(HealthCheckPageType type, Maybe<TAccessRole> accessRoles)
-            => Pages.FirstOrDefault(x => x.Type == type)?.IsVisible(this, accessRoles) == true;
 
         /// <summary>
         /// Default value if pageAccess is null, false if no roles were given.
@@ -739,19 +658,6 @@ namespace HealthCheck.WebUI.Util
                 UserName = request?.UserName,
                 UserAccessRoles = EnumUtils.TryGetEnumFlaggedValueNames(request?.AccessRole.ValueOrNull())
             };
-
-        /// <summary>
-        /// When data has been fetched from a datastream this should be called.
-        /// </summary>
-        public void AuditLog_SettingsSaved(RequestInformation<TAccessRole> requestInformation, IEnumerable<HealthCheckSetting> settings)
-        {
-            string settingsString = JsonConvert.SerializeObject(settings.Select(x => new { x.Id, x.Value }));
-
-            Services.AuditEventService?.StoreEvent(
-                CreateAuditEventFor(requestInformation, "Settings", action: "Settings updated", subject: "Settings")
-                .AddDetail("Values", settingsString)
-            );
-        }
 
         /// <summary>
         /// When data has been fetched from a datastream this should be called.
@@ -882,33 +788,6 @@ namespace HealthCheck.WebUI.Util
 
             return Services.DataflowService.GetStreamMetadata()
                 .Where(x => AccessRolesHasAccessTo(accessRoles, x.RolesWithAccess, defaultValue: true));
-        }
-
-        /// <summary>
-        /// Get viewmodel for retrieving settings.
-        /// </summary>
-        public GetSettingsViewModel GetSettings(Maybe<TAccessRole> accessRoles)
-        {
-            if (Services.SettingsService == null || !CanShowPageTo(HealthCheckPageType.Settings, accessRoles))
-                return new GetSettingsViewModel();
-
-            var settings = Services.SettingsService.GetSettingItems();
-            return new GetSettingsViewModel()
-            {
-                Settings = settings
-            };
-        }
-
-        /// <summary>
-        /// Save the given settings.
-        /// </summary>
-        public void SetSettings(RequestInformation<TAccessRole> requestInformation, SetSettingsViewModel model)
-        {
-            if (Services.SettingsService == null || !CanShowPageTo(HealthCheckPageType.Settings, requestInformation.AccessRole))
-                return;
-
-            AuditLog_SettingsSaved(requestInformation, model.Settings);
-            Services.SettingsService.SaveSettings(model.Settings);
         }
 
         /// <summary>
