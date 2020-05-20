@@ -11,12 +11,12 @@ namespace HealthCheck.Core.Modules.Tests
         /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject() => null;
+        public override object GetFrontendOptionsObject(TestsModuleAccessOption access) => null;
 
         /// <summary>
         /// Get config for this module.
         /// </summary>
-        public override IHealthCheckModuleConfig GetModuleConfig() => new TestsModuleConfig();
+        public override IHealthCheckModuleConfig GetModuleConfig(TestsModuleAccessOption access) => new TestsModuleConfig();
 
         /// <summary>
         /// Different access options for this module.

@@ -302,11 +302,9 @@ namespace HealthCheck.DevTest.Controllers
             GiveSingleRoleAccessToModule(RuntimeTestAccessRole.Guest, TestModuleA.TestModuleAAccessOption.EditThing);
             GiveSingleRoleAccessToModule(RuntimeTestAccessRole.WebAdmins, TestModuleA.TestModuleAAccessOption.DeleteThing | TestModuleA.TestModuleAAccessOption.EditThing);
 
-            GiveSingleRoleAccessToModule(RuntimeTestAccessRole.SystemAdmins,
-                TestModuleB.TestModuleBAccessOption.NumberOne);
+            GiveSingleRoleAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestModuleB.TestModuleBAccessOption.NumberOne);
 
-            GiveSingleRoleAccessToModule(RuntimeTestAccessRole.SystemAdmins,
-                TestsModule.TestsModuleAccessOption.None);
+            GiveSingleRoleAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestsModule.TestsModuleAccessOption.None);
             //////////////
 
             TestRunner.IncludeExceptionStackTraces = CurrentRequestAccessRoles.HasValue && CurrentRequestAccessRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);

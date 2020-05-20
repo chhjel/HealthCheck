@@ -12,11 +12,11 @@ namespace HealthCheck.Core.Abstractions.Modules
         /// <summary>
         /// Optional object that will be serialized and used as the options model in frontend for the module pages.
         /// </summary>
-        public abstract object GetFrontendOptionsObject();
+        public abstract object GetFrontendOptionsObject(TModuleAccessOptionsEnum access);
 
         /// <summary>
         /// Optional values to be rendered on the page.
         /// </summary>
-        public abstract IHealthCheckModuleConfig GetModuleConfig();
+        public abstract IHealthCheckModuleConfig GetModuleConfig(TModuleAccessOptionsEnum access);
     }
 }

@@ -152,7 +152,7 @@ namespace HealthCheck.WebUI.Util
 
             return RoleModuleAccessLevels.Any(x => 
                 x.AccessOptionsType == module.AccessOptionsType
-                && EnumUtils.IsFlagSet(accessRoles.Value, x.Role));
+                && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Role));
         }
 
         private bool RequestHasAccessToModuleMethod(Maybe<TAccessRole> accessRoles, HealthCheckModuleLoader.InvokableMethod method)
@@ -163,9 +163,32 @@ namespace HealthCheck.WebUI.Util
             return EnumUtils.GetFlaggedEnumValues(requiredAccessOptions).All(opt =>
                 RoleModuleAccessLevels.Any(x =>
                     x.AccessOptionsType == accessOptionsType
-                    && EnumUtils.IsFlagSet(accessRoles.Value, x.Role)
+                    && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Role)
                     && EnumUtils.IsFlagSet(x.AccessOptions, opt))
             );
+        }
+
+        private object GetCurrentRequestModuleAccessOptions(
+            RequestInformation<TAccessRole> currentRequestInformation, RegisteredModuleData module)
+        {
+            try
+            {
+                var accessOptionsType = HealthCheckModuleLoader.GetModuleAccessOptionsType(module.Module.GetType());
+                var entriesForCurrentRole = RoleModuleAccessLevels
+                    .Where(x => EnumUtils.EnumFlagHasAnyFlagsSet(currentRequestInformation.AccessRole.Value, x.Role)
+                                && x.AccessOptionsType == accessOptionsType);
+                var values = entriesForCurrentRole.SelectMany(x => EnumUtils.GetFlaggedEnumValues(x.AccessOptions)).ToList();
+                var joinedValue = 0;
+                foreach(var value in values)
+                {
+                    joinedValue |= (int)value;
+                }
+                return Enum.ToObject(accessOptionsType, joinedValue);
+            }
+            catch (Exception)
+            {
+                throw new Exception($"Invalid module '{module?.Module?.GetType()?.Name}' registered.");
+            }
         }
 
         internal async Task<InvokeModuleMethodResult> InvokeModuleMethod(Maybe<TAccessRole> accessRoles, string moduleId, string methodName, string jsonPayload)
@@ -204,7 +227,7 @@ namespace HealthCheck.WebUI.Util
             {
                 var accessOptions = RoleModuleAccessLevels
                     .Where(x => x.AccessOptionsType == module.AccessOptionsType
-                                && EnumUtils.IsFlagSet(accessRoles.Value, x.Role))
+                                && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Role))
                     .SelectMany(x => EnumUtils.GetFlaggedEnumValues(x.AccessOptions))
                     .Distinct()
                     .Select(x => x?.ToString());
@@ -311,7 +334,7 @@ namespace HealthCheck.WebUI.Util
         {
             var loader = new HealthCheckModuleLoader();
             LoadedModules = RegisteredModules
-                .Select(x => loader.Load(x.Module, x.NameOverride))
+                .Select(x => loader.Load(x.Module, GetCurrentRequestModuleAccessOptions(currentRequestInformation, x), x.NameOverride))
                 .Where(x => x != null)
                 .ToList();
         }

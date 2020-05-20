@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Abstractions.Modules;
+using HealthCheck.Core.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace HealthCheck.Core.Util
 		/// <summary>
 		/// Load the given module.
 		/// </summary>
-		public HealthCheckLoadedModule Load(IHealthCheckModule module, string name = null)
+		public HealthCheckLoadedModule Load(IHealthCheckModule module, object accessOptions, string name = null)
 		{
 			var type = module.GetType();
 			var loadedModule = new HealthCheckLoadedModule
@@ -39,13 +40,15 @@ namespace HealthCheck.Core.Util
 				}
 
 				var getOptionsMethod = type.GetMethods()
-					.FirstOrDefault(x => x.Name == "GetFrontendOptionsObject" && x.GetParameters().Length == 0);
+					.FirstOrDefault(x => x.Name == nameof(HealthCheckModuleBase<AuditEventArea>.GetFrontendOptionsObject)
+										&& x.GetParameters().Length == 1);
 				var getConfigMethod = type.GetMethods()
-					.FirstOrDefault(x => x.Name == "GetModuleConfig" && x.GetParameters().Length == 0
-						&& typeof(IHealthCheckModuleConfig).IsAssignableFrom(x.ReturnType));
+					.FirstOrDefault(x => x.Name == nameof(HealthCheckModuleBase<AuditEventArea>.GetModuleConfig)
+										&& x.GetParameters().Length == 1
+										&& typeof(IHealthCheckModuleConfig).IsAssignableFrom(x.ReturnType));
 
-				loadedModule.Config = getConfigMethod.Invoke(module, new object[0]) as IHealthCheckModuleConfig;
-				loadedModule.FrontendOptions = getOptionsMethod.Invoke(module, new object[0]);
+				loadedModule.Config = getConfigMethod.Invoke(module, new object[] { accessOptions }) as IHealthCheckModuleConfig;
+				loadedModule.FrontendOptions = getOptionsMethod.Invoke(module, new object[] { accessOptions });
 
 				if (loadedModule.Config == null)
 				{
@@ -80,8 +83,16 @@ namespace HealthCheck.Core.Util
 			return loadedModule;
 		}
 
-		private Type GetModuleAccessOptionsType(Type moduleType)
+		/// <summary>
+		/// Get the generic argument type of the module.
+		/// </summary>
+		public static Type GetModuleAccessOptionsType(Type moduleType)
 		{
+			if (!typeof(IHealthCheckModule).IsAssignableFrom(moduleType))
+			{
+				throw new ArgumentException($"Can't find module access options type, '{moduleType.Name}' is not assignable to {nameof(IHealthCheckModule)}.");
+			}
+
 			for (int i = 0; i < 100; i++)
 			{
 				var baseType = moduleType.BaseType;
