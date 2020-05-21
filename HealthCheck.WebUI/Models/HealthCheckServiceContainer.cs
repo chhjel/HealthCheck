@@ -1,7 +1,4 @@
-﻿using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Modules.AuditLog.Abstractions;
-using HealthCheck.Core.Modules.Dataflow;
-using HealthCheck.Core.Modules.EventNotifications;
+﻿using HealthCheck.Core.Modules.AuditLog.Abstractions;
 
 namespace HealthCheck.WebUI.Models
 {
@@ -14,10 +11,5 @@ namespace HealthCheck.WebUI.Models
         /// Todo: remove.
         /// </summary>
         public IAuditEventStorage AuditEventService { get; set; }
-
-        /// <summary>
-        /// Must be set for the event notifications tab to be shown.
-        /// </summary>
-        public IEventDataSink EventSink { get; set; }
     }
 }

@@ -10,14 +10,13 @@ export default class EventNotificationService extends HCServiceBase
         super(endpoint, inludeQueryString);
         this.moduleId = moduleId;
     }
-    // this.invokeModuleMethod(this.moduleId, 'GetSiteEvents', {}, statusObject, callbacks);
     
     public GetEventNotifications(
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<GetEventNotificationConfigsViewModel> | null = null
     ) : void
     {
-        // this.fetchExt<GetEventNotificationConfigsViewModel>(url, 'GET', null, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, 'GetEventNotificationConfigs', null, statusObject, callbacks);
     }
     
     public SetConfigEnabled(config: EventSinkNotificationConfig, enabled: boolean,
@@ -25,10 +24,10 @@ export default class EventNotificationService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<any> | null = null
     ): void {
         let payload = {
-            configId: config.Id,
-            enabled: enabled
+            ConfigId: config.Id,
+            Enabled: enabled
         };
-        // this.fetchExt<any>(url, 'POST', payload, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, 'SetEventNotificationConfigEnabled', payload, statusObject, callbacks);
     }
 
     public SaveConfig(config: EventSinkNotificationConfig,
@@ -36,10 +35,7 @@ export default class EventNotificationService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<EventSinkNotificationConfig> | null = null
     ): void
     {
-        let payload = {
-            config: config
-        };
-        // this.fetchExt<EventSinkNotificationConfig>(url, 'POST', payload, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, 'SaveEventNotificationConfig', config, statusObject, callbacks);
     }
 
     public DeleteConfig(configId: string,
@@ -47,10 +43,7 @@ export default class EventNotificationService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<EventSinkNotificationConfig> | null = null
     ): void
     {
-        let payload = {
-            configId: configId
-        };
-        // this.fetchExt<EventSinkNotificationConfig>(url, 'POST', payload, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, 'DeleteEventNotificationConfig', configId, statusObject, callbacks);
     }
 
     public DeleteDefintion(eventId: string,
@@ -58,10 +51,7 @@ export default class EventNotificationService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<boolean> | null = null
     ): void
     {
-        let payload = {
-            eventId: eventId
-        };
-        // this.fetchExt<boolean>(url, 'POST', payload, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, 'DeleteEventDefinition', eventId, statusObject, callbacks);
     }
 
     public DeleteDefintions(
@@ -69,6 +59,6 @@ export default class EventNotificationService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<boolean> | null = null
     ): void
     {
-        // this.fetchExt<boolean>(url, 'POST', null, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, 'DeleteEventDefinitions', null, statusObject, callbacks);
     }
 }

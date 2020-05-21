@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Modules.EventNotifications;
+﻿using HealthCheck.Core.Modules.EventNotifications.Abstractions;
+using HealthCheck.Core.Modules.EventNotifications.Models;
 using HealthCheck.Core.Util;
 using Newtonsoft.Json;
 using System;

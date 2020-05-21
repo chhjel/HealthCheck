@@ -6,6 +6,7 @@ using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.EventNotifications;
+using HealthCheck.Core.Modules.EventNotifications.Models;
 using HealthCheck.Core.Modules.LogViewer.Models;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Services;
@@ -182,7 +183,7 @@ namespace HealthCheck.WebUI.Abstractions
         }
         #endregion
 
-        #region Misc/Utils
+        #region API
         /// <summary>
         /// Returns 'OK' and 200 status code.
         /// </summary>
@@ -193,85 +194,6 @@ namespace HealthCheck.WebUI.Abstractions
                 return HttpNotFound();
 
             return Content("OK");
-        }
-        #endregion
-
-        #region EventNotificationConfig
-        /// <summary>
-        /// Get viewmodel for the event notification configs
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        public virtual ActionResult GetEventNotificationConfigs()
-        {
-            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.EventNotifications, CurrentRequestAccessRoles)) return HttpNotFound();
-
-            var viewModel = Helper.GetEventNotificationConfigs(CurrentRequestAccessRoles);
-            return CreateJsonResult(viewModel);
-        }
-
-        /// <summary>
-        /// Delete the event notification config with the given id.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [HttpPost]
-        public virtual ActionResult DeleteEventNotificationConfig(Guid configId)
-        {
-            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.EventNotifications, CurrentRequestAccessRoles)) return HttpNotFound();
-
-            var success = Helper.DeleteEventNotificationConfig(CurrentRequestInformation, configId);
-            return CreateJsonResult(new { Success = success });
-        }
-
-        /// <summary>
-        /// Enable/disable notification config with the given id.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [HttpPost]
-        public virtual ActionResult SetEventNotificationConfigEnabled(Guid configId, bool enabled)
-        {
-            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.EventNotifications, CurrentRequestAccessRoles)) return HttpNotFound();
-
-            var success = Helper.SetEventNotificationConfigEnabled(CurrentRequestInformation, configId, enabled);
-            return CreateJsonResult(new { Success = success });
-        }
-
-        /// <summary>
-        /// Save an event notification config.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [HttpPost]
-        public virtual ActionResult SaveEventNotificationConfig(EventSinkNotificationConfig config)
-        {
-            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.EventNotifications, CurrentRequestAccessRoles)) return HttpNotFound();
-
-            config = Helper.SaveEventNotificationConfig(CurrentRequestInformation, config);
-            return CreateJsonResult(config);
-        }
-
-        /// <summary>
-        /// Delete a single event definition.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [HttpPost]
-        public virtual ActionResult DeleteEventDefinition(string eventId)
-        {
-            if (!Enabled || !Helper.CanEditEventDefinitions(CurrentRequestAccessRoles)) return HttpNotFound();
-
-            Helper.DeleteEventDefinition(CurrentRequestInformation, eventId);
-            return CreateJsonResult(true);
-        }
-
-        /// <summary>
-        /// Delete all event definitions.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [HttpPost]
-        public virtual ActionResult DeleteEventDefinitions()
-        {
-            if (!Enabled || !Helper.CanEditEventDefinitions(CurrentRequestAccessRoles)) return HttpNotFound();
-
-            Helper.DeleteEventDefinitions(CurrentRequestInformation);
-            return CreateJsonResult(true);
         }
         #endregion
 

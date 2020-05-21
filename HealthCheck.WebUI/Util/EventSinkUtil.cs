@@ -1,4 +1,4 @@
-﻿using HealthCheck.Core.Modules.EventNotifications;
+﻿using HealthCheck.Core.Modules.EventNotifications.Abstractions;
 using System;
 #if NETFULL
 using System.Web.Mvc;

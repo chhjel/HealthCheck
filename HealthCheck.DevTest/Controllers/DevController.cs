@@ -11,7 +11,9 @@ using HealthCheck.Core.Modules.Dataflow.Services;
 using HealthCheck.Core.Modules.Documentation;
 using HealthCheck.Core.Modules.Documentation.Services;
 using HealthCheck.Core.Modules.EventNotifications;
+using HealthCheck.Core.Modules.EventNotifications.Abstractions;
 using HealthCheck.Core.Modules.EventNotifications.Notifiers;
+using HealthCheck.Core.Modules.EventNotifications.Services;
 using HealthCheck.Core.Modules.LogViewer;
 using HealthCheck.Core.Modules.Settings;
 using HealthCheck.Core.Modules.Settings.Abstractions;
@@ -64,6 +66,7 @@ namespace HealthCheck.DevTest.Controllers
             = new FlatFileEventSinkKnownEventDefinitionsStorage(@"c:\temp\eventconfig_defs.json");
         private IHealthCheckSettingsService SettingsService { get; set; } = new FlatFileHealthCheckSettingsService<TestSettings>(@"C:\temp\settings.json");
         private IDataflowService<RuntimeTestAccessRole> DataflowService { get; set; }
+        private IEventDataSink EventSink { get; set; }
         private static bool ForceLogout { get; set; }
 
         #region Init
@@ -87,14 +90,15 @@ namespace HealthCheck.DevTest.Controllers
                     otherStream2
                 }
             });
-            Services.EventSink = new DefaultEventDataSink(EventSinkNotificationConfigStorage, EventSinkNotificationDefinitionStorage)
+            EventSink = new DefaultEventDataSink(EventSinkNotificationConfigStorage, EventSinkNotificationDefinitionStorage)
                 .AddNotifier(new WebHookEventNotifier())
                 .AddNotifier(new MyNotifier())
                 .AddNotifier(new SimpleNotifier())
                 .AddPlaceholder("NOW", () => DateTime.Now.ToString())
                 .AddPlaceholder("ServerName", () => Environment.MachineName);
-            (Services.EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableEventRegistering);
+            (EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableEventRegistering);
 
+            UseModule(new HCEventNotificationsModule(new HCEventNotificationsModuleOptions() { EventSink = EventSink }));
             UseModule(new HCLogViewerModule(new HCLogViewerModuleOptions() { LogSearcherService = CreateLogSearcherService() }));
             UseModule(new HCDocumentationModule(new HCDocumentationModuleOptions()
             {
@@ -119,8 +123,7 @@ namespace HealthCheck.DevTest.Controllers
                     .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
                     .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
                 );
-            UseModule(new TestModuleA(), "Custom A");
-            UseModule(new TestModuleB());
+            UseModule(new TestModuleA(), "[tst]");
 
             if (!_hasInited)
             {
@@ -149,6 +152,7 @@ namespace HealthCheck.DevTest.Controllers
             GiveRolesAccessToModuleWithFullAccess<HCDataflowModule<RuntimeTestAccessRole>>(RuntimeTestAccessRole.WebAdmins);
             GiveRolesAccessToModuleWithFullAccess<HCDocumentationModule>(RuntimeTestAccessRole.WebAdmins);
             GiveRolesAccessToModuleWithFullAccess<HCLogViewerModule>(RuntimeTestAccessRole.WebAdmins);
+            GiveRolesAccessToModuleWithFullAccess<HCEventNotificationsModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             options.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.Guest);
@@ -171,7 +175,7 @@ namespace HealthCheck.DevTest.Controllers
 
         public override ActionResult Index()
         {
-            Services.EventSink.RegisterEvent("pageload", new {
+            EventSink.RegisterEvent("pageload", new {
                 Url = Request.RawUrl,
                 User = CurrentRequestInformation?.UserName,
                 SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp)
@@ -189,7 +193,7 @@ namespace HealthCheck.DevTest.Controllers
                 {
                     Parallel.ForEach(Enumerable.Range(1, count), (i) =>
                     {
-                        Services.EventSink.RegisterEvent("event_parallel_test", new
+                        EventSink.RegisterEvent("event_parallel_test", new
                         {
                             Number = i,
                             TimeStamp = DateTime.Now,
@@ -220,7 +224,7 @@ namespace HealthCheck.DevTest.Controllers
                 watch.Start();
                 for (int i=0;i< eventCount; i++)
                 {
-                    Services.EventSink.RegisterEvent("thing_imported", new
+                    EventSink.RegisterEvent("thing_imported", new
                     {
                         Code = 9999 + i,
                         DisplayName = $"Some item #{(9999 + i)}",
@@ -252,7 +256,7 @@ namespace HealthCheck.DevTest.Controllers
 
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequestBase request)
         {
-            Services.EventSink.RegisterEvent("GetRequestInfo", new
+            EventSink.RegisterEvent("GetRequestInfo", new
             {
                 Type = this.GetType().Name,
                 Path = Request?.Path
@@ -337,7 +341,7 @@ namespace HealthCheck.DevTest.Controllers
                     SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp)
                 },
             };
-            Services.EventSink.RegisterEvent("pageload", payload);
+            EventSink.RegisterEvent("pageload", payload);
             return Content($"Registered variant #{v}");
         }
         

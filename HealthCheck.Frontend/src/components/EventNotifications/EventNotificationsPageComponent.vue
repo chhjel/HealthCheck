@@ -25,7 +25,7 @@
                     Add new
                 </v-btn>
 
-                <v-btn v-if="globalOptions.HasAccessToEditEventDefinitions"
+                <v-btn v-if="HasAccessToEditEventDefinitions"
                     @click="editDefinitionsDialogVisible = true"
                     class="mb-3 ml-2 right">
                     Edit payload definitions
@@ -304,6 +304,10 @@ export default class EventNotificationsPageComponent extends Vue {
     get globalOptions(): FrontEndOptionsViewModel {
         return this.$store.state.globalOptions;
     }
+
+    get HasAccessToEditEventDefinitions(): boolean {
+        return this.options.AccessOptions.indexOf("EditEventDefinitions") != -1;
+    }
     
     get showDeleteConfig(): boolean
     {
@@ -564,7 +568,7 @@ export default class EventNotificationsPageComponent extends Vue {
         }
 
         let config = {
-            Id: null,
+            Id: '00000000-0000-0000-0000-000000000000',
             LastChangedBy: 'You',
             Enabled: true,
             NotificationCountLimit: null,
