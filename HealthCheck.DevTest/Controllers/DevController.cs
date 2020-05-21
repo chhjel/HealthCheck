@@ -35,7 +35,6 @@ using HealthCheck.RequestLog.Services;
 using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Services;
-using HealthCheck.WebUI.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -70,33 +69,9 @@ namespace HealthCheck.DevTest.Controllers
         private static bool ForceLogout { get; set; }
 
         #region Init
-        public DevController() : base() {
-            if (_siteEventService == null)
-            {
-                _siteEventService = CreateSiteEventService();
-                _auditEventService = CreateAuditEventService();
-            }
-
-            DataflowService = new DefaultDataflowService<RuntimeTestAccessRole>(new DefaultDataflowServiceOptions<RuntimeTestAccessRole>()
-            {
-                Streams = new IDataflowStream<RuntimeTestAccessRole>[]
-                {
-                    testStreamA,
-                    testStreamB,
-                    testStreamC,
-                    simpleStream,
-                    memoryStream,
-                    otherStream1,
-                    otherStream2
-                }
-            });
-            EventSink = new DefaultEventDataSink(EventSinkNotificationConfigStorage, EventSinkNotificationDefinitionStorage)
-                .AddNotifier(new WebHookEventNotifier())
-                .AddNotifier(new MyNotifier())
-                .AddNotifier(new SimpleNotifier())
-                .AddPlaceholder("NOW", () => DateTime.Now.ToString())
-                .AddPlaceholder("ServerName", () => Environment.MachineName);
-            (EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableEventRegistering);
+        public DevController() : base()
+        {
+            InitServices();
 
             UseModule(new HCEventNotificationsModule(new HCEventNotificationsModuleOptions() { EventSink = EventSink }));
             UseModule(new HCLogViewerModule(new HCLogViewerModuleOptions() { LogSearcherService = CreateLogSearcherService() }));
@@ -123,7 +98,7 @@ namespace HealthCheck.DevTest.Controllers
                     .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
                     .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
                 );
-            UseModule(new TestModuleA(), "[tst]");
+            UseModule(new TestModuleB(), "[tst]");
 
             if (!_hasInited)
             {
@@ -133,44 +108,29 @@ namespace HealthCheck.DevTest.Controllers
         #endregion
 
         #region Overrides
-        protected override void ConfigureAccess(HttpRequestBase request, AccessOptions<RuntimeTestAccessRole> options)
+        protected override void ConfigureAccess(HttpRequestBase request, AccessConfig<RuntimeTestAccessRole> config)
         {
             /// MODULES //
-            /// ToDo: options.GiveRolesAccess...
-            GiveRolesAccessToModule(
+            config.GiveRolesAccessToModule(
                 RuntimeTestAccessRole.Guest | RuntimeTestAccessRole.WebAdmins,
                 TestModuleA.TestModuleAAccessOption.DeleteThing | TestModuleA.TestModuleAAccessOption.EditThing
             );
 
-            GiveRolesAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestModuleB.TestModuleBAccessOption.NumberOne);
+            config.GiveRolesAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestModuleB.TestModuleBAccessOption.NumberOne);
 
-            GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(RuntimeTestAccessRole.WebAdmins);
-            GiveRolesAccessToModuleWithFullAccess<HCSettingsModule>(RuntimeTestAccessRole.WebAdmins);
-            GiveRolesAccessToModuleWithFullAccess<HCRequestLogModule>(RuntimeTestAccessRole.WebAdmins);
-            GiveRolesAccessToModuleWithFullAccess<HCSiteEventsModule>(RuntimeTestAccessRole.WebAdmins);
-            GiveRolesAccessToModuleWithFullAccess<HCAuditLogModule>(RuntimeTestAccessRole.WebAdmins);
-            GiveRolesAccessToModuleWithFullAccess<HCDataflowModule<RuntimeTestAccessRole>>(RuntimeTestAccessRole.WebAdmins);
-            GiveRolesAccessToModuleWithFullAccess<HCDocumentationModule>(RuntimeTestAccessRole.WebAdmins);
-            GiveRolesAccessToModuleWithFullAccess<HCLogViewerModule>(RuntimeTestAccessRole.WebAdmins);
-            GiveRolesAccessToModuleWithFullAccess<HCEventNotificationsModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCSettingsModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCRequestLogModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCSiteEventsModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCAuditLogModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCDataflowModule<RuntimeTestAccessRole>>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCDocumentationModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCLogViewerModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCEventNotificationsModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
-
-            options.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.Guest);
-            options.DocumentationPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
-            options.TestsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins | RuntimeTestAccessRole.API);
-            options.AuditLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            options.LogViewerPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            options.InvalidTestsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            options.SiteEventDeveloperDetailsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            options.RequestLogPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            options.ClearRequestLogAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            options.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
-            options.DataflowPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
-            options.SettingsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            options.EventNotificationsPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-            options.EditEventDefinitionsAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.SystemAdmins);
-
-            options.RedirectTargetOnNoAccess = "/no-access";
+            
+            config.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
+            config.RedirectTargetOnNoAccess = "/no-access";
         }
 
         public override ActionResult Index()
@@ -397,6 +357,36 @@ namespace HealthCheck.DevTest.Controllers
         {
             _hasInited = true;
             Task.Run(() => AddEvents());
+        }
+
+        private void InitServices()
+        {
+            if (_siteEventService == null)
+            {
+                _siteEventService = CreateSiteEventService();
+                _auditEventService = CreateAuditEventService();
+            }
+
+            DataflowService = new DefaultDataflowService<RuntimeTestAccessRole>(new DefaultDataflowServiceOptions<RuntimeTestAccessRole>()
+            {
+                Streams = new IDataflowStream<RuntimeTestAccessRole>[]
+                {
+                    testStreamA,
+                    testStreamB,
+                    testStreamC,
+                    simpleStream,
+                    memoryStream,
+                    otherStream1,
+                    otherStream2
+                }
+            });
+            EventSink = new DefaultEventDataSink(EventSinkNotificationConfigStorage, EventSinkNotificationDefinitionStorage)
+                .AddNotifier(new WebHookEventNotifier())
+                .AddNotifier(new MyNotifier())
+                .AddNotifier(new SimpleNotifier())
+                .AddPlaceholder("NOW", () => DateTime.Now.ToString())
+                .AddPlaceholder("ServerName", () => Environment.MachineName);
+            (EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableEventRegistering);
         }
 
         // New mock data

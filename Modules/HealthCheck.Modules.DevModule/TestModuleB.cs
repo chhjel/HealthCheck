@@ -4,15 +4,20 @@ using System.Threading.Tasks;
 
 namespace HealthCheck.Modules.DevModule
 {
+    /// <summary>
+    /// A broken module for testing.
+    /// </summary>
     public class TestModuleB : HealthCheckModuleBase<TestModuleB.TestModuleBAccessOption>
     {
         public override object GetFrontendOptionsObject(TestModuleBAccessOption access) 
             => new { PropX = "asdasd asd", PropY = 135135, Now = DateTime.Now, AccessInput = access.ToString() };
-        public override IHealthCheckModuleConfig GetModuleConfig(TestModuleBAccessOption access) 
-            => new TestModuleBConfig();
+        public override IHealthCheckModuleConfig GetModuleConfig(TestModuleBAccessOption access) => null;
 
         [HealthCheckModuleMethod(TestModuleBAccessOption.NumberOne)]
         public void TestSimple() { }
+
+        [HealthCheckModuleMethod(TestModuleBAccessOption.NumberOne)]
+        public void TestSimple(int id) { Console.WriteLine(id); }
 
         [HealthCheckModuleMethod(TestModuleBAccessOption.NumberOne)]
         public void TestNoReturn(int id) { Console.WriteLine(id); }
@@ -35,7 +40,6 @@ namespace HealthCheck.Modules.DevModule
         [HealthCheckModuleMethod(TestModuleBAccessOption.NumberTwo)]
         public async Task<string> TestSimpleReturnAsync(int id) => await Task.FromResult($"Your id is '{id}'.");
 
-        [Flags]
         public enum TestModuleBAccessOption
         {
             NumberOne = 1,

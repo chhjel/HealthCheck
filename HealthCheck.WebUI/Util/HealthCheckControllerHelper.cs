@@ -1,14 +1,11 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
-using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.AuditLog;
-using HealthCheck.Core.Modules.AuditLog.Models;
 using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Util;
 using HealthCheck.WebUI.Exceptions;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Serializers;
-using HealthCheck.WebUI.ViewModels;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
@@ -31,6 +28,7 @@ namespace HealthCheck.WebUI.Util
         public HealthCheckControllerHelper(HealthCheckServiceContainer<TAccessRole> serviceContainer)
         {
             Services = serviceContainer ?? new HealthCheckServiceContainer<TAccessRole>();
+            AccessConfig.RoleModuleAccessLevels = RoleModuleAccessLevels;
         }
 
         /// <summary>
@@ -41,7 +39,7 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Access related options.
         /// </summary>
-        public AccessOptions<TAccessRole> AccessOptions { get; set; } = new AccessOptions<TAccessRole>();
+        public AccessConfig<TAccessRole> AccessConfig { get; set; } = new AccessConfig<TAccessRole>();
 
         internal bool HasAccessToAnyContent(Maybe<TAccessRole> currentRequestAccessRoles)
             => GetModulesRequestHasAccessTo(currentRequestAccessRoles).Count > 0;
@@ -56,33 +54,7 @@ namespace HealthCheck.WebUI.Util
             public string NameOverride { get; set; }
         }
 
-        private List<ModuleAccessData> RoleModuleAccessLevels { get; set; } = new List<ModuleAccessData>();
-        private class ModuleAccessData
-        {
-            public TAccessRole Roles { get; set; }
-            public Type AccessOptionsType { get; set; }
-            public object AccessOptions { get; set; }
-            public bool FullAccess { get; set; }
-
-            public List<object> GetAllSelectedAccessOptions()
-            {
-                if (FullAccess)
-                {
-                    return Enum.GetValues(AccessOptionsType)
-                        .OfType<object>()
-                        .Where(x => (int)x != 0)
-                        .ToList();
-                }
-                else if (AccessOptions == null)
-                {
-                    return new List<object>();
-                }
-                else
-                {
-                    return EnumUtils.GetFlaggedEnumValues(AccessOptions);
-                }
-            }
-        }
+        private List<ModuleAccessData<TAccessRole>> RoleModuleAccessLevels { get; set; } = new List<ModuleAccessData<TAccessRole>>();
 
         private List<HealthCheckModuleLoader.HealthCheckLoadedModule> GetModulesRequestHasAccessTo(Maybe<TAccessRole> accessRoles)
             => LoadedModules.Where(x => RequestCanViewModule(accessRoles, x)).ToList();
@@ -260,44 +232,7 @@ namespace HealthCheck.WebUI.Util
             });
             return module;
         }
-
-        /// <summary>
-        /// Grants the given roles access to a module.
-        /// <para>ConfigureModuleAccess(MyAccessRoles.Member, ModuleAccess.ViewThing </para>
-        /// <para>ConfigureModuleAccess(MyAccessRoles.Admin, ModuleAccess.EditThing | ModuleAccess.CreateThing)</para>
-        /// <para>ConfigureModuleAccess(MyAccessRoles.Guest | MyAccessRoles.Member, ModuleAccess.AnotherThing)</para>
-        /// </summary>
-        public void GiveRolesAccessToModule<TModuleAccessOptionsEnum>(TAccessRole roles, TModuleAccessOptionsEnum access)
-            where TModuleAccessOptionsEnum : Enum
-            => RoleModuleAccessLevels.Add(new ModuleAccessData { Roles = roles, AccessOptions = access, AccessOptionsType = typeof(TModuleAccessOptionsEnum) });
-
-        /// <summary>
-        /// Grants the given roles access to a module without any specific access options.
-        /// </summary>
-        public void GiveRolesAccessToModule<TModule>(TAccessRole roles)
-            where TModule : IHealthCheckModule
-            => RoleModuleAccessLevels.Add(new ModuleAccessData {
-                Roles = roles,
-                AccessOptions = null,
-                AccessOptionsType = HealthCheckModuleLoader.GetModuleAccessOptionsType(typeof(TModule))
-            });
-
-        /// <summary>
-        /// Grants the given roles access to a module with full access.
-        /// </summary>
-        public void GiveRolesAccessToModuleWithFullAccess<TModule>(TAccessRole roles)
-            where TModule : IHealthCheckModule
-            => RoleModuleAccessLevels.Add(new ModuleAccessData {
-                Roles = roles,
-                AccessOptions = null,
-                FullAccess = true,
-                AccessOptionsType = HealthCheckModuleLoader.GetModuleAccessOptionsType(typeof(TModule))
-            });
         #endregion
-
-#pragma warning disable IDE0060 // Remove unused parameter
-        internal void BeforeConfigure(RequestInformation<TAccessRole> currentRequestInformation) { }
-#pragma warning restore IDE0060 // Remove unused parameter
 
         internal void AfterConfigure(RequestInformation<TAccessRole> currentRequestInformation)
         {
@@ -333,8 +268,6 @@ namespace HealthCheck.WebUI.Util
 
             return JsonConvert.SerializeObject(obj, settings);
         }
-
-        public bool CanShowPageTo(HealthCheckPageType requestLog, Maybe<TAccessRole> accessRoles) => true;
 
         private const string Q = "\"";
 
@@ -403,18 +336,18 @@ namespace HealthCheck.WebUI.Util
 </body>
 </html>";
         }
-        
-        /// <summary>
-        /// Check if the given roles has access to calling the ping endpoint.
-        /// </summary>
-        public bool CanUsePingEndpoint(Maybe<TAccessRole> accessRoles)
-            => AccessRolesHasAccessTo(accessRoles, AccessOptions.PingAccess, defaultValue: true);
-
         private void ValidateConfig(FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
         {
             frontEndOptions.Validate();
             pageOptions.Validate();
         }
+
+        #region Access
+        /// <summary>
+        /// Check if the given roles has access to calling the ping endpoint.
+        /// </summary>
+        public bool CanUsePingEndpoint(Maybe<TAccessRole> accessRoles)
+            => AccessRolesHasAccessTo(accessRoles, AccessConfig.PingAccess, defaultValue: true);
 
         /// <summary>
         /// Default value if pageAccess is null, false if no roles were given.
@@ -434,26 +367,9 @@ namespace HealthCheck.WebUI.Util
 
             return EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, pageAccess.Value);
         }
-
-        #region Audit
-        /// <summary>
-        /// Create a new <see cref="AuditEvent"/> from the given request data and values.
-        /// </summary>
-        public AuditEvent CreateAuditEventFor(RequestInformation<TAccessRole> request, string area,
-            string action, string subject = null)
-            => new AuditEvent()
-            {
-                Area = area,
-                Action = action,
-                Subject = subject,
-                Timestamp = DateTime.Now,
-                UserId = request?.UserId,
-                UserName = request?.UserName,
-                UserAccessRoles = EnumUtils.TryGetEnumFlaggedValueNames(request?.AccessRole.ValueOrNull())
-            };
         #endregion
 
-        #region Helpers
+        #region Init module extras
         private void InitStringConverter(StringConverter converter)
         {
 #if NETFULL
@@ -496,26 +412,6 @@ namespace HealthCheck.WebUI.Util
             );
         }
 #endif
-        #endregion
-
-        #region Helper classes
-        internal class PageType
-        {
-            public string Id { get; set; }
-            public HealthCheckPageType Type { get; set; }
-            public Func<HealthCheckControllerHelper<TAccessRole>, Maybe<TAccessRole>, bool> IsVisible { get; set; }
-            public Action<FrontEndOptionsViewModel> OnAccessDenied { get; set; }
-
-            public PageType(string id, HealthCheckPageType type,
-                Func<HealthCheckControllerHelper<TAccessRole>, Maybe<TAccessRole>, bool> isVisible,
-                Action<FrontEndOptionsViewModel> onAccessDenied = null)
-            {
-                Id = id;
-                Type = type;
-                IsVisible = isVisible;
-                OnAccessDenied = onAccessDenied;
-            }
-        }
         #endregion
     }
 }

@@ -12,7 +12,6 @@ using HealthCheck.Core.Util;
 using HealthCheck.WebUI;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Util;
-using HealthCheck.WebUI.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -67,88 +66,7 @@ namespace HealthCheck.WebUI.Abstractions
             Helper = new HealthCheckControllerHelper<TAccessRole>(Services);
         }
 
-#region Modules
-        /// <summary>
-        /// Register a module that will be available.
-        /// </summary>
-        protected TModule UseModule<TModule>(TModule module, string name = null)
-            where TModule: IHealthCheckModule
-            => Helper.UseModule(module, name);
-
-        /// <summary>
-        /// Grants the given roles access to a module and assign the given accesses.
-        /// <para>ConfigureModuleAccess(MyAccessRoles.Member, TestModule.ViewThing </para>
-        /// <para>ConfigureModuleAccess(MyAccessRoles.Admin, TestModule.EditThing | TestModule.CreateThing)</para>
-        /// </summary>
-        protected void GiveRolesAccessToModule<TModuleAccessOptionsEnum>(TAccessRole roles, TModuleAccessOptionsEnum access)
-            where TModuleAccessOptionsEnum : Enum
-            => Helper.GiveRolesAccessToModule(roles, access);
-
-        /// <summary>
-        /// Grants the given roles access to a module without any specific access options.
-        /// </summary>
-        protected void GiveRolesAccessToModule<TModule>(TAccessRole roles)
-            where TModule : IHealthCheckModule
-            => Helper.GiveRolesAccessToModule<TModule>(roles);
-
-        /// <summary>
-        /// Grants the given roles access to a module with full access.
-        /// </summary>
-        protected void GiveRolesAccessToModuleWithFullAccess<TModule>(TAccessRole roles)
-            where TModule : IHealthCheckModule
-            => Helper.GiveRolesAccessToModuleWithFullAccess<TModule>(roles);
-
-        /// <summary>
-        /// Invokes a module method.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        public async Task<ActionResult> InvokeModuleMethod(string moduleId, string methodName, string jsonPayload)
-        {
-            var result = await Helper.InvokeModuleMethod(CurrentRequestInformation, moduleId, methodName, jsonPayload);
-            if (!result.HasAccess)
-            {
-                return NotFound();
-            }
-            return Content(result.Result);
-        }
-#endregion
-
-#region Abstract/Virtual
-        /// <summary>
-        /// Returns the page html.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        public virtual ActionResult Index()
-        {
-            if (!Enabled) return NotFound();
-            else if (!Helper.HasAccessToAnyContent(CurrentRequestAccessRoles))
-            {
-                var redirectTarget = Helper.AccessOptions.RedirectTargetOnNoAccessUsingRequest?.Invoke(Request);
-                if (!string.IsNullOrWhiteSpace(redirectTarget))
-                {
-                    return Redirect(redirectTarget);
-                }
-                else if (!string.IsNullOrWhiteSpace(Helper.AccessOptions.RedirectTargetOnNoAccess))
-                {
-                    return Redirect(Helper.AccessOptions.RedirectTargetOnNoAccess);
-                }
-                else
-                {
-                    return NotFound();
-                }
-            }
-
-            var frontEndOptions = GetFrontEndOptions();
-            var pageOptions = GetPageOptions();
-            var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions);
-
-            return new ContentResult()
-            {
-                Content = html,
-                ContentType = "text/html",
-            };
-        }
-
+#region Abstract
         /// <summary>
         /// Get front-end options.
         /// </summary>
@@ -168,24 +86,70 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Set any options here. Method is invoked from BeginExecute.
         /// </summary>
-        protected abstract void ConfigureAccess(HttpRequest request, AccessOptions<TAccessRole> options);
-
-        /// <summary>
-        /// Calls GetRequestInformation and SetOptions.
-        /// </summary>
-        public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-        {
-            var request = context?.HttpContext?.Request;
-            CurrentRequestInformation = GetRequestInformation(request);
-            CurrentRequestAccessRoles = CurrentRequestInformation?.AccessRole;
-            Helper.BeforeConfigure(CurrentRequestInformation);
-            ConfigureAccess(request, Helper.AccessOptions);
-            Helper.AfterConfigure(CurrentRequestInformation);
-            await base.OnActionExecutionAsync(context, next);
-        }
+        protected abstract void ConfigureAccess(HttpRequest request, AccessConfig<TAccessRole> options);
 #endregion
 
-#region Misc/Utils
+#region Modules
+        /// <summary>
+        /// Register a module that will be available.
+        /// </summary>
+        protected TModule UseModule<TModule>(TModule module, string name = null)
+            where TModule: IHealthCheckModule
+            => Helper.UseModule(module, name);
+#endregion
+
+#region Endpoints
+        /// <summary>
+        /// Returns the page html.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        public virtual ActionResult Index()
+        {
+            if (!Enabled) return NotFound();
+            else if (!Helper.HasAccessToAnyContent(CurrentRequestAccessRoles))
+            {
+                var redirectTarget = Helper.AccessConfig.RedirectTargetOnNoAccessUsingRequest?.Invoke(Request);
+                if (!string.IsNullOrWhiteSpace(redirectTarget))
+                {
+                    return Redirect(redirectTarget);
+                }
+                else if (!string.IsNullOrWhiteSpace(Helper.AccessConfig.RedirectTargetOnNoAccess))
+                {
+                    return Redirect(Helper.AccessConfig.RedirectTargetOnNoAccess);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+
+            var frontEndOptions = GetFrontEndOptions();
+            var pageOptions = GetPageOptions();
+            var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions);
+
+            return new ContentResult()
+            {
+                Content = html,
+                ContentType = "text/html",
+            };
+        }
+
+        /// <summary>
+        /// Invokes a module method.
+        /// </summary>
+        [RequestLogInfo(hide: true)]
+        public async Task<ActionResult> InvokeModuleMethod(string moduleId, string methodName, string jsonPayload)
+        {
+            if (!Enabled) return NotFound();
+
+            var result = await Helper.InvokeModuleMethod(CurrentRequestInformation, moduleId, methodName, jsonPayload);
+            if (!result.HasAccess)
+            {
+                return NotFound();
+            }
+            return Content(result.Result);
+        }
+
         /// <summary>
         /// Returns 'OK' and 200 status code.
         /// </summary>
@@ -197,6 +161,21 @@ namespace HealthCheck.WebUI.Abstractions
                 return NotFound();
 
             return Content("OK");
+        }
+#endregion
+
+#region Overrides
+        /// <summary>
+        /// Calls GetRequestInformation and SetOptions.
+        /// </summary>
+        public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        {
+            var request = context?.HttpContext?.Request;
+            CurrentRequestInformation = GetRequestInformation(request);
+            CurrentRequestAccessRoles = CurrentRequestInformation?.AccessRole;
+            ConfigureAccess(request, Helper.AccessConfig);
+            Helper.AfterConfigure(CurrentRequestInformation);
+            await base.OnActionExecutionAsync(context, next);
         }
 #endregion
 

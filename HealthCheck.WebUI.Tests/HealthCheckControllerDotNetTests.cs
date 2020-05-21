@@ -2,7 +2,6 @@ using HealthCheck.Core.Modules.AuditLog.Services;
 using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Tests.Helpers;
-using HealthCheck.WebUI.ViewModels;
 using System.Web;
 using Xunit.Abstractions;
 
@@ -105,6 +104,6 @@ namespace HealthCheck.WebUI.Tests
         protected override FrontEndOptionsViewModel GetFrontEndOptions() => new FrontEndOptionsViewModel("/HealthCheck");
         protected override PageOptions GetPageOptions() => new PageOptions();
         protected override RequestInformation<AccessRoles> GetRequestInformation(HttpRequestBase request) => new RequestInformation<AccessRoles>(AllowedRoles);
-        protected override void ConfigureAccess(HttpRequestBase request, AccessOptions<AccessRoles> options) {}
+        protected override void ConfigureAccess(HttpRequestBase request, AccessConfig<AccessRoles> config) {}
     }
 }

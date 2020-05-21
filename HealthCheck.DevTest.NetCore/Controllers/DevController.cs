@@ -1,13 +1,11 @@
-﻿using HealthCheck.Core.Util;
-using HealthCheck.DevTest._TestImplementation;
-using HealthCheck.WebUI.Models;
-using HealthCheck.WebUI.ViewModels;
+﻿using HealthCheck.DevTest._TestImplementation;
 using HealthCheck.WebUI.Abstractions;
+using HealthCheck.WebUI.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 
 namespace HealthCheck.DevTest.NetCore.Controllers
 {
@@ -39,7 +37,7 @@ namespace HealthCheck.DevTest.NetCore.Controllers
                 PageTitle = "Dev Checks"
             };
 
-        protected override void ConfigureAccess(HttpRequest request, AccessOptions<RuntimeTestAccessRole> options)
+        protected override void ConfigureAccess(HttpRequest request, AccessConfig<RuntimeTestAccessRole> options)
         {
             options.RedirectTargetOnNoAccess = "/no-access";
         }
