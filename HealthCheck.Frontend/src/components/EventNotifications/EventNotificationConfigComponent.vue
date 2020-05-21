@@ -305,7 +305,10 @@ import EventNotificationService from "../../services/EventNotificationService";
         InputComponent
     }
 })
-export default class EventNotificationConfigComponent extends Vue {    
+export default class EventNotificationConfigComponent extends Vue {
+    @Prop({ required: true })
+    moduleId!: string;
+
     @Prop({ required: true })
     config!: EventSinkNotificationConfig;
 
@@ -323,7 +326,7 @@ export default class EventNotificationConfigComponent extends Vue {
 
     // @ts-ignore
     internalConfig: EventSinkNotificationConfig = null;
-    service: EventNotificationService = new EventNotificationService(this.globalOptions);
+    service: EventNotificationService = new EventNotificationService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.moduleId);
     ASD!: EventSinkNotificationConfig;
     notifierDialogVisible: boolean = false;
     deleteDialogVisible: boolean = false;

@@ -164,7 +164,7 @@ export default class TestSuitesPageComponent extends Vue {
     invalidTests: Array<InvalidTestViewModel> = new Array<InvalidTestViewModel>();
 
     // Service
-    service: TestService = new TestService(this.globalOptions, this.config.Id);
+    service: TestService = new TestService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     setSetsLoadStatus: FetchStatus = new FetchStatus();
 
     //////////////////

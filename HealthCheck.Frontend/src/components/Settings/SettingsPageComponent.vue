@@ -80,7 +80,7 @@ export default class SettingsPageComponent extends Vue {
     @Prop({ required: true })
     options!: ModuleOptions<any>;
 
-    service: SettingsService = new SettingsService(this.globalOptions, this.config.Id);
+    service: SettingsService = new SettingsService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     loadStatus: FetchStatus = new FetchStatus();
     saveStatus: FetchStatus = new FetchStatus();
 

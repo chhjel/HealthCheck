@@ -200,22 +200,6 @@ namespace HealthCheck.WebUI.Abstractions
         }
 #endregion
 
-#region AuditLog
-        /// <summary>
-        /// Get filtered audit events to show in the UI.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [Route("GetFilteredAudits")]
-        public virtual async Task<ActionResult> GetFilteredAudits([FromBody] AuditEventFilterInputData input = null)
-        {
-            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.AuditLog, CurrentRequestAccessRoles))
-                return NotFound();
-
-            var filteredItems = await Helper.GetAuditEventsFilterViewModel(CurrentRequestAccessRoles, input);
-            return CreateJsonResult(filteredItems);
-        }
-#endregion
-
 #region LogSearch
         /// <summary>
         /// Get log entry search results.

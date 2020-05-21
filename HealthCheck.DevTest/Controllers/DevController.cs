@@ -2,15 +2,19 @@
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.AuditLog;
+using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.Diagrams.FlowCharts;
 using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
 using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.EventNotifications.Notifiers;
 using HealthCheck.Core.Modules.Settings;
+using HealthCheck.Core.Modules.Settings.Abstractions;
 using HealthCheck.Core.Modules.Settings.Attributes;
 using HealthCheck.Core.Modules.SiteEvents;
 using HealthCheck.Core.Modules.SiteEvents.Abstractions;
+using HealthCheck.Core.Modules.SiteEvents.Enums;
 using HealthCheck.Core.Modules.SiteEvents.Models;
 using HealthCheck.Core.Modules.SiteEvents.Services;
 using HealthCheck.Core.Modules.Tests;
@@ -96,6 +100,7 @@ namespace HealthCheck.DevTest.Controllers
                 .AddPlaceholder("ServerName", () => Environment.MachineName);
             (Services.EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableEventRegistering);
 
+            UseModule(new HCAuditLogModule(new HCAuditLogModuleOptions() { AuditEventService = _auditEventService }));
             UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = _siteEventService }));
             UseModule(new HCRequestLogModule(new HCRequestLogModuleOptions() { RequestLogService = RequestLogServiceAccessor.Current }));
             UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { SettingsService = SettingsService }));
@@ -126,8 +131,10 @@ namespace HealthCheck.DevTest.Controllers
         {
             /// MODULES //
             /// ToDo: options.GiveRolesAccess...
-            GiveRolesAccessToModule(RuntimeTestAccessRole.Guest | RuntimeTestAccessRole.WebAdmins,
-                TestModuleA.TestModuleAAccessOption.DeleteThing | TestModuleA.TestModuleAAccessOption.EditThing);
+            GiveRolesAccessToModule(
+                RuntimeTestAccessRole.Guest | RuntimeTestAccessRole.WebAdmins,
+                TestModuleA.TestModuleAAccessOption.DeleteThing | TestModuleA.TestModuleAAccessOption.EditThing
+            );
 
             GiveRolesAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestModuleB.TestModuleBAccessOption.NumberOne);
 
@@ -135,6 +142,7 @@ namespace HealthCheck.DevTest.Controllers
             GiveRolesAccessToModuleWithFullAccess<HCSettingsModule>(RuntimeTestAccessRole.WebAdmins);
             GiveRolesAccessToModuleWithFullAccess<HCRequestLogModule>(RuntimeTestAccessRole.WebAdmins);
             GiveRolesAccessToModuleWithFullAccess<HCSiteEventsModule>(RuntimeTestAccessRole.WebAdmins);
+            GiveRolesAccessToModuleWithFullAccess<HCAuditLogModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             options.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.Guest);

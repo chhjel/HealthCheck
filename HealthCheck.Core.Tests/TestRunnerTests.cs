@@ -1,9 +1,10 @@
+using HealthCheck.Core.Modules.AuditLog.Services;
+using HealthCheck.Core.Modules.SiteEvents.Enums;
 using HealthCheck.Core.Modules.SiteEvents.Models;
 using HealthCheck.Core.Modules.SiteEvents.Services;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Modules.Tests.Services;
-using HealthCheck.Core.Services.Storage;
 using System;
 using System.Linq;
 using System.Threading;
@@ -46,15 +47,15 @@ namespace HealthCheck.Core.Services
             var eventService = new SiteEventService(new MemorySiteEventStorage());
 
             var eventTypeId = "DCategoryA-eventIdA";
-            await eventService.StoreEvent(new SiteEvent(Enums.SiteEventSeverity.Error, eventTypeId, "First event", "Some desc A")
+            await eventService.StoreEvent(new SiteEvent(SiteEventSeverity.Error, eventTypeId, "First event", "Some desc A")
             {
                 Timestamp = DateTime.Now.AddDays(-2)
             });
-            await eventService.StoreEvent(new SiteEvent(Enums.SiteEventSeverity.Error, eventTypeId, "Last event", "Some desc B")
+            await eventService.StoreEvent(new SiteEvent(SiteEventSeverity.Error, eventTypeId, "Last event", "Some desc B")
             {
                 Timestamp = DateTime.Now.AddDays(-1)
             });
-            await eventService.StoreEvent(new SiteEvent(Enums.SiteEventSeverity.Error, "Some other event id", "Other event", "Some desc C")
+            await eventService.StoreEvent(new SiteEvent(SiteEventSeverity.Error, "Some other event id", "Other event", "Some desc C")
             {
                 Timestamp = DateTime.Now.AddHours(-2)
             });
@@ -102,7 +103,7 @@ namespace HealthCheck.Core.Services
             var runner = new TestRunnerService();
             var eventService = new SiteEventService(new MemorySiteEventStorage());
 
-            var previouslyUnresolvedEvent = new SiteEvent(Enums.SiteEventSeverity.Error, "DCategoryE-eventIdE", "Titleasd", "Descriptionasd", duration: 5)
+            var previouslyUnresolvedEvent = new SiteEvent(SiteEventSeverity.Error, "DCategoryE-eventIdE", "Titleasd", "Descriptionasd", duration: 5)
             {
                 Timestamp = DateTime.Now.AddMinutes(-15),
                 Resolved = true,
@@ -431,7 +432,7 @@ namespace HealthCheck.Core.Services
             [RuntimeTest(Category = "CategoryA")]
             public Task<TestResult> TaskTestMethod()
             {
-                var e = new SiteEvent(Enums.SiteEventSeverity.Error, "typeId", "EventA", "description");
+                var e = new SiteEvent(SiteEventSeverity.Error, "typeId", "EventA", "description");
                 return Task.FromResult(new TestResult() { Tag = "TaskTestMethod" }
                     .SetSiteEvent(e));
             }
@@ -479,7 +480,7 @@ namespace HealthCheck.Core.Services
             public TestResult ErrorA()
             {
                 return TestResult.CreateError("Opsie!")
-                    .SetSiteEvent(new SiteEvent(Enums.SiteEventSeverity.Error, EventTypeId, "Oh no!", "Desc!"));
+                    .SetSiteEvent(new SiteEvent(SiteEventSeverity.Error, EventTypeId, "Oh no!", "Desc!"));
             }
         }
 
@@ -499,7 +500,7 @@ namespace HealthCheck.Core.Services
             public TestResult WarningA()
             {
                 return TestResult.CreateWarning("Opsie!")
-                    .SetSiteEvent(new SiteEvent(Enums.SiteEventSeverity.Warning, EventTypeId, "Oh no!", "Desc!"));
+                    .SetSiteEvent(new SiteEvent(SiteEventSeverity.Warning, EventTypeId, "Oh no!", "Desc!"));
             }
         }
 
@@ -512,28 +513,28 @@ namespace HealthCheck.Core.Services
             public TestResult ErrorA()
             {
                 return TestResult.CreateError("Opsie Warning!")
-                    .SetSiteEvent(new SiteEvent(Enums.SiteEventSeverity.Warning, EventTypeId, "Oh no Warning!", "Desc Warning!"));
+                    .SetSiteEvent(new SiteEvent(SiteEventSeverity.Warning, EventTypeId, "Oh no Warning!", "Desc Warning!"));
             }
 
             [RuntimeTest]
             public TestResult ErrorB()
             {
                 return TestResult.CreateError("Opsie Information!")
-                    .SetSiteEvent(new SiteEvent(Enums.SiteEventSeverity.Information, EventTypeId, "Oh no Information!", "Desc Information!"));
+                    .SetSiteEvent(new SiteEvent(SiteEventSeverity.Information, EventTypeId, "Oh no Information!", "Desc Information!"));
             }
 
             [RuntimeTest]
             public TestResult ErrorC()
             {
                 return TestResult.CreateError("Opsie Fatal!")
-                    .SetSiteEvent(new SiteEvent(Enums.SiteEventSeverity.Fatal, EventTypeId, "Oh no Fatal!", "Desc Fatal!"));
+                    .SetSiteEvent(new SiteEvent(SiteEventSeverity.Fatal, EventTypeId, "Oh no Fatal!", "Desc Fatal!"));
             }
 
             [RuntimeTest]
             public TestResult ErrorD()
             {
                 return TestResult.CreateError("Opsie Error!")
-                    .SetSiteEvent(new SiteEvent(Enums.SiteEventSeverity.Error, EventTypeId + "2", "Oh no Error2!", "Other Error!"));
+                    .SetSiteEvent(new SiteEvent(SiteEventSeverity.Error, EventTypeId + "2", "Oh no Error2!", "Other Error!"));
             }
         }
 

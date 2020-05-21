@@ -1,4 +1,4 @@
-﻿using HealthCheck.Core.Abstractions;
+﻿using HealthCheck.Core.Modules.Settings.Abstractions;
 
 namespace HealthCheck.Core.Modules.Settings
 {

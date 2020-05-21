@@ -16,16 +16,15 @@ import "./util/extensions/ArrayExtensions";
 import "es6-promise/auto";
 
 // Modules
-import NoPageAvailablePageComponent from './components/Pages/NoPageAvailablePageComponent.vue';
 import TestSuitesPageComponent from './components/TestSuite/TestSuitesPageComponent.vue';
 import OverviewPageComponent from './components/Overview/OverviewPageComponent.vue';
-import AuditLogPageComponent from './components/Pages/AuditLogPageComponent.vue';
-import LogViewerPageComponent from './components/Pages/LogViewerPageComponent.vue';
+import AuditLogPageComponent from './components/AuditLog/AuditLogPageComponent.vue';
+import LogViewerPageComponent from './components/LogViewer/LogViewerPageComponent.vue';
 import RequestLogPageComponent from './components/RequestLog/RequestLogPageComponent.vue';
-import DocumentationPageComponent from './components/Pages/DocumentationPageComponent.vue';
-import DataflowPageComponent from './components/Pages/DataflowPageComponent.vue';
+import DocumentationPageComponent from './components/Documentation/DocumentationPageComponent.vue';
+import DataflowPageComponent from './components/Dataflow/DataflowPageComponent.vue';
 import SettingsPageComponent from './components/Settings/SettingsPageComponent.vue';
-import EventNotificationsPageComponent from './components/Pages/EventNotificationsPageComponent.vue';
+import EventNotificationsPageComponent from './components/EventNotifications/EventNotificationsPageComponent.vue';
 let moduleComponents = [
     TestSuitesPageComponent,
     OverviewPageComponent,

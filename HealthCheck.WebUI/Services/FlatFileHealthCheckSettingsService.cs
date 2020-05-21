@@ -1,5 +1,5 @@
-﻿using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Extensions;
+﻿using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.Settings.Abstractions;
 using HealthCheck.Core.Modules.Settings.Attributes;
 using HealthCheck.Core.Modules.Settings.Models;
 using HealthCheck.Core.Util;

@@ -31,11 +31,13 @@ this.service.PerformOperation(this.internalConfig.Id, null, {
 
 export default class HCServiceBase
 {
-    public options: FrontEndOptionsViewModel;
+    private endpoint: string;
+    private inludeQueryString: boolean;
 
-    constructor(options: FrontEndOptionsViewModel)
+    constructor(endpoint: string, inludeQueryString: boolean)
     {
-        this.options = options;
+        this.endpoint = endpoint;
+        this.inludeQueryString = inludeQueryString;
     }
 
     public invokeModuleMethod<T = unknown>(
@@ -47,8 +49,6 @@ export default class HCServiceBase
         json: boolean = true
     ): void
     {
-        let url = this.options.InvokeModuleMethodEndpoint;
-        
         let payloadJson = (payload == null) ? null : JSON.stringify(payload);
         let wrapperPayload = {
             moduleId: moduleId,
@@ -56,7 +56,7 @@ export default class HCServiceBase
             jsonPayload: payloadJson
         };
 
-        this.fetchExt<T>(url, 'POST', wrapperPayload, statusObject, callbacks, json);
+        this.fetchExt<T>(this.endpoint, 'POST', wrapperPayload, statusObject, callbacks, json);
     }
 
     public fetchExt<T = unknown>(
@@ -76,7 +76,7 @@ export default class HCServiceBase
         }
 
         let queryStringIfEnabled = '';
-        if (this.options.InludeQueryStringInApiCalls)
+        if (this.inludeQueryString)
         {
             queryStringIfEnabled = url.includes('?') ? `&${window.location.search.replace('?', '')}` : window.location.search;
         }

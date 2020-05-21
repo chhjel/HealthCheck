@@ -6,9 +6,9 @@ export default class RequestLogService extends HCServiceBase
 {
     public moduleId: string;
 
-    constructor(options: FrontEndOptionsViewModel, moduleId: string)
+    constructor(endpoint: string, inludeQueryString: boolean, moduleId: string)
     {
-        super(options);
+        super(endpoint, inludeQueryString);
         this.moduleId = moduleId;
     }
     

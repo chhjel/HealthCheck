@@ -1,5 +1,5 @@
-﻿using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Entities;
+﻿using HealthCheck.Core.Modules.AuditLog.Abstractions;
+using HealthCheck.Core.Modules.AuditLog.Models;
 using HealthCheck.Core.Util;
 using Newtonsoft.Json;
 using System;

@@ -34,7 +34,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import NoPageAvailablePageComponent from './Pages/NoPageAvailablePageComponent.vue';
+import NoPageAvailablePageComponent from './NoPageAvailablePageComponent.vue';
 import FrontEndOptionsViewModel from '../models/Common/FrontEndOptionsViewModel';
 import ModuleConfig from "../models/Common/ModuleConfig";
 

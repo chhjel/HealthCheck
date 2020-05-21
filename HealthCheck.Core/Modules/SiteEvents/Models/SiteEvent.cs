@@ -1,5 +1,5 @@
-﻿using HealthCheck.Core.Enums;
-using HealthCheck.Core.Modules.SiteEvents.Abstractions;
+﻿using HealthCheck.Core.Modules.SiteEvents.Abstractions;
+using HealthCheck.Core.Modules.SiteEvents.Enums;
 using HealthCheck.Core.Modules.Tests.Models;
 using System;
 using System.Collections.Generic;

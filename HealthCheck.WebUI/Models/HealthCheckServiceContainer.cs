@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.EventNotifications;
 
@@ -10,7 +11,7 @@ namespace HealthCheck.WebUI.Models
     public class HealthCheckServiceContainer<TAccessRole>
     {
         /// <summary>
-        /// Must be set for any site audits to be logged.
+        /// Todo: remove.
         /// </summary>
         public IAuditEventStorage AuditEventService { get; set; }
 

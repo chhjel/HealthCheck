@@ -45,6 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Services\Storage\" />
     <Folder Include="Util\HtmlPresets\" />
   </ItemGroup>
 

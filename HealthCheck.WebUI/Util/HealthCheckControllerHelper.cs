@@ -2,6 +2,7 @@
 using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.AuditLog.Models;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.Diagrams.FlowCharts;
 using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
@@ -665,34 +666,6 @@ namespace HealthCheck.WebUI.Util
         }
 
         /// <summary>
-        /// Get viewmodel for audit filter results.
-        /// </summary>
-        public async Task<IEnumerable<AuditEventViewModel>> GetAuditEventsFilterViewModel(
-            Maybe<TAccessRole> accessRoles,
-            AuditEventFilterInputData filter)
-        {
-            if (Services.AuditEventService == null || !RoleHasAccessToAuditLogs(accessRoles))
-                return Enumerable.Empty<AuditEventViewModel>();
-
-            var from = filter?.FromFilter ?? DateTime.MinValue;
-            var to = filter?.ToFilter ?? DateTime.MaxValue;
-            var events = await Services.AuditEventService.GetEvents(from, to);
-            return events
-                .Where(x => AuditEventMatchesFilter(x, filter))
-                .Select(x => new AuditEventViewModel()
-                {
-                    Timestamp = x.Timestamp,
-                    Area = x.Area,
-                    Action = x.Action,
-                    Subject = x.Subject,
-                    Details = x.Details,
-                    UserId = x.UserId,
-                    UserName = x.UserName,
-                    UserAccessRoles = x.UserAccessRoles,
-                });
-        }
-
-        /// <summary>
         /// Get viewmodel for dataflow entries result.
         /// </summary>
         public async Task<IEnumerable<IDataflowEntry>> GetDataflowEntries(string streamId, DataflowStreamFilter filter,
@@ -824,30 +797,6 @@ namespace HealthCheck.WebUI.Util
             Services.AuditEventService?.StoreEvent(
                 CreateAuditEventFor(requestInformation, "EventNotifications", action: "Delete all event definitions")
             );
-        }
-
-        private bool AuditEventMatchesFilter(AuditEvent e, AuditEventFilterInputData filter)
-        {
-            if (filter == null) return true;
-            else if (filter.FromFilter != null && e.Timestamp < filter.FromFilter) return false;
-            else if (filter.ToFilter != null && e.Timestamp > filter.ToFilter) return false;
-            else if (filter.SubjectFilter != null && e.Subject?.ToLower()?.Contains(filter.SubjectFilter?.ToLower()) != true) return false;
-            else if (filter.ActionFilter != null && e.Action?.ToLower()?.Contains(filter.ActionFilter?.ToLower()) != true) return false;
-            else if (filter.UserIdFilter != null && e.UserId?.ToLower()?.Contains(filter.UserIdFilter?.ToLower()) != true) return false;
-            else if (filter.UserNameFilter != null && e.UserName?.ToLower()?.Contains(filter.UserNameFilter?.ToLower()) != true) return false;
-            else if (filter.AreaFilter != null && e.Area != filter.AreaFilter) return false;
-            else return true;
-        }
-
-        private bool RoleHasAccessToAuditLogs(Maybe<TAccessRole> accessRoles)
-        {
-            // No access defined or user has no roles => denied
-            if (AccessOptions?.AuditLogAccess == null || AccessOptions?.AuditLogAccess?.HasValue != true || accessRoles.HasNothing())
-            {
-                return false;
-            }
-
-            return EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, AccessOptions.AuditLogAccess.Value);
         }
         #endregion
 

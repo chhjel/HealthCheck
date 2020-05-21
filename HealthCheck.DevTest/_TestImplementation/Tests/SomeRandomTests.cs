@@ -1,4 +1,4 @@
-﻿using HealthCheck.Core.Enums;
+﻿using HealthCheck.Core.Modules.SiteEvents.Enums;
 using HealthCheck.Core.Modules.SiteEvents.Models;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;

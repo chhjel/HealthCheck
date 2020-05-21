@@ -114,7 +114,7 @@ export default class OverviewPageComponent extends Vue {
     selectedEventForDetails: SiteEventViewModel | null = null;
     
     // Service
-    service: OverviewService = new OverviewService(this.globalOptions, this.config.Id);
+    service: OverviewService = new OverviewService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     loadStatus: FetchStatus = new FetchStatus();
 
     siteEvents: Array<SiteEventViewModel> = [];

@@ -186,7 +186,7 @@ export default class RequestLogPageComponent extends Vue {
     @Prop({ required: true })
     options!: ModuleOptions<any>;
 
-    service: RequestLogService = new RequestLogService(this.globalOptions, this.config.Id);
+    service: RequestLogService = new RequestLogService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     loadStatus: FetchStatus = new FetchStatus();
     clearStatus: FetchStatus = new FetchStatus();
 
