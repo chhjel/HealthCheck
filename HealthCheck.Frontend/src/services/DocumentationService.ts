@@ -10,13 +10,12 @@ export default class DocumentationService extends HCServiceBase
         super(endpoint, inludeQueryString);
         this.moduleId = moduleId;
     }
-    // this.invokeModuleMethod(this.moduleId, 'GetSiteEvents', {}, statusObject, callbacks);
     
     public GetDiagramsData(
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<DiagramsDataViewModel> | null = null
     ) : void
     {
-        // this.fetchExt<DiagramsDataViewModel>(url, 'GET', null, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, 'GetDiagrams', null, statusObject, callbacks);
     }
 }

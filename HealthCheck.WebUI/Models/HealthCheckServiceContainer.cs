@@ -21,20 +21,8 @@ namespace HealthCheck.WebUI.Models
         public ILogSearcherService LogSearcherService { get; set; }
 
         /// <summary>
-        /// Either this or <see cref="FlowChartsService"/> must be set for the documentation tab to be shown.
-        /// </summary>
-        public ISequenceDiagramService SequenceDiagramService { get; set; }
-
-        /// <summary>
-        /// Either this or <see cref="SequenceDiagramService"/> must be set for the documentation tab to be shown.
-        /// </summary>
-        public IFlowChartsService FlowChartsService { get; set; }
-
-        /// <summary>
         /// Must be set for the event notifications tab to be shown.
         /// </summary>
         public IEventDataSink EventSink { get; set; }
-
-        internal bool IsAnyDocumentationServiceSet => SequenceDiagramService != null || FlowChartsService != null;
     }
 }

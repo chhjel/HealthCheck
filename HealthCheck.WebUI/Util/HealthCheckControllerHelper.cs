@@ -3,9 +3,8 @@ using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.AuditLog.Models;
-using HealthCheck.Core.Modules.Dataflow.Models;
-using HealthCheck.Core.Modules.Diagrams.FlowCharts;
-using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
+using HealthCheck.Core.Modules.Documentation.Models.FlowCharts;
+using HealthCheck.Core.Modules.Documentation.Models.SequenceDiagrams;
 using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.LogViewer.Models;
 using HealthCheck.Core.Modules.Tests;
@@ -409,30 +408,8 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         public int CancelAllLogSearches() => AbortLogSearches();
 
-        /// <summary>
-        /// Get viewmodel for diagrams data.
-        /// </summary>
-        public DiagramDataViewModel GetDiagramsViewModel(Maybe<TAccessRole> accessRoles)
-        {
-            if (!Services.IsAnyDocumentationServiceSet || !CanShowPageTo(HealthCheckPageType.Documentation, accessRoles))
-                return new DiagramDataViewModel();
-
-            if (DiagramDataViewModelCache != null)
-            {
-                return DiagramDataViewModelCache;
-            }
-
-            DiagramDataViewModelCache = new DiagramDataViewModel()
-            {
-                SequenceDiagrams = Services.SequenceDiagramService?.Generate() ?? new List<SequenceDiagram>(),
-                FlowCharts = Services.FlowChartsService?.Generate() ?? new List<FlowChart>()
-            };
-            return DiagramDataViewModelCache;
-        }
-
         public bool CanShowPageTo(HealthCheckPageType requestLog, Maybe<TAccessRole> accessRoles) => true;
 
-        private static DiagramDataViewModel DiagramDataViewModelCache { get; set; }
         private const string Q = "\"";
 
         /// <summary>

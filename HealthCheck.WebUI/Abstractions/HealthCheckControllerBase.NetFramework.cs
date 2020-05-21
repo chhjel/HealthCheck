@@ -244,20 +244,6 @@ namespace HealthCheck.WebUI.Abstractions
         }
         #endregion
 
-        #region Diagrams
-        /// <summary>
-        /// Get diagrams to show in the UI.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        public virtual ActionResult GetDiagrams()
-        {   
-            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.Documentation, CurrentRequestAccessRoles)) return HttpNotFound();
-
-            var viewModel = Helper.GetDiagramsViewModel(CurrentRequestAccessRoles);
-            return CreateJsonResult(viewModel);
-        }
-        #endregion
-
         #region EventNotificationConfig
         /// <summary>
         /// Get viewmodel for the event notification configs

@@ -1,5 +1,5 @@
-﻿using HealthCheck.Core.Modules.Diagrams.FlowCharts;
-using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
+﻿using HealthCheck.Core.Modules.Documentation.Models.FlowCharts;
+using HealthCheck.Core.Modules.Documentation.Models.SequenceDiagrams;
 using System.Collections.Generic;
 
 namespace HealthCheck.WebUI.ViewModels

@@ -8,8 +8,8 @@ using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.Dataflow.Abstractions;
 using HealthCheck.Core.Modules.Dataflow.Models;
 using HealthCheck.Core.Modules.Dataflow.Services;
-using HealthCheck.Core.Modules.Diagrams.FlowCharts;
-using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
+using HealthCheck.Core.Modules.Documentation;
+using HealthCheck.Core.Modules.Documentation.Services;
 using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.EventNotifications.Notifiers;
 using HealthCheck.Core.Modules.Settings;
@@ -75,14 +75,6 @@ namespace HealthCheck.DevTest.Controllers
 
             Services.AuditEventService = _auditEventService;
             Services.LogSearcherService = CreateLogSearcherService();
-            Services.SequenceDiagramService = new DefaultSequenceDiagramService(new DefaultSequenceDiagramServiceOptions()
-            {
-                DefaultSourceAssemblies = new[] { typeof(DevController).Assembly }
-            });
-            Services.FlowChartsService = new DefaultFlowChartService(new DefaultFlowChartServiceOptions()
-            {
-                DefaultSourceAssemblies = new[] { typeof(DevController).Assembly }
-            });
             DataflowService = new DefaultDataflowService<RuntimeTestAccessRole>(new DefaultDataflowServiceOptions<RuntimeTestAccessRole>()
             {
                 Streams = new IDataflowStream<RuntimeTestAccessRole>[]
@@ -104,6 +96,17 @@ namespace HealthCheck.DevTest.Controllers
                 .AddPlaceholder("ServerName", () => Environment.MachineName);
             (Services.EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableEventRegistering);
 
+            UseModule(new HCDocumentationModule(new HCDocumentationModuleOptions()
+            {
+                SequenceDiagramService = new DefaultSequenceDiagramService(new DefaultSequenceDiagramServiceOptions()
+                {
+                    DefaultSourceAssemblies = new[] { typeof(DevController).Assembly }
+                }),
+                FlowChartsService = new DefaultFlowChartService(new DefaultFlowChartServiceOptions()
+                {
+                    DefaultSourceAssemblies = new[] { typeof(DevController).Assembly }
+                })
+            }));
             UseModule(new HCDataflowModule<RuntimeTestAccessRole>(new HCDataflowModuleOptions<RuntimeTestAccessRole>() { DataflowService = DataflowService }));
             UseModule(new HCAuditLogModule(new HCAuditLogModuleOptions() { AuditEventService = _auditEventService }));
             UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = _siteEventService }));
@@ -149,6 +152,7 @@ namespace HealthCheck.DevTest.Controllers
             GiveRolesAccessToModuleWithFullAccess<HCSiteEventsModule>(RuntimeTestAccessRole.WebAdmins);
             GiveRolesAccessToModuleWithFullAccess<HCAuditLogModule>(RuntimeTestAccessRole.WebAdmins);
             GiveRolesAccessToModuleWithFullAccess<HCDataflowModule<RuntimeTestAccessRole>>(RuntimeTestAccessRole.WebAdmins);
+            GiveRolesAccessToModuleWithFullAccess<HCDocumentationModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             options.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.Guest);

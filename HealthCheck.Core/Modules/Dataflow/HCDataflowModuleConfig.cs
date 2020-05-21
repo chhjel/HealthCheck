@@ -6,7 +6,7 @@ namespace HealthCheck.Core.Modules.Dataflow
     internal class HCDataflowModuleConfig : IHealthCheckModuleConfig
     {
         public string Name { get; } = "DataFlow";
-        public string ComponentName => "DataflowPageComponent";
+        public string ComponentName => "DataflowPageComponent<";
         public string DefaultRootRouteSegment => "dataflow";
         public string InitialRoute => "/{0}";
         public string RoutePath => "/{0}";
