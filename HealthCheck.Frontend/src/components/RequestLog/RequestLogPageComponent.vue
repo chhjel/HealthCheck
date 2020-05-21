@@ -111,7 +111,7 @@
                         />
                 </div>
 
-                <v-layout row wrap v-if="globalOptions.HasAccessToClearRequestLog">
+                <v-layout row wrap v-if="hasAccessToClearRequestLog">
                     <v-flex xs12 sm6 md4>
                         <v-btn
                             :loading="clearStatus.inProgress"
@@ -249,6 +249,9 @@ export default class RequestLogPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get hasAccessToClearRequestLog(): boolean {
+        return this.options.AccessOptions.indexOf('ClearLog') != -1;
+    }
     get globalOptions(): FrontEndOptionsViewModel {
         return this.$store.state.globalOptions;
     }

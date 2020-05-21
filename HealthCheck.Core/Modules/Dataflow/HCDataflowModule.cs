@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 namespace HealthCheck.Core.Modules.Dataflow
 {
     /// <summary>
-    /// Module for executing tests at runtime.
+    /// Module for viewing custom data.
     /// </summary>
     public class HCDataflowModule<TAccessRole> : HealthCheckModuleBase<HCDataflowModule<TAccessRole>.AccessOption>
     {
         private HCDataflowModuleOptions<TAccessRole> Options { get; }
 
         /// <summary>
-        /// Module for executing tests at runtime.
+        /// Module for viewing custom data.
         /// </summary>
         public HCDataflowModule(HCDataflowModuleOptions<TAccessRole> options)
         {

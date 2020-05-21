@@ -196,54 +196,6 @@ namespace HealthCheck.WebUI.Abstractions
         }
         #endregion
 
-        #region LogSearch
-        /// <summary>
-        /// Get log entry search results.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [HttpPost]
-        public virtual async Task<ActionResult> SearchLogs(LogSearchFilter filter)
-        {
-            if (!Enabled || !Helper.CanShowPageTo(HealthCheckPageType.LogViewer, CurrentRequestAccessRoles))
-                return HttpNotFound();
-
-            var result = await Helper.SearchLogs(CurrentRequestAccessRoles, filter);
-            Helper.AuditLog_LogSearch(CurrentRequestInformation, filter, result);
-
-            return CreateJsonResult(result);
-        }
-
-        /// <summary>
-        /// Cancels the given log search.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [HttpPost]
-        public virtual async Task<ActionResult> CancelLogSearch(string searchId)
-        {
-            var cancelled = Helper.CancelLogSearch(searchId);
-            if (cancelled)
-            {
-                Helper.AuditLog_LogSearchCancel(CurrentRequestInformation, "Cancelled log search");
-            }
-            return await Task.FromResult(CreateJsonResult(cancelled));
-        }
-
-        /// <summary>
-        /// Cancels all log searches.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [HttpPost]
-        public virtual async Task<int> CancelAllLogSearches()
-        {
-            var count = Helper.CancelAllLogSearches();
-            if (count > 0)
-            {
-                Helper.AuditLog_LogSearchCancel(CurrentRequestInformation, "Cancelled all log searches", count);
-            }
-            return await Task.FromResult(count);
-        }
-        #endregion
-
         #region EventNotificationConfig
         /// <summary>
         /// Get viewmodel for the event notification configs

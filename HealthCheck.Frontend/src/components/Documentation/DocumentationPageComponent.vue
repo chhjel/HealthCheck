@@ -29,7 +29,7 @@
                     <v-divider />
 
                     <v-list-tile ripple 
-                        v-if="globalOptions.EnableDiagramSandbox"
+                        v-if="options.Options.EnableDiagramSandbox"
                         class="testset-menu-item"
                         :class="{ 'active': (sandboxMode) }"
                         @click="showSandboxMode">
@@ -77,7 +77,7 @@
                                         :steps="currentSequenceDiagram.steps"
                                         :showRemarks="showRemarks"
                                         :diagramStyle="diagramStyle"
-                                        :clickable="globalOptions.EnableDiagramDetails"
+                                        :clickable="options.Options.EnableDiagramDetails"
                                         v-on:stepClicked="onStepClicked" />
                                 </v-flex>
 
@@ -183,6 +183,11 @@ interface DocMenuItem
     type: 'sequence-diagram' | 'flow-chart';
     data: any;
 }
+interface DocumentationPageOptions
+{
+    EnableDiagramSandbox: boolean;
+    EnableDiagramDetails: boolean;
+}
 
 @Component({
     components: {
@@ -196,7 +201,7 @@ export default class DocumentationPageComponent extends Vue {
     config!: ModuleConfig;
     
     @Prop({ required: true })
-    options!: ModuleOptions<any>;
+    options!: ModuleOptions<DocumentationPageOptions>;
 
     sequenceDiagrams: Array<SequenceDiagramData> = [];
     flowCharts: Array<FlowChartData> = [];
@@ -569,7 +574,7 @@ Web -> Frontend: Confirmation is delivered
 
     onStepClicked(step: SequenceDiagramStep<SequenceDiagramStepDetails>): void
     {
-        if (this.globalOptions.EnableDiagramDetails == true)
+        if (this.options.Options.EnableDiagramDetails == true)
         {
             this.selectedStep = step;
         }

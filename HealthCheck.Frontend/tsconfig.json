@@ -6,7 +6,7 @@
         "module": "es2015",
         "moduleResolution": "node",
         "target": "es5",
-        "lib": ["es5", "es6", "dom"],
+        "lib": ["es5", "es6", "es2017", "es2016.array.include", "dom"],
         "experimentalDecorators": true
     },
     "include": [

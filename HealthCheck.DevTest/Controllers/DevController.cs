@@ -12,6 +12,7 @@ using HealthCheck.Core.Modules.Documentation;
 using HealthCheck.Core.Modules.Documentation.Services;
 using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.EventNotifications.Notifiers;
+using HealthCheck.Core.Modules.LogViewer;
 using HealthCheck.Core.Modules.Settings;
 using HealthCheck.Core.Modules.Settings.Abstractions;
 using HealthCheck.Core.Modules.Settings.Attributes;
@@ -73,8 +74,6 @@ namespace HealthCheck.DevTest.Controllers
                 _auditEventService = CreateAuditEventService();
             }
 
-            Services.AuditEventService = _auditEventService;
-            Services.LogSearcherService = CreateLogSearcherService();
             DataflowService = new DefaultDataflowService<RuntimeTestAccessRole>(new DefaultDataflowServiceOptions<RuntimeTestAccessRole>()
             {
                 Streams = new IDataflowStream<RuntimeTestAccessRole>[]
@@ -96,6 +95,7 @@ namespace HealthCheck.DevTest.Controllers
                 .AddPlaceholder("ServerName", () => Environment.MachineName);
             (Services.EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableEventRegistering);
 
+            UseModule(new HCLogViewerModule(new HCLogViewerModuleOptions() { LogSearcherService = CreateLogSearcherService() }));
             UseModule(new HCDocumentationModule(new HCDocumentationModuleOptions()
             {
                 SequenceDiagramService = new DefaultSequenceDiagramService(new DefaultSequenceDiagramServiceOptions()
@@ -130,11 +130,6 @@ namespace HealthCheck.DevTest.Controllers
         #endregion
 
         #region Overrides
-        // ToDo:
-        // Zero random properties to access
-        // Move things into accessoptions
-        // Move SetTestSetGroupsOptions into testmodule options
-
         protected override void ConfigureAccess(HttpRequestBase request, AccessOptions<RuntimeTestAccessRole> options)
         {
             /// MODULES //
@@ -153,6 +148,7 @@ namespace HealthCheck.DevTest.Controllers
             GiveRolesAccessToModuleWithFullAccess<HCAuditLogModule>(RuntimeTestAccessRole.WebAdmins);
             GiveRolesAccessToModuleWithFullAccess<HCDataflowModule<RuntimeTestAccessRole>>(RuntimeTestAccessRole.WebAdmins);
             GiveRolesAccessToModuleWithFullAccess<HCDocumentationModule>(RuntimeTestAccessRole.WebAdmins);
+            GiveRolesAccessToModuleWithFullAccess<HCLogViewerModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             options.OverviewPageAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.Guest);
@@ -241,32 +237,17 @@ namespace HealthCheck.DevTest.Controllers
             => new FrontEndOptionsViewModel(EndpointBase)
             {
                 ApplicationTitle = "Test Monitor",
-                ApplicationTitleLink = "/?sysadmin=x&webadmin=1",
-                PagePriority = new List<HealthCheckPageType>()
-                {
-                    HealthCheckPageType.Tests,
-                    HealthCheckPageType.Overview,
-                    HealthCheckPageType.RequestLog,
-                    HealthCheckPageType.EventNotifications,
-                    HealthCheckPageType.Dataflow,
-                    HealthCheckPageType.Documentation,
-                    HealthCheckPageType.LogViewer,
-                    HealthCheckPageType.AuditLog,
-                    HealthCheckPageType.Settings
-                },
-                ApplyCustomColumnRuleByDefault = true,
-                EnableDiagramSandbox = true,
-                EnableDiagramDetails = true
+                ApplicationTitleLink = "/?sysadmin=x&webadmin=1"
             };
 
         protected override PageOptions GetPageOptions()
             => new PageOptions()
             {
+                PageTitle = "Test Monitor",
                 JavaScriptUrls = new List<string> {
                     $"{EndpointBase}/GetVendorScript",
                     $"{EndpointBase}/GetMainScript",
-                },
-                PageTitle = "Test Monitor"
+                }
             };
 
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequestBase request)

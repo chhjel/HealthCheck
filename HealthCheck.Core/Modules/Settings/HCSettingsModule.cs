@@ -6,14 +6,14 @@ using System.Linq;
 namespace HealthCheck.Core.Modules.Settings
 {
     /// <summary>
-    /// Module for executing tests at runtime.
+    /// Module for configuring custom settings.
     /// </summary>
     public class HCSettingsModule : HealthCheckModuleBase<HCSettingsModule.AccessOption>
     {
         private HCSettingsModuleOptions Options { get; }
 
         /// <summary>
-        /// Module for executing tests at runtime.
+        /// Module for configuring custom settings.
         /// </summary>
         public HCSettingsModule(HCSettingsModuleOptions options)
         {

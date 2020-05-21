@@ -93,6 +93,11 @@ import { FetchStatus } from "../../services/abstractions/HCServiceBase";
 import ModuleOptions from "../../models/Common/ModuleOptions";
 import ModuleConfig from "../../models/Common/ModuleConfig";
 
+interface OverviewPageOptions
+{
+    CurrentEventBufferMinutes: number;
+}
+
 @Component({
     components: {
         EventTimelineComponent,
@@ -107,7 +112,7 @@ export default class OverviewPageComponent extends Vue {
     config!: ModuleConfig;
     
     @Prop({ required: true })
-    options!: ModuleOptions<any>;
+    options!: ModuleOptions<OverviewPageOptions>;
 
     // Dialogs
     eventDetailsDialogState: boolean = false;
@@ -162,7 +167,7 @@ export default class OverviewPageComponent extends Vue {
         }
 
         let thresholdDate = new Date();
-        thresholdDate.setMinutes(thresholdDate.getMinutes() - this.globalOptions.CurrentEventBufferMinutes);
+        thresholdDate.setMinutes(thresholdDate.getMinutes() - this.options.Options.CurrentEventBufferMinutes);
         
         let eventEndDate = new Date(event.Timestamp);
         eventEndDate.setMinutes(eventEndDate.getMinutes() + event.Duration);

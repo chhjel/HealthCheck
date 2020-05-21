@@ -241,7 +241,7 @@
                     </v-chip>
                     <v-btn ripple color="error"
                         @click.stop.prevent="cancelAllSearches()"
-                        v-if="globalOptions.CurrentlyRunningLogSearchCount > 0 && !hasCancelledAll"
+                        v-if="options.Options.CurrentlyRunningLogSearchCount > 0 && !hasCancelledAll"
                         :disabled="cancelAllSearchesStatus.inProgress"
                         class="mb-4">
                         <v-icon color="white">cancel</v-icon>
@@ -367,6 +367,10 @@ interface DatePickerPreset {
     from: Date;
     to: Date;
 }
+interface LogViewerPageOptions
+{
+    CurrentlyRunningLogSearchCount: number;
+}
 
 @Component({
     components: {
@@ -380,7 +384,7 @@ export default class LogViewerPageComponent extends Vue {
     config!: ModuleConfig;
     
     @Prop({ required: true })
-    options!: ModuleOptions<any>;
+    options!: ModuleOptions<LogViewerPageOptions>;
 
     // Filter fields
     showExcludedQuery: boolean = false;
@@ -536,7 +540,7 @@ export default class LogViewerPageComponent extends Vue {
     }
 
     get cancelAllSearchesButtonText(): string {
-        const count = this.globalOptions.CurrentlyRunningLogSearchCount;
+        const count = this.options.Options.CurrentlyRunningLogSearchCount;
         const searchesWord = (count == 1) ? "search" : "searches";
         return `Cancel ${count} currently running ${searchesWord} (for all users)`;
     }

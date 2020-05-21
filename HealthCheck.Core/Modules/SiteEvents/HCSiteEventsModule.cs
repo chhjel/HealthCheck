@@ -1,7 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Modules.SiteEvents.Factories;
 using HealthCheck.Core.Modules.SiteEvents.Models;
-using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +9,7 @@ using System.Threading.Tasks;
 namespace HealthCheck.Core.Modules.SiteEvents
 {
     /// <summary>
-    /// Module for executing tests at runtime.
+    /// Module that gives an overview of stability by showing reported events.
     /// </summary>
     public class HCSiteEventsModule : HealthCheckModuleBase<HCSiteEventsModule.AccessOption>
     {
@@ -29,7 +28,10 @@ namespace HealthCheck.Core.Modules.SiteEvents
         /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(AccessOption access) => null;
+        public override object GetFrontendOptionsObject(AccessOption access) => new
+        {
+            CurrentEventBufferMinutes = Options.CurrentEventBufferMinutes
+        };
 
         /// <summary>
         /// Get config for this module.

@@ -1,7 +1,7 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Entities;
-using HealthCheck.Core.Modules.LogViewer;
 using HealthCheck.Core.Modules.LogViewer.Models;
+using HealthCheck.Core.Modules.LogViewer.Util;
 using HealthCheck.Core.Services.Models;
 using HealthCheck.Core.Util;
 using System;
@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using static HealthCheck.Core.Modules.LogViewer.LogSearcher;
+using static HealthCheck.Core.Modules.LogViewer.Util.LogSearcher;
 
 namespace HealthCheck.Core.Services
 {
@@ -53,7 +53,7 @@ namespace HealthCheck.Core.Services
             var parsedLogPathQuery = QueryParser.ParseQuery(filter.LogPathQuery, filter.LogPathQueryIsRegex);
             var parsedExcludedLogPathQuery = QueryParser.ParseQuery(filter.ExcludedLogPathQuery, filter.ExcludedLogPathQueryIsRegex);
 
-            LogEntrySearchResultItem entryViewModelFactory(LogEntry entry)
+            static LogEntrySearchResultItem entryViewModelFactory(LogEntry entry)
             {
                 return new LogEntrySearchResultItem()
                 {

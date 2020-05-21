@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace HealthCheck.Core.Modules.Documentation
 {
     /// <summary>
-    /// Module for viewing audit logs.
+    /// Module for viewing documentation.
     /// </summary>
     public class HCDocumentationModule : HealthCheckModuleBase<HCDocumentationModule.AccessOption>
     {
@@ -16,7 +16,7 @@ namespace HealthCheck.Core.Modules.Documentation
         private static DiagramDataViewModel DiagramDataViewModelCache { get; set; }
 
         /// <summary>
-        /// Module for viewing audit logs.
+        /// Module for viewing documentation.
         /// </summary>
         public HCDocumentationModule(HCDocumentationModuleOptions options)
         {
@@ -26,7 +26,11 @@ namespace HealthCheck.Core.Modules.Documentation
         /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(AccessOption access) => null;
+        public override object GetFrontendOptionsObject(AccessOption access) => new
+        {
+            EnableDiagramSandbox = Options.EnableDiagramSandbox,
+            EnableDiagramDetails = Options.EnableDiagramDetails
+        };
 
         /// <summary>
         /// Get config for this module.

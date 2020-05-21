@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
+using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.AuditLog.Models;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,11 @@ namespace HealthCheck.Core.Modules.AuditLog
     /// </summary>
     public class HCAuditLogModule : HealthCheckModuleBase<HCAuditLogModule.AccessOption>
     {
+        /// <summary>
+        /// Retrieve the service from the Options object.
+        /// </summary>
+        public IAuditEventStorage AuditEventService => Options.AuditEventService;
+
         private HCAuditLogModuleOptions Options { get; }
 
         /// <summary>
@@ -74,11 +80,11 @@ namespace HealthCheck.Core.Modules.AuditLog
             if (filter == null) return true;
             else if (filter.FromFilter != null && e.Timestamp < filter.FromFilter) return false;
             else if (filter.ToFilter != null && e.Timestamp > filter.ToFilter) return false;
-            else if (filter.SubjectFilter != null && e.Subject?.ToLower()?.Contains(filter.SubjectFilter?.ToLower()) != true) return false;
-            else if (filter.ActionFilter != null && e.Action?.ToLower()?.Contains(filter.ActionFilter?.ToLower()) != true) return false;
-            else if (filter.UserIdFilter != null && e.UserId?.ToLower()?.Contains(filter.UserIdFilter?.ToLower()) != true) return false;
-            else if (filter.UserNameFilter != null && e.UserName?.ToLower()?.Contains(filter.UserNameFilter?.ToLower()) != true) return false;
-            else if (filter.AreaFilter != null && e.Area != filter.AreaFilter) return false;
+            else if (!string.IsNullOrWhiteSpace(filter.SubjectFilter) && e.Subject?.ToLower()?.Contains(filter.SubjectFilter?.ToLower()) != true) return false;
+            else if (!string.IsNullOrWhiteSpace(filter.ActionFilter) && e.Action?.ToLower()?.Contains(filter.ActionFilter?.ToLower()) != true) return false;
+            else if (!string.IsNullOrWhiteSpace(filter.UserIdFilter) && e.UserId?.ToLower()?.Contains(filter.UserIdFilter?.ToLower()) != true) return false;
+            else if (!string.IsNullOrWhiteSpace(filter.UserNameFilter) && e.UserName?.ToLower()?.Contains(filter.UserNameFilter?.ToLower()) != true) return false;
+            else if (!string.IsNullOrWhiteSpace(filter.AreaFilter) && e.Area != filter.AreaFilter) return false;
             else return true;
         }
         #endregion
