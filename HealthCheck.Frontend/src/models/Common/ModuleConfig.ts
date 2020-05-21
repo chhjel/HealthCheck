@@ -4,4 +4,7 @@ export default interface ModuleConfig {
     ComponentName: string;
     InitialRoute: string;
     RoutePath: string;
+    LoadedSuccessfully: string;
+    LoadErrors: string;
+    LoadErrorStacktrace: string;
 }

@@ -19,6 +19,12 @@ namespace HealthCheck.WebUI.Models
     public class AccessConfig<TAccessRole>
     {
         /// <summary>
+        /// Roles with access to view any stacktrace from failed module loads.
+        /// <para>If null nobody can access it by default.</para>
+        /// </summary>
+        public Maybe<TAccessRole> ShowFailedModuleLoadStackTrace { get; set; }
+
+        /// <summary>
         /// Roles with access to call the Ping endpoint.
         /// <para>If null anyone can access it by default.</para>
         /// </summary>

@@ -98,7 +98,7 @@ namespace HealthCheck.DevTest.Controllers
                     .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
                     .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
                 );
-            UseModule(new TestModuleB(), "[tst]");
+            //UseModule(new TestModuleB(), "[tst]");
 
             if (!_hasInited)
             {

@@ -205,7 +205,10 @@ namespace HealthCheck.WebUI.Util
                 configs.Add(new HealthCheckModuleConfigWrapper {
                     Id = module.Id,
                     Name = module.Name,
-                    Config = module.Config
+                    Config = module.Config,
+                    LoadedSuccessfully = module.LoadedSuccessfully,
+                    LoadErrors = module.LoadErrors,
+                    LoadErrorStacktrace = module.LoadErrorStacktrace
                 });
             }
             return configs;
@@ -216,6 +219,9 @@ namespace HealthCheck.WebUI.Util
             public string Id { get; set; }
             public string Name { get; set; }
             public IHealthCheckModuleConfig Config { get; set; }
+            public bool LoadedSuccessfully { get; set; }
+            public List<string> LoadErrors { get; set; }
+            public string LoadErrorStacktrace { get; set; }
         }
 
         /// <summary>
@@ -280,18 +286,22 @@ namespace HealthCheck.WebUI.Util
         {
             ValidateConfig(frontEndOptions, pageOptions);
 
+            var allowStacktrace = AccessRolesHasAccessTo(accessRoles, AccessConfig.ShowFailedModuleLoadStackTrace, defaultValue: false);
             var moduleConfigs = GetModuleConfigs(accessRoles);
             var moduleConfigData = moduleConfigs.Select(x => new {
                 x.Id,
                 x.Name,
-                x.Config.ComponentName,
-                InitialRoute = string.Format(x.Config.InitialRoute, x.Config.DefaultRootRouteSegment),
-                RoutePath = string.Format(x.Config.RoutePath, x.Config.DefaultRootRouteSegment)
+                x.LoadedSuccessfully,
+                x.LoadErrors,
+                LoadErrorStacktrace = (allowStacktrace ? x.LoadErrorStacktrace : null),
+                x.Config?.ComponentName,
+                InitialRoute = x?.Config?.InitialRoute == null ? null : string.Format(x.Config.InitialRoute, x.Config.DefaultRootRouteSegment),
+                RoutePath = x?.Config?.RoutePath == null ? null : string.Format(x.Config.RoutePath, x.Config.DefaultRootRouteSegment)
             });
             var moduleStyleAssets = moduleConfigs.Select(x => x.Config)
-                .Where(x => x.LinkTags != null).SelectMany(x => x.LinkTags.Select(t => t.ToString()));
+                .Where(x => x?.LinkTags != null).SelectMany(x => x.LinkTags.Select(t => t.ToString()));
             var moduleScriptAssets = moduleConfigs.Select(x => x.Config)
-                .Where(x => x.ScriptTags != null).SelectMany(x => x.ScriptTags.Select(t => t.ToString()));
+                .Where(x => x?.ScriptTags != null).SelectMany(x => x.ScriptTags.Select(t => t.ToString()));
             var moduleStyleAssetsHtml = string.Join("\n", moduleStyleAssets);
             var moduleScriptAssetsHtml = string.Join("\n", moduleScriptAssets);
 

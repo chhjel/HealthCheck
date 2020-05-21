@@ -14,7 +14,7 @@
                 <v-spacer></v-spacer>
                 <v-toolbar-items v-if="showPagesMenu">
                     <v-btn flat
-                        v-for="(mconf, mindex) in this.moduleConfig"
+                        v-for="(mconf, mindex) in this.validModuleConfigs"
                         :key="`module-menu-${mindex}`"
                         :href="`#${mconf.InitialRoute}`"
                         :class="{ 'active-tab': isModuleShowing(mconf) }"
@@ -23,6 +23,10 @@
             </v-toolbar>
 
             <!-- CONTENT -->
+            <invalid-module-configs-component
+                v-if="invalidModuleConfigs.length > 0"
+                :invalid-configs="invalidModuleConfigs" />
+
             <router-view></router-view>
 
             <no-page-available-page-component
@@ -35,12 +39,14 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 import NoPageAvailablePageComponent from './NoPageAvailablePageComponent.vue';
+import InvalidModuleConfigsComponent from './InvalidModuleConfigsComponent.vue';
 import FrontEndOptionsViewModel from '../models/Common/FrontEndOptionsViewModel';
 import ModuleConfig from "../models/Common/ModuleConfig";
 
 @Component({
     components: {
-        NoPageAvailablePageComponent
+        NoPageAvailablePageComponent,
+        InvalidModuleConfigsComponent
     }
 })
 export default class HealthCheckPageComponent extends Vue {
@@ -58,6 +64,14 @@ export default class HealthCheckPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get invalidModuleConfigs(): Array<ModuleConfig> {
+        return this.moduleConfig.filter(x => !x.LoadedSuccessfully);
+    }
+
+    get validModuleConfigs(): Array<ModuleConfig> {
+        return this.moduleConfig.filter(x => x.LoadedSuccessfully);
+    }
+
     get globalOptions(): FrontEndOptionsViewModel {
         return this.$store.state.globalOptions;
     }
@@ -71,7 +85,7 @@ export default class HealthCheckPageComponent extends Vue {
     }
 
     get showPagesMenu(): boolean {
-        return this.moduleConfig.length > 1;
+        return this.validModuleConfigs.length > 1;
     }
 
     get hasTitleLink(): boolean {
@@ -113,9 +127,9 @@ export default class HealthCheckPageComponent extends Vue {
         // X:ToDo: set based on prioritized order if nothing active.
         
         let anyRouteActive = this.$route.matched.length > 0;
-        if (!anyRouteActive && this.moduleConfig.length > 0)
+        if (!anyRouteActive && this.validModuleConfigs.length > 0)
         {
-            this.showModule(this.moduleConfig[0]);
+            this.showModule(this.validModuleConfigs[0]);
         }
     }
 

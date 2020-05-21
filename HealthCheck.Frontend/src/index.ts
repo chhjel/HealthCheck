@@ -73,7 +73,9 @@ const store = new Vuex.Store({
 let moduleConfig = ((window as any).healthCheckModuleConfigs) as Array<ModuleConfig>;
 let moduleOptions = ((window as any).healthCheckModuleOptions) as Record<string, ModuleOptions<any>>;
 let routes: Array<RouteConfig> = [];
-moduleConfig.forEach(config => {
+moduleConfig
+    .filter(config => config.LoadedSuccessfully)
+    .forEach(config => {
     routes.push({
         name: config.Id,
         path: config.RoutePath,
