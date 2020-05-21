@@ -3,7 +3,7 @@ using HealthCheck.Core.Entities;
 using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.AuditLog.Models;
-using HealthCheck.Core.Modules.Dataflow;
+using HealthCheck.Core.Modules.Dataflow.Models;
 using HealthCheck.Core.Modules.Diagrams.FlowCharts;
 using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
 using HealthCheck.Core.Modules.EventNotifications;
@@ -507,14 +507,6 @@ namespace HealthCheck.WebUI.Util
         }
         
         /// <summary>
-        /// Check if the given roles has access to view the dataflow page.
-        /// </summary>
-        public bool CanShowDataflowPageTo(Maybe<TAccessRole> accessRoles, bool checkCount = true)
-            => Services.DataflowService != null 
-            && AccessRolesHasAccessTo(accessRoles, AccessOptions.DataflowPageAccess, defaultValue: false)
-            && (!checkCount || GetDataflowStreamsMetadata(accessRoles).Any());
-
-        /// <summary>
         /// Check if the given roles has access to calling the ping endpoint.
         /// </summary>
         public bool CanUsePingEndpoint(Maybe<TAccessRole> accessRoles)
@@ -597,19 +589,6 @@ namespace HealthCheck.WebUI.Util
             };
 
         /// <summary>
-        /// When data has been fetched from a datastream this should be called.
-        /// </summary>
-        public void AuditLog_DatastreamFetched(RequestInformation<TAccessRole> requestInformation,
-            DataflowStreamMetadata<TAccessRole> stream, DataflowStreamFilter filter)
-        {
-            Services.AuditEventService?.StoreEvent(
-                CreateAuditEventFor(requestInformation, "Dataflow", action: "Dataflow stream fetched", subject: stream?.Name)
-                .AddDetail("Stream id", stream?.Id)
-                .AddDetail("Filter input", (filter == null) ? null : SerializeJson(filter))
-            );
-        }
-
-        /// <summary>
         /// When a log search has been started this should be called.
         /// </summary>
         public void AuditLog_LogSearch(RequestInformation<TAccessRole> requestInformation, LogSearchFilter filter, LogSearchResult result)
@@ -663,40 +642,6 @@ namespace HealthCheck.WebUI.Util
                     CreateAuditEventFor(requestInformation, "EventNotifications", action: "Saved event notification config")
                 );
             }
-        }
-
-        /// <summary>
-        /// Get viewmodel for dataflow entries result.
-        /// </summary>
-        public async Task<IEnumerable<IDataflowEntry>> GetDataflowEntries(string streamId, DataflowStreamFilter filter,
-            RequestInformation<TAccessRole> requestInformation)
-        {
-            if (Services.DataflowService == null 
-                || !GetDataflowStreamsMetadata(requestInformation.AccessRole).Any())
-                return Enumerable.Empty<IDataflowEntry>();
-
-            var stream = this.GetDataflowStreamsMetadata(requestInformation.AccessRole)
-                .FirstOrDefault(x => x.Id == streamId);
-            if (stream != null)
-            {
-                AuditLog_DatastreamFetched(requestInformation, stream, filter);
-            }
-
-            filter ??= new DataflowStreamFilter();
-            filter.PropertyFilters ??= new Dictionary<string, string>();
-            return await Services.DataflowService.GetEntries(streamId, filter);
-        }
-
-        /// <summary>
-        /// Get viewmodel for dataflow streams metadata result.
-        /// </summary>
-        public IEnumerable<DataflowStreamMetadata<TAccessRole>> GetDataflowStreamsMetadata(Maybe<TAccessRole> accessRoles)
-        {
-            if (Services.DataflowService == null || !CanShowDataflowPageTo(accessRoles, checkCount: false))
-                return Enumerable.Empty<DataflowStreamMetadata<TAccessRole>>();
-
-            return Services.DataflowService.GetStreamMetadata()
-                .Where(x => AccessRolesHasAccessTo(accessRoles, x.RolesWithAccess, defaultValue: true));
         }
 
         /// <summary>

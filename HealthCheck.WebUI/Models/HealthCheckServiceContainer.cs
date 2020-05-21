@@ -31,11 +31,6 @@ namespace HealthCheck.WebUI.Models
         public IFlowChartsService FlowChartsService { get; set; }
 
         /// <summary>
-        /// Must be set for the dataflow tab to be shown.
-        /// </summary>
-        public IDataflowService<TAccessRole> DataflowService { get; set; }
-
-        /// <summary>
         /// Must be set for the event notifications tab to be shown.
         /// </summary>
         public IEventDataSink EventSink { get; set; }

@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 namespace HealthCheck.Core.Modules.AuditLog
 {
     /// <summary>
-    /// Module for executing tests at runtime.
+    /// Module for viewing audit logs.
     /// </summary>
     public class HCAuditLogModule : HealthCheckModuleBase<HCAuditLogModule.AccessOption>
     {
         private HCAuditLogModuleOptions Options { get; }
 
         /// <summary>
-        /// Module for executing tests at runtime.
+        /// Module for viewing audit logs.
         /// </summary>
         public HCAuditLogModule(HCAuditLogModuleOptions options)
         {

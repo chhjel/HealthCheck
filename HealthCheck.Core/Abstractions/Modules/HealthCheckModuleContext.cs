@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Modules.AuditLog.Models;
+﻿using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.AuditLog.Models;
 using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
@@ -45,6 +46,25 @@ namespace HealthCheck.Core.Abstractions.Modules
         /// </summary>
         public bool HasAccess<TAccess>(TAccess access, bool defaultValue = false) where TAccess : Enum
             => EnumUtils.IsFlagSet(CurrentRequestModuleAccessOptions, access, defaultValue);
+
+        /// <summary>
+        /// Default value if pageAccess is null, false if no roles were given.
+        /// </summary>
+        public bool HasRoleAccess<TAccessRole>(Maybe<TAccessRole> roles, bool defaultValue = true)
+        {
+            // No access defined => default
+            if (roles == null || !roles.HasValue)
+            {
+                return defaultValue;
+            }
+            // Access is defined but no user roles => denied
+            else if ((CurrentRequestRoles == null || (int)CurrentRequestRoles == 0) && roles.HasValue())
+            {
+                return false;
+            }
+
+            return EnumUtils.EnumFlagHasAnyFlagsSet(CurrentRequestRoles, roles.Value);
+        }
 
         /// <summary>
         /// All registered audit events.

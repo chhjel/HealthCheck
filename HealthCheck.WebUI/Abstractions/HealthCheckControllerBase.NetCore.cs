@@ -266,35 +266,6 @@ namespace HealthCheck.WebUI.Abstractions
         }
 #endregion
 
-#region Dataflow
-        /// <summary>
-        /// Get dataflow streams metadata to show in the UI.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [Route("GetDataflowStreamsMetadata")]
-        public virtual ActionResult GetDataflowStreamsMetadata()
-        {
-            if (!Enabled || !Helper.CanShowDataflowPageTo(CurrentRequestAccessRoles)) return NotFound();
-
-            var viewModel = Helper.GetDataflowStreamsMetadata(CurrentRequestAccessRoles);
-            return CreateJsonResult(viewModel);
-        }
-
-        /// <summary>
-        /// Get dataflow streams metadata to show in the UI.
-        /// </summary>
-        [RequestLogInfo(hide: true)]
-        [HttpPost]
-        [Route("GetDataflowStreamEntries")]
-        public virtual async Task<ActionResult> GetDataflowStreamEntries([FromBody] GetDataflowStreamEntriesFilter filter)
-        {
-            if (!Enabled || !Helper.CanShowDataflowPageTo(CurrentRequestAccessRoles)) return NotFound();
-
-            var viewModel = await Helper.GetDataflowEntries(filter.StreamId, filter.StreamFilter, CurrentRequestInformation);
-            return CreateJsonResult(viewModel);
-        }
-#endregion
-
 #region EventNotificationConfig
         /// <summary>
         /// Get viewmodel for the event notification configs

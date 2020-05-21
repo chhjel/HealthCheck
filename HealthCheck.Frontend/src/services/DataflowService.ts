@@ -18,7 +18,7 @@ export default class DataflowService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<Array<DataflowStreamMetadata>> | null = null
     ) : void
     {
-        // this.fetchExt<Array<DataflowStreamMetadata>>(url, 'GET', null, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, "GetDataflowStreamsMetadata", null, statusObject, callbacks);
     }
 
     public GetStreamEntries(
@@ -27,6 +27,6 @@ export default class DataflowService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<Array<DataflowEntry>> | null = null
     ) : void
     {
-        // this.fetchExt<Array<DataflowEntry>>(url, 'POST', filter, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, "GetDataflowStreamEntries", filter, statusObject, callbacks);
     }
 }

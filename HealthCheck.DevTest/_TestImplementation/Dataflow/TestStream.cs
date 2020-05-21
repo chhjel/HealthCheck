@@ -1,11 +1,11 @@
-﻿using HealthCheck.Core.Modules.Dataflow;
+﻿using HealthCheck.Core.Modules.Dataflow.Abstractions;
+using HealthCheck.Core.Modules.Dataflow.Models;
 using HealthCheck.Core.Util;
 using HealthCheck.WebUI.Services;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using static HealthCheck.Core.Modules.Dataflow.DataFlowPropertyDisplayInfo;
+using static HealthCheck.Core.Modules.Dataflow.Models.DataFlowPropertyDisplayInfo;
 
 namespace HealthCheck.DevTest._TestImplementation.Dataflow
 {
@@ -25,8 +25,8 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
         public override string Description => "asd dgsdkg";
         public override string GroupName => _groupName;
         public override string Id => _id;
-        private string _groupName { get; }
-        private string _id { get; }
+        private readonly string _groupName;
+        private readonly string _id;
 
         public TestMemoryStream(string groupName)
             : base(maxItemCount: 20, maxDuration: TimeSpan.FromSeconds(30), idSetter: (x, id) => x.Id = id)

@@ -1,5 +1,4 @@
-﻿using HealthCheck.Core.Modules.Dataflow;
-using HealthCheck.WebUI.Services;
+﻿using HealthCheck.Core.Modules.Dataflow.Abstractions;
 using System;
 using System.Collections.Generic;
 
