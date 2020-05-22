@@ -355,45 +355,26 @@ export default class EventNotificationsPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
-    // Invoked from parent
-    public onPageShow(): void {
-        const parts = (<any>window).eventnotificationsState;
-        if (parts != null && parts != undefined) {
-            this.updateUrl(parts);
-        } else {
-            this.updateUrl(['eventnotifications']);
+    updateUrl(): void {
+        let routeParams: any = {};
+        if (this.currentConfig != null && this.currentConfig.Id != null)
+        {
+            routeParams['id'] = this.currentConfig.Id;
         }
+
+        this.$router.push({ name: this.config.Id, params: routeParams })
     }
 
-    setFromUrl(forcedParts: Array<string> | null = null): void {
-        // const parts = forcedParts || UrlUtils.GetHashParts();
+    updateSelectionFromUrl(): void {
+        const idFromHash = this.$route.params.id;
         
-        // let didSelectConfig = false;
-        // const selectedItem = parts[1];
-        // if (selectedItem !== undefined && selectedItem.length > 0) {
-        //     let configFromUrl = this.configs.filter(x => x.Id != null && UrlUtils.EncodeHashPart(x.Id) == selectedItem)[0];
-        //     if (configFromUrl != null)
-        //     {
-        //         didSelectConfig = true;
-        //         this.showConfig(configFromUrl);
-        //     }
-        // }
-    }
-
-    updateUrl(parts?: Array<string> | null): void {
-        // if (parts == null)
-        // {
-        //     parts = ['eventnotifications'];
-
-        //     if (this.currentConfig != null && this.currentConfig.Id != null)
-        //     {
-        //         parts.push(UrlUtils.EncodeHashPart(this.currentConfig.Id));
-        //     }
-        // }
-
-        // UrlUtils.SetHashParts(parts);
-        
-        // (<any>window).eventnotificationsState = parts;
+        if (idFromHash) {
+            let configFromUrl = this.configs.filter(x => x.Id != null && x.Id == idFromHash)[0];
+            if (configFromUrl != null)
+            {
+                this.showConfig(configFromUrl, false);
+            }
+        }
     }
 
     loadData(): void {
@@ -406,8 +387,7 @@ export default class EventNotificationsPageComponent extends Vue {
             EventSinkNotificationConfigUtils.postProcessConfig(config, this.notifiers);
         });
 
-        // const originalUrlHashParts = UrlUtils.GetHashParts();
-        // this.setFromUrl(originalUrlHashParts);
+        this.updateSelectionFromUrl();
         
         this.data.Configs = this.data.Configs.sort(
             (a, b) => LinqUtils.SortByThenBy(a, b,
@@ -468,9 +448,13 @@ export default class EventNotificationsPageComponent extends Vue {
         this.hideCurrentConfig();
     }
 
-    showConfig(config: EventSinkNotificationConfig): void {
+    showConfig(config: EventSinkNotificationConfig, updateRoute: boolean = true): void {
         this.currentConfig = config;
-        this.updateUrl();
+
+        if (updateRoute)
+        {
+            this.updateUrl();
+        }
     }
 
     hideCurrentConfig(): void {

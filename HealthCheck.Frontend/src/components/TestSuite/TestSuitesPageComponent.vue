@@ -316,17 +316,17 @@ export default class TestSuitesPageComponent extends Vue {
     {
         this.activeSet = set;
 
-        let routeParams: any = {
-            group: (set.GroupName == null) ? 'other' : UrlUtils.EncodeHashPart(set.GroupName),
-            set: UrlUtils.EncodeHashPart(set.Name)
-        };
-        if (test != null)
-        {
-            routeParams['test'] = UrlUtils.EncodeHashPart(test);
-        }
-
         if (updateRoute)
         {
+            let routeParams: any = {
+                group: (set.GroupName == null) ? 'other' : UrlUtils.EncodeHashPart(set.GroupName),
+                set: UrlUtils.EncodeHashPart(set.Name)
+            };
+            if (test != null)
+            {
+                routeParams['test'] = UrlUtils.EncodeHashPart(test);
+            }
+
             this.$router.push({ name: this.config.Id, params: routeParams })
         }
     }

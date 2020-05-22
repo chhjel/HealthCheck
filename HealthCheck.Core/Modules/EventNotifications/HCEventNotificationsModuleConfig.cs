@@ -9,7 +9,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
         public string ComponentName => "EventNotificationsPageComponent";
         public string DefaultRootRouteSegment => "events";
         public string InitialRoute => "/{0}";
-        public string RoutePath => "/{0}";
+        public string RoutePath => "/{0}/:id?";
         public List<HealthCheckLinkTagModel> LinkTags => null;
         public List<HealthCheckScriptTagModel> ScriptTags => null;
     }
