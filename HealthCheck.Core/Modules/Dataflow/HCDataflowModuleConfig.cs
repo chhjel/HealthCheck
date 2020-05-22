@@ -9,7 +9,7 @@ namespace HealthCheck.Core.Modules.Dataflow
         public string ComponentName => "DataflowPageComponent";
         public string DefaultRootRouteSegment => "dataflow";
         public string InitialRoute => "/{0}";
-        public string RoutePath => "/{0}";
+        public string RoutePath => "/{0}/:group?/:streamName?";
         public List<HealthCheckLinkTagModel> LinkTags => null;
         public List<HealthCheckScriptTagModel> ScriptTags => null;
     }

@@ -201,6 +201,7 @@ import DataflowService from "../../services/DataflowService";
 import { FetchStatus } from "../../services/abstractions/HCServiceBase";
 import ModuleConfig from "../../models/Common/ModuleConfig";
 import ModuleOptions from "../../models/Common/ModuleOptions";
+import UrlUtils from "../../util/UrlUtils";
 
 interface PropFilter
 {
@@ -376,49 +377,36 @@ export default class DataflowPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
-    // Invoked from parent
-    public onPageShow(): void {
-        const parts = (<any>window).dataflowState;
-        if (parts != null && parts != undefined) {
-            this.updateUrl(parts);
+    updateUrl(): void {
+        let routeParams: any = {};
+        if (this.selectedStream != null)
+        {
+            routeParams['streamName'] = UrlUtils.EncodeHashPart(this.selectedStream.Name);
+            routeParams['group'] = UrlUtils.EncodeHashPart(this.selectedStream.GroupName);
         }
+        this.$router.push({ name: this.config.Id, params: routeParams })
     }
 
-    setFromUrl(forcedParts: Array<string> | null = null): void {
-        // const parts = forcedParts || UrlUtils.GetHashParts();
-        
-        // let didSelectStream = false;
-        // const selectedItem = parts[1];
-        // if (selectedItem !== undefined && selectedItem.length > 0) {
-        //     let stream = this.streamMetadatas.filter(x => UrlUtils.EncodeHashPart(x.Name) == selectedItem)[0];
-        //     if (stream != null)
-        //     {
-        //         didSelectStream = true;
-        //         this.setActveStream(stream);
-        //     }
-        // }
+    updateSelectionFromUrl(): void {
+        const selectedItemGroup = this.$route.params.group;
+        const selectedItem = this.$route.params.streamName;
 
-        // if (!didSelectStream && this.streamMetadatas.length > 0)
-        // {
-        //     this.setActveStream(this.streamMetadatas[0]);
-        // }
-    }
+        let didSelectStream = false;
+        if (selectedItem !== undefined && selectedItem.length > 0) {
+            let stream = this.streamMetadatas
+                .filter(x => UrlUtils.EncodeHashPart(x.Name) == selectedItem
+                    && UrlUtils.EncodeHashPart(x.GroupName) == selectedItemGroup)[0];
+            if (stream != null)
+            {
+                didSelectStream = true;
+                this.setActiveStream(stream, false);
+            }
+        }
 
-    updateUrl(parts?: Array<string> | null): void {
-        // if (parts == null)
-        // {
-        //     parts = ['dataflow'];
-
-        //     if (this.selectedStream != null)
-        //     {
-        //         parts.push(UrlUtils.EncodeHashPart(this.selectedStream.Name));
-        //     }
-        // }
-
-        // UrlUtils.SetHashParts(parts);
-        
-        // // Some dirty technical debt before transitioning to propper routing :-)
-        // (<any>window).dataflowState = parts;
+        if (!didSelectStream && this.streamMetadatas.length > 0)
+        {
+            this.setActiveStream(this.streamMetadatas[0], false);
+        }
     }
 
     resetFilter(): void {
@@ -461,8 +449,7 @@ export default class DataflowPageComponent extends Vue {
             return x;
         });
 
-        // const originalUrlHashParts = UrlUtils.GetHashParts();
-        // this.setFromUrl(originalUrlHashParts);
+        this.updateSelectionFromUrl();
     }
 
     loadStreamEntries(): void {
@@ -636,7 +623,7 @@ export default class DataflowPageComponent extends Vue {
         }
     }
 
-    setActveStream(stream: DataflowStreamMetadata): void {
+    setActiveStream(stream: DataflowStreamMetadata, updateUrl: boolean = true): void {
         if (this.dataLoadStatus.inProgress) {
             return;
         }
@@ -653,7 +640,10 @@ export default class DataflowPageComponent extends Vue {
         this.filters = this.filtersPerStream[this.selectedStream.Id] || [];
         this.streamEntryGroups = this.resultCache[this.selectedStream.Id] || [];
 
-        this.updateUrl();
+        if (updateUrl)
+        {
+            this.updateUrl();
+        }
     }
     
     toggleSideMenu(): void {
@@ -745,7 +735,7 @@ export default class DataflowPageComponent extends Vue {
     //  EVENT HANDLERS  //
     /////////////////////
     onMenuItemClicked(item: FilterableListItem): void {
-        this.setActveStream(item.data);
+        this.setActiveStream(item.data);
     }
 
     onDateRangeChanged(data: any): void {
