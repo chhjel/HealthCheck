@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace HealthCheck.Core.Services
+namespace HealthCheck.Core.Tests.Modules.Tests
 {
     public class TestDiscovererTests
     {

@@ -34,6 +34,10 @@ namespace HealthCheck.Core.Util
 				{
 					loadedModule.LoadErrors.Add($"Access options type could not be determined.");
 				}
+				else if (loadedModule.AccessOptionsType != accessOptions?.GetType())
+				{
+					loadedModule.LoadErrors.Add($"Given access options type does not match the module access options type.");
+				}
 				else if (!EnumUtils.IsTypeEnumFlag(loadedModule.AccessOptionsType))
 				{
 					loadedModule.LoadErrors.Add($"Access options type should be decorated with [Flags].");
@@ -53,6 +57,10 @@ namespace HealthCheck.Core.Util
 				if (loadedModule.Config == null)
 				{
 					loadedModule.LoadErrors.Add($"GetModuleConfig should return something not null.");
+				}
+				else
+				{
+					ValidateConfigValues(loadedModule);
 				}
 
 				if (loadedModule.Config != null && name == null)
@@ -81,6 +89,20 @@ namespace HealthCheck.Core.Util
 			}
 
 			return loadedModule;
+		}
+
+		private static void ValidateConfigValues(HealthCheckLoadedModule loadedModule)
+		{
+			var invalidProps = new List<string>();
+			if (loadedModule.Config.DefaultRootRouteSegment == null) invalidProps.Add(nameof(IHealthCheckModuleConfig.DefaultRootRouteSegment));
+			if (loadedModule.Config.InitialRoute == null) invalidProps.Add(nameof(IHealthCheckModuleConfig.InitialRoute));
+			if (loadedModule.Config.RoutePath == null) invalidProps.Add(nameof(IHealthCheckModuleConfig.RoutePath));
+			if (loadedModule.Config.ComponentName == null) invalidProps.Add(nameof(IHealthCheckModuleConfig.ComponentName));
+
+			foreach (var prop in invalidProps)
+			{
+				loadedModule.LoadErrors.Add($"Config property '{prop}' should not be null.");
+			}
 		}
 
 		/// <summary>
