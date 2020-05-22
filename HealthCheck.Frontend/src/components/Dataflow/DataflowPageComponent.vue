@@ -289,6 +289,8 @@ export default class DataflowPageComponent extends Vue {
     ////////////////
     mounted(): void
     {
+        this.$store.commit('showMenuButton', true);
+
         this.resetFilter();
         this.loadData();
     }

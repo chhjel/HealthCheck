@@ -235,6 +235,8 @@ Web -> Frontend: Confirmation is delivered
     ////////////////
     mounted(): void
     {
+        this.$store.commit('showMenuButton', true);
+
         let restoredSandbox = localStorage.getItem("sandbox_sequencediagram_script");
         if (restoredSandbox != null)
         {

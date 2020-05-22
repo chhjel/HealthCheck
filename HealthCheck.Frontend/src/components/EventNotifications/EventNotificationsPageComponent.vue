@@ -418,6 +418,11 @@ export default class EventNotificationsPageComponent extends Vue {
     }
 
     setConfigEnabled(config: EventSinkNotificationConfig, enabled: boolean): void {
+        if (this.serverInteractionInProgress)
+        {
+            return;
+        }
+
         this.serverInteractionInProgress = true;
         
         this.service.SetConfigEnabled(config, enabled, this.loadStatus, {
