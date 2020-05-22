@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 
 namespace HealthCheck.WebUI.Serializers
@@ -21,7 +22,8 @@ namespace HealthCheck.WebUI.Serializers
                 {
                     sender = null;
                     e.ErrorContext.Handled = true;
-                }
+                },
+                Converters = new[] { new StringEnumConverter() }
             };
             return JsonConvert.SerializeObject(obj, settings);
         }

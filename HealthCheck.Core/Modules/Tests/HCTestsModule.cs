@@ -63,7 +63,10 @@ namespace HealthCheck.Core.Modules.Tests
             Nothing = 0,
 
             /// <summary>Gives access to view the module.</summary>
-            ViewInvalidTests = 1
+            ViewInvalidTests = 1,
+
+            /// <summary>Gives access to view stacktrace if an unhandled exception is thrown during test execution.</summary>
+            IncludeExceptionStackTraces = 2
         }
 
         #region Invokable methods
@@ -96,7 +99,7 @@ namespace HealthCheck.Core.Modules.Tests
         [HealthCheckModuleMethod]
         public async Task<object> ExecuteTest(HealthCheckModuleContext context, ExecuteTestInputData data)
         {
-            var result = await ExecuteTest(context.CurrentRequestRoles, data);
+            var result = await ExecuteTest(context.CurrentRequestRoles, data, context.HasAccess(AccessOption.IncludeExceptionStackTraces));
             context.AddAuditEvent(action: "Test executed", subject: result?.TestName)
                 .AddDetail("Test id", data?.TestId)
                 .AddDetail("Parameters", $"[{string.Join(", ", (data?.Parameters ?? new List<string>()))}]")
@@ -156,7 +159,7 @@ namespace HealthCheck.Core.Modules.Tests
         private TestDefinition GetTest(object currentRequestRoles, string testId)
             => GetTestDefinitions(currentRequestRoles).SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == testId);
 
-        private async Task<TestResultViewModel> ExecuteTest(object accessRoles, ExecuteTestInputData data)
+        private async Task<TestResultViewModel> ExecuteTest(object accessRoles, ExecuteTestInputData data, bool includeExceptionStackTraces)
         {
             if (data == null || data.TestId == null)
             {
@@ -172,7 +175,10 @@ namespace HealthCheck.Core.Modules.Tests
             try
             {
                 var parameters = data?.GetParametersWithConvertedTypes(test.Parameters.Select(x => x.ParameterType).ToArray(), ParameterConverter);
-                var result = await TestRunner.ExecuteTest(test, parameters, allowDefaultValues: false);
+                var result = await TestRunner.ExecuteTest(test, parameters,
+                    allowDefaultValues: false,
+                    includeExceptionStackTraces: includeExceptionStackTraces
+                );
                 return TestsViewModelsFactory.CreateViewModel(result);
             }
             catch (Exception ex)
@@ -198,13 +204,14 @@ namespace HealthCheck.Core.Modules.Tests
                     auditUsername: context.UserName
                 );
 
+                var includeExceptionStackTraces = context.HasAccess(AccessOption.IncludeExceptionStackTraces);
                 var testResults = results.Select(x => new ExecuteTestsTestResult()
                 {
                     TestId = x.Test?.Id,
                     TestName = x.Test?.Name,
                     Result = x.Status,
                     Message = x.Message,
-                    StackTrace = x.StackTrace
+                    StackTrace = includeExceptionStackTraces ? x.StackTrace : null
                 }).ToList();
 
                 return new ExecuteTestsResult()

@@ -73,6 +73,13 @@ namespace HealthCheck.DevTest.Controllers
         {
             InitServices();
 
+            UseModule(new HCTestsModule(new HCTestsModuleOptions() { AssemblyContainingTests = typeof(DevController).Assembly }))
+                .ConfigureGroups((options) => options
+                    .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
+                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)
+                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
+                    .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
+                );
             UseModule(new HCEventNotificationsModule(new HCEventNotificationsModuleOptions() { EventSink = EventSink }));
             UseModule(new HCLogViewerModule(new HCLogViewerModuleOptions() { LogSearcherService = CreateLogSearcherService() }));
             UseModule(new HCDocumentationModule(new HCDocumentationModuleOptions()
@@ -91,13 +98,6 @@ namespace HealthCheck.DevTest.Controllers
             UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = _siteEventService }));
             UseModule(new HCRequestLogModule(new HCRequestLogModuleOptions() { RequestLogService = RequestLogServiceAccessor.Current }));
             UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { SettingsService = SettingsService }));
-            UseModule(new HCTestsModule(new HCTestsModuleOptions() { AssemblyContainingTests = typeof(DevController).Assembly }))
-                .ConfigureGroups((options) => options
-                    .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
-                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)
-                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
-                    .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
-                );
             //UseModule(new TestModuleB(), "[tst]");
 
             if (!_hasInited)
