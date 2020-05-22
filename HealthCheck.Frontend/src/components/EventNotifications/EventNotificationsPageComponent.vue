@@ -423,7 +423,7 @@ export default class EventNotificationsPageComponent extends Vue {
         EventSinkNotificationConfigUtils.postProcessConfig(config, this.notifiers);
 
         const position = this.data.Configs.findIndex(x => x.Id == config.Id);
-        this.data.Configs = this.data.Configs.filter(x => x.Id != config.Id);
+        //this.data.Configs = this.data.Configs.filter(x => x.Id != config.Id);
 
         if (position == -1)
         {
