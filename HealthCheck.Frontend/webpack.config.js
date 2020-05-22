@@ -86,8 +86,13 @@ module.exports = {
   devtool: '#eval-source-map'
 }
 
+const isProd = process.env.NODE_ENV === 'production';
 module.exports.plugins = [
-  new VueLoaderPlugin()
+  new VueLoaderPlugin(),
+  new webpack.DefinePlugin({
+    DEVMODE: JSON.stringify(!isProd),
+    PRODMODE: JSON.stringify(isProd)
+  })
   // new BundleAnalyzerPlugin()
 ];
 

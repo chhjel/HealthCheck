@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.AuditLog;
+using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Util;
 using HealthCheck.WebUI.Exceptions;
@@ -25,21 +26,20 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Initialize a new HealthCheck helper with the given services.
         /// </summary>
-        public HealthCheckControllerHelper(HealthCheckServiceContainer<TAccessRole> serviceContainer)
+        public HealthCheckControllerHelper()
         {
-            Services = serviceContainer ?? new HealthCheckServiceContainer<TAccessRole>();
             AccessConfig.RoleModuleAccessLevels = RoleModuleAccessLevels;
         }
-
-        /// <summary>
-        /// Contains services that enables extra functionality.
-        /// </summary>
-        public HealthCheckServiceContainer<TAccessRole> Services { get; } = new HealthCheckServiceContainer<TAccessRole>();
 
         /// <summary>
         /// Access related options.
         /// </summary>
         public AccessConfig<TAccessRole> AccessConfig { get; set; } = new AccessConfig<TAccessRole>();
+
+        /// <summary>
+        /// Used for auditing, is set from first audit module if any.
+        /// </summary>
+        public IAuditEventStorage AuditEventService { get; set; }
 
         internal bool HasAccessToAnyContent(Maybe<TAccessRole> currentRequestAccessRoles)
             => GetModulesRequestHasAccessTo(currentRequestAccessRoles).Count > 0;
@@ -162,7 +162,7 @@ namespace HealthCheck.WebUI.Util
                 {
                     foreach (var e in context.AuditEvents)
                     {
-                        await Services.AuditEventService.StoreEvent(e);
+                        await AuditEventService.StoreEvent(e);
                     }
                 }
             }
@@ -256,7 +256,7 @@ namespace HealthCheck.WebUI.Util
                 }
                 else if (loadedModule.Module is HCAuditLogModule auditModule)
                 {
-                    Services.AuditEventService = auditModule.AuditEventService;
+                    AuditEventService = auditModule.AuditEventService;
                 }
             }
         }

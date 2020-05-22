@@ -164,7 +164,6 @@
                 </v-layout>
 
                 <div>
-                    <!-- globalOptions -->
                     <v-layout row wrap xs12>
                         <v-flex xs6 sm4 lg4 v-if="!showExcludedQuery">
                             <v-btn depressed small class="extra-filter-btn"
@@ -213,7 +212,7 @@
                         </v-flex>
                         <v-flex xs6 sm4 lg4 v-if="!showcustomColumnRule">
                             <v-btn depressed small class="extra-filter-btn"
-                                @click="showcustomColumnRule = true; customColumnRule=options.DefaultColumnRule">
+                                @click="showcustomColumnRule = true; customColumnRule=options.Options.DefaultColumnRule">
                                 <v-icon >add</v-icon>
                                 Custom columns
                             </v-btn>
@@ -370,6 +369,10 @@ interface DatePickerPreset {
 interface LogViewerPageOptions
 {
     CurrentlyRunningLogSearchCount: number;
+    DefaultColumnRule: string;
+    DefaultColumnModeIsRegex: boolean;
+    ApplyCustomColumnRuleByDefault: boolean;
+    MaxInsightsEntryCount: number;
 }
 
 @Component({
@@ -582,7 +585,7 @@ export default class LogViewerPageComponent extends Vue {
         this.showExcludedQuery = false;
         this.showLogPathQuery = false;
         this.showExcludedLogPathQuery = false;
-        this.showcustomColumnRule = this.globalOptions.ApplyCustomColumnRuleByDefault;
+        this.showcustomColumnRule = this.options.Options.ApplyCustomColumnRuleByDefault;
 
         this.filterFromDate = new Date();
         this.filterFromDate.setDate(this.filterFromDate.getDate() - 7);
@@ -604,9 +607,9 @@ export default class LogViewerPageComponent extends Vue {
         this.filterExcludedQueryIsRegex = false;
         this.filterLogPathQueryIsRegex = false;
         this.filterExcludedLogPathQueryIsRegex = false;
-        this.customColumnRule = (this.globalOptions.ApplyCustomColumnRuleByDefault)
-            ? this.globalOptions.DefaultColumnRule : '';
-        this.customColumnMode = (this.globalOptions.DefaultColumnModeIsRegex == true) 
+        this.customColumnRule = (this.options.Options.ApplyCustomColumnRuleByDefault)
+            ? this.options.Options.DefaultColumnRule : '';
+        this.customColumnMode = (this.options.Options.DefaultColumnModeIsRegex == true) 
             ? FilterDelimiterMode.Regex : FilterDelimiterMode.Delimiter;
     }
 
@@ -671,7 +674,7 @@ export default class LogViewerPageComponent extends Vue {
 
             FromDate: this.filterFromDate,
             ToDate: this.filterToDate,
-            MaxStatisticsCount: this.globalOptions.MaxInsightsEntryCount,
+            MaxStatisticsCount: this.options.Options.MaxInsightsEntryCount,
             OrderDescending: this.filterOrderDescending,
             
             Query: this.filterQuery,

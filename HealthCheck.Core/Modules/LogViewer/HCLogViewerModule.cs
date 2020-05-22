@@ -30,7 +30,11 @@ namespace HealthCheck.Core.Modules.LogViewer
         /// </summary>
         public override object GetFrontendOptionsObject(AccessOption access) => new
         {
-            CurrentlyRunningLogSearchCount = GetCurrentlyRunningLogSearchCount()
+            CurrentlyRunningLogSearchCount = GetCurrentlyRunningLogSearchCount(),
+            DefaultColumnRule = Options.DefaultColumnRule,
+            DefaultColumnModeIsRegex = Options.DefaultColumnModeIsRegex,
+            ApplyCustomColumnRuleByDefault = Options.ApplyCustomColumnRuleByDefault,
+            MaxInsightsEntryCount = Options.MaxInsightsEntryCount
         };
 
         /// <summary>

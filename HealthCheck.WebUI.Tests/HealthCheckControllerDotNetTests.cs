@@ -80,7 +80,7 @@ namespace HealthCheck.WebUI.Tests
         public HealthCheckControllerDotNet(AccessRoles allowedRoles) : base()
         {
             //Services.SiteEventService = new SiteEventService(new MemorySiteEventStorage());
-            Services.AuditEventService = new MemoryAuditEventStorage();
+            //AuditEventService = new MemoryAuditEventStorage();
 
             AllowedRoles = allowedRoles;
             //AccessOptions.AuditLogAccess = new Maybe<AccessRoles>(AccessRoles.WebAdmins);

@@ -39,11 +39,6 @@ namespace HealthCheck.WebUI.Abstractions
         protected bool Enabled { get; set; } = true;
 
         /// <summary>
-        /// Contains services that enables extra functionality.
-        /// </summary>
-        protected HealthCheckServiceContainer<TAccessRole> Services { get; } = new HealthCheckServiceContainer<TAccessRole>();
-
-        /// <summary>
         /// Access roles for the current request. Is only set after BeginExecute has been called for the request.
         /// <para>Value equals what you return from GetRequestInformation().AccessRole.</para>
         /// </summary>
@@ -63,7 +58,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         public HealthCheckControllerBase()
         {
-            Helper = new HealthCheckControllerHelper<TAccessRole>(Services);
+            Helper = new HealthCheckControllerHelper<TAccessRole>();
         }
 
 #region Abstract

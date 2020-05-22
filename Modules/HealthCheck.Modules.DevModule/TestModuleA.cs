@@ -41,17 +41,5 @@ namespace HealthCheck.Modules.DevModule
             EditThing = 1,
             DeleteThing = 2
         }
-
-        // todo: how to send data from frontend here? only allow post?
-        // => [controller]/module/<name>/<action>
-        // todo: how to receive it? find matching module & method w/ parameter & deserialize payload into single parameter?
-        //       serialize result from method if any. Allow async methods.
-        // => /module/test/editThing => public x EditThing
-
-        /*
-         ToDo:
-         - override id and name when calling UseModule(..)
-         - warn in frontend if any invalid modules are registered, any invalid methods, verify that enum is flags etc
-         */
     }
 }

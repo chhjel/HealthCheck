@@ -33,10 +33,5 @@ namespace HealthCheck.Core.Modules.LogViewer
         /// <para>Defaults to 5000.</para>
         /// </summary>
         public int MaxInsightsEntryCount { get; set; } = 5000;
-
-        /// <summary>
-        /// Number log searches currently running.
-        /// </summary>
-        public int CurrentlyRunningLogSearchCount { get; set; }
     }
 }
