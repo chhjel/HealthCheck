@@ -69,7 +69,7 @@ namespace HealthCheck.DevTest.Controllers
         private static bool ForceLogout { get; set; }
 
         #region Init
-        public DevController() : base()
+        public DevController()
         {
             InitServices();
 
@@ -129,6 +129,7 @@ namespace HealthCheck.DevTest.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCEventNotificationsModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
             
+            config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
             config.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
             config.RedirectTargetOnNoAccess = "/no-access";
         }
