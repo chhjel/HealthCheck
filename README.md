@@ -6,7 +6,7 @@
 ## What is it
 Provides an almost plug and play web interface with a few different utility modules that can enabled as needed and access to each module can be restricted.
 
-Modules:
+Available modules:
 
 * Overview module where registed events that can be shown in a status interface, e.g. showing the stability of integrations.
 * Audit module where actions from other modules are logged.
@@ -95,7 +95,7 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
     // Access options and other configs here.
     protected override void ConfigureAccess(HttpRequestBase request, AccessConfig<AccessRoles> config)
     {
-        // There's 3 methods to grant the request access to modules:
+        // There's 3 methods available to grant the request access to modules:
 
         // #1: Give a given role access to a given module,
         // without setting any module access options:
