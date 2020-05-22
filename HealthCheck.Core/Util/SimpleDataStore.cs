@@ -250,20 +250,18 @@ namespace HealthCheck.Core.Util
 
                 lock (_fileLock)
                 {
-                    using (FileStream fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                    using (ReverseStreamReader streamReader = new ReverseStreamReader(fileStream))
+                    using FileStream fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    using ReverseStreamReader streamReader = new ReverseStreamReader(fileStream);
+                    string row;
+                    while ((row = streamReader.ReadLine()) != null)
                     {
-                        string row;
-                        while ((row = streamReader.ReadLine()) != null)
-                        {
-                            if (string.IsNullOrWhiteSpace(row))
-                                continue;
+                        if (string.IsNullOrWhiteSpace(row))
+                            continue;
 
-                            var item = DeserializeRow(row);
-                            if (item != null)
-                            {
-                                yield return item;
-                            }
+                        var item = DeserializeRow(row);
+                        if (item != null)
+                        {
+                            yield return item;
                         }
                     }
                 }
@@ -272,21 +270,19 @@ namespace HealthCheck.Core.Util
             {
                 lock (_fileLock)
                 {
-                    using (FileStream fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                    using (BufferedStream bufferedStream = new BufferedStream(fileStream))
-                    using (StreamReader streamReader = new StreamReader(bufferedStream))
+                    using FileStream fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    using BufferedStream bufferedStream = new BufferedStream(fileStream);
+                    using StreamReader streamReader = new StreamReader(bufferedStream);
+                    string row;
+                    while ((row = streamReader.ReadLine()) != null)
                     {
-                        string row;
-                        while ((row = streamReader.ReadLine()) != null)
-                        {
-                            if (string.IsNullOrWhiteSpace(row))
-                                continue;
+                        if (string.IsNullOrWhiteSpace(row))
+                            continue;
 
-                            var item = DeserializeRow(row);
-                            if (item != null)
-                            {
-                                yield return item;
-                            }
+                        var item = DeserializeRow(row);
+                        if (item != null)
+                        {
+                            yield return item;
                         }
                     }
                 }

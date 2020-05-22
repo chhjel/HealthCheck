@@ -17,7 +17,7 @@ namespace HealthCheck.Core.Extensions
         {
             if (enumerable.Count() == 0) return default;
 
-            random = random ?? new Random();
+            random ??= new Random();
             int index = random.Next(0, enumerable.Count());
             return enumerable.ElementAt(index);
         }

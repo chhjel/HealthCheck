@@ -1,16 +1,11 @@
-﻿using HealthCheck.Core.Abstractions.Modules;
-using HealthCheck.Core.Util;
-using HealthCheck.WebUI.Models;
+﻿using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Tests.Helpers;
 using HealthCheck.WebUI.Tests.ModuleSystem.Helpers;
 using HealthCheck.WebUI.Util;
 using System;
-using System.Drawing.Printing;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using static HealthCheck.Core.Util.HealthCheckModuleLoader;
 
 namespace HealthCheck.WebUI.Tests.ModuleSystem
 {

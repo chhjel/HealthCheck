@@ -23,7 +23,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
             }
         }
         private DateTime? _firstEntryTimeCache = null;
-        private ILogEntryParser _entryParser;
+        private readonly ILogEntryParser _entryParser;
 
         public LogFile(string path, ILogEntryParser entryParser)
         {
@@ -63,105 +63,104 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
             long builderLines = 0;
             long lineNumber = 0;
             var stringbuilder = new StringBuilder();
-            using (FileStream fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (BufferedStream bufferedStream = new BufferedStream(fileStream))
-            using (StreamReader streamReader = new StreamReader(bufferedStream))
+            using FileStream fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using BufferedStream bufferedStream = new BufferedStream(fileStream);
+            using StreamReader streamReader = new StreamReader(bufferedStream);
+            string line;
+            string nextStartingLine = null;
+            var emptyLineCount = 0;
+            var isFirstMatch = true;
+            long firstMatchStart = 0;
+
+            while ((line = streamReader.ReadLine()) != null)
             {
-                string line;
-                string nextStartingLine = null;
-                var emptyLineCount = 0;
-                var isFirstMatch = true;
-                long firstMatchStart = 0;
+                lineNumber++;
+                if (string.IsNullOrWhiteSpace(line))
+                {
+                    emptyLineCount++;
+                    continue;
+                }
+
+                stringbuilder.Clear();
+                builderLines = emptyLineCount;
+                emptyLineCount = 0;
+
+                var lineIsEntryStart = entryParser.IsEntryStart(line);
+                if (nextStartingLine != null)
+                {
+                    stringbuilder.AppendLine(nextStartingLine);
+                    builderLines++;
+                    nextStartingLine = null;
+
+                    if (!lineIsEntryStart)
+                    {
+                        stringbuilder.AppendLine(line);
+                        builderLines++;
+                    }
+                }
+
+                if (lineIsEntryStart)
+                {
+                    if (isFirstMatch)
+                    {
+                        firstMatchStart = lineNumber;
+                    }
+                    if (stringbuilder.Length > 0)
+                    {
+                        yield return $"{lineNumber - builderLines}|{stringbuilder}";
+                        stringbuilder.Clear();
+                        builderLines = 0;
+                    }
+
+                    stringbuilder.AppendLine(line);
+                    builderLines++;
+                }
+                else if (streamReader.EndOfStream)
+                {
+                    stringbuilder.AppendLine(line);
+                    builderLines++;
+                }
 
                 while ((line = streamReader.ReadLine()) != null)
                 {
                     lineNumber++;
+
                     if (string.IsNullOrWhiteSpace(line))
                     {
-                        emptyLineCount++;
+                        builderLines++;
                         continue;
                     }
 
-                    stringbuilder.Clear();
-                    builderLines = emptyLineCount;
-                    emptyLineCount = 0;
-
-                    var lineIsEntryStart = entryParser.IsEntryStart(line);
-                    if (nextStartingLine != null)
+                    if (!entryParser.IsEntryStart(line))
                     {
-                        stringbuilder.AppendLine(nextStartingLine);
-                        builderLines++;
                         nextStartingLine = null;
-
-                        if (!lineIsEntryStart)
-                        {
-                            stringbuilder.AppendLine(line);
-                            builderLines++;
-                        }
+                        stringbuilder.AppendLine(line);
+                        builderLines++;
                     }
-
-                    if (lineIsEntryStart)
+                    else
                     {
+                        nextStartingLine = line;
                         if (isFirstMatch)
                         {
-                            firstMatchStart = lineNumber;
-                        }
-                        if (stringbuilder.Length > 0)
-                        {
-                            yield return $"{lineNumber - builderLines}|{stringbuilder.ToString()}";
-                            stringbuilder.Clear();
-                            builderLines = 0;
-                        }
-
-                        stringbuilder.AppendLine(line);
-                        builderLines++;
-                    }
-                    else if (streamReader.EndOfStream)
-                    {
-                        stringbuilder.AppendLine(line);
-                        builderLines++;
-                    }
-
-                    while ((line = streamReader.ReadLine()) != null)
-                    {
-                        lineNumber++;
-
-                        if (string.IsNullOrWhiteSpace(line))
-                        {
-                            builderLines++;
-                            continue;
-                        }
-
-                        if (!entryParser.IsEntryStart(line))
-                        {
-                            nextStartingLine = null;
-                            stringbuilder.AppendLine(line);
-                            builderLines++;
+                            isFirstMatch = false;
+                            yield return $"{firstMatchStart}|{stringbuilder}";
                         }
                         else
                         {
-                            nextStartingLine = line;
-                            if (isFirstMatch)
-                            {
-                                isFirstMatch = false;
-                                yield return $"{firstMatchStart}|{stringbuilder.ToString()}";
-                            } else
-                            {
-                                yield return $"{lineNumber - builderLines}|{stringbuilder.ToString()}";
-                            }
-                            break;
+                            yield return $"{lineNumber - builderLines}|{stringbuilder}";
                         }
+                        break;
                     }
                 }
+            }
 
-                if (nextStartingLine != null)
-                {
-                    yield return $"{lineNumber - builderLines + 1}|{nextStartingLine}";
-                }
-                else
-                {
-                    yield return $"{lineNumber - builderLines + 1}|{stringbuilder.ToString()}";
-                }
+            if (nextStartingLine != null)
+            {
+                yield return $"{lineNumber - builderLines + 1}|{nextStartingLine}";
+            }
+            else
+            {
+                yield return $"{lineNumber - builderLines + 1}|{stringbuilder}";
             }
         }
     }

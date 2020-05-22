@@ -89,7 +89,7 @@ namespace HealthCheck.Core.Extensions
             var count = int.Parse(match.Groups["count"].Value);
             return value.Pluralize(count, pluralSuffix, pluralWord, singularPrefix);
         }
-        private static Regex _autoPluralizeCountRegex = new Regex(@"\s*(?<count>[0-9]+)\s+\w+");
+        private static readonly Regex _autoPluralizeCountRegex = new Regex(@"\s*(?<count>[0-9]+)\s+\w+");
 
         /// <summary>
         /// Wrap the string with quotes if not null, otherwise return the text null.
