@@ -87,7 +87,7 @@ module.exports = {
 }
 
 module.exports.plugins = [
-  new VueLoaderPlugin(),
+  new VueLoaderPlugin()
   // new BundleAnalyzerPlugin()
 ];
 

@@ -59,7 +59,7 @@ namespace HealthCheck.WebUI.Services
         public Task<List<AuditEvent>> GetEvents(DateTime from, DateTime to)
         {
             var items = Store.GetEnumerable()
-                .Where(x => x.Timestamp >= from && x.Timestamp <= to)
+                .Where(x => x.Timestamp.ToUniversalTime() >= from && x.Timestamp.ToUniversalTime() <= to)
                 .ToList();
 
             return Task.FromResult(items);

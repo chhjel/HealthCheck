@@ -47,8 +47,8 @@ namespace HealthCheck.Core.Modules.LogViewer.Util
                         parsedLogPathQuery.AllowItem(path, negate: false) && parsedExcludedLogPathQuery.AllowItem(path, negate: true)
                 ))
                 .Where(x =>
-                    (filter.FromDate == null || x.Timestamp >= filter.FromDate)
-                     && (filter.ToDate == null || x.Timestamp <= filter.ToDate)
+                    (filter.FromDate == null || x.Timestamp.ToUniversalTime() >= filter.FromDate?.ToUniversalTime())
+                     && (filter.ToDate == null || x.Timestamp.ToUniversalTime() <= filter.ToDate?.ToUniversalTime())
                 );
 
             var entries = entriesWithinDateThreshold
@@ -114,7 +114,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Util
             return allEntries
                 .Where(x =>
                     !matches.Any(m => m.FilePath == x.FilePath && m.LineNumber == x.LineNumber)
-                    && dateRanges.Any(r => x.Timestamp >= r[0] && x.Timestamp <= r[1]))
+                    && dateRanges.Any(r => x.Timestamp.ToUniversalTime() >= r[0].ToUniversalTime() && x.Timestamp.ToUniversalTime() <= r[1].ToUniversalTime()))
                 .Select(x =>
                 {
                     x.IsMargin = true;
@@ -138,8 +138,8 @@ namespace HealthCheck.Core.Modules.LogViewer.Util
                 var high = date.AddMilliseconds(marginMilliseconds);
                 if (existingRange != null)
                 {
-                    existingRange[0] = (existingRange[0] > low) ? low : existingRange[0];
-                    existingRange[1] = (existingRange[1] < high) ? high : existingRange[1];
+                    existingRange[0] = (existingRange[0].ToUniversalTime() > low.ToUniversalTime()) ? low : existingRange[0];
+                    existingRange[1] = (existingRange[1].ToUniversalTime() < high.ToUniversalTime()) ? high : existingRange[1];
                     continue;
                 }
 

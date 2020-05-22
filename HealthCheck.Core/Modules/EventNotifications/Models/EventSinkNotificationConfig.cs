@@ -79,7 +79,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
             {
                 return false;
             }
-            else if (FromTime != null && DateTime.Now < FromTime)
+            else if (FromTime != null && DateTime.Now.ToUniversalTime() < FromTime?.ToUniversalTime())
             {
                 return false;
             }
@@ -105,7 +105,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
             {
                 return true;
             }
-            else if (ToTime != null && DateTime.Now > ToTime)
+            else if (ToTime != null && DateTime.Now.ToUniversalTime() > ToTime?.ToUniversalTime())
             {
                 return true;
             }

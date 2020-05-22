@@ -56,6 +56,11 @@ export default class HCServiceBase
             jsonPayload: payloadJson
         };
 
+        console.log({
+            moduleId: moduleId,
+            methodName: methodName,
+            json: payload
+        });
         this.fetchExt<T>(this.endpoint, 'POST', wrapperPayload, statusObject, callbacks, json);
     }
 

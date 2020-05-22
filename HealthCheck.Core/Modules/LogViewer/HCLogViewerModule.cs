@@ -171,7 +171,7 @@ namespace HealthCheck.Core.Modules.LogViewer
             lock (SearchesInProgress)
             {
                 var searchesToCleanup = SearchesInProgress
-                    .Where(x => threshold == null || x.StartedAt < threshold).ToList();
+                    .Where(x => threshold == null || x.StartedAt.ToUniversalTime() < threshold?.ToUniversalTime()).ToList();
 
                 foreach (var search in searchesToCleanup)
                 {

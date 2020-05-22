@@ -78,8 +78,8 @@ namespace HealthCheck.Core.Modules.AuditLog
         private bool AuditEventMatchesFilter(AuditEvent e, AuditEventFilterInputData filter)
         {
             if (filter == null) return true;
-            else if (filter.FromFilter != null && e.Timestamp < filter.FromFilter) return false;
-            else if (filter.ToFilter != null && e.Timestamp > filter.ToFilter) return false;
+            else if (filter.FromFilter != null && e.Timestamp.ToUniversalTime() < filter.FromFilter?.ToUniversalTime()) return false;
+            else if (filter.ToFilter != null && e.Timestamp.ToUniversalTime() > filter.ToFilter?.ToUniversalTime()) return false;
             else if (!string.IsNullOrWhiteSpace(filter.SubjectFilter) && e.Subject?.ToLower()?.Contains(filter.SubjectFilter?.ToLower()) != true) return false;
             else if (!string.IsNullOrWhiteSpace(filter.ActionFilter) && e.Action?.ToLower()?.Contains(filter.ActionFilter?.ToLower()) != true) return false;
             else if (!string.IsNullOrWhiteSpace(filter.UserIdFilter) && e.UserId?.ToLower()?.Contains(filter.UserIdFilter?.ToLower()) != true) return false;

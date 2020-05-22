@@ -128,12 +128,12 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
 
             if (filter.FromDate != null)
             {
-                items = items.Where(x => x.InsertionTime >= filter.FromDate);
+                items = items.Where(x => x.InsertionTime?.ToUniversalTime() >= filter.FromDate?.ToUniversalTime());
             }
 
             if (filter.ToDate != null)
             {
-                items = items.Where(x => x.InsertionTime <= filter.ToDate);
+                items = items.Where(x => x.InsertionTime?.ToUniversalTime() <= filter.ToDate?.ToUniversalTime());
             }
 
             items = items.OrderByDescending(x => x.InsertionTime);

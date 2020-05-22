@@ -41,7 +41,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Services
         /// Get some events from memory.
         /// </summary>
         public Task<List<SiteEvent>> GetEvents(DateTime from, DateTime to)
-             => Task.FromResult(Items.Where(x => x.Timestamp >= from && x.Timestamp <= to).ToList());
+             => Task.FromResult(Items.Where(x => x.Timestamp.ToUniversalTime() >= from.ToUniversalTime() && x.Timestamp.ToUniversalTime() <= to.ToUniversalTime()).ToList());
 
         /// <summary>
         /// Get the latest <see cref="SiteEvent"/> with the given <see cref="SiteEvent.EventTypeId"/> and <see cref="SiteEvent.AllowMerge"/> == true.
