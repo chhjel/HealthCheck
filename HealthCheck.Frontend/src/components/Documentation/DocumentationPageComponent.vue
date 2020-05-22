@@ -153,6 +153,7 @@ import { FetchStatus } from "../../services/abstractions/HCServiceBase";
 import DocumentationService from "../../services/DocumentationService";
 import ModuleConfig from "../../models/Common/ModuleConfig";
 import ModuleOptions from "../../models/Common/ModuleOptions";
+import UrlUtils from "../../util/UrlUtils";
 
 interface FlowChartData
 {
@@ -291,74 +292,63 @@ Web -> Frontend: Confirmation is delivered
     ////////////////
     //  METHODS  //
     //////////////
-    // Invoked from parent
-    public onPageShow(): void {
-        const parts = (<any>window).documentationState;
-        if (parts != null && parts != undefined) {
-            this.updateUrl(parts);
+    updateUrl(): void {
+        let title: string | null = null;
+        
+        if (this.sandboxMode == true)
+        {
+            title = 'sandbox';
         }
+        else if (this.currentSequenceDiagram != null)
+        {
+            title = UrlUtils.EncodeHashPart(this.currentSequenceDiagram.title);
+        }
+        else if (this.currentFlowChart != null)
+        {
+            title = UrlUtils.EncodeHashPart(this.currentFlowChart.title);
+        }
+
+        let routeParams: any = {};
+        if (title != null)
+        {
+            routeParams['title'] = title;
+        }
+        this.$router.push({ name: this.config.Id, params: routeParams })
     }
 
-    setFromUrl(forcedParts: Array<string> | null = null): void {
-        // const parts = forcedParts || UrlUtils.GetHashParts();
+    updateSelectionFromUrl(): void {
+        const selectedItem = this.$route.params.title;
         
-        // const selectedItem = parts[1];
-        // if (selectedItem !== undefined && selectedItem.length > 0) {
-        //     let seqDiagram = this.sequenceDiagrams.filter(x => UrlUtils.EncodeHashPart(x.title) == selectedItem)[0];
-        //     if (seqDiagram != null)
-        //     {
-        //         this.setActiveSequenceDiagram(seqDiagram);
-        //     }
+        if (selectedItem !== undefined && selectedItem.length > 0) {
+            let seqDiagram = this.sequenceDiagrams.filter(x => UrlUtils.EncodeHashPart(x.title) == selectedItem)[0];
+            if (seqDiagram != null)
+            {
+                this.setActiveSequenceDiagram(seqDiagram, false);
+            }
 
-        //     let flowchart = this.flowCharts.filter(x => UrlUtils.EncodeHashPart(x.title) == selectedItem)[0];
-        //     if (flowchart != null)
-        //     {
-        //         this.setActiveFlowChart(flowchart);
-        //     }
-        // }
+            let flowchart = this.flowCharts.filter(x => UrlUtils.EncodeHashPart(x.title) == selectedItem)[0];
+            if (flowchart != null)
+            {
+                this.setActiveFlowChart(flowchart, false);
+            }
+        }
 
-        // if (this.currentSequenceDiagram == null && this.currentFlowChart == null)
-        // {
-        //     if (this.sequenceDiagrams.length > 0)
-        //     {
-        //         this.setActiveSequenceDiagram(this.sequenceDiagrams[0]);
-        //     }
-        //     else if (this.flowCharts.length > 0)
-        //     {
-        //         this.setActiveFlowChart(this.flowCharts[0]);
-        //     }
-        // }
+        if (this.currentSequenceDiagram == null && this.currentFlowChart == null)
+        {
+            if (this.sequenceDiagrams.length > 0)
+            {
+                this.setActiveSequenceDiagram(this.sequenceDiagrams[0], false);
+            }
+            else if (this.flowCharts.length > 0)
+            {
+                this.setActiveFlowChart(this.flowCharts[0], false);
+            }
+        }
 
-        // if (selectedItem == 'sandbox')
-        // {
-        //     this.sandboxMode = true;
-        //     this.updateUrl();
-        // }
-    }
-
-    updateUrl(parts?: Array<string> | null): void {
-        // if (parts == null)
-        // {
-        //     parts = ['documentation'];
-
-        //     if (this.sandboxMode == true)
-        //     {
-        //         parts.push('sandbox');
-        //     }
-        //     else if (this.currentSequenceDiagram != null)
-        //     {
-        //         parts.push(UrlUtils.EncodeHashPart(this.currentSequenceDiagram.title));
-        //     }
-        //     else if (this.currentFlowChart != null)
-        //     {
-        //         parts.push(UrlUtils.EncodeHashPart(this.currentFlowChart.title));
-        //     }
-        // }
-
-        // UrlUtils.SetHashParts(parts);
-        
-        // // Some dirty technical debt before transitioning to propper routing :-)
-        // (<any>window).documentationState = parts;
+        if (selectedItem == 'sandbox')
+        {
+            this.sandboxMode = true;
+        }
     }
 
     loadData(): void {
@@ -416,8 +406,7 @@ Web -> Frontend: Confirmation is delivered
                 }
             });
         
-        // const originalUrlHashParts = UrlUtils.GetHashParts();
-        // this.setFromUrl(originalUrlHashParts);
+        this.updateSelectionFromUrl();
     }
 
     convertStringToSteps(text: string): Array<SequenceDiagramStep<SequenceDiagramStepDetails | null>>
@@ -558,20 +547,28 @@ Web -> Frontend: Confirmation is delivered
         }
     }
 
-    setActiveSequenceDiagram(diagram: SequenceDiagramData): void {
+    setActiveSequenceDiagram(diagram: SequenceDiagramData, updateUrl: boolean = true): void {
         this.sandboxMode = false;
         this.currentSequenceDiagram = diagram;
         this.currentFlowChart = null;
         this.selectedStep = null;
-        this.updateUrl();
+
+        if (updateUrl)
+        {
+            this.updateUrl();
+        }
     }
     
-    setActiveFlowChart(chart: FlowChartData): void {
+    setActiveFlowChart(chart: FlowChartData, updateUrl: boolean = true): void {
         this.sandboxMode = false;
         this.currentFlowChart = chart;
         this.currentSequenceDiagram = null;
         this.selectedStep = null;
-        this.updateUrl();
+
+        if (updateUrl)
+        {
+            this.updateUrl();
+        }
     }
 
     onStepClicked(step: SequenceDiagramStep<SequenceDiagramStepDetails>): void
