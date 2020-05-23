@@ -8,6 +8,10 @@
             <v-container>
                 <h1 class="mb-1">ToDo</h1>
 
+                <code>{{ options }}</code>
+
+                <code>{{ config }}</code>
+
                 <!-- LOAD PROGRESS -->
                 <!-- <v-progress-linear
                     v-if="loadStatus.inProgress"
@@ -29,25 +33,10 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
-import LoggedEndpointDefinitionViewModel from '../../models/RequestLog/LoggedEndpointDefinitionViewModel';
-import LoggedEndpointRequestViewModel from '../../models/RequestLog/LoggedEndpointRequestViewModel';
-import { EntryState } from '../../models/RequestLog/EntryState';
 import DateUtils from "../../util/DateUtils";
 import LinqUtils from "../../util/LinqUtils";
 import KeyArray from "../../util/models/KeyArray";
 import KeyValuePair from "../../models/Common/KeyValuePair";
-import { GetEventNotificationConfigsViewModel, IEventNotifier, EventSinkNotificationConfig, FilterMatchType, NotifierConfig, Dictionary, NotifierConfigOptionsItem, EventSinkNotificationConfigFilter, KnownEventDefinition } from "../../models/EventNotifications/EventNotificationModels";
-import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
-// @ts-ignore
-import { DateTimePicker } from "@lazy-copilot/datetimepicker";
-import FilterInputComponent from '.././Common/FilterInputComponent.vue';
-import DataTableComponent, { DataTableGroup } from '.././Common/DataTableComponent.vue';
-import SimpleDateTimeComponent from '.././Common/SimpleDateTimeComponent.vue';
-import FilterableListComponent, { FilterableListItem } from '.././Common/FilterableListComponent.vue';
-import ConfigFilterComponent from '.././EventNotifications/ConfigFilterComponent.vue';
-import EventNotificationConfigComponent from '.././EventNotifications/EventNotificationConfigComponent.vue';
-import IdUtils from "../../util/IdUtils";
-import EventSinkNotificationConfigUtils, { ConfigDescription, ConfigFilterDescription, ConfigActionDescription } from "../../util/EventNotifications/EventSinkNotificationConfigUtils";
 import BlockComponent from '../../components/Common/Basic/BlockComponent.vue';
 import { FetchStatus } from "../../services/abstractions/HCServiceBase";
 import EventNotificationService from "../../services/EventNotificationService";
@@ -59,7 +48,7 @@ import ModuleOptions from "../../models/Common/ModuleOptions";
         BlockComponent
     }
 })
-export default class EventNotificationsPageComponent extends Vue {
+export default class DynamicCodeExecutionPageComponent extends Vue {
     @Prop({ required: true })
     config!: ModuleConfig;
     
