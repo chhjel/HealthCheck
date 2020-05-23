@@ -1,4 +1,4 @@
-namespace HealthCheck.Core.Util.HtmlPresets
+namespace HealthCheck.Core.Modules.Tests.Utils.HtmlPresets
 {
     /// <summary>
     /// A preset to use with <see cref="HtmlPresetBuilder"/>.

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 
-namespace HealthCheck.Core.Util.HtmlPresets
+namespace HealthCheck.Core.Modules.Tests.Utils.HtmlPresets
 {
     /// <summary>
     /// A key-value list. Either a simple list or a 2-column table.

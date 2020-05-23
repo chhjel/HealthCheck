@@ -1,4 +1,4 @@
-namespace HealthCheck.Core.Util.HtmlPresets
+namespace HealthCheck.Core.Modules.Tests.Utils.HtmlPresets
 {
     /// <summary>
     /// An Iframe with the given url and height.

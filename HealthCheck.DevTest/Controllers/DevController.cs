@@ -83,6 +83,8 @@ namespace HealthCheck.DevTest.Controllers
             UseModule(new HCLogViewerModule(new HCLogViewerModuleOptions() { LogSearcherService = CreateLogSearcherService() }));
             UseModule(new HCDocumentationModule(new HCDocumentationModuleOptions()
             {
+                EnableDiagramDetails = true,
+                EnableDiagramSandbox = true,
                 SequenceDiagramService = new DefaultSequenceDiagramService(new DefaultSequenceDiagramServiceOptions()
                 {
                     DefaultSourceAssemblies = new[] { typeof(DevController).Assembly }

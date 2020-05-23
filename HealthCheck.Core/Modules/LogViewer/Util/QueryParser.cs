@@ -1,9 +1,9 @@
-﻿using HealthCheck.Core.Util.Models;
+﻿using HealthCheck.Core.Modules.LogViewer.Models;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace HealthCheck.Core.Util
+namespace HealthCheck.Core.Modules.LogViewer.Util
 {
     internal class QueryParser
     {

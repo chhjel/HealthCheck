@@ -1,6 +1,6 @@
 using System.Linq;
 
-namespace HealthCheck.Core.Util.HtmlPresets
+namespace HealthCheck.Core.Modules.Tests.Utils.HtmlPresets
 {
     /// <summary>
     /// N amount of br-tags.

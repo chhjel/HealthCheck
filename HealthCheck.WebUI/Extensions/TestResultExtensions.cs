@@ -1,5 +1,5 @@
 ﻿using HealthCheck.Core.Modules.Tests.Models;
-using HealthCheck.Core.Util.HtmlPresets;
+using HealthCheck.Core.Modules.Tests.Utils.HtmlPresets;
 using HealthCheck.WebUI.Serializers;
 
 namespace HealthCheck.WebUI.Extensions

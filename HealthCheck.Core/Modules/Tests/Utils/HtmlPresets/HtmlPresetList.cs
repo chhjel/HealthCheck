@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace HealthCheck.Core.Util.HtmlPresets
+namespace HealthCheck.Core.Modules.Tests.Utils.HtmlPresets
 {
     /// <summary>
     /// A list. Can be either ol or ul.

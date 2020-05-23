@@ -2,7 +2,7 @@
 using HealthCheck.Core.Modules.SiteEvents.Models;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
-using HealthCheck.Core.Util.HtmlPresets;
+using HealthCheck.Core.Modules.Tests.Utils.HtmlPresets;
 using HealthCheck.WebUI.Extensions;
 using HealthCheck.WebUI.Serializers;
 using System;

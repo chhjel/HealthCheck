@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 
-namespace HealthCheck.Core.Util.HtmlPresets
+namespace HealthCheck.Core.Modules.Tests.Utils.HtmlPresets
 {
     /// <summary>
     /// A title with size and color.

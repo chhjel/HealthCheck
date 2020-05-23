@@ -1,6 +1,6 @@
 using System;
 
-namespace HealthCheck.Core.Util.HtmlPresets
+namespace HealthCheck.Core.Modules.Tests.Utils.HtmlPresets
 {
     /// <summary>
     /// An img-tag with the given url.

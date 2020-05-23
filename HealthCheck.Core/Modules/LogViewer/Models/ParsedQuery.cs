@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace HealthCheck.Core.Util.Models
+namespace HealthCheck.Core.Modules.LogViewer.Models
 {
     /// <summary>
     /// Parsed query input.

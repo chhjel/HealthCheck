@@ -46,7 +46,7 @@
 
   <ItemGroup>
     <Folder Include="Services\Storage\" />
-    <Folder Include="Util\HtmlPresets\" />
+    <Folder Include="Modules\Tests\Utils\HtmlPresets\" />
   </ItemGroup>
 
 </Project>
