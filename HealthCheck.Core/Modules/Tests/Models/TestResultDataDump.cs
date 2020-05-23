@@ -1,6 +1,4 @@
-﻿using HealthCheck.Core.Enums;
-
-namespace HealthCheck.Core.Modules.Tests.Models
+﻿namespace HealthCheck.Core.Modules.Tests.Models
 {
     /// <summary>
     /// Result from a test.

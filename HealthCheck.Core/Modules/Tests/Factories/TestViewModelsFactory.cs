@@ -1,5 +1,4 @@
-﻿using HealthCheck.Core.Entities;
-using HealthCheck.Core.Extensions;
+﻿using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Util;
 using System.Collections.Generic;

@@ -1,5 +1,4 @@
-﻿using HealthCheck.Core.Enums;
-using System;
+﻿using System;
 
 namespace HealthCheck.Core.Modules.AuditLog.Models
 {

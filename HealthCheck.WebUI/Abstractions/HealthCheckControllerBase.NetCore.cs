@@ -2,7 +2,6 @@
 using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Enums;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.LogViewer.Models;
@@ -97,7 +96,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Returns the page html.
         /// </summary>
-        [RequestLogInfo(hide: true)]
+        [HideFromRequestLog]
         public virtual ActionResult Index()
         {
             if (!Enabled) return NotFound();
@@ -132,7 +131,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Invokes a module method.
         /// </summary>
-        [RequestLogInfo(hide: true)]
+        [HideFromRequestLog]
         public async Task<ActionResult> InvokeModuleMethod(string moduleId, string methodName, string jsonPayload)
         {
             if (!Enabled) return NotFound();
@@ -148,7 +147,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Returns 'OK' and 200 status code.
         /// </summary>
-        [RequestLogInfo(hide: true)]
+        [HideFromRequestLog]
         [Route("Ping")]
         public virtual ActionResult Ping()
         {

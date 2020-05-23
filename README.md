@@ -453,6 +453,8 @@ RequestLogUtils.HandleRequest(RequestLogServiceAccessor.Current, GetType(), Requ
 RequestLogServiceAccessor.Current = .. service instance
 ```
 
+Optionally decorate methods or classes with the `RequestLogInfoAttribute` attribute to hide endpoints/classes from the log, or to provide additional details. Any method/class decorated with any attribute named `HideFromRequestLogAttribute` will also hide it from the log.
+
 </p>
 </details>
 

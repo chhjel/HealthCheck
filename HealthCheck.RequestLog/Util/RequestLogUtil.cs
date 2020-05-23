@@ -1,6 +1,6 @@
 ﻿#if NETFULL
-using HealthCheck.Core.Attributes;
 using HealthCheck.RequestLog.Abstractions;
+using HealthCheck.RequestLog.Attributes;
 using HealthCheck.RequestLog.Models;
 using System;
 using System.Collections.Generic;
@@ -38,7 +38,7 @@ namespace HealthCheck.RequestLog.Util
                .SelectMany(x => x.GetTypes().Where(t =>
                     (includeMvc && typeof(Controller).IsAssignableFrom(t)) || (includeWebApi && typeof(ApiController).IsAssignableFrom(t)))
                )
-               .Where(x => !x.IsAbstract && x.GetCustomAttribute<RequestLogInfoAttribute>()?.Hidden != true);
+               .Where(x => !x.IsAbstract && GetRequestLogInfoAttribute(x)?.Hidden != true);
 
             var existingActionEntries = service.GetRequests();
             foreach (var actionEntry in controllerTypes.SelectMany(x => GetControllerActions(service, x, actionUrlResolver)))
@@ -132,7 +132,7 @@ namespace HealthCheck.RequestLog.Util
             };
 
             actionMethod ??= controller.GetMethods().FirstOrDefault(x => x.Name == action);
-            var infoAttribute = actionMethod?.GetCustomAttribute<RequestLogInfoAttribute>();
+            var infoAttribute = GetRequestLogInfoAttribute(actionMethod);
             return new ActionInfo()
             {
                 Name = !string.IsNullOrWhiteSpace(infoAttribute?.Name)
@@ -205,13 +205,37 @@ namespace HealthCheck.RequestLog.Util
 
             // Filter out hidden ones
             list = list
-                .Where(x => x.GetCustomAttribute<RequestLogInfoAttribute>()?.Hidden != true)
+                .Where(x => GetRequestLogInfoAttribute(x)?.Hidden != true)
                 .ToList();
 
             return list;
         }
 
+        internal static RequestLogInfoAttribute GetRequestLogInfoAttribute(MethodInfo method)
+        {
+            if (method == null) return null;
 
+            var attr = method.GetCustomAttribute<RequestLogInfoAttribute>(true);
+            if (attr != null) return attr;
+
+            var hasNamedAttr = method.GetCustomAttributes().Any(x => x.GetType().Name == "HideFromRequestLogAttribute");
+            if (hasNamedAttr) return new RequestLogInfoAttribute() { Hidden = true };
+
+            return null;
+        }
+
+        internal static RequestLogInfoAttribute GetRequestLogInfoAttribute(Type type)
+        {
+            if (type == null) return null;
+
+            var attr = type.GetCustomAttribute<RequestLogInfoAttribute>(true);
+            if (attr != null) return attr;
+
+            var hasNamedAttr = type.GetCustomAttributes().Any(x => x.GetType().Name == "HideFromRequestLogAttribute");
+            if (hasNamedAttr) return new RequestLogInfoAttribute() { Hidden = true };
+
+            return null;
+        }
     }
 }
 #endif

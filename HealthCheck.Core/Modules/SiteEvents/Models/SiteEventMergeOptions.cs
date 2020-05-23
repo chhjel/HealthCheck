@@ -1,5 +1,4 @@
-﻿using HealthCheck.Core.Entities;
-using System;
+﻿using System;
 using System.Linq;
 
 namespace HealthCheck.Core.Modules.SiteEvents.Models

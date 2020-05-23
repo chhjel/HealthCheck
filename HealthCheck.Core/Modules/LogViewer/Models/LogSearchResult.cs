@@ -3,7 +3,7 @@ using HealthCheck.Core.Util.Models;
 using System;
 using System.Collections.Generic;
 
-namespace HealthCheck.Core.Entities
+namespace HealthCheck.Core.Modules.LogViewer.Models
 {
     /// <summary>
     /// Result from <see cref="ILogSearcherService"/>.

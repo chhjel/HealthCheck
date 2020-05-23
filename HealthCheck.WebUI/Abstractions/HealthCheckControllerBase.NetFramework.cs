@@ -2,8 +2,6 @@
 using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Entities;
-using HealthCheck.Core.Enums;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.EventNotifications.Models;
@@ -35,7 +33,7 @@ namespace HealthCheck.WebUI.Abstractions
     public abstract class HealthCheckControllerBase<TAccessRole>: Controller
         where TAccessRole: Enum
     {
-        #region Properties & Fields
+#region Properties & Fields
         /// <summary>
         /// Set to false to return 404 for all actions.
         /// <para>Enabled by default.</para>
@@ -55,7 +53,7 @@ namespace HealthCheck.WebUI.Abstractions
         protected RequestInformation<TAccessRole> CurrentRequestInformation { get; set; }
 
         private readonly HealthCheckControllerHelper<TAccessRole> Helper;
-        #endregion
+#endregion
 
         /// <summary>
         /// Base controller for the ui and api.
@@ -65,7 +63,7 @@ namespace HealthCheck.WebUI.Abstractions
             Helper = new HealthCheckControllerHelper<TAccessRole>();
         }
 
-        #region Abstract
+#region Abstract
         /// <summary>
         /// Get front-end options.
         /// </summary>
@@ -85,22 +83,22 @@ namespace HealthCheck.WebUI.Abstractions
         /// Configure access using the config parameter. Method is invoked from BeginExecute.
         /// </summary>
         protected abstract void ConfigureAccess(HttpRequestBase request, AccessConfig<TAccessRole> config);
-        #endregion
+#endregion
 
-        #region Modules
+#region Modules
         /// <summary>
         /// Register a module that will be available.
         /// </summary>
         protected TModule UseModule<TModule>(TModule module, string name = null)
             where TModule: IHealthCheckModule
             => Helper.UseModule(module, name);
-        #endregion
+#endregion
 
-        #region Endpoints
+#region Endpoints
         /// <summary>
         /// Returns the page html.
         /// </summary>
-        [RequestLogInfo(hide: true)]
+        [HideFromRequestLog]
         public virtual ActionResult Index()
         {
             if (!Enabled) return HttpNotFound();
@@ -130,7 +128,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Invokes a module method.
         /// </summary>
-        [RequestLogInfo(hide: true)]
+        [HideFromRequestLog]
         public async Task<ActionResult> InvokeModuleMethod(string moduleId, string methodName, string jsonPayload)
         {
             if (!Enabled) return HttpNotFound();
@@ -146,7 +144,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Returns 'OK' and 200 status code.
         /// </summary>
-        [RequestLogInfo(hide: true)]
+        [HideFromRequestLog]
         public virtual ActionResult Ping()
         {
             if (!Enabled || !Helper.CanUsePingEndpoint(CurrentRequestAccessRoles))
@@ -154,9 +152,9 @@ namespace HealthCheck.WebUI.Abstractions
 
             return Content("OK");
         }
-        #endregion
+#endregion
 
-        #region Overrides
+#region Overrides
         /// <summary>
         /// Calls GetRequestAccessRoles and SetOptions.
         /// </summary>
@@ -169,15 +167,15 @@ namespace HealthCheck.WebUI.Abstractions
             Helper.AfterConfigure(CurrentRequestInformation);
             return base.BeginExecute(requestContext, callback, state);
         }
-        #endregion
+#endregion
 
-        #region Helpers
+#region Helpers
         /// <summary>
         /// Serializes the given object into a json result.
         /// </summary>
         protected ActionResult CreateJsonResult(object obj)
             => Content(Helper.SerializeJson(obj), "application/json");
-        #endregion
+#endregion
     }
 }
 #endif

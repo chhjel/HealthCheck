@@ -1,5 +1,4 @@
-﻿using HealthCheck.Core.Entities;
-using HealthCheck.Core.Modules.LogViewer.Models;
+﻿using HealthCheck.Core.Modules.LogViewer.Models;
 using System.Threading;
 using System.Threading.Tasks;
 

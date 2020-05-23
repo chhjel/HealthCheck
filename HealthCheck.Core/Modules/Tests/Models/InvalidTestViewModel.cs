@@ -1,6 +1,4 @@
-﻿using HealthCheck.Core.Entities;
-
-namespace HealthCheck.Core.Modules.Tests.Models
+﻿namespace HealthCheck.Core.Modules.Tests.Models
 {
     /// <summary>
     /// View model for an invalid <see cref="TestDefinition"/>.

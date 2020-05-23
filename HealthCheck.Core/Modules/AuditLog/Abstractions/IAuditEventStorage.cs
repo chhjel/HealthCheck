@@ -1,5 +1,4 @@
-﻿using HealthCheck.Core.Entities;
-using HealthCheck.Core.Modules.AuditLog.Models;
+﻿using HealthCheck.Core.Modules.AuditLog.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

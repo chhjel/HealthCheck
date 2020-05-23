@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Web.Http;
 
+#pragma warning disable IDE0060 // Remove unused parameter
 namespace HealthCheck.DevTest.Controllers.RequestLogTestControllers.Api
 {
-    [RequestLogInfo(hide: true)]
+    [HideFromRequestLog]
     public class HiddenApiController : TestApiControllerBase
     {
         // GET: api/student
@@ -36,3 +37,4 @@ namespace HealthCheck.DevTest.Controllers.RequestLogTestControllers.Api
         }
     }
 }
+#pragma warning restore IDE0060 // Remove unused parameter

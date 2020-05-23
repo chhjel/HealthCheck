@@ -2,7 +2,7 @@
 using HealthCheck.Core.Modules.LogViewer.Enums;
 using System;
 
-namespace HealthCheck.Core.Entities
+namespace HealthCheck.Core.Modules.LogViewer.Models
 {
     /// <summary>
     /// Result from <see cref="ILogSearcherService"/>.

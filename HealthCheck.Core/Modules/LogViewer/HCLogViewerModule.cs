@@ -1,5 +1,4 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
-using HealthCheck.Core.Entities;
 using HealthCheck.Core.Modules.LogViewer.Models;
 using System;
 using System.Collections.Generic;

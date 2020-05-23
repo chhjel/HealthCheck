@@ -1,5 +1,4 @@
-﻿using HealthCheck.Core.Enums;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace HealthCheck.Core.Modules.Tests.Models

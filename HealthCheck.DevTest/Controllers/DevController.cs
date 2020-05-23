@@ -1,6 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Enums;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.AuditLog;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
@@ -261,7 +260,7 @@ namespace HealthCheck.DevTest.Controllers
         #endregion
 
         #region dev
-        [RequestLogInfo(hide: true)]
+        [HideFromRequestLog]
         public FileResult GetMainScript()
         {
             var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheck.js");
@@ -269,7 +268,7 @@ namespace HealthCheck.DevTest.Controllers
         }
 
         //[OutputCache(Duration = 1200, VaryByParam = "none")]
-        [RequestLogInfo(hide: true)]
+        [HideFromRequestLog]
         public FileResult GetVendorScript()
         {
             var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheck.vendor.js");

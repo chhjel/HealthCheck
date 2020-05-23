@@ -1,7 +1,4 @@
-﻿using HealthCheck.Core.Entities;
-using HealthCheck.Core.Enums;
-
-namespace HealthCheck.Core.Modules.Tests.Models
+﻿namespace HealthCheck.Core.Modules.Tests.Models
 {
     /// <summary>
     /// View model for <see cref="TestResultDataDump"/>

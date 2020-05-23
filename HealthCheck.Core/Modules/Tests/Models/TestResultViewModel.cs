@@ -1,6 +1,4 @@
-﻿using HealthCheck.Core.Entities;
-using HealthCheck.Core.Enums;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.Tests.Models
 {

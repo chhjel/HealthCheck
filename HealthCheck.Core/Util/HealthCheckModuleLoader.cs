@@ -1,6 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Abstractions.Modules;
-using HealthCheck.Core.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;

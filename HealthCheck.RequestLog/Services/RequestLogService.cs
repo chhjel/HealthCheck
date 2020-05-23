@@ -38,7 +38,7 @@ namespace HealthCheck.RequestLog.Services
         {
             if (e.ActionMethod != null)
             {
-                var attr = e.ActionMethod.GetCustomAttribute<RequestLogInfoAttribute>(true);
+                var attr = RequestLogUtil.GetRequestLogInfoAttribute(e.ActionMethod);
                 if (attr?.Hidden == true)
                 {
                     return;
@@ -198,7 +198,7 @@ namespace HealthCheck.RequestLog.Services
         private ActionInfo CreateActionInfo(Type controller, string action, MethodInfo actionMethod)
         {
             actionMethod ??= controller.GetMethods().FirstOrDefault(x => x.Name == action);
-            var infoAttribute = actionMethod?.GetCustomAttribute<RequestLogInfoAttribute>();
+            var infoAttribute = RequestLogUtil.GetRequestLogInfoAttribute(actionMethod);
             return new ActionInfo()
             {
                 Name = !string.IsNullOrWhiteSpace(infoAttribute?.Name)

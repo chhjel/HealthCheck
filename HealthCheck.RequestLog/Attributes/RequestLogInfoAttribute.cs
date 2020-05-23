@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HealthCheck.Core.Attributes
+namespace HealthCheck.RequestLog.Attributes
 {
     /// <summary>
     /// Decorate actions with this to set a custom name/description or hide it.

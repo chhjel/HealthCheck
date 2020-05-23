@@ -1,5 +1,4 @@
-﻿using HealthCheck.Core.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.SiteEvents.Models
