@@ -194,7 +194,7 @@
       <Project>{df551db9-32a9-4519-b19c-2f306a486448}</Project>
       <Name>HealthCheck.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\HealthCheck.RequestLog\HealthCheck.RequestLog.csproj">
+    <ProjectReference Include="..\Modules\HealthCheck.RequestLog\HealthCheck.RequestLog.csproj">
       <Project>{e1337f9c-3e88-4453-bc84-b8fe52874c93}</Project>
       <Name>HealthCheck.RequestLog</Name>
     </ProjectReference>

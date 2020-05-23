@@ -100,6 +100,7 @@ namespace HealthCheck.DevTest.Controllers
             UseModule(new HCRequestLogModule(new HCRequestLogModuleOptions() { RequestLogService = RequestLogServiceAccessor.Current }));
             UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { SettingsService = SettingsService }));
             //UseModule(new TestModuleB(), "[tst]");
+            UseModule(new TestModuleA(), "Dev");
 
             if (!_hasInited)
             {

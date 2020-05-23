@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.DevTest.NetCore
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.WebUI.Tests", "HealthCheck.WebUI.Tests\HealthCheck.WebUI.Tests.csproj", "{4E0CF690-86CF-47F1-86CE-D837FBA75EF6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.RequestLog", "HealthCheck.RequestLog\HealthCheck.RequestLog.csproj", "{E1337F9C-3E88-4453-BC84-B8FE52874C93}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.RequestLog", "Modules\HealthCheck.RequestLog\HealthCheck.RequestLog.csproj", "{E1337F9C-3E88-4453-BC84-B8FE52874C93}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{3FDC5685-F607-4E31-981B-1D23817E5E2E}"
 EndProject
@@ -71,6 +71,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{7692E64E-1510-4362-AE3A-E4BE6A68EDDF} = {B26DDE73-0369-4977-A004-3CCDE2B38825}
 		{EAEE52BF-3FA7-4D31-824F-CB3A0A4885B6} = {B26DDE73-0369-4977-A004-3CCDE2B38825}
+		{E1337F9C-3E88-4453-BC84-B8FE52874C93} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
 		{81552B74-1F58-4CC1-B76B-87E84A35571A} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

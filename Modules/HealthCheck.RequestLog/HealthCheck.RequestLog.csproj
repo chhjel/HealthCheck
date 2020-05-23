@@ -39,7 +39,7 @@
   <!-- ####################################### -->
 
   <ItemGroup>
-    <ProjectReference Include="..\HealthCheck.Core\HealthCheck.Core.csproj" />
+    <ProjectReference Include="..\..\HealthCheck.Core\HealthCheck.Core.csproj" />
   </ItemGroup>
 
 </Project>
