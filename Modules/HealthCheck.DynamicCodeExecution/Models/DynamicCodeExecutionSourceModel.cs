@@ -5,7 +5,7 @@ namespace HealthCheck.DynamicCodeExecution.Models
     /// <summary>
     /// Model sent to the module from frontend.
     /// </summary>
-    public class SourceModel
+    public class DynamicCodeExecutionSourceModel
     {
         /// <summary>
         /// The code to execute.

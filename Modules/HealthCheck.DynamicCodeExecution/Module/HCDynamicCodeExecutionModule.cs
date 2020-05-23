@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.DynamicCodeExecution;
+using HealthCheck.DynamicCodeExecution.Abstractions;
 using HealthCheck.DynamicCodeExecution.Models;
 using System;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace HealthCheck.Core.Modules.Settings
         /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(AccessOption access) => null;
+        public override object GetFrontendOptionsObject(AccessOption access) => CreateFrontendOptionsObject();
 
         /// <summary>
         /// Get config for this module.
@@ -46,11 +47,11 @@ namespace HealthCheck.Core.Modules.Settings
         /// Executes the provided C# code.
         /// </summary>
         /// <param name="source">Model with C# code to execute.</param>
-        /// <returns>A <see cref="ResultModel"/></returns>
+        /// <returns>A <see cref="DynamicCodeExecutionResultModel"/></returns>
         [HealthCheckModuleMethod]
-        public ResultModel ExecuteCode(SourceModel source)
+        public DynamicCodeExecutionResultModel ExecuteCode(DynamicCodeExecutionSourceModel source)
         {
-            var result = new ResultModel()
+            var result = new DynamicCodeExecutionResultModel()
             {
                 Code = source.Code,
             };
@@ -75,6 +76,20 @@ namespace HealthCheck.Core.Modules.Settings
         #endregion
 
         #region Private helpers
+        private OptionsModel CreateFrontendOptionsObject()
+        {
+            return new OptionsModel()
+            {
+                PreProcessors = (Options.PreProcessors ?? Enumerable.Empty<IDynamicCodePreProcessor>()).Select(x => new PreProcessorMetadata()
+                {
+                    Id = x.Id,
+                    Name = x.Name ?? x.Id,
+                    Description = x.Description,
+                    CanBeDisabled = x.CanBeDisabled
+                })
+            };
+        }
+
         private DynamicCodeValidationResult AllowExecution(string code)
         {
             if (Options.Validators?.Any() != true)

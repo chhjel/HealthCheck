@@ -3,7 +3,7 @@
     /// <summary>
     /// Result model from the module.
     /// </summary>
-    public class ResultModel
+    public class DynamicCodeExecutionResultModel
     {
         /// <summary>
         /// True if the user was allowed to execute code.

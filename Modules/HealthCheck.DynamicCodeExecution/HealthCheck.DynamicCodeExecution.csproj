@@ -57,8 +57,9 @@
     <Compile Include="Models\CompletionRequest.cs" />
     <Compile Include="Models\DataDump.cs" />
     <Compile Include="Models\DiffModel.cs" />
-    <Compile Include="Models\ResultModel.cs" />
-    <Compile Include="Models\SourceModel.cs" />
+    <Compile Include="Models\OptionsModel.cs" />
+    <Compile Include="Models\DynamicCodeExecutionResultModel.cs" />
+    <Compile Include="Models\DynamicCodeExecutionSourceModel.cs" />
     <Compile Include="Module\HCDynamicCodeExecutionModule.cs" />
     <Compile Include="Module\HCDynamicCodeExecutionModuleConfig.cs" />
     <Compile Include="Module\HCDynamicCodeExecutionModuleOptions.cs" />

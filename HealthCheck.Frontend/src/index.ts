@@ -25,6 +25,7 @@ import DocumentationPageComponent from './components/Documentation/Documentation
 import DataflowPageComponent from './components/Dataflow/DataflowPageComponent.vue';
 import SettingsPageComponent from './components/Settings/SettingsPageComponent.vue';
 import EventNotificationsPageComponent from './components/EventNotifications/EventNotificationsPageComponent.vue';
+import DynamicCodeExecutionPageComponent from './components/DynamicCodeExecution/DynamicCodeExecutionPageComponent.vue';
 let moduleComponents = [
     TestSuitesPageComponent,
     OverviewPageComponent,
@@ -34,7 +35,8 @@ let moduleComponents = [
     DocumentationPageComponent,
     DataflowPageComponent,
     SettingsPageComponent,
-    EventNotificationsPageComponent
+    EventNotificationsPageComponent,
+    DynamicCodeExecutionPageComponent
 ];
 
 // Init libs
