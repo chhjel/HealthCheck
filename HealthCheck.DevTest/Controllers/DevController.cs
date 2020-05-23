@@ -29,6 +29,8 @@ using HealthCheck.Core.Util;
 using HealthCheck.DevTest._TestImplementation;
 using HealthCheck.DevTest._TestImplementation.Dataflow;
 using HealthCheck.DevTest._TestImplementation.EventNotifier;
+using HealthCheck.DynamicCodeExecution.Abstractions;
+using HealthCheck.DynamicCodeExecution.Models;
 using HealthCheck.Modules.DevModule;
 using HealthCheck.RequestLog.Services;
 using HealthCheck.WebUI.Abstractions;
@@ -72,6 +74,23 @@ namespace HealthCheck.DevTest.Controllers
         {
             InitServices();
 
+            UseModule(new HCDynamicCodeExecutionModule(new HCDynamicCodeExecutionModuleOptions() {
+                TargetAssembly = typeof(DevController).Assembly,
+                PreProcessors = new IDynamicCodePreProcessor[]
+                {
+                    new DynamicCodeExecution.PreProcessors.BasicAutoCreateUsingsPreProcessor(typeof(DevController).Assembly),
+                    new DynamicCodeExecution.PreProcessors.WrapUsingsInRegionPreProcessor(),
+                    new DynamicCodeExecution.PreProcessors.FuncPreProcessor((p, code) => code.Replace("woot", "w00t"))
+                },
+                Validators = new IDynamicCodeValidator[]
+                {
+                    new DynamicCodeExecution.Validators.FuncCodeValidator((code) =>
+                        code.Contains("format c:")
+                            ? DynamicCodeValidationResult.Deny("No format pls")
+                            : DynamicCodeValidationResult.Allow()
+                    )
+                }
+            }));
             UseModule(new HCTestsModule(new HCTestsModuleOptions() { AssemblyContainingTests = typeof(DevController).Assembly }))
                 .ConfigureGroups((options) => options
                     .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
@@ -100,7 +119,7 @@ namespace HealthCheck.DevTest.Controllers
             UseModule(new HCRequestLogModule(new HCRequestLogModuleOptions() { RequestLogService = RequestLogServiceAccessor.Current }));
             UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { SettingsService = SettingsService }));
             //UseModule(new TestModuleB(), "[tst]");
-            UseModule(new TestModuleA(), "Dev");
+            //UseModule(new TestModuleA(), "Dev");
 
             if (!_hasInited)
             {
@@ -129,8 +148,9 @@ namespace HealthCheck.DevTest.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCDocumentationModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCLogViewerModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCEventNotificationsModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCDynamicCodeExecutionModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
-            
+
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
             config.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
             config.RedirectTargetOnNoAccess = "/no-access";

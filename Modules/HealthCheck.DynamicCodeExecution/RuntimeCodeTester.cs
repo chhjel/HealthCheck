@@ -1,0 +1,258 @@
+﻿using HealthCheck.DynamicCodeExecution.Exceptions;
+using HealthCheck.DynamicCodeExecution.Models;
+using System;
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+
+namespace HealthCheck.DynamicCodeExecution
+{
+    /// <summary>
+    /// Compiles and executes code.
+    /// </summary>
+    internal class RuntimeCodeTester
+    {
+        /// <summary>
+        /// Configuration for the code execution. Authorization, preprocessors etc.
+        /// </summary>
+        public RCTConfig Config { get; set; }
+
+        /// <summary>
+        /// Your entry assembly.
+        /// </summary>
+        public Assembly TargetAssembly { get; set; }
+
+        /// <summary>
+        /// Create a new instance of the runtime code tester.
+        /// </summary>
+        /// <param name="config">Various configs</param>
+        /// <param name="assembly">Your entry assembly.</param>
+        public RuntimeCodeTester(RCTConfig config, Assembly assembly)
+        {
+            Config = config ?? new RCTConfig();
+            TargetAssembly = assembly ?? Assembly.GetEntryAssembly();
+        }
+
+        /// <summary>
+        /// Applies any pre-processors and executes the code.
+        /// </summary>
+        /// <param name="source">C# to execute.</param>
+        /// <param name="disabledPreProcessorIds">List of pre-processor ids that will be requested disabled.</param>
+        /// <returns>A result with any output, errors and dumps.</returns>
+        public CodeExecutionResult ExecuteCode(string source, List<string> disabledPreProcessorIds = null)
+        {
+            disabledPreProcessorIds = disabledPreProcessorIds ?? new List<string>();
+            var options = CreateCompilerParameters();
+            var appliedPreProcessorIds = new List<string>();
+            try
+            {
+                source = PreProcess(source, options, disabledPreProcessorIds, appliedPreProcessorIds);
+            }
+            catch (Exception ex)
+            {
+                return new CodeExecutionResult()
+                {
+                    Status = CodeExecutionResult.StatusTypes.CompilerError,
+                    Errors = ExceptionToCodeError(ex)
+                };
+            }
+
+            return ExecuteCode(source, options, appliedPreProcessorIds);
+        }
+
+        private CompilerParameters CreateCompilerParameters()
+        {
+            var options = new CompilerParameters();
+            AddAssemblies(Assembly.GetExecutingAssembly(), options);
+            AddAssemblies(TargetAssembly, options);
+            return options;
+        }
+
+        /// <summary>
+        /// Get a list of all the assemblies used.
+        /// </summary>
+        public IEnumerable<string> GetAssemblyLocations()
+        {
+            var list = new List<string>();
+            var exec = Assembly.GetExecutingAssembly();
+            if (exec != null)
+            {
+                list.Add(exec.Location);
+                list.AddRange(exec.GetReferencedAssemblies().Select(x => ReflectionOnlyLoadWithPolicy(x.FullName).Location));
+            }
+            if (TargetAssembly != null)
+            {
+                list.Add(TargetAssembly.Location);
+                list.AddRange(TargetAssembly.GetReferencedAssemblies().Select(x => ReflectionOnlyLoadWithPolicy(x.FullName).Location));
+            }
+            return list.GroupBy(x => x).Select(x => x.First());
+        }
+
+        private string PreProcess(string source, CompilerParameters options, List<string> disabledPreProcessorIds, List<string> appliedPreProcessorIds)
+        {
+            if (Config.PreProcessors == null || !Config.PreProcessors.Any())
+            {
+                return source;
+            }
+
+            foreach(var processor in Config.PreProcessors.Where(p => p != null && (!p.CanBeDisabled || !disabledPreProcessorIds.Contains(p.Id))))
+            {
+                try
+                {
+                    appliedPreProcessorIds.Add(processor.Id);
+                    source = processor.PreProcess(options, source);
+                }
+                catch (Exception ex)
+                {
+                    throw new PreProcessorException($"The preprocessor '{processor.GetType().Name}' caused an error.", ex);
+                }
+            }
+
+            return source;
+        }
+
+        private CodeExecutionResult ExecuteCode(string source, CompilerParameters options, List<string> appliedPreProcessorIds)
+        {
+            var provider = CodeDomProvider.CreateProvider("C#");
+
+            var result = new CodeExecutionResult()
+            {
+                Code = source,
+                AppliedPreProcessorIds = appliedPreProcessorIds
+            };
+            var compilerResult = provider.CompileAssemblyFromSource(options, source, ExtraSource);
+            if (compilerResult.Errors.Count > 0)
+            {
+                var errors = new List<CodeError>();
+                foreach (CompilerError err in compilerResult.Errors)
+                {
+                    errors.Add(new CodeError(err.Line, err.ErrorText));
+                }
+                result.Errors = errors;
+                result.Status = CodeExecutionResult.StatusTypes.CompilerError;
+                return result;
+            }
+
+            // Check that the required method that we are going to call is in place.
+            Type type = null;
+            object instance = null;
+            MethodInfo method = null;
+            var dumps = new List<DataDump>();
+            var diffs = new List<DiffModel>();
+            try
+            {
+                // Init internal
+                compilerResult.CompiledAssembly
+                    .GetType("RCTInternalHelpers")
+                    .GetMethod("Init", BindingFlags.Public | BindingFlags.Static)
+                    .Invoke(null, new object[] { dumps, diffs });
+
+                // Invoke custom main method
+                type = compilerResult.CompiledAssembly.GetType("CodeTesting.Test");
+                instance = Activator.CreateInstance(type);
+                method = type.GetMethod("Main");
+            }
+            catch (Exception)
+            {
+                result.Status = CodeExecutionResult.StatusTypes.RuntimeError;
+                result.Errors.Add(new CodeError("Namespace must be CodeTesting, classname must be Test, and method must be Main and optionally return something stringable."));
+                return result;
+            }
+
+            if (method == null)
+            {
+                result.Status = CodeExecutionResult.StatusTypes.RuntimeError;
+                result.Errors.Add(new CodeError("No Main method was found. It has to exist within CodeTesting.Test and optionally return something stringable."));
+                return result;
+            }
+
+            try
+            {
+                result.Output = method.Invoke(instance, null)?.ToString();
+                result.Status = CodeExecutionResult.StatusTypes.Executed;
+            }
+            catch (Exception ex)
+            {
+                result.Status = CodeExecutionResult.StatusTypes.RuntimeError;
+                result.Errors = ExceptionToCodeError(ex);
+            }
+
+            result.Dumps = dumps.Where(d => d.Display).ToList();
+            result.Diffs = diffs;
+            return result;
+        }
+
+        private void AddAssemblies(Assembly currentAssembly, CompilerParameters options)
+        {
+            options.ReferencedAssemblies.Add(currentAssembly.Location);
+
+            foreach(var refAssemblyName in currentAssembly.GetReferencedAssemblies())
+            {
+                AddAssemblyWithPolicy(refAssemblyName.FullName, options);
+            }
+        }
+
+        private void AddAssemblyWithPolicy(string assemblyName, CompilerParameters options)
+        {
+            var refAssembly = ReflectionOnlyLoadWithPolicy(assemblyName);
+            options.ReferencedAssemblies.Add(refAssembly.Location);
+        }
+
+        private Assembly ReflectionOnlyLoadWithPolicy(string assemblyName)
+        {
+            var newName = AppDomain.CurrentDomain?.ApplyPolicy(assemblyName);
+            return Assembly.ReflectionOnlyLoad(newName);
+        }
+
+        private List<CodeError> ExceptionToCodeError(Exception ex)
+        {
+            var errors = new List<CodeError>
+            {
+                new CodeError($"{ex}{Environment.NewLine}{ex.StackTrace}")
+            };
+
+            if (ex.InnerException != null)
+            {
+                errors.AddRange(ExceptionToCodeError(ex.InnerException));
+            }
+            return errors;
+        }
+
+        private readonly string ExtraSource = $@"
+    public static class RCTInternalHelpers 
+    {{
+        public static System.Collections.Generic.List<RuntimeCodeTest.Core.Models.DataDump> Dumps {{ get; set; }}
+        public static System.Collections.Generic.List<RuntimeCodeTest.Core.Models.DiffModel> Diffs {{ get; set; }}
+
+        public static void Init(System.Collections.Generic.List<RuntimeCodeTest.Core.Models.DataDump> dumpList, 
+                                System.Collections.Generic.List<RuntimeCodeTest.Core.Models.DiffModel> diffList) 
+        {{
+            Dumps = dumpList;
+            Diffs = diffList;
+        }}
+    }}
+
+    public static class RCTUtils
+    {{
+        public static void SaveDumps(string pathOrFilename = null, bool includeTitle = false, bool includeType = false)
+            => RuntimeCodeTest.Core.Util.DumpHelper.SaveDumps(RCTInternalHelpers.Dumps, pathOrFilename, includeTitle, includeType);
+    }}
+
+	public static class RCTExtensions
+    {{
+		public static T Dump<T>(this T obj, string title = null, bool display = true, bool ignoreErrors = true)
+            => RuntimeCodeTest.Core.Util.DumpHelper.Dump<T>(obj, RCTInternalHelpers.Dumps, title, display, ignoreErrors);
+		
+		public static T Dump<T>(this T obj, string title = null, bool display = true, params Newtonsoft.Json.JsonConverter[] converters)
+            => RuntimeCodeTest.Core.Util.DumpHelper.Dump<T>(obj, RCTInternalHelpers.Dumps, title, display, converters);
+	
+		public static T Dump<T>(this T obj, System.Func<T, string> dumpConverter, string title = null, bool display = true)
+            => RuntimeCodeTest.Core.Util.DumpHelper.Dump<T>(obj, RCTInternalHelpers.Dumps, dumpConverter, title, display);
+
+        public static TLeft Diff<TLeft, TRight>(this TLeft left, TRight right, bool onlyIfDifferent = true, string title = null, bool ignoreErrors = true)
+            => RuntimeCodeTest.Core.Util.DumpHelper.Diff<TLeft, TRight>(left, right, onlyIfDifferent, RCTInternalHelpers.Diffs, title, ignoreErrors);
+	}}
+";
+    }
+}

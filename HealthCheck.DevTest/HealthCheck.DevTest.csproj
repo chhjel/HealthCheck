@@ -194,17 +194,21 @@
       <Project>{df551db9-32a9-4519-b19c-2f306a486448}</Project>
       <Name>HealthCheck.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Modules\HealthCheck.RequestLog\HealthCheck.RequestLog.csproj">
-      <Project>{e1337f9c-3e88-4453-bc84-b8fe52874c93}</Project>
-      <Name>HealthCheck.RequestLog</Name>
-    </ProjectReference>
     <ProjectReference Include="..\HealthCheck.WebUI\HealthCheck.WebUI.csproj">
       <Project>{2a641f75-5d28-4bf1-9019-8286fcbd6ac5}</Project>
       <Name>HealthCheck.WebUI</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Modules\HealthCheck.DynamicCodeExecution\HealthCheck.DynamicCodeExecution.csproj">
+      <Project>{12ff11c4-ee44-4142-a335-ee7e7e9c4c60}</Project>
+      <Name>HealthCheck.DynamicCodeExecution</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Modules\HealthCheck.Modules.DevModule\HealthCheck.Modules.DevModule.csproj">
       <Project>{81552B74-1F58-4CC1-B76B-87E84A35571A}</Project>
       <Name>HealthCheck.Modules.DevModule</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Modules\HealthCheck.RequestLog\HealthCheck.RequestLog.csproj">
+      <Project>{e1337f9c-3e88-4453-bc84-b8fe52874c93}</Project>
+      <Name>HealthCheck.RequestLog</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
