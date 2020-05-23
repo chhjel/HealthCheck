@@ -3,7 +3,7 @@
         "outDir": "./built/",
         "sourceMap": true,
         "strict": true,
-        "module": "es2015",
+        "module": "esnext",
         "moduleResolution": "node",
         "target": "es5",
         "lib": ["es5", "es6", "es2017", "es2016.array.include", "dom"],

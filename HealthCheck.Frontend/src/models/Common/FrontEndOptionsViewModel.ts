@@ -3,4 +3,10 @@ export default interface FrontEndOptionsViewModel {
     ApplicationTitleLink: string;
     InludeQueryStringInApiCalls: boolean;
     InvokeModuleMethodEndpoint: string;
+    EditorConfig: EditorWorkerConfig;
+}
+
+export interface EditorWorkerConfig {
+    EditorWorkerUrl: string;
+    JsonWorkerUrl: string;
 }

@@ -282,7 +282,7 @@ namespace HealthCheck.WebUI.Util
         /// </summary>
         /// <exception cref="ConfigValidationException"></exception>
         public string CreateViewHtml(Maybe<TAccessRole> accessRoles,
-            FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
+            HCFrontEndOptions frontEndOptions, HCPageOptions pageOptions)
         {
             ValidateConfig(frontEndOptions, pageOptions);
 
@@ -311,6 +311,11 @@ namespace HealthCheck.WebUI.Util
                 .Select(url => $"<script src=\"{url}\"></script>")
                 .ToList();
             var javascriptUrlTagsHtml = string.Join("\n    ", javascriptUrlTags);
+
+            var assetUrlTags = pageOptions.JavaScriptUrls
+                .Select(url => $"<script src=\"{url}\"></script>")
+                .ToList();
+            var assetUrlTagsHtml = string.Join("\n    ", assetUrlTags);
 
             var defaultAssets = !pageOptions.IncludeDefaultAssetLinks ? "" : $@"
     <link href={Q}https://cdn.jsdelivr.net/npm/vuetify@1.5.6/dist/vuetify.min.css{Q} rel={Q}stylesheet{Q} />
@@ -346,7 +351,7 @@ namespace HealthCheck.WebUI.Util
 </body>
 </html>";
         }
-        private void ValidateConfig(FrontEndOptionsViewModel frontEndOptions, PageOptions pageOptions)
+        private void ValidateConfig(HCFrontEndOptions frontEndOptions, HCPageOptions pageOptions)
         {
             frontEndOptions.Validate();
             pageOptions.Validate();

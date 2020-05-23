@@ -21,14 +21,14 @@ namespace HealthCheck.DevTest.NetCore.Controllers
         }
 
         #region Overrides
-        protected override FrontEndOptionsViewModel GetFrontEndOptions()
-            => new FrontEndOptionsViewModel(EndpointBase)
+        protected override HCFrontEndOptions GetFrontEndOptions()
+            => new HCFrontEndOptions(EndpointBase)
             {
                 ApplicationTitle = "Site Status"
             };
 
-        protected override PageOptions GetPageOptions()
-            => new PageOptions()
+        protected override HCPageOptions GetPageOptions()
+            => new HCPageOptions()
             {
                 JavaScriptUrls = new List<string> {
                     $"{EndpointBase.TrimEnd('/')}/GetVendorScript",

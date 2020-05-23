@@ -8,9 +8,10 @@
             <v-container>
                 <h1 class="mb-1">ToDo</h1>
 
-                <code>{{ options }}</code>
+                <!-- <code>{{ options }}</code>
+                <code>{{ config }}</code> -->
 
-                <code>{{ config }}</code>
+                <editor-component style="height: 500px"></editor-component>
 
                 <!-- LOAD PROGRESS -->
                 <!-- <v-progress-linear
@@ -42,10 +43,12 @@ import { FetchStatus } from "../../services/abstractions/HCServiceBase";
 import EventNotificationService from "../../services/EventNotificationService";
 import ModuleConfig from "../../models/Common/ModuleConfig";
 import ModuleOptions from "../../models/Common/ModuleOptions";
+import EditorComponent from "./EditorComponent.vue";
 
 @Component({
     components: {
-        BlockComponent
+        BlockComponent,
+        EditorComponent
     }
 })
 export default class DynamicCodeExecutionPageComponent extends Vue {

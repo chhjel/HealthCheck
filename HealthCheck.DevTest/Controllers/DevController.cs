@@ -44,6 +44,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Hosting;
+using System.Web.Http;
 using System.Web.Mvc;
 
 namespace HealthCheck.DevTest.Controllers
@@ -220,20 +221,29 @@ namespace HealthCheck.DevTest.Controllers
             return base.Index();
         }
 
-        protected override FrontEndOptionsViewModel GetFrontEndOptions()
-            => new FrontEndOptionsViewModel(EndpointBase)
+        protected override HCFrontEndOptions GetFrontEndOptions()
+            => new HCFrontEndOptions(EndpointBase)
             {
                 ApplicationTitle = "Test Monitor",
-                ApplicationTitleLink = "/?sysadmin=x&webadmin=1"
+                ApplicationTitleLink = "/?sysadmin=x&webadmin=1",
+                EditorConfig = new HCFrontEndOptions.EditorWorkerConfig
+                {
+                    EditorWorkerUrl = $"{EndpointBase}/getscript?name=editor.worker.js",
+                    JsonWorkerUrl = $"{EndpointBase}/getscript?name=json.worker.js"
+                }
             };
 
-        protected override PageOptions GetPageOptions()
-            => new PageOptions()
+        protected override HCPageOptions GetPageOptions()
+            => new HCPageOptions()
             {
                 PageTitle = "Test Monitor",
                 JavaScriptUrls = new List<string> {
                     $"{EndpointBase}/GetVendorScript",
                     $"{EndpointBase}/GetMainScript",
+                },
+                AssetUrls = new List<string>()
+                {
+                    $"{EndpointBase}/getscript?name=codicon.ttf"
                 }
             };
 
@@ -284,17 +294,19 @@ namespace HealthCheck.DevTest.Controllers
 
         #region dev
         [HideFromRequestLog]
-        public FileResult GetMainScript()
-        {
-            var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheck.js");
-            return new FileStreamResult(new FileStream(filepath, FileMode.Open), "content-disposition");
-        }
-
+        public ActionResult GetMainScript() => LoadFile("healthcheck.js");
+        
         //[OutputCache(Duration = 1200, VaryByParam = "none")]
         [HideFromRequestLog]
-        public FileResult GetVendorScript()
+        public ActionResult GetVendorScript() => LoadFile("healthcheck.vendor.js");
+
+        [HideFromRequestLog]
+        public ActionResult GetScript([FromUri]string name) => LoadFile(name);
+
+        private ActionResult LoadFile(string filename)
         {
-            var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\healthcheck.vendor.js");
+            var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\HealthCheck.Frontend\dist\{filename}");
+            if (!System.IO.File.Exists(filepath)) return Content("");
             return new FileStreamResult(new FileStream(filepath, FileMode.Open), "content-disposition");
         }
 

@@ -1,5 +1,7 @@
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+  
 var path = require('path')
 var webpack = require('webpack')
 
@@ -9,11 +11,11 @@ module.exports = {
     path: path.resolve(__dirname, './dist'),
     publicPath: '/dist/',
     filename: 'healthcheck.js',
-    chunkFilename: 'healthcheck.vendor.js'
+    chunkFilename: 'healthcheck.vendor.[id].js'
   },
   optimization: {
     splitChunks: {
-      chunks: 'all'
+      chunks: 'async'
     }
   },
   module: {
@@ -62,7 +64,7 @@ module.exports = {
         }
       },
       {
-        test: /\.(png|jpg|gif|svg)$/,
+        test: /\.(png|jpg|gif|svg|ttf)$/,
         loader: 'file-loader',
         options: {
           name: '[name].[ext]?[hash]'
@@ -92,6 +94,14 @@ module.exports.plugins = [
   new webpack.DefinePlugin({
     DEVMODE: JSON.stringify(!isProd),
     PRODMODE: JSON.stringify(isProd)
+  }),
+  new webpack.optimize.LimitChunkCountPlugin({
+    maxChunks: 1
+  }),
+  new MonacoWebpackPlugin({
+    languages: [ 'csharp', 'json', 'xml' ],
+    // filename: '[name].worker.js'
+    publicPath: '/'
   })
   // new BundleAnalyzerPlugin()
 ];

@@ -64,12 +64,12 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Get front-end options.
         /// </summary>
-        protected abstract FrontEndOptionsViewModel GetFrontEndOptions();
+        protected abstract HCFrontEndOptions GetFrontEndOptions();
 
         /// <summary>
         /// Get page options.
         /// </summary>
-        protected abstract PageOptions GetPageOptions();
+        protected abstract HCPageOptions GetPageOptions();
 
         /// <summary>
         /// Should return a custom enum flag object with the roles of the current user. Must match the type used in <see cref="RuntimeTestAttribute.RolesWithAccess"/>.

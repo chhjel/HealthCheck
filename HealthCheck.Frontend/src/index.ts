@@ -1,5 +1,5 @@
 import "babel-polyfill";
-import Vue from "vue";
+import Vue, { VueConstructor } from "vue";
 import Vuex from "vuex";
 import VueRouter, { RouteConfig } from "vue-router";
 import HealthCheckPageComponent from "./components/HealthCheckPageComponent.vue";
@@ -26,18 +26,18 @@ import DataflowPageComponent from './components/Dataflow/DataflowPageComponent.v
 import SettingsPageComponent from './components/Settings/SettingsPageComponent.vue';
 import EventNotificationsPageComponent from './components/EventNotifications/EventNotificationsPageComponent.vue';
 import DynamicCodeExecutionPageComponent from './components/DynamicCodeExecution/DynamicCodeExecutionPageComponent.vue';
-let moduleComponents = [
-    TestSuitesPageComponent,
-    OverviewPageComponent,
-    AuditLogPageComponent,
-    LogViewerPageComponent,
-    RequestLogPageComponent,
-    DocumentationPageComponent,
-    DataflowPageComponent,
-    SettingsPageComponent,
-    EventNotificationsPageComponent,
-    DynamicCodeExecutionPageComponent
-];
+let moduleComponents: Record<string, VueConstructor<Vue>> = {
+    'TestSuitesPageComponent': TestSuitesPageComponent,
+    'OverviewPageComponent': OverviewPageComponent,
+    'AuditLogPageComponent': AuditLogPageComponent,
+    'LogViewerPageComponent': LogViewerPageComponent,
+    'RequestLogPageComponent': RequestLogPageComponent,
+    'DocumentationPageComponent': DocumentationPageComponent,
+    'DataflowPageComponent': DataflowPageComponent,
+    'SettingsPageComponent': SettingsPageComponent,
+    'EventNotificationsPageComponent': EventNotificationsPageComponent,
+    'DynamicCodeExecutionPageComponent': DynamicCodeExecutionPageComponent
+};
 
 // Init libs
 Vue.use(Vuetify, {
@@ -81,7 +81,7 @@ moduleConfig
     routes.push({
         name: config.Id,
         path: config.RoutePath,
-        component: moduleComponents.filter(x => x.name == config.ComponentName)[0],
+        component: moduleComponents[config.ComponentName],
         props: {
             config: config,
             options: moduleOptions[config.Id]
@@ -110,6 +110,6 @@ let v = new Vue({
         moduleConfig: moduleConfig
     },
 	components: {
-		HealthCheckPageComponent
+        HealthCheckPageComponent
 	}
 });
