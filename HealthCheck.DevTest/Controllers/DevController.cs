@@ -29,8 +29,11 @@ using HealthCheck.Core.Util;
 using HealthCheck.DevTest._TestImplementation;
 using HealthCheck.DevTest._TestImplementation.Dataflow;
 using HealthCheck.DevTest._TestImplementation.EventNotifier;
-using HealthCheck.DynamicCodeExecution.Abstractions;
-using HealthCheck.DynamicCodeExecution.Models;
+using HealthCheck.Module.DynamicCodeExecution.Abstractions;
+using HealthCheck.Module.DynamicCodeExecution.Models;
+using HealthCheck.Module.DynamicCodeExecution.Module;
+using HealthCheck.Module.DynamicCodeExecution.PreProcessors;
+using HealthCheck.Module.DynamicCodeExecution.Validators;
 using HealthCheck.Modules.DevModule;
 using HealthCheck.RequestLog.Services;
 using HealthCheck.WebUI.Abstractions;
@@ -79,13 +82,13 @@ namespace HealthCheck.DevTest.Controllers
                 TargetAssembly = typeof(DevController).Assembly,
                 PreProcessors = new IDynamicCodePreProcessor[]
                 {
-                    new DynamicCodeExecution.PreProcessors.BasicAutoCreateUsingsPreProcessor(typeof(DevController).Assembly),
-                    new DynamicCodeExecution.PreProcessors.WrapUsingsInRegionPreProcessor(),
-                    new DynamicCodeExecution.PreProcessors.FuncPreProcessor((p, code) => code.Replace("woot", "w00t"))
+                    new BasicAutoCreateUsingsPreProcessor(typeof(DevController).Assembly),
+                    new WrapUsingsInRegionPreProcessor(),
+                    new FuncPreProcessor((p, code) => code.Replace("woot", "w00t"))
                 },
                 Validators = new IDynamicCodeValidator[]
                 {
-                    new DynamicCodeExecution.Validators.FuncCodeValidator((code) =>
+                    new FuncCodeValidator((code) =>
                         code.Contains("format c:")
                             ? DynamicCodeValidationResult.Deny("No format pls")
                             : DynamicCodeValidationResult.Allow()
