@@ -1,4 +1,6 @@
-﻿namespace HealthCheck.Module.DynamicCodeExecution.Models
+﻿using System;
+
+namespace HealthCheck.Module.DynamicCodeExecution.Models
 {
     /// <summary>
     /// A script that was saved.
@@ -8,7 +10,7 @@
         /// <summary>
         /// Unique id of this script.
         /// </summary>
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         /// <summary>
         /// Title of the script.

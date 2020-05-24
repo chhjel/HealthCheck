@@ -1,4 +1,6 @@
 ﻿using HealthCheck.Module.DynamicCodeExecution.Models;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Module.DynamicCodeExecution.Abstractions
@@ -11,11 +13,21 @@ namespace HealthCheck.Module.DynamicCodeExecution.Abstractions
         /// <summary>
         /// Get all stored scripts.
         /// </summary>
-        Task<DynamicCodeScript> GetAllScripts();
+        Task<List<DynamicCodeScript>> GetAllScripts();
 
         /// <summary>
-        /// Save the given script and return the updated script.
+        /// Get a single stored script.
         /// </summary>
-        DynamicCodeScript SaveScript(DynamicCodeScript script);
+        Task<DynamicCodeScript> GetScript(Guid id);
+
+        /// <summary>
+        /// Deletes a single stored script.
+        /// </summary>
+        Task<bool> DeleteScript(Guid id);
+
+        /// <summary>
+        /// Save or create the given script and return the script with any changes.
+        /// </summary>
+        Task<DynamicCodeScript> SaveScript(DynamicCodeScript script);
     }
 }

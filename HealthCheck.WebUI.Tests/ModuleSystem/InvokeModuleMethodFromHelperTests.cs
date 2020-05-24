@@ -120,7 +120,7 @@ namespace HealthCheck.WebUI.Tests.ModuleSystem
         }
 
         [Fact]
-        public async Task Invoke_ValidMethodThatRequiresDoubleAccess_HasDoubleAccess_ReturnsNoAccess()
+        public async Task Invoke_ValidMethodThatRequiresDoubleAccess_HasDoubleAccess_ReturnsAccess()
         {
             var requestInfo = CreateRequestInformation(AccessRoles.WebAdmins);
             var helper = CreateHelper(AccessRoles.WebAdmins, (config) =>

@@ -6,12 +6,17 @@ namespace HealthCheck.Module.DynamicCodeExecution.Models
     /// <summary>
     /// Options used by DCE module.
     /// </summary>
-    internal class OptionsModel
+    internal class DCEModuleFrontendOptionsModel
     {
         /// <summary>
         /// List of pre-processors to disable.
         /// </summary>
         public IEnumerable<PreProcessorMetadata> PreProcessors { get; set; } = Enumerable.Empty<PreProcessorMetadata>();
+
+        /// <summary>
+        /// True if script storage service is provided.
+        /// </summary>
+        public bool ServerSideScriptsEnabled { get; internal set; }
     }
 
     /// <summary>

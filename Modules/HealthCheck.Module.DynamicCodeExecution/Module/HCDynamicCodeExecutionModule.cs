@@ -1,9 +1,10 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
-using HealthCheck.Module.DynamicCodeExecution;
 using HealthCheck.Module.DynamicCodeExecution.Abstractions;
 using HealthCheck.Module.DynamicCodeExecution.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace HealthCheck.Module.DynamicCodeExecution.Module
 {
@@ -31,7 +32,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         /// Get config for this module.
         /// </summary>
         public override IHealthCheckModuleConfig GetModuleConfig(AccessOption access) => new HCDynamicCodeExecutionModuleConfig();
-        
+
         /// <summary>
         /// Different access options for this module.
         /// </summary>
@@ -40,6 +41,36 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         {
             /// <summary>Does nothing.</summary>
             Nothing = 0,
+
+            /// <summary>
+            /// Allow writing and executing scripts.
+            /// </summary>
+            ExecuteCustomScript = 1,
+
+            /// <summary>
+            /// Allow executing scripts that are already saved on the server.
+            /// </summary>
+            ExecuteSavedScript = 2,
+
+            /// <summary>
+            /// Allow loading scripts from server.
+            /// </summary>
+            LoadScriptFromServer = 4,
+
+            /// <summary>
+            /// Allow saving new scripts to server.
+            /// </summary>
+            CreateNewScriptOnServer = 8,
+
+            /// <summary>
+            /// Allow saving over existing scripts on server.
+            /// </summary>
+            EditExistingScriptOnServer = 16,
+
+            /// <summary>
+            /// Allow deleting existing scripts on server.
+            /// </summary>
+            DeleteExistingScriptOnServer = 32
         }
 
         #region Invokable methods
@@ -48,7 +79,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         /// </summary>
         /// <param name="source">Model with C# code to execute.</param>
         /// <returns>A <see cref="DynamicCodeExecutionResultModel"/></returns>
-        [HealthCheckModuleMethod]
+        [HealthCheckModuleMethod(AccessOption.ExecuteCustomScript)]
         public DynamicCodeExecutionResultModel ExecuteCode(DynamicCodeExecutionSourceModel source)
         {
             var result = new DynamicCodeExecutionResultModel()
@@ -78,12 +109,73 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
 #endif
             }
         }
+
+        /// <summary>
+        /// Executes a script that has been stored on the server.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.ExecuteSavedScript)]
+        public async Task<DynamicCodeExecutionResultModel> ExecuteScriptById(Guid id)
+        {
+            var script = await Options.ScriptStorage?.GetScript(id);
+            if (script == null)
+            {
+                return new DynamicCodeExecutionResultModel()
+                {
+                    Success = false,
+                    Message = $"Script with id {id} was not found."
+                };
+            }
+
+            var source = new DynamicCodeExecutionSourceModel()
+            {
+                Code = script.Code,
+                DisabledPreProcessorIds = new List<string>()
+            };
+
+            return ExecuteCode(source);
+        }
+
+        /// <summary>
+        /// Get all stored scripts.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.LoadScriptFromServer)]
+        public async Task<List<DynamicCodeScript>> GetScripts()
+            => (this.Options.ScriptStorage == null)
+            ? new List<DynamicCodeScript>()
+            : (await this.Options.ScriptStorage.GetAllScripts());
+
+        /// <summary>
+        /// Deletes a single stored script.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.DeleteExistingScriptOnServer)]
+        public async Task<bool> DeleteScript(Guid id) => (await this.Options.ScriptStorage?.DeleteScript(id)) == true;
+
+        /// <summary>
+        /// Creates a new script.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.CreateNewScriptOnServer)]
+        public async Task<DynamicCodeScript> AddNewScript(DynamicCodeScript script)
+            => await this.Options.ScriptStorage?.SaveScript(script);
+
+        /// <summary>
+        /// Edit an existing script.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.EditExistingScriptOnServer)]
+        public async Task<DynamicCodeScript> SaveScriptChanges(DynamicCodeScript script)
+        {
+            if (this.Options.ScriptStorage == null) return null;
+
+            var existingScript = this.Options.ScriptStorage.GetScript(script.Id);
+            if (existingScript == null) return null;
+
+            return await this.Options.ScriptStorage.SaveScript(script);
+        }
         #endregion
 
         #region Private helpers
-        private OptionsModel CreateFrontendOptionsObject()
+        private DCEModuleFrontendOptionsModel CreateFrontendOptionsObject()
         {
-            return new OptionsModel()
+            return new DCEModuleFrontendOptionsModel()
             {
                 PreProcessors = (Options.PreProcessors ?? Enumerable.Empty<IDynamicCodePreProcessor>()).Select(x => new PreProcessorMetadata()
                 {
@@ -91,7 +183,8 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
                     Name = x.Name ?? x.Id,
                     Description = x.Description,
                     CanBeDisabled = x.CanBeDisabled
-                })
+                }),
+                ServerSideScriptsEnabled = Options.ScriptStorage != null
             };
         }
 

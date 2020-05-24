@@ -33,6 +33,7 @@ using HealthCheck.Module.DynamicCodeExecution.Abstractions;
 using HealthCheck.Module.DynamicCodeExecution.Models;
 using HealthCheck.Module.DynamicCodeExecution.Module;
 using HealthCheck.Module.DynamicCodeExecution.PreProcessors;
+using HealthCheck.Module.DynamicCodeExecution.Storage;
 using HealthCheck.Module.DynamicCodeExecution.Validators;
 using HealthCheck.Modules.DevModule;
 using HealthCheck.RequestLog.Services;
@@ -80,6 +81,7 @@ namespace HealthCheck.DevTest.Controllers
 
             UseModule(new HCDynamicCodeExecutionModule(new HCDynamicCodeExecutionModuleOptions() {
                 TargetAssembly = typeof(DevController).Assembly,
+                ScriptStorage = new FlatFileDynamicCodeScriptStorage(@"C:\temp\DCE_Scripts.json"),
                 PreProcessors = new IDynamicCodePreProcessor[]
                 {
                     new BasicAutoCreateUsingsPreProcessor(typeof(DevController).Assembly),

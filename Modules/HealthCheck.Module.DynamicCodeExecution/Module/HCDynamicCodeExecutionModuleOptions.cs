@@ -20,6 +20,11 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         public IEnumerable<IDynamicCodeValidator> Validators { get; set; }
 
         /// <summary>
+        /// Optional serverside storage of scripts.
+        /// </summary>
+        public IDynamicCodeScriptStorage ScriptStorage { get; set; }
+
+        /// <summary>
         /// Your entry assembly.
         /// </summary>
         public Assembly TargetAssembly { get; set; }
