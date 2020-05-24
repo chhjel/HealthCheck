@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Dataflow.Abstractions;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 
@@ -140,6 +141,15 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
         }
 
         /// <summary>
+        /// Show the property as icon. Property value should be a constant from <see cref="MaterialIcons"/>.
+        /// </summary>
+        public DataFlowPropertyDisplayInfo SetSVGIcon()
+        {
+            SetDisplayName("").SetUIHint(DataFlowPropertyUIHint.Icon).OnlyShowInList();
+            return this;
+        }
+
+        /// <summary>
         /// Sets the display name to a prettified version of the property name.
         /// </summary>
         public DataFlowPropertyDisplayInfo PrettifyDisplayName()
@@ -202,7 +212,13 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
             /// <summary>
             /// Display as HTML
             /// </summary>
-            HTML
+            HTML,
+
+            /// <summary>
+            /// Display as a <see cref="MaterialIcons"/> SVG icon.
+            /// <para>Value should be a constant from <see cref="MaterialIcons"/>.</para>
+            /// </summary>
+            Icon
         }
 
         /// <summary>

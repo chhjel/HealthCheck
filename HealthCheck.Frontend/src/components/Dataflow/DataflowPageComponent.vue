@@ -149,6 +149,7 @@
                                     class="elevation-2">
                                     <template v-slot:cell="{ value }">
                                         <span v-if="value.uiHint=='HTML'" v-html="value.value" @click.stop=""></span>
+                                        <span v-else-if="value.uiHint=='Icon'"><v-icon>{{ value.value }}</v-icon></span>
                                         <span v-else-if="value.uiHint=='Link'"><a :href="value.value" target="_blank" @click.stop="">{{ value.key }}</a></span>
                                         <span v-else>{{ value.value }}</span>
                                     </template>

@@ -61,7 +61,7 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
         {
             Suffix = suffix;
 
-            ConfigureProperty(nameof(TestEntry.Icon)).SetHtmlIcon();
+            ConfigureProperty(nameof(TestEntry.Icon)).SetSVGIcon();
             ConfigureProperty(nameof(TestEntry.InsertionTime)).SetUIHint(DataFlowPropertyUIHint.DateTime).PrettifyDisplayName();
             ConfigureProperty(nameof(TestEntry.Code)).SetDisplayName("The product code");
             ConfigureProperty(nameof(TestEntry.Name)).SetDisplayName("The product name");
