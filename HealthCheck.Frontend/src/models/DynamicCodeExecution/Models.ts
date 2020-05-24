@@ -1,5 +1,12 @@
 import { MarkerSeverity } from 'monaco-editor'
 
+export interface DynamicCodeScript {
+    Id: string;
+    Title: string;
+    Description: string;
+    Code: string;
+}
+
 export interface ICodeMark {
     line: number;
     startColumn: number;

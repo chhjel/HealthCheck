@@ -95,6 +95,9 @@ export default class FilterableListComponent extends Vue {
     groupByKey!: string;
 
     @Prop({ required: false, default: null })
+    iconsKey!: string | null;
+
+    @Prop({ required: false, default: null })
     sortByKey!: string | null;
 
     @Prop({ required: false, default: [] })
@@ -188,6 +191,11 @@ export default class FilterableListComponent extends Vue {
     {
         this.selectedItemData = data;
     }
+
+    // get itemIcons(data: any): Array<string>
+    // {
+    //     const icons = data[iconsKey];
+    // }
 
     ///////////////////////
     //  EVENT HANDLERS  //

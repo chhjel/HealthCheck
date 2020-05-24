@@ -14,14 +14,18 @@
                     :items="menuItems"
                     :groupByKey="`GroupName`"
                     :sortByKey="`GroupName`"
+                    :iconsKey="'Icons'"
                     :filterKeys="[ 'Name' ]"
                     ref="filterableList"
                     v-on:itemClicked="onMenuItemClicked"
                     />
                     
-                <v-btn flat dark
-                    color="#62b5e4"
-                    ><v-icon>add</v-icon>New</v-btn>
+                <div class="pl-4 pt-2">
+                    <v-btn flat dark
+                        color="#62b5e4"
+                        @click="onNewScriptClicked"
+                        ><v-icon>add</v-icon>New script</v-btn>
+                </div>
             </v-navigation-drawer>
 
             <!-- CONTENT -->
@@ -47,7 +51,18 @@
                 <div class="middle-toolbar">
                     <v-btn flat dark
                         color="#62b5e4"
-                        >Save</v-btn>
+                        @click="onSaveLocalClicked"
+                        >Save local</v-btn>
+
+                    <v-btn flat dark
+                        color="#62b5e4"
+                        @click="onSaveToServerClicked"
+                        >Save to server</v-btn>
+
+                    <v-btn flat dark
+                        color="#62b5e4"
+                        @click="onDeleteClicked"
+                        >Delete</v-btn>
                     
                     <v-btn flat dark
                         color="#62b5e4"
@@ -85,13 +100,22 @@ import ModuleOptions from "../../models/Common/ModuleOptions";
 import EditorComponent from "../Common/EditorComponent.vue";
 import { FetchStatus } from "../../services/abstractions/HCServiceBase";
 import DynamicCodeExecutionService from "../../services/DynamicCodeExecutionService";
-import { DynamicCodeExecutionResultModel } from "../../models/DynamicCodeExecution/Models";
+import { DynamicCodeExecutionResultModel, DynamicCodeScript } from "../../models/DynamicCodeExecution/Models";
 import { MarkerSeverity } from "monaco-editor";
 import { FilterableListItem } from "../Common/FilterableListComponent.vue";
 import FilterableListComponent from '.././Common/FilterableListComponent.vue';
+import IdUtils from "../../util/IdUtils";
 
 interface DynamicCodeExecutionPageOptions {
     InitialCode: string;
+}
+
+interface ServerSideScript {
+    script: DynamicCodeScript;
+}
+
+interface LocalOnlyScript {
+    script: DynamicCodeScript;
 }
 
 @Component({
@@ -112,7 +136,11 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
 
     code: string = '';
     resultData: string = '';
+    currentScript: DynamicCodeScript | null = null;
 
+    localScripts: Array<LocalOnlyScript> = [];
+    serverScripts: Array<ServerSideScript> = [];
+    
     // UI STATE
     loadStatus: FetchStatus = new FetchStatus();
     drawerState: boolean = true;
@@ -124,7 +152,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     {
         this.$store.commit('showMenuButton', true);
         this.code = this.initialCode;
-        // this.loadData();
+        this.loadData();
     }
 
     created(): void {
@@ -138,6 +166,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+
     get editor(): EditorComponent {
         return this.$refs.editor as EditorComponent;
     }
@@ -148,20 +177,33 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     
     get menuItems(): Array<FilterableListItem>
     {
-        return [
-            { group: 'Server Scripts', title: "Get latest things" },
-            { group: 'Server Scripts', title: "Do something" },
-            { group: 'Server Scripts', title: "Restore some things" },
-            { group: 'Local Scripts', title: "Test A" },
-            { group: 'Local Scripts', title: "Something" },
-            { group: 'Local Scripts', title: "<unsaved script 1>" }
-        ].map(x => {
+        const localItems = this.localScripts.map(x => {
             return {
-                title: x.title,
-                subtitle: null,
-                data: { GroupName: x.group, Name: x.title }
-            }
+                group: 'Local Scripts',
+                script: x.script
+            };
         });
+        const serverItems = this.serverScripts.map(x => {
+            return {
+                group: 'Server Scripts',
+                script: x.script
+            };
+        });
+
+        return serverItems
+            .concat(localItems)
+            .map(x => {
+                return {
+                    title: x.script.Title,
+                    subtitle: x.script.Description,
+                    data: {
+                        GroupName: x.group,
+                        Name: x.script.Title,
+                        Script: x.script,
+                        Icons: ['cross']
+                    }
+                }
+            });
     }
     
     get initialCode(): string {
@@ -199,11 +241,117 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
         this.drawerState = !this.drawerState;
     }
 
+    loadData(): void {
+        this.localScripts = this.getLocalScriptsFromLocalStorage();
+
+        this.service.GetScripts(this.loadStatus, {
+            onSuccess: (d) => this.serverScripts = d.map(x => {
+                const serverScript: ServerSideScript = {
+                    script: x
+                };
+                return serverScript;
+            })
+        });
+    }
+
+    writeLocalScriptsToLocalStorage(scripts: Array<LocalOnlyScript>): void {
+        const json = JSON.stringify(scripts);
+        localStorage.setItem('localScripts', json);
+    }
+
+    getLocalScriptsFromLocalStorage(): Array<LocalOnlyScript>
+    {
+        const localScriptsJson = localStorage.getItem('localScripts');
+        if (localScriptsJson != null)
+        {
+            return JSON.parse(localScriptsJson);
+        }
+        return [];
+    }
+
+    openScript(script: DynamicCodeScript): void {
+        this.currentScript = script;
+        this.code = this.currentScript.Code;
+
+        setTimeout(() => {
+            this.editor.foldRegions();
+        }, 100);
+    }
+
+    openNewScript(): void {
+        this.localScripts.push({
+            script: {
+                Id: IdUtils.generateId(),
+                Title: this.getNewScriptName(),
+                Description: '',
+                Code: this.initialCode
+            }
+        });
+        this.writeLocalScriptsToLocalStorage(this.localScripts);
+    }
+
+    getNewScriptName(): string
+    {
+        let num = 1;
+        this.localScripts.forEach(localScript => {
+            const title = localScript.script.Title;
+            if (title.startsWith('New Script '))
+            {
+                const numMatch = title.match(/.*?([0-9]+)$/);
+                if (numMatch != null)
+                {
+                    num = parseInt(numMatch[1]) + 1;
+                }
+            }
+        });
+
+        return `New Script ${num}`;
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    onNewScriptClicked(): void {
+        this.openNewScript();
+    }
+
+    onSaveLocalClicked(): void {
+        if (this.currentScript == null)
+        {
+            return;
+        }
+
+        this.currentScript.Code = this.code;
+        let currentId = this.currentScript.Id;
+        let localScript = this.localScripts.filter(x => x.script.Id == currentId)[0];
+        localScript.script = this.currentScript;
+        
+        this.writeLocalScriptsToLocalStorage(this.localScripts);
+    }
+
+    onSaveToServerClicked(): void {
+        if (this.currentScript == null)
+        {
+            return;
+        }
+    }
+
+    onDeleteClicked(): void {
+        if (this.currentScript == null)
+        {
+            return;
+        }
+
+        let currentId = this.currentScript.Id;
+        this.localScripts = this.localScripts.filter(x => x.script.Id != currentId);
+        this.writeLocalScriptsToLocalStorage(this.localScripts);
+
+        this.currentScript = null;
+    }
+
     onMenuItemClicked(item: any): void {
-        console.log(item);
+        const script = item.data.Script as DynamicCodeScript;
+        this.openScript(script)
     }
 
     onEditorInit(editor: any): void {
