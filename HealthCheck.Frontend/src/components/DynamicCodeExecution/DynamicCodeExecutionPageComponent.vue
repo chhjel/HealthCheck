@@ -1,33 +1,64 @@
 <!-- src/components/DynamicCodeExecution/DynamicCodeExecutionPageComponent.vue -->
 <template>
-    <div>
-        <v-content class="pl-0">
-            <v-container fluid fill-height class="content-root">
+    <div class="dce_page">
+        <v-content>
+            <!-- NAVIGATION DRAWER -->
+            <v-navigation-drawer
+                v-model="drawerState"
+                clipped fixed floating app
+                mobile-break-point="1000"
+                dark
+                class="menu testset-menu">
+
+                <filterable-list-component 
+                    :items="menuItems"
+                    :groupByKey="`GroupName`"
+                    :sortByKey="`GroupName`"
+                    :filterKeys="[ 'Name' ]"
+                    ref="filterableList"
+                    v-on:itemClicked="onMenuItemClicked"
+                    />
+                    
+                <v-btn flat dark
+                    color="#62b5e4"
+                    ><v-icon>add</v-icon>New</v-btn>
+            </v-navigation-drawer>
+
+            <!-- CONTENT -->
+            <v-container fluid fill-height class="content-root pt-3 pb-0">
             <v-layout>
             <v-flex>
-            <v-container>
+            <v-container class="pt-0 pb-1 wrapper-container">
 
                 <!-- DATA LOAD ERROR -->
                 <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
                 {{ loadStatus.errorMessage }}
                 </v-alert>
 
-                <!-- <code>{{ options }}</code>
-                <code>{{ config }}</code> -->
-
-                <editor-component style="height: 400px"
+                <editor-component
+                    class="codeeditor codeeditor__input"
                     language="csharp"
                     v-model="code"
                     v-on:editorInit="onEditorInit"
+                    :readOnly="loadStatus.inProgress"
                     ref="editor"
                     ></editor-component>
 
-                <v-btn
-                    @click="onExecuteClicked"
-                    :loading="loadStatus.inProgress"
-                    >Execute</v-btn>
+                <div class="middle-toolbar">
+                    <v-btn flat dark
+                        color="#62b5e4"
+                        >Save</v-btn>
+                    
+                    <v-btn flat dark
+                        color="#62b5e4"
+                        class="right"
+                        @click="onExecuteClicked"
+                        :loading="loadStatus.inProgress"
+                        >Execute</v-btn>
+                </div>
 
-                <editor-component style="height: 400px"
+                <editor-component
+                    class="codeeditor codeeditor__output"
                     language="json"
                     v-model="resultData"
                     ></editor-component>
@@ -56,6 +87,8 @@ import { FetchStatus } from "../../services/abstractions/HCServiceBase";
 import DynamicCodeExecutionService from "../../services/DynamicCodeExecutionService";
 import { DynamicCodeExecutionResultModel } from "../../models/DynamicCodeExecution/Models";
 import { MarkerSeverity } from "monaco-editor";
+import { FilterableListItem } from "../Common/FilterableListComponent.vue";
+import FilterableListComponent from '.././Common/FilterableListComponent.vue';
 
 interface DynamicCodeExecutionPageOptions {
     InitialCode: string;
@@ -64,7 +97,8 @@ interface DynamicCodeExecutionPageOptions {
 @Component({
     components: {
         BlockComponent,
-        EditorComponent
+        EditorComponent,
+        FilterableListComponent
     }
 })
 export default class DynamicCodeExecutionPageComponent extends Vue {
@@ -81,14 +115,24 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
 
     // UI STATE
     loadStatus: FetchStatus = new FetchStatus();
+    drawerState: boolean = true;
 
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     mounted(): void
     {
+        this.$store.commit('showMenuButton', true);
         this.code = this.initialCode;
         // this.loadData();
+    }
+
+    created(): void {
+        this.$parent.$parent.$on("onSideMenuToggleButtonClicked", this.toggleSideMenu);
+    }
+
+    beforeDestroy(): void {
+      this.$parent.$parent.$off('onSideMenuToggleButtonClicked', this.toggleSideMenu);
     }
 
     ////////////////
@@ -100,6 +144,24 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
 
     get globalOptions(): FrontEndOptionsViewModel {
         return this.$store.state.globalOptions;
+    }
+    
+    get menuItems(): Array<FilterableListItem>
+    {
+        return [
+            { group: 'Server Scripts', title: "Get latest things" },
+            { group: 'Server Scripts', title: "Do something" },
+            { group: 'Server Scripts', title: "Restore some things" },
+            { group: 'Local Scripts', title: "Test A" },
+            { group: 'Local Scripts', title: "Something" },
+            { group: 'Local Scripts', title: "<unsaved script 1>" }
+        ].map(x => {
+            return {
+                title: x.title,
+                subtitle: null,
+                data: { GroupName: x.group, Name: x.title }
+            }
+        });
     }
     
     get initialCode(): string {
@@ -133,10 +195,17 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    toggleSideMenu(): void {
+        this.drawerState = !this.drawerState;
+    }
 
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    onMenuItemClicked(item: any): void {
+        console.log(item);
+    }
+
     onEditorInit(editor: any): void {
         this.editor.foldRegions();
     }
@@ -217,4 +286,25 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
+.dce_page {
+    background-color: hsla(0, 0%, 16%, 1);
+    height: 100%;
+
+    .middle-toolbar {
+        height: 50px;
+    }
+
+    .codeeditor {
+        box-shadow: 0 2px 4px 1px rgba(0, 0, 0, 0.15), 0 3px 2px 0 rgba(0,0,0,.02), 0 1px 2px 0 rgba(0,0,0,.06);
+
+        &__input {
+            //           max   toolbar  output  other
+            height: calc(100vh - 50px - 30vh - 107px);
+        }
+
+        &__output {
+            height: 30vh;
+        }
+    }
+}
 </style>

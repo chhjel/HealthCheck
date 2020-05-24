@@ -106,6 +106,9 @@ export default class FilterableListComponent extends Vue {
     @Prop({ required: false, default: false })
     disabled!: boolean;
 
+    @Prop({ required: false, default: true })
+    groupIfSingleGroup!: boolean;
+
     filterText: string = "";
     selectedItemData: any = null;
 
@@ -134,7 +137,8 @@ export default class FilterableListComponent extends Vue {
                 items: items
             }));
 
-        if (groupList.length <= 1)
+        const groupsRequiredForGrouping = (this.groupIfSingleGroup ? 1 : 2);
+        if (groupList.length < groupsRequiredForGrouping)
         {
             return [];
         }

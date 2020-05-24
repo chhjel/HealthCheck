@@ -111,15 +111,24 @@ export default class EditorComponent extends Vue {
     //// EVENTHANDLERS /////////////////////////////////////////
     ////////////////////////////////////////////////////////////
     @Watch("value")
-    onValueChanged()
+    onValueChanged(): void
     {
-        if (this.editor == null) return null;
+        if (this.editor == null) return;
         
         const model = this.editor.getModel();
         if (model == null) return;
         else if (model.getValue() == this.value) return;
 
         model.setValue(this.value);
+    }
+
+    @Watch("readOnly")
+    onReadOnlyChanged(): void
+    {
+        if (this.editor == null) return;
+        this.editor.updateOptions({
+            readOnly: this.readOnly
+        });
     }
 
     onWindowResize(): void {
