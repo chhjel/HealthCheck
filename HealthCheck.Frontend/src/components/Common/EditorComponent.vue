@@ -1,0 +1,235 @@
+<!-- src/components/DynamicCodeExecution/EditorComponent.vue -->
+<template>
+    <div class="editor-component">
+        <!-- <div class="editor-component__loader" v-if="!isEditorInited">
+            <v-progress-circular
+                class="mr-2"
+                indeterminate
+                color="primary"
+            />
+            Loading {{ language }} editor..
+        </div> -->
+
+        <div class="editor-component__loader-bar" v-if="!isEditorInited">
+            <v-progress-linear 
+                indeterminate
+                width="4"
+                color="primary"
+            />
+        </div>
+        <div ref="editorElement" class="editor-component__editor"></div>
+    </div>
+</template>
+
+<script lang="ts">
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+// or import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+// if shipping only a subset of the features & languages is desired
+import * as monaco from 'monaco-editor'
+import FrontEndOptionsViewModel from "../../models/Common/FrontEndOptionsViewModel";
+import { ICodeMark } from "../../models/DynamicCodeExecution/Models";
+
+
+@Component({
+    components: {
+    }
+})
+export default class EditorComponent extends Vue {
+    @Prop({ required: false, default: "json" })
+    language!: string;
+
+    @Prop({ required: false, default: false })
+    readOnly!: boolean;
+
+    @Prop({ required: false, default: "vs-dark" }) // 'vs' (default), 'vs-dark', 'hc-black'
+    theme!: string;
+
+    @Prop({ required: false, default: "" })
+    value!: string;
+
+    isEditorInited: boolean = false;
+    currentDecorations: string[] = [];
+
+    editor!: monaco.editor.IStandaloneCodeEditor;
+
+    mounted(): void {
+        this.configureMonacoEnv();
+        this.editor = this.createMonacoEditor();
+
+        window.addEventListener('resize', this.onWindowResize);
+        setTimeout(() => {
+            this.refreshSize();
+        }, 10);
+    }
+
+    beforeDestroy(): void {
+        window.removeEventListener('resize', this.onWindowResize)
+    }
+
+    public refreshSize(): void {
+        if (this.editor) {
+            this.editor.layout();
+        }
+    }
+
+    markCode(marks: ICodeMark[]): void {
+        const model = this.editor.getModel();
+        if (model == null) return;
+
+        monaco.editor.setModelMarkers(model, "owner",
+            marks.map(x => { return {
+                startLineNumber: x.line,
+                endLineNumber: x.line,
+                startColumn: x.startColumn,
+                endColumn: x.endColumn,
+                message: x.message,
+                severity: x.severity
+            }})
+        );
+    }
+
+    getCursorPosition(): number {
+        var model = this.editor.getModel();
+        let pos = this.editor.getPosition();
+        if (model == null || pos == null) return 0;
+        
+        return model.getOffsetAt({ lineNumber: pos.lineNumber, column: pos.column });
+    }
+
+    ////////////////
+    //  GETTERS  //
+    //////////////
+    get globalOptions(): FrontEndOptionsViewModel {
+        return this.$store.state.globalOptions;
+    }
+    
+    ////////////////////////////////////////////////////////////
+    //// EVENTHANDLERS /////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    onWindowResize(): void {
+        this.refreshSize();
+    }
+    
+    onEditorInit(): void {
+        this.markCode([
+            {
+                line: 5,
+                startColumn: 8,
+                endColumn: 13,
+                message: "Woot!",
+                severity: monaco.MarkerSeverity.Error
+            },
+            {
+                line: 2,
+                startColumn: 1,
+                endColumn: 9999,
+                message: "Hmmm?",
+                severity: monaco.MarkerSeverity.Warning
+            }
+        ]);
+    }
+
+    //////////////////////////////////////////////////////
+    //// MONACO CONFIG //////////////////////////////////
+    ////////////////////////////////////////////////////
+    configureMonacoEnv(): void {
+        (<monaco.Environment>(<any>self).MonacoEnvironment) =
+        {
+            getWorkerUrl: (moduleId: string, label: string): string =>
+            {
+                switch (label)
+                {
+                    case 'editorWorkerService': return this.globalOptions.EditorConfig.EditorWorkerUrl;
+                    case 'json': return this.globalOptions.EditorConfig.JsonWorkerUrl;
+                }
+                return `/hc/unknown/monaco/worker/${label}.js`;
+            }
+        }
+    }
+
+    createMonacoEditor(): monaco.editor.IStandaloneCodeEditor
+    {
+        const editor = monaco.editor.create(<HTMLElement>this.$refs.editorElement,
+        {
+            value: this.value,
+            automaticLayout: true,
+            language: this.language,
+            readOnly: this.readOnly,
+            glyphMargin: !this.readOnly,
+            theme: this.theme
+        });
+        
+        const fitHeightToContent: boolean = false;
+        if (fitHeightToContent)
+        {
+            editor.onDidChangeModelDecorations(() => {
+                this.fitEditorHeightToContent()
+                requestAnimationFrame(this.fitEditorHeightToContent)
+            });
+        }
+
+        this.checkForInit();
+        return editor;
+    }
+
+    checkForInit(): void {
+        if (this.editor == undefined)
+        {
+            setTimeout(() => {
+                this.checkForInit();
+            }, 10);
+            return;
+        }
+
+        this.isEditorInited = true;
+        this.onEditorInit();
+    }
+
+    // /**
+    //  * Get an action that is a contribution to this editor.
+    //  * @id Unique identifier of the contribution.
+    //  * @return The action or null if action not found.
+    //  */
+    // getAction(id: string): IEditorAction;
+    // /**
+    //  * Execute a command on the editor.
+    //  * The edits will land on the undo-redo stack, but no "undo stop" will be pushed.
+    //  * @param source The source of the call.
+    //  * @param command The command to execute
+    //  */
+    // executeCommand(source: string, command: ICommand): void;
+    
+    prevHeight: number = 0;
+    fitEditorHeightToContent(): void
+    {
+        const editorElement = this.editor.getDomNode()
+
+        if (!editorElement) {
+            return
+        }
+
+        const lineHeight = this.editor.getOption(monaco.editor.EditorOption.lineHeight)
+        const lineCount = this.editor.getModel()?.getLineCount() || 1
+        const height = this.editor.getTopForLineNumber(lineCount + 1) + lineHeight
+
+        if (this.prevHeight !== height) {
+            this.prevHeight = height
+            editorElement.style.height = `${height}px`
+            this.editor.layout()
+        }
+    }
+}
+</script>
+
+<style scoped lang="scss">
+.editor-component {
+    .editor-component__loader-bar {
+        margin-bottom: -14px;
+    }
+
+    .editor-component__editor {
+        width: 100%;
+        height: 100%;
+    }
+}
+</style>

@@ -240,10 +240,6 @@ namespace HealthCheck.DevTest.Controllers
                 JavaScriptUrls = new List<string> {
                     $"{EndpointBase}/GetVendorScript",
                     $"{EndpointBase}/GetMainScript",
-                },
-                AssetUrls = new List<string>()
-                {
-                    $"{EndpointBase}/getscript?name=codicon.ttf"
                 }
             };
 

@@ -11,7 +11,10 @@
                 <!-- <code>{{ options }}</code>
                 <code>{{ config }}</code> -->
 
-                <editor-component style="height: 500px"></editor-component>
+                <editor-component style="height: 500px"
+                    language="csharp"
+                    v-model="code"
+                    ></editor-component>
 
                 <!-- LOAD PROGRESS -->
                 <!-- <v-progress-linear
@@ -43,7 +46,7 @@ import { FetchStatus } from "../../services/abstractions/HCServiceBase";
 import EventNotificationService from "../../services/EventNotificationService";
 import ModuleConfig from "../../models/Common/ModuleConfig";
 import ModuleOptions from "../../models/Common/ModuleOptions";
-import EditorComponent from "./EditorComponent.vue";
+import EditorComponent from "../Common/EditorComponent.vue";
 
 @Component({
     components: {
@@ -62,6 +65,16 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
 
     // UI STATE
     loadStatus: FetchStatus = new FetchStatus();
+
+    code: string = `
+#region asd
+
+// woot
+public const string Test = "!";
+
+#endregion
+
+`;
 
     //////////////////
     //  LIFECYCLE  //

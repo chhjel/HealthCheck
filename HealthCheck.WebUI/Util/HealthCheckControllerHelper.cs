@@ -299,11 +299,12 @@ namespace HealthCheck.WebUI.Util
                 RoutePath = x?.Config?.RoutePath == null ? null : string.Format(x.Config.RoutePath, x.Config.DefaultRootRouteSegment)
             });
             var moduleStyleAssets = moduleConfigs.Select(x => x.Config)
-                .Where(x => x?.LinkTags != null).SelectMany(x => x.LinkTags.Select(t => t.ToString()));
+                .Where(x => x?.LinkTags != null).SelectMany(x => x.LinkTags.Select(t => t.ToString()))
+                .Concat(pageOptions.CssUrls.Select(x => $"<link rel=\"stylesheet\" href=\"{x}\" crossorigin=\"anonymous\" />"));
             var moduleScriptAssets = moduleConfigs.Select(x => x.Config)
                 .Where(x => x?.ScriptTags != null).SelectMany(x => x.ScriptTags.Select(t => t.ToString()));
-            var moduleStyleAssetsHtml = string.Join("\n", moduleStyleAssets);
-            var moduleScriptAssetsHtml = string.Join("\n", moduleScriptAssets);
+            var styleAssetsHtml = string.Join("\n", moduleStyleAssets);
+            var scriptAssetsHtml = string.Join("\n", moduleScriptAssets);
 
             var moduleOptions = GetModuleFrontendOptions(accessRoles);
 
@@ -311,11 +312,6 @@ namespace HealthCheck.WebUI.Util
                 .Select(url => $"<script src=\"{url}\"></script>")
                 .ToList();
             var javascriptUrlTagsHtml = string.Join("\n    ", javascriptUrlTags);
-
-            var assetUrlTags = pageOptions.JavaScriptUrls
-                .Select(url => $"<script src=\"{url}\"></script>")
-                .ToList();
-            var assetUrlTagsHtml = string.Join("\n    ", assetUrlTags);
 
             var defaultAssets = !pageOptions.IncludeDefaultAssetLinks ? "" : $@"
     <link href={Q}https://cdn.jsdelivr.net/npm/vuetify@1.5.6/dist/vuetify.min.css{Q} rel={Q}stylesheet{Q} />
@@ -332,7 +328,7 @@ namespace HealthCheck.WebUI.Util
     <title>{pageOptions.PageTitle}</title>
     {noIndexMeta}
     <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
-    {moduleStyleAssetsHtml}
+    {styleAssetsHtml}
     {defaultAssets}
     {pageOptions.CustomHeadHtml}
 </head>
@@ -345,7 +341,7 @@ namespace HealthCheck.WebUI.Util
         window.healthCheckModuleOptions = {JsonConvert.SerializeObject(moduleOptions) ?? "{}"};
         window.healthCheckModuleConfigs = {JsonConvert.SerializeObject(moduleConfigData) ?? "{}"};
     </script>
-    {moduleScriptAssetsHtml}
+    {scriptAssetsHtml}
     {javascriptUrlTagsHtml}
     {pageOptions.CustomBodyHtml}
 </body>

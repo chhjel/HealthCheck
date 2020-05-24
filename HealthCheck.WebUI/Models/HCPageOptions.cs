@@ -21,11 +21,11 @@ namespace HealthCheck.WebUI.Models
 
         /// <summary>
         /// Url to the assets for the UI.
-        /// <para>Defaults to matching versions of logic + vendor bundles from unpkg.com CDN.</para>
+        /// <para>Defaults to CDN url for monaco styles.</para>
         /// </summary>
-        public List<string> AssetUrls { get; set; } = new List<string>()
+        public List<string> CssUrls { get; set; } = new List<string>()
         {
-            "https://unpkg.com/christianh-healthcheck@2/codicon.ttf"
+            "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.19.2/min/vs/editor/editor.main.min.css"
         };
 
         /// <summary>

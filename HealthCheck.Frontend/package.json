@@ -26,7 +26,6 @@
     "monaco-editor": "^0.20.0",
     "vue": "^2.6.9",
     "vue-class-component": "^7.0.1",
-    "vue-monaco-cdn": "^1.0.1",
     "vue-property-decorator": "^8.0.0",
     "vue-router": "^3.2.0",
     "vuedraggable": "^2.23.0",
