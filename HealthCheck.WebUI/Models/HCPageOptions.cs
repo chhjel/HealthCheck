@@ -15,8 +15,7 @@ namespace HealthCheck.WebUI.Models
         /// </summary>
         public List<string> JavaScriptUrls { get; set; } = new List<string>()
         {
-            "https://unpkg.com/christianh-healthcheck@2/healthcheck.js",
-            "https://unpkg.com/christianh-healthcheck@2/healthcheck.vendor.js",
+            "https://unpkg.com/christianh-healthcheck@2/healthcheck.js"
         };
 
         /// <summary>

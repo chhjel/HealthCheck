@@ -20,7 +20,7 @@ namespace HealthCheck.DynamicCodeExecution.Util
             "sizeof", "stackalloc", "static", "string", "struct", "switch", "this", "throw", "true", "try", "typeof", "uint", "ulong", "unchecked",
             "unsafe", "ushort", "using", "value", "var", "virtual", "void", "volatile", "where", "while", "yield"
         };
-        private readonly string[] IgnoredTypes = new[] { "RCTUtils" };
+        private readonly string[] IgnoredTypes = new[] { "DCEUtils" };
         private readonly string[] IgnoredMethods = new[] { "Dump", "Diff", "SaveDumps" };
 
         public CodeParseResult Parse(string code)

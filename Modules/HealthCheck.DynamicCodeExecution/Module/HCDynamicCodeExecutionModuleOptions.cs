@@ -23,10 +23,5 @@ namespace HealthCheck.Core.Modules.Settings
         /// Your entry assembly.
         /// </summary>
         public Assembly TargetAssembly { get; set; }
-
-        ///// <summary>
-        ///// Optional auto-completer.
-        ///// </summary>
-        //public IRCTAutoCompleter AutoComplete { get; set; }
     }
 }

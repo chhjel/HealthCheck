@@ -1,4 +1,4 @@
-﻿using HealthCheck.DynamicCodeExecution.Exceptions;
+using HealthCheck.DynamicCodeExecution.Exceptions;
 using HealthCheck.DynamicCodeExecution.Models;
 using System;
 using System.CodeDom.Compiler;
@@ -127,7 +127,7 @@ namespace HealthCheck.DynamicCodeExecution
                 var errors = new List<CodeError>();
                 foreach (CompilerError err in compilerResult.Errors)
                 {
-                    errors.Add(new CodeError(err.Line, err.ErrorText));
+                    errors.Add(new CodeError(err.Line, err.Column, err.ErrorText));
                 }
                 result.Errors = errors;
                 result.Status = CodeExecutionResult.StatusTypes.CompilerError;
@@ -144,26 +144,26 @@ namespace HealthCheck.DynamicCodeExecution
             {
                 // Init internal
                 compilerResult.CompiledAssembly
-                    .GetType("RCTInternalHelpers")
+                    .GetType("DCEInternalHelpers")
                     .GetMethod("Init", BindingFlags.Public | BindingFlags.Static)
                     .Invoke(null, new object[] { dumps, diffs });
 
                 // Invoke custom main method
-                type = compilerResult.CompiledAssembly.GetType("CodeTesting.Test");
+                type = compilerResult.CompiledAssembly.GetType("CodeTesting.EntryClass");
                 instance = Activator.CreateInstance(type);
                 method = type.GetMethod("Main");
             }
             catch (Exception)
             {
                 result.Status = CodeExecutionResult.StatusTypes.RuntimeError;
-                result.Errors.Add(new CodeError("Namespace must be CodeTesting, classname must be Test, and method must be Main and optionally return something stringable."));
+                result.Errors.Add(new CodeError("Namespace must be CodeTesting, classname must be EntryClass, and method must be Main and optionally return something stringable."));
                 return result;
             }
 
             if (method == null)
             {
                 result.Status = CodeExecutionResult.StatusTypes.RuntimeError;
-                result.Errors.Add(new CodeError("No Main method was found. It has to exist within CodeTesting.Test and optionally return something stringable."));
+                result.Errors.Add(new CodeError("No Main method was found. It has to exist within CodeTesting.EntryClass and optionally return something stringable."));
                 return result;
             }
 
@@ -220,38 +220,38 @@ namespace HealthCheck.DynamicCodeExecution
         }
 
         private readonly string ExtraSource = $@"
-    public static class RCTInternalHelpers 
+    public static class DCEInternalHelpers 
     {{
-        public static System.Collections.Generic.List<RuntimeCodeTest.Core.Models.DataDump> Dumps {{ get; set; }}
-        public static System.Collections.Generic.List<RuntimeCodeTest.Core.Models.DiffModel> Diffs {{ get; set; }}
+        public static System.Collections.Generic.List<HealthCheck.DynamicCodeExecution.Models.DataDump> Dumps {{ get; set; }}
+        public static System.Collections.Generic.List<HealthCheck.DynamicCodeExecution.Models.DiffModel> Diffs {{ get; set; }}
 
-        public static void Init(System.Collections.Generic.List<RuntimeCodeTest.Core.Models.DataDump> dumpList, 
-                                System.Collections.Generic.List<RuntimeCodeTest.Core.Models.DiffModel> diffList) 
+        public static void Init(System.Collections.Generic.List<HealthCheck.DynamicCodeExecution.Models.DataDump> dumpList, 
+                                System.Collections.Generic.List<HealthCheck.DynamicCodeExecution.Models.DiffModel> diffList) 
         {{
             Dumps = dumpList;
             Diffs = diffList;
         }}
     }}
 
-    public static class RCTUtils
+    public static class DCEUtils
     {{
         public static void SaveDumps(string pathOrFilename = null, bool includeTitle = false, bool includeType = false)
-            => RuntimeCodeTest.Core.Util.DumpHelper.SaveDumps(RCTInternalHelpers.Dumps, pathOrFilename, includeTitle, includeType);
+            => HealthCheck.DynamicCodeExecution.Util.DumpHelper.SaveDumps(DCEInternalHelpers.Dumps, pathOrFilename, includeTitle, includeType);
     }}
 
-	public static class RCTExtensions
+	public static class DCEExtensions
     {{
 		public static T Dump<T>(this T obj, string title = null, bool display = true, bool ignoreErrors = true)
-            => RuntimeCodeTest.Core.Util.DumpHelper.Dump<T>(obj, RCTInternalHelpers.Dumps, title, display, ignoreErrors);
+            => HealthCheck.DynamicCodeExecution.Util.DumpHelper.Dump<T>(obj, DCEInternalHelpers.Dumps, title, display, ignoreErrors);
 		
 		public static T Dump<T>(this T obj, string title = null, bool display = true, params Newtonsoft.Json.JsonConverter[] converters)
-            => RuntimeCodeTest.Core.Util.DumpHelper.Dump<T>(obj, RCTInternalHelpers.Dumps, title, display, converters);
+            => HealthCheck.DynamicCodeExecution.Util.DumpHelper.Dump<T>(obj, DCEInternalHelpers.Dumps, title, display, converters);
 	
 		public static T Dump<T>(this T obj, System.Func<T, string> dumpConverter, string title = null, bool display = true)
-            => RuntimeCodeTest.Core.Util.DumpHelper.Dump<T>(obj, RCTInternalHelpers.Dumps, dumpConverter, title, display);
+            => HealthCheck.DynamicCodeExecution.Util.DumpHelper.Dump<T>(obj, DCEInternalHelpers.Dumps, dumpConverter, title, display);
 
         public static TLeft Diff<TLeft, TRight>(this TLeft left, TRight right, bool onlyIfDifferent = true, string title = null, bool ignoreErrors = true)
-            => RuntimeCodeTest.Core.Util.DumpHelper.Diff<TLeft, TRight>(left, right, onlyIfDifferent, RCTInternalHelpers.Diffs, title, ignoreErrors);
+            => HealthCheck.DynamicCodeExecution.Util.DumpHelper.Diff<TLeft, TRight>(left, right, onlyIfDifferent, DCEInternalHelpers.Diffs, title, ignoreErrors);
 	}}
 ";
     }

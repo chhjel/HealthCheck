@@ -12,7 +12,7 @@ namespace HealthCheck.DynamicCodeExecution.Util
     /// <summary>
     /// Helpers for the dump and diff extension methods.
     /// </summary>
-    internal static class DumpHelper
+    public static class DumpHelper
     {
         #region Diff
         /// <summary>
@@ -119,7 +119,7 @@ namespace HealthCheck.DynamicCodeExecution.Util
         /// Saves the given list of dumps to the given path.
         /// </summary>
         /// <param name="list">List to save</param>
-        /// <param name="pathOrFilename">Path or filename. Defaults to %temp%\RCTDump_%date%.txt</param>
+        /// <param name="pathOrFilename">Path or filename. Defaults to %temp%\DCEDump_%date%.txt</param>
         /// <param name="includeTitle">Include dump title</param>
         /// <param name="includeType">Include dump type</param>
         public static void SaveDumps(List<DataDump> list, string pathOrFilename = null, bool includeTitle = false, bool includeType = false)
@@ -154,7 +154,7 @@ namespace HealthCheck.DynamicCodeExecution.Util
         {
             var cult = System.Globalization.CultureInfo.GetCultureInfoByIetfLanguageTag("nb-NO");
             var date = DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss", cult);
-            return $"RCTDump_{date}.txt";
+            return $"DCEDump_{date}.txt";
         }
 
         private static DataDump CreateDump<T>(Type type, string title, string data, bool display)

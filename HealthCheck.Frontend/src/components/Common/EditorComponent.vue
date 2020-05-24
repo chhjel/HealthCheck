@@ -72,7 +72,7 @@ export default class EditorComponent extends Vue {
         }
     }
 
-    markCode(marks: ICodeMark[]): void {
+    public markCode(marks: ICodeMark[]): void {
         const model = this.editor.getModel();
         if (model == null) return;
 
@@ -86,6 +86,10 @@ export default class EditorComponent extends Vue {
                 severity: x.severity
             }})
         );
+    }
+
+    public foldRegions(): void {
+        this.editor.getAction("editor.foldAllMarkerRegions").run();
     }
 
     getCursorPosition(): number {
@@ -106,27 +110,26 @@ export default class EditorComponent extends Vue {
     ////////////////////////////////////////////////////////////
     //// EVENTHANDLERS /////////////////////////////////////////
     ////////////////////////////////////////////////////////////
+    @Watch("value")
+    onValueChanged()
+    {
+        if (this.editor == null) return null;
+        
+        const model = this.editor.getModel();
+        if (model == null) return;
+        else if (model.getValue() == this.value) return;
+
+        model.setValue(this.value);
+    }
+
     onWindowResize(): void {
         this.refreshSize();
     }
     
     onEditorInit(): void {
-        this.markCode([
-            {
-                line: 5,
-                startColumn: 8,
-                endColumn: 13,
-                message: "Woot!",
-                severity: monaco.MarkerSeverity.Error
-            },
-            {
-                line: 2,
-                startColumn: 1,
-                endColumn: 9999,
-                message: "Hmmm?",
-                severity: monaco.MarkerSeverity.Warning
-            }
-        ]);
+        this.listenForChanges();
+
+        this.$emit('editorInit', this.editor);
     }
 
     //////////////////////////////////////////////////////
@@ -183,6 +186,15 @@ export default class EditorComponent extends Vue {
 
         this.isEditorInited = true;
         this.onEditorInit();
+    }
+
+    listenForChanges(): void {
+        const model = this.editor.getModel();
+        if (model == null) return;
+
+        model.onDidChangeContent((e) => {
+            this.$emit('input', model.getValue());
+        })
     }
 
     // /**

@@ -4,7 +4,7 @@ using System.Linq;
 namespace HealthCheck.DynamicCodeExecution.Models
 {
     /// <summary>
-    /// Model returned by <see cref="Controllers.RCTController.Options()"/>
+    /// Options used by DCE module.
     /// </summary>
     internal class OptionsModel
     {
