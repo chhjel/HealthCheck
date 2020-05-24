@@ -25,10 +25,10 @@
             </v-navigation-drawer>
 
             <!-- CONTENT -->
-            <v-container fluid fill-height class="content-root pt-3 pb-0">
+            <v-container fluid fill-height class="content-root pt-3 pb-0 pl-0 pr-0">
             <v-layout>
             <v-flex>
-            <v-container class="pt-0 pb-1 wrapper-container">
+            <v-container class="pt-0 pb-1 pl-0 pr-0 wrapper-container">
 
                 <!-- DATA LOAD ERROR -->
                 <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
