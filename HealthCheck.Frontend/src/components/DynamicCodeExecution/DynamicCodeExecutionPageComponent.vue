@@ -12,8 +12,7 @@
 
                 <filterable-list-component 
                     :items="menuItems"
-                    :groupByKey="`GroupName`"
-                    :sortByKey="`GroupName`"
+                    :sortByKey="`Name`"
                     :iconsKey="'Icons'"
                     :filterKeys="[ 'Name' ]"
                     ref="filterableList"
@@ -44,24 +43,21 @@
                     language="csharp"
                     v-model="code"
                     v-on:editorInit="onEditorInit"
-                    :readOnly="loadStatus.inProgress"
+                    :readOnly="loadStatus.inProgress || currentScript == null"
                     ref="editor"
                     ></editor-component>
 
                 <div class="middle-toolbar">
                     <v-btn flat dark
                         color="#62b5e4"
-                        @click="onSaveLocalClicked"
-                        >Save local</v-btn>
-
-                    <v-btn flat dark
-                        color="#62b5e4"
-                        @click="onSaveToServerClicked"
-                        >Save to server</v-btn>
+                        :disabled="!hasUnsavedChanges"
+                        @click="onSaveClicked"
+                        >Save</v-btn>
 
                     <v-btn flat dark
                         color="#62b5e4"
                         @click="onDeleteClicked"
+                        :disabled="currentScript == null || loadStatus.inProgress"
                         >Delete</v-btn>
                     
                     <v-btn flat dark
@@ -69,13 +65,16 @@
                         class="right"
                         @click="onExecuteClicked"
                         :loading="loadStatus.inProgress"
+                        :disabled="currentScript == null || loadStatus.inProgress"
                         >Execute</v-btn>
                 </div>
 
                 <editor-component
+                    ref="outputEditor"
                     class="codeeditor codeeditor__output"
                     language="json"
                     v-model="resultData"
+                    :readOnly="loadStatus.inProgress || currentScript == null"
                     ></editor-component>
 
             </v-container>
@@ -105,6 +104,7 @@ import { MarkerSeverity } from "monaco-editor";
 import { FilterableListItem } from "../Common/FilterableListComponent.vue";
 import FilterableListComponent from '.././Common/FilterableListComponent.vue';
 import IdUtils from "../../util/IdUtils";
+import * as monaco from 'monaco-editor'
 
 interface DynamicCodeExecutionPageOptions {
     InitialCode: string;
@@ -117,6 +117,7 @@ interface ServerSideScript {
 interface LocalOnlyScript {
     script: DynamicCodeScript;
 }
+
 
 @Component({
     components: {
@@ -151,8 +152,9 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     mounted(): void
     {
         this.$store.commit('showMenuButton', true);
-        this.code = this.initialCode;
         this.loadData();
+
+        window.addEventListener("beforeunload", (e) => this.onWindowUnload(e));
     }
 
     created(): void {
@@ -166,13 +168,28 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
-
     get editor(): EditorComponent {
         return this.$refs.editor as EditorComponent;
     }
 
+    get outputEditor(): EditorComponent {
+        return this.$refs.outputEditor as EditorComponent;
+    }
+
+    get showEditor(): boolean {
+        return this.currentScript != null;
+    }
+
+    get menu(): FilterableListComponent {
+        return this.$refs.filterableList as FilterableListComponent;
+    }
+
     get globalOptions(): FrontEndOptionsViewModel {
         return this.$store.state.globalOptions;
+    }
+
+    get hasUnsavedChanges(): boolean {
+        return this.currentScript != null && this.currentScript.Code != this.code;
     }
     
     get menuItems(): Array<FilterableListItem>
@@ -195,7 +212,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
             .map(x => {
                 return {
                     title: x.script.Title,
-                    subtitle: x.script.Description,
+                    subtitle: '',
                     data: {
                         GroupName: x.group,
                         Name: x.script.Title,
@@ -245,12 +262,16 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
         this.localScripts = this.getLocalScriptsFromLocalStorage();
 
         this.service.GetScripts(this.loadStatus, {
-            onSuccess: (d) => this.serverScripts = d.map(x => {
-                const serverScript: ServerSideScript = {
-                    script: x
-                };
-                return serverScript;
-            })
+            onSuccess: (d) => {
+                this.serverScripts = d.map(x => {
+                    const serverScript: ServerSideScript = {
+                        script: x
+                    };
+                    return serverScript;
+                });
+
+                this.ensureScriptVisible();
+            }
         });
     }
 
@@ -273,21 +294,29 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
         this.currentScript = script;
         this.code = this.currentScript.Code;
 
+        this.$nextTick(() => this.menu.setSelectedItemByFilter(x => {
+            return x.data.Script.Id == script.Id;
+        }));
+
         setTimeout(() => {
             this.editor.foldRegions();
         }, 100);
     }
 
     openNewScript(): void {
-        this.localScripts.push({
-            script: {
+        const script = {
                 Id: IdUtils.generateId(),
                 Title: this.getNewScriptName(),
                 Description: '',
                 Code: this.initialCode
-            }
+            };
+        
+        this.localScripts.push({
+            script: script
         });
         this.writeLocalScriptsToLocalStorage(this.localScripts);
+
+        this.openScript(script);
     }
 
     getNewScriptName(): string
@@ -308,15 +337,30 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
         return `New Script ${num}`;
     }
 
+    ensureScriptVisible(): void {
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    onWindowUnload(e: any): string | undefined {
+        if (!this.hasUnsavedChanges) {
+            return undefined;
+        }
+
+        var confirmationMessage = 'It looks like you have some unsaved changes. '
+                                + 'If you leave before saving, your changes will be lost.';
+        (e || window.event).returnValue = confirmationMessage; //Gecko + IE
+        return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+    }
+
     onNewScriptClicked(): void {
         this.openNewScript();
     }
 
-    onSaveLocalClicked(): void {
-        if (this.currentScript == null)
+    // Both Save-button and Ctrl-S in editor
+    onSaveClicked(): void {
+        if (this.currentScript == null || !this.hasUnsavedChanges)
         {
             return;
         }
@@ -327,13 +371,6 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
         localScript.script = this.currentScript;
         
         this.writeLocalScriptsToLocalStorage(this.localScripts);
-    }
-
-    onSaveToServerClicked(): void {
-        if (this.currentScript == null)
-        {
-            return;
-        }
     }
 
     onDeleteClicked(): void {
@@ -347,6 +384,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
         this.writeLocalScriptsToLocalStorage(this.localScripts);
 
         this.currentScript = null;
+        this.ensureScriptVisible();
     }
 
     onMenuItemClicked(item: any): void {
@@ -354,8 +392,12 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
         this.openScript(script)
     }
 
-    onEditorInit(editor: any): void {
+    onEditorInit(editor: monaco.editor.IStandaloneCodeEditor): void {
         this.editor.foldRegions();
+
+        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {            
+            this.onSaveClicked();
+        });
     }
 
     onExecuteClicked(): void {
@@ -414,16 +456,18 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
                     severity: MarkerSeverity.Error
                 }
             }));
+
+            // Go to next problem. This also clears the current problem popup if no problems exist.
+            setTimeout(() => this.editor.editor.getAction('editor.action.marker.next').run(), 100);
             
             // if (this.optionAutoformatDumps) {
             //     setTimeout(() => {
-            //         const editor = (<any>this.$refs["dumpsEditor"])["editor"];
-            //         editor.getAction('editor.action.formatDocument').run();
+            //         this.outputEditor.editor.getAction('editor.action.formatDocument').run();
             //     }, 10);
             // }
             // if (this.optionAutoFoldRegions) {
             //     setTimeout(() => {
-            //          this.codeEditor.runEditorAction('editor.foldAllMarkerRegions');
+            //          this.outputEditor.editor.runEditorAction('editor.foldAllMarkerRegions');
             //     }, 10);
             // }
         }
@@ -446,6 +490,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
         box-shadow: 0 2px 4px 1px rgba(0, 0, 0, 0.15), 0 3px 2px 0 rgba(0,0,0,.02), 0 1px 2px 0 rgba(0,0,0,.06);
 
         &__input {
+            position: relative;
             //           max   toolbar  output  other
             height: calc(100vh - 50px - 30vh - 107px);
         }

@@ -53,6 +53,13 @@
                 :disabled="disabled">
                 <v-list-tile-title v-text="item.title"></v-list-tile-title>
             </v-list-tile>
+
+            <v-list-tile ripple
+                v-if="!hasGroups && filterText.length > 0 && filterItems(ungroupedItems).length == 0"
+                class="testset-menu-item no-result-found"
+                :disabled="true">
+                <v-list-tile-title>No results found</v-list-tile-title>
+            </v-list-tile>
             <!-- NO GROUP: END -->
 
         </v-list>
@@ -91,7 +98,7 @@ export default class FilterableListComponent extends Vue {
     @Prop({ required: true })
     items!: Array<FilterableListItem>;
 
-    @Prop({ required: true })
+    @Prop({ required: false, default: '' })
     groupByKey!: string;
 
     @Prop({ required: false, default: null })
@@ -125,6 +132,11 @@ export default class FilterableListComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get hasGroups(): boolean
+    {
+        return this.groups.length > 0;
+    }
+    
     get ungroupedItems(): Array<FilterableListItem>
     {
         return (this.groups.length == 0) ? this.items : [];
@@ -133,6 +145,7 @@ export default class FilterableListComponent extends Vue {
     get groups(): Array<FilterableListGroup>
     {
         let groupList: Array<FilterableListGroup> = [];
+        if (this.groupByKey.length == 0) return groupList;
 
         LinqUtils.GroupByInto(this.items, (x: any) => x.data[this.groupByKey], 
             (key, items) => groupList.push({
@@ -192,6 +205,15 @@ export default class FilterableListComponent extends Vue {
         this.selectedItemData = data;
     }
 
+    public setSelectedItemByFilter(filter: ((data: any) => boolean)): void
+    {
+        const item = this.items.filter(x => filter(x))[0];
+        if (item != null)
+        {
+            this.selectedItemData = item.data;
+        }
+    }
+
     // get itemIcons(data: any): Array<string>
     // {
     //     const icons = data[iconsKey];
@@ -227,6 +249,17 @@ export default class FilterableListComponent extends Vue {
 @media (max-width: 960px) {
     .menu-items { 
         margin-top: 67px;
+    }
+}
+.no-result-found {
+    padding-left: 46px;
+}
+</style>
+
+<style lang="scss">
+.no-result-found {
+    .v-list__tile {
+        padding-left: 0;
     }
 }
 </style>

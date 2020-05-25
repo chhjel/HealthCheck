@@ -3,7 +3,6 @@ import { MarkerSeverity } from 'monaco-editor'
 export interface DynamicCodeScript {
     Id: string;
     Title: string;
-    Description: string;
     Code: string;
 }
 
