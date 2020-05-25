@@ -15,16 +15,11 @@ namespace HealthCheck.Module.DynamicCodeExecution.Models
         /// <summary>
         /// Title of the script.
         /// </summary>
-        public string Title { get; }
+        public string Title { get; set; }
 
         /// <summary>
-        /// Description of the script.
+        /// Script content.
         /// </summary>
-        public string Description { get; }
-
-        /// <summary>
-        /// The code itself.
-        /// </summary>
-        public string Code { get; }
+        public string Code { get; set; }
     }
 }

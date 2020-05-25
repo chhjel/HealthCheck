@@ -4,6 +4,8 @@ export interface DynamicCodeScript {
     Id: string;
     Title: string;
     Code: string;
+
+    IsDraft?: boolean;
 }
 
 export interface ICodeMark {
