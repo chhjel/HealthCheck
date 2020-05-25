@@ -62,13 +62,17 @@ const store = new Vuex.Store({
     state: {
       globalOptions: globalOptions,
       ui: {
-          menuButtonVisible: false
+          menuButtonVisible: false,
+          allowModuleSwitch: true
       }
     },
     mutations: {
-      showMenuButton (state, visible) {
-        state.ui.menuButtonVisible = visible;
-      }
+        showMenuButton (state, visible) {
+          state.ui.menuButtonVisible = visible;
+        },
+        allowModuleSwitch (state, allow) {
+          state.ui.allowModuleSwitch = allow;
+        }
     }
 });
 

@@ -113,8 +113,24 @@ export default class HealthCheckPageComponent extends Vue {
             return;
         }
 
+        this.lastAttemptedShownModule = module;
+        if (!this.$store.state.ui.allowModuleSwitch)
+        {
+            this.$emit("onNotAllowedModuleSwitch");
+            return;
+        }
+
+        this.$store.commit('allowModuleSwitch', true);
         this.$store.commit('showMenuButton', false);
         this.$router.push(module.InitialRoute);
+    }
+    
+    lastAttemptedShownModule: ModuleConfig | null = null;
+    retryShowModule(): void {
+        if (this.lastAttemptedShownModule != null)
+        {
+            this.showModule(this.lastAttemptedShownModule);
+        }
     }
 
     isModuleShowing(module: ModuleConfig): boolean

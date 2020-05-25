@@ -99,8 +99,29 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="secondary" @click="deleteScriptDialogVisible = false">Cancel</v-btn>
+                    <v-btn color="primary" @click="deleteScriptDialogVisible = false">Cancel</v-btn>
                     <v-btn color="error" @click="deleteScript(currentScript)">Delete it</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <!-- ##################### -->
+        <v-dialog v-model="confirmUnchangedDialogVisible"
+            max-width="350"
+            content-class="confirm-dialog">
+            <v-card>
+                <v-card-title class="headline">Unsaved changes</v-card-title>
+                <v-card-text>
+                    It seems you have some unsaved changes.
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary"
+                        @click="unsavedChangesDialogGoBack()"
+                        >Go back</v-btn>
+                    <v-btn color="error"
+                        @click="unsavedChangesDialogConfirmed()"
+                        >Discard changes</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -152,6 +173,7 @@ import { FilterableListItem } from "../Common/FilterableListComponent.vue";
 import FilterableListComponent from '.././Common/FilterableListComponent.vue';
 import IdUtils from "../../util/IdUtils";
 import * as monaco from 'monaco-editor'
+import HealthCheckPageComponent from "../HealthCheckPageComponent.vue";
 
 interface DynamicCodeExecutionPageOptions {
     InitialCode: string;
@@ -198,6 +220,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     drawerState: boolean = true;
     deleteScriptDialogVisible: boolean = false;
     saveScriptDialogVisible: boolean = false;
+    confirmUnchangedDialogVisible: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -213,12 +236,13 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     }
 
     created(): void {
-        // ToDo: add new parent event to check if module switching is allowed /w confirmation message
         this.$parent.$parent.$on("onSideMenuToggleButtonClicked", this.toggleSideMenu);
+        this.$parent.$parent.$on("onNotAllowedModuleSwitch", this.onNotAllowedModuleSwitch);
     }
 
     beforeDestroy(): void {
       this.$parent.$parent.$off('onSideMenuToggleButtonClicked', this.toggleSideMenu);
+      this.$parent.$parent.$off('onNotAllowedModuleSwitch', this.onNotAllowedModuleSwitch);
     }
 
     ////////////////
@@ -251,6 +275,11 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     get hasUnsavedChanges(): boolean {
         return this.currentScript != null 
             && (this.currentScript.Code != this.code || this.currentScript.IsDraft == true);
+    }
+
+    get shouldNotifyUnsavedChanges(): boolean {
+        return this.currentScript != null 
+            && this.currentScript.Code != this.code;
     }
     
     get canDeleteCurrentScript(): boolean {
@@ -336,6 +365,14 @@ namespace CodeTesting
 `;
     }
 
+    /////////////////
+    //  WATCHERS  //
+    ///////////////
+    @Watch("shouldNotifyUnsavedChanges")
+    onShouldNotifyUnsavedChangesCanged(): void {
+        this.$store.commit('allowModuleSwitch', !this.shouldNotifyUnsavedChanges);
+    }
+
     ////////////////
     //  METHODS  //
     //////////////
@@ -363,6 +400,27 @@ namespace CodeTesting
         localStorage.setItem('localScripts', json);
     }
 
+    confirmUnsavedChangesPromiseResolve!: any;
+    confirmUnsavedChangesPromiseReject!: any;
+    confirmUnsavedChanges(): Promise<boolean>
+    {
+        this.confirmUnchangedDialogVisible = true;
+        return new Promise((resolve, reject) =>  {
+            this.confirmUnsavedChangesPromiseResolve = resolve;
+            this.confirmUnsavedChangesPromiseReject = reject;
+        });
+    }
+    
+    unsavedChangesDialogConfirmed(): void {
+        this.confirmUnchangedDialogVisible = false;
+        this.confirmUnsavedChangesPromiseResolve(true);
+    }
+    
+    unsavedChangesDialogGoBack(): void {
+        this.confirmUnchangedDialogVisible = false;
+        this.confirmUnsavedChangesPromiseResolve(false);
+    }
+
     getLocalScriptsFromLocalStorage(): Array<LocalOnlyScript>
     {
         const localScriptsJson = localStorage.getItem('localScripts');
@@ -373,13 +431,17 @@ namespace CodeTesting
         return [];
     }
 
+    setSelectedMenuItem(script: DynamicCodeScript): void {
+        this.$nextTick(() => this.menu.setSelectedItemByFilter(x => {
+            return x.data.Script.Id == script.Id;
+        }));
+    }
+
     openScript(script: DynamicCodeScript): void {
         this.currentScript = script;
         this.code = this.currentScript.Code;
 
-        this.$nextTick(() => this.menu.setSelectedItemByFilter(x => {
-            return x.data.Script.Id == script.Id;
-        }));
+        this.setSelectedMenuItem(script);
 
         setTimeout(() => {
             this.editor.foldRegions();
@@ -494,7 +556,7 @@ namespace CodeTesting
     }
 
     onWindowUnload(e: any): string | undefined {
-        if (!this.hasUnsavedChanges) {
+        if (!this.shouldNotifyUnsavedChanges) {
             return undefined;
         }
 
@@ -639,8 +701,26 @@ namespace CodeTesting
     }
 
     onMenuItemClicked(item: any): void {
-        const script = item.data.Script as DynamicCodeScript;
-        this.openScript(script)
+        if (this.shouldNotifyUnsavedChanges)
+        {
+            if (this.currentScript != null)
+            {
+                this.setSelectedMenuItem(this.currentScript);
+            }
+            // setTimeout(() => this.setSelectedMenuItem(script), 50);
+
+            this.confirmUnsavedChanges()
+                .then(confirmed => {
+                    if (confirmed)
+                    {
+                        this.openScript(item.data.Script as DynamicCodeScript)
+                    }
+                });
+        }
+        else
+        {
+            this.openScript(item.data.Script as DynamicCodeScript)
+        }
     }
 
     onExecuteClicked(): void {
@@ -716,6 +796,17 @@ namespace CodeTesting
         }
 
         this.resultData = resultText;
+    }
+
+    onNotAllowedModuleSwitch(): void {
+        this.confirmUnsavedChanges()
+            .then((confirmed) => {
+                if (confirmed && this.currentScript != null)
+                {
+                    this.code = this.currentScript.Code;
+                    setTimeout(() => (this.$parent.$parent as HealthCheckPageComponent).retryShowModule(), 50);
+                }
+            });
     }
 }
 </script>
