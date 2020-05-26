@@ -21,18 +21,18 @@
                     v-on:itemClicked="onMenuItemClicked"
                     />
                     
-                <div class="pl-4 pt-2 pb-2">
+                <div class="pl-1 pr-1 pt-2 pb-2 menu-bottom-nav">
+                    <v-btn flat :dark="localOptions.darkTheme"
+                        color="#62b5e4"
+                        @click="configDialogVisible = true"
+                        ><v-icon>settings</v-icon>Settings</v-btn>
+
                     <v-btn flat :dark="localOptions.darkTheme"
                         color="#62b5e4"
                         @click="onNewScriptClicked"
                         v-if="showCreateNewScriptButton"
                         :disabled="!allowCreateNewScript"
                         ><v-icon>add</v-icon>New script</v-btn>
-                    
-                    <v-btn flat :dark="localOptions.darkTheme"
-                        color="#62b5e4"
-                        @click="configDialogVisible = true"
-                        ><v-icon>settings</v-icon>Settings</v-btn>
                 </div>
             </v-navigation-drawer>
 
@@ -107,9 +107,9 @@
         <!-- ###### DIALOGS ######-->
         <v-dialog v-model="deleteScriptDialogVisible"
             @keydown.esc="deleteScriptDialogVisible = false"
-            max-width="350"
+            max-width="350" dark
             content-class="confirm-dialog">
-            <v-card>
+            <v-card color="cyan darken-2" class="white--text">
                 <v-card-title class="headline">Confirm deletion</v-card-title>
                 <v-card-text>
                     {{ deleteScriptDialogText }}
@@ -180,7 +180,7 @@
                     <v-checkbox
                         v-model="localOptions.autoFormatResult"
                         @change="(v) => setLocalConfig(o => o.autoFormatResult = v)"
-                        label="Auto-format result" style="display:block"></v-checkbox>
+                        label="Auto-format results" style="display:block"></v-checkbox>
                     <v-checkbox
                         v-model="localOptions.autoFoldRegions"
                         @change="(v) => setLocalConfig(o => o.autoFoldRegions = v)"
@@ -769,7 +769,7 @@ namespace CodeTesting
             this.updateLocalStorage(this.localScripts);
                         
             this.$nextTick(() => {
-                this.openScript(script);
+                this.openScript(script, false);
             });
         }
         else if (location == 'server'
@@ -789,7 +789,7 @@ namespace CodeTesting
                             });
                             
                             this.$nextTick(() => {
-                                this.openScript(script);
+                                this.openScript(script, false);
                             });
                         }
                     });
@@ -806,7 +806,7 @@ namespace CodeTesting
                             script.Code = updatedScript.Code;
 
                             this.$nextTick(() => {
-                                this.openScript(script);
+                                this.openScript(script, false);
                             });
                         }
                     });
@@ -1029,11 +1029,36 @@ namespace CodeTesting
         &__input {
             position: relative;
             //           max   toolbar  output  other
-            height: calc(100vh - 47px - 30vh - 107px);
+            height: calc(100vh - 47px - 30vh - 108px);
         }
 
         &__output {
             height: 30vh;
+        }
+    }
+
+    .menu {
+        overflow: hidden;
+    }
+
+    .menu > div:first-of-type {
+        height: calc(100% - 76px);
+        overflow-y: auto;
+    }
+
+    .menu-bottom-nav {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 62px;
+        overflow: hidden;
+        display: flex;
+        /* justify-content: flex-end; */
+        box-shadow: 0px 0px 13px 0px #1b1b1b;
+
+        button {
+            flex: 1;
         }
     }
 }
