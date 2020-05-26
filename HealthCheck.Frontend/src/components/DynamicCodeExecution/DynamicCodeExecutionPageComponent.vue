@@ -27,12 +27,18 @@
                         @click="configDialogVisible = true"
                         ><v-icon>settings</v-icon>Settings</v-btn>
 
-                    <v-btn flat :dark="localOptions.darkTheme"
-                        color="#62b5e4"
-                        @click="onNewScriptClicked"
-                        v-if="showCreateNewScriptButton"
-                        :disabled="!allowCreateNewScript"
-                        ><v-icon>add</v-icon>New script</v-btn>
+                    <v-tooltip top v-if="showCreateNewScriptButton">
+                        <template v-slot:activator="{ on }">
+                            <span v-on="on">
+                            <v-btn flat :dark="localOptions.darkTheme"
+                                color="#62b5e4"
+                                @click="onNewScriptClicked"
+                                :disabled="!allowCreateNewScript"
+                                ><v-icon>add</v-icon>New script</v-btn>
+                            </span>
+                        </template>
+                        <span>{{ createNewScriptButtonTooltip }}</span>
+                    </v-tooltip>
                 </div>
             </v-navigation-drawer>
 
@@ -109,7 +115,7 @@
             @keydown.esc="deleteScriptDialogVisible = false"
             max-width="350" dark
             content-class="confirm-dialog">
-            <v-card color="cyan darken-2" class="white--text">
+            <v-card color="secondary" class="white--text">
                 <v-card-title class="headline">Confirm deletion</v-card-title>
                 <v-card-text>
                     {{ deleteScriptDialogText }}
@@ -125,9 +131,9 @@
         <!-- ##################### -->
         <v-dialog v-model="confirmUnchangedDialogVisible"
             @keydown.esc="unsavedChangesDialogGoBack()"
-            max-width="350"
+            max-width="350" dark
             content-class="confirm-dialog">
-            <v-card>
+            <v-card color="secondary" class="white--text">
                 <v-card-title class="headline">Unsaved changes</v-card-title>
                 <v-card-text>
                     It seems you have some unsaved changes.
@@ -147,9 +153,9 @@
         <!-- ##################### -->
         <v-dialog v-model="saveScriptDialogVisible"
             @keydown.esc="saveScriptDialogVisible = false"
-            max-width="400"
+            max-width="400" dark
             content-class="confirm-dialog">
-            <v-card>
+            <v-card color="secondary" class="white--text">
                 <v-card-title class="headline">Save new script</v-card-title>
                 <v-card-text>
                     Choose where to save this script.
@@ -157,7 +163,7 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="secondary" @click="saveScriptDialogVisible = false">Cancel</v-btn>
+                    <v-btn color="primary" @click="saveScriptDialogVisible = false">Cancel</v-btn>
                     <v-btn color="primary" @click="saveScript(currentScript, 'local')"
                         :disabled="loadStatus.inProgress"
                         :loading="loadStatus.inProgress"
@@ -172,9 +178,9 @@
         <!-- ##################### -->
         <v-dialog v-model="configDialogVisible"
             @keydown.esc="configDialogVisible = false"
-            max-width="400"
+            max-width="400" dark
             content-class="confirm-dialog">
-            <v-card>
+            <v-card color="secondary" class="white--text">
                 <v-card-title class="headline">Settings</v-card-title>
                 <v-card-text>
                     <v-checkbox
@@ -323,6 +329,11 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
 
     get allowCreateNewScript(): boolean {
         return this.currentScript == null || this.currentScript.IsDraft != true;
+    }
+
+    get createNewScriptButtonTooltip(): string {
+        if (this.currentScript != null && this.currentScript.IsDraft == true) return 'You are already editing a new script.';
+        else return 'Click to create a new script';
     }
 
     get hasUnsavedChanges(): boolean {
