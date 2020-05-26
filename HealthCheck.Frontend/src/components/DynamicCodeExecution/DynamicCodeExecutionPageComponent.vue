@@ -25,6 +25,7 @@
                     <v-btn flat dark
                         color="#62b5e4"
                         @click="onNewScriptClicked"
+                        v-if="showCreateNewScriptButton"
                         :disabled="!allowCreateNewScript"
                         ><v-icon>add</v-icon>New script</v-btn>
                 </div>
@@ -46,7 +47,7 @@
                     language="csharp"
                     v-model="code"
                     v-on:editorInit="onEditorInit"
-                    :readOnly="loadStatus.inProgress || currentScript == null"
+                    :readOnly="isEditorReadOnly"
                     ref="editor"
                     ></editor-component>
 
@@ -54,12 +55,14 @@
                     <v-btn flat dark
                         color="#62b5e4"
                         :disabled="!hasUnsavedChanges"
+                        v-if="showSaveButton"
                         @click="onSaveClicked"
                         >Save</v-btn>
 
                     <v-btn flat dark
                         color="#62b5e4"
                         @click="onDeleteClicked"
+                        v-if="showDeleteButton"
                         :disabled="currentScript == null || loadStatus.inProgress || !canDeleteCurrentScript"
                         >Delete</v-btn>
                     
@@ -68,6 +71,7 @@
                         class="right"
                         @click="onExecuteClicked"
                         :loading="loadStatus.inProgress"
+                        v-if="showExecuteButton"
                         :disabled="currentScript == null || loadStatus.inProgress"
                         >Execute</v-btn>
                 </div>
@@ -89,6 +93,7 @@
         <!-- ##################### -->
         <!-- ###### DIALOGS ######-->
         <v-dialog v-model="deleteScriptDialogVisible"
+            @keydown.esc="deleteScriptDialogVisible = false"
             max-width="350"
             content-class="confirm-dialog">
             <v-card>
@@ -106,6 +111,7 @@
         </v-dialog>
         <!-- ##################### -->
         <v-dialog v-model="confirmUnchangedDialogVisible"
+            @keydown.esc="unsavedChangesDialogGoBack()"
             max-width="350"
             content-class="confirm-dialog">
             <v-card>
@@ -127,6 +133,7 @@
         </v-dialog>
         <!-- ##################### -->
         <v-dialog v-model="saveScriptDialogVisible"
+            @keydown.esc="saveScriptDialogVisible = false"
             max-width="400"
             content-class="confirm-dialog">
             <v-card>
@@ -217,7 +224,6 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     
     // UI STATE
     loadStatus: FetchStatus = new FetchStatus();
-    drawerState: boolean = true;
     deleteScriptDialogVisible: boolean = false;
     saveScriptDialogVisible: boolean = false;
     confirmUnchangedDialogVisible: boolean = false;
@@ -236,12 +242,10 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     }
 
     created(): void {
-        this.$parent.$parent.$on("onSideMenuToggleButtonClicked", this.toggleSideMenu);
         this.$parent.$parent.$on("onNotAllowedModuleSwitch", this.onNotAllowedModuleSwitch);
     }
 
     beforeDestroy(): void {
-      this.$parent.$parent.$off('onSideMenuToggleButtonClicked', this.toggleSideMenu);
       this.$parent.$parent.$off('onNotAllowedModuleSwitch', this.onNotAllowedModuleSwitch);
     }
 
@@ -299,6 +303,34 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
         {
             return `Are you sure you want to delete the script '${this.currentScript.Title}' from the server?`;
         }
+    }
+
+    get showSaveButton(): boolean {
+        if (this.currentScript == null) return false;
+        else if(this.currentScript.IsDraft == true) return true;
+        else if(this.scriptIsLocal(this.currentScript)) return true;
+        else return this.canEditExistingScriptOnServer;
+    }
+
+    get showDeleteButton(): boolean {
+        if (this.currentScript == null) return false;
+        else if(this.scriptIsLocal(this.currentScript)) return true;
+        else return this.canDeleteExistingScriptOnServer;
+    }
+
+    get showExecuteButton(): boolean {
+        if (this.currentScript == null) return false;
+        else return this.canExecuteCustomScript || this.canExecuteSavedScript;
+    }
+
+    get showCreateNewScriptButton(): boolean {
+        return this.canExecuteCustomScript || this.canCreateNewScriptOnServer;
+    }
+
+    get isEditorReadOnly(): boolean {
+        if (this.loadStatus.inProgress || this.currentScript == null) return true;
+        else if (!this.canExecuteCustomScript) return true;
+        else return false;
     }
     
     get menuItems(): Array<FilterableListItem>
@@ -365,6 +397,26 @@ namespace CodeTesting
 `;
     }
 
+    // Options
+    get canExecuteCustomScript(): boolean {
+        return this.hasAccess('ExecuteCustomScript');
+    }
+    get canExecuteSavedScript(): boolean {
+        return this.hasAccess('ExecuteSavedScript');
+    }
+    get canLoadScriptFromServer(): boolean {
+        return this.hasAccess('LoadScriptFromServer');
+    }
+    get canCreateNewScriptOnServer(): boolean {
+        return this.hasAccess('CreateNewScriptOnServer');
+    }
+    get canEditExistingScriptOnServer(): boolean {
+        return this.hasAccess('EditExistingScriptOnServer');
+    }
+    get canDeleteExistingScriptOnServer(): boolean {
+        return this.hasAccess('DeleteExistingScriptOnServer');
+    }
+
     /////////////////
     //  WATCHERS  //
     ///////////////
@@ -373,26 +425,41 @@ namespace CodeTesting
         this.$store.commit('allowModuleSwitch', !this.shouldNotifyUnsavedChanges);
     }
 
+    ////////////////////
+    //  Parent Menu  //
+    //////////////////
+    drawerState: boolean = this.storeMenuState;
+    get storeMenuState(): boolean {
+        return this.$store.state.ui.menuExpanded;
+    }
+    @Watch("storeMenuState")
+    onStoreMenuStateChanged(): void {
+        this.drawerState = this.storeMenuState;
+    }
+
     ////////////////
     //  METHODS  //
     //////////////
-    toggleSideMenu(): void {
-        this.drawerState = !this.drawerState;
-    }
-
     loadData(): void {
         this.localScripts = this.getLocalScriptsFromLocalStorage();
 
-        this.service.GetScripts(this.loadStatus, {
-            onSuccess: (d) => {
-                this.serverScripts = d.map(x => {
-                    const serverScript: ServerSideScript = {
-                        script: x
-                    };
-                    return serverScript;
-                });
-            }
-        });
+        if (this.canLoadScriptFromServer)
+        {
+            this.service.GetScripts(this.loadStatus, {
+                onSuccess: (d) => {
+                    this.serverScripts = d.map(x => {
+                        const serverScript: ServerSideScript = {
+                            script: x
+                        };
+                        return serverScript;
+                    });
+                }
+            });
+        }
+    }
+
+    hasAccess(option: string): boolean {
+        return this.options.AccessOptions.indexOf(option) != -1;
     }
 
     updateLocalStorage(scripts: Array<LocalOnlyScript>): void {
@@ -602,30 +669,38 @@ namespace CodeTesting
             // Create new
             if (!existOnServer)
             {
-                this.service.AddNewScript(script, this.loadStatus, {
-                    onSuccess: (updatedScript) => {
-                        this.serverScripts.push({
-                            script: updatedScript
-                        });
-                        
-                        this.$nextTick(() => {
-                            this.openScript(script);
-                        });
-                    }
-                });
+                if (this.canCreateNewScriptOnServer)
+                {
+                    this.service.AddNewScript(script, this.loadStatus, {
+                        onSuccess: (updatedScript) => {
+                            this.serverScripts.push({
+                                script: updatedScript
+                            });
+                            
+                            this.$nextTick(() => {
+                                this.openScript(script);
+                            });
+                        }
+                    });
+                }
+                else { console.warn('You do not have access to create new scripts on the server.'); }
             }
             // Update existing
             else
             {
-                this.service.SaveScriptChanges(script, this.loadStatus, {
-                    onSuccess: (updatedScript) => {
-                        script.Code = updatedScript.Code;
+                if (this.canEditExistingScriptOnServer)
+                {
+                    this.service.SaveScriptChanges(script, this.loadStatus, {
+                        onSuccess: (updatedScript) => {
+                            script.Code = updatedScript.Code;
 
-                        this.$nextTick(() => {
-                            this.openScript(script);
-                        });
-                    }
-                });
+                            this.$nextTick(() => {
+                                this.openScript(script);
+                            });
+                        }
+                    });
+                }
+                else { console.warn('You do not have access to edit existing scripts on the server.'); }
             }
         }
         else {
@@ -683,7 +758,14 @@ namespace CodeTesting
 
         if (this.currentScript.IsDraft)
         {
-            this.saveScriptDialogVisible = true;
+            if (this.canCreateNewScriptOnServer)
+            {
+                this.saveScriptDialogVisible = true;
+            }
+            else
+            {
+                this.saveScript(this.currentScript, 'local');
+            }
         }
         else
         {
@@ -724,12 +806,22 @@ namespace CodeTesting
     }
 
     onExecuteClicked(): void {
-        this.service.ExecuteCode({
-            Code: this.code,
-            DisabledPreProcessorIds: []
-        }, this.loadStatus, {
-            onSuccess: (d) => this.onCodeExecuted(d)
-        });
+        const onSuccess: ((data: DynamicCodeExecutionResultModel) => void ) = (d) => {
+            this.onCodeExecuted(d);
+        };
+
+        if (this.canExecuteCustomScript)
+        {
+            this.service.ExecuteCode({
+                    Code: this.code,
+                    DisabledPreProcessorIds: []
+                },
+                this.loadStatus, { onSuccess: onSuccess });
+        }
+        else if (this.canExecuteSavedScript && this.currentScript != null)
+        {
+            this.service.ExecuteScriptById(this.currentScript.Id, this.loadStatus, { onSuccess: onSuccess });
+        }
     }
 
     onCodeExecuted(result: DynamicCodeExecutionResultModel): void {

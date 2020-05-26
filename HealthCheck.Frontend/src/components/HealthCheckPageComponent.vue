@@ -153,7 +153,8 @@ export default class HealthCheckPageComponent extends Vue {
     //  EVENT HANDLERS  //
     /////////////////////
     onSideMenuToggleButtonClicked(): void {
-        this.$emit("onSideMenuToggleButtonClicked");
+        this.$store.commit('toggleMenuExpanded');
+        // this.$emit("onSideMenuToggleButtonClicked");
     }
 }
 </script>

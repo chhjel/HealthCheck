@@ -205,6 +205,7 @@
 
         <v-dialog v-model="notifierDialogVisible"
             scrollable
+            @keydown.esc="notifierDialogVisible = false"
             v-if="notifiers != null"
             content-class="possible-notifiers-dialog">
             <v-card>
@@ -236,6 +237,7 @@
         </v-dialog>
 
         <v-dialog v-model="deleteDialogVisible"
+            @keydown.esc="deleteDialogVisible = false"
             max-width="290"
             content-class="confirm-dialog">
             <v-card>
@@ -253,6 +255,7 @@
         </v-dialog>
 
         <v-dialog v-model="placeholderDialogVisible"
+            @keydown.esc="placeholderDialogVisible = false"
             scrollable
             content-class="possible-placeholders-dialog">
             <v-card>

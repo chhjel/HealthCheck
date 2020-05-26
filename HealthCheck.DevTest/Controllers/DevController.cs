@@ -145,6 +145,17 @@ namespace HealthCheck.DevTest.Controllers
 
             config.GiveRolesAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestModuleB.TestModuleBAccessOption.NumberOne);
 
+            // HCDynamicCodeExecutionModule
+            // Guest => View module. Edit local scripts only
+            config.GiveRolesAccessToModule(RuntimeTestAccessRole.Guest, HCDynamicCodeExecutionModule.AccessOption.Nothing);
+            // WebAdmins => only execute directly
+            config.GiveRolesAccessToModule(RuntimeTestAccessRole.WebAdmins, HCDynamicCodeExecutionModule.AccessOption.ExecuteCustomScript);
+            // SomethingElse => only create new ones
+            config.GiveRolesAccessToModule(RuntimeTestAccessRole.SomethingElse, HCDynamicCodeExecutionModule.AccessOption.CreateNewScriptOnServer);
+            // API => load and execute existing scripts
+            config.GiveRolesAccessToModule(RuntimeTestAccessRole.API,
+                HCDynamicCodeExecutionModule.AccessOption.ExecuteSavedScript | HCDynamicCodeExecutionModule.AccessOption.LoadScriptFromServer);
+
             config.GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSettingsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCRequestLogModule>(RuntimeTestAccessRole.WebAdmins);
@@ -154,7 +165,7 @@ namespace HealthCheck.DevTest.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCDocumentationModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCLogViewerModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCEventNotificationsModule>(RuntimeTestAccessRole.WebAdmins);
-            config.GiveRolesAccessToModuleWithFullAccess<HCDynamicCodeExecutionModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCDynamicCodeExecutionModule>(RuntimeTestAccessRole.SystemAdmins);
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
@@ -256,6 +267,11 @@ namespace HealthCheck.DevTest.Controllers
                 Path = Request?.Path
             });
 
+            if (ForcedRole != null)
+            {
+                return new RequestInformation<RuntimeTestAccessRole>(ForcedRole.Value, "forcedId", "Forced role user");
+            }
+
             var roles = RuntimeTestAccessRole.Guest;
             if (request.QueryString["noaccess"] != null)
             {
@@ -351,6 +367,21 @@ namespace HealthCheck.DevTest.Controllers
         {
             ForceLogout = false;
             return Content("Logged in");
+        }
+
+        private static RuntimeTestAccessRole? ForcedRole { get; set; }
+        public ActionResult ForceAccessRole(string name = null)
+        {
+            if (name == null)
+            {
+                ForcedRole = null;
+                return Content($"Cleared forced role.");
+            }
+            else
+            {
+                ForcedRole = (RuntimeTestAccessRole) Enum.Parse(typeof(RuntimeTestAccessRole), name);
+                return Content($"Role set to: {ForcedRole}.");
+            }
         }
 
         public class TestSettings

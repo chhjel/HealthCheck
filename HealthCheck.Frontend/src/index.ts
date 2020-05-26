@@ -63,6 +63,7 @@ const store = new Vuex.Store({
       globalOptions: globalOptions,
       ui: {
           menuButtonVisible: false,
+          menuExpanded: true,
           allowModuleSwitch: true
       }
     },
@@ -72,6 +73,12 @@ const store = new Vuex.Store({
         },
         allowModuleSwitch (state, allow) {
           state.ui.allowModuleSwitch = allow;
+        },
+        setMenuExpanded (state, expanded) {
+          state.ui.menuExpanded = expanded;
+        },
+        toggleMenuExpanded (state) {
+            state.ui.menuExpanded = !state.ui.menuExpanded;
         }
     }
 });

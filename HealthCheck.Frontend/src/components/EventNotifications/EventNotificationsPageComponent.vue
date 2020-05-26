@@ -153,6 +153,7 @@
             </v-dialog>
 
             <v-dialog v-model="deleteDefinitionDialogVisible"
+            @keydown.esc="deleteDefinitionDialogVisible = false"
                 max-width="290"
                 content-class="confirm-dialog">
                 <v-card>
@@ -173,6 +174,7 @@
             </v-dialog>
             
             <v-dialog v-model="editDefinitionsDialogVisible"
+                @keydown.esc="editDefinitionsDialogVisible = false"
                 scrollable
                 max-width="1200"
                 content-class="current-config-dialog">

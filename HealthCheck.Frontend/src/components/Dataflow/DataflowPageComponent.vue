@@ -252,7 +252,6 @@ export default class DataflowPageComponent extends Vue {
     options!: ModuleOptions<any>;
 
     // UI STATE
-    drawerState: boolean = true;
     streamsFilterText: string = "";
     
     // Service
@@ -295,14 +294,6 @@ export default class DataflowPageComponent extends Vue {
 
         this.resetFilter();
         this.loadData();
-    }
-
-    created(): void {
-        this.$parent.$parent.$on("onSideMenuToggleButtonClicked", this.toggleSideMenu);
-    }
-
-    beforeDestroy(): void {
-      this.$parent.$parent.$off('onSideMenuToggleButtonClicked', this.toggleSideMenu);
     }
 
     ////////////////
@@ -373,6 +364,18 @@ export default class DataflowPageComponent extends Vue {
 
     get showFilterCounts(): boolean {
         return this.streamsFilterText.length > 0;
+    }
+
+    ////////////////////
+    //  Parent Menu  //
+    //////////////////
+    drawerState: boolean = this.storeMenuState;
+    get storeMenuState(): boolean {
+        return this.$store.state.ui.menuExpanded;
+    }
+    @Watch("storeMenuState")
+    onStoreMenuStateChanged(): void {
+        this.drawerState = this.storeMenuState;
     }
 
     ////////////////
@@ -645,10 +648,6 @@ export default class DataflowPageComponent extends Vue {
         {
             this.updateUrl();
         }
-    }
-    
-    toggleSideMenu(): void {
-        this.drawerState = !this.drawerState;
     }
     
     getTableHeaders(expanded: boolean): Array<any> {

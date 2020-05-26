@@ -156,7 +156,6 @@ export default class TestSuitesPageComponent extends Vue {
     options!: ModuleOptions<any>;
 
     // UI STATE
-    drawerState: boolean = true;
     testSetFilterText: string = "";
 
     testSetGroups: Array<TestSetGroupViewModel> = new Array<TestSetGroupViewModel>();
@@ -175,14 +174,6 @@ export default class TestSuitesPageComponent extends Vue {
         this.$store.commit('showMenuButton', true);
 
         this.loadData();
-    }
-
-    created(): void {
-        this.$parent.$parent.$on("onSideMenuToggleButtonClicked", this.toggleSideMenu);
-    }
-
-    beforeDestroy(): void {
-      this.$parent.$parent.$off('onSideMenuToggleButtonClicked', this.toggleSideMenu);
     }
 
     ////////////////
@@ -222,6 +213,18 @@ export default class TestSuitesPageComponent extends Vue {
 
     get showFilterCounts(): boolean {
         return this.testSetFilterText.length > 0;
+    }
+
+    ////////////////////
+    //  Parent Menu  //
+    //////////////////
+    drawerState: boolean = this.storeMenuState;
+    get storeMenuState(): boolean {
+        return this.$store.state.ui.menuExpanded;
+    }
+    @Watch("storeMenuState")
+    onStoreMenuStateChanged(): void {
+        this.drawerState = this.storeMenuState;
     }
 
     ////////////////
@@ -389,10 +392,6 @@ export default class TestSuitesPageComponent extends Vue {
                 });
             }
         }, 10);
-    }
-
-    toggleSideMenu(): void {
-        this.drawerState = !this.drawerState;
     }
 }
 </script>

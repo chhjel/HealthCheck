@@ -211,7 +211,6 @@ export default class DocumentationPageComponent extends Vue {
     loadStatus: FetchStatus = new FetchStatus();
 
     // UI STATE
-    drawerState: boolean = true;
     diagramFilterText: string = "";
     sandboxMode: boolean = false;
     showRemarks: boolean = true;
@@ -247,14 +246,6 @@ Web -> Frontend: Confirmation is delivered
         this.loadData();
     }
 
-    created(): void {
-        this.$parent.$parent.$on("onSideMenuToggleButtonClicked", this.toggleSideMenu);
-    }
-
-    beforeDestroy(): void {
-      this.$parent.$parent.$off('onSideMenuToggleButtonClicked', this.toggleSideMenu);
-    }
-
     ////////////////
     //  GETTERS  //
     //////////////
@@ -287,6 +278,18 @@ Web -> Frontend: Confirmation is delivered
 
     get showFilterCounts(): boolean {
         return this.diagramFilterText.length > 0;
+    }
+
+    ////////////////////
+    //  Parent Menu  //
+    //////////////////
+    drawerState: boolean = this.storeMenuState;
+    get storeMenuState(): boolean {
+        return this.$store.state.ui.menuExpanded;
+    }
+    @Watch("storeMenuState")
+    onStoreMenuStateChanged(): void {
+        this.drawerState = this.storeMenuState;
     }
 
     ////////////////
@@ -481,10 +484,6 @@ Web -> Frontend: Confirmation is delivered
             steps.push(step);
         }
         return steps;
-    }
-    
-    toggleSideMenu(): void {
-        this.drawerState = !this.drawerState;
     }
 
     get menuItems(): Array<DocMenuItem>
