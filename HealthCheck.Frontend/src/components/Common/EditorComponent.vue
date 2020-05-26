@@ -1,15 +1,6 @@
 <!-- src/components/DynamicCodeExecution/EditorComponent.vue -->
 <template>
     <div class="editor-component">
-        <!-- <div class="editor-component__loader" v-if="!isEditorInited">
-            <v-progress-circular
-                class="mr-2"
-                indeterminate
-                color="primary"
-            />
-            Loading {{ language }} editor..
-        </div> -->
-
         <div class="editor-component__loader-bar" v-if="!isEditorInited">
             <v-progress-linear 
                 indeterminate
@@ -17,7 +8,41 @@
                 color="primary"
             />
         </div>
-        <div ref="editorElement" class="editor-component__editor"></div>
+
+        <div ref="editorElement"
+            class="editor-component__editor"
+            :class="{ 'editor-component__editor__fullscreen': (isFullscreen) }"
+            ></div>
+
+        <v-btn absolute dark fab flat small top right
+            color="green"
+            style="top: 5px; right: 21px"
+            v-if="allowFullscreen"
+            @click.stop="isFullscreen = true">
+            <v-icon>fullscreen</v-icon>
+        </v-btn>
+        
+        <!-- ##################### -->
+        <v-dialog
+            v-model="isFullscreen"
+            @keydown.esc="isFullscreen = false"
+            fullscreen hide-overlay transition="dialog-transition">
+            <v-card dark>
+                <!-- DIALOG TOOLBAR -->
+                <v-toolbar dark color="primary">
+                <v-btn icon dark
+                    @click="isFullscreen = false">
+                    <v-icon>close</v-icon>
+                </v-btn>
+                <v-toolbar-title>{{ title }}</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-toolbar-items>
+                    <v-btn dark flat @click="isFullscreen = false">Close</v-btn>
+                </v-toolbar-items>
+                </v-toolbar>
+            </v-card>
+        </v-dialog>
+        <!-- ##################### -->
     </div>
 </template>
 
@@ -47,6 +72,15 @@ export default class EditorComponent extends Vue {
     @Prop({ required: false, default: "" })
     value!: string;
 
+    @Prop({ required: false, default: false })
+    allowFullscreen!: boolean;
+
+    @Prop({ required: false, default: "" })
+    title!: string;
+
+    // UI state
+    isFullscreen: boolean = false;
+
     isEditorInited: boolean = false;
     currentDecorations: string[] = [];
 
@@ -64,6 +98,10 @@ export default class EditorComponent extends Vue {
 
     beforeDestroy(): void {
         window.removeEventListener('resize', this.onWindowResize)
+    }
+
+    public goFullscreen(): void {
+        this.isFullscreen = true;
     }
 
     public refreshSize(): void {
@@ -244,6 +282,8 @@ export default class EditorComponent extends Vue {
 
 <style scoped lang="scss">
 .editor-component {
+    position: relative;
+
     .editor-component__loader-bar {
         margin-bottom: -14px;
     }
@@ -251,6 +291,15 @@ export default class EditorComponent extends Vue {
     .editor-component__editor {
         width: 100%;
         height: 100%;
+        
+        &__fullscreen {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            right: 0;
+            height: calc(100% - 64px);
+            z-index: 205;
+        }
     }
 }
 </style>

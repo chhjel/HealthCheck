@@ -21,18 +21,14 @@
                     v-on:itemClicked="onMenuItemClicked"
                     />
                     
-                <div class="pl-4 pt-2">
+                <div class="pl-4 pt-2 pb-2">
                     <v-btn flat :dark="localOptions.darkTheme"
                         color="#62b5e4"
                         @click="onNewScriptClicked"
                         v-if="showCreateNewScriptButton"
                         :disabled="!allowCreateNewScript"
                         ><v-icon>add</v-icon>New script</v-btn>
-                </div>
-                
-                <v-spacer></v-spacer>
-
-                <div class="pl-4 pt-2">
+                    
                     <v-btn flat :dark="localOptions.darkTheme"
                         color="#62b5e4"
                         @click="configDialogVisible = true"
@@ -55,9 +51,11 @@
                     class="codeeditor codeeditor__input"
                     language="csharp"
                     :theme="editorTheme"
+                    :allowFullscreen="true"
                     v-model="code"
                     v-on:editorInit="onEditorInit"
                     :readOnly="isEditorReadOnly"
+                    :title="currentScriptTitle"
                     ref="editor"
                     ></editor-component>
 
@@ -91,7 +89,9 @@
                     class="codeeditor codeeditor__output"
                     language="json"
                     :theme="editorTheme"
+                    :allowFullscreen="true"
                     v-model="resultData"
+                    :title="'Output'"
                     :readOnly="loadStatus.inProgress || currentScript == null"
                     ></editor-component>
 
@@ -312,6 +312,11 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
 
     get globalOptions(): FrontEndOptionsViewModel {
         return this.$store.state.globalOptions;
+    }
+
+    get currentScriptTitle(): string {
+        if (this.currentScript == null || this.currentScript.IsDraft == true) return 'Script';
+        else return this.currentScript.Title;
     }
 
     get allowCreateNewScript(): boolean {
