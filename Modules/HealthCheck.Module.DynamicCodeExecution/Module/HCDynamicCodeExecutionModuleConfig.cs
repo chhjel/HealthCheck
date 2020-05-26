@@ -9,7 +9,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         public string ComponentName => "DynamicCodeExecutionPageComponent";
         public string DefaultRootRouteSegment => "code";
         public string InitialRoute => "/{0}";
-        public string RoutePath => "/{0}/:tab?";
+        public string RoutePath => "/{0}/:id?";
         public List<HealthCheckLinkTagModel> LinkTags => null;
         public List<HealthCheckScriptTagModel> ScriptTags => null;
     }

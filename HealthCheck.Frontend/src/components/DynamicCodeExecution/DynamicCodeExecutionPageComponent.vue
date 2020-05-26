@@ -7,7 +7,7 @@
                 v-model="drawerState"
                 clipped fixed floating app
                 mobile-break-point="1000"
-                dark
+                :dark="localOptions.darkTheme"
                 class="menu testset-menu">
 
                 <filterable-list-component 
@@ -22,12 +22,21 @@
                     />
                     
                 <div class="pl-4 pt-2">
-                    <v-btn flat dark
+                    <v-btn flat :dark="localOptions.darkTheme"
                         color="#62b5e4"
                         @click="onNewScriptClicked"
                         v-if="showCreateNewScriptButton"
                         :disabled="!allowCreateNewScript"
                         ><v-icon>add</v-icon>New script</v-btn>
+                </div>
+                
+                <v-spacer></v-spacer>
+
+                <div class="pl-4 pt-2">
+                    <v-btn flat :dark="localOptions.darkTheme"
+                        color="#62b5e4"
+                        @click="configDialogVisible = true"
+                        ><v-icon>settings</v-icon>Settings</v-btn>
                 </div>
             </v-navigation-drawer>
 
@@ -45,6 +54,7 @@
                 <editor-component
                     class="codeeditor codeeditor__input"
                     language="csharp"
+                    :theme="editorTheme"
                     v-model="code"
                     v-on:editorInit="onEditorInit"
                     :readOnly="isEditorReadOnly"
@@ -52,21 +62,21 @@
                     ></editor-component>
 
                 <div class="middle-toolbar">
-                    <v-btn flat dark
+                    <v-btn flat :dark="localOptions.darkTheme"
                         color="#62b5e4"
                         :disabled="!hasUnsavedChanges"
                         v-if="showSaveButton"
                         @click="onSaveClicked"
                         >Save</v-btn>
 
-                    <v-btn flat dark
+                    <v-btn flat :dark="localOptions.darkTheme"
                         color="#62b5e4"
                         @click="onDeleteClicked"
                         v-if="showDeleteButton"
                         :disabled="currentScript == null || loadStatus.inProgress || !canDeleteCurrentScript"
                         >Delete</v-btn>
                     
-                    <v-btn flat dark
+                    <v-btn flat :dark="localOptions.darkTheme"
                         color="#62b5e4"
                         class="right"
                         @click="onExecuteClicked"
@@ -80,6 +90,7 @@
                     ref="outputEditor"
                     class="codeeditor codeeditor__output"
                     language="json"
+                    :theme="editorTheme"
                     v-model="resultData"
                     :readOnly="loadStatus.inProgress || currentScript == null"
                     ></editor-component>
@@ -157,6 +168,30 @@
             </v-card>
         </v-dialog>
         <!-- ##################### -->
+        <v-dialog v-model="configDialogVisible"
+            @keydown.esc="configDialogVisible = false"
+            max-width="400"
+            content-class="confirm-dialog">
+            <v-card>
+                <v-card-title class="headline">Settings</v-card-title>
+                <v-card-text>
+                    <v-checkbox
+                        v-model="localOptions.autoFormatResult"
+                        @change="(v) => setLocalConfig(o => o.autoFormatResult = v)"
+                        label="Auto-format result" style="display:block"></v-checkbox>
+                    <v-checkbox
+                        v-model="localOptions.autoFoldRegions"
+                        @change="(v) => setLocalConfig(o => o.autoFoldRegions = v)"
+                        label="Auto-fold regions" style="display:block"></v-checkbox>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" @click="configDialogVisible = false">Close</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <!-- ##################### -->
     </div>
 </template>
 
@@ -197,6 +232,7 @@ interface LocalOnlyScript {
 interface LocalOptions {
     autoFormatResult: boolean;
     autoFoldRegions: boolean;
+    darkTheme: boolean;
 }
 
 @Component({
@@ -218,6 +254,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     code: string = '';
     resultData: string = '';
     currentScript: DynamicCodeScript | null = null;
+    localOptions: LocalOptions = this.loadLocalConfig();
 
     serverScripts: Array<ServerSideScript> = [];
     localScripts: Array<LocalOnlyScript> = [];
@@ -227,6 +264,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     deleteScriptDialogVisible: boolean = false;
     saveScriptDialogVisible: boolean = false;
     confirmUnchangedDialogVisible: boolean = false;
+    configDialogVisible: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -238,7 +276,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
 
         window.addEventListener("beforeunload", (e) => this.onWindowUnload(e));
 
-        this.openNewScript();
+        this.openNewScript(false);
     }
 
     created(): void {
@@ -258,6 +296,10 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
 
     get outputEditor(): EditorComponent {
         return this.$refs.outputEditor as EditorComponent;
+    }
+
+    get editorTheme(): 'vs' | 'vs-dark' {
+        return (this.localOptions.darkTheme) ? 'vs-dark' : 'vs';
     }
 
     get showEditor(): boolean {
@@ -320,6 +362,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
 
     get showExecuteButton(): boolean {
         if (this.currentScript == null) return false;
+        else if (this.scriptIsLocal(this.currentScript) && !this.canExecuteCustomScript) return false;
         else return this.canExecuteCustomScript || this.canExecuteSavedScript;
     }
 
@@ -329,7 +372,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
 
     get isEditorReadOnly(): boolean {
         if (this.loadStatus.inProgress || this.currentScript == null) return true;
-        else if (!this.canExecuteCustomScript) return true;
+        // else if (!this.canExecuteCustomScript) return true;
         else return false;
     }
     
@@ -440,6 +483,28 @@ namespace CodeTesting
     ////////////////
     //  METHODS  //
     //////////////
+    updateUrl(): void {
+        let routeParams: any = {};
+        if (this.currentScript != null && this.currentScript.IsDraft != true)
+        {
+            routeParams['id'] = this.currentScript.Id;
+        }
+        this.$router.push({ name: this.config.Id, params: routeParams })
+    }
+
+    updateSelectionFromUrl(): void {
+        const selectedScriptId = this.$route.params.id;
+
+        if (selectedScriptId !== undefined && selectedScriptId.length > 0) {
+            let script = this.localScripts.concat(this.serverScripts)
+                .filter(x => x.script.Id == selectedScriptId)[0];
+            if (script != null)
+            {
+                this.openScript(script.script, false);
+            }
+        }
+    }
+
     loadData(): void {
         this.localScripts = this.getLocalScriptsFromLocalStorage();
 
@@ -453,8 +518,13 @@ namespace CodeTesting
                         };
                         return serverScript;
                     });
+                    this.updateSelectionFromUrl();
                 }
             });
+        }
+        else
+        {
+            this.updateSelectionFromUrl();
         }
     }
 
@@ -462,9 +532,38 @@ namespace CodeTesting
         return this.options.AccessOptions.indexOf(option) != -1;
     }
 
+    setLocalConfig(action: (o:LocalOptions) => void): void {
+        action(this.localOptions);
+        this.saveLocalConfig();
+    }
+
+    saveLocalConfig(): void {
+        const json = JSON.stringify(this.localOptions);
+        localStorage.setItem('__HC_DCE_localOptions', json);
+    }
+
+    loadLocalConfig(): LocalOptions {
+        const json = localStorage.getItem('__HC_DCE_localOptions');
+        if (json != null) {
+            try {
+                return JSON.parse(json);
+            } catch(e)
+            {
+                console.warn('Failed to load local config, using defaults.');
+                console.warn(e);
+            }
+        }
+        
+        return {
+            autoFormatResult: false,
+            autoFoldRegions: true,
+            darkTheme: true
+        };
+    }
+
     updateLocalStorage(scripts: Array<LocalOnlyScript>): void {
         const json = JSON.stringify(scripts);
-        localStorage.setItem('localScripts', json);
+        localStorage.setItem('__HC_DCE_localScripts', json);
     }
 
     confirmUnsavedChangesPromiseResolve!: any;
@@ -490,7 +589,7 @@ namespace CodeTesting
 
     getLocalScriptsFromLocalStorage(): Array<LocalOnlyScript>
     {
-        const localScriptsJson = localStorage.getItem('localScripts');
+        const localScriptsJson = localStorage.getItem('__HC_DCE_localScripts');
         if (localScriptsJson != null)
         {
             return JSON.parse(localScriptsJson);
@@ -504,7 +603,7 @@ namespace CodeTesting
         }));
     }
 
-    openScript(script: DynamicCodeScript): void {
+    openScript(script: DynamicCodeScript, updateUrl: boolean = true): void {
         this.currentScript = script;
         this.code = this.currentScript.Code;
 
@@ -513,10 +612,15 @@ namespace CodeTesting
         setTimeout(() => {
             this.editor.foldRegions();
         }, 100);
+        
+        if (updateUrl)
+        {
+            this.updateUrl();
+        }
     }
 
-    openNewScript(): void {
-        this.openScript(this.generateDraftScript());
+    openNewScript(updateUrl: boolean = true): void {
+        this.openScript(this.generateDraftScript(), updateUrl);
     }
 
     generateDraftScript(): DynamicCodeScript {
@@ -875,16 +979,16 @@ namespace CodeTesting
             // Go to next problem. This also clears the current problem popup if no problems exist.
             setTimeout(() => this.editor.editor.getAction('editor.action.marker.next').run(), 100);
             
-            // if (this.optionAutoformatDumps) {
-            //     setTimeout(() => {
-            //         this.outputEditor.editor.getAction('editor.action.formatDocument').run();
-            //     }, 10);
-            // }
-            // if (this.optionAutoFoldRegions) {
-            //     setTimeout(() => {
-            //          this.editor.editor.runEditorAction('editor.foldAllMarkerRegions');
-            //     }, 10);
-            // }
+            if (this.localOptions.autoFormatResult) {
+                setTimeout(() => {
+                    this.outputEditor.editor.getAction('editor.action.formatDocument').run();
+                }, 10);
+            }
+            if (this.localOptions.autoFoldRegions) {
+                setTimeout(() => {
+                     this.editor.foldRegions();
+                }, 10);
+            }
         }
 
         this.resultData = resultText;

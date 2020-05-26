@@ -237,7 +237,7 @@ Web -> Frontend: Confirmation is delivered
     {
         this.$store.commit('showMenuButton', true);
 
-        let restoredSandbox = localStorage.getItem("sandbox_sequencediagram_script");
+        let restoredSandbox = localStorage.getItem("__HC_Docs_sandbox_sequencediagram_script");
         if (restoredSandbox != null)
         {
             this.sandboxScript = restoredSandbox;
@@ -525,7 +525,7 @@ Web -> Frontend: Confirmation is delivered
     @Watch("sandboxScript")
     onSandboxScriptChanged(): void
     {
-        localStorage.setItem("sandbox_sequencediagram_script", this.sandboxScript);
+        localStorage.setItem("__HC_Docs_sandbox_sequencediagram_script", this.sandboxScript);
     }
 
     showSandboxMode(): void {
