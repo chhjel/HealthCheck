@@ -33,6 +33,7 @@
                     class="testset-menu-item"
                     :class="{ 'active': itemIsSelected(item) }"
                     @click="onItemClicked(item)"
+                    :href="getItemHref(item.data)"
                     :disabled="disabled">
                     <v-list-tile-title>
                         {{ item.title }}
@@ -109,6 +110,9 @@ export default class FilterableListComponent extends Vue {
 
     @Prop({ required: false, default: null })
     iconsKey!: string | null;
+
+    @Prop({ required: false, default: null })
+    hrefKey!: string | null;
 
     @Prop({ required: false, default: null })
     sortByKey!: string | null;
@@ -211,6 +215,12 @@ export default class FilterableListComponent extends Vue {
         if (this.iconsKey == null) return [];
         const icons = data[this.iconsKey] || [];
         return icons;
+    }
+
+    getItemHref(data: any): string | null {
+        if (this.hrefKey == null) return null;
+        const href = data[this.hrefKey] || null;
+        return href;
     }
 
     public setSelectedItem(data: any): void

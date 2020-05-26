@@ -15,6 +15,7 @@
                     :sortByKey="`Name`"
                     :groupByKey="`GroupName`"
                     :iconsKey="'Icons'"
+                    :hrefKey="'Href'"
                     :filterKeys="[ 'Name' ]"
                     :disabled="loadStatus.inProgress"
                     ref="filterableList"
@@ -419,7 +420,8 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
                         GroupName: x.group,
                         Name: x.script.Title,
                         Script: x.script,
-                        Icons: this.scriptIsServerSide(x.script) ? ['cloud'] : []
+                        Icons: this.scriptIsServerSide(x.script) ? ['cloud'] : [],
+                        Href: `#${this.config.InitialRoute}/${x.script.Id}`
                     }
                 }
             });

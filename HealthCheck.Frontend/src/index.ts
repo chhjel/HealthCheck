@@ -83,6 +83,7 @@ const store = new Vuex.Store({
     }
 });
 
+const initialWindowTitle = document.title;
 let moduleConfig = ((window as any).healthCheckModuleConfigs) as Array<ModuleConfig>;
 let moduleOptions = ((window as any).healthCheckModuleOptions) as Record<string, ModuleOptions<any>>;
 let routes: Array<RouteConfig> = [];
@@ -96,15 +97,24 @@ moduleConfig
         props: {
             config: config,
             options: moduleOptions[config.Id]
-        }
+        },
+        meta: { title: (r: RouteConfig) => `${config.Name} | ${initialWindowTitle}` }
     });
 });
 // routes.push({ path: '/*', component: ModuleNotFoundPageComponent });
 
 Vue.use(VueRouter)
 const router = new VueRouter({
-    routes: routes
+    routes: routes,
 });
+router.afterEach((to, from) => {
+    Vue.nextTick(() => {
+        if (to != null && to.meta != null && to.meta.title != null)
+        {
+            document.title = to.meta.title(to);
+        }        
+    })
+  })
 
 let v = new Vue({
 	el: "#app",
