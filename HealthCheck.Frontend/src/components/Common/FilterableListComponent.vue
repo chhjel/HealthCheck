@@ -36,6 +36,12 @@
                     :disabled="disabled">
                     <v-list-tile-title>
                         {{ item.title }}
+                        <v-icon
+                            v-for="(icon, iindex) in getItemIcons(item.data)"
+                            :key="`filterable-menu-item-${itemIndex}-icon-${iindex}`"
+                            class="filterable-menu-item__icon"
+                            color="#555"
+                            >{{ icon }}</v-icon>
                         <br v-if="item.subTitle != null">
                         <span style="color: darkgray;" v-if="item.subTitle != null">{{ item.subTitle }}</span>
                     </v-list-tile-title>
@@ -200,6 +206,13 @@ export default class FilterableListComponent extends Vue {
         return this.itemFilterMatches(item) ? 1 : 0;
     }
 
+    getItemIcons(data: any): Array<string>
+    {
+        if (this.iconsKey == null) return [];
+        const icons = data[this.iconsKey] || [];
+        return icons;
+    }
+
     public setSelectedItem(data: any): void
     {
         this.selectedItemData = data;
@@ -213,11 +226,6 @@ export default class FilterableListComponent extends Vue {
             this.selectedItemData = item.data;
         }
     }
-
-    // get itemIcons(data: any): Array<string>
-    // {
-    //     const icons = data[iconsKey];
-    // }
 
     ///////////////////////
     //  EVENT HANDLERS  //
@@ -253,6 +261,9 @@ export default class FilterableListComponent extends Vue {
 }
 .no-result-found {
     padding-left: 46px;
+}
+.filterable-menu-item__icon {
+    float: right;
 }
 </style>
 

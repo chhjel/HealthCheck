@@ -68,20 +68,22 @@
                         >Save</v-btn>
 
                     <v-btn flat :dark="localOptions.darkTheme"
-                        color="#62b5e4"
+                        color="#ff6768"
                         @click="onDeleteClicked"
                         v-if="showDeleteButton"
                         :disabled="currentScript == null || loadStatus.inProgress || !canDeleteCurrentScript"
                         >Delete</v-btn>
                     
-                    <v-btn flat :dark="localOptions.darkTheme"
+                    <v-btn flat outline :dark="localOptions.darkTheme"
                         color="#62b5e4"
                         class="right"
                         @click="onExecuteClicked"
                         :loading="loadStatus.inProgress"
                         v-if="showExecuteButton"
                         :disabled="currentScript == null || loadStatus.inProgress"
-                        >Execute</v-btn>
+                        >
+                        <v-icon class="mr-2">code</v-icon>
+                        Execute</v-btn>
                 </div>
 
                 <editor-component
@@ -406,7 +408,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
                         GroupName: x.group,
                         Name: x.script.Title,
                         Script: x.script,
-                        Icons: ['cross']
+                        Icons: this.scriptIsServerSide(x.script) ? ['cloud'] : []
                     }
                 }
             });
@@ -1018,7 +1020,7 @@ namespace CodeTesting
     height: 100%;
 
     .middle-toolbar {
-        height: 50px;
+        height: 47px;
     }
 
     .codeeditor {
@@ -1027,7 +1029,7 @@ namespace CodeTesting
         &__input {
             position: relative;
             //           max   toolbar  output  other
-            height: calc(100vh - 50px - 30vh - 107px);
+            height: calc(100vh - 47px - 30vh - 107px);
         }
 
         &__output {
