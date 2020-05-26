@@ -227,7 +227,16 @@ import * as monaco from 'monaco-editor'
 import HealthCheckPageComponent from "../HealthCheckPageComponent.vue";
 
 interface DynamicCodeExecutionPageOptions {
-    InitialCode: string;
+    DefaultScript: string | null;
+    PreProcessors: Array<PreProcessorMetadata>;
+    ServerSideScriptsEnabled: boolean;
+}
+
+interface PreProcessorMetadata {
+    Id: string;
+    Name: string;
+    Description: string;
+    CanBeDisabled: boolean;
 }
 
 interface ServerSideScript {
@@ -427,11 +436,11 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
             });
     }
     
-    get initialCode(): string {
+    get DefaultScript(): string {
         return (this.options.Options != null
-                && this.options.Options.InitialCode != null 
-                && this.options.Options.InitialCode.length > 0)
-            ? this.options.Options.InitialCode
+                && this.options.Options.DefaultScript != null 
+                && this.options.Options.DefaultScript.length > 0)
+            ? this.options.Options.DefaultScript
             : `// Title: 
 #region Usings
 #endregion
@@ -465,19 +474,19 @@ namespace CodeTesting
         return this.hasAccess('ExecuteCustomScript');
     }
     get canExecuteSavedScript(): boolean {
-        return this.hasAccess('ExecuteSavedScript');
+        return this.hasAccess('ExecuteSavedScript') && this.options.Options.ServerSideScriptsEnabled == true;
     }
     get canLoadScriptFromServer(): boolean {
-        return this.hasAccess('LoadScriptFromServer');
+        return this.hasAccess('LoadScriptFromServer') && this.options.Options.ServerSideScriptsEnabled == true;
     }
     get canCreateNewScriptOnServer(): boolean {
-        return this.hasAccess('CreateNewScriptOnServer');
+        return this.hasAccess('CreateNewScriptOnServer') && this.options.Options.ServerSideScriptsEnabled == true;
     }
     get canEditExistingScriptOnServer(): boolean {
-        return this.hasAccess('EditExistingScriptOnServer');
+        return this.hasAccess('EditExistingScriptOnServer') && this.options.Options.ServerSideScriptsEnabled == true;
     }
     get canDeleteExistingScriptOnServer(): boolean {
-        return this.hasAccess('DeleteExistingScriptOnServer');
+        return this.hasAccess('DeleteExistingScriptOnServer') && this.options.Options.ServerSideScriptsEnabled == true;
     }
 
     /////////////////
@@ -645,7 +654,7 @@ namespace CodeTesting
 
     generateDraftScript(): DynamicCodeScript {
         const name = this.getNewScriptName();
-        let code = this.initialCode.replace(
+        let code = this.DefaultScript.replace(
             '// Title: New Script',
             `// Title: ${name}`
         );

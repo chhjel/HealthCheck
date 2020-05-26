@@ -184,7 +184,8 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
                     Description = x.Description,
                     CanBeDisabled = x.CanBeDisabled
                 }),
-                ServerSideScriptsEnabled = Options.ScriptStorage != null
+                ServerSideScriptsEnabled = Options.ScriptStorage != null,
+                DefaultScript = Options.DefaultScript
             };
         }
 

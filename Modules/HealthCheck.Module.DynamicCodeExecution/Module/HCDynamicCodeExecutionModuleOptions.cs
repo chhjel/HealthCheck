@@ -25,6 +25,11 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         public IDynamicCodeScriptStorage ScriptStorage { get; set; }
 
         /// <summary>
+        /// Code used for new scripts.
+        /// </summary>
+        public string DefaultScript { get; set; }
+
+        /// <summary>
         /// Your entry assembly.
         /// </summary>
         public Assembly TargetAssembly { get; set; }
