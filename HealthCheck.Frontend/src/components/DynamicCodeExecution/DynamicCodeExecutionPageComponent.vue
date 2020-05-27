@@ -215,7 +215,7 @@
                     </div>
                     
                     
-                    <h3 class="mt-4 mb-1">Code pre-processors</h3>
+                    <h3 class="mt-4 mb-2">Code pre-processors</h3>
                     <div v-for="(prepro, ppindex) in options.Options.PreProcessors"
                         :key="`dce_options_preprocessor-${ppindex}`"
                         class="dce-dialog--option"
@@ -688,7 +688,11 @@ namespace CodeTesting
         
         if (updateUrl)
         {
-            this.updateUrl();
+            const idInUrl = this.$route.params.id;
+            if (idInUrl !== script.Id)
+            {
+                this.updateUrl();
+            }
         }
     }
 
