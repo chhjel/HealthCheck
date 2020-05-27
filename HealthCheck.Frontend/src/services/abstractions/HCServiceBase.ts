@@ -1,4 +1,4 @@
-import FrontEndOptionsViewModel from "../../models/Page/FrontEndOptionsViewModel";
+import FrontEndOptionsViewModel from "../../models/Common/FrontEndOptionsViewModel";
 
 export class FetchStatus
 {
@@ -31,11 +31,40 @@ this.service.PerformOperation(this.internalConfig.Id, null, {
 
 export default class HCServiceBase
 {
-    public options: FrontEndOptionsViewModel;
+    private endpoint: string;
+    private inludeQueryString: boolean;
 
-    constructor(options: FrontEndOptionsViewModel)
+    constructor(endpoint: string, inludeQueryString: boolean)
     {
-        this.options = options;
+        this.endpoint = endpoint;
+        this.inludeQueryString = inludeQueryString;
+    }
+
+    public invokeModuleMethod<T = unknown>(
+        moduleId: string,
+        methodName: string,
+        payload: any | null = null,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<T> | null = null,
+        json: boolean = true
+    ): void
+    {
+        let payloadJson = (payload == null) ? null : JSON.stringify(payload);
+        let wrapperPayload = {
+            moduleId: moduleId,
+            methodName: methodName,
+            jsonPayload: payloadJson
+        };
+
+        if (DEVMODE)
+        {
+            console.log({
+                moduleId: moduleId,
+                methodName: methodName,
+                payload: payload
+            });
+        }
+        this.fetchExt<T>(this.endpoint, 'POST', wrapperPayload, statusObject, callbacks, json);
     }
 
     public fetchExt<T = unknown>(
@@ -44,7 +73,7 @@ export default class HCServiceBase
         payload: any | null = null,
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<T> | null = null,
-        json: boolean = true,
+        json: boolean = true
     ): void
     {
         if (statusObject != null)
@@ -55,7 +84,7 @@ export default class HCServiceBase
         }
 
         let queryStringIfEnabled = '';
-        if (this.options.InludeQueryStringInApiCalls)
+        if (this.inludeQueryString)
         {
             queryStringIfEnabled = url.includes('?') ? `&${window.location.search.replace('?', '')}` : window.location.search;
         }
@@ -77,7 +106,12 @@ export default class HCServiceBase
                 return Promise.reject('Not logged in.');
             }
 
-            return json ? response.json() : response;
+            if (json)
+            {
+                return response.json();
+            }
+            
+            return response;
         })
         // .then(response => new Promise<Array<T>>(resolve => setTimeout(() => resolve(response), 3000)))
         .then((data: T) => {

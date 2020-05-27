@@ -27,7 +27,7 @@ export interface EventNotifierOptionDefinition {
 }
 
 export interface EventSinkNotificationConfig {
-    Id: string | null;
+    Id: string;
     LastChangedBy: string;
     Enabled: boolean;
     NotificationCountLimit: number | null;

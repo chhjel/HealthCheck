@@ -113,5 +113,15 @@ namespace HealthCheck.Core.Util
             var toCheckFor = GetFlaggedEnumValues(flagsToCheckFor);
             return toCheckFor.Any(x => flaggedValues.Contains(x));
         }
+
+        /// <summary>
+        /// Check if the given object has all of the given flags set.
+        /// </summary>
+        public static bool EnumFlagHasAllFlagsSet(object obj, object flagsToCheckFor)
+        {
+            var flaggedValues = GetFlaggedEnumValues(obj);
+            var toCheckFor = GetFlaggedEnumValues(flagsToCheckFor);
+            return toCheckFor.All(x => flaggedValues.Contains(x));
+        }
     }
 }

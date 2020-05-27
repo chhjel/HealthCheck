@@ -5,13 +5,20 @@ import GetDataflowEntriesRequestModel from "../models/Dataflow/GetDataflowEntrie
 
 export default class DataflowService extends HCServiceBase
 {
+    public moduleId: string;
+
+    constructor(endpoint: string, inludeQueryString: boolean, moduleId: string)
+    {
+        super(endpoint, inludeQueryString);
+        this.moduleId = moduleId;
+    }
+    
     public GetStreamMetadata(
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<Array<DataflowStreamMetadata>> | null = null
     ) : void
     {
-        let url = this.options.GetDataflowStreamsMetadataEndpoint;
-        this.fetchExt<Array<DataflowStreamMetadata>>(url, 'GET', null, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, "GetDataflowStreamsMetadata", null, statusObject, callbacks);
     }
 
     public GetStreamEntries(
@@ -20,7 +27,6 @@ export default class DataflowService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<Array<DataflowEntry>> | null = null
     ) : void
     {
-        let url = this.options.GetDataflowStreamEntriesEndpoint;
-        this.fetchExt<Array<DataflowEntry>>(url, 'POST', filter, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, "GetDataflowStreamEntries", filter, statusObject, callbacks);
     }
 }

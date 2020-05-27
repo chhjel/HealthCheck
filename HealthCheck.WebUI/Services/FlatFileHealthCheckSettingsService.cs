@@ -1,12 +1,13 @@
-﻿using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Modules.Settings;
+﻿using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.Settings.Abstractions;
+using HealthCheck.Core.Modules.Settings.Attributes;
+using HealthCheck.Core.Modules.Settings.Models;
 using HealthCheck.Core.Util;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using HealthCheck.Core.Extensions;
-using Newtonsoft.Json;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace HealthCheck.WebUI.Services
@@ -58,7 +59,7 @@ namespace HealthCheck.WebUI.Services
                 catch (Exception) { }
             }
 
-            return default(T);
+            return default;
         }
 
         /// <summary>
@@ -70,7 +71,7 @@ namespace HealthCheck.WebUI.Services
             var settingId = (settingProperty.Body as MemberExpression)?.Member?.Name;
             if (settingId == null)
             {
-                return default(TValue);
+                return default;
             }
 
             return GetValue<TValue>(settingId);

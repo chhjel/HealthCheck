@@ -1,14 +1,22 @@
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
+import FrontEndOptionsViewModel from "../models/Common/FrontEndOptionsViewModel";
 
 export default class SettingsService extends HCServiceBase
 {
+    public moduleId: string;
+
+    constructor(endpoint: string, inludeQueryString: boolean, moduleId: string)
+    {
+        super(endpoint, inludeQueryString);
+        this.moduleId = moduleId;
+    }
+    
     public GetSettings(
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<GetSettingsModel> | null = null
     ) : void
     {
-        let url = this.options.GetSettingsEndpoint;
-        this.fetchExt<GetSettingsModel>(url, 'GET', null, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, 'GetSettings', null, statusObject, callbacks);
     }
     
     public SaveSettings(
@@ -27,11 +35,10 @@ export default class SettingsService extends HCServiceBase
                     };
                 });
         
-        let url = this.options.SetSettingsEndpoint;
         let payload = {
             settings: settings
         };
-        this.fetchExt<any>(url, 'POST', payload, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, 'SetSettings', payload, statusObject, callbacks, false);
     }
 }
 

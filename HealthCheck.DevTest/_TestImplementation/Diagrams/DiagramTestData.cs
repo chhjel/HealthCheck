@@ -1,5 +1,5 @@
-﻿using HealthCheck.Core.Modules.Diagrams.FlowCharts;
-using HealthCheck.Core.Modules.Diagrams.SequenceDiagrams;
+﻿using HealthCheck.Core.Modules.Documentation.Attributes;
+using HealthCheck.Core.Modules.Documentation.Models.FlowCharts;
 
 namespace HealthCheck.DevTest._TestImplementation.Diagrams
 {

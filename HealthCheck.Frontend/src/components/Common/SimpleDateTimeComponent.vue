@@ -11,7 +11,7 @@
         <div v-show="showDescription" class="input-component--description" v-html="description"></div>
         
         <v-text-field
-            class="filter-input" type="text"
+            class="filter-input" type="datetime-local"
             v-model="content"
             v-on:change="onTextChanged"
             v-on:click:clear="onTextChanged"
@@ -38,7 +38,7 @@ export default class SimpleDateTimeComponent extends Vue {
     @Prop({ required: false, default: '' })
     description!: string;
 
-    @Prop({ required: false, default: 'yyyy/MM/dd HH:mm:ss' })
+    @Prop({ required: false, default: 'yyyy-MM-ddTHH:mm' })
     dateFormat!: string;
 
     @Prop({ required: false, default: false })

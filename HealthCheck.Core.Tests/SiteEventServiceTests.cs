@@ -1,7 +1,6 @@
-using HealthCheck.Core.Entities;
-using HealthCheck.Core.Enums;
-using HealthCheck.Core.Services.Models;
-using HealthCheck.Core.Services.Storage;
+using HealthCheck.Core.Modules.SiteEvents.Enums;
+using HealthCheck.Core.Modules.SiteEvents.Models;
+using HealthCheck.Core.Modules.SiteEvents.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,8 +23,8 @@ namespace HealthCheck.Core.Services
         {
             var storage = new MemorySiteEventStorage();
             var service = new SiteEventService(storage);
-            var eventA = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA");
-            var eventB = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdB", "TitleB", "DescriptionB");
+            var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA");
+            var eventB = new SiteEvent(SiteEventSeverity.Error, "typeIdB", "TitleB", "DescriptionB");
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
 
@@ -39,8 +38,8 @@ namespace HealthCheck.Core.Services
         {
             var storage = new MemorySiteEventStorage();
             var service = new SiteEventService(storage);
-            var eventA = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdX", "TitleA", "DescriptionA");
-            var eventB = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdX", "TitleB", "DescriptionB");
+            var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdX", "TitleA", "DescriptionA");
+            var eventB = new SiteEvent(SiteEventSeverity.Error, "typeIdX", "TitleB", "DescriptionB");
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
 
@@ -54,11 +53,11 @@ namespace HealthCheck.Core.Services
         {
             var storage = new MemorySiteEventStorage();
             var service = new SiteEventService(storage);
-            var eventA = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
+            var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
             {
                 Timestamp = DateTime.Now.AddMinutes(-30)
             };
-            var eventB = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
+            var eventB = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
 
@@ -71,11 +70,11 @@ namespace HealthCheck.Core.Services
         {
             var storage = new MemorySiteEventStorage();
             var service = new SiteEventService(storage);
-            var eventA = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
+            var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
             {
                  Timestamp = DateTime.Now.AddMinutes(-3)
             };
-            var eventB = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
+            var eventB = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
 
@@ -91,11 +90,11 @@ namespace HealthCheck.Core.Services
         {
             var storage = new MemorySiteEventStorage();
             var service = new SiteEventService(storage);
-            var eventA = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
+            var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
             {
                 Timestamp = DateTime.Now.AddMinutes(-3)
             };
-            var eventB = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdB", "TitleB", "DescriptionB", duration: 10);
+            var eventB = new SiteEvent(SiteEventSeverity.Error, "typeIdB", "TitleB", "DescriptionB", duration: 10);
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
 
@@ -108,11 +107,11 @@ namespace HealthCheck.Core.Services
         {
             var storage = new MemorySiteEventStorage();
             var service = new SiteEventService(storage);
-            var eventA = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
+            var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
             {
                 Timestamp = DateTime.Now.AddMinutes(-10)
             };
-            var eventB = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 30);
+            var eventB = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 30);
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
 
@@ -130,11 +129,11 @@ namespace HealthCheck.Core.Services
             var defaultMergeOptions = new SiteEventMergeOptions(allowEventMerge: true, maxMinutesSinceLastEventEnd: 10, lastEventDurationMultiplier: null);
             var service = new SiteEventService(storage, defaultMergeOptions);
 
-            var eventA = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
+            var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
             {
                 Timestamp = DateTime.Now.AddMinutes(-15)
             };
-            var eventB = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
+            var eventB = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
 
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
@@ -153,11 +152,11 @@ namespace HealthCheck.Core.Services
             var defaultMergeOptions = new SiteEventMergeOptions(allowEventMerge: true, maxMinutesSinceLastEventEnd: 10, lastEventDurationMultiplier: null);
             var service = new SiteEventService(storage, defaultMergeOptions);
 
-            var eventA = new SiteEvent(Enums.SiteEventSeverity.Error, null, "TitleA", "DescriptionA", duration: 10)
+            var eventA = new SiteEvent(SiteEventSeverity.Error, null, "TitleA", "DescriptionA", duration: 10)
             {
                 Timestamp = DateTime.Now.AddMinutes(-15)
             };
-            var eventB = new SiteEvent(Enums.SiteEventSeverity.Error, null, "TitleB", "DescriptionB", duration: 5);
+            var eventB = new SiteEvent(SiteEventSeverity.Error, null, "TitleB", "DescriptionB", duration: 5);
 
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
@@ -173,11 +172,11 @@ namespace HealthCheck.Core.Services
             var defaultMergeOptions = new SiteEventMergeOptions(allowEventMerge: true, maxMinutesSinceLastEventEnd: 10, lastEventDurationMultiplier: 2f);
             var service = new SiteEventService(storage, defaultMergeOptions);
 
-            var eventA = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
+            var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
             {
                 Timestamp = DateTime.Now.AddMinutes(-25)
             };
-            var eventB = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
+            var eventB = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
 
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
@@ -196,7 +195,7 @@ namespace HealthCheck.Core.Services
             var defaultMergeOptions = new SiteEventMergeOptions(allowEventMerge: true, maxMinutesSinceLastEventEnd: 10, lastEventDurationMultiplier: null);
             var service = new SiteEventService(storage, defaultMergeOptions);
 
-            var previouslyResolvedEvent = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
+            var previouslyResolvedEvent = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
             {
                 Timestamp = DateTime.Now.AddMinutes(-15),
                 ResolvedAt = DateTime.Now.AddMinutes(-14),
@@ -205,7 +204,7 @@ namespace HealthCheck.Core.Services
             };
             await service.StoreEvent(previouslyResolvedEvent);
 
-            var newUnresolvedEvent = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
+            var newUnresolvedEvent = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
             await service.StoreEvent(newUnresolvedEvent);
 
             var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
@@ -224,13 +223,13 @@ namespace HealthCheck.Core.Services
             var defaultMergeOptions = new SiteEventMergeOptions(allowEventMerge: true, maxMinutesSinceLastEventEnd: 10, lastEventDurationMultiplier: null);
             var service = new SiteEventService(storage, defaultMergeOptions);
 
-            var previouslyUnresolvedEvent = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
+            var previouslyUnresolvedEvent = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
             {
                 Timestamp = DateTime.Now.AddMinutes(-15)
             };
             await service.StoreEvent(previouslyUnresolvedEvent);
 
-            var newResolvedEvent = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5)
+            var newResolvedEvent = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5)
             {
                 ResolvedAt = DateTime.Now,
                 Resolved = true,
@@ -262,11 +261,11 @@ namespace HealthCheck.Core.Services
                 }
             );
             var service = new SiteEventService(storage, defaultMergeOptions);
-            var eventA = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
+            var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
             {
                 Timestamp = DateTime.Now.AddMinutes(-3)
             };
-            var eventB = new SiteEvent(Enums.SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
+            var eventB = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
 

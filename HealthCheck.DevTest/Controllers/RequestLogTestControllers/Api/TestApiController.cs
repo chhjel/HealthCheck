@@ -3,6 +3,7 @@ using System.Web.Http;
 
 namespace HealthCheck.DevTest.Controllers.RequestLogTestControllers.Api
 {
+#pragma warning disable IDE0060 // Remove unused parameter
     public class TestApiController : TestApiControllerBase
     {
         [Route("TestGet")]
@@ -36,9 +37,10 @@ namespace HealthCheck.DevTest.Controllers.RequestLogTestControllers.Api
         }
 
 
-        [RequestLogInfo(hide: true)]
+        [HideFromRequestLog]
         public void HiddenEndpoint(int id)
         {
         }
     }
+#pragma warning restore IDE0060 // Remove unused parameter
 }

@@ -1,4 +1,6 @@
-﻿using HealthCheck.Core.Modules.EventNotifications;
+﻿using HealthCheck.Core.Modules.EventNotifications.Abstractions;
+using HealthCheck.Core.Modules.EventNotifications.Attributes;
+using HealthCheck.Core.Modules.EventNotifications.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

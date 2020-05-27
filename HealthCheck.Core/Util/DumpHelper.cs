@@ -1,14 +1,14 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Serializers;
-using RuntimeCodeTest.Core.Entities;
 using System;
 using System.Web;
 
 namespace HealthCheck.Core.Util
 {
     /// <summary>
-    /// Helpers for the dump and diff extension methods.
+    /// Helpers for the dump extension methods.
     /// </summary>
     public static class DumpHelper
     {
@@ -18,14 +18,14 @@ namespace HealthCheck.Core.Util
         /// <param name="obj">Object to dump</param>
         /// <param name="serializer">Json serializer implementation</param>
         /// <param name="title">Title of the dump</param>
-        public static DataDump Dump<T>(this T obj, IDumpJsonSerializer serializer, string title = null)
+        public static DataDump Dump<T>(this T obj, IJsonSerializer serializer, string title = null)
         {
-            serializer = serializer ?? new DumpNullJsonSerializer();
+            serializer ??= new DumpNullJsonSerializer();
             var data = CreateDumpData(obj, serializer);
             return CreateDump<T>(obj?.GetType(), title, data);
         }
         
-        private static string CreateDumpData<T>(T obj, IDumpJsonSerializer serializer)
+        private static string CreateDumpData<T>(T obj, IJsonSerializer serializer)
         {
             if (obj == null)
             {

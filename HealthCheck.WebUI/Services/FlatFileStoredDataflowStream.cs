@@ -1,5 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Modules.Dataflow;
+using HealthCheck.Core.Modules.Dataflow.Abstractions;
 using HealthCheck.Core.Util;
 using Newtonsoft.Json;
 using System;

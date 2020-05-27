@@ -1,13 +1,11 @@
-﻿using HealthCheck.Core.Util;
-using HealthCheck.DevTest._TestImplementation;
-using HealthCheck.WebUI.Models;
-using HealthCheck.WebUI.ViewModels;
+﻿using HealthCheck.DevTest._TestImplementation;
 using HealthCheck.WebUI.Abstractions;
+using HealthCheck.WebUI.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 
 namespace HealthCheck.DevTest.NetCore.Controllers
 {
@@ -17,21 +15,20 @@ namespace HealthCheck.DevTest.NetCore.Controllers
         private readonly IHostingEnvironment _env;
         private const string EndpointBase = "/";
 
-        public DevController(IHostingEnvironment env)
-            : base(assemblyContainingTests: typeof(DevController).Assembly)
+        public DevController(IHostingEnvironment env) : base()
         {
             _env = env;
         }
 
         #region Overrides
-        protected override FrontEndOptionsViewModel GetFrontEndOptions()
-            => new FrontEndOptionsViewModel(EndpointBase)
+        protected override HCFrontEndOptions GetFrontEndOptions()
+            => new HCFrontEndOptions(EndpointBase)
             {
                 ApplicationTitle = "Site Status"
             };
 
-        protected override PageOptions GetPageOptions()
-            => new PageOptions()
+        protected override HCPageOptions GetPageOptions()
+            => new HCPageOptions()
             {
                 JavaScriptUrls = new List<string> {
                     $"{EndpointBase.TrimEnd('/')}/GetVendorScript",
@@ -40,15 +37,9 @@ namespace HealthCheck.DevTest.NetCore.Controllers
                 PageTitle = "Dev Checks"
             };
 
-        protected override void Configure(HttpRequest request)
+        protected override void ConfigureAccess(HttpRequest request, AccessConfig<RuntimeTestAccessRole> options)
         {
-            TestRunner.IncludeExceptionStackTraces = CurrentRequestAccessRoles.HasValue && CurrentRequestAccessRoles.Value.HasFlag(RuntimeTestAccessRole.SystemAdmins);
-            AccessOptions.RedirectTargetOnNoAccess = "/no-access";
-        }
-
-        protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)
-        {
-            options.SetOptionsFor(RuntimeTestConstants.Group.AdminStuff, uiOrder: -100);
+            options.RedirectTargetOnNoAccess = "/no-access";
         }
 
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequest request)

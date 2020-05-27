@@ -27,11 +27,8 @@
         <test-component
             v-for="(test) in filteredTests"
             :key="`set-${testSet.Id}-test-${test.Id}`"
-            :options="options"
             :test="test"
-            :executeTestEndpoint="executeTestEndpoint"
-            :cancelTestEndpoint="cancelTestEndpoint"
-            :inludeQueryStringInApiCalls="inludeQueryStringInApiCalls"
+            :module-id="moduleId"
             v-on:testStarted="onTestStarted"
             v-on:testStopped="onTestStopped"
             v-on:testClicked="onTestClicked"
@@ -46,8 +43,7 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import TestSetViewModel from '../../models/TestSuite/TestSetViewModel';
 import TestViewModel from '../../models/TestSuite/TestViewModel';
 import TestComponent from './TestComponent.vue';
-import UrlUtils from "../../util/UrlUtils";
-import FrontEndOptionsViewModel from "../../models/Page/FrontEndOptionsViewModel";
+import FrontEndOptionsViewModel from "../../models/Common/FrontEndOptionsViewModel";
 
 @Component({
     components: {
@@ -56,17 +52,10 @@ import FrontEndOptionsViewModel from "../../models/Page/FrontEndOptionsViewModel
 })
 export default class TestSetComponent extends Vue {
     @Prop({ required: true })
-    options!: FrontEndOptionsViewModel;
-    
+    moduleId!: string;
+
     @Prop({ required: true })
     testSet!: TestSetViewModel;
-    
-    @Prop({ required: true })
-    executeTestEndpoint!: string;
-    @Prop({ required: true })
-    cancelTestEndpoint!: string;
-    @Prop({ required: true })
-    inludeQueryStringInApiCalls!: string;
 
     testFilterText: string = "";
     currentlyExecutingTestIds: Array<string> = new Array<string>();
@@ -83,6 +72,10 @@ export default class TestSetComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get globalOptions(): FrontEndOptionsViewModel {
+        return this.$store.state.globalOptions;
+    }
+    
     get filteredTests(): Array<TestViewModel>
     {
         return this.testSet.Tests

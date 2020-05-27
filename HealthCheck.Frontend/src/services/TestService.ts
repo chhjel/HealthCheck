@@ -2,16 +2,25 @@ import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstraction
 import TestsDataViewModel from "../models/TestSuite/TestsDataViewModel";
 import TestResultViewModel from "../models/TestSuite/TestResultViewModel";
 import ExecuteTestPayload from "../models/TestSuite/ExecuteTestPayload";
+import ModuleConfig from "../models/Common/ModuleConfig";
+import FrontEndOptionsViewModel from "../models/Common/FrontEndOptionsViewModel";
 
 export default class TestService extends HCServiceBase
 {
+    public moduleId: string;
+
+    constructor(endpoint: string, inludeQueryString: boolean, moduleId: string)
+    {
+        super(endpoint, inludeQueryString);
+        this.moduleId = moduleId;
+    }
+
     public GetTests(
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<TestsDataViewModel> | null = null
     ) : void
     {
-        let url = this.options.GetTestsEndpoint;
-        this.fetchExt<TestsDataViewModel>(url, 'GET', null, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, 'GetTests', null, statusObject, callbacks);
     }
 
     public CancelTest(testId: string,
@@ -19,8 +28,7 @@ export default class TestService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<any> | null = null
     ) : void
     {
-        let url = `${this.options.CancelTestEndpoint}?testId=${testId}`;
-        this.fetchExt<any>(url, 'POST', null, statusObject, callbacks, false);
+        this.invokeModuleMethod(this.moduleId, 'CancelTest', testId, statusObject, callbacks);
     }
 
     public ExecuteTest(payload: ExecuteTestPayload,
@@ -28,7 +36,6 @@ export default class TestService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<TestResultViewModel> | null = null
     ) : void
     {
-        let url = this.options.ExecuteTestEndpoint;
-        this.fetchExt<TestResultViewModel>(url, 'POST', payload, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, 'ExecuteTest', payload, statusObject, callbacks);
     }
 }

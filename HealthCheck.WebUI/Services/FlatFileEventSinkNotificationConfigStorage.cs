@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Modules.EventNotifications;
+﻿using HealthCheck.Core.Modules.EventNotifications.Abstractions;
+using HealthCheck.Core.Modules.EventNotifications.Models;
 using HealthCheck.Core.Util;
 using Newtonsoft.Json;
 using System;
@@ -15,12 +16,12 @@ namespace HealthCheck.WebUI.Services
     {
         private SimpleDataStoreWithId<EventSinkNotificationConfig, Guid> Store { get; set; }
 
-        private static object _cacheUpdateLock = new object();
+        private static readonly object _cacheUpdateLock = new object();
         private static Dictionary<string, IEnumerable<EventSinkNotificationConfig>> ConfigCache { get; set; } = new Dictionary<string, IEnumerable<EventSinkNotificationConfig>>();
         private string CacheKey => Store.FilePath.ToLower();
         private static Dictionary<string, EventSinkNotificationConfig> SaveBuffer { get; set; } = new Dictionary<string, EventSinkNotificationConfig>();
         private static bool IsWriteQueued { get; set; }
-        private float WriteDelay = 2f;
+        private readonly float WriteDelay = 2f;
 
         /// <summary>
         /// Create a new <see cref="FlatFileEventSinkNotificationConfigStorage"/> with the given file path.

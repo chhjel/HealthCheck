@@ -6,9 +6,8 @@
 ## What is it
 Provides an almost plug and play web interface with a few different utility modules that can enabled as needed and access to each module can be restricted.
 
-Modules:
+Available modules:
 
-* Test module where given backend methods can be executed to check the status of integrations, run utility methods and other things.
 * Overview module where registed events that can be shown in a status interface, e.g. showing the stability of integrations.
 * Audit module where actions from other modules are logged.
 * Log searcher module for searching through logfiles on disk.
@@ -34,7 +33,7 @@ Modules:
     ```
 3. Create a controller and inherit `HealthCheckControllerBase<AccessRoles>`, where AccessRoles is your enum from the step above.
 
-4. Optionally set any extra services on the `Services` property to enable their modules.
+4. Invoke `UseModule(..)` to enable any desired modules.
 
 <details><summary>Example controller</summary>
 <p>
@@ -42,16 +41,13 @@ Modules:
 ```csharp
 public class MyController : HealthCheckControllerBase<AccessRoles>
 {
-    // Optionally provide any extra services and set on the 'Service' property.
-    // See the Services section further down in readme.
-    public MyController(
-        ISiteEventService siteEventService,
-        IAuditEventStorage auditEventService)
-        : base(assemblyContainingTests: typeof(MyController).Assembly)
+    // Enable any modules by invoking the UseModule(..) method.
+    public MyController()
     {
-        Services.SiteEventService = siteEventService;
-        Services.AuditEventService = auditEventService;
-        // ...
+        UseModule(new HCTestsModule(new HCTestsModuleOptions() {
+            AssemblyContainingTests = typeof(MyController).Assembly
+        }));
+        // UseModule(..)
     }
 
     // Set any options that will be passed to the front-end here,
@@ -68,7 +64,7 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
         => new PageOptions()
         {
             PageTitle = "My Title | My Site",
-            // In order to not use a cdn for the main healthcheck scripts
+            // In order to not use a cdn for the main scripts
             // you can override them using the 'JavaScriptUrls' property.
             JavaScriptUrls = new List<string> {
                 "/scripts/healthcheck.js",
@@ -77,37 +73,7 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
             //...
         };
 
-    // Access options and other configs here.
-    // CurrentRequestAccessRoles is returned from your implementation
-    // of the GetRequestInformation method below.
-    protected override void Configure(HttpRequestBase request)
-    {
-        TestRunner.IncludeExceptionStackTraces = CurrentRequestAccessRoles.HasValue && CurrentRequestAccessRoles.Value.HasFlag(AccessRoles.SystemAdmins);
-        
-        AccessOptions.OverviewPageAccess = new Maybe<AccessRoles>(AccessRoles.Guest);
-        AccessOptions.TestsPageAccess = new Maybe<AccessRoles>(AccessRoles.WebAdmins);
-        AccessOptions.AuditLogAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);
-        AccessOptions.LogViewerPageAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);
-        AccessOptions.InvalidTestsAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);
-        AccessOptions.SiteEventDeveloperDetailsAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);
-        AccessOptions.RequestLogPageAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);
-        AccessOptions.ClearRequestLogAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);
-        
-        // If the current request does not have access to any of the pages they will be redirected to the given url. If not set they will get a 404.
-        // AccessOptions.RedirectTargetOnNoAccess = "/login?redirect=..";
-    }
-
-    // Optionally set group configs here. Only order in the UI for now.
-    // Groups are defined by setting the GroupName property on RuntimeTestClass attributes. 
-    protected override void SetTestSetGroupsOptions(TestSetGroupsOptions options)
-    {
-        options
-            .SetOptionsFor(MyHealthCheckConstants.Groups.GroupA, uiOrder: 100)
-            .SetOptionsFor(MyHealthCheckConstants.Groups.GroupB, uiOrder: 90);
-    }
-
     // Return the user id/name and any roles the the current request have here.
-    // The return value is used for any access options and audit logging if enabled.
     protected override RequestInformation<AccessRoles> GetRequestInformation(HttpRequestBase request)
     {
         var roles = AccessRoles.Guest;
@@ -121,15 +87,63 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
             roles |= AccessRoles.SystemAdmins;
         }
 
+        // The user id/name provided are used for the audit module, "changed by" texts etc.
         return new RequestInformation<AccessRoles>(
             roles, request.UserId(), request.UserName());
+    }
+
+    // Access options and other configs here.
+    protected override void ConfigureAccess(HttpRequestBase request, AccessConfig<AccessRoles> config)
+    {
+        // There's 3 methods available to grant the request access to modules:
+
+        // #1: Give a given role access to a given module,
+        // without setting any module access options:
+        config.GiveRolesAccessToModule<HCTestsModule>(AccessRoles.SystemAdmins);
+        
+        // #2: Give a given role access to a given module,
+        // with the given access options:
+        config.GiveRolesAccessToModule(AccessRoles.SystemAdmins, HCTestsModule.AccessOption.ViewInvalidTests);
+        
+        // #3: Give a given role full access to a given module,
+        // including all module access options:
+        config.GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(AccessRoles.WebAdmins);
+        
+        // Other access options are available on the config object:
+        config.ShowFailedModuleLoadStackTrace = new Maybe<AccessRole>(AccessRoles.WebAdmins);
+        config.PingAccess = new Maybe<AccessRole>(AccessRoles.WebAdmins);
+        config.RedirectTargetOnNoAccess = "/no-access";
+        //..
+        
+        // Properties CurrentRequestAccessRoles and CurrentRequestInformation
+        // are available to use here as well.
     }
 }
 ```
 </p>
 </details>
 
-## Executable methods
+---------
+# Modules
+
+## Module: Tests
+
+Allows given backend methods to be executed in a UI to check the status of integrations, run utility methods and other things.
+
+### Setup
+
+```csharp
+UseModule(new HCTestsModule(new HCTestsModuleOptions() {
+        AssemblyContainingTests = typeof(MyController).Assembly
+    }))
+    // Optionally configure group order
+    .ConfigureGroups((options) => options
+        .ConfigureGroup(MyHCConstants.Group.StatusChecks, uiOrder: 100)
+        .ConfigureGroup(...)
+    );;
+```
+
+### Executable methods
 
 For a method to be discovered it needs to..
 * ..be public.
@@ -165,7 +179,7 @@ public async Task<TestResult> GetDataFromServiceX(int id = 42, string orgName = 
 </p>
 </details>
 
-### Method parameters
+#### Method parameters
 
 Executable methods can have parameter with or without default values. Default values will be included in the generated interface.
 
@@ -183,11 +197,11 @@ Supported parameter types:
 * `List<T>` where `<T>` is any of the above types (w/ option for readable list for setting order only)
 * `CancellationToken` to make the method cancellable, see below.
 
-### Cancellable methods
+#### Cancellable methods
 
 If the first parameter is of the type `CancellationToken` a cancel button will be shown in the UI while the method is running, and only one instance of the method will be able to execute at a time.
 
-### The TestResult
+#### The TestResult
 
 The `TestResult` class has a few static factory methods for quick creation of a result object, and can contain extra data in various formats.
 
@@ -204,7 +218,7 @@ The `TestResult` class has a few static factory methods for quick creation of a 
 |AddHtmlData|Two variants of this method exists. Use the extension method variant for html presets using `new HtmlPresetBuilder()` or the non-extension method for raw html.|
 |AddTimelineData|Creates a timeline from the given steps. Each step can show a dialog with more info/links.|
 
-#### Cosmetics
+##### Cosmetics
 The following methods can be called on the testresult instance to tweak the output look.
 
 |Method|Effect|
@@ -255,79 +269,59 @@ Can be applied to either the method itself using the `Target` property or the pa
 |UIHint|Options for parameter display can be set here. Read only lists, prevent null-values, text areas etc.|
 |DefaultValueFactoryMethod|For property types that cannot have default values (e.g. lists), use this to specify the name of a public static method in the same class as the method. The method should have the same return type as this parameter, and have zero parameters.|
 
-## Services
-A few flatfile storage classes are included and should work fine as the amount of data should not be too large. If used make sure they are registered as singletons, they are thread safe but only within their own instances.
+### Scheduled executions
 
-## API
-An `/ExecuteTests` endpoint exists to execute all tests within a given category and return the results. Only tests the request has access to will be executed. The request must also have the `TestsPageAccess`. There is also a `/Ping` endpoint that can be used that just returns 'OK' and 200 status code.
-
-Example request:
-```
-Invoke-WebRequest -Uri "https://server/ExecuteTests?key=something" -Method "POST" -Headers @{ -ContentType "application/x-www-form-urlencoded" -Body "TestCategory=IntegrationTests"
-``` 
-
-<details><summary>Example response:</summary>
-<p>
-
-```json
-{
-    "TotalResult": "Error",
-    "SuccessCount": 2,
-    "WarningCount": 1,
-    "ErrorCount": 1,
-    "ErrorMessage": null,
-    "Results": [
-        {
-            "TestId": "HealthCheckTests.SomeAPITests.TestServiceX",
-            "TestName": "Check integration X",
-            "Result": "Error",
-            "Message": "Failed to execute test with the exception: Input string was not in a correct format.",
-            "StackTrace": "System.FormatException: Input string was not in a correct format.\r\n   at System.Number.StringToNumber(String str, NumberStyles options, NumberBuffer& number, NumberFormatInfo info, Boolean parseDecimal)\r\n   at System.Number.ParseInt32(String s, NumberStyles style, NumberFormatInfo info)\r\n   at System.Int32.Parse(String s)\r\n   at HealthCheckTests.SomeAPITests.<TestSomething>d__4.MoveNext() in D:\\...\\SomeAPITests.cs:line 47\r\n--- End of stack trace from previous location where exception was thrown ---\r\n   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)\r\n   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)\r\n   at System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()\r\n   at HealthCheck.Core.Entities.TestDefinition.<ExecuteTest>d__58.MoveNext()\r\n--- End of stack trace from previous location where exception was thrown ---\r\n   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)\r\n   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)\r\n   at System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()\r\n   at HealthCheck.Core.Services.TestRunnerService.<ExecuteTest>d__9.MoveNext()"
-        },
-        {
-            "TestId": "HealthCheckTests.SomeAPITests.TestServiceY",
-            "TestName": "Check integration Y",
-            "Result": "Success",
-            "Message": "Success, it took about 3 seconds.",
-            "StackTrace": null
-        },
-        {
-            "TestId": "HealthCheckTests.SomeAPITests.TestServiceZ",
-            "TestName": "Check integration Z",
-            "Result": "Warning",
-            "Message": "Success, it took about a second.",
-            "StackTrace": null
-        },
-        {
-            "TestId": "HealthCheckTests.SomeAPITests.TestServiceF.Int32-String-Boolean-Int32",
-            "TestName": "Test Service A",
-            "Result": "Success",
-            "Message": "Retrieved id ('1234') successfully.",
-            "StackTrace": null
-        }
-    ]
-}
-```
-</p>
-</details>
-
-### IAuditEventStorage
-If an IAuditEventStorage is provided in the controller any test executions/cancellations will be logged to it. This also allows for the audit log interface to be shown.
+There is no built in scheduler but the `TestRunnerService` can be used to easily execute a subset of the methods from e.g. a scheduled job and report the results to the given site `ISiteEventService`.
 
 ```csharp
+TestDiscoveryService testDiscovererService = ..;
+ISiteEventService siteEventService = ..;
+
+var runner = new TestRunnerService();
+var results = await runner.ExecuteTests(testDiscovererService,
+    // Only include methods belonging to the custom "Scheduled Checks"-category
+    (m) => m.Categories.Contains("Scheduled Checks"),
+    // Provide an event service to automatically report to it
+    siteEventService);
+```
+
+----------
+
+## Module: Audit Log
+
+If the audit log module is used, actions by other modules will be logged and can be viewed in the audit log module interface.
+
+### Setup
+
+```csharp
+UseModule(new HCAuditLogModule(new HCAuditLogModuleOptions() { AuditEventService = IAuditEventStorage implementation }));
+```
+
+```csharp
+// Built in implementation example
 IAuditEventStorage auditEventStorage = new FlatFileAuditEventStorage(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"), maxEventAge: TimeSpan.FromDays(30));
 ```
 
-### ILogSearcherService
-Specify a ILogSearcherService implementation to use to enable the log searcher tab. The provided FlatFileLogSearcherServiceOptions works for flatfile logs where entries start with a timestamp.
+----------
+
+## Module: Log Viewer
+
+UI for searching through logfiles.
+
+### Setup
 
 ```csharp
+UseModule(new HCLogViewerModule(new HCLogViewerModuleOptions() { LogSearcherService = ILogSearcherService implementation() }));
+```
+
+```csharp
+// Built in implementation example
 var logSearcherOptions = new FlatFileLogSearcherServiceOptions()
     .IncludeLogFilesInDirectory(HostingEnvironment.MapPath("~/App_Data/TestLogs/"), filter: "*.log", recursive: true);
 ILogSearcherService logSearcherService = new FlatFileLogSearcherService(logSearcherOptions);
 ```
 
-#### Log search query language
+### Log search query language
 When not using regex the search supports the following syntax:
 * Or: (a|b|c)
 * And: a b c
@@ -335,18 +329,29 @@ When not using regex the search supports the following syntax:
 
 E.g. the query `(Exception|Error) "XR 442" order details` means that the resulting contents must contain either `Exception` or `Error`, and contain both `order`, `details` and `XR 442`.
 
-### ISiteEventService
-If an ISiteEventService is provided in the controller any events will be retrieved from it and can be shown in a overview page. Call this service from other places in the code to register new events.
+----------
+
+## Module: Site Events
+
+If an ISiteEventService is provided any events will be retrieved from it and can be shown in a UI. Call `StoreEvent(..)` on this service from other places in the code to register new events.
 
 Test methods can register events if executed through `<TestRunnerService>.ExecuteTests(..)`, a site event service is given, and the `TestResult` from a method includes a `SiteEvent`. When executing a method from the UI the site event data will be ignored. 
 
 Site events are grouped on `SiteEvent.EventTypeId` and extend their duration when multiple events are registered after each other.
 
+### Setup
+
 ```csharp
+UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = ISiteEventService implementation }));
+```
+
+```csharp
+// Built in implementation example
 ISiteEventService siteEventService = new SiteEventService(new FlatFileSiteEventStorage(HostingEnvironment.MapPath("~/App_Data/SiteEventStorage.json"), maxEventAge: TimeSpan.FromDays(5)));
 ```
 
-<details><summary>Example method</summary>
+#### Example method
+<details><summary>Example</summary>
 <p>
 
 ```csharp
@@ -381,22 +386,29 @@ public TestResult CheckIntegrationX()
 </p>
 </details>
 
-### IRequestLogService
-For requests to be logged and viewable 2-3 things needs to be configured:
+---------
+
+## Module: Request Log
+
+Shows the last n requests per endpoint, including stack trace of any unhandled exceptions, statuscodes etc.
+
+For requests to be logged and viewable a few things needs to be configured:
 * [![Nuget](https://img.shields.io/nuget/v/HealthCheck.RequestLog?label=HealthCheck.RequestLog&logo=nuget)](https://www.nuget.org/packages/HealthCheck.RequestLog) nuget package must be added.
-* An IRequestLogService has to be provided in the healthcheck controller. The default one `RequestLogService` can be used.
 * A set of action filters will need to be registered.
 * Optionally run a utility method on startup to generate definitions from all controller actions.
 
-To clear the requestlog use the button at the bottom of the requestlog page. It will be visible for selected roles when the access option `ClearRequestLogAccess` is set.
 
-`AccessOptions.ClearRequestLogAccess = new Maybe<AccessRoles>(AccessRoles.SystemAdmins);`
+### Setup
 
-<details><summary>Example setup</summary>
+```csharp
+UseModule(new HCRequestLogModule(new HCRequestLogModuleOptions() { RequestLogService = IRequestLogStorage implementation }));
+```
+
+<details><summary>View full setup details</summary>
 <p>
 
 ```csharp
-// Register the service with desired options
+// Built in implementation example
 IRequestLogStorage storage = new FlatFileRequestLogStorage(HostingEnvironment.MapPath("~/App_Data/RequestLog.json");
 var options = new RequestLogServiceOptions
 {
@@ -441,22 +453,54 @@ RequestLogUtils.HandleRequest(RequestLogServiceAccessor.Current, GetType(), Requ
 RequestLogServiceAccessor.Current = .. service instance
 ```
 
+Optionally decorate methods or classes with the `RequestLogInfoAttribute` attribute to hide endpoints/classes from the log, or to provide additional details. Any method/class decorated with any attribute named `HideFromRequestLogAttribute` will also hide it from the log.
+
 </p>
 </details>
 
-### ISequenceDiagramService
-If an `ISequenceDiagramService` is provided in the controller the documentation tab will become available where generated diagrams are shown.
+----------
 
-A default implementation `DefaultSequenceDiagramService` is provided. It will search through any assemblies provided through its options property for any methods decorated with `SequenceDiagramStepAttribute` and generate diagrams using them.
+## Module: Documentation
+
+Work in progress. At the moment sequence diagrams and flowcharts generated from decorated code will be shown.
+
+The default implementations searches through any given assemblies for methods decorated with `SequenceDiagramStepAttribute` and `FlowChartStepAttribute` and generate diagrams using them.
+
+### Setup
 
 ```csharp
-var options = new DefaultSequenceDiagramServiceOptions()
+UseModule(new HCDocumentationModule(new HCDocumentationModuleOptions()
 {
-    DefaultSourceAssemblies = new[] { <your assemblies> }
-};
-ISequenceDiagramService service = new DefaultSequenceDiagramService(options);
+    SequenceDiagramService = ISequenceDiagramService implementation,
+    FlowChartsService = IFlowChartsService implementation
+}));
 ```
 
+```csharp
+// Built in implementation examples
+SequenceDiagramService = new DefaultSequenceDiagramService(new DefaultSequenceDiagramServiceOptions()
+{
+    DefaultSourceAssemblies = new[] { typeof(MyController).Assembly }
+}),
+FlowChartsService = new DefaultFlowChartService(new DefaultFlowChartServiceOptions()
+{
+    DefaultSourceAssemblies = new[] { typeof(MyController).Assembly }
+})
+```
+
+----------
+
+## Module: Dataflow
+
+
+### Setup
+
+```csharp
+```
+
+```csharp
+// Built in implementation examples
+```
 
 ### IDataflowService
 If an `IDataflowService` is provided in the controller the dataflow tab will become available where custom data can be shown.
@@ -551,9 +595,22 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
 </p>
 </details>
 
-### IHealthCheckSettingsService
+----------
 
-If an `IHealthCheckSettingsService` is provided in the controller the settings tab will become available where custom settings can be configured. Only string, int and boolean properties are supported. A `FlatFileHealthCheckSettingsService` is provided for simple use cases.
+## Module: Settings
+
+Allows custom settings to be configured. Only string, int and boolean properties are supported.
+
+### Setup
+
+```csharp
+UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { SettingsService = IHealthCheckSettingsService implementation }));
+```
+
+```csharp
+// Built in implementation examples
+SettingsService = new FlatFileHealthCheckSettingsService<TestSettings>(@"D:\settings.json");
+```
 
 <details><summary>Example</summary>
 <p>
@@ -576,12 +633,6 @@ public class TestSettings
 ```
 
 ```csharp
-// Register the service in controller
-// IoC a singleton of the default FlatFileHealthCheckSettingsService if used.
-Services.SettingsService = new FlatFileHealthCheckSettingsService<TestSettings>(@"e:\config\settings.json");
-```
-
-```csharp
 // Retrieve settings using the GetValue method.
 service.GetValue<bool>(nameof(TestSettings.Enabled))
 ```
@@ -589,28 +640,39 @@ service.GetValue<bool>(nameof(TestSettings.Enabled))
 </p>
 </details>
 
-### IEventDataSink
 
-If an `IEventDataSink` is provided in the controller the Event Notifications tab will become available where configurations for notifications can be created. Notifications are delivered through implementations of `IEventNotifier`.
-Built-in implementations: `DefaultEventDataSink`, `WebHookEventNotifier`.
+----------
+
+## Module: Event Notifications
+
+Enables notifications of custom events. Rules for notifications can be edited in a UI and events are easily triggered from code. Notifications are delivered through implementations of `IEventNotifier`. Built-in implementations: `DefaultEventDataSink`, `WebHookEventNotifier`.
 
 Events can be filtered on their id, stringified payload or properties on their payload. Limits can also be set to restrict number of notifications and between dates.
 
-<details><summary>Example</summary>
-<p>
+### Setup
 
 ```csharp
-// Register the service in controller
-// Use singletons of the flatfile storages if used.
+UseModule(new HCEventNotificationsModule(new HCEventNotificationsModuleOptions() { EventSink = IEventDataSink implementation }));
+```
+
+```csharp
+// Built in implementation examples
 var notificationConfigStorage = new FlatFileEventSinkNotificationConfigStorage(@"e:\config\eventconfigs.json");
 var notificationDefinitionStorage = new FlatFileEventSinkKnownEventDefinitionsStorage(@"e:\config\eventconfig_defs.json");
-Services.EventSink = new DefaultEventDataSink(notificationConfigStorage, notificationDefinitionStorage)
+
+var eventSink = new DefaultEventDataSink(notificationConfigStorage, notificationDefinitionStorage)
     // Setup any notifiers that should be available
     .AddNotifier(new MyNotifier())
     .AddNotifier(new WebHookEventNotifier())
     // Add any custom placeholders
     .AddPlaceholder("NOW", () => DateTime.Now.ToString())
     .AddPlaceholder("ServerName", () => Environment.MachineName);
+```
+
+<details><summary>Example</summary>
+<p>
+
+```csharp
 ```
 
 ```csharp
@@ -675,21 +737,7 @@ EventSinkUtil.TryRegisterEvent("thing_imported", () => new { Type = "etc", Value
 </p>
 </details>
 
-## Scheduled health checks
-
-There is no built in scheduler but the `TestRunnerService` can be used to easily execute a subset of the methods from e.g. a scheduled job and report the results to the given site `ISiteEventService`.
-
-```csharp
-TestDiscoveryService testDiscovererService = ..;
-ISiteEventService siteEventService = ..;
-
-var runner = new TestRunnerService();
-var results = await runner.ExecuteTests(testDiscovererService,
-    // Only include methods belonging to the custom "Scheduled Checks"-category
-    (m) => m.Categories.Contains("Scheduled Checks"),
-    // Provide an event service to automatically report to it
-    siteEventService);
-```
+----------
 
 ## Utils
 
@@ -697,3 +745,6 @@ A few utility classes are included below `HealthCheck.Core.Util`:
 * `ExceptionUtils` - Get a summary of exceptions to include in results.
 * `ConnectivityUtils` - Ping or send webrequests to check if a host is alive and return `TestResult` objects.
 * `TimeUtils` - Prettify durations.
+
+## Built in services
+Some flatfile storage classes are included and should work fine as the amount of data should not be too large. If used make sure they are registered as singletons, they are thread safe but only within their own instances.

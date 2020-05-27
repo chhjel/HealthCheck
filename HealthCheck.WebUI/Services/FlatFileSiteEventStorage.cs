@@ -1,5 +1,5 @@
-﻿using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Entities;
+﻿using HealthCheck.Core.Modules.SiteEvents.Abstractions;
+using HealthCheck.Core.Modules.SiteEvents.Models;
 using HealthCheck.Core.Util;
 using Newtonsoft.Json;
 using System;
@@ -71,7 +71,7 @@ namespace HealthCheck.WebUI.Services
         public Task<List<SiteEvent>> GetEvents(DateTime from, DateTime to)
         {
             var items = Store.GetEnumerable()
-                .Where(x => x.Timestamp >= from && x.Timestamp <= to)
+                .Where(x => x.Timestamp.ToUniversalTime() >= from.ToUniversalTime() && x.Timestamp.ToUniversalTime() <= to.ToUniversalTime())
                 .ToList();
 
             return Task.FromResult(items);

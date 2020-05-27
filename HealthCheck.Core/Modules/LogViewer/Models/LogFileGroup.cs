@@ -39,10 +39,10 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
             return Files
                 .Where(x =>
                     allowFilePath(x.FilePath)
-                    && (lastWriteLowThreshold == null || x.LastWriteTime >= lastWriteLowThreshold)
-                    && (lastWriteHighThreshold == null || x.LastWriteTime <= lastWriteHighThreshold)
-                    && (toDate == null || toDate >= x.FirstEntryTime)
-                    && (fromDate == null || fromDate <= x.LastWriteTime)
+                    && (lastWriteLowThreshold == null || x.LastWriteTime.ToUniversalTime() >= lastWriteLowThreshold?.ToUniversalTime())
+                    && (lastWriteHighThreshold == null || x.LastWriteTime.ToUniversalTime() <= lastWriteHighThreshold?.ToUniversalTime())
+                    && (toDate == null || toDate?.ToUniversalTime() >= x.FirstEntryTime.ToUniversalTime())
+                    && (fromDate == null || fromDate?.ToUniversalTime() <= x.LastWriteTime.ToUniversalTime())
                 )
                 .Select(x => x.GetEntriesEnumerable(entryParser)).SelectMany(x => x);
         }

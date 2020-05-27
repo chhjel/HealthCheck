@@ -1,5 +1,4 @@
-﻿using HealthCheck.Core.Entities;
-using HealthCheck.Core.Enums;
+﻿using HealthCheck.Core.Modules.Tests.Models;
 using System;
 
 namespace HealthCheck.Core.Util.Models

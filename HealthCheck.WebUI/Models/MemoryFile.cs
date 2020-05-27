@@ -60,10 +60,8 @@ namespace HealthCheck.WebUI.Models
         /// </summary>
         public override void SaveAs(string filename)
         {
-            using (var file = File.Open(filename, FileMode.CreateNew))
-            {
-                stream.CopyTo(file);
-            }
+            using var file = File.Open(filename, FileMode.CreateNew);
+            stream.CopyTo(file);
         }
     }
 #endif

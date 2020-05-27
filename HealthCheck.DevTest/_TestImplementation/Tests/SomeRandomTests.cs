@@ -1,7 +1,8 @@
-﻿using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Entities;
-using HealthCheck.Core.Enums;
-using HealthCheck.Core.Util.HtmlPresets;
+﻿using HealthCheck.Core.Modules.SiteEvents.Enums;
+using HealthCheck.Core.Modules.SiteEvents.Models;
+using HealthCheck.Core.Modules.Tests.Attributes;
+using HealthCheck.Core.Modules.Tests.Models;
+using HealthCheck.Core.Modules.Tests.Utils.HtmlPresets;
 using HealthCheck.WebUI.Extensions;
 using HealthCheck.WebUI.Serializers;
 using System;
@@ -13,6 +14,7 @@ using System.Web;
 
 namespace HealthCheck.DevTest._TestImplementation.Tests
 {
+#pragma warning disable IDE0060 // Remove unused parameter
     [RuntimeTestClass(
         Name = "Some fancy tests",
         Description = "Some fancy <a href=\"https://www.google.com\">description</a>.",
@@ -230,7 +232,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             }
 
             return (value != null)
-                ? (value.GetType().IsValueType) ? value.ToString() : $"'{value.ToString()}'" 
+                ? (value.GetType().IsValueType) ? value.ToString() : $"'{value}'" 
                 : "null";
         }
 
@@ -290,7 +292,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
                 return TestResult.CreateWarning("Some warning here")
                     .SetSiteEvent(new SiteEvent(SiteEventSeverity.Warning,
                     "IntegrationXLatency", "Increased latency with X", "Integration with X seems to be a bit slower than usual.",
-                    duration: 1, developerDetails: $"Exception at {DateTime.Now.ToLongTimeString()}:\n{ex.ToString()}"));
+                    duration: 1, developerDetails: $"Exception at {DateTime.Now.ToLongTimeString()}:\n{ex}"));
             }
         }
 
@@ -846,4 +848,5 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             + "  }\n"
             + "]\n";
     }
+#pragma warning restore IDE0060 // Remove unused parameter
 }

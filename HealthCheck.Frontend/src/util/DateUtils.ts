@@ -180,7 +180,15 @@ export default class DateUtils
             e: function (method: any) {
                 throw 'ERROR: Not supported method [' + method + ']';
             },
-            T: function () { return 'T'; }
+            T: function () { return 'T'; },
+            // dd + 'T' + hh
+            ddThh : function() {
+                return _pad(date.getDate(),2) + "T" + _pad(date.getHours() % 12 || 12, 2);
+            },
+            // dd + 'T' + HH
+            ddTHH : function() {
+                return _pad(date.getDate(),2) + "T" + _pad(date.getHours(),2);
+            },
         };
         
         const dayNames: string[] = 

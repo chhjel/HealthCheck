@@ -33,9 +33,16 @@
                     class="testset-menu-item"
                     :class="{ 'active': itemIsSelected(item) }"
                     @click="onItemClicked(item)"
+                    :href="getItemHref(item.data)"
                     :disabled="disabled">
                     <v-list-tile-title>
                         {{ item.title }}
+                        <v-icon
+                            v-for="(icon, iindex) in getItemIcons(item.data)"
+                            :key="`filterable-menu-item-${itemIndex}-icon-${iindex}`"
+                            class="filterable-menu-item__icon"
+                            color="#555"
+                            >{{ icon }}</v-icon>
                         <br v-if="item.subTitle != null">
                         <span style="color: darkgray;" v-if="item.subTitle != null">{{ item.subTitle }}</span>
                     </v-list-tile-title>
@@ -53,6 +60,13 @@
                 :disabled="disabled">
                 <v-list-tile-title v-text="item.title"></v-list-tile-title>
             </v-list-tile>
+
+            <v-list-tile ripple
+                v-if="!hasGroups && filterText.length > 0 && filterItems(ungroupedItems).length == 0"
+                class="testset-menu-item no-result-found"
+                :disabled="true">
+                <v-list-tile-title>No results found</v-list-tile-title>
+            </v-list-tile>
             <!-- NO GROUP: END -->
 
         </v-list>
@@ -61,11 +75,10 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from '../../models/Page/FrontEndOptionsViewModel';
+import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
 import { EntryState } from '../../models/RequestLog/EntryState';
 import DateUtils from "../../util/DateUtils";
 import LinqUtils from "../../util/LinqUtils";
-import UrlUtils from "../../util/UrlUtils";
 import KeyArray from "../../util/models/KeyArray";
 import KeyValuePair from "../../models/Common/KeyValuePair";
 // @ts-ignore
@@ -92,8 +105,14 @@ export default class FilterableListComponent extends Vue {
     @Prop({ required: true })
     items!: Array<FilterableListItem>;
 
-    @Prop({ required: true })
+    @Prop({ required: false, default: '' })
     groupByKey!: string;
+
+    @Prop({ required: false, default: null })
+    iconsKey!: string | null;
+
+    @Prop({ required: false, default: null })
+    hrefKey!: string | null;
 
     @Prop({ required: false, default: null })
     sortByKey!: string | null;
@@ -106,6 +125,9 @@ export default class FilterableListComponent extends Vue {
 
     @Prop({ required: false, default: false })
     disabled!: boolean;
+
+    @Prop({ required: false, default: true })
+    groupIfSingleGroup!: boolean;
 
     filterText: string = "";
     selectedItemData: any = null;
@@ -120,6 +142,11 @@ export default class FilterableListComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get hasGroups(): boolean
+    {
+        return this.groups.length > 0;
+    }
+    
     get ungroupedItems(): Array<FilterableListItem>
     {
         return (this.groups.length == 0) ? this.items : [];
@@ -128,6 +155,7 @@ export default class FilterableListComponent extends Vue {
     get groups(): Array<FilterableListGroup>
     {
         let groupList: Array<FilterableListGroup> = [];
+        if (this.groupByKey.length == 0) return groupList;
 
         LinqUtils.GroupByInto(this.items, (x: any) => x.data[this.groupByKey], 
             (key, items) => groupList.push({
@@ -135,7 +163,8 @@ export default class FilterableListComponent extends Vue {
                 items: items
             }));
 
-        if (groupList.length <= 1)
+        const groupsRequiredForGrouping = (this.groupIfSingleGroup ? 1 : 2);
+        if (groupList.length < groupsRequiredForGrouping)
         {
             return [];
         }
@@ -181,9 +210,31 @@ export default class FilterableListComponent extends Vue {
         return this.itemFilterMatches(item) ? 1 : 0;
     }
 
+    getItemIcons(data: any): Array<string>
+    {
+        if (this.iconsKey == null) return [];
+        const icons = data[this.iconsKey] || [];
+        return icons;
+    }
+
+    getItemHref(data: any): string | null {
+        if (this.hrefKey == null) return null;
+        const href = data[this.hrefKey] || null;
+        return href;
+    }
+
     public setSelectedItem(data: any): void
     {
         this.selectedItemData = data;
+    }
+
+    public setSelectedItemByFilter(filter: ((data: any) => boolean)): void
+    {
+        const item = this.items.filter(x => filter(x))[0];
+        if (item != null)
+        {
+            this.selectedItemData = item.data;
+        }
     }
 
     ///////////////////////
@@ -216,6 +267,20 @@ export default class FilterableListComponent extends Vue {
 @media (max-width: 960px) {
     .menu-items { 
         margin-top: 67px;
+    }
+}
+.no-result-found {
+    padding-left: 46px;
+}
+.filterable-menu-item__icon {
+    float: right;
+}
+</style>
+
+<style lang="scss">
+.no-result-found {
+    .v-list__tile {
+        padding-left: 0;
     }
 }
 </style>
