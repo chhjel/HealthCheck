@@ -383,12 +383,22 @@ export default class DataflowPageComponent extends Vue {
     //////////////
     updateUrl(): void {
         let routeParams: any = {};
+        let streamName: string | null = null;
+        let group: string | null = null;
         if (this.selectedStream != null)
         {
-            routeParams['streamName'] = UrlUtils.EncodeHashPart(this.selectedStream.Name);
-            routeParams['group'] = UrlUtils.EncodeHashPart(this.selectedStream.GroupName);
+            streamName = UrlUtils.EncodeHashPart(this.selectedStream.Name);
+            group = UrlUtils.EncodeHashPart(this.selectedStream.GroupName);
+            routeParams['streamName'] = streamName;
+            routeParams['group'] = group;
         }
-        this.$router.push({ name: this.config.Id, params: routeParams })
+        
+        const streamNameInUrl = this.$route.params.streamName;
+        const groupInUrl = this.$route.params.group;
+        if (streamNameInUrl !== streamName || groupInUrl !== group)
+        {
+            this.$router.push({ name: this.config.Id, params: routeParams })
+        }
     }
 
     updateSelectionFromUrl(): void {

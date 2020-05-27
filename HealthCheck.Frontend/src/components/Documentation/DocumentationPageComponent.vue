@@ -316,7 +316,12 @@ Web -> Frontend: Confirmation is delivered
         {
             routeParams['title'] = title;
         }
-        this.$router.push({ name: this.config.Id, params: routeParams })
+        
+        const titleInUrl = this.$route.params.title;
+        if (titleInUrl !== title)
+        {
+            this.$router.push({ name: this.config.Id, params: routeParams })
+        }
     }
 
     updateSelectionFromUrl(): void {
@@ -326,13 +331,13 @@ Web -> Frontend: Confirmation is delivered
             let seqDiagram = this.sequenceDiagrams.filter(x => UrlUtils.EncodeHashPart(x.title) == selectedItem)[0];
             if (seqDiagram != null)
             {
-                this.setActiveSequenceDiagram(seqDiagram, false);
+                this.setActiveSequenceDiagram(seqDiagram);
             }
 
             let flowchart = this.flowCharts.filter(x => UrlUtils.EncodeHashPart(x.title) == selectedItem)[0];
             if (flowchart != null)
             {
-                this.setActiveFlowChart(flowchart, false);
+                this.setActiveFlowChart(flowchart);
             }
         }
 
@@ -340,11 +345,11 @@ Web -> Frontend: Confirmation is delivered
         {
             if (this.sequenceDiagrams.length > 0)
             {
-                this.setActiveSequenceDiagram(this.sequenceDiagrams[0], false);
+                this.setActiveSequenceDiagram(this.sequenceDiagrams[0]);
             }
             else if (this.flowCharts.length > 0)
             {
-                this.setActiveFlowChart(this.flowCharts[0], false);
+                this.setActiveFlowChart(this.flowCharts[0]);
             }
         }
 
