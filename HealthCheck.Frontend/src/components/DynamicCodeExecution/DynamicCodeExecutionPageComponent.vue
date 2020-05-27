@@ -1,6 +1,18 @@
 <!-- src/components/DynamicCodeExecution/DynamicCodeExecutionPageComponent.vue -->
 <template>
     <div class="dce_page">
+        <div class="loading-screen" 
+            v-if="showLoadingScreen"
+            v-bind:class="{ done: loadingIsDone }">
+            <center class="spinner">
+                <div class="loader" id="loader"></div>
+                <div class="loader" id="loader2"></div>
+                <div class="loader" id="loader3"></div>
+                <div class="loader" id="loader4"></div>
+                <span id="text">LOADING DCE...</span>
+            </center>
+        </div>
+
         <v-content>
             <!-- NAVIGATION DRAWER -->
             <v-navigation-drawer
@@ -325,6 +337,8 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     saveScriptDialogVisible: boolean = false;
     confirmUnchangedDialogVisible: boolean = false;
     configDialogVisible: boolean = false;
+    showLoadingScreen: boolean = true;
+    loadingIsDone: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -819,6 +833,11 @@ namespace CodeTesting
         editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {            
             this.onSaveClicked();
         });
+
+        this.loadingIsDone = true;
+        setTimeout(() => {
+            this.showLoadingScreen = false;
+        }, 1000);
     }
 
     onWindowUnload(e: any): string | undefined {
@@ -1117,7 +1136,7 @@ namespace CodeTesting
         &__input {
             position: relative;
             //           max   toolbar  output  other
-            height: calc(100vh - 47px - 30vh - 108px);
+            height: calc(100vh - 47px - 30vh - 109px);
         }
 
         &__output {
@@ -1176,6 +1195,86 @@ namespace CodeTesting
             font-size: small;
             margin-left: 32px;
         }
+    }
+}
+</style>
+
+<style scoped lang="scss">
+/* Loader */
+@keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+.loading-screen {
+    position: absolute;
+    left: 0;
+    top: 64px;
+    right: 0;
+    bottom: 0;
+    background-color: #1e1e1e;
+    z-index: 999;
+    overflow: hidden;
+    &.done {
+        animation: fadeout 1s;
+    }
+    /// Spinner
+    .spinner {
+        margin-top: 15%;
+    }
+    .loader{
+        margin-bottom: 6px;
+        border:3px solid #d6336c;
+        width:200px;
+        height:200px;
+        border-radius:50%; 
+        border-left-color: transparent;
+    border-right-color: transparent;
+        animation:rotate 2s cubic-bezier(0.26, 1.36, 0.74,-0.29) infinite;
+    }
+    #loader2{
+        border:3px solid #3bc9db;
+        width:220px;
+        height:220px;
+        position:relative;
+        top:-216px;
+        border-left-color: transparent;
+    border-right-color: transparent;
+        animation:rotate2 2s cubic-bezier(0.26, 1.36, 0.74,-0.29) infinite;
+    }
+    #loader3{
+        border:3px solid #d6336c;
+        width:240px;
+        height:240px;
+        position:relative;
+        top:-452px;
+        border-left-color: transparent;
+    border-right-color: transparent;
+        animation:rotate 2s cubic-bezier(0.26, 1.36, 0.74,-0.29) infinite;
+    }
+    #loader4{
+        border:3px solid #3bc9db;
+        width:260px;
+        height:260px;
+        position:relative;
+        top:-708px;
+        border-left-color: transparent;
+    border-right-color: transparent;
+        animation:rotate2 2s cubic-bezier(0.26, 1.36, 0.74,-0.29) infinite;
+    }
+    @keyframes rotate{
+        0%{transform:rotateZ(-360deg)}
+        100%{transform:rotateZ(0deg)}
+    }
+    @keyframes rotate2{
+        0%{transform:rotateZ(360deg)}
+        100%{transform:rotateZ(0deg)}
+    }
+    #text{
+        color:white;
+        font-family:Arial;
+        font-size:20px;
+        position:relative;
+        top:-857px;
     }
 }
 </style>
