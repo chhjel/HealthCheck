@@ -155,7 +155,14 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         /// </summary>
         [HealthCheckModuleMethod(AccessOption.CreateNewScriptOnServer)]
         public async Task<DynamicCodeScript> AddNewScript(DynamicCodeScript script)
-            => await this.Options.ScriptStorage?.SaveScript(script);
+        {
+            if (this.Options.ScriptStorage == null || script == null) return null;
+
+            var existingScript = await this.Options.ScriptStorage.GetScript(script.Id);
+            if (existingScript != null) return null;
+
+            return await this.Options.ScriptStorage?.SaveScript(script);
+        }
 
         /// <summary>
         /// Edit an existing script.
@@ -163,9 +170,9 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         [HealthCheckModuleMethod(AccessOption.EditExistingScriptOnServer)]
         public async Task<DynamicCodeScript> SaveScriptChanges(DynamicCodeScript script)
         {
-            if (this.Options.ScriptStorage == null) return null;
+            if (this.Options.ScriptStorage == null || script == null) return null;
 
-            var existingScript = this.Options.ScriptStorage.GetScript(script.Id);
+            var existingScript = await this.Options.ScriptStorage.GetScript(script.Id);
             if (existingScript == null) return null;
 
             return await this.Options.ScriptStorage.SaveScript(script);
