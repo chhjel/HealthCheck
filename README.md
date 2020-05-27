@@ -1,6 +1,7 @@
 # HealthCheck
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI?label=HealthCheck.WebUI&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI)
-[![Nuget](https://img.shields.io/nuget/v/HealthCheck.RequestLog?label=HealthCheck.RequestLog&logo=nuget)](https://www.nuget.org/packages/HealthCheck.RequestLog)
+[![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.DynamicCodeExecution?label=HealthCheck.Module.DynamicCodeExecution&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.DynamicCodeExecution)
+[![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.RequestLog?label=HealthCheck.Module.RequestLog&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.RequestLog)
 [![npm](https://img.shields.io/npm/v/christianh-healthcheck?label=christianh-healthcheck&logo=npm)](https://www.npmjs.com/package/christianh-healthcheck)
 
 ## What is it
@@ -44,10 +45,10 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
     // Enable any modules by invoking the UseModule(..) method.
     public MyController()
     {
+        // UseModule(<module>, <optionally override name>)
         UseModule(new HCTestsModule(new HCTestsModuleOptions() {
             AssemblyContainingTests = typeof(MyController).Assembly
         }));
-        // UseModule(..)
     }
 
     // Set any options that will be passed to the front-end here,
@@ -393,7 +394,7 @@ public TestResult CheckIntegrationX()
 Shows the last n requests per endpoint, including stack trace of any unhandled exceptions, statuscodes etc.
 
 For requests to be logged and viewable a few things needs to be configured:
-* [![Nuget](https://img.shields.io/nuget/v/HealthCheck.RequestLog?label=HealthCheck.RequestLog&logo=nuget)](https://www.nuget.org/packages/HealthCheck.RequestLog) nuget package must be added.
+* [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.RequestLog?label=HealthCheck.Module.RequestLog&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.RequestLog) nuget package must be added.
 * A set of action filters will need to be registered.
 * Optionally run a utility method on startup to generate definitions from all controller actions.
 
@@ -457,6 +458,36 @@ Optionally decorate methods or classes with the `RequestLogInfoAttribute` attrib
 
 </p>
 </details>
+
+---------
+
+## Module: Dynamic Code Execution
+
+Provides a monaco-editor IDE where C# scripts can be stored and executed in the context of the web application to extract data, debug issues or other things. Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.DynamicCodeExecution?label=HealthCheck.Module.DynamicCodeExecution&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.DynamicCodeExecution)
+
+Should be heavily locked down if used other places than localhost.
+
+
+### Setup
+
+```csharp
+UseModule(new HCDynamicCodeExecutionModule(new HCDynamicCodeExecutionModuleOptions() {
+    // Provide the entry assembly of the web application
+    TargetAssembly = typeof(MyType).Assembly,
+    
+    // Optionally provide a IDynamicCodeScriptStorage to allow online script storage.
+    // The provided FlatFileDynamicCodeScriptStorage can be used:
+    ScriptStorage = new FlatFileDynamicCodeScriptStorage(@"D:\Server\DCE_Script_Storage.data"),
+
+    // PreProcessors = ...
+    // Pre-processors modify code before exectution, and return the modified code back to the frontend.
+    // * Included types: BasicAutoCreateUsingsPreProcessor, WrapUsingsInRegionPreProcessor, FuncPreProcessor
+
+    // Validators = ..
+    // Validators check the code that is about to be executed and can halt execution with a message.
+    // * Included types: FuncCodeValidator
+}));
+```
 
 ----------
 
