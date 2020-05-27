@@ -436,7 +436,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
             });
     }
     
-    get DefaultScript(): string {
+    get defaultScript(): string {
         return (this.options.Options != null
                 && this.options.Options.DefaultScript != null 
                 && this.options.Options.DefaultScript.length > 0)
@@ -654,7 +654,7 @@ namespace CodeTesting
 
     generateDraftScript(): DynamicCodeScript {
         const name = this.getNewScriptName();
-        let code = this.DefaultScript.replace(
+        let code = this.defaultScript.replace(
             '// Title: New Script',
             `// Title: ${name}`
         );
