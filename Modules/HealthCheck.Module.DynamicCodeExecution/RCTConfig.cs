@@ -22,5 +22,10 @@ namespace HealthCheck.Module.DynamicCodeExecution
         /// Optional auto-completer.
         /// </summary>
         public IDynamicCodeAutoCompleter AutoComplete { get; set; }
+
+        /// <summary>
+        /// Extra references.
+        /// </summary>
+        public List<string> AdditionalReferencedAssemblies { get; set; }
     }
 }

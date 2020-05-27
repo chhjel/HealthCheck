@@ -221,7 +221,8 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
             var executor = new RuntimeCodeTester(new RCTConfig()
                 {
                     //AutoComplete = Options.AutoComplete,
-                    PreProcessors = Options.PreProcessors
+                    PreProcessors = Options.PreProcessors,
+                    AdditionalReferencedAssemblies = Options.AdditionalReferencedAssemblies
                 },
                 Options.TargetAssembly);
 

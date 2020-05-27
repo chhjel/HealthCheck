@@ -17,7 +17,7 @@ namespace HealthCheck.Core.Util
         public static string PrettifyDuration(long ms, string zero = "0 milliseconds")
         {
             var timeSpan = TimeSpan.FromMilliseconds(ms);
-            Func<Tuple<int, string>, string> numberFormatter = t => t.Item1 + " " + t.Item2 + (t.Item1 == 1 ? string.Empty : "s");
+            static string numberFormatter(Tuple<int, string> t) => t.Item1 + " " + t.Item2 + (t.Item1 == 1 ? string.Empty : "s");
             var components = new List<Tuple<int, string>>
             {
                 Tuple.Create((int) timeSpan.TotalDays, "day"),

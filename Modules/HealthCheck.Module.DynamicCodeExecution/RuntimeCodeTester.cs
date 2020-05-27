@@ -4,6 +4,7 @@ using HealthCheck.Module.DynamicCodeExecution.Models;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 
@@ -25,6 +26,11 @@ namespace HealthCheck.Module.DynamicCodeExecution
         public Assembly TargetAssembly { get; set; }
 
         /// <summary>
+        /// Extra references.
+        /// </summary>
+        private List<string> AdditionalReferencedAssemblies { get; set; }
+
+        /// <summary>
         /// Create a new instance of the runtime code tester.
         /// </summary>
         /// <param name="config">Various configs</param>
@@ -33,6 +39,7 @@ namespace HealthCheck.Module.DynamicCodeExecution
         {
             Config = config ?? new RCTConfig();
             TargetAssembly = assembly ?? Assembly.GetEntryAssembly();
+            AdditionalReferencedAssemblies = config.AdditionalReferencedAssemblies;
         }
 
         /// <summary>
@@ -67,6 +74,15 @@ namespace HealthCheck.Module.DynamicCodeExecution
             var options = new CompilerParameters();
             AddAssemblies(Assembly.GetExecutingAssembly(), options);
             AddAssemblies(TargetAssembly, options);
+
+            if (AdditionalReferencedAssemblies != null)
+            {
+                foreach (var reference in AdditionalReferencedAssemblies)
+                {
+                    options.ReferencedAssemblies.Add(reference);
+                }
+            }
+
             return options;
         }
 

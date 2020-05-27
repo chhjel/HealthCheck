@@ -33,5 +33,14 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         /// Your entry assembly.
         /// </summary>
         public Assembly TargetAssembly { get; set; }
+
+        /// <summary>
+        /// Any additional assemblies to reference in addition to all assemblies referenced by the target assembly.
+        /// <para>Defaults to only netstandard.dll</para>
+        /// </summary>
+        public List<string> AdditionalReferencedAssemblies { get; set; } = new List<string>
+        {
+            "netstandard.dll"
+        };
     }
 }

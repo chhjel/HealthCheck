@@ -15,6 +15,11 @@
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-HealthCheck</PackageProjectUrl>
     <AssemblyName>HealthCheck.Module.DynamicCodeExecution</AssemblyName>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
   
   <!-- .NET FRAMEWORK ######################## -->
   <!-- Compiler flags -->

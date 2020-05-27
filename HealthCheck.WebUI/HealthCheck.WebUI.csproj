@@ -15,6 +15,11 @@
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-HealthCheck</PackageProjectUrl>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+
   <!-- ALLOW UNIT TEST OF INTERNALS ########## -->
   <PropertyGroup>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
