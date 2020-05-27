@@ -115,7 +115,7 @@
         <v-dialog v-model="deleteScriptDialogVisible"
             @keydown.esc="deleteScriptDialogVisible = false"
             max-width="350" dark
-            content-class="confirm-dialog">
+            content-class="dce-dialog">
             <v-card color="secondary" class="white--text">
                 <v-card-title class="headline">Confirm deletion</v-card-title>
                 <v-card-text>
@@ -133,7 +133,7 @@
         <v-dialog v-model="confirmUnchangedDialogVisible"
             @keydown.esc="unsavedChangesDialogGoBack()"
             max-width="350" dark
-            content-class="confirm-dialog">
+            content-class="dce-dialog">
             <v-card color="secondary" class="white--text">
                 <v-card-title class="headline">Unsaved changes</v-card-title>
                 <v-card-text>
@@ -155,7 +155,7 @@
         <v-dialog v-model="saveScriptDialogVisible"
             @keydown.esc="saveScriptDialogVisible = false"
             max-width="400" dark
-            content-class="confirm-dialog">
+            content-class="dce-dialog">
             <v-card color="secondary" class="white--text">
                 <v-card-title class="headline">Save new script</v-card-title>
                 <v-card-text>
@@ -179,19 +179,59 @@
         <!-- ##################### -->
         <v-dialog v-model="configDialogVisible"
             @keydown.esc="configDialogVisible = false"
-            max-width="400" dark
-            content-class="confirm-dialog">
+            max-width="600" dark
+            content-class="dce-dialog">
             <v-card color="secondary" class="white--text">
                 <v-card-title class="headline">Settings</v-card-title>
-                <v-card-text>
-                    <v-checkbox
-                        v-model="localOptions.autoFormatResult"
-                        @change="(v) => setLocalConfig(o => o.autoFormatResult = v)"
-                        label="Auto-format results" style="display:block"></v-checkbox>
-                    <v-checkbox
-                        v-model="localOptions.autoFoldRegions"
-                        @change="(v) => setLocalConfig(o => o.autoFoldRegions = v)"
-                        label="Auto-fold regions" style="display:block"></v-checkbox>
+                <v-card-text class="pt-0">
+                    <div class="dce-dialog--option">
+                        <v-checkbox
+                            v-model="localOptions.autoFormatResult"
+                            @change="(v) => setLocalConfig(o => o.autoFormatResult = v)"
+                            label="Auto-format results" style="display:block"></v-checkbox>
+                        <div class="dce-dialog--option--description">
+                            Automatically formats json in result after execution.
+                        </div>
+                    </div>
+
+                    <div class="dce-dialog--option">
+                        <v-checkbox
+                            v-model="localOptions.autoFoldRegions"
+                            @change="(v) => setLocalConfig(o => o.autoFoldRegions = v)"
+                            label="Auto-fold regions" style="display:block"></v-checkbox>
+                        <div class="dce-dialog--option--description">
+                            Automatically folds any #regions in editor after execution.
+                        </div>
+                    </div>
+
+                    <div class="dce-dialog--option">
+                        <v-checkbox
+                            v-model="localOptions.updateLocalCodeFromRemote"
+                            @change="(v) => setLocalConfig(o => o.updateLocalCodeFromRemote = v)"
+                            label="Update local code from pre-processed" style="display:block"></v-checkbox>
+                        <div class="dce-dialog--option--description">
+                            Updates local code with its pre-processed version after execution.
+                        </div>
+                    </div>
+                    
+                    
+                    <h3 class="mt-4 mb-1">Code pre-processors</h3>
+                    <div v-for="(prepro, ppindex) in options.Options.PreProcessors"
+                        :key="`dce_options_preprocessor-${ppindex}`"
+                        class="dce-dialog--option"
+                        >
+                        <v-checkbox
+                            :label="prepro.Name"
+                            class="mt-0"
+                            :disabled="!prepro.CanBeDisabled"
+                            :input-value="isPreProcessorEnabled(prepro)"
+                            @change="(v) => onPreProcessorToggled(prepro, v)"
+                            ></v-checkbox>
+                        <div class="dce-dialog--option--description"
+                            v-if="prepro.Description != null && prepro.Description.trim().length > 0">
+                            {{ prepro.Description }}
+                        </div>
+                    </div>
                 </v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions>
@@ -250,7 +290,9 @@ interface LocalOnlyScript {
 interface LocalOptions {
     autoFormatResult: boolean;
     autoFoldRegions: boolean;
+    updateLocalCodeFromRemote: boolean;
     darkTheme: boolean;
+    disabledPreProcessorIds: Array<string>;
 }
 
 @Component({
@@ -586,7 +628,9 @@ namespace CodeTesting
         return {
             autoFormatResult: false,
             autoFoldRegions: true,
-            darkTheme: true
+            updateLocalCodeFromRemote: true,
+            darkTheme: true,
+            disabledPreProcessorIds: []
         };
     }
 
@@ -742,6 +786,24 @@ namespace CodeTesting
             this.code = '';
             this.$nextTick(() => this.openSuitableOrCreateDraft());
         }
+    }
+
+    isPreProcessorEnabled(p: PreProcessorMetadata): boolean {
+        return !p.CanBeDisabled
+            || this.localOptions.disabledPreProcessorIds.indexOf(p.Id) == -1;
+    }
+
+    onPreProcessorToggled(p: PreProcessorMetadata, enable: boolean): void {
+        if (enable)
+        {
+            this.localOptions.disabledPreProcessorIds = this.localOptions.disabledPreProcessorIds.filter(x => x != p.Id)
+        }
+        else
+        {
+            this.localOptions.disabledPreProcessorIds.push(p.Id);
+        }
+
+        this.saveLocalConfig();
     }
 
     ///////////////////////
@@ -947,7 +1009,7 @@ namespace CodeTesting
         {
             this.service.ExecuteCode({
                     Code: this.code,
-                    DisabledPreProcessorIds: []
+                    DisabledPreProcessorIds: this.localOptions.disabledPreProcessorIds
                 },
                 this.loadStatus, { onSuccess: onSuccess });
         }
@@ -986,7 +1048,7 @@ namespace CodeTesting
             }
 
             // Update code if pre-processed
-            if (result.CodeExecutionResult.Code != null)
+            if (result.CodeExecutionResult.Code != null && this.localOptions.updateLocalCodeFromRemote == true)
             {
                 this.code = result.CodeExecutionResult.Code;
             }
@@ -1081,6 +1143,34 @@ namespace CodeTesting
 
         button {
             flex: 1;
+        }
+    }
+
+    /* .dce-config-dialog {
+    } */
+}
+</style>
+
+<style lang="scss">
+.dce-dialog {
+    .dce-dialog--option {
+        margin-bottom: 10px;
+
+        .v-input {
+            margin-top: 0;
+
+            .v-messages {
+                display: none;
+            }
+        }
+
+        .v-input__slot {
+            margin-bottom: 0 !important;
+        }
+        
+        .dce-dialog--option--description {
+            font-size: small;
+            margin-left: 32px;
         }
     }
 }

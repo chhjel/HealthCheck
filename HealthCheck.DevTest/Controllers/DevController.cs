@@ -86,7 +86,8 @@ namespace HealthCheck.DevTest.Controllers
                 {
                     new BasicAutoCreateUsingsPreProcessor(typeof(DevController).Assembly),
                     new WrapUsingsInRegionPreProcessor(),
-                    new FuncPreProcessor((p, code) => code.Replace("woot", "w00t"))
+                    new FuncPreProcessor("'woot' replacer", (p, code) => code.Replace("woot", "w00t"), "Replaces any instances of 'woot' with 'w00t'"),
+                    new FuncPreProcessor("Bad words be gone", (p, code) => code.Replace(" bad ", "***"), canBeDisabled: false)
                 },
                 Validators = new IDynamicCodeValidator[]
                 {
