@@ -17,6 +17,7 @@ Available modules:
 * Dataflow module that can show filtered custom data. For e.g. previewing the latest imported/exported data.
 * Event notifications module for notifying through custom implementations when custom events occur.
 * Settings module for custom settings related to healthcheck.
+* IDE where C# scripts can be stored and executed in the context of the web application.
 
 ## Getting started
 
