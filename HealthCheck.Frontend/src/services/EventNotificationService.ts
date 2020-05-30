@@ -1,5 +1,5 @@
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
-import { GetEventNotificationConfigsViewModel, EventSinkNotificationConfig } from "../models/EventNotifications/EventNotificationModels";
+import { GetEventNotificationConfigsViewModel, EventSinkNotificationConfig } from "../models/modules/EventNotifications/EventNotificationModels";
 
 export default class EventNotificationService extends HCServiceBase
 {

@@ -1,5 +1,5 @@
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
-import DiagramsDataViewModel from "../models/Documentation/DiagramsDataViewModel";
+import DiagramsDataViewModel from "../models/modules/Documentation/DiagramsDataViewModel";
 
 export default class DocumentationService extends HCServiceBase
 {

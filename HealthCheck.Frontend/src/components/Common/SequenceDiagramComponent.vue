@@ -1,4 +1,4 @@
-<!-- src/components/common/SequenceDiagramComponent.vue -->
+<!-- src/components/Common/SequenceDiagramComponent.vue -->
 <template>
     <div>
         <div class="sequence-diagram" :class="diagramClasses">

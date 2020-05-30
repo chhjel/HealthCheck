@@ -1,4 +1,4 @@
-<!-- src/components/common/FlowDiagramComponent.vue -->
+<!-- src/components/Common/FlowDiagramComponent.vue -->
 <template>
 	<div class="flowchart">
 		<div class="flowchart__header" v-if="title != null">{{ title }}</div>

@@ -1,5 +1,5 @@
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
-import { DynamicCodeExecutionSourceModel, DynamicCodeExecutionResultModel, DynamicCodeScript } from "../models/DynamicCodeExecution/Models";
+import { DynamicCodeExecutionSourceModel, DynamicCodeExecutionResultModel, DynamicCodeScript } from "../models/modules/DynamicCodeExecution/Models";
 
 export default class DynamicCodeExecutionService extends HCServiceBase
 {
