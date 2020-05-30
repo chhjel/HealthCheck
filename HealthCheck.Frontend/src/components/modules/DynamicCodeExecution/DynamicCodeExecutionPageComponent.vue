@@ -260,7 +260,7 @@ import ModuleOptions from  '../../../models/Common/ModuleOptions';
 import EditorComponent from  '../../Common/EditorComponent.vue';
 import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
 import DynamicCodeExecutionService from  '../../../services/DynamicCodeExecutionService';
-import { DynamicCodeExecutionResultModel, DynamicCodeScript } from  '../../../models/modules/DynamicCodeExecution/Models';
+import { DynamicCodeExecutionResultModel, DynamicCodeScript, AutoCompleteRequest, AutoCompleteData } from  '../../../models/modules/DynamicCodeExecution/Models';
 import { MarkerSeverity } from "monaco-editor";
 import { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
 import FilterableListComponent from  '../../Common/FilterableListComponent.vue';
@@ -273,6 +273,7 @@ interface DynamicCodeExecutionPageOptions {
     DefaultScript: string | null;
     PreProcessors: Array<PreProcessorMetadata>;
     ServerSideScriptsEnabled: boolean;
+    AutoCompleteEnabled: boolean;
 }
 
 interface PreProcessorMetadata {
@@ -813,6 +814,54 @@ namespace CodeTesting
 
         this.saveLocalConfig();
     }
+    
+    updateAutoCompleteProvider(): void {
+        if (this.options.Options.AutoCompleteEnabled != true) {
+            return;
+        }
+
+        let self = this;
+        monaco.languages.registerCompletionItemProvider('csharp', {
+            triggerCharacters: ['.'],
+            provideCompletionItems: (model, position) => {
+                return self.createAutoCompleteSuggestions();
+            }
+        });
+    }
+
+    createAutoCompleteSuggestions(): monaco.languages.ProviderResult<monaco.languages.CompletionList> {
+        let payload: AutoCompleteRequest = {
+            Code: this.code,
+            Position: this.getCursorPosition()
+        };
+        
+        const promise = new Promise<monaco.languages.CompletionList>((resolve, reject) => {
+            this.service.AutoComplete(payload, null, {
+                onSuccess: (d) => {
+                    resolve({
+                        suggestions: d.map(x => {
+                            const item = {
+                                kind: x.Kind,
+                                label: x.Label,
+                                insertText: x.InsertText,
+                                documentation: x.Documentation
+                            }
+                            return item as monaco.languages.CompletionItem;
+                        })
+                    })
+                },
+                onError: (m) => reject()
+            });
+        });
+        return promise.then();
+    }
+
+    getCursorPosition(): number {
+        let pos = this.editor.editor.getPosition() || { lineNumber: 0, column: 0 };
+        let model = this.editor.editor.getModel();
+        if (model == null) return 0;
+        return model.getOffsetAt({ lineNumber: pos.lineNumber, column: pos.column });
+    }
 
     ///////////////////////
     //  EVENT HANDLERS  //
@@ -825,6 +874,7 @@ namespace CodeTesting
         });
 
         (this.$refs.loadingscreen as LoadingScreenComponent).hide();
+        this.updateAutoCompleteProvider();
     }
 
     onWindowUnload(e: any): string | undefined {

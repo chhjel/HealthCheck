@@ -67,3 +67,15 @@ export interface CodeError {
     Column: number;
     Message: string;
 }
+
+export interface AutoCompleteData {
+    Kind: any; // monaco CompletionItemKind
+    Label: string;
+    Documentation: string;
+    InsertText: string;
+}
+
+export interface AutoCompleteRequest {
+    Code: string;
+    Position: number;
+}
