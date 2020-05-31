@@ -524,22 +524,21 @@ FlowChartsService = new DefaultFlowChartService(new DefaultFlowChartServiceOptio
 
 ## Module: Dataflow
 
+If the Dataflow module is enabled the dataflow tab will become available where custom data can be shown.
+
+A default implementation `DefaultDataflowService` is provided where custom data streams can be registered. Data can be fetched in the ui for each registered stream, optionally filtered on and each property given a hint for how to be displayed. Only `Raw` and `HTML` types have any effect when not expanded.
 
 ### Setup
 
 ```csharp
+
+UseModule(new HCDataflowModule<RuntimeTestAccessRole>(new HCDataflowModuleOptions<RuntimeTestAccessRole>() {
+    DataflowService = IDataflowService implementation
+}));
 ```
 
 ```csharp
-// Built in implementation examples
-```
-
-### IDataflowService
-If an `IDataflowService` is provided in the controller the dataflow tab will become available where custom data can be shown.
-
-A default implementation `DefaultDataflowService` is provided where custom data streams can be registered. Data can be fetched in the ui for each registered stream, optionally filtered on and each property given a hint for how to be displayed. Only `Raw` and `HTML` types have any effect when not expanded.
-
-```csharp
+// Built in implementation example
 var options = new DefaultDataflowServiceOptions() {
     Streams = <your streams>
 };
