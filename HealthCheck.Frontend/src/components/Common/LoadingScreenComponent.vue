@@ -19,7 +19,7 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 // if shipping only a subset of the features & languages is desired
 import * as monaco from 'monaco-editor'
 import FrontEndOptionsViewModel from "../../models/Common/FrontEndOptionsViewModel";
-import { ICodeMark } from "../../models/DynamicCodeExecution/Models";
+import { ICodeMark } from  '../../models/modules/DynamicCodeExecution/Models';
 
 
 @Component({

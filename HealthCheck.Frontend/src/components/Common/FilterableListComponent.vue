@@ -76,7 +76,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
-import { EntryState } from '../../models/RequestLog/EntryState';
+import { EntryState } from  '../../models/modules/RequestLog/EntryState';
 import DateUtils from "../../util/DateUtils";
 import LinqUtils from "../../util/LinqUtils";
 import KeyArray from "../../util/models/KeyArray";

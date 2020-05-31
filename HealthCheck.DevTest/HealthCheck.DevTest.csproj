@@ -203,6 +203,10 @@
       <Project>{81552b74-1f58-4cc1-b76b-87e84a35571a}</Project>
       <Name>HealthCheck.Module.DevModule</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Modules\HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA\HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA.csproj">
+      <Project>{de9ea2db-5d18-4cf8-a3b7-b32d0bf48d96}</Project>
+      <Name>HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Modules\HealthCheck.Module.DynamicCodeExecution\HealthCheck.Module.DynamicCodeExecution.csproj">
       <Project>{12ff11c4-ee44-4142-a335-ee7e7e9c4c60}</Project>
       <Name>HealthCheck.Module.DynamicCodeExecution</Name>

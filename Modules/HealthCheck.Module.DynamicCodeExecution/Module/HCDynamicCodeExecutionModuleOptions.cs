@@ -25,6 +25,11 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         public IDynamicCodeScriptStorage ScriptStorage { get; set; }
 
         /// <summary>
+        /// Optional provider for autocompletion of code.
+        /// </summary>
+        public IDynamicCodeAutoCompleter AutoCompleter { get; set; }
+
+        /// <summary>
         /// Code used for new scripts.
         /// </summary>
         public string DefaultScript { get; set; }

@@ -13,18 +13,8 @@ namespace HealthCheck.Module.DynamicCodeExecution.Models
         public string Code { get; set; }
 
         /// <summary>
-        /// Assembly locations to get data from
-        /// </summary>
-        public IEnumerable<string> AssemblyLocations { get; set; }
-
-        /// <summary>
         /// Cursor position
         /// </summary>
         public int Position { get; set; }
-
-        /// <summary>
-        /// Optional endpoint to use instead of the configured autocompleter.
-        /// </summary>
-        public string DelegateTo { get; set; }
     }
 }

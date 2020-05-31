@@ -177,6 +177,22 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
 
             return await this.Options.ScriptStorage.SaveScript(script);
         }
+
+        /// <summary>
+        /// Attempt to auto-complete code.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.ExecuteCustomScript)]
+        public async Task<IEnumerable<IDynamicCodeCompletionData>> AutoComplete(CompletionRequest request)
+        {
+            if (this.Options.AutoCompleter == null || request == null) return null;
+            
+#if NETFULL
+            var assemblyLocations = CreateExecutor().GetAssemblyLocations();
+            return await Options.AutoCompleter.GetAutoCompleteSuggestionsAsync(request.Code, assemblyLocations?.ToArray(), request.Position);
+#else
+            return await Task.FromResult(new List<IDynamicCodeCompletionData>());
+#endif
+        }
         #endregion
 
         #region Private helpers
@@ -192,6 +208,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
                     CanBeDisabled = x.CanBeDisabled
                 }),
                 ServerSideScriptsEnabled = Options.ScriptStorage != null,
+                AutoCompleteEnabled = Options.AutoCompleter != null,
                 DefaultScript = Options.DefaultScript
             };
         }
@@ -220,7 +237,6 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         {
             var executor = new RuntimeCodeTester(new RCTConfig()
                 {
-                    //AutoComplete = Options.AutoComplete,
                     PreProcessors = Options.PreProcessors,
                     AdditionalReferencedAssemblies = Options.AdditionalReferencedAssemblies
                 },

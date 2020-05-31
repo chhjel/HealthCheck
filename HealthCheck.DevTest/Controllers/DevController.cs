@@ -30,6 +30,7 @@ using HealthCheck.DevTest._TestImplementation;
 using HealthCheck.DevTest._TestImplementation.Dataflow;
 using HealthCheck.DevTest._TestImplementation.EventNotifier;
 using HealthCheck.Module.DynamicCodeExecution.Abstractions;
+using HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA;
 using HealthCheck.Module.DynamicCodeExecution.Models;
 using HealthCheck.Module.DynamicCodeExecution.Module;
 using HealthCheck.Module.DynamicCodeExecution.PreProcessors;
@@ -55,6 +56,7 @@ namespace HealthCheck.DevTest.Controllers
 {
     public class DevController : HealthCheckControllerBase<RuntimeTestAccessRole>
     {
+        #region Props
         private const string EndpointBase = "/dev";
         private static ISiteEventService _siteEventService;
         private static IAuditEventStorage _auditEventService;
@@ -73,6 +75,7 @@ namespace HealthCheck.DevTest.Controllers
         private IDataflowService<RuntimeTestAccessRole> DataflowService { get; set; }
         private IEventDataSink EventSink { get; set; }
         private static bool ForceLogout { get; set; }
+        #endregion
 
         #region Init
         public DevController()
@@ -96,7 +99,8 @@ namespace HealthCheck.DevTest.Controllers
                             ? DynamicCodeValidationResult.Deny("No format pls")
                             : DynamicCodeValidationResult.Allow()
                     )
-                }
+                },
+                AutoCompleter = new DCEMCAAutoCompleter()
             }));
             UseModule(new HCTestsModule(new HCTestsModuleOptions() { AssemblyContainingTests = typeof(DevController).Assembly }))
                 .ConfigureGroups((options) => options

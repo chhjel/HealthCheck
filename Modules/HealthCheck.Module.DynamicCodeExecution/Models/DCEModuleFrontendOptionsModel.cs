@@ -16,7 +16,12 @@ namespace HealthCheck.Module.DynamicCodeExecution.Models
         /// <summary>
         /// True if script storage service is provided.
         /// </summary>
-        public bool ServerSideScriptsEnabled { get; internal set; }
+        public bool ServerSideScriptsEnabled { get; set; }
+
+        /// <summary>
+        /// True if autocompleter service is provided.
+        /// </summary>
+        public bool AutoCompleteEnabled { get; set; }
 
         /// <summary>
         /// Code used for new scripts.

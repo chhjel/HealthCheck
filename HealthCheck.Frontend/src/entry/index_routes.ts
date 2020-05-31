@@ -1,14 +1,14 @@
 // Modules
-import TestSuitesPageComponent from '../components/TestSuite/TestSuitesPageComponent.vue';
-import OverviewPageComponent from '../components/Overview/OverviewPageComponent.vue';
-import AuditLogPageComponent from '../components/AuditLog/AuditLogPageComponent.vue';
-import LogViewerPageComponent from '../components/LogViewer/LogViewerPageComponent.vue';
-import RequestLogPageComponent from '../components/RequestLog/RequestLogPageComponent.vue';
-import DocumentationPageComponent from '../components/Documentation/DocumentationPageComponent.vue';
-import DataflowPageComponent from '../components/Dataflow/DataflowPageComponent.vue';
-import SettingsPageComponent from '../components/Settings/SettingsPageComponent.vue';
-import EventNotificationsPageComponent from '../components/EventNotifications/EventNotificationsPageComponent.vue';
-import DynamicCodeExecutionPageComponent from '../components/DynamicCodeExecution/DynamicCodeExecutionPageComponent.vue';
+import TestSuitesPageComponent from '../components/modules/TestSuite/TestSuitesPageComponent.vue';
+import OverviewPageComponent from '../components/modules/Overview/OverviewPageComponent.vue';
+import AuditLogPageComponent from '../components/modules/AuditLog/AuditLogPageComponent.vue';
+import LogViewerPageComponent from '../components/modules/LogViewer/LogViewerPageComponent.vue';
+import RequestLogPageComponent from '../components/modules/RequestLog/RequestLogPageComponent.vue';
+import DocumentationPageComponent from '../components/modules/Documentation/DocumentationPageComponent.vue';
+import DataflowPageComponent from '../components/modules/Dataflow/DataflowPageComponent.vue';
+import SettingsPageComponent from '../components/modules/Settings/SettingsPageComponent.vue';
+import EventNotificationsPageComponent from '../components/modules/EventNotifications/EventNotificationsPageComponent.vue';
+import DynamicCodeExecutionPageComponent from '../components/modules/DynamicCodeExecution/DynamicCodeExecutionPageComponent.vue';
 import NoPageAvailablePageComponent from '../components/NoPageAvailablePageComponent.vue';
 import Vue, { VueConstructor } from "vue";
 import VueRouter, { RouteConfig } from 'vue-router';

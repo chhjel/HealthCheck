@@ -1,6 +1,6 @@
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
-import LogSearchFilter from "../models/LogViewer/LogSearchFilter";
-import LogSearchResult from "../models/LogViewer/LogSearchResult";
+import LogSearchFilter from "../models/modules/LogViewer/LogSearchFilter";
+import LogSearchResult from "../models/modules/LogViewer/LogSearchResult";
 
 export default class LogService extends HCServiceBase
 {

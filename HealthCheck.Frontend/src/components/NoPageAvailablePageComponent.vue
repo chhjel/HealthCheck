@@ -1,4 +1,4 @@
-<!-- src/components/Pages/NoPageAvailablePageComponent.vue -->
+<!-- src/components/NoPageAvailablePageComponent.vue -->
 <template>
     <div>
         <v-content class="pl-0">

@@ -1,5 +1,5 @@
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
-import SiteEventViewModel from "../models/SiteEvents/SiteEventViewModel";
+import SiteEventViewModel from "../models/modules/SiteEvents/SiteEventViewModel";
 
 export default class OverviewService extends HCServiceBase
 {

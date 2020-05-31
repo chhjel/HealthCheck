@@ -1,5 +1,5 @@
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
-import LoggedEndpointDefinitionViewModel from "../models/RequestLog/LoggedEndpointDefinitionViewModel";
+import LoggedEndpointDefinitionViewModel from "../models/modules/RequestLog/LoggedEndpointDefinitionViewModel";
 import FrontEndOptionsViewModel from "../models/Common/FrontEndOptionsViewModel";
 
 export default class RequestLogService extends HCServiceBase

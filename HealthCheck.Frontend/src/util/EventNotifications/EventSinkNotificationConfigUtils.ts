@@ -1,4 +1,4 @@
-import { EventSinkNotificationConfig, EventSinkNotificationConfigFilter, FilterMatchType, IEventNotifier } from "../../models/EventNotifications/EventNotificationModels";
+import { EventSinkNotificationConfig, EventSinkNotificationConfigFilter, FilterMatchType, IEventNotifier } from "../../models/modules/EventNotifications/EventNotificationModels";
 import IdUtils from "../IdUtils";
 
 export interface ConfigDescription

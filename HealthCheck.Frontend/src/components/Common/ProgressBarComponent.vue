@@ -1,4 +1,4 @@
-<!-- src/components/common/ProgressBarComponent.vue -->
+<!-- src/components/Common/ProgressBarComponent.vue -->
 <template>
     <div>
         <div class="progress-bar-parent">

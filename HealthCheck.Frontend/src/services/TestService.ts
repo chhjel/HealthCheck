@@ -1,7 +1,7 @@
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
-import TestsDataViewModel from "../models/TestSuite/TestsDataViewModel";
-import TestResultViewModel from "../models/TestSuite/TestResultViewModel";
-import ExecuteTestPayload from "../models/TestSuite/ExecuteTestPayload";
+import TestsDataViewModel from "../models/modules/TestSuite/TestsDataViewModel";
+import TestResultViewModel from "../models/modules/TestSuite/TestResultViewModel";
+import ExecuteTestPayload from "../models/modules/TestSuite/ExecuteTestPayload";
 import ModuleConfig from "../models/Common/ModuleConfig";
 import FrontEndOptionsViewModel from "../models/Common/FrontEndOptionsViewModel";
 
