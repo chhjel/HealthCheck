@@ -19,15 +19,12 @@
                 {{ loadStatus.errorMessage }}
                 </v-alert>
 
-                <block-component
-                    class="mt-4"
-                    title="Generate new access token">
-
-                    <access-grid-component
-                        class="mt-2"
-                        :access-data="accessData"
-                        v-model="accessDataInEdit" />
-                </block-component>
+                <v-btn
+                    @click="onAddNewTokenClicked"
+                    class="mb-3">
+                    <v-icon size="20px" class="mr-2">add</v-icon>
+                    Add new
+                </v-btn>
 
                 <block-component
                     class="mt-4"
@@ -41,6 +38,46 @@
         </v-flex>
         </v-layout>
         </v-container>
+        
+        <v-dialog v-model="createNewTokenDialogVisible"
+            @keydown.esc="createNewTokenDialogVisible = false"
+            scrollable
+            max-width="1200"
+            content-class="create-access-token-dialog">
+            <v-card style="background-color: #f4f4f4">
+                <v-toolbar class="elevation-0">
+                    <v-toolbar-title class="current-config-dialog__title">Create new access token</v-toolbar-title>
+                    <v-spacer></v-spacer>
+                    <v-btn icon
+                        @click="createNewTokenDialogVisible = false">
+                        <v-icon>close</v-icon>
+                    </v-btn>
+                </v-toolbar>
+                <v-divider></v-divider>
+                
+                <v-card-text>
+                    <access-grid-component
+                        :access-data="accessData"
+                        :read-only="loadStatus.inProgress"
+                        v-model="accessDataInEdit" />
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions >
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        color="primary"
+                        :loading="loadStatus.inProgress"
+                        :disabled="loadStatus.inProgress"
+                        @click="onCreateNewTokenClicked">
+                        Create token
+                    </v-btn>
+                    <v-btn color="secondary"
+                        :loading="loadStatus.inProgress"
+                        :disabled="loadStatus.inProgress"
+                        @click="createNewTokenDialogVisible = false">Close</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
         </v-content>
     </div>
 </template>
@@ -51,12 +88,12 @@ import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsVie
 import DateUtils from  '../../../util/DateUtils';
 import LinqUtils from  '../../../util/LinqUtils';
 import SettingInputComponent from '../Settings/SettingInputComponent.vue';
-import AccessManagerService, { AccessData } from  '../../../services/AccessManagerService';
+import AccessManagerService, { AccessData, CreatedAccessData } from  '../../../services/AccessManagerService';
 import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
 import BlockComponent from '../../Common/Basic/BlockComponent.vue';
 import ModuleConfig from  '../../../models/Common/ModuleConfig';
 import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import AccessGridComponent, { CreatedAccessData } from './AccessGridComponent.vue';
+import AccessGridComponent from './AccessGridComponent.vue';
 
 @Component({
     components: {
@@ -80,10 +117,8 @@ export default class AccessManagerPageComponent extends Vue {
         ModuleOptions: []
     };
 
-    accessDataInEdit: CreatedAccessData = {
-        roles: [],
-        modules: []
-    };
+    createNewTokenDialogVisible: boolean = true;
+    accessDataInEdit: CreatedAccessData = this.defaultNewTokenData();
 
     //////////////////
     //  LIFECYCLE  //
@@ -115,6 +150,26 @@ export default class AccessManagerPageComponent extends Vue {
 
     onDataRetrieved(data: AccessData): void {
         this.accessData = data;
+    }
+
+    onAddNewTokenClicked(): void {
+        this.createNewTokenDialogVisible = true;
+    }
+
+    onCreateNewTokenClicked(): void {
+        this.service.CreateNewToken(this.accessDataInEdit, this.loadStatus, { onSuccess: (data) => this.onNewTokenCreated(data) });
+    }
+
+    onNewTokenCreated(createdToken: any): void {
+        this.accessDataInEdit = this.defaultNewTokenData();
+    }
+
+    defaultNewTokenData(): CreatedAccessData {
+        return {
+            name: 'New Token',
+            roles: [],
+            modules: []
+        };
     }
 
     ///////////////////////

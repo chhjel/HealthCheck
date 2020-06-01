@@ -1,6 +1,12 @@
 <!-- src/components/modules/AccessManager/AccessGridComponent.vue -->
 <template>
     <div>
+        <v-text-field type="text"
+            label="Name"
+            v-model="data.name"
+            :disabled="readonly"
+        ></v-text-field>
+
         <h3>Roles</h3>
         <p class="mb-0">Give token access to the following roles:</p>
         <v-layout row wrap>
@@ -11,6 +17,7 @@
                     class="mt-2"
                     :label="role.Name"
                     :input-value="roleIsEnabled(role.Id)"
+                    :disabled="readonly"
                     @change="(v) => onRoleToggled(role.Id, v)" />
             </div>
         </v-layout>
@@ -23,6 +30,7 @@
             v-for="(filterChoice, fcIndex) in moduleFilters"
             :key="`filter-choice-${fcIndex}`"
             :outline="!filterChoice.selected"
+            :disabled="readonly"
             class="filter-choice"
             :class="{ 'selected': filterChoice.selected }"
             @click="onModuleAccessToggled(filterChoice.moduleId, !filterChoice.selected)">
@@ -31,7 +39,7 @@
                 <v-icon right v-if="filterChoice.selected">close</v-icon>
             </v-chip>
 
-        <div class="access-grid">
+        <div class="access-grid ml-4 mt-2">
             <div class="access-grid--row"
                 v-for="(module, mindex) in filteredModuleOptions"
                 :key="`access-module-${mindex}`">
@@ -40,14 +48,16 @@
                     {{ module.ModuleName }}
                 </div>
 
-                <div v-if="module.AccessOptions.length == 0">Full access to this module.</div>
+                <div v-if="module.AccessOptions.length == 0"
+                    style="margin-left: 20px;">Full access to this module.</div>
                 <div class="access-grid--row--options"
                     v-if="hasAccessToModule(module.ModuleId)">
                     <div class="access-grid--row--options--item"
                         v-for="(option, moindex) in module.AccessOptions"
                         :key="`access-module-${mindex}-option-${moindex}`">
-                        <v-checkbox
+                        <v-checkbox hide-details
                             :label="option.Name"
+                            :disabled="readonly"
                             :input-value="moduleOptionIsEnabled(module.ModuleId, option.Id)"
                             @change="(v) => onModuleAccessOptionToggled(module.ModuleId, option.Id, v)" />
                     </div>
@@ -63,23 +73,11 @@ import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsVie
 import DateUtils from  '../../../util/DateUtils';
 import LinqUtils from  '../../../util/LinqUtils';
 import SettingInputComponent from '../Settings/SettingInputComponent.vue';
-import AccessManagerService, { AccessData } from  '../../../services/AccessManagerService';
+import AccessManagerService, { AccessData, CreatedAccessData } from  '../../../services/AccessManagerService';
 import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
 import BlockComponent from '../../Common/Basic/BlockComponent.vue';
 import ModuleConfig from  '../../../models/Common/ModuleConfig';
 import ModuleOptions from  '../../../models/Common/ModuleOptions';
-
-export interface CreatedAccessData
-{
-    roles: Array<string>;
-    modules: Array<CreatedModuleAccessData>;
-}
-
-export interface CreatedModuleAccessData
-{
-    moduleId: string;
-    options: Array<string>;
-}
 
 @Component({
     components: {
@@ -89,6 +87,9 @@ export default class AccessGridComponent extends Vue {
     @Prop({ required: true })
     accessData!: AccessData;
 
+    @Prop({ required: false, default: false })
+    readonly!: boolean;
+
     @Prop({ required: false, default: {
         roles: [],
         modules: []
@@ -96,6 +97,7 @@ export default class AccessGridComponent extends Vue {
     value!: CreatedAccessData;
 
     data: CreatedAccessData = {
+        name: 'New Token',
         roles: [],
         modules: []
     };
@@ -230,3 +232,19 @@ export default class AccessGridComponent extends Vue {
     }
 }
 </style>
+
+<style lang="scss">
+.access-grid {
+    .access-grid--row {
+        .access-grid--row--options {
+            .access-grid--row--options--item {
+                .v-input {
+                    margin-top: 4px;
+                    margin-bottom: 4px;
+                }
+            }
+        }
+    }
+}
+</style>
+

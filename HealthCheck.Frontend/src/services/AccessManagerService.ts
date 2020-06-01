@@ -17,6 +17,28 @@ export default class AccessManagerService extends HCServiceBase
     {
         this.invokeModuleMethod(this.moduleId, 'GetAccessData', null, statusObject, callbacks);
     }
+    
+    public CreateNewToken(
+        data: CreatedAccessData,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<AccessData> | null = null
+    ) : void
+    {
+        this.invokeModuleMethod(this.moduleId, 'CreateNewToken', data, statusObject, callbacks);
+    }
+}
+
+export interface CreatedAccessData
+{
+    name: string;
+    roles: Array<string>;
+    modules: Array<CreatedModuleAccessData>;
+}
+
+export interface CreatedModuleAccessData
+{
+    moduleId: string;
+    options: Array<string>;
 }
 
 export interface AccessData {
