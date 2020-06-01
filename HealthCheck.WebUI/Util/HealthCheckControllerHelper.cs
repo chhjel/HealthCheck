@@ -129,16 +129,7 @@ namespace HealthCheck.WebUI.Util
                 return new InvokeModuleMethodResult();
             }
 
-            var context = new HealthCheckModuleContext()
-            {
-                UserId = requestInfo.UserId,
-                UserName = requestInfo.UserName,
-                ModuleName = module.Name,
-
-                CurrentRequestRoles = accessRoles.Value,
-                CurrentRequestModuleAccessOptions = GetCurrentRequestModuleAccessOptions(accessRoles, module?.Module?.GetType())
-            };
-
+            var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Module);
             try
             {
                 var result = await method.Invoke(module.Module, context, jsonPayload, new NewtonsoftJsonSerializer());
@@ -148,7 +139,7 @@ namespace HealthCheck.WebUI.Util
                     Result = result
                 };
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return new InvokeModuleMethodResult()
                 {
@@ -166,6 +157,23 @@ namespace HealthCheck.WebUI.Util
                     }
                 }
             }
+        }
+
+        private HealthCheckModuleContext CreateModuleContext(RequestInformation<TAccessRole> requestInfo, Maybe<TAccessRole> accessRoles,
+            string moduleName,
+            IHealthCheckModule module)
+        {
+            return new HealthCheckModuleContext()
+            {
+                UserId = requestInfo.UserId,
+                UserName = requestInfo.UserName,
+                ModuleName = moduleName,
+
+                CurrentRequestRoles = accessRoles.Value,
+                CurrentRequestModuleAccessOptions = GetCurrentRequestModuleAccessOptions(accessRoles, module?.GetType()),
+
+                LoadedModules = LoadedModules.AsReadOnly()
+            };
         }
 
         internal class InvokeModuleMethodResult
@@ -242,9 +250,15 @@ namespace HealthCheck.WebUI.Util
 
         internal void AfterConfigure(RequestInformation<TAccessRole> currentRequestInformation)
         {
+            HealthCheckModuleContext createModuleContext(RegisteredModuleData module)
+            {
+                return CreateModuleContext(currentRequestInformation, currentRequestInformation.AccessRole,
+                    module.NameOverride ?? module.Module.GetType().Name, module.Module);
+            }
+
             var loader = new HealthCheckModuleLoader();
             LoadedModules = RegisteredModules
-                .Select(x => loader.Load(x.Module, GetCurrentRequestModuleAccessOptions(currentRequestInformation.AccessRole, x?.Module?.GetType()), x.NameOverride))
+                .Select(x => loader.Load(x.Module, createModuleContext(x), x.NameOverride))
                 .Where(x => x != null)
                 .ToList();
 

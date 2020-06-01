@@ -26,12 +26,12 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(AccessOption access) => CreateFrontendOptionsObject();
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => CreateFrontendOptionsObject();
 
         /// <summary>
         /// Get config for this module.
         /// </summary>
-        public override IHealthCheckModuleConfig GetModuleConfig(AccessOption access) => new HCDynamicCodeExecutionModuleConfig();
+        public override IHealthCheckModuleConfig GetModuleConfig(HealthCheckModuleContext context) => new HCDynamicCodeExecutionModuleConfig();
 
         /// <summary>
         /// Different access options for this module.

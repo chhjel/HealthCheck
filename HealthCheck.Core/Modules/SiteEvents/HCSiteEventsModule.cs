@@ -28,7 +28,7 @@ namespace HealthCheck.Core.Modules.SiteEvents
         /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(AccessOption access) => new
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => new
         {
             CurrentEventBufferMinutes = Options.CurrentEventBufferMinutes
         };
@@ -36,7 +36,7 @@ namespace HealthCheck.Core.Modules.SiteEvents
         /// <summary>
         /// Get config for this module.
         /// </summary>
-        public override IHealthCheckModuleConfig GetModuleConfig(AccessOption access) => new HCSiteEventsModuleConfig();
+        public override IHealthCheckModuleConfig GetModuleConfig(HealthCheckModuleContext context) => new HCSiteEventsModuleConfig();
 
         /// <summary>
         /// Different access options for this module.

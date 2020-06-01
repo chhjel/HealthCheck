@@ -110,7 +110,15 @@ namespace HealthCheck.Core.Tests.ModuleSystem
         public static HealthCheckLoadedModule LoadValidModuleA()
         {
             var loader = new HealthCheckModuleLoader();
-            return loader.Load(new Module_Valid(), ModuleAccessOptions_Valid.None);
+            return loader.Load(new Module_Valid(), CreateContext(ModuleAccessOptions_Valid.None));
+        }
+
+        private static HealthCheckModuleContext CreateContext(object accessOptions)
+        {
+            return new HealthCheckModuleContext()
+            {
+                CurrentRequestModuleAccessOptions = accessOptions
+            };
         }
 
         public static HealthCheckModuleContext CreateContext(object accessRoles, object accessOptions)

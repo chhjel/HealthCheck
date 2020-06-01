@@ -133,7 +133,7 @@ namespace HealthCheck.Core.Extensions
         /// Also trims and capitalizes first character unless disabled.
         /// </summary>
         public static string SpacifySentence(this string text,
-            bool trim = true, bool capitalizeFirst = true)
+            bool trim = true, bool capitalizeFirst = true, bool ignoreThreePlus = true)
         {
             if (text == null || text.Length == 0)
             {
@@ -160,8 +160,25 @@ namespace HealthCheck.Core.Extensions
                 str.Append(text[i]);
             }
 
-            return str.ToString();
+            var value = str.ToString();
+            if (ignoreThreePlus)
+            {
+                foreach (var match in ThreePlusCapitalizedRegex.Matches(value).Cast<Match>())
+                {
+                    var part = match.Groups["value"].Value;
+                    var normalizedPart = part.Replace(" ", "");
+                    if (part.EndsWith(" "))
+                    {
+                        normalizedPart += " ";
+                    }
+                    value = value.Replace(part, normalizedPart);
+                }
+            }
+
+            return value;
         }
+
+        private static readonly Regex ThreePlusCapitalizedRegex = new Regex(@"( |^)(?<value>([A-Z]( |$)){3,})", RegexOptions.Multiline);
 
         private static bool ANumberIsStartingAtPosition(string text, int index)
         {

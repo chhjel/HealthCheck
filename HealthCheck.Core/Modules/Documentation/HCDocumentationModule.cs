@@ -26,7 +26,7 @@ namespace HealthCheck.Core.Modules.Documentation
         /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(AccessOption access) => new
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => new
         {
             EnableDiagramSandbox = Options.EnableDiagramSandbox,
             EnableDiagramDetails = Options.EnableDiagramDetails
@@ -35,7 +35,7 @@ namespace HealthCheck.Core.Modules.Documentation
         /// <summary>
         /// Get config for this module.
         /// </summary>
-        public override IHealthCheckModuleConfig GetModuleConfig(AccessOption access) => new HCDocumentationModuleConfig();
+        public override IHealthCheckModuleConfig GetModuleConfig(HealthCheckModuleContext context) => new HCDocumentationModuleConfig();
         
         /// <summary>
         /// Different access options for this module.

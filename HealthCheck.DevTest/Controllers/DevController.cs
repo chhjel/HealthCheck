@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.AccessManager;
 using HealthCheck.Core.Modules.AuditLog;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.Dataflow;
@@ -82,6 +83,10 @@ namespace HealthCheck.DevTest.Controllers
         {
             InitServices();
 
+            UseModule(new HCAccessManagerModule(new HCAccessManagerModuleOptions()
+            {
+                
+            }));
             UseModule(new HCDynamicCodeExecutionModule(new HCDynamicCodeExecutionModuleOptions() {
                 TargetAssembly = typeof(DevController).Assembly,
                 ScriptStorage = new FlatFileDynamicCodeScriptStorage(@"C:\temp\DCE_Scripts.json"),
@@ -171,6 +176,7 @@ namespace HealthCheck.DevTest.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCLogViewerModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCEventNotificationsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCDynamicCodeExecutionModule>(RuntimeTestAccessRole.SystemAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCAccessManagerModule>(RuntimeTestAccessRole.SystemAdmins);
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);

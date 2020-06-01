@@ -27,7 +27,7 @@ namespace HealthCheck.Core.Modules.LogViewer
         /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(AccessOption access) => new
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => new
         {
             CurrentlyRunningLogSearchCount = GetCurrentlyRunningLogSearchCount(),
             DefaultColumnRule = Options.DefaultColumnRule,
@@ -39,7 +39,7 @@ namespace HealthCheck.Core.Modules.LogViewer
         /// <summary>
         /// Get config for this module.
         /// </summary>
-        public override IHealthCheckModuleConfig GetModuleConfig(AccessOption access) => new HCLogViewerModuleConfig();
+        public override IHealthCheckModuleConfig GetModuleConfig(HealthCheckModuleContext context) => new HCLogViewerModuleConfig();
         
         /// <summary>
         /// Different access options for this module.

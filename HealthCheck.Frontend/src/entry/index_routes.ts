@@ -9,6 +9,7 @@ import DataflowPageComponent from '../components/modules/Dataflow/DataflowPageCo
 import SettingsPageComponent from '../components/modules/Settings/SettingsPageComponent.vue';
 import EventNotificationsPageComponent from '../components/modules/EventNotifications/EventNotificationsPageComponent.vue';
 import DynamicCodeExecutionPageComponent from '../components/modules/DynamicCodeExecution/DynamicCodeExecutionPageComponent.vue';
+import AccessManagerPageComponent from '../components/modules/AccessManager/AccessManagerPageComponent.vue';
 import NoPageAvailablePageComponent from '../components/NoPageAvailablePageComponent.vue';
 import Vue, { VueConstructor } from "vue";
 import VueRouter, { RouteConfig } from 'vue-router';
@@ -26,7 +27,8 @@ export default function createRouter(moduleConfig: Array<ModuleConfig>): VueRout
     'DataflowPageComponent': DataflowPageComponent,
     'SettingsPageComponent': SettingsPageComponent,
     'EventNotificationsPageComponent': EventNotificationsPageComponent,
-    'DynamicCodeExecutionPageComponent': DynamicCodeExecutionPageComponent
+    'DynamicCodeExecutionPageComponent': DynamicCodeExecutionPageComponent,
+    'AccessManagerPageComponent': AccessManagerPageComponent
 };
 
 let moduleOptions = ((window as any).healthCheckModuleOptions) as Record<string, ModuleOptions<any>>;

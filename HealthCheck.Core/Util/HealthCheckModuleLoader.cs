@@ -16,7 +16,7 @@ namespace HealthCheck.Core.Util
 		/// <summary>
 		/// Load the given module.
 		/// </summary>
-		public HealthCheckLoadedModule Load(IHealthCheckModule module, object accessOptions, string name = null)
+		public HealthCheckLoadedModule Load(IHealthCheckModule module, HealthCheckModuleContext context, string name = null)
 		{
 			var type = module.GetType();
 			var loadedModule = new HealthCheckLoadedModule
@@ -33,7 +33,7 @@ namespace HealthCheck.Core.Util
 				{
 					loadedModule.LoadErrors.Add($"Access options type could not be determined.");
 				}
-				else if (loadedModule.AccessOptionsType != accessOptions?.GetType())
+				else if (loadedModule.AccessOptionsType != context.CurrentRequestModuleAccessOptions?.GetType())
 				{
 					loadedModule.LoadErrors.Add($"Given access options type does not match the module access options type.");
 				}
@@ -50,8 +50,8 @@ namespace HealthCheck.Core.Util
 										&& x.GetParameters().Length == 1
 										&& typeof(IHealthCheckModuleConfig).IsAssignableFrom(x.ReturnType));
 
-				loadedModule.Config = getConfigMethod.Invoke(module, new object[] { accessOptions }) as IHealthCheckModuleConfig;
-				loadedModule.FrontendOptions = getOptionsMethod.Invoke(module, new object[] { accessOptions });
+				loadedModule.Config = getConfigMethod.Invoke(module, new object[] { context }) as IHealthCheckModuleConfig;
+				loadedModule.FrontendOptions = getOptionsMethod.Invoke(module, new object[] { context });
 
 				if (loadedModule.Config == null)
 				{

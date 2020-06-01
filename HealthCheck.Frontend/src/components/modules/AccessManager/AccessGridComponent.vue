@@ -1,0 +1,232 @@
+<!-- src/components/modules/AccessManager/AccessGridComponent.vue -->
+<template>
+    <div>
+        <h3>Roles</h3>
+        <p class="mb-0">Give token access to the following roles:</p>
+        <v-layout row wrap>
+            <div class="mr-2"
+                v-for="(role, rindex) in accessData.Roles"
+                :key="`access-role-${rindex}`">
+                <v-checkbox 
+                    class="mt-2"
+                    :label="role.Name"
+                    :input-value="roleIsEnabled(role.Id)"
+                    @change="(v) => onRoleToggled(role.Id, v)" />
+            </div>
+        </v-layout>
+
+        <h3>Modules</h3>
+        <p class="mb-0">Give token access to the following modules:</p>
+
+        <v-chip
+            color="primary"
+            v-for="(filterChoice, fcIndex) in moduleFilters"
+            :key="`filter-choice-${fcIndex}`"
+            :outline="!filterChoice.selected"
+            class="filter-choice"
+            :class="{ 'selected': filterChoice.selected }"
+            @click="onModuleAccessToggled(filterChoice.moduleId, !filterChoice.selected)">
+                {{ filterChoice.label }}
+                <v-icon right v-if="!filterChoice.selected">add</v-icon>
+                <v-icon right v-if="filterChoice.selected">close</v-icon>
+            </v-chip>
+
+        <div class="access-grid">
+            <div class="access-grid--row"
+                v-for="(module, mindex) in filteredModuleOptions"
+                :key="`access-module-${mindex}`">
+                
+                <div class="access-grid--row--header">
+                    {{ module.ModuleName }}
+                </div>
+
+                <div v-if="module.AccessOptions.length == 0">Full access to this module.</div>
+                <div class="access-grid--row--options"
+                    v-if="hasAccessToModule(module.ModuleId)">
+                    <div class="access-grid--row--options--item"
+                        v-for="(option, moindex) in module.AccessOptions"
+                        :key="`access-module-${mindex}-option-${moindex}`">
+                        <v-checkbox
+                            :label="option.Name"
+                            :input-value="moduleOptionIsEnabled(module.ModuleId, option.Id)"
+                            @change="(v) => onModuleAccessOptionToggled(module.ModuleId, option.Id, v)" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script lang="ts">
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
+import DateUtils from  '../../../util/DateUtils';
+import LinqUtils from  '../../../util/LinqUtils';
+import SettingInputComponent from '../Settings/SettingInputComponent.vue';
+import AccessManagerService, { AccessData } from  '../../../services/AccessManagerService';
+import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
+import BlockComponent from '../../Common/Basic/BlockComponent.vue';
+import ModuleConfig from  '../../../models/Common/ModuleConfig';
+import ModuleOptions from  '../../../models/Common/ModuleOptions';
+
+export interface CreatedAccessData
+{
+    roles: Array<string>;
+    modules: Array<CreatedModuleAccessData>;
+}
+
+export interface CreatedModuleAccessData
+{
+    moduleId: string;
+    options: Array<string>;
+}
+
+@Component({
+    components: {
+    }
+})
+export default class AccessGridComponent extends Vue {
+    @Prop({ required: true })
+    accessData!: AccessData;
+
+    @Prop({ required: false, default: {
+        roles: [],
+        modules: []
+    }})
+    value!: CreatedAccessData;
+
+    data: CreatedAccessData = {
+        roles: [],
+        modules: []
+    };
+
+    //////////////////
+    //  LIFECYCLE  //
+    ////////////////
+    mounted(): void
+    {
+    }
+
+    ////////////////
+    //  GETTERS  //
+    //////////////
+    get filteredModuleOptions(): any {
+        return this.accessData.ModuleOptions.filter(x => this.hasAccessToModule(x.ModuleId));
+    }
+
+    get moduleFilters(): Array<any> {
+        return this.accessData.ModuleOptions.map(x => {
+            return {
+                moduleId: x.ModuleId,
+                selected: this.hasAccessToModule(x.ModuleId),
+                label: x.ModuleName
+            };
+        });
+    }
+    
+    ////////////////
+    //  METHODS  //
+    //////////////
+    hasAccessToModule(moduleId: string): boolean {
+        return this.data.modules.some(x => x.moduleId == moduleId);
+    }
+    
+    moduleOptionIsEnabled(moduleId: string, option: string): boolean {
+        const module = this.data.modules.filter(x => x.moduleId == moduleId)[0];
+        if (module == null) return false;
+        return module.options.some(x => x == option);
+    }
+    
+    roleIsEnabled(roleId: string): boolean {
+        return this.data.roles.some(x => x == roleId);
+    }
+
+    notifyChange(): void {
+        this.$emit('input', this.data);
+    }
+
+    ///////////////////////
+    //  EVENT HANDLERS  //
+    /////////////////////
+    @Watch('value')
+    onValueChanged(): void {
+        this.data = this.value;
+    }
+
+    onRoleToggled(roleId: string, enabled: boolean): void {
+        if (enabled && !this.roleIsEnabled(roleId))
+        {
+            this.data.roles.push(roleId);
+        }
+        else if (!enabled && this.roleIsEnabled(roleId))
+        {
+            const index = this.data.roles.findIndex(x => x == roleId);
+            Vue.delete(this.data.roles, index);
+        }
+        this.notifyChange();
+    }
+
+    onModuleAccessToggled(moduleId: string, enabled: boolean): void {
+        if (enabled && !this.hasAccessToModule(moduleId))
+        {
+            this.data.modules.push({
+                moduleId: moduleId,
+                options: []
+            });
+        }
+        else if (!enabled && this.hasAccessToModule(moduleId))
+        {
+            const index = this.data.modules.findIndex(x => x.moduleId == moduleId);
+            Vue.delete(this.data.modules, index);
+        }
+        this.notifyChange();
+    }
+
+    onModuleAccessOptionToggled(moduleId: string, option: string, enabled: boolean): void {
+        if (enabled && !this.hasAccessToModule(moduleId))
+        {
+            this.onModuleAccessToggled(moduleId, true);
+        }
+
+        const module = this.data.modules.filter(x => x.moduleId == moduleId)[0];
+        if (enabled && !this.moduleOptionIsEnabled(moduleId, option))
+        {
+            module.options.push(option);
+        }
+        else if (!enabled && this.moduleOptionIsEnabled(moduleId, option))
+        {
+            const index = module.options.findIndex(x => x == option);
+            Vue.delete(module.options, index);
+        }
+        this.notifyChange();
+    }
+}
+</script>
+
+<style scoped lang="scss">
+.access-grid {
+    .access-grid--row {
+        margin-bottom: 10px;
+        
+        .access-grid--row--header {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .access-grid--row--options {
+            display: flex;
+            flex-wrap: wrap;
+
+            .access-grid--row--options--item {
+                margin-left: 20px;
+            }
+        }
+    }
+}
+.filter-choice {
+    &.selected {
+        color: #fff;
+        font-weight: 600;
+    }
+}
+</style>

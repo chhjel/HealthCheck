@@ -3,6 +3,7 @@ using HealthCheck.Core.Modules.AuditLog.Models;
 using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace HealthCheck.Core.Abstractions.Modules
 {
@@ -70,6 +71,11 @@ namespace HealthCheck.Core.Abstractions.Modules
         /// All registered audit events.
         /// </summary>
         public List<AuditEvent> AuditEvents { get; } = new List<AuditEvent>();
+
+        /// <summary>
+        /// All currently loaded modules.
+        /// </summary>
+        public ReadOnlyCollection<HealthCheckModuleLoader.HealthCheckLoadedModule> LoadedModules { get; set; }
 
         /// <summary>
         /// Register audit events.
