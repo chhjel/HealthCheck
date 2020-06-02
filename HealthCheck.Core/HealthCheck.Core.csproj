@@ -40,12 +40,14 @@
 
   <ItemGroup>
     <Compile Remove="LogViewer\**" />
+    <Compile Remove="Modules\LogViewer\Services\Storage\**" />
     <EmbeddedResource Remove="LogViewer\**" />
+    <EmbeddedResource Remove="Modules\LogViewer\Services\Storage\**" />
     <None Remove="LogViewer\**" />
+    <None Remove="Modules\LogViewer\Services\Storage\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\Storage\" />
     <Folder Include="Modules\Tests\Utils\HtmlPresets\" />
   </ItemGroup>
 

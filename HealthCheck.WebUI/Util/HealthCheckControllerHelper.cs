@@ -1,5 +1,8 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Models;
+using HealthCheck.Core.Modules.AccessManager;
+using HealthCheck.Core.Modules.AccessManager.Models;
 using HealthCheck.Core.Modules.AuditLog;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.Tests;
@@ -246,7 +249,72 @@ namespace HealthCheck.WebUI.Util
             });
             return module;
         }
+
+        /// <summary>
+        /// Get the first registered module of the given type.
+        /// </summary>
+        public TModule GetModule<TModule>() where TModule: class
+            => RegisteredModules.FirstOrDefault(x => x.Module is TModule)?.Module as TModule;
         #endregion
+
+        internal bool ApplyTokenAccessIfDetected(RequestInformation<TAccessRole> currentRequestInformation)
+        {
+            foreach(var module in RegisteredModules)
+            {
+                if (module.Module is HCAccessManagerModule acModule)
+                {
+                    var token = acModule.GetTokenForRequest(currentRequestInformation);
+                    if (token != null)
+                    {
+                        ApplyTokenAccess(token, currentRequestInformation);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private void ApplyTokenAccess(HCAccessToken token, RequestInformation<TAccessRole> currentRequestInformation)
+        {
+            currentRequestInformation.UserId = token.Id.ToString();
+            currentRequestInformation.UserName = $"Token '{token.Name}'";
+
+            var roleValue = 0;
+            foreach (var role in token.Roles)
+            {
+                try
+                {
+                    var parsedEnumValue = Enum.Parse(typeof(TAccessRole), role);
+                    roleValue |= (int)parsedEnumValue;
+                }
+                catch (Exception) {}
+            }
+            currentRequestInformation.AccessRole = new Maybe<TAccessRole>((TAccessRole)Enum.ToObject(typeof(TAccessRole), roleValue));
+
+            foreach (var moduleData in token.Modules)
+            {
+                var module = RegisteredModules.FirstOrDefault(x => x.Module.GetType().Name == moduleData.ModuleId);
+                if (module == null)
+                {
+                    continue;
+                }
+
+                var moduleOptionsType = HealthCheckModuleLoader.GetModuleAccessOptionsType(module.Module.GetType());
+                var moduleOptionsValue = 0;
+                foreach (var option in moduleData.Options)
+                {
+                    try
+                    {
+                        var parsedEnumValue = Enum.Parse(moduleOptionsType, option);
+                        moduleOptionsValue |= (int)parsedEnumValue;
+                    }
+                    catch (Exception) { }
+                }
+                var moduleOptions = Enum.ToObject(moduleOptionsType, moduleOptionsValue);
+
+                AccessConfig.GiveRolesAccessToModule(moduleOptionsType, currentRequestInformation.AccessRole.Value, moduleOptions);
+            }
+        }
 
         internal void AfterConfigure(RequestInformation<TAccessRole> currentRequestInformation)
         {

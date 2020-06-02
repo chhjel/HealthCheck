@@ -97,9 +97,9 @@ export default class AccessGridComponent extends Vue {
     value!: CreatedAccessData;
 
     data: CreatedAccessData = {
-        name: 'New Token',
-        roles: [],
-        modules: []
+        Name: 'New Token',
+        Roles: [],
+        Modules: []
     };
 
     //////////////////
@@ -130,17 +130,17 @@ export default class AccessGridComponent extends Vue {
     //  METHODS  //
     //////////////
     hasAccessToModule(moduleId: string): boolean {
-        return this.data.modules.some(x => x.moduleId == moduleId);
+        return this.data.Modules.some(x => x.ModuleId == moduleId);
     }
     
     moduleOptionIsEnabled(moduleId: string, option: string): boolean {
-        const module = this.data.modules.filter(x => x.moduleId == moduleId)[0];
+        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
         if (module == null) return false;
-        return module.options.some(x => x == option);
+        return module.Options.some(x => x == option);
     }
     
     roleIsEnabled(roleId: string): boolean {
-        return this.data.roles.some(x => x == roleId);
+        return this.data.Roles.some(x => x == roleId);
     }
 
     notifyChange(): void {
@@ -158,12 +158,12 @@ export default class AccessGridComponent extends Vue {
     onRoleToggled(roleId: string, enabled: boolean): void {
         if (enabled && !this.roleIsEnabled(roleId))
         {
-            this.data.roles.push(roleId);
+            this.data.Roles.push(roleId);
         }
         else if (!enabled && this.roleIsEnabled(roleId))
         {
-            const index = this.data.roles.findIndex(x => x == roleId);
-            Vue.delete(this.data.roles, index);
+            const index = this.data.Roles.findIndex(x => x == roleId);
+            Vue.delete(this.data.Roles, index);
         }
         this.notifyChange();
     }
@@ -171,15 +171,15 @@ export default class AccessGridComponent extends Vue {
     onModuleAccessToggled(moduleId: string, enabled: boolean): void {
         if (enabled && !this.hasAccessToModule(moduleId))
         {
-            this.data.modules.push({
-                moduleId: moduleId,
-                options: []
+            this.data.Modules.push({
+                ModuleId: moduleId,
+                Options: []
             });
         }
         else if (!enabled && this.hasAccessToModule(moduleId))
         {
-            const index = this.data.modules.findIndex(x => x.moduleId == moduleId);
-            Vue.delete(this.data.modules, index);
+            const index = this.data.Modules.findIndex(x => x.ModuleId == moduleId);
+            Vue.delete(this.data.Modules, index);
         }
         this.notifyChange();
     }
@@ -190,15 +190,15 @@ export default class AccessGridComponent extends Vue {
             this.onModuleAccessToggled(moduleId, true);
         }
 
-        const module = this.data.modules.filter(x => x.moduleId == moduleId)[0];
+        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
         if (enabled && !this.moduleOptionIsEnabled(moduleId, option))
         {
-            module.options.push(option);
+            module.Options.push(option);
         }
         else if (!enabled && this.moduleOptionIsEnabled(moduleId, option))
         {
-            const index = module.options.findIndex(x => x == option);
-            Vue.delete(module.options, index);
+            const index = module.Options.findIndex(x => x == option);
+            Vue.delete(module.Options, index);
         }
         this.notifyChange();
     }

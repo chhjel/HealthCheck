@@ -19,7 +19,14 @@
                 {{ loadStatus.errorMessage }}
                 </v-alert>
 
+                <!-- DATA LOAD ERROR -->
+                <v-alert :value="true" v-if="lastCreatedTokenData != null" type="info">
+                New token '{{ lastCreatedTokenData.Name }}' created: <code>{{ lastCreatedTokenData.Token }}</code><br />
+                Copy it now, it will never be shown again.
+                </v-alert>
+
                 <v-btn
+                    v-if="canCreateNewTokens"
                     @click="onAddNewTokenClicked"
                     class="mb-3">
                     <v-icon size="20px" class="mr-2">add</v-icon>
@@ -27,6 +34,7 @@
                 </v-btn>
 
                 <block-component
+                    v-if="canViewTokenData"
                     class="mt-4"
                     title="Generated tokens">
                     List of <br />
@@ -88,7 +96,7 @@ import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsVie
 import DateUtils from  '../../../util/DateUtils';
 import LinqUtils from  '../../../util/LinqUtils';
 import SettingInputComponent from '../Settings/SettingInputComponent.vue';
-import AccessManagerService, { AccessData, CreatedAccessData } from  '../../../services/AccessManagerService';
+import AccessManagerService, { AccessData, CreatedAccessData, CreateNewTokenResponse } from  '../../../services/AccessManagerService';
 import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
 import BlockComponent from '../../Common/Basic/BlockComponent.vue';
 import ModuleConfig from  '../../../models/Common/ModuleConfig';
@@ -119,6 +127,7 @@ export default class AccessManagerPageComponent extends Vue {
 
     createNewTokenDialogVisible: boolean = true;
     accessDataInEdit: CreatedAccessData = this.defaultNewTokenData();
+    lastCreatedTokenData: CreateNewTokenResponse | null = null;
 
     //////////////////
     //  LIFECYCLE  //
@@ -140,16 +149,29 @@ export default class AccessManagerPageComponent extends Vue {
     get globalOptions(): FrontEndOptionsViewModel {
         return this.$store.state.globalOptions;
     }
+
+    get canViewTokenData(): boolean {
+        return this.hasAccess('ViewTokens');
+    }
+
+    get canCreateNewTokens(): boolean {
+        return this.hasAccess('CreateNewToken');
+    }
     
     ////////////////
     //  METHODS  //
     //////////////
     loadData(): void {
+        this.service.GetTokens(this.loadStatus, { onSuccess: (data) => console.log(data) });
         this.service.GetAccessData(this.loadStatus, { onSuccess: (data) => this.onDataRetrieved(data) });
     }
 
     onDataRetrieved(data: AccessData): void {
         this.accessData = data;
+    }
+
+    hasAccess(option: string): boolean {
+        return this.options.AccessOptions.indexOf(option) != -1;
     }
 
     onAddNewTokenClicked(): void {
@@ -160,15 +182,17 @@ export default class AccessManagerPageComponent extends Vue {
         this.service.CreateNewToken(this.accessDataInEdit, this.loadStatus, { onSuccess: (data) => this.onNewTokenCreated(data) });
     }
 
-    onNewTokenCreated(createdToken: any): void {
+    onNewTokenCreated(createdToken: CreateNewTokenResponse): void {
+        this.lastCreatedTokenData = createdToken;
+        this.createNewTokenDialogVisible = false;
         this.accessDataInEdit = this.defaultNewTokenData();
     }
 
     defaultNewTokenData(): CreatedAccessData {
         return {
-            name: 'New Token',
-            roles: [],
-            modules: []
+            Name: 'New Token',
+            Roles: [],
+            Modules: []
         };
     }
 
@@ -180,6 +204,6 @@ export default class AccessManagerPageComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.access-manager-page {
-}
+/* .access-manager-page {
+} */
 </style>

@@ -9,6 +9,14 @@ export default class AccessManagerService extends HCServiceBase
         super(endpoint, inludeQueryString);
         this.moduleId = moduleId;
     }
+
+    public GetTokens(
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<TokenData> | null = null
+    ) : void
+    {
+        this.invokeModuleMethod(this.moduleId, 'GetTokens', null, statusObject, callbacks);
+    }
     
     public GetAccessData(
         statusObject: FetchStatus | null = null,
@@ -21,24 +29,37 @@ export default class AccessManagerService extends HCServiceBase
     public CreateNewToken(
         data: CreatedAccessData,
         statusObject: FetchStatus | null = null,
-        callbacks: ServiceFetchCallbacks<AccessData> | null = null
+        callbacks: ServiceFetchCallbacks<CreateNewTokenResponse> | null = null
     ) : void
     {
         this.invokeModuleMethod(this.moduleId, 'CreateNewToken', data, statusObject, callbacks);
     }
 }
 
+export interface TokenData
+{
+    Id: string;
+    Name: string;
+}
+
+export interface CreateNewTokenResponse
+{
+    Id: string;
+    Name: string;
+    Token: string;
+}
+
 export interface CreatedAccessData
 {
-    name: string;
-    roles: Array<string>;
-    modules: Array<CreatedModuleAccessData>;
+    Name: string;
+    Roles: Array<string>;
+    Modules: Array<CreatedModuleAccessData>;
 }
 
 export interface CreatedModuleAccessData
 {
-    moduleId: string;
-    options: Array<string>;
+    ModuleId: string;
+    Options: Array<string>;
 }
 
 export interface AccessData {

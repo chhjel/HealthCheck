@@ -3,5 +3,5 @@
     /// <summary>
     /// Inherit from <see cref="HealthCheckModuleBase{TModuleAccessOptionsEnum}"/> instead of this one.
     /// </summary>
-    public interface IHealthCheckModule { }
+    public interface IHealthCheckModule {}
 }
