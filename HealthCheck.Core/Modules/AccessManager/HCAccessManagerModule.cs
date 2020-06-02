@@ -49,7 +49,7 @@ namespace HealthCheck.Core.Modules.AccessManager
             ViewToken = 1,
 
             /// <summary>Create new tokens.</summary>
-            ViewTokens = 2
+            CreateNewToken = 2
         }
 
         /// <summary>
@@ -80,7 +80,8 @@ namespace HealthCheck.Core.Modules.AccessManager
                 if (tokenFromStore == null) return null;
                 else if (tokenFromStore.ExpiresAt != null && tokenFromStore.ExpiresAt < DateTime.Now) return null;
 
-                var isValid = HashUtils.ValidateHash(rawToken, tokenFromStore.HashedToken, tokenFromStore.TokenSalt);
+                var tokenHashBase = CreateBaseForHash(rawToken, tokenFromStore.Roles, tokenFromStore.Modules);
+                var isValid = HashUtils.ValidateHash(tokenHashBase, tokenFromStore.HashedToken, tokenFromStore.TokenSalt);
                 if (!isValid) return null;
 
                 return tokenFromStore;
@@ -94,7 +95,7 @@ namespace HealthCheck.Core.Modules.AccessManager
         /// <summary>
         /// View all token data.
         /// </summary>
-        [HealthCheckModuleMethod(AccessOption.ViewTokens)]
+        [HealthCheckModuleMethod(AccessOption.ViewToken)]
         public object GetTokens()
             => Options.TokenStorage.GetTokens().Select(x => new
             {
@@ -105,12 +106,30 @@ namespace HealthCheck.Core.Modules.AccessManager
         /// <summary>
         /// Creates a new token.
         /// </summary>
-        [HealthCheckModuleMethod(AccessOption.ViewTokens)]
-        public object CreateNewToken(CreateNewTokenRequest data)
+        [HealthCheckModuleMethod(AccessOption.CreateNewToken)]
+        public object CreateNewToken(HealthCheckModuleContext context, CreateNewTokenRequest data)
         {
+            // Filter out any roles not within access of current request
+            var requestRoles = EnumUtils.GetFlaggedEnumValues(context.CurrentRequestRoles).Select(x => x.ToString());
+            data.Roles = data.Roles.Where(x => requestRoles.Contains(x)).ToList();
+
+            // Filter out any modules and options not within access of current request
+            var modules = data.Modules
+                .Where(x => context.CurrentRequestModulesAccess.Any(m => m.ModuleId == x.ModuleId))
+                .Select(x =>
+                {
+                    var requestModuleOptions = context.CurrentRequestModulesAccess.FirstOrDefault(m => m.ModuleId == x.ModuleId).AccessOptions;
+                    return new HCAccessTokenModuleData()
+                    {
+                        ModuleId = x.ModuleId,
+                        Options = x.Options.Where(o => requestModuleOptions.Contains(o)).ToList()
+                    };
+                }).ToList();
+
             var id = Guid.NewGuid();
             var tokenValue = $"KEY-{id}-{Guid.NewGuid()}";
-            var tokenHash = HashUtils.GenerateHash(tokenValue, out string salt);
+            var tokenHashBase = CreateBaseForHash(tokenValue, data.Roles, modules);
+            var tokenHash = HashUtils.GenerateHash(tokenHashBase, out string salt);
 
             var token = new HCAccessToken
             {
@@ -120,11 +139,7 @@ namespace HealthCheck.Core.Modules.AccessManager
                 HashedToken = tokenHash,
                 TokenSalt = salt,
                 Roles = data.Roles,
-                Modules = data.Modules.Select(x => new HCAccessTokenModuleData()
-                {
-                    ModuleId = x.ModuleId,
-                    Options = x.Options
-                }).ToList()
+                Modules = modules
             };
 
             token = Options.TokenStorage.SaveNewToken(token);
@@ -139,12 +154,12 @@ namespace HealthCheck.Core.Modules.AccessManager
 
         /// <summary>
         /// Get overview of roles and module options.
+        /// <para>Only items the request has access to will be included.</para>
         /// </summary>
-        [HealthCheckModuleMethod(AccessOption.ViewTokens)]
+        [HealthCheckModuleMethod(AccessOption.CreateNewToken)]
         public object GetAccessData(HealthCheckModuleContext context)
         {
-            var allRoles = Enum.GetValues(context.CurrentRequestRoles.GetType())
-                .OfType<Enum>()
+            var allRoles = EnumUtils.GetFlaggedEnumValues(context.CurrentRequestRoles)
                 .Where(x => (int)Convert.ChangeType(x, typeof(int)) > 0)
                 .Select(x => new Role()
                 {
@@ -152,17 +167,22 @@ namespace HealthCheck.Core.Modules.AccessManager
                     Name = x.ToString().SpacifySentence()
                 });
 
-            var moduleOptions = context.LoadedModules.Select(x => new ModuleAccessData()
-                {
-                    ModuleName = x.Name,
-                    ModuleId = x.Id,
-                    AccessOptions = Enum.GetValues(x.AccessOptionsType)
-                        .OfType<Enum>()
-                        .Where(x => (int)Convert.ChangeType(x, typeof(int)) > 0)
-                        .Select(x => new ModuleAccessOption(){
-                            Id = x.ToString(),
-                            Name = x.ToString().SpacifySentence()
-                        }).ToList()
+            var moduleOptions = context.LoadedModules
+                .Where(x => context.CurrentRequestModulesAccess.Any(m => m.ModuleId == x.Module.GetType().Name))
+                .Select(x => {
+                    var requestModuleOptions = context.CurrentRequestModulesAccess
+                        .FirstOrDefault(m => m.ModuleId == x.Module.GetType().Name).AccessOptions;
+                    return new ModuleAccessData()
+                    {
+                        ModuleName = x.Name,
+                        ModuleId = x.Id,
+                        AccessOptions = requestModuleOptions
+                                .Select(x => new ModuleAccessOption()
+                                {
+                                    Id = x.ToString(),
+                                    Name = x.ToString().SpacifySentence()
+                                }).ToList()
+                    };
                 })
                 .ToList();
 
@@ -171,6 +191,15 @@ namespace HealthCheck.Core.Modules.AccessManager
                 Roles = allRoles,
                 ModuleOptions = moduleOptions
             };
+        }
+        #endregion
+
+        #region Private helpers
+        private string CreateBaseForHash(string rawToken, List<string> roles, List<HCAccessTokenModuleData> modules)
+        {
+            var rolesString = string.Join("$", roles);
+            var modulesString = string.Join("$", modules.Select(x => $"({x.ModuleId}:{string.Join(",", x.Options)})"));
+            return $"{rawToken}|{rolesString}|{modulesString}";
         }
         #endregion
 

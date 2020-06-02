@@ -166,6 +166,28 @@ namespace HealthCheck.WebUI.Util
             string moduleName,
             IHealthCheckModule module)
         {
+            var moduleAccess = new List<HealthCheckModuleContext.ModuleAccess>();
+            foreach (var access in RoleModuleAccessLevels)
+            {
+                var accessModuleId = GetModuleTypeFromAccessOptionsType(access.AccessOptionsType)?.Name;
+                if (accessModuleId == null) continue;
+
+                var item = moduleAccess.FirstOrDefault(x => x.ModuleId == accessModuleId);
+                if (item == null)
+                {
+                    item = new HealthCheckModuleContext.ModuleAccess
+                    {
+                        ModuleId = accessModuleId,
+                        AccessOptions = new List<string>()
+                    };
+                    moduleAccess.Add(item);
+                }
+
+                item.AccessOptions = item.AccessOptions
+                    .Union(access.GetAllSelectedAccessOptions().Select(x => x.ToString()))
+                    .ToList();
+            }
+
             return new HealthCheckModuleContext()
             {
                 UserId = requestInfo.UserId,
@@ -175,8 +197,15 @@ namespace HealthCheck.WebUI.Util
                 CurrentRequestRoles = accessRoles.Value,
                 CurrentRequestModuleAccessOptions = GetCurrentRequestModuleAccessOptions(accessRoles, module?.GetType()),
 
+                CurrentRequestModulesAccess = moduleAccess,
                 LoadedModules = LoadedModules.AsReadOnly()
             };
+        }
+
+        private Type GetModuleTypeFromAccessOptionsType(Type optionsType)
+        {
+            var baseType = typeof(HealthCheckModuleBase<>).MakeGenericType(optionsType);
+            return RegisteredModules.FirstOrDefault(x => baseType.IsAssignableFrom(x.Module.GetType()))?.Module?.GetType();
         }
 
         internal class InvokeModuleMethodResult
@@ -312,7 +341,7 @@ namespace HealthCheck.WebUI.Util
                 }
                 var moduleOptions = Enum.ToObject(moduleOptionsType, moduleOptionsValue);
 
-                AccessConfig.GiveRolesAccessToModule(moduleOptionsType, currentRequestInformation.AccessRole.Value, moduleOptions);
+                AccessConfig.GiveRolesAccessToModule(module.Module.GetType(), moduleOptionsType, currentRequestInformation.AccessRole.Value, moduleOptions);
             }
         }
 

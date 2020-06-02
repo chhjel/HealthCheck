@@ -1,4 +1,5 @@
-﻿using HealthCheck.WebUI.Models;
+﻿using HealthCheck.Core.Models;
+using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Tests.Helpers;
 using HealthCheck.WebUI.Tests.ModuleSystem.Helpers;
 using HealthCheck.WebUI.Util;

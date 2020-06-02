@@ -56,7 +56,7 @@ namespace HealthCheck.WebUI.Models
 
         internal List<ModuleAccessData<TAccessRole>> RoleModuleAccessLevels { get; set; }
 
-        internal void GiveRolesAccessToModule(Type moduleAccessOptionsEnumType, TAccessRole roles, object access)
+        internal void GiveRolesAccessToModule(Type moduleType, Type moduleAccessOptionsEnumType, TAccessRole roles, object access)
             => RoleModuleAccessLevels.Add(new ModuleAccessData<TAccessRole> {
                 Roles = roles,
                 AccessOptions = access,
@@ -71,7 +71,12 @@ namespace HealthCheck.WebUI.Models
         /// </summary>
         public void GiveRolesAccessToModule<TModuleAccessOptionsEnum>(TAccessRole roles, TModuleAccessOptionsEnum access)
             where TModuleAccessOptionsEnum : Enum
-            => RoleModuleAccessLevels.Add(new ModuleAccessData<TAccessRole> { Roles = roles, AccessOptions = access, AccessOptionsType = typeof(TModuleAccessOptionsEnum) });
+            => RoleModuleAccessLevels.Add(new ModuleAccessData<TAccessRole>
+            {
+                Roles = roles,
+                AccessOptions = access,
+                AccessOptionsType = typeof(TModuleAccessOptionsEnum)
+            });
 
         /// <summary>
         /// Grants the given roles access to a module without any specific access options.
