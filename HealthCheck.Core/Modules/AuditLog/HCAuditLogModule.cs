@@ -29,6 +29,16 @@ namespace HealthCheck.Core.Modules.AuditLog
         }
 
         /// <summary>
+        /// Check options object for issues.
+        /// </summary>
+        public override List<string> Validate()
+        {
+            var issues = new List<string>();
+            if (Options.AuditEventService == null) issues.Add("Options.AuditEventService must be set.");
+            return issues;
+        }
+
+        /// <summary>
         /// Get frontend options for this module.
         /// </summary>
         public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => null;

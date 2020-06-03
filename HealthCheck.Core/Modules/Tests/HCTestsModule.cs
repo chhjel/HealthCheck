@@ -16,15 +16,6 @@ namespace HealthCheck.Core.Modules.Tests
     public class HCTestsModule : HealthCheckModuleBase<HCTestsModule.AccessOption>
     {
         /// <summary>
-        /// Module for executing tests at runtime.
-        /// </summary>
-        public HCTestsModule(HCTestsModuleOptions options)
-        {
-            TestDiscoverer.AssemblyContainingTests = options.AssemblyContainingTests
-                ?? throw new ArgumentNullException($"[{nameof(HCTestsModuleOptions)}.{nameof(HCTestsModuleOptions.AssemblyContainingTests)}] must be set to an assembly to retrieve tests from must be provided.");
-        }
-
-        /// <summary>
         /// Handles conversion from stringified test input to parameter types.
         /// </summary>
         public StringConverter ParameterConverter { get; } = new StringConverter();
@@ -33,6 +24,15 @@ namespace HealthCheck.Core.Modules.Tests
         private readonly TestDiscoveryService TestDiscoverer = new TestDiscoveryService();
         private readonly TestViewModelsFactory TestsViewModelsFactory = new TestViewModelsFactory();
         private readonly TestSetGroupsOptions GroupOptions = new TestSetGroupsOptions();
+
+        /// <summary>
+        /// Module for executing tests at runtime.
+        /// </summary>
+        public HCTestsModule(HCTestsModuleOptions options)
+        {
+            TestDiscoverer.AssemblyContainingTests = options.AssemblyContainingTests
+                ?? throw new ArgumentNullException($"[{nameof(HCTestsModuleOptions)}.{nameof(HCTestsModuleOptions.AssemblyContainingTests)}] must be set to an assembly to retrieve tests from must be provided.");
+        }
 
         /// <summary>
         /// Get frontend options for this module.

@@ -1,5 +1,5 @@
-﻿using HealthCheck.Core.Modules.AccessManager.Abstractions;
-using HealthCheck.Core.Modules.AccessManager.Models;
+﻿using HealthCheck.Core.Modules.AccessTokens.Abstractions;
+using HealthCheck.Core.Modules.AccessTokens.Models;
 using HealthCheck.Core.Util;
 using Newtonsoft.Json;
 using System;
@@ -49,9 +49,23 @@ namespace HealthCheck.WebUI.Services
             => Store.InsertItem(token);
 
         /// <summary>
+        /// Update token last used at datetime.
+        /// </summary>
+        public HCAccessToken UpdateTokenLastUsedAtTime(Guid id, DateTime time)
+        {
+            var token = GetToken(id);
+            if (token != null)
+            {
+                token.LastUsedAt = time;
+                Store.InsertOrUpdateItem(token);
+            }
+            return token;
+        }
+
+        /// <summary>
         /// Delete a token.
         /// </summary>
-        public void DeleteConfig(Guid tokenId)
+        public void DeleteToken(Guid tokenId)
             => Store.DeleteItem(tokenId);
     }
 }

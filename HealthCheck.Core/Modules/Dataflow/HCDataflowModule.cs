@@ -24,6 +24,16 @@ namespace HealthCheck.Core.Modules.Dataflow
         }
 
         /// <summary>
+        /// Check options object for issues.
+        /// </summary>
+        public override List<string> Validate()
+        {
+            var issues = new List<string>();
+            if (Options.DataflowService == null) issues.Add("Options.DataflowService must be set.");
+            return issues;
+        }
+
+        /// <summary>
         /// Get frontend options for this module.
         /// </summary>
         public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => null;

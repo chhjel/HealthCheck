@@ -1,7 +1,7 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
-using HealthCheck.Core.Modules.AccessManager.Models;
+using HealthCheck.Core.Modules.AccessTokens.Models;
 using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
@@ -9,21 +9,31 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace HealthCheck.Core.Modules.AccessManager
+namespace HealthCheck.Core.Modules.AccessTokens
 {
     /// <summary>
-    /// Module for managing HC related access.
+    /// Module for managing HC access tokens.
     /// </summary>
-    public class HCAccessManagerModule : HealthCheckModuleBase<HCAccessManagerModule.AccessOption>
+    public class HCAccessTokensModule : HealthCheckModuleBase<HCAccessTokensModule.AccessOption>
     {
-        private HCAccessManagerModuleOptions Options { get; }
+        private HCAccessTokensModuleOptions Options { get; }
 
         /// <summary>
         /// Module for managing HC related access.
         /// </summary>
-        public HCAccessManagerModule(HCAccessManagerModuleOptions options)
+        public HCAccessTokensModule(HCAccessTokensModuleOptions options)
         {
             Options = options;
+        }
+
+        /// <summary>
+        /// Check options object for issues.
+        /// </summary>
+        public override List<string> Validate()
+        {
+            var issues = new List<string>();
+            if (Options.TokenStorage == null) issues.Add("Options.TokenStorage must be set.");
+            return issues;
         }
 
         /// <summary>
@@ -34,7 +44,7 @@ namespace HealthCheck.Core.Modules.AccessManager
         /// <summary>
         /// Get config for this module.
         /// </summary>
-        public override IHealthCheckModuleConfig GetModuleConfig(HealthCheckModuleContext context) => new HCAccessManagerModuleConfig();
+        public override IHealthCheckModuleConfig GetModuleConfig(HealthCheckModuleContext context) => new HCAccessTokensModuleConfig();
 
         /// <summary>
         /// Different access options for this module.
@@ -49,7 +59,10 @@ namespace HealthCheck.Core.Modules.AccessManager
             ViewToken = 1,
 
             /// <summary>Create new tokens.</summary>
-            CreateNewToken = 2
+            CreateNewToken = 2,
+
+            /// <summary>Delete tokens.</summary>
+            DeleteToken = 4
         }
 
         /// <summary>
@@ -57,12 +70,13 @@ namespace HealthCheck.Core.Modules.AccessManager
         /// </summary>
         public HCAccessToken GetTokenForRequest<TAccessRole>(RequestInformation<TAccessRole> currentRequestInformation)
         {
+            if (Options.TokenStorage == null) return null;
+
             Guid? tokenId = null;
             try
             {
                 var key = "x-token";
-                string rawToken = currentRequestInformation.Headers.ContainsKey(key)
-        ? currentRequestInformation.Headers[key] : null;
+                string rawToken = currentRequestInformation.Headers.ContainsKey(key) ? currentRequestInformation.Headers[key] : null;
 
                 if (rawToken == null)
                 {
@@ -84,6 +98,11 @@ namespace HealthCheck.Core.Modules.AccessManager
                 var isValid = HashUtils.ValidateHash(tokenHashBase, tokenFromStore.HashedToken, tokenFromStore.TokenSalt);
                 if (!isValid) return null;
 
+                if (tokenFromStore.LastUsedAt == null || (DateTime.Now - tokenFromStore.LastUsedAt.Value).TotalMinutes >= 1)
+                {
+                    tokenFromStore = Options.TokenStorage.UpdateTokenLastUsedAtTime(tokenFromStore.Id, DateTime.Now);
+                }
+
                 return tokenFromStore;
             }
             catch (Exception) { }
@@ -97,11 +116,47 @@ namespace HealthCheck.Core.Modules.AccessManager
         /// </summary>
         [HealthCheckModuleMethod(AccessOption.ViewToken)]
         public object GetTokens()
-            => Options.TokenStorage.GetTokens().Select(x => new
+        {
+            return Options.TokenStorage?.GetTokens()?.Select(x =>
             {
-                Id = x.Id,
-                Name = x.Name
+                string expirationSummary = null;
+                if (x.ExpiresAt != null)
+                {
+                    var timeUntil = (long)(x.ExpiresAt.Value - DateTime.Now).TotalMilliseconds;
+                    expirationSummary = (timeUntil < 0)
+                        ? "Expired"
+                        : $"Expires in {TimeUtils.PrettifyDuration(timeUntil)}";
+                }
+
+                string lastUsedSummary = null;
+                if (x.LastUsedAt != null)
+                {
+                    lastUsedSummary = $" Last used {TimeUtils.PrettifyDurationSince(x.LastUsedAt, TimeSpan.FromMinutes(1), "less than a minute")} ago";
+                }
+
+                return new
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    LastUsedAt = x.LastUsedAt,
+                    LastUsedAtSummary = lastUsedSummary,
+                    ExpiresAt = x.ExpiresAt,
+                    ExpiresAtSummary = expirationSummary,
+                    Roles = x.Roles,
+                    Modules = x.Modules
+                };
             });
+        }
+
+        /// <summary>
+        /// View all token data.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.DeleteToken)]
+        public object DeleteToken(Guid id)
+        {
+            Options.TokenStorage.DeleteToken(id);
+            return new { Success = true };
+        }
 
         /// <summary>
         /// Creates a new token.
@@ -109,6 +164,8 @@ namespace HealthCheck.Core.Modules.AccessManager
         [HealthCheckModuleMethod(AccessOption.CreateNewToken)]
         public object CreateNewToken(HealthCheckModuleContext context, CreateNewTokenRequest data)
         {
+            if (Options.TokenStorage == null) return null;
+
             // Filter out any roles not within access of current request
             var requestRoles = EnumUtils.GetFlaggedEnumValues(context.CurrentRequestRoles).Select(x => x.ToString());
             data.Roles = data.Roles.Where(x => requestRoles.Contains(x)).ToList();

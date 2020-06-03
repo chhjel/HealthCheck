@@ -1,8 +1,8 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
-using HealthCheck.Core.Modules.AccessManager;
-using HealthCheck.Core.Modules.AccessManager.Models;
+using HealthCheck.Core.Modules.AccessTokens;
+using HealthCheck.Core.Modules.AccessTokens.Models;
 using HealthCheck.Core.Modules.AuditLog;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.Tests;
@@ -290,7 +290,7 @@ namespace HealthCheck.WebUI.Util
         {
             foreach(var module in RegisteredModules)
             {
-                if (module.Module is HCAccessManagerModule acModule)
+                if (module.Module is HCAccessTokensModule acModule)
                 {
                     var token = acModule.GetTokenForRequest(currentRequestInformation);
                     if (token != null)

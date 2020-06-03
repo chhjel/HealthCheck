@@ -1,6 +1,6 @@
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
 
-export default class AccessManagerService extends HCServiceBase
+export default class AccessTokensService extends HCServiceBase
 {
     public moduleId: string;
 
@@ -9,10 +9,19 @@ export default class AccessManagerService extends HCServiceBase
         super(endpoint, inludeQueryString);
         this.moduleId = moduleId;
     }
-
+    
+    public DeleteToken(
+        id: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<Array<TokenData>> | null = null
+    ) : void
+    {
+        this.invokeModuleMethod(this.moduleId, 'DeleteToken', id, statusObject, callbacks);
+    }
+    
     public GetTokens(
         statusObject: FetchStatus | null = null,
-        callbacks: ServiceFetchCallbacks<TokenData> | null = null
+        callbacks: ServiceFetchCallbacks<Array<TokenData>> | null = null
     ) : void
     {
         this.invokeModuleMethod(this.moduleId, 'GetTokens', null, statusObject, callbacks);
@@ -40,6 +49,12 @@ export interface TokenData
 {
     Id: string;
     Name: string;
+    LastUsedAt: Date | null;
+    LastUsedAtSummary: string | null;
+    ExpiresAt: Date | null;
+    ExpiresAtSummary: string | null;
+    Roles: Array<string>;
+    Modules: Array<CreatedModuleAccessData>;
 }
 
 export interface CreateNewTokenResponse

@@ -25,6 +25,16 @@ namespace HealthCheck.Core.Modules.LogViewer
         }
 
         /// <summary>
+        /// Check options object for issues.
+        /// </summary>
+        public override List<string> Validate()
+        {
+            var issues = new List<string>();
+            if (Options.LogSearcherService == null) issues.Add("Options.LogSearcherService must be set.");
+            return issues;
+        }
+
+        /// <summary>
         /// Get frontend options for this module.
         /// </summary>
         public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => new

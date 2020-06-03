@@ -49,6 +49,10 @@ namespace HealthCheck.Core.Util
 					.FirstOrDefault(x => x.Name == nameof(HealthCheckModuleBase<StringSplitOptions>.GetModuleConfig)
 										&& x.GetParameters().Length == 1
 										&& typeof(IHealthCheckModuleConfig).IsAssignableFrom(x.ReturnType));
+				var validateMethod = type.GetMethods()
+					.FirstOrDefault(x => x.Name == nameof(HealthCheckModuleBase<StringSplitOptions>.Validate)
+										&& x.GetParameters().Length == 0
+										&& x.ReturnType == typeof(List<string>));
 
 				loadedModule.Config = getConfigMethod.Invoke(module, new object[] { context }) as IHealthCheckModuleConfig;
 				loadedModule.FrontendOptions = getOptionsMethod.Invoke(module, new object[] { context });
@@ -60,6 +64,19 @@ namespace HealthCheck.Core.Util
 				else
 				{
 					ValidateConfigValues(loadedModule);
+				}
+
+				try
+				{
+					var issues = validateMethod.Invoke(module, new object[0]) as List<string>;
+					if (issues != null && issues.Any())
+					{
+						loadedModule.LoadErrors.AddRange(issues);
+					}
+				}
+				catch(Exception ex)
+				{
+					loadedModule.LoadErrors.Add($"Validate() call failed with the errror: {ex.Message}");
 				}
 
 				if (loadedModule.Config != null && name == null)

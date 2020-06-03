@@ -1,4 +1,4 @@
-<!-- src/components/modules/AccessManager/AccessManagerPageComponent.vue -->
+<!-- src/components/modules/AccessTokens/AccessTokensPageComponent.vue -->
 <template>
     <div class="access-manager-page">
         <v-content class="pl-0">
@@ -7,7 +7,7 @@
         <v-flex class="pl-4 pr-4 pb-4">
           <!-- CONTENT BEGIN -->
             <v-container>
-                <h1 class="mb-4">Access Manager</h1>
+                <h1 class="mb-4">Access Tokens</h1>
 
                 <!-- LOAD PROGRESS -->
                 <v-progress-linear 
@@ -37,9 +37,47 @@
                     v-if="canViewTokenData"
                     class="mt-4"
                     title="Generated tokens">
-                    List of <br />
-                    name | roles | modules |
-                    last used some time ago | delete
+
+                    <div class="token-item"
+                        v-for="(token, tokenIndex) in tokens"
+                        :key="`token-${tokenIndex}`">
+                        {{ token.Name }}
+
+                        <div class="token-item--roles">
+                            <span class="token-item--roles--item"
+                                v-for="(role, roleIndex) in token.Roles"
+                                :key="`token-${tokenIndex}-role-${roleIndex}`">
+                                {{ role }}
+                            </span>
+                        </div>
+
+                        <div class="token-item--modules">
+                            <span class="token-item--modules--item"
+                                v-for="(module, moduleIndex) in token.Modules"
+                                :key="`token-${tokenIndex}-module-${moduleIndex}`">
+                                {{ module.ModuleId }}
+                                
+                                <span class="token-item--modules--item--option"
+                                    v-for="(option, optionIndex) in module.Options"
+                                    :key="`token-${tokenIndex}-module-${moduleIndex}-option-${optionIndex}`">
+                                    <code>{{ option }}</code>
+                                </span>
+                            </span>
+                        </div>
+                        
+                        <div class="token-item--last-updated-at" v-if="token.LastUsedAt != null">
+                            {{ token.LastUsedAtSummary }} @ {{ token.LastUsedAt }}
+                        </div>
+                        <div class="token-item--expires-at" v-if="token.ExpiresAt != null">
+                            {{ token.ExpiresAtSummary }} @ {{ token.ExpiresAt }}
+                        </div>
+                        
+                        <v-btn color="error"
+                            v-if="canDeleteToken"
+                            :loading="loadStatus.inProgress"
+                            :disabled="loadStatus.inProgress"
+                            @click="deleteToken(token.Id)">Delete</v-btn>
+                    </div>
                 </block-component>
 
             </v-container>
@@ -50,6 +88,7 @@
         <v-dialog v-model="createNewTokenDialogVisible"
             @keydown.esc="createNewTokenDialogVisible = false"
             scrollable
+            :persistent="loadStatus.inProgress"
             max-width="1200"
             content-class="create-access-token-dialog">
             <v-card style="background-color: #f4f4f4">
@@ -96,7 +135,7 @@ import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsVie
 import DateUtils from  '../../../util/DateUtils';
 import LinqUtils from  '../../../util/LinqUtils';
 import SettingInputComponent from '../Settings/SettingInputComponent.vue';
-import AccessManagerService, { AccessData, CreatedAccessData, CreateNewTokenResponse } from  '../../../services/AccessManagerService';
+import AccessTokensService, { AccessData, CreatedAccessData, CreateNewTokenResponse, TokenData } from  '../../../services/AccessTokensService';
 import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
 import BlockComponent from '../../Common/Basic/BlockComponent.vue';
 import ModuleConfig from  '../../../models/Common/ModuleConfig';
@@ -110,22 +149,23 @@ import AccessGridComponent from './AccessGridComponent.vue';
         AccessGridComponent
     }
 })
-export default class AccessManagerPageComponent extends Vue {
+export default class AccessTokensPageComponent extends Vue {
     @Prop({ required: true })
     config!: ModuleConfig;
     
     @Prop({ required: true })
     options!: ModuleOptions<any>;
 
-    service: AccessManagerService = new AccessManagerService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
+    service: AccessTokensService = new AccessTokensService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     loadStatus: FetchStatus = new FetchStatus();
 
+    tokens: Array<TokenData> = [];
     accessData: AccessData = {
         Roles: [],
         ModuleOptions: []
     };
 
-    createNewTokenDialogVisible: boolean = true;
+    createNewTokenDialogVisible: boolean = false;
     accessDataInEdit: CreatedAccessData = this.defaultNewTokenData();
     lastCreatedTokenData: CreateNewTokenResponse | null = null;
 
@@ -151,23 +191,33 @@ export default class AccessManagerPageComponent extends Vue {
     }
 
     get canViewTokenData(): boolean {
-        return this.hasAccess('ViewTokens');
+        return this.hasAccess('ViewToken');
     }
 
     get canCreateNewTokens(): boolean {
         return this.hasAccess('CreateNewToken');
+    }
+
+    get canDeleteToken(): boolean {
+        return this.hasAccess('DeleteToken');
     }
     
     ////////////////
     //  METHODS  //
     //////////////
     loadData(): void {
-        this.service.GetTokens(this.loadStatus, { onSuccess: (data) => console.log(data) });
-        this.service.GetAccessData(this.loadStatus, { onSuccess: (data) => this.onDataRetrieved(data) });
+        this.service.GetTokens(this.loadStatus, { onSuccess: (data) => this.onTokensRetrieved(data) });
+        this.service.GetAccessData(this.loadStatus, { onSuccess: (data) => this.accessData = data });
     }
 
-    onDataRetrieved(data: AccessData): void {
-        this.accessData = data;
+    onTokensRetrieved(data: Array<TokenData>): void {
+        this.tokens = data.map(x => {
+            if (x.LastUsedAt != null)
+            {
+                x.LastUsedAt = new Date(x.LastUsedAt);
+            }
+            return x;
+        });
     }
 
     hasAccess(option: string): boolean {
@@ -185,6 +235,18 @@ export default class AccessManagerPageComponent extends Vue {
     onNewTokenCreated(createdToken: CreateNewTokenResponse): void {
         this.lastCreatedTokenData = createdToken;
         this.createNewTokenDialogVisible = false;
+
+        this.tokens.push({
+            Id: createdToken.Id,
+            Name: createdToken.Name,
+            LastUsedAt: null,
+            LastUsedAtSummary: null,
+            ExpiresAt: null,
+            ExpiresAtSummary: null,
+            Roles: this.accessDataInEdit.Roles.map(x => x),
+            Modules: this.accessDataInEdit.Modules.map(x => x)
+        });
+
         this.accessDataInEdit = this.defaultNewTokenData();
     }
 
@@ -194,6 +256,13 @@ export default class AccessManagerPageComponent extends Vue {
             Roles: [],
             Modules: []
         };
+    }
+
+    deleteToken(id: string): void {
+        this.service.DeleteToken(id, this.loadStatus, { onSuccess: (data) => {
+            const index = this.tokens.findIndex(x => x.Id == id);
+            Vue.delete(this.tokens, index);
+        }});
     }
 
     ///////////////////////

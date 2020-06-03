@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Modules.Settings.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace HealthCheck.Core.Modules.Settings
@@ -18,6 +19,16 @@ namespace HealthCheck.Core.Modules.Settings
         public HCSettingsModule(HCSettingsModuleOptions options)
         {
             Options = options;
+        }
+
+        /// <summary>
+        /// Check options object for issues.
+        /// </summary>
+        public override List<string> Validate()
+        {
+            var issues = new List<string>();
+            if (Options.SettingsService == null) issues.Add("Options.SettingsService must be set.");
+            return issues;
         }
 
         /// <summary>

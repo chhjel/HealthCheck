@@ -1,4 +1,4 @@
-<!-- src/components/modules/AccessManager/AccessGridComponent.vue -->
+<!-- src/components/modules/AccessTokens/AccessGridComponent.vue -->
 <template>
     <div>
         <v-text-field type="text"
@@ -73,7 +73,7 @@ import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsVie
 import DateUtils from  '../../../util/DateUtils';
 import LinqUtils from  '../../../util/LinqUtils';
 import SettingInputComponent from '../Settings/SettingInputComponent.vue';
-import AccessManagerService, { AccessData, CreatedAccessData } from  '../../../services/AccessManagerService';
+import { AccessData, CreatedAccessData } from  '../../../services/AccessTokensService';
 import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
 import BlockComponent from '../../Common/Basic/BlockComponent.vue';
 import ModuleConfig from  '../../../models/Common/ModuleConfig';

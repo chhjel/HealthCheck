@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace HealthCheck.Core.Modules.AccessManager.Models
+namespace HealthCheck.Core.Modules.AccessTokens.Models
 {
     /// <summary>
     /// A generated access token.
@@ -32,6 +32,12 @@ namespace HealthCheck.Core.Modules.AccessManager.Models
         /// Expiration date if any.
         /// </summary>
         public DateTime? ExpiresAt { get; set; }
+
+        /// <summary>
+        /// Last used date.
+        /// <para>Updated if more than 1 min since last time.</para>
+        /// </summary>
+        public DateTime? LastUsedAt { get; set; }
 
         /// <summary>
         /// Roles the token will be granted.

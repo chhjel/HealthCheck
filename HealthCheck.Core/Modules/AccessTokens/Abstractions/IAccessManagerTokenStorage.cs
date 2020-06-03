@@ -1,8 +1,8 @@
-﻿using HealthCheck.Core.Modules.AccessManager.Models;
+﻿using HealthCheck.Core.Modules.AccessTokens.Models;
 using System;
 using System.Collections.Generic;
 
-namespace HealthCheck.Core.Modules.AccessManager.Abstractions
+namespace HealthCheck.Core.Modules.AccessTokens.Abstractions
 {
     /// <summary>
     /// Provides storage for generated access tokens.
@@ -25,8 +25,13 @@ namespace HealthCheck.Core.Modules.AccessManager.Abstractions
         HCAccessToken SaveNewToken(HCAccessToken token);
 
         /// <summary>
+        /// Update token last used at datetime.
+        /// </summary>
+        HCAccessToken UpdateTokenLastUsedAtTime(Guid id, DateTime time);
+
+        /// <summary>
         /// Deletes the token with the given id.
         /// </summary>
-        void DeleteConfig(Guid tokenId);
+        void DeleteToken(Guid tokenId);
     }
 }

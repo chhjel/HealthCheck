@@ -3,7 +3,7 @@ using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Models;
-using HealthCheck.Core.Modules.AccessManager.Models;
+using HealthCheck.Core.Modules.AccessTokens.Models;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.EventNotifications.Models;

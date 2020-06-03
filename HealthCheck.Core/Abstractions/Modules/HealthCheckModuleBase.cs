@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Abstractions.Modules
 {
@@ -18,5 +19,10 @@ namespace HealthCheck.Core.Abstractions.Modules
         /// Optional values to be rendered on the page.
         /// </summary>
         public abstract IHealthCheckModuleConfig GetModuleConfig(HealthCheckModuleContext context);
+
+        /// <summary>
+        /// Optionally validate options etc. Return any issues to be displayed.
+        /// </summary>
+        public virtual List<string> Validate() => null;
     }
 }

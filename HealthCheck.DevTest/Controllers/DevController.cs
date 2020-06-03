@@ -2,7 +2,7 @@
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
-using HealthCheck.Core.Modules.AccessManager;
+using HealthCheck.Core.Modules.AccessTokens;
 using HealthCheck.Core.Modules.AuditLog;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.Dataflow;
@@ -83,7 +83,7 @@ namespace HealthCheck.DevTest.Controllers
         {
             InitServices();
 
-            UseModule(new HCAccessManagerModule(new HCAccessManagerModuleOptions()
+            UseModule(new HCAccessTokensModule(new HCAccessTokensModuleOptions()
             {
                 TokenStorage = new FlatFileAccessManagerTokenStorage(@"C:\temp\AccessTokens.json")
             })) ;
@@ -176,7 +176,7 @@ namespace HealthCheck.DevTest.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCLogViewerModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCEventNotificationsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCDynamicCodeExecutionModule>(RuntimeTestAccessRole.SystemAdmins);
-            config.GiveRolesAccessToModuleWithFullAccess<HCAccessManagerModule>(RuntimeTestAccessRole.SystemAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCAccessTokensModule>(RuntimeTestAccessRole.SystemAdmins);
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
