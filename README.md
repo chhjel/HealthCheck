@@ -18,6 +18,7 @@ Available modules:
 * Event notifications module for notifying through custom implementations when custom events occur.
 * Settings module for custom settings related to healthcheck.
 * IDE where C# scripts can be stored and executed in the context of the web application.
+* Access token module where tokens with limited access and lifespan can be created.
 
 ## Getting started
 
@@ -118,7 +119,7 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
         //..
         
         // Properties CurrentRequestAccessRoles and CurrentRequestInformation
-        // are available to use here as well.
+        // are available to use here as well if needed.
     }
 }
 ```
@@ -126,6 +127,12 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
 </details>
 
 ---------
+
+## A note about the built in flatfile storage implementations
+The built in flatfile storage classes should work fine for most use cases. If used make sure they are registered as singletons, they are thread safe but only within their own instances.
+
+---------
+
 # Modules
 
 ## Module: Tests
@@ -674,6 +681,29 @@ service.GetValue<bool>(nameof(TestSettings.Enabled))
 
 ----------
 
+## Module: Access Tokens
+
+Allows access tokens to be generated with limited access and duration. Tokens are stored hashed and salted in the given `IAccessManagerTokenStorage` implementation. The data being hashed includes given roles and module options to prevent tampering.
+
+### Setup
+
+```csharp
+UseModule(new HCAccessTokensModule(new HCAccessTokensModuleOptions()
+{
+    TokenStorage = IAccessManagerTokenStorage implementation
+}));
+```
+
+```csharp
+// Built in implementation example
+new FlatFileAccessManagerTokenStorage(@"e:\config\access-tokens.json")
+```
+
+</p>
+</details>
+
+----------
+
 ## Module: Event Notifications
 
 Enables notifications of custom events. Rules for notifications can be edited in a UI and events are easily triggered from code. Notifications are delivered through implementations of `IEventNotifier`. Built-in implementations: `DefaultEventDataSink`, `WebHookEventNotifier`.
@@ -683,7 +713,9 @@ Events can be filtered on their id, stringified payload or properties on their p
 ### Setup
 
 ```csharp
-UseModule(new HCEventNotificationsModule(new HCEventNotificationsModuleOptions() { EventSink = IEventDataSink implementation }));
+UseModule(new HCEventNotificationsModule(new HCEventNotificationsModuleOptions() {
+    EventSink = IEventDataSink implementation
+}));
 ```
 
 ```csharp
@@ -773,9 +805,6 @@ EventSinkUtil.TryRegisterEvent("thing_imported", () => new { Type = "etc", Value
 ## Utils
 
 A few utility classes are included below `HealthCheck.Core.Util`:
-* `ExceptionUtils` - Get a summary of exceptions to include in results.
+* `ExceptionUtils` - Get a summary of exceptions to include in test results.
 * `ConnectivityUtils` - Ping or send webrequests to check if a host is alive and return `TestResult` objects.
 * `TimeUtils` - Prettify durations.
-
-## Built in services
-Some flatfile storage classes are included and should work fine as the amount of data should not be too large. If used make sure they are registered as singletons, they are thread safe but only within their own instances.
