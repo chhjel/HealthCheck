@@ -1,4 +1,4 @@
-<!-- src/components/modules/AccessTokens/AccessGridComponent.vue -->
+<!-- src/components/modules/AccessTokens/EditAccessTokenComponent.vue -->
 <template>
     <div>
         <v-text-field type="text"
@@ -6,6 +6,12 @@
             v-model="data.name"
             :disabled="readonly"
         ></v-text-field>
+
+        <simple-date-time-component
+            v-model="data.ExpiresAt"
+            :readonly="readonly"
+            name="Expiration date"
+            />
 
         <h3>Roles</h3>
         <p class="mb-0">Give token access to the following roles:</p>
@@ -74,6 +80,7 @@ import DateUtils from  '../../../util/DateUtils';
 import LinqUtils from  '../../../util/LinqUtils';
 import SettingInputComponent from '../Settings/SettingInputComponent.vue';
 import { AccessData, CreatedAccessData } from  '../../../services/AccessTokensService';
+import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
 import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
 import BlockComponent from '../../Common/Basic/BlockComponent.vue';
 import ModuleConfig from  '../../../models/Common/ModuleConfig';
@@ -81,9 +88,10 @@ import ModuleOptions from  '../../../models/Common/ModuleOptions';
 
 @Component({
     components: {
+        SimpleDateTimeComponent
     }
 })
-export default class AccessGridComponent extends Vue {
+export default class EditAccessTokenComponent extends Vue {
     @Prop({ required: true })
     accessData!: AccessData;
 
@@ -99,7 +107,8 @@ export default class AccessGridComponent extends Vue {
     data: CreatedAccessData = {
         Name: 'New Token',
         Roles: [],
-        Modules: []
+        Modules: [],
+        ExpiresAt: null
     };
 
     //////////////////

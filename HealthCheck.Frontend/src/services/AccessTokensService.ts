@@ -53,6 +53,7 @@ export interface TokenData
     LastUsedAtSummary: string | null;
     ExpiresAt: Date | null;
     ExpiresAtSummary: string | null;
+    IsExpired: boolean;
     Roles: Array<string>;
     Modules: Array<CreatedModuleAccessData>;
 }
@@ -69,6 +70,7 @@ export interface CreatedAccessData
     Name: string;
     Roles: Array<string>;
     Modules: Array<CreatedModuleAccessData>;
+    ExpiresAt: Date | null;
 }
 
 export interface CreatedModuleAccessData

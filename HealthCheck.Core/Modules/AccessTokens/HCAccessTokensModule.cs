@@ -94,7 +94,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
                 if (tokenFromStore == null) return null;
                 else if (tokenFromStore.ExpiresAt != null && tokenFromStore.ExpiresAt < DateTime.Now) return null;
 
-                var tokenHashBase = CreateBaseForHash(rawToken, tokenFromStore.Roles, tokenFromStore.Modules);
+                var tokenHashBase = CreateBaseForHash(rawToken, tokenFromStore.Roles, tokenFromStore.Modules, tokenFromStore.ExpiresAt);
                 var isValid = HashUtils.ValidateHash(tokenHashBase, tokenFromStore.HashedToken, tokenFromStore.TokenSalt);
                 if (!isValid) return null;
 
@@ -142,6 +142,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
                     LastUsedAtSummary = lastUsedSummary,
                     ExpiresAt = x.ExpiresAt,
                     ExpiresAtSummary = expirationSummary,
+                    IsExpired = (x.ExpiresAt != null && x.ExpiresAt.Value < DateTime.Now),
                     Roles = x.Roles,
                     Modules = x.Modules
                 };
@@ -185,7 +186,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
 
             var id = Guid.NewGuid();
             var tokenValue = $"KEY-{id}-{Guid.NewGuid()}";
-            var tokenHashBase = CreateBaseForHash(tokenValue, data.Roles, modules);
+            var tokenHashBase = CreateBaseForHash(tokenValue, data.Roles, modules, data.ExpiresAt);
             var tokenHash = HashUtils.GenerateHash(tokenHashBase, out string salt);
 
             var token = new HCAccessToken
@@ -252,11 +253,12 @@ namespace HealthCheck.Core.Modules.AccessTokens
         #endregion
 
         #region Private helpers
-        private string CreateBaseForHash(string rawToken, List<string> roles, List<HCAccessTokenModuleData> modules)
+        private string CreateBaseForHash(string rawToken, List<string> roles, List<HCAccessTokenModuleData> modules, DateTime? expiresAt)
         {
             var rolesString = string.Join("$", roles);
             var modulesString = string.Join("$", modules.Select(x => $"({x.ModuleId}:{string.Join(",", x.Options)})"));
-            return $"{rawToken}|{rolesString}|{modulesString}";
+            var expirationString = (expiresAt == null) ? "no-expiration" : expiresAt.Value.Ticks.ToString();
+            return $"{rawToken}|{rolesString}|{modulesString}|{expirationString}";
         }
         #endregion
 

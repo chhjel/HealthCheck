@@ -86,7 +86,7 @@ namespace HealthCheck.DevTest.Controllers
             UseModule(new HCAccessTokensModule(new HCAccessTokensModuleOptions()
             {
                 TokenStorage = new FlatFileAccessManagerTokenStorage(@"C:\temp\AccessTokens.json")
-            })) ;
+            }));
             UseModule(new HCDynamicCodeExecutionModule(new HCDynamicCodeExecutionModuleOptions() {
                 TargetAssembly = typeof(DevController).Assembly,
                 ScriptStorage = new FlatFileDynamicCodeScriptStorage(@"C:\temp\DCE_Scripts.json"),

@@ -1,6 +1,6 @@
 <!-- src/components/modules/AccessTokens/AccessTokensPageComponent.vue -->
 <template>
-    <div class="access-manager-page">
+    <div class="access-tokens-page">
         <v-content class="pl-0">
         <v-container fluid fill-height class="content-root">
         <v-layout>
@@ -33,51 +33,52 @@
                     Add new
                 </v-btn>
 
+                <div v-if="canViewTokenData"
+                    class="mt-4 token-items">
+                    
+                </div>
                 <block-component
-                    v-if="canViewTokenData"
-                    class="mt-4"
-                    title="Generated tokens">
+                    class="token-item mb-2"
+                    v-for="(token, tokenIndex) in tokens"
+                    :key="`token-${tokenIndex}`"
+                    :class="{ 'token-item--expired': token.IsExpired }">
 
-                    <div class="token-item"
-                        v-for="(token, tokenIndex) in tokens"
-                        :key="`token-${tokenIndex}`">
-                        {{ token.Name }}
+                    <div class="token-item--title">{{ token.Name }}</div>
 
-                        <div class="token-item--roles">
-                            <span class="token-item--roles--item"
-                                v-for="(role, roleIndex) in token.Roles"
-                                :key="`token-${tokenIndex}-role-${roleIndex}`">
-                                {{ role }}
-                            </span>
-                        </div>
-
-                        <div class="token-item--modules">
-                            <span class="token-item--modules--item"
-                                v-for="(module, moduleIndex) in token.Modules"
-                                :key="`token-${tokenIndex}-module-${moduleIndex}`">
-                                {{ module.ModuleId }}
-                                
-                                <span class="token-item--modules--item--option"
-                                    v-for="(option, optionIndex) in module.Options"
-                                    :key="`token-${tokenIndex}-module-${moduleIndex}-option-${optionIndex}`">
-                                    <code>{{ option }}</code>
-                                </span>
-                            </span>
-                        </div>
-                        
-                        <div class="token-item--last-updated-at" v-if="token.LastUsedAt != null">
-                            {{ token.LastUsedAtSummary }} @ {{ token.LastUsedAt }}
-                        </div>
-                        <div class="token-item--expires-at" v-if="token.ExpiresAt != null">
-                            {{ token.ExpiresAtSummary }} @ {{ token.ExpiresAt }}
-                        </div>
-                        
-                        <v-btn color="error"
-                            v-if="canDeleteToken"
-                            :loading="loadStatus.inProgress"
-                            :disabled="loadStatus.inProgress"
-                            @click="deleteToken(token.Id)">Delete</v-btn>
+                    <div class="token-item--roles">
+                        <span class="token-item--roles--item"
+                            v-for="(role, roleIndex) in token.Roles"
+                            :key="`token-${tokenIndex}-role-${roleIndex}`">
+                            {{ role }}
+                        </span>
                     </div>
+
+                    <div class="token-item--modules">
+                        <span class="token-item--modules--item"
+                            v-for="(module, moduleIndex) in token.Modules"
+                            :key="`token-${tokenIndex}-module-${moduleIndex}`">
+                            {{ module.ModuleId }}
+                            
+                            <span class="token-item--modules--item--option"
+                                v-for="(option, optionIndex) in module.Options"
+                                :key="`token-${tokenIndex}-module-${moduleIndex}-option-${optionIndex}`">
+                                <code>{{ option }}</code>
+                            </span>
+                        </span>
+                    </div>
+                    
+                    <div class="token-item--last-updated-at" v-if="token.LastUsedAt != null">
+                        {{ token.LastUsedAtSummary }} @ {{ token.LastUsedAt }}
+                    </div>
+                    <div class="token-item--expires-at" v-if="token.ExpiresAt != null">
+                        {{ token.ExpiresAtSummary }} @ {{ token.ExpiresAt }}
+                    </div>
+                    
+                    <v-btn color="error" small
+                        v-if="canDeleteToken"
+                        :loading="loadStatus.inProgress"
+                        :disabled="loadStatus.inProgress"
+                        @click="deleteToken(token)">Delete</v-btn>
                 </block-component>
 
             </v-container>
@@ -85,6 +86,27 @@
         </v-layout>
         </v-container>
         
+        
+        <!-- ##################### -->
+        <!-- ###### DIALOGS ######-->
+        <v-dialog v-model="deleteTokenDialogVisible"
+            @keydown.esc="deleteTokenDialogVisible = false"
+            max-width="350"
+            content-class="delete-token-dialog">
+            <v-card style="background-color: #f4f4f4">
+                <v-card-title class="headline">Confirm deletion</v-card-title>
+                <v-card-text>
+                    {{ deleteTokenDialogText }}
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" @click="deleteTokenDialogVisible = false">Cancel</v-btn>
+                    <v-btn color="error" @click="confirmDeleteToken(tokenToBeDeleted)">Delete it</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <!-- ##################### -->
         <v-dialog v-model="createNewTokenDialogVisible"
             @keydown.esc="createNewTokenDialogVisible = false"
             scrollable
@@ -103,7 +125,8 @@
                 <v-divider></v-divider>
                 
                 <v-card-text>
-                    <access-grid-component
+
+                    <edit-access-token-component
                         :access-data="accessData"
                         :read-only="loadStatus.inProgress"
                         v-model="accessDataInEdit" />
@@ -125,6 +148,7 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+        <!-- ##################### -->
         </v-content>
     </div>
 </template>
@@ -140,13 +164,13 @@ import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
 import BlockComponent from '../../Common/Basic/BlockComponent.vue';
 import ModuleConfig from  '../../../models/Common/ModuleConfig';
 import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import AccessGridComponent from './AccessGridComponent.vue';
+import EditAccessTokenComponent from './EditAccessTokenComponent.vue';
 
 @Component({
     components: {
         SettingInputComponent,
         BlockComponent,
-        AccessGridComponent
+        EditAccessTokenComponent
     }
 })
 export default class AccessTokensPageComponent extends Vue {
@@ -168,6 +192,10 @@ export default class AccessTokensPageComponent extends Vue {
     createNewTokenDialogVisible: boolean = false;
     accessDataInEdit: CreatedAccessData = this.defaultNewTokenData();
     lastCreatedTokenData: CreateNewTokenResponse | null = null;
+
+    deleteTokenDialogVisible: boolean = false;
+    deleteTokenDialogText: string = '';
+    tokenToBeDeleted: TokenData | null = null;
 
     //////////////////
     //  LIFECYCLE  //
@@ -241,8 +269,9 @@ export default class AccessTokensPageComponent extends Vue {
             Name: createdToken.Name,
             LastUsedAt: null,
             LastUsedAtSummary: null,
-            ExpiresAt: null,
+            ExpiresAt: this.accessDataInEdit.ExpiresAt,
             ExpiresAtSummary: null,
+            IsExpired: false,
             Roles: this.accessDataInEdit.Roles.map(x => x),
             Modules: this.accessDataInEdit.Modules.map(x => x)
         });
@@ -254,13 +283,20 @@ export default class AccessTokensPageComponent extends Vue {
         return {
             Name: 'New Token',
             Roles: [],
-            Modules: []
+            Modules: [],
+            ExpiresAt: null
         };
     }
 
-    deleteToken(id: string): void {
-        this.service.DeleteToken(id, this.loadStatus, { onSuccess: (data) => {
-            const index = this.tokens.findIndex(x => x.Id == id);
+    deleteToken(token: TokenData): void {
+        this.tokenToBeDeleted = token;
+        this.deleteTokenDialogText = `Are your sure you want to delete the token '${token.Name}'?`;
+        this.deleteTokenDialogVisible = true;
+    }
+
+    confirmDeleteToken(token: TokenData): void {
+        this.service.DeleteToken(token.Id, this.loadStatus, { onSuccess: (data) => {
+            const index = this.tokens.findIndex(x => x.Id == token.Id);
             Vue.delete(this.tokens, index);
         }});
     }
@@ -273,6 +309,22 @@ export default class AccessTokensPageComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-/* .access-manager-page {
-} */
+.access-tokens-page {
+    .token-items {
+        .token-item {
+            .token-item--title {
+            }
+            .token-item--roles {
+                .token-item--roles--item {}
+            }
+            .token-item--modules {
+                .token-item--modules--item {
+                    .token-item--modules--item--option {}
+                }
+            }
+            .token-item--last-updated-at {}
+            .token-item--expires-at {}
+        }
+    }
+} 
 </style>
