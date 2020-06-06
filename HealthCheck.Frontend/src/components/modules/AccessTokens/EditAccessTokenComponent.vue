@@ -15,6 +15,7 @@
 
         <h3>Roles</h3>
         <p class="mb-0">Give token access to the following roles:</p>
+        <p class="mt-0 mb-0">Roles here do not grant access to modules themselves, they only grant the role in the module context.</p>
         <v-layout row wrap>
             <div class="mr-2"
                 v-for="(role, rindex) in accessData.Roles"
@@ -55,7 +56,7 @@
                 </div>
 
                 <div v-if="module.AccessOptions.length == 0"
-                    style="margin-left: 20px;">Full access to this module.</div>
+                    style="margin-left: 20px;">No specific access options available for this module.</div>
                 <div class="access-grid--row--options"
                     v-if="hasAccessToModule(module.ModuleId)">
                     <div class="access-grid--row--options--item"

@@ -49,6 +49,8 @@ export interface TokenData
 {
     Id: string;
     Name: string;
+    CreatedAt: Date;
+    CreatedAtSummary: string,
     LastUsedAt: Date | null;
     LastUsedAtSummary: string | null;
     ExpiresAt: Date | null;
