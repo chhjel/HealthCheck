@@ -51,7 +51,7 @@
                                         {{ token.CreatedAtSummary }}
                                     </div>
                                 </template>
-                                Created {{ token.CreatedAt }}
+                                Created {{ formatDate(token.CreatedAt) }}
                             </v-tooltip>
                             
                             <v-tooltip bottom>
@@ -62,7 +62,7 @@
                                         {{ token.LastUsedAtSummary }}
                                     </div>
                                 </template>
-                                <span v-if="token.LastUsedAt != null">Last used {{ token.LastUsedAt }}</span>
+                                <span v-if="token.LastUsedAt != null">Last used {{ formatDate(token.LastUsedAt) }}</span>
                                 <span v-else>Not used yet</span>
                             </v-tooltip>
 
@@ -74,8 +74,8 @@
                                         {{ token.ExpiresAtSummary }}
                                     </div>
                                 </template>
-                                <span v-if="token.IsExpired">This token expired {{ token.ExpiresAt }}</span>
-                                <span v-else>Expires {{ token.ExpiresAt }}</span>
+                                <span v-if="token.IsExpired">This token expired {{ formatDate(token.ExpiresAt) }}</span>
+                                <span v-else>Expires {{ formatDate(token.ExpiresAt) }}</span>
                             </v-tooltip>
                         </div>
 
@@ -292,6 +292,14 @@ export default class AccessTokensPageComponent extends Vue {
             {
                 x.LastUsedAt = new Date(x.LastUsedAt);
             }
+            if (x.CreatedAt != null)
+            {
+                x.CreatedAt = new Date(x.CreatedAt);
+            }
+            if (x.ExpiresAt != null)
+            {
+                x.ExpiresAt = new Date(x.ExpiresAt);
+            }
             return x;
         });
     }
@@ -312,21 +320,31 @@ export default class AccessTokensPageComponent extends Vue {
         this.lastCreatedTokenData = createdToken;
         this.createNewTokenDialogVisible = false;
 
+        const isExpired = (this.accessDataInEdit.ExpiresAt != null && this.accessDataInEdit.ExpiresAt < new Date());
+        const expirationSummary = (this.accessDataInEdit.ExpiresAt == null)
+            ? ''
+            : (isExpired) 
+                ? 'Expired'
+                : `Expires at ${this.formatDate(this.accessDataInEdit.ExpiresAt)}`;
         this.tokens.push({
             Id: createdToken.Id,
             Name: createdToken.Name,
             CreatedAt: new Date(),
             CreatedAtSummary: 'Created just now',
             LastUsedAt: null,
-            LastUsedAtSummary: null,
+            LastUsedAtSummary: 'Not used yet',
             ExpiresAt: this.accessDataInEdit.ExpiresAt,
-            ExpiresAtSummary: null,
-            IsExpired: false,
+            ExpiresAtSummary: expirationSummary,
+            IsExpired: isExpired,
             Roles: this.accessDataInEdit.Roles.map(x => x),
             Modules: this.accessDataInEdit.Modules.map(x => x)
         });
 
         this.accessDataInEdit = this.defaultNewTokenData();
+    }
+
+    formatDate(date: Date): string {
+        return DateUtils.FormatDate(date, "dddd dd. MMMM yyyy HH:mm:ss");
     }
 
     defaultNewTokenData(): CreatedAccessData {

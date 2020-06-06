@@ -86,7 +86,7 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
         if (val == null || val == undefined) {
             return null;
         }
-        else if (this.type == "DateTime") {
+        else if (this.type == "DateTime" || this.type == "DateTimeOffset") {
             let parts = val.split('-', 3);
             val = `${parts[1]}-${parts[0]}-${parts[2]}`;
             
