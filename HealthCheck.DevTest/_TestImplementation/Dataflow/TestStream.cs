@@ -13,7 +13,7 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
     {
         public Guid Id { get; set; }
         public string Message { get; set; }
-        public DateTime? InsertionTime { get; set; }
+        public DateTimeOffset? InsertionTime { get; set; }
 
         public static implicit operator TestMemoryStreamItem(string message)
             => new TestMemoryStreamItem { Message = message };
@@ -71,6 +71,8 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
             ConfigureProperty(nameof(TestEntry.TestList)).SetUIHint(DataFlowPropertyUIHint.List);
             ConfigureProperty(nameof(TestEntry.TestLink)).SetUIHint(DataFlowPropertyUIHint.Link);
             ConfigureProperty(nameof(TestEntry.TestImage)).SetUIHint(DataFlowPropertyUIHint.Image);
+            ConfigureProperty(nameof(TestEntry.TestDate)).SetUIHint(DataFlowPropertyUIHint.DateTime).PrettifyDisplayName();
+            ConfigureProperty(nameof(TestEntry.TestDateOffset)).SetUIHint(DataFlowPropertyUIHint.DateTime).PrettifyDisplayName();
 
             AutoCreateFilters<TestEntry>(excludedMemberNames: new [] { nameof(TestEntry.Icon) });
             //ConfigureProperty(nameof(TestEntry.Icon)).SetFilterable(false);

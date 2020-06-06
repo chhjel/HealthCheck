@@ -169,6 +169,8 @@ namespace HealthCheck.Core.Util
                 return (T)Convert.ChangeType(false, typeof(T));
             else if (inputType == typeof(DateTime) && DATETIME_ALIAS_NOW.Contains(trimmedLowerInput))
                 return (T)Convert.ChangeType(DateTime.Now, typeof(T));
+            else if (inputType == typeof(DateTimeOffset) && DATETIME_ALIAS_NOW.Contains(trimmedLowerInput))
+                return (T)Convert.ChangeType(DateTimeOffset.Now, typeof(T));
 
             // Fallback to TryParse or throw
             if (inputType == typeof(String))
@@ -181,6 +183,8 @@ namespace HealthCheck.Core.Util
                 return ParseOrThrow<T>((i) => Char.Parse(i), input);
             else if (inputType == typeof(DateTime))
                 return ParseOrThrow<T>((i) => DateTime.Parse(i), input);
+            else if (inputType == typeof(DateTimeOffset))
+                return ParseOrThrow<T>((i) => DateTimeOffset.Parse(i), input);
             else if (inputType == typeof(Decimal))
                 return ParseOrThrow<T>((i) => Decimal.Parse(i), input);
             else if (inputType == typeof(Double))

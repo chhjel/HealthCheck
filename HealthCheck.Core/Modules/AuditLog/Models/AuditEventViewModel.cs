@@ -12,7 +12,7 @@ namespace HealthCheck.Core.Modules.AuditLog.Models
         /// <summary>
         /// Time of the event.
         /// </summary>
-        public DateTime Timestamp { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
 
         /// <summary>
         /// What area the event is related to.

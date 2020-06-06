@@ -273,7 +273,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Services
                             var result = await NotifyEventAsync(notifier, notifierConfig, eventId, payloadProperties);
                             if (!string.IsNullOrWhiteSpace(result))
                             {
-                                result = $"{DateTime.Now:ddd d. MMMM @ HH:mm:ss} - {result}";
+                                result = $"{DateTimeOffset.Now:ddd d. MMMM @ HH:mm:ss} - {result}";
                             }
                             lock (_cacheUpdateLock)
                             {
@@ -383,7 +383,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Services
 
         private void OnEventNotified(EventSinkNotificationConfig config, string result)
         {
-            config.LastNotifiedAt = DateTime.Now;
+            config.LastNotifiedAt = DateTimeOffset.Now;
 
             if (config.NotificationCountLimit != null)
             {

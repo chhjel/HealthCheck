@@ -29,7 +29,7 @@ namespace HealthCheck.Core.Services
             await service.StoreEvent(eventB);
 
             await service.MarkEventAsResolved("typeIdC", "Resolved!");
-            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Empty(items.Where(x => x.Resolved));
         }
 
@@ -44,7 +44,7 @@ namespace HealthCheck.Core.Services
             await service.StoreEvent(eventB);
 
             await service.MarkEventAsResolved("typeIdX", "Resolved!");
-            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Single(items.Where(x => x.Resolved && x.ResolvedMessage == "Resolved!" && x.ResolvedAt != null));
         }
 
@@ -55,13 +55,13 @@ namespace HealthCheck.Core.Services
             var service = new SiteEventService(storage);
             var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
             {
-                Timestamp = DateTime.Now.AddMinutes(-30)
+                Timestamp = DateTimeOffset.Now.AddMinutes(-30)
             };
             var eventB = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
 
-            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Equal(2, items.Count);
         }
 
@@ -72,13 +72,13 @@ namespace HealthCheck.Core.Services
             var service = new SiteEventService(storage);
             var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
             {
-                 Timestamp = DateTime.Now.AddMinutes(-3)
+                 Timestamp = DateTimeOffset.Now.AddMinutes(-3)
             };
             var eventB = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
 
-            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Single(items);
 
             var item = items.Single();
@@ -92,13 +92,13 @@ namespace HealthCheck.Core.Services
             var service = new SiteEventService(storage);
             var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
             {
-                Timestamp = DateTime.Now.AddMinutes(-3)
+                Timestamp = DateTimeOffset.Now.AddMinutes(-3)
             };
             var eventB = new SiteEvent(SiteEventSeverity.Error, "typeIdB", "TitleB", "DescriptionB", duration: 10);
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
 
-            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Equal(2, items.Count);
         }
 
@@ -109,13 +109,13 @@ namespace HealthCheck.Core.Services
             var service = new SiteEventService(storage);
             var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
             {
-                Timestamp = DateTime.Now.AddMinutes(-10)
+                Timestamp = DateTimeOffset.Now.AddMinutes(-10)
             };
             var eventB = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 30);
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
 
-            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Single(items);
 
             var item = items.Single();
@@ -131,14 +131,14 @@ namespace HealthCheck.Core.Services
 
             var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
             {
-                Timestamp = DateTime.Now.AddMinutes(-15)
+                Timestamp = DateTimeOffset.Now.AddMinutes(-15)
             };
             var eventB = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
 
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
 
-            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Single(items);
 
             var item = items.Single();
@@ -154,14 +154,14 @@ namespace HealthCheck.Core.Services
 
             var eventA = new SiteEvent(SiteEventSeverity.Error, null, "TitleA", "DescriptionA", duration: 10)
             {
-                Timestamp = DateTime.Now.AddMinutes(-15)
+                Timestamp = DateTimeOffset.Now.AddMinutes(-15)
             };
             var eventB = new SiteEvent(SiteEventSeverity.Error, null, "TitleB", "DescriptionB", duration: 5);
 
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
 
-            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Equal(2, items.Count);
         }
 
@@ -174,14 +174,14 @@ namespace HealthCheck.Core.Services
 
             var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
             {
-                Timestamp = DateTime.Now.AddMinutes(-25)
+                Timestamp = DateTimeOffset.Now.AddMinutes(-25)
             };
             var eventB = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
 
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
 
-            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Single(items);
 
             var item = items.Single();
@@ -197,8 +197,8 @@ namespace HealthCheck.Core.Services
 
             var previouslyResolvedEvent = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
             {
-                Timestamp = DateTime.Now.AddMinutes(-15),
-                ResolvedAt = DateTime.Now.AddMinutes(-14),
+                Timestamp = DateTimeOffset.Now.AddMinutes(-15),
+                ResolvedAt = DateTimeOffset.Now.AddMinutes(-14),
                 Resolved = true,
                 ResolvedMessage = "Resolved"
             };
@@ -207,7 +207,7 @@ namespace HealthCheck.Core.Services
             var newUnresolvedEvent = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
             await service.StoreEvent(newUnresolvedEvent);
 
-            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Single(items);
 
             var item = items.Single();
@@ -225,19 +225,19 @@ namespace HealthCheck.Core.Services
 
             var previouslyUnresolvedEvent = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
             {
-                Timestamp = DateTime.Now.AddMinutes(-15)
+                Timestamp = DateTimeOffset.Now.AddMinutes(-15)
             };
             await service.StoreEvent(previouslyUnresolvedEvent);
 
             var newResolvedEvent = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5)
             {
-                ResolvedAt = DateTime.Now,
+                ResolvedAt = DateTimeOffset.Now,
                 Resolved = true,
                 ResolvedMessage = "Resolved"
             };
             await service.StoreEvent(newResolvedEvent);
 
-            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Single(items);
 
             var item = items.Single();
@@ -263,13 +263,13 @@ namespace HealthCheck.Core.Services
             var service = new SiteEventService(storage, defaultMergeOptions);
             var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
             {
-                Timestamp = DateTime.Now.AddMinutes(-3)
+                Timestamp = DateTimeOffset.Now.AddMinutes(-3)
             };
             var eventB = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleB", "DescriptionB", duration: 5);
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
 
-            var items = await storage.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Single(items);
 
             var item = items.Single();

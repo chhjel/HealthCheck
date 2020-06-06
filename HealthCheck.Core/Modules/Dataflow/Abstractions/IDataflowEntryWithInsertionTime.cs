@@ -10,6 +10,6 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         /// <summary>
         /// Time of insertion.
         /// </summary>
-        DateTime? InsertionTime { get; set; }
+        DateTimeOffset? InsertionTime { get; set; }
     }
 }

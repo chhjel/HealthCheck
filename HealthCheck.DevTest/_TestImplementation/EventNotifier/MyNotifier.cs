@@ -51,7 +51,7 @@ namespace HealthCheck.DevTest._TestImplementation.EventNotifier
             public string BodyTest { get; set; }
 
             [EventNotifierOption]
-            public DateTime DateTest { get; set; }
+            public DateTimeOffset DateTest { get; set; }
         }
     }
 }

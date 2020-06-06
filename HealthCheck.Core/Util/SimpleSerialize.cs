@@ -20,7 +20,7 @@ namespace HealthCheck.Core.Util
 		}
 
 		private static readonly Type[] SimpleTypes = new[] {
-			typeof(string), typeof(DateTime)
+			typeof(string), typeof(DateTime), typeof(DateTimeOffset)
 		};
 		private static StringBuilder Stringify(string name, object data, int maxLevels, StringBuilder builder, int currentLevel = 0)
 		{

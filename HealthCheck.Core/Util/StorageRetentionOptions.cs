@@ -10,7 +10,7 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Timestamp selector for stored items. Used to check age of items for cleanup.
         /// </summary>
-        public Func<TItem, DateTime> ItemTimestampSelector { get; set; }
+        public Func<TItem, DateTimeOffset> ItemTimestampSelector { get; set; }
 
         /// <summary>
         /// Max age of entries before they can become deleted.
@@ -34,7 +34,7 @@ namespace HealthCheck.Core.Util
         /// <param name="maxAge">Max age of entries before they can become deleted.</param>
         /// <param name="minimumCleanupInterval">Cleanup logic will be executed after insertion if this duration has passed since the last cleanup.</param>
         /// <param name="delayFirstCleanup">Delay first cleanup by MinimumCleanupInterval.</param>
-        public StorageRetentionOptions(Func<TItem, DateTime> timestampSelector,
+        public StorageRetentionOptions(Func<TItem, DateTimeOffset> timestampSelector,
             TimeSpan maxAge, TimeSpan minimumCleanupInterval,
             bool delayFirstCleanup = false)
         {

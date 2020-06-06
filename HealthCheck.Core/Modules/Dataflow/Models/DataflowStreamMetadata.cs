@@ -46,7 +46,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
         public Maybe<TAccessRole> RolesWithAccess { get; set; }
 
         /// <summary>
-        /// Optional name of a <see cref="DateTime"/> property that will be used for grouping in frontend.
+        /// Optional name of a <see cref="DateTime"/> or <see cref="DateTimeOffset"/> property that will be used for grouping in frontend.
         /// </summary>
         public string DateTimePropertyNameForUI { get; internal set; }
     }

@@ -15,7 +15,6 @@
 
         <h3>Roles</h3>
         <p class="mb-0">Give token access to the following roles:</p>
-        <p class="mt-0 mb-0">Roles here do not grant access to modules themselves, they only grant the role in the module context.</p>
         <v-layout row wrap>
             <div class="mr-2"
                 v-for="(role, rindex) in accessData.Roles"

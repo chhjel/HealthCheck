@@ -14,8 +14,8 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
         public string Error { get; set; }
         public bool HasError => !string.IsNullOrWhiteSpace(Error);
 
-        public DateTime? LowestDate { get; set; }
-        public DateTime? HighestDate { get; set; }
+        public DateTimeOffset? LowestDate { get; set; }
+        public DateTimeOffset? HighestDate { get; set; }
         public List<LogSearchStatisticsResult> Statistics { get; set; } = new List<LogSearchStatisticsResult>();
         public bool StatisticsIsComplete => Statistics.Count == TotalMatchCount;
     }

@@ -179,7 +179,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
             Raw = 0,
 
             /// <summary>
-            /// Display as date, time or both. Can be used for <see cref="DateTime"/> property types.
+            /// Display as date, time or both. Can be used for <see cref="DateTime"/> and <see cref="DateTimeOffset"/> property types.
             /// <para>Defaults to 'MMMM d, yyyy @ HH:mm:ss' and can be customized through <see cref="DateTimeFormat"/>.</para>
             /// </summary>
             DateTime,
@@ -248,8 +248,8 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
         }
 
         /// <summary>
-        /// Format of the property if it's a <see cref="DateTime"/> and <see cref="UIHint"/> is set to <see cref="DataFlowPropertyUIHint.DateTime"/>.
+        /// Format of the property if it's a <see cref="DateTime"/> or <see cref="DateTimeOffset"/> and <see cref="UIHint"/> is set to <see cref="DataFlowPropertyUIHint.DateTime"/>.
         /// </summary>
-        public string DateTimeFormat { get; set; } = "MMMM d, yyyy @ HH:mm:ss";
+        public string DateTimeFormat { get; set; } = "MMMM d, yyyy HH:mm:ss";
     }
 }

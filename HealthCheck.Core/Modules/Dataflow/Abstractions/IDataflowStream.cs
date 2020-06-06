@@ -48,7 +48,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         bool SupportsFilterByDate { get; }
 
         /// <summary>
-        /// Optional name of a <see cref="DateTime"/> property that will be used for grouping in frontend.
+        /// Optional name of a <see cref="DateTime"/> or <see cref="DateTimeOffset"/> property that will be used for grouping in frontend.
         /// </summary>
         string DateTimePropertyNameForUI { get; set; }
 

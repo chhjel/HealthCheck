@@ -24,12 +24,12 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
         /// <summary>
         /// If not null, only include from the given date.
         /// </summary>
-        public DateTime? FromDate { get; set; }
+        public DateTimeOffset? FromDate { get; set; }
 
         /// <summary>
         /// If not null, only include up until the given date.
         /// </summary>
-        public DateTime? ToDate { get; set; }
+        public DateTimeOffset? ToDate { get; set; }
 
         /// <summary>
         /// Filter on property values.

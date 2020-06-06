@@ -18,6 +18,6 @@ namespace HealthCheck.Core.Modules.AuditLog.Abstractions
         /// <summary>
         /// Get all stored <see cref="AuditEvent"/>s objects with a <see cref="AuditEvent.Timestamp"/> within the given threshold.
         /// </summary>
-        Task<List<AuditEvent>> GetEvents(DateTime from, DateTime to);
+        Task<List<AuditEvent>> GetEvents(DateTimeOffset from, DateTimeOffset to);
     }
 }

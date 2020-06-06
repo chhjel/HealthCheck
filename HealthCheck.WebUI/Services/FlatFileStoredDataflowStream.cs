@@ -40,7 +40,7 @@ namespace HealthCheck.WebUI.Services
             {
                 var minimumCleanupInterval = TimeSpan.FromMinutes(30);
                 store.RetentionOptions = new StorageRetentionOptions<TEntry>(
-                    (e) => e.InsertionTime ?? DateTime.MinValue,
+                    (e) => e.InsertionTime ?? DateTimeOffset.MinValue,
                     maxAge: maxEntryAge.Value,
                     minimumCleanupInterval: (maxEntryAge.Value < minimumCleanupInterval) ? maxEntryAge.Value : minimumCleanupInterval,
                     delayFirstCleanup: false

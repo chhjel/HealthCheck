@@ -9,7 +9,7 @@ namespace HealthCheck.DevTest.Controllers.RequestLogTestControllers
         {
             if (error)
             {
-                DateTime.Parse("nope");
+                DateTimeOffset.Parse("nope");
             }
             return View();
         }

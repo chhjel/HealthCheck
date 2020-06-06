@@ -107,7 +107,7 @@ namespace HealthCheck.Core.Abstractions.Modules
                 Area = ModuleName,
                 Action = action,
                 Subject = subject,
-                Timestamp = DateTime.Now,
+                Timestamp = DateTimeOffset.Now,
                 UserId = UserId,
                 UserName = UserName,
                 UserAccessRoles = EnumUtils.TryGetEnumFlaggedValueNames(CurrentRequestRoles)

@@ -103,7 +103,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
 
             config.Enabled = model.Enabled;
             config.LastChangedBy = context?.UserName ?? "Anonymous";
-            config.LastChangedAt = DateTime.Now;
+            config.LastChangedAt = DateTimeOffset.Now;
 
             config = Options.EventSink.SaveConfig(config);
 
@@ -118,7 +118,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
         public EventSinkNotificationConfig SaveEventNotificationConfig(HealthCheckModuleContext context, EventSinkNotificationConfig config)
         {
             config.LastChangedBy = context?.UserName ?? "Anonymous";
-            config.LastChangedAt = DateTime.Now;
+            config.LastChangedAt = DateTimeOffset.Now;
 
             config.LatestResults ??= new List<string>();
             config.PayloadFilters ??= new List<EventSinkNotificationConfigFilter>();

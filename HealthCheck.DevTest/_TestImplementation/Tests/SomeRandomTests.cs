@@ -47,6 +47,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         [RuntimeTestParameter(target: "textArea", "Text Area", "Testing a text area here", RuntimeTestParameterAttribute.UIHint.TextArea | RuntimeTestParameterAttribute.UIHint.FullWidth)]
         public TestResult TestParameterTypes(
             DateTime date, DateTime? nullableDate = null,
+            DateTimeOffset dateOffset = default, DateTimeOffset? nullableDateOffset = null,
             string text = "abc",
             string textArea = "abc\ndef",
             int number = 123, int? nullableNumber = 321,
@@ -72,14 +73,14 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
                 .AddTimelineData(new[]
                 {
                     new TimelineStep("Cart created", "A cart was created")
-                        .SetTimestamp(DateTime.Now.AddMinutes(-15), hideTime: true)
+                        .SetTimestamp(DateTimeOffset.Now.AddMinutes(-15), hideTime: true)
                         .SetIcon("shopping_cart")
                         .SetCompleted(),
-                    new TimelineStep("Payment recieved", "The payment was recieved in the system etc", DateTime.Now.AddMinutes(-7))
+                    new TimelineStep("Payment recieved", "The payment was recieved in the system etc", DateTimeOffset.Now.AddMinutes(-7))
                         .AddUrl("https://www.google.com", "Some url here etc")
                         .SetCompleted(),
                     new TimelineStep("Order recieved", "The order was recieved in the system etc")
-                        .SetTimestamp(DateTime.Now.AddMinutes(-3)).SetIcon("receipt").SetError("Oh no! It failed! Some more descriptions here etc etc etc etc and some more!"),
+                        .SetTimestamp(DateTimeOffset.Now.AddMinutes(-3)).SetIcon("receipt").SetError("Oh no! It failed! Some more descriptions here etc etc etc etc and some more!"),
                     new TimelineStep("Order shipped", "Stuff was sent")
                         .AddUrl("https://www.google.com", "Some url here")
                         .SetIcon("local_shipping")
@@ -138,11 +139,11 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
                         .SetTimestamp(DateTime.Now.AddMinutes(-15), hideTime: true)
                         .SetIcon("shopping_cart")
                         .SetCompleted(),
-                    new TimelineStep("Payment recieved", "The payment was recieved in the system etc", DateTime.Now.AddMinutes(-7))
+                    new TimelineStep("Payment recieved", "The payment was recieved in the system etc", DateTimeOffset.Now.AddMinutes(-7))
                         .AddUrl("https://www.google.com", "Some url here etc")
                         .SetCompleted(),
                     new TimelineStep("Order recieved", "The order was recieved in the system etc")
-                        .SetTimestamp(DateTime.Now.AddMinutes(-3)).SetIcon("receipt").SetError("Oh no! It failed! Some more descriptions here etc etc etc etc and some more!"),
+                        .SetTimestamp(DateTimeOffset.Now.AddMinutes(-3)).SetIcon("receipt").SetError("Oh no! It failed! Some more descriptions here etc etc etc etc and some more!"),
                     new TimelineStep("Order shipped", "Stuff was sent")
                         .AddUrls(new [] {
                             new HyperLink("Google", "https://www.google.com"),
@@ -156,15 +157,16 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             Description = "Some <a href=\"https://www.google.com\">description</a> here.",
             RunButtonText = "Import", RunningButtonText = "Importing")]
         [RuntimeTestParameter(Target = "number", Description = "Some <b>fancy</b> text! :D <a href=\"https://www.google.com\">woop</a>")]
-        public async Task<TestResult> TestWithoutDefaultValues(int number, string text, bool toggle, DateTime date,
+        public async Task<TestResult> TestWithoutDefaultValues(int number, string text, bool toggle, DateTime date, DateTimeOffset dateOffset,
             EnumTestType enumParam, EnumFlagsTestType enumFlagsParam, HttpPostedFileBase file,
-            List<string> stringList, List<DateTime> dateList, List<bool> boolList, List<EnumTestType> enumList, List<HttpPostedFileBase> fileList)
+            List<string> stringList, List<DateTime> dateList, List<DateTime> dateOffsetList, List<bool> boolList, List<EnumTestType> enumList, List<HttpPostedFileBase> fileList)
         {
             await Task.Delay(TimeSpan.FromSeconds(2));
             var result = TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(text)}, " +
-                $"{PrettifyValue(toggle)}, {PrettifyValue(date)}, {PrettifyValue(enumParam)}, {PrettifyValue(enumFlagsParam)}, {PrettifyValue(file)}]")
+                $"{PrettifyValue(toggle)}, {PrettifyValue(date)}, {PrettifyValue(dateOffset)}, {PrettifyValue(enumParam)}, {PrettifyValue(enumFlagsParam)}, {PrettifyValue(file)}]")
                 .AddSerializedData(stringList, "stringList")
                 .AddSerializedData(dateList, "dateList")
+                .AddSerializedData(dateOffsetList, "dateList")
                 .AddSerializedData(boolList, "boolList")
                 .AddSerializedData(enumList, "enumList")
                 .AddSerializedData(fileList.Select(x => x?.FileName).Where(x => x != null).ToArray(), "fileList");
@@ -219,9 +221,9 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         }
 
         [RuntimeTest]
-        public TestResult TestWithNullableValues(int? number = null, bool? checkbox = null, DateTime? date = null)
+        public TestResult TestWithNullableValues(int? number = null, bool? checkbox = null, DateTime? date = null, DateTimeOffset? dateOffset = null)
         {
-            return TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(checkbox)}, {PrettifyValue(date)}]");
+            return TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(checkbox)}, {PrettifyValue(date)}, {PrettifyValue(dateOffset)}]");
         }
 
         private string PrettifyValue(object value)
@@ -292,7 +294,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
                 return TestResult.CreateWarning("Some warning here")
                     .SetSiteEvent(new SiteEvent(SiteEventSeverity.Warning,
                     "IntegrationXLatency", "Increased latency with X", "Integration with X seems to be a bit slower than usual.",
-                    duration: 1, developerDetails: $"Exception at {DateTime.Now.ToLongTimeString()}:\n{ex}"));
+                    duration: 1, developerDetails: $"Exception at {DateTimeOffset.Now}:\n{ex}"));
             }
         }
 

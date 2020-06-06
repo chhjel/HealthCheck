@@ -68,12 +68,12 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
         /// <summary>
         /// Lowest date amongst all matches.
         /// </summary>
-        public DateTime? LowestDate { get; set; }
+        public DateTimeOffset? LowestDate { get; set; }
 
         /// <summary>
         /// Highest date amongst all matches.
         /// </summary>
-        public DateTime? HighestDate { get; set; }
+        public DateTimeOffset? HighestDate { get; set; }
 
         /// <summary>
         /// First 5000 dates from matching entries.

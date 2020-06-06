@@ -5,7 +5,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Abstractions
 {
     internal interface ILogEntryParser
     {
-        DateTime? ParseEntryDate(string raw);
+        DateTimeOffset? ParseEntryDate(string raw);
         bool IsEntryStart(string raw);
         LogEntry ParseDetails(LogEntry entry);
     }

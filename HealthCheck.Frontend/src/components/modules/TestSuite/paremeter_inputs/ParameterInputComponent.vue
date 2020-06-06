@@ -39,6 +39,8 @@ import ParameterInputTypeBooleanComponent from './input_types/ParameterInputType
 import ParameterInputTypeNullableBooleanComponent from './input_types/ParameterInputTypeNullableBooleanComponent.vue';
 import ParameterInputTypeDateTimeComponent from './input_types/ParameterInputTypeDateTimeComponent.vue';
 import ParameterInputTypeNullableDateTimeComponent from './input_types/ParameterInputTypeNullableDateTimeComponent.vue';
+import ParameterInputTypeDateTimeOffsetComponent from './input_types/ParameterInputTypeDateTimeOffsetComponent.vue';
+import ParameterInputTypeNullableDateTimeOffsetComponent from './input_types/ParameterInputTypeNullableDateTimeOffsetComponent.vue';
 import ParameterInputTypeEnumComponent from './input_types/ParameterInputTypeEnumComponent.vue';
 import ParameterInputTypeFlaggedEnumComponent from './input_types/ParameterInputTypeFlaggedEnumComponent.vue';
 import ParameterInputTypeGenericListComponent from './input_types/ParameterInputTypeGenericListComponent.vue';
@@ -61,6 +63,8 @@ import ParameterInputTypeHttpPostedFileBaseComponent from './input_types/Paramet
       ParameterInputTypeNullableBooleanComponent,
       ParameterInputTypeDateTimeComponent,
       ParameterInputTypeNullableDateTimeComponent,
+      ParameterInputTypeDateTimeOffsetComponent,
+      ParameterInputTypeNullableDateTimeOffsetComponent,
       ParameterInputTypeEnumComponent,
       ParameterInputTypeFlaggedEnumComponent,
       ParameterInputTypeGenericListComponent,

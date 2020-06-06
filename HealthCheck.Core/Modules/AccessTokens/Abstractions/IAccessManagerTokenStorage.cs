@@ -27,7 +27,7 @@ namespace HealthCheck.Core.Modules.AccessTokens.Abstractions
         /// <summary>
         /// Update token last used at datetime.
         /// </summary>
-        HCAccessToken UpdateTokenLastUsedAtTime(Guid id, DateTime time);
+        HCAccessToken UpdateTokenLastUsedAtTime(Guid id, DateTimeOffset time);
 
         /// <summary>
         /// Deletes the token with the given id.

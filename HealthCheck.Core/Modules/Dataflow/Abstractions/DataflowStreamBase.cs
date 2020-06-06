@@ -46,7 +46,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         public virtual bool SupportsFilterByDate => true;
 
         /// <summary>
-        /// Optional name of a <see cref="DateTime"/> property that will be used for grouping in frontend.
+        /// Optional name of a <see cref="DateTimeOffset"/> property that will be used for grouping in frontend.
         /// <para>Defaults to 'InsertionTime' to match <see cref="IDataflowEntryWithInsertionTime.InsertionTime"/>.</para>
         /// </summary>
         public virtual string DateTimePropertyNameForUI { get; set; } = "InsertionTime";

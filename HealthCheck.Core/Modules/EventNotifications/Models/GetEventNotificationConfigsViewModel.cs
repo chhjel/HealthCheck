@@ -1,7 +1,6 @@
 ﻿using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.EventNotifications.Abstractions;
 using HealthCheck.Core.Modules.EventNotifications.Attributes;
-using HealthCheck.Core.Modules.EventNotifications.Models;
 using System.Collections.Generic;
 using System.Linq;
 

@@ -92,15 +92,15 @@ namespace HealthCheck.Core.Modules.AccessTokens
 
                 var tokenFromStore = Options.TokenStorage.GetToken(tokenId.Value);
                 if (tokenFromStore == null) return null;
-                else if (tokenFromStore.ExpiresAt != null && tokenFromStore.ExpiresAt < DateTime.Now) return null;
+                else if (tokenFromStore.ExpiresAt != null && tokenFromStore.ExpiresAt < DateTimeOffset.Now) return null;
 
                 var tokenHashBase = CreateBaseForHash(rawToken, tokenFromStore.Roles, tokenFromStore.Modules, tokenFromStore.ExpiresAt);
                 var isValid = HashUtils.ValidateHash(tokenHashBase, tokenFromStore.HashedToken, tokenFromStore.TokenSalt);
                 if (!isValid) return null;
 
-                if (tokenFromStore.LastUsedAt == null || (DateTime.Now - tokenFromStore.LastUsedAt.Value).TotalMinutes >= 1)
+                if (tokenFromStore.LastUsedAt == null || (DateTimeOffset.Now - tokenFromStore.LastUsedAt.Value).TotalMinutes >= 1)
                 {
-                    tokenFromStore = Options.TokenStorage.UpdateTokenLastUsedAtTime(tokenFromStore.Id, DateTime.Now);
+                    tokenFromStore = Options.TokenStorage.UpdateTokenLastUsedAtTime(tokenFromStore.Id, DateTimeOffset.Now);
                 }
 
                 return tokenFromStore;
@@ -122,7 +122,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
                 string expirationSummary = null;
                 if (x.ExpiresAt != null)
                 {
-                    var timeUntil = (long)(x.ExpiresAt.Value - DateTime.Now).TotalMilliseconds;
+                    var timeUntil = (long)(x.ExpiresAt.Value - DateTimeOffset.Now).TotalMilliseconds;
                     expirationSummary = (timeUntil < 0)
                         ? "Expired"
                         : $"Expires in {TimeUtils.PrettifyDuration(timeUntil)}";
@@ -131,18 +131,26 @@ namespace HealthCheck.Core.Modules.AccessTokens
                 string lastUsedSummary = null;
                 if (x.LastUsedAt != null)
                 {
-                    lastUsedSummary = $" Last used {TimeUtils.PrettifyDurationSince(x.LastUsedAt, TimeSpan.FromMinutes(1), "less than a minute")} ago";
+                    lastUsedSummary = $"Last used {TimeUtils.PrettifyDurationSince(x.LastUsedAt, TimeSpan.FromMinutes(1), "less than a minute")} ago";
                 }
+                else
+                {
+                    lastUsedSummary = "Not used yet";
+                }
+
+                string createdSummary = $"Created {TimeUtils.PrettifyDurationSince(x.CreatedAt, TimeSpan.FromMinutes(1), "less than a minute")} ago";
 
                 return new
                 {
                     Id = x.Id,
                     Name = x.Name,
+                    CreatedAt = x.CreatedAt,
+                    CreatedAtSummary = createdSummary,
                     LastUsedAt = x.LastUsedAt,
                     LastUsedAtSummary = lastUsedSummary,
                     ExpiresAt = x.ExpiresAt,
                     ExpiresAtSummary = expirationSummary,
-                    IsExpired = (x.ExpiresAt != null && x.ExpiresAt.Value < DateTime.Now),
+                    IsExpired = (x.ExpiresAt != null && x.ExpiresAt.Value < DateTimeOffset.Now),
                     Roles = x.Roles,
                     Modules = x.Modules
                 };
@@ -193,6 +201,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
             {
                 Id = id,
                 Name = data.Name,
+                CreatedAt = DateTimeOffset.Now,
                 ExpiresAt = data.ExpiresAt,
                 HashedToken = tokenHash,
                 TokenSalt = salt,
@@ -253,7 +262,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
         #endregion
 
         #region Private helpers
-        private string CreateBaseForHash(string rawToken, List<string> roles, List<HCAccessTokenModuleData> modules, DateTime? expiresAt)
+        private string CreateBaseForHash(string rawToken, List<string> roles, List<HCAccessTokenModuleData> modules, DateTimeOffset? expiresAt)
         {
             var rolesString = string.Join("$", roles);
             var modulesString = string.Join("$", modules.Select(x => $"({x.ModuleId}:{string.Join(",", x.Options)})"));
@@ -271,7 +280,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
             /// <summary></summary>
             public string Name { get; set; }
             /// <summary></summary>
-            public DateTime? ExpiresAt { get; set; }
+            public DateTimeOffset? ExpiresAt { get; set; }
             /// <summary></summary>
             public List<string> Roles { get; set; }
             /// <summary></summary>

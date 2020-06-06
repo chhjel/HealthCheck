@@ -65,8 +65,8 @@ namespace HealthCheck.Core.Modules.AuditLog
         [HealthCheckModuleMethod]
         public async Task<IEnumerable<AuditEventViewModel>> GetFilteredAudits(AuditEventFilterInputData filter = null)
         {
-            var from = filter?.FromFilter ?? DateTime.MinValue;
-            var to = filter?.ToFilter ?? DateTime.MaxValue;
+            var from = filter?.FromFilter ?? DateTimeOffset.MinValue;
+            var to = filter?.ToFilter ?? DateTimeOffset.MaxValue;
             var events = await Options.AuditEventService.GetEvents(from, to);
             return events
                 .Where(x => AuditEventMatchesFilter(x, filter))

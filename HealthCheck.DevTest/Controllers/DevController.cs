@@ -207,7 +207,7 @@ namespace HealthCheck.DevTest.Controllers
                         EventSink.RegisterEvent("event_parallel_test", new
                         {
                             Number = i,
-                            TimeStamp = DateTime.Now,
+                            TimeStamp = DateTimeOffset.Now,
                             RandomValue = new Random().Next(1000),
                             Guid = Guid.NewGuid()
                         });
@@ -225,7 +225,7 @@ namespace HealthCheck.DevTest.Controllers
                 };
 
                 simpleStream.InsertEntries(someExternalItems.Select(x => GenericDataflowStreamObject.Create(x)));
-                memoryStream.InsertEntry($"Test item @ {DateTime.Now.ToLongTimeString()}");
+                memoryStream.InsertEntry($"Test item @ {DateTimeOffset.Now}");
                 testStreamA.InsertEntries(someExternalItems);
             }
 
@@ -462,7 +462,7 @@ namespace HealthCheck.DevTest.Controllers
                 .AddNotifier(new WebHookEventNotifier())
                 .AddNotifier(new MyNotifier())
                 .AddNotifier(new SimpleNotifier())
-                .AddPlaceholder("NOW", () => DateTime.Now.ToString())
+                .AddPlaceholder("NOW", () => DateTimeOffset.Now.ToString())
                 .AddPlaceholder("ServerName", () => Environment.MachineName);
             (EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableEventRegistering);
         }
@@ -470,7 +470,7 @@ namespace HealthCheck.DevTest.Controllers
         // New mock data
         public async Task<ActionResult> AddEvents()
         {
-            if ((await _siteEventService.GetEvents(DateTime.MinValue, DateTime.MaxValue)).Count == 0)
+            if ((await _siteEventService.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue)).Count == 0)
             {
                 for (int i = 0; i < 20; i++)
                 {
@@ -490,7 +490,7 @@ namespace HealthCheck.DevTest.Controllers
                 .Select(i => new TestEntry
                 {
                     Code = $"000{i}-P",
-                    Name = $"Entry [{DateTime.Now.ToLongTimeString()}]"
+                    Name = $"Entry [{DateTimeOffset.Now}]"
                 })
                 .ToList();
 
@@ -515,7 +515,7 @@ namespace HealthCheck.DevTest.Controllers
                 title, description,
                 duration: _rand.Next(1, 90)
             ) {
-                Timestamp = DateTime.Now
+                Timestamp = DateTimeOffset.Now
                     .AddDays(-7 + _rand.Next(7))
                     .AddMinutes(_rand.Next(0, 24 * 60))
             }

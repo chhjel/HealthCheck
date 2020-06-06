@@ -11,7 +11,7 @@ namespace HealthCheck.Core.Modules.AuditLog.Models
         /// <summary>
         /// Time of the event.
         /// </summary>
-        public DateTime Timestamp { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
 
         /// <summary>
         /// What area the event is related to.
@@ -56,7 +56,7 @@ namespace HealthCheck.Core.Modules.AuditLog.Models
         /// <summary>
         /// Create a new <see cref="AuditEvent"/>.
         /// </summary>
-        public AuditEvent(DateTime timestamp, string area, string title, string subject, string userId, string userName, List<string> userAccessRoles)
+        public AuditEvent(DateTimeOffset timestamp, string area, string title, string subject, string userId, string userName, List<string> userAccessRoles)
         {
             Timestamp = timestamp;
             Area = area;

@@ -15,12 +15,12 @@ namespace HealthCheck.Core.Util
         /// <para>If it was less that <paramref name="unknownThreshold"/> ago the <paramref name="unknownThresholdText"/> will be used.</para>
         /// <para>E.g: "2 seconds" or "9 minutes, 15 seconds"</para>
         /// </summary>
-        public static string PrettifyDurationSince(DateTime? time, TimeSpan unknownThreshold, string unknownThresholdText, string zero = "0 milliseconds")
+        public static string PrettifyDurationSince(DateTimeOffset? time, TimeSpan unknownThreshold, string unknownThresholdText, string zero = "0 milliseconds")
         {
             string summary = null;
             if (time != null)
             {
-                var timeSince = (DateTime.Now - time.Value);
+                var timeSince = (DateTimeOffset.Now - time.Value);
                 if (timeSince < unknownThreshold)
                 {
                     summary = unknownThresholdText;

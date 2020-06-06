@@ -154,7 +154,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Util
         private static string GetNewDumpFilename()
         {
             var cult = System.Globalization.CultureInfo.GetCultureInfoByIetfLanguageTag("nb-NO");
-            var date = DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss", cult);
+            var date = DateTimeOffset.Now.ToString("dd-MM-yyyy_HH-mm-ss", cult);
             return $"DCEDump_{date}.txt";
         }
 

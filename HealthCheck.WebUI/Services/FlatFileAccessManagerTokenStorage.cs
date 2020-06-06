@@ -51,7 +51,7 @@ namespace HealthCheck.WebUI.Services
         /// <summary>
         /// Update token last used at datetime.
         /// </summary>
-        public HCAccessToken UpdateTokenLastUsedAtTime(Guid id, DateTime time)
+        public HCAccessToken UpdateTokenLastUsedAtTime(Guid id, DateTimeOffset time)
         {
             var token = GetToken(id);
             if (token != null)

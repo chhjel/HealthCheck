@@ -35,11 +35,11 @@ namespace HealthCheck.Core.Modules.AuditLog.Models
         /// <summary>
         /// Date from filter.
         /// </summary>
-        public DateTime? FromFilter { get; set; }
+        public DateTimeOffset? FromFilter { get; set; }
 
         /// <summary>
         /// Date to filter.
         /// </summary>
-        public DateTime? ToFilter { get; set; }
+        public DateTimeOffset? ToFilter { get; set; }
     }
 }

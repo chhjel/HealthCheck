@@ -69,8 +69,8 @@ namespace HealthCheck.Core.Modules.SiteEvents
         public async Task<List<SiteEventViewModel>> GetSiteEvents(HealthCheckModuleContext context, GetSiteEventsRequestModel model)
         {
             var includeDeveloperDetails = context.HasAccess(AccessOption.DeveloperDetails);
-            model.From ??= DateTime.Now.AddDays(-30);
-            model.To ??= DateTime.Now;
+            model.From ??= DateTimeOffset.Now.AddDays(-30);
+            model.To ??= DateTimeOffset.Now;
 
             var viewModel = (await Options.SiteEventService.GetEvents(model.From.Value, model.To.Value))
                 .Select(x => SiteEventViewModelsFactory.CreateViewModel(x, includeDeveloperDetails))

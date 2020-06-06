@@ -29,15 +29,20 @@ namespace HealthCheck.Core.Modules.AccessTokens.Models
         public string TokenSalt { get; set; }
 
         /// <summary>
+        /// Date of creation.
+        /// </summary>
+        public DateTimeOffset CreatedAt { get; set; }
+
+        /// <summary>
         /// Expiration date if any.
         /// </summary>
-        public DateTime? ExpiresAt { get; set; }
+        public DateTimeOffset? ExpiresAt { get; set; }
 
         /// <summary>
         /// Last used date.
         /// <para>Updated if more than 1 min since last time.</para>
         /// </summary>
-        public DateTime? LastUsedAt { get; set; }
+        public DateTimeOffset? LastUsedAt { get; set; }
 
         /// <summary>
         /// Roles the token will be granted.

@@ -56,7 +56,7 @@ namespace HealthCheck.WebUI.Services
         /// <summary>
         /// Get stored events within the given threshold.
         /// </summary>
-        public Task<List<AuditEvent>> GetEvents(DateTime from, DateTime to)
+        public Task<List<AuditEvent>> GetEvents(DateTimeOffset from, DateTimeOffset to)
         {
             var items = Store.GetEnumerable()
                 .Where(x => x.Timestamp.ToUniversalTime() >= from && x.Timestamp.ToUniversalTime() <= to)
