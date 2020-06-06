@@ -61,7 +61,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                             Area = "Tests",
                             Action = "Test executed",
                             Subject = result?.Test?.Name,
-                            Timestamp = DateTime.Now,
+                            Timestamp = DateTimeOffset.Now,
                             UserId = auditUserId,
                             UserName = auditUsername,
                             UserAccessRoles = new List<string>()

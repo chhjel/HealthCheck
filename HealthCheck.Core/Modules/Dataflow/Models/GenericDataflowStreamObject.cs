@@ -17,8 +17,8 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
         /// <summary>
         /// Time of insertion.
         /// </summary>
-        public DateTime? InsertionTime { 
-            get => this[nameof(InsertionTime)] as DateTime?;
+        public DateTimeOffset? InsertionTime { 
+            get => this[nameof(InsertionTime)] as DateTimeOffset? ?? this[nameof(InsertionTime)] as DateTime?;
             set => this[nameof(InsertionTime)] = value;
         }
 

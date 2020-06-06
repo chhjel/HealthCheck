@@ -6,8 +6,8 @@ namespace HealthCheck.WebUI.Tests.ModuleSystem.Helpers
 #pragma warning disable IDE0060 // Remove unused parameter
     public class Module_Valid : HealthCheckModuleBase<ModuleAccessOptions_Valid>
     {
-        public override object GetFrontendOptionsObject(ModuleAccessOptions_Valid access) => null;
-        public override IHealthCheckModuleConfig GetModuleConfig(ModuleAccessOptions_Valid access) => new ModuleConfig_Valid();
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => null;
+        public override IHealthCheckModuleConfig GetModuleConfig(HealthCheckModuleContext context) => new ModuleConfig_Valid();
 
         [HealthCheckModuleMethod]
         public void ValidMethod_OpenAccess_NoParameter_NoReturn() {}

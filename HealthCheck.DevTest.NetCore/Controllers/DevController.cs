@@ -1,4 +1,5 @@
-﻿using HealthCheck.DevTest._TestImplementation;
+﻿using HealthCheck.Core.Models;
+using HealthCheck.DevTest._TestImplementation;
 using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.Models;
 using Microsoft.AspNetCore.Hosting;

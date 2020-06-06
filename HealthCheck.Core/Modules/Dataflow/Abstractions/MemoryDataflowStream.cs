@@ -82,7 +82,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
 
                     if (MaxDuration != null)
                     {
-                        var threshold = DateTime.Now.Add(-MaxDuration.Value).ToUniversalTime();
+                        var threshold = DateTimeOffset.Now.Add(-MaxDuration.Value).ToUniversalTime();
                         for(int i=0; i<Items.Count; i++)
                         {
                             if (Items[i].InsertionTime?.ToUniversalTime() < threshold)

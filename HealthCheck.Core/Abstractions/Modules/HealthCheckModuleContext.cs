@@ -3,6 +3,7 @@ using HealthCheck.Core.Modules.AuditLog.Models;
 using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace HealthCheck.Core.Abstractions.Modules
 {
@@ -37,6 +38,11 @@ namespace HealthCheck.Core.Abstractions.Modules
         public object CurrentRequestModuleAccessOptions { get; set; }
 
         /// <summary>
+        /// List of modules the request has access to.
+        /// </summary>
+        public List<ModuleAccess> CurrentRequestModulesAccess { get; set; }
+
+        /// <summary>
         /// Get <see cref="CurrentRequestModuleAccessOptions"/> as the given type.
         /// </summary>
         public T GetCurrentRequestModuleAccessOptionsAs<T>() where T : Enum => (T)CurrentRequestModuleAccessOptions;
@@ -66,10 +72,25 @@ namespace HealthCheck.Core.Abstractions.Modules
             return EnumUtils.EnumFlagHasAnyFlagsSet(CurrentRequestRoles, roles.Value);
         }
 
+        internal bool HasAnyOfRoles(object roles)
+        {
+            if (roles == null || ((int)roles) == 0)
+            {
+                return false;
+            }
+
+            return EnumUtils.EnumFlagHasAnyFlagsSet(CurrentRequestRoles, roles);
+        }
+
         /// <summary>
         /// All registered audit events.
         /// </summary>
         public List<AuditEvent> AuditEvents { get; } = new List<AuditEvent>();
+
+        /// <summary>
+        /// All currently loaded modules.
+        /// </summary>
+        public ReadOnlyCollection<HealthCheckModuleLoader.HealthCheckLoadedModule> LoadedModules { get; set; }
 
         /// <summary>
         /// Register audit events.
@@ -86,11 +107,27 @@ namespace HealthCheck.Core.Abstractions.Modules
                 Area = ModuleName,
                 Action = action,
                 Subject = subject,
-                Timestamp = DateTime.Now,
+                Timestamp = DateTimeOffset.Now,
                 UserId = UserId,
                 UserName = UserName,
                 UserAccessRoles = EnumUtils.TryGetEnumFlaggedValueNames(CurrentRequestRoles)
             });
+        }
+
+        /// <summary>
+        /// Access level to a module.
+        /// </summary>
+        public class ModuleAccess
+        {
+            /// <summary>
+            /// Id of module that this is access for.
+            /// </summary>
+            public string ModuleId { get; set; }
+
+            /// <summary>
+            /// Stringified enum values that the request has access to.
+            /// </summary>
+            public List<string> AccessOptions { get; set; }
         }
     }
 }

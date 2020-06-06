@@ -311,7 +311,7 @@ namespace HealthCheck.Core.Util
         {
             if (LastCleanupPerformedAt == null && RetentionOptions?.DelayFirstCleanupByMinimumCleanupInterval == true)
             {
-                LastCleanupPerformedAt = DateTime.Now;
+                LastCleanupPerformedAt = DateTimeOffset.Now;
             }
 
             if (!CanCleanup())
@@ -322,7 +322,7 @@ namespace HealthCheck.Core.Util
             PerformCleanup();
         }
 
-        private DateTime? LastCleanupPerformedAt { get; set; }
+        private DateTimeOffset? LastCleanupPerformedAt { get; set; }
         private bool CanCleanup()
         {
             // Cleanup not enabled => abort
@@ -332,7 +332,7 @@ namespace HealthCheck.Core.Util
             }
 
             // Less than min time since last cleanup => abort
-            if (LastCleanupPerformedAt != null && (DateTime.Now.ToUniversalTime() - LastCleanupPerformedAt?.ToUniversalTime()) < RetentionOptions.MinimumCleanupInterval)
+            if (LastCleanupPerformedAt != null && (DateTimeOffset.Now.ToUniversalTime() - LastCleanupPerformedAt?.ToUniversalTime()) < RetentionOptions.MinimumCleanupInterval)
             {
                 return false;
             }
@@ -342,10 +342,10 @@ namespace HealthCheck.Core.Util
 
         private void PerformCleanup()
         {
-            LastCleanupPerformedAt = DateTime.Now;
+            LastCleanupPerformedAt = DateTimeOffset.Now;
             if (RetentionOptions.MaxItemAge != null && RetentionOptions.ItemTimestampSelector != null)
             {
-                var threshold = DateTime.Now.ToUniversalTime() - RetentionOptions.MaxItemAge;
+                var threshold = DateTimeOffset.Now.ToUniversalTime() - RetentionOptions.MaxItemAge;
                 DeleteWhere(x => RetentionOptions.ItemTimestampSelector(x).ToUniversalTime() <= threshold);
             }
         }

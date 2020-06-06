@@ -26,12 +26,12 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
         /// <summary>
         /// Lowest date to include.
         /// </summary>
-        public DateTime? FromDate { get; set; }
+        public DateTimeOffset? FromDate { get; set; }
 
         /// <summary>
         /// Highest date to include.
         /// </summary>
-        public DateTime? ToDate { get; set; }
+        public DateTimeOffset? ToDate { get; set; }
 
         /// <summary>
         /// Value that should be included in the logs content.

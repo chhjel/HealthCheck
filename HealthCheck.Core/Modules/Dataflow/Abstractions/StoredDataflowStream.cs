@@ -14,7 +14,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         where TEntry : IDataflowEntryWithInsertionTime
     {
         /// <summary>
-        /// Return true to allow insertion of new entries. If false <see cref="InsertEntries(IEnumerable{TEntry}, DateTime?)"/> will do nothing.
+        /// Return true to allow insertion of new entries. If false <see cref="InsertEntries(IEnumerable{TEntry}, DateTimeOffset?)"/> will do nothing.
         /// <para>Defaults to true.</para>
         /// </summary>
         public Func<bool> AllowInsert { get; set; } = () => true;
@@ -37,7 +37,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         /// Store a single entry on a new thread. If it already exists it will be updated.
         /// <para>Catches and ignores exceptions.</para>
         /// </summary>
-        public void TryFireAndForgetInsertEntry(TEntry entry, DateTime? timestamp = null)
+        public void TryFireAndForgetInsertEntry(TEntry entry, DateTimeOffset? timestamp = null)
         {
             Task.Run(() => { try { InsertEntry(entry, timestamp); } catch (Exception) { } });
         }
@@ -46,7 +46,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         /// Store multiple entries on a new thread. The ones that already exists will be updated.
         /// <para>Catches and ignores exceptions.</para>
         /// </summary>
-        public void TryFireAndForgetInsertEntries(IList<TEntry> entries, DateTime? timestamp = null)
+        public void TryFireAndForgetInsertEntries(IList<TEntry> entries, DateTimeOffset? timestamp = null)
         {
             Task.Run(() => { try { InsertEntries(entries, timestamp); } catch (Exception) { } });
         }
@@ -54,11 +54,11 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         /// <summary>
         /// Store a single entry. If it already exists it will be updated.
         /// </summary>
-        public TEntry InsertEntry(TEntry entry, DateTime? timestamp = null)
+        public TEntry InsertEntry(TEntry entry, DateTimeOffset? timestamp = null)
         {
             if (!AllowInsertSafe || entry == null) return entry;
 
-            entry.InsertionTime = timestamp ?? DateTime.Now;
+            entry.InsertionTime = timestamp ?? DateTimeOffset.Now;
             entry = Store.InsertOrUpdateItem(entry);
 
             return entry;
@@ -67,14 +67,14 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         /// <summary>
         /// Store multiple entries. The ones that already exists will be updated.
         /// </summary>
-        public void InsertEntries(IEnumerable<TEntry> entries, DateTime? timestamp = null)
+        public void InsertEntries(IEnumerable<TEntry> entries, DateTimeOffset? timestamp = null)
         {
             if (!AllowInsertSafe || entries == null) return;
 
             var entriesList = entries.ToList();
             for (var i=0; i< entriesList.Count; i++)
             {
-                entriesList[i].InsertionTime = timestamp ?? DateTime.Now;
+                entriesList[i].InsertionTime = timestamp ?? DateTimeOffset.Now;
             }
 
             Store.InsertOrUpdateItems(entriesList);

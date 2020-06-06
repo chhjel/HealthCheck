@@ -26,12 +26,12 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
         /// <summary>
         /// Time of the event.
         /// </summary>
-        public DateTime Timestamp { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
 
         /// <summary>
         /// End of the event.
         /// </summary>
-        public DateTime EndTime { get; set; }
+        public DateTimeOffset EndTime { get; set; }
 
         /// <summary>
         /// Id of this type of event.
@@ -76,6 +76,6 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
         /// <summary>
         /// Resolved at timestamp.
         /// </summary>
-        public DateTime? ResolvedAt { get; set; }
+        public DateTimeOffset? ResolvedAt { get; set; }
     }
 }

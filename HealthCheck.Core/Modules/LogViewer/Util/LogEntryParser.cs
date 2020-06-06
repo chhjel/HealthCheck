@@ -44,17 +44,17 @@ namespace HealthCheck.Core.Modules.LogViewer.Util
             return entry;
         }
 
-        public DateTime? ParseEntryDate(string raw)
+        public DateTimeOffset? ParseEntryDate(string raw)
         {
             if (string.IsNullOrWhiteSpace(raw?.Trim()))
             {
                 return null;
             }
 
-            DateTime? date = null;
+            DateTimeOffset? date = null;
 
             var tabbedParts = raw.Split(new[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
-            if (DateTime.TryParse(tabbedParts[0].Trim(), out DateTime parsedDate))
+            if (DateTimeOffset.TryParse(tabbedParts[0].Trim(), out DateTimeOffset parsedDate))
             {
                 date = parsedDate;
             }
@@ -62,16 +62,16 @@ namespace HealthCheck.Core.Modules.LogViewer.Util
             if (date == null)
             {
                 var spacedParts = raw.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                if (DateTime.TryParse(tabbedParts[0].Trim(), out parsedDate))
+                if (DateTimeOffset.TryParse(tabbedParts[0].Trim(), out parsedDate))
                 {
                     date = parsedDate;
                 }
-                else if (spacedParts.Length >= 2 && DateTime.TryParse($"{spacedParts[0]} {spacedParts[1]}".Trim(), out parsedDate))
+                else if (spacedParts.Length >= 2 && DateTimeOffset.TryParse($"{spacedParts[0]} {spacedParts[1]}".Trim(), out parsedDate))
                 {
                     date = parsedDate;
                 }
                 else if (spacedParts.Length >= 2 && spacedParts[1].Contains(",")
-                    && DateTime.TryParse($"{spacedParts[0]} {spacedParts[1].Substring(0, spacedParts[1].IndexOf(","))}".Trim(), out parsedDate))
+                    && DateTimeOffset.TryParse($"{spacedParts[0]} {spacedParts[1].Substring(0, spacedParts[1].IndexOf(","))}".Trim(), out parsedDate))
                 {
                     date = parsedDate;
                 }

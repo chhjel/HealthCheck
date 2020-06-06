@@ -74,7 +74,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
             // Limit to minutes until current time.
             if (!allowExtendPastCurrentTime)
             {
-                var minutesUntilCurrentTime = (int)(DateTime.Now - existingEvent.Timestamp.AddMinutes(existingEvent.Duration)).TotalMinutes;
+                var minutesUntilCurrentTime = (int)(DateTimeOffset.Now - existingEvent.Timestamp.AddMinutes(existingEvent.Duration)).TotalMinutes;
                 minutesToAdd = Math.Min(minutesUntilCurrentTime, minutesToAdd);
             }
 

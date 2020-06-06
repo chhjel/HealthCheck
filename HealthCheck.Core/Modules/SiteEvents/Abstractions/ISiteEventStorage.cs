@@ -23,7 +23,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Abstractions
         /// <summary>
         /// Get all stored <see cref="SiteEvent"/>s objects with a <see cref="SiteEvent.Timestamp"/> within the given threshold.
         /// </summary>
-        Task<List<SiteEvent>> GetEvents(DateTime from, DateTime to);
+        Task<List<SiteEvent>> GetEvents(DateTimeOffset from, DateTimeOffset to);
 
         /// <summary>
         /// Get the latest <see cref="SiteEvent"/> with the given <see cref="SiteEvent.EventTypeId"/> and <see cref="SiteEvent.AllowMerge"/> == true.

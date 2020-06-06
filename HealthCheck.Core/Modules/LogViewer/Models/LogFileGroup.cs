@@ -9,8 +9,8 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
     internal class LogFileGroup
     {
         public string Name { get; set; }
-        public DateTime FirstEntryTime => Files.Select(x => x.FirstEntryTime).Min();
-        public DateTime LastFileWriteTime => Files.Select(x => x.LastWriteTime).Max();
+        public DateTimeOffset FirstEntryTime => Files.Select(x => x.FirstEntryTime).Min();
+        public DateTimeOffset LastFileWriteTime => Files.Select(x => x.LastWriteTime).Max();
         public List<LogFile> Files { get; set; }
 
         public static LogFileGroup FromFiles(ILogEntryParser entryParser, params string[] files)
@@ -29,12 +29,12 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
             => Files.Select(x => x.GetEnumerable(entryParser)).SelectMany(x => x);
 
         public IEnumerable<LogEntry> GetEntriesEnumerable(ILogEntryParser entryParser,
-            DateTime? fromDate = null, DateTime? toDate = null,
+            DateTimeOffset? fromDate = null, DateTimeOffset? toDate = null,
             Func<string, bool> allowFilePath = null
         )
         {
-            DateTime? lastWriteLowThreshold = (fromDate == null) ? null : fromDate - TimeSpan.FromDays(1);
-            DateTime? lastWriteHighThreshold = (toDate == null) ? null : toDate + TimeSpan.FromDays(1);
+            DateTimeOffset? lastWriteLowThreshold = (fromDate == null) ? null : fromDate - TimeSpan.FromDays(1);
+            DateTimeOffset? lastWriteHighThreshold = (toDate == null) ? null : toDate + TimeSpan.FromDays(1);
 
             return Files
                 .Where(x =>

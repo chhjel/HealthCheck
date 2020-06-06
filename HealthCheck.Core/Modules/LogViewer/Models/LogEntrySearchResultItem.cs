@@ -27,7 +27,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
         /// <summary>
         /// When this entry was logged.
         /// </summary>
-        public DateTime Timestamp { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
 
         /// <summary>
         /// Column values if filter data contained column regex/delimiter data.

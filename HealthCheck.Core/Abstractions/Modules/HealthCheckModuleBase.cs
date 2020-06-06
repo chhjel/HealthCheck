@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Abstractions.Modules
 {
@@ -12,11 +13,16 @@ namespace HealthCheck.Core.Abstractions.Modules
         /// <summary>
         /// Optional object that will be serialized and used as the options model in frontend for the module pages.
         /// </summary>
-        public abstract object GetFrontendOptionsObject(TModuleAccessOptionsEnum access);
+        public abstract object GetFrontendOptionsObject(HealthCheckModuleContext context);
 
         /// <summary>
         /// Optional values to be rendered on the page.
         /// </summary>
-        public abstract IHealthCheckModuleConfig GetModuleConfig(TModuleAccessOptionsEnum access);
+        public abstract IHealthCheckModuleConfig GetModuleConfig(HealthCheckModuleContext context);
+
+        /// <summary>
+        /// Optionally validate options etc. Return any issues to be displayed.
+        /// </summary>
+        public virtual List<string> Validate() => null;
     }
 }

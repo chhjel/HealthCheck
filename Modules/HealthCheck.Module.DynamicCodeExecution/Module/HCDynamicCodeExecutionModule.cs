@@ -26,12 +26,12 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(AccessOption access) => CreateFrontendOptionsObject();
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => CreateFrontendOptionsObject();
 
         /// <summary>
         /// Get config for this module.
         /// </summary>
-        public override IHealthCheckModuleConfig GetModuleConfig(AccessOption access) => new HCDynamicCodeExecutionModuleConfig();
+        public override IHealthCheckModuleConfig GetModuleConfig(HealthCheckModuleContext context) => new HCDynamicCodeExecutionModuleConfig();
 
         /// <summary>
         /// Different access options for this module.
@@ -77,10 +77,11 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         /// <summary>
         /// Executes the provided C# code.
         /// </summary>
+        /// <param name="context"></param>
         /// <param name="source">Model with C# code to execute.</param>
         /// <returns>A <see cref="DynamicCodeExecutionResultModel"/></returns>
         [HealthCheckModuleMethod(AccessOption.ExecuteCustomScript)]
-        public DynamicCodeExecutionResultModel ExecuteCode(DynamicCodeExecutionSourceModel source)
+        public DynamicCodeExecutionResultModel ExecuteCode(HealthCheckModuleContext context, DynamicCodeExecutionSourceModel source)
         {
             var result = new DynamicCodeExecutionResultModel()
             {
@@ -91,10 +92,12 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
             if (!allowedResult.IsAllowed)
             {
                 result.Message = allowedResult.Message;
+                context.AddAuditEvent("ExecuteCode", $"Was denied with the message '{allowedResult.Message}'");
                 return result;
             }
             else
             {
+                context.AddAuditEvent("ExecuteCode", $"Executed code.");
 #if NETFULL
                 var executor = CreateExecutor();
 
@@ -114,7 +117,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         /// Executes a script that has been stored on the server.
         /// </summary>
         [HealthCheckModuleMethod(AccessOption.ExecuteSavedScript)]
-        public async Task<DynamicCodeExecutionResultModel> ExecuteScriptById(Guid id)
+        public async Task<DynamicCodeExecutionResultModel> ExecuteScriptById(HealthCheckModuleContext context, Guid id)
         {
             var script = await Options.ScriptStorage?.GetScript(id);
             if (script == null)
@@ -132,7 +135,8 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
                 DisabledPreProcessorIds = new List<string>()
             };
 
-            return ExecuteCode(source);
+            context.AddAuditEvent("ExecuteScriptById", $"Executing script with id '{id}'.");
+            return ExecuteCode(context, source);
         }
 
         /// <summary>
@@ -148,33 +152,43 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         /// Deletes a single stored script.
         /// </summary>
         [HealthCheckModuleMethod(AccessOption.DeleteExistingScriptOnServer)]
-        public async Task<bool> DeleteScript(Guid id) => (await this.Options.ScriptStorage?.DeleteScript(id)) == true;
+        public async Task<bool> DeleteScript(HealthCheckModuleContext context, Guid id)
+        {
+            var success = (await this.Options.ScriptStorage?.DeleteScript(id)) == true;
+            context.AddAuditEvent("DeleteScript", (success) 
+                ? $"Deleted script with id '{id}'." 
+                : $"Failed to delete script with id '{id}'.");
+            return success;
+        }
 
         /// <summary>
         /// Creates a new script.
         /// </summary>
         [HealthCheckModuleMethod(AccessOption.CreateNewScriptOnServer)]
-        public async Task<DynamicCodeScript> AddNewScript(DynamicCodeScript script)
+        public async Task<DynamicCodeScript> AddNewScript(HealthCheckModuleContext context, DynamicCodeScript script)
         {
             if (this.Options.ScriptStorage == null || script == null) return null;
 
             var existingScript = await this.Options.ScriptStorage.GetScript(script.Id);
             if (existingScript != null) return null;
 
-            return await this.Options.ScriptStorage?.SaveScript(script);
+            var createdScript = await this.Options.ScriptStorage?.SaveScript(script);
+            context.AddAuditEvent("AddNewScript", $"Added new script with id '{createdScript?.Id}'.");
+            return createdScript;
         }
 
         /// <summary>
         /// Edit an existing script.
         /// </summary>
         [HealthCheckModuleMethod(AccessOption.EditExistingScriptOnServer)]
-        public async Task<DynamicCodeScript> SaveScriptChanges(DynamicCodeScript script)
+        public async Task<DynamicCodeScript> SaveScriptChanges(HealthCheckModuleContext context, DynamicCodeScript script)
         {
             if (this.Options.ScriptStorage == null || script == null) return null;
 
             var existingScript = await this.Options.ScriptStorage.GetScript(script.Id);
             if (existingScript == null) return null;
 
+            context.AddAuditEvent("SaveScriptChanges", $"Saved changes to script with id '{script?.Id}'.");
             return await this.Options.ScriptStorage.SaveScript(script);
         }
 

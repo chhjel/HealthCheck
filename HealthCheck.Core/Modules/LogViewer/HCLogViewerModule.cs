@@ -25,9 +25,19 @@ namespace HealthCheck.Core.Modules.LogViewer
         }
 
         /// <summary>
+        /// Check options object for issues.
+        /// </summary>
+        public override List<string> Validate()
+        {
+            var issues = new List<string>();
+            if (Options.LogSearcherService == null) issues.Add("Options.LogSearcherService must be set.");
+            return issues;
+        }
+
+        /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(AccessOption access) => new
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => new
         {
             CurrentlyRunningLogSearchCount = GetCurrentlyRunningLogSearchCount(),
             DefaultColumnRule = Options.DefaultColumnRule,
@@ -39,7 +49,7 @@ namespace HealthCheck.Core.Modules.LogViewer
         /// <summary>
         /// Get config for this module.
         /// </summary>
-        public override IHealthCheckModuleConfig GetModuleConfig(AccessOption access) => new HCLogViewerModuleConfig();
+        public override IHealthCheckModuleConfig GetModuleConfig(HealthCheckModuleContext context) => new HCLogViewerModuleConfig();
         
         /// <summary>
         /// Different access options for this module.
@@ -107,7 +117,7 @@ namespace HealthCheck.Core.Modules.LogViewer
         private class LogSearchInProgress
         {
             public string Id { get; set; }
-            public DateTime StartedAt { get; set; }
+            public DateTimeOffset StartedAt { get; set; }
             public CancellationTokenSource CancellationTokenSource { get; set; }
         }
 
@@ -119,7 +129,7 @@ namespace HealthCheck.Core.Modules.LogViewer
             {
                 Id = filter.SearchId ?? Guid.NewGuid().ToString(),
                 CancellationTokenSource = cts,
-                StartedAt = DateTime.Now
+                StartedAt = DateTimeOffset.Now
             };
             lock (SearchesInProgress)
             {
@@ -135,7 +145,7 @@ namespace HealthCheck.Core.Modules.LogViewer
                 // Cleanup any old searches
                 lock (SearchesInProgress)
                 {
-                    AbortLogSearches(threshold: DateTime.Now.AddMinutes(-30));
+                    AbortLogSearches(threshold: DateTimeOffset.Now.AddMinutes(-30));
                 }
             }
             return result;
@@ -169,7 +179,7 @@ namespace HealthCheck.Core.Modules.LogViewer
             }
         }
 
-        private int AbortLogSearches(DateTime? threshold = null)
+        private int AbortLogSearches(DateTimeOffset? threshold = null)
         {
             lock (SearchesInProgress)
             {

@@ -53,7 +53,7 @@ namespace HealthCheck.Core.Util
         internal static string EncodeForJson(string value)
             => value != null ? $"\"{HttpUtility.JavaScriptStringEncode(value)}\"" : "null";
 
-        internal static string EncodeForJson(DateTime? date)
+        internal static string EncodeForJson(DateTimeOffset? date)
         {
             if (!date.HasValue)
             {

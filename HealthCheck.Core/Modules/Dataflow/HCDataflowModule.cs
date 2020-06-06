@@ -24,14 +24,24 @@ namespace HealthCheck.Core.Modules.Dataflow
         }
 
         /// <summary>
+        /// Check options object for issues.
+        /// </summary>
+        public override List<string> Validate()
+        {
+            var issues = new List<string>();
+            if (Options.DataflowService == null) issues.Add("Options.DataflowService must be set.");
+            return issues;
+        }
+
+        /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(AccessOption access) => null;
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => null;
 
         /// <summary>
         /// Get config for this module.
         /// </summary>
-        public override IHealthCheckModuleConfig GetModuleConfig(AccessOption access) => new HCDataflowModuleConfig();
+        public override IHealthCheckModuleConfig GetModuleConfig(HealthCheckModuleContext context) => new HCDataflowModuleConfig();
         
         /// <summary>
         /// Different access options for this module.

@@ -37,7 +37,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Optional timestamp of the step.
         /// </summary>
-        public DateTime? Timestamp { get; set; }
+        public DateTimeOffset? Timestamp { get; set; }
 
         /// <summary>
         /// True to only show the date part.
@@ -53,7 +53,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// A step in a timeline data dump.
         /// </summary>
         public TimelineStep(string title, string description = null,
-            DateTime? timestamp = null, bool hideTimeInTimestamp = false, string icon = null,
+            DateTimeOffset? timestamp = null, bool hideTimeInTimestamp = false, string icon = null,
             string error = null, bool isCompleted = false)
         {
             Title = title;
@@ -78,7 +78,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Set timestamp of the step. Also marks the step as completed unless markAsComplete is set to false.
         /// </summary>
-        public TimelineStep SetTimestamp(DateTime dateTime, bool hideTime = false, bool markAsComplete = true)
+        public TimelineStep SetTimestamp(DateTimeOffset dateTime, bool hideTime = false, bool markAsComplete = true)
         {
             Timestamp = dateTime;
             HideTimeInTimestamp = hideTime;

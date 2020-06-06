@@ -22,14 +22,24 @@ namespace HealthCheck.Core.Modules.EventNotifications
         }
 
         /// <summary>
+        /// Check options object for issues.
+        /// </summary>
+        public override List<string> Validate()
+        {
+            var issues = new List<string>();
+            if (Options.EventSink == null) issues.Add("Options.EventSink must be set.");
+            return issues;
+        }
+
+        /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(AccessOption access) => null;
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => null;
 
         /// <summary>
         /// Get config for this module.
         /// </summary>
-        public override IHealthCheckModuleConfig GetModuleConfig(AccessOption access) => new HCEventNotificationsModuleConfig();
+        public override IHealthCheckModuleConfig GetModuleConfig(HealthCheckModuleContext context) => new HCEventNotificationsModuleConfig();
         
         /// <summary>
         /// Different access options for this module.
@@ -93,7 +103,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
 
             config.Enabled = model.Enabled;
             config.LastChangedBy = context?.UserName ?? "Anonymous";
-            config.LastChangedAt = DateTime.Now;
+            config.LastChangedAt = DateTimeOffset.Now;
 
             config = Options.EventSink.SaveConfig(config);
 
@@ -108,7 +118,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
         public EventSinkNotificationConfig SaveEventNotificationConfig(HealthCheckModuleContext context, EventSinkNotificationConfig config)
         {
             config.LastChangedBy = context?.UserName ?? "Anonymous";
-            config.LastChangedAt = DateTime.Now;
+            config.LastChangedAt = DateTimeOffset.Now;
 
             config.LatestResults ??= new List<string>();
             config.PayloadFilters ??= new List<EventSinkNotificationConfigFilter>();

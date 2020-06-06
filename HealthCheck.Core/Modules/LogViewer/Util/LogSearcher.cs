@@ -25,8 +25,8 @@ namespace HealthCheck.Core.Modules.LogViewer.Util
             public List<LogEntry> MatchingEntries { get; set; } = new List<LogEntry>();
             public Dictionary<string, List<LogEntry>> GroupedEntries { get; set; } = new Dictionary<string, List<LogEntry>>();
             public int TotalMatchCount { get; set; }
-            public DateTime? LowestDate { get; set; }
-            public DateTime? HighestDate { get; set; }
+            public DateTimeOffset? LowestDate { get; set; }
+            public DateTimeOffset? HighestDate { get; set; }
             public List<LogSearchStatisticsResult> Statistics { get; set; } = new List<LogSearchStatisticsResult>();
             public bool StatisticsIsComplete => Statistics.Count == TotalMatchCount;
         }
@@ -126,9 +126,9 @@ namespace HealthCheck.Core.Modules.LogViewer.Util
         /// <summary>
         /// Creates a list of date ranges [date - margin, date + margin]
         /// </summary>
-        private List<DateTime[]> GetTimeRanges(IEnumerable<DateTime> dates, int marginMilliseconds)
+        private List<DateTimeOffset[]> GetTimeRanges(IEnumerable<DateTimeOffset> dates, int marginMilliseconds)
         {
-            var dateRanges = new List<DateTime[]>();
+            var dateRanges = new List<DateTimeOffset[]>();
             foreach (var date in dates)
             {
                 var existingRange = dateRanges.FirstOrDefault(x => x[0] <= date && date <= x[1]);

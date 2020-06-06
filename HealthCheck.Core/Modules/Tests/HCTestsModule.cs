@@ -16,15 +16,6 @@ namespace HealthCheck.Core.Modules.Tests
     public class HCTestsModule : HealthCheckModuleBase<HCTestsModule.AccessOption>
     {
         /// <summary>
-        /// Module for executing tests at runtime.
-        /// </summary>
-        public HCTestsModule(HCTestsModuleOptions options)
-        {
-            TestDiscoverer.AssemblyContainingTests = options.AssemblyContainingTests
-                ?? throw new ArgumentNullException($"[{nameof(HCTestsModuleOptions)}.{nameof(HCTestsModuleOptions.AssemblyContainingTests)}] must be set to an assembly to retrieve tests from must be provided.");
-        }
-
-        /// <summary>
         /// Handles conversion from stringified test input to parameter types.
         /// </summary>
         public StringConverter ParameterConverter { get; } = new StringConverter();
@@ -35,14 +26,23 @@ namespace HealthCheck.Core.Modules.Tests
         private readonly TestSetGroupsOptions GroupOptions = new TestSetGroupsOptions();
 
         /// <summary>
+        /// Module for executing tests at runtime.
+        /// </summary>
+        public HCTestsModule(HCTestsModuleOptions options)
+        {
+            TestDiscoverer.AssemblyContainingTests = options.AssemblyContainingTests
+                ?? throw new ArgumentNullException($"[{nameof(HCTestsModuleOptions)}.{nameof(HCTestsModuleOptions.AssemblyContainingTests)}] must be set to an assembly to retrieve tests from must be provided.");
+        }
+
+        /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(AccessOption access) => null;
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => null;
 
         /// <summary>
         /// Get config for this module.
         /// </summary>
-        public override IHealthCheckModuleConfig GetModuleConfig(AccessOption access) => new HCTestsModuleConfig();
+        public override IHealthCheckModuleConfig GetModuleConfig(HealthCheckModuleContext context) => new HCTestsModuleConfig();
 
         /// <summary>
         /// Configure grouping.

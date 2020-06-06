@@ -11,6 +11,29 @@ namespace HealthCheck.Core.Util
     public class TimeUtils
     {
         /// <summary>
+        /// Translates the given datetime into a text that says how long ago it was.
+        /// <para>If it was less that <paramref name="unknownThreshold"/> ago the <paramref name="unknownThresholdText"/> will be used.</para>
+        /// <para>E.g: "2 seconds" or "9 minutes, 15 seconds"</para>
+        /// </summary>
+        public static string PrettifyDurationSince(DateTimeOffset? time, TimeSpan unknownThreshold, string unknownThresholdText, string zero = "0 milliseconds")
+        {
+            string summary = null;
+            if (time != null)
+            {
+                var timeSince = (DateTimeOffset.Now - time.Value);
+                if (timeSince < unknownThreshold)
+                {
+                    summary = unknownThresholdText;
+                }
+                else
+                {
+                    summary = TimeUtils.PrettifyDuration((long)timeSince.TotalMilliseconds, zero);
+                }
+            }
+            return summary;
+        }
+
+        /// <summary>
         /// Translates the given number of milliseconds into text.
         /// <para>E.g: "2 seconds" or "9 minutes, 15 seconds"</para>
         /// </summary>

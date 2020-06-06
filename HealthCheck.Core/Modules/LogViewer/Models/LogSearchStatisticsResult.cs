@@ -12,7 +12,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
         /// <summary>
         /// Timestamp of the log entry.
         /// </summary>
-        public DateTime Timestamp { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
 
         /// <summary>
         /// Parsed severity of the entry.

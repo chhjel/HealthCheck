@@ -186,7 +186,7 @@ namespace HealthCheck.RequestLog.Services
             var request = new LoggedEndpointRequest()
             {
                 Url = e.Url,
-                Timestamp = DateTime.Now,
+                Timestamp = DateTimeOffset.Now,
                 Version = GetCurrentVersion(),
                 StatusCode = e.StatusCode,
                 ErrorDetails = e.Exception?.ToString(),

@@ -49,21 +49,21 @@ namespace HealthCheck.Core.Tests.Modules.Tests
             var eventTypeId = "DCategoryA-eventIdA";
             await eventService.StoreEvent(new SiteEvent(SiteEventSeverity.Error, eventTypeId, "First event", "Some desc A")
             {
-                Timestamp = DateTime.Now.AddDays(-2)
+                Timestamp = DateTimeOffset.Now.AddDays(-2)
             });
             await eventService.StoreEvent(new SiteEvent(SiteEventSeverity.Error, eventTypeId, "Last event", "Some desc B")
             {
-                Timestamp = DateTime.Now.AddDays(-1)
+                Timestamp = DateTimeOffset.Now.AddDays(-1)
             });
             await eventService.StoreEvent(new SiteEvent(SiteEventSeverity.Error, "Some other event id", "Other event", "Some desc C")
             {
-                Timestamp = DateTime.Now.AddHours(-2)
+                Timestamp = DateTimeOffset.Now.AddHours(-2)
             });
 
             var results = await runner.ExecuteTests(discoverer, (test) => test.Categories.Contains("DCategoryA"), siteEventService: eventService);
             Assert.Contains(results, result => result.SiteEvent?.EventTypeId == eventTypeId);
 
-            var events = await eventService.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var events = await eventService.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Equal(3, events.Count);
 
             var firstEvent = events.First(x => x.Title == "First event");
@@ -89,7 +89,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
             var results = await runner.ExecuteTests(discoverer, (test) => true, siteEventService: eventService);
             Assert.Contains(results, result => result.SiteEvent?.Title == "EventA");
 
-            var events = await eventService.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var events = await eventService.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Contains(events, e => e.Title == "EventA");
         }
 
@@ -105,9 +105,9 @@ namespace HealthCheck.Core.Tests.Modules.Tests
 
             var previouslyUnresolvedEvent = new SiteEvent(SiteEventSeverity.Error, "DCategoryE-eventIdE", "Titleasd", "Descriptionasd", duration: 5)
             {
-                Timestamp = DateTime.Now.AddMinutes(-15),
+                Timestamp = DateTimeOffset.Now.AddMinutes(-15),
                 Resolved = true,
-                ResolvedAt = DateTime.Now.AddMinutes(-10)
+                ResolvedAt = DateTimeOffset.Now.AddMinutes(-10)
             };
             await eventService.StoreEvent(previouslyUnresolvedEvent);
 
@@ -116,7 +116,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
             Assert.Equal(2, results.Count);
             Assert.Contains(results, result => result.SiteEvent?.Resolved == true);
             Assert.Contains(results, result => result.SiteEvent?.Title == "Oh no!");
-            var events = await eventService.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var events = await eventService.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
 
             Assert.Single(events);
             Assert.Contains(events, e => e.Title == "Oh no!" && e.Resolved == false);
@@ -137,7 +137,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
             Assert.Equal(2, results.Count);
             Assert.Contains(results, result => result.SiteEvent?.Resolved == true);
             Assert.Contains(results, result => result.SiteEvent?.Title == "Oh no!");
-            var events = await eventService.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var events = await eventService.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
 
             Assert.Single(events);
             Assert.Contains(events, e => e.Title == "Oh no!" && e.Resolved == false);
@@ -157,7 +157,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
             Assert.Equal(2, results.Count);
             Assert.Contains(results, result => result.SiteEvent?.Resolved == true);
             Assert.Contains(results, result => result.SiteEvent?.Title == "Oh no!");
-            var events = await eventService.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var events = await eventService.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
 
             Assert.Single(events);
             Assert.Contains(events, e => e.Title == "Oh no!" && e.Resolved == false);
@@ -176,7 +176,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
 
             Assert.Equal(4, results.Count);
             Assert.True(results.All(x => x.Message.Contains("Opsie ")));
-            var events = await eventService.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var events = await eventService.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             
             Assert.Equal(2, events.Count);
             var siteEvent = events.First();
@@ -204,7 +204,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
             var results = await runner.ExecuteTests(discoverer, (test) => true, onAuditEvent: (e) => auditService.StoreEvent(e));
             Assert.Contains(results, result => result.SiteEvent?.Title == "EventA");
 
-            var events = await auditService.GetEvents(DateTime.MinValue, DateTime.MaxValue);
+            var events = await auditService.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Contains(events, e => e.Subject == "TestMethodA");
         }
 
@@ -293,7 +293,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
 
             var data = results[0].Tag as object[];
             Assert.Equal(default, data[0] as string);
-            Assert.Equal(default, (DateTime)data[1]);
+            Assert.Equal(default, (DateTimeOffset)data[1]);
         }
 
         [Fact]
@@ -448,7 +448,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
             }
 
             [RuntimeTest(Category = "CategoryD")]
-            public TestResult TestWithoutDefaultValues(string text, DateTime date)
+            public TestResult TestWithoutDefaultValues(string text, DateTimeOffset date)
             {
                 return new TestResult() { Tag = new object[] { text, date } };
             }

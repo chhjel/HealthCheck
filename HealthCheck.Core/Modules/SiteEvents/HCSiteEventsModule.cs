@@ -26,9 +26,19 @@ namespace HealthCheck.Core.Modules.SiteEvents
         }
 
         /// <summary>
+        /// Check options object for issues.
+        /// </summary>
+        public override List<string> Validate()
+        {
+            var issues = new List<string>();
+            if (Options.SiteEventService == null) issues.Add("Options.SiteEventService must be set.");
+            return issues;
+        }
+
+        /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(AccessOption access) => new
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => new
         {
             CurrentEventBufferMinutes = Options.CurrentEventBufferMinutes
         };
@@ -36,7 +46,7 @@ namespace HealthCheck.Core.Modules.SiteEvents
         /// <summary>
         /// Get config for this module.
         /// </summary>
-        public override IHealthCheckModuleConfig GetModuleConfig(AccessOption access) => new HCSiteEventsModuleConfig();
+        public override IHealthCheckModuleConfig GetModuleConfig(HealthCheckModuleContext context) => new HCSiteEventsModuleConfig();
 
         /// <summary>
         /// Different access options for this module.
@@ -59,8 +69,8 @@ namespace HealthCheck.Core.Modules.SiteEvents
         public async Task<List<SiteEventViewModel>> GetSiteEvents(HealthCheckModuleContext context, GetSiteEventsRequestModel model)
         {
             var includeDeveloperDetails = context.HasAccess(AccessOption.DeveloperDetails);
-            model.From ??= DateTime.Now.AddDays(-30);
-            model.To ??= DateTime.Now;
+            model.From ??= DateTimeOffset.Now.AddDays(-30);
+            model.To ??= DateTimeOffset.Now;
 
             var viewModel = (await Options.SiteEventService.GetEvents(model.From.Value, model.To.Value))
                 .Select(x => SiteEventViewModelsFactory.CreateViewModel(x, includeDeveloperDetails))

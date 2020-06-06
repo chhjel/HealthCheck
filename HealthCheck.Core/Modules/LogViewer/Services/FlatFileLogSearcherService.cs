@@ -1,7 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Modules.LogViewer.Models;
 using HealthCheck.Core.Modules.LogViewer.Util;
-using HealthCheck.Core.Services.Models;
 using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
@@ -13,7 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static HealthCheck.Core.Modules.LogViewer.Util.LogSearcher;
 
-namespace HealthCheck.Core.Services
+namespace HealthCheck.Core.Modules.LogViewer.Services
 {
     /// <summary>
     /// Log searcher implementation that searches content in log-files on disk.

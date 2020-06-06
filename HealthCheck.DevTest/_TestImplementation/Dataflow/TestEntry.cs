@@ -7,7 +7,7 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
 {
     public class TestEntry : IDataflowEntryWithInsertionTime
     {
-        public DateTime? InsertionTime { get; set; }
+        public DateTimeOffset? InsertionTime { get; set; }
 
         public string Icon =>
             (InsertionTime == null) ? MaterialIcons.AllIcons.Error :
@@ -18,6 +18,8 @@ namespace HealthCheck.DevTest._TestImplementation.Dataflow
         public string Name { get; set; }
         public string PreformattedTest => "\tSomething\n\t\there!";
         public string HtmlTest => "<i>something</i> html <a href=\"#\">here</a>!";
+        public DateTimeOffset TestDate { get; set; } = DateTime.Now;
+        public DateTimeOffset TestDateOffset { get; set; } = DateTimeOffset.Now;
 
         public Dictionary<string, string> Properties { get; set; } = new Dictionary<string, string>
         {

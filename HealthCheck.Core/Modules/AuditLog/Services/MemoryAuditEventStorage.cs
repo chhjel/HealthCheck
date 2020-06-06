@@ -27,7 +27,7 @@ namespace HealthCheck.Core.Modules.AuditLog.Services
         /// <summary>
         /// Get some events from memory.
         /// </summary>
-        public Task<List<AuditEvent>> GetEvents(DateTime from, DateTime to)
+        public Task<List<AuditEvent>> GetEvents(DateTimeOffset from, DateTimeOffset to)
              => Task.FromResult(Items.Where(x => 
                  x.Timestamp.ToUniversalTime() >= from.ToUniversalTime()
                  && x.Timestamp.ToUniversalTime() <= to.ToUniversalTime()

@@ -103,7 +103,7 @@ export default class HCServiceBase
         .then(response => {
             if (response.redirected || response.status == 404 || response.status == 403)
             {
-                return Promise.reject('Not logged in.');
+                return Promise.reject('Not logged in or no access.');
             }
 
             if (json)

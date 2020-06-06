@@ -24,7 +24,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
         /// <summary>
         /// Time of the event.
         /// </summary>
-        public DateTime Timestamp { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
 
         /// <summary>
         /// Id of this type of event.
@@ -70,7 +70,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
         /// <summary>
         /// Resolved at timestamp.
         /// </summary>
-        public DateTime? ResolvedAt { get; set; }
+        public DateTimeOffset? ResolvedAt { get; set; }
 
         /// <summary>
         /// Allow merging this event with previous ones of the same type if within duration threshold.
@@ -91,7 +91,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
         {
             Id = Guid.NewGuid();
             Severity = severity;
-            Timestamp = DateTime.Now;
+            Timestamp = DateTimeOffset.Now;
             EventTypeId = eventTypeId;
             Title = title;
             Description = description;

@@ -2,22 +2,24 @@
 using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.LogViewer.Models;
 using HealthCheck.Core.Modules.Tests.Attributes;
-using HealthCheck.Core.Services;
 using HealthCheck.Core.Util;
 using HealthCheck.WebUI;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Util;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -90,6 +92,12 @@ namespace HealthCheck.WebUI.Abstractions
         protected TModule UseModule<TModule>(TModule module, string name = null)
             where TModule: IHealthCheckModule
             => Helper.UseModule(module, name);
+
+        /// <summary>
+        /// Get the first registered module of the given type.
+        /// </summary>
+        public TModule GetModule<TModule>() where TModule : class
+            => Helper.GetModule<TModule>();
 #endregion
 
 #region Endpoints
@@ -165,9 +173,19 @@ namespace HealthCheck.WebUI.Abstractions
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var request = context?.HttpContext?.Request;
+
             CurrentRequestInformation = GetRequestInformation(request);
+            CurrentRequestInformation.Url = request?.GetDisplayUrl();
+            CurrentRequestInformation.Headers = request?.Headers.Keys?.ToDictionary(t => t, t => request.Headers[t].ToString())
+                ?? new Dictionary<string, string>();
+            
+            var requestInfoOverridden = Helper.ApplyTokenAccessIfDetected(CurrentRequestInformation);
             CurrentRequestAccessRoles = CurrentRequestInformation?.AccessRole;
-            ConfigureAccess(request, Helper.AccessConfig);
+
+            if (!requestInfoOverridden)
+            {
+                ConfigureAccess(request, Helper.AccessConfig);
+            }
             Helper.AfterConfigure(CurrentRequestInformation);
             await base.OnActionExecutionAsync(context, next);
         }

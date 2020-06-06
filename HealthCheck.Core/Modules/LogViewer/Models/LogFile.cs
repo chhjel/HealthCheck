@@ -11,18 +11,18 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
     internal class LogFile
     {
         public string FilePath { get; set; }
-        public DateTime LastWriteTime { get; set; }
-        public DateTime FirstEntryTime { get
+        public DateTimeOffset LastWriteTime { get; set; }
+        public DateTimeOffset FirstEntryTime { get
             {
                 if (_firstEntryTimeCache == null)
                 {
                     var firstLine = IOUtils.ReadLines(FilePath).FirstOrDefault(x => !string.IsNullOrWhiteSpace(x));
-                    _firstEntryTimeCache = _entryParser.ParseEntryDate(firstLine) ?? DateTime.MaxValue;
+                    _firstEntryTimeCache = _entryParser.ParseEntryDate(firstLine) ?? DateTimeOffset.MaxValue;
                 }
                 return _firstEntryTimeCache.Value;
             }
         }
-        private DateTime? _firstEntryTimeCache = null;
+        private DateTimeOffset? _firstEntryTimeCache = null;
         private readonly ILogEntryParser _entryParser;
 
         public LogFile(string path, ILogEntryParser entryParser)

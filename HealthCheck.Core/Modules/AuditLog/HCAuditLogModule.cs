@@ -29,14 +29,24 @@ namespace HealthCheck.Core.Modules.AuditLog
         }
 
         /// <summary>
+        /// Check options object for issues.
+        /// </summary>
+        public override List<string> Validate()
+        {
+            var issues = new List<string>();
+            if (Options.AuditEventService == null) issues.Add("Options.AuditEventService must be set.");
+            return issues;
+        }
+
+        /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(AccessOption access) => null;
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => null;
 
         /// <summary>
         /// Get config for this module.
         /// </summary>
-        public override IHealthCheckModuleConfig GetModuleConfig(AccessOption access) => new HCAuditLogModuleConfig();
+        public override IHealthCheckModuleConfig GetModuleConfig(HealthCheckModuleContext context) => new HCAuditLogModuleConfig();
         
         /// <summary>
         /// Different access options for this module.
@@ -55,8 +65,8 @@ namespace HealthCheck.Core.Modules.AuditLog
         [HealthCheckModuleMethod]
         public async Task<IEnumerable<AuditEventViewModel>> GetFilteredAudits(AuditEventFilterInputData filter = null)
         {
-            var from = filter?.FromFilter ?? DateTime.MinValue;
-            var to = filter?.ToFilter ?? DateTime.MaxValue;
+            var from = filter?.FromFilter ?? DateTimeOffset.MinValue;
+            var to = filter?.ToFilter ?? DateTimeOffset.MaxValue;
             var events = await Options.AuditEventService.GetEvents(from, to);
             return events
                 .Where(x => AuditEventMatchesFilter(x, filter))

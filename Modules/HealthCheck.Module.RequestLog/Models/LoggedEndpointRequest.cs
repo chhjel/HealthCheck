@@ -10,7 +10,7 @@ namespace HealthCheck.RequestLog.Models
         /// <summary>
         /// Time the request was logged.
         /// </summary>
-        public DateTime Timestamp { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
 
         /// <summary>
         /// Application version the request was logged in.

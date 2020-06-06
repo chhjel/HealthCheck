@@ -40,7 +40,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Services
         /// <summary>
         /// Get some events from memory.
         /// </summary>
-        public Task<List<SiteEvent>> GetEvents(DateTime from, DateTime to)
+        public Task<List<SiteEvent>> GetEvents(DateTimeOffset from, DateTimeOffset to)
              => Task.FromResult(Items.Where(x => x.Timestamp.ToUniversalTime() >= from.ToUniversalTime() && x.Timestamp.ToUniversalTime() <= to.ToUniversalTime()).ToList());
 
         /// <summary>

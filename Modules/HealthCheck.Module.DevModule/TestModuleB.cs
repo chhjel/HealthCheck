@@ -9,9 +9,9 @@ namespace HealthCheck.Modules.DevModule
     /// </summary>
     public class TestModuleB : HealthCheckModuleBase<TestModuleB.TestModuleBAccessOption>
     {
-        public override object GetFrontendOptionsObject(TestModuleBAccessOption access) 
-            => new { PropX = "asdasd asd", PropY = 135135, Now = DateTime.Now, AccessInput = access.ToString() };
-        public override IHealthCheckModuleConfig GetModuleConfig(TestModuleBAccessOption access) => null;
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) 
+            => new { PropX = "asdasd asd", PropY = 135135, Now = DateTime.Now, AccessInput = context.CurrentRequestModuleAccessOptions.ToString() };
+        public override IHealthCheckModuleConfig GetModuleConfig(HealthCheckModuleContext context) => null;
 
         [HealthCheckModuleMethod(TestModuleBAccessOption.NumberOne)]
         public void TestSimple() { }

@@ -1,7 +1,7 @@
 ﻿using HealthCheck.Core.Modules.LogViewer.Models;
 using System.Collections.Generic;
 
-namespace HealthCheck.Core.Services.Models
+namespace HealthCheck.Core.Modules.LogViewer.Services
 {
     /// <summary>
     /// Options for <see cref="FlatFileLogSearcherService"/>.

@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Util;
+using System.Collections.Generic;
 
-namespace HealthCheck.WebUI.Models
+namespace HealthCheck.Core.Models
 {
     /// <summary>
     /// Information about the current request.
@@ -21,6 +22,16 @@ namespace HealthCheck.WebUI.Models
         /// Optional for auditing if enabled.
         /// </summary>
         public string UserName { get; set; }
+
+        /// <summary>
+        /// Is set automatically to the full url of the request.
+        /// </summary>
+        public string Url { get; set; }
+
+        /// <summary>
+        /// Is set automatically to all header keys and values.
+        /// </summary>
+        public Dictionary<string, string> Headers { get; set; }
 
         /// <summary>
         /// Create a new <see cref="RequestInformation{TAccessRole}"/> object.

@@ -89,7 +89,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Services
             }
 
             lastEvent.Resolved = true;
-            lastEvent.ResolvedAt = DateTime.Now;
+            lastEvent.ResolvedAt = DateTimeOffset.Now;
             lastEvent.ResolvedMessage = resolveMessage;
             await Storage.UpdateEvent(lastEvent);
             return true;
@@ -98,7 +98,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Services
         /// <summary>
         /// Get all stored <see cref="SiteEvent"/>s objects with a <see cref="SiteEvent.Timestamp"/> within the given threshold.
         /// </summary>
-        public virtual async Task<List<SiteEvent>> GetEvents(DateTime from, DateTime to)
+        public virtual async Task<List<SiteEvent>> GetEvents(DateTimeOffset from, DateTimeOffset to)
             => await Storage.GetEvents(from, to);
     }
 }

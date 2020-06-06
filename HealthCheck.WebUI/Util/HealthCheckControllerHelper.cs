@@ -1,5 +1,8 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Models;
+using HealthCheck.Core.Modules.AccessTokens;
+using HealthCheck.Core.Modules.AccessTokens.Models;
 using HealthCheck.Core.Modules.AuditLog;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.Tests;
@@ -129,16 +132,7 @@ namespace HealthCheck.WebUI.Util
                 return new InvokeModuleMethodResult();
             }
 
-            var context = new HealthCheckModuleContext()
-            {
-                UserId = requestInfo.UserId,
-                UserName = requestInfo.UserName,
-                ModuleName = module.Name,
-
-                CurrentRequestRoles = accessRoles.Value,
-                CurrentRequestModuleAccessOptions = GetCurrentRequestModuleAccessOptions(accessRoles, module?.Module?.GetType())
-            };
-
+            var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Module);
             try
             {
                 var result = await method.Invoke(module.Module, context, jsonPayload, new NewtonsoftJsonSerializer());
@@ -148,7 +142,7 @@ namespace HealthCheck.WebUI.Util
                     Result = result
                 };
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return new InvokeModuleMethodResult()
                 {
@@ -166,6 +160,52 @@ namespace HealthCheck.WebUI.Util
                     }
                 }
             }
+        }
+
+        private HealthCheckModuleContext CreateModuleContext(RequestInformation<TAccessRole> requestInfo, Maybe<TAccessRole> accessRoles,
+            string moduleName,
+            IHealthCheckModule module)
+        {
+            var moduleAccess = new List<HealthCheckModuleContext.ModuleAccess>();
+            foreach (var access in RoleModuleAccessLevels)
+            {
+                var accessModuleId = GetModuleTypeFromAccessOptionsType(access.AccessOptionsType)?.Name;
+                if (accessModuleId == null) continue;
+
+                var item = moduleAccess.FirstOrDefault(x => x.ModuleId == accessModuleId);
+                if (item == null)
+                {
+                    item = new HealthCheckModuleContext.ModuleAccess
+                    {
+                        ModuleId = accessModuleId,
+                        AccessOptions = new List<string>()
+                    };
+                    moduleAccess.Add(item);
+                }
+
+                item.AccessOptions = item.AccessOptions
+                    .Union(access.GetAllSelectedAccessOptions().Select(x => x.ToString()))
+                    .ToList();
+            }
+
+            return new HealthCheckModuleContext()
+            {
+                UserId = requestInfo.UserId,
+                UserName = requestInfo.UserName,
+                ModuleName = moduleName,
+
+                CurrentRequestRoles = accessRoles.Value,
+                CurrentRequestModuleAccessOptions = GetCurrentRequestModuleAccessOptions(accessRoles, module?.GetType()),
+
+                CurrentRequestModulesAccess = moduleAccess,
+                LoadedModules = LoadedModules.AsReadOnly()
+            };
+        }
+
+        private Type GetModuleTypeFromAccessOptionsType(Type optionsType)
+        {
+            var baseType = typeof(HealthCheckModuleBase<>).MakeGenericType(optionsType);
+            return RegisteredModules.FirstOrDefault(x => baseType.IsAssignableFrom(x.Module.GetType()))?.Module?.GetType();
         }
 
         internal class InvokeModuleMethodResult
@@ -238,13 +278,84 @@ namespace HealthCheck.WebUI.Util
             });
             return module;
         }
+
+        /// <summary>
+        /// Get the first registered module of the given type.
+        /// </summary>
+        public TModule GetModule<TModule>() where TModule: class
+            => RegisteredModules.FirstOrDefault(x => x.Module is TModule)?.Module as TModule;
         #endregion
+
+        internal bool ApplyTokenAccessIfDetected(RequestInformation<TAccessRole> currentRequestInformation)
+        {
+            foreach(var module in RegisteredModules)
+            {
+                if (module.Module is HCAccessTokensModule acModule)
+                {
+                    var token = acModule.GetTokenForRequest(currentRequestInformation);
+                    if (token != null)
+                    {
+                        ApplyTokenAccess(token, currentRequestInformation);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private void ApplyTokenAccess(HCAccessToken token, RequestInformation<TAccessRole> currentRequestInformation)
+        {
+            currentRequestInformation.UserId = token.Id.ToString();
+            currentRequestInformation.UserName = $"Token '{token.Name}'";
+
+            var roleValue = 0;
+            foreach (var role in token.Roles)
+            {
+                try
+                {
+                    var parsedEnumValue = Enum.Parse(typeof(TAccessRole), role);
+                    roleValue |= (int)parsedEnumValue;
+                }
+                catch (Exception) {}
+            }
+            currentRequestInformation.AccessRole = new Maybe<TAccessRole>((TAccessRole)Enum.ToObject(typeof(TAccessRole), roleValue));
+
+            foreach (var moduleData in token.Modules)
+            {
+                var module = RegisteredModules.FirstOrDefault(x => x.Module.GetType().Name == moduleData.ModuleId);
+                if (module == null)
+                {
+                    continue;
+                }
+
+                var moduleOptionsType = HealthCheckModuleLoader.GetModuleAccessOptionsType(module.Module.GetType());
+                var moduleOptionsValue = 0;
+                foreach (var option in moduleData.Options)
+                {
+                    try
+                    {
+                        var parsedEnumValue = Enum.Parse(moduleOptionsType, option);
+                        moduleOptionsValue |= (int)parsedEnumValue;
+                    }
+                    catch (Exception) { }
+                }
+                var moduleOptions = Enum.ToObject(moduleOptionsType, moduleOptionsValue);
+
+                AccessConfig.GiveRolesAccessToModule(module.Module.GetType(), moduleOptionsType, currentRequestInformation.AccessRole.Value, moduleOptions);
+            }
+        }
 
         internal void AfterConfigure(RequestInformation<TAccessRole> currentRequestInformation)
         {
+            HealthCheckModuleContext createModuleContext(RegisteredModuleData module)
+            {
+                return CreateModuleContext(currentRequestInformation, currentRequestInformation.AccessRole,
+                    module.NameOverride ?? module.Module.GetType().Name, module.Module);
+            }
+
             var loader = new HealthCheckModuleLoader();
             LoadedModules = RegisteredModules
-                .Select(x => loader.Load(x.Module, GetCurrentRequestModuleAccessOptions(currentRequestInformation.AccessRole, x?.Module?.GetType()), x.NameOverride))
+                .Select(x => loader.Load(x.Module, createModuleContext(x), x.NameOverride))
                 .Where(x => x != null)
                 .ToList();
 

@@ -22,12 +22,12 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
         /// <summary>
         /// Date when last changed.
         /// </summary>
-        public DateTime LastChangedAt { get; set; }
+        public DateTimeOffset LastChangedAt { get; set; }
 
         /// <summary>
         /// Date of latest notification.
         /// </summary>
-        public DateTime? LastNotifiedAt { get; set; }
+        public DateTimeOffset? LastNotifiedAt { get; set; }
 
         /// <summary>
         /// Enable this config.
@@ -42,12 +42,12 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
         /// <summary>
         /// Optionally limit notifications to after this time.
         /// </summary>
-        public DateTime? FromTime { get; set; }
+        public DateTimeOffset? FromTime { get; set; }
 
         /// <summary>
         /// Optionally limit notifications to before this time.
         /// </summary>
-        public DateTime? ToTime { get; set; }
+        public DateTimeOffset? ToTime { get; set; }
 
         /// <summary>
         /// Id of notifiers to notify when events match.
@@ -79,7 +79,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
             {
                 return false;
             }
-            else if (FromTime != null && DateTime.Now.ToUniversalTime() < FromTime?.ToUniversalTime())
+            else if (FromTime != null && DateTimeOffset.Now.ToUniversalTime() < FromTime?.ToUniversalTime())
             {
                 return false;
             }
@@ -105,7 +105,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
             {
                 return true;
             }
-            else if (ToTime != null && DateTime.Now.ToUniversalTime() > ToTime?.ToUniversalTime())
+            else if (ToTime != null && DateTimeOffset.Now.ToUniversalTime() > ToTime?.ToUniversalTime())
             {
                 return true;
             }
