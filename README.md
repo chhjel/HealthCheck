@@ -683,7 +683,7 @@ service.GetValue<bool>(nameof(TestSettings.Enabled))
 
 ## Module: Access Tokens
 
-Allows access tokens to be generated with limited access and duration. Tokens are stored hashed and salted in the given `IAccessManagerTokenStorage` implementation. The data being hashed includes given roles and module options to prevent tampering.
+Allows access tokens to be generated with limited access and duration. Tokens are stored hashed and salted in the given `IAccessManagerTokenStorage` implementation. The data being hashed includes given roles, module options and expiration to prevent tampering.
 
 ### Setup
 
