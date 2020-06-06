@@ -199,7 +199,7 @@ Supported parameter types:
 * `double`, `double?`
 * `decimal`, `decimal?`
 * `bool`, `bool?`
-* `DateTime`, `DateTime?`
+* `DateTime`, `DateTime?`, `DateTimeOffset`, `DateTimeOffset?`
 * `Enum` (-> select)
 * `Enum` with `[Flags]` (-> multiselect)
 * `HttpPostedFileBase` (.net framework only for now)
