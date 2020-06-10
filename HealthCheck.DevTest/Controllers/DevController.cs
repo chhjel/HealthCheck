@@ -1,4 +1,4 @@
-﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
@@ -255,6 +255,8 @@ namespace HealthCheck.DevTest.Controllers
                 ApplicationTitleLink = "/?sysadmin=x&webadmin=1",
                 EditorConfig = new HCFrontEndOptions.EditorWorkerConfig
                 {
+                    //EditorWorkerUrl = "blob:https://unpkg.com/christianh-healthcheck@3.0.5/editor.worker.js",
+                    //JsonWorkerUrl = "blob:https://unpkg.com/christianh-healthcheck@3.0.5/json.worker.js"
                     EditorWorkerUrl = $"{EndpointBase}/getscript?name=editor.worker.js",
                     JsonWorkerUrl = $"{EndpointBase}/getscript?name=json.worker.js"
                 }

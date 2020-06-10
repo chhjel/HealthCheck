@@ -58,13 +58,15 @@ namespace HealthCheck.WebUI.Models
         {
             /// <summary>
             /// Url to the editor worker script.
+            /// <para>Can be prefixed with "blob:" to proxy it through a generated blob url.</para>
             /// </summary>
-            public string EditorWorkerUrl { get; set; } = "https://unpkg.com/christianh-healthcheck@2/editor.worker.js";
+            public string EditorWorkerUrl { get; set; } = "blob:https://unpkg.com/christianh-healthcheck@2/editor.worker.js";
 
             /// <summary>
             /// Url to the json worker script.
+            /// <para>Can be prefixed with "blob:" to proxy it through a generated blob url.</para>
             /// </summary>
-            public string JsonWorkerUrl { get; set; } = "https://unpkg.com/christianh-healthcheck@2/json.worker.js";
+            public string JsonWorkerUrl { get; set; } = "blob:https://unpkg.com/christianh-healthcheck@2/json.worker.js";
         }
     }
 }

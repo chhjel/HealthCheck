@@ -189,12 +189,26 @@ export default class EditorComponent extends Vue {
             {
                 switch (label)
                 {
-                    case 'editorWorkerService': return this.globalOptions.EditorConfig.EditorWorkerUrl;
-                    case 'json': return this.globalOptions.EditorConfig.JsonWorkerUrl;
+                    case 'editorWorkerService': return this.processUrl(this.globalOptions.EditorConfig.EditorWorkerUrl);
+                    case 'json': return this.processUrl(this.globalOptions.EditorConfig.JsonWorkerUrl);
                 }
                 return `/hc/unknown/monaco/worker/${label}.js`;
             }
         }
+    }
+
+    processUrl(url: string): string
+    {
+        if (url.startsWith('blob:')) {
+            return this.createBlobUrlFor(url.substr(5));
+        }
+        return url;
+    }
+
+    createBlobUrlFor(url: string): string
+    {
+        const blob = new Blob(["importScripts('" + url + "');"], { type: 'application/javascript' });
+        return URL.createObjectURL(blob);
     }
 
     createMonacoEditor(): monaco.editor.IStandaloneCodeEditor
