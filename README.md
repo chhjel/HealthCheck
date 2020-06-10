@@ -52,21 +52,21 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
             AssemblyContainingTests = typeof(MyController).Assembly
         }));
     }
-
+    
     // Set any options that will be passed to the front-end here,
     // including the path to this controller.
-    protected override FrontEndOptionsViewModel GetFrontEndOptions()
-        => new FrontEndOptionsViewModel("/HealthCheck")
+    protected override HCFrontEndOptions GetFrontEndOptions()
+        => new HCFrontEndOptions("/HealthCheck")
         {
             ApplicationTitle = "My Title"
             //...
         };
-
+        
     // Set any options for the view here.
-    protected override PageOptions GetPageOptions()
-        => new PageOptions()
+    protected override HCPageOptions GetPageOptions()
+        => new HCPageOptions()
         {
-            PageTitle = "My Title | My Site",
+            PageTitle = "My Title",
             // In order to not use a cdn for the main scripts
             // you can override them using the 'JavaScriptUrls' property.
             JavaScriptUrls = new List<string> {
@@ -494,6 +494,9 @@ UseModule(new HCDynamicCodeExecutionModule(new HCDynamicCodeExecutionModuleOptio
     // Validators = ..
     // Validators check the code that is about to be executed and can halt execution with a message.
     // * Included types: FuncCodeValidator
+
+    // StaticSnippets = ..
+    // Snippets can be inserted by entering @@@.
 }));
 ```
 
