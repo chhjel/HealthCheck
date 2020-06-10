@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Module.DynamicCodeExecution.Abstractions;
+using HealthCheck.Module.DynamicCodeExecution.Models;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -13,6 +14,11 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         /// Optional list of pre-processors to run the code through before execution.
         /// </summary>
         public IEnumerable<IDynamicCodePreProcessor> PreProcessors { get; set; }
+
+        /// <summary>
+        /// A collection of static suggestions triggered by entering "@@@.".
+        /// </summary>
+        public IEnumerable<CodeSuggestion> StaticSnippets { get; set; }
 
         /// <summary>
         /// Optional list of code validators to run the code through before execution, and optionally halt execution.

@@ -16,6 +16,12 @@ export interface ICodeMark {
     severity: MarkerSeverity;
 }
 
+export interface CodeSnippet {
+    label: string,
+    documentation: string,
+    insertText: string
+}
+
 export interface DynamicCodeExecutionSourceModel
 {
     Code:string;

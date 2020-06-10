@@ -27,6 +27,11 @@ namespace HealthCheck.Module.DynamicCodeExecution.Models
         /// Code used for new scripts.
         /// </summary>
         public string DefaultScript { get; set; }
+
+        /// <summary>
+        /// A collection of static suggestions triggered by entering "@@@.".
+        /// </summary>
+        public IEnumerable<CodeSuggestion> StaticSnippets { get; set; }
     }
 
     /// <summary>

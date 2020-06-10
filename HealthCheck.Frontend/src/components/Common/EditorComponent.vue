@@ -52,7 +52,7 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 // if shipping only a subset of the features & languages is desired
 import * as monaco from 'monaco-editor'
 import FrontEndOptionsViewModel from "../../models/Common/FrontEndOptionsViewModel";
-import { ICodeMark } from  '../../models/modules/DynamicCodeExecution/Models';
+import { ICodeMark, CodeSnippet } from  '../../models/modules/DynamicCodeExecution/Models';
 
 
 @Component({
@@ -77,6 +77,9 @@ export default class EditorComponent extends Vue {
 
     @Prop({ required: false, default: "" })
     title!: string;
+
+    @Prop({ required: false, default: () => []})
+    suggestions!: Array<CodeSnippet>;
 
     // UI state
     isFullscreen: boolean = false;
@@ -236,6 +239,59 @@ export default class EditorComponent extends Vue {
         return editor;
     }
 
+    configureEditor(): void {
+        monaco.languages.registerCompletionItemProvider(this.language, {
+            provideCompletionItems: (model, position) => {
+                if (this.suggestions.length == 0) {
+                    return { suggestions: [] };
+                }
+
+                var textUntilPosition = model.getValueInRange({
+                    startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column
+                });
+
+                var match = textUntilPosition.match(/.*@@@\.$/);
+                if (!match) {
+                    return { suggestions: [] };
+                }
+
+                var word = model.getWordUntilPosition(position);
+                var range = {
+                    startLineNumber: position.lineNumber,
+                    endLineNumber: position.lineNumber,
+                    startColumn: word.startColumn - 4,
+                    endColumn: word.endColumn
+                };
+                return {
+                    suggestions: this.createSnippetSuggestions(model.id, range)
+                };
+            }
+        });
+    }
+
+    createSnippetSuggestions(modelId: string, range: monaco.IRange): Array<monaco.languages.CompletionItem> {
+        if (this.editor.getModel() == null) return [];
+
+        const model = this.editor.getModel();
+        if (model == null || model.id != modelId) {
+            return [];
+        }
+
+        const suggestions = this.suggestions
+            .map(x => {
+                return {
+                    kind: monaco.languages.CompletionItemKind.Function,
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    range: range,
+                    label: x.label,
+                    documentation: x.documentation,
+                    insertText: x.insertText
+                };
+            });
+
+        return suggestions;
+    }
+
     checkForInit(): void {
         if (this.editor == undefined)
         {
@@ -246,6 +302,7 @@ export default class EditorComponent extends Vue {
         }
 
         this.isEditorInited = true;
+        this.configureEditor();
         this.onEditorInit();
     }
 

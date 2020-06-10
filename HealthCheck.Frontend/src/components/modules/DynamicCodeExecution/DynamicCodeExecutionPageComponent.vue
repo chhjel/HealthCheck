@@ -65,6 +65,7 @@
                     v-on:editorInit="onEditorInit"
                     :readOnly="isEditorReadOnly"
                     :title="currentScriptTitle"
+                    :suggestions="suggestions"
                     ref="editor"
                     ></editor-component>
 
@@ -260,7 +261,7 @@ import ModuleOptions from  '../../../models/Common/ModuleOptions';
 import EditorComponent from  '../../Common/EditorComponent.vue';
 import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
 import DynamicCodeExecutionService from  '../../../services/DynamicCodeExecutionService';
-import { DynamicCodeExecutionResultModel, DynamicCodeScript, AutoCompleteRequest, AutoCompleteData } from  '../../../models/modules/DynamicCodeExecution/Models';
+import { DynamicCodeExecutionResultModel, DynamicCodeScript, AutoCompleteRequest, AutoCompleteData, CodeSnippet } from  '../../../models/modules/DynamicCodeExecution/Models';
 import { MarkerSeverity } from "monaco-editor";
 import { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
 import FilterableListComponent from  '../../Common/FilterableListComponent.vue';
@@ -274,6 +275,12 @@ interface DynamicCodeExecutionPageOptions {
     PreProcessors: Array<PreProcessorMetadata>;
     ServerSideScriptsEnabled: boolean;
     AutoCompleteEnabled: boolean;
+    StaticSnippets: Array<BackendCodeSnippet>;
+}
+interface BackendCodeSnippet {
+    Description: string;
+    Name: string;
+    Suggestion: string;
 }
 
 interface PreProcessorMetadata {
@@ -365,6 +372,17 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
 
     get editorTheme(): 'vs' | 'vs-dark' {
         return (this.localOptions.darkTheme) ? 'vs-dark' : 'vs';
+    }
+
+    get suggestions(): Array<CodeSnippet> {
+        const snippets = this.options.Options.StaticSnippets || [];
+        return snippets.map(x => {
+            return {
+                label: `@@@.${x.Name}`,
+                documentation: x.Description,
+                insertText: x.Suggestion
+            }
+        });
     }
 
     get showEditor(): boolean {

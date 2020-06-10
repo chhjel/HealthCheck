@@ -1,4 +1,4 @@
-using HealthCheck.Core.Abstractions;
+﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
@@ -105,7 +105,11 @@ namespace HealthCheck.DevTest.Controllers
                             : DynamicCodeValidationResult.Allow()
                     )
                 },
-                AutoCompleter = new DCEMCAAutoCompleter()
+                AutoCompleter = new DCEMCAAutoCompleter(),
+                StaticSnippets = new List<CodeSuggestion>
+                {
+                    new CodeSuggestion("GetService<T>(id)", "Get a registered service", "GetService<${1:T}>(${2:x})")
+                }
             }));
             UseModule(new HCTestsModule(new HCTestsModuleOptions() { AssemblyContainingTests = typeof(DevController).Assembly }))
                 .ConfigureGroups((options) => options

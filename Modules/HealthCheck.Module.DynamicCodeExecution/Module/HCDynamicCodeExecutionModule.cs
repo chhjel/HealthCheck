@@ -223,7 +223,8 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
                 }),
                 ServerSideScriptsEnabled = Options.ScriptStorage != null,
                 AutoCompleteEnabled = Options.AutoCompleter != null,
-                DefaultScript = Options.DefaultScript
+                DefaultScript = Options.DefaultScript,
+                StaticSnippets = Options.StaticSnippets ?? new List<CodeSuggestion>()
             };
         }
 
