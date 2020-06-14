@@ -13,6 +13,7 @@
         <component
             class="setting-input"
             :setting="setting"
+            :disabled="disabled"
             :is="getInputComponentNameFromType(setting.type)">
         </component>
     </div>
@@ -42,6 +43,9 @@ export default class ParameterInputComponent extends Vue {
 
     @Prop({ required: false })
     isListItem!: boolean;
+
+    @Prop({ required: false, default: false })
+    disabled!: boolean;
 
     showDescription: boolean = false;
 

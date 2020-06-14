@@ -66,13 +66,14 @@
                     :readOnly="isEditorReadOnly"
                     :title="currentScriptTitle"
                     :suggestions="suggestions"
+                    :includeBuiltInSuggestions="true"
                     ref="editor"
                     ></editor-component>
 
                 <div class="middle-toolbar">
                     <v-btn flat :dark="localOptions.darkTheme"
                         color="#62b5e4"
-                        :disabled="!hasUnsavedChanges"
+                        :disabled="!hasUnsavedChanges || loadStatus.inProgress"
                         v-if="showSaveButton"
                         @click="onSaveClicked"
                         >Save</v-btn>
@@ -413,12 +414,12 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
 
     get hasUnsavedChanges(): boolean {
         return this.currentScript != null 
-            && (this.currentScript.Code != this.code || this.currentScript.IsDraft == true);
+            && (!this.codeIsEqual(this.currentScript.Code, this.code) || this.currentScript.IsDraft == true);
     }
 
     get shouldNotifyUnsavedChanges(): boolean {
         return this.currentScript != null 
-            && this.currentScript.Code != this.code;
+            && !this.codeIsEqual(this.currentScript.Code, this.code);
     }
     
     get canDeleteCurrentScript(): boolean {
@@ -507,9 +508,6 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
                 && this.options.Options.DefaultScript.length > 0)
             ? this.options.Options.DefaultScript
             : `// Title: 
-#region Usings
-#endregion
-
 namespace CodeTesting 
 {
     public class EntryClass
@@ -518,17 +516,6 @@ namespace CodeTesting
         {
             new { Hello = "World" }.Dump();
         }
-
-        #region Docs
-        // To dump a value use the extension methods .Dump():
-        // * T Dump<T>(this T obj, string title = null, bool display = true, bool ignoreErrors = true)
-        // * T Dump<T>(this T obj, string title = null, bool display = true, params JsonConverter[] converters)
-        // * T Dump<T>(this T obj, Func<T, string> dumpConverter, string title = null, bool display = true)
-
-        // To save all dumped values to a file:
-        // * DCEUtils.SaveDumps(string pathOrFilename = null, bool includeTitle = false, bool includeType = false)
-        //   Default filename is %tempfolder%\\DCEDump_{date}.txt
-        #endregion
     }
 }
 `;
@@ -662,6 +649,13 @@ namespace CodeTesting
         localStorage.setItem('__HC_DCE_localScripts', json);
     }
 
+    codeIsEqual(left: string, right: string): boolean
+    {
+        if (left == null && right == null) return true;
+        else if (left == null || right == null) return false;
+        else return (left.replace(/\r/g, "") == right.replace(/\r/g, ""));
+    }
+
     confirmUnsavedChangesPromiseResolve!: any;
     confirmUnsavedChangesPromiseReject!: any;
     confirmUnsavedChanges(): Promise<boolean>
@@ -700,6 +694,7 @@ namespace CodeTesting
     }
 
     openScript(script: DynamicCodeScript, updateUrl: boolean = true): void {
+        console.log(`openScript(${script.Id})`)
         this.currentScript = script;
         this.code = this.currentScript.Code;
 
@@ -1166,9 +1161,11 @@ namespace CodeTesting
     onNotAllowedModuleSwitch(): void {
         this.confirmUnsavedChanges()
             .then((confirmed) => {
+                console.log(`onNotAllowedModuleSwitch`, confirmed, this.currentScript);
                 if (confirmed && this.currentScript != null)
                 {
                     this.code = this.currentScript.Code;
+                    console.log(`this.code`, this.code);
                     setTimeout(() => (this.$parent.$parent as HealthCheckPageComponent).retryShowModule(), 50);
                 }
             });

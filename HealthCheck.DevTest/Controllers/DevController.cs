@@ -105,7 +105,7 @@ namespace HealthCheck.DevTest.Controllers
                             : DynamicCodeValidationResult.Allow()
                     )
                 },
-                AutoCompleter = new DCEMCAAutoCompleter(),
+                AutoCompleter = null,// new DCEMCAAutoCompleter(),
                 StaticSnippets = new List<CodeSuggestion>
                 {
                     new CodeSuggestion("GetService<T>(id)", "Get a registered service", "GetService<${1:T}>(${2:x})")

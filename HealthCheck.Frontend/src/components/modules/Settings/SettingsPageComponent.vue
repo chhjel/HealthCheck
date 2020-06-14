@@ -32,12 +32,14 @@
                     <setting-input-component v-for="(setting, sIndex) in group.settings"
                         :key="`setting-group-${gIndex}-${sIndex}`"
                         class="setting-item"
+                        :disabled="!HasAccessToChangeSettings"
                         :setting="setting" />
                 </div>
 
                 <v-layout v-if="settingGroups.length > 0">
                     <v-flex xs6 sm2 class="mb-2">
-                        <v-btn 
+                        <v-btn
+                            v-if="HasAccessToChangeSettings"
                             @click="saveSettings()" 
                             class="primary"
                             :disabled="saveStatus.inProgress">{{ saveButtonText }}</v-btn>
@@ -110,6 +112,10 @@ export default class SettingsPageComponent extends Vue {
     get saveButtonText(): string {
         return (this.saveStatus.inProgress) ? 'Saving..' : 'Save';
     }
+
+    get HasAccessToChangeSettings(): boolean {
+        return this.options.AccessOptions.indexOf("ChangeSettings") != -1;
+    }
     
     ////////////////
     //  METHODS  //
@@ -138,6 +144,10 @@ export default class SettingsPageComponent extends Vue {
 
     saveSettings(): void {
         this.service.SaveSettings(this.settingGroups, this.saveStatus);
+    }
+
+    hasAccess(option: string): boolean {
+        return this.options.AccessOptions.indexOf(option) != -1;
     }
 
     ///////////////////////

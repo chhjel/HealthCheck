@@ -6,6 +6,7 @@
             class="pt-0"
             v-model="setting.value"
             v-on:change="onValueChanged"
+            :disabled="disabled"
             required />
     </div>
 </template>
@@ -21,6 +22,9 @@ import { CustomSetting }  from  '../../../../services/SettingsService';
 export default class SettingInputTypeInt32Component extends Vue {
     @Prop({ required: true })
     setting!: CustomSetting;
+
+    @Prop({ required: false, default: false })
+    disabled!: boolean;
     
     mounted(): void {
         if (this.setting.value == null || this.setting.value === '') {

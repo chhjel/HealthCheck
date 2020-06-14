@@ -81,6 +81,9 @@ export default class EditorComponent extends Vue {
     @Prop({ required: false, default: () => []})
     suggestions!: Array<CodeSnippet>;
 
+    @Prop({ required: false, default: false })
+    includeBuiltInSuggestions!: boolean;
+
     // UI state
     isFullscreen: boolean = false;
 
@@ -240,7 +243,80 @@ export default class EditorComponent extends Vue {
     }
 
     configureEditor(): void {
+        this.registerBuiltInMethods();
+        this.registerCustomSnippets();
+    }
+
+    registerBuiltInMethods(): void {
         monaco.languages.registerCompletionItemProvider(this.language, {
+            // triggerCharacters: ['.'],
+            provideCompletionItems: (model, position) => {
+                if (!this.includeBuiltInSuggestions) {
+                    return { suggestions: [] };
+                }
+
+                var textUntilPosition = model.getValueInRange({
+                    startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column
+                });
+
+                var match = textUntilPosition.match(/\.$/);
+                if (!match) {
+                    return { suggestions: [] };
+                }
+
+                var word = model.getWordUntilPosition(position);
+                var range = {
+                    startLineNumber: position.lineNumber,
+                    endLineNumber: position.lineNumber,
+                    startColumn: word.startColumn,
+                    endColumn: word.endColumn
+                };
+                return {
+                    suggestions: this.createBuiltInSuggestions(model.id, range)
+                };
+            }
+        });
+    }
+
+    createBuiltInSuggestions(modelId: string, range: monaco.IRange): Array<monaco.languages.CompletionItem> {
+        if (this.editor.getModel() == null) return [];
+
+        const model = this.editor.getModel();
+        if (model == null || model.id != modelId) {
+            return [];
+        }
+
+        return [
+            {
+                kind: monaco.languages.CompletionItemKind.Function,
+                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                range: range,
+                label: '.Dump()',
+                documentation: 'T Dump<T>(this T obj, string title = null, bool display = true, bool ignoreErrors = true)',
+                insertText: 'Dump()'
+            },
+            {
+                kind: monaco.languages.CompletionItemKind.Function,
+                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                range: range,
+                label: '.Dump("title")',
+                documentation: 'T Dump<T>(this T obj, string title = null, bool display = true, bool ignoreErrors = true)',
+                insertText: 'Dump("${1:title}")'
+            },
+            {
+                kind: monaco.languages.CompletionItemKind.Function,
+                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                range: range,
+                label: '.Dump((obj) => obj.ToString())',
+                documentation: 'T Dump<T>(this T obj, Func<T, string> dumpConverter, string title = null, bool display = true)',
+                insertText: 'Dump((obj) => ${1:obj.ToString()})'
+            }
+        ];
+    }
+
+    registerCustomSnippets(): void {
+        monaco.languages.registerCompletionItemProvider(this.language, {
+            triggerCharacters: ['@@@.'],
             provideCompletionItems: (model, position) => {
                 if (this.suggestions.length == 0) {
                     return { suggestions: [] };

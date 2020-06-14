@@ -26,7 +26,6 @@ namespace HealthCheck.Module.DynamicCodeExecution.PreProcessors
         /// </summary>
         public string Description { get; set; } = "Automatically creates a region around using statements.";
 
-
         /// <summary>
         /// Allow this pre-processor to be disabled by the user?
         /// </summary>
@@ -62,12 +61,13 @@ namespace HealthCheck.Module.DynamicCodeExecution.PreProcessors
             }
 
             var regionContent = ExtractAllUsingLines(lines);
+            var topComments = regionContent.TakeWhile(x => x.Trim().Length == 0 || x.Trim().StartsWith("//")).ToList();
+            regionContent = regionContent.Skip(topComments.Count).ToList();
+
             var regionLineIndex = lines.FindIndex(x => x.Trim() == $"#region {name}");
             if (regionLineIndex == -1)
             {
-#pragma warning disable IDE0028 // Simplify collection initialization
                 var newLines = new List<string>();
-#pragma warning restore IDE0028 // Simplify collection initialization
                 newLines.Add($"#region {name}");
                 newLines.AddRange(regionContent);
                 newLines.Add($"#endregion");
@@ -102,6 +102,9 @@ namespace HealthCheck.Module.DynamicCodeExecution.PreProcessors
                     }
                 }
             }
+            
+            lines.InsertRange(0, topComments);
+
             return string.Join("\n", lines);
         }
 

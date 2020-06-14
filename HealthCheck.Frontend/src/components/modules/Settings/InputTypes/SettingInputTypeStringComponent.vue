@@ -7,6 +7,7 @@
                     class="pt-0"
                     v-model="setting.value"
                     v-on:change="onValueChanged"
+                    :disabled="disabled"
                     required />
             </v-flex>
         </v-layout>
@@ -27,6 +28,9 @@ export default class SettingInputTypeStringComponent extends Vue {
 
     @Prop({ required: false })
     isListItem!: boolean;
+
+    @Prop({ required: false, default: false })
+    disabled!: boolean;
     
     mounted(): void {
         if (this.setting.value == null) {

@@ -4,6 +4,7 @@
         <v-switch 
             v-model="value" 
             :label="label"
+            :disabled="disabled"
             v-on:change="onChanged"
             color="secondary"
             class="setting-checkbox pt-0 mt-2"
@@ -22,6 +23,9 @@ import { CustomSetting }  from  '../../../../services/SettingsService';
 export default class SettingInputTypeBooleanComponent extends Vue {
     @Prop({ required: true })
     setting!: CustomSetting;
+
+    @Prop({ required: false, default: false })
+    disabled!: boolean;
     
     value: boolean = false;
 

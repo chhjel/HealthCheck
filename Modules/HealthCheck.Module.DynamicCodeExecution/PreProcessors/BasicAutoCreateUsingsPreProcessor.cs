@@ -240,7 +240,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.PreProcessors
             }
 
             requiredNamespaces.RemoveWhere(x => existingUsings.Contains(x));
-            return requiredNamespaces.ToList();
+            return requiredNamespaces.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
         }
 
         private List<string> GetNamespacesInUsingsIn(string code)

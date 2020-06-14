@@ -19,10 +19,15 @@
                 {{ loadStatus.errorMessage }}
                 </v-alert>
 
-                <!-- DATA LOAD ERROR -->
+                <!-- CEATED TOKEN DETAILS -->
                 <v-alert :value="true" v-if="lastCreatedTokenData != null" type="info">
                 New token '{{ lastCreatedTokenData.Name }}' created: <code>{{ lastCreatedTokenData.Token }}</code><br />
                 Copy it now, it will never be shown again.
+                </v-alert>
+                
+                <!-- TOKEN USAGE INFO -->
+                <v-alert :value="true" v-if="lastCreatedTokenData != null" outline type="info" elevation="2">
+                Tokens can be consumed either through query string <code>?x-token=...</code> or header <code>x-token: ...</code>
                 </v-alert>
 
                 <v-btn

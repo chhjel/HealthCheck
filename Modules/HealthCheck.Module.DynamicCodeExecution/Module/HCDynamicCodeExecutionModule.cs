@@ -223,9 +223,17 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
                 }),
                 ServerSideScriptsEnabled = Options.ScriptStorage != null,
                 AutoCompleteEnabled = Options.AutoCompleter != null,
-                DefaultScript = Options.DefaultScript,
+                DefaultScript = GetDefaultScript(),
                 StaticSnippets = Options.StaticSnippets ?? new List<CodeSuggestion>()
             };
+        }
+
+        private string GetDefaultScript()
+        {
+            var usings = string.Join("\n", (Options.AdditionalUsings ?? new List<string>()).Select(x => $"using {x};"));
+            var script = Options.DefaultScript;
+            script = script.Replace("[[AdditionalUsings]]", usings);
+            return script;
         }
 
         private DynamicCodeValidationResult AllowExecution(string code)
