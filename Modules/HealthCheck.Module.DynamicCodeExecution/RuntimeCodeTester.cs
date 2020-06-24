@@ -253,22 +253,22 @@ namespace HealthCheck.Module.DynamicCodeExecution
     public static class DCEUtils
     {{
         public static void SaveDumps(string pathOrFilename = null, bool includeTitle = false, bool includeType = false)
-            => HealthCheck.Module.DynamicCodeExecution.Util.DumpHelper.SaveDumps(DCEInternalHelpers.Dumps, pathOrFilename, includeTitle, includeType);
+        {{ HealthCheck.Module.DynamicCodeExecution.Util.DumpHelper.SaveDumps(DCEInternalHelpers.Dumps, pathOrFilename, includeTitle, includeType); }}
     }}
 
 	public static class DCEExtensions
     {{
 		public static T Dump<T>(this T obj, string title = null, bool display = true, bool ignoreErrors = true)
-            => HealthCheck.Module.DynamicCodeExecution.Util.DumpHelper.Dump<T>(obj, DCEInternalHelpers.Dumps, title, display, ignoreErrors);
+        {{ return HealthCheck.Module.DynamicCodeExecution.Util.DumpHelper.Dump<T>(obj, DCEInternalHelpers.Dumps, title, display, ignoreErrors); }}
 		
 		public static T Dump<T>(this T obj, string title = null, bool display = true, params Newtonsoft.Json.JsonConverter[] converters)
-            => HealthCheck.Module.DynamicCodeExecution.Util.DumpHelper.Dump<T>(obj, DCEInternalHelpers.Dumps, title, display, converters);
+        {{ return HealthCheck.Module.DynamicCodeExecution.Util.DumpHelper.Dump<T>(obj, DCEInternalHelpers.Dumps, title, display, converters); }}
 	
 		public static T Dump<T>(this T obj, System.Func<T, string> dumpConverter, string title = null, bool display = true)
-            => HealthCheck.Module.DynamicCodeExecution.Util.DumpHelper.Dump<T>(obj, DCEInternalHelpers.Dumps, dumpConverter, title, display);
+        {{ return HealthCheck.Module.DynamicCodeExecution.Util.DumpHelper.Dump<T>(obj, DCEInternalHelpers.Dumps, dumpConverter, title, display); }}
 
         public static TLeft Diff<TLeft, TRight>(this TLeft left, TRight right, bool onlyIfDifferent = true, string title = null, bool ignoreErrors = true)
-            => HealthCheck.Module.DynamicCodeExecution.Util.DumpHelper.Diff<TLeft, TRight>(left, right, onlyIfDifferent, DCEInternalHelpers.Diffs, title, ignoreErrors);
+        {{ return HealthCheck.Module.DynamicCodeExecution.Util.DumpHelper.Diff<TLeft, TRight>(left, right, onlyIfDifferent, DCEInternalHelpers.Diffs, title, ignoreErrors); }}
 	}}
 ";
     }
