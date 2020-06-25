@@ -1023,6 +1023,10 @@ namespace CodeTesting
         {
             return;
         }
+        else if (this.scriptIsServerSide(this.currentScript) && !this.canEditExistingScriptOnServer)
+        {
+            return;
+        }
 
         if (this.currentScript.IsDraft)
         {
