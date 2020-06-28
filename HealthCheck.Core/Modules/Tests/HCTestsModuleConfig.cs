@@ -10,7 +10,7 @@ namespace HealthCheck.Core.Modules.Tests
         public string DefaultRootRouteSegment => "tests";
         public string InitialRoute => "/{0}";
         public string RoutePath => "/{0}/:group?/:set?/:test?";
-        public List<HealthCheckLinkTagModel> LinkTags => null;
-        public List<HealthCheckScriptTagModel> ScriptTags => null;
+        public List<HealthCheckLinkTagModel> LinkTags => new List<HealthCheckLinkTagModel>();
+        public List<HealthCheckScriptTagModel> ScriptTags => new List<HealthCheckScriptTagModel>();
     }
 }

@@ -39,13 +39,13 @@ namespace HealthCheck.Core.Util
         {
             return new DataDump()
             {
-                Title = title ?? CreateDumpName<T>(type),
+                Title = title ?? CreateDumpName(type),
                 Type = type.GetFriendlyTypeName() ?? typeof(T).Name,
                 Data = data
             };
         }
 
-        private static string CreateDumpName<T>(Type type) => type.GetFriendlyTypeName();
+        private static string CreateDumpName(Type type) => type.GetFriendlyTypeName();
 
         internal static string EncodeForJson(bool value)
             => value ? "true" : "false";

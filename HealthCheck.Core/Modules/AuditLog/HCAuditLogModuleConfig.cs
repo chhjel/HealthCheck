@@ -10,7 +10,7 @@ namespace HealthCheck.Core.Modules.AuditLog
         public string DefaultRootRouteSegment => "auditlog";
         public string InitialRoute => "/{0}";
         public string RoutePath => "/{0}";
-        public List<HealthCheckLinkTagModel> LinkTags => null;
-        public List<HealthCheckScriptTagModel> ScriptTags => null;
+        public List<HealthCheckLinkTagModel> LinkTags => new List<HealthCheckLinkTagModel>();
+        public List<HealthCheckScriptTagModel> ScriptTags => new List<HealthCheckScriptTagModel>();
     }
 }

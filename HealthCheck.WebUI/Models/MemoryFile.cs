@@ -1,9 +1,9 @@
-﻿using System.IO;
+﻿#if NETFULL
+using System.IO;
 using System.Web;
 
 namespace HealthCheck.WebUI.Models
 {
-#if NETFULL
     /// <summary>
     /// Memory version of HttpPostedFileBase.
     /// </summary>
@@ -64,5 +64,5 @@ namespace HealthCheck.WebUI.Models
             stream.CopyTo(file);
         }
     }
-#endif
 }
+#endif

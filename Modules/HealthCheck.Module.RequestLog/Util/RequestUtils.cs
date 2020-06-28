@@ -3,6 +3,7 @@ using System;
 using System.Net.Http;
 using System.Web;
 #endif
+#pragma warning disable S2327
 
 namespace HealthCheck.RequestLog.Util
 {
@@ -55,7 +56,7 @@ namespace HealthCheck.RequestLog.Util
                         dynamic ctx = request.Properties[HttpContext];
                         if (ctx != null)
                         {
-                            if (ctx.Request.IsLocal == true)
+                            if (ctx.Request.IsLocal)
                             {
                                 return "localhost";
                             }
@@ -72,21 +73,22 @@ namespace HealthCheck.RequestLog.Util
                                     }
                                 }
                             }
-                            catch (Exception) {}
+                            catch (Exception) { /* Ignore errors here */ }
 
                             try
                             {
                                 return ctx.Request.ServerVariables["REMOTE_ADDR"];
                             }
-                            catch (Exception) {}
+                            catch (Exception) { /* Ignore errors here */ }
 
                             return ctx.Request.UserHostAddress;
                         }
                     }
-                }
-                catch (Exception) {}
 
-                // Self-hosting. Needs reference to System.ServiceModel.dll.
+                    // Self-hosting. Needs reference to System.ServiceModel.dll.
+                }
+                catch (Exception) { /* Ignore errors here */ }
+
                 try
                 {
                     if (request.Properties.ContainsKey(RemoteEndpointMessage))
@@ -98,7 +100,7 @@ namespace HealthCheck.RequestLog.Util
                         }
                     }
                 }
-                catch (Exception) {}
+                catch (Exception) { /* Ignore errors here */ }
 
                 // Self-hosting using Owin. Needs reference to Microsoft.Owin.dll. 
                 if (request.Properties.ContainsKey(OwinContext))

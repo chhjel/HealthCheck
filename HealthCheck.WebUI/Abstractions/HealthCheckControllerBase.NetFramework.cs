@@ -1,24 +1,14 @@
 ﻿#if NETFULL
-using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Models;
-using HealthCheck.Core.Modules.AccessTokens.Models;
-using HealthCheck.Core.Modules.Dataflow;
-using HealthCheck.Core.Modules.EventNotifications;
-using HealthCheck.Core.Modules.EventNotifications.Models;
-using HealthCheck.Core.Modules.LogViewer.Models;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Util;
-using HealthCheck.WebUI;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Util;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -60,7 +50,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Base controller for the ui and api.
         /// </summary>
-        public HealthCheckControllerBase()
+        protected HealthCheckControllerBase()
         {
             Helper = new HealthCheckControllerHelper<TAccessRole>();
         }
@@ -100,9 +90,9 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         public TModule GetModule<TModule>() where TModule : class
             => Helper.GetModule<TModule>();
-        #endregion
+#endregion
 
-        #region Endpoints
+#region Endpoints
         /// <summary>
         /// Returns the page html.
         /// </summary>

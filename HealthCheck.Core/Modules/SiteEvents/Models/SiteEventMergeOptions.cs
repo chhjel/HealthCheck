@@ -12,7 +12,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
         /// Allow merging events with close timestamps and equal <see cref="SiteEvent.EventTypeId"/>.
         /// <para>True by default.</para>
         /// </summary>
-        public bool AllowEventMerge { get; set; } = true;
+        public bool AllowEventMerge { get; set; }
 
         /// <summary>
         /// Merge will only be allowed if the time since the last event ended equals this or less.

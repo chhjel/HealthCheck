@@ -56,7 +56,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
         /// <summary>
         /// Any urls to related things.
         /// </summary>
-        public List<HCSEHyperLinkViewModel> RelatedLinks { get; set; }
+        public List<SiteEventsHyperLinkViewModel> RelatedLinks { get; set; }
 
         /// <summary>
         /// Details for developers.

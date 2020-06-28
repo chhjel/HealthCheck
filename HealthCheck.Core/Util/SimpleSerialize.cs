@@ -49,17 +49,19 @@ namespace HealthCheck.Core.Util
 					builder.Append($"{indent}{{");
 					builder.AppendLine();
 					var props = data.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
-							.Where(x => !x.IsSpecialName);
+							.Where(x => !x.IsSpecialName)
+							.Where(x => x.GetIndexParameters().Length == 0);
 					foreach (var prop in props)
 					{
-						Stringify(prop.Name, prop.GetValue(data), maxLevels, builder, currentLevel + 1);
+						var value = prop.GetValue(data);
+						Stringify(prop.Name, value, maxLevels, builder, currentLevel + 1);
 					}
 					builder.Append($"{indent}}}");
 				}
 
 				builder.AppendLine();
 			}
-			catch (Exception) { }
+			catch (Exception) { /* Ignore errors here */  }
 			return builder;
 		}
 	}

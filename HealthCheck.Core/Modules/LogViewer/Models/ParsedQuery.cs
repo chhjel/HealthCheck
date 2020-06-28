@@ -54,7 +54,6 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
                 return regexResult;
             }
 
-            var lowerInput = input.ToLower();
             if (!MustContain.All(x => input.IndexOf(x, StringComparison.InvariantCultureIgnoreCase) != -1))
             {
                 return negate;

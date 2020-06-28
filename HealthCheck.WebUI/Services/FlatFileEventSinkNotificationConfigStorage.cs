@@ -161,7 +161,7 @@ namespace HealthCheck.WebUI.Services
                     ConfigCache.Remove(key);
                 }
             }
-            catch (Exception) { }
+            catch (Exception) { /* Ignore error here */ }
             IsWriteQueued = false;
         }
     }

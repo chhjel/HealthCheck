@@ -63,7 +63,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Services
                     Timestamp = entry.Timestamp,
                     Severity = ParseEntrySeverity(entry.Raw)
                 };
-            };
+            }
 
             return new LogSearchResult()
             {
@@ -121,7 +121,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Services
             var wasCancelled = false;
             int totalMatchCount = 0;
             string error = null;
-            var internalSearchResult = new InternalLogSearchResult();
+            InternalLogSearchResult internalSearchResult = null;
             try
             {
                 var searcher = new LogSearcher(searcherOptions);

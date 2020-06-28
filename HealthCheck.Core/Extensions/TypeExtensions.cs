@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace HealthCheck.Core.Extensions
 {
@@ -34,25 +35,28 @@ namespace HealthCheck.Core.Extensions
                 return "AnonymousType";
             }
 
-            string friendlyName = type.Name;
+            var friendlyNameBuilder = new StringBuilder();
+            friendlyNameBuilder.Append(type.Name);
             if (type.IsGenericType)
             {
-                int iBacktick = friendlyName.IndexOf('`');
+                int iBacktick = friendlyNameBuilder.ToString().IndexOf('`');
                 if (iBacktick > 0)
                 {
-                    friendlyName = friendlyName.Remove(iBacktick);
+                    var friendlyName = friendlyNameBuilder.ToString().Remove(iBacktick);
+                    friendlyNameBuilder.Clear();
+                    friendlyNameBuilder.Append(friendlyName);
                 }
-                friendlyName += "<";
+                friendlyNameBuilder.Append("<");
                 Type[] typeParameters = type.GetGenericArguments();
                 for (int i = 0; i < typeParameters.Length; ++i)
                 {
                     string typeParamName = GetFriendlyTypeName(typeParameters[i]);
-                    friendlyName += (i == 0 ? typeParamName : "," + typeParamName);
+                    friendlyNameBuilder.Append(i == 0 ? typeParamName : "," + typeParamName);
                 }
-                friendlyName += ">";
+                friendlyNameBuilder.Append(">");
             }
 
-            return friendlyName;
+            return friendlyNameBuilder.ToString();
         }
     }
 }

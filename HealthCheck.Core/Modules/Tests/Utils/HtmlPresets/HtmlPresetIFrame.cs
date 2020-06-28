@@ -9,6 +9,6 @@ namespace HealthCheck.Core.Modules.Tests.Utils.HtmlPresets
         /// An Iframe with the given url and height.
         /// </summary>
         public HtmlPresetIFrame(string url, string height = "500px")
-            : base($"<iframe src=\"{url}\" width=\"100%\" height=\"500px\"></iframe>") { }
+            : base($"<iframe src=\"{url}\" width=\"100%\" height=\"{height}\"></iframe>") { }
     }
 }

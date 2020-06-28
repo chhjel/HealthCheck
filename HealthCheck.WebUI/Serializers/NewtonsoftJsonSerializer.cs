@@ -20,7 +20,6 @@ namespace HealthCheck.WebUI.Serializers
                 Formatting = Formatting.Indented,
                 Error = (sender, e) =>
                 {
-                    sender = null;
                     e.ErrorContext.Handled = true;
                 },
                 Converters = new[] { new StringEnumConverter() }

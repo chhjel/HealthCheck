@@ -5,23 +5,23 @@ VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dev", "Dev", "{B26DDE73-0369-4977-A004-3CCDE2B38825}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.DevTest", "HealthCheck.DevTest\HealthCheck.DevTest.csproj", "{7692E64E-1510-4362-AE3A-E4BE6A68EDDF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.DevTest", "Dev\HealthCheck.DevTest\HealthCheck.DevTest.csproj", "{7692E64E-1510-4362-AE3A-E4BE6A68EDDF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Core.Tests", "HealthCheck.Core.Tests\HealthCheck.Core.Tests.csproj", "{D324CB88-6FA9-4F9C-B7DD-EA7906132F6E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Core.Tests", "Tests\HealthCheck.Core.Tests\HealthCheck.Core.Tests.csproj", "{D324CB88-6FA9-4F9C-B7DD-EA7906132F6E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.WebUI", "HealthCheck.WebUI\HealthCheck.WebUI.csproj", "{2A641F75-5D28-4BF1-9019-8286FCBD6AC5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Core", "HealthCheck.Core\HealthCheck.Core.csproj", "{DF551DB9-32A9-4519-B19C-2F306A486448}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.DevTest.NetCore", "HealthCheck.DevTest.NetCore\HealthCheck.DevTest.NetCore.csproj", "{EAEE52BF-3FA7-4D31-824F-CB3A0A4885B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.DevTest.NetCore", "Dev\HealthCheck.DevTest.NetCore\HealthCheck.DevTest.NetCore.csproj", "{EAEE52BF-3FA7-4D31-824F-CB3A0A4885B6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.WebUI.Tests", "HealthCheck.WebUI.Tests\HealthCheck.WebUI.Tests.csproj", "{4E0CF690-86CF-47F1-86CE-D837FBA75EF6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.WebUI.Tests", "Tests\HealthCheck.WebUI.Tests\HealthCheck.WebUI.Tests.csproj", "{4E0CF690-86CF-47F1-86CE-D837FBA75EF6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Module.RequestLog", "Modules\HealthCheck.Module.RequestLog\HealthCheck.Module.RequestLog.csproj", "{E1337F9C-3E88-4453-BC84-B8FE52874C93}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{3FDC5685-F607-4E31-981B-1D23817E5E2E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Module.DevModule", "Modules\HealthCheck.Module.DevModule\HealthCheck.Module.DevModule.csproj", "{81552B74-1F58-4CC1-B76B-87E84A35571A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Module.DevModule", "Dev\HealthCheck.Module.DevModule\HealthCheck.Module.DevModule.csproj", "{81552B74-1F58-4CC1-B76B-87E84A35571A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D387D01E-B6A5-44A4-969F-051127E09311}"
 	ProjectSection(SolutionItems) = preProject
@@ -30,7 +30,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Module.DynamicCodeExecution", "Modules\HealthCheck.Module.DynamicCodeExecution\HealthCheck.Module.DynamicCodeExecution.csproj", "{12FF11C4-EE44-4142-A335-EE7E7E9C4C60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA", "Modules\HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA\HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA.csproj", "{DE9EA2DB-5D18-4CF8-A3B7-B32D0BF48D96}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA", "Modules\HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA\HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA.csproj", "{DE9EA2DB-5D18-4CF8-A3B7-B32D0BF48D96}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{23FF7575-64C7-43DC-9FDB-1FE4BF5A1D3F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -82,9 +84,11 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7692E64E-1510-4362-AE3A-E4BE6A68EDDF} = {B26DDE73-0369-4977-A004-3CCDE2B38825}
+		{D324CB88-6FA9-4F9C-B7DD-EA7906132F6E} = {23FF7575-64C7-43DC-9FDB-1FE4BF5A1D3F}
 		{EAEE52BF-3FA7-4D31-824F-CB3A0A4885B6} = {B26DDE73-0369-4977-A004-3CCDE2B38825}
+		{4E0CF690-86CF-47F1-86CE-D837FBA75EF6} = {23FF7575-64C7-43DC-9FDB-1FE4BF5A1D3F}
 		{E1337F9C-3E88-4453-BC84-B8FE52874C93} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
-		{81552B74-1F58-4CC1-B76B-87E84A35571A} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
+		{81552B74-1F58-4CC1-B76B-87E84A35571A} = {B26DDE73-0369-4977-A004-3CCDE2B38825}
 		{12FF11C4-EE44-4142-A335-EE7E7E9C4C60} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
 		{DE9EA2DB-5D18-4CF8-A3B7-B32D0BF48D96} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
 	EndGlobalSection

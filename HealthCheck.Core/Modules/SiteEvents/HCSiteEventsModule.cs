@@ -28,7 +28,7 @@ namespace HealthCheck.Core.Modules.SiteEvents
         /// <summary>
         /// Check options object for issues.
         /// </summary>
-        public override List<string> Validate()
+        public override IEnumerable<string> Validate()
         {
             var issues = new List<string>();
             if (Options.SiteEventService == null) issues.Add("Options.SiteEventService must be set.");
@@ -55,7 +55,7 @@ namespace HealthCheck.Core.Modules.SiteEvents
         public enum AccessOption
         {
             /// <summary>Does nothing.</summary>
-            Nothing = 0,
+            None = 0,
 
             /// <summary>Include stacktrace in some views.</summary>
             DeveloperDetails = 1,

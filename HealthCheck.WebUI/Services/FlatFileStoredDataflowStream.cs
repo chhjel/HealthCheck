@@ -15,7 +15,7 @@ namespace HealthCheck.WebUI.Services
         /// <summary>
         /// A built in dataflow stream that stores and retrieves entries from a flatfile.
         /// </summary>
-        public FlatFileStoredDataflowStream(
+        protected FlatFileStoredDataflowStream(
             string filepath,
             Func<TEntry, TEntryId> idSelector,
             Action<TEntry, TEntryId> idSetter,

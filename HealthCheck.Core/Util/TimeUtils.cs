@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace HealthCheck.Core.Util
 {
     /// <summary>
     /// Utilities related to time and durations.
     /// </summary>
-    public class TimeUtils
+    public static class TimeUtils
     {
         /// <summary>
         /// Translates the given datetime into a text that says how long ago it was.

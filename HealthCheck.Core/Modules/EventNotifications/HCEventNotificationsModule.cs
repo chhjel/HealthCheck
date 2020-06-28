@@ -24,7 +24,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
         /// <summary>
         /// Check options object for issues.
         /// </summary>
-        public override List<string> Validate()
+        public override IEnumerable<string> Validate()
         {
             var issues = new List<string>();
             if (Options.EventSink == null) issues.Add("Options.EventSink must be set.");
@@ -48,7 +48,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
         public enum AccessOption
         {
             /// <summary>Does nothing.</summary>
-            Nothing = 0,
+            None = 0,
 
             /// <summary>Allows editing event definitions.</summary>
             EditEventDefinitions = 1
@@ -107,7 +107,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
 
             config = Options.EventSink.SaveConfig(config);
 
-            context.AddAuditEvent($"{(model.Enabled ? "Enabled" : "Disabled")} event notification config", config.Id.ToString());
+            context?.AddAuditEvent($"{(model.Enabled ? "Enabled" : "Disabled")} event notification config", config.Id.ToString());
             return new { Success = true };
         }
 
@@ -129,7 +129,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
 
             if (config != null)
             {
-                context.AddAuditEvent(action: "Saved event notification config");
+                context?.AddAuditEvent(action: "Saved event notification config");
             }
             return config;
         }

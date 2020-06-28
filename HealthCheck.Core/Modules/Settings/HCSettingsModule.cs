@@ -24,7 +24,7 @@ namespace HealthCheck.Core.Modules.Settings
         /// <summary>
         /// Check options object for issues.
         /// </summary>
-        public override List<string> Validate()
+        public override IEnumerable<string> Validate()
         {
             var issues = new List<string>();
             if (Options.SettingsService == null) issues.Add("Options.SettingsService must be set.");
@@ -48,7 +48,7 @@ namespace HealthCheck.Core.Modules.Settings
         public enum AccessOption
         {
             /// <summary>Does nothing.</summary>
-            Nothing = 0,
+            None = 0,
 
             /// <summary>Allowed to change settings.</summary>
             ChangeSettings = 1

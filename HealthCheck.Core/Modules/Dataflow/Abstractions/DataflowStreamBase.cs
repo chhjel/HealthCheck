@@ -57,18 +57,13 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         /// </summary>
         public Func<bool> IsVisible { get; set; } = () => true;
 
-        private bool IsVisibleSafe => IsVisible == null || IsVisible() == true;
+        private bool IsVisibleSafe => IsVisible == null || IsVisible();
 
         private readonly Dictionary<string, DataFlowPropertyDisplayInfo> PropertyInfos = new Dictionary<string, DataFlowPropertyDisplayInfo>();
         private readonly List<Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>>
             InternalPropertyFilters = new List<Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>>();
 
-        /// <summary>
-        /// Register display info about a property. UIOrder will be set to the invoke count of this method instance.
-        /// </summary>
-        public DataFlowPropertyDisplayInfo ConfigureProperty(string propertyName, string displayName,
-            DataFlowPropertyUIHint? uiHint = null, DataFlowPropertyUIVisibilityOption? visibility = null)
-            => ConfigureProperty(propertyName, uiHint, visibility).SetDisplayName(displayName);
+        private int RegisterPropertyDisplayInfoInvokeCount = 0;
 
         /// <summary>
         /// Register display info about a property. UIOrder will be set to the invoke count of this method instance.
@@ -76,9 +71,12 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         public DataFlowPropertyDisplayInfo ConfigureProperty(string propertyName,
             DataFlowPropertyUIHint? uiHint = null, DataFlowPropertyUIVisibilityOption? visibility = null)
         {
-            var info = PropertyInfos.ContainsKey(propertyName)
-                ? PropertyInfos[propertyName]
-                : PropertyInfos[propertyName] = new DataFlowPropertyDisplayInfo(propertyName).SetUIOrder(RegisterPropertyDisplayInfoInvokeCount++);
+            if (!PropertyInfos.ContainsKey(propertyName))
+            {
+                PropertyInfos[propertyName] = new DataFlowPropertyDisplayInfo(propertyName).SetUIOrder(RegisterPropertyDisplayInfoInvokeCount++);
+            }
+
+            var info = PropertyInfos[propertyName];
 
             if (uiHint != null)
             {
@@ -91,7 +89,13 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
 
             return info;
         }
-        private int RegisterPropertyDisplayInfoInvokeCount = 0;
+
+        /// <summary>
+        /// Register display info about a property. UIOrder will be set to the invoke count of this method instance.
+        /// </summary>
+        public DataFlowPropertyDisplayInfo ConfigureProperty(string propertyName, string displayName,
+            DataFlowPropertyUIHint? uiHint = null, DataFlowPropertyUIVisibilityOption? visibility = null)
+            => ConfigureProperty(propertyName, uiHint, visibility).SetDisplayName(displayName);
 
         /// <summary>
         /// Register display info about a property.

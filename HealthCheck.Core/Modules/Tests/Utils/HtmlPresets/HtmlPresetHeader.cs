@@ -93,15 +93,15 @@ namespace HealthCheck.Core.Modules.Tests.Utils.HtmlPresets
 
         private int GetHSize()
         {
-            switch (Size)
+            return Size switch
             {
-                case HtmlPresetHeaderSize.Huge: return 1;
-                case HtmlPresetHeaderSize.Large: return 2;
-                case HtmlPresetHeaderSize.Normal: return 3;
-                case HtmlPresetHeaderSize.Small: return 4;
-                case HtmlPresetHeaderSize.Tiny: return 5;
-                default: return 3;
-            }
+                HtmlPresetHeaderSize.Huge => 1,
+                HtmlPresetHeaderSize.Large => 2,
+                HtmlPresetHeaderSize.Normal => 3,
+                HtmlPresetHeaderSize.Small => 4,
+                HtmlPresetHeaderSize.Tiny => 5,
+                _ => 3,
+            };
         }
     }
 }

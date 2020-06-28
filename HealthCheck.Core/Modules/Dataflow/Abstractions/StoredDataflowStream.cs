@@ -18,7 +18,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         /// <para>Defaults to true.</para>
         /// </summary>
         public Func<bool> AllowInsert { get; set; } = () => true;
-        private bool AllowInsertSafe => AllowInsert == null || AllowInsert() == true;
+        private bool AllowInsertSafe => AllowInsert == null || AllowInsert();
 
         /// <summary>
         /// Implementation that stores the stream entries.
@@ -28,7 +28,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         /// <summary>
         /// A built in dataflow stream that stores and retrieves entries from a flatfile.
         /// </summary>
-        public StoredDataflowStream(IDataStoreWithEntryId<TEntry> dataStore)
+        protected StoredDataflowStream(IDataStoreWithEntryId<TEntry> dataStore)
         {
             Store = dataStore;
         }
@@ -39,7 +39,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         /// </summary>
         public void TryFireAndForgetInsertEntry(TEntry entry, DateTimeOffset? timestamp = null)
         {
-            Task.Run(() => { try { InsertEntry(entry, timestamp); } catch (Exception) { } });
+            Task.Run(() => { try { InsertEntry(entry, timestamp); } catch (Exception) { /* Ignore any exceptions here. */ } });
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         /// </summary>
         public void TryFireAndForgetInsertEntries(IList<TEntry> entries, DateTimeOffset? timestamp = null)
         {
-            Task.Run(() => { try { InsertEntries(entries, timestamp); } catch (Exception) { } });
+            Task.Run(() => { try { InsertEntries(entries, timestamp); } catch (Exception) { /* Ignore any exceptions here. */ } });
         }
 
         /// <summary>

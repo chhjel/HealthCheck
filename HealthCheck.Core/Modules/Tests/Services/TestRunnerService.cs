@@ -56,6 +56,13 @@ namespace HealthCheck.Core.Modules.Tests.Services
             {
                 foreach(var result in results)
                 {
+                    var duration = "?";
+                    if (result != null)
+                    {
+                        duration = result.DurationInMilliseconds < 0 
+                            ? "< 0" 
+                            : result?.DurationInMilliseconds.ToString();
+                    }
                     var auditEvent = new AuditEvent()
                         {
                             Area = "Tests",
@@ -68,7 +75,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                         }
                         .AddDetail("Test id", result?.Test?.Id)
                         .AddDetail("Result", result?.Message)
-                        .AddDetail("Duration", (result == null ? "?" : result.DurationInMilliseconds < 0 ? "< 0" : result?.DurationInMilliseconds.ToString()) + "ms");
+                        .AddDetail("Duration", duration + "ms");
                     await onAuditEvent(auditEvent);
                 }
             }
@@ -108,36 +115,6 @@ namespace HealthCheck.Core.Modules.Tests.Services
             return results;
         }
 
-        private bool ContainsAnyUnresolvedTestsFor(SiteEvent self, List<SiteEvent> events)
-        {
-            return events.Any(other =>
-                other != self
-                && other.EventTypeId == self.EventTypeId
-                && other.Resolved == false
-            );
-        }
-
-        /// <summary>
-        /// Default merge logic for the ExecuteTests method.
-        /// <para>Uses the highest severity event, and appends descriptions from any other one.</para>
-        /// </summary>
-        /// <param name="events">Events with the same event type id.</param>
-        public static SiteEvent DefaultMultipleResultSiteEventMerge(IEnumerable<SiteEvent> events)
-        {
-            var ordered = events.OrderByDescending(x => x.Severity);
-
-            var mainEvent = ordered.First();
-            var otherEvents = ordered.Where(x => x != mainEvent);
-
-            var otherDesc = string.Join("\n\n", otherEvents.Select(x => x.Description));
-            if (!string.IsNullOrWhiteSpace(otherDesc))
-            {
-                mainEvent.Description += "\n\n" + otherDesc;
-            }
-
-            return mainEvent;
-        }
-
         /// <summary>
         /// Execute all the tests in the given test classes.
         /// </summary>
@@ -153,7 +130,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                 var classInstance = Activator.CreateInstance(testClass.ClassType);
                 var includedTests = testClass.Tests.Where(x => testFilter?.Invoke(x) != false).ToList();
 
-                var defaultAllowsParallel = testClass.DefaultAllowParallelExecution == true;
+                var defaultAllowsParallel = testClass.DefaultAllowParallelExecution;
                 var testsThatCanRunInParallel = includedTests
                     .Where(x =>
                         (defaultAllowsParallel
@@ -284,6 +261,35 @@ namespace HealthCheck.Core.Modules.Tests.Services
             {
                 return TestCancellationTokenSources.ContainsKey(testId);
             }
+        }
+
+        /// <summary>
+        /// Default merge logic for the ExecuteTests method.
+        /// <para>Uses the highest severity event, and appends descriptions from any other one.</para>
+        /// </summary>
+        /// <param name="events">Events with the same event type id.</param>
+        public static SiteEvent DefaultMultipleResultSiteEventMerge(IEnumerable<SiteEvent> events)
+        {
+            var ordered = events.OrderByDescending(x => x.Severity);
+
+            var mainEvent = ordered.First();
+            var otherEvents = ordered.Where(x => x != mainEvent);
+
+            var otherDesc = string.Join("\n\n", otherEvents.Select(x => x.Description));
+            if (!string.IsNullOrWhiteSpace(otherDesc))
+            {
+                mainEvent.Description += "\n\n" + otherDesc;
+            }
+
+            return mainEvent;
+        }
+
+        private bool ContainsAnyUnresolvedTestsFor(SiteEvent self, List<SiteEvent> events)
+        {
+            return events.Any(other =>
+                other != self
+                && other.EventTypeId == self.EventTypeId
+                && !other.Resolved);
         }
 
         private void RegisterCancellableTestStarted(string testId, CancellationTokenSource source)

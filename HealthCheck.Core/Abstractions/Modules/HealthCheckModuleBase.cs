@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+#pragma warning disable S2326
 
 namespace HealthCheck.Core.Abstractions.Modules
 {
@@ -23,6 +25,6 @@ namespace HealthCheck.Core.Abstractions.Modules
         /// <summary>
         /// Optionally validate options etc. Return any issues to be displayed.
         /// </summary>
-        public virtual List<string> Validate() => null;
+        public virtual IEnumerable<string> Validate() => Enumerable.Empty<string>();
     }
 }

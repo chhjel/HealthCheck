@@ -1,7 +1,6 @@
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.LogViewer.Enums;
 using HealthCheck.Core.Modules.LogViewer.Models;
-using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;

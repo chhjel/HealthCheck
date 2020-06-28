@@ -44,7 +44,7 @@ namespace HealthCheck.Core.Modules.Documentation
         public enum AccessOption
         {
             /// <summary>Does nothing.</summary>
-            Nothing = 0,
+            None = 0,
         }
 
         #region Invokable methods

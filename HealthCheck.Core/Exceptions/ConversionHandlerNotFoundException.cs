@@ -8,7 +8,7 @@ namespace HealthCheck.Core.Exceptions
     /// Thrown when a converter is not registered for the type we want to convert to.
     /// </summary>
     [Serializable]
-    public class ConversionHandlerNotFoundException : System.Exception
+    public class ConversionHandlerNotFoundException : Exception
     {
         /// <summary>
         /// Thrown when a converter is not registered for the type we want to convert to.
@@ -34,7 +34,7 @@ namespace HealthCheck.Core.Exceptions
             : base(message, innerException) { }
 
         /// <summary>
-        /// Thrown when a converter is not registered for the type we want to convert to.
+        /// Initializes a new instance of the object with serialized data.
         /// </summary>
         protected ConversionHandlerNotFoundException(SerializationInfo info, StreamingContext context)
             : base(info, context) { }

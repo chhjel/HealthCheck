@@ -82,8 +82,7 @@ namespace HealthCheck.Core.Util
         public object ConvertStringTo(Type type, string input)
         {
             var method = GetType().GetMethods()
-                .Where(x => x.Name == nameof(ConvertStringTo) && x.IsGenericMethod)
-                .First();
+                .First(x => x.Name == nameof(ConvertStringTo) && x.IsGenericMethod);
 
             // Handle nullable types
             var isNullable = type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
@@ -103,7 +102,7 @@ namespace HealthCheck.Core.Util
 
             var genericMethod = method.MakeGenericMethod(type);
             var value = genericMethod.Invoke(this, new object[] { input });
-            if (value != null && (value.GetType() == type || type.IsAssignableFrom(value.GetType()))) return value;
+            if (value != null && (value.GetType() == type || type.IsInstanceOfType(value))) return value;
             else return Convert.ChangeType(value, type);
         }
 
@@ -132,7 +131,7 @@ namespace HealthCheck.Core.Util
                && inputType.GetGenericArguments()[0].IsEnum)
             {
                 var enumType = inputType.GetGenericArguments()[0];
-                input = input.Replace("[", "").Replace("]", "");
+                input = input?.Replace("[", "")?.Replace("]", "") ?? "";
                 var enumNames = input.Split(new[] { "\",\"" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Replace("\"", ""));
 
                 var listInstance = Activator.CreateInstance(inputType);
@@ -226,7 +225,8 @@ namespace HealthCheck.Core.Util
         private string JsonSerialize(object obj)
         {
             var objType = obj.GetType();
-            using var memStream = new MemoryStream();
+
+            var memStream = new MemoryStream();
             var ser = new DataContractJsonSerializer(objType);
             ser.WriteObject(memStream, obj);
 
@@ -245,8 +245,7 @@ namespace HealthCheck.Core.Util
         private string SerializeCollection(object list, Type itemType)
         {
             var method = this.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.Name == nameof(SerializeCollection) && x.IsGenericMethod)
-                .First();
+                .First(x => x.Name == nameof(SerializeCollection) && x.IsGenericMethod);
 
             return method.MakeGenericMethod(itemType).Invoke(this, new object[] { list }) as string;
         }

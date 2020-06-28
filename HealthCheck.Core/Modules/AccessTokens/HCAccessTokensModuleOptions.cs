@@ -1,5 +1,4 @@
 ﻿using HealthCheck.Core.Modules.AccessTokens.Abstractions;
-using System;
 
 namespace HealthCheck.Core.Modules.AccessTokens
 {

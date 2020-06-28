@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
+using HealthCheck.Core.Exceptions;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.AccessTokens;
@@ -14,10 +15,13 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+
+#if NETFULL
+using System.IO;
 using System.Web;
+#endif
 
 namespace HealthCheck.WebUI.Util
 {
@@ -112,7 +116,7 @@ namespace HealthCheck.WebUI.Util
             }
             catch (Exception)
             {
-                throw new Exception($"Invalid module '{moduleType?.Name}' registered.");
+                throw new HCException($"Invalid module '{moduleType?.Name}' registered.");
             }
         }
 
@@ -205,7 +209,7 @@ namespace HealthCheck.WebUI.Util
         private Type GetModuleTypeFromAccessOptionsType(Type optionsType)
         {
             var baseType = typeof(HealthCheckModuleBase<>).MakeGenericType(optionsType);
-            return RegisteredModules.FirstOrDefault(x => baseType.IsAssignableFrom(x.Module.GetType()))?.Module?.GetType();
+            return RegisteredModules.FirstOrDefault(x => baseType.IsInstanceOfType(x.Module))?.Module?.GetType();
         }
 
         internal class InvokeModuleMethodResult
@@ -316,7 +320,7 @@ namespace HealthCheck.WebUI.Util
                     var parsedEnumValue = Enum.Parse(typeof(TAccessRole), role);
                     roleValue |= (int)parsedEnumValue;
                 }
-                catch (Exception) {}
+                catch (Exception) { /* Ignore error here */ }
             }
             currentRequestInformation.AccessRole = new Maybe<TAccessRole>((TAccessRole)Enum.ToObject(typeof(TAccessRole), roleValue));
 
@@ -337,11 +341,11 @@ namespace HealthCheck.WebUI.Util
                         var parsedEnumValue = Enum.Parse(moduleOptionsType, option);
                         moduleOptionsValue |= (int)parsedEnumValue;
                     }
-                    catch (Exception) { }
+                    catch (Exception) { /* Ignore invalid enum parsing */ }
                 }
                 var moduleOptions = Enum.ToObject(moduleOptionsType, moduleOptionsValue);
 
-                AccessConfig.GiveRolesAccessToModule(module.Module.GetType(), moduleOptionsType, currentRequestInformation.AccessRole.Value, moduleOptions);
+                AccessConfig.GiveRolesAccessToModule(moduleOptionsType, currentRequestInformation.AccessRole.Value, moduleOptions);
             }
         }
 
@@ -494,10 +498,11 @@ namespace HealthCheck.WebUI.Util
         #region Init module extras
         private void InitStringConverter(StringConverter converter)
         {
+            // Only handles files for .net framework for now
 #if NETFULL
             converter.RegisterConverter<HttpPostedFileBase>(
                 (input) => ConvertInputToMemoryFile(input),
-                (file) => throw new NotImplementedException());
+                (file) => null);
 
             converter.RegisterConverter<List<HttpPostedFileBase>>(
                 (input) =>
@@ -514,7 +519,7 @@ namespace HealthCheck.WebUI.Util
 
                     return list;
                 },
-                (file) => throw new NotImplementedException());
+                (file) => null);
 #endif
         }
 

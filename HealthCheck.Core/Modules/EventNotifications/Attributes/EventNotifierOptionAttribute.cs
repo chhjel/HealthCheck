@@ -22,7 +22,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Attributes
         /// True if placeholders should be replaced. Placeholders are only supported on string types.
         /// <para>Defaults to true.</para>
         /// </summary>
-        public bool ReplacePlaceholders { get; set; } = true;
+        public bool ReplacePlaceholders { get; set; }
 
         /// <summary>
         /// Optionally provide the name of a public static method in the same class that placeholder values will pass through.

@@ -16,7 +16,7 @@ namespace HealthCheck.Core.Modules.Tests.Utils.HtmlPresets
         /// <summary>
         /// Style of the list.
         /// </summary>
-        protected HtmlPresetListStyle Style { get; set; } = HtmlPresetListStyle.Unordered;
+        protected HtmlPresetListStyle Style { get; set; }
 
         /// <summary>
         /// Style of the list.

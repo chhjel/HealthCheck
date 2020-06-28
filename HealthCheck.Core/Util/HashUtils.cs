@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 
 namespace HealthCheck.Core.Util
 {
-    internal class HashUtils
+    internal static class HashUtils
     {
         private const int SaltSize = 32;
         private const int HashSize = 32;

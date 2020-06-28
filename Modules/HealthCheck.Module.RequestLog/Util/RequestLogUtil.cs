@@ -15,7 +15,7 @@ namespace HealthCheck.RequestLog.Util
     /// <summary>
     /// Utils related to the <see cref="IRequestLogService"/>.
     /// </summary>
-    public class RequestLogUtil
+    public static class RequestLogUtil
     {
         /// <summary>
         /// Find all MVC and WebApi controllers in the given assemblies and create entries from any not already existing.
@@ -129,7 +129,7 @@ namespace HealthCheck.RequestLog.Util
             {
                 var prettifiedControllerName = controller?.Name?.Replace("Controller", "");
                 return $"{prettifiedControllerName} - {action}";
-            };
+            }
 
             actionMethod ??= controller.GetMethods().FirstOrDefault(x => x.Name == action);
             var infoAttribute = GetRequestLogInfoAttribute(actionMethod);

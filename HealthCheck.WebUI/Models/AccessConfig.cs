@@ -56,7 +56,7 @@ namespace HealthCheck.WebUI.Models
 
         internal List<ModuleAccessData<TAccessRole>> RoleModuleAccessLevels { get; set; }
 
-        internal void GiveRolesAccessToModule(Type moduleType, Type moduleAccessOptionsEnumType, TAccessRole roles, object access)
+        internal void GiveRolesAccessToModule(Type moduleAccessOptionsEnumType, TAccessRole roles, object access)
             => RoleModuleAccessLevels.Add(new ModuleAccessData<TAccessRole> {
                 Roles = roles,
                 AccessOptions = access,

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+#pragma warning disable S2743
 
 namespace HealthCheck.WebUI.Services
 {
@@ -50,13 +51,13 @@ namespace HealthCheck.WebUI.Services
                     {
                         return (T)setting.Value;
                     }
-                } catch(Exception) { }
+                } catch(Exception) { /* Ignore error here */ }
 
                 try
                 {
                     return (T)Convert.ChangeType(setting.Value, typeof(T));
                 }
-                catch (Exception) { }
+                catch (Exception) { /* Ignore error here */ }
             }
 
             return default;
@@ -212,7 +213,7 @@ namespace HealthCheck.WebUI.Services
 
                     settings.Add(setting);
                 }
-                catch (Exception) { }
+                catch (Exception) { /* Ignore error here */ }
             }
 
             lock (_defaultSettingsCache)
@@ -222,11 +223,6 @@ namespace HealthCheck.WebUI.Services
 
             return settings;
         }
-
-        // todo: return wrapper object with any errors.
-        //public void AddValidationFor<TPropertyType>(string propertyName, Func<TPropertyType, bool> validator)
-        //{
-        //}
 
         private class HealthCheckSettingProxy
         {

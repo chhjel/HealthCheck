@@ -1,5 +1,4 @@
-﻿using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Exceptions;
+﻿using HealthCheck.Core.Exceptions;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Util;
@@ -78,7 +77,6 @@ namespace HealthCheck.Core.Modules.Tests.Services
                 throw new ArgumentNullException($"Could not find entry assembly, set {nameof(AssemblyContainingTests)} to the assembly that contains the tests.");
             }
 
-            // todo cache types? Or instances? option in attribute?
             var testClassTypes = assembly.GetTypes()
                 .Where(x => x.GetCustomAttribute<RuntimeTestClassAttribute>(inherit: true) != null)
                 .ToList();
@@ -143,16 +141,10 @@ namespace HealthCheck.Core.Modules.Tests.Services
             {
                 throw new InvalidAccessRolesDefinitionException($"Access role set on test '{test.Name}' is either missing a [Flags] attribute or does not have the underlying type int or byte.");
             }
-            else if(roles != null && roles.GetType() != test.RolesWithAccess.GetType())
+            else if(roles.GetType() != test.RolesWithAccess.GetType())
             {
                 throw new InvalidAccessRolesDefinitionException($"Different access role types used on '{test.Name}' and in the discover tests call. " +
                     $"({test.RolesWithAccess.GetType().Name} and {roles.GetType().Name})");
-            }
-            
-            // Test requires roles, but user has none => don't allow.
-            if (roles == null)
-            {
-                return false;
             }
 
             return EnumUtils.EnumFlagHasAnyFlagsSet(roles, test.RolesWithAccess);

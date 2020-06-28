@@ -65,13 +65,6 @@ namespace HealthCheck.Core.Modules.Tests.Attributes
         }
 
         /// <summary>
-        /// Set parameter options by either:
-        /// <para>* Decorating parameters directly.</para>
-        /// <para>* Decorating methods and use the <see cref="Target"/> property to select what parameter to target by its name.</para>
-        /// </summary>
-        public RuntimeTestParameterAttribute() { }
-
-        /// <summary>
         /// Hint of how to display a parameter input.
         /// </summary>
         [Flags]

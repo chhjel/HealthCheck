@@ -63,9 +63,11 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
             long builderLines = 0;
             long lineNumber = 0;
             var stringbuilder = new StringBuilder();
-            using FileStream fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using BufferedStream bufferedStream = new BufferedStream(fileStream);
+
+            var fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            var bufferedStream = new BufferedStream(fileStream);
             using StreamReader streamReader = new StreamReader(bufferedStream);
+
             string line;
             string nextStartingLine = null;
             var emptyLineCount = 0;

@@ -205,7 +205,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.PreProcessors
 
             if (PrioritizeNamespaces != null)
             {
-                var priList = PrioritizeNamespaces.ToArray().Reverse();
+                var priList = PrioritizeNamespaces.AsEnumerable().Reverse();
                 foreach(var priNamespace in priList)
                 {
                     var prioritized = types.Where(x => priNamespace.Matches(x.Namespace)).ToArray();

@@ -68,13 +68,13 @@ namespace HealthCheck.Core.Util
                     if (wex.Response is HttpWebResponse webResponse)
                     {
                         var statusCode = (int)webResponse.StatusCode;
-                        output += $" Status code: {statusCode} ({webResponse.StatusCode.ToString()}).";
+                        output += $" Status code: {statusCode} ({webResponse.StatusCode}).";
                     }
                     return output;
                 }
                 else
                 {
-                    return $"{exceptionMessage} Status: {wex.Status.ToString()}.{innerExceptionMessage}";
+                    return $"{exceptionMessage} Status: {wex.Status}.{innerExceptionMessage}";
                 }
             }
             else

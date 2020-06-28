@@ -1,5 +1,4 @@
-﻿using HealthCheck.Core.Exceptions;
-using HealthCheck.Core.Extensions;
+﻿using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Util;
 using System;
@@ -180,7 +179,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
             // Not supported
             else
             {
-                return null;
+                return new List<object>();
             }
         }
 
@@ -191,7 +190,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 var factoryMethod = GetCustomDefaultValueMethod(parameterAttribute, parameter);
                 return factoryMethod?.Invoke(null, new object[0]);
             }
-            else if (parameter.DefaultValue == null || parameter.DefaultValue.GetType() == typeof(DBNull))
+            else if (parameter.DefaultValue == null || (parameter.DefaultValue is DBNull))
             {
                 return null;
             } else
@@ -204,10 +203,9 @@ namespace HealthCheck.Core.Modules.Tests.Models
         {
             var classType = Method.DeclaringType;
             return classType.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .Where(x => x.Name == parameterAttribute.DefaultValueFactoryMethod 
+                .FirstOrDefault(x => x.Name == parameterAttribute.DefaultValueFactoryMethod 
                     && x.GetParameters().Length == 0
-                    && x.ReturnType == parameterInfo.ParameterType)
-                .FirstOrDefault();
+                    && x.ReturnType == parameterInfo.ParameterType);
         }
 
         /// <summary>
@@ -274,8 +272,6 @@ namespace HealthCheck.Core.Modules.Tests.Models
             {
                 errors.Add($"Test method '{ParentClass.ClassType.Name}.{Method.Name}' must return a TestResult or Task<TestResult>.");
             }
-            //else if (Method.GetParameters().Any(x => !x.HasDefaultValue))
-            //    result.Error = $"Test method '{ParentClass.ClassType.Name}.{Method.Name}' must have default values for all parameters.";
 
             var methodParameterNames = Method.GetParameters().Select(x => x.Name).ToArray();
             var parameterAttributesOnMethod = Method.GetCustomAttributes<RuntimeTestParameterAttribute>(true);
@@ -297,7 +293,6 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 }
 
                 var details = $" {detailItems.JoinForSentence()}";
-                var attributeText = $"{"attribute".Pluralize(invalidAttributes.Count())}";
                 errors.Add($"Test method '{ParentClass.ClassType.Name}.{Method.Name}' has {details}. " +
                     $"When decorating a method with this attribute it must have a Target value equal to the name of one of its parameters.");
             }

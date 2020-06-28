@@ -47,9 +47,9 @@ namespace HealthCheck.WebUI.Services
         /// <summary>
         /// Store the given event. There is a 2 second buffer delay before the item is written.
         /// </summary>
-        public Task StoreEvent(AuditEvent siteEvent)
+        public Task StoreEvent(AuditEvent auditEvent)
         {
-            Store.InsertItem(siteEvent);
+            Store.InsertItem(auditEvent);
             return Task.CompletedTask;
         }
 

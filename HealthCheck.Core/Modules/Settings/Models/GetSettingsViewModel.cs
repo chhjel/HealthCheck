@@ -1,5 +1,4 @@
-﻿using HealthCheck.Core.Modules.Settings.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace HealthCheck.Core.Modules.Settings.Models

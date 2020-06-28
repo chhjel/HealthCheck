@@ -40,7 +40,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         public enum AccessOption
         {
             /// <summary>Does nothing.</summary>
-            Nothing = 0,
+            None = 0,
 
             /// <summary>
             /// Allow writing and executing scripts.
@@ -154,7 +154,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         [HealthCheckModuleMethod(AccessOption.DeleteExistingScriptOnServer)]
         public async Task<bool> DeleteScript(HealthCheckModuleContext context, Guid id)
         {
-            var success = (await this.Options.ScriptStorage?.DeleteScript(id)) == true;
+            var success = (await this.Options.ScriptStorage?.DeleteScript(id));
             context.AddAuditEvent("DeleteScript", (success) 
                 ? $"Deleted script with id '{id}'." 
                 : $"Failed to delete script with id '{id}'.");
@@ -210,9 +210,9 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         #endregion
 
         #region Private helpers
-        private DCEModuleFrontendOptionsModel CreateFrontendOptionsObject()
+        private DynamicCodeExecutionModuleFrontendOptionsModel CreateFrontendOptionsObject()
         {
-            return new DCEModuleFrontendOptionsModel()
+            return new DynamicCodeExecutionModuleFrontendOptionsModel()
             {
                 PreProcessors = (Options.PreProcessors ?? Enumerable.Empty<IDynamicCodePreProcessor>()).Select(x => new PreProcessorMetadata()
                 {
@@ -258,7 +258,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         #if NETFULL
         private RuntimeCodeTester CreateExecutor()
         {
-            var executor = new RuntimeCodeTester(new RCTConfig()
+            var executor = new RuntimeCodeTester(new RuntimeCodeTesterConfig()
                 {
                     PreProcessors = Options.PreProcessors,
                     AdditionalReferencedAssemblies = Options.AdditionalReferencedAssemblies

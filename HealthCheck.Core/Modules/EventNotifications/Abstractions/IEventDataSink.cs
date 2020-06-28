@@ -41,11 +41,6 @@ namespace HealthCheck.Core.Modules.EventNotifications.Abstractions
         void DeleteDefinitions();
 
         /// <summary>
-        /// Send an event without any payload data.
-        /// </summary>
-        void RegisterEvent(string eventId);
-
-        /// <summary>
         /// Send an event with payload data.
         /// </summary>
         /// <param name="eventId">Id of the event that can be filtered upon.</param>

@@ -3,7 +3,7 @@
     /// <summary>
     /// Icon names from https://material.io/resources/icons
     /// </summary>
-    public class MaterialIcons
+    public static class MaterialIcons
     {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         /// <summary>

@@ -1,26 +1,18 @@
 ﻿#if NETCORE
-using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Models;
-using HealthCheck.Core.Modules.Dataflow;
-using HealthCheck.Core.Modules.EventNotifications;
-using HealthCheck.Core.Modules.LogViewer.Models;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Util;
-using HealthCheck.WebUI;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Util;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace HealthCheck.WebUI.Abstractions
@@ -57,7 +49,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Base controller for the ui and api.
         /// </summary>
-        public HealthCheckControllerBase()
+        protected HealthCheckControllerBase()
         {
             Helper = new HealthCheckControllerHelper<TAccessRole>();
         }

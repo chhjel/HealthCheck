@@ -30,7 +30,7 @@ namespace HealthCheck.Core.Util
                     return ConnectivityCheckResult.CreateSuccess(action, $"Roundtrip time was {result.RoundtripTime}ms.");
                 } else
                 {
-                    return ConnectivityCheckResult.CreateError(action, $"Failed with a status of '{result.Status.ToString()}'.");
+                    return ConnectivityCheckResult.CreateError(action, $"Failed with a status of '{result.Status}'.");
                 }
             }
             catch (Exception ex)
@@ -51,7 +51,7 @@ namespace HealthCheck.Core.Util
             int timeoutMs = 5000,
             int[] allowedStatusCodes = null)
         {
-            allowedStatusCodes = allowedStatusCodes ?? new[] { 200 };
+            allowedStatusCodes ??= new[] { 200 };
             var action = $"'{method}'-request to '{url}'";
 
             try
@@ -60,20 +60,20 @@ namespace HealthCheck.Core.Util
                 request.Timeout = timeoutMs;
                 request.Method = method;
 
-                using (HttpWebResponse response = (await request.GetResponseAsync()) as HttpWebResponse)
+                using HttpWebResponse response = (await request.GetResponseAsync()) as HttpWebResponse;
+                int statusCode = (int)response.StatusCode;
+                if (allowedStatusCodes.Any(x => statusCode == x))
                 {
-                    int statusCode = (int)response.StatusCode;
-                    if (allowedStatusCodes.Any(x => statusCode == x))
-                    {
-                        return ConnectivityCheckResult.CreateSuccess(action, $"Statuscode '{statusCode}' was returned.");
-                    }
-                    else
-                    {
-                        return ConnectivityCheckResult.CreateError(action, $"Statuscode '{statusCode}' was returned.");
-                    }
+                    return ConnectivityCheckResult.CreateSuccess(action, $"Statuscode '{statusCode}' was returned.");
+                }
+                else
+                {
+                    return ConnectivityCheckResult.CreateError(action, $"Statuscode '{statusCode}' was returned.");
                 }
             }
-            catch (WebException wex) when (wex.Response is HttpWebResponse webResponse && allowedStatusCodes.Any(x => (int)webResponse?.StatusCode == x))
+            catch (WebException wex) when (wex.Response is HttpWebResponse webResponse
+                && webResponse?.StatusCode != null
+                && allowedStatusCodes.Any(x => (int)webResponse.StatusCode == x))
             {
                 int statusCode = (int)webResponse.StatusCode;
                 return ConnectivityCheckResult.CreateSuccess(action, $"Statuscode '{statusCode}' was returned.");

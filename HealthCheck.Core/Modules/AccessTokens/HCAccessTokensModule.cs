@@ -29,7 +29,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
         /// <summary>
         /// Check options object for issues.
         /// </summary>
-        public override List<string> Validate()
+        public override IEnumerable<string> Validate()
         {
             var issues = new List<string>();
             if (Options.TokenStorage == null) issues.Add("Options.TokenStorage must be set.");
@@ -53,7 +53,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
         public enum AccessOption
         {
             /// <summary>Does nothing.</summary>
-            Nothing = 0,
+            None = 0,
 
             /// <summary>View generated token data, but not the key itself.</summary>
             ViewToken = 1,
@@ -105,9 +105,11 @@ namespace HealthCheck.Core.Modules.AccessTokens
 
                 return tokenFromStore;
             }
-            catch (Exception) { }
-            return null;
+            catch (Exception) {
+                return null;
+            }
         }
+
         private static readonly Regex KeyParseRegex = new Regex(@"^KEY-(?<id>[\w]+-[\w]+-[\w]+-[\w]+-[\w]+)-.+");
 
         #region Invokable methods

@@ -257,7 +257,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public TestResult AddUrlsData(IEnumerable<HyperLink> urls, string title = null, bool onlyifAnyUrls = true)
         {
             urls ??= new HyperLink[0];
-            if (urls.Count() == 0 && onlyifAnyUrls) return this;
+            if (!urls.Any() && onlyifAnyUrls) return this;
             var stringUrls = urls.Where(x => x != null).Select(x => $"{x.Text.Replace("=>", "->")} => {x.Url}");
             AddData(string.Join(Environment.NewLine, stringUrls), title, TestResultDataDumpType.Urls);
             return this;

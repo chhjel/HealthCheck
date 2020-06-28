@@ -1,4 +1,6 @@
-﻿using System.CodeDom.Compiler;
+﻿#if NETFULL
+using System.CodeDom.Compiler;
+#endif
 
 namespace HealthCheck.Module.DynamicCodeExecution.Abstractions
 {

@@ -65,11 +65,11 @@ namespace HealthCheck.Core.Util
             var underlyingType = Enum.GetUnderlyingType(obj.GetType());
             if (underlyingType == typeof(int))
             {
-                return ((int)flagToCheckFor == 0 && zeroReturnsFalse) ? false : ((int)obj & (int)flagToCheckFor) == (int)flagToCheckFor;
+                return !((int)flagToCheckFor == 0 && zeroReturnsFalse) && ((int)obj & (int)flagToCheckFor) == (int)flagToCheckFor;
             }
             else if (underlyingType == typeof(byte))
             {
-                return ((byte)flagToCheckFor == 0 && zeroReturnsFalse) ? false : ((byte)obj & (byte)flagToCheckFor) == (byte)flagToCheckFor;
+                return !((byte)flagToCheckFor == 0 && zeroReturnsFalse) && ((byte)obj & (byte)flagToCheckFor) == (byte)flagToCheckFor;
             }
             else
             {

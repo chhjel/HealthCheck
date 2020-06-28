@@ -15,7 +15,7 @@ namespace HealthCheck.Core.Extensions
         /// </summary>
         public static T RandomElement<T>(this IEnumerable<T> enumerable, Random random = null)
         {
-            if (enumerable.Count() == 0) return default;
+            if (!enumerable.Any()) return default;
 
             random ??= new Random();
             int index = random.Next(0, enumerable.Count());

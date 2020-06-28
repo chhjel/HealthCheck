@@ -108,15 +108,13 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
         {
             UIHint = uiHint;
 
-            if (attemptToBeClever == true)
-            {
-                if (uiHint == DataFlowPropertyUIHint.Dictionary
+            if (attemptToBeClever
+                && (uiHint == DataFlowPropertyUIHint.Dictionary
                     || uiHint == DataFlowPropertyUIHint.Preformatted
                     || uiHint == DataFlowPropertyUIHint.List
-                    || uiHint == DataFlowPropertyUIHint.Image)
-                {
-                    OnlyShowWhenExpanded();
-                }
+                    || uiHint == DataFlowPropertyUIHint.Image))
+            {
+                OnlyShowWhenExpanded();
             }
             return this;
         }

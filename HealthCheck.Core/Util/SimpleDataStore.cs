@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+#pragma warning disable S3427
 
 namespace HealthCheck.Core.Util
 {
@@ -250,7 +251,7 @@ namespace HealthCheck.Core.Util
 
                 lock (_fileLock)
                 {
-                    using FileStream fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    var fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     using ReverseStreamReader streamReader = new ReverseStreamReader(fileStream);
                     string row;
                     while ((row = streamReader.ReadLine()) != null)
@@ -270,8 +271,8 @@ namespace HealthCheck.Core.Util
             {
                 lock (_fileLock)
                 {
-                    using FileStream fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                    using BufferedStream bufferedStream = new BufferedStream(fileStream);
+                    var fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    var bufferedStream = new BufferedStream(fileStream);
                     using StreamReader streamReader = new StreamReader(bufferedStream);
                     string row;
                     while ((row = streamReader.ReadLine()) != null)
@@ -343,7 +344,7 @@ namespace HealthCheck.Core.Util
         private void PerformCleanup()
         {
             LastCleanupPerformedAt = DateTimeOffset.Now;
-            if (RetentionOptions.MaxItemAge != null && RetentionOptions.ItemTimestampSelector != null)
+            if (RetentionOptions?.MaxItemAge != null && RetentionOptions.ItemTimestampSelector != null)
             {
                 var threshold = DateTimeOffset.Now.ToUniversalTime() - RetentionOptions.MaxItemAge;
                 DeleteWhere(x => RetentionOptions.ItemTimestampSelector(x).ToUniversalTime() <= threshold);

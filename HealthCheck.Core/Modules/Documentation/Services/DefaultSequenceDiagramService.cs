@@ -141,7 +141,7 @@ namespace HealthCheck.Core.Modules.Documentation.Services
             var types = sourceAssemblies.SelectMany(x => x.DefinedTypes).ToArray();
             var methods = types.SelectMany(x => x.GetMethods()).ToList();
             var methodAttributes = methods
-                .Where(x => x.GetCustomAttributes<SequenceDiagramStepAttribute>().Count() > 0)
+                .Where(x => x.GetCustomAttributes<SequenceDiagramStepAttribute>().Any())
                 .Select(x => new
                 {
                     Method = x,

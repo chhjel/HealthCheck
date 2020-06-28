@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace HealthCheck.Core.Modules.Dataflow.Models
@@ -11,9 +12,20 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
     /// <summary>
     /// An object that can be used instead of creating a custom type for dataflow streams.
     /// </summary>
+    [Serializable]
     public class GenericDataflowStreamObject : Dictionary<string, object>,
         IDataflowEntryWithInsertionTime
     {
+        /// <summary>
+        /// An object that can be used instead of creating a custom type for dataflow streams.
+        /// </summary>
+        public GenericDataflowStreamObject() {}
+
+        /// <summary>
+        /// Initializes a new instance of the object with serialized data.
+        /// </summary>
+        protected GenericDataflowStreamObject(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
         /// <summary>
         /// Time of insertion.
         /// </summary>
@@ -69,7 +81,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
                     var value = GetPropValue(type, obj, memberName);
                     streamObj.Add(memberName, value);
                 }
-                catch (Exception) { }
+                catch (Exception) { /* Ignore reflection errors */ }
             }
 
             return streamObj;
@@ -129,7 +141,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
                         if (prop != null)
                         {
                             memberType = prop.PropertyType;
-                            valueGetter = (e) => prop.GetValue(e) as object;
+                            valueGetter = (e) => prop.GetValue(e);
                         }
                         if (valueGetter == null)
                         {
@@ -137,7 +149,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
                             if (field != null)
                             {
                                 memberType = field.FieldType;
-                                valueGetter = (e) => field.GetValue(e) as object;
+                                valueGetter = (e) => field.GetValue(e);
                             }
                         }
 
@@ -166,7 +178,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
                         });
                     }
                 }
-                catch (Exception) { }
+                catch (Exception) { /* Ignore errors here */ }
             }
             return filters;
         }

@@ -20,17 +20,17 @@ namespace HealthCheck.Module.DynamicCodeExecution.PreProcessors
         /// <summary>
         /// Optional title returned in the options model.
         /// </summary>
-        public string Name { get; set; } = "Unnamed FuncPreProcessor";
+        public string Name { get; set; }
 
         /// <summary>
         /// Optional description returned in the options model.
         /// </summary>
-        public string Description { get; set; } = "";
+        public string Description { get; set; }
 
         /// <summary>
         /// Allow this pre-processor to be disabled by the user?
         /// </summary>
-        public bool CanBeDisabled { get; set; } = true;
+        public bool CanBeDisabled { get; set; }
 
         /// <summary>
         /// Custom function that processes the code

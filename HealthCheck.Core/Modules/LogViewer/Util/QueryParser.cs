@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace HealthCheck.Core.Modules.LogViewer.Util
 {
-    internal class QueryParser
+    internal static class QueryParser
     {
         private static readonly Regex ExactRegex = new Regex(@"([^\\]|^)""(?<contents>[^""]+?)""([^\\]|$)");
         private static readonly Regex AnyRegex = new Regex(@"\((?<contents>[^\(]+\|[^\)]+)\)");

@@ -60,7 +60,7 @@ namespace HealthCheck.Core.Modules.Tests
         public enum AccessOption
         {
             /// <summary>Does nothing.</summary>
-            Nothing = 0,
+            None = 0,
 
             /// <summary>Gives access to view the module.</summary>
             ViewInvalidTests = 1,

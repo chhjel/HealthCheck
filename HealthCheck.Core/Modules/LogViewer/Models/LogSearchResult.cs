@@ -1,5 +1,4 @@
 ﻿using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Util.Models;
 using System;
 using System.Collections.Generic;
 
@@ -38,7 +37,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
         /// <summary>
         /// Grouped results.
         /// </summary>
-        public Dictionary<string, List<LogEntrySearchResultItem>> GroupedEntries = new Dictionary<string, List<LogEntrySearchResultItem>>();
+        public Dictionary<string, List<LogEntrySearchResultItem>> GroupedEntries { get; set; } = new Dictionary<string, List<LogEntrySearchResultItem>>();
 
         /// <summary>
         /// Result column names.

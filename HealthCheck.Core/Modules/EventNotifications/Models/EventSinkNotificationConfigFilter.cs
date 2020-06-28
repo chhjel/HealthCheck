@@ -58,8 +58,8 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
         private bool ValueMatchesFilter(string value)
         {
             var filter = Filter;
-            value = value ?? "";
-            filter = filter ?? "";
+            value ??= "";
+            filter ??= "";
 
             if (!CaseSensitive)
             {

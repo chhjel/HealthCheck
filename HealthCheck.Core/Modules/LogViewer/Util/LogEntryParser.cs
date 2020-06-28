@@ -44,16 +44,16 @@ namespace HealthCheck.Core.Modules.LogViewer.Util
             return entry;
         }
 
-        public DateTimeOffset? ParseEntryDate(string raw)
+        public DateTimeOffset? ParseEntryDate(string line)
         {
-            if (string.IsNullOrWhiteSpace(raw?.Trim()))
+            if (string.IsNullOrWhiteSpace(line?.Trim()))
             {
                 return null;
             }
 
             DateTimeOffset? date = null;
 
-            var tabbedParts = raw.Split(new[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
+            var tabbedParts = line.Split(new[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
             if (DateTimeOffset.TryParse(tabbedParts[0].Trim(), out DateTimeOffset parsedDate))
             {
                 date = parsedDate;
@@ -61,7 +61,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Util
 
             if (date == null)
             {
-                var spacedParts = raw.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                var spacedParts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 if (DateTimeOffset.TryParse(tabbedParts[0].Trim(), out parsedDate))
                 {
                     date = parsedDate;

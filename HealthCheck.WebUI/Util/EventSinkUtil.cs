@@ -1,6 +1,6 @@
-﻿using HealthCheck.Core.Modules.EventNotifications.Abstractions;
+﻿#if NETFULL
+using HealthCheck.Core.Modules.EventNotifications.Abstractions;
 using System;
-#if NETFULL
 using System.Web.Mvc;
 
 namespace HealthCheck.WebUI.Util
@@ -23,7 +23,7 @@ namespace HealthCheck.WebUI.Util
             {
                 DependencyResolver.Current?.GetService<IEventDataSink>()?.RegisterEvent(eventId, payload);
             }
-            catch (Exception) { }
+            catch (Exception) { /* Ignore error here */ }
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace HealthCheck.WebUI.Util
             {
                 DependencyResolver.Current?.GetService<IEventDataSink>()?.RegisterEvent(eventId, payload?.Invoke());
             }
-            catch (Exception) { }
+            catch (Exception) { /* Ignore error here */ }
         }
     }
 }

@@ -35,11 +35,11 @@ namespace HealthCheck.Core.Modules.SiteEvents.Factories
         }
 
         /// <summary>
-        /// Create a <see cref="HCSEHyperLinkViewModel"/> from the given <see cref="HyperLink"/>.
+        /// Create a <see cref="SiteEventsHyperLinkViewModel"/> from the given <see cref="HyperLink"/>.
         /// </summary>
-        public HCSEHyperLinkViewModel CreateViewModel(HyperLink link)
+        public SiteEventsHyperLinkViewModel CreateViewModel(HyperLink link)
         {
-            var vm = new HCSEHyperLinkViewModel()
+            var vm = new SiteEventsHyperLinkViewModel()
             {
                 Text = link.Text,
                 Url = link.Url

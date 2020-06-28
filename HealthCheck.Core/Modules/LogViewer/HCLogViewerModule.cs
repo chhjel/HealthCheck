@@ -27,7 +27,7 @@ namespace HealthCheck.Core.Modules.LogViewer
         /// <summary>
         /// Check options object for issues.
         /// </summary>
-        public override List<string> Validate()
+        public override IEnumerable<string> Validate()
         {
             var issues = new List<string>();
             if (Options.LogSearcherService == null) issues.Add("Options.LogSearcherService must be set.");
@@ -58,7 +58,7 @@ namespace HealthCheck.Core.Modules.LogViewer
         public enum AccessOption
         {
             /// <summary>Does nothing.</summary>
-            Nothing = 0,
+            None = 0,
         }
 
         #region Invokable methods
@@ -163,7 +163,7 @@ namespace HealthCheck.Core.Modules.LogViewer
                 {
                     search.CancellationTokenSource.Cancel();
                 }
-                catch (Exception) { }
+                catch (Exception) { /* Ignore any exceptions here */ }
 
                 SearchesInProgress.Remove(search);
             }

@@ -13,14 +13,12 @@ namespace HealthCheck.Core.Util
         /// </summary>
         public static IEnumerable<string> ReadLines(string filePath)
         {
-            using (FileStream fileStream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (ReverseStreamReader streamReader = new ReverseStreamReader(fileStream))
+            var fileStream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using ReverseStreamReader streamReader = new ReverseStreamReader(fileStream);
+            string line;
+            while ((line = streamReader.ReadLine()) != null)
             {
-                string line;
-                while ((line = streamReader.ReadLine()) != null)
-                {
-                    yield return line;
-                }
+                yield return line;
             }
         }
 
@@ -29,11 +27,9 @@ namespace HealthCheck.Core.Util
         /// </summary>
         public static string ReadFile(string filePath)
         {
-            using (FileStream fileStream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (StreamReader reader = new StreamReader(fileStream))
-            {
-                return reader.ReadToEnd();
-            };
+            var fileStream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using StreamReader reader = new StreamReader(fileStream);
+            return reader.ReadToEnd();
         }
     }
 }

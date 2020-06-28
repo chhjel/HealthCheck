@@ -67,8 +67,10 @@ namespace HealthCheck.Module.DynamicCodeExecution.PreProcessors
             var regionLineIndex = lines.FindIndex(x => x.Trim() == $"#region {name}");
             if (regionLineIndex == -1)
             {
-                var newLines = new List<string>();
-                newLines.Add($"#region {name}");
+                var newLines = new List<string>
+                {
+                    $"#region {name}"
+                };
                 newLines.AddRange(regionContent);
                 newLines.Add($"#endregion");
                 newLines.Add("");
@@ -93,7 +95,6 @@ namespace HealthCheck.Module.DynamicCodeExecution.PreProcessors
                     else if(lines[i].Trim() == "#endregion")
                     {
                         isLineBelowEndRegion = true;
-                        continue;
                     }
                     else if(lines[i].Trim().Length == 0)
                     {

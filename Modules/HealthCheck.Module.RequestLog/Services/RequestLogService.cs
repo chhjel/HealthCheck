@@ -1,5 +1,4 @@
 ﻿#if NETFULL
-using HealthCheck.Core.Attributes;
 using HealthCheck.RequestLog.Abstractions;
 using HealthCheck.RequestLog.Enums;
 using HealthCheck.RequestLog.Models;
@@ -142,7 +141,7 @@ namespace HealthCheck.RequestLog.Services
             var assembly = AssemblyUtil.GetWebEntryAssembly()
                 ?? Assembly.GetExecutingAssembly();
             var fvi = (assembly == null) ? "1.0.0.0" : FileVersionInfo.GetVersionInfo(assembly.Location)?.FileVersion;
-            return fvi ?? assembly.GetName().Version.ToString(); ;
+            return fvi ?? assembly.GetName().Version.ToString();
         }
 
         /// <summary>

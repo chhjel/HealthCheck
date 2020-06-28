@@ -52,7 +52,7 @@ namespace HealthCheck.Core.Util
 				var validateMethod = type.GetMethods()
 					.FirstOrDefault(x => x.Name == nameof(HealthCheckModuleBase<StringSplitOptions>.Validate)
 										&& x.GetParameters().Length == 0
-										&& x.ReturnType == typeof(List<string>));
+										&& x.ReturnType == typeof(IEnumerable<string>));
 
 				loadedModule.Config = getConfigMethod.Invoke(module, new object[] { context }) as IHealthCheckModuleConfig;
 				loadedModule.FrontendOptions = getOptionsMethod.Invoke(module, new object[] { context });
@@ -68,15 +68,14 @@ namespace HealthCheck.Core.Util
 
 				try
 				{
-					var issues = validateMethod.Invoke(module, new object[0]) as List<string>;
-					if (issues != null && issues.Any())
+					if (validateMethod.Invoke(module, new object[0]) is IEnumerable<string> issues && issues?.Any() == true)
 					{
 						loadedModule.LoadErrors.AddRange(issues);
 					}
 				}
 				catch(Exception ex)
 				{
-					loadedModule.LoadErrors.Add($"Validate() call failed with the errror: {ex.Message}");
+					loadedModule.LoadErrors.Add($"Validate() call failed with the error: {ex.Message}");
 				}
 
 				if (loadedModule.Config != null && name == null)
@@ -87,7 +86,7 @@ namespace HealthCheck.Core.Util
 				loadedModule.InvokableMethods = type.GetMethods()
 					.Where(x =>
 						x.GetCustomAttributes(true)
-						.Any(a => typeof(HealthCheckModuleMethodAttribute).IsAssignableFrom(a.GetType()))
+						.Any(a => (a is HealthCheckModuleMethodAttribute))
 					)
 					.Select(x => new InvokableMethod(x))
 					.ToList();
@@ -139,7 +138,7 @@ namespace HealthCheck.Core.Util
 					return null;
 				}
 
-				if (baseType.IsGenericType == true && baseType.GetGenericTypeDefinition() == typeof(HealthCheckModuleBase<>))
+				if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == typeof(HealthCheckModuleBase<>))
 				{
 					return baseType.GetGenericArguments()[0];
 				}
@@ -264,7 +263,7 @@ namespace HealthCheck.Core.Util
 			{
 				Method = method;
 				var attribute = method.GetCustomAttributes(true)
-					.FirstOrDefault(a => typeof(HealthCheckModuleMethodAttribute).IsAssignableFrom(a.GetType()))
+					.FirstOrDefault(a => (a is HealthCheckModuleMethodAttribute))
 					as HealthCheckModuleMethodAttribute;
 
 				RequiresAccessTo = attribute.RequiresAccessTo;

@@ -4,7 +4,6 @@ using HealthCheck.Module.DynamicCodeExecution.Models;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 
@@ -18,7 +17,7 @@ namespace HealthCheck.Module.DynamicCodeExecution
         /// <summary>
         /// Configuration for the code execution. Authorization, preprocessors etc.
         /// </summary>
-        public RCTConfig Config { get; set; }
+        public RuntimeCodeTesterConfig Config { get; set; }
 
         /// <summary>
         /// Your entry assembly.
@@ -35,11 +34,11 @@ namespace HealthCheck.Module.DynamicCodeExecution
         /// </summary>
         /// <param name="config">Various configs</param>
         /// <param name="assembly">Your entry assembly.</param>
-        public RuntimeCodeTester(RCTConfig config, Assembly assembly)
+        public RuntimeCodeTester(RuntimeCodeTesterConfig config, Assembly assembly)
         {
-            Config = config ?? new RCTConfig();
+            Config = config ?? new RuntimeCodeTesterConfig();
             TargetAssembly = assembly ?? Assembly.GetEntryAssembly();
-            AdditionalReferencedAssemblies = config.AdditionalReferencedAssemblies;
+            AdditionalReferencedAssemblies = config?.AdditionalReferencedAssemblies;
         }
 
         /// <summary>

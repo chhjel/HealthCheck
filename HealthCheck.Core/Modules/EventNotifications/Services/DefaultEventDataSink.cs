@@ -163,12 +163,6 @@ namespace HealthCheck.Core.Modules.EventNotifications.Services
         }
 
         /// <summary>
-        /// Send an event without any payload data.
-        /// </summary>
-        /// <param name="eventId">Id of the event that can be filtered upon.</param>
-        public void RegisterEvent(string eventId) => RegisterEvent(eventId, null);
-
-        /// <summary>
         /// Send an event with payload data.
         /// </summary>
         /// <param name="eventId">Id of the event that can be filtered upon.</param>
@@ -220,7 +214,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Services
                         {
                             payloadProperties[prop.Name] = prop.GetValue(payload)?.ToString();
                         }
-                        catch (Exception) { }
+                        catch (Exception) { /* Ignore error here */ }
                     }
                 }
                 else
@@ -482,7 +476,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Services
                         var convertedValue = InputConverter.ConvertStringTo(option.Property.PropertyType, value);
                         option.Property.SetValue(instance, convertedValue);
                     }
-                    catch(Exception) {}
+                    catch(Exception) { /* Ignore errors here */ }
                 }
             }
 

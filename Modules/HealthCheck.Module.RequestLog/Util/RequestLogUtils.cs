@@ -38,7 +38,7 @@ namespace HealthCheck.RequestLog.Util
                     ForcedControllerType = forcedControllerType
                 });
             }
-            catch (Exception) { }
+            catch (Exception) { /* Ignore error here */ }
         }
     }
 }

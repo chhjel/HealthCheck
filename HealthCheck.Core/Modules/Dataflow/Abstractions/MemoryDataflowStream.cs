@@ -15,7 +15,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         /// <summary>
         /// Stream type that stores the last n items in memory.
         /// </summary>
-        public MemoryDataflowStream(
+        protected MemoryDataflowStream(
             int maxItemCount,
             Action<TEntry, Guid> idSetter,
             TimeSpan? maxDuration = null)
@@ -49,20 +49,20 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
                 }
             }
 
-            public TEntry InsertOrUpdateItem(TEntry entry, Func<TEntry, TEntry> update = null)
+            public TEntry InsertOrUpdateItem(TEntry item, Func<TEntry, TEntry> update = null)
             {
                 lock(Items)
                 {
-                    IdSetter(entry, Guid.NewGuid());
-                    Items.Insert(0, entry);
+                    IdSetter(item, Guid.NewGuid());
+                    Items.Insert(0, item);
                 }
                 Cleanup();
-                return entry;
+                return item;
             }
 
-            public void InsertOrUpdateItems(IEnumerable<TEntry> entries)
+            public void InsertOrUpdateItems(IEnumerable<TEntry> items)
             {
-                foreach(var entry in entries)
+                foreach(var entry in items)
                 {
                     IdSetter(entry, Guid.NewGuid());
                     Items.Insert(0, entry);

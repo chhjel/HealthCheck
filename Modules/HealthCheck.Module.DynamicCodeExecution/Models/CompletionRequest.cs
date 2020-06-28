@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace HealthCheck.Module.DynamicCodeExecution.Models
+﻿namespace HealthCheck.Module.DynamicCodeExecution.Models
 {
     /// <summary>
     /// Request to be sent to the endpoint.
