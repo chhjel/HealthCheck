@@ -21,9 +21,14 @@ namespace HealthCheck.Core.Modules.AuditLog.Abstractions
         Task<List<AuditEvent>> GetEvents(DateTimeOffset from, DateTimeOffset to);
 
         /// <summary>
-        /// Get the contents of an audit event blob.
+        /// Get the contents of an audit event blob, or null if not found.
         /// <para>Optionally implemented.</para>
         /// </summary>
         Task<string> GetBlob(Guid id);
+
+        /// <summary>
+        /// Returns true if blobs are supported.
+        /// </summary>
+        public bool SupportsBlobs();
     }
 }

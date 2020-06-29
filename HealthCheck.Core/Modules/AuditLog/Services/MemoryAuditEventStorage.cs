@@ -37,5 +37,10 @@ namespace HealthCheck.Core.Modules.AuditLog.Services
         /// Not supported in memory implementation. Returns null;
         /// </summary>
         public async Task<string> GetBlob(Guid id) => await Task.FromResult<string>(null);
+
+        /// <summary>
+        /// Not supported.
+        /// </summary>
+        public bool SupportsBlobs() => false;
     }
 }

@@ -35,6 +35,11 @@ namespace HealthCheck.Core.Modules.AuditLog.Models
         public List<KeyValuePair<string, string>> Details { get; set; } = new List<KeyValuePair<string, string>>();
 
         /// <summary>
+        /// Blob name and ids.
+        /// </summary>
+        public List<KeyValuePair<string, Guid>> Blobs { get; set; } = new List<KeyValuePair<string, Guid>>();
+
+        /// <summary>
         /// Id of the related user.
         /// </summary>
         public string UserId { get; set; }

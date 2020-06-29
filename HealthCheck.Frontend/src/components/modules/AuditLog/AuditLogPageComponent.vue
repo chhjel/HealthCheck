@@ -99,6 +99,17 @@
                                         </li>
                                     </ul>
                                 </div>
+                                <div class="row-details-blobs" v-if="props.item.Blobs.length > 0">
+                                    <ul>
+                                        <li v-for="(blob, index) in props.item.Blobs"
+                                            :key="`audit-${props.item.Id}-blob-${index}`">
+                                            <div class="row-details-blobs-title">{{ blob.Key }}:</div> 
+                                            <a class="row-details-blobs-value"
+                                                @click.prevent="onViewBlobClicked(props.item, blob)"
+                                                >[View]</a>
+                                        </li>
+                                    </ul>
+                                </div>
                             </v-card-text>
                         </v-card>
                     </template>
@@ -110,6 +121,32 @@
         </v-layout>
         </v-container>
         </v-content>
+
+        <!-- ##################### -->
+        <v-dialog v-model="showBlobContentsDialog"
+            @keydown.esc="showBlobContentsDialog = false"
+            max-width="90%" scrollable
+            content-class="audit-blob-dialog">
+            <v-card>
+                <v-card-title class="headline">{{ currentBlobTitle }}</v-card-title>
+                <v-card-text class="pt-0">
+                    <p class="blob-details">{{ currentBlobDetails }}</p>
+                    <v-progress-linear color="primary" indeterminate v-if="loadStatus.inProgress"></v-progress-linear>
+                    
+                    <v-alert :value="true" color="error" icon="warning" v-if="currentBlobError != null">
+                        {{ currentBlobError }}
+                    </v-alert>
+
+                    <code class="blob-contents" v-if="currentBlobContents != null">{{ currentBlobContents }}</code>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" @click="hideBlobContentsDialog()">Close</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <!-- ##################### -->
     </div>
 </template>
 
@@ -126,6 +163,7 @@ import AuditLogService from  '../../../services/AuditLogService';
 import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
 import ModuleConfig from  '../../../models/Common/ModuleConfig';
 import ModuleOptions from  '../../../models/Common/ModuleOptions';
+import KeyValuePair from "../../../models/Common/KeyValuePair";
 
 @Component({
     components: {
@@ -165,6 +203,13 @@ export default class AuditLogPageComponent extends Vue {
     tablePagination: any = {
         rowsPerPage: 25
     };
+
+    // Blobs
+    showBlobContentsDialog: boolean = false;
+    currentBlobTitle: string = '';
+    currentBlobContents: string | null = '';
+    currentBlobDetails: string = '';
+    currentBlobError: string | null = '';
 
     // Service
     service: AuditLogService = new AuditLogService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
@@ -275,6 +320,10 @@ export default class AuditLogPageComponent extends Vue {
         return items;
     }
 
+    hideBlobContentsDialog(): void {
+        this.showBlobContentsDialog = false;
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
@@ -283,10 +332,45 @@ export default class AuditLogPageComponent extends Vue {
         this.filterToDate = data.endDate;
         this.loadData();
     }
+
+    onViewBlobClicked(event: AuditEventViewModel, blob: KeyValuePair<string, string>): void {
+        this.showBlobContentsDialog = true;
+
+        const name = blob.Key;
+        const id = blob.Value;
+
+        this.currentBlobTitle = name;
+
+        let detailParts = [
+            { name: 'Timestamp', value: this.formatDateForTable(event.Timestamp) },
+            { name: 'Action', value: event.Action },
+            { name: 'Subject', value: event.Subject },
+            { name: 'User', value: event.UserName },
+            { name: 'User Id', value: event.UserId }
+        ]
+        .filter(x => x.value != null && x.value.length > 0)
+        .map(x => `${x.name}: ${x.value}`);
+
+        this.currentBlobDetails = detailParts.join(' | ');
+        this.currentBlobContents = null;
+        this.currentBlobError = null;
+        this.service.GetBlobContent(id, this.loadStatus, {
+            onSuccess: (contents) => {
+                if (contents != null)
+                {
+                    this.currentBlobContents = contents;
+                }
+                else
+                {
+                    this.currentBlobError = `Blob contents for id ${id} not found.`;
+                }
+            }
+        });
+    }
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .row-details-user {
     display: flex;
     align-items: center;
@@ -325,6 +409,23 @@ export default class AuditLogPageComponent extends Vue {
 }
 .row-details-details-value {
     color: #333;
+}
+.row-details-blobs-title {
+    font-weight: 600;
+    display: inline;
+}
+.blob-details {
+    font-size: small;
+    font-weight: 600;
+}
+.blob-contents {
+    width: 100%;
+    overflow: auto;
+    white-space: pre;
+
+    &::before {
+        content: '';
+    }
 }
 </style>
 

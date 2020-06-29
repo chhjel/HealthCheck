@@ -85,6 +85,25 @@ namespace HealthCheck.WebUI.Services
         /// Get the contents of an audit event blob.
         /// <para>For this to return data, an <see cref="IAuditBlobStorage"/> implementation must be provided in the constructor.</para>
         /// </summary>
-        public async Task<string> GetBlob(Guid id) => await _blobStorage?.GetBlob(id);
+        public async Task<string> GetBlob(Guid id)
+        {
+            if (_blobStorage == null)
+            {
+                return null;
+            }
+
+            var exists = await _blobStorage.HasBlob(id);
+            if (!exists)
+            {
+                return null;
+            }
+
+            return await _blobStorage.GetBlob(id);
+        }
+
+        /// <summary>
+        /// Returns true if an <see cref="IAuditBlobStorage"/> implementation was given in the constructor.
+        /// </summary>
+        public bool SupportsBlobs() => _blobStorage != null;
     }
 }
