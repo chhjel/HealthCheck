@@ -60,6 +60,14 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
         {
             ApplicationTitle = "My Title"
             //...
+            // In order to not use a cdn for the monaco-editor
+            // web-worker scripts you can override them using
+            // properties on the 'EditorConfig' property:
+            EditorConfig = new HCFrontEndOptions.EditorWorkerConfig
+            {
+                EditorWorkerUrl = "/scripts/editor.worker.js",
+                JsonWorkerUrl = "/scripts/json.worker.js"
+            }
         };
         
     // Set any options for the view here.
@@ -68,7 +76,7 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
         {
             PageTitle = "My Title",
             // In order to not use a cdn for the main scripts
-            // you can override them using the 'JavaScriptUrls' property.
+            // you can override them using the 'JavaScriptUrls' property:
             JavaScriptUrls = new List<string> {
                 "/scripts/healthcheck.js",
                 "/scripts/healthcheck.vendor.js"
@@ -308,7 +316,12 @@ UseModule(new HCAuditLogModule(new HCAuditLogModuleOptions() { AuditEventService
 
 ```csharp
 // Built in implementation example
-IAuditEventStorage auditEventStorage = new FlatFileAuditEventStorage(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"), maxEventAge: TimeSpan.FromDays(30));
+
+// Optionally include blob storage for larger data (e.g. copy of executed code if enabled)
+var blobFolder = HostingEnvironment.MapPath("~/App_Data/AuditEventBlobs");
+var blobService = new FlatFileAuditBlobStorage(blobFolder, maxEventAge: TimeSpan.FromDays(1));
+
+IAuditEventStorage auditEventStorage = new FlatFileAuditEventStorage(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"), maxEventAge: TimeSpan.FromDays(30), blobStorage: blobService);
 ```
 
 ----------
