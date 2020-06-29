@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Modules.AuditLog.Abstractions;
+using System;
 using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.AuditLog.Models
@@ -34,6 +35,11 @@ namespace HealthCheck.Core.Modules.AuditLog.Models
         public List<KeyValuePair<string, string>> Details { get; set; } = new List<KeyValuePair<string, string>>();
 
         /// <summary>
+        /// Event blob ids.
+        /// </summary>
+        public List<KeyValuePair<string, Guid>> BlobIds { get; private set; } = new List<KeyValuePair<string, Guid>>();
+
+        /// <summary>
         /// Id of the related user.
         /// </summary>
         public string UserId { get; set; }
@@ -47,6 +53,8 @@ namespace HealthCheck.Core.Modules.AuditLog.Models
         /// The access roles of the user at the point in time when the event was created.
         /// </summary>
         public List<string> UserAccessRoles { get; set; }
+
+        internal List<KeyValuePair<string, string>> _blobContents = new List<KeyValuePair<string, string>>();
 
         /// <summary>
         /// Create a new empty <see cref="AuditEvent"/>.
@@ -79,6 +87,33 @@ namespace HealthCheck.Core.Modules.AuditLog.Models
 
             Details.Add(new KeyValuePair<string, string>(name, value));
             return this;
+        }
+
+        /// <summary>
+        /// Add a blob to this event. Will only be stored if an <see cref="IAuditBlobStorage"/> is in use.
+        /// </summary>
+        public AuditEvent AddBlob(string name, string contents, bool onlyIfNotNullOrEmpty = true, bool onlyIfThisIsTrue = true)
+        {
+            if (!onlyIfThisIsTrue)
+            {
+                return this;
+            }
+
+            if (onlyIfNotNullOrEmpty && string.IsNullOrWhiteSpace(contents))
+            {
+                return this;
+            }
+
+            _blobContents.Add(new KeyValuePair<string, string>(name, contents ?? ""));
+            return this;
+        }
+
+        /// <summary>
+        /// Will not return values when this event is retrieved from the audit store..
+        /// </summary>
+        public List<KeyValuePair<string, string>> GetBlobs()
+        {
+            return _blobContents ?? new List<KeyValuePair<string, string>>();
         }
     }
 }

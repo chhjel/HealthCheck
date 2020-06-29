@@ -50,6 +50,7 @@ using System.Web;
 using System.Web.Hosting;
 using System.Web.Http;
 using System.Web.Mvc;
+using HealthCheck.Core.Modules.AuditLog.Services;
 
 namespace HealthCheck.DevTest.Controllers
 {
@@ -86,6 +87,7 @@ namespace HealthCheck.DevTest.Controllers
                 TokenStorage = new FlatFileAccessManagerTokenStorage(@"C:\temp\AccessTokens.json")
             }));
             UseModule(new HCDynamicCodeExecutionModule(new HCDynamicCodeExecutionModuleOptions() {
+                StoreCopyOfExecutedScriptsAsAuditBlobs = true,
                 TargetAssembly = typeof(DevController).Assembly,
                 ScriptStorage = new FlatFileDynamicCodeScriptStorage(@"C:\temp\DCE_Scripts.json"),
                 PreProcessors = new IDynamicCodePreProcessor[]
@@ -417,8 +419,12 @@ namespace HealthCheck.DevTest.Controllers
                 maxEventAge: TimeSpan.FromDays(5), delayFirstCleanup: false));
 
         private IAuditEventStorage CreateAuditEventService()
-            => new FlatFileAuditEventStorage(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"),
-                maxEventAge: TimeSpan.FromDays(30), delayFirstCleanup: false);
+        {
+            var blobFolder = HostingEnvironment.MapPath("~/App_Data/AuditEventBlobs");
+            var blobService = new FlatFileAuditBlobStorage(blobFolder, maxEventAge: TimeSpan.FromDays(1));
+            return new FlatFileAuditEventStorage(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"),
+                maxEventAge: TimeSpan.FromDays(30), delayFirstCleanup: false, blobStorage: blobService);
+        }
 
         private static bool _hasInited = false;
         private void InitOnce()

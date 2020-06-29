@@ -56,6 +56,9 @@ namespace HealthCheck.Core.Modules.AuditLog
         {
             /// <summary>Does nothing.</summary>
             None = 0,
+
+            /// <summary>Allow access to view blobs stored along audit events.</summary>
+            ViewBlobs = 1
         }
 
         #region Invokable methods
@@ -77,11 +80,28 @@ namespace HealthCheck.Core.Modules.AuditLog
                     Action = x.Action,
                     Subject = x.Subject,
                     Details = x.Details,
+                    Blobs = getEventBlobs(x),
                     UserId = x.UserId,
                     UserName = x.UserName,
-                    UserAccessRoles = x.UserAccessRoles,
+                    UserAccessRoles = x.UserAccessRoles
                 });
+
+            List<KeyValuePair<string, Guid>> getEventBlobs(AuditEvent x)
+            {
+                if (Options?.AuditEventService?.SupportsBlobs() != true)
+                {
+                    return new List<KeyValuePair<string, Guid>>();
+                }
+                return x.BlobIds ?? new List<KeyValuePair<string, Guid>>();
+            }
         }
+
+        /// <summary>
+        /// Get filtered audit events to show in the UI.
+        /// </summary>
+        [HealthCheckModuleMethod(requiresAccessTo: AccessOption.ViewBlobs)]
+        public async Task<string> GetAuditBlobContents(Guid id)
+            => await Options.AuditEventService.GetBlob(id);
         #endregion
 
         #region Private helpers

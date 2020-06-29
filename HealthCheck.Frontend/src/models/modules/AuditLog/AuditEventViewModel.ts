@@ -7,6 +7,7 @@ export default interface AuditEventViewModel {
     Action: string;
     Subject: string;
     Details: Array<KeyValuePair<string, string>>;
+    Blobs: Array<KeyValuePair<string, string>>;
     UserId: string;
     UserName: string;
     UserAccessRoles: Array<string>;    

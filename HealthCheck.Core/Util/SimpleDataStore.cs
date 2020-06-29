@@ -32,12 +32,12 @@ namespace HealthCheck.Core.Util
         /// </summary>
         public float WriteDelay { get; set; } = 2f;
 
-        internal Func<TItem, string[]> Serializer { get; set; }
-        internal Func<string[], TItem> Deserializer { get; set; }
-
-        internal bool IsWriteQueued { get; set; }
-        internal List<string> NewRowsBuffer { get; set; } = new List<string>();
+        internal Func<TItem, string[]> _serializer;
+        internal Func<string[], TItem> _deserializer;
+        internal bool _isWriteQueued;
+        internal List<string> _newRowsBuffer = new List<string>();
         internal readonly object _fileLock = new object();
+        private DateTimeOffset? _lastCleanupPerformedAt;
 
         /// <summary>
         /// Signature of OnFileWrittenEvent.
@@ -61,8 +61,8 @@ namespace HealthCheck.Core.Util
             Func<string[], TItem> deserializer)
         {
             FilePath = filepath;
-            Serializer = serializer;
-            Deserializer = deserializer;
+            _serializer = serializer;
+            _deserializer = deserializer;
 
             EnsureFileExists();
         }
@@ -108,9 +108,9 @@ namespace HealthCheck.Core.Util
         /// </summary>
         public void DeleteWhere(Func<TItem, bool> condition)
         {
-            lock (NewRowsBuffer)
+            lock (_newRowsBuffer)
             {
-                NewRowsBuffer.RemoveAll(x => CheckCondition(x, condition, true));
+                _newRowsBuffer.RemoveAll(x => CheckCondition(x, condition, true));
             }
 
             EnsureFileExists();
@@ -151,19 +151,19 @@ namespace HealthCheck.Core.Util
                 return mustContainAny == null || mustContainAny.Any(x => line.Contains(x));
             }
 
-            lock (NewRowsBuffer)
+            lock (_newRowsBuffer)
             {
-                for (int i = 0; i < NewRowsBuffer.Count; i++)
+                for (int i = 0; i < _newRowsBuffer.Count; i++)
                 {
-                    if (!mustContainCheck(NewRowsBuffer[i]))
+                    if (!mustContainCheck(_newRowsBuffer[i]))
                     {
                         continue;
                     }
 
-                    var item = DeserializeRow(NewRowsBuffer[i]);
+                    var item = DeserializeRow(_newRowsBuffer[i]);
                     if (item != null && condition(item))
                     {
-                        NewRowsBuffer[i] = SerializeItem(update(item));
+                        _newRowsBuffer[i] = SerializeItem(update(item));
                     }
                 }
             }
@@ -194,9 +194,9 @@ namespace HealthCheck.Core.Util
         /// </summary>
         public async Task ClearDataAsync()
         {
-            lock (NewRowsBuffer)
+            lock (_newRowsBuffer)
             {
-                NewRowsBuffer.Clear();
+                _newRowsBuffer.Clear();
             }
 
             for (int i = 0; i < 5; i++)
@@ -234,9 +234,9 @@ namespace HealthCheck.Core.Util
 
             if (fromEnd)
             {
-                lock (NewRowsBuffer)
+                lock (_newRowsBuffer)
                 {
-                    foreach (var bufferedRow in NewRowsBuffer.Reverse<string>())
+                    foreach (var bufferedRow in _newRowsBuffer.Reverse<string>())
                     {
                         if (string.IsNullOrWhiteSpace(bufferedRow))
                             continue;
@@ -288,9 +288,9 @@ namespace HealthCheck.Core.Util
                     }
                 }
 
-                lock (NewRowsBuffer)
+                lock (_newRowsBuffer)
                 {
-                    foreach (var bufferedRow in NewRowsBuffer)
+                    foreach (var bufferedRow in _newRowsBuffer)
                     {
                         if (string.IsNullOrWhiteSpace(bufferedRow))
                             continue;
@@ -310,9 +310,9 @@ namespace HealthCheck.Core.Util
         /// </summary>
         protected void CheckCleanup()
         {
-            if (LastCleanupPerformedAt == null && RetentionOptions?.DelayFirstCleanupByMinimumCleanupInterval == true)
+            if (_lastCleanupPerformedAt == null && RetentionOptions?.DelayFirstCleanupByMinimumCleanupInterval == true)
             {
-                LastCleanupPerformedAt = DateTimeOffset.Now;
+                _lastCleanupPerformedAt = DateTimeOffset.Now;
             }
 
             if (!CanCleanup())
@@ -323,7 +323,6 @@ namespace HealthCheck.Core.Util
             PerformCleanup();
         }
 
-        private DateTimeOffset? LastCleanupPerformedAt { get; set; }
         private bool CanCleanup()
         {
             // Cleanup not enabled => abort
@@ -333,7 +332,7 @@ namespace HealthCheck.Core.Util
             }
 
             // Less than min time since last cleanup => abort
-            if (LastCleanupPerformedAt != null && (DateTimeOffset.Now.ToUniversalTime() - LastCleanupPerformedAt?.ToUniversalTime()) < RetentionOptions.MinimumCleanupInterval)
+            if (_lastCleanupPerformedAt != null && (DateTimeOffset.Now.ToUniversalTime() - _lastCleanupPerformedAt?.ToUniversalTime()) < RetentionOptions.MinimumCleanupInterval)
             {
                 return false;
             }
@@ -343,7 +342,7 @@ namespace HealthCheck.Core.Util
 
         private void PerformCleanup()
         {
-            LastCleanupPerformedAt = DateTimeOffset.Now;
+            _lastCleanupPerformedAt = DateTimeOffset.Now;
             if (RetentionOptions?.MaxItemAge != null && RetentionOptions.ItemTimestampSelector != null)
             {
                 var threshold = DateTimeOffset.Now.ToUniversalTime() - RetentionOptions.MaxItemAge;
@@ -354,16 +353,16 @@ namespace HealthCheck.Core.Util
         private async Task QueueWriteBufferToFile(string row)
         {
             // Store text in memory
-            lock (NewRowsBuffer)
+            lock (_newRowsBuffer)
             {
-                NewRowsBuffer.Add(row);
+                _newRowsBuffer.Add(row);
 
                 // Return if already queued a write
-                if (IsWriteQueued)
+                if (_isWriteQueued)
                 {
                     return;
                 }
-                IsWriteQueued = true;
+                _isWriteQueued = true;
             }
 
             // Wait to write
@@ -375,11 +374,11 @@ namespace HealthCheck.Core.Util
 
         internal void WriteBufferToFile()
         {
-            lock (NewRowsBuffer)
+            lock (_newRowsBuffer)
             {
-                if (NewRowsBuffer.Count == 0)
+                if (_newRowsBuffer.Count == 0)
                 {
-                    IsWriteQueued = false;
+                    _isWriteQueued = false;
                     return;
                 }
 
@@ -388,21 +387,21 @@ namespace HealthCheck.Core.Util
                     EnsureFileExists();
                     lock (_fileLock)
                     {
-                        File.AppendAllLines(FilePath, NewRowsBuffer);
+                        File.AppendAllLines(FilePath, _newRowsBuffer);
                         OnFileWrittenEvent?.Invoke();
                     }
-                    NewRowsBuffer.Clear();
+                    _newRowsBuffer.Clear();
                 }
                 catch (Exception)
                 {
                     // Retry on next write. Very low chance of exception being thrown here.
                 }
-                IsWriteQueued = false;
+                _isWriteQueued = false;
             }
         }
 
-        private TItem DeserializeRow(string row) => Deserializer(Decode(row));
-        private string SerializeItem(TItem item) => Encode(Serializer(item));
+        private TItem DeserializeRow(string row) => _deserializer(Decode(row));
+        private string SerializeItem(TItem item) => Encode(_serializer(item));
 
         private const string Delimiter = "|";
         private const string NewlineReplacement = @"\n";

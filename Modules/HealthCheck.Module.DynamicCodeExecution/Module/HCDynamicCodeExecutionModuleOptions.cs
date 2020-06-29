@@ -67,6 +67,11 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
             "System.Collections.Generic"
         };
 
+        /// <summary>
+        /// If enabled any executed scripts will be save a copy of the script into the audit blob storage.
+        /// </summary>
+        public bool StoreCopyOfExecutedScriptsAsAuditBlobs { get; set; }
+
         private const string DEFAULT_SCRIPT = @"// Title: 
 #region Usings
 [[AdditionalUsings]]

@@ -18,4 +18,11 @@ export default class AuditLogService extends HCServiceBase
     ): void {
         this.invokeModuleMethod(this.moduleId, 'GetFilteredAudits', filter, statusObject, callbacks);
     }
+
+    public GetBlobContent(blobId: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<string | null> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, 'GetAuditBlobContents', blobId, statusObject, callbacks);
+    }
 }
