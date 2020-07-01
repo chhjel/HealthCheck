@@ -10,6 +10,6 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.Models
         /// <summary>
         /// All stored download definitions.
         /// </summary>
-        public IEnumerable<SecureFileDownloadViewModel> Downloads { get; set; }
+        public IEnumerable<SecureFileDownloadDefinition> Definitions { get; set; }
     }
 }
