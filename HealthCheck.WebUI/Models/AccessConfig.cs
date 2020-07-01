@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Modules;
 using System;
 using System.Collections.Generic;
 

@@ -4,10 +4,12 @@ using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Modules;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Util;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -90,7 +92,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         public TModule GetModule<TModule>() where TModule : class
             => Helper.GetModule<TModule>();
-#endregion
+        #endregion
 
 #region Endpoints
         /// <summary>
@@ -99,7 +101,7 @@ namespace HealthCheck.WebUI.Abstractions
         [HideFromRequestLog]
         public virtual ActionResult Index()
         {
-            if (!Enabled) return HttpNotFound();
+            if (!Enabled) return ThrowNotFound();
             else if (!Helper.HasAccessToAnyContent(CurrentRequestAccessRoles))
             {
                 var redirectTarget = Helper.AccessConfig.RedirectTargetOnNoAccessUsingRequest?.Invoke(Request);
@@ -113,7 +115,7 @@ namespace HealthCheck.WebUI.Abstractions
                 }
                 else
                 {
-                    return HttpNotFound();
+                    return ThrowNotFound();
                 }
             }
 
@@ -127,16 +129,48 @@ namespace HealthCheck.WebUI.Abstractions
         /// Invokes a module method.
         /// </summary>
         [HideFromRequestLog]
+        [HttpPost]
         public async Task<ActionResult> InvokeModuleMethod(string moduleId, string methodName, string jsonPayload)
         {
-            if (!Enabled) return HttpNotFound();
+            if (!Enabled) return ThrowNotFound();
 
             var result = await Helper.InvokeModuleMethod(CurrentRequestInformation, moduleId, methodName, jsonPayload);
             if (!result.HasAccess)
             {
-                return HttpNotFound();
+                return ThrowNotFound();
             }
             return Content(result.Result);
+        }
+
+        /// <summary>
+        /// Used for any dynamic actions from registered modules.
+        /// </summary>
+        [HideFromRequestLog]
+        protected override void HandleUnknownAction(string actionName)
+        {
+            ActionResult CreateContentResult(string content) => Content(content);
+            FileResult CreateFileResult(Stream stream, string filename) => File(stream, "content-disposition", filename);
+
+            var url = Request.RawUrl.ToString();
+            url = url.Substring(url.ToLower().Trim().IndexOf($"/{actionName.ToLower()}"));
+
+            var content = Helper.InvokeModuleAction(CurrentRequestInformation, actionName, url).Result;
+            if (content?.HasAccess == true && content.Result != null)
+            {
+                var result = content.Result;
+                if (result is string contentStr)
+                {
+                    CreateContentResult(contentStr).ExecuteResult(this.ControllerContext);
+                }
+                else if (result is HealthCheckFileStreamResult stream)
+                {
+                    var filename = stream.FileName;
+                    CreateFileResult(stream.ContentStream, filename).ExecuteResult(this.ControllerContext);
+                }
+                return;
+            }
+
+            base.HandleUnknownAction(actionName);
         }
 
         /// <summary>
@@ -146,10 +180,18 @@ namespace HealthCheck.WebUI.Abstractions
         public virtual ActionResult Ping()
         {
             if (!Enabled || !Helper.CanUsePingEndpoint(CurrentRequestAccessRoles))
-                return HttpNotFound();
+                return ThrowNotFound();
 
             return Content("OK");
         }
+#endregion
+
+#region Virtuals
+        /// <summary>
+        /// Resolve client ip from the current request.
+        /// </summary>
+        protected virtual string GetRequestIP(RequestContext requestContext)
+            => RequestUtils.GetIPAddress(requestContext?.HttpContext?.Request);
 #endregion
 
 #region Overrides
@@ -162,6 +204,7 @@ namespace HealthCheck.WebUI.Abstractions
 
             CurrentRequestInformation = GetRequestInformation(request);
             CurrentRequestInformation.Url = request?.Url?.ToString();
+            CurrentRequestInformation.ClientIP = GetRequestIP(requestContext);
             CurrentRequestInformation.Headers = request?.Headers?.AllKeys?.ToDictionary(t => t, t => request.Headers[t])
                 ?? new Dictionary<string, string>();
 
@@ -183,6 +226,11 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         protected ActionResult CreateJsonResult(object obj)
             => Content(Helper.SerializeJson(obj), "application/json");
+
+        /// <summary>
+        /// Throws a <see cref="HttpException"/>.
+        /// </summary>
+        protected ActionResult ThrowNotFound() => throw new HttpException(404, "Not Found");
 #endregion
     }
 }
