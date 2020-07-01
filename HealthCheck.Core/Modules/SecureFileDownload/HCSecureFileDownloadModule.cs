@@ -183,7 +183,8 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
             }
 
             // If not using direct download url or the file is missing, show a download page first with some details
-            context.Request?.Headers?.TryGetValue("x-password", out string password);
+            string password = null;
+            context.Request?.Headers?.TryGetValue("x-password", out password);
 
             string definitionValidationError = ValidateDownload(definition, storage, password);
             if (!isDirectDownload || definitionValidationError != null)
