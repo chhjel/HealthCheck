@@ -54,7 +54,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         protected HealthCheckControllerBase()
         {
-            Helper = new HealthCheckControllerHelper<TAccessRole>();
+            Helper = new HealthCheckControllerHelper<TAccessRole>(() => GetPageOptions());
         }
 
 #region Abstract

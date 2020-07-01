@@ -18,5 +18,10 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         /// Locations to download files from.
         /// </summary>
         public IEnumerable<ISecureFileDownloadFileStorage> FileStorages { get; set; }
+
+        /// <summary>
+        /// Title of the download page.
+        /// </summary>
+        public string DownloadPageTitle { get; set; } = "Downloads";
     }
 }

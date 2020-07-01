@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Web;
 
 namespace HealthCheck.Core.Modules.SecureFileDownload
 {
@@ -16,6 +17,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
     public class HCSecureFileDownloadModule : HealthCheckModuleBase<HCSecureFileDownloadModule.AccessOption>
     {
         private HCSecureFileDownloadModuleOptions Options { get; }
+        private const string Q = "\"";
 
         /// <summary>
         /// Module for downloading files a bit more securely.
@@ -189,7 +191,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
             string definitionValidationError = ValidateDownload(definition, storage, password);
             if (!isDirectDownload || definitionValidationError != null)
             {
-                return ShowDownloadPage(definition, definitionValidationError);
+                return ShowDownloadPage(context, definition, definitionValidationError);
             }
 
             // Get file stream from stored file id
@@ -214,18 +216,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         }
         #endregion
 
-        private const string DirectDownloadIdPrefix = "direct-";
-        private static readonly Regex DownloadUrlRegex
-            = new Regex(@"^/download/(?<id>[\w-]+)/?", RegexOptions.IgnoreCase);
-
-        private object ShowDownloadPage(SecureFileDownloadDefinition definition, string definitionValidationError)
-        {
-            return 
-                $"<h3>{definition.FileName}</h3><br />" +
-                $"Download here '{definition.UrlSegmentText}'." +
-                $"Validation error: '{definitionValidationError}' //todo: set in js object";
-        }
-
+        #region Private helpers
         private static string ValidateDownload(SecureFileDownloadDefinition definition, ISecureFileDownloadFileStorage storage, string password)
         {
             string definitionValidationError = null;
@@ -248,5 +239,82 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
 
             return definitionValidationError;
         }
+
+        private const string DirectDownloadIdPrefix = "direct-";
+        private static readonly Regex DownloadUrlRegex
+            = new Regex(@"^/download/(?<id>[\w-]+)/?", RegexOptions.IgnoreCase);
+
+        private object ShowDownloadPage(HealthCheckModuleContext context, SecureFileDownloadDefinition definition, string definitionValidationError)
+        {
+            return CreateDownloadPageHtml(context, definition, definitionValidationError) +
+                $"<br />" +
+                $"<h3>{definition.FileName}</h3><br />" +
+                $"Download here '{definition.UrlSegmentText}'." +
+                $"Validation error: '{definitionValidationError}' //todo: set in js object";
+        }
+
+        /// <summary>
+        /// Create the html to show for the download file page when not downloading directly.
+        /// </summary>
+        protected virtual string CreateDownloadPageHtml(
+            HealthCheckModuleContext context, SecureFileDownloadDefinition definition, string definitionValidationError)
+        {
+            var javascriptUrlTags = context.JavaScriptUrls
+                .Select(url => $"<script src=\"{url}\"></script>")
+                .ToList();
+            var javascriptUrlTagsHtml = string.Join("\n    ", javascriptUrlTags);
+
+            var defaultAssets = $@"
+    <link href={Q}https://cdn.jsdelivr.net/npm/vuetify@1.5.6/dist/vuetify.min.css{Q} rel={Q}stylesheet{Q} />
+    <link href={Q}https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons{Q} rel={Q}stylesheet{Q} />
+    <link href={Q}https://fonts.googleapis.com/css?family=Montserrat{Q} rel={Q}stylesheet{Q}>
+    <link href={Q}https://use.fontawesome.com/releases/v5.7.2/css/all.css{Q} rel={Q}stylesheet{Q} integrity={Q}sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr{Q} crossorigin={Q}anonymous{Q}>";
+
+            var noIndexMeta = $"<meta name={Q}robots{Q} content={Q}noindex{Q}>";
+
+            static string escapeJs(string value, bool addQuotes = true) => HttpUtility.JavaScriptStringEncode(value, addQuotes);
+
+            var expiresIn = "";
+            if (definition.ExpiresAt != null)
+            {
+                expiresIn = (definition.ExpiresAt.Value - DateTimeOffset.Now).TotalSeconds.ToString();
+            }
+
+            var downloadsRemaining = "";
+            if (definition.DownloadCountLimit != null)
+            {
+                downloadsRemaining = Math.Max(0, definition.DownloadCountLimit.Value - definition.DownloadCount).ToString();
+            }
+
+            return $@"
+<!doctype html>
+<html>
+<head>
+    <title>{Options.DownloadPageTitle}</title>
+    {noIndexMeta}
+    <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
+    {defaultAssets}
+</head>
+
+<body>
+    <div id={Q}app-download{Q}></div>
+
+    <script>
+        window.__hc_data = {{
+            definitionValidationError: {escapeJs(definitionValidationError)},
+            directDownloadIdPrefix: {escapeJs(DirectDownloadIdPrefix)},
+            download: {{
+                filename: {escapeJs(definition.FileName)},
+                downloadLink: {Q}direct-{escapeJs(definition.UrlSegmentText, addQuotes: false)}{Q},
+                expiresIn: {escapeJs(expiresIn)},
+                downloadsRemaining: {escapeJs(downloadsRemaining)}
+            }}
+        }};
+    </script>
+    {javascriptUrlTagsHtml}
+</body>
+</html>";
+        }
+        #endregion
     }
 }

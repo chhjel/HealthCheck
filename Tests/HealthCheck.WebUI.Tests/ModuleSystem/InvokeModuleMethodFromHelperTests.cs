@@ -136,7 +136,7 @@ namespace HealthCheck.WebUI.Tests.ModuleSystem
 
         private HealthCheckControllerHelper<AccessRoles> CreateHelper(AccessRoles roles, Action<AccessConfig<AccessRoles>> accessConfig)
         {
-            var helper = new HealthCheckControllerHelper<AccessRoles>();
+            var helper = new HealthCheckControllerHelper<AccessRoles>(null);
             helper.UseModule(new Module_Valid());
             accessConfig?.Invoke(helper.AccessConfig);
             helper.AfterConfigure(CreateRequestInformation(roles));

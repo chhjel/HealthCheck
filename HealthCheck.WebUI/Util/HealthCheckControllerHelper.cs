@@ -31,11 +31,14 @@ namespace HealthCheck.WebUI.Util
     /// </summary>
     internal class HealthCheckControllerHelper<TAccessRole>
     {
+        private readonly Func<HCPageOptions> _pageOptionsGetter;
+
         /// <summary>
         /// Initialize a new HealthCheck helper with the given services.
         /// </summary>
-        public HealthCheckControllerHelper()
+        public HealthCheckControllerHelper(Func<HCPageOptions> pageOptionsGetter)
         {
+            _pageOptionsGetter = pageOptionsGetter;
             AccessConfig.RoleModuleAccessLevels = RoleModuleAccessLevels;
         }
 
@@ -297,11 +300,16 @@ namespace HealthCheck.WebUI.Util
                 ClientIP = requestInfo.ClientIP
             };
 
+            var pageOptions = _pageOptionsGetter?.Invoke();
+
             return new HealthCheckModuleContext()
             {
                 UserId = requestInfo.UserId,
                 UserName = requestInfo.UserName,
                 ModuleName = moduleName,
+
+                JavaScriptUrls = pageOptions?.JavaScriptUrls ?? new List<string>(),
+                CssUrls = pageOptions?.CssUrls ?? new List<string>(),
 
                 CurrentRequestRoles = accessRoles.Value,
                 CurrentRequestModuleAccessOptions = GetCurrentRequestModuleAccessOptions(accessRoles, module?.GetType()),

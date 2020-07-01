@@ -49,6 +49,16 @@ namespace HealthCheck.Core.Abstractions.Modules
         public List<ModuleAccess> CurrentRequestModulesAccess { get; set; }
 
         /// <summary>
+        /// Url to the javascripts for the UI.
+        /// </summary>
+        public List<string> JavaScriptUrls { get; set; }
+
+        /// <summary>
+        /// Url to the assets for the UI.
+        /// </summary>
+        public List<string> CssUrls { get; set; }
+
+        /// <summary>
         /// Get <see cref="CurrentRequestModuleAccessOptions"/> as the given type.
         /// </summary>
         public T GetCurrentRequestModuleAccessOptionsAs<T>() where T : Enum => (T)CurrentRequestModuleAccessOptions;
