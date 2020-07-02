@@ -18,6 +18,21 @@ namespace HealthCheck.Core.Abstractions.Modules
         public Dictionary<string, string> Headers { get; set; }
 
         /// <summary>
+        /// GET, POST etc.
+        /// </summary>
+        public string Method { get; set; }
+
+        /// <summary>
+        /// True if the request is a POST request.
+        /// </summary>
+        public bool IsPOST => Method?.ToLower()?.Trim() == "post";
+
+        /// <summary>
+        /// True if the request is a GET request.
+        /// </summary>
+        public bool IsGET => Method?.ToLower()?.Trim() == "get";
+
+        /// <summary>
         /// The clients user agent if any.
         /// </summary>
         public string UserAgent => Headers?.ContainsKey("User-Agent") == true ? Headers["User-Agent"] : null;

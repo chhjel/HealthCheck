@@ -209,6 +209,7 @@ namespace HealthCheck.WebUI.Abstractions
             var request = context?.HttpContext?.Request;
 
             CurrentRequestInformation = GetRequestInformation(request);
+            CurrentRequestInformation.Method = request?.Method;
             CurrentRequestInformation.Url = request?.GetDisplayUrl();
             CurrentRequestInformation.ClientIP = GetRequestIP(context);
             CurrentRequestInformation.Headers = request?.Headers.Keys?.ToDictionary(t => t, t => request.Headers[t].ToString())

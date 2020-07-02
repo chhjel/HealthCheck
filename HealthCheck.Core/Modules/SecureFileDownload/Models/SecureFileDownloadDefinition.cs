@@ -87,5 +87,10 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.Models
         /// Time when the file will no longer be available for download.
         /// </summary>
         public DateTimeOffset? ExpiresAt { get; set; }
+
+        /// <summary>
+        /// A note that is displayed on the download page.
+        /// </summary>
+        public string Note { get; set; }
     }
 }

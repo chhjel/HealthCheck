@@ -34,6 +34,11 @@ namespace HealthCheck.Core.Models
         public Dictionary<string, string> Headers { get; set; }
 
         /// <summary>
+        /// POST, GET etc
+        /// </summary>
+        public string Method { get; set; }
+
+        /// <summary>
         /// Client ip address.
         /// </summary>
         public string ClientIP { get; set; }

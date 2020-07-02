@@ -12,6 +12,9 @@ import store from './index_store';
 Vue.use(VueRouter)
 import createRouter from './index_routes';
 
+// Special pages
+import DownloadPageComponent from '../components/modules/SecureFileDownload/DownloadPageComponent.vue';
+
 // Extensions
 import "../util/extensions/StringExtensions";
 import "../util/extensions/ArrayExtensions";
@@ -66,14 +69,14 @@ else if (document.getElementById("app-download") !== null)
 		el: "#app-download",
 		template: `
 		<div>
-			woop :]
+			<download-page-component />
 		</div>
 		`,
 		data: {
 			moduleConfig: moduleConfig
 		},
 		components: {
-			
+			DownloadPageComponent
 		}
 	});
 }

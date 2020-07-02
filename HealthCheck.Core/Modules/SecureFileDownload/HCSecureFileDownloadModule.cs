@@ -1,10 +1,10 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload.Models;
+using HealthCheck.Core.Util;
 using HealthCheck.Core.Util.Modules;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -17,7 +17,14 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
     public class HCSecureFileDownloadModule : HealthCheckModuleBase<HCSecureFileDownloadModule.AccessOption>
     {
         private HCSecureFileDownloadModuleOptions Options { get; }
+
         private const string Q = "\"";
+        private static ListWithExpiration<CachedToken> _tokenCache = new ListWithExpiration<CachedToken>();
+        private struct CachedToken
+        {
+            public string Token;
+            public Guid DefinitionId;
+        }
 
         /// <summary>
         /// Module for downloading files a bit more securely.
@@ -51,10 +58,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => new
-        {
-            DirectDownloadIdPrefix = DirectDownloadIdPrefix
-        };
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => null;
 
         /// <summary>
         /// Get config for this module.
@@ -150,8 +154,14 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         #endregion
 
         #region Actions
+        private static readonly Regex DownloadUrlRegex
+            = new Regex(@"^/Download/(?<id>[\w-]+)/?", RegexOptions.IgnoreCase);
+        private static readonly Regex DownloadFileUrlRegex
+            = new Regex(@"^/SFDDownloadFile/(?<token>[\w-]+)?__(?<id>[\w-]+)/?", RegexOptions.IgnoreCase);
+
         /// <summary>
-        /// Action invoked when a download is requested.
+        /// Show download page for a file.
+        /// <para>Also handles POST request with password.</para>
         /// </summary>
         [HealthCheckModuleAction]
         public object Download(HealthCheckModuleContext context, string url)
@@ -164,13 +174,8 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
 
             // Parse url
             var idString = match.Groups["id"].Value.Trim().ToLower();
-            var isDirectDownload = idString.StartsWith(DirectDownloadIdPrefix);
-            if (isDirectDownload)
-            {
-                idString = idString.Substring(DirectDownloadIdPrefix.Length);
-            }
 
-            // Get definition and validate it
+            // Get definition
             var definition = Options.DefinitionStorage.GetDefinitionByUrlSegmentText(idString);
             if (definition == null)
             {
@@ -184,14 +189,136 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
                 return null;
             }
 
-            // If not using direct download url or the file is missing, show a download page first with some details
-            string password = null;
-            context.Request?.Headers?.TryGetValue("x-password", out password);
+            // Check that download is not expired etc
+            string definitionValidationError = ValidateDownload(definition, storage);
 
-            string definitionValidationError = ValidateDownload(definition, storage, password);
-            if (!isDirectDownload || definitionValidationError != null)
+            return CreateDownloadPageHtml(context, definition, definitionValidationError);
+        }
+
+        /// <summary>
+        /// POST. Validate password and get a token in return.
+        /// </summary>
+        [HealthCheckModuleAction]
+        public string SFDValidatePassword(HealthCheckModuleContext context)
+        {
+            if (context?.Request?.IsPOST != true)
             {
-                return ShowDownloadPage(context, definition, definitionValidationError);
+                return null;
+            }
+
+            if (!context.Request.Headers.ContainsKey("x-id")
+                || !context.Request.Headers.ContainsKey("x-pwd"))
+            {
+                return null;
+            }
+
+            var idFromRequest = context.Request.Headers["x-id"];
+            var passwordFromRequest = context.Request.Headers["x-pwd"];
+
+            // Get definition
+            var definition = Options.DefinitionStorage.GetDefinitionByUrlSegmentText(idFromRequest);
+            if (definition == null)
+            {
+                return null;
+            }
+
+            // Find matching storage
+            var storage = Options.FileStorages.FirstOrDefault(x => x.StorageId == definition.StorageId);
+            if (storage == null)
+            {
+                return null;
+            }
+
+            // Abort if there's no password required for this one.
+            if (string.IsNullOrWhiteSpace(definition.Password))
+            {
+                return null;
+            }
+
+            string createResult(bool success, string message, string token)
+            {
+                return
+                    "{\n" +
+                    $"  {Q}success{Q}: {success.ToString().ToLower()},\n" +
+                    $"  {Q}message{Q}: {EscapeJsString(message)},\n" +
+                    $"  {Q}token{Q}: {EscapeJsString(token)}\n" +
+                    "}";
+            }
+
+            // Check that download is not expired etc
+            string definitionValidationError = ValidateDownload(definition, storage);
+            if (definitionValidationError != null)
+            {
+                return createResult(false, definitionValidationError, null);
+            }
+
+            // Validate password && create token if valid
+            string token = null;
+            if (passwordFromRequest != definition.Password)
+            {
+                return createResult(false, "Invalid password", null);
+            }
+
+            token = CreateToken();
+            _tokenCache.Add(new CachedToken
+            {
+                Token = token,
+                DefinitionId = definition.Id
+            },
+            expiresAt: DateTime.Now + Options.DownloadTokenLifetime);
+
+            return createResult(true, null, token);
+        }
+
+        /// <summary>
+        /// Download a file, or show download page if not allowed.
+        /// </summary>
+        [HealthCheckModuleAction]
+        public object SFDDownloadFile(HealthCheckModuleContext context, string url)
+        {
+            var match = DownloadFileUrlRegex.Match(url);
+            if (!match.Success)
+            {
+                return null;
+            }
+
+            // Parse url
+            var idFromUrl = match.Groups["id"].Value.Trim().ToLower();
+            var tokenUrlMatch = match.Groups["token"];
+            string tokenFromUrl = tokenUrlMatch.Success ? tokenUrlMatch.Value : null;
+
+            // Get definition
+            var definition = Options.DefinitionStorage.GetDefinitionByUrlSegmentText(idFromUrl);
+            if (definition == null)
+            {
+                return null;
+            }
+
+            // Find matching storage
+            var storage = Options.FileStorages.FirstOrDefault(x => x.StorageId == definition.StorageId);
+            if (storage == null)
+            {
+                return null;
+            }
+
+            // Check that download is not expired etc
+            string definitionValidationError = ValidateDownload(definition, storage);
+            if (definitionValidationError != null)
+            {
+                return CreateDownloadPageHtml(context, definition, definitionValidationError);
+            }
+
+            var downloadRequiresPassword = !string.IsNullOrWhiteSpace(definition.Password);
+            if (downloadRequiresPassword)
+            {
+                if (!_tokenCache.Any(x => x.Token == tokenFromUrl && x.DefinitionId == definition.Id))
+                {
+                    definitionValidationError = "Invalid or expired token.";
+                    return CreateDownloadPageHtml(context, definition, definitionValidationError);
+                }
+
+                _tokenCache.RemoveWhere(x => x.Token == tokenFromUrl);
+                _tokenCache.RemoveExpired();
             }
 
             // Get file stream from stored file id
@@ -216,8 +343,8 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         }
         #endregion
 
-        #region Private helpers
-        private static string ValidateDownload(SecureFileDownloadDefinition definition, ISecureFileDownloadFileStorage storage, string password)
+        #region Helpers
+        private static string ValidateDownload(SecureFileDownloadDefinition definition, ISecureFileDownloadFileStorage storage)
         {
             string definitionValidationError = null;
             if (definition.ExpiresAt != null && definition.ExpiresAt < DateTimeOffset.Now)
@@ -232,32 +359,21 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
             {
                 definitionValidationError = "The file was not found.";
             }
-            else if (!string.IsNullOrWhiteSpace(definition.Password) && definition.Password != password)
-            {
-                definitionValidationError = "Wrong password.";
-            }
 
             return definitionValidationError;
         }
 
-        private const string DirectDownloadIdPrefix = "direct-";
-        private static readonly Regex DownloadUrlRegex
-            = new Regex(@"^/download/(?<id>[\w-]+)/?", RegexOptions.IgnoreCase);
+        private string CreateToken() => $"{Guid.NewGuid()}-{Guid.NewGuid()}";
 
-        private object ShowDownloadPage(HealthCheckModuleContext context, SecureFileDownloadDefinition definition, string definitionValidationError)
-        {
-            return CreateDownloadPageHtml(context, definition, definitionValidationError) +
-                $"<br />" +
-                $"<h3>{definition.FileName}</h3><br />" +
-                $"Download here '{definition.UrlSegmentText}'." +
-                $"Validation error: '{definitionValidationError}' //todo: set in js object";
-        }
+        private string EscapeJsString(string value, bool addQuotes = true)
+            => (value == null) ? "null" : HttpUtility.JavaScriptStringEncode(value, addQuotes);
 
         /// <summary>
         /// Create the html to show for the download file page when not downloading directly.
         /// </summary>
         protected virtual string CreateDownloadPageHtml(
-            HealthCheckModuleContext context, SecureFileDownloadDefinition definition, string definitionValidationError)
+            HealthCheckModuleContext context, SecureFileDownloadDefinition definition,
+            string definitionValidationError)
         {
             var javascriptUrlTags = context.JavaScriptUrls
                 .Select(url => $"<script src=\"{url}\"></script>")
@@ -272,12 +388,10 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
 
             var noIndexMeta = $"<meta name={Q}robots{Q} content={Q}noindex{Q}>";
 
-            static string escapeJs(string value, bool addQuotes = true) => HttpUtility.JavaScriptStringEncode(value, addQuotes);
-
-            var expiresIn = "";
+            var expiresAt = "";
             if (definition.ExpiresAt != null)
             {
-                expiresIn = (definition.ExpiresAt.Value - DateTimeOffset.Now).TotalSeconds.ToString();
+                expiresAt = definition.ExpiresAt.Value.ToUnixTimeSeconds().ToString();
             }
 
             var downloadsRemaining = "";
@@ -286,11 +400,17 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
                 downloadsRemaining = Math.Max(0, definition.DownloadCountLimit.Value - definition.DownloadCount).ToString();
             }
 
+            var requiresPassword = !string.IsNullOrWhiteSpace(definition.Password);
+            var downloadLink = $"SFDDownloadFile/__{definition.UrlSegmentText}";
+
+            var title = Options.DownloadPageTitle ?? "";
+            title = title.Replace("[FILENAME]", definition.FileName ?? "unknown");
+
             return $@"
 <!doctype html>
 <html>
 <head>
-    <title>{Options.DownloadPageTitle}</title>
+    <title>{title}</title>
     {noIndexMeta}
     <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
     {defaultAssets}
@@ -301,13 +421,15 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
 
     <script>
         window.__hc_data = {{
-            definitionValidationError: {escapeJs(definitionValidationError)},
-            directDownloadIdPrefix: {escapeJs(DirectDownloadIdPrefix)},
+            definitionValidationError: {EscapeJsString(definitionValidationError)},
             download: {{
-                filename: {escapeJs(definition.FileName)},
-                downloadLink: {Q}direct-{escapeJs(definition.UrlSegmentText, addQuotes: false)}{Q},
-                expiresIn: {escapeJs(expiresIn)},
-                downloadsRemaining: {escapeJs(downloadsRemaining)}
+                name: {EscapeJsString(definition.UrlSegmentText)},
+                filename: {EscapeJsString(definition.FileName)},
+                downloadLink: {EscapeJsString(downloadLink)},
+                protected: {requiresPassword.ToString().ToLower()},
+                expiresAt: {EscapeJsString(expiresAt)},
+                downloadsRemaining: {EscapeJsString(downloadsRemaining)},
+                note: {EscapeJsString(definition.Note)},
             }}
         }};
     </script>

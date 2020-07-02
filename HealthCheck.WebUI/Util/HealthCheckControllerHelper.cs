@@ -295,6 +295,7 @@ namespace HealthCheck.WebUI.Util
 
             var request = new HealthCheckModuleRequestData()
             {
+                Method = requestInfo.Method,
                 Headers = requestInfo.Headers,
                 RelativeUrl = requestInfo.Url,
                 ClientIP = requestInfo.ClientIP
