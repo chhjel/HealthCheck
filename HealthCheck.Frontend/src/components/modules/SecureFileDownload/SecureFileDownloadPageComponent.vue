@@ -30,34 +30,47 @@
                     :key="`download-${cindex}-${download.Id}`"
                     class="download-list-item"
                     >
-                    <div class="download-list-item--inner">
-                        <div class="download-list-item--rule"
-                            @click="showDownload(download)"
-                            >
-                            {{ download.FileName }}
+                    <div>
+                        <div class="download-list-item--inner">
+                            <div class="download-list-item--rule"
+                                @click="showDownload(download)">
+                                <v-icon>description</v-icon>
+                                {{ download.FileName }}
+                            </div>
+                            
+                            <v-tooltip bottom v-if="download.Password != null">
+                                <template v-slot:activator="{ on }">
+                                    <v-icon style="cursor: help;" v-on="on">lock</v-icon>
+                                </template>
+                                <span>This download is protected by a password</span>
+                            </v-tooltip>
+
+                            <v-tooltip bottom v-if="getDownloadWarning(download) != null">
+                                <template v-slot:activator="{ on }">
+                                    <v-icon style="cursor: help;" color="warning" v-on="on">warning</v-icon>
+                                </template>
+                                <span>{{getDownloadWarning(download)}}</span>
+                            </v-tooltip>
+
+                            <v-tooltip bottom v-if="downloadIsOutsideLimit(download)">
+                                <template v-slot:activator="{ on }">
+                                    <v-icon v-on="on" style="cursor: help;">timer_off</v-icon>
+                                </template>
+                                <span>This downloads' limits has been reached</span>
+                            </v-tooltip>
+
+                            <v-tooltip bottom>
+                                <template v-slot:activator="{ on }">
+                                    <v-icon style="cursor: help;" v-on="on">person</v-icon>
+                                    <code style="color: var(--v-primary-base); cursor: help;" v-on="on">{{ download.LastModifiedByUsername }}</code>
+                                </template>
+                                <span>Last modified by '{{ download.LastModifiedByUsername }}'</span>
+                            </v-tooltip>
                         </div>
-                        
-                        <v-tooltip bottom v-if="getDownloadWarning(download) != null">
-                            <template v-slot:activator="{ on }">
-                                <v-icon style="cursor: help;" color="warning" v-on="on">warning</v-icon>
-                            </template>
-                            <span>{{getDownloadWarning(download)}}</span>
-                        </v-tooltip>
-
-                        <v-tooltip bottom v-if="downloadIsOutsideLimit(download)">
-                            <template v-slot:activator="{ on }">
-                                <v-icon v-on="on" style="cursor: help;">timer_off</v-icon>
-                            </template>
-                            <span>This downloads' limits has been reached</span>
-                        </v-tooltip>
-
-                        <v-tooltip bottom>
-                            <template v-slot:activator="{ on }">
-                                <v-icon style="cursor: help;" v-on="on">person</v-icon>
-                                <code style="color: var(--v-primary-base); cursor: help;" v-on="on">{{ download.LastChangedBy }}</code>
-                            </template>
-                            <span>Last modified by '{{ download.LastChangedBy }}'</span>
-                        </v-tooltip>
+                            
+                        <div class="download-link">
+                            Download link: <a :href="getAbsoluteDownloadUrl(download)">{{ getAbsoluteDownloadUrl(download) }}</a>
+                        </div>
                     </div>
                 </block-component>
 
@@ -244,6 +257,10 @@ export default class SecureFileDownloadPageComponent extends Vue {
         }
     }
 
+    getAbsoluteDownloadUrl(download: SecureFileDownloadDefinition): string {
+        return `${window.location.origin}${window.location.pathname}/download/${download.UrlSegmentText}`;
+    }
+
     loadData(): void {
         this.service.GetDownloads(this.loadStatus, { onSuccess: (data) => this.onDataRetrieved(data) });
     }
@@ -322,12 +339,14 @@ export default class SecureFileDownloadPageComponent extends Vue {
 
     downloadIsOutsideLimit(download: SecureFileDownloadDefinition): boolean
     {
-        if (download.ExpiresAt != null && download.ExpiresAt.getTime() > new Date().getTime())
+        if (download.ExpiresAt != null && download.ExpiresAt.getTime() < new Date().getTime())
         {
             return true;
         }
-        else if (download.DownloadCountLimit != null && download.DownloadCount >= download.DownloadCountLimit)
+        else if (download.DownloadCountLimit != null
+            && download.DownloadCount >= download.DownloadCountLimit)
         {
+            debugger;
             return true;
         }
 
@@ -377,6 +396,9 @@ export default class SecureFileDownloadPageComponent extends Vue {
     font-size: 34px;
     font-weight: 600;
 }
+.download-link {
+    margin-left: 28px;
+}
 .download-list-item {
     margin-bottom: 20px;
     
@@ -390,7 +412,6 @@ export default class SecureFileDownloadPageComponent extends Vue {
             flex: 1;
             cursor: pointer;
             font-size: 16px;
-            margin-left: 20px;
             margin-right: 20px;
             
             .download-list-item--operator {

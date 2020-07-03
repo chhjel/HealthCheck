@@ -54,6 +54,7 @@ namespace HealthCheck.WebUI.Services
 
         /// <summary>
         /// Retrieve a stored definition by <see cref="SecureFileDownloadDefinition.UrlSegmentText"/>.
+        /// <para>Should be a case-insensitive check.</para>
         /// </summary>
         public SecureFileDownloadDefinition GetDefinitionByUrlSegmentText(string urlSegmentText)
             => Store.GetEnumerable().FirstOrDefault(x => x.UrlSegmentText?.Trim()?.ToLower() == urlSegmentText.Trim().ToLower());

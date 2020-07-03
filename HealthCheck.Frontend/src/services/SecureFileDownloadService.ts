@@ -1,5 +1,5 @@
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
-import { SecureFileDownloadsViewModel, SecureFileDownloadDefinition } from "../models/modules/SecureFileDownload/Models";
+import { SecureFileDownloadsViewModel, SecureFileDownloadDefinition, SecureFileDownloadSaveViewModel } from "../models/modules/SecureFileDownload/Models";
 
 export default class SecureFileDownloadService extends HCServiceBase
 {
@@ -17,11 +17,10 @@ export default class SecureFileDownloadService extends HCServiceBase
     ): void {
         this.invokeModuleMethod(this.moduleId, 'GetDownloads', null, statusObject, callbacks);
     }
-  
     
     public SaveDefinition(definition: SecureFileDownloadDefinition,
         statusObject: FetchStatus | null = null,
-        callbacks: ServiceFetchCallbacks<SecureFileDownloadDefinition> | null = null
+        callbacks: ServiceFetchCallbacks<SecureFileDownloadSaveViewModel> | null = null
     ): void {
         this.invokeModuleMethod(this.moduleId, 'SaveDefinition', definition, statusObject, callbacks);
     }

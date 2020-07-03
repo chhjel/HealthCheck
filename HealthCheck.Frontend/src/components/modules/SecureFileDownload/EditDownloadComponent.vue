@@ -20,6 +20,7 @@
                 name="Filename"
                 description="Name of the file when downloading."
                 type="text"
+                :error="validateFileName"
                 />
                 
             <input-component
@@ -29,6 +30,7 @@
                 name="Url segment text"
                 description="Text in the url after '/downloads/'."
                 type="text"
+                :error="validateUrlSegmentText"
                 />
                 
             <input-component
@@ -76,6 +78,7 @@
                 name="Password (will always be visible here)"
                 description="If a password is set, it must be entered to download the file."
                 type="text"
+                :error="validatePassword"
                 />
         </block-component>
 
@@ -113,6 +116,23 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+
+        <v-dialog v-model="showSaveError"
+            @keydown.esc="showSaveError = false"
+            max-width="400"
+            content-class="confirm-dialog">
+            <v-card>
+                <v-card-title class="headline">Save error</v-card-title>
+                <v-card-text>
+                    {{ saveError }}
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary" @click="showSaveError = false">Close</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -124,7 +144,7 @@ import DateUtils from  '../../../util/DateUtils';
 import IdUtils from  '../../../util/IdUtils';
 import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
 import InputComponent from  '../../Common/Basic/InputComponent.vue';
-import { SecureFileDownloadDefinition } from "../../../models/modules/SecureFileDownload/Models";
+import { SecureFileDownloadDefinition, SecureFileDownloadSaveViewModel } from "../../../models/modules/SecureFileDownload/Models";
 import SecureFileDownloadUtils from "../../../util/SecureFileDownload/SecureFileDownloadUtils";
 import SecureFileDownloadService from "../../../services/SecureFileDownloadService";
 
@@ -153,6 +173,8 @@ export default class EditDownloadComponent extends Vue {
     isDeleting: boolean = false;
     serverInteractionError: string | null = null;
     serverInteractionInProgress: boolean = false;
+    saveError: string = '';
+    showSaveError: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -179,8 +201,33 @@ export default class EditDownloadComponent extends Vue {
         return !this.readonly && !this.serverInteractionInProgress;
     }
 
-    get absoluteDownloadUrl(): string | null{
-        return `ToDo, absolute url here`;
+    get absoluteDownloadUrl(): string | null {
+        return `${window.location.origin}${window.location.pathname}/download/${this.internalDownload.UrlSegmentText}`;
+    }
+    
+    get validateFileName(): string | null {
+        return (this.internalDownload.FileName == null || this.internalDownload.FileName.length == 0)
+            ? 'A filename is required.'
+            : null;
+    }
+    
+    get validateUrlSegmentText(): string | null {
+        return (this.internalDownload.UrlSegmentText == null || this.internalDownload.UrlSegmentText.length == 0)
+            ? 'An url segment text is required.'
+            : null;
+    }
+    
+    get validatePassword(): string | null {
+        if (this.internalDownload.Password == null || this.internalDownload.Password.length == 0)
+        {
+            return null;
+        }
+
+        if (this.internalDownload.Password.length < 6) {
+            return "Password must be at least 6 characters long.";
+        }
+        
+        return null;
     }
 
     ////////////////
@@ -214,10 +261,19 @@ export default class EditDownloadComponent extends Vue {
         });
     }
 
-    onDownloadSaved(newDownload: SecureFileDownloadDefinition): void {
+    onDownloadSaved(result: SecureFileDownloadSaveViewModel): void {
         this.isSaving = false;
         this.setServerInteractionInProgress(false);
-        this.$emit('downloadSaved', newDownload);
+
+        if (result.Success)
+        {
+            this.$emit('downloadSaved', result.Definition);
+        }
+        else
+        {
+            this.saveError = result.ErrorMessage || 'Failed to save with unknown error.';
+            this.showSaveError = true;
+        }
     }
 
     public tryDeleteDownload(): void {

@@ -22,3 +22,9 @@ export interface SecureFileDownloadDefinition {
 export interface SecureFileDownloadsViewModel {
     Definitions: Array<SecureFileDownloadDefinition>;
 }
+
+export interface SecureFileDownloadSaveViewModel {
+    Success: boolean;
+    ErrorMessage: string | null;
+    Definition: SecureFileDownloadDefinition;
+}

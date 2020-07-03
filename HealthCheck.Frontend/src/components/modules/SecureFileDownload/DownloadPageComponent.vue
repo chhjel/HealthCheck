@@ -33,7 +33,7 @@
                         <v-progress-linear color="primary" indeterminate v-if="loadStatus.inProgress"></v-progress-linear>
 
                         <!-- PASSWORD INPUT -->
-                        <div v-if="data.download.protected">
+                        <div v-if="data.download.protected && !isExpired">
                             <strong>A password is required to download this file</strong>
                             <v-text-field 
                                 box
@@ -54,6 +54,7 @@
                         <!-- DOWNLOAD LINK -->
                         <v-btn color="primary" large
                             class="mt-3"
+                            v-if="!isExpired"
                             @click.prevent="onDownloadClicked"
                             :disabled="isDownloadButtonDisabled"
                             >
@@ -73,7 +74,7 @@
 
                 <!-- EXPIRATION -->
                 <block-component class="mb-4"
-                    v-if="data.download.expiresAt !== null || data.download.downloadsRemaining !== null">
+                    v-if="(data.download.expiresAt !== null || data.download.downloadsRemaining !== null) && !isExpired">
                     <div v-if="data.download.expiresAt !== null">
                         Expires {{ formatedExpirationDate }}.
                     </div>
@@ -172,6 +173,21 @@ export default class DownloadPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get isExpired(): boolean {
+        if (this.data.download.expiresAt != null && this.data.download.expiresAt.getTime() < new Date().getTime())
+        {
+            return true;
+        }
+        else if (this.data.download.downloadsRemaining != null && this.data.download.downloadsRemaining <= 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     get isPasswordFieldDisabled(): boolean {
         if (this.loadStatus.inProgress)
         {

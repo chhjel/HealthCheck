@@ -107,8 +107,10 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         /// Create or update a definition.
         /// </summary>
         [HealthCheckModuleMethod(requiresAccessTo: AccessOption.CreateDefinition)]
-        public SecureFileDownloadDefinition SaveDefinition(HealthCheckModuleContext context, SecureFileDownloadDefinition definition)
+        public SecureFileDownloadSaveViewModel SaveDefinition(HealthCheckModuleContext context, SecureFileDownloadDefinition definition)
         {
+            definition.UrlSegmentText = definition.UrlSegmentText.Trim();
+
             var existing = Options.DefinitionStorage.GetDefinition(definition.Id);
             var isNew = existing == null;
             if (isNew)
@@ -126,18 +128,34 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
                 context.AddAuditEvent("Edit download", definition.FileName);
             }
 
+            var validationError = ValidateDefinitionBeforeSave(definition, isNew, existing?.UrlSegmentText);
+            if (validationError != null)
+            {
+                return new SecureFileDownloadSaveViewModel()
+                {
+                    Success = false,
+                    ErrorMessage = validationError
+                };
+            }
+
             definition.LastModifiedAt = DateTimeOffset.Now;
             definition.LastModifiedByUsername = context.UserName;
             definition.LastModifiedByUserId = context.UserId;
 
             if (isNew)
             {
-                return Options.DefinitionStorage.CreateDefinition(definition);
+                definition = Options.DefinitionStorage.CreateDefinition(definition);
             }
             else
             {
-                return Options.DefinitionStorage.UpdateDefinition(definition);
+                definition = Options.DefinitionStorage.UpdateDefinition(definition);
             }
+
+            return new SecureFileDownloadSaveViewModel()
+            {
+                Success = true,
+                Definition = definition
+            };
         }
 
         /// <summary>
@@ -235,7 +253,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
             }
 
             // Abort if there's no password required for this one.
-            if (string.IsNullOrWhiteSpace(definition.Password))
+            if (string.IsNullOrEmpty(definition.Password))
             {
                 return null;
             }
@@ -313,7 +331,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
                 return CreateDownloadPageHtml(context, definition, definitionValidationError);
             }
 
-            var downloadRequiresPassword = !string.IsNullOrWhiteSpace(definition.Password);
+            var downloadRequiresPassword = !string.IsNullOrEmpty(definition.Password);
             if (downloadRequiresPassword)
             {
                 if (!_tokenCache.Any(x => x.Token == tokenFromUrl && x.DefinitionId == definition.Id))
@@ -349,6 +367,38 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         #endregion
 
         #region Helpers
+        private string ValidateDefinitionBeforeSave(SecureFileDownloadDefinition definition,
+            bool isNew, string existingUrlText)
+        {
+            if (!string.IsNullOrEmpty(definition.Password) && definition.Password.Length < 6)
+            {
+                return "Password must be at least 6 characters long.";
+            }
+            else if (string.IsNullOrWhiteSpace(definition.FileName.Trim()))
+            {
+                return "A filename must be set.";
+            }
+            else if (string.IsNullOrWhiteSpace(definition.UrlSegmentText))
+            {
+                return "A text for the url must be set.";
+            }
+            
+            // Prevent creating new with same url text as an existing one
+            if (isNew
+                && Options.DefinitionStorage.GetDefinitionByUrlSegmentText(definition.UrlSegmentText.Trim()) != null)
+            {
+                return "There is already another download with the same url text.";
+            }
+            // Prevent changing existing to same url text as an existing one
+            else if (!isNew
+                && existingUrlText.ToLower() != definition.UrlSegmentText.ToLower()
+                && Options.DefinitionStorage.GetDefinitionByUrlSegmentText(definition.UrlSegmentText.Trim()) != null)
+            {
+                return "There is already another download with the same url text.";
+            }
+            return null;
+        }
+
         private static string ValidateDownload(SecureFileDownloadDefinition definition, ISecureFileDownloadFileStorage storage)
         {
             string definitionValidationError = null;
@@ -405,7 +455,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
                 downloadsRemaining = Math.Max(0, definition.DownloadCountLimit.Value - definition.DownloadCount).ToString();
             }
 
-            var requiresPassword = !string.IsNullOrWhiteSpace(definition.Password);
+            var requiresPassword = !string.IsNullOrEmpty(definition.Password);
             var downloadLink = $"SFDDownloadFile/__{definition.UrlSegmentText}";
 
             var title = Options.DownloadPageTitle ?? "";
