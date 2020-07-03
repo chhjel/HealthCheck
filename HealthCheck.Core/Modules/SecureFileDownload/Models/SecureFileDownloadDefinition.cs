@@ -92,5 +92,10 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.Models
         /// A note that is displayed on the download page.
         /// </summary>
         public string Note { get; set; }
+
+        /// <summary>
+        /// True if expiration date is set and in the past.
+        /// </summary>
+        public bool IsExpired => ExpiresAt != null && ExpiresAt < DateTimeOffset.Now;
     }
 }

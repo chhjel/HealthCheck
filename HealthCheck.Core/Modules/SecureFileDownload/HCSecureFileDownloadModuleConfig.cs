@@ -9,7 +9,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         public string ComponentName => "SecureFileDownloadPageComponent";
         public string DefaultRootRouteSegment => "downloads";
         public string InitialRoute => "/{0}";
-        public string RoutePath => "/{0}";
+        public string RoutePath => "/{0}/:id?";
         public List<HealthCheckLinkTagModel> LinkTags => new List<HealthCheckLinkTagModel>();
         public List<HealthCheckScriptTagModel> ScriptTags => new List<HealthCheckScriptTagModel>();
     }

@@ -19,7 +19,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         private HCSecureFileDownloadModuleOptions Options { get; }
 
         private const string Q = "\"";
-        private static ListWithExpiration<CachedToken> _tokenCache = new ListWithExpiration<CachedToken>();
+        private static readonly ListWithExpiration<CachedToken> _tokenCache = new ListWithExpiration<CachedToken>();
         private struct CachedToken
         {
             public string Token;
@@ -58,7 +58,8 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => null;
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context)
+            => null; // Todo: list storage implementations id+name for dropdown
 
         /// <summary>
         /// Get config for this module.
@@ -94,12 +95,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         [HealthCheckModuleMethod(requiresAccessTo: AccessOption.ViewDefinitions)]
         public SecureFileDownloadsViewModel GetDownloads()
         {
-            var definitions = Options.DefinitionStorage.GetDefinitions()
-                .Select(x =>
-                {
-                    x.Password = null;
-                    return x;
-                });
+            var definitions = Options.DefinitionStorage.GetDefinitions();
 
             return new SecureFileDownloadsViewModel
             {
@@ -108,31 +104,40 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         }
 
         /// <summary>
-        /// Create a new definition.
+        /// Create or update a definition.
         /// </summary>
         [HealthCheckModuleMethod(requiresAccessTo: AccessOption.CreateDefinition)]
-        public SecureFileDownloadDefinition CreateDefinition(HealthCheckModuleContext context, SecureFileDownloadDefinition definition)
+        public SecureFileDownloadDefinition SaveDefinition(HealthCheckModuleContext context, SecureFileDownloadDefinition definition)
         {
-            definition.CreatedAt = definition.LastModifiedAt = DateTimeOffset.Now;
-            definition.CreatedByUsername = definition.LastModifiedByUsername = context.UserName;
-            definition.CreatedByUserId = definition.LastModifiedByUserId = context.UserId;
+            var existing = Options.DefinitionStorage.GetDefinition(definition.Id);
+            var isNew = existing == null;
+            if (isNew)
+            {
+                definition.CreatedAt = DateTimeOffset.Now;
+                definition.CreatedByUsername = context.UserName;
+                definition.CreatedByUserId = context.UserId;
+                context.AddAuditEvent("Create download", definition.FileName);
+            }
+            else
+            {
+                definition.CreatedAt = existing.CreatedAt;
+                definition.CreatedByUsername = existing.CreatedByUsername;
+                definition.CreatedByUserId = existing.CreatedByUserId;
+                context.AddAuditEvent("Edit download", definition.FileName);
+            }
 
-            context.AddAuditEvent("Create download", definition.FileName);
-            return Options.DefinitionStorage.CreateDefinition(definition);
-        }
-
-        /// <summary>
-        /// Update a stored definition.
-        /// </summary>
-        [HealthCheckModuleMethod(requiresAccessTo: AccessOption.EditDefinition)]
-        public SecureFileDownloadDefinition UpdateDefinition(HealthCheckModuleContext context, SecureFileDownloadDefinition definition)
-        {
             definition.LastModifiedAt = DateTimeOffset.Now;
             definition.LastModifiedByUsername = context.UserName;
             definition.LastModifiedByUserId = context.UserId;
 
-            context.AddAuditEvent("Update download", definition.FileName);
-            return Options.DefinitionStorage.UpdateDefinition(definition);
+            if (isNew)
+            {
+                return Options.DefinitionStorage.CreateDefinition(definition);
+            }
+            else
+            {
+                return Options.DefinitionStorage.UpdateDefinition(definition);
+            }
         }
 
         /// <summary>
@@ -347,7 +352,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         private static string ValidateDownload(SecureFileDownloadDefinition definition, ISecureFileDownloadFileStorage storage)
         {
             string definitionValidationError = null;
-            if (definition.ExpiresAt != null && definition.ExpiresAt < DateTimeOffset.Now)
+            if (definition.IsExpired)
             {
                 definitionValidationError = $"The download link expired at {definition.ExpiresAt}.";
             }
