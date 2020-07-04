@@ -694,7 +694,6 @@ namespace CodeTesting
     }
 
     openScript(script: DynamicCodeScript, updateUrl: boolean = true): void {
-        console.log(`openScript(${script.Id})`)
         this.currentScript = script;
         this.code = this.currentScript.Code;
 

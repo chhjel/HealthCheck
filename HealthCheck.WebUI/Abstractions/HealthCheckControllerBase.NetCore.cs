@@ -4,6 +4,7 @@ using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Modules;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Util;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -51,7 +53,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         protected HealthCheckControllerBase()
         {
-            Helper = new HealthCheckControllerHelper<TAccessRole>();
+            Helper = new HealthCheckControllerHelper<TAccessRole>(() => GetPageOptions());
         }
 
 #region Abstract
@@ -132,6 +134,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// Invokes a module method.
         /// </summary>
         [HideFromRequestLog]
+        [HttpPost]
         public async Task<ActionResult> InvokeModuleMethod(string moduleId, string methodName, string jsonPayload)
         {
             if (!Enabled) return NotFound();
@@ -142,6 +145,37 @@ namespace HealthCheck.WebUI.Abstractions
                 return NotFound();
             }
             return Content(result.Result);
+        }
+
+        /// <summary>
+        /// Used for any dynamic actions from registered modules.
+        /// </summary>
+        [HideFromRequestLog]
+        [HttpGet("{actionName}")]
+        public IActionResult HandleUnknownAction(string actionName)
+        {
+            ActionResult CreateContentResult(string content) => Content(content);
+            FileResult CreateFileResult(Stream stream, string filename) => File(stream, "content-disposition", filename);
+
+            var url = Request.GetDisplayUrl();
+            url = url.Substring(url.ToLower().Trim().IndexOf($"/{actionName.ToLower()}"));
+
+            var content = Helper.InvokeModuleAction(CurrentRequestInformation, actionName, url).Result;
+            if (content?.HasAccess == true && content.Result != null)
+            {
+                var result = content.Result;
+                if (result is string contentStr)
+                {
+                    return CreateContentResult(contentStr);
+                }
+                else if (result is HealthCheckFileStreamResult stream)
+                {
+                    var filename = stream.FileName;
+                    CreateFileResult(stream.ContentStream, filename).ExecuteResult(this.ControllerContext);
+                }
+            }
+
+            return NotFound();
         }
 
         /// <summary>
@@ -158,6 +192,14 @@ namespace HealthCheck.WebUI.Abstractions
         }
 #endregion
 
+#region Virtuals
+        /// <summary>
+        /// Resolve client ip from the current request.
+        /// </summary>
+        protected virtual string GetRequestIP(ActionExecutingContext context)
+            => RequestUtils.GetIPAddress(context?.HttpContext);
+#endregion
+
 #region Overrides
         /// <summary>
         /// Calls GetRequestInformation and SetOptions.
@@ -167,7 +209,9 @@ namespace HealthCheck.WebUI.Abstractions
             var request = context?.HttpContext?.Request;
 
             CurrentRequestInformation = GetRequestInformation(request);
+            CurrentRequestInformation.Method = request?.Method;
             CurrentRequestInformation.Url = request?.GetDisplayUrl();
+            CurrentRequestInformation.ClientIP = GetRequestIP(context);
             CurrentRequestInformation.Headers = request?.Headers.Keys?.ToDictionary(t => t, t => request.Headers[t].ToString())
                 ?? new Dictionary<string, string>();
             

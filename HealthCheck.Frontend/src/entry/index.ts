@@ -12,6 +12,9 @@ import store from './index_store';
 Vue.use(VueRouter)
 import createRouter from './index_routes';
 
+// Special pages
+import DownloadPageComponent from '../components/modules/SecureFileDownload/DownloadPageComponent.vue';
+
 // Extensions
 import "../util/extensions/StringExtensions";
 import "../util/extensions/ArrayExtensions";
@@ -36,23 +39,44 @@ Vue.use(Vuetify, {
 });
 
 let moduleConfig = ((window as any).healthCheckModuleConfigs) as Array<ModuleConfig>;
-const router = createRouter(moduleConfig);
 
-let v = new Vue({
-	el: "#app",
-	template: `
-    <div>
-        <health-check-page-component 
-            :module-config="moduleConfig"
-            />
-    </div>
-    `,
-	store: store,
-	router: router,
-	data: {
-        moduleConfig: moduleConfig
-    },
-	components: {
-        HealthCheckPageComponent
-	}
-});
+if (document.getElementById("app") !== null)
+{
+	const router = createRouter(moduleConfig);
+	
+	let v = new Vue({
+		el: "#app",
+		template: `
+		<div>
+			<health-check-page-component 
+				:module-config="moduleConfig"
+				/>
+		</div>
+		`,
+		store: store,
+		router: router,
+		data: {
+			moduleConfig: moduleConfig
+		},
+		components: {
+			HealthCheckPageComponent
+		}
+	});
+}
+else if (document.getElementById("app-download") !== null)
+{
+	let v = new Vue({
+		el: "#app-download",
+		template: `
+		<div>
+			<download-page-component />
+		</div>
+		`,
+		data: {
+			moduleConfig: moduleConfig
+		},
+		components: {
+			DownloadPageComponent
+		}
+	});
+}

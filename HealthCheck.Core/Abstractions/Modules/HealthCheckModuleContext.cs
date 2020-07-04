@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.AuditLog.Models;
 using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Modules;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -38,9 +39,24 @@ namespace HealthCheck.Core.Abstractions.Modules
         public object CurrentRequestModuleAccessOptions { get; set; }
 
         /// <summary>
+        /// Details about the current request.
+        /// </summary>
+        public HealthCheckModuleRequestData Request { get; set; }
+
+        /// <summary>
         /// List of modules the request has access to.
         /// </summary>
         public List<ModuleAccess> CurrentRequestModulesAccess { get; set; }
+
+        /// <summary>
+        /// Url to the javascripts for the UI.
+        /// </summary>
+        public List<string> JavaScriptUrls { get; set; }
+
+        /// <summary>
+        /// Url to the assets for the UI.
+        /// </summary>
+        public List<string> CssUrls { get; set; }
 
         /// <summary>
         /// Get <see cref="CurrentRequestModuleAccessOptions"/> as the given type.
@@ -90,7 +106,7 @@ namespace HealthCheck.Core.Abstractions.Modules
         /// <summary>
         /// All currently loaded modules.
         /// </summary>
-        public ReadOnlyCollection<HealthCheckModuleLoader.HealthCheckLoadedModule> LoadedModules { get; set; }
+        public ReadOnlyCollection<HealthCheckLoadedModule> LoadedModules { get; set; }
 
         /// <summary>
         /// Register audit events.

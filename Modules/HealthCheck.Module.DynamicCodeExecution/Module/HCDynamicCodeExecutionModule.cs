@@ -98,6 +98,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
             else
             {
                 context.AddAuditEvent("ExecuteCode", $"Executed code.")
+                    .AddClientConnectionDetails(context)
                     .AddBlob("Code", source.Code, onlyIfThisIsTrue: Options.StoreCopyOfExecutedScriptsAsAuditBlobs);
 #if NETFULL
                 var executor = CreateExecutor();

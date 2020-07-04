@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HealthCheck.Core.Util.Modules;
 
 #if NETFULL
 using System.IO;
@@ -30,11 +31,14 @@ namespace HealthCheck.WebUI.Util
     /// </summary>
     internal class HealthCheckControllerHelper<TAccessRole>
     {
+        private readonly Func<HCPageOptions> _pageOptionsGetter;
+
         /// <summary>
         /// Initialize a new HealthCheck helper with the given services.
         /// </summary>
-        public HealthCheckControllerHelper()
+        public HealthCheckControllerHelper(Func<HCPageOptions> pageOptionsGetter)
         {
+            _pageOptionsGetter = pageOptionsGetter;
             AccessConfig.RoleModuleAccessLevels = RoleModuleAccessLevels;
         }
 
@@ -52,8 +56,8 @@ namespace HealthCheck.WebUI.Util
             => GetModulesRequestHasAccessTo(currentRequestAccessRoles).Count > 0;
 
         #region Modules
-        private List<HealthCheckModuleLoader.HealthCheckLoadedModule> LoadedModules { get; set; }
-            = new List<HealthCheckModuleLoader.HealthCheckLoadedModule>();
+        private List<HealthCheckLoadedModule> LoadedModules { get; set; }
+            = new List<HealthCheckLoadedModule>();
         private List<RegisteredModuleData> RegisteredModules { get; set; } = new List<RegisteredModuleData>();
         private class RegisteredModuleData
         {
@@ -63,10 +67,10 @@ namespace HealthCheck.WebUI.Util
 
         private List<ModuleAccessData<TAccessRole>> RoleModuleAccessLevels { get; set; } = new List<ModuleAccessData<TAccessRole>>();
 
-        private List<HealthCheckModuleLoader.HealthCheckLoadedModule> GetModulesRequestHasAccessTo(Maybe<TAccessRole> accessRoles)
+        private List<HealthCheckLoadedModule> GetModulesRequestHasAccessTo(Maybe<TAccessRole> accessRoles)
             => LoadedModules.Where(x => RequestCanViewModule(accessRoles, x)).ToList();
 
-        private bool RequestCanViewModule(Maybe<TAccessRole> accessRoles, HealthCheckModuleLoader.HealthCheckLoadedModule module)
+        private bool RequestCanViewModule(Maybe<TAccessRole> accessRoles, HealthCheckLoadedModule module)
         {
             if (accessRoles == null)
             {
@@ -79,9 +83,28 @@ namespace HealthCheck.WebUI.Util
         }
 
         private bool RequestHasAccessToModuleMethod(Maybe<TAccessRole> accessRoles,
-            HealthCheckModuleLoader.HealthCheckLoadedModule module, HealthCheckModuleLoader.InvokableMethod method)
+            HealthCheckLoadedModule module, HealthCheckInvokableMethod method)
         {
             var requiredAccessOptions = method.RequiresAccessTo;
+            if (requiredAccessOptions == null)
+            {
+                return RequestCanViewModule(accessRoles, module);
+            }
+
+            var accessOptionsType = requiredAccessOptions.GetType();
+
+            return EnumUtils.GetFlaggedEnumValues(requiredAccessOptions).All(opt =>
+                RoleModuleAccessLevels.Any(x =>
+                    x.AccessOptionsType == accessOptionsType
+                    && EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, x.Roles)
+                    && x.GetAllSelectedAccessOptions().Contains(opt))
+            );
+        }
+
+        private bool RequestHasAccessToModuleAction(Maybe<TAccessRole> accessRoles,
+            HealthCheckLoadedModule module, HealthCheckInvokableAction action)
+        {
+            var requiredAccessOptions = action.RequiresAccessTo;
             if (requiredAccessOptions == null)
             {
                 return RequestCanViewModule(accessRoles, module);
@@ -117,6 +140,84 @@ namespace HealthCheck.WebUI.Util
             catch (Exception)
             {
                 throw new HCException($"Invalid module '{moduleType?.Name}' registered.");
+            }
+        }
+
+        private class HealthCheckInvokableActionWithModule
+        {
+            public HealthCheckInvokableAction Action { get; set; }
+            public HealthCheckLoadedModule Module { get; set; }
+        }
+        private IEnumerable<HealthCheckInvokableActionWithModule> GetInvokableActionsRequestHasAccessTo(RequestInformation<TAccessRole> requestInfo)
+        {
+            var accessRoles = requestInfo.AccessRole;
+
+            var modules = GetModulesRequestHasAccessTo(accessRoles);
+            if (modules == null || !modules.Any())
+            {
+                return Enumerable.Empty<HealthCheckInvokableActionWithModule>();
+            }
+
+            var methods = new List<HealthCheckInvokableActionWithModule>();
+            foreach(var module in modules)
+            {
+                var actions = module.CustomActions;
+                foreach(var action in actions)
+                {
+                    if (RequestHasAccessToModuleAction(accessRoles, module, action))
+                    {
+                        methods.Add(new HealthCheckInvokableActionWithModule
+                        {
+                            Action = action,
+                            Module = module
+                        });
+                    }
+                }
+            }
+            return methods;
+        }
+
+        internal async Task<InvokeModuleActionResult> InvokeModuleAction(
+            RequestInformation<TAccessRole> requestInfo, string actionName, string url)
+        {
+            var match = GetInvokableActionsRequestHasAccessTo(requestInfo)
+                .FirstOrDefault(x => x.Action.Name?.Trim()?.ToLower() == actionName?.ToLower()?.Trim());
+            if (match == null)
+            {
+                return new InvokeModuleActionResult();
+            }
+
+            var accessRoles = requestInfo.AccessRole;
+            var action = match.Action;
+            var module = match.Module;
+
+            var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Module);
+            try
+            {
+                var result = await action.Invoke(module.Module, context, url);
+                return new InvokeModuleActionResult()
+                {
+                    HasAccess = true,
+                    Result = result
+                };
+            }
+            catch (Exception ex)
+            {
+                return new InvokeModuleActionResult()
+                {
+                    HasAccess = true,
+                    Result = $"Exception: {ex.Message}"
+                };
+            }
+            finally
+            {
+                if (context?.AuditEvents != null && context.AuditEvents.Count > 0)
+                {
+                    foreach (var e in context.AuditEvents)
+                    {
+                        await AuditEventService.StoreEvent(e);
+                    }
+                }
             }
         }
 
@@ -192,17 +293,32 @@ namespace HealthCheck.WebUI.Util
                     .ToList();
             }
 
+            var request = new HealthCheckModuleRequestData()
+            {
+                Method = requestInfo.Method,
+                Headers = requestInfo.Headers,
+                RelativeUrl = requestInfo.Url,
+                ClientIP = requestInfo.ClientIP
+            };
+
+            var pageOptions = _pageOptionsGetter?.Invoke();
+
             return new HealthCheckModuleContext()
             {
                 UserId = requestInfo.UserId,
                 UserName = requestInfo.UserName,
                 ModuleName = moduleName,
 
+                JavaScriptUrls = pageOptions?.JavaScriptUrls ?? new List<string>(),
+                CssUrls = pageOptions?.CssUrls ?? new List<string>(),
+
                 CurrentRequestRoles = accessRoles.Value,
                 CurrentRequestModuleAccessOptions = GetCurrentRequestModuleAccessOptions(accessRoles, module?.GetType()),
 
                 CurrentRequestModulesAccess = moduleAccess,
-                LoadedModules = LoadedModules.AsReadOnly()
+                LoadedModules = LoadedModules.AsReadOnly(),
+
+                Request = request
             };
         }
 
@@ -216,6 +332,11 @@ namespace HealthCheck.WebUI.Util
         {
             public string Result { get; set; }
             public bool HasAccess { get; set; }
+        }
+        internal class InvokeModuleActionResult
+        {
+            public bool HasAccess { get; set; }
+            public object Result { get; set; }
         }
 
         private object GetModuleFrontendOptions(Maybe<TAccessRole> accessRoles)

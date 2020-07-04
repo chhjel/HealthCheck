@@ -1,4 +1,5 @@
 import FrontEndOptionsViewModel from "../../models/Common/FrontEndOptionsViewModel";
+import KeyValuePair from "../../models/Common/KeyValuePair";
 
 export class FetchStatus
 {
@@ -73,7 +74,8 @@ export default class HCServiceBase
         payload: any | null = null,
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<T> | null = null,
-        json: boolean = true
+        json: boolean = true,
+        headers: Record<string, string> | null = null
     ): void
     {
         if (statusObject != null)
@@ -95,7 +97,7 @@ export default class HCServiceBase
             credentials: 'include',
             method: method,
             body: payloadJson,
-            headers: new Headers({
+            headers: headers || new Headers({
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
             })

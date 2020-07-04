@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Modules.AuditLog.Abstractions;
+﻿using HealthCheck.Core.Abstractions.Modules;
+using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using System;
 using System.Collections.Generic;
 
@@ -105,6 +106,16 @@ namespace HealthCheck.Core.Modules.AuditLog.Models
             }
 
             _blobContents.Add(new KeyValuePair<string, string>(name, contents ?? ""));
+            return this;
+        }
+
+        /// <summary>
+        /// Add ip address and user agent data.
+        /// </summary>
+        public AuditEvent AddClientConnectionDetails(HealthCheckModuleContext context)
+        {
+            AddDetail("Client IP", context.Request.ClientIP);
+            AddDetail("Client User-Agent", context.Request.UserAgent);
             return this;
         }
 

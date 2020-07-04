@@ -1,6 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Tests.ModuleSystem.Helpers;
-using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Modules;
 using Xunit;
 using Xunit.Abstractions;
 

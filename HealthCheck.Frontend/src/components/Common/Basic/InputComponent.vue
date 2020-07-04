@@ -37,6 +37,8 @@
                 Insert placeholder
             </v-tooltip>
         </v-textarea>
+
+        <div class="input-component--error" v-if="error != null && error.length > 0">{{ error }}</div>
     </div>
 </template>
 
@@ -63,11 +65,17 @@ export default class InputComponent extends Vue
     @Prop({ required: false, default: 'text' })
     type!: string;
     
+    @Prop({ required: false, default: null})
+    error!: string | null;
+    
     @Prop({ required: false, default: '' })
     uiHints!: string;
     
     @Prop({ required: false, default: false })
     disabled!: boolean;
+    
+    @Prop({ required: false, default: false })
+    showDescriptionOnStart!: boolean;
 
     showDescription: boolean = false;
     currentValue: string = '';
@@ -79,6 +87,7 @@ export default class InputComponent extends Vue
     ////////////////
     created(): void {
         this.currentValue = this.value;
+        this.showDescription = this.hasDescription && this.showDescriptionOnStart;
     }
 
     mounted(): void {
@@ -167,6 +176,13 @@ export default class InputComponent extends Vue
 
     .v-input {
         padding-top: 0;
+    }
+
+    .input-component--error {
+        margin-top: -21px;
+        margin-left: 2px;
+        font-weight: 600;
+        color: var(--v-error-base) !important;
     }
 }
 </style>

@@ -19,6 +19,7 @@ Available modules:
 * Settings module for custom settings related to healthcheck.
 * IDE where C# scripts can be stored and executed in the context of the web application.
 * Access token module where tokens with limited access and lifespan can be created.
+* Downloads module where files can be made available for download, optionally protected by password, expiration date and download count limit.
 
 ## Getting started
 
@@ -515,36 +516,6 @@ UseModule(new HCDynamicCodeExecutionModule(new HCDynamicCodeExecutionModuleOptio
 
 ----------
 
-## Module: Documentation
-
-Work in progress. At the moment sequence diagrams and flowcharts generated from decorated code will be shown.
-
-The default implementations searches through any given assemblies for methods decorated with `SequenceDiagramStepAttribute` and `FlowChartStepAttribute` and generate diagrams using them.
-
-### Setup
-
-```csharp
-UseModule(new HCDocumentationModule(new HCDocumentationModuleOptions()
-{
-    SequenceDiagramService = ISequenceDiagramService implementation,
-    FlowChartsService = IFlowChartsService implementation
-}));
-```
-
-```csharp
-// Built in implementation examples
-SequenceDiagramService = new DefaultSequenceDiagramService(new DefaultSequenceDiagramServiceOptions()
-{
-    DefaultSourceAssemblies = new[] { typeof(MyController).Assembly }
-}),
-FlowChartsService = new DefaultFlowChartService(new DefaultFlowChartServiceOptions()
-{
-    DefaultSourceAssemblies = new[] { typeof(MyController).Assembly }
-})
-```
-
-----------
-
 ## Module: Dataflow
 
 If the Dataflow module is enabled the dataflow tab will become available where custom data can be shown.
@@ -815,6 +786,62 @@ EventSinkUtil.TryRegisterEvent("thing_imported", () => new { Type = "etc", Value
 
 </p>
 </details>
+
+----------
+
+## Module: Downloads
+
+The downloads module allow files to be made available for download, optionally protected by password, expiration date and download count limit. Downloads are tracked in the audit log. Built-in implementations: `FlatFileSecureFileDownloadDefinitionStorage` for download definition storage, and two file storage implementations: `FolderFileStorage` and `UrlFileStorage`. 
+
+### Setup
+
+```csharp
+UseModule(new HCSecureFileDownloadModule(new HCSecureFileDownloadModuleOptions()
+{
+    DefinitionStorage = ISecureFileDownloadDefinitionStorage implementation,
+    FileStorages = new ISecureFileDownloadFileStorage[]
+    {
+        new FolderFileStorage("disk_a", "Disk location A", @"e:\files\Folder A"),
+        new FolderFileStorage("disk_b", "Disk location B", @"e:\files\Folder B"),
+        new UrlFileStorage("url", "External url")
+    }
+}));
+```
+
+```csharp
+// Built in implementation examples
+var downloadDefinitionStorage = new FlatFileSecureFileDownloadDefinitionStorage(@"e:\config\download_definitions.json");;
+```
+
+----------
+
+## Module: Documentation
+
+Work in progress. At the moment sequence diagrams and flowcharts generated from decorated code will be shown.
+
+The default implementations searches through any given assemblies for methods decorated with `SequenceDiagramStepAttribute` and `FlowChartStepAttribute` and generate diagrams using them.
+
+### Setup
+
+```csharp
+UseModule(new HCDocumentationModule(new HCDocumentationModuleOptions()
+{
+    SequenceDiagramService = ISequenceDiagramService implementation,
+    FlowChartsService = IFlowChartsService implementation
+}));
+```
+
+```csharp
+// Built in implementation examples
+SequenceDiagramService = new DefaultSequenceDiagramService(new DefaultSequenceDiagramServiceOptions()
+{
+    DefaultSourceAssemblies = new[] { typeof(MyController).Assembly }
+}),
+FlowChartsService = new DefaultFlowChartService(new DefaultFlowChartServiceOptions()
+{
+    DefaultSourceAssemblies = new[] { typeof(MyController).Assembly }
+})
+```
 
 ----------
 

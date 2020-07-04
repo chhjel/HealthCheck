@@ -7,7 +7,7 @@
         <v-flex class="pl-4 pr-4 pb-4">
           <!-- CONTENT BEGIN -->
             <v-container>
-                <h1 class="mb-4">Access Tokens</h1>
+                <h1 class="mb-1">Access Tokens</h1>
 
                 <!-- LOAD PROGRESS -->
                 <v-progress-linear 
@@ -39,7 +39,7 @@
                 </v-btn>
 
                 <div v-if="canViewTokenData"
-                    class="mt-4 token-items">
+                    class="token-items">
                     <block-component
                         class="token-item mb-3"
                         v-for="(token, tokenIndex) in tokens"

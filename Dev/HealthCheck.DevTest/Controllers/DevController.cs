@@ -51,6 +51,10 @@ using System.Web.Hosting;
 using System.Web.Http;
 using System.Web.Mvc;
 using HealthCheck.Core.Modules.AuditLog.Services;
+using HealthCheck.Core.Modules.SecureFileDownload;
+using HealthCheck.Core.Modules.SecureFileDownload.FileStorage;
+using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
+using HealthCheck.Core.Modules.SecureFileDownload.Models;
 
 namespace HealthCheck.DevTest.Controllers
 {
@@ -71,6 +75,8 @@ namespace HealthCheck.DevTest.Controllers
             = new FlatFileEventSinkNotificationConfigStorage(@"c:\temp\eventconfigs.json");
         private static readonly FlatFileEventSinkKnownEventDefinitionsStorage EventSinkNotificationDefinitionStorage
             = new FlatFileEventSinkKnownEventDefinitionsStorage(@"c:\temp\eventconfig_defs.json");
+        private static readonly FlatFileSecureFileDownloadDefinitionStorage FlatFileSecureFileDownloadDefinitionStorage
+            = new FlatFileSecureFileDownloadDefinitionStorage(@"c:\temp\securefile_defs.json");
         private IHealthCheckSettingsService SettingsService { get; set; } = new FlatFileHealthCheckSettingsService<TestSettings>(@"C:\temp\settings.json");
         private IDataflowService<RuntimeTestAccessRole> DataflowService { get; set; }
         private IEventDataSink EventSink { get; set; }
@@ -82,6 +88,15 @@ namespace HealthCheck.DevTest.Controllers
         {
             InitServices();
 
+            UseModule(new HCSecureFileDownloadModule(new HCSecureFileDownloadModuleOptions()
+            {
+                DefinitionStorage = FlatFileSecureFileDownloadDefinitionStorage,
+                FileStorages = new ISecureFileDownloadFileStorage[]
+                {
+                    new FolderFileStorage("files_test", "Disk storage", @"C:\temp\fileStorageTest"),
+                    new UrlFileStorage("urls_test", "External url")
+                }
+            }));
             UseModule(new HCAccessTokensModule(new HCAccessTokensModuleOptions()
             {
                 TokenStorage = new FlatFileAccessManagerTokenStorage(@"C:\temp\AccessTokens.json")
@@ -179,6 +194,7 @@ namespace HealthCheck.DevTest.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCEventNotificationsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCDynamicCodeExecutionModule>(RuntimeTestAccessRole.SystemAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCAccessTokensModule>(RuntimeTestAccessRole.SystemAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCSecureFileDownloadModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
@@ -193,6 +209,35 @@ namespace HealthCheck.DevTest.Controllers
                 User = CurrentRequestInformation?.UserName,
                 SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp)
             });
+
+            if (FlatFileSecureFileDownloadDefinitionStorage.GetDefinitionByUrlSegmentText("test") == null)
+            {
+                FlatFileSecureFileDownloadDefinitionStorage.CreateDefinition(new SecureFileDownloadDefinition
+                {
+                    CreatedAt = DateTimeOffset.Now,
+                    //DownloadCountLimit = 5,
+                    //ExpiresAt = 
+                    FileId = "testA.jpg",
+                    FileName = "Test File A.jpg",
+                    Id = Guid.NewGuid(),
+                    StorageId = "files_test",
+                    UrlSegmentText = "test"
+                });
+            }
+            if (FlatFileSecureFileDownloadDefinitionStorage.GetDefinitionByUrlSegmentText("test_url") == null)
+            {
+                FlatFileSecureFileDownloadDefinitionStorage.CreateDefinition(new SecureFileDownloadDefinition
+                {
+                    CreatedAt = DateTimeOffset.Now,
+                    //DownloadCountLimit = 5,
+                    //ExpiresAt = 
+                    FileId = "https://via.placeholder.com/500x400",
+                    FileName = "Test File B.jpg",
+                    Id = Guid.NewGuid(),
+                    StorageId = "urls_test",
+                    UrlSegmentText = "test_url"
+                });
+            }
 
             if (Request.QueryString.AllKeys.Contains("eventsink"))
             {

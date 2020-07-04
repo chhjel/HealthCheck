@@ -1,12 +1,11 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Tests.Helpers;
 using HealthCheck.Core.Tests.ModuleSystem.Helpers;
-using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Modules;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
-using static HealthCheck.Core.Util.HealthCheckModuleLoader;
 
 namespace HealthCheck.Core.Tests.ModuleSystem
 {
