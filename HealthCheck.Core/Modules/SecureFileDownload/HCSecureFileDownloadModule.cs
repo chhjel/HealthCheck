@@ -453,7 +453,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
             }
             else if (definition.DownloadCountLimit != null && definition.DownloadCount >= definition.DownloadCountLimit)
             {
-                definitionValidationError = "The download link has expired, max download count reached.";
+                definitionValidationError = "The download link has expired, download count limit reached.";
             }
             else if (!storage.HasFile(definition.FileId))
             {
