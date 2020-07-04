@@ -93,8 +93,8 @@ namespace HealthCheck.DevTest.Controllers
                 DefinitionStorage = FlatFileSecureFileDownloadDefinitionStorage,
                 FileStorages = new ISecureFileDownloadFileStorage[]
                 {
-                    new FolderFileStorage("files_test", @"C:\temp\fileStorageTest"),
-                    new UrlFileStorage("urls_test")
+                    new FolderFileStorage("files_test", "Disk storage", @"C:\temp\fileStorageTest"),
+                    new UrlFileStorage("urls_test", "External url")
                 }
             }));
             UseModule(new HCAccessTokensModule(new HCAccessTokensModuleOptions()

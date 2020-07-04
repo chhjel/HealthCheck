@@ -69,7 +69,7 @@
                 <!-- NOTES -->
                 <block-component class="mb-4"
                     v-if="data.download.note !== null">
-                    {{ data.download.note }}
+                    <div class="download-note">{{ data.download.note }}</div>
                 </block-component>
 
                 <!-- EXPIRATION -->
@@ -327,13 +327,17 @@ export default class DownloadPageComponent extends Vue {
     text-align: center;
     
     .content-root {
-        max-width: 600px;
+        max-width: 800px;
     }
 
     .downloading-content {
         display: flex;
         justify-content: center;
         align-items: center;
+    }
+
+    .download-note {
+        white-space: pre-wrap;
     }
 }
 </style>

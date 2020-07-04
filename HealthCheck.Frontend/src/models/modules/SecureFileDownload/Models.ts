@@ -28,3 +28,15 @@ export interface SecureFileDownloadSaveViewModel {
     ErrorMessage: string | null;
     Definition: SecureFileDownloadDefinition;
 }
+
+export interface SecureFileDownloadFrontendOptionsModel {
+    StorageInfos: Array<SecureFileDownloadStorageInfo>;
+}
+
+export interface SecureFileDownloadStorageInfo
+{
+    StorageId: string;
+    StorageName: string;
+    FileIdInfo: string;
+    FileIdLabel: string;
+}

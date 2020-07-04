@@ -59,7 +59,20 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         /// Get frontend options for this module.
         /// </summary>
         public override object GetFrontendOptionsObject(HealthCheckModuleContext context)
-            => null; // Todo: list storage implementations id+name for dropdown
+        {
+            var model = new SecureFileDownloadFrontendOptionsModel();
+            foreach(var storage in Options.FileStorages)
+            {
+                model.StorageInfos.Add(new SecureFileDownloadStorageInfo()
+                {
+                    StorageId = storage.StorageId,
+                    StorageName = storage.StorageName,
+                    FileIdInfo = storage.FileIdInfo,
+                    FileIdLabel = storage.FileIdLabel
+                });
+            }
+            return model;
+        }
 
         /// <summary>
         /// Get config for this module.
@@ -104,6 +117,16 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         }
 
         /// <summary>
+        /// Get fileId options for a given storage.
+        /// </summary>
+        [HealthCheckModuleMethod(requiresAccessTo: AccessOption.CreateDefinition)]
+        public List<string> GetStorageFileIdOptions(string storageId)
+        {
+            var storage = Options.FileStorages.FirstOrDefault(x => x.StorageId == storageId);
+            return storage?.GetFileIdOptions()?.ToList() ?? new List<string>();
+        }
+
+        /// <summary>
         /// Create or update a definition.
         /// </summary>
         [HealthCheckModuleMethod(requiresAccessTo: AccessOption.CreateDefinition)]
@@ -118,14 +141,20 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
                 definition.CreatedAt = DateTimeOffset.Now;
                 definition.CreatedByUsername = context.UserName;
                 definition.CreatedByUserId = context.UserId;
-                context.AddAuditEvent("Create download", definition.FileName);
+                context.AddAuditEvent("Create download", definition.FileName)
+                    .AddDetail("File Name", definition.FileName)
+                    .AddDetail("File Id", definition.FileId)
+                    .AddDetail("Storage Id", definition.StorageId);
             }
             else
             {
                 definition.CreatedAt = existing.CreatedAt;
                 definition.CreatedByUsername = existing.CreatedByUsername;
                 definition.CreatedByUserId = existing.CreatedByUserId;
-                context.AddAuditEvent("Edit download", definition.FileName);
+                context.AddAuditEvent("Edit download", definition.FileName)
+                    .AddDetail("File Name", definition.FileName)
+                    .AddDetail("File Id", definition.FileId)
+                    .AddDetail("Storage Id", definition.StorageId);
             }
 
             var validationError = ValidateDefinitionBeforeSave(definition, isNew, existing?.UrlSegmentText);
@@ -170,7 +199,10 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
                 return false;
             }
 
-            context.AddAuditEvent("Remove download", definition.FileName);
+            context.AddAuditEvent("Remove download", definition.FileName)
+                .AddDetail("File Name", definition.FileName)
+                .AddDetail("File Id", definition.FileId)
+                .AddDetail("Storage Id", definition.StorageId);
             Options.DefinitionStorage.DeleteDefinition(id);
             return true;
         }
@@ -353,8 +385,9 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
             definition = Options.DefinitionStorage.UpdateDefinition(definition);
 
             // Store audit data
-            context.AddAuditEvent("Secure file download", definition.FileName)
+            context.AddAuditEvent("File download", definition.FileName)
                 .AddClientConnectionDetails(context)
+                .AddDetail("File Name", definition.FileName)
                 .AddDetail("File Id", definition.FileId)
                 .AddDetail("Storage Id", definition.StorageId);
 
@@ -382,7 +415,19 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
             {
                 return "A text for the url must be set.";
             }
-            
+
+            var storage = Options.FileStorages.FirstOrDefault(x => x.StorageId == definition.StorageId);
+            if (storage == null)
+            {
+                return $"No storage with the id '{definition.StorageId}' was found.";
+            }
+
+            var storageFileIdValidation = storage.ValidateFileIdBeforeSave(definition.FileId);
+            if (!string.IsNullOrWhiteSpace(storageFileIdValidation))
+            {
+                return storageFileIdValidation;
+            }
+
             // Prevent creating new with same url text as an existing one
             if (isNew
                 && Options.DefinitionStorage.GetDefinitionByUrlSegmentText(definition.UrlSegmentText.Trim()) != null)

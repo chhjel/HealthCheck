@@ -8,8 +8,8 @@
         </v-alert>
 
         <!-- ###### FILE ###### -->
-        <block-component class="mb-5" title="File">
-            <div class="mb-2" style="font-weight: 600"
+        <block-component class="mb-5">
+            <div class="mb-4" style="font-weight: 600"
                 v-if="absoluteDownloadUrl != null"
                 >Download link: <a :href="absoluteDownloadUrl">{{ absoluteDownloadUrl }}</a> </div>
 
@@ -32,29 +32,56 @@
                 type="text"
                 :error="validateUrlSegmentText"
                 />
-                
-            <input-component
+            
+            <select-component
                 class="mt-2"
                 v-model="internalDownload.StorageId"
+                :items="storageOptions"
                 :disabled="!allowChanges"
-                name="Storage id"
-                description="Id of the storage implementation to get the file from."
-                type="text"
+                name="Where to get file from"
+                @input="onStorageChanged()"
                 />
-                
-            <input-component
+            
+            <select-component
+                v-if="hasFileIdOptions"
                 class="mt-2"
                 v-model="internalDownload.FileId"
+                :error="validateFileId"
+                :items="fileIdOptions"
                 :disabled="!allowChanges"
-                name="File id"
-                description="Id of the file to download. This value is passed to the storage implementation."
+                :loading="fileIdOptionsLoadStatus.inProgress"
+                :name="getStorageFileIdLabel(internalDownload.StorageId)"
+                :description="getStorageFileIdInfo(internalDownload.StorageId)"
+                show-description-on-start="true"
+                />
+            
+            <input-component
+                v-if="!hasFileIdOptions"
+                class="mt-2"
+                v-model="internalDownload.FileId"
+                :error="validateFileId"
+                :disabled="!allowChanges"
+                :name="getStorageFileIdLabel(internalDownload.StorageId)"
+                :description="getStorageFileIdInfo(internalDownload.StorageId)"
+                show-description-on-start="true"
                 type="text"
+                />
+            
+            <input-component
+                class="mt-2"
+                v-model="internalDownload.Note"
+                :disabled="!allowChanges"
+                name="Note"
+                description="An optional note that will be displayed on the download page."
+                show-description-on-start="true"
+                type="text"
+                ui-hints="TextArea"
                 />
                 
         </block-component>
 
         <!-- ###### LIMITS ###### -->
-        <block-component class="mb-5" title="Limits">
+        <block-component class="mb-5" title="Limits &amp; password">
             <input-component
                 class="mt-2"
                 v-model="internalDownload.DownloadCountLimit"
@@ -144,15 +171,18 @@ import DateUtils from  '../../../util/DateUtils';
 import IdUtils from  '../../../util/IdUtils';
 import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
 import InputComponent from  '../../Common/Basic/InputComponent.vue';
-import { SecureFileDownloadDefinition, SecureFileDownloadSaveViewModel } from "../../../models/modules/SecureFileDownload/Models";
+import SelectComponent from  '../../Common/Basic/SelectComponent.vue';
+import { SecureFileDownloadDefinition, SecureFileDownloadSaveViewModel, SecureFileDownloadStorageInfo } from "../../../models/modules/SecureFileDownload/Models";
 import SecureFileDownloadUtils from "../../../util/SecureFileDownload/SecureFileDownloadUtils";
 import SecureFileDownloadService from "../../../services/SecureFileDownloadService";
+import { FetchStatus } from "../../../services/abstractions/HCServiceBase";
 
 @Component({
     components: {
         SimpleDateTimeComponent,
         BlockComponent,
-        InputComponent
+        InputComponent,
+        SelectComponent
     }
 })
 export default class EditDownloadComponent extends Vue {
@@ -161,6 +191,9 @@ export default class EditDownloadComponent extends Vue {
 
     @Prop({ required: true })
     download!: SecureFileDownloadDefinition;
+
+    @Prop({ required: true })
+    storageInfos!: Array<SecureFileDownloadStorageInfo>;
 
     @Prop({ required: false, default: false })
     readonly!: boolean;
@@ -175,12 +208,18 @@ export default class EditDownloadComponent extends Vue {
     serverInteractionInProgress: boolean = false;
     saveError: string = '';
     showSaveError: boolean = false;
+    fileIdOptions: Array<string> = [];
+    fileIdOptionsLoadStatus: FetchStatus = new FetchStatus();
 
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     created(): void {
         this.onDownloadChanged();
+    }
+
+    mounted(): void {
+        this.updateFileIdChoices();
     }
 
     @Watch("download")
@@ -196,13 +235,29 @@ export default class EditDownloadComponent extends Vue {
     get globalOptions(): FrontEndOptionsViewModel {
         return this.$store.state.globalOptions;
     }
+
+    get hasFileIdOptions(): boolean {
+        return this.fileIdOptions.length > 0;
+    }
     
     get allowChanges(): boolean {
         return !this.readonly && !this.serverInteractionInProgress;
     }
 
-    get absoluteDownloadUrl(): string | null {
-        return `${window.location.origin}${window.location.pathname}/download/${this.internalDownload.UrlSegmentText}`;
+    get absoluteDownloadUrl(): string {
+        return SecureFileDownloadUtils.getAbsoluteDownloadUrl(this.internalDownload.UrlSegmentText);
+    }
+
+    get storageOptions(): any {
+        return this.storageInfos.map(x => {
+                return { text: x.StorageName, value: x.StorageId }
+            });
+    }
+    
+    get validateFileId(): string | null {
+        return (this.internalDownload.FileId == null || this.internalDownload.FileId.length == 0)
+            ? 'A file id is required.'
+            : null;
     }
     
     get validateFileName(): string | null {
@@ -276,6 +331,24 @@ export default class EditDownloadComponent extends Vue {
         }
     }
 
+    updateFileIdChoices(): void {
+        this.service.GetStorageFileIdOptions(this.internalDownload.StorageId, this.fileIdOptionsLoadStatus, {
+            onSuccess: (items) => this.fileIdOptions = items
+        });
+    }
+
+    getStorageFileIdInfo(id: string): string {
+        const info = this.storageInfos.filter(x => x.StorageId == id)[0];
+        if (info == null) return '';
+        else return info.FileIdInfo;
+    }
+
+    getStorageFileIdLabel(id: string): string {
+        const info = this.storageInfos.filter(x => x.StorageId == id)[0];
+        if (info == null) return 'File id';
+        else return info.FileIdLabel || 'File id';
+    }
+
     public tryDeleteDownload(): void {
         this.deleteDialogVisible = true;
     }
@@ -311,6 +384,9 @@ export default class EditDownloadComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    onStorageChanged(): void {
+        this.updateFileIdChoices();
+    }
 }
 </script>
 

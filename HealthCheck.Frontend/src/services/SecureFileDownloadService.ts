@@ -18,6 +18,14 @@ export default class SecureFileDownloadService extends HCServiceBase
         this.invokeModuleMethod(this.moduleId, 'GetDownloads', null, statusObject, callbacks);
     }
     
+    public GetStorageFileIdOptions(
+        storageId: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<Array<string>> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, 'GetStorageFileIdOptions', storageId, statusObject, callbacks);
+    }
+    
     public SaveDefinition(definition: SecureFileDownloadDefinition,
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<SecureFileDownloadSaveViewModel> | null = null

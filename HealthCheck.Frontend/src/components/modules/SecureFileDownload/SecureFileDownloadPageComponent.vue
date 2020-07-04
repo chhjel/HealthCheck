@@ -18,7 +18,9 @@
                 {{ loadStatus.errorMessage }}
                 </v-alert>
 
-                <v-btn :disabled="!allowDownloadChanges"
+                <v-btn
+                    v-if="canCreateNewDownloads"
+                    :disabled="!allowDownloadChanges"
                     @click="onAddNewDownloadClicked"
                     class="mb-3">
                     <v-icon size="20px" class="mr-2">add</v-icon>
@@ -101,6 +103,7 @@
                         <edit-download-component
                             :module-id="config.Id"
                             :download="currentDownload"
+                            :storage-infos="options.Options.StorageInfos"
                             :readonly="!allowDownloadChanges"
                             v-on:downloadDeleted="onDownloadDeleted"
                             v-on:downloadSaved="onDownloadSaved"
@@ -116,6 +119,7 @@
                             :disabled="serverInteractionInProgress"
                             @click="$refs.currentDownloadComponent.tryDeleteDownload()">Delete</v-btn>
                         <v-btn color="success"
+                            v-if="showSaveDownload"
                             :disabled="serverInteractionInProgress"
                             @click="$refs.currentDownloadComponent.saveDownload()">Save</v-btn>
                     </v-card-actions>
@@ -148,7 +152,7 @@ import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
 import ModuleConfig from  '../../../models/Common/ModuleConfig';
 import ModuleOptions from  '../../../models/Common/ModuleOptions';
 import SecureFileDownloadService from "../../../services/SecureFileDownloadService";
-import { SecureFileDownloadsViewModel, SecureFileDownloadDefinition } from "../../../models/modules/SecureFileDownload/Models";
+import { SecureFileDownloadsViewModel, SecureFileDownloadDefinition, SecureFileDownloadFrontendOptionsModel } from "../../../models/modules/SecureFileDownload/Models";
 
 @Component({
     components: {
@@ -162,7 +166,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
     config!: ModuleConfig;
     
     @Prop({ required: true })
-    options!: ModuleOptions<any>;
+    options!: ModuleOptions<SecureFileDownloadFrontendOptionsModel>;
 
     service: SecureFileDownloadService = new SecureFileDownloadService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
 
@@ -206,7 +210,19 @@ export default class SecureFileDownloadPageComponent extends Vue {
     
     get showDeleteDownload(): boolean
     {
-        return this.currentDownload != null && this.currentDownload.Id != null;
+        return this.currentDownload != null
+            && this.currentDownload.Id != null
+            && this.canDeleteDownload;
+    }
+    
+    get showSaveDownload(): boolean
+    {
+        var defaultId = this.getDefaultNewDownloadData().Id;
+
+        if (this.currentDownload == null) return false;
+        else if (this.currentDownload.Id == defaultId && !this.canCreateNewDownloads) return false;
+        else if (this.currentDownload.Id != defaultId && !this.canEditDownloads) return false;
+        else return true;
     }
 
     get allowDownloadChanges(): boolean
@@ -258,11 +274,14 @@ export default class SecureFileDownloadPageComponent extends Vue {
     }
 
     getAbsoluteDownloadUrl(download: SecureFileDownloadDefinition): string {
-        return `${window.location.origin}${window.location.pathname}/download/${download.UrlSegmentText}`;
+        return SecureFileDownloadUtils.getAbsoluteDownloadUrl(download.UrlSegmentText);
     }
 
     loadData(): void {
-        this.service.GetDownloads(this.loadStatus, { onSuccess: (data) => this.onDataRetrieved(data) });
+        if (this.canViewDownload)
+        {
+            this.service.GetDownloads(this.loadStatus, { onSuccess: (data) => this.onDataRetrieved(data) });
+        }
     }
 
     onDataRetrieved(data: SecureFileDownloadsViewModel): void {

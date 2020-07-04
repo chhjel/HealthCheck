@@ -1,5 +1,8 @@
 ﻿using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 
 namespace HealthCheck.Core.Modules.SecureFileDownload.FileStorage
@@ -15,12 +18,29 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.FileStorage
         public string StorageId { get; set; }
 
         /// <summary>
+        /// Name of this storage.
+        /// </summary>
+        public string StorageName { get; set; }
+
+        /// <summary>
+        /// Description to show in the management ui that explains what to enter as file id.
+        /// </summary>
+        public string FileIdInfo => $"Url to download file from.";
+
+        /// <summary>
+        /// Label to show in the management ui above file id field.
+        /// </summary>
+        public string FileIdLabel => "Absolute URL";
+
+        /// <summary>
         /// Gets files from remote urls.
         /// </summary>
         /// <param name="storageId">Id of this storage.</param>
-        public UrlFileStorage(string storageId)
+        /// <param name="storageName">Name of this storage.</param>
+        public UrlFileStorage(string storageId, string storageName)
         {
             StorageId = storageId;
+            StorageName = storageName;
         }
 
         /// <summary>
@@ -65,5 +85,16 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.FileStorage
                 return false;
             }
         }
+
+        /// <summary>
+        /// Checks that the id is a valid url.
+        /// </summary>
+        public virtual string ValidateFileIdBeforeSave(string fileId)
+            => Uri.IsWellFormedUriString(fileId, UriKind.Absolute) ? null : $"'{fileId}' is did not validate as a url.";
+
+        /// <summary>
+        /// Returns null.
+        /// </summary>
+        public IEnumerable<string> GetFileIdOptions() => Enumerable.Empty<string>();
     }
 }

@@ -73,6 +73,9 @@ export default class InputComponent extends Vue
     
     @Prop({ required: false, default: false })
     disabled!: boolean;
+    
+    @Prop({ required: false, default: false })
+    showDescriptionOnStart!: boolean;
 
     showDescription: boolean = false;
     currentValue: string = '';
@@ -84,6 +87,7 @@ export default class InputComponent extends Vue
     ////////////////
     created(): void {
         this.currentValue = this.value;
+        this.showDescription = this.hasDescription && this.showDescriptionOnStart;
     }
 
     mounted(): void {
