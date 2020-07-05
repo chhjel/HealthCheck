@@ -330,6 +330,7 @@ namespace HealthCheck.DevTest.Controllers
             }
 
             var roles = RuntimeTestAccessRole.Guest;
+
             if (request.QueryString["noaccess"] != null)
             {
                 roles = RuntimeTestAccessRole.None;

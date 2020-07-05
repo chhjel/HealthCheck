@@ -101,13 +101,12 @@ namespace HealthCheck.WebUI.Util
             );
         }
 
-        private bool RequestHasAccessToModuleAction(Maybe<TAccessRole> accessRoles,
-            HealthCheckLoadedModule module, HealthCheckInvokableAction action)
+        private bool RequestHasAccessToModuleAction(Maybe<TAccessRole> accessRoles, HealthCheckInvokableAction action)
         {
             var requiredAccessOptions = action.RequiresAccessTo;
             if (requiredAccessOptions == null)
             {
-                return RequestCanViewModule(accessRoles, module);
+                return true;
             }
 
             var accessOptionsType = requiredAccessOptions.GetType();
@@ -151,8 +150,8 @@ namespace HealthCheck.WebUI.Util
         private IEnumerable<HealthCheckInvokableActionWithModule> GetInvokableActionsRequestHasAccessTo(RequestInformation<TAccessRole> requestInfo)
         {
             var accessRoles = requestInfo.AccessRole;
-
-            var modules = GetModulesRequestHasAccessTo(accessRoles);
+            
+            var modules = LoadedModules;
             if (modules == null || !modules.Any())
             {
                 return Enumerable.Empty<HealthCheckInvokableActionWithModule>();
@@ -164,7 +163,7 @@ namespace HealthCheck.WebUI.Util
                 var actions = module.CustomActions;
                 foreach(var action in actions)
                 {
-                    if (RequestHasAccessToModuleAction(accessRoles, module, action))
+                    if (RequestHasAccessToModuleAction(accessRoles, action))
                     {
                         methods.Add(new HealthCheckInvokableActionWithModule
                         {
