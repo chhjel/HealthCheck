@@ -150,7 +150,7 @@
             content-class="confirm-dialog">
             <v-card>
                 <v-card-title class="headline">Save error</v-card-title>
-                <v-card-text>
+                <v-card-text style="overflow: auto;">
                     {{ saveError }}
                 </v-card-text>
                 <v-divider></v-divider>

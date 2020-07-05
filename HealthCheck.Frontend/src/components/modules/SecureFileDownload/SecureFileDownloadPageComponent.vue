@@ -365,7 +365,6 @@ export default class SecureFileDownloadPageComponent extends Vue {
         else if (download.DownloadCountLimit != null
             && download.DownloadCount >= download.DownloadCountLimit)
         {
-            debugger;
             return true;
         }
 
