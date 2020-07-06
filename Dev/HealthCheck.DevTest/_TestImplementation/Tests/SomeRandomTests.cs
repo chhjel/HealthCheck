@@ -52,6 +52,7 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
             string text = "abc",
             string textArea = "abc\ndef",
             int number = 123, int? nullableNumber = 321,
+            long largeNumber = 214124112412123L, long? nullableLargeNumber = 214124112412123L,
             bool boolean = true, bool? nullableBool = null,
             float flooot = 12.34f, float? nullableFlooot = null,
             decimal dec = 11.22m, decimal? nullableDec = null,
@@ -65,11 +66,11 @@ namespace HealthCheck.DevTest._TestImplementation.Tests
         }
 
         [RuntimeTest]
-        public TestResult TestAllDataDumpTypes(int imageWidth = 640, int imageHeight = 480, int imageCount = 10, int linkCount = 4, HttpPostedFileBase file = null)
+        public TestResult TestAllDataDumpTypes(int imageWidth = 640, int imageHeight = 480, int imageCount = 10, int linkCount = 4, HttpPostedFileBase file = null, long largeNumber = 214124112412123L)
         {
             var objectToSerialize = TestResult.CreateWarning($"Some random json object");
 
-            return TestResult.CreateSuccess($"Data has been served.")
+            return TestResult.CreateSuccess($"Data has been served - {largeNumber}")
                 .AddTextData($"File: {file?.FileName ?? "no file selected"}")
                 .AddTimelineData(new[]
                 {

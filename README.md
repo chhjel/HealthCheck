@@ -204,6 +204,7 @@ Executable methods can have parameter with or without default values. Default va
 Supported parameter types:
 * `string`
 * `int`, `int?`
+* `long`, `long?`
 * `float/single`, `float/single?`
 * `double`, `double?`
 * `decimal`, `decimal?`
