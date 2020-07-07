@@ -255,9 +255,12 @@ export default class EditDownloadComponent extends Vue {
     }
     
     get validateFileId(): string | null {
-        return (this.internalDownload.FileId == null || this.internalDownload.FileId.length == 0)
-            ? 'A file id is required.'
-            : null;
+        if (this.internalDownload.FileId == null || this.internalDownload.FileId.length == 0)
+        {
+            const label = this.getStorageFileIdLabel(this.internalDownload.StorageId);
+            return `${label} is required.`;
+        }
+        return null;
     }
     
     get validateFileName(): string | null {
