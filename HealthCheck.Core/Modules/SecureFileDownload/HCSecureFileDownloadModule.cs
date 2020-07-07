@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace HealthCheck.Core.Modules.SecureFileDownload
@@ -254,12 +255,15 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         /// POST. Validate password and get a token in return.
         /// </summary>
         [HealthCheckModuleAction]
-        public string SFDValidatePassword(HealthCheckModuleContext context)
+        public async Task<string> SFDValidatePassword(HealthCheckModuleContext context)
         {
             if (context?.Request?.IsPOST != true)
             {
                 return null;
             }
+            
+            // lazy brute force delay
+            await Task.Delay(3000).ConfigureAwait(false);
 
             if (!context.Request.Headers.ContainsKey("x-id")
                 || !context.Request.Headers.ContainsKey("x-pwd"))

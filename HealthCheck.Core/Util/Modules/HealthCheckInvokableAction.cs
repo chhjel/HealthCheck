@@ -98,7 +98,9 @@ namespace HealthCheck.Core.Util.Modules
 			var result = Method.Invoke(instance, (parameters.Count == 0) ? null : parameters.ToArray());
 			if (result is Task resultTask)
 			{
-				await resultTask.ConfigureAwait(false);
+				var task = Task.Run(() => resultTask);
+				await task.ConfigureAwait(false);
+				task.Wait();
 
 				var resultProperty = resultTask.GetType().GetProperty("Result");
 				result = resultProperty.GetValue(resultTask);

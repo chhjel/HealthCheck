@@ -193,7 +193,7 @@ namespace HealthCheck.WebUI.Util
             var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Module);
             try
             {
-                var result = await action.Invoke(module.Module, context, url);
+                var result = await action.Invoke(module.Module, context, url).ConfigureAwait(false);
                 return new InvokeModuleActionResult()
                 {
                     HasAccess = true,

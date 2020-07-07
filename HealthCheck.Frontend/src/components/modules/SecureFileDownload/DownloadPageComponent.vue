@@ -30,7 +30,6 @@
                             type="error">
                         {{ loadStatus.errorMessage }}
                         </v-alert>
-                        <v-progress-linear color="primary" indeterminate v-if="loadStatus.inProgress"></v-progress-linear>
 
                         <!-- PASSWORD INPUT -->
                         <div v-if="data.download.protected && !isExpired">
@@ -59,10 +58,11 @@
                             :disabled="isDownloadButtonDisabled"
                             >
                             <span style="white-space: normal;">
-                            Download '{{data.download.filename}}'
+                            {{ downloadButtonText }}
                             </span>
                             <v-icon dark right>cloud_download</v-icon>
                         </v-btn>
+                        <v-progress-linear color="primary" indeterminate v-if="loadStatus.inProgress"></v-progress-linear>
                     </div>
                 </block-component>
 
@@ -173,6 +173,14 @@ export default class DownloadPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get downloadButtonText(): string {
+        if (this.loadStatus.inProgress) {
+            return 'Authenticating..';
+        } else {
+            return `Download '${this.data.download.filename}'`;
+        }
+    }
+
     get isExpired(): boolean {
         if (this.data.download.expiresAt != null && this.data.download.expiresAt.getTime() < new Date().getTime())
         {
