@@ -92,7 +92,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         public TModule GetModule<TModule>() where TModule : class
             => Helper.GetModule<TModule>();
-        #endregion
+#endregion
 
 #region Endpoints
         /// <summary>

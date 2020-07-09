@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Routing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -135,11 +136,12 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         [HideFromRequestLog]
         [HttpPost]
-        public async Task<ActionResult> InvokeModuleMethod(string moduleId, string methodName, string jsonPayload)
+        [Route("InvokeModuleMethod")]
+        public async Task<ActionResult> InvokeModuleMethod([FromBody] InvokeModuleMethodRequest model)
         {
             if (!Enabled) return NotFound();
 
-            var result = await Helper.InvokeModuleMethod(CurrentRequestInformation, moduleId, methodName, jsonPayload);
+            var result = await Helper.InvokeModuleMethod(CurrentRequestInformation, model.moduleId, model.methodName, model.jsonPayload);
             if (!result.HasAccess)
             {
                 return NotFound();
@@ -151,11 +153,20 @@ namespace HealthCheck.WebUI.Abstractions
         /// Used for any dynamic actions from registered modules.
         /// </summary>
         [HideFromRequestLog]
-        [HttpGet("{actionName}")]
-        public IActionResult HandleUnknownAction(string actionName)
+        [HttpPost]
+        [Route("{actionName}/{subAction?}")]
+        public IActionResult HandleUnknownAction_POST([FromRoute] string actionName) => HandleUnknownAction_GET(actionName);
+
+        /// <summary>
+        /// Used for any dynamic actions from registered modules.
+        /// </summary>
+        [HideFromRequestLog]
+        [HttpGet]
+        [Route("{actionName}/{subAction?}")]
+        public IActionResult HandleUnknownAction_GET([FromRoute] string actionName)
         {
-            ActionResult CreateContentResult(string content) => Content(content);
-            FileResult CreateFileResult(Stream stream, string filename) => File(stream, "content-disposition", filename);
+            ActionResult CreateContentResult(string content) => Content(content, "text/html");
+            FileResult CreateFileResult(Stream stream, string filename) => File(stream, "text/plain", filename);
 
             var url = Request.GetDisplayUrl();
             url = url.Substring(url.ToLower().Trim().IndexOf($"/{actionName.ToLower()}"));
@@ -171,7 +182,7 @@ namespace HealthCheck.WebUI.Abstractions
                 else if (result is HealthCheckFileStreamResult stream)
                 {
                     var filename = stream.FileName;
-                    CreateFileResult(stream.ContentStream, filename).ExecuteResult(this.ControllerContext);
+                    return CreateFileResult(stream.ContentStream, filename);
                 }
             }
 
@@ -233,7 +244,24 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         protected ActionResult CreateJsonResult(object obj)
             => Content(Helper.SerializeJson(obj), "application/json");
-#endregion
+
+        /// <summary>
+        /// Request model sent to <see cref="InvokeModuleMethod"/>.
+        /// </summary>
+        public class InvokeModuleMethodRequest
+        {
+#pragma warning disable IDE1006 // Naming Styles
+            /// <summary>Id of the module to invoke.</summary>
+            public string moduleId { get; set; }
+
+            /// <summary>Name of the method to invoke.</summary>
+            public string methodName { get; set; }
+
+            /// <summary>Data to passto invoked method.</summary>
+            public string jsonPayload { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
+        }
+        #endregion
     }
 }
 #endif

@@ -5,15 +5,13 @@ VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dev", "Dev", "{B26DDE73-0369-4977-A004-3CCDE2B38825}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.DevTest", "Dev\HealthCheck.DevTest\HealthCheck.DevTest.csproj", "{7692E64E-1510-4362-AE3A-E4BE6A68EDDF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.DevTest.NetFramework", "Dev\HealthCheck.DevTest.NetFramework\HealthCheck.DevTest.NetFramework.csproj", "{7692E64E-1510-4362-AE3A-E4BE6A68EDDF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Core.Tests", "Tests\HealthCheck.Core.Tests\HealthCheck.Core.Tests.csproj", "{D324CB88-6FA9-4F9C-B7DD-EA7906132F6E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.WebUI", "HealthCheck.WebUI\HealthCheck.WebUI.csproj", "{2A641F75-5D28-4BF1-9019-8286FCBD6AC5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Core", "HealthCheck.Core\HealthCheck.Core.csproj", "{DF551DB9-32A9-4519-B19C-2F306A486448}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.DevTest.NetCore", "Dev\HealthCheck.DevTest.NetCore\HealthCheck.DevTest.NetCore.csproj", "{EAEE52BF-3FA7-4D31-824F-CB3A0A4885B6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.WebUI.Tests", "Tests\HealthCheck.WebUI.Tests\HealthCheck.WebUI.Tests.csproj", "{4E0CF690-86CF-47F1-86CE-D837FBA75EF6}"
 EndProject
@@ -33,6 +31,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA", "Modules\HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA\HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA.csproj", "{DE9EA2DB-5D18-4CF8-A3B7-B32D0BF48D96}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{23FF7575-64C7-43DC-9FDB-1FE4BF5A1D3F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Dev.Common", "Dev\HealthCheck.Dev.Common\HealthCheck.Dev.Common.csproj", "{179722CB-48F2-47FB-B2A2-1526959935AE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.DevTest.NetCore_2.2", "Dev\HealthCheck.DevTest.NetCore_2.2\HealthCheck.DevTest.NetCore_2.2.csproj", "{79CCADAE-8802-49BF-A25F-E38158FE6C2D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.DevTest.NetCore_3.1", "Dev\HealthCheck.DevTest.NetCore_3.1\HealthCheck.DevTest.NetCore_3.1.csproj", "{C6B01B68-C3F8-421A-BA2C-AC92726DFACD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,9 +59,6 @@ Global
 		{DF551DB9-32A9-4519-B19C-2F306A486448}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF551DB9-32A9-4519-B19C-2F306A486448}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF551DB9-32A9-4519-B19C-2F306A486448}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EAEE52BF-3FA7-4D31-824F-CB3A0A4885B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EAEE52BF-3FA7-4D31-824F-CB3A0A4885B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EAEE52BF-3FA7-4D31-824F-CB3A0A4885B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E0CF690-86CF-47F1-86CE-D837FBA75EF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4E0CF690-86CF-47F1-86CE-D837FBA75EF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E0CF690-86CF-47F1-86CE-D837FBA75EF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -78,6 +79,18 @@ Global
 		{DE9EA2DB-5D18-4CF8-A3B7-B32D0BF48D96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE9EA2DB-5D18-4CF8-A3B7-B32D0BF48D96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE9EA2DB-5D18-4CF8-A3B7-B32D0BF48D96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{179722CB-48F2-47FB-B2A2-1526959935AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{179722CB-48F2-47FB-B2A2-1526959935AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{179722CB-48F2-47FB-B2A2-1526959935AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{179722CB-48F2-47FB-B2A2-1526959935AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79CCADAE-8802-49BF-A25F-E38158FE6C2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79CCADAE-8802-49BF-A25F-E38158FE6C2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79CCADAE-8802-49BF-A25F-E38158FE6C2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79CCADAE-8802-49BF-A25F-E38158FE6C2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6B01B68-C3F8-421A-BA2C-AC92726DFACD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6B01B68-C3F8-421A-BA2C-AC92726DFACD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6B01B68-C3F8-421A-BA2C-AC92726DFACD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6B01B68-C3F8-421A-BA2C-AC92726DFACD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,12 +98,14 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{7692E64E-1510-4362-AE3A-E4BE6A68EDDF} = {B26DDE73-0369-4977-A004-3CCDE2B38825}
 		{D324CB88-6FA9-4F9C-B7DD-EA7906132F6E} = {23FF7575-64C7-43DC-9FDB-1FE4BF5A1D3F}
-		{EAEE52BF-3FA7-4D31-824F-CB3A0A4885B6} = {B26DDE73-0369-4977-A004-3CCDE2B38825}
 		{4E0CF690-86CF-47F1-86CE-D837FBA75EF6} = {23FF7575-64C7-43DC-9FDB-1FE4BF5A1D3F}
 		{E1337F9C-3E88-4453-BC84-B8FE52874C93} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
 		{81552B74-1F58-4CC1-B76B-87E84A35571A} = {B26DDE73-0369-4977-A004-3CCDE2B38825}
 		{12FF11C4-EE44-4142-A335-EE7E7E9C4C60} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
 		{DE9EA2DB-5D18-4CF8-A3B7-B32D0BF48D96} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
+		{179722CB-48F2-47FB-B2A2-1526959935AE} = {B26DDE73-0369-4977-A004-3CCDE2B38825}
+		{79CCADAE-8802-49BF-A25F-E38158FE6C2D} = {B26DDE73-0369-4977-A004-3CCDE2B38825}
+		{C6B01B68-C3F8-421A-BA2C-AC92726DFACD} = {B26DDE73-0369-4977-A004-3CCDE2B38825}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F29D958F-997A-4DDE-B100-586ADFF9A3D3}
