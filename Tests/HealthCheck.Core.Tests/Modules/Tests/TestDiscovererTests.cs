@@ -24,10 +24,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         [Fact]
         public void DiscoverTestDefinitions_WithCustomParameterNames_ResolvesCustomParameterNames()
         {
-            var discoverer = new TestDiscoveryService()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            };
+            var discoverer = CreateTestDiscoveryService();
             var tests = discoverer.DiscoverTestDefinitions().SelectMany(x => x.Tests);
             var test = tests.Single(x => x.Name == "TestMethodWithCustomNames");
             Assert.Equal("First name", test.Parameters[0].Name);
@@ -38,10 +35,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         [Fact]
         public void DiscoverTestDefinitions_WithCategorisedTest_ResolvesCustomCategory()
         {
-            var discoverer = new TestDiscoveryService()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            };
+            var discoverer = CreateTestDiscoveryService();
             var tests = discoverer.DiscoverTestDefinitions().SelectMany(x => x.Tests);
             var test = tests.Single(x => x.Name == nameof(TestClass.TestMethodA));
             Assert.Single(test.Categories);
@@ -51,10 +45,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         [Fact]
         public void DiscoverTestDefinitions_WithCategorisedClassAndTest_ResolvesCustomCategories()
         {
-            var discoverer = new TestDiscoveryService()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            };
+            var discoverer = CreateTestDiscoveryService();
             var tests = discoverer.DiscoverTestDefinitions().SelectMany(x => x.Tests);
 
             var testA2 = tests.Single(x => x.Name == nameof(TestClass2.TestMethodA2));
@@ -69,10 +60,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         [Fact]
         public void DiscoverTestDefinitions_WithCustomParameterDescriptions_ResolvesCustomParameterDescriptions()
         {
-            var discoverer = new TestDiscoveryService()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            };
+            var discoverer = CreateTestDiscoveryService();
             var tests = discoverer.DiscoverTestDefinitions().SelectMany(x => x.Tests);
             var test = tests.Single(x => x.Name == "TestMethodWithCustomNames");
             Assert.Equal("First desc.", test.Parameters[0].Description);
@@ -83,11 +71,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         [Fact]
         public void DiscoverTestDefinitions_WithFilter_ReturnsOnlyWantedTests()
         {
-            var discoverer = new TestDiscoveryService()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            };
-
+            var discoverer = CreateTestDiscoveryService();
             var userRoles = AccessRoles.WebAdmins;
             var tests = discoverer.DiscoverTestDefinitions(userRoles, testFilter: (test) => test.Name == nameof(TestClass.TestMethodA))
                 .SelectMany(x => x.Tests);
@@ -98,11 +82,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         [Fact]
         public void DiscoverTestDefinitions_WithRoles_ReturnsOnlyTestsWithGivenRoles()
         {
-            var discoverer = new TestDiscoveryService()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            };
-
+            var discoverer = CreateTestDiscoveryService();
             var userRoles = AccessRoles.WebAdmins;
             var tests = discoverer.DiscoverTestDefinitions(userRoles)
                 .SelectMany(x => x.Tests);
@@ -114,11 +94,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         [Fact]
         public void DiscoverTestDefinitions_WithDifferentRolesObject_GivesException()
         {
-            var discoverer = new TestDiscoveryService()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            };
-
+            var discoverer = CreateTestDiscoveryService();
             var userRoles = WrongEnumA.Something;
             Assert.Throws<InvalidAccessRolesDefinitionException>(() =>
             {
@@ -138,10 +114,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         [Fact]
         public void DiscoverTestDefinitions_WithTwoTests_FindsTests()
         {
-            var discoverer = new TestDiscoveryService()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            };
+            var discoverer = CreateTestDiscoveryService();
             var tests = discoverer.DiscoverTestDefinitions().SelectMany(x => x.Tests);
             Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodA));
             Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodB));
@@ -150,10 +123,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         [Fact]
         public void DiscoverTestDefinitions_WithTwoTestsAndANonTest__DoesNotContainNonTests()
         {
-            var discoverer = new TestDiscoveryService()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            };
+            var discoverer = CreateTestDiscoveryService();
             var tests = discoverer.DiscoverTestDefinitions().SelectMany(x => x.Tests);
             Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.NotATestMethod));
         }
@@ -161,10 +131,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         [Fact]
         public void DiscoverTestDefinitions_WithCancellableTests__DoesNotIncludeParameterDefinitionForCancellationToken()
         {
-            var discoverer = new TestDiscoveryService()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            };
+            var discoverer = CreateTestDiscoveryService();
             var tests = discoverer.DiscoverTestDefinitions().SelectMany(x => x.Tests);
             var test = tests.FirstOrDefault(x => x.Categories.Contains("TestSetId3Category"));
             Assert.NotNull(test);
@@ -175,11 +142,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         [Fact]
         public void GetInvalidTests_WithInvalidTests_ReturnsInvalidTests()
         {
-            var discoverer = new TestDiscoveryService()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            };
-
+            var discoverer = CreateTestDiscoveryService();
             var invalidTests = discoverer.GetInvalidTests();
             Assert.Contains(invalidTests, x => x.Test.Name == nameof(TestClass.InvalidMethodA));
             Assert.Contains(invalidTests, x => x.Test.Name == nameof(TestClass.InvalidMethodB));
@@ -191,12 +154,16 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         [Fact]
         public void GetInvalidTests_WithInvalidTests_ThrowsException()
         {
-            var discoverer = new TestDiscoveryService()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            };
-
+            var discoverer = CreateTestDiscoveryService();
             Assert.Throws<InvalidTestDefinitionException>(() => discoverer.ValidateTests());
+        }
+
+        private TestDiscoveryService CreateTestDiscoveryService()
+        {
+            return new TestDiscoveryService()
+            {
+                AssembliesContainingTests = new[] { GetType().Assembly }
+            };
         }
 
         [RuntimeTestClass(Id = "TestSetId", Description = "Some test set", Name = "Dev test set")]

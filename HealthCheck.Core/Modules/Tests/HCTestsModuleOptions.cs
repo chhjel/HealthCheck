@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 
 namespace HealthCheck.Core.Modules.Tests
 {
@@ -8,8 +9,8 @@ namespace HealthCheck.Core.Modules.Tests
     public class HCTestsModuleOptions
     {
         /// <summary>
-        /// The assembly that contains the test methods. Defaults to entry assembly.
+        /// The assemblies that contains the test methods.
         /// </summary>
-        public Assembly AssemblyContainingTests { get; set; }
+        public IEnumerable<Assembly> AssembliesContainingTests { get; set; }
     }
 }

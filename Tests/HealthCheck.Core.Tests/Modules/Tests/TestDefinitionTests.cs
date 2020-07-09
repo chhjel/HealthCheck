@@ -21,10 +21,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         [Fact]
         public void Id_OfAllTests_AreUnique()
         {
-            var discoverer = new TestDiscoveryService()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            };
+            var discoverer = CreateTestDiscoveryService();
             var tests = discoverer.DiscoverTestDefinitions().SelectMany(x => x.Tests);
 
             foreach(var test in tests)
@@ -37,10 +34,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         [Fact]
         public void Id_OfValidTest_IsGenerated()
         {
-            var discoverer = new TestDiscoveryService()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            };
+            var discoverer = CreateTestDiscoveryService();
             var tests = discoverer.DiscoverTestDefinitions().SelectMany(x => x.Tests);
             var test = tests.First(x => x.Validate().IsValid);
             Assert.NotNull(test.Id);
@@ -50,10 +44,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         [Fact]
         public void Id_OfInvalidTest_IsGenerated()
         {
-            var discoverer = new TestDiscoveryService()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            };
+            var discoverer = CreateTestDiscoveryService();
             var tests = discoverer.DiscoverTestDefinitions(includeInvalidTests: true).SelectMany(x => x.Tests);
             var test = tests.First(x => !x.Validate().IsValid);
             Assert.NotNull(test.Id);
@@ -63,10 +54,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         [Fact]
         public async Task ExecuteTest_WithoutMethodParametersAndNullParam_Works()
         {
-            var discoverer = new TestDiscoveryService()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            };
+            var discoverer = CreateTestDiscoveryService();
             var tests = discoverer.DiscoverTestDefinitions().SelectMany(x => x.Tests);
             var test = tests.First(x => x.Name == nameof(TestClass.TestMethodWithoutParameters));
 
@@ -78,10 +66,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         [Fact]
         public async Task ExecuteTest_WithMethodParametersAndNullParam_UsesDefaultParams()
         {
-            var discoverer = new TestDiscoveryService()
-            {
-                AssemblyContainingTests = GetType().Assembly
-            };
+            var discoverer = CreateTestDiscoveryService();
             var tests = discoverer.DiscoverTestDefinitions().SelectMany(x => x.Tests);
             var test = tests.First(x => x.Name == nameof(TestClass.TestMethodWithParameters));
 
@@ -91,6 +76,14 @@ namespace HealthCheck.Core.Tests.Modules.Tests
             Assert.Equal("wut", tagArray[0]);
             Assert.Equal(true, tagArray[1]);
             Assert.Equal(123, tagArray[2]);
+        }
+
+        private TestDiscoveryService CreateTestDiscoveryService()
+        {
+            return new TestDiscoveryService()
+            {
+                AssembliesContainingTests = new[] { GetType().Assembly }
+            };
         }
 
         [RuntimeTestClass(Id = "TestSetId", Description = "Some test set", Name = "Dev test set")]

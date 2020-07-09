@@ -30,8 +30,14 @@ namespace HealthCheck.Core.Modules.Tests
         /// </summary>
         public HCTestsModule(HCTestsModuleOptions options)
         {
-            TestDiscoverer.AssemblyContainingTests = options.AssemblyContainingTests
-                ?? throw new ArgumentNullException($"[{nameof(HCTestsModuleOptions)}.{nameof(HCTestsModuleOptions.AssemblyContainingTests)}] must be set to an assembly to retrieve tests from must be provided.");
+            var assemblies = options.AssembliesContainingTests;
+            if (assemblies == null || !assemblies.Any())
+            {
+                throw new ArgumentException(
+                    $"{nameof(HCTestsModuleOptions.AssembliesContainingTests)} must contain at least one assembly to retrieve tests from.");
+            }
+
+            TestDiscoverer.AssembliesContainingTests = assemblies;
         }
 
         /// <summary>

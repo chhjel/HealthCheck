@@ -15,9 +15,9 @@ namespace HealthCheck.Core.Modules.Tests.Services
     public class TestDiscoveryService
     {
         /// <summary>
-        /// The assembly that contains the test methods. Defaults to entry assembly.
+        /// The assemblies that contains the test methods.
         /// </summary>
-        public Assembly AssemblyContainingTests { get; set; }
+        public IEnumerable<Assembly> AssembliesContainingTests { get; set; }
 
         /// <summary>
         /// Create a new <see cref="TestDiscoveryService"/>.
@@ -49,9 +49,6 @@ namespace HealthCheck.Core.Modules.Tests.Services
                 .ToList();
         }
 
-        private Assembly GetAssembly()
-            => AssemblyContainingTests ?? Assembly.GetEntryAssembly();
-
         /// <summary>
         /// Discover tests, only returning ones that have any of the given roles.
         /// </summary>
@@ -71,13 +68,15 @@ namespace HealthCheck.Core.Modules.Tests.Services
             object userRolesEnum = null,
             Func<TestDefinition, bool> testFilter = null)
         {
-            var assembly = GetAssembly();
-            if (assembly == null)
+            var assemblies = AssembliesContainingTests;
+            if (assemblies == null || !assemblies.Any())
             {
-                throw new ArgumentNullException($"Could not find entry assembly, set {nameof(AssemblyContainingTests)} to the assembly that contains the tests.");
+                throw new ArgumentException(
+                    $"{nameof(AssembliesContainingTests)} must contain at least one assembly to retrieve tests from.");
             }
 
-            var testClassTypes = assembly.GetTypes()
+            var testClassTypes = assemblies
+                .SelectMany(x => x.GetTypes())
                 .Where(x => x.GetCustomAttribute<RuntimeTestClassAttribute>(inherit: true) != null)
                 .ToList();
 
