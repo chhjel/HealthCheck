@@ -21,6 +21,7 @@ import "../util/extensions/ArrayExtensions";
 
 // Polyfills
 import "es6-promise/auto";
+import 'whatwg-fetch';
 
 // Init libs
 Vue.use(Vuetify, {

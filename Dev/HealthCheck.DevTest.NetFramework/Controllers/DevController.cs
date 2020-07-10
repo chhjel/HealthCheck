@@ -88,6 +88,12 @@ namespace HealthCheck.DevTest.Controllers
         {
             InitServices();
 
+            var assemblies = new[]
+            {
+                typeof(DevController).Assembly,
+                typeof(RuntimeTestConstants).Assembly
+            };
+
             UseModule(new HCSecureFileDownloadModule(new HCSecureFileDownloadModuleOptions()
             {
                 DefinitionStorage = FlatFileSecureFileDownloadDefinitionStorage,
@@ -126,13 +132,7 @@ namespace HealthCheck.DevTest.Controllers
                     new CodeSuggestion("GetService<T>(id)", "Get a registered service", "GetService<${1:T}>(${2:x})")
                 }
             }));
-            UseModule(new HCTestsModule(new HCTestsModuleOptions() {
-                    AssembliesContainingTests = new[]
-                    {
-                        typeof(DevController).Assembly,
-                        typeof(RuntimeTestConstants).Assembly
-                    }
-                }))
+            UseModule(new HCTestsModule(new HCTestsModuleOptions() { AssembliesContainingTests = assemblies }))
                 .ConfigureGroups((options) => options
                     .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
                     .ConfigureGroup(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)
@@ -147,11 +147,11 @@ namespace HealthCheck.DevTest.Controllers
                 EnableDiagramSandbox = true,
                 SequenceDiagramService = new DefaultSequenceDiagramService(new DefaultSequenceDiagramServiceOptions()
                 {
-                    DefaultSourceAssemblies = new[] { typeof(DevController).Assembly }
+                    DefaultSourceAssemblies = assemblies
                 }),
                 FlowChartsService = new DefaultFlowChartService(new DefaultFlowChartServiceOptions()
                 {
-                    DefaultSourceAssemblies = new[] { typeof(DevController).Assembly }
+                    DefaultSourceAssemblies = assemblies
                 })
             }));
             UseModule(new HCDataflowModule<RuntimeTestAccessRole>(new HCDataflowModuleOptions<RuntimeTestAccessRole>() { DataflowService = DataflowService }));

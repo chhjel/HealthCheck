@@ -31,7 +31,8 @@
     "vuedraggable": "^2.23.0",
     "vuetify": "^1.5.6",
     "vuex": "^3.4.0",
-    "xregexp": "4.2.4"
+    "xregexp": "4.2.4",
+    "whatwg-fetch": "3.2.0"
   },
   "devDependencies": {
     "@types/chart.js": "2.8.7",
