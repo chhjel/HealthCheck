@@ -64,7 +64,8 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
             "System.Collections.Generic",
             "System.Linq",
             "System.Text.RegularExpressions",
-            "System.Collections.Generic"
+            "System.Collections.Generic",
+            "HealthCheck.WebUI.Util"
         };
 
         /// <summary>
@@ -87,6 +88,14 @@ namespace CodeTesting
         }
 
         #region Docs
+        // Utils for quickly instancing and invoking:
+        // * T ReflectionUtils.TryGetInstance<T>(Func<Type, object> instanceFactory = null, Dictionary<string, object> forcedParameterValues = null)
+        // * object ReflectionUtils.TryInvokeMethod<TInstance>(string methodName, object[] parameters = null, Type[] genericParameters = null)
+        // * TReturn ReflectionUtils.TryInvokeMethod<TInstance, TReturn>(string methodName, object[] parameters = null, Type[] genericParameters = null)
+        // * object ReflectionUtils.TryInvokeMethod(object instance, string methodName, object[] parameters = null, Type[] genericParameters = null)
+        // * object ReflectionUtils.TryGetMemberValue<TInstance>(string memberName)
+        // * object ReflectionUtils.TryGetMemberValue(object instance, string memberName)
+
         // To dump a value use the extension methods .Dump():
         // * T Dump<T>(this T obj, string title = null, bool display = true, bool ignoreErrors = true)
         // * T Dump<T>(this T obj, string title = null, bool display = true, params JsonConverter[] converters)
