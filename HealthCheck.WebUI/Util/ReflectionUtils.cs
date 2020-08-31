@@ -21,6 +21,11 @@ namespace HealthCheck.WebUI.Util
 		= DependencyResolver.Current.GetService;
 #endif
 
+		private static Func<Type, ConstructorInfo> ConstructorSelector { get; set; }
+			= (type) => type.GetConstructors()
+				.OrderBy(x => x.GetParameters().Length)
+				.FirstOrDefault();
+
 		/// <summary>
 		/// Attempt to invoke a method on the given type.
 		/// <para>An instance will be attempted created.</para>
@@ -34,7 +39,7 @@ namespace HealthCheck.WebUI.Util
 			object[] parameters = null, Type[] genericParameters = null)
 			where TInstance : class
 		{
-			var instance = TryGetInstance<TInstance>();
+			var instance = GetOrCreateInstance<TInstance>();
 			return TryInvokeMethod(instance?.GetType() ?? typeof(TInstance), instance, methodName, parameters, genericParameters);
 		}
 
@@ -52,7 +57,7 @@ namespace HealthCheck.WebUI.Util
 			object[] parameters = null, Type[] genericParameters = null)
 			where TInstance : class
 		{
-			var instance = TryGetInstance<TInstance>();
+			var instance = GetOrCreateInstance<TInstance>();
 			return (TReturn)TryInvokeMethod(instance?.GetType() ?? typeof(TInstance), instance, methodName, parameters, genericParameters);
 		}
 
@@ -102,7 +107,7 @@ namespace HealthCheck.WebUI.Util
 		public static object TryGetMemberValue<TInstance>(string memberName)
 			where TInstance : class
 		{
-			var instance = TryGetInstance<TInstance>();
+			var instance = GetOrCreateInstance<TInstance>();
 			return TryGetMemberValue(instance?.GetType() ?? typeof(TInstance), instance, memberName);
 		}
 
@@ -141,13 +146,47 @@ namespace HealthCheck.WebUI.Util
 		}
 
 		/// <summary>
-		/// Attempts to create get an instance of the given type.
+		/// Attempts to create an instance of the given type with the given forced parameter types.
+		/// </summary>
+		/// <param name="forcedParameterValues">
+		/// Any values used here will be used on the first matching constructor parameter if any.
+		/// </param>
+		public static T GetOrCreateInstance<T>(object[] forcedParameterValues)
+			where T : class
+		{
+			var type = typeof(T);
+			var constructor = ConstructorSelector(type);
+
+			if (constructor == null || forcedParameterValues?.Any() != true)
+			{
+				return GetOrCreateInstance<T>();
+			}
+
+			var constructorParameters = constructor.GetParameters();
+			var forcedParameterValuesByName = new Dictionary<string, object>();
+			foreach (var forcedParameter in forcedParameterValues)
+			{
+				var parameterName = constructorParameters.FirstOrDefault(x => 
+						x.ParameterType.IsInstanceOfType(forcedParameter)
+					)?.Name;
+				if (parameterName == null)
+				{
+					continue;
+				}
+
+				forcedParameterValuesByName[parameterName] = forcedParameter;
+			}
+
+			return GetOrCreateInstance<T>(null, forcedParameterValuesByName);
+		}
+
+		/// <summary>
+		/// Attempts to get an instance of the given type.
 		/// </summary>
 		/// <typeparam name="T">Type to create or get.</typeparam>
 		/// <param name="instanceFactory">Defaults to <see cref="DefaultInstanceFactory"/></param>
 		/// <param name="forcedParameterValues">Optionally force any constructor parameter values by name.</param>
-		/// <returns></returns>
-		public static T TryGetInstance<T>(
+		public static T GetOrCreateInstance<T>(
 			Func<Type, object> instanceFactory = null,
 			Dictionary<string, object> forcedParameterValues = null
 		)
@@ -163,10 +202,7 @@ namespace HealthCheck.WebUI.Util
 					return instanceFactory?.Invoke(type) as T;
 				}
 
-				var constructor = type.GetConstructors()
-					.OrderBy(x => x.GetParameters().Length)
-					.FirstOrDefault();
-
+				var constructor = ConstructorSelector(type);
 				if (constructor == null)
 				{
 					return Activator.CreateInstance(type) as T;
