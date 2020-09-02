@@ -1,30 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-#if NETFRAMEWORK
-using System.Web.Mvc;
-#endif
-
 namespace HealthCheck.WebUI.Util
 {
-	/// <summary>Utils to simplify life from HealthCheck tests and DCE.</summary>
-	public static class ReflectionUtils
+    /// <summary>Utils to simplify life from HealthCheck tests and DCE.</summary>
+    public static class ReflectionUtils
 	{
 		/// <summary>
-		/// Determines how to create new instances of types.
-		/// <para>For .NET Framework this defaults to <c>DependencyResolver.Current.GetService</c></para>
+		/// Attempt to invoke a method on the given type.
+		/// <para>An instance will be attempted created.</para>
 		/// </summary>
-		public static Func<Type, object> DefaultInstanceFactory { get; set; }
-#if NETFRAMEWORK
-		= DependencyResolver.Current.GetService;
-#endif
-
-		private static Func<Type, ConstructorInfo> ConstructorSelector { get; set; }
-			= (type) => type.GetConstructors()
-				.OrderBy(x => x.GetParameters().Length)
-				.FirstOrDefault();
+		/// <typeparam name="TInstance">Type of object to invoke method on.</typeparam>
+		/// <param name="methodName">Name of the method to invoke</param>
+		/// <param name="parameters">Method parameters if any</param>
+		/// <returns>Method return value, or null if void.</returns>
+		public static object TryInvokeMethod<TInstance>(string methodName, params object[] parameters)
+			where TInstance : class
+			=> TryInvokeMethodExt<TInstance>(methodName, parameters);
 
 		/// <summary>
 		/// Attempt to invoke a method on the given type.
@@ -35,12 +28,12 @@ namespace HealthCheck.WebUI.Util
 		/// <param name="parameters">Method parameters if any</param>
 		/// <param name="genericParameters">Generic method parameters if any</param>
 		/// <returns>Method return value, or null if void.</returns>
-		public static object TryInvokeMethod<TInstance>(string methodName,
+		public static object TryInvokeMethodExt<TInstance>(string methodName,
 			object[] parameters = null, Type[] genericParameters = null)
 			where TInstance : class
 		{
-			var instance = GetOrCreateInstance<TInstance>();
-			return TryInvokeMethod(instance?.GetType() ?? typeof(TInstance), instance, methodName, parameters, genericParameters);
+			var instance = IoCUtils.GetInstanceExt<TInstance>();
+			return TryInvokeMethodExt(instance?.GetType() ?? typeof(TInstance), instance, methodName, parameters, genericParameters);
 		}
 
 		/// <summary>
@@ -53,12 +46,12 @@ namespace HealthCheck.WebUI.Util
 		/// <param name="parameters">Method parameters if any</param>
 		/// <param name="genericParameters">Generic method parameters if any</param>
 		/// <returns>Method return value, or null if void.</returns>
-		public static TReturn TryInvokeMethod<TInstance, TReturn>(string methodName,
+		public static TReturn TryInvokeMethodExt<TInstance, TReturn>(string methodName,
 			object[] parameters = null, Type[] genericParameters = null)
 			where TInstance : class
 		{
-			var instance = GetOrCreateInstance<TInstance>();
-			return (TReturn)TryInvokeMethod(instance?.GetType() ?? typeof(TInstance), instance, methodName, parameters, genericParameters);
+			var instance = IoCUtils.GetInstanceExt<TInstance>();
+			return (TReturn)TryInvokeMethodExt(instance?.GetType() ?? typeof(TInstance), instance, methodName, parameters, genericParameters);
 		}
 
 		/// <summary>
@@ -69,16 +62,21 @@ namespace HealthCheck.WebUI.Util
 		/// <param name="parameters">Method parameters if any</param>
 		/// <param name="genericParameters">Generic method parameters if any</param>
 		/// <returns>Method return value, or null if void.</returns>
-		public static object TryInvokeMethod(object instance, string methodName,
+		public static object TryInvokeMethodExt(object instance, string methodName,
 			object[] parameters = null, Type[] genericParameters = null)
-			=> TryInvokeMethod(instance.GetType(), instance, methodName, parameters, genericParameters);
+			=> TryInvokeMethodExt(instance.GetType(), instance, methodName, parameters, genericParameters);
 
-		private static object TryInvokeMethod(Type type, object instance, string methodName,
+		private static object TryInvokeMethodExt(Type type, object instance, string methodName,
 			object[] parameters = null, Type[] genericParameters = null)
 		{
-			var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance);
-			parameters = parameters ?? new object[0];
-			genericParameters = genericParameters ?? new Type[0];
+			var methods = type.GetMethods(
+				BindingFlags.NonPublic 
+				| BindingFlags.Public 
+				| BindingFlags.Static 
+				| BindingFlags.Instance
+				| BindingFlags.FlattenHierarchy);
+			parameters ??= new object[0];
+			genericParameters ??= new Type[0];
 
 			var method = methods.FirstOrDefault(x =>
 				x.Name == methodName
@@ -107,7 +105,7 @@ namespace HealthCheck.WebUI.Util
 		public static object TryGetMemberValue<TInstance>(string memberName)
 			where TInstance : class
 		{
-			var instance = GetOrCreateInstance<TInstance>();
+			var instance = IoCUtils.GetInstanceExt<TInstance>();
 			return TryGetMemberValue(instance?.GetType() ?? typeof(TInstance), instance, memberName);
 		}
 
@@ -126,7 +124,8 @@ namespace HealthCheck.WebUI.Util
 				BindingFlags.NonPublic | BindingFlags.Public
 				| BindingFlags.Static | BindingFlags.Instance
 				| BindingFlags.GetProperty
-				| BindingFlags.GetField);
+				| BindingFlags.GetField
+				| BindingFlags.FlattenHierarchy);
 
 			var member = members.FirstOrDefault(x => x.Name == memberName);
 			return GetMemberValue(member, instance);
@@ -142,86 +141,6 @@ namespace HealthCheck.WebUI.Util
 					return ((PropertyInfo)memberInfo).GetValue(instance);
 				default:
 					return null;
-			}
-		}
-
-		/// <summary>
-		/// Attempts to create an instance of the given type with the given forced parameter types.
-		/// </summary>
-		/// <param name="forcedParameterValues">
-		/// Any values used here will be used on the first matching constructor parameter if any.
-		/// </param>
-		public static T GetOrCreateInstance<T>(object[] forcedParameterValues)
-			where T : class
-		{
-			var type = typeof(T);
-			var constructor = ConstructorSelector(type);
-
-			if (constructor == null || forcedParameterValues?.Any() != true)
-			{
-				return GetOrCreateInstance<T>();
-			}
-
-			var constructorParameters = constructor.GetParameters();
-			var forcedParameterValuesByName = new Dictionary<string, object>();
-			foreach (var forcedParameter in forcedParameterValues)
-			{
-				var parameterName = constructorParameters.FirstOrDefault(x => 
-						x.ParameterType.IsInstanceOfType(forcedParameter)
-					)?.Name;
-				if (parameterName == null)
-				{
-					continue;
-				}
-
-				forcedParameterValuesByName[parameterName] = forcedParameter;
-			}
-
-			return GetOrCreateInstance<T>(null, forcedParameterValuesByName);
-		}
-
-		/// <summary>
-		/// Attempts to get an instance of the given type.
-		/// </summary>
-		/// <typeparam name="T">Type to create or get.</typeparam>
-		/// <param name="instanceFactory">Defaults to <see cref="DefaultInstanceFactory"/></param>
-		/// <param name="forcedParameterValues">Optionally force any constructor parameter values by name.</param>
-		public static T GetOrCreateInstance<T>(
-			Func<Type, object> instanceFactory = null,
-			Dictionary<string, object> forcedParameterValues = null
-		)
-			where T : class
-		{
-			try
-			{
-				var type = typeof(T);
-				instanceFactory ??= DefaultInstanceFactory;
-
-				if (type.IsInterface)
-				{
-					return instanceFactory?.Invoke(type) as T;
-				}
-
-				var constructor = ConstructorSelector(type);
-				if (constructor == null)
-				{
-					return Activator.CreateInstance(type) as T;
-				}
-
-				var parameters = new List<object>();
-				foreach (var parameter in constructor.GetParameters())
-				{
-					object parameterInstance = forcedParameterValues?.ContainsKey(parameter.Name) == true
-						? forcedParameterValues[parameter.Name]
-						: instanceFactory?.Invoke(parameter.ParameterType);
-
-					parameters.Add(parameterInstance);
-				}
-				return constructor.Invoke(parameters.ToArray()) as T;
-			}
-			catch (Exception)
-			{
-				return null;
 			}
 		}
 	}

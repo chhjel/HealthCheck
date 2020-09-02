@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;net472</TargetFrameworks>
+    <Configurations>Debug;Release</Configurations>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.1</Version>
+    <Authors>ChristianH</Authors>
+    <Company>ChristianH</Company>
+    <Description>Memory logger for Episerver for use during HC tests to dump the log contents afterwards.</Description>
+    <Copyright>ChristianH</Copyright>
+    <LangVersion>latest</LangVersion>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.Utility.Logger.EpiServer.xml</DocumentationFile>
+    <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
+    <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-HealthCheck</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EPiServer.Logging.Log4Net" Version="2.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HealthCheck.Utility.Logger.Log4Net\HealthCheck.Utility.Logger.Log4Net.csproj" />
+  </ItemGroup>
+
+</Project>
