@@ -88,13 +88,7 @@ namespace CodeTesting
         }
 
         #region Docs
-        // Utils for quickly instancing and invoking:
-        // * T ReflectionUtils.TryGetInstance<T>(Func<Type, object> instanceFactory = null, Dictionary<string, object> forcedParameterValues = null)
-        // * object ReflectionUtils.TryInvokeMethod<TInstance>(string methodName, object[] parameters = null, Type[] genericParameters = null)
-        // * TReturn ReflectionUtils.TryInvokeMethod<TInstance, TReturn>(string methodName, object[] parameters = null, Type[] genericParameters = null)
-        // * object ReflectionUtils.TryInvokeMethod(object instance, string methodName, object[] parameters = null, Type[] genericParameters = null)
-        // * object ReflectionUtils.TryGetMemberValue<TInstance>(string memberName)
-        // * object ReflectionUtils.TryGetMemberValue(object instance, string memberName)
+        // Constructor parameter injection in EntryClass is supported.
 
         // To dump a value use the extension methods .Dump():
         // * T Dump<T>(this T obj, string title = null, bool display = true, bool ignoreErrors = true)
@@ -104,6 +98,12 @@ namespace CodeTesting
         // To save all dumped values to a file:
         // * DCEUtils.SaveDumps(string pathOrFilename = null, bool includeTitle = false, bool includeType = false)
         //   Default filename is %tempfolder%\\DCEDump_{date}.txt
+
+        // Utils for quickly instancing and invoking:
+        // GetInstance retrieves from IoC or instantiate new, with recursive parameter override by type.
+        // * T IoCUtils.GetInstance<T>(params object[] forcedParameterValues)
+        // * TResult ReflectionUtils.TryInvokeMethod<TClass, TResult>(string methodName, params object[] parameters)
+        // * object ReflectionUtils.TryInvokeMethod<TClass>(string methodName, params object[] parameters)
         #endregion
     }
 }";

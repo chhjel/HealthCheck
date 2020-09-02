@@ -306,6 +306,8 @@ var results = await runner.ExecuteTests(testDiscovererService,
 
 ### Utils
 
+Constructor parameter injection is supported for test classes.
+
 #### Log output from tests
 
 Inject a memory logger into the instances being tested and include the output in the result.

@@ -1,4 +1,5 @@
 #if NETFULL
+using HealthCheck.Core.Util;
 using HealthCheck.Module.DynamicCodeExecution.Exceptions;
 using HealthCheck.Module.DynamicCodeExecution.Models;
 using System;
@@ -166,13 +167,15 @@ namespace HealthCheck.Module.DynamicCodeExecution
 
                 // Invoke custom main method
                 type = compilerResult.CompiledAssembly.GetType("CodeTesting.EntryClass");
-                instance = Activator.CreateInstance(type);
+                instance = IoCUtils.GetInstanceExt(type);
                 method = type.GetMethod("Main");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 result.Status = CodeExecutionResult.StatusTypes.RuntimeError;
-                result.Errors.Add(new CodeError("Namespace must be CodeTesting, classname must be EntryClass, and method must be Main and optionally return something stringable."));
+                result.Errors.Add(new CodeError(
+                    $"Namespace must be CodeTesting, classname must be EntryClass, and method must be Main and optionally return something stringable. Exception was: {ex}"
+                ));
                 return result;
             }
 

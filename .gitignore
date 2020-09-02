@@ -260,3 +260,5 @@ paket-files/
 __pycache__/
 *.pyc
 Dev/HealthCheck\.DevTest/App_Data/
+
+Dev/HealthCheck.DevTest.NetFramework/App_Data/

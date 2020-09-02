@@ -1,55 +1,46 @@
-﻿using System;
+﻿using HealthCheck.Core.Config;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-#if NETFRAMEWORK
-using System.Web.Mvc;
-#endif
-
-namespace HealthCheck.WebUI.Util
+namespace HealthCheck.Core.Util
 {
-    /// <summary>Utils to simplify life from HealthCheck tests and DCE.</summary>
-    public static class IoCUtils
+	/// <summary>
+	/// Utils to simplify life from HealthCheck tests and DCE.
+	/// <para>The default instance resolver can be configured through <see cref="HCGlobalConfig.DefaultInstanceResolver"/></para>
+	/// </summary>
+	public static class IoCUtils
 	{
-		/// <summary>
-		/// Determines how to create new instances of types.
-		/// <para>For .NET Framework this defaults to <c>DependencyResolver.Current.GetService</c></para>
-		/// </summary>
-		public static Func<Type, object> DefaultInstanceFactory { get; set; }
-#if NETFRAMEWORK
-		= DependencyResolver.Current.GetService;
-#endif
-
 		/// <summary>
 		/// Attempts to get an instance of the given type.
 		/// <para>Shortcut to GetInstanceExt&lt;T&gt;(forcedParameterValues: ..)</para>
 		/// </summary>
 		/// <param name="forcedParameterValues">Any values used here will be used on the first matching constructor parameter if any.</param>
-		public static T GetInstance<T>(params object[] forcedParameterValues)
-			where T : class
-			=> GetInstanceExt<T>(forcedParameterValues: forcedParameterValues);
+		public static TClass GetInstance<TClass>(params object[] forcedParameterValues)
+			where TClass : class
+			=> GetInstanceExt<TClass>(forcedParameterValues: forcedParameterValues);
 
         /// <summary>
         /// Attempts to get an instance of the given type.
         /// </summary>
-        /// <typeparam name="T">Type to create or get.</typeparam>
-        /// <param name="instanceFactory">Defaults to <see cref="DefaultInstanceFactory"/></param>
+        /// <typeparam name="TClass">Type to create or get.</typeparam>
+        /// <param name="instanceFactory">Defaults to <see cref="HCGlobalConfig.DefaultInstanceResolver"/></param>
         /// <param name="forcedParameterValues">Any values used here will be used on the first matching constructor parameter if any.</param>
         /// <param name="recursive">Any parameter values in constructors in injected parameters will also be using forced parameter values if enabled.</param>
-        public static T GetInstanceExt<T>(
+        public static TClass GetInstanceExt<TClass>(
 			Func<Type, object> instanceFactory = null,
 			object[] forcedParameterValues = null,
 			bool recursive = true
 		)
-			where T : class
-			=> GetInstanceExt(typeof(T), instanceFactory, forcedParameterValues, recursive) as T;
+			where TClass : class
+			=> GetInstanceExt(typeof(TClass), instanceFactory, forcedParameterValues, recursive) as TClass;
 
 		/// <summary>
 		/// Attempts to get an instance of the given type.
 		/// </summary>
 		/// <param name="type">Type to create or get.</param>
-		/// <param name="instanceFactory">Defaults to <see cref="DefaultInstanceFactory"/></param>
+		/// <param name="instanceFactory">Defaults to <see cref="HCGlobalConfig.DefaultInstanceResolver"/></param>
 		/// <param name="forcedParameterValues">Any values used here will be used on the first matching constructor parameter if any.</param>
 		/// <param name="recursive">Any parameter values in constructors in injected parameters will also be using forced parameter values if enabled.</param>
 		public static object GetInstanceExt(
@@ -59,7 +50,7 @@ namespace HealthCheck.WebUI.Util
 			bool recursive = true
 		)
 		{
-			instanceFactory ??= DefaultInstanceFactory;
+			instanceFactory ??= HCGlobalConfig.GetDefaultInstanceResolver();
 
 			if (type.IsInterface)
 			{
