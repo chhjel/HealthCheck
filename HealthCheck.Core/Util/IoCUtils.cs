@@ -72,7 +72,7 @@ namespace HealthCheck.Core.Util
 			var constructor = GetConstructor(type);
 			if (constructor == null)
 			{
-				return Activator.CreateInstance(type);
+				return instanceFactory?.Invoke(type);
 			}
 
 			// Build forced parameters data by joining by name and by value parameters

@@ -15,9 +15,9 @@ namespace HealthCheck.Core.Config
         public static Func<Type, object> DefaultInstanceResolver { get; set; }
 
         /// <summary>
-        /// Gets the value of <see cref="DefaultInstanceResolver"/> or <see cref="Activator.CreateInstance(Type)"/> if null.
+        /// Gets the value of <see cref="DefaultInstanceResolver"/> or attempts <see cref="Activator.CreateInstance(Type)"/> if null.
         /// </summary>
-        public static Func<Type, object> GetDefaultInstanceResolver() => DefaultInstanceResolver ?? Activator.CreateInstance;
+        public static Func<Type, object> GetDefaultInstanceResolver() => DefaultInstanceResolver ?? FallbackInstanceResolver;
 
         static HCGlobalConfig()
         {
@@ -27,6 +27,17 @@ namespace HealthCheck.Core.Config
             {
                 var method = webUIInitializerType.GetMethod("Initialize");
                 method?.Invoke(null, new object[0]);
+            }
+        }
+
+        private static object FallbackInstanceResolver(Type type)
+        {
+            try
+            {
+                return Activator.CreateInstance(type);
+            }
+            catch (Exception) {
+                return null;
             }
         }
     }
