@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.1</Version>
+    <Authors>ChristianH</Authors>
+    <Company>ChristianH</Company>
+    <Description>Memory logger for log4net for use during HC tests to dump the log contents afterwards.</Description>
+    <Copyright>ChristianH</Copyright>
+    <LangVersion>latest</LangVersion>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.Utility.Logger.Log4Net.xml</DocumentationFile>
+    <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
+    <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-HealthCheck</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="log4net" Version="2.0.8" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\HealthCheck.Core\HealthCheck.Core.csproj" />
+  </ItemGroup>
+  
+</Project>

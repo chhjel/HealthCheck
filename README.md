@@ -304,6 +304,31 @@ var results = await runner.ExecuteTests(testDiscovererService,
     siteEventService);
 ```
 
+### Utils
+
+Constructor parameter injection is supported for test classes.
+
+#### Log output from tests
+
+Inject a memory logger into the instances being tested and include the output in the result.
+
+```csharp
+    // Log4Net memory logger can be found in the nuget HealthCheck.Utility.Logger.Log4Net
+    var memoryLogger = new HCLog4NetMemoryLogger();
+
+    // GetInstance<T> attempts to create a new instance of the given type by calling the
+    // types' constructor with parameters retrieved from the IoC container, except for the values given to the GetInstance method.
+    // When passing only the memoryLogger instance below all the other parameters will be retrieved from IoC.
+    // By default the parameters passed here is forced through the whole IoC chain for the created instance.
+    var myService = IoCUtils.GetInstance<MyService>(memoryLogger);
+
+    // Invoke something to test.
+    myService.DoSomething();
+
+    // Include log data in the result
+    result.AddCodeData(memoryLogger.Contents?.Trim(), "Log");
+```
+
 ----------
 
 ## Module: Audit Log
@@ -852,3 +877,6 @@ A few utility classes are included below `HealthCheck.Core.Util`:
 * `ExceptionUtils` - Get a summary of exceptions to include in test results.
 * `ConnectivityUtils` - Ping or send webrequests to check if a host is alive and return `TestResult` objects.
 * `TimeUtils` - Prettify durations.
+* `IoCUtils` -  Get instances of types with partial IoC etc.
+* `ReflectionUtils` - Invoke private members etc.
+* Log4Net and Episerver memory loggers are available in nuget packages `HealthCheck.Utility.Logger.*`

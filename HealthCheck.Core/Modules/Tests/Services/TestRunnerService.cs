@@ -127,7 +127,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
             var results = new ConcurrentBag<TestResult>();
             foreach (var testClass in testClasses)
             {
-                var classInstance = Activator.CreateInstance(testClass.ClassType);
+                var classInstance = IoCUtils.GetInstanceExt(testClass.ClassType);
                 var includedTests = testClass.Tests.Where(x => testFilter?.Invoke(x) != false).ToList();
 
                 var defaultAllowsParallel = testClass.DefaultAllowParallelExecution;
@@ -191,7 +191,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                 }
 
                 // Execute test
-                var instance = testClassInstance ?? Activator.CreateInstance(test.ParentClass.ClassType);
+                var instance = testClassInstance ?? IoCUtils.GetInstanceExt(test.ParentClass.ClassType);
                 var result = await test.ExecuteTest(instance, parameters, allowDefaultValues,
                     (tokenSource) => RegisterCancellableTestStarted(test.Id, tokenSource));
 
