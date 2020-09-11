@@ -50,7 +50,7 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
     {
         // UseModule(<module>, <optionally override name>)
         UseModule(new HCTestsModule(new HCTestsModuleOptions() {
-            AssemblyContainingTests = typeof(MyController).Assembly
+            AssembliesContainingTests = new[] { typeof(MyController).Assembly }
         }));
     }
     
@@ -59,7 +59,7 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
     protected override HCFrontEndOptions GetFrontEndOptions()
         => new HCFrontEndOptions("/HealthCheck")
         {
-            ApplicationTitle = "My Title"
+            ApplicationTitle = "My Title",
             //...
             // In order to not use a cdn for the monaco-editor
             // web-worker scripts you can override them using
@@ -152,7 +152,7 @@ Allows given backend methods to be executed in a UI to check the status of integ
 
 ```csharp
 UseModule(new HCTestsModule(new HCTestsModuleOptions() {
-        AssemblyContainingTests = typeof(MyController).Assembly
+        AssembliesContainingTests = new[] { typeof(MyController).Assembly }
     }))
     // Optionally configure group order
     .ConfigureGroups((options) => options
