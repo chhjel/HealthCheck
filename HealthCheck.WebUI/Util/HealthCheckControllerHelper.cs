@@ -210,7 +210,7 @@ namespace HealthCheck.WebUI.Util
             }
             finally
             {
-                if (context?.AuditEvents != null && context.AuditEvents.Count > 0)
+                if (context?.AuditEvents != null && context.AuditEvents.Count > 0 && AuditEventService != null)
                 {
                     foreach (var e in context.AuditEvents)
                     {
@@ -256,7 +256,7 @@ namespace HealthCheck.WebUI.Util
             }
             finally
             {
-                if (context?.AuditEvents != null && context.AuditEvents.Count > 0)
+                if (context?.AuditEvents != null && context.AuditEvents.Count > 0 && AuditEventService != null)
                 {
                     foreach (var e in context.AuditEvents)
                     {

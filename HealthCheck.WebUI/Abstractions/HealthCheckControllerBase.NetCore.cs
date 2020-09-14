@@ -23,6 +23,7 @@ namespace HealthCheck.WebUI.Abstractions
     /// Base controller for the ui and api.
     /// </summary>
     /// <typeparam name="TAccessRole">Maybe{EnumType} used for access roles.</typeparam>
+    [Route("[controller]")]
     public abstract class HealthCheckControllerBase<TAccessRole> : Controller
         where TAccessRole : Enum
     {
