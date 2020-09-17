@@ -102,14 +102,14 @@ namespace HealthCheck.Core.Util
             var constructor = GetConstructor(type);
             if (constructor == null)
             {
-                return instanceFactory?.Invoke(type);
+                return instanceFactory?.Invoke(type) ?? Activator.CreateInstance(type);
             }
 
             // Build forced parameters data by joining by name and by value parameters
             var constructorParameters = constructor.GetParameters();
             if (constructorParameters.Length == 0)
             {
-                return instanceFactory.Invoke(type);
+                return instanceFactory?.Invoke(type) ?? Activator.CreateInstance(type);
             }
             else if (constructorParameters.Any(x => x.ParameterType == typeof(object)))
             {
