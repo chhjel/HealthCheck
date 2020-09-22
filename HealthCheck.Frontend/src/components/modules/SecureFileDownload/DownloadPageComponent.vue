@@ -292,8 +292,8 @@ export default class DownloadPageComponent extends Vue {
             },
             true,
             {
-                'x-id': this.data.download.name,
-                'x-pwd': password
+                'X-Id': this.data.download.name,
+                'X-Pwd': password
             });
     }
 

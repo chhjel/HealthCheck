@@ -265,14 +265,14 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
             // lazy brute force delay
             await Task.Delay(3000).ConfigureAwait(false);
 
-            if (!context.Request.Headers.ContainsKey("x-id")
-                || !context.Request.Headers.ContainsKey("x-pwd"))
+            if (!context.Request.Headers.ContainsKey("X-Id")
+                || !context.Request.Headers.ContainsKey("X-Pwd"))
             {
                 return null;
             }
 
-            var idFromRequest = context.Request.Headers["x-id"];
-            var passwordFromRequest = context.Request.Headers["x-pwd"];
+            var idFromRequest = context.Request.Headers["X-Id"];
+            var passwordFromRequest = context.Request.Headers["X-Pwd"];
 
             // Get definition
             var definition = Options.DefinitionStorage.GetDefinitionByUrlSegmentText(idFromRequest);
