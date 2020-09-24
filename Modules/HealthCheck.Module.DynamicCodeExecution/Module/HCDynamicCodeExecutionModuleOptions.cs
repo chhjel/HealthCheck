@@ -65,7 +65,8 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
             "System.Linq",
             "System.Text.RegularExpressions",
             "System.Collections.Generic",
-            "HealthCheck.WebUI.Util"
+            "HealthCheck.WebUI.Util",
+            "HealthCheck.Core.Util"
         };
 
         /// <summary>
