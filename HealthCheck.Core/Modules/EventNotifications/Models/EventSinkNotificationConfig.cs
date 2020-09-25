@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 
 namespace HealthCheck.Core.Modules.EventNotifications.Models
 {
@@ -40,6 +41,16 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
         public int? NotificationCountLimit { get; set; }
 
         /// <summary>
+        /// Optionally limit notifications by this distinct key that supports placeholders.
+        /// </summary>
+        public string DistinctNotificationKey { get; set; }
+
+        /// <summary>
+        /// If <see cref="DistinctNotificationKey"/> is provided, this is how long distinct values are cached for.
+        /// </summary>
+        public TimeSpan DistinctNotificationCacheDuration { get; set; }
+
+        /// <summary>
         /// Optionally limit notifications to after this time.
         /// </summary>
         public DateTimeOffset? FromTime { get; set; }
@@ -75,6 +86,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
         public bool IsAllowed(string eventId, bool payloadIsComplex,
             string stringifiedPayload, Dictionary<string, string> payloadProperties)
         {
+            string distinctCacheKey = null;
             if (LimitHasBeenReached())
             {
                 return false;
@@ -87,14 +99,80 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
             {
                 return false;
             }
+            else if (DistinctLimitHasBeenReached(payloadProperties, out string key))
+            {
+                distinctCacheKey = key;
+                return false;
+            }
 
             if (PayloadFilters == null || !PayloadFilters.Any())
             {
                 return true;
             }
 
-            return PayloadFilters?.All(x => x.IsAllowed(payloadIsComplex, stringifiedPayload, payloadProperties)) == true;
+            if (!(PayloadFilters?.All(x => x.IsAllowed(payloadIsComplex, stringifiedPayload, payloadProperties)) == true))
+            {
+                return false;
+            }
+
+            UpdateDistinctCache(distinctCacheKey);
+            return true;
         }
+
+        private static readonly Dictionary<string, DateTimeOffset> _distinctCache = new Dictionary<string, DateTimeOffset>();
+        private void UpdateDistinctCache(string key)
+        {
+            if (key == null
+                || string.IsNullOrWhiteSpace(DistinctNotificationKey)
+                || DistinctNotificationCacheDuration.TotalSeconds <= 0)
+            {
+                return;
+            }
+
+            lock(_distinctCache)
+            {
+                _distinctCache[key] = DateTimeOffset.Now;
+            }
+        }
+
+        private bool DistinctLimitHasBeenReached(Dictionary<string, string> placeholders, out string distinctCacheKey)
+        {
+            distinctCacheKey = null;
+            if (string.IsNullOrWhiteSpace(DistinctNotificationKey) || DistinctNotificationCacheDuration.TotalSeconds <= 0)
+            {
+                return false;
+            }
+
+            distinctCacheKey = ResolvePlaceholders(DistinctNotificationKey, placeholders);
+            lock (_distinctCache)
+            {
+                if (!_distinctCache.ContainsKey(distinctCacheKey))
+                {
+                    return false;
+                }
+
+                return _distinctCache[distinctCacheKey] < DateTimeOffset.Now;
+            }
+        }
+
+        private string ResolvePlaceholders(string value, Dictionary<string, string> placeholders)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+
+            foreach (var kvp in placeholders)
+            {
+                var key = kvp.Key;
+                var placeholderValue = kvp.Value ?? "";
+
+                value = value.Replace($"{{{key?.ToUpper()}}}", placeholderValue);
+            }
+
+            return value;
+        }
+
 
         /// <summary>
         /// True if any defined limits has been reached.
