@@ -170,7 +170,9 @@ namespace HealthCheck.Core.Modules.EventNotifications.Services
         /// <para>It should either be stringifiable or contain public properties that can be filtered upon.</para>
         /// <para>An anonymous object works fine.</para>
         /// </param>
-        public void RegisterEvent<T>(string eventId, T payload) => RegisterEvent(eventId, payload as object);
+        /// <param name="fireAndForget">Run async and don't wait.</param>
+        public void RegisterEvent<T>(string eventId, T payload, bool fireAndForget = true)
+            => RegisterEvent(eventId, payload as object, fireAndForget);
 
         /// <summary>
         /// Send an event with payload data.
@@ -180,12 +182,20 @@ namespace HealthCheck.Core.Modules.EventNotifications.Services
         /// <para>It should either be stringifiable or contain public properties that can be filtered upon.</para>
         /// <para>An anonymous object works fine.</para>
         /// </param>
-        public void RegisterEvent(string eventId, object payload = null)
+        /// <param name="fireAndForget">Run async and don't wait.</param>
+        public void RegisterEvent(string eventId, object payload = null, bool fireAndForget = true)
         {
-            Task.Run(() => RegisterEventInternal(eventId, payload));
+            if (fireAndForget)
+            {
+                Task.Run(() => RegisterEventInternal(eventId, payload, fireAndForget));
+            }
+            else
+            {
+                RegisterEventInternal(eventId, payload, fireAndForget);
+            }
         }
 
-        private void RegisterEventInternal(string eventId, object payload = null)
+        private void RegisterEventInternal(string eventId, object payload = null, bool fireAndForget = true)
         {
             try
             {
@@ -234,7 +244,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Services
             }
 
             // Check that we have any enabled configs
-            var configs = EventSinkNotificationConfigStorage.GetConfigs()
+            var configs = EventSinkNotificationConfigStorage.GetConfigs().ToList()
                 ?.Where(x => x.Enabled && x.NotifierConfigs.Any(nConfig => notifiers.Any(n => n.Id == nConfig.NotifierId)))
                 ?.ToList();
             if (configs == null || configs.Count == 0)
@@ -262,7 +272,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Services
                             continue;
                         }
 
-                        Task.Run(async () =>
+                        var task = Task.Run(async () =>
                         {
                             var result = await NotifyEventAsync(notifier, notifierConfig, eventId, payloadProperties);
                             if (!string.IsNullOrWhiteSpace(result))
@@ -274,6 +284,11 @@ namespace HealthCheck.Core.Modules.EventNotifications.Services
                                 OnEventNotified(config, result);
                             }
                         });
+
+                        if (!fireAndForget)
+                        {
+                            task.ConfigureAwait(false).GetAwaiter().GetResult();
+                        }
                     }
                 }
             }

@@ -48,7 +48,8 @@ namespace HealthCheck.Core.Modules.EventNotifications.Abstractions
         /// <para>It should either be stringifiable or contain public properties that can be filtered upon.</para>
         /// <para>An anonymous object works fine.</para>
         /// </param>
-        void RegisterEvent(string eventId, object payload = null);
+        /// <param name="fireAndForget">Run async and don't wait.</param>
+        void RegisterEvent(string eventId, object payload = null, bool fireAndForget = true);
 
         /// <summary>
         /// Send an event with payload data.
@@ -58,7 +59,8 @@ namespace HealthCheck.Core.Modules.EventNotifications.Abstractions
         /// <para>It should either be stringifiable or contain public properties that can be filtered upon.</para>
         /// <para>An anonymous object works fine.</para>
         /// </param>
-        void RegisterEvent<T>(string eventId, T payload);
+        /// <param name="fireAndForget">Run async and don't wait.</param>
+        void RegisterEvent<T>(string eventId, T payload, bool fireAndForget = true);
 
         /// <summary>
         /// Get definitions of all known event ids.

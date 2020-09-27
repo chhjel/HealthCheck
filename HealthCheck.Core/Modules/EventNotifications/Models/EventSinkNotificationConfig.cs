@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.ExceptionServices;
@@ -80,13 +81,17 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
         /// </summary>
         public List<string> LatestResults { get; set; } = new List<string>();
 
+        private static readonly SimpleMemoryCache<DateTimeOffset?> _distinctCache = new SimpleMemoryCache<DateTimeOffset?>();
+        private bool DistinctCacheEnabled => !string.IsNullOrWhiteSpace(DistinctNotificationKey) && DistinctNotificationCacheDuration.TotalSeconds > 0;
+
         /// <summary>
         /// Returns true if all <see cref="PayloadFilters"/> match the input.
         /// </summary>
         public bool IsAllowed(string eventId, bool payloadIsComplex,
             string stringifiedPayload, Dictionary<string, string> payloadProperties)
         {
-            string distinctCacheKey = null;
+            _distinctCache.RemoveExpired(TimeSpan.FromSeconds(1));
+
             if (LimitHasBeenReached())
             {
                 return false;
@@ -99,60 +104,57 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
             {
                 return false;
             }
-            else if (DistinctLimitHasBeenReached(payloadProperties, out string key))
+            else if (HasDistinctLimitBeenReached(payloadProperties))
             {
-                distinctCacheKey = key;
                 return false;
             }
-
-            if (PayloadFilters == null || !PayloadFilters.Any())
+            else if (PayloadFilters == null || !PayloadFilters.Any())
             {
+                TryUpdateDistinctCache(payloadProperties);
                 return true;
             }
-
-            if (!(PayloadFilters?.All(x => x.IsAllowed(payloadIsComplex, stringifiedPayload, payloadProperties)) == true))
+            else if (PayloadFilters?.All(x => x.IsAllowed(payloadIsComplex, stringifiedPayload, payloadProperties)) != true)
             {
                 return false;
             }
 
-            UpdateDistinctCache(distinctCacheKey);
+            TryUpdateDistinctCache(payloadProperties);
             return true;
+
+            void TryUpdateDistinctCache(Dictionary<string, string> payloadProperties)
+            {
+                var distinctCacheKey = ResolvePlaceholders(DistinctNotificationKey, payloadProperties);
+                UpdateDistinctCacheIfEnabled(distinctCacheKey);
+            }
+        }
+        
+        /// <summary>
+        /// To clear static caches during tests.
+        /// </summary>
+        internal void ClearCaches()
+        {
+            _distinctCache.ClearAll();
         }
 
-        private static readonly Dictionary<string, DateTimeOffset> _distinctCache = new Dictionary<string, DateTimeOffset>();
-        private void UpdateDistinctCache(string key)
+        private void UpdateDistinctCacheIfEnabled(string key)
         {
-            if (key == null
-                || string.IsNullOrWhiteSpace(DistinctNotificationKey)
-                || DistinctNotificationCacheDuration.TotalSeconds <= 0)
+            if (key == null || !DistinctCacheEnabled)
             {
                 return;
             }
 
-            lock(_distinctCache)
-            {
-                _distinctCache[key] = DateTimeOffset.Now;
-            }
+            _distinctCache.SetFlag(key, DistinctNotificationCacheDuration);
         }
 
-        private bool DistinctLimitHasBeenReached(Dictionary<string, string> placeholders, out string distinctCacheKey)
+        private bool HasDistinctLimitBeenReached(Dictionary<string, string> placeholders)
         {
-            distinctCacheKey = null;
-            if (string.IsNullOrWhiteSpace(DistinctNotificationKey) || DistinctNotificationCacheDuration.TotalSeconds <= 0)
+            if (!DistinctCacheEnabled)
             {
                 return false;
             }
 
-            distinctCacheKey = ResolvePlaceholders(DistinctNotificationKey, placeholders);
-            lock (_distinctCache)
-            {
-                if (!_distinctCache.ContainsKey(distinctCacheKey))
-                {
-                    return false;
-                }
-
-                return _distinctCache[distinctCacheKey] < DateTimeOffset.Now;
-            }
+            var distinctCacheKey = ResolvePlaceholders(DistinctNotificationKey, placeholders);
+            return _distinctCache.HasFlag(distinctCacheKey);
         }
 
         private string ResolvePlaceholders(string value, Dictionary<string, string> placeholders)
