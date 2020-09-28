@@ -39,6 +39,9 @@ export interface EventSinkNotificationConfig {
     EventIdFilter: EventSinkNotificationConfigFilter;
     PayloadFilters: Array<EventSinkNotificationConfigFilter>;
     LatestResults: Array<string>;
+
+    DistinctNotificationKey: string;
+    DistinctNotificationCacheDuration: string; // "HH:MM:SS"
 }
 
 export interface NotifierConfig {

@@ -558,7 +558,7 @@ export default class EventNotificationsPageComponent extends Vue {
             return;
         }
 
-        let config = {
+        let config: EventSinkNotificationConfig = {
             Id: '00000000-0000-0000-0000-000000000000',
             LastChangedBy: 'You',
             Enabled: true,
@@ -576,7 +576,9 @@ export default class EventNotificationsPageComponent extends Vue {
                 _frontendId: IdUtils.generateId()
             },
             PayloadFilters: [],
-            LatestResults: []
+            LatestResults: [],
+            DistinctNotificationKey: '',
+            DistinctNotificationCacheDuration: '0:0:0'
         };
 
         this.showConfig(config);

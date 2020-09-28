@@ -721,7 +721,7 @@ new FlatFileAccessManagerTokenStorage(@"e:\config\access-tokens.json")
 
 Enables notifications of custom events. Rules for notifications can be edited in a UI and events are easily triggered from code. Notifications are delivered through implementations of `IEventNotifier`. Built-in implementations: `DefaultEventDataSink`, `WebHookEventNotifier`.
 
-Events can be filtered on their id, stringified payload or properties on their payload. Limits can also be set to restrict number of notifications and between dates.
+Events can be filtered on their id, stringified payload or properties on their payload, and limits and distinctions can be set.
 
 ### Setup
 
