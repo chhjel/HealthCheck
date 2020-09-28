@@ -189,6 +189,25 @@
                 name="To"
                 description="Only allow notifications before this datetime. After this datetime the config will be disabled."
                 />
+
+            <input-component
+                class="mt-2"
+                v-model="internalConfig.DistinctNotificationKey"
+                :disabled="!allowChanges"
+                name="Distinct pattern"
+                description="Optionally limit to a single notification for the given duration for each distinct value made from the pattern below that supports placeholders. Requires both a template value and a duration."
+                type="text"
+                :action-icon="getPayloadPlaceholders().length > 0 ? 'insert_link' : ''"
+                @actionIconClicked="showPayloadPlaceholdersDialog()"
+                />
+
+            <timespan-input-component
+                class="mt-2"
+                v-model="internalConfig.DistinctNotificationCacheDuration"
+                :disabled="!allowChanges"
+                name="Distinct duration"
+                description="Duration to silence distinct notifications for, in hours, minutes and seconds."
+                />
         </block-component>
 
         <!-- ###### LOG ###### -->
@@ -254,6 +273,37 @@
             </v-card>
         </v-dialog>
 
+        <v-dialog v-model="payloadPlaceholderDialogVisible"
+            @keydown.esc="payloadPlaceholderDialogVisible = false"
+            scrollable
+            content-class="possible-placeholders-dialog">
+            <v-card>
+                <v-card-title class="headline">Select placeholder to add</v-card-title>
+                <v-divider></v-divider>
+                <v-card-text style="max-height: 500px;">
+                    <v-list class="possible-placeholders-list">
+                        <v-list-tile v-for="(placeholder, placeholderIndex) in getPayloadPlaceholders()"
+                            :key="`possible-placeholder-${placeholderIndex}`"
+                            @click="onAddPayloadPlaceholderClicked(placeholder)"
+                            class="possible-placeholder-list-item">
+                            <v-list-tile-action>
+                                <v-icon>add</v-icon>
+                            </v-list-tile-action>
+
+                            <v-list-tile-content>
+                                <v-list-tile-title class="possible-placeholder-item-title">{{ `\{${placeholder.toUpperCase()}\}` }}</v-list-tile-title>
+                            </v-list-tile-content>
+                        </v-list-tile>
+                    </v-list>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary" flat @click="hidePayloadPlaceholderDialog()">Cancel</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
         <v-dialog v-model="placeholderDialogVisible"
             @keydown.esc="placeholderDialogVisible = false"
             scrollable
@@ -298,6 +348,7 @@ import IdUtils from  '../../../util/IdUtils';
 import EventSinkNotificationConfigUtils, { ConfigFilterDescription, ConfigDescription, ConfigActionDescription } from  '../../../util/EventNotifications/EventSinkNotificationConfigUtils';
 import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
 import InputComponent from  '../../Common/Basic/InputComponent.vue';
+import TimespanInputComponent from  '../../Common/Basic/TimespanInputComponent.vue';
 import EventNotificationService from  '../../../services/EventNotificationService';
 
 @Component({
@@ -305,7 +356,8 @@ import EventNotificationService from  '../../../services/EventNotificationServic
         ConfigFilterComponent,
         SimpleDateTimeComponent,
         BlockComponent,
-        InputComponent
+        InputComponent,
+        TimespanInputComponent
     }
 })
 export default class EventNotificationConfigComponent extends Vue {
@@ -333,6 +385,7 @@ export default class EventNotificationConfigComponent extends Vue {
     ASD!: EventSinkNotificationConfig;
     notifierDialogVisible: boolean = false;
     deleteDialogVisible: boolean = false;
+    payloadPlaceholderDialogVisible: boolean = false;
     placeholderDialogVisible: boolean = false;
     currentPlaceholderDialogTarget: NotifierConfigOptionsItem | null = null;
     currentPlaceholderDialogTargetConfig: NotifierConfig | null = null;
@@ -473,6 +526,14 @@ export default class EventNotificationConfigComponent extends Vue {
         this.currentPlaceholderDialogTargetOptionKey = null;
     }
 
+    showPayloadPlaceholdersDialog(): void {
+        this.payloadPlaceholderDialogVisible = true;
+    }
+
+    hidePayloadPlaceholderDialog(): void {
+        this.payloadPlaceholderDialogVisible = false;
+    }
+
     onAddPlaceholderClicked(placeholder: string, option: NotifierConfigOptionsItem): void {
         if (this.currentPlaceholderDialogTargetConfig == null
             || this.currentPlaceholderDialogTargetOptionKey == null)
@@ -507,6 +568,23 @@ export default class EventNotificationConfigComponent extends Vue {
             .concat(this.placeholders)
             .filter(x => x != null)
             .map(x => x.toUpperCase());
+    }
+    
+
+    getPayloadPlaceholders(): Array<string>
+    {
+        return this.currentEventDefinitionProperties;
+    }
+
+    onAddPayloadPlaceholderClicked(placeholder: string): void {
+        let value = this.internalConfig.DistinctNotificationKey ?? '';
+        value = `${value}\{${placeholder.toUpperCase()}\}`;
+        this.internalConfig.DistinctNotificationKey = value;
+
+        // Vue.set(this.currentPlaceholderDialogTargetConfig.Options, this.currentPlaceholderDialogTargetOptionKey, value);
+        // this.currentPlaceholderDialogTargetConfig.Options[this.currentPlaceholderDialogTargetOptionKey] = value;
+
+        this.hidePayloadPlaceholderDialog();
     }
 
     getNotifierConfigOptions(notifier: IEventNotifier, options: Dictionary<string>): Array<NotifierConfigOptionsItem> {

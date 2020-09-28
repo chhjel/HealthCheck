@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.ExceptionServices;
 
 namespace HealthCheck.Core.Modules.EventNotifications.Models
 {
@@ -90,35 +89,39 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
         public bool IsAllowed(string eventId, bool payloadIsComplex,
             string stringifiedPayload, Dictionary<string, string> payloadProperties)
         {
-            _distinctCache.RemoveExpired(TimeSpan.FromSeconds(1));
+            lock (_distinctCache)
+            {
+                _distinctCache.RemoveExpired(TimeSpan.FromSeconds(1));
 
-            if (LimitHasBeenReached())
-            {
-                return false;
-            }
-            else if (FromTime != null && DateTimeOffset.Now.ToUniversalTime() < FromTime?.ToUniversalTime())
-            {
-                return false;
-            }
-            else if (EventIdFilter?.IsAllowed(false, eventId, null) == false)
-            {
-                return false;
-            }
-            else if (HasDistinctLimitBeenReached(payloadProperties))
-            {
-                return false;
-            }
-            else if (PayloadFilters == null || !PayloadFilters.Any())
-            {
+                if (LimitHasBeenReached())
+                {
+                    return false;
+                }
+                else if (FromTime != null && DateTimeOffset.Now.ToUniversalTime() < FromTime?.ToUniversalTime())
+                {
+                    return false;
+                }
+                else if (EventIdFilter?.IsAllowed(false, eventId, null) == false)
+                {
+                    return false;
+                }
+                else if (HasDistinctLimitBeenReached(payloadProperties))
+                {
+                    return false;
+                }
+                else if (PayloadFilters == null || !PayloadFilters.Any())
+                {
+                    TryUpdateDistinctCache(payloadProperties);
+                    return true;
+                }
+                else if (PayloadFilters?.All(x => x.IsAllowed(payloadIsComplex, stringifiedPayload, payloadProperties)) != true)
+                {
+                    return false;
+                }
+
                 TryUpdateDistinctCache(payloadProperties);
-                return true;
-            }
-            else if (PayloadFilters?.All(x => x.IsAllowed(payloadIsComplex, stringifiedPayload, payloadProperties)) != true)
-            {
-                return false;
             }
 
-            TryUpdateDistinctCache(payloadProperties);
             return true;
 
             void TryUpdateDistinctCache(Dictionary<string, string> payloadProperties)

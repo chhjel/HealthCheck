@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HealthCheck.Core.Util
 {
@@ -155,12 +156,14 @@ namespace HealthCheck.Core.Util
                 }
 
                 _lastCleanupTime = DateTime.Now;
-                var keys = _items.Keys;
-                foreach (var key in keys)
+                var keys = _items;
+                for (int i=0;i<keys.Count;i++)
                 {
+                    var key = keys.ElementAt(i).Key;
                     if (_items[key].ExpiresAt <= DateTime.Now)
                     {
                         _items.Remove(key);
+                        i--;
                     }
                 }
             }
