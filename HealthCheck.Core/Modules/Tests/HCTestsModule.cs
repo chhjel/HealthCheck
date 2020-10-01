@@ -180,7 +180,7 @@ namespace HealthCheck.Core.Modules.Tests
 
             try
             {
-                var parameters = data?.GetParametersWithConvertedTypes(test.Parameters.Select(x => x.ParameterType).ToArray(), ParameterConverter);
+                var parameters = data?.GetParametersWithConvertedTypes(test.Parameters.Select(x => x.ParameterType).ToArray(), ParameterConverter, test);
                 var result = await TestRunner.ExecuteTest(test, parameters,
                     allowDefaultValues: false,
                     includeExceptionStackTraces: includeExceptionStackTraces

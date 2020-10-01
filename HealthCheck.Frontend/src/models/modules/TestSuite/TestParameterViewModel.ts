@@ -10,4 +10,11 @@ export default interface TestParameterViewModel {
     ReadOnlyList: boolean;
     ShowTextArea: boolean;
     FullWidth: boolean;
+    IsCustomProxyType: boolean;
+    ReferenceChoices: Array<TestParameterReferenceChoiceViewModel>;
+}
+
+export interface TestParameterReferenceChoiceViewModel {
+    id: string;
+    name: string;
 }

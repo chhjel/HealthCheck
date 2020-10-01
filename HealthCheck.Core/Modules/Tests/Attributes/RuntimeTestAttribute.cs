@@ -59,7 +59,7 @@ namespace HealthCheck.Core.Modules.Tests.Attributes
         public string[] Categories { get; set; }
 
         /// <summary>
-        /// Set roles that are allowed access to the tests in this class.
+        /// Set roles that are allowed access to this test.
         /// <para>Must be an enum flags value.</para>
         /// </summary>
         public object RolesWithAccess { get; set; }

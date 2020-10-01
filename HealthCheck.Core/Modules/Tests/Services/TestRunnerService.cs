@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Modules.AuditLog.Abstractions;
+﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.AuditLog.Models;
 using HealthCheck.Core.Modules.SiteEvents.Abstractions;
 using HealthCheck.Core.Modules.SiteEvents.Models;
@@ -19,6 +20,11 @@ namespace HealthCheck.Core.Modules.Tests.Services
     /// </summary>
     public class TestRunnerService
     {
+        /// <summary>
+        /// Serializer used for proxy class test results.
+        /// </summary>
+        public static IJsonSerializer Serializer { get; set; }
+
         private static readonly Dictionary<string, CancellationTokenSource> TestCancellationTokenSources = new Dictionary<string, CancellationTokenSource>();
 
         /// <summary>
@@ -191,9 +197,20 @@ namespace HealthCheck.Core.Modules.Tests.Services
                 }
 
                 // Execute test
-                var instance = testClassInstance ?? IoCUtils.GetInstanceExt(test.ParentClass.ClassType);
+                object instance = null;
+                if (test.Type == TestDefinition.TestDefinitionType.Normal)
+                {
+                    instance = testClassInstance ?? IoCUtils.GetInstanceExt(test.ParentClass.ClassType);
+                }
+                else if (test.Type == TestDefinition.TestDefinitionType.ProxyClassMethod)
+                {
+                    instance = test.ClassProxyConfig.InstanceFactory?.Invoke() ?? IoCUtils.GetInstanceExt(test.ClassProxyConfig.TargetClassType);
+                }
+
                 var result = await test.ExecuteTest(instance, parameters, allowDefaultValues,
-                    (tokenSource) => RegisterCancellableTestStarted(test.Id, tokenSource));
+                    (tokenSource) => RegisterCancellableTestStarted(test.Id, tokenSource),
+                    allowAnyResultType: test.Type == TestDefinition.TestDefinitionType.ProxyClassMethod
+                );
 
                 // Post-process result
                 result.Test = test;

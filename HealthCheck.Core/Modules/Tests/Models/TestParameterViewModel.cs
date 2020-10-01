@@ -51,5 +51,15 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// Make the input field full width in size.
         /// </summary>
         public bool FullWidth { get; set; }
+
+        /// <summary>
+        /// True when a custom parameter factory has been defined for this type.
+        /// </summary>
+        public bool IsCustomProxyType { get; set; }
+
+        /// <summary>
+        /// Values when a selection is possible.
+        /// </summary>
+        public List<ClassProxyRuntimeTestParameterChoice> ReferenceChoices { get; set; }
     }
 }
