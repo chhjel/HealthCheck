@@ -202,6 +202,7 @@ public async Task<TestResult> GetDataFromServiceX(int id = 42, string orgName = 
 Executable methods can have parameter with or without default values. Default values will be included in the generated interface.
 
 Supported parameter types:
+
 * `string`
 * `int`, `int?`
 * `long`, `long?`
@@ -215,10 +216,74 @@ Supported parameter types:
 * `HttpPostedFileBase` (.net framework only for now)
 * `List<T>` where `<T>` is any of the above types (w/ option for readable list for setting order only)
 * `CancellationToken` to make the method cancellable, see below.
+* Any custom types when custom factory methods are implemented, see below.
 
 #### Cancellable methods
 
 If the first parameter is of the type `CancellationToken` a cancel button will be shown in the UI while the method is running, and only one instance of the method will be able to execute at a time.
+
+#### Custom types
+
+Custom parameter types for `[RuntimeTest]`-methods can be used by making a static method.
+
+<details><summary>Example</summary>
+<p>
+
+```csharp
+
+[RuntimeTest(ReferenceParameterFactoryProviderMethodName = nameof(GetReferenceFactories))]
+public TestResult ReferenceParameterTest(SomeParameterType data)
+{
+    return TestResult.CreateSuccess($"Selected data was: {data?.Name}");
+}
+
+// The first factory with a matching parameter type will be used if any.
+public static List<RuntimeTestReferenceParameterFactory> GetReferenceFactories()
+{
+    var getUserChoices = new Func<IEnumerable<SomeParameterType>>(() =>
+        Enumerable.Range(1, 1000).Select(x => new SomeParameterType(x, $"User #{x}"))
+    );
+
+    return new List<RuntimeTestReferenceParameterFactory>()
+    {
+        new RuntimeTestReferenceParameterFactory(
+            typeof(SomeParameterType),
+            choicesFactory: () => MyMethodToGetUsersToDisplay().Select(x => new RuntimeTestReferenceParameterChoice(x.Id, x.Name)),
+            getInstanceByIdFactory: (id) => MyMethodToFindUserById(id)
+        )
+    };
+}
+```
+</p>
+</details>
+
+#### Proxy tests
+
+To automatically create tests for all public methods of another class you can use the `[ProxyRuntimeTests]` instead of `[RuntimeTest]`.
+The method has to be static, take zero parameters and return a `ProxyRuntimeTestConfig` where you define what type to create tests from.
+Optionally reference parameter types can be supported by adding custom factory methods by using the `AddParameterTypeConfig` method.
+`choicesFactory` has to return all the available options for the user to pick, and `getInstanceByIdFactory` has to return one option by id.
+
+
+<details><summary>Example</summary>
+<p>
+
+```csharp
+[ProxyRuntimeTests]
+public static ProxyRuntimeTestConfig SomeServiceProxyTest()
+{
+    // This will result in one test per public method on the SomeService class.
+    return new ProxyRuntimeTestConfig(typeof(SomeService))
+        // The AddParameterTypeConfig call adds support for parameter types of SomeParameterType in the UI.
+        // Be careful to not load too much data, as all the choices from all tests are currently loaded when the tests-module loads.
+        .AddParameterTypeConfig<SomeParameterType>(
+            choicesFactory: () => MyMethodToGetUsersToDisplay().Select(x => new RuntimeTestReferenceParameterChoice(x.Id, x.Name)),
+            getInstanceByIdFactory: (id) => MyMethodToFindUserById(id)
+        );
+}
+```
+</p>
+</details>
 
 #### The TestResult
 
@@ -276,6 +341,7 @@ Must be applied to the method that should be executed.
 |RunButtonText/RunningButtonText|Optional custom texts for the button that executes the method.|
 |AllowManualExecution|True by default, can be set to false to hide the method from the interface.|
 |AllowParallelExecution|True by default, can be overridden for single methods. Does not have any effect when running methods from the UI, only when executing multiple methods via code.|
+|ReferenceParameterFactoryProviderMethodName|Optional name of a static method that provides factory methods for reference parameters. See example above.|
 
 #### [RuntimeTestParameter]
 Can be applied to either the method itself using the `Target` property or the parameters directly.
@@ -287,6 +353,12 @@ Can be applied to either the method itself using the `Target` property or the pa
 |Description|Description of the property. Shown as a help text and can contain html.|
 |UIHint|Options for parameter display can be set here. Read only lists, prevent null-values, text areas etc.|
 |DefaultValueFactoryMethod|For property types that cannot have default values (e.g. lists), use this to specify the name of a public static method in the same class as the method. The method should have the same return type as this parameter, and have zero parameters.|
+
+#### [ProxyRuntimeTests]
+Can be used to automatically create tests from all public methods on a type. See own section above.
+|Property Name|Function|
+|-|-|
+|RolesWithAccess|Roles allowed to view/execute the generated methods. Uses roles from the parent `RuntimeTestClass` by default.|
 
 ### Scheduled executions
 

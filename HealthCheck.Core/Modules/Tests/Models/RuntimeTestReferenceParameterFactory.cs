@@ -27,16 +27,16 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <param name="parameterType">Type of the parameter to factorize for.</param>
         /// Creates choices and selected values for reference type parameters.
         /// <param name="choicesFactory">Create all choices the user can select.</param>
-        /// <param name="getInstanceFromIdFactory">Get a single instance of the selected choice from the given selected id.</param>
+        /// <param name="getInstanceByIdFactory">Get a single instance of the selected choice from the given selected id.</param>
         /// </summary>
         public RuntimeTestReferenceParameterFactory(
             Type parameterType,
             Func<IEnumerable<RuntimeTestReferenceParameterChoice>> choicesFactory,
-            Func<string, object> getInstanceFromIdFactory)
+            Func<string, object> getInstanceByIdFactory)
         {
             ParameterType = parameterType;
             ChoicesFactory = choicesFactory;
-            GetInstanceFromIdFactory = getInstanceFromIdFactory;
+            GetInstanceFromIdFactory = getInstanceByIdFactory;
         }
     }
 }
