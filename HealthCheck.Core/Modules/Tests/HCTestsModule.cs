@@ -20,10 +20,10 @@ namespace HealthCheck.Core.Modules.Tests
         /// </summary>
         public StringConverter ParameterConverter { get; } = new StringConverter();
 
-        private readonly TestRunnerService TestRunner = new TestRunnerService();
-        private readonly TestDiscoveryService TestDiscoverer = new TestDiscoveryService();
-        private readonly TestViewModelsFactory TestsViewModelsFactory = new TestViewModelsFactory();
-        private readonly TestSetGroupsOptions GroupOptions = new TestSetGroupsOptions();
+        private TestRunnerService TestRunner { get; } = new TestRunnerService();
+        private TestDiscoveryService TestDiscoverer { get; } = new TestDiscoveryService();
+        private TestViewModelsFactory TestsViewModelsFactory { get; } = new TestViewModelsFactory();
+        private TestSetGroupsOptions GroupOptions { get; } = new TestSetGroupsOptions();
 
         /// <summary>
         /// Module for executing tests at runtime.

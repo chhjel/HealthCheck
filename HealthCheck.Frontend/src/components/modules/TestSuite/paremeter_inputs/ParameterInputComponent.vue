@@ -103,7 +103,7 @@ export default class ParameterInputComponent extends Vue {
     
     getInputComponentName(parameter: TestParameterViewModel): string
     {
-        if (parameter.IsCustomProxyType)
+        if (parameter.IsCustomReferenceType)
         {
             return 'ParameterInputPickReferenceComponent';
         }

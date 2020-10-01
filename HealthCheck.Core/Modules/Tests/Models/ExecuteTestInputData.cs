@@ -27,19 +27,28 @@ namespace HealthCheck.Core.Modules.Tests.Models
             var objects = new object[types.Length];
             for (int i = 0; i < objects.Length; i++)
             {
+                var parameter = test.Parameters[i];
+                var inputStringValue = Parameters[i];
                 var type = types[i];
+
                 object convertedObject = null;
-                if (test.Type == TestDefinition.TestDefinitionType.ProxyClassMethod && test.ClassProxyConfig.ParameterFactories.ContainsKey(type))
+                if (parameter.IsCustomReferenceType)
                 {
-                    if (!string.IsNullOrWhiteSpace(Parameters[i]))
+                    if (!string.IsNullOrWhiteSpace(inputStringValue)
+                        && test?.ClassProxyConfig?.ParameterFactories?.ContainsKey(type) == true)
                     {
                         var parameterFactoryData = test.ClassProxyConfig.ParameterFactories[type];
-                        convertedObject = parameterFactoryData.GetInstanceFromIdFactory?.Invoke(Parameters[i]);
+                        convertedObject = parameterFactoryData.GetInstanceFromIdFactory?.Invoke(inputStringValue);
+                    }
+                    else if (!string.IsNullOrWhiteSpace(inputStringValue)
+                       && parameter.ReferenceFactory?.GetInstanceFromIdFactory != null)
+                    {
+                        convertedObject = parameter.ReferenceFactory?.GetInstanceFromIdFactory?.Invoke(inputStringValue);
                     }
                 }
                 else
                 {
-                    convertedObject = stringConverter.ConvertStringTo(type, Parameters[i]);
+                    convertedObject = stringConverter.ConvertStringTo(type, inputStringValue);
                 }
                 objects[i] = convertedObject;
             }

@@ -55,11 +55,11 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// True when a custom parameter factory has been defined for this type.
         /// </summary>
-        public bool IsCustomProxyType { get; set; }
+        public bool IsCustomReferenceType { get; set; }
 
         /// <summary>
         /// Values when a selection is possible.
         /// </summary>
-        public List<ClassProxyRuntimeTestParameterChoice> ReferenceChoices { get; set; }
+        public List<RuntimeTestReferenceParameterChoice> ReferenceChoices { get; set; }
     }
 }

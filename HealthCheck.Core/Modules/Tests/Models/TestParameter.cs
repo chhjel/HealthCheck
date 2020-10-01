@@ -57,5 +57,20 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// Make the input field full width in size.
         /// </summary>
         public bool FullWidth { get; set; }
+
+        /// <summary>
+        /// True if this is a custom reference parameter.
+        /// </summary>
+        public bool IsCustomReferenceType { get; set; }
+
+        /// <summary>
+        /// Values when a selection is possible.
+        /// </summary>
+        public List<RuntimeTestReferenceParameterChoice> ReferenceChoices { get; set; }
+
+        /// <summary>
+        /// Factories for reference data.
+        /// </summary>
+        public RuntimeTestReferenceParameterFactory ReferenceFactory { get; set; }
     }
 }

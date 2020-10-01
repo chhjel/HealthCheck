@@ -1,10 +1,8 @@
 ﻿using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Util;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace HealthCheck.Core.Modules.Tests.Factories
 {
@@ -50,67 +48,10 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         {
             List<TestViewModel> viewModels = new List<TestViewModel>();
 
-            if (testDefinition.Type == TestDefinition.TestDefinitionType.Normal)
-            {
-                var model = CreateViewModel(testDefinition);
-                viewModels.Add(model);
-            }
-            else if (testDefinition.Type == TestDefinition.TestDefinitionType.ProxyClassMethod)
-            {
-                var model = CreateProxyViewModel(testDefinition);
-                viewModels.Add(model);
-            }
+            var model = CreateViewModel(testDefinition);
+            viewModels.Add(model);
 
             return viewModels;
-        }
-
-        private TestViewModel CreateProxyViewModel(TestDefinition testDefinition)
-        {
-            var method = testDefinition.Method;
-
-            var model = new TestViewModel()
-            {
-                Id = testDefinition.Id,
-                Name = method.Name.SpacifySentence(),
-                Parameters = new List<TestParameterViewModel>()
-            };
-
-            var methodParameters = method.GetParameters();
-            for (int i = 0; i < methodParameters.Length; i++)
-            {
-                var parameter = methodParameters[i];
-
-                List<ClassProxyRuntimeTestParameterChoice> choices = null;
-                var isCustomType = testDefinition.ClassProxyConfig.ParameterFactories.ContainsKey(parameter.ParameterType);
-                if (isCustomType)
-                {
-                    choices = testDefinition.ClassProxyConfig.ParameterFactories[parameter.ParameterType].ChoicesFactory?.Invoke()?.ToList()
-                        ?? new List<ClassProxyRuntimeTestParameterChoice>();
-                }
-
-                var param = new TestParameter()
-                {
-                    Index = i,
-                    Name = parameter.Name.SpacifySentence(),
-                    DefaultValue = GetDefaultValue(parameter),
-                    ParameterType = parameter.ParameterType
-                };
-                model.Parameters.Add(CreateViewModel(param, isCustomType, choices));
-            }
-
-            return model;
-        }
-
-        private object GetDefaultValue(ParameterInfo parameter)
-        {
-            if (parameter.DefaultValue == null || (parameter.DefaultValue is DBNull))
-            {
-                return null;
-            }
-            else
-            {
-                return parameter.DefaultValue;
-            }
         }
 
         private TestViewModel CreateViewModel(TestDefinition testDefinition)
@@ -152,8 +93,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         /// <summary>
         /// Create a <see cref="TestParameterViewModel"/> from the given <see cref="TestParameter"/>.
         /// </summary>
-        public TestParameterViewModel CreateViewModel(TestParameter testParameter,
-            bool isCustomType = false, List<ClassProxyRuntimeTestParameterChoice> referenceChoices = null)
+        public TestParameterViewModel CreateViewModel(TestParameter testParameter)
         {
             var stringConverter = new StringConverter();
             var paramType = testParameter.ParameterType;
@@ -181,8 +121,8 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 ReadOnlyList = testParameter.ReadOnlyList,
                 ShowTextArea = testParameter.ShowTextArea,
                 FullWidth = testParameter.FullWidth,
-                IsCustomProxyType = isCustomType,
-                ReferenceChoices = referenceChoices
+                IsCustomReferenceType = testParameter.IsCustomReferenceType,
+                ReferenceChoices = testParameter.ReferenceChoices
             };
 
             return vm;

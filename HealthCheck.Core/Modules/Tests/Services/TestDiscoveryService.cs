@@ -91,7 +91,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                 foreach(var testMethod in methods)
                 {
                     var testAttribute = testMethod.GetCustomAttribute<RuntimeTestAttribute>();
-                    var proxyTestAttribute = testMethod.GetCustomAttribute<ClassProxyRuntimeTestsAttribute>();
+                    var proxyTestAttribute = testMethod.GetCustomAttribute<ProxyRuntimeTestsAttribute>();
 
                     // Normal tests
                     if (testAttribute != null)
@@ -119,7 +119,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                             continue;
                         }
 
-                        var config = testMethod.Invoke(null, new object[0]) as ClassProxyRuntimeTestConfig;
+                        var config = testMethod.Invoke(null, new object[0]) as ProxyRuntimeTestConfig;
                         var proxyMethods = config.TargetClassType.GetMethods()
                             .Where(t => !_excludedProxyMethodNames.Contains(t.Name) && !t.IsSpecialName && t.IsPublic && !t.IsStatic)
                             .Where(m => !m.GetCustomAttributes(typeof(CompilerGeneratedAttribute), true).Any());
@@ -151,9 +151,9 @@ namespace HealthCheck.Core.Modules.Tests.Services
                 errors.Add($"Test method '{classType.Name}.{testMethod.Name}' must be static.");
             }
 
-            if (testMethod.ReturnType != typeof(ClassProxyRuntimeTestConfig))
+            if (testMethod.ReturnType != typeof(ProxyRuntimeTestConfig))
             {
-                errors.Add($"Test method '{classType.Name}.{testMethod.Name}' must return a {nameof(ClassProxyRuntimeTestConfig)}.");
+                errors.Add($"Test method '{classType.Name}.{testMethod.Name}' must return a {nameof(ProxyRuntimeTestConfig)}.");
             }
 
             if (testMethod.GetParameters().Length > 0)

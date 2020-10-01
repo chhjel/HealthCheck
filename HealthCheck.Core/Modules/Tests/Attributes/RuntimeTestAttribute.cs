@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Modules.Tests.Models;
 using System;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.Tests.Attributes
 {
@@ -75,5 +76,11 @@ namespace HealthCheck.Core.Modules.Tests.Attributes
         /// <para>Defaults to "Running.."</para>
         /// </summary>
         public string RunningButtonText { get; set; }
+
+        /// <summary>
+        /// Name of a method that returns a <see cref="List{T}"/> of <see cref="RuntimeTestReferenceParameterFactory"/> to support reference parameters of the provided types.
+        /// <para>Method must be public/private/internal static and not have any parameters.</para>
+        /// </summary>
+        public string ReferenceParameterFactoryProviderMethodName { get; set; }
     }
 }
