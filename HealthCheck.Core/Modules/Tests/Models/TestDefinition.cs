@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Tests.Attributes;
+using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
@@ -84,13 +85,45 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public TestClassDefinition ParentClass { get; private set; }
 
         /// <summary>
-        /// Create a new <see cref="TestDefinition"/>.
+        /// Config for proxy tests.
         /// </summary>
-        public TestDefinition(MethodInfo method, RuntimeTestAttribute testAttribute, TestClassDefinition parentClass)
+        public ProxyRuntimeTestConfig ClassProxyConfig { get; set; }
+
+        /// <summary>
+        /// Type of test definition, proxy or normal.
+        /// </summary>
+        internal TestDefinitionType Type { get; set; }
+
+        /// <summary>
+        /// For proxy class tests.
+        /// </summary>
+        internal List<string> LoadErrors { get; set; }
+
+        internal enum TestDefinitionType
+        {
+            Normal = 0,
+            ProxyClassMethod
+        }
+
+        internal TestDefinition(MethodInfo method, TestClassDefinition parentClass)
         {
             Method = method;
             ParentClass = parentClass;
+            RolesWithAccess = parentClass.DefaultRolesWithAccess;
 
+            Name = Method.Name.SpacifySentence();
+            Categories = ParentClass.DefaultCategories;
+            Type = TestDefinitionType.Normal;
+
+            SetId();
+        }
+
+        /// <summary>
+        /// Create a new <see cref="TestDefinition"/>.
+        /// </summary>
+        public TestDefinition(MethodInfo method, RuntimeTestAttribute testAttribute, TestClassDefinition parentClass)
+            : this(method, parentClass)
+        {
             Name = testAttribute.Name ?? Method.Name.SpacifySentence();
             Description = testAttribute.Description.EnsureDotAtEndIfNotNull();
             AllowParallelExecution = testAttribute.AllowParallelExecution == null ? default(bool?) : (bool)testAttribute.AllowParallelExecution;
@@ -112,8 +145,20 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 Categories = ParentClass.DefaultCategories;
             }
 
-            SetId();
-            InitParameters(method);
+            InitTestParameters(method, testAttribute.ReferenceParameterFactoryProviderMethodName);
+        }
+
+        /// <summary>
+        /// Create a new <see cref="TestDefinition"/>.
+        /// </summary>
+        public TestDefinition(MethodInfo method, ProxyRuntimeTestsAttribute proxyAttribute, ProxyRuntimeTestConfig config, TestClassDefinition parentClass)
+            : this(method, parentClass)
+        {
+            RolesWithAccess = proxyAttribute.RolesWithAccess ?? parentClass.DefaultRolesWithAccess;
+            Type = TestDefinitionType.ProxyClassMethod;
+            ClassProxyConfig = config;
+
+            InitTestParameters(method);
         }
 
         private void SetId()
@@ -122,7 +167,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
             Id = $"{ParentClass.ClassType.FullName}.{Method.Name}.{methodParametersSignature}";
         }
 
-        private void InitParameters(MethodInfo method)
+        private void InitTestParameters(MethodInfo method, string referenceChoicesFactoryMethodName = null)
         {
             var parameterAttributesOnMethod = method.GetCustomAttributes<RuntimeTestParameterAttribute>(true);
 
@@ -138,6 +183,19 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 var parameter = methodParameters[i];
                 var parameterAttributesOnParameter = parameter.GetCustomAttribute<RuntimeTestParameterAttribute>(true);
                 var parameterAttribute = parameterAttributesOnParameter ?? parameterAttributesOnMethod.FirstOrDefault(x => x.Target == parameter.Name);
+                var referenceChoices = new List<RuntimeTestReferenceParameterChoice>();
+
+                var isProxy = ClassProxyConfig?.ParameterFactories?.ContainsKey(parameter.ParameterType) == true;
+                RuntimeTestReferenceParameterFactory referenceFactory = null;
+                if (isProxy)
+                {
+                    referenceChoices = ClassProxyConfig.ParameterFactories[parameter.ParameterType].ChoicesFactory?.Invoke()?.ToList()
+                        ?? new List<RuntimeTestReferenceParameterChoice>();
+                }
+                else if (!string.IsNullOrWhiteSpace(referenceChoicesFactoryMethodName))
+                {
+                    referenceChoices = TryGetReferenceChoicesFromFactory(referenceChoicesFactoryMethodName, parameter, ref referenceFactory);
+                }
 
                 Parameters[i] = new TestParameter()
                 {
@@ -150,9 +208,38 @@ namespace HealthCheck.Core.Modules.Tests.Models
                     ReadOnlyList = parameterAttribute?.UIHints.HasFlag(UIHint.ReadOnlyList) == true,
                     ShowTextArea = parameterAttribute?.UIHints.HasFlag(UIHint.TextArea) == true,
                     FullWidth = parameterAttribute?.UIHints.HasFlag(UIHint.FullWidth) == true,
-                    PossibleValues = GetPossibleValues(parameter.ParameterType)
+                    PossibleValues = GetPossibleValues(parameter.ParameterType),
+                    IsCustomReferenceType = referenceChoices?.Any() == true,
+                    ReferenceChoices = referenceChoices,
+                    ReferenceFactory = referenceFactory
                 };
             }
+        }
+
+        private List<RuntimeTestReferenceParameterChoice> TryGetReferenceChoicesFromFactory(
+            string referenceChoicesFactoryMethodName, ParameterInfo parameter,
+            ref RuntimeTestReferenceParameterFactory referenceFactory)
+        {
+            var factoryProviderMethod = ParentClass.ClassType
+                                    .GetMethod(referenceChoicesFactoryMethodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            if (factoryProviderMethod != null
+                && factoryProviderMethod.GetParameters().Length == 0
+                && factoryProviderMethod.ReturnType == typeof(List<RuntimeTestReferenceParameterFactory>))
+            {
+                try
+                {
+                    var choiceFactories = factoryProviderMethod.Invoke(null, new object[0]) as List<RuntimeTestReferenceParameterFactory>;
+                    var choiceFactory = choiceFactories.FirstOrDefault(x => x.ParameterType == parameter.ParameterType);
+                    if (choiceFactory != null)
+                    {
+                        referenceFactory = choiceFactory;
+                        return choiceFactory.ChoicesFactory?.Invoke()?.ToList() ?? new List<RuntimeTestReferenceParameterChoice>();
+                    }
+                }
+                catch (Exception) { /* silence... */ }
+            }
+
+            return new List<RuntimeTestReferenceParameterChoice>();
         }
 
         private List<object> GetPossibleValues(Type parameterType)
@@ -212,7 +299,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// Run the test.
         /// </summary>
         public async Task<TestResult> ExecuteTest(object instance, object[] parameters, bool allowDefaultValues = true,
-            Action<CancellationTokenSource> onCancellationTokenCreated = null)
+            Action<CancellationTokenSource> onCancellationTokenCreated = null, bool allowAnyResultType = false)
         {
             var methodParams = Method.GetParameters();
             if (methodParams.FirstOrDefault()?.ParameterType == typeof(CancellationToken))
@@ -245,19 +332,42 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 parameterList[i] = value;
             }
 
-            if (Method.ReturnType == typeof(TestResult))
+            var returnType = Method.ReturnType;
+            if (returnType == typeof(TestResult))
             {
                 return (TestResult)Method.Invoke(instance, parameterList);
             }
-            else if (Method.ReturnType == typeof(Task<TestResult>))
+            else if (returnType == typeof(Task<TestResult>))
             {
                 var resultTask = (Task<TestResult>)Method.Invoke(instance, parameterList);
                 return await resultTask;
+            }
+            // Async any
+            else if (allowAnyResultType && returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
+            {
+                var data = await InvokeAsync(Method, instance, parameterList);
+                return TestResult.CreateSuccess($"Method {Method} was successfully invoked.")
+                    .AddSerializedData(data, TestRunnerService.Serializer, "Result");
+            }
+            // Sync any
+            else if (allowAnyResultType)
+            {
+                var data = Method.Invoke(instance, parameterList);
+                return TestResult.CreateSuccess($"Method {Method} was successfully invoked.")
+                    .AddSerializedData(data, TestRunnerService.Serializer, "Result");
             }
             else
             {
                 throw new InvalidTestDefinitionException($"Method {ParentClass.ClassType.Name}.{Method.Name} does not return a TestResult or Task<TestResult>.");
             }
+        }
+
+        private async Task<object> InvokeAsync(MethodInfo method, object obj, params object[] parameters)
+        {
+            var task = (Task)method.Invoke(obj, parameters);
+            await task.ConfigureAwait(false);
+            var resultProperty = task.GetType().GetProperty("Result");
+            return resultProperty.GetValue(task);
         }
 
         /// <summary>
@@ -266,11 +376,26 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public TestDefinitionValidationResult Validate()
         {
             var result = new TestDefinitionValidationResult(this);
-            var errors = new List<string>();
+            var errors = LoadErrors ?? new List<string>();
 
+            if (Type == TestDefinitionType.Normal)
+            {
+                ValidateNormalTest(errors);
+            }
+
+            if (errors.Any())
+            {
+                result.Error = string.Join("\n", errors);
+            }
+
+            return result;
+        }
+
+        private void ValidateNormalTest(List<string> errors)
+        {
             if (Method.ReturnType != typeof(TestResult) && Method.ReturnType != typeof(Task<TestResult>))
             {
-                errors.Add($"Test method '{ParentClass.ClassType.Name}.{Method.Name}' must return a TestResult or Task<TestResult>.");
+                errors.Add($"Test method '{ParentClass.ClassType.Name}.{Method.Name}' must return a {nameof(TestResult)} or Task<{nameof(TestResult)}>.");
             }
 
             var methodParameterNames = Method.GetParameters().Select(x => x.Name).ToArray();
@@ -312,12 +437,6 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 var factoryRefs = invalidFactoryReferences.Select(x => $"'{x.Item1.DefaultValueFactoryMethod}'").JoinForSentence();
                 errors.Add($"Test method '{ParentClass.ClassType.Name}.{Method.Name}' references DefaultValueFactoryMethod(s) that could not be found ({factoryRefs}), make sure it's in the same class, returns the same type as the parameter and is public static.");
             }
-
-            if (errors.Any())
-            {
-                result.Error = string.Join("\n", errors);
-            }
-            return result;
         }
 
         /// <summary>

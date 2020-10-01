@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace HealthCheck.Core.Modules.Tests.Services
 {
@@ -85,36 +86,48 @@ namespace HealthCheck.Core.Modules.Tests.Services
             {
                 var testClassAttribute = classType.GetCustomAttribute<RuntimeTestClassAttribute>(inherit: true);
                 var classDef = new TestClassDefinition(classType, testClassAttribute);
-                var testMethods = classType.GetMethods()
-                    .Where(x => x.GetCustomAttribute<RuntimeTestAttribute>(inherit: true) != null)
-                    .ToList();
+                var methods = classType.GetMethods();
 
-                foreach(var testMethod in testMethods)
+                foreach(var testMethod in methods)
                 {
                     var testAttribute = testMethod.GetCustomAttribute<RuntimeTestAttribute>();
-                    var testDef = new TestDefinition(testMethod, testAttribute, classDef);
+                    var proxyTestAttribute = testMethod.GetCustomAttribute<ProxyRuntimeTestsAttribute>();
 
-                    // Check for invalid tests
-                    if (!includeInvalidTests && !testDef.Validate().IsValid)
+                    // Normal tests
+                    if (testAttribute != null)
                     {
-                        continue;
+                        var testDef = new TestDefinition(testMethod, testAttribute, classDef);
+
+                        bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef);
+                        if (includeTest && testFilter?.Invoke(testDef) != false)
+                        {
+                            classDef.Tests.Add(testDef);
+                        }
                     }
-
-                    // Check for tests not allowed to be executed manually
-                    if (onlyTestsAllowedToBeManuallyExecuted && !testDef.AllowManualExecution)
+                    // Proxy class tests
+                    else if (proxyTestAttribute != null)
                     {
-                        continue;
-                    }
+                        // Check for load errors
+                        var errors = ValidateProxyTestMethod(classType, testMethod);
+                        if (errors.Any())
+                        {
+                            var testDef = new TestDefinition(testMethod, classDef)
+                            {
+                                LoadErrors = errors
+                            };
+                            classDef.Tests.Add(testDef);
+                            continue;
+                        }
 
-                    // Exclude tests that are outside the given roles if any
-                    if (!IsTestIncludedForRoles(testDef, userRolesEnum))
-                    {
-                        continue;
-                    }
-
-                    if (testFilter?.Invoke(testDef) != false)
-                    {
-                        classDef.Tests.Add(testDef);
+                        var config = testMethod.Invoke(null, new object[0]) as ProxyRuntimeTestConfig;
+                        var proxyMethods = config.TargetClassType.GetMethods()
+                            .Where(t => !_excludedProxyMethodNames.Contains(t.Name) && !t.IsSpecialName && t.IsPublic && !t.IsStatic)
+                            .Where(m => !m.GetCustomAttributes(typeof(CompilerGeneratedAttribute), true).Any());
+                        foreach (var proxyMethod in proxyMethods)
+                        {
+                            var testDef = new TestDefinition(proxyMethod, proxyTestAttribute, config, classDef);
+                            classDef.Tests.Add(testDef);
+                        }
                     }
                 }
 
@@ -124,7 +137,51 @@ namespace HealthCheck.Core.Modules.Tests.Services
                     testDefinitions.Add(classDef);
                 }
             }
+
             return testDefinitions;
+        }
+
+        private readonly string[] _excludedProxyMethodNames = typeof(object).GetMethods().Select(x => x.Name).ToArray();
+
+        private static List<string> ValidateProxyTestMethod(Type classType, MethodInfo testMethod)
+        {
+            var errors = new List<string>();
+            if (!testMethod.IsStatic)
+            {
+                errors.Add($"Test method '{classType.Name}.{testMethod.Name}' must be static.");
+            }
+
+            if (testMethod.ReturnType != typeof(ProxyRuntimeTestConfig))
+            {
+                errors.Add($"Test method '{classType.Name}.{testMethod.Name}' must return a {nameof(ProxyRuntimeTestConfig)}.");
+            }
+
+            if (testMethod.GetParameters().Length > 0)
+            {
+                errors.Add($"Test method '{classType.Name}.{testMethod.Name}' cannot have any parameters.");
+            }
+            return errors;
+        }
+
+        private bool ShouldIncludeTest(bool includeInvalidTests, bool onlyTestsAllowedToBeManuallyExecuted, object userRolesEnum, TestDefinition testDef)
+        {
+            // Check for invalid tests
+            if (!includeInvalidTests && !testDef.Validate().IsValid)
+            {
+                return false;
+            }
+            // Check for tests not allowed to be executed manually
+            else if (onlyTestsAllowedToBeManuallyExecuted && !testDef.AllowManualExecution)
+            {
+                return false;
+            }
+            // Exclude tests that are outside the given roles if any
+            else if (!IsTestIncludedForRoles(testDef, userRolesEnum))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private bool IsTestIncludedForRoles(TestDefinition test, object roles)

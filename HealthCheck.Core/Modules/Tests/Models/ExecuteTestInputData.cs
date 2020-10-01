@@ -22,13 +22,34 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Convert the parameter values as the given types using the given string converter.
         /// </summary>
-        public object[] GetParametersWithConvertedTypes(Type[] types, StringConverter stringConverter)
+        public object[] GetParametersWithConvertedTypes(Type[] types, StringConverter stringConverter, TestDefinition test)
         {
             var objects = new object[types.Length];
             for (int i = 0; i < objects.Length; i++)
             {
+                var parameter = test.Parameters[i];
+                var inputStringValue = Parameters[i];
                 var type = types[i];
-                var convertedObject = stringConverter.ConvertStringTo(type, Parameters[i]);
+
+                object convertedObject = null;
+                if (parameter.IsCustomReferenceType)
+                {
+                    if (!string.IsNullOrWhiteSpace(inputStringValue)
+                        && test?.ClassProxyConfig?.ParameterFactories?.ContainsKey(type) == true)
+                    {
+                        var parameterFactoryData = test.ClassProxyConfig.ParameterFactories[type];
+                        convertedObject = parameterFactoryData.GetInstanceFromIdFactory?.Invoke(inputStringValue);
+                    }
+                    else if (!string.IsNullOrWhiteSpace(inputStringValue)
+                       && parameter.ReferenceFactory?.GetInstanceFromIdFactory != null)
+                    {
+                        convertedObject = parameter.ReferenceFactory?.GetInstanceFromIdFactory?.Invoke(inputStringValue);
+                    }
+                }
+                else
+                {
+                    convertedObject = stringConverter.ConvertStringTo(type, inputStringValue);
+                }
                 objects[i] = convertedObject;
             }
             return objects;

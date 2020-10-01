@@ -35,7 +35,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
 
             foreach (var test in testClassDefinition.Tests)
             {
-                vm.Tests.Add(CreateViewModel(test));
+                vm.Tests.AddRange(CreateViewModels(test));
             }
 
             return vm;
@@ -44,9 +44,19 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         /// <summary>
         /// Create a <see cref="TestViewModel"/> from the given <see cref="TestDefinition"/>.
         /// </summary>
-        public TestViewModel CreateViewModel(TestDefinition testDefinition)
+        public IEnumerable<TestViewModel> CreateViewModels(TestDefinition testDefinition)
         {
-            var vm = new TestViewModel()
+            List<TestViewModel> viewModels = new List<TestViewModel>();
+
+            var model = CreateViewModel(testDefinition);
+            viewModels.Add(model);
+
+            return viewModels;
+        }
+
+        private TestViewModel CreateViewModel(TestDefinition testDefinition)
+        {
+            var model = new TestViewModel()
             {
                 Id = testDefinition.Id,
                 Name = testDefinition.Name,
@@ -59,10 +69,10 @@ namespace HealthCheck.Core.Modules.Tests.Factories
 
             foreach (var parameter in testDefinition.Parameters)
             {
-                vm.Parameters.Add(CreateViewModel(parameter));
+                model.Parameters.Add(CreateViewModel(parameter));
             }
 
-            return vm;
+            return model;
         }
 
         /// <summary>
@@ -110,7 +120,9 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 NotNull = testParameter.NotNull,
                 ReadOnlyList = testParameter.ReadOnlyList,
                 ShowTextArea = testParameter.ShowTextArea,
-                FullWidth = testParameter.FullWidth
+                FullWidth = testParameter.FullWidth,
+                IsCustomReferenceType = testParameter.IsCustomReferenceType,
+                ReferenceChoices = testParameter.ReferenceChoices
             };
 
             return vm;

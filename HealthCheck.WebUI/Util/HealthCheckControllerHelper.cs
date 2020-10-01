@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HealthCheck.Core.Util.Modules;
+using HealthCheck.Core.Modules.Tests.Services;
 
 #if NETFULL
 using System.IO;
@@ -40,6 +41,8 @@ namespace HealthCheck.WebUI.Util
         {
             _pageOptionsGetter = pageOptionsGetter;
             AccessConfig.RoleModuleAccessLevels = RoleModuleAccessLevels;
+
+            TestRunnerService.Serializer = new NewtonsoftJsonSerializer();
         }
 
         /// <summary>

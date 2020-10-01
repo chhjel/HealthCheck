@@ -15,7 +15,7 @@
             :parameter="parameter"
             :type="getGenericListInputType(parameter.Type)"
             :isListItem="isListItem"
-            :is="getInputComponentNameFromType(parameter.Type)"
+            :is="getInputComponentName(parameter)"
             v-on:disableInputHeader="disableInputHeader">
         </component>
     </div>
@@ -47,6 +47,7 @@ import ParameterInputTypeEnumComponent from './input_types/ParameterInputTypeEnu
 import ParameterInputTypeFlaggedEnumComponent from './input_types/ParameterInputTypeFlaggedEnumComponent.vue';
 import ParameterInputTypeGenericListComponent from './input_types/ParameterInputTypeGenericListComponent.vue';
 import ParameterInputTypeHttpPostedFileBaseComponent from './input_types/ParameterInputTypeHttpPostedFileBaseComponent.vue';
+import ParameterInputPickReferenceComponent from './input_types/ParameterInputPickReferenceComponent.vue';
 
 @Component({
     components: {
@@ -72,7 +73,8 @@ import ParameterInputTypeHttpPostedFileBaseComponent from './input_types/Paramet
       ParameterInputTypeEnumComponent,
       ParameterInputTypeFlaggedEnumComponent,
       ParameterInputTypeGenericListComponent,
-      ParameterInputTypeHttpPostedFileBaseComponent
+      ParameterInputTypeHttpPostedFileBaseComponent,
+      ParameterInputPickReferenceComponent
     }
 })
 export default class ParameterInputComponent extends Vue {
@@ -99,8 +101,14 @@ export default class ParameterInputComponent extends Vue {
         return null;
     }
     
-    getInputComponentNameFromType(typeName: string): string
+    getInputComponentName(parameter: TestParameterViewModel): string
     {
+        if (parameter.IsCustomReferenceType)
+        {
+            return 'ParameterInputPickReferenceComponent';
+        }
+
+        let typeName = parameter.Type;
         let genericType = this.getGenericListInputType(typeName);
         if (genericType != null) {
             return "ParameterInputTypeGenericListComponent";

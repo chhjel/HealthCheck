@@ -160,6 +160,8 @@ namespace HealthCheck.Core.Modules.Tests.Models
         {
             if (data == null && onlyIfNotNull)
                 return this;
+            else if (serializer == null)
+                return this;
 
             var dump = data.Dump(serializer, title);
             Data.Add(new TestResultDataDump()
