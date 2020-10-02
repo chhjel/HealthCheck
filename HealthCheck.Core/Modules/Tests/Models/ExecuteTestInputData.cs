@@ -35,15 +35,15 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 if (parameter.IsCustomReferenceType)
                 {
                     if (!string.IsNullOrWhiteSpace(inputStringValue)
-                        && test?.ClassProxyConfig?.ParameterFactories?.ContainsKey(type) == true)
+                        && test?.ClassProxyConfig?.GetFactoryForType(type) != null)
                     {
-                        var parameterFactoryData = test.ClassProxyConfig.ParameterFactories[type];
-                        convertedObject = parameterFactoryData.GetInstanceFromIdFactory?.Invoke(inputStringValue);
+                        var parameterFactoryData = test.ClassProxyConfig.GetFactoryForType(type);
+                        convertedObject = parameterFactoryData.GetInstanceByIdFor(type, inputStringValue);
                     }
                     else if (!string.IsNullOrWhiteSpace(inputStringValue)
-                       && parameter.ReferenceFactory?.GetInstanceFromIdFactory != null)
+                       && parameter.ReferenceFactory?.CanFactorizeFor(type) != null)
                     {
-                        convertedObject = parameter.ReferenceFactory?.GetInstanceFromIdFactory?.Invoke(inputStringValue);
+                        convertedObject = parameter.ReferenceFactory?.GetInstanceByIdFor(type, inputStringValue);
                     }
                 }
                 else

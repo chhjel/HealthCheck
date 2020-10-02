@@ -185,11 +185,12 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 var parameterAttribute = parameterAttributesOnParameter ?? parameterAttributesOnMethod.FirstOrDefault(x => x.Target == parameter.Name);
                 var referenceChoices = new List<RuntimeTestReferenceParameterChoice>();
 
-                var isProxy = ClassProxyConfig?.ParameterFactories?.ContainsKey(parameter.ParameterType) == true;
+                var parameterFactory = ClassProxyConfig?.GetFactoryForType(parameter.ParameterType);
+                var isProxy = parameterFactory != null;
                 RuntimeTestReferenceParameterFactory referenceFactory = null;
                 if (isProxy)
                 {
-                    referenceChoices = ClassProxyConfig.ParameterFactories[parameter.ParameterType].ChoicesFactory?.Invoke()?.ToList()
+                    referenceChoices = parameterFactory?.GetChoicesFor(parameter.ParameterType)?.ToList()
                         ?? new List<RuntimeTestReferenceParameterChoice>();
                 }
                 else if (!string.IsNullOrWhiteSpace(referenceChoicesFactoryMethodName))
@@ -229,11 +230,11 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 try
                 {
                     var choiceFactories = factoryProviderMethod.Invoke(null, new object[0]) as List<RuntimeTestReferenceParameterFactory>;
-                    var choiceFactory = choiceFactories.FirstOrDefault(x => x.ParameterType == parameter.ParameterType);
+                    var choiceFactory = choiceFactories.FirstOrDefault(x => x.CanFactorizeFor(parameter.ParameterType));
                     if (choiceFactory != null)
                     {
                         referenceFactory = choiceFactory;
-                        return choiceFactory.ChoicesFactory?.Invoke()?.ToList() ?? new List<RuntimeTestReferenceParameterChoice>();
+                        return choiceFactory.GetChoicesFor(parameter.ParameterType)?.ToList() ?? new List<RuntimeTestReferenceParameterChoice>();
                     }
                 }
                 catch (Exception) { /* silence... */ }

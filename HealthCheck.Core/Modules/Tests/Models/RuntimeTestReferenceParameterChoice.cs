@@ -8,7 +8,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
     public class RuntimeTestReferenceParameterChoice
     {
         /// <summary>
-        /// Id of the choice that will be fed back to <see cref="RuntimeTestReferenceParameterFactory.GetInstanceFromIdFactory"/>
+        /// Id of the choice that will be fed back to <see cref="RuntimeTestReferenceParameterFactory._getInstanceFromIdFactory"/>
         /// </summary>
         public string Id { get; set; }
 
