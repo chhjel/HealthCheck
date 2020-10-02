@@ -1,7 +1,7 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputPickReferenceComponent.vue -->
 <template>
     <div>
-        <v-btn @click="choicesDialogVisible = true">{{ selectedChoiceLabel }}</v-btn>
+        <v-btn @click="showDialog">{{ selectedChoiceLabel }}</v-btn>
         
         <v-dialog v-model="choicesDialogVisible"
             @keydown.esc="choicesDialogVisible = false"
@@ -37,6 +37,9 @@
                             {{ choice.Name }}
                         </v-btn>
                     </div>
+                    <v-progress-linear
+                        v-if="loadingChoicesStatus.inProgress"
+                        indeterminate color="primary"></v-progress-linear>
                 </v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions >
@@ -52,6 +55,7 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 import TestParameterViewModel, { TestParameterReferenceChoiceViewModel } from  '../../../../../models/modules/TestSuite/TestParameterViewModel';
+import { FetchStatus, ServiceFetchCallbacks } from "../../../../../services/abstractions/HCServiceBase";
 
 @Component({
     components: {
@@ -63,6 +67,11 @@ export default class ParameterInputPickReferenceComponent extends Vue {
 
     @Prop({ required: false })
     isListItem!: boolean;
+
+    // Service
+    loadingChoicesStatus: FetchStatus = new FetchStatus();
+    hasLoadedChoices: boolean = false;
+    loadedChoices: Array<TestParameterReferenceChoiceViewModel> = [];
 
     selectedChoice: TestParameterReferenceChoiceViewModel = this.choices[0];
     choicesDialogVisible: boolean = false;
@@ -87,9 +96,10 @@ export default class ParameterInputPickReferenceComponent extends Vue {
             Id: '',
             Name: '[null]'
         });
-        if (this.parameter.ReferenceChoices != null)
+
+        if (this.loadedChoices != null)
         {
-            this.parameter.ReferenceChoices.forEach(choice => {
+            this.loadedChoices.forEach(choice => {
                 values.push(choice);
             }); 
         }
@@ -110,6 +120,29 @@ export default class ParameterInputPickReferenceComponent extends Vue {
 
     get choiceCount(): number {
         return this.choices.length;
+    }
+
+    showDialog(): void {
+        this.choicesDialogVisible = true;
+
+        if (!this.hasLoadedChoices && !this.loadingChoicesStatus.inProgress)
+        {
+            const callbacks: ServiceFetchCallbacks<Array<TestParameterReferenceChoiceViewModel>> = {
+                onSuccess: (data) => {
+                    this.hasLoadedChoices = true;
+                    this.loadedChoices = data;
+                }
+            };
+
+            this.$root.$emit('hc__loadTestParameterChoices', 
+                {
+                    'component': this,
+                    'loadStatus' : this.loadingChoicesStatus,
+                    'callbacks': callbacks,
+                    'parameterIndex': this.parameter.Index
+                }
+            );
+        }
     }
 
     selectChoice(choice: TestParameterReferenceChoiceViewModel): void

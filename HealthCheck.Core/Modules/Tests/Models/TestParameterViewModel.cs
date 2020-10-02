@@ -8,6 +8,11 @@ namespace HealthCheck.Core.Modules.Tests.Models
     public class TestParameterViewModel
     {
         /// <summary>
+        /// Index of the parameter.
+        /// </summary>
+        public int Index { get; set; }
+
+        /// <summary>
         /// Name of the parameter.
         /// </summary>
         public string Name { get; set; }
@@ -56,10 +61,5 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// True when a custom parameter factory has been defined for this type.
         /// </summary>
         public bool IsCustomReferenceType { get; set; }
-
-        /// <summary>
-        /// Values when a selection is possible.
-        /// </summary>
-        public List<RuntimeTestReferenceParameterChoice> ReferenceChoices { get; set; }
     }
 }

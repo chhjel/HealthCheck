@@ -15,6 +15,9 @@ namespace HealthCheck.Dev.Common.Tests
     )]
     public class ClassProxyTests
     {
+        //[ProxyRuntimeTests]
+        //public ProxyRuntimeTestConfig NonStaticFailingTest() => new ProxyRuntimeTestConfig(typeof(SomeOtherParameterType));
+
         [ProxyRuntimeTests]
         public static ProxyRuntimeTestConfig ProxyTest()
         {
@@ -23,16 +26,42 @@ namespace HealthCheck.Dev.Common.Tests
                 new SomeParameterType(2, "Bob Rob"),
                 new SomeParameterType(3, "Elly Nelly")
             });
-            
+
+            var getOtherChoices = new Func<Type, IEnumerable<SomeOtherParameterType>>((type) =>
+            {
+                if (type == typeof(SomeOtherParameterType))
+                {
+                    return new[] {
+                        new SomeOtherParameterType(4, "Jimmy Smithy Other"),
+                        new SomeOtherParameterType(5, "Bob Rob Other"),
+                        new SomeOtherParameterType(6, "Elly Nelly Other")
+                    };
+                }
+                else
+                {
+                    return new[] {
+                        new SomeOtherSubParameterType(7, "Jimmy Smithy Other Sub"),
+                        new SomeOtherSubParameterType(8, "Bob Rob Other Sub"),
+                        new SomeOtherSubParameterType(9, "Elly Nelly Other Sub")
+                    };
+                }
+            });
+
             return new ProxyRuntimeTestConfig(typeof(SomeService))
                 .AddParameterTypeConfig<SomeParameterType>(
                     choicesFactory: () => getUserChoices().Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Name)),
                     getInstanceByIdFactory: (id) => getUserChoices().FirstOrDefault(x => x.Id.ToString() == id)
+                )
+                .AddParameterTypeConfig<SomeOtherParameterType>(
+                    choicesFactoryByType: (type) => getOtherChoices(type).Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Name)),
+                    getInstanceByIdFactoryByType: (type, id) => getOtherChoices(type).FirstOrDefault(x => x.Id.ToString() == id)
                 );
         }
 
         internal class SomeService
         {
+            public SomeParameterType WithComplexReturnValue() => new SomeParameterType(42, "Test");
+
 #pragma warning disable S3400 // Methods should not return constants
             public string WithReturnValue() => "Success!";
 #pragma warning restore S3400 // Methods should not return constants
@@ -50,6 +79,12 @@ namespace HealthCheck.Dev.Common.Tests
             }
 
             public SomeParameterType WithReferenceParameter(SomeParameterType someType) => someType;
+
+            public SomeOtherParameterType WithInheritedReferenceTypes1(SomeParameterType someType, SomeOtherParameterType otherType, SomeOtherSubParameterType otherSubType)
+                => otherType;
+
+            public SomeOtherParameterType WithInheritedReferenceTypes2(SomeParameterType someType, SomeOtherParameterType otherType, SomeOtherSubParameterType otherSubType)
+                => otherSubType;
         }
 
         public class SomeParameterType
@@ -61,6 +96,27 @@ namespace HealthCheck.Dev.Common.Tests
             {
                 Id = id;
                 Name = name;
+            }
+        }
+
+        public class SomeOtherParameterType
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public SomeOtherParameterType(int id, string name)
+            {
+                Id = id;
+                Name = name;
+            }
+        }
+
+        public class SomeOtherSubParameterType : SomeOtherParameterType
+        {
+            public string SubParam { get; set; } = "123";
+
+            public SomeOtherSubParameterType(int id, string name) : base(id, name)
+            {
             }
         }
 

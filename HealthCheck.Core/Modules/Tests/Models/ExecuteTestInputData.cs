@@ -32,21 +32,12 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 var type = types[i];
 
                 object convertedObject = null;
-                if (parameter.IsCustomReferenceType)
+                if (parameter.IsCustomReferenceType && !string.IsNullOrWhiteSpace(inputStringValue))
                 {
-                    if (!string.IsNullOrWhiteSpace(inputStringValue)
-                        && test?.ClassProxyConfig?.ParameterFactories?.ContainsKey(type) == true)
-                    {
-                        var parameterFactoryData = test.ClassProxyConfig.ParameterFactories[type];
-                        convertedObject = parameterFactoryData.GetInstanceFromIdFactory?.Invoke(inputStringValue);
-                    }
-                    else if (!string.IsNullOrWhiteSpace(inputStringValue)
-                       && parameter.ReferenceFactory?.GetInstanceFromIdFactory != null)
-                    {
-                        convertedObject = parameter.ReferenceFactory?.GetInstanceFromIdFactory?.Invoke(inputStringValue);
-                    }
+                    var factory = parameter.GetParameterFactory(test);
+                    convertedObject = factory?.GetInstanceByIdFor(type, inputStringValue);
                 }
-                else
+                else if (!parameter.IsCustomReferenceType)
                 {
                     convertedObject = stringConverter.ConvertStringTo(type, inputStringValue);
                 }

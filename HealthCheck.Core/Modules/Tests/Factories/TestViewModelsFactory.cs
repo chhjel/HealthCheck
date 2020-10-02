@@ -33,7 +33,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 Tests = new List<TestViewModel>(),
             };
 
-            foreach (var test in testClassDefinition.Tests)
+            foreach (var test in testClassDefinition.Tests.Where(x => x.LoadErrors?.Any() != true))
             {
                 vm.Tests.AddRange(CreateViewModels(test));
             }
@@ -112,6 +112,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
 
             var vm = new TestParameterViewModel()
             {
+                Index = testParameter.Index,
                 Name = testParameter.Name,
                 Description = testParameter.Description,
                 DefaultValue = stringConverter.ConvertToString(testParameter.DefaultValue),
@@ -121,8 +122,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 ReadOnlyList = testParameter.ReadOnlyList,
                 ShowTextArea = testParameter.ShowTextArea,
                 FullWidth = testParameter.FullWidth,
-                IsCustomReferenceType = testParameter.IsCustomReferenceType,
-                ReferenceChoices = testParameter.ReferenceChoices
+                IsCustomReferenceType = testParameter.IsCustomReferenceType
             };
 
             return vm;
