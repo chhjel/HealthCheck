@@ -4,6 +4,7 @@ import TestResultViewModel from "../models/modules/TestSuite/TestResultViewModel
 import ExecuteTestPayload from "../models/modules/TestSuite/ExecuteTestPayload";
 import ModuleConfig from "../models/Common/ModuleConfig";
 import FrontEndOptionsViewModel from "../models/Common/FrontEndOptionsViewModel";
+import { TestParameterReferenceChoiceViewModel } from "../models/modules/TestSuite/TestParameterViewModel";
 
 export default class TestService extends HCServiceBase
 {
@@ -38,4 +39,18 @@ export default class TestService extends HCServiceBase
     {
         this.invokeModuleMethod(this.moduleId, 'ExecuteTest', payload, statusObject, callbacks);
     }
+
+    public GetReferenceParameterOptions(
+        testId: string, parameterIndex: number,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<Array<TestParameterReferenceChoiceViewModel>> | null = null
+    ) : void
+    {
+        const payload = {
+            testId: testId,
+            parameterIndex: parameterIndex
+        };
+        this.invokeModuleMethod(this.moduleId, 'GetReferenceParameterOptions', payload, statusObject, callbacks);
+    }
+    
 }

@@ -64,13 +64,27 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public bool IsCustomReferenceType { get; set; }
 
         /// <summary>
-        /// Values when a selection is possible.
-        /// </summary>
-        public List<RuntimeTestReferenceParameterChoice> ReferenceChoices { get; set; }
-
-        /// <summary>
         /// Factories for reference data.
         /// </summary>
         public RuntimeTestReferenceParameterFactory ReferenceFactory { get; set; }
+
+        /// <summary>
+        /// Get a matching parameter factory.
+        /// </summary>
+        public RuntimeTestReferenceParameterFactory GetParameterFactory(TestDefinition test)
+        {
+            if (IsCustomReferenceType)
+            {
+                if (test?.ClassProxyConfig?.GetFactoryForType(ParameterType) != null)
+                {
+                    return test.ClassProxyConfig.GetFactoryForType(ParameterType);
+                }
+                else if (ReferenceFactory?.CanFactorizeFor(ParameterType) != null)
+                {
+                    return ReferenceFactory;
+                }
+            }
+            return null;
+        }
     }
 }

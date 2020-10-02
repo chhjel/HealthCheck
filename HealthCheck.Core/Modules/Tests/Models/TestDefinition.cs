@@ -183,20 +183,10 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 var parameter = methodParameters[i];
                 var parameterAttributesOnParameter = parameter.GetCustomAttribute<RuntimeTestParameterAttribute>(true);
                 var parameterAttribute = parameterAttributesOnParameter ?? parameterAttributesOnMethod.FirstOrDefault(x => x.Target == parameter.Name);
-                var referenceChoices = new List<RuntimeTestReferenceParameterChoice>();
 
-                var parameterFactory = ClassProxyConfig?.GetFactoryForType(parameter.ParameterType);
-                var isProxy = parameterFactory != null;
-                RuntimeTestReferenceParameterFactory referenceFactory = null;
-                if (isProxy)
-                {
-                    referenceChoices = parameterFactory?.GetChoicesFor(parameter.ParameterType)?.ToList()
-                        ?? new List<RuntimeTestReferenceParameterChoice>();
-                }
-                else if (!string.IsNullOrWhiteSpace(referenceChoicesFactoryMethodName))
-                {
-                    referenceChoices = TryGetReferenceChoicesFromFactory(referenceChoicesFactoryMethodName, parameter, ref referenceFactory);
-                }
+                var referenceFactory = ClassProxyConfig?.GetFactoryForType(parameter.ParameterType)
+                    ?? TryFindParameterFactory(referenceChoicesFactoryMethodName, parameter);
+                var isCustomReferenceType = referenceFactory != null;
 
                 Parameters[i] = new TestParameter()
                 {
@@ -210,17 +200,20 @@ namespace HealthCheck.Core.Modules.Tests.Models
                     ShowTextArea = parameterAttribute?.UIHints.HasFlag(UIHint.TextArea) == true,
                     FullWidth = parameterAttribute?.UIHints.HasFlag(UIHint.FullWidth) == true,
                     PossibleValues = GetPossibleValues(parameter.ParameterType),
-                    IsCustomReferenceType = referenceChoices?.Any() == true,
-                    ReferenceChoices = referenceChoices,
+                    IsCustomReferenceType = isCustomReferenceType,
                     ReferenceFactory = referenceFactory
                 };
             }
         }
 
-        private List<RuntimeTestReferenceParameterChoice> TryGetReferenceChoicesFromFactory(
-            string referenceChoicesFactoryMethodName, ParameterInfo parameter,
-            ref RuntimeTestReferenceParameterFactory referenceFactory)
+        private RuntimeTestReferenceParameterFactory TryFindParameterFactory(
+            string referenceChoicesFactoryMethodName, ParameterInfo parameter)
         {
+            if (referenceChoicesFactoryMethodName == null)
+            {
+                return null;
+            }
+
             var factoryProviderMethod = ParentClass.ClassType
                                     .GetMethod(referenceChoicesFactoryMethodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
             if (factoryProviderMethod != null
@@ -229,18 +222,17 @@ namespace HealthCheck.Core.Modules.Tests.Models
             {
                 try
                 {
-                    var choiceFactories = factoryProviderMethod.Invoke(null, new object[0]) as List<RuntimeTestReferenceParameterFactory>;
-                    var choiceFactory = choiceFactories.FirstOrDefault(x => x.CanFactorizeFor(parameter.ParameterType));
-                    if (choiceFactory != null)
+                    var factories = factoryProviderMethod.Invoke(null, new object[0]) as List<RuntimeTestReferenceParameterFactory>;
+                    var factory = factories.FirstOrDefault(x => x.CanFactorizeFor(parameter.ParameterType));
+                    if (factory != null)
                     {
-                        referenceFactory = choiceFactory;
-                        return choiceFactory.GetChoicesFor(parameter.ParameterType)?.ToList() ?? new List<RuntimeTestReferenceParameterChoice>();
+                        return factory;
                     }
                 }
                 catch (Exception) { /* silence... */ }
             }
 
-            return new List<RuntimeTestReferenceParameterChoice>();
+            return null;
         }
 
         private List<object> GetPossibleValues(Type parameterType)
@@ -347,14 +339,14 @@ namespace HealthCheck.Core.Modules.Tests.Models
             else if (allowAnyResultType && returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
             {
                 var data = await InvokeAsync(Method, instance, parameterList);
-                return TestResult.CreateSuccess($"Method {Method} was successfully invoked.")
+                return TestResult.CreateSuccess($"Method {Method?.Name} was successfully invoked.")
                     .AddSerializedData(data, TestRunnerService.Serializer, "Result");
             }
             // Sync any
             else if (allowAnyResultType)
             {
                 var data = Method.Invoke(instance, parameterList);
-                return TestResult.CreateSuccess($"Method {Method} was successfully invoked.")
+                return TestResult.CreateSuccess($"Method {Method?.Name} was successfully invoked.")
                     .AddSerializedData(data, TestRunnerService.Serializer, "Result");
             }
             else
@@ -379,7 +371,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
             var result = new TestDefinitionValidationResult(this);
             var errors = LoadErrors ?? new List<string>();
 
-            if (Type == TestDefinitionType.Normal)
+            if (Type == TestDefinitionType.Normal && !errors.Any())
             {
                 ValidateNormalTest(errors);
             }

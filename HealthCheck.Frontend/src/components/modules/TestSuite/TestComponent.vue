@@ -48,7 +48,7 @@
             <!-- PARAMETERS -->
             <test-parameters-component 
               v-if="test.Parameters.length > 0"
-              :test="test" />
+              :test="test"/>
             <div v-if="test.Parameters.length > 0 && showTestResult" class="mb-4"></div>
 
             <!-- PROGRESS -->
@@ -85,9 +85,11 @@ import ExecuteTestPayload from  '../../../models/modules/TestSuite/ExecuteTestPa
 import TestParametersComponent from './paremeter_inputs/TestParametersComponent.vue';
 import TestResultComponent from './TestResultComponent.vue';
 import TestService from  '../../../services/TestService';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
+import { FetchStatus, ServiceFetchCallbacks } from  '../../../services/abstractions/HCServiceBase';
 import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
 import UrlUtils from  '../../../util/UrlUtils';
+import { TestParameterReferenceChoiceViewModel } from "../../../models/modules/TestSuite/TestParameterViewModel";
+import ParameterInputPickReferenceComponent from "./paremeter_inputs/input_types/ParameterInputPickReferenceComponent.vue";
 
 @Component({
     components: {
@@ -117,6 +119,12 @@ export default class TestComponent extends Vue {
     created(): void {
       this.$parent.$on('executeAllTestsInSet', this.executeTest);
       this.testResult = this.test.TestResult;
+    }
+
+    mounted(): void {
+      this.$root.$on('hc__loadTestParameterChoices', (data: any) => {
+        this.onLoadTestParametersRequested(data)
+      });
     }
 
     beforeDestroy(): void {
@@ -209,6 +217,26 @@ export default class TestComponent extends Vue {
     onDataExpandedStateChanged(expanded: boolean): void
     {
       this.resultDataExpandedState = expanded;
+    }
+
+    onLoadTestParametersRequested(details: any): void {
+      const component = details.component as ParameterInputPickReferenceComponent;
+      if (component == null || !this.isChildOf(component.$el, this.$el))
+      {
+        return;
+      }
+
+      const loadStatus = details.loadStatus;
+      const callbacks = details.callbacks;
+      const parameterIndex = details.parameterIndex;
+      this.service.GetReferenceParameterOptions(this.test.Id, parameterIndex, loadStatus, callbacks);
+    }
+
+    isChildOf(child: Node, parent: Node): boolean
+    {
+      let c: any = child;
+      while ((c = c.parentNode) && c !== parent);
+      return !!c; 
     }
 
     ////////////////

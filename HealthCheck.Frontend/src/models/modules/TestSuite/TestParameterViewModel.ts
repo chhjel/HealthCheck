@@ -11,7 +11,6 @@ export default interface TestParameterViewModel {
     ShowTextArea: boolean;
     FullWidth: boolean;
     IsCustomReferenceType: boolean;
-    ReferenceChoices: Array<TestParameterReferenceChoiceViewModel>;
 }
 
 export interface TestParameterReferenceChoiceViewModel {

@@ -15,6 +15,9 @@ namespace HealthCheck.Dev.Common.Tests
     )]
     public class ClassProxyTests
     {
+        //[ProxyRuntimeTests]
+        //public ProxyRuntimeTestConfig NonStaticFailingTest() => new ProxyRuntimeTestConfig(typeof(SomeOtherParameterType));
+
         [ProxyRuntimeTests]
         public static ProxyRuntimeTestConfig ProxyTest()
         {
@@ -57,6 +60,8 @@ namespace HealthCheck.Dev.Common.Tests
 
         internal class SomeService
         {
+            public SomeParameterType WithComplexReturnValue() => new SomeParameterType(42, "Test");
+
 #pragma warning disable S3400 // Methods should not return constants
             public string WithReturnValue() => "Success!";
 #pragma warning restore S3400 // Methods should not return constants

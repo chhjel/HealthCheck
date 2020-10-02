@@ -156,6 +156,25 @@ namespace HealthCheck.Core.Modules.Tests
             }
             return await Task.FromResult(registered);
         }
+
+        /// <summary>
+        /// Get options for a given reference parameter.
+        /// </summary>
+        [HealthCheckModuleMethod]
+        public IEnumerable<RuntimeTestReferenceParameterChoice> GetReferenceParameterOptions(HealthCheckModuleContext context, GetReferenceParameterOptionsRequestModel data)
+        {
+            var testDefinitions = GetTestDefinitions(context.CurrentRequestRoles);
+            var test = testDefinitions.SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == data.TestId);
+            var parameter = test?.Parameters?.FirstOrDefault(x => x.Index == data.ParameterIndex);
+            if (parameter == null)
+            {
+                return Enumerable.Empty<RuntimeTestReferenceParameterChoice>();
+            }
+
+            var factory = parameter.GetParameterFactory(test);
+            return factory.GetChoicesFor(parameter.ParameterType)
+                ?? Enumerable.Empty<RuntimeTestReferenceParameterChoice>();
+        }
         #endregion
 
         #region Private helpers
