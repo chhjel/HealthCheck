@@ -340,14 +340,14 @@ namespace HealthCheck.Core.Modules.Tests.Models
             {
                 var data = await InvokeAsync(Method, instance, parameterList);
                 return TestResult.CreateSuccess($"Method {Method?.Name} was successfully invoked.")
-                    .AddSerializedData(data, TestRunnerService.Serializer, "Result");
+                    .AddSerializedData(data ?? "null", TestRunnerService.Serializer, "Result");
             }
             // Sync any
             else if (allowAnyResultType)
             {
                 var data = Method.Invoke(instance, parameterList);
                 return TestResult.CreateSuccess($"Method {Method?.Name} was successfully invoked.")
-                    .AddSerializedData(data, TestRunnerService.Serializer, "Result");
+                    .AddSerializedData(data ?? "null", TestRunnerService.Serializer, "Result");
             }
             else
             {
