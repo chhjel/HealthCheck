@@ -12,12 +12,27 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Type of object to invoke members on.
         /// </summary>
-        public Type TargetClassType { get; set; }
+        internal Type TargetClassType { get; set; }
 
         /// <summary>
         /// Optional instance factory for <see cref="TargetClassType"/>.
         /// </summary>
-        public Func<object> InstanceFactory { get; set; }
+        internal Func<object> InstanceFactory { get; set; }
+
+        /// <summary>
+        /// Optional instance factory for <see cref="TargetClassType"/> with custom context object.
+        /// </summary>
+        internal Func<object, object> InstanceFactoryWithContext { get; set; }
+
+        /// <summary>
+        /// Custom context object factory.
+        /// </summary>
+        internal Func<object> ContextFactory { get; set; }
+
+        /// <summary>
+        /// Custom action to run on test results after execution.
+        /// </summary>
+        internal Action<TestResult, object> ResultAction { get; set; }
 
         private readonly List<RuntimeTestReferenceParameterFactory> _parameterFactories = new List<RuntimeTestReferenceParameterFactory>();
 
@@ -34,6 +49,56 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// </summary>
         public RuntimeTestReferenceParameterFactory GetFactoryForType(Type type)
             => _parameterFactories.FirstOrDefault(x => x.CanFactorizeFor(type));
+
+        #region Fluent config
+        /// <summary>
+        /// Define a custom instance, context and action to run on the result object.
+        /// </summary>
+        public ProxyRuntimeTestConfig AddCustomContext<T, TContext>(
+            Func<TContext> contextFactory,
+            Func<TContext, T> instanceFactory,
+            Action<TestResult, TContext> resultAction
+        ) where TContext : class
+        {
+            ContextFactory = () => contextFactory();
+            ResultAction = (result, context) => resultAction(result, context as TContext);
+            InstanceFactoryWithContext = (context) => instanceFactory(context as TContext);
+            return this;
+        }
+
+        /// <summary>
+        /// Define a custom context and action to run on the result object.
+        /// </summary>
+        public ProxyRuntimeTestConfig AddCustomContext<TContext>(
+            Func<TContext> factory,
+            Action<TestResult, TContext> resultAction
+        ) where TContext: class
+        {
+            ContextFactory = () => factory();
+            ResultAction = (result, context) => resultAction(result, context as TContext);
+            return this;
+        }
+
+        /// <summary>
+        /// Add a custom instance factory.
+        /// </summary>
+        public ProxyRuntimeTestConfig AddInstanceFactory<T>(Func<T> factory)
+        {
+            InstanceFactory = () => factory();
+            return this;
+        }
+
+        /// <summary>
+        /// Add a custom instance factory with a custom context object.
+        /// <para>This takes priority over <see cref="AddInstanceFactory{T}(Func{T})"/></para>
+        /// <para>Custom context can be set from <see cref="AddCustomContext"/></para>
+        /// </summary>
+        public ProxyRuntimeTestConfig AddInstanceFactory<T, TContext>(Func<TContext, T> factory)
+            where TContext: class
+        {
+            InstanceFactoryWithContext = (context) => factory(context as TContext);
+            return this;
+        }
 
         /// <summary>
         /// Add factory methods for reference parameter types.
@@ -90,6 +155,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
             _parameterFactories.Add(new RuntimeTestReferenceParameterFactory(baseType, choicesFactoryByType, getInstanceByIdFactoryByType));
             return this;
         }
+        #endregion
 
     }
 }

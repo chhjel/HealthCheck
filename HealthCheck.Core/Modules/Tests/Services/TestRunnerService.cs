@@ -198,19 +198,38 @@ namespace HealthCheck.Core.Modules.Tests.Services
 
                 // Execute test
                 object instance = null;
+                object customContextObject = null;
+                Action<TestResult, object> postExecutionAction = null;
                 if (test.Type == TestDefinition.TestDefinitionType.Normal)
                 {
                     instance = testClassInstance ?? IoCUtils.GetInstanceExt(test.ParentClass.ClassType);
                 }
                 else if (test.Type == TestDefinition.TestDefinitionType.ProxyClassMethod)
                 {
-                    instance = test.ClassProxyConfig.InstanceFactory?.Invoke() ?? IoCUtils.GetInstanceExt(test.ClassProxyConfig.TargetClassType);
+                    postExecutionAction = test.ClassProxyConfig.ResultAction;
+                    customContextObject = test.ClassProxyConfig.ContextFactory?.Invoke();
+
+                    if (test.ClassProxyConfig.InstanceFactoryWithContext != null)
+                    {
+                        instance = test.ClassProxyConfig.InstanceFactoryWithContext?.Invoke(customContextObject);
+                    }
+                    else
+                    {
+                        instance = test.ClassProxyConfig.InstanceFactory?.Invoke();
+                    }
+
+                    if (instance == null)
+                    {
+                        instance = IoCUtils.GetInstanceExt(test.ClassProxyConfig.TargetClassType);
+                    }
                 }
 
                 var result = await test.ExecuteTest(instance, parameters, allowDefaultValues,
                     (tokenSource) => RegisterCancellableTestStarted(test.Id, tokenSource),
                     allowAnyResultType: test.Type == TestDefinition.TestDefinitionType.ProxyClassMethod
                 );
+
+                postExecutionAction?.Invoke(result, customContextObject);
 
                 // Post-process result
                 result.Test = test;

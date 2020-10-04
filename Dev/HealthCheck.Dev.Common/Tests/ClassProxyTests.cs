@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,6 +49,11 @@ namespace HealthCheck.Dev.Common.Tests
             });
 
             return new ProxyRuntimeTestConfig(typeof(SomeService))
+                .AddCustomContext(
+                    contextFactory: () => new { MemoryLogger = new HCMemoryLogger() },
+                    instanceFactory: (context) => new SomeService(context.MemoryLogger),
+                    resultAction: (result, context) => result.AddCodeData(context.MemoryLogger.Contents)
+                )
                 .AddParameterTypeConfig<SomeParameterType>(
                     choicesFactory: () => getUserChoices().Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Name)),
                     getInstanceByIdFactory: (id) => getUserChoices().FirstOrDefault(x => x.Id.ToString() == id)
@@ -60,17 +66,34 @@ namespace HealthCheck.Dev.Common.Tests
 
         internal class SomeService
         {
+            private readonly HCMemoryLogger _logger;
+
+            public SomeService() {}
+            public SomeService(HCMemoryLogger logger) => _logger = logger;
+
             public SomeParameterType WithComplexReturnValue() => new SomeParameterType(42, "Test");
 
 #pragma warning disable S3400 // Methods should not return constants
-            public string WithReturnValue() => "Success!";
+            public string WithReturnValue()
+            {
+                _logger?.Error("A logged error test");
+                return $"Success!";
+            }
 #pragma warning restore S3400 // Methods should not return constants
 
 #pragma warning disable IDE0060 // Remove unused parameter
-            public void WithParameter(string data) { /**/ }
+            public void WithParameter(Guid id, string data) { /**/ }
 #pragma warning restore IDE0060 // Remove unused parameter
 
-            public string WithParameterAndReturnValue(string data) => $"Input was {data}";
+            public string WithParameterAndReturnValue1(Guid id) => $"Input was {id}";
+
+            public string WithParameterAndReturnValue2(Guid? id) => $"Input was {id?.ToString() ?? "null"}";
+
+            public async Task<DateTimeOffset?> NullableTaskResultTest()
+            {
+                await Task.Delay(100);
+                return DateTimeOffset.UtcNow;
+            }
 
             public async Task<string> WithParameterAndReturnValueAsync(string data)
             {
