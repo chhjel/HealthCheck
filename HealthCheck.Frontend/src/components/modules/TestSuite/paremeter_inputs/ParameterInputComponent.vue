@@ -48,6 +48,8 @@ import ParameterInputTypeFlaggedEnumComponent from './input_types/ParameterInput
 import ParameterInputTypeGenericListComponent from './input_types/ParameterInputTypeGenericListComponent.vue';
 import ParameterInputTypeHttpPostedFileBaseComponent from './input_types/ParameterInputTypeHttpPostedFileBaseComponent.vue';
 import ParameterInputPickReferenceComponent from './input_types/ParameterInputPickReferenceComponent.vue';
+import ParameterInputTypeGuidComponent from "./input_types/ParameterInputTypeGuidComponent.vue";
+import ParameterInputTypeNullableGuidComponent from "./input_types/ParameterInputTypeNullableGuidComponent.vue";
 
 @Component({
     components: {
@@ -74,7 +76,9 @@ import ParameterInputPickReferenceComponent from './input_types/ParameterInputPi
       ParameterInputTypeFlaggedEnumComponent,
       ParameterInputTypeGenericListComponent,
       ParameterInputTypeHttpPostedFileBaseComponent,
-      ParameterInputPickReferenceComponent
+      ParameterInputPickReferenceComponent,
+      ParameterInputTypeGuidComponent,
+      ParameterInputTypeNullableGuidComponent
     }
 })
 export default class ParameterInputComponent extends Vue {

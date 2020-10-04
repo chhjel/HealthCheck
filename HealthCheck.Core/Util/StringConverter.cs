@@ -204,6 +204,8 @@ namespace HealthCheck.Core.Util
                 return ParseOrThrow<T>((i) => Int32.Parse(i), input);
             else if (inputType == typeof(Int64))
                 return ParseOrThrow<T>((i) => Int64.Parse(i), input);
+            else if (inputType == typeof(Guid))
+                return ParseOrThrow<T>((i) => string.IsNullOrWhiteSpace(i) ? Guid.Empty : Guid.Parse(i), input);
             else
                 throw new ConversionHandlerNotFoundException(input, typeof(T));
         }

@@ -36,7 +36,9 @@ export default class TestParametersComponent extends Vue {
     {
       const largerParameters = [
         'HttpPostedFileBase',
-        'List<HttpPostedFileBase>'
+        'List<HttpPostedFileBase>',
+        'Guid',
+        'Nullable<Guid>'
       ];
       return !parameter.FullWidth
         && !largerParameters.some(x => parameter.Type == x)
