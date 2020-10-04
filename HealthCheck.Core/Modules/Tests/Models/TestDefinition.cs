@@ -336,18 +336,26 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 return await resultTask;
             }
             // Async any
-            else if (allowAnyResultType && returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
+            else if (allowAnyResultType && 
+                ((returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
+                || returnType == typeof(Task)))
             {
+                var fallbackValue = (returnType == typeof(Task) || returnType == typeof(void)) ? null : "null";
                 var data = await InvokeAsync(Method, instance, parameterList);
+                if (returnType == typeof(Task))
+                {
+                    data = null;
+                }
                 return TestResult.CreateSuccess($"Method {Method?.Name} was successfully invoked.")
-                    .AddSerializedData(data ?? "null", TestRunnerService.Serializer, "Result");
+                    .AddSerializedData(data ?? fallbackValue, TestRunnerService.Serializer, "Result");
             }
             // Sync any
             else if (allowAnyResultType)
             {
+                var fallbackValue = (returnType == typeof(Task) || returnType == typeof(void)) ? null : "null";
                 var data = Method.Invoke(instance, parameterList);
                 return TestResult.CreateSuccess($"Method {Method?.Name} was successfully invoked.")
-                    .AddSerializedData(data ?? "null", TestRunnerService.Serializer, "Result");
+                    .AddSerializedData(data ?? fallbackValue, TestRunnerService.Serializer, "Result");
             }
             else
             {

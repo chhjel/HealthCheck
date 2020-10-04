@@ -71,6 +71,12 @@ namespace HealthCheck.Dev.Common.Tests
             public SomeService() {}
             public SomeService(HCMemoryLogger logger) => _logger = logger;
 
+            public async Task WithTaskReturnValue() => await Task.Delay(100);
+
+#pragma warning disable S1186 // Methods should not be empty
+            public void WithVoidReturnValue() {}
+#pragma warning restore S1186 // Methods should not be empty
+
             public SomeParameterType WithComplexReturnValue() => new SomeParameterType(42, "Test");
 
 #pragma warning disable S3400 // Methods should not return constants
