@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Config
 {
@@ -13,6 +14,21 @@ namespace HealthCheck.Core.Config
 		/// <para>Fallback is <c>Activator.CreateInstance</c></para>
         /// </summary>
         public static Func<Type, object> DefaultInstanceResolver { get; set; }
+
+        /// <summary>
+        /// Types ignored in default test-result serialization.
+        /// </summary>
+        public static List<Type> TypesIgnoredInSerialization { get; set; }
+
+        /// <summary>
+        /// Types + all descendants ignored in default test-result serialization.
+        /// </summary>
+        public static List<Type> TypesWithDescendantsIgnoredInSerialization { get; set; }
+        
+        /// <summary>
+        /// Namespace-prefixes ignored in default test-result serialization.
+        /// </summary>
+        public static List<string> NamespacePrefixesIgnoredInSerialization { get; set; }
 
         /// <summary>
         /// Gets the value of <see cref="DefaultInstanceResolver"/> or attempts <see cref="Activator.CreateInstance(Type)"/> if null.

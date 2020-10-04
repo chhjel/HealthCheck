@@ -1,7 +1,11 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Config;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using System;
+using System.Linq;
+using System.Reflection;
 
 namespace HealthCheck.WebUI.Serializers
 {
@@ -22,7 +26,8 @@ namespace HealthCheck.WebUI.Serializers
                 {
                     e.ErrorContext.Handled = true;
                 },
-                Converters = new[] { new StringEnumConverter() }
+                Converters = new[] { new StringEnumConverter() },
+                ContractResolver = new HCContractResolver()
             };
             return JsonConvert.SerializeObject(obj, settings);
         }
@@ -54,6 +59,30 @@ namespace HealthCheck.WebUI.Serializers
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        private class HCContractResolver : DefaultContractResolver
+        {
+            protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+            {
+                JsonProperty prop = base.CreateProperty(member, memberSerialization);
+                if (HCGlobalConfig.TypesIgnoredInSerialization
+                    ?.Any(x => prop.PropertyType == x) == true)
+                {
+                    prop.Ignored = true;
+                }
+                else if (HCGlobalConfig.TypesWithDescendantsIgnoredInSerialization
+                    ?.Any(x => x.IsAssignableFrom(prop.PropertyType)) == true)
+                {
+                    prop.Ignored = true;
+                }
+                else if (HCGlobalConfig.NamespacePrefixesIgnoredInSerialization
+                    ?.Any(x => prop.PropertyType.Namespace?.ToUpper()?.StartsWith(x?.ToUpper()) == true) == true)
+                {
+                    prop.Ignored = true;
+                }
+                return prop;
             }
         }
     }
