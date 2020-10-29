@@ -1,4 +1,5 @@
 ﻿using HealthCheck.WebUI.Exceptions;
+using Newtonsoft.Json;
 
 namespace HealthCheck.WebUI.Models
 {
@@ -11,7 +12,7 @@ namespace HealthCheck.WebUI.Models
         /// Title of the page application.
         /// </summary>
         public string ApplicationTitle { get; set; } = "Health Check";
-        
+
         /// <summary>
         /// Optional url the application title links to.
         /// </summary>
@@ -32,6 +33,9 @@ namespace HealthCheck.WebUI.Models
         /// Config for the code editors.
         /// </summary>
         public EditorWorkerConfig EditorConfig { get; set; } = new EditorWorkerConfig();
+
+        [JsonProperty]
+        internal bool ShowIntegratedLogin {get; set; }
 
         /// <summary>
         /// Create a new <see cref="HCFrontEndOptions"/>.

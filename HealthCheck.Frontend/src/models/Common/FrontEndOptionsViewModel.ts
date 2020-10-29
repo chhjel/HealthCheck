@@ -4,6 +4,7 @@ export default interface FrontEndOptionsViewModel {
     InludeQueryStringInApiCalls: boolean;
     InvokeModuleMethodEndpoint: string;
     EditorConfig: EditorWorkerConfig;
+    ShowIntegratedLogin: boolean;
 }
 
 export interface EditorWorkerConfig {

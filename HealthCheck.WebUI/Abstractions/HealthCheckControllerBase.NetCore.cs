@@ -30,7 +30,7 @@ namespace HealthCheck.WebUI.Abstractions
 #region Properties & Fields
         /// <summary>
         /// Set to false to return 404 for all actions.
-        /// <para>Enabled by default.</para>
+        /// <para>True by default.</para>
         /// </summary>
         protected bool Enabled { get; set; } = true;
 
@@ -105,6 +105,11 @@ namespace HealthCheck.WebUI.Abstractions
             if (!Enabled) return NotFound();
             else if (!Helper.HasAccessToAnyContent(CurrentRequestAccessRoles))
             {
+                if (Helper.AccessConfig.IntegratedLoginHandler != null)
+                {
+                    return CreateIntegratedLoginViewResult();
+                }
+
                 var redirectTarget = Helper.AccessConfig.RedirectTargetOnNoAccessUsingRequest?.Invoke(Request);
                 if (!string.IsNullOrWhiteSpace(redirectTarget))
                 {
@@ -129,6 +134,36 @@ namespace HealthCheck.WebUI.Abstractions
                 Content = html,
                 ContentType = "text/html",
             };
+        }
+
+        private ActionResult CreateIntegratedLoginViewResult()
+        {
+            var frontEndOptions = GetFrontEndOptions();
+            frontEndOptions.ShowIntegratedLogin = true;
+
+            var pageOptions = GetPageOptions();
+            var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions);
+
+            return new ContentResult()
+            {
+                Content = html,
+                ContentType = "text/html",
+            };
+        }
+
+        /// <summary>
+        /// Executes <c>IntegratedLoginHandler</c> if set in access config, and returns the result in json format.
+        /// </summary>
+        [HideFromRequestLog]
+        [HttpPost]
+        [Route("Login")]
+        public virtual ActionResult Login([FromBody] HCIntegratedLoginRequest model)
+        {
+            if (!Enabled || Helper.AccessConfig.IntegratedLoginHandler == null) return NotFound();
+
+            model.Request = Request;
+            var result = Helper.AccessConfig.IntegratedLoginHandler(model);
+            return Json(result);
         }
 
         /// <summary>

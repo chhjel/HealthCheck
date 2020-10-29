@@ -1,7 +1,7 @@
 <!-- src/components/HealthCheckPageComponent.vue -->
 <template>
     <div>
-        <v-app light class="approot">
+        <v-app light class="approot" v-if="!showIntegratedLogin">
             <!-- TOOLBAR -->
             <v-toolbar clipped-left fixed app class="toolbar-main">
                 <v-toolbar-side-icon
@@ -33,6 +33,8 @@
                 v-if="noModuleAccess"
                 v-show="noModuleAccess" />
         </v-app>
+        
+        <integrated-login-page-component v-if="showIntegratedLogin" />
     </div>
 </template>
 
@@ -40,13 +42,15 @@
 import { Vue, Component, Prop } from "vue-property-decorator";
 import NoPageAvailablePageComponent from './NoPageAvailablePageComponent.vue';
 import InvalidModuleConfigsComponent from './InvalidModuleConfigsComponent.vue';
+import IntegratedLoginPageComponent from './modules/IntegratedLogin/IntegratedLoginPageComponent.vue';
 import FrontEndOptionsViewModel from '../models/Common/FrontEndOptionsViewModel';
 import ModuleConfig from "../models/Common/ModuleConfig";
 
 @Component({
     components: {
         NoPageAvailablePageComponent,
-        InvalidModuleConfigsComponent
+        InvalidModuleConfigsComponent,
+        IntegratedLoginPageComponent
     }
 })
 export default class HealthCheckPageComponent extends Vue {
@@ -64,6 +68,10 @@ export default class HealthCheckPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get showIntegratedLogin(): boolean {
+        return this.globalOptions.ShowIntegratedLogin;
+    }
+
     get invalidModuleConfigs(): Array<ModuleConfig> {
         return this.moduleConfig.filter(x => !x.LoadedSuccessfully);
     }

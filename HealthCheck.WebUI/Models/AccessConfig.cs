@@ -32,8 +32,16 @@ namespace HealthCheck.WebUI.Models
         public Maybe<TAccessRole> PingAccess { get; set; }
 
         /// <summary>
+        /// If this property is set a login popup will be shown where this function will be invoked.
+        /// <para>This does not automatically set session or anything else, you'll have to provide that logic yourself.</para>
+        /// <para>If this property is set, <see cref="RedirectTargetOnNoAccess"/> will have no effect.</para>
+        /// <para>If neither this nor <see cref="RedirectTargetOnNoAccess"/> is set, a 404 will be returned.</para>
+        /// </summary>
+        public Func<HCIntegratedLoginRequest, HCIntegratedLoginResult> IntegratedLoginHandler { get; set; }
+
+        /// <summary>
         /// Redirect url if the request does not have access to any of the content.
-        /// <para>If not set a 404 will be returned.</para>
+        /// <para>If neither this nor <see cref="IntegratedLoginHandler"/> is set, a 404 will be returned.</para>
         /// </summary>
         public string RedirectTargetOnNoAccess { get; set; }
 
