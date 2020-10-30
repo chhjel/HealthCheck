@@ -19,6 +19,11 @@ namespace HealthCheck.WebUI.Models
         public string ApplicationTitleLink { get; set; }
 
         /// <summary>
+        /// Url to the endpoint.
+        /// </summary>
+        public string EndpointBase { get; set; }
+
+        /// <summary>
         /// Url to the endpoint that invokes module methods.
         /// </summary>
         public string InvokeModuleMethodEndpoint { get; set; }
@@ -43,6 +48,7 @@ namespace HealthCheck.WebUI.Models
         /// <param name="baseApiEndpoint"></param>
         public HCFrontEndOptions(string baseApiEndpoint)
         {
+            EndpointBase = baseApiEndpoint;
             InvokeModuleMethodEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/InvokeModuleMethod";
         }
 

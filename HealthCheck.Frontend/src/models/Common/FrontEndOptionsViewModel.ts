@@ -3,6 +3,7 @@ export default interface FrontEndOptionsViewModel {
     ApplicationTitleLink: string;
     InludeQueryStringInApiCalls: boolean;
     InvokeModuleMethodEndpoint: string;
+    EndpointBase: string;
     EditorConfig: EditorWorkerConfig;
     ShowIntegratedLogin: boolean;
 }
