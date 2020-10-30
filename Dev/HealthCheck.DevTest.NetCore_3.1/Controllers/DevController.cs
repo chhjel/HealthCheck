@@ -178,7 +178,6 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
             config.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
             config.RedirectTargetOnNoAccess = "/no-access";
-            // todo: max attempts etc? or leave to custom code?
             config.IntegratedLoginHandler = (request) =>
             {
                 return new HCIntegratedLoginResult

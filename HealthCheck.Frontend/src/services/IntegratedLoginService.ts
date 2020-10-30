@@ -2,14 +2,14 @@ import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstraction
 
 export interface HCIntegratedLoginRequest
 {
-    username: string;
-    password: string;
-    twoFactorCode: string;
+    Username: string;
+    Password: string;
+    TwoFactorCode: string;
 }
 export interface HCIntegratedLoginResult
 {
-    success: boolean;
-    errorMessage: string;
+    Success: boolean;
+    ErrorMessage: string;
 }
 
 export default class IntegratedLoginService extends HCServiceBase

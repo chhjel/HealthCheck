@@ -151,7 +151,7 @@ namespace HealthCheck.WebUI.Abstractions
 
             model.Request = Request;
             var result = Helper.AccessConfig.IntegratedLoginHandler(model);
-            return Json(result);
+            return CreateJsonResult(result);
         }
 
         /// <summary>
