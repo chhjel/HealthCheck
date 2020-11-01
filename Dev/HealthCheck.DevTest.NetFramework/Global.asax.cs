@@ -1,4 +1,8 @@
-﻿using HealthCheck.DevTest.Controllers;
+﻿using HealthCheck.Core.Config;
+using HealthCheck.DevTest.Controllers;
+using HealthCheck.Module.EndpointControl.Abstractions;
+using HealthCheck.Module.EndpointControl.Services;
+using HealthCheck.Module.EndpointControl.Storage;
 using HealthCheck.RequestLog.Enums;
 using HealthCheck.RequestLog.Services;
 using HealthCheck.RequestLog.Util;
@@ -30,6 +34,28 @@ namespace HealthCheck.DevTest
                 });
 
             RequestLogUtil.EnsureDefinitionsFromTypes(RequestLogServiceAccessor.Current, new[] { typeof(DevController).Assembly });
+            SetupDummyIoC();
+        }
+
+        private static readonly FlatFileEndpointControlRequestHistoryStorage _endpointControlHistoryStorage
+            = new FlatFileEndpointControlRequestHistoryStorage(@"c:\temp\EC_History.json")
+            {
+                PrettyFormat = true
+            };
+
+        private static readonly FlatFileEndpointControlEndpointDefinitionStorage _endpointControlDefinitionStorage
+            = new FlatFileEndpointControlEndpointDefinitionStorage(@"c:\temp\EC_Definitions.json");
+
+        private void SetupDummyIoC()
+        {
+            HCGlobalConfig.DefaultInstanceResolver = (type) =>
+            {
+                if (type == typeof(IEndpointControlService))
+                {
+                    return new DefaultEndpointControlService(_endpointControlHistoryStorage, _endpointControlDefinitionStorage);
+                }
+                return null;
+            };
         }
     }
 }

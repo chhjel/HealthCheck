@@ -135,6 +135,8 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\DevController.cs" />
+    <Compile Include="Controllers\EndpointControlTestControllers\SomeApiTestController.cs" />
+    <Compile Include="Controllers\EndpointControlTestControllers\SomeTestController.cs" />
     <Compile Include="Controllers\RequestLogTestControllers\Api\HiddenApiController.cs" />
     <Compile Include="Controllers\RequestLogTestControllers\Api\TestApiController.cs" />
     <Compile Include="Controllers\RequestLogTestControllers\Api\TestApiControllerBase.cs" />
@@ -190,6 +192,10 @@
     <ProjectReference Include="..\..\Modules\HealthCheck.Module.DynamicCodeExecution\HealthCheck.Module.DynamicCodeExecution.csproj">
       <Project>{12ff11c4-ee44-4142-a335-ee7e7e9c4c60}</Project>
       <Name>HealthCheck.Module.DynamicCodeExecution</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Modules\HealthCheck.Module.EndpointControl\HealthCheck.Module.EndpointControl.csproj">
+      <Project>{9f646f26-a7fe-4a26-88c7-3087412987bf}</Project>
+      <Name>HealthCheck.Module.EndpointControl</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Modules\HealthCheck.Module.RequestLog\HealthCheck.Module.RequestLog.csproj">
       <Project>{e1337f9c-3e88-4453-bc84-b8fe52874c93}</Project>
