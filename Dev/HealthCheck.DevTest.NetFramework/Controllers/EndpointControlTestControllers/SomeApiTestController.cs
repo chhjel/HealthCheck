@@ -6,10 +6,10 @@ namespace HealthCheck.DevTest.Controllers.RequestLogTestControllers
 {
     public class SomeApiTestController : ApiController
     {
-        [Route("TestGet")]
+        [Route("TestGetA")]
         [HttpGet]
         [HCControlledApiEndpoint]
-        public string TestGet(int id) => $"GET: {id}";
+        public string TestGetA(int id) => $"GET: {id}";
 
         [Route("TestPost")]
         [HttpPost]

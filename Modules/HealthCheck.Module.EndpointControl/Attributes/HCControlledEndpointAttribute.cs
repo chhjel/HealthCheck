@@ -87,7 +87,7 @@ namespace HealthCheck.Module.EndpointControl.Attributes
                 ControllerName = filterContext?.ActionDescriptor?.ControllerDescriptor?.ControllerName,
                 ActionName = filterContext?.ActionDescriptor?.ActionName,
 
-                UserLocationIdentifier = RequestUtils.GetIPAddress(filterContext?.HttpContext?.Request),
+                UserLocationId = RequestUtils.GetIPAddress(filterContext?.HttpContext?.Request),
                 UserAgent = filterContext?.HttpContext?.Request?.UserAgent,
                 HttpMethod = filterContext?.HttpContext?.Request?.HttpMethod,
                 Url = RequestUtils.GetUrl(filterContext?.HttpContext?.Request),

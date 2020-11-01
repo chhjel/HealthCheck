@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Models;
+using System.Linq;
 
 namespace HealthCheck.Module.EndpointControl.Services
 {
@@ -10,17 +11,20 @@ namespace HealthCheck.Module.EndpointControl.Services
     {
         private readonly IEndpointControlRequestHistoryStorage _historicalDataStorage;
         private readonly IEndpointControlEndpointDefinitionStorage _definitionStorage;
+        private readonly IEndpointControlRuleStorage _ruleStorage;
 
         /// <summary>
         /// Checks if requests to certain endpoints are allowed to execute.
         /// </summary>
         public DefaultEndpointControlService(
             IEndpointControlRequestHistoryStorage historicalDataStorage,
-            IEndpointControlEndpointDefinitionStorage definitionStorage
+            IEndpointControlEndpointDefinitionStorage definitionStorage,
+            IEndpointControlRuleStorage ruleStorage
         )
         {
             _historicalDataStorage = historicalDataStorage;
             _definitionStorage = definitionStorage;
+            _ruleStorage = ruleStorage;
         }
 
         /// <summary>
@@ -52,22 +56,16 @@ namespace HealthCheck.Module.EndpointControl.Services
         /// </summary>
         protected virtual bool AllowRequest(EndpointControlEndpointRequestData requestData)
         {
-            return !requestData.Url.Contains("pls");
+            var blockingRule = _ruleStorage.GetRules()
+                .FirstOrDefault(rule => rule.ShouldBlockRequest(requestData,
+                    endpointRequestCountGetter: (date) => _historicalDataStorage.GetEndpointRequestCountSince(requestData.UserLocationId, requestData.EndpointId, date),
+                    totalRequestCountGetter: (date) => _historicalDataStorage.GetTotalRequestCountSince(requestData.UserLocationId, date)
+                ));
+            return blockingRule == null;
         }
 
-        /* Overview.json:
-        {
-            requestsPerCountry: {
-                "NO": [ { timestamp, wasBlocked }, { timestamp, wasBlocked }, ..],
-                "SE": [ { timestamp, wasBlocked }, { timestamp, wasBlocked }, ..]
-            }
-        }
-        */
-
+        // ToDo:
         // Rules:
-        // - Conditions: Multiple AND'ed for targeting.
-        //   * Contains/Regex/Match per prop on EndpointRequestData.
-        //   * Request count last n minutes.
         // - Actions:
         //   * Block
         //   * Set/exponential delay
@@ -75,6 +73,7 @@ namespace HealthCheck.Module.EndpointControl.Services
 
         // Other features:
         // - Lockdown mode. All and per endpoint w/ end dates. (separate access option for all and single)
-
+        // - Identity aliases?
+        // - Overview w/ requests per country, requires external ip to country lookup
     }
 }

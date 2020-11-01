@@ -26,7 +26,7 @@ namespace HealthCheck.Module.EndpointControl.Models
         /// Ip address or something similar to identify the location.
         /// <para>Defaults to first of <c>HTTP_X_FORWARDED_FOR</c>, <c>REMOTE_ADDR</c> and <c>UserHostAddress</c></para>
         /// </summary>
-        public string UserLocationIdentifier { get; set; }
+        public string UserLocationId { get; set; }
 
         /// <summary>
         /// User-agent string.

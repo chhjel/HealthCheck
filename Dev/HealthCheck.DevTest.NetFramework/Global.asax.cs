@@ -46,13 +46,16 @@ namespace HealthCheck.DevTest
         private static readonly FlatFileEndpointControlEndpointDefinitionStorage _endpointControlDefinitionStorage
             = new FlatFileEndpointControlEndpointDefinitionStorage(@"c:\temp\EC_Definitions.json");
 
+        private static readonly FlatFileEndpointControlRuleStorage _endpointControlRuleStorage
+            = new FlatFileEndpointControlRuleStorage(@"c:\temp\EC_Rules.json");
+
         private void SetupDummyIoC()
         {
             HCGlobalConfig.DefaultInstanceResolver = (type) =>
             {
                 if (type == typeof(IEndpointControlService))
                 {
-                    return new DefaultEndpointControlService(_endpointControlHistoryStorage, _endpointControlDefinitionStorage);
+                    return new DefaultEndpointControlService(_endpointControlHistoryStorage, _endpointControlDefinitionStorage, _endpointControlRuleStorage);
                 }
                 return null;
             };

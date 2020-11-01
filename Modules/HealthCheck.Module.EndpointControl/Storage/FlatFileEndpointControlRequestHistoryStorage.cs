@@ -80,6 +80,32 @@ namespace HealthCheck.Module.EndpointControl.Storage
 			SaveDataDelayed();
 		}
 
+		/// <summary>
+		/// Get the number of requests from a given location id since the given time.
+		/// </summary>
+		public long GetTotalRequestCountSince(string locationId, DateTimeOffset time)
+		{
+			lock (_data.IdentityRequests)
+			{
+				return _data.IdentityRequests.ContainsKey(locationId)
+					? _data.IdentityRequests[locationId].LatestRequests.Count(x => x.Timestamp >= time)
+					: 0;
+			}
+		}
+
+		/// <summary>
+		/// Get the number of requests from a given location id on a given endpoint since the given time.
+		/// </summary>
+		public long GetEndpointRequestCountSince(string locationId, string endpointId, DateTimeOffset time)
+		{
+			lock (_data.IdentityRequests)
+			{
+				return _data.IdentityRequests.ContainsKey(locationId)
+					? _data.IdentityRequests[locationId].LatestRequests.Count(x => x.EndpointId == endpointId && x.Timestamp >= time)
+					: 0;
+			}
+		}
+
 		private void SaveDataDelayed()
 		{
 			lock (_delayedStorageLock)
@@ -154,8 +180,9 @@ namespace HealthCheck.Module.EndpointControl.Storage
 					{
 						return new LatestUserEndpointRequestHistory
 						{
-							LatestRequests = new Queue<EndpointRequestDetails>(x.Value.LatestRequests.Take(MaxStoredRequestCountPerIdentity)),
-							UserLocationIdentifier = x.Value.UserLocationIdentifier
+							UserLocationIdentifier = x.Value.UserLocationIdentifier,
+							TotalRequestCount = x.Value.TotalRequestCount,
+							LatestRequests = new Queue<EndpointRequestDetails>(x.Value.LatestRequests.Take(MaxStoredRequestCountPerIdentity))
 						};
 					}),
                 LatestRequestIdentities = _data.LatestRequestIdentities.Take(MaxStoredIdentityCount).ToList(),
@@ -181,12 +208,12 @@ namespace HealthCheck.Module.EndpointControl.Storage
 			lock (_data.LatestRequestIdentities)
 			{
 				// Append request if identity already exists in memory
-				if (_data.IdentityRequests.ContainsKey(request.UserLocationIdentifier))
+				if (_data.IdentityRequests.ContainsKey(request.UserLocationId))
 				{
-					AddRequest(_data.IdentityRequests[request.UserLocationIdentifier], request);
+					AddRequest(_data.IdentityRequests[request.UserLocationId], request);
 
 					// Move identity to the top
-					var oldIndex = _data.LatestRequestIdentities.IndexOf(request.UserLocationIdentifier);
+					var oldIndex = _data.LatestRequestIdentities.IndexOf(request.UserLocationId);
 					var oldValue = _data.LatestRequestIdentities[0];
 					_data.LatestRequestIdentities[0] = _data.LatestRequestIdentities[oldIndex];
 					_data.LatestRequestIdentities[oldIndex] = oldValue;
@@ -196,12 +223,12 @@ namespace HealthCheck.Module.EndpointControl.Storage
 				// Create new if missing
 				var newItem = new LatestUserEndpointRequestHistory()
 				{
-					UserLocationIdentifier = request.UserLocationIdentifier
+					UserLocationIdentifier = request.UserLocationId
 				};
 				AddRequest(newItem, request);
 
-				_data.IdentityRequests[request.UserLocationIdentifier] = newItem;
-				_data.LatestRequestIdentities.Insert(0, request.UserLocationIdentifier);
+				_data.IdentityRequests[request.UserLocationId] = newItem;
+				_data.LatestRequestIdentities.Insert(0, request.UserLocationId);
 
 				// Cleanup if needed
 				if (_data.LatestRequestIdentities.Count > MaxMemoryIdentityCount)
@@ -218,16 +245,18 @@ namespace HealthCheck.Module.EndpointControl.Storage
 		{
 			lock (container.LatestRequests)
 			{
-				var summary = new EndpointRequestDetails
+				container.TotalRequestCount++;
+
+				var details = new EndpointRequestDetails
 				{
-					UserLocationIdentifier = request.UserLocationIdentifier,
+					UserLocationIdentifier = request.UserLocationId,
 					EndpointId = request.EndpointId,
 					Timestamp = request.Timestamp,
 					Url = request.Url,
 					UserAgent = request.UserAgent,
 					WasBlocked = request.WasBlocked
 				};
-				container.LatestRequests.Enqueue(summary);
+				container.LatestRequests.Enqueue(details);
 
 				if (container.LatestRequests.Count > MaxMemoryRequestCountPerIdentity)
 				{
