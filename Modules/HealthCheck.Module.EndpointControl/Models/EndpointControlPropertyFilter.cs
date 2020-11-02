@@ -8,14 +8,19 @@ namespace HealthCheck.Module.EndpointControl.Models
     public class EndpointControlPropertyFilter
     {
         /// <summary>
+        /// Disable to not filter anything.
+        /// </summary>
+        public bool Enabled { get; set; }
+
+        /// <summary>
         /// Filter value.
         /// </summary>
-        public string Filter { get; set; }
+        public string Filter { get; set; } = "";
 
         /// <summary>
         /// Filter mode.
         /// </summary>
-        public EndpointControlFilterMode FilterMode { get; set; }
+        public EndpointControlFilterMode FilterMode { get; set; } = EndpointControlFilterMode.Matches;
 
         /// <summary>
         /// Invert filter output.
@@ -33,7 +38,14 @@ namespace HealthCheck.Module.EndpointControl.Models
         /// Returns true if the condition is true for the given value.
         /// </summary>
         public bool Matches(string value)
-            => !Inverted ? CheckCondition(value) : !CheckCondition(value);
+        {
+            if (!Enabled)
+            {
+                return true;
+            }
+
+            return !Inverted ? CheckCondition(value) : !CheckCondition(value);
+        }
 
         private bool CheckCondition(string value)
         {

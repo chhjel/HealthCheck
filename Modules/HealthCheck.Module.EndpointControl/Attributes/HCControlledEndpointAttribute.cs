@@ -35,8 +35,9 @@ namespace HealthCheck.Module.EndpointControl.Attributes
         public bool CustomBlockedHandling { get; set; }
 
         /// <summary>
-        /// Enable to allow a larger number of requests for e.g. validation, and only count the requests when input is valid.
-        /// <para>ToDo: store data in items, get invoke store through EndpointControlUtils.</para>
+        /// If set to true, requests wont be stored and counted for limit checks automatically.
+        /// <para>Call <see cref="EndpointControlUtils.CountCurrentRequest"/> manually where you want the request to be counted/stored.</para>
+        /// <para>Enable to allow a larger number of requests for e.g. validation, and only count the requests when input is valid.</para>
         /// </summary>
         public bool ManuallyCounted { get; set; }
 
@@ -64,8 +65,15 @@ namespace HealthCheck.Module.EndpointControl.Attributes
         protected virtual bool AllowExecute(ActionExecutingContext filterContext)
         {
             var requestData = GetEndpointRequestData(filterContext);
-            var allowed = EndpointControlServices.EndpointControlService?.HandleRequest(requestData) != false;
+            var allowed = EndpointControlServices.EndpointControlService?.HandleRequest(requestData, storeData: !ManuallyCounted) != false;
+
             filterContext.RequestContext.HttpContext.Items[EndpointControlUtils.RequestItemKey_Allowed] = allowed;
+
+            if (ManuallyCounted)
+            {
+                filterContext.RequestContext.HttpContext.Items[EndpointControlUtils.RequestItemKey_RequestData] = requestData;
+            }
+
             return allowed;
         }
 
@@ -97,20 +105,6 @@ namespace HealthCheck.Module.EndpointControl.Attributes
 
             return data;
         }
-
-        ///// <summary>
-        ///// Key to cache request data on. Defaults to {HttpMethod}-{ControllerName}-{ActionName}-{UserLocationId}
-        ///// </summary>
-        //protected virtual string CreateCacheKey(ActionExecutingContext filterContext, EndpointRequestData requestData)
-        //{
-        //    return string.Join(
-        //        "-",
-        //        requestData.HttpMethod,
-        //        requestData.ControllerName,
-        //        requestData.ActionName,
-        //        requestData.UserLocationIdentifier
-        //    );
-        //}
     }
 }
 #endif

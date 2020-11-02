@@ -14,10 +14,11 @@
             v-if="!isTextArea"
             v-model="currentValue"
             @input="onInput($event)"
+            v-on:change="onDataChanged"
             @click:clear="onClearClicked()"
             :disabled="disabled"
             :type="type"
-            clearable>
+            :clearable="clearable">
 
             <v-tooltip slot="append-outer" bottom v-if="showActionIcon">
                 <v-icon slot="activator" @click="onActionIconClicked">{{ actionIcon }}</v-icon>
@@ -29,9 +30,10 @@
             v-if="isTextArea"
             v-model="currentValue"
             @input="onInput($event)"
+            v-on:change="onDataChanged"
             @click:clear="onClearClicked()"
             :disabled="disabled"
-            clearable>
+            :clearable="clearable">
             <v-tooltip slot="append-outer" bottom v-if="showActionIcon">
                 <v-icon slot="activator" @click="onActionIconClicked">{{ actionIcon }}</v-icon>
                 Insert placeholder
@@ -73,6 +75,9 @@ export default class InputComponent extends Vue
     
     @Prop({ required: false, default: false })
     disabled!: boolean;
+    
+    @Prop({ required: false, default: true })
+    clearable!: boolean;
     
     @Prop({ required: false, default: false })
     showDescriptionOnStart!: boolean;
@@ -133,6 +138,10 @@ export default class InputComponent extends Vue
 
     onActionIconClicked(): void {
         this.$emit('actionIconClicked');
+    }
+
+    onDataChanged(): void {
+        this.$emit('change', this.currentValue);
     }
 }
 </script>

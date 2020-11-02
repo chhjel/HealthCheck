@@ -11,5 +11,15 @@ namespace HealthCheck.Module.EndpointControl.Module
         /// Checks if requests to certain endpoints are allowed to execute.
         /// </summary>
         public IEndpointControlService EndpointControlService { get; set; }
+
+        /// <summary>
+        /// Rule storage implementation that edited rules will be stored in.
+        /// </summary>
+        public IEndpointControlRuleStorage RuleStorage { get; set; }
+
+        /// <summary>
+        /// Definition storage implementation that definitions will be stored in.
+        /// </summary>
+        public IEndpointControlEndpointDefinitionStorage DefinitionStorage { get; set; }
     }
 }

@@ -52,6 +52,15 @@ namespace HealthCheck.Module.EndpointControl.Storage
         }
 
         /// <summary>
+        /// Get a single rule by id.
+        /// </summary>
+        public EndpointControlRule GetRule(Guid id)
+        {
+            EnsureMemoryCache();
+            return _memoryCache.FirstOrDefault(x => x.Id == id);
+        }
+
+        /// <summary>
         /// Get all rules.
         /// </summary>
         public IEnumerable<EndpointControlRule> GetRules()

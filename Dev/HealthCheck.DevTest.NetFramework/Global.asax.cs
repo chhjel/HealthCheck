@@ -1,11 +1,15 @@
 ﻿using HealthCheck.Core.Config;
 using HealthCheck.DevTest.Controllers;
 using HealthCheck.Module.EndpointControl.Abstractions;
+using HealthCheck.Module.EndpointControl.Models;
 using HealthCheck.Module.EndpointControl.Services;
 using HealthCheck.Module.EndpointControl.Storage;
 using HealthCheck.RequestLog.Enums;
 using HealthCheck.RequestLog.Services;
 using HealthCheck.RequestLog.Util;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web.Hosting;
 using System.Web.Http;
 using System.Web.Mvc;
@@ -51,11 +55,36 @@ namespace HealthCheck.DevTest
 
         private void SetupDummyIoC()
         {
+            if (!_endpointControlRuleStorage.GetRules().Any())
+            {
+                _endpointControlRuleStorage.InsertRule(new EndpointControlRule
+                {
+                    Enabled = true,
+                    CurrentEndpointRequestCountLimits = new List<EndpointControlCountOverDuration>
+                    {
+                        new EndpointControlCountOverDuration() { Duration = TimeSpan.FromSeconds(10), Count = 5 }
+                    },
+                    TotalRequestCountLimits = new List<EndpointControlCountOverDuration>(),
+                    EndpointIdFilter = new EndpointControlPropertyFilter(),
+                    UserAgentFilter = new EndpointControlPropertyFilter(),
+                    UrlFilter = new EndpointControlPropertyFilter(),
+                    UserLocationIdFilter = new EndpointControlPropertyFilter()
+                });
+            }
+
             HCGlobalConfig.DefaultInstanceResolver = (type) =>
             {
                 if (type == typeof(IEndpointControlService))
                 {
                     return new DefaultEndpointControlService(_endpointControlHistoryStorage, _endpointControlDefinitionStorage, _endpointControlRuleStorage);
+                }
+                else if (type == typeof(IEndpointControlRuleStorage))
+                {
+                    return _endpointControlRuleStorage;
+                }
+                else if (type == typeof(IEndpointControlEndpointDefinitionStorage))
+                {
+                    return _endpointControlDefinitionStorage;
                 }
                 return null;
             };

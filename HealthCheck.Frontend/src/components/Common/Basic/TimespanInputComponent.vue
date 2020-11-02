@@ -36,6 +36,7 @@
             </v-text-field>
 
             <v-btn 
+                v-if="allowClear"
                 class="clear-button"
                 @click:clear="onClearClicked()"
                 :disabled="disabled"
@@ -70,6 +71,9 @@ export default class TimespanInputComponent extends Vue
     
     @Prop({ required: false, default: false })
     disabled!: boolean;
+    
+    @Prop({ required: false, default: true })
+    allowClear!: boolean;
     
     @Prop({ required: false, default: false })
     showDescriptionOnStart!: boolean;

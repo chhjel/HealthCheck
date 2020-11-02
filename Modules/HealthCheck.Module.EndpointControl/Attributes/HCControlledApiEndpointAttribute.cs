@@ -38,6 +38,13 @@ namespace HealthCheck.Module.EndpointControl.Attributes
         public bool CustomBlockedHandling { get; set; }
 
         /// <summary>
+        /// If set to true, requests wont be stored and counted for limit checks automatically.
+        /// <para>Call <see cref="EndpointControlUtils.CountCurrentRequest"/> manually where you want the request to be counted/stored.</para>
+        /// <para>Enable to allow a larger number of requests for e.g. validation, and only count the requests when input is valid.</para>
+        /// </summary>
+        public bool ManuallyCounted { get; set; }
+
+        /// <summary>
         /// Check if the request is allowed and block it if not.
         /// </summary>
         public override void OnActionExecuting(HttpActionContext actionContext)
@@ -55,12 +62,18 @@ namespace HealthCheck.Module.EndpointControl.Attributes
         protected virtual bool AllowExecute(HttpActionContext actionContext)
         {
             var requestData = GetEndpointRequestData(actionContext);
-            var allowed = EndpointControlServices.EndpointControlService?.HandleRequest(requestData) != false;
-            
+            var allowed = EndpointControlServices.EndpointControlService?.HandleRequest(requestData, storeData: !ManuallyCounted) != false;
+
             if (HttpContext.Current?.Items != null)
             {
                 HttpContext.Current.Items[EndpointControlUtils.RequestItemKey_Allowed] = allowed;
             }
+
+            if (ManuallyCounted)
+            {
+                HttpContext.Current.Items[EndpointControlUtils.RequestItemKey_RequestData] = requestData;
+            }
+
             return allowed;
         }
 

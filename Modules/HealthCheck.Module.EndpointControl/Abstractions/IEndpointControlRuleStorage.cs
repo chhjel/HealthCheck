@@ -11,6 +11,11 @@ namespace HealthCheck.Module.EndpointControl.Abstractions
     public interface IEndpointControlRuleStorage
     {
         /// <summary>
+        /// Get a single rule by id.
+        /// </summary>
+        EndpointControlRule GetRule(Guid id);
+
+        /// <summary>
         /// Get all rules.
         /// </summary>
         IEnumerable<EndpointControlRule> GetRules();

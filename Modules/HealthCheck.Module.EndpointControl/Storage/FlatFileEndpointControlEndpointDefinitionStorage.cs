@@ -41,6 +41,15 @@ namespace HealthCheck.Module.EndpointControl.Storage
             => await Store.ClearDataAsync();
 
         /// <summary>
+        /// Delete a single definition.
+        /// </summary>
+        public async Task DeleteDefinition(string endpointId)
+        {
+            Store.DeleteItem(endpointId);
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
         /// Checks if a definition for the given endpoint has been stored.
         /// </summary>
         public bool HasDefinitionFor(string endpointId)

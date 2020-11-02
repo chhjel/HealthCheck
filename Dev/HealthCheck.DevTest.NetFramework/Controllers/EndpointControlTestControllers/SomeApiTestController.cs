@@ -16,13 +16,19 @@ namespace HealthCheck.DevTest.Controllers.RequestLogTestControllers
         [HCControlledApiEndpoint]
         public string TestPost() => "POST";
 
-        // http://localhost:32350/TestGetCustom
+        // http://localhost:32350/TestGetCustom?id=2
         [Route("TestGetCustom")]
         [HttpGet]
-        [HCControlledApiEndpoint(CustomBlockedHandling = true)]
-        public string TestGetCustom()
+        [HCControlledApiEndpoint(CustomBlockedHandling = true, ManuallyCounted = true)]
+        public string TestGetCustom(int id = 1)
         {
-            return $"GET | was blocked: {EndpointControlUtils.CurrentRequestWasDecidedBlocked()}";
+            var counted = false;
+            if (id == 2)
+            {
+                counted = true;
+                EndpointControlUtils.CountCurrentRequest();
+            }
+            return $"GET | was blocked: {EndpointControlUtils.CurrentRequestWasDecidedBlocked()} | was counted: {counted}";
         }
     }
 }

@@ -19,6 +19,16 @@ namespace HealthCheck.Module.EndpointControl.Models
         public bool Enabled { get; set; }
 
         /// <summary>
+        /// Name of user that last changed this rule.
+        /// </summary>
+        public string LastChangedBy { get; set; }
+
+        /// <summary>
+        /// Date when last changed.
+        /// </summary>
+        public DateTimeOffset LastChangedAt { get; set; }
+
+        /// <summary>
         /// Filter for endpoint id value.
         /// </summary>
         public EndpointControlPropertyFilter EndpointIdFilter { get; set; }

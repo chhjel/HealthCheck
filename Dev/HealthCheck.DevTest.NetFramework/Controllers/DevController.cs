@@ -45,7 +45,6 @@ using HealthCheck.Module.DynamicCodeExecution.Storage;
 using HealthCheck.Module.DynamicCodeExecution.Validators;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Module;
-using HealthCheck.Module.EndpointControl.Services;
 using HealthCheck.RequestLog.Services;
 using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.Models;
@@ -100,7 +99,9 @@ namespace HealthCheck.DevTest.Controllers
 
             UseModule(new HCEndpointControlModule(new HCEndpointControlModuleOptions()
             {
-                EndpointControlService = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlService)) as IEndpointControlService
+                EndpointControlService = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlService)) as IEndpointControlService,
+                RuleStorage = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlRuleStorage)) as IEndpointControlRuleStorage,
+                DefinitionStorage = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlEndpointDefinitionStorage)) as IEndpointControlEndpointDefinitionStorage
             }));
             UseModule(new HCSecureFileDownloadModule(new HCSecureFileDownloadModuleOptions()
             {

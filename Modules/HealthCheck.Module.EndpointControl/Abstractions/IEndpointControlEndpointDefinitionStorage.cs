@@ -28,5 +28,10 @@ namespace HealthCheck.Module.EndpointControl.Abstractions
         /// Clear all definitions.
         /// </summary>
         Task ClearAllDefinitions();
+
+        /// <summary>
+        /// Delete a single definition.
+        /// </summary>
+        Task DeleteDefinition(string endpointId);
     }
 }

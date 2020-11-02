@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Models;
+using HealthCheck.Module.EndpointControl.Utils;
 using System.Linq;
 
 namespace HealthCheck.Module.EndpointControl.Services
@@ -30,12 +31,15 @@ namespace HealthCheck.Module.EndpointControl.Services
         /// <summary>
         /// Tracks the given request data and returns true if it is allowed to go through.
         /// </summary>
-        public virtual bool HandleRequest(EndpointControlEndpointRequestData requestData)
+        public virtual bool HandleRequest(EndpointControlEndpointRequestData requestData, bool storeData)
         {
             var allow = AllowRequest(requestData);
 
             requestData.WasBlocked = !allow;
-            _historicalDataStorage.AddRequest(requestData);
+            if (storeData)
+            {
+                StoreHistoricalRequestData(requestData);
+            }
 
             if (!_definitionStorage.HasDefinitionFor(requestData.EndpointId))
             {
@@ -49,6 +53,16 @@ namespace HealthCheck.Module.EndpointControl.Services
             }
 
             return allow;
+        }
+
+        /// <summary>
+        /// Use to manually store request data.
+        /// <para>Invoked from <see cref="EndpointControlUtils.CountCurrentRequest"/>.</para>
+        /// </summary>
+        public void StoreHistoricalRequestData(EndpointControlEndpointRequestData requestData)
+        {
+            //if (EndpointControlUtils.CurrentRequestWasDecidedBlocked)
+            _historicalDataStorage.AddRequest(requestData);
         }
 
         /// <summary>
