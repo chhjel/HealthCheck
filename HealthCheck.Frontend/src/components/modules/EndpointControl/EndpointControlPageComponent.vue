@@ -7,8 +7,22 @@
             <v-flex>
             <v-container>
                 <h1 class="mb-1">Endpoint control rules</h1>
-
+                
+                <h2>Todo: autocomplete/select endpoint in filter from defs</h2>
                 <h2>Todo: show endpoints (definitions) w/ stats &amp; latest requets</h2>
+                <h3>Since [oldest request date]</h3>
+                <ul>
+                    <li>n requests total</li>
+                    <li>n (or "n+"" if max) different IP's invoked endpoints</li>
+                    <li>IPs with most traffic:</li>
+                    <ul>
+                        <li>127.0.0.1: n1 requests</li>
+                        <li>127.0.0.2: n2 requests</li>
+                        <li>127.0.0.3: n3 requests</li>
+                    </ul>
+                </ul>
+
+                <code v-if="data != null">{{ data.EndpointDefinitions }}</code><br />
 
                 <!-- LOAD PROGRESS -->
                 <v-progress-linear
@@ -172,26 +186,18 @@
                     <v-card-text>
                         <block-component
                             v-for="(def, dindex) in EndpointDefinitions"
-                            :key="`endpointdef-${dindex}-${def.EventId}`"
+                            :key="`endpointdef-${dindex}-${def.EndpointId}`"
                             class="definition-list-item mb-2">
                             <v-btn
                                 :loading="loadStatus.inProgress"
                                 :disabled="loadStatus.inProgress"
                                 color="error" class="right"
-                                @click="showDeleteDefinitionDialog(def.EventId)">
+                                @click="showDeleteDefinitionDialog(def.EndpointId)">
                                 <v-icon size="20px" class="mr-2">delete</v-icon>
                                 Delete
                             </v-btn>
 
-                            <h3>{{ def.EventId }}</h3>
-
-                            <div v-if="!def.IsStringified">
-                                <h4 class="mt-2 mr-1" style="display:inline-block">Properties:</h4>
-                                <code
-                                    v-for="(defProp, dpindex) in def.PayloadProperties"
-                                    :key="`endpointdefprop-${dindex}-${dpindex}`"
-                                    class="mr-2">{{ defProp }}</code>
-                            </div>
+                            <h3>{{ getEndpointDisplayName(def.EndpointId) }}</h3>
                             <div style="clear:both;"></div>
                         </block-component>
                     </v-card-text>
@@ -314,7 +320,7 @@ export default class EndpointControlPageComponent extends Vue {
 
     get EndpointDefinitions(): Array<EndpointControlEndpointDefinition>
     {
-        return (this.data == null) ? [] : this.data.Definitions;
+        return (this.data == null) ? [] : this.data.EndpointDefinitions;
     };
 
     get rules(): Array<EndpointControlRule>
@@ -326,6 +332,12 @@ export default class EndpointControlPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    getEndpointDisplayName(endpointId: string) : string {
+        if (this.data == null) return endpointId;
+
+        return EndpointControlUtils.getEndpointDisplayName(endpointId, this.data.EndpointDefinitions);
+    }
+
     updateUrl(): void {
         let routeParams: any = {};
         if (this.currentRule != null && this.currentRule.Id != null)
@@ -465,13 +477,13 @@ export default class EndpointControlPageComponent extends Vue {
         return false;
     }
 
-    showDeleteDefinitionDialog(eventId: string | null): void
+    showDeleteDefinitionDialog(endpointId: string | null): void
     {
         this.deleteDefinitionDialogVisible = true;
-        this.endpointDefinitionIdToDelete = eventId;
-        this.deleteDefinitionDialogText = (eventId == null)
+        this.endpointDefinitionIdToDelete = endpointId;
+        this.deleteDefinitionDialogText = (endpointId == null)
             ? `Delete all endpoint definitions?`
-            : `Delete endpoint definition '${eventId}'?`;
+            : `Delete endpoint definition '${endpointId}'?`;
     }
 
     confirmDeleteEndpointDefinition(): void {
@@ -483,7 +495,7 @@ export default class EndpointControlPageComponent extends Vue {
                 onSuccess: (r) => {
                     if (this.data != null)
                     {
-                        this.data.Definitions = this.data.Definitions
+                        this.data.EndpointDefinitions = this.data.EndpointDefinitions
                             .filter(x => x.EndpointId != this.endpointDefinitionIdToDelete);
                     }
                 }
@@ -495,7 +507,7 @@ export default class EndpointControlPageComponent extends Vue {
                 onSuccess: (r) => {
                     if (this.data != null)
                     {
-                        this.data.Definitions = [];
+                        this.data.EndpointDefinitions = [];
                     }
                 }
             });

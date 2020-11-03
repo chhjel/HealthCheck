@@ -1,4 +1,4 @@
-import { EndpointControlCountOverDuration, EndpointControlFilterMode } from './../../models/modules/EndpointControl/EndpointControlModels';
+import { EndpointControlCountOverDuration, EndpointControlFilterMode, EndpointControlEndpointDefinition } from './../../models/modules/EndpointControl/EndpointControlModels';
 import { EndpointControlPropertyFilter, EndpointControlRule } from "../../models/modules/EndpointControl/EndpointControlModels";
 import IdUtils from "../IdUtils";
 
@@ -10,6 +10,15 @@ export interface RuleDescription
 
 export default class EndpointControlUtils
 {
+    static getEndpointDisplayName(endpointId: string, endpointDefinitions: Array<EndpointControlEndpointDefinition>) : string {
+        if (endpointDefinitions == null) return endpointId;
+
+        const def = endpointDefinitions.find(x => x.EndpointId == endpointId);
+        if (def == null) return endpointId;
+
+        return `${def.ControllerName}.${def.ActionName} (${def.HttpMethod})`;
+    }
+
     static describeRule(rule: EndpointControlRule): string {
         return `Rule ${rule.Id} description here`;
     }

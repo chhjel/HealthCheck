@@ -5,7 +5,7 @@ export interface GenericEndpointControlResult {
 
 export interface EndpointControlDataViewModel {
     Rules: Array<EndpointControlRule>;
-    Definitions: Array<EndpointControlEndpointDefinition>;
+    EndpointDefinitions: Array<EndpointControlEndpointDefinition>;
 }
 
 export interface EndpointControlEndpointDefinition {

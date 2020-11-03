@@ -55,7 +55,7 @@ namespace HealthCheck.Module.EndpointControl.Module
             /// <summary>
             /// Allows for deleting/clearing endpoint definitions.
             /// </summary>
-            EditEndpointDefinitions = 0 << 1
+            EditEndpointDefinitions = 1 << 1
         }
 
         #region Invokable
