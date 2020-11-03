@@ -47,6 +47,11 @@ namespace HealthCheck.Module.EndpointControl.Storage
 		public int MaxStoredRequestCountPerIdentity { get; set; } = 1000;
 
 		/// <summary>
+		/// Max number of latest requests to share in a separate collection only used to display latest request data in the UI.
+		/// </summary>
+		public int MaxLatestRequestCount { get; set; } = 100;
+
+		/// <summary>
 		/// How long to delay after a new request before all data is saved to disk.
 		/// </summary>
 		public TimeSpan DataSaveDelay { get; set; } = TimeSpan.FromSeconds(30);
@@ -103,6 +108,17 @@ namespace HealthCheck.Module.EndpointControl.Storage
 				return _data.IdentityRequests.ContainsKey(locationId)
 					? _data.IdentityRequests[locationId].LatestRequests.Count(x => x.EndpointId == endpointId && x.Timestamp >= time)
 					: 0;
+			}
+		}
+
+		/// <summary>
+		/// Get latest request history for all endpoints.
+		/// </summary>
+		public IEnumerable<EndpointRequestDetails> GetLatestRequests(int maxCount)
+		{
+			lock (_data.LatestRequests)
+			{
+				return _data.LatestRequests.Take(maxCount).ToArray();
 			}
 		}
 
@@ -205,6 +221,17 @@ namespace HealthCheck.Module.EndpointControl.Storage
 
 		private void AddRequestToCollections(EndpointControlEndpointRequestData request)
 		{
+			lock (_data.LatestRequests)
+            {
+				var details = CreateRequestDetails(request);
+				_data.LatestRequests.Enqueue(details);
+
+				if (_data.LatestRequests.Count > MaxLatestRequestCount)
+				{
+					_data.LatestRequests.Dequeue();
+				}
+			}
+
 			lock (_data.LatestRequestIdentities)
 			{
 				// Append request if identity already exists in memory
@@ -244,27 +271,32 @@ namespace HealthCheck.Module.EndpointControl.Storage
 		private void AddRequest(LatestUserEndpointRequestHistory container, EndpointControlEndpointRequestData request)
 		{
 			lock (container.LatestRequests)
-			{
-				container.TotalRequestCount++;
+            {
+                container.TotalRequestCount++;
 
-				var details = new EndpointRequestDetails
-				{
-					UserLocationIdentifier = request.UserLocationId,
-					EndpointId = request.EndpointId,
-					Timestamp = request.Timestamp,
-					Url = request.Url,
-					UserAgent = request.UserAgent,
-					WasBlocked = request.WasBlocked,
-					BlockingRuleId = request.BlockingRuleId
-				};
-				container.LatestRequests.Enqueue(details);
+                var details = CreateRequestDetails(request);
+                container.LatestRequests.Enqueue(details);
 
-				if (container.LatestRequests.Count > MaxMemoryRequestCountPerIdentity)
-				{
-					container.LatestRequests.Dequeue();
-				}
-			}
-		}
-	}
+                if (container.LatestRequests.Count > MaxMemoryRequestCountPerIdentity)
+                {
+                    container.LatestRequests.Dequeue();
+                }
+            }
+        }
+
+        private static EndpointRequestDetails CreateRequestDetails(EndpointControlEndpointRequestData request)
+        {
+            return new EndpointRequestDetails
+            {
+                UserLocationIdentifier = request.UserLocationId,
+                EndpointId = request.EndpointId,
+                Timestamp = request.Timestamp,
+                Url = request.Url,
+                UserAgent = request.UserAgent,
+                WasBlocked = request.WasBlocked,
+                BlockingRuleId = request.BlockingRuleId
+            };
+        }
+    }
 }
 #endif

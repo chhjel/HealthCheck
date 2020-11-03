@@ -13,8 +13,10 @@
 
             <timespan-input-component
                 v-model="duration"
+                v-on:change="onDataChanged"
                 name="Over duration of"
                 :allowClear="false"
+                :minimal="false"
                 />
 
             <v-btn

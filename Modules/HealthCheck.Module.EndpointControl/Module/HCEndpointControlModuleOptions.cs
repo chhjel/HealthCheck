@@ -21,5 +21,10 @@ namespace HealthCheck.Module.EndpointControl.Module
         /// Definition storage implementation that definitions will be stored in.
         /// </summary>
         public IEndpointControlEndpointDefinitionStorage DefinitionStorage { get; set; }
+
+        /// <summary>
+        /// Storage implementation that handles historical data.
+        /// </summary>
+        public IEndpointControlRequestHistoryStorage HistoryStorage { get; set; }
     }
 }

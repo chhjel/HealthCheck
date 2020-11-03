@@ -101,7 +101,8 @@ namespace HealthCheck.DevTest.Controllers
             {
                 EndpointControlService = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlService)) as IEndpointControlService,
                 RuleStorage = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlRuleStorage)) as IEndpointControlRuleStorage,
-                DefinitionStorage = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlEndpointDefinitionStorage)) as IEndpointControlEndpointDefinitionStorage
+                DefinitionStorage = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlEndpointDefinitionStorage)) as IEndpointControlEndpointDefinitionStorage,
+                HistoryStorage = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlRequestHistoryStorage)) as IEndpointControlRequestHistoryStorage
             }));
             UseModule(new HCSecureFileDownloadModule(new HCSecureFileDownloadModuleOptions()
             {

@@ -86,6 +86,10 @@ namespace HealthCheck.DevTest
                 {
                     return _endpointControlDefinitionStorage;
                 }
+                else if (type == typeof(IEndpointControlRequestHistoryStorage))
+                {
+                    return _endpointControlHistoryStorage;
+                }
                 return null;
             };
         }

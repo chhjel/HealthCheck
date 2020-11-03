@@ -10,7 +10,7 @@
                 :disabled="readonly"
             ></v-switch>
             
-            <div class="horizontal-layout">
+            <div class="horizontal-layout" v-if="enabled">
                 <v-select
                     class="mode-select"
                     v-model="filterMode"
@@ -22,14 +22,14 @@
                 </v-select>
             </div>
 
-            <v-text-field type="text"
+            <v-text-field type="text" v-if="enabled"
                 label="Value to search for"
                 v-model="filterValue"
                 v-on:change="onDataChanged"
                 :disabled="readonly"
             ></v-text-field>
 
-            <div class="horizontal-layout">
+            <div class="horizontal-layout" v-if="enabled">
                 <v-switch
                     v-model="caseSensitive" 
                     label="Case sensitive"

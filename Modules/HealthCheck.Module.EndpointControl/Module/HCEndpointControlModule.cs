@@ -29,6 +29,7 @@ namespace HealthCheck.Module.EndpointControl.Module
             if (Options.EndpointControlService == null) issues.Add("Options.EndpointControlService must be set.");
             if (Options.RuleStorage == null) issues.Add("Options.RuleStorage must be set.");
             if (Options.DefinitionStorage == null) issues.Add("Options.DefinitionStorage must be set.");
+            if (Options.HistoryStorage == null) issues.Add("Options.HistoryStorage must be set.");
             return issues;
         }
 
@@ -148,6 +149,13 @@ namespace HealthCheck.Module.EndpointControl.Module
             context?.AddAuditEvent($"Deleted all endpoint definitions");
             return new { Success = true };
         }
+
+        /// <summary>
+        /// Get latest requests.
+        /// </summary>
+        [HealthCheckModuleMethod]
+        public IEnumerable<EndpointRequestDetails> GetLatestRequests()
+            => Options.HistoryStorage.GetLatestRequests(maxCount: 100);
         #endregion
     }
 }

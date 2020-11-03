@@ -8,6 +8,8 @@
             <v-container>
                 <h1 class="mb-1">Endpoint control rules</h1>
 
+                <h2>Todo: show endpoints (definitions) w/ stats &amp; latest requets</h2>
+
                 <!-- LOAD PROGRESS -->
                 <v-progress-linear
                     v-if="loadStatus.inProgress"
@@ -52,25 +54,7 @@
                         
                         <div class="rule-list-item--rule"
                             @click="showRule(rule)">
-                            <b>When</b>
-                            <ul>
-                                <li v-if="describeRule(rule).filters.length == 0">Always</li>
-                                <li v-for="(filter, fltIndex) in describeRule(rule).filters"
-                                    :key="`rule-${rule.Id}-filter-${fltIndex}`">
-                                    {{ filter }}
-                                </li>
-                            </ul>
-
-                            <div>
-                                <b>Limit to</b>
-                                <ul>
-                                    <li v-if="describeRule(rule).limits.length == 0">- no limits defined -</li>
-                                    <li v-for="(limit, limIndex) in describeRule(rule).limits"
-                                        :key="`rule-${rule.Id}-limit-${limIndex}`">
-                                        {{ limit }}
-                                    </li>
-                                </ul>
-                            </div>
+                            <rule-description-component :rule="rule" />
                         </div>
                         
                         <v-tooltip bottom v-if="getRuleWarning(rule) != null">
@@ -247,10 +231,11 @@ import { DateTimePicker } from "@lazy-copilot/datetimepicker";
 import FilterInputComponent from  '../../Common/FilterInputComponent.vue';
 import DataTableComponent, { DataTableGroup } from  '../../Common/DataTableComponent.vue';
 import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
+import RuleDescriptionComponent from  './RuleDescriptionComponent.vue';
 import FilterableListComponent, { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
 import RuleComponent from './RuleComponent.vue';
 import IdUtils from  '../../../util/IdUtils';
-import EndpointControlUtils, { RuleDescription } from  '../../../util/EndpointControl/EndpointControlUtils';
+import EndpointControlUtils from  '../../../util/EndpointControl/EndpointControlUtils';
 import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
 import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
 import EndpointControlService from  '../../../services/EndpointControlService';
@@ -262,7 +247,8 @@ import { EndpointControlDataViewModel, EndpointControlEndpointDefinition, Endpoi
     components: {
         SimpleDateTimeComponent,
         BlockComponent,
-        RuleComponent
+        RuleComponent,
+        RuleDescriptionComponent
     }
 })
 export default class EndpointControlPageComponent extends Vue {
@@ -378,13 +364,8 @@ export default class EndpointControlPageComponent extends Vue {
             (a, b) => LinqUtils.SortByThenBy(a, b,
                 x => x.Enabled ? 1 : 0,
                 x => (x.LastChangedAt == null) ? 32503676400000 : x.LastChangedAt.getTime(),
-                false, true)
+                false, false)
             );
-    }
-
-    describeRule(rule: EndpointControlRule): RuleDescription
-    {
-        return EndpointControlUtils.describeRuleExt(rule);
     }
 
     setRuleEnabled(rule: EndpointControlRule, enabled: boolean): void {

@@ -29,24 +29,11 @@
         </div>
 
         <div class="rule-summary">
-            {{ description }}
+            <rule-description-component :rule="internalRule" />
         </div>
 
-        <!-- ###### EVENT ID ###### -->
         <block-component class="mb-4" title="Filters">
-            <!-- <v-combobox
-                v-model="internalRule.EventIdFilter.Filter"
-                :items="EndpointDefinitions"
-                :readonly="!allowChanges"
-                no-data-text="Unknown endpoint definition."
-                placeholder="Endpoint definition"
-                class="without-label"
-                ref="eventIdFilter"
-                >
-            </v-combobox> -->
-            
-            <!-- ###### PAYLOAD FILTERS ###### -->
-            <h3 class="mt-4">User location id</h3>
+            <h3 class="mt-4">IP address / user location id</h3>
             <rule-filter-component class="payload-filter" :readonly="!allowChanges"
                 v-model="internalRule.UserLocationIdFilter" />
             <h3 class="mt-4">Endpoint Id</h3>
@@ -128,6 +115,7 @@ import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
 import InputComponent from  '../../Common/Basic/InputComponent.vue';
 import TimespanInputComponent from  '../../Common/Basic/TimespanInputComponent.vue';
 import CountOverDurationComponent from './CountOverDurationComponent.vue';
+import RuleDescriptionComponent from  './RuleDescriptionComponent.vue';
 import EndpointControlService from "../../../services/EndpointControlService";
 import { EndpointControlCountOverDuration, EndpointControlEndpointDefinition, EndpointControlPropertyFilter, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
 
@@ -138,7 +126,8 @@ import { EndpointControlCountOverDuration, EndpointControlEndpointDefinition, En
         BlockComponent,
         InputComponent,
         TimespanInputComponent,
-        CountOverDurationComponent
+        CountOverDurationComponent,
+        RuleDescriptionComponent
     }
 })
 export default class RuleComponent extends Vue {
@@ -187,11 +176,6 @@ export default class RuleComponent extends Vue {
     
     get allowChanges(): boolean {
         return !this.readonly && !this.serverInteractionInProgress;
-    }
-
-    get description(): string
-    {
-        return EndpointControlUtils.describeRule(this.internalRule);
     }
 
     get EndpointDefinitions(): Array<string> {
@@ -317,16 +301,7 @@ export default class RuleComponent extends Vue {
     padding: 10px;
     margin-top: 20px;
     margin-bottom: 20px;
-    text-align: center;
-    font-size: 26px;
-
-    @media (max-width: 900px) {
-        font-size: 22px;
-    }
-
-    a {
-        text-decoration: underline;
-    }
+    font-size: 18px;
 }
 .header-data {
     display: flex;
