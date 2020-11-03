@@ -254,7 +254,8 @@ namespace HealthCheck.Module.EndpointControl.Storage
 					Timestamp = request.Timestamp,
 					Url = request.Url,
 					UserAgent = request.UserAgent,
-					WasBlocked = request.WasBlocked
+					WasBlocked = request.WasBlocked,
+					BlockingRuleId = request.BlockingRuleId
 				};
 				container.LatestRequests.Enqueue(details);
 

@@ -39,7 +39,7 @@ namespace HealthCheck.Module.EndpointControl.Models
         /// </summary>
         public bool Matches(string value)
         {
-            if (!Enabled)
+            if (!Enabled || (Filter ?? "").Length == 0)
             {
                 return true;
             }

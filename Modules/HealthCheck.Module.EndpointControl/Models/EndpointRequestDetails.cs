@@ -10,5 +10,6 @@ namespace HealthCheck.Module.EndpointControl.Models
 		public string UserAgent { get; set; }
 		public string Url { get; set; }
 		public bool WasBlocked { get; set; }
+		public Guid? BlockingRuleId { get; set; }
 	}
 }

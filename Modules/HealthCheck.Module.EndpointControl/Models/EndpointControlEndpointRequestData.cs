@@ -62,5 +62,11 @@ namespace HealthCheck.Module.EndpointControl.Models
         /// This property will be updated by the service with the result.
         /// </summary>
         public bool WasBlocked { get; set; }
+
+        /// <summary>
+        /// Id if any of the rule that caused request to be blocked.
+        /// <para>Updated by the service.</para>
+        /// </summary>
+        public Guid? BlockingRuleId { get; set; }
     }
 }

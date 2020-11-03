@@ -51,11 +51,26 @@
                         </v-tooltip>
                         
                         <div class="rule-list-item--rule"
-                            @click="showRule(rule)"
-                            >
-                            {{ describeRule(rule) }}
-                            <hr />
-                            <code>{{ rule }}</code>
+                            @click="showRule(rule)">
+                            <b>When</b>
+                            <ul>
+                                <li v-if="describeRule(rule).filters.length == 0">Always</li>
+                                <li v-for="(filter, fltIndex) in describeRule(rule).filters"
+                                    :key="`rule-${rule.Id}-filter-${fltIndex}`">
+                                    {{ filter }}
+                                </li>
+                            </ul>
+
+                            <div>
+                                <b>Limit to</b>
+                                <ul>
+                                    <li v-if="describeRule(rule).limits.length == 0">- no limits defined -</li>
+                                    <li v-for="(limit, limIndex) in describeRule(rule).limits"
+                                        :key="`rule-${rule.Id}-limit-${limIndex}`">
+                                        {{ limit }}
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                         
                         <v-tooltip bottom v-if="getRuleWarning(rule) != null">
@@ -235,7 +250,7 @@ import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
 import FilterableListComponent, { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
 import RuleComponent from './RuleComponent.vue';
 import IdUtils from  '../../../util/IdUtils';
-import EndpointControlUtils from  '../../../util/EndpointControl/EndpointControlUtils';
+import EndpointControlUtils, { RuleDescription } from  '../../../util/EndpointControl/EndpointControlUtils';
 import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
 import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
 import EndpointControlService from  '../../../services/EndpointControlService';
@@ -367,9 +382,9 @@ export default class EndpointControlPageComponent extends Vue {
             );
     }
 
-    describeRule(rule: EndpointControlRule): string
+    describeRule(rule: EndpointControlRule): RuleDescription
     {
-        return EndpointControlUtils.describeRule(rule);
+        return EndpointControlUtils.describeRuleExt(rule);
     }
 
     setRuleEnabled(rule: EndpointControlRule, enabled: boolean): void {
@@ -444,6 +459,10 @@ export default class EndpointControlPageComponent extends Vue {
 
     getRuleWarning(rule: EndpointControlRule): string | null
     {
+        if (rule.TotalRequestCountLimits.length == 0 && rule.CurrentEndpointRequestCountLimits.length == 0)
+        {
+            return 'No limits has been defined, the rule won\'t have any effect.';
+        }
         return null;
     }
 

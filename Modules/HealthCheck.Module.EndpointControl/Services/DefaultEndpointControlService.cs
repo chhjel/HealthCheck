@@ -1,6 +1,5 @@
 ﻿using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Models;
-using HealthCheck.Module.EndpointControl.Utils;
 using System.Linq;
 
 namespace HealthCheck.Module.EndpointControl.Services
@@ -33,9 +32,14 @@ namespace HealthCheck.Module.EndpointControl.Services
         /// </summary>
         public virtual bool HandleRequest(EndpointControlEndpointRequestData requestData, bool storeData)
         {
-            var allow = AllowRequest(requestData);
+            var allow = AllowRequest(requestData, out EndpointControlRule blockingRule);
 
             requestData.WasBlocked = !allow;
+            if (!allow)
+            {
+                requestData.BlockingRuleId = blockingRule?.Id;
+            }
+
             if (storeData)
             {
                 StoreHistoricalRequestData(requestData);
@@ -57,7 +61,7 @@ namespace HealthCheck.Module.EndpointControl.Services
 
         /// <summary>
         /// Use to manually store request data.
-        /// <para>Invoked from <see cref="EndpointControlUtils.CountCurrentRequest"/>.</para>
+        /// <para>Optionally manually invoked from <c>EndpointControlUtils.CountCurrentRequest()</c>.</para>
         /// </summary>
         public void StoreHistoricalRequestData(EndpointControlEndpointRequestData requestData)
         {
@@ -68,13 +72,14 @@ namespace HealthCheck.Module.EndpointControl.Services
         /// <summary>
         /// Return true to allow the request, or false to block it.
         /// </summary>
-        protected virtual bool AllowRequest(EndpointControlEndpointRequestData requestData)
+        protected virtual bool AllowRequest(EndpointControlEndpointRequestData requestData, out EndpointControlRule blockingRule)
         {
-            var blockingRule = _ruleStorage.GetRules()
+            blockingRule = _ruleStorage.GetRules()
                 .FirstOrDefault(rule => rule.ShouldBlockRequest(requestData,
                     endpointRequestCountGetter: (date) => _historicalDataStorage.GetEndpointRequestCountSince(requestData.UserLocationId, requestData.EndpointId, date),
                     totalRequestCountGetter: (date) => _historicalDataStorage.GetTotalRequestCountSince(requestData.UserLocationId, date)
                 ));
+
             return blockingRule == null;
         }
 
