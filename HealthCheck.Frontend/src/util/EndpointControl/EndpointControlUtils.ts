@@ -23,18 +23,41 @@ export default class EndpointControlUtils
         return `Rule ${rule.Id} description here`;
     }
 
-    static describeRuleExt(rule: EndpointControlRule): RuleDescription {
-        const filters = [
-                { name: 'Endpoint Id', filter: rule.EndpointIdFilter },
-                { name: 'IP', filter: rule.UserLocationIdFilter },
-                { name: 'Url', filter: rule.UrlFilter },
-                { name: 'User-Agent', filter: rule.UserAgentFilter }
-            ]
+    static describeRuleExt(rule: EndpointControlRule, endpointDefs: Array<EndpointControlEndpointDefinition>): RuleDescription {
+        let filters = [];
+        let forcedFilters: Array<string> = [];
+
+        const endpointFilter = rule.EndpointIdFilter;
+        if (endpointFilter.Enabled
+            && endpointFilter.FilterMode == EndpointControlFilterMode.Matches
+            && (
+                (endpointFilter.CaseSensitive && endpointDefs.some(x => x.EndpointId == endpointFilter.Filter))
+                || (!endpointFilter.CaseSensitive && endpointDefs.some(x => x.EndpointId.toLowerCase() == endpointFilter.Filter.toLowerCase()))
+            ))
+        {
+            const truePart = (endpointFilter.Inverted) ? 'is not' : 'is';
+            const endpointName = this.getEndpointDisplayName(endpointFilter.Filter, endpointDefs);
+            forcedFilters.push(`Endpoint ${truePart} ${endpointName}`);
+        }
+        else
+        {
+            filters.push({ name: 'Endpoint Id', filter: rule.EndpointIdFilter });
+        }
+
+        filters = filters.concat([
+            { name: 'IP', filter: rule.UserLocationIdFilter },
+            { name: 'Url', filter: rule.UrlFilter },
+            { name: 'User-Agent', filter: rule.UserAgentFilter }
+        ]);
+
+        filters = filters
             .map(x => {
                 const desc = this.describeRuleFilter(x.filter);
                 return (desc.length == 0) ? '' : `${x.name} ${desc}`;
             })
             .filter(x => x.length > 0);
+        
+        filters = forcedFilters.concat(filters);
 
         const limits = 
             rule.TotalRequestCountLimits.map(x => { return { name: 'total request(s) per IP', limit: x } })

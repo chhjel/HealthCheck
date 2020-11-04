@@ -19,7 +19,7 @@
   "dependencies": {
     "@lazy-copilot/datetimepicker": "^0.1.47",
     "babel-polyfill": "^6.26.0",
-    "chart.js": "^2.8.0",
+    "chart.js": "^2.9.3",
     "dagre": "0.8.5",
     "es6-promise": "^4.2.8",
     "jointjs": "3.1.1",
@@ -35,7 +35,7 @@
     "whatwg-fetch": "3.2.0"
   },
   "devDependencies": {
-    "@types/chart.js": "2.8.7",
+    "@types/chart.js": "2.9.27",
     "@types/dagre": "0.7.42",
     "@types/xregexp": "3.0.30",
     "css-loader": "^2.1.1",

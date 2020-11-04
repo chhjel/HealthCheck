@@ -25,7 +25,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import { EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
+import { EndpointControlEndpointDefinition, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
 import EndpointControlUtils, { RuleDescription } from "../../../util/EndpointControl/EndpointControlUtils";
 
 @Component({
@@ -34,6 +34,9 @@ import EndpointControlUtils, { RuleDescription } from "../../../util/EndpointCon
 export default class RuleDescriptionComponent extends Vue {
     @Prop({ required: true })
     rule!: EndpointControlRule;
+
+    @Prop({ required: false, default: null })
+    endpointDefinitions!: Array<EndpointControlEndpointDefinition>;
 
     //////////////////
     //  LIFECYCLE  //
@@ -44,7 +47,7 @@ export default class RuleDescriptionComponent extends Vue {
     //////////////
     get description(): RuleDescription
     {
-        return EndpointControlUtils.describeRuleExt(this.rule);
+        return EndpointControlUtils.describeRuleExt(this.rule, this.endpointDefinitions);
     }
 
     ////////////////

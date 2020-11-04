@@ -8,8 +8,19 @@
             <v-container>
                 <h1 class="mb-1">Endpoint control rules</h1>
                 
-                <h2>Todo: autocomplete/select endpoint in filter from defs</h2>
-                <h2>Todo: show endpoints (definitions) w/ stats &amp; latest requets</h2>
+                <data-over-time-chart-component
+                    :entries="testEntries"
+                    :sets="testSets"
+                    ylabel="Requests" />
+
+                <h2>Todo:</h2>
+                <ul>
+                    <li>show endpoints (definitions) w/ stats &amp; latest requets</li>
+                    <li>Show trafic &amp; request count per endpoint</li>
+                    <li>Store blocked count per endpoint? Percentage?</li>
+                    <li>Notify event system on trigger.</li>
+                    <li>Show in fancy map or something with animated lines with trafic.</li>
+                </ul>
                 <h3>Since [oldest request date]</h3>
                 <ul>
                     <li>n requests total</li>
@@ -68,7 +79,7 @@
                         
                         <div class="rule-list-item--rule"
                             @click="showRule(rule)">
-                            <rule-description-component :rule="rule" />
+                            <rule-description-component :rule="rule" :endpointDefinitions="EndpointDefinitions" />
                         </div>
                         
                         <v-tooltip bottom v-if="getRuleWarning(rule) != null">
@@ -122,7 +133,7 @@
                         <rule-component
                             :module-id="config.Id"
                             :rule="currentRule"
-                            :endpointdefinitions="EndpointDefinitions"
+                            :endpointDefinitions="EndpointDefinitions"
                             :readonly="!allowRuleChanges"
                             v-on:ruleDeleted="onRuleDeleted"
                             v-on:ruleSaved="onRuleSaved"
@@ -248,13 +259,15 @@ import EndpointControlService from  '../../../services/EndpointControlService';
 import ModuleOptions from  '../../../models/Common/ModuleOptions';
 import ModuleConfig from "../../../models/Common/ModuleConfig";
 import { EndpointControlDataViewModel, EndpointControlEndpointDefinition, EndpointControlFilterMode, EndpointControlPropertyFilter, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
+import DataOverTimeChartComponent, { ChartEntry, ChartSet } from '../../Common/Charts/DataOverTimeChartComponent.vue';
 
 @Component({
     components: {
         SimpleDateTimeComponent,
         BlockComponent,
         RuleComponent,
-        RuleDescriptionComponent
+        RuleDescriptionComponent,
+        DataOverTimeChartComponent
     }
 })
 export default class EndpointControlPageComponent extends Vue {
@@ -276,6 +289,27 @@ export default class EndpointControlPageComponent extends Vue {
 
     data: EndpointControlDataViewModel | null = null;
     currentRule: EndpointControlRule | null = null;
+
+	testSets: Array<ChartSet> = [
+        { label: 'Allowed', group: 'allowed', color: '#4cff50' },
+        { label: 'Blocked', group: 'blocked', color: '#FF0000' }
+    ];
+    testEntries: Array<ChartEntry> = [
+        { date: DateUtils.CreateDateWithMinutesOffset(1), group: 'blocked' },
+        { date: DateUtils.CreateDateWithMinutesOffset(1), group: 'allowed' },
+        { date: DateUtils.CreateDateWithMinutesOffset(2), group: 'blocked' },
+        { date: DateUtils.CreateDateWithMinutesOffset(16), group: 'blocked' },
+        { date: DateUtils.CreateDateWithMinutesOffset(4), group: 'allowed' },
+        { date: DateUtils.CreateDateWithMinutesOffset(120), group: 'allowed' },
+        { date: DateUtils.CreateDateWithMinutesOffset(121), group: 'allowed' },
+        { date: DateUtils.CreateDateWithMinutesOffset(122), group: 'allowed' },
+        { date: DateUtils.CreateDateWithMinutesOffset(123), group: 'allowed' },
+        { date: DateUtils.CreateDateWithMinutesOffset(120), group: 'allowed' },
+        { date: DateUtils.CreateDateWithMinutesOffset(125), group: 'allowed' },
+        { date: DateUtils.CreateDateWithMinutesOffset(60 * 24 * 14), group: 'allowed' },
+        { date: DateUtils.CreateDateWithMinutesOffset(60 * 24 * 12), group: 'blocked' },
+        { date: DateUtils.CreateDateWithMinutesOffset(8), group: 'blocked' },
+    ];
 
     //////////////////
     //  LIFECYCLE  //
@@ -541,7 +575,7 @@ export default class EndpointControlPageComponent extends Vue {
 
     createDefaultFilter(): EndpointControlPropertyFilter {
         return {
-            Enabled: true,
+            Enabled: false,
             Filter: '',
             FilterMode: EndpointControlFilterMode.Matches,
             Inverted: false,

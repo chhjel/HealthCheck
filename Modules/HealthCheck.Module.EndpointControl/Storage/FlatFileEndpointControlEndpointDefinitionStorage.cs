@@ -46,6 +46,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
         public async Task DeleteDefinition(string endpointId)
         {
             Store.DeleteItem(endpointId);
+            _memoryCache.RemoveAll(x => x.EndpointId == endpointId);
             await Task.CompletedTask;
         }
 

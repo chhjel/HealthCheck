@@ -29,7 +29,9 @@
         </div>
 
         <div class="rule-summary">
-            <rule-description-component :rule="internalRule" />
+            <rule-description-component
+                :rule="internalRule"
+                :endpointDefinitions="endpointDefinitions" />
         </div>
 
         <block-component class="mb-4" title="Filters">
@@ -38,7 +40,8 @@
                 v-model="internalRule.UserLocationIdFilter" />
             <h3 class="mt-4">Endpoint Id</h3>
             <rule-filter-component class="payload-filter" :readonly="!allowChanges"
-                v-model="internalRule.EndpointIdFilter" />
+                v-model="internalRule.EndpointIdFilter"
+                :filterOptions="endpointFilterOptions" />
             <h3 class="mt-4">Url</h3>
             <rule-filter-component class="payload-filter" :readonly="!allowChanges"
                 v-model="internalRule.UrlFilter" />
@@ -138,7 +141,7 @@ export default class RuleComponent extends Vue {
     rule!: EndpointControlRule;
 
     @Prop({ required: false, default: null})
-    endpointdefinitions!: Array<EndpointControlEndpointDefinition> | null;
+    endpointDefinitions!: Array<EndpointControlEndpointDefinition>;
 
     @Prop({ required: false, default: false })
     readonly!: boolean;
@@ -178,9 +181,13 @@ export default class RuleComponent extends Vue {
         return !this.readonly && !this.serverInteractionInProgress;
     }
 
-    get EndpointDefinitions(): Array<string> {
-        if (this.endpointdefinitions == null) return [];
-        else return this.endpointdefinitions.map(x => x.EndpointId);
+    get EndpointDefinitionIds(): Array<string> {
+        if (this.endpointDefinitions == null) return [];
+        else return this.endpointDefinitions.map(x => x.EndpointId);
+    }
+
+    get endpointFilterOptions(): Array<string> {
+        return this.EndpointDefinitionIds;
     }
 
     ////////////////

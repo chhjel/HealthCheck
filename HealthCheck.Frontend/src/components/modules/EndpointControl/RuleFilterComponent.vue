@@ -22,13 +22,16 @@
                 </v-select>
             </div>
 
-            <v-text-field type="text" v-if="enabled"
-                label="Value to search for"
+            <v-combobox v-if="enabled"
                 v-model="filterValue"
+                :items="filterContentOptions"
+                :readonly="readonly"
+                no-data-text="Value required"
+                placeholder="Value to search for"
                 v-on:change="onDataChanged"
                 :disabled="readonly"
-            ></v-text-field>
-
+                >
+            </v-combobox>
             <div class="horizontal-layout" v-if="enabled">
                 <v-switch
                     v-model="caseSensitive" 
@@ -62,6 +65,8 @@ export default class RuleFilterComponent extends Vue {
     value!: EndpointControlPropertyFilter;
     @Prop({ required: false, default: false })
     readonly!: boolean;
+    @Prop({ required: false, default: () => [] })
+    filterOptions!: Array<string>;
 
     enabled: boolean = false;
     inverted: boolean = false;
@@ -83,6 +88,10 @@ export default class RuleFilterComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get filterContentOptions(): Array<string> {
+        return this.filterOptions ?? [];
+    }
+
     get filterModeOptions(): any {
         let items = [
             { text: 'Contains', value: EndpointControlFilterMode.Contains},

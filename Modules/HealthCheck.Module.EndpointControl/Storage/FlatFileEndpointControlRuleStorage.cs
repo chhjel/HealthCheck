@@ -40,6 +40,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
         public void DeleteRule(Guid ruleId)
         {
             Store.DeleteItem(ruleId);
+            _memoryCache.RemoveAll(x => x.Id == ruleId);
         }
 
         /// <summary>
