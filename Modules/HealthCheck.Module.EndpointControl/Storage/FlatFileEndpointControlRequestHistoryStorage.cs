@@ -47,9 +47,14 @@ namespace HealthCheck.Module.EndpointControl.Storage
 		public int MaxStoredRequestCountPerIdentity { get; set; } = 1000;
 
 		/// <summary>
-		/// Max number of latest requests to share in a separate collection only used to display latest request data in the UI.
+		/// Max number of latest requests to store in memory in a separate collection only used to display latest request data in the UI.
 		/// </summary>
-		public int MaxLatestRequestCount { get; set; } = 100;
+		public int MaxMemoryLatestRequestCount { get; set; } = 100;
+
+		/// <summary>
+		/// Max number of latest requests to save to disk in a separate collection only used to display latest request data in the UI.
+		/// </summary>
+		public int MaxStoredLatestRequestCount { get; set; } = 100;
 
 		/// <summary>
 		/// How long to delay after a new request before all data is saved to disk.
@@ -74,7 +79,21 @@ namespace HealthCheck.Module.EndpointControl.Storage
         {
 			FilePath = filePath;
 			LoadData();
-        }
+		}
+
+		/// <summary>
+		/// Deconstructor. Stores any buffered data before self destructing.
+		/// </summary>
+		~FlatFileEndpointControlRequestHistoryStorage()
+		{
+			lock (_delayedStorageLock)
+			{
+				if (!_isSaving)
+				{
+					SaveData();
+				}
+			}
+		}
 
 		/// <summary>
 		/// Store data about a given request.
@@ -141,23 +160,27 @@ namespace HealthCheck.Module.EndpointControl.Storage
 
 		private void SaveData()
 		{
-			LatestEndpointRequestsHistory dataCopy = null;
-
-			lock (_data.LatestRequestIdentities)
+            try
 			{
-				lock (_data.IdentityRequests)
-                {
-                    CleanupOldData();
+				LatestEndpointRequestsHistory dataCopy = null;
 
-                    dataCopy = CreateDataCopyForStorage();
-                }
-            }
+				lock (_data.LatestRequestIdentities)
+				{
+					lock (_data.IdentityRequests)
+					{
+						CleanupOldData();
 
-			var json = JsonConvert.SerializeObject(dataCopy, PrettyFormat ? Formatting.Indented : Formatting.None);
-			lock (_fileLock)
-			{
-				File.WriteAllText(FilePath, json);
+						dataCopy = CreateDataCopyForStorage();
+					}
+				}
+
+				var json = JsonConvert.SerializeObject(dataCopy, PrettyFormat ? Formatting.Indented : Formatting.None);
+				lock (_fileLock)
+				{
+					File.WriteAllText(FilePath, json);
+				}
 			}
+			catch(Exception) { /* Ignored */ }
 		}
 
 		private void CleanupOldData()
@@ -198,10 +221,11 @@ namespace HealthCheck.Module.EndpointControl.Storage
 						{
 							UserLocationIdentifier = x.Value.UserLocationIdentifier,
 							TotalRequestCount = x.Value.TotalRequestCount,
-							LatestRequests = new Queue<EndpointRequestDetails>(x.Value.LatestRequests.Take(MaxStoredRequestCountPerIdentity))
+							LatestRequests = new Queue<EndpointRequestDetails>(x.Value.LatestRequests.Take(MaxStoredRequestCountPerIdentity)),
 						};
 					}),
                 LatestRequestIdentities = _data.LatestRequestIdentities.Take(MaxStoredIdentityCount).ToList(),
+				LatestRequests = new Queue<EndpointRequestDetails>(_data.LatestRequests.Take(MaxStoredLatestRequestCount))
             };
         }
 
@@ -226,7 +250,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
 				var details = CreateRequestDetails(request);
 				_data.LatestRequests.Enqueue(details);
 
-				if (_data.LatestRequests.Count > MaxLatestRequestCount)
+				if (_data.LatestRequests.Count > MaxMemoryLatestRequestCount)
 				{
 					_data.LatestRequests.Dequeue();
 				}

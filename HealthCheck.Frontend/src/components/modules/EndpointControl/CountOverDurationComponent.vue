@@ -17,6 +17,7 @@
                 name="Over duration of"
                 :allowClear="false"
                 :minimal="false"
+                :disabled="readonly"
                 />
 
             <v-btn

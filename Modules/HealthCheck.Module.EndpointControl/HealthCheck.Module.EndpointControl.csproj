@@ -16,6 +16,11 @@
     <AssemblyName>HealthCheck.Module.EndpointControl</AssemblyName>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+
   <!-- .NET FRAMEWORK ######################## -->
   <!-- Compiler flags -->
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">

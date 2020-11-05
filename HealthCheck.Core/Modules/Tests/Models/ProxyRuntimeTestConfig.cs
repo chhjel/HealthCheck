@@ -91,7 +91,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Add a custom instance factory with a custom context object.
         /// <para>This takes priority over <see cref="AddInstanceFactory{T}(Func{T})"/></para>
-        /// <para>Custom context can be set from <see cref="AddCustomContext"/></para>
+        /// <para>Custom context can be set from <c>AddCustomContext</c></para>
         /// </summary>
         public ProxyRuntimeTestConfig AddInstanceFactory<T, TContext>(Func<TContext, T> factory)
             where TContext: class

@@ -53,3 +53,18 @@ export interface EndpointControlCountOverDuration {
     Count: number;
     Duration: string;
 }
+
+export interface EndpointRequestDetails {
+    UserLocationIdentifier: string;
+    EndpointId: string;
+    Timestamp: string; // DateTimeOffset
+    UserAgent: string;
+    Url: string;
+    WasBlocked: boolean;
+    BlockingRuleId: string | null;
+}
+
+export interface EndpointRequestSimpleDetails {
+    Timestamp: string; // DateTimeOffset
+    WasBlocked: boolean;
+}

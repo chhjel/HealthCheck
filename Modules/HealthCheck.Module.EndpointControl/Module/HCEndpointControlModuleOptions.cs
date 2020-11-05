@@ -26,5 +26,18 @@ namespace HealthCheck.Module.EndpointControl.Module
         /// Storage implementation that handles historical data.
         /// </summary>
         public IEndpointControlRequestHistoryStorage HistoryStorage { get; set; }
+
+        /// <summary>
+        /// Max number of requests to retrieve and show in the UI.
+        /// <para>Defaults to 100.</para>
+        /// </summary>
+        public int MaxLatestRequestsToShow { get; set; } = 100;
+
+        /// <summary>
+        /// Max number of simple request data to retrieve and show in the UI.
+        /// <para>Used for graphs.</para>
+        /// <para>Defaults to 1000.</para>
+        /// </summary>
+        public int MaxLatestSimpleRequestDataToShow { get; set; } = 1000;
     }
 }

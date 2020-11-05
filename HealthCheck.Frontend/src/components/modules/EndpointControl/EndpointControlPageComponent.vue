@@ -8,18 +8,12 @@
             <v-container>
                 <h1 class="mb-1">Endpoint control rules</h1>
                 
-                <data-over-time-chart-component
-                    :entries="testEntries"
-                    :sets="testSets"
-                    ylabel="Requests" />
-
                 <h2>Todo:</h2>
                 <ul>
-                    <li>show endpoints (definitions) w/ stats &amp; latest requets</li>
+                    <li>show endpoints (definitions) w/ stats</li>
                     <li>Show trafic &amp; request count per endpoint</li>
                     <li>Store blocked count per endpoint? Percentage?</li>
                     <li>Notify event system on trigger.</li>
-                    <li>Show in fancy map or something with animated lines with trafic.</li>
                 </ul>
                 <h3>Since [oldest request date]</h3>
                 <ul>
@@ -58,6 +52,12 @@
                     Edit endpoint definitions
                 </v-btn>
 
+                <v-btn v-if="HasAccessToLatestRequestsDialog"
+                    @click="showLatestRequestsDialog"
+                    class="mb-3 ml-2 right">
+                    Latest requests
+                </v-btn>
+
                 <block-component
                     v-for="(rule, cindex) in rules"
                     :key="`rule-${cindex}-${rule.Id}`"
@@ -71,8 +71,8 @@
                                 color="secondary"
                                 style="flex: 0"
                                 @click="setRuleEnabled(rule, !rule.Enabled)"
+                                :disabled="!HasAccessToEditRules"
                                 ></v-switch>
-                                <!-- :disabled="!allowRuleChanges" -->
                             </template>
                             <span>Enable or disable this rule</span>
                         </v-tooltip>
@@ -150,7 +150,7 @@
                             :disabled="serverInteractionInProgress"
                             @click="$refs.currentRuleComponent.tryDeleteRule()">Delete</v-btn>
                         <v-btn color="success"
-                            :disabled="serverInteractionInProgress"
+                            :disabled="serverInteractionInProgress || !HasAccessToEditRules"
                             @click="$refs.currentRuleComponent.saveRule()">Save</v-btn>
                     </v-card-actions>
                 </v-card>
@@ -228,6 +228,41 @@
                     </v-card-actions>
                 </v-card>
             </v-dialog>
+            
+            <v-dialog v-model="latestRequestsDialogVisible"
+                @keydown.esc="hideLatestRequestsDialog"
+                scrollable
+                max-width="1200"
+                content-class=""
+                @input="v => v || hideLatestRequestsDialog()">
+                <v-card style="background-color: #f4f4f4">
+                    <v-toolbar class="elevation-0">
+                        <v-toolbar-title class="current-rule-dialog__title">Latest requests</v-toolbar-title>
+                        <v-spacer></v-spacer>
+                        <v-btn icon @click="hideLatestRequestsDialog">
+                            <v-icon>close</v-icon>
+                        </v-btn>
+                    </v-toolbar>
+
+                    <v-divider></v-divider>
+                    <v-card-text>
+                        <block-component class="mb-2">
+                            <latest-requests-component 
+                                :moduleId="config.Id"
+                                :endpointDefinitions="EndpointDefinitions"
+                                :options="options.Options"
+                                :log="HasAccessToViewLatestRequestData"
+                                :charts="HasAccessToViewRequestCharts"
+                                />
+                        </block-component>
+                    </v-card-text>
+                    <v-divider></v-divider>
+                    <v-card-actions >
+                        <v-spacer></v-spacer>
+                        <v-btn color="success" @click="hideLatestRequestsDialog">Close</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         </v-content>
     </div>
 </template>
@@ -259,7 +294,12 @@ import EndpointControlService from  '../../../services/EndpointControlService';
 import ModuleOptions from  '../../../models/Common/ModuleOptions';
 import ModuleConfig from "../../../models/Common/ModuleConfig";
 import { EndpointControlDataViewModel, EndpointControlEndpointDefinition, EndpointControlFilterMode, EndpointControlPropertyFilter, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
-import DataOverTimeChartComponent, { ChartEntry, ChartSet } from '../../Common/Charts/DataOverTimeChartComponent.vue';
+import LatestRequestsComponent from './LatestRequestsComponent.vue';
+
+export interface ModuleFrontendOptions {
+    MaxLatestRequestsToShow: number;
+    MaxLatestSimpleRequestDataToShow: number;
+}
 
 @Component({
     components: {
@@ -267,7 +307,7 @@ import DataOverTimeChartComponent, { ChartEntry, ChartSet } from '../../Common/C
         BlockComponent,
         RuleComponent,
         RuleDescriptionComponent,
-        DataOverTimeChartComponent
+        LatestRequestsComponent
     }
 })
 export default class EndpointControlPageComponent extends Vue {
@@ -275,7 +315,7 @@ export default class EndpointControlPageComponent extends Vue {
     config!: ModuleConfig;
     
     @Prop({ required: true })
-    options!: ModuleOptions<any>;
+    options!: ModuleOptions<ModuleFrontendOptions>;
 
     service: EndpointControlService = new EndpointControlService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
 
@@ -284,32 +324,12 @@ export default class EndpointControlPageComponent extends Vue {
     serverInteractionInProgress: boolean = false;
     editDefinitionsDialogVisible: boolean = false;
     deleteDefinitionDialogVisible: boolean = false;
+    latestRequestsDialogVisible: boolean = false;
     deleteDefinitionDialogText: string = "";
     endpointDefinitionIdToDelete: string | null = null;
 
     data: EndpointControlDataViewModel | null = null;
     currentRule: EndpointControlRule | null = null;
-
-	testSets: Array<ChartSet> = [
-        { label: 'Allowed', group: 'allowed', color: '#4cff50' },
-        { label: 'Blocked', group: 'blocked', color: '#FF0000' }
-    ];
-    testEntries: Array<ChartEntry> = [
-        { date: DateUtils.CreateDateWithMinutesOffset(1), group: 'blocked' },
-        { date: DateUtils.CreateDateWithMinutesOffset(1), group: 'allowed' },
-        { date: DateUtils.CreateDateWithMinutesOffset(2), group: 'blocked' },
-        { date: DateUtils.CreateDateWithMinutesOffset(16), group: 'blocked' },
-        { date: DateUtils.CreateDateWithMinutesOffset(4), group: 'allowed' },
-        { date: DateUtils.CreateDateWithMinutesOffset(120), group: 'allowed' },
-        { date: DateUtils.CreateDateWithMinutesOffset(121), group: 'allowed' },
-        { date: DateUtils.CreateDateWithMinutesOffset(122), group: 'allowed' },
-        { date: DateUtils.CreateDateWithMinutesOffset(123), group: 'allowed' },
-        { date: DateUtils.CreateDateWithMinutesOffset(120), group: 'allowed' },
-        { date: DateUtils.CreateDateWithMinutesOffset(125), group: 'allowed' },
-        { date: DateUtils.CreateDateWithMinutesOffset(60 * 24 * 14), group: 'allowed' },
-        { date: DateUtils.CreateDateWithMinutesOffset(60 * 24 * 12), group: 'blocked' },
-        { date: DateUtils.CreateDateWithMinutesOffset(8), group: 'blocked' },
-    ];
 
     //////////////////
     //  LIFECYCLE  //
@@ -329,15 +349,27 @@ export default class EndpointControlPageComponent extends Vue {
     get HasAccessToEditEndpointDefinitions(): boolean {
         return this.options.AccessOptions.indexOf("EditEndpointDefinitions") != -1;
     }
+    get HasAccessToViewLatestRequestData(): boolean {
+        return this.options.AccessOptions.indexOf("ViewLatestRequestData") != -1;
+    }
+    get HasAccessToViewRequestCharts(): boolean {
+        return this.options.AccessOptions.indexOf("ViewRequestCharts") != -1;
+    }
+    get HasAccessToEditRules(): boolean {
+        return this.options.AccessOptions.indexOf("EditRules") != -1;
+    }
+    get HasAccessToLatestRequestsDialog(): boolean {
+        return this.HasAccessToViewLatestRequestData || this.HasAccessToViewRequestCharts;
+    }
     
     get showDeleteRule(): boolean
     {
-        return this.currentRule != null && this.currentRule.Id != null;
+        return this.currentRule != null && this.currentRule.Id != null && this.HasAccessToEditRules;
     }
 
     get allowRuleChanges(): boolean
     {
-        return !this.serverInteractionInProgress;
+        return !this.serverInteractionInProgress && this.HasAccessToEditRules;
     };
 
     get currentDialogTitle(): string
@@ -378,6 +410,10 @@ export default class EndpointControlPageComponent extends Vue {
         {
             routeParams['id'] = this.currentRule.Id;
         }
+        else if (this.latestRequestsDialogVisible)
+        {
+            routeParams['id'] = 'latest-requests';
+        }
 
         this.$router.push({ name: this.config.Id, params: routeParams })
     }
@@ -390,6 +426,10 @@ export default class EndpointControlPageComponent extends Vue {
             if (ruleFromUrl != null)
             {
                 this.showRule(ruleFromUrl, false);
+            }
+            else if (idFromHash == 'latest-requests' && this.HasAccessToLatestRequestsDialog)
+            {
+                this.latestRequestsDialogVisible = true;
             }
         }
     }
@@ -509,6 +549,16 @@ export default class EndpointControlPageComponent extends Vue {
         // }
 
         return false;
+    }
+
+    showLatestRequestsDialog(): void {
+        this.latestRequestsDialogVisible = true;
+        this.updateUrl();
+    }
+
+    hideLatestRequestsDialog(): void {
+        this.latestRequestsDialogVisible = false;
+        this.updateUrl();
     }
 
     showDeleteDefinitionDialog(endpointId: string | null): void

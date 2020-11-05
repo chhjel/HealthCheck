@@ -28,5 +28,10 @@ namespace HealthCheck.Module.EndpointControl.Abstractions
         /// Get latest requests for all endpoints.
         /// </summary>
         IEnumerable<EndpointRequestDetails> GetLatestRequests(int maxCount);
+
+        ///// <summary>
+        ///// Get latest requests for all endpoints.
+        ///// </summary>
+        //Dictionary<string, int> GetLatestRequestsPerEndpoint(int maxEndpointCount, int maxCountPerEndpoint);
     }
 }

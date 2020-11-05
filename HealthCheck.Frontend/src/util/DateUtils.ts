@@ -1,5 +1,18 @@
 export default class DateUtils
 {
+    static prettifyDuration(milliseconds: number): string {
+      if (milliseconds <= 0) {
+        return "< 0ms";
+      } else if(milliseconds > 1000) {
+        let seconds = milliseconds / 1000;
+        let multiplier = Math.pow(10, 2);
+        seconds = Math.round(seconds * multiplier) / multiplier;
+        return `${seconds}s`;
+      } else {
+        return `${milliseconds}ms`;
+      }
+    }
+    
     static IsDatePastDay(date: Date, day: Date): boolean {
         return date.getMonth()     > day.getMonth()
             || date.getDate()      > day.getDate()

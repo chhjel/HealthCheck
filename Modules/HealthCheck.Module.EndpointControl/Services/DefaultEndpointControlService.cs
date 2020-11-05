@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Models;
+using System;
 using System.Linq;
 
 namespace HealthCheck.Module.EndpointControl.Services
@@ -9,6 +10,12 @@ namespace HealthCheck.Module.EndpointControl.Services
     /// </summary>
     public class DefaultEndpointControlService : IEndpointControlService
     {
+        /// <summary>
+        /// If disabled the service will ignore any attempts to register requests, and nothing will be blocked or stored.
+        /// <para>Enabled by default. Null value/exception = false.</para>
+        /// </summary>
+        public Func<bool> IsEnabled { get; set; } = () => true;
+
         private readonly IEndpointControlRequestHistoryStorage _historicalDataStorage;
         private readonly IEndpointControlEndpointDefinitionStorage _definitionStorage;
         private readonly IEndpointControlRuleStorage _ruleStorage;
@@ -32,6 +39,11 @@ namespace HealthCheck.Module.EndpointControl.Services
         /// </summary>
         public virtual bool HandleRequest(EndpointControlEndpointRequestData requestData, bool storeData)
         {
+            if (!IsEnabledInternal())
+            {
+                return true;
+            }
+
             var allow = AllowRequest(requestData, out EndpointControlRule blockingRule);
 
             requestData.WasBlocked = !allow;
@@ -65,7 +77,10 @@ namespace HealthCheck.Module.EndpointControl.Services
         /// </summary>
         public void StoreHistoricalRequestData(EndpointControlEndpointRequestData requestData)
         {
-            //if (EndpointControlUtils.CurrentRequestWasDecidedBlocked)
+            if (!IsEnabledInternal())
+            {
+                return;
+            }
             _historicalDataStorage.AddRequest(requestData);
         }
 
@@ -83,6 +98,20 @@ namespace HealthCheck.Module.EndpointControl.Services
             return blockingRule == null;
         }
 
+        internal bool IsEnabledInternal()
+        {
+            try
+            {
+                if (IsEnabled?.Invoke() != true)
+                {
+                    return false;
+                }
+            }
+            catch (Exception) { return false; }
+
+            return true;
+        }
+
         // ToDo:
         // Rules:
         // - Actions:
@@ -91,6 +120,7 @@ namespace HealthCheck.Module.EndpointControl.Services
         //   * Custom implementations? Log, alert etc?
 
         // Other features:
+        // - Add data filter/modifier to service, to allow for easy url stripping etc.
         // - Lockdown mode. All and per endpoint w/ end dates. (separate access option for all and single)
         // - Identity aliases?
         // - Overview w/ requests per country, requires external ip to country lookup

@@ -1,5 +1,5 @@
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
-import { EndpointControlDataViewModel, EndpointControlRule, GenericEndpointControlResult, SetRuleEnabledRequestModel } from "../models/modules/EndpointControl/EndpointControlModels";
+import { EndpointControlDataViewModel, EndpointControlRule, EndpointRequestDetails, EndpointRequestSimpleDetails, GenericEndpointControlResult, SetRuleEnabledRequestModel } from "../models/modules/EndpointControl/EndpointControlModels";
 
 export default class EndpointControlService extends HCServiceBase
 {
@@ -59,5 +59,21 @@ export default class EndpointControlService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<GenericEndpointControlResult> | null = null
     ): void {
         this.invokeModuleMethod(this.moduleId, 'DeleteAllDefinitions', null, statusObject, callbacks);
+    }
+
+    public GetLatestRequests(
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<Array<EndpointRequestDetails>> | null = null
+    ) : void
+    {
+        this.invokeModuleMethod(this.moduleId, 'GetLatestRequests', null, statusObject, callbacks);
+    }
+
+    public GetLatestRequestsSimple(
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<Array<EndpointRequestSimpleDetails>> | null = null
+    ) : void
+    {
+        this.invokeModuleMethod(this.moduleId, 'GetLatestRequestsSimple', null, statusObject, callbacks);
     }
 }

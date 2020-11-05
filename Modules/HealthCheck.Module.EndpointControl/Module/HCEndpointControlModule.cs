@@ -2,6 +2,7 @@
 using HealthCheck.Module.EndpointControl.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HealthCheck.Module.EndpointControl.Module
 {
@@ -36,7 +37,11 @@ namespace HealthCheck.Module.EndpointControl.Module
         /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => null;
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => new
+        {
+            MaxLatestRequestsToShow = Options.MaxLatestRequestsToShow,
+            MaxLatestSimpleRequestDataToShow = Options.MaxLatestSimpleRequestDataToShow
+        };
 
         /// <summary>
         /// Get config for this module.
@@ -55,14 +60,40 @@ namespace HealthCheck.Module.EndpointControl.Module
             /// <summary>
             /// Allows for deleting/clearing endpoint definitions.
             /// </summary>
-            EditEndpointDefinitions = 1 << 1
+            EditEndpointDefinitions = 1 << 1,
+
+            /// <summary>
+            /// Allows for viewing latest incoming request details.
+            /// </summary>
+            ViewLatestRequestData = 2 << 1,
+
+            /// <summary>
+            /// Allows for viewing latest incoming request charts.
+            /// </summary>
+            ViewRequestCharts = 3 << 1,
+
+            /// <summary>
+            /// Allows for disabling/enabling/editing/deleting rules.
+            /// </summary>
+            EditRules = 4 << 1
         }
 
         #region Invokable
         /// <summary>
-        /// Enable/disable rule with the given id.
+        /// Get all the stored rules.
         /// </summary>
         [HealthCheckModuleMethod]
+        public EndpointControlDataViewModel GetData()
+            => new EndpointControlDataViewModel
+            {
+                Rules = Options.RuleStorage.GetRules(),
+                EndpointDefinitions = Options.DefinitionStorage.GetDefinitions()
+            };
+
+        /// <summary>
+        /// Enable/disable rule with the given id.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.EditRules)]
         public object SetRuleEnabled(HealthCheckModuleContext context, SetRuleEnabledRequestModel model)
         {
             var rule = Options.RuleStorage.GetRule(model.RuleId);
@@ -82,7 +113,7 @@ namespace HealthCheck.Module.EndpointControl.Module
         /// <summary>
         /// Delete a rule with the given id.
         /// </summary>
-        [HealthCheckModuleMethod]
+        [HealthCheckModuleMethod(AccessOption.EditRules)]
         public object DeleteRule(HealthCheckModuleContext context, Guid id)
         {
             var rule = Options.RuleStorage.GetRule(id);
@@ -98,7 +129,7 @@ namespace HealthCheck.Module.EndpointControl.Module
         /// <summary>
         /// Create a new or update an existing rule.
         /// </summary>
-        [HealthCheckModuleMethod]
+        [HealthCheckModuleMethod(AccessOption.EditRules)]
         public EndpointControlRule CreateOrUpdateRule(HealthCheckModuleContext context, EndpointControlRule rule)
         {
             rule.LastChangedBy = context?.UserName ?? "Anonymous";
@@ -114,20 +145,9 @@ namespace HealthCheck.Module.EndpointControl.Module
         }
 
         /// <summary>
-        /// Get all the stored rules.
-        /// </summary>
-        [HealthCheckModuleMethod]
-        public EndpointControlDataViewModel GetData()
-            => new EndpointControlDataViewModel
-            {
-                Rules = Options.RuleStorage.GetRules(),
-                EndpointDefinitions = Options.DefinitionStorage.GetDefinitions()
-            };
-
-        /// <summary>
         /// Delete a definition with the given id.
         /// </summary>
-        [HealthCheckModuleMethod]
+        [HealthCheckModuleMethod(AccessOption.EditEndpointDefinitions)]
         public object DeleteDefinition(HealthCheckModuleContext context, string endpointId)
         {
             if (!Options.DefinitionStorage.HasDefinitionFor(endpointId))
@@ -142,7 +162,7 @@ namespace HealthCheck.Module.EndpointControl.Module
         /// <summary>
         /// Delete all definitions.
         /// </summary>
-        [HealthCheckModuleMethod]
+        [HealthCheckModuleMethod(AccessOption.EditEndpointDefinitions)]
         public object DeleteAllDefinitions(HealthCheckModuleContext context)
         {
             Options.DefinitionStorage.ClearAllDefinitions();
@@ -153,9 +173,18 @@ namespace HealthCheck.Module.EndpointControl.Module
         /// <summary>
         /// Get latest requests.
         /// </summary>
-        [HealthCheckModuleMethod]
+        [HealthCheckModuleMethod(AccessOption.ViewLatestRequestData)]
         public IEnumerable<EndpointRequestDetails> GetLatestRequests()
-            => Options.HistoryStorage.GetLatestRequests(maxCount: 100);
+            => Options.HistoryStorage.GetLatestRequests(maxCount: Options.MaxLatestRequestsToShow);
+
+        /// <summary>
+        /// Get latest requests.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.ViewRequestCharts)]
+        public IEnumerable<EndpointRequestSimpleDetails> GetLatestRequestsSimple()
+            => Options.HistoryStorage
+                .GetLatestRequests(maxCount: Options.MaxLatestSimpleRequestDataToShow)
+                .Select(x => new EndpointRequestSimpleDetails { Timestamp = x.Timestamp, WasBlocked = x.WasBlocked });
         #endregion
     }
 }
