@@ -1,5 +1,4 @@
 ﻿using HealthCheck.Module.EndpointControl.Models;
-using HealthCheck.Module.EndpointControl.Utils;
 
 namespace HealthCheck.Module.EndpointControl.Abstractions
 {
@@ -15,7 +14,7 @@ namespace HealthCheck.Module.EndpointControl.Abstractions
 
         /// <summary>
         /// Use to manually store request data.
-        /// <para>Invoked from <see cref="EndpointControlUtils.CountCurrentRequest"/>.</para>
+        /// <para>Invoked from <c>EndpointControlUtils.CountCurrentRequest</c>.</para>
         /// </summary>
         void StoreHistoricalRequestData(EndpointControlEndpointRequestData requestData);
     }

@@ -16,9 +16,6 @@ namespace HealthCheck.Dev.Common.Tests
     )]
     public class ClassProxyTests
     {
-        //[ProxyRuntimeTests]
-        //public ProxyRuntimeTestConfig NonStaticFailingTest() => new ProxyRuntimeTestConfig(typeof(SomeOtherParameterType));
-
         [ProxyRuntimeTests]
         public static ProxyRuntimeTestConfig ProxyTest()
         {

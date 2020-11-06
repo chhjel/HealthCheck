@@ -10,6 +10,8 @@
                 
                 <h2>Todo:</h2>
                 <ul>
+                    <li>todo: bar chart component</li>
+                    <li>toggle between: percentage blocked, total blocked, total requests</li>
                     <li>show endpoints (definitions) w/ stats</li>
                     <li>Show trafic &amp; request count per endpoint</li>
                     <li>Store blocked count per endpoint? Percentage?</li>

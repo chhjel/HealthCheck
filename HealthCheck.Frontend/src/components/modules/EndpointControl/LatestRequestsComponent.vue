@@ -27,6 +27,11 @@
 
             <div v-if="log && logEntries.length > 0">
                 <h3>Latest {{ logEntries.length }} logged requests</h3>
+                <simple-paging-component
+                    :items="logEntries"
+                    :pageSize="logEntriesPageSize"
+                    v-model="logEntriesPage"
+                    />
                 <!-- <a @click="prevLogPage">&lt;&lt;</a>
                 <a @click="nextLogPage">&gt;&gt;</a> -->
                 <div v-for="(entry, eindex) in visibleLogEntries"
@@ -57,6 +62,7 @@ import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
 import EndpointControlService from "../../../services/EndpointControlService";
 import { EndpointControlCountOverDuration, EndpointControlEndpointDefinition, EndpointControlPropertyFilter, EndpointControlRule, EndpointRequestDetails, EndpointRequestSimpleDetails } from "../../../models/modules/EndpointControl/EndpointControlModels";
 import DataOverTimeChartComponent, { ChartEntry, ChartSet } from '../../Common/Charts/DataOverTimeChartComponent.vue';
+import SimplePagingComponent from '../../Common/Basic/SimplePagingComponent.vue';
 import { FetchStatus } from "../../../services/abstractions/HCServiceBase";
 import { ModuleFrontendOptions } from "./EndpointControlPageComponent.vue";
 import LinqUtils from "../../../util/LinqUtils";
@@ -64,7 +70,8 @@ import LinqUtils from "../../../util/LinqUtils";
 @Component({
     components: {
         BlockComponent,
-        DataOverTimeChartComponent
+        DataOverTimeChartComponent,
+        SimplePagingComponent
     }
 })
 export default class LatestRequestsComponent extends Vue {
@@ -85,7 +92,9 @@ export default class LatestRequestsComponent extends Vue {
 
     service: EndpointControlService = new EndpointControlService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.moduleId);
     loadStatus: FetchStatus = new FetchStatus();
-    
+
+    logEntriesPage: number = 1;
+    logEntriesPageSize: number = 100;
     logEntries: Array<EndpointRequestDetails> = [];
 	chartSets: Array<ChartSet> = [
         { label: 'Allowed', group: 'allowed', color: '#4cff50' },
@@ -108,7 +117,13 @@ export default class LatestRequestsComponent extends Vue {
     }
 
     get visibleLogEntries(): Array<EndpointRequestDetails> {
-        return this.logEntries;
+        // logEntriesPage
+        const toSkip = (this.logEntriesPage - 1) * this.logEntriesPageSize;
+        return this.logEntries
+            // Skip(toSkip)
+            .slice(toSkip, this.logEntries.length)
+            // Take(logEntriesPageSize)
+            .slice(0, this.logEntriesPageSize);;
     }
 
     ////////////////
@@ -131,6 +146,7 @@ export default class LatestRequestsComponent extends Vue {
     }
 
     onDataRecieved(data: Array<EndpointRequestDetails>): void {
+        this.logEntriesPage = 1;
         this.logEntries = data.sort((a,b) => LinqUtils.SortBy(a, b, a => new Date(a.Timestamp)));
     }
 
