@@ -16,5 +16,10 @@ namespace HealthCheck.Module.EndpointControl.Models
 		/// True if the request was blocked.
 		/// </summary>
 		public bool WasBlocked { get; set; }
+
+		/// <summary>
+		/// Id of the endpoint.
+		/// </summary>
+		public string EndpointId { get; set; }
 	}
 }

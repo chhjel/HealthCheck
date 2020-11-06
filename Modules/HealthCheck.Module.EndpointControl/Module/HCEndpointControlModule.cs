@@ -184,7 +184,12 @@ namespace HealthCheck.Module.EndpointControl.Module
         public IEnumerable<EndpointRequestSimpleDetails> GetLatestRequestsSimple()
             => Options.HistoryStorage
                 .GetLatestRequests(maxCount: Options.MaxLatestSimpleRequestDataToShow)
-                .Select(x => new EndpointRequestSimpleDetails { Timestamp = x.Timestamp, WasBlocked = x.WasBlocked });
+                .Select(x => new EndpointRequestSimpleDetails
+                {
+                    EndpointId = x.EndpointId,
+                    Timestamp = x.Timestamp,
+                    WasBlocked = x.WasBlocked
+                });
         #endregion
     }
 }

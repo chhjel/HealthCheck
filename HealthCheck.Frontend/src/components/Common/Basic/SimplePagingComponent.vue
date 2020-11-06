@@ -1,6 +1,6 @@
 <!-- src/components/Common/Basic/SimplePagingComponent.vue -->
 <template>
-    <div class="simple-paging-component" v-if="count > 1">
+    <div class="simple-paging-component" v-if="count > 1 && pageCount > 1">
         <div v-for="num in pageNumbers"
             :key="`page-${num}`"
             @click="onClickedPage(num)"

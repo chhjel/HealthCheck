@@ -29,6 +29,7 @@ namespace HealthCheck.Module.EndpointControl.Module
 
         /// <summary>
         /// Max number of requests to retrieve and show in the UI.
+        /// <para>Also used for graphs.</para>
         /// <para>Defaults to 100.</para>
         /// </summary>
         public int MaxLatestRequestsToShow { get; set; } = 100;

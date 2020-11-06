@@ -295,7 +295,7 @@ export default class DataOverTimeChartComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-/* .bar-chart-component {
-
-} */
+.dot-chart-component {
+	position: relative;
+}
 </style>

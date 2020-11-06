@@ -49,7 +49,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
 		/// <summary>
 		/// Max number of latest requests to store in memory in a separate collection only used to display latest request data in the UI.
 		/// </summary>
-		public int MaxMemoryLatestRequestCount { get; set; } = 100;
+		public int MaxMemoryLatestRequestCount { get; set; } = 500;
 
 		/// <summary>
 		/// Max number of latest requests to save to disk in a separate collection only used to display latest request data in the UI.

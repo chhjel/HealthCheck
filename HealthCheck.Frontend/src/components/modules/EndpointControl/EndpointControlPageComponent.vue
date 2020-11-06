@@ -7,29 +7,6 @@
             <v-flex>
             <v-container>
                 <h1 class="mb-1">Endpoint control rules</h1>
-                
-                <h2>Todo:</h2>
-                <ul>
-                    <li>todo: bar chart component</li>
-                    <li>toggle between: percentage blocked, total blocked, total requests</li>
-                    <li>show endpoints (definitions) w/ stats</li>
-                    <li>Show trafic &amp; request count per endpoint</li>
-                    <li>Store blocked count per endpoint? Percentage?</li>
-                    <li>Notify event system on trigger.</li>
-                </ul>
-                <h3>Since [oldest request date]</h3>
-                <ul>
-                    <li>n requests total</li>
-                    <li>n (or "n+"" if max) different IP's invoked endpoints</li>
-                    <li>IPs with most traffic:</li>
-                    <ul>
-                        <li>127.0.0.1: n1 requests</li>
-                        <li>127.0.0.2: n2 requests</li>
-                        <li>127.0.0.3: n3 requests</li>
-                    </ul>
-                </ul>
-
-                <code v-if="data != null">{{ data.EndpointDefinitions }}</code><br />
 
                 <!-- LOAD PROGRESS -->
                 <v-progress-linear

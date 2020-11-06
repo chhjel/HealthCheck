@@ -65,6 +65,7 @@ export interface EndpointRequestDetails {
 }
 
 export interface EndpointRequestSimpleDetails {
+    EndpointId: string;
     Timestamp: string; // DateTimeOffset
     WasBlocked: boolean;
 }
