@@ -943,6 +943,41 @@ FlowChartsService = new DefaultFlowChartService(new DefaultFlowChartServiceOptio
 
 ----------
 
+## Integrated login dialog
+
+An integrated login dialog is included, but custom login logic must be provided. To enable the dialog two steps are required.
+
+1. The main controller uses readonly session behaviour that will cause some login logic to fail, so a new controller is required that handles the login request. Inherit from `HealthCheckLoginControllerBase` and implement `HandleLoginRequest`.
+
+    ```csharp
+    public class HCLoginController : HealthCheckLoginControllerBase
+    {
+        protected override HCIntegratedLoginResult HandleLoginRequest(HCIntegratedLoginRequest request)
+        {
+            var success = _myAccessService.AuthenticateUser(request.Username, request.Password);
+
+            return new HCIntegratedLoginResult
+            {
+                Success = success,
+                ErrorMessage = $"Wrong username or password, try again or give up."
+            };
+        }
+    }
+    ```
+
+2. Enable the dialog by setting the `IntegratedLoginEndpoint` property to the url of the `Login` action on the controller in step 1.
+
+    ```csharp
+    protected override void ConfigureAccess(HttpRequestBase request,AccessConfig<RuntimeTestAccessRole> config) {
+        ...
+        config.IntegratedLoginEndpoint = "hclogin/login";
+    }
+    ```
+
+Any requests to the index action of the main controller that does not have access to any of the content will now be shown the login dialog. On a successfull login the page will refresh and the user will have access to any content you granted the request.
+
+----------
+
 ## Utils
 
 A few utility classes are included below `HealthCheck.Core.Util`:

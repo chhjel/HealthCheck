@@ -6,6 +6,7 @@ export default interface FrontEndOptionsViewModel {
     EndpointBase: string;
     EditorConfig: EditorWorkerConfig;
     ShowIntegratedLogin: boolean;
+    IntegratedLoginEndpoint: string;
 }
 
 export interface EditorWorkerConfig {

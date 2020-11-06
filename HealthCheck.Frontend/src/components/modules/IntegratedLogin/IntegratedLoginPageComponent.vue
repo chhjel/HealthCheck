@@ -120,7 +120,7 @@ export default class IntegratedLoginPageComponent extends Vue {
         }
 
         this.error = '';
-        let url = `${this.globalOptions.EndpointBase}/login`.replace('//', '/');
+        let url = this.globalOptions.IntegratedLoginEndpoint;
         let payload: HCIntegratedLoginRequest = {
             Username: this.username,
             Password: this.password,

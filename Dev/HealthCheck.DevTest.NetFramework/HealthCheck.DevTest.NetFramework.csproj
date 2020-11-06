@@ -134,6 +134,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\HCLoginController.cs" />
     <Compile Include="Controllers\DevController.cs" />
     <Compile Include="Controllers\EndpointControlTestControllers\SomeApiTestController.cs" />
     <Compile Include="Controllers\EndpointControlTestControllers\SomeTestController.cs" />

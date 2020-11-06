@@ -178,14 +178,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
             config.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
             config.RedirectTargetOnNoAccess = "/no-access";
-            config.IntegratedLoginHandler = (request) =>
-            {
-                return new HCIntegratedLoginResult
-                {
-                    Success = request.Username == "root" && request.Password == "toor",
-                    ErrorMessage = $"Wrong username or password, try again or give up. (Url is '{request.Request.GetDisplayUrl()}')"
-                };
-            };
+            config.IntegratedLoginEndpoint = "/hclogin/login";
         }
 
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequest request)
