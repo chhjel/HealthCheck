@@ -1,10 +1,12 @@
 # HealthCheck
+
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI?label=HealthCheck.WebUI&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI)
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.DynamicCodeExecution?label=HealthCheck.Module.DynamicCodeExecution&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.DynamicCodeExecution)
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.RequestLog?label=HealthCheck.Module.RequestLog&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.RequestLog)
 [![npm](https://img.shields.io/npm/v/christianh-healthcheck?label=christianh-healthcheck&logo=npm)](https://www.npmjs.com/package/christianh-healthcheck)
 
 ## What is it
+
 Provides an almost plug and play web interface with a few different utility modules that can enabled as needed and access to each module can be restricted.
 
 Available modules:
@@ -25,6 +27,7 @@ Available modules:
 
 1. Install the HealthCheck.WebUI nuget package.
 2. Create a custom flags enum with any desired access roles, e.g:
+
     ```csharp
     [Flags]
     public enum AccessRoles
@@ -35,6 +38,7 @@ Available modules:
         SystemAdmins = 4
     }
     ```
+
 3. Create a controller and inherit `HealthCheckControllerBase<AccessRoles>`, where AccessRoles is your enum from the step above.
 
 4. Invoke `UseModule(..)` to enable any desired modules.
@@ -53,7 +57,7 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
             AssembliesContainingTests = new[] { typeof(MyController).Assembly }
         }));
     }
-    
+
     // Set any options that will be passed to the front-end here,
     // including the path to this controller.
     protected override HCFrontEndOptions GetFrontEndOptions()
@@ -70,7 +74,7 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
                 JsonWorkerUrl = "/scripts/json.worker.js"
             }
         };
-        
+
     // Set any options for the view here.
     protected override HCPageOptions GetPageOptions()
         => new HCPageOptions()
@@ -112,32 +116,34 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
         // #1: Give a given role access to a given module,
         // without setting any module access options:
         config.GiveRolesAccessToModule<HCTestsModule>(AccessRoles.SystemAdmins);
-        
+
         // #2: Give a given role access to a given module,
         // with the given access options:
         config.GiveRolesAccessToModule(AccessRoles.SystemAdmins, HCTestsModule.AccessOption.ViewInvalidTests);
-        
+
         // #3: Give a given role full access to a given module,
         // including all module access options:
         config.GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(AccessRoles.WebAdmins);
-        
+
         // Other access options are available on the config object:
         config.ShowFailedModuleLoadStackTrace = new Maybe<AccessRole>(AccessRoles.WebAdmins);
         config.PingAccess = new Maybe<AccessRole>(AccessRoles.WebAdmins);
         config.RedirectTargetOnNoAccess = "/no-access";
         //..
-        
+
         // Properties CurrentRequestAccessRoles and CurrentRequestInformation
         // are available to use here as well if needed.
     }
 }
 ```
+
 </p>
 </details>
 
 ---------
 
 ## A note about the built in flatfile storage implementations
+
 The built in flatfile storage classes should work fine for most use cases. If used make sure they are registered as singletons, they are thread safe but only within their own instances.
 
 ---------
@@ -164,6 +170,7 @@ UseModule(new HCTestsModule(new HCTestsModuleOptions() {
 ### Executable methods
 
 For a method to be discovered it needs to..
+
 * ..be public.
 * ..be in a class with a `[RuntimeTestClass]` attribute.
 * ..be decorated with a `[RuntimeTest]` attribute.
@@ -194,6 +201,7 @@ public async Task<TestResult> GetDataFromServiceX(int id = 42, string orgName = 
         .AddSerializedData(data, data.Name);
 }
 ```
+
 </p>
 </details>
 
@@ -254,6 +262,7 @@ public static List<RuntimeTestReferenceParameterFactory> GetReferenceFactories()
     };
 }
 ```
+
 </p>
 </details>
 
@@ -263,7 +272,6 @@ To automatically create tests for all public methods of another class you can us
 The method has to be static, take zero parameters and return a `ProxyRuntimeTestConfig` where you define what type to create tests from.
 Optionally reference parameter types can be supported by adding custom factory methods by using the `AddParameterTypeConfig` method.
 `choicesFactory` has to return all the available options for the user to pick, and `getInstanceByIdFactory` has to return one option by id.
-
 
 <details><summary>Example</summary>
 <p>
@@ -282,6 +290,7 @@ public static ProxyRuntimeTestConfig SomeServiceProxyTest()
         );
 }
 ```
+
 </p>
 </details>
 
@@ -303,6 +312,7 @@ The `TestResult` class has a few static factory methods for quick creation of a 
 |AddTimelineData|Creates a timeline from the given steps. Each step can show a dialog with more info/links.|
 
 ##### Cosmetics
+
 The following methods can be called on the testresult instance to tweak the output look.
 
 |Method|Effect|
@@ -316,7 +326,8 @@ The following methods can be called on the testresult instance to tweak the outp
 Methods are configured through the `RuntimeTestClass`, `RuntimeTest` and `RuntimeTestParameter` attributes.
 
 #### [RuntimeTestClass]
-Must be applied to the class that contains methods to include.
+
+Must be applied to the class that contains methods to include. Constructor parameter injection is supported for test classes.
 
 |Property Name|Function|
 |-|-|
@@ -330,6 +341,7 @@ Must be applied to the class that contains methods to include.
 |UIOrder|Order of the set in the UI, higher value = higher up.|
 
 #### [RuntimeTest]
+
 Must be applied to the method that should be executed.
 
 |Property Name|Function|
@@ -344,6 +356,7 @@ Must be applied to the method that should be executed.
 |ReferenceParameterFactoryProviderMethodName|Optional name of a static method that provides factory methods for reference parameters. See example above.|
 
 #### [RuntimeTestParameter]
+
 Can be applied to either the method itself using the `Target` property or the parameters directly.
 
 |Property Name|Function|
@@ -355,6 +368,7 @@ Can be applied to either the method itself using the `Target` property or the pa
 |DefaultValueFactoryMethod|For property types that cannot have default values (e.g. lists), use this to specify the name of a public static method in the same class as the method. The method should have the same return type as this parameter, and have zero parameters.|
 
 #### [ProxyRuntimeTests]
+
 Can be used to automatically create tests from all public methods on a type. See own section above.
 |Property Name|Function|
 |-|-|
@@ -375,10 +389,6 @@ var results = await runner.ExecuteTests(testDiscovererService,
     // Provide an event service to automatically report to it
     siteEventService);
 ```
-
-### Utils
-
-Constructor parameter injection is supported for test classes.
 
 #### Log output from tests
 
@@ -401,7 +411,7 @@ Inject a memory logger into the instances being tested and include the output in
     result.AddCodeData(memoryLogger.Contents?.Trim(), "Log");
 ```
 
-----------
+---------
 
 ## Module: Audit Log
 
@@ -423,7 +433,7 @@ var blobService = new FlatFileAuditBlobStorage(blobFolder, maxEventAge: TimeSpan
 IAuditEventStorage auditEventStorage = new FlatFileAuditEventStorage(HostingEnvironment.MapPath("~/App_Data/AuditEventStorage.json"), maxEventAge: TimeSpan.FromDays(30), blobStorage: blobService);
 ```
 
-----------
+---------
 
 ## Module: Log Viewer
 
@@ -443,14 +453,16 @@ ILogSearcherService logSearcherService = new FlatFileLogSearcherService(logSearc
 ```
 
 ### Log search query language
+
 When not using regex the search supports the following syntax:
+
 * Or: (a|b|c)
 * And: a b c
 * Exact: "a b c"
 
 E.g. the query `(Exception|Error) "XR 442" order details` means that the resulting contents must contain either `Exception` or `Error`, and contain both `order`, `details` and `XR 442`.
 
-----------
+---------
 
 ## Module: Site Events
 
@@ -472,6 +484,7 @@ ISiteEventService siteEventService = new SiteEventService(new FlatFileSiteEventS
 ```
 
 #### Example method
+
 <details><summary>Example</summary>
 <p>
 
@@ -485,7 +498,7 @@ public TestResult CheckIntegrationX()
 
     try {
         ...
-        
+
         // Methods that include site events should always include a resolved event
         // when the method runs successfully. The event will then be marked as resolved.
         return TestResult.CreateResolvedSiteEvent(
@@ -504,6 +517,7 @@ public TestResult CheckIntegrationX()
     }
 }
 ```
+
 </p>
 </details>
 
@@ -514,10 +528,10 @@ public TestResult CheckIntegrationX()
 Shows the last n requests per endpoint, including stack trace of any unhandled exceptions, statuscodes etc.
 
 For requests to be logged and viewable a few things needs to be configured:
+
 * [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.RequestLog?label=HealthCheck.Module.RequestLog&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.RequestLog) nuget package must be added.
 * A set of action filters will need to be registered.
 * Optionally run a utility method on startup to generate definitions from all controller actions.
-
 
 ### Setup
 
@@ -587,14 +601,13 @@ Provides a monaco-editor IDE where C# scripts can be stored and executed in the 
 
 Should be heavily locked down if used other places than localhost.
 
-
 ### Setup
 
 ```csharp
 UseModule(new HCDynamicCodeExecutionModule(new HCDynamicCodeExecutionModuleOptions() {
     // Provide the entry assembly of the web application
     TargetAssembly = typeof(MyType).Assembly,
-    
+
     // Optionally provide a IDynamicCodeScriptStorage to allow online script storage.
     // The provided FlatFileDynamicCodeScriptStorage can be used:
     ScriptStorage = new FlatFileDynamicCodeScriptStorage(@"D:\Server\DCE_Script_Storage.data"),
@@ -612,7 +625,7 @@ UseModule(new HCDynamicCodeExecutionModule(new HCDynamicCodeExecutionModuleOptio
 }));
 ```
 
-----------
+---------
 
 ## Module: Dataflow
 
@@ -638,6 +651,7 @@ IDataflowService service = new DefaultDataflowService(options);
 ```
 
 A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is provided and can be used to store and retrieve latest entries per id to a flatfile + optionally limit the age of entries.
+
 * Use `.InsertEntries(..)` method to insert new entries.
 * Use `IsVisible` property to set stream visibility in the UI.
 * Use `AllowInsert` property to optionally ignore any new data attempted to be inserted.
@@ -667,6 +681,7 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
         }
     }
 ```
+
 </p>
 </details>
 
@@ -698,7 +713,7 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
                 .SetUIHint(DataFlowPropertyDisplayInfo.DataFlowPropertyUIHint.Dictionary);
                 .SetVisibility(DataFlowPropertyDisplayInfo.DataFlowPropertyUIVisibilityOption.OnlyWhenExpanded);
         }
-        
+
         // Override FilterEntries method to implement any custom filtering.
         // To show a filter in frontend IsFilterable must be set to true in ConfigureProperty above.
         protected override Task<IEnumerable<YourDataModel>> FilterEntries(DataflowStreamFilter filter, IEnumerable<YourDataModel> entries)
@@ -707,7 +722,7 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
             var codeFilter = filter.GetPropertyFilterInput(nameof(YourDataModel.Code));
             // Filter on property
             entries = entries.Where(x => codeFilter == null || x.Code.ToLower().Contains(codeFilter));
-            
+
             // Or use the FilterContains shortcut for the same effect
             entries = filter.FilterContains(entries, nameof(YourDataModel.Code), x => x.Code);
 
@@ -715,10 +730,11 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
         }
     }
 ```
+
 </p>
 </details>
 
-----------
+---------
 
 ## Module: Settings
 
@@ -763,8 +779,7 @@ service.GetValue<bool>(nameof(TestSettings.Enabled))
 </p>
 </details>
 
-
-----------
+---------
 
 ## Module: Access Tokens
 
@@ -787,7 +802,7 @@ new FlatFileAccessManagerTokenStorage(@"e:\config\access-tokens.json")
 </p>
 </details>
 
-----------
+---------
 
 ## Module: Event Notifications
 
@@ -819,9 +834,6 @@ var eventSink = new DefaultEventDataSink(notificationConfigStorage, notification
 
 <details><summary>Example</summary>
 <p>
-
-```csharp
-```
 
 ```csharp
 // Implement any custom notifiers
@@ -856,7 +868,7 @@ public class MyNotifier : IEventNotifier
             return $"Failed to create message '{message}'. {ex.Message}";
         }
     }
-    
+
     public class MyNotifierOptions
     {
         [EventNotifierOption(description: "Text that will be outputted")]
@@ -885,7 +897,105 @@ EventSinkUtil.TryRegisterEvent("thing_imported", () => new { Type = "etc", Value
 </p>
 </details>
 
-----------
+---------
+
+## Module: Endpoint Control
+
+Decorate mvc and webapi actions with `HCControlledEndpointAttribute` or `HCControlledApiEndpointAttribute` to allow for a bit of spam control by setting conditional rules at runtime using the interface. The module can also show the latest requests sent to decorated endpoints, including a few graphs.
+
+Also allows for optionally handling blocked requests in code manually, and only count requests that reach a certain step in the code. See usage example below.
+
+Adding attributes to actions will not block anything until you add some rules in the interface.
+
+### Setup
+
+```csharp
+UseModule(new HCEndpointControlModule(new HCEndpointControlModuleOptions()
+{
+    EndpointControlService = IEndpointControlService implementation,
+    RuleStorage = IEndpointControlRuleStorage implementation,
+    DefinitionStorage = IEndpointControlEndpointDefinitionStorage implementation,
+    HistoryStorage = IEndpointControlRequestHistoryStorage implementation
+}));
+```
+
+```csharp
+// Built in implementation examples
+
+// Flatfile storages should be registered as singletons
+... new FlatFileEndpointControlRuleStorage("e:\etc\ec_rules.json");
+... new FlatFileEndpointControlEndpointDefinitionStorage(@"e:\etc\ec_definitions.json");
+... new FlatFileEndpointControlRequestHistoryStorage(@"e:\etc\ec_history.json");
+
+// DefaultEndpointControlService can be scoped
+...Register<IEndpointControlService, DefaultEndpointControlService>();
+```
+
+### Usage in code
+
+<details><summary>Simple usage</summary>
+<p>
+
+```csharp
+[HttpPost]
+// Just decorate with this attribute.
+[HCControlledEndpoint]
+public ActionResult Submit(MyModel model)
+{
+    // ...
+}
+```
+
+</p>
+</details>
+
+<details><summary>Custom blocked handling</summary>
+<p>
+
+```csharp
+[HttpPost]
+// Set CustomBlockedHandling to not block the request automatically,
+// check on EndpointControlUtils.CurrentRequestWasDecidedBlocked() manually.
+[HCControlledEndpoint(CustomBlockedHandling = true)]
+public ActionResult Submit(MyModel model)
+{
+    if (EndpointControlUtils.CurrentRequestWasDecidedBlocked())
+    {
+        return HttpNotFound();
+    }
+    // ...
+}
+```
+
+</p>
+</details>
+
+<details><summary>Conditional request counting</summary>
+<p>
+
+```csharp
+[HttpPost]
+// Set ManuallyCounted to not store/count the request automatically,
+// invoke EndpointControlUtils.CountCurrentRequest() manually to store it.
+[HCControlledEndpoint(ManuallyCounted = true)]
+public ActionResult Submit(MyModel model)
+{
+    if (!ModelState.IsValid)
+    {
+        return ..;
+    }
+
+    // E.g. store after validation to only count valid requests.
+    // This way you can set more logical request count limits.
+    EndpointControlUtils.CountCurrentRequest();
+    // ...
+}
+```
+
+</p>
+</details>
+
+---------
 
 ## Module: Downloads
 
@@ -911,7 +1021,7 @@ UseModule(new HCSecureFileDownloadModule(new HCSecureFileDownloadModuleOptions()
 var downloadDefinitionStorage = new FlatFileSecureFileDownloadDefinitionStorage(@"e:\config\download_definitions.json");;
 ```
 
-----------
+---------
 
 ## Module: Documentation
 
@@ -941,7 +1051,7 @@ FlowChartsService = new DefaultFlowChartService(new DefaultFlowChartServiceOptio
 })
 ```
 
-----------
+---------
 
 ## Integrated login dialog
 
@@ -976,14 +1086,18 @@ An integrated login dialog is included, but custom login logic must be provided.
 
 Any requests to the index action of the main controller that does not have access to any of the content will now be shown the login dialog. On a successfull login the page will refresh and the user will have access to any content you granted the request.
 
-----------
+---------
 
 ## Utils
 
 A few utility classes are included below `HealthCheck.Core.Util`:
+
 * `ExceptionUtils` - Get a summary of exceptions to include in test results.
 * `ConnectivityUtils` - Ping or send webrequests to check if a host is alive and return `TestResult` objects.
 * `TimeUtils` - Prettify durations.
 * `IoCUtils` -  Get instances of types with partial IoC etc.
 * `ReflectionUtils` - Invoke private members etc.
 * Log4Net and Episerver memory loggers are available in nuget packages `HealthCheck.Utility.Logger.*`
+* `HealthCheck.Core.Config.HCGlobalConfig` contains a few global static options:
+  * Dependency resolver override.
+  * Types and namespaces ignored in data serialization.
