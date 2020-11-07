@@ -170,10 +170,13 @@ export default class BarChartComponent extends Vue {
 
     updateChart(): void {
         const datasets = this.chart.data.datasets;
-        if (datasets != undefined) {
+        if (datasets) {
 			for (let i=0;i<this.chartPoints.length;i++)
 			{
-            	datasets[i].data = this.chartPoints[i];
+				if (datasets[i])
+				{
+            		datasets[i].data = this.chartPoints[i];
+				}
 			}
 		}
 		

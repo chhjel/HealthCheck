@@ -15,7 +15,7 @@
             v-if="graphs && chartEntries.length > 0"
             v-model="barChartSortMode"
             :items="barChartSortOptions"
-            @input="updateChartBars"
+            @input="onBarChartSortModeChanged"
             />
         <v-btn :disabled="loadStatus.inProgress"
             @click="onRefreshClicked"
@@ -25,7 +25,7 @@
         </v-btn>
         <div style="clear:both" class="mt-3"></div>
 
-        <div v-if="graphs && (chartEntries.length > 0 || iPChartBars.length > 0)">
+        <div v-if="graphs && (chartEntries.length > 0 || iPChartBars.length > 0 || chartBars.length > 0)">
             <bar-chart-component
                 v-if="chartBars.length > 0"
                 :sets="chartBarSets"
@@ -37,7 +37,7 @@
                 v-if="iPChartBars.length > 0"
                 :sets="iPChartBarSets"
                 :bars="iPChartBars"
-                :title="`Top ${iPChartBars.length} IPs with the most requests out of the last ${requestHistory.length} since ${timespanTextSinceEarliestFullData()} ago`"
+                :title="`Top ${iPChartBars.length} IPs with the ${ipSortModeDescription} out of the last ${requestHistory.length} since ${timespanTextSinceEarliestFullData()} ago`"
                 ylabel="IP" />
 
             <data-over-time-chart-component
@@ -164,8 +164,22 @@ export default class LatestRequestsComponent extends Vue {
         return this.$store.state.globalOptions;
     }
 
+    get ipSortModeDescription(): string {
+        if (this.barChartSortMode == BarChartSortMode.TotalBlockedCount)
+        {
+            return 'most blocked requests';
+        }
+        else if (this.barChartSortMode == BarChartSortMode.BlockedPercentage)
+        {
+            return 'highest percentage of blocked requests';
+        }
+        else
+        {
+            return 'most requests';
+        }
+    }
+
     get visibleLogEntries(): Array<EndpointRequestDetails> {
-        // logEntriesPage
         const toSkip = (this.logEntriesPage - 1) * this.logEntriesPageSize;
         return this.logEntries
             // Skip(toSkip)
@@ -176,7 +190,8 @@ export default class LatestRequestsComponent extends Vue {
 
     get iPChartBarSets(): Array<BarChartSet> {
         return [
-            { label: 'Requests', group: 'requests', color: '#18618c' }
+            { label: 'Allowed', group: 'allowed', color: '#4cff50' },
+            { label: 'Blocked', group: 'blocked', color: '#FF0000' }
         ];
     }
 
@@ -185,30 +200,31 @@ export default class LatestRequestsComponent extends Vue {
         
         const allIps = this.requestHistory.map(x => x.UserLocationIdentifier);
         const distinctIps = allIps.filter((value, index) => allIps.indexOf(value) == index);
-        let valuePerIp: Dictionary<number> = {};
+        let valuePerIp: Dictionary<number[]> = {};
 
         for (let item of this.requestHistory)
         {
             if (!valuePerIp[item.UserLocationIdentifier])
             {
-                valuePerIp[item.UserLocationIdentifier] = 0;
+                valuePerIp[item.UserLocationIdentifier] = [0, 0];
             }
 
-            valuePerIp[item.UserLocationIdentifier]++;
+            if (item.WasBlocked) {
+                valuePerIp[item.UserLocationIdentifier][1]++;
+            } else {
+                valuePerIp[item.UserLocationIdentifier][0]++;
+            }
         }
 
         for(let key in valuePerIp)
         {
             bars.push({
                 label: EndpointControlUtils.getEndpointDisplayName(key, this.endpointDefinitions),
-                values: [valuePerIp[key]]
+                values: valuePerIp[key]
             });
         }
 
-        bars = bars
-            .sort((a,b) => LinqUtils.SortBy(a, b, a => a.values[0]))
-            .slice(0, 10);
-
+        bars = this.sortBarChartData(bars).slice(0, 10);
         this.iPChartBars = bars;
     }
 
@@ -221,7 +237,11 @@ export default class LatestRequestsComponent extends Vue {
 
     updateChartBars(): void {
         let bars = this.getChartBarsRequestsPerEndpoint();
-        
+        bars = this.sortBarChartData(bars);
+        this.chartBars = bars;
+    }
+
+    sortBarChartData(bars: Array<BarChartBar>): Array<BarChartBar> {
         if (this.barChartSortMode == BarChartSortMode.TotalBlockedCount)
         {
             bars = bars.sort((a, b) => LinqUtils.SortBy(a, b, a => a.values[1]));
@@ -234,8 +254,7 @@ export default class LatestRequestsComponent extends Vue {
         {
             bars = bars.sort((a, b) => LinqUtils.SortBy(a, b, a => a.values[0] + a.values[1]));
         }
-
-        this.chartBars = bars;
+        return bars;
     }
 
     getChartBarsRequestsPerEndpoint(): Array<BarChartBar> {
@@ -379,6 +398,11 @@ export default class LatestRequestsComponent extends Vue {
     /////////////////////
     onRefreshClicked(): void {
         this.refreshLatestRequests();
+    }
+
+    onBarChartSortModeChanged(): void {
+        this.updateChartBars();
+        this.updateIPChartBars();
     }
 }
 </script>

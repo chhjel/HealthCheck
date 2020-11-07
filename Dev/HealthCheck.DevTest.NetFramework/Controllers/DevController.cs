@@ -391,7 +391,7 @@ namespace HealthCheck.DevTest.Controllers
         {
             var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\..\HealthCheck.Frontend\dist\{filename}");
             if (!System.IO.File.Exists(filepath)) return Content("");
-            return new FileStreamResult(new FileStream(filepath, FileMode.Open), "content-disposition");
+            return new FileStreamResult(System.IO.File.Open(filepath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "content-disposition");
         }
 
         public ActionResult TestEvent(int v = 1)

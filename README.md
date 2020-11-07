@@ -2,6 +2,7 @@
 
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI?label=HealthCheck.WebUI&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI)
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.DynamicCodeExecution?label=HealthCheck.Module.DynamicCodeExecution&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.DynamicCodeExecution)
+[![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.EndpointControl?label=HealthCheck.Module.EndpointControl&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.EndpointControl)
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.RequestLog?label=HealthCheck.Module.RequestLog&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.RequestLog)
 [![npm](https://img.shields.io/npm/v/christianh-healthcheck?label=christianh-healthcheck&logo=npm)](https://www.npmjs.com/package/christianh-healthcheck)
 
@@ -900,6 +901,8 @@ EventSinkUtil.TryRegisterEvent("thing_imported", () => new { Type = "etc", Value
 ---------
 
 ## Module: Endpoint Control
+
+Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.EndpointControl?label=HealthCheck.Module.EndpointControl&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.EndpointControl)
 
 Decorate mvc and webapi actions with `HCControlledEndpointAttribute` or `HCControlledApiEndpointAttribute` to allow for a bit of spam control by setting conditional rules at runtime using the interface. The module can also show the latest requests sent to decorated endpoints, including a few graphs.
 
