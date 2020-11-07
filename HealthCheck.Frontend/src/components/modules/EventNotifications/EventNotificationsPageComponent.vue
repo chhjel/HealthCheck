@@ -395,7 +395,7 @@ export default class EventNotificationsPageComponent extends Vue {
             (a, b) => LinqUtils.SortByThenBy(a, b,
                 x => x.Enabled ? 1 : 0,
                 x => (x.LastChangedAt == null) ? 32503676400000 : x.LastChangedAt.getTime(),
-                false, true)
+                false, false)
             );
     }
 

@@ -21,6 +21,7 @@ namespace HealthCheck.WebUI.Config
 
         private static void SetDefaultInstanceResolver()
         {
+            /* No effect for other targets atm. */
 #if NETFRAMEWORK
             HCGlobalConfig.DefaultInstanceResolver = DependencyResolver.Current.GetService;
 #endif

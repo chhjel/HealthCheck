@@ -35,6 +35,10 @@ namespace HealthCheck.Core.Config
         /// </summary>
         public static Func<Type, object> GetDefaultInstanceResolver() => DefaultInstanceResolver ?? FallbackInstanceResolver;
 
+        internal static T GetService<T>()
+            where T: class
+            => GetDefaultInstanceResolver() as T;
+
         static HCGlobalConfig()
         {
             // Invoke WebUI ConfigInitializer if available. To be made more generic later.

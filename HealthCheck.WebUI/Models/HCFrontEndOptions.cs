@@ -42,6 +42,9 @@ namespace HealthCheck.WebUI.Models
         [JsonProperty]
         internal bool ShowIntegratedLogin {get; set; }
 
+        [JsonProperty]
+        internal string IntegratedLoginEndpoint { get; set; }
+
         /// <summary>
         /// Create a new <see cref="HCFrontEndOptions"/>.
         /// </summary>

@@ -11,31 +11,35 @@
         <div v-show="showDescription" class="input-component--description" v-html="description"></div>
         
         <div class="input-component--inputs">
-            <div class="input-component--input-prefix">H:</div>
+            <div class="input-component--input-prefix" v-if="minimal">H:</div>
             <v-text-field
                 v-model="hourValue"
                 @input="onInput()"
                 :disabled="disabled"
                 type="number">
             </v-text-field>
+            <div class="input-component--input-prefix" v-if="!minimal">hours, </div>
             
-            <div class="input-component--input-prefix">M:</div>
+            <div class="input-component--input-prefix" v-if="minimal">M:</div>
             <v-text-field
                 v-model="minuteValue"
                 @input="onInput()"
                 :disabled="disabled"
                 type="number">
             </v-text-field>
+            <div class="input-component--input-prefix" v-if="!minimal">minutes, </div>
 
-            <div class="input-component--input-prefix">S:</div>
+            <div class="input-component--input-prefix" v-if="minimal">S:</div>
             <v-text-field
                 v-model="secondValue"
                 @input="onInput()"
                 :disabled="disabled"
                 type="number">
             </v-text-field>
+            <div class="input-component--input-prefix" v-if="!minimal">seconds.</div>
 
             <v-btn 
+                v-if="allowClear"
                 class="clear-button"
                 @click:clear="onClearClicked()"
                 :disabled="disabled"
@@ -71,8 +75,14 @@ export default class TimespanInputComponent extends Vue
     @Prop({ required: false, default: false })
     disabled!: boolean;
     
+    @Prop({ required: false, default: true })
+    allowClear!: boolean;
+    
     @Prop({ required: false, default: false })
     showDescriptionOnStart!: boolean;
+    
+    @Prop({ required: false, default: false })
+    minimal!: boolean;
 
     showDescription: boolean = false;
     currentValue: string = '0:0:0';
@@ -130,8 +140,19 @@ export default class TimespanInputComponent extends Vue
     }
 
     onInput(): void {
+        if (Number(this.hourValue) > 23) {
+            this.hourValue = '23';
+        }
+        if (Number(this.minuteValue) > 59) {
+            this.minuteValue = '59';
+        }
+        if (Number(this.secondValue) > 59) {
+            this.secondValue = '59';
+        }
+        
         this.currentValue = `${this.hourValue}:${this.minuteValue}:${this.secondValue}`;
         this.$emit('input', this.currentValue);
+        this.$emit('change', this.currentValue);
     }
 
     onClearClicked(): void {

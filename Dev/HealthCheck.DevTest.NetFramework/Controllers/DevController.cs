@@ -1,10 +1,12 @@
-﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Config;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.AccessTokens;
 using HealthCheck.Core.Modules.AuditLog;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
+using HealthCheck.Core.Modules.AuditLog.Services;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.Dataflow.Abstractions;
 using HealthCheck.Core.Modules.Dataflow.Models;
@@ -17,6 +19,10 @@ using HealthCheck.Core.Modules.EventNotifications.Notifiers;
 using HealthCheck.Core.Modules.EventNotifications.Services;
 using HealthCheck.Core.Modules.LogViewer;
 using HealthCheck.Core.Modules.LogViewer.Services;
+using HealthCheck.Core.Modules.SecureFileDownload;
+using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
+using HealthCheck.Core.Modules.SecureFileDownload.FileStorage;
+using HealthCheck.Core.Modules.SecureFileDownload.Models;
 using HealthCheck.Core.Modules.Settings;
 using HealthCheck.Core.Modules.Settings.Abstractions;
 using HealthCheck.Core.Modules.Settings.Attributes;
@@ -30,13 +36,15 @@ using HealthCheck.Core.Util;
 using HealthCheck.Dev.Common;
 using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.EventNotifier;
+using HealthCheck.Module.DevModule;
 using HealthCheck.Module.DynamicCodeExecution.Abstractions;
 using HealthCheck.Module.DynamicCodeExecution.Models;
 using HealthCheck.Module.DynamicCodeExecution.Module;
 using HealthCheck.Module.DynamicCodeExecution.PreProcessors;
 using HealthCheck.Module.DynamicCodeExecution.Storage;
 using HealthCheck.Module.DynamicCodeExecution.Validators;
-using HealthCheck.Module.DevModule;
+using HealthCheck.Module.EndpointControl.Abstractions;
+using HealthCheck.Module.EndpointControl.Module;
 using HealthCheck.RequestLog.Services;
 using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.Models;
@@ -50,11 +58,6 @@ using System.Web;
 using System.Web.Hosting;
 using System.Web.Http;
 using System.Web.Mvc;
-using HealthCheck.Core.Modules.AuditLog.Services;
-using HealthCheck.Core.Modules.SecureFileDownload;
-using HealthCheck.Core.Modules.SecureFileDownload.FileStorage;
-using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
-using HealthCheck.Core.Modules.SecureFileDownload.Models;
 
 namespace HealthCheck.DevTest.Controllers
 {
@@ -94,6 +97,13 @@ namespace HealthCheck.DevTest.Controllers
                 typeof(RuntimeTestConstants).Assembly
             };
 
+            UseModule(new HCEndpointControlModule(new HCEndpointControlModuleOptions()
+            {
+                EndpointControlService = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlService)) as IEndpointControlService,
+                RuleStorage = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlRuleStorage)) as IEndpointControlRuleStorage,
+                DefinitionStorage = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlEndpointDefinitionStorage)) as IEndpointControlEndpointDefinitionStorage,
+                HistoryStorage = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlRequestHistoryStorage)) as IEndpointControlRequestHistoryStorage
+            }));
             UseModule(new HCSecureFileDownloadModule(new HCSecureFileDownloadModuleOptions()
             {
                 DefinitionStorage = FlatFileSecureFileDownloadDefinitionStorage,
@@ -201,11 +211,13 @@ namespace HealthCheck.DevTest.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCDynamicCodeExecutionModule>(RuntimeTestAccessRole.SystemAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCAccessTokensModule>(RuntimeTestAccessRole.SystemAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSecureFileDownloadModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCEndpointControlModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
             config.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
             config.RedirectTargetOnNoAccess = "/no-access";
+            config.IntegratedLoginEndpoint = "/hclogin/login";
         }
 
         public override ActionResult Index()

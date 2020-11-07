@@ -105,7 +105,7 @@ namespace HealthCheck.WebUI.Abstractions
             if (!Enabled) return NotFound();
             else if (!Helper.HasAccessToAnyContent(CurrentRequestAccessRoles))
             {
-                if (Helper.AccessConfig.IntegratedLoginHandler != null)
+                if (Helper.AccessConfig.IntegratedLoginEndpoint != null)
                 {
                     return CreateIntegratedLoginViewResult();
                 }
@@ -149,21 +149,6 @@ namespace HealthCheck.WebUI.Abstractions
                 Content = html,
                 ContentType = "text/html",
             };
-        }
-
-        /// <summary>
-        /// Executes <c>IntegratedLoginHandler</c> if set in access config, and returns the result in json format.
-        /// </summary>
-        [HideFromRequestLog]
-        [HttpPost]
-        [Route("Login")]
-        public virtual ActionResult Login([FromBody] HCIntegratedLoginRequest model)
-        {
-            if (!Enabled || Helper.AccessConfig.IntegratedLoginHandler == null) return NotFound();
-
-            model.Request = Request;
-            var result = Helper.AccessConfig.IntegratedLoginHandler(model);
-            return CreateJsonResult(result);
         }
 
         /// <summary>

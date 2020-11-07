@@ -1,7 +1,7 @@
-﻿using System;
+﻿using HealthCheck.Core.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace HealthCheck.Core.Modules.EventNotifications.Models
 {
@@ -30,6 +30,8 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
         /// </summary>
         public bool CaseSensitive { get; set; }
 
+        private static readonly CachedRegexContainer _regexCache = new CachedRegexContainer();
+
         /// <summary>
         /// Returns true if defined filters match the input.
         /// </summary>
@@ -53,8 +55,6 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
             }
         }
 
-        private static readonly Dictionary<string, Regex> _regexCache = new Dictionary<string, Regex>();
-
         private bool ValueMatchesFilter(string value)
         {
             var filter = Filter;
@@ -77,7 +77,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
             }
             else if (MatchType == FilterMatchType.RegEx)
             {
-                var regex = GetRegexFor(Filter, CaseSensitive);
+                var regex = _regexCache.GetRegex(Filter, CaseSensitive);
                 if (regex == null)
                 {
                     return false;
@@ -85,36 +85,6 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
                 return regex.IsMatch(value);
             }
             return true;
-        }
-
-        private Regex GetRegexFor(string pattern, bool caseSensitive)
-        {
-            var key = $"{(caseSensitive ? "cs______" : "")}_{pattern}";
-            lock (_regexCache)
-            {
-                if (!_regexCache.ContainsKey(key))
-                {
-                    Regex regex = null;
-                    try
-                    {
-                        regex = new Regex(pattern, caseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase);
-                    }
-                    catch (Exception)
-                    {
-                        return null;
-                    }
-
-                    try
-                    {
-                        _regexCache[key] = regex;
-                    }
-                    catch (Exception)
-                    {
-                        return regex;
-                    }
-                }
-                return _regexCache[key];
-            }
         }
 
         /// <summary>
