@@ -902,7 +902,7 @@ EventSinkUtil.TryRegisterEvent("thing_imported", () => new { Type = "etc", Value
 
 ## Module: Endpoint Control
 
-Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.EndpointControl?label=HealthCheck.Module.EndpointControl&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.EndpointControl)
+Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.EndpointControl?label=HealthCheck.Module.EndpointControl&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.EndpointControl) and only currently works on .net framework.
 
 Decorate mvc and webapi actions with `HCControlledEndpointAttribute` or `HCControlledApiEndpointAttribute` to allow for a bit of spam control by setting conditional rules at runtime using the interface. The module can also show the latest requests sent to decorated endpoints, including a few graphs.
 
@@ -997,6 +997,10 @@ public ActionResult Submit(MyModel model)
 
 </p>
 </details>
+
+### Custom blocked result types
+
+To create your own custom blocked result data when not using `CustomBlockedHandling`, create your own attributes inheriting from the provided ones and override `CreateBlockedResult`.
 
 ---------
 
@@ -1104,3 +1108,4 @@ A few utility classes are included below `HealthCheck.Core.Util`:
 * `HealthCheck.Core.Config.HCGlobalConfig` contains a few global static options:
   * Dependency resolver override.
   * Types and namespaces ignored in data serialization.
+  * Current request IP resolver logic override.

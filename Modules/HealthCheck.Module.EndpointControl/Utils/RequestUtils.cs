@@ -1,4 +1,5 @@
 ﻿#if NETFULL
+using HealthCheck.Core.Config;
 using System;
 using System.Net.Http;
 using System.Web;
@@ -46,6 +47,19 @@ namespace HealthCheck.Module.EndpointControl.Utils
                 if (request == null)
                 {
                     return null;
+                }
+
+                try
+                {
+                    var customIP = HCGlobalConfig.CurrentIPAddressResolver?.Invoke();
+                    if (!string.IsNullOrWhiteSpace(customIP))
+                    {
+                        return customIP;
+                    }
+                }
+                catch (Exception)
+                {
+                    // Ignored
                 }
 
                 // Web-hosting. Needs reference to System.Web.dll
@@ -131,7 +145,21 @@ namespace HealthCheck.Module.EndpointControl.Utils
                 {
                     return null;
                 }
-                else if (request?.IsLocal == true)
+
+                try
+                {
+                    var customIP = HCGlobalConfig.CurrentIPAddressResolver?.Invoke();
+                    if (!string.IsNullOrWhiteSpace(customIP))
+                    {
+                        return customIP;
+                    }
+                }
+                catch (Exception)
+                {
+                    // Ignored
+                }
+
+                if (request?.IsLocal == true)
                 {
                     return "localhost";
                 }

@@ -31,6 +31,12 @@ namespace HealthCheck.Core.Config
         public static List<string> NamespacePrefixesIgnoredInSerialization { get; set; }
 
         /// <summary>
+        /// Override logic to find current request IP.
+        /// <para>Value is used if not null or whitespace.</para>
+        /// </summary>
+        public static Func<string> CurrentIPAddressResolver { get; set; }
+
+        /// <summary>
         /// Gets the value of <see cref="DefaultInstanceResolver"/> or attempts <see cref="Activator.CreateInstance(Type)"/> if null.
         /// </summary>
         public static Func<Type, object> GetDefaultInstanceResolver() => DefaultInstanceResolver ?? FallbackInstanceResolver;
