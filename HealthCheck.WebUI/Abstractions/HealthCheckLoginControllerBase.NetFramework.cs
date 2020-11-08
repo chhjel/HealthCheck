@@ -2,7 +2,6 @@
 using HealthCheck.Core.Attributes;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Util;
-using System.Web;
 using System.Web.Mvc;
 
 namespace HealthCheck.WebUI.Abstractions

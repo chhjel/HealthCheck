@@ -111,18 +111,5 @@ namespace HealthCheck.Module.EndpointControl.Services
 
             return true;
         }
-
-        // ToDo:
-        // Rules:
-        // - Actions:
-        //   * Block
-        //   * Set/exponential delay
-        //   * Custom implementations? Log, alert etc?
-
-        // Other features:
-        // - Add data filter/modifier to service, to allow for easy url stripping etc.
-        // - Lockdown mode. All and per endpoint w/ end dates. (separate access option for all and single)
-        // - Identity aliases?
-        // - Overview w/ requests per country, requires external ip to country lookup
     }
 }

@@ -9,6 +9,8 @@ using System;
 using System.Net;
 #endif
 
+using HealthCheck.Core.Config;
+
 namespace HealthCheck.WebUI.Util
 {
     internal static class RequestUtils
@@ -25,7 +27,21 @@ namespace HealthCheck.WebUI.Util
                 {
                     return null;
                 }
-                else if (request?.IsLocal == true)
+
+                try
+                {
+                    var customIP = HCGlobalConfig.CurrentIPAddressResolver?.Invoke();
+                    if (!string.IsNullOrWhiteSpace(customIP))
+                    {
+                        return customIP;
+                    }
+                }
+                catch (Exception)
+                {
+                    // Ignored
+                }
+
+                if (request?.IsLocal == true)
                 {
                     return "localhost";
                 }
@@ -64,7 +80,21 @@ namespace HealthCheck.WebUI.Util
                 {
                     return null;
                 }
-                else if (IsLocalRequest(context))
+
+                try
+                {
+                    var customIP = HCGlobalConfig.CurrentIPAddressResolver?.Invoke();
+                    if (!string.IsNullOrWhiteSpace(customIP))
+                    {
+                        return customIP;
+                    }
+                }
+                catch (Exception)
+                {
+                    // Ignored
+                }
+
+                if (IsLocalRequest(context))
                 {
                     return "localhost";
                 }

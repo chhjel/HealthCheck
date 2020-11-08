@@ -1,4 +1,5 @@
 ﻿#if NETFULL
+using HealthCheck.Core.Config;
 using System;
 using System.Net.Http;
 using System.Web;
@@ -32,9 +33,9 @@ namespace HealthCheck.RequestLog.Util
             return $"{authority}{path}";
         }
 
-        private const string HttpContext = "MS_HttpContext";
-        private const string RemoteEndpointMessage = "System.ServiceModel.Channels.RemoteEndpointMessageProperty";
-        private const string OwinContext = "MS_OwinContext";
+        private const string _httpContext = "MS_HttpContext";
+        private const string _remoteEndpointMessage = "System.ServiceModel.Channels.RemoteEndpointMessageProperty";
+        private const string _owinContext = "MS_OwinContext";
 
         /// <summary>
         /// For WebAPI.
@@ -48,12 +49,25 @@ namespace HealthCheck.RequestLog.Util
                     return null;
                 }
 
+                try
+                {
+                    var customIP = HCGlobalConfig.CurrentIPAddressResolver?.Invoke();
+                    if (!string.IsNullOrWhiteSpace(customIP))
+                    {
+                        return customIP;
+                    }
+                }
+                catch (Exception)
+                {
+                    // Ignored
+                }
+
                 // Web-hosting. Needs reference to System.Web.dll
                 try
                 {
-                    if (request.Properties.ContainsKey(HttpContext))
+                    if (request.Properties.ContainsKey(_httpContext))
                     {
-                        dynamic ctx = request.Properties[HttpContext];
+                        dynamic ctx = request.Properties[_httpContext];
                         if (ctx != null)
                         {
                             if (ctx.Request.IsLocal)
@@ -91,9 +105,9 @@ namespace HealthCheck.RequestLog.Util
 
                 try
                 {
-                    if (request.Properties.ContainsKey(RemoteEndpointMessage))
+                    if (request.Properties.ContainsKey(_remoteEndpointMessage))
                     {
-                        dynamic remoteEndpoint = request.Properties[RemoteEndpointMessage];
+                        dynamic remoteEndpoint = request.Properties[_remoteEndpointMessage];
                         if (remoteEndpoint != null)
                         {
                             return remoteEndpoint.Address;
@@ -103,9 +117,9 @@ namespace HealthCheck.RequestLog.Util
                 catch (Exception) { /* Ignore errors here */ }
 
                 // Self-hosting using Owin. Needs reference to Microsoft.Owin.dll. 
-                if (request.Properties.ContainsKey(OwinContext))
+                if (request.Properties.ContainsKey(_owinContext))
                 {
-                    dynamic owinContext = request.Properties[OwinContext];
+                    dynamic owinContext = request.Properties[_owinContext];
                     if (owinContext != null)
                     {
                         return owinContext.Request.RemoteIpAddress;
@@ -131,7 +145,20 @@ namespace HealthCheck.RequestLog.Util
                 {
                     return null;
                 }
-                else if (request?.IsLocal == true)
+
+                try
+                {
+                    var customIP = HCGlobalConfig.CurrentIPAddressResolver?.Invoke();
+                    if (!string.IsNullOrWhiteSpace(customIP))
+                    {
+                        return customIP;
+                    }
+                } catch(Exception)
+                {
+                    // Ignored
+                }
+
+                if (request?.IsLocal == true)
                 {
                     return "localhost";
                 }
