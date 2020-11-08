@@ -58,7 +58,7 @@ namespace HealthCheck.Module.EndpointControl.Attributes
                 filterContext.HttpContext.Response.StatusCode = (int)BlockedStatusCode;
             }
         }
-
+        
         /// <summary>
         /// Return false to deny execution.
         /// </summary>
@@ -67,11 +67,14 @@ namespace HealthCheck.Module.EndpointControl.Attributes
             var requestData = GetEndpointRequestData(filterContext);
             var allowed = EndpointControlServices.EndpointControlService?.HandleRequest(requestData, storeData: !ManuallyCounted) != false;
 
-            filterContext.RequestContext.HttpContext.Items[EndpointControlUtils.RequestItemKey_Allowed] = allowed;
-
-            if (ManuallyCounted)
+            if (filterContext?.RequestContext?.HttpContext?.Items != null)
             {
-                filterContext.RequestContext.HttpContext.Items[EndpointControlUtils.RequestItemKey_RequestData] = requestData;
+                filterContext.RequestContext.HttpContext.Items[EndpointControlUtils.RequestItemKey_Allowed] = allowed;
+
+                if (ManuallyCounted)
+                {
+                    filterContext.RequestContext.HttpContext.Items[EndpointControlUtils.RequestItemKey_RequestData] = requestData;
+                }
             }
 
             return allowed;

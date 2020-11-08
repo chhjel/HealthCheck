@@ -25,7 +25,7 @@ namespace HealthCheck.Module.EndpointControl.Attributes
         {
             Name = name;
         }
-
+        
         /// <summary>
         /// Optional name of this endpoint.
         /// </summary>
@@ -67,11 +67,11 @@ namespace HealthCheck.Module.EndpointControl.Attributes
             if (HttpContext.Current?.Items != null)
             {
                 HttpContext.Current.Items[EndpointControlUtils.RequestItemKey_Allowed] = allowed;
-            }
 
-            if (ManuallyCounted)
-            {
-                HttpContext.Current.Items[EndpointControlUtils.RequestItemKey_RequestData] = requestData;
+                if (ManuallyCounted)
+                {
+                    HttpContext.Current.Items[EndpointControlUtils.RequestItemKey_RequestData] = requestData;
+                }
             }
 
             return allowed;
