@@ -28,7 +28,10 @@ export default class SimplePagingComponent extends Vue
     @Prop({ required: false, default: 100 })
     pageSize!: number;
 
-    currentValue: number = 1;
+    @Prop({ required: false, default: false })
+    asIndex!: boolean;
+
+    currentValue: number = this.asIndex ? 0 : 1;
     
     //////////////////
     //  LIFECYCLE  //
@@ -65,6 +68,9 @@ export default class SimplePagingComponent extends Vue
     //  EVENT HANDLERS  //
     /////////////////////
     onClickedPage(num: number): void {
+        if (this.asIndex) {
+            num--;
+        }
         this.$emit('input', num);
         this.currentValue = num;
     }

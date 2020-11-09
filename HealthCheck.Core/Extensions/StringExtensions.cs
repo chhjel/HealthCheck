@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,6 +11,22 @@ namespace HealthCheck.Core.Extensions
     /// </summary>
     public static class StringExtensions
     {
+        /// <summary>
+        /// Limit string length.
+        /// </summary>
+        public static string LimitMaxLength(this string text, int maxLength, string shortenedAffix = "..")
+        {
+            if (string.IsNullOrWhiteSpace(text)) return text;
+            else if (text.Length <= maxLength) return text;
+            else return $"{text.Substring(0, maxLength)}{shortenedAffix}";
+        }
+
+        /// <summary>
+        /// Strip everything inside tags.
+        /// </summary>
+        public static string StripHtml(this string input) => String.IsNullOrWhiteSpace(input) ? input : _stripTagsRegex.Replace(input, "");
+        private static readonly Regex _stripTagsRegex = new Regex("<.*?>");
+
         /// <summary>
         /// Prepends the given affix if the string is not null and does not already end with it.
         /// </summary>
@@ -163,7 +180,7 @@ namespace HealthCheck.Core.Extensions
             var value = str.ToString();
             if (ignoreThreePlus)
             {
-                foreach (var match in ThreePlusCapitalizedRegex.Matches(value).Cast<Match>())
+                foreach (var match in _threePlusCapitalizedRegex.Matches(value).Cast<Match>())
                 {
                     var part = match.Groups["value"].Value;
                     var normalizedPart = part.Replace(" ", "");
@@ -178,7 +195,7 @@ namespace HealthCheck.Core.Extensions
             return value;
         }
 
-        private static readonly Regex ThreePlusCapitalizedRegex = new Regex(@"( |^)(?<value>([A-Z]( |$)){3,})", RegexOptions.Multiline);
+        private static readonly Regex _threePlusCapitalizedRegex = new Regex(@"( |^)(?<value>([A-Z]( |$)){3,})", RegexOptions.Multiline);
 
         private static bool ANumberIsStartingAtPosition(string text, int index)
         {

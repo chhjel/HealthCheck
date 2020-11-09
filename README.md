@@ -23,6 +23,7 @@ Available modules:
 * IDE where C# scripts can be stored and executed in the context of the web application.
 * Access token module where tokens with limited access and lifespan can be created.
 * Downloads module where files can be made available for download, optionally protected by password, expiration date and download count limit.
+* Endpoint Control module to set request limits for decorated endpoints, as well as viewing some request statistics.
 
 ## Getting started
 

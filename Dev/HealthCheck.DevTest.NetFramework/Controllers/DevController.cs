@@ -19,6 +19,10 @@ using HealthCheck.Core.Modules.EventNotifications.Notifiers;
 using HealthCheck.Core.Modules.EventNotifications.Services;
 using HealthCheck.Core.Modules.LogViewer;
 using HealthCheck.Core.Modules.LogViewer.Services;
+using HealthCheck.Core.Modules.Messages;
+using HealthCheck.Core.Modules.Messages.Abstractions;
+using HealthCheck.Core.Modules.Messages.Models;
+using HealthCheck.Core.Modules.Messages.Storage;
 using HealthCheck.Core.Modules.SecureFileDownload;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload.FileStorage;
@@ -74,6 +78,8 @@ namespace HealthCheck.DevTest.Controllers
         private static readonly TestMemoryStream memoryStream = new TestMemoryStream("Memory");
         private static readonly TestMemoryStream otherStream1 = new TestMemoryStream(null);
         private static readonly TestMemoryStream otherStream2 = new TestMemoryStream(null);
+        //private static readonly HCMemoryMessageStore _memoryMessageStore = new HCMemoryMessageStore();
+        private static readonly IHCMessageStorage _memoryMessageStore = new HCFlatFileMessageStore(@"c:\temp\hc_messages");
         private static readonly FlatFileEventSinkNotificationConfigStorage EventSinkNotificationConfigStorage
             = new FlatFileEventSinkNotificationConfigStorage(@"c:\temp\eventconfigs.json");
         private static readonly FlatFileEventSinkKnownEventDefinitionsStorage EventSinkNotificationDefinitionStorage
@@ -97,6 +103,10 @@ namespace HealthCheck.DevTest.Controllers
                 typeof(RuntimeTestConstants).Assembly
             };
 
+            UseModule(new HCMessagesModule(new HCMessagesModuleOptions() { MessageStorage = _memoryMessageStore }
+                .DefineInbox("mail", "Mail", "All sent email ends up here.")
+                .DefineInbox("sms", "SMS", "All sent sms ends up here.")
+            ));
             UseModule(new HCEndpointControlModule(new HCEndpointControlModuleOptions()
             {
                 EndpointControlService = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlService)) as IEndpointControlService,
@@ -212,6 +222,7 @@ namespace HealthCheck.DevTest.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCAccessTokensModule>(RuntimeTestAccessRole.SystemAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSecureFileDownloadModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCEndpointControlModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCMessagesModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
@@ -226,6 +237,21 @@ namespace HealthCheck.DevTest.Controllers
                 Url = Request.RawUrl,
                 User = CurrentRequestInformation?.UserName,
                 SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp)
+            });
+
+            Task.Run(async () =>
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    await _memoryMessageStore.StoreMessageAsync("sms",
+                        new HCDefaultMessageItem($"Some summary here #{i}", $"{i}345678", $"841244{i}", $"Some test message #{i} here etc etc.", false));
+                }
+                for (int i = 0; i < 13; i++)
+                {
+                    await _memoryMessageStore.StoreMessageAsync("mail",
+                        new HCDefaultMessageItem($"Subject #{i}, totally not spam", $"test_{i}@somewhe.re", $"to@{i}mail.com",
+                            $"<h3>Super fancy contents here!</h3>Now <b>this</b> is a mail! #{i} or something <img src=\"https://picsum.photos/200\" />.", true));
+                }
             });
 
             if (FlatFileSecureFileDownloadDefinitionStorage.GetDefinitionByUrlSegmentText("test") == null)

@@ -26,7 +26,7 @@ namespace HealthCheck.Core.Util
                 }
                 else
                 {
-                    summary = TimeUtils.PrettifyDuration((long)timeSince.TotalMilliseconds, zero);
+                    summary = PrettifyDuration((long)timeSince.TotalMilliseconds, zero);
                 }
             }
             return summary;

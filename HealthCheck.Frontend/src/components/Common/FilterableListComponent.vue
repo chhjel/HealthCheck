@@ -2,7 +2,9 @@
 <template>
     <div>
         <v-list expand class="menu-items">
-            <filter-input-component class="filter" v-model="filterText" />
+            <filter-input-component class="filter" v-model="filterText" v-if="showFilter" />
+            <div v-if="!showFilter" class="mb-5"></div>
+            <div v-if="!showFilter" style="margin-top: 76px"></div>
 
             <v-progress-linear 
                 v-if="loading"
@@ -117,7 +119,7 @@ export default class FilterableListComponent extends Vue {
     @Prop({ required: false, default: null })
     sortByKey!: string | null;
 
-    @Prop({ required: false, default: [] })
+    @Prop({ required: false, default: () => [] })
     filterKeys!: Array<string>;
 
     @Prop({ required: false, default: false })
@@ -128,6 +130,9 @@ export default class FilterableListComponent extends Vue {
 
     @Prop({ required: false, default: true })
     groupIfSingleGroup!: boolean;
+
+    @Prop({ required: false, default: true })
+    showFilter!: boolean;
 
     filterText: string = "";
     selectedItemData: any = null;
@@ -185,7 +190,7 @@ export default class FilterableListComponent extends Vue {
     //  METHODS  //
     //////////////
     filterItems(data: Array<FilterableListItem>) : Array<FilterableListItem> {
-        return data.filter(x => this.itemFilterMatches(x));
+        return this.showFilter ? data.filter(x => this.itemFilterMatches(x)) : data;
     }
 
     itemFilterMatches(item: FilterableListItem): boolean {
