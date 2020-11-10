@@ -4,7 +4,6 @@ using HealthCheck.Core.Modules.Messages.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.Messages
 {
@@ -61,9 +60,9 @@ namespace HealthCheck.Core.Modules.Messages
         /// Delete a single message by id.
         /// </summary>
         [HealthCheckModuleMethod(AccessOption.DeleteMessages)]
-        public async Task<object> DeleteMessage(HCDeleteMessageRequestModel model)
+        public object DeleteMessage(HCDeleteMessageRequestModel model)
         {
-            var result = await Options.MessageStorage.DeleteMessageAsync(model.InboxId, model.MessageId);
+            var result =  Options.MessageStorage.DeleteMessage(model.InboxId, model.MessageId);
             return new { Success = result };
         }
 
@@ -71,9 +70,9 @@ namespace HealthCheck.Core.Modules.Messages
         /// Delete a single inbox by id.
         /// </summary>
         [HealthCheckModuleMethod(AccessOption.DeleteMessages)]
-        public async Task<object> DeleteInbox(string id)
+        public object DeleteInbox(string id)
         {
-            var result = await Options.MessageStorage.DeleteInboxAsync(id);
+            var result =  Options.MessageStorage.DeleteInbox(id);
             return new { Success = result };
         }
 
@@ -81,9 +80,9 @@ namespace HealthCheck.Core.Modules.Messages
         /// Delete all stored messages.
         /// </summary>
         [HealthCheckModuleMethod(AccessOption.DeleteMessages)]
-        public async Task<object> DeleteAllData()
+        public object DeleteAllData()
         {
-            await Options.MessageStorage.DeleteAllDataAsync();
+            Options.MessageStorage.DeleteAllData();
             return new { Success = true };
         }
 
@@ -98,7 +97,7 @@ namespace HealthCheck.Core.Modules.Messages
         /// Get latest messages from the given inbox.
         /// </summary>
         [HealthCheckModuleMethod]
-        public async Task<HCDataWithTotalCount<IEnumerable<IHCMessageItem>>> GetLatestInboxMessages(HealthCheckModuleContext context, HCGetMessagesRequestModel model)
+        public HCDataWithTotalCount<IEnumerable<IHCMessageItem>> GetLatestInboxMessages(HealthCheckModuleContext context, HCGetMessagesRequestModel model)
         {
             var emptyResult = new HCDataWithTotalCount<IEnumerable<IHCMessageItem>>() { Data = Enumerable.Empty<IHCMessageItem>() };
             if (Options.MessageStorage == null)
@@ -112,7 +111,7 @@ namespace HealthCheck.Core.Modules.Messages
                 return emptyResult;
             }
 
-            var messageContainer = await Options.MessageStorage.GetLatestMessagesAsync(model.InboxId, model.PageSize, model.PageIndex);
+            var messageContainer = Options.MessageStorage.GetLatestMessages(model.InboxId, model.PageSize, model.PageIndex);
             if (messageContainer == null || !messageContainer.Data.Any())
             {
                 return emptyResult;
@@ -130,7 +129,7 @@ namespace HealthCheck.Core.Modules.Messages
         /// Get a single messages from the given inbox.
         /// </summary>
         [HealthCheckModuleMethod]
-        public async Task<IHCMessageItem> GetMessage(HealthCheckModuleContext context, HCGetMessageRequestModel model)
+        public IHCMessageItem GetMessage(HealthCheckModuleContext context, HCGetMessageRequestModel model)
         {
             if (Options.MessageStorage == null)
             {
@@ -143,7 +142,7 @@ namespace HealthCheck.Core.Modules.Messages
                 return null;
             }
 
-            var message = await Options.MessageStorage.GetMessageAsync(model.InboxId, model.MessageId);
+            var message = Options.MessageStorage.GetMessage(model.InboxId, model.MessageId);
 
             if (message != null)
             {

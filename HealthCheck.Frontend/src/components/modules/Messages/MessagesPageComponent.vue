@@ -36,7 +36,14 @@
                 </v-alert>
 
                 <div v-if="currentInbox != null">
-                    <h1 class="mb-1">{{ currentInbox.Name }}</h1>
+                    <div style="display:flex">
+                        <h1 class="mb-1">{{ currentInbox.Name }}</h1>
+                        <v-spacer></v-spacer>
+                        <v-btn color="error" flat
+                            v-if="HasAccessToDeleteMessages"
+                            :disabled="messageLoadStatus.inProgress"
+                            @click="showDeleteInbox()">Delete all</v-btn>
+                    </div>
                     <p v-if="currentInbox.Description != null && currentInbox.Description.length > 0">{{ currentInbox.Description }}</p>
                     <hr />
 
@@ -86,6 +93,10 @@
                                 {{ formatDate(message.Timestamp) }}
                             </div>
                         </div>
+
+                        <div v-if="messages.length == 0 && !messageLoadStatus.inProgress" class="mt-2">
+                            No messages found.
+                        </div>
                     </div>
                 </div>
 
@@ -94,7 +105,6 @@
             </v-layout>
             </v-container>
         </v-content>
-        
             
         <v-dialog v-model="showMessageDialog"
             @keydown.esc="hideMessageDialog"
@@ -116,7 +126,7 @@
                 
                 <v-card-text>
                     <div class="message">
-                        <div class="message__time"><b>When: </b>{{ formatDate(currentlyShownMessage.Timestamp) }}</div>
+                        <div class="message__time"><b>When: </b>{{ formatDate(currentlyShownMessage.Timestamp, true) }}</div>
                         <div class="message__from"><b>From: </b>{{ currentlyShownMessage.From }}</div>
                         <div class="message__to"><b>To: </b>{{ currentlyShownMessage.To }}</div>
                         <div class="message__summary"><b>Summary: </b>{{ currentlyShownMessage.Summary }}</div>
@@ -139,10 +149,50 @@
                     </div>
                 </v-card-text>
                 <v-divider></v-divider>
-                <v-card-actions >
+                <v-card-actions>
                     <v-spacer></v-spacer>
+                    <v-btn color="error" flat
+                        v-if="HasAccessToDeleteMessages"
+                        :disabled="messageLoadStatus.inProgress"
+                        @click="showDeleteMessage(currentlyShownMessage)">Delete</v-btn>
                     <v-btn color="success"
                         @click="hideMessageDialog">Close</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        
+        <v-dialog v-model="deleteMessageDialogVisible"
+            @keydown.esc="deleteMessageDialogVisible = false"
+            max-width="290"
+            content-class="confirm-dialog">
+            <v-card>
+                <v-card-title class="headline">Confirm deletion</v-card-title>
+                <v-card-text>
+                    Are you sure you want to delete this message?
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary" @click="deleteMessageDialogVisible = false">Cancel</v-btn>
+                    <v-btn color="error" @click="deleteMessage()">Delete it</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        
+        <v-dialog v-model="deleteInboxDialogVisible"
+            @keydown.esc="deleteInboxDialogVisible = false"
+            max-width="360"
+            content-class="confirm-dialog">
+            <v-card>
+                <v-card-title class="headline">Confirm deletion</v-card-title>
+                <v-card-text>
+                    Are you sure you want to delete all messages in the inbox?
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary" @click="deleteInboxDialogVisible = false">Cancel</v-btn>
+                    <v-btn color="error" @click="deleteInbox()">Delete whole inbox</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -202,6 +252,10 @@ export default class EndpointControlPageComponent extends Vue {
     showMessageDialog: boolean = false;
     showMessageBodyRaw: boolean = false;
     currentlyShownMessage: MessageItem | null = null;
+    deleteMessageDialogVisible: boolean = false;
+    currentlyDeletingMessage: MessageItem | null = null;
+    deleteInboxDialogVisible: boolean = false;
+    currentlyDeletingInbox: MessagesInboxMetadata | null = null;
 
     //////////////////
     //  LIFECYCLE  //
@@ -350,12 +404,27 @@ export default class EndpointControlPageComponent extends Vue {
         }));
     }
 
-    formatDate(date: Date): string
+    formatDate(date: Date, both: boolean = false): string
     {
-        return DateUtils.FormatDate(date, 'MMM d HH:mm:ss');
+        const millisecondsAgo = (new Date().getTime() - date.getTime());
+        let prefix = '';
+        if (millisecondsAgo <= 1000 * 60 * 60 * 24)
+        {
+            const pretty = DateUtils.prettifyDurationString(millisecondsAgo) + ' ago';
+            if (!both)
+            {
+                return pretty;
+            }
+            prefix = `${pretty} at `;
+        }
+        return prefix + DateUtils.FormatDate(date, 'MMM d HH:mm:ss');
     }
 
     showMessage(message: MessageItem, updateUrl: boolean = true): void {
+        if (this.currentlyShownMessage == message) {
+            return;
+        }
+
         this.currentlyShownMessage = message;
         this.showMessageDialog = true;
         this.showMessageBodyRaw = false;
@@ -394,25 +463,48 @@ export default class EndpointControlPageComponent extends Vue {
         }
     }
 
+    showDeleteMessage(message: MessageItem): void {
+        this.currentlyDeletingMessage = message;
+        this.deleteMessageDialogVisible = true;
+    }
+
+    deleteMessage(): void {
+        if (this.currentlyDeletingMessage != null && this.currentInbox != null)
+        {
+            this.service.DeleteMessage(this.currentInbox.Id, this.currentlyDeletingMessage.Id);
+
+            const index = this.messages.findIndex(x => x.Id == this.currentlyDeletingMessage?.Id);
+            this.messages.splice(index, 1);
+        }
+        this.currentlyDeletingMessage = null;
+        this.deleteMessageDialogVisible = false;
+        this.hideMessageDialog();
+    }
+
+    showDeleteInbox(): void {
+        this.currentlyDeletingInbox = this.currentInbox;
+        this.deleteInboxDialogVisible = true;
+    }
+
+    deleteInbox(): void {
+        if (this.currentlyDeletingInbox != null)
+        {
+            this.service.DeleteInbox(this.currentlyDeletingInbox.Id);
+            this.messages.splice(0, this.messages.length);
+        }
+        this.totalMessageCount = 0;
+        this.messagesPageIndex = 0;
+        this.currentlyDeletingInbox = null;
+        this.deleteInboxDialogVisible = false;
+        this.hideMessageDialog();
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
     onMenuItemClicked(item: any): void {
         const inboxId = item.data.id;
         this.setSelectedInbox(inboxId);
-    }
-
-    ////////////////////
-    //  Parent Menu  //
-    //////////////////
-    drawerState: boolean = this.storeMenuState;
-    get storeMenuState(): boolean {
-        return this.$store.state.ui.menuExpanded;
-    }
-
-    @Watch("storeMenuState")
-    onStoreMenuStateChanged(): void {
-        this.drawerState = this.storeMenuState;
     }
 
     @Watch("messagesPageIndex")
@@ -428,6 +520,19 @@ export default class EndpointControlPageComponent extends Vue {
         setTimeout(() => {
             this.refreshEditorSize();
         }, 100);
+    }
+
+    ////////////////////
+    //  Parent Menu  //
+    //////////////////
+    drawerState: boolean = this.storeMenuState;
+    get storeMenuState(): boolean {
+        return this.$store.state.ui.menuExpanded;
+    }
+
+    @Watch("storeMenuState")
+    onStoreMenuStateChanged(): void {
+        this.drawerState = this.storeMenuState;
     }
 }
 </script>

@@ -54,7 +54,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Modules\Messages\Services\" />
     <Folder Include="Modules\Tests\Utils\HtmlPresets\" />
   </ItemGroup>
 

@@ -52,7 +52,7 @@ export default class MessagesService extends HCServiceBase
     ) : void
     {
         const payload = { inboxId: inboxId, messageId: messageId };
-        this.invokeModuleMethod(this.moduleId, 'DeleteMessage', null, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, 'DeleteMessage', payload, statusObject, callbacks);
     }
 
     public DeleteInbox(
@@ -61,7 +61,7 @@ export default class MessagesService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<SimpleResult> | null = null
     ) : void
     {
-        const payload = { id: inboxId };
+        const payload = inboxId;
         this.invokeModuleMethod(this.moduleId, 'DeleteInbox', payload, statusObject, callbacks);
     }
 

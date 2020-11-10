@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace HealthCheck.Core.Util
 {
@@ -31,5 +32,30 @@ namespace HealthCheck.Core.Util
             using StreamReader reader = new StreamReader(fileStream);
             return reader.ReadToEnd();
         }
-    }
+
+        /// <summary>
+        /// Strip illegal chars and reserved words from a given filename (not full path, only filename).
+        /// </summary>
+        public static string SanitizeFilename(string filename)
+        {
+            var invalidChars = Regex.Escape(new string(Path.GetInvalidFileNameChars()));
+            var invalidReStr = $@"[{invalidChars}]+";
+
+            var sanitisedNamePart = Regex.Replace(filename, invalidReStr, "_");
+            foreach (var reservedWord in _reservedFilenames)
+            {
+                var reservedWordPattern = $"^{reservedWord}\\.";
+                sanitisedNamePart = Regex.Replace(sanitisedNamePart, reservedWordPattern, "_reservedWord_.", RegexOptions.IgnoreCase);
+            }
+
+            return sanitisedNamePart;
+        }
+
+        private static readonly string[] _reservedFilenames = new[]
+        {
+            "CON", "PRN", "AUX", "CLOCK$", "NUL", "COM0", "COM1", "COM2", "COM3", "COM4",
+            "COM5", "COM6", "COM7", "COM8", "COM9", "LPT0", "LPT1", "LPT2", "LPT3", "LPT4",
+            "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"
+        };
+}
 }

@@ -1,12 +1,12 @@
-﻿using HealthCheck.Core.Modules.Messages.Abstractions;
+﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Modules.Messages.Abstractions;
 using HealthCheck.Core.Modules.Messages.Models;
 using HealthCheck.Core.Util;
-using Newtonsoft.Json;
+using HealthCheck.WebUI.Serializers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace HealthCheck.WebUI.Services
 {
@@ -16,14 +16,27 @@ namespace HealthCheck.WebUI.Services
     public class HCFlatFileMessageStore : IHCMessageStorage
     {
         /// <summary>
+        /// If disabled no messages will be stored.
+        /// <para>Null value/exception = false.</para>
+        /// </summary>
+        public Func<bool> EnableStoringMessages { get; set; } = () => true;
+
+        /// <summary>
         /// Max number of messages to keep per inbox.
         /// </summary>
-        public int MaxMessagesStoredPerInbox { get; set; }
+        public int MaxMessagesStoredPerInbox { get; set; } = 200;
+
+        /// <summary>
+        /// Max duration to keep data for.
+        /// <para>Defaults to 7 days.</para>
+        /// </summary>
+        public TimeSpan MaxMessageAge { get; set; } = TimeSpan.FromDays(7);
 
         private readonly object _storeLock = new object();
-        private readonly Dictionary<string, SimpleDataStoreWithId<HCDefaultMessageItem, string>> _inboxStores
-            = new Dictionary<string, SimpleDataStoreWithId<HCDefaultMessageItem, string>>();
+        private readonly Dictionary<string, SimpleCachedDataStore<HCDefaultMessageItem>> _inboxStores
+            = new Dictionary<string, SimpleCachedDataStore<HCDefaultMessageItem>>();
         private readonly string _baseFilepath;
+        private readonly IJsonSerializer _jsonSerializer = new NewtonsoftJsonSerializer();
 
         /// <summary>
         /// Create a new <see cref="HCFlatFileMessageStore"/> with the given file path.
@@ -34,6 +47,16 @@ namespace HealthCheck.WebUI.Services
             _baseFilepath = folderPath;
         }
 
+        /// <summary>
+        /// If disabled no messages will be stored.
+        /// <para>Null value/exception = false.</para>
+        /// </summary>
+        public HCFlatFileMessageStore SetIsEnabled(Func<bool> isEnabledFunc)
+        {
+            EnableStoringMessages = isEnabledFunc;
+            return this;
+        }
+
         private bool HasStoreFor(string inboxId)
         {
             lock (_storeLock)
@@ -42,7 +65,7 @@ namespace HealthCheck.WebUI.Services
             }
         }
 
-        private SimpleDataStoreWithId<HCDefaultMessageItem, string> GetOrCreateStoreFor(string inboxId)
+        private SimpleCachedDataStore<HCDefaultMessageItem> GetOrCreateStoreFor(string inboxId)
         {
             lock (_storeLock)
             {
@@ -51,15 +74,13 @@ namespace HealthCheck.WebUI.Services
                     return _inboxStores[inboxId];
                 }
 
-                var filepath = Path.Combine(_baseFilepath, $"HCMessages_{inboxId}.json");
-                var store = new SimpleDataStoreWithId<HCDefaultMessageItem, string>(
-                    filepath,
-                    serializer: new Func<HCDefaultMessageItem, string>((e) => JsonConvert.SerializeObject(e)),
-                    deserializer: new Func<string, HCDefaultMessageItem>((row) => JsonConvert.DeserializeObject<HCDefaultMessageItem>(row)),
-                    idSelector: (e) => e.Id,
-                    idSetter: (e, id) => e.Id = id,
-                    nextIdFactory: (events, e) => Guid.NewGuid().ToString()
-                );
+                var filepath = Path.Combine(_baseFilepath, IOUtils.SanitizeFilename($"hc_messages_{inboxId}.json"));
+                var store = new SimpleCachedDataStore<HCDefaultMessageItem>(_jsonSerializer, filepath)
+                {
+                    MaxMemoryItemCount = MaxMessagesStoredPerInbox,
+                    MaxStoredItemCount = MaxMessagesStoredPerInbox,
+                    MaxDataAge = MaxMessageAge
+                };
                 _inboxStores[inboxId] = store;
 
                 return store;
@@ -69,18 +90,18 @@ namespace HealthCheck.WebUI.Services
         /// <summary>
         /// Delete all stored data.
         /// </summary>
-        public async Task DeleteAllDataAsync()
+        public void DeleteAllData()
         {
             foreach (var kvp in _inboxStores)
             {
-                await kvp.Value.ClearDataAsync();
+                kvp.Value.Clear();
             }
         }
 
         /// <summary>
         /// Delete a whole inbox with the given id.
         /// </summary>
-        public async Task<bool> DeleteInboxAsync(string inboxId)
+        public bool DeleteInbox(string inboxId)
         {
             if (!HasStoreFor(inboxId))
             {
@@ -88,74 +109,90 @@ namespace HealthCheck.WebUI.Services
             }
 
             var store = GetOrCreateStoreFor(inboxId);
-            await store.ClearDataAsync();
+            store.Clear();
             return true;
         }
 
         /// <summary>
         /// Delete a message with the given id.
         /// </summary>
-        public Task<bool> DeleteMessageAsync(string inboxId, string messageId)
+        public bool DeleteMessage(string inboxId, string messageId)
         {
             if (!HasStoreFor(inboxId))
             {
-                return Task.FromResult(false);
+                return false;
             }
 
             var store = GetOrCreateStoreFor(inboxId);
-            store.DeleteItem(messageId);
-            return Task.FromResult(true);
+            store.RemoveAll(x => x.Id == messageId);
+            return true;
         }
 
         /// <summary>
         /// Get the latest messages from the given inbox.
         /// </summary>
-        public async Task<HCDataWithTotalCount<IEnumerable<IHCMessageItem>>> GetLatestMessagesAsync(string inboxId, int pageSize, int pageIndex)
+        public HCDataWithTotalCount<IEnumerable<IHCMessageItem>> GetLatestMessages(string inboxId, int pageSize, int pageIndex)
         {
             var result = new HCDataWithTotalCount<IEnumerable<IHCMessageItem>>() { Data = Enumerable.Empty<IHCMessageItem>() };
+
             if (!HasStoreFor(inboxId))
             {
                 return result;
             }
 
             var store = GetOrCreateStoreFor(inboxId);
-            var allItems = store.GetEnumerable().ToArray();
+            var allItems = store.GetItems();
             var items = allItems.Skip(pageIndex * pageSize).Take(pageSize);
             result.Data = items;
-            result.TotalCount = allItems.Length;
-            return await Task.FromResult(result);
+            result.TotalCount = allItems.Count();
+            return result;
         }
 
         /// <summary>
         /// Get a single messages from the given inbox.
         /// </summary>
-        public async Task<IHCMessageItem> GetMessageAsync(string inboxId, string messageId)
+        public IHCMessageItem GetMessage(string inboxId, string messageId)
         {
             if (!HasStoreFor(inboxId))
             {
-                return await Task.FromResult<IHCMessageItem>(null);
+                return null;
             }
 
             var store = GetOrCreateStoreFor(inboxId);
-            return store.GetItem(messageId);
+            return store.GetItems().FirstOrDefault(x => x.Id == messageId);
         }
 
         /// <summary>
         /// Add a new message to the given inbox.
         /// </summary>
-        public Task StoreMessageAsync(string inboxId, IHCMessageItem message)
+        public void StoreMessage(string inboxId, IHCMessageItem message)
         {
+            if (!EnableStoringMessagesInternal())
+            {
+                return;
+            }
+
             if (!(message is HCDefaultMessageItem hcMessage))
             {
                 throw new ArgumentException($"Message parameter must be of type {nameof(HCDefaultMessageItem)}.", nameof(message));
             }
 
-            // todo: store in memory as well & discard?
-            // => refactor request history into a FlatfileMemoryStorage for limited amount of data w/ delayed saving & limits.
-
             var store = GetOrCreateStoreFor(inboxId);
-            store.InsertItem(hcMessage);
-            return Task.CompletedTask;
+            store.AddItem(hcMessage);
+        }
+
+        internal bool EnableStoringMessagesInternal()
+        {
+            try
+            {
+                if (EnableStoringMessages?.Invoke() != true)
+                {
+                    return false;
+                }
+            }
+            catch (Exception) { return false; }
+
+            return true;
         }
     }
 }

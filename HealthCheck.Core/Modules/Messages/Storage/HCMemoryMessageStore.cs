@@ -1,16 +1,22 @@
 ﻿using HealthCheck.Core.Modules.Messages.Abstractions;
 using HealthCheck.Core.Modules.Messages.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.Messages.Storage
 {
     /// <summary>
-    /// Stores messages in memory.
+    /// Stores messages in memory only.
     /// </summary>
     public class HCMemoryMessageStore : IHCMessageStorage
     {
+        /// <summary>
+        /// If disabled no messages will be stored.
+        /// <para>Null value/exception = false.</para>
+        /// </summary>
+        public Func<bool> EnableStoringMessages { get; set; } = () => true;
+
         /// <summary>
         /// Max number of unique inboxes to keep in memory.
         /// </summary>
@@ -26,10 +32,25 @@ namespace HealthCheck.Core.Modules.Messages.Storage
         private readonly object _cleanupLock = new object();
 
         /// <summary>
+        /// If disabled no messages will be stored.
+        /// <para>Null value/exception = false.</para>
+        /// </summary>
+        public HCMemoryMessageStore SetIsEnabled(Func<bool> isEnabledFunc)
+        {
+            EnableStoringMessages = isEnabledFunc;
+            return this;
+        }
+
+        /// <summary>
         /// Add a new message to the given inbox.
         /// </summary>
-        public Task StoreMessageAsync(string inboxId, IHCMessageItem message)
+        public void StoreMessage(string inboxId, IHCMessageItem message)
         {
+            if (!EnableStoringMessagesInternal())
+            {
+                return;
+            }
+
             lock (_inboxesById)
             {
                 if (!_inboxesById.ContainsKey(inboxId))
@@ -48,17 +69,15 @@ namespace HealthCheck.Core.Modules.Messages.Storage
             }
 
             Cleanup();
-
-            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Get the latest messages from the given inbox.
         /// </summary>
-        public async Task<HCDataWithTotalCount<IEnumerable<IHCMessageItem>>> GetLatestMessagesAsync(string inboxId, int pageSize, int pageIndex)
+        public HCDataWithTotalCount<IEnumerable<IHCMessageItem>> GetLatestMessages(string inboxId, int pageSize, int pageIndex)
         {
-            HCDataWithTotalCount<IEnumerable<IHCMessageItem>> result = null;
-
+            HCDataWithTotalCount<IEnumerable<IHCMessageItem>> result;
+            
             lock (_inboxesById)
             {
                 if (!_inboxesById.ContainsKey(inboxId))
@@ -80,30 +99,29 @@ namespace HealthCheck.Core.Modules.Messages.Storage
                 }
             }
 
-            return await Task.FromResult(result);
+            return result;
         }
 
         /// <summary>
         /// Get a single messages from the given inbox.
         /// </summary>
-        public async Task<IHCMessageItem> GetMessageAsync(string inboxId, string messageId)
+        public IHCMessageItem GetMessage(string inboxId, string messageId)
         {
-            IHCMessageItem match = null;
             lock (_inboxesById)
             {
                 if (_inboxesById.ContainsKey(inboxId))
                 {
                     var inbox = _inboxesById[inboxId];
-                    match = inbox.Items.FirstOrDefault(x => x.Id == messageId);
+                    return inbox.Items.FirstOrDefault(x => x.Id == messageId);
                 }
             }
-            return await Task.FromResult(match);
+            return null;
         }
 
         /// <summary>
         /// Delete a message with the given id.
         /// </summary>
-        public async Task<bool> DeleteMessageAsync(string inboxId, string messageId)
+        public bool DeleteMessage(string inboxId, string messageId)
         {
             lock (_inboxesById)
             {
@@ -113,13 +131,13 @@ namespace HealthCheck.Core.Modules.Messages.Storage
                 var inbox = _inboxesById[inboxId];
                 inbox.Items.RemoveAll(x => x.Id == messageId);
             }
-            return await Task.FromResult(true);
+            return true;
         }
 
         /// <summary>
         /// Delete a whole inbox with the given id.
         /// </summary>
-        public async Task<bool> DeleteInboxAsync(string inboxId)
+        public bool DeleteInbox(string inboxId)
         {
             lock(_inboxesById)
             {
@@ -131,20 +149,19 @@ namespace HealthCheck.Core.Modules.Messages.Storage
                 _inboxesById.Remove(inboxId);
                 _inboxes.RemoveAll(x => x.Id == inboxId);
             }
-            return await Task.FromResult(true);
+            return true;
         }
 
         /// <summary>
         /// Delete all stored data.
         /// </summary>
-        public Task DeleteAllDataAsync()
+        public void DeleteAllData()
         {
             lock (_inboxesById)
             {
                 _inboxesById.Clear();
                 _inboxes.Clear();
             }
-            return Task.CompletedTask;
         }
 
         private void Cleanup()
@@ -174,6 +191,20 @@ namespace HealthCheck.Core.Modules.Messages.Storage
                     }
                 }
             }
+        }
+
+        internal bool EnableStoringMessagesInternal()
+        {
+            try
+            {
+                if (EnableStoringMessages?.Invoke() != true)
+                {
+                    return false;
+                }
+            }
+            catch (Exception) { return false; }
+
+            return true;
         }
 
         private class Inbox
