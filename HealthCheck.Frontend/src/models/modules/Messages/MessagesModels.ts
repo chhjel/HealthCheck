@@ -20,4 +20,6 @@ export interface MessageItem {
     Body: string;
     BodyIsHtml: boolean;
     AdditionalDetails: Dictionary<string>;
+    HasError: boolean;
+    ErrorMessage: string | null;
 }

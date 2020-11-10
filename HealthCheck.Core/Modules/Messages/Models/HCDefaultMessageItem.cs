@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Messages.Abstractions;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 
@@ -51,6 +52,16 @@ namespace HealthCheck.Core.Modules.Messages.Models
         public Dictionary<string, string> AdditionalDetails { get; set; } = new Dictionary<string, string>();
 
         /// <summary>
+        /// True if the message failed to send.
+        /// </summary>
+        public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
+
+        /// <summary>
+        /// Details about any error that occured during attempted sending of the message.
+        /// </summary>
+        public string ErrorMessage { get; set; }
+
+        /// <summary>
         /// Default message item implementation.
         /// </summary>
         public HCDefaultMessageItem()
@@ -88,6 +99,24 @@ namespace HealthCheck.Core.Modules.Messages.Models
         public HCDefaultMessageItem AddDetail(string name, string value)
         {
             AdditionalDetails[name] = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Add an error to this message.
+        /// </summary>
+        public HCDefaultMessageItem SetError(string errorMessage)
+        {
+            ErrorMessage = errorMessage;
+            return this;
+        }
+
+        /// <summary>
+        /// Add an error to this message from the given exception.
+        /// </summary>
+        public HCDefaultMessageItem SetError(Exception exception)
+        {
+            ErrorMessage = (exception == null) ? null : ExceptionUtils.GetFullExceptionDetails(exception);
             return this;
         }
     }

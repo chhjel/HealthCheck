@@ -48,8 +48,14 @@ namespace HealthCheck.Core.Modules.Messages.Abstractions
         /// </summary>
         Dictionary<string, string> AdditionalDetails { get; }
 
-        // Later:
-        // - files
-        // - custom implementation and just reflect w/ prop type + attribute ui hints
+        /// <summary>
+        /// True if the message failed to send.
+        /// </summary>
+        bool HasError { get; }
+
+        /// <summary>
+        /// Details about any error that occured during attempted sending of the message.
+        /// </summary>
+        string ErrorMessage { get; }
     }
 }

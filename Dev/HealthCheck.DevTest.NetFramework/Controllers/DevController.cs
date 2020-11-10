@@ -243,14 +243,22 @@ namespace HealthCheck.DevTest.Controllers
 
             for (int i = 0; i < 10; i++)
             {
-                _memoryMessageStore.StoreMessage("sms",
-                    new HCDefaultMessageItem($"Some summary here #{i}", $"{i}345678", $"841244{i}", $"Some test message #{i} here etc etc.", false));
+                var msg = new HCDefaultMessageItem($"Some summary here #{i}", $"{i}345678", $"841244{i}", $"Some test message #{i} here etc etc.", false);
+                if (i % 4 == 0)
+                {
+                    msg.SetError("Failed to send because of server error.");
+                }
+                _memoryMessageStore.StoreMessage("sms", msg);
             }
             for (int i = 0; i < 13; i++)
             {
-                _memoryMessageStore.StoreMessage("mail",
-                    new HCDefaultMessageItem($"Subject #{i}, totally not spam", $"test_{i}@somewhe.re", $"to@{i}mail.com",
-                        $"<h3>Super fancy contents here!</h3>Now <b>this</b> is a mail! #{i} or something <img src=\"https://picsum.photos/200\" />.", true));
+                var msg = new HCDefaultMessageItem($"Subject #{i}, totally not spam", $"test_{i}@somewhe.re", $"to@{i}mail.com",
+                        $"<h3>Super fancy contents here!</h3>Now <b>this</b> is a mail! #{i} or something <img src=\"https://picsum.photos/200\" />.", true);
+                if (i % 5 == 0)
+                {
+                    msg.SetError("Failed to send because of invalid email.");
+                }
+                _memoryMessageStore.StoreMessage("mail", msg);
             }
 
             if (FlatFileSecureFileDownloadDefinitionStorage.GetDefinitionByUrlSegmentText("test") == null)
