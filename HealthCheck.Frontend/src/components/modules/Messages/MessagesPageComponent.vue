@@ -76,6 +76,9 @@
                             :key="`message-${mindex}`"
                             class="messages-list__item"
                             @click="showMessage(message)">
+                            <div class="messages-list__item__icon">
+                                <v-icon :color="getMessageIconColor(message)">{{ getMessageIcon(message) }}</v-icon>
+                            </div>
                             <div class="messages-list__item__detail">
                                 <b class="mobile-only">From: </b>
                                 {{ message.From }}
@@ -114,6 +117,9 @@
             content-class="message-dialog">
             <v-card style="background-color: #f4f4f4">
                 <v-toolbar class="elevation-0">
+                    <div class="message-dialog__icon">
+                        <v-icon :color="getMessageIconColor(currentlyShownMessage)">{{ getMessageIcon(currentlyShownMessage) }}</v-icon>
+                    </div>
                     <v-toolbar-title class="message-dialog__title">{{ currentlyShownMessage.Summary }}</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-btn icon
@@ -130,6 +136,9 @@
                         <div class="message__from"><b>From: </b>{{ currentlyShownMessage.From }}</div>
                         <div class="message__to"><b>To: </b>{{ currentlyShownMessage.To }}</div>
                         <div class="message__summary"><b>Summary: </b>{{ currentlyShownMessage.Summary }}</div>
+                        <div v-if="currentlyShownMessage.HasError" class="message__error-note">
+                            Message contains an error, see below for details.
+                        </div>
                         <block-component class="mt-2 mb-1">
                             <div class="message__body" v-if="currentlyShownMessage.BodyIsHtml && !showMessageBodyRaw"
                                 v-html="currentlyShownMessage.Body"></div>
@@ -145,7 +154,10 @@
                                 <code>{{ getAdditionalDetails(currentlyShownMessage) }}</code>
                             </div>
                         </block-component>
-                        <a v-if="currentlyShownMessage.BodyIsHtml" @click="showMessageBodyRaw = !showMessageBodyRaw">Toggle HTML</a>
+                        <a v-if="currentlyShownMessage.BodyIsHtml" @click="showMessageBodyRaw = !showMessageBodyRaw" class="ml-5">Toggle HTML</a>
+                        <block-component class="mt-2 mb-1" v-if="currentlyShownMessage.HasError" title="Error">
+                            <code>{{ currentlyShownMessage.ErrorMessage }}</code>
+                        </block-component>
                     </div>
                 </v-card-text>
                 <v-divider></v-divider>
@@ -420,6 +432,18 @@ export default class EndpointControlPageComponent extends Vue {
         return prefix + DateUtils.FormatDate(date, 'MMM d HH:mm:ss');
     }
 
+    getMessageIcon(message: MessageItem): string {
+        return (message != null && message.HasError)
+            ? 'pest_control'
+            : 'mark_email_read';
+    }
+
+    getMessageIconColor(message: MessageItem): string {
+        return (message != null && message.HasError)
+            ? 'red'
+            : '';
+    }
+
     showMessage(message: MessageItem, updateUrl: boolean = true): void {
         if (this.currentlyShownMessage == message) {
             return;
@@ -540,12 +564,19 @@ export default class EndpointControlPageComponent extends Vue {
 <style scoped lang="scss">
 .messages-list {
     &__item {
+        position: relative;
         padding: 5px;
         display: flex;
         flex-wrap: nowrap;
         border-bottom: 1px solid #d2d2d2;
         transition: all 0.1s ease-in-out;
         
+        &__icon {
+            position: absolute;
+            left: -26px;
+            top: 3px;
+        }
+
         &__detail {
             white-space: nowrap;
             overflow: hidden;
@@ -591,6 +622,16 @@ export default class EndpointControlPageComponent extends Vue {
     .editor {
         width: 100%;
         height: 300px;
+    }
+    &__error-note {
+        color: var(--v-error-darken3);
+        font-weight: 600;
+    }
+}
+
+.message-dialog {
+    &__title {
+        margin-left: 10px;
     }
 }
 
