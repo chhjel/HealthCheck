@@ -67,6 +67,7 @@
                     
                     <div class="messages-list">
                         <div class="messages-list__item header">
+                            <div class="messages-list__item__detail" style="display:none"></div>
                             <div class="messages-list__item__detail">From</div>
                             <div class="messages-list__item__detail">To</div>
                             <div class="messages-list__item__detail">Summary</div>
@@ -584,17 +585,17 @@ export default class EndpointControlPageComponent extends Vue {
             width: 25%;
             padding-right: 10px;
         }
-        &__detail:nth-child(1) { width: 20%; }
         &__detail:nth-child(2) { width: 20%; }
-        &__detail:nth-child(3) { width: 40%; }
-        &__detail:nth-child(4) { width: 20%; }
+        &__detail:nth-child(3) { width: 20%; }
+        &__detail:nth-child(4) { width: 40%; }
+        &__detail:nth-child(5) { width: 20%; }
 
         @media (max-width: 960px) {
             flex-wrap: wrap;
-            &__detail:nth-child(1),
             &__detail:nth-child(2),
             &__detail:nth-child(3),
-            &__detail:nth-child(4) { width: 100%; }
+            &__detail:nth-child(4),
+            &__detail:nth-child(5) { width: 100%; }
         }
 
         &.header {
