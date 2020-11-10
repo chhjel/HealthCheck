@@ -24,6 +24,7 @@ Available modules:
 * Access token module where tokens with limited access and lifespan can be created.
 * Downloads module where files can be made available for download, optionally protected by password, expiration date and download count limit.
 * Endpoint Control module to set request limits for decorated endpoints, as well as viewing some request statistics.
+* Messages module where latest sent messages from the system can be viewed, optionally along with any error message. Can be used for e.g. outgoing mail and sms.
 
 ## Getting started
 
@@ -898,6 +899,51 @@ EventSinkUtil.TryRegisterEvent("thing_imported", () => new { Type = "etc", Value
 
 </p>
 </details>
+
+---------
+
+## Module: Messages
+
+Store sent messages and view the latest ones sent from the system, optionally along with any error message. Can be used for e.g. outgoing mail and sms.
+
+The following storage implementations are included, both contains options for max counts and time to live and should not be used with more than max a few hundred items per inbox max:
+
+* `HCMemoryMessageStore`: keeps the latest messages in memory without storing anything.
+* `HCFlatFileMessageStore`: keeps the latest messages in memory and saves data delayed to a flatfile.
+
+### Setup
+
+```csharp
+UseModule(new HCMessagesModule(new HCMessagesModuleOptions()
+    { MessageStorage = IHCMessageStorage implementation }
+    // Define any inboxes you want to be visible in the UI
+    .DefineInbox("mail", "Mail", "All outgoing mail.")
+    .DefineInbox("sms", "SMS", "All outgoing sms.")
+));
+```
+
+```csharp
+// Built in implementation examples:
+... new HCMemoryMessageStore();
+// Flatfile storages should be registered as singletons
+... new HCFlatFileMessageStore(@"e:\etc\hc_messages");
+```
+
+### Usage in code
+
+```csharp
+// Create message item to store
+var message = new HCDefaultMessageItem("RE: Hi there",
+    "from@somwhere.com", "to@somewhere.com",
+    "<b>Some mail</b> content here.",
+    isHtml: true);
+
+// Optionally add any error to the message
+message.SetError("Failed to send because of invalid email.");
+
+// Send to storage implementation
+_messageStore.StoreMessage(inboxId: "mail", message);
+```
 
 ---------
 
