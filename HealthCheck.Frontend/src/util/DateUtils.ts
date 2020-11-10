@@ -35,6 +35,32 @@ export default class DateUtils
         return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padZero(2)}-${date.getDate().toString().padZero(2)}`;
     }
 
+    static prettifyDurationString(milliseconds: number): string {
+        const date = new Date(milliseconds);
+        
+        const minutes = date.getMinutes();
+        const seconds = date.getSeconds();
+		const minute = 60 * 1000;
+		const hour = 60 * minute;
+        const hours = Math.floor(milliseconds / hour);
+
+        let parts: Array<string> = [];
+        if (hours > 0)
+        {
+            parts.push(`${hours} ${(hours == 1 ? 'hour' : 'hours')}`);
+        }
+        if (minutes > 0)
+        {
+            parts.push(`${minutes} ${(minutes == 1 ? 'minute' : 'minutes')}`);
+        }
+        if (seconds > 0)
+        {
+            parts.push(`${seconds} ${(seconds == 1 ? 'second' : 'seconds')}`);
+        }
+
+        return parts.joinForSentence(', ', ' and ');
+    }
+
     static FormatDate(date: Date, format: string): string
     {
         let _pad = (n: any, c: any): any => {

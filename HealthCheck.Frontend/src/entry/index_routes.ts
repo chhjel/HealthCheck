@@ -12,6 +12,7 @@ import DynamicCodeExecutionPageComponent from '../components/modules/DynamicCode
 import AccessTokensPageComponent from '../components/modules/AccessTokens/AccessTokensPageComponent.vue';
 import SecureFileDownloadPageComponent from '../components/modules/SecureFileDownload/SecureFileDownloadPageComponent.vue';
 import EndpointControlPageComponent from '../components/modules/EndpointControl/EndpointControlPageComponent.vue';
+import MessagesPageComponent from '../components/modules/Messages/MessagesPageComponent.vue';
 import NoPageAvailablePageComponent from '../components/NoPageAvailablePageComponent.vue';
 import Vue, { VueConstructor } from "vue";
 import VueRouter, { RouteConfig } from 'vue-router';
@@ -32,7 +33,8 @@ export default function createRouter(moduleConfig: Array<ModuleConfig>): VueRout
     'DynamicCodeExecutionPageComponent': DynamicCodeExecutionPageComponent,
     'AccessTokensPageComponent': AccessTokensPageComponent,
     'SecureFileDownloadPageComponent': SecureFileDownloadPageComponent,
-    'EndpointControlPageComponent': EndpointControlPageComponent
+    'EndpointControlPageComponent': EndpointControlPageComponent,
+    'MessagesPageComponent': MessagesPageComponent
 };
 
 let moduleOptions = ((window as any).healthCheckModuleOptions) as Record<string, ModuleOptions<any>>;

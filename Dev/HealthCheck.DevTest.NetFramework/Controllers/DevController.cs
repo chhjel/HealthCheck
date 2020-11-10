@@ -19,6 +19,9 @@ using HealthCheck.Core.Modules.EventNotifications.Notifiers;
 using HealthCheck.Core.Modules.EventNotifications.Services;
 using HealthCheck.Core.Modules.LogViewer;
 using HealthCheck.Core.Modules.LogViewer.Services;
+using HealthCheck.Core.Modules.Messages;
+using HealthCheck.Core.Modules.Messages.Abstractions;
+using HealthCheck.Core.Modules.Messages.Models;
 using HealthCheck.Core.Modules.SecureFileDownload;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload.FileStorage;
@@ -74,13 +77,18 @@ namespace HealthCheck.DevTest.Controllers
         private static readonly TestMemoryStream memoryStream = new TestMemoryStream("Memory");
         private static readonly TestMemoryStream otherStream1 = new TestMemoryStream(null);
         private static readonly TestMemoryStream otherStream2 = new TestMemoryStream(null);
+        //private static readonly HCMemoryMessageStore _memoryMessageStore = new HCMemoryMessageStore();
+        private static readonly IHCMessageStorage _memoryMessageStore = new HCFlatFileMessageStore(@"c:\temp\hc_messages")
+        {
+            EnableStoringMessages = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableStoringMessages)
+        };
         private static readonly FlatFileEventSinkNotificationConfigStorage EventSinkNotificationConfigStorage
             = new FlatFileEventSinkNotificationConfigStorage(@"c:\temp\eventconfigs.json");
         private static readonly FlatFileEventSinkKnownEventDefinitionsStorage EventSinkNotificationDefinitionStorage
             = new FlatFileEventSinkKnownEventDefinitionsStorage(@"c:\temp\eventconfig_defs.json");
         private static readonly FlatFileSecureFileDownloadDefinitionStorage FlatFileSecureFileDownloadDefinitionStorage
             = new FlatFileSecureFileDownloadDefinitionStorage(@"c:\temp\securefile_defs.json");
-        private IHealthCheckSettingsService SettingsService { get; set; } = new FlatFileHealthCheckSettingsService<TestSettings>(@"C:\temp\settings.json");
+        private static IHealthCheckSettingsService SettingsService => HCGlobalConfig.DefaultInstanceResolver(typeof(IHealthCheckSettingsService)) as IHealthCheckSettingsService;
         private IDataflowService<RuntimeTestAccessRole> DataflowService { get; set; }
         private IEventDataSink EventSink { get; set; }
         private static bool ForceLogout { get; set; }
@@ -97,6 +105,10 @@ namespace HealthCheck.DevTest.Controllers
                 typeof(RuntimeTestConstants).Assembly
             };
 
+            UseModule(new HCMessagesModule(new HCMessagesModuleOptions() { MessageStorage = _memoryMessageStore }
+                .DefineInbox("mail", "Mail", "All sent email ends up here.")
+                .DefineInbox("sms", "SMS", "All sent sms ends up here.")
+            ));
             UseModule(new HCEndpointControlModule(new HCEndpointControlModuleOptions()
             {
                 EndpointControlService = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlService)) as IEndpointControlService,
@@ -212,6 +224,7 @@ namespace HealthCheck.DevTest.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCAccessTokensModule>(RuntimeTestAccessRole.SystemAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSecureFileDownloadModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCEndpointControlModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCMessagesModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
@@ -227,6 +240,26 @@ namespace HealthCheck.DevTest.Controllers
                 User = CurrentRequestInformation?.UserName,
                 SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp)
             });
+
+            for (int i = 0; i < 10; i++)
+            {
+                var msg = new HCDefaultMessageItem($"Some summary here #{i}", $"{i}345678", $"841244{i}", $"Some test message #{i} here etc etc.", false);
+                if (i % 4 == 0)
+                {
+                    msg.SetError("Failed to send because of server error.");
+                }
+                _memoryMessageStore.StoreMessage("sms", msg);
+            }
+            for (int i = 0; i < 13; i++)
+            {
+                var msg = new HCDefaultMessageItem($"Subject #{i}, totally not spam", $"test_{i}@somewhe.re", $"to@{i}mail.com",
+                        $"<h3>Super fancy contents here!</h3>Now <b>this</b> is a mail! #{i} or something <img src=\"https://picsum.photos/200\" />.", true);
+                if (i % 5 == 0)
+                {
+                    msg.SetError("Failed to send because of invalid email.");
+                }
+                _memoryMessageStore.StoreMessage("mail", msg);
+            }
 
             if (FlatFileSecureFileDownloadDefinitionStorage.GetDefinitionByUrlSegmentText("test") == null)
             {
@@ -457,6 +490,9 @@ namespace HealthCheck.DevTest.Controllers
             public string StringProp { get; set; }
             public bool BoolProp { get; set; } = false;
             public int IntProp { get; set; } = 15523;
+
+            [HealthCheckSetting(GroupName = "Store latest mail/sms")]
+            public bool EnableStoringMessages { get; set; } = true;
 
             [HealthCheckSetting(GroupName = "Service X")]
             public bool EnableX { get; set; }

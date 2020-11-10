@@ -213,7 +213,7 @@ namespace HealthCheck.Core.Util
                 }
                 catch (Exception)
                 {
-                    await Task.Delay(TimeSpan.FromMilliseconds(100));
+                    await Task.Delay(TimeSpan.FromMilliseconds(50));
                 }
             }
         }
