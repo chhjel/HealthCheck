@@ -126,7 +126,11 @@ namespace HealthCheck.Core.Modules.Tests.Services
                         foreach (var proxyMethod in proxyMethods)
                         {
                             var testDef = new TestDefinition(proxyMethod, proxyTestAttribute, config, classDef);
-                            classDef.Tests.Add(testDef);
+                            bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef);
+                            if (includeTest)
+                            {
+                                classDef.Tests.Add(testDef);
+                            }
                         }
                     }
                 }
