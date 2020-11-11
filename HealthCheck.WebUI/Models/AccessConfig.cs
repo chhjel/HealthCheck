@@ -33,7 +33,7 @@ namespace HealthCheck.WebUI.Models
 
         /// <summary>
         /// If this property is set a login popup will be shown that will invoke this endpoint.
-        /// <para>Inherit from <c>HealthCheckLoginControllerBase</c> for the endpoint to implement the login logic. The Login action will be invoked.</para>
+        /// <para>Should point to the <c>Login</c> action on a controller inheriting from <c>HealthCheckLoginControllerBase</c> where you can define the login logic.</para>
         /// <para>If this property is set, <see cref="RedirectTargetOnNoAccess"/> will have no effect.</para>
         /// <para>If neither this nor <see cref="RedirectTargetOnNoAccess"/> is set, a 404 will be returned.</para>
         /// </summary>

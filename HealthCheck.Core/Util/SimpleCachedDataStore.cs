@@ -148,6 +148,11 @@ namespace HealthCheck.Core.Util
 				var json = _serializer.Serialize(dataCopy);
 				lock (_fileLock)
 				{
+					var folder = Directory.GetParent(FilePath).FullName;
+					if (!Directory.Exists(folder))
+                    {
+						Directory.CreateDirectory(folder);
+                    }
 					File.WriteAllText(FilePath, json);
 				}
 			}
