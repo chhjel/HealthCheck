@@ -5,6 +5,7 @@ using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Tests.Helpers;
 using System;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -158,12 +159,88 @@ namespace HealthCheck.Core.Tests.Modules.Tests
             Assert.Throws<InvalidTestDefinitionException>(() => discoverer.ValidateTests());
         }
 
+        [Fact]
+        public void DiscoverTestDefinitions_ProxyTestWithoutRoles()
+        {
+            var discoverer = CreateTestDiscoveryService();
+            var userRoles = AccessRoles.None;
+            var tests = discoverer.DiscoverTestDefinitions(userRoles)
+                .SelectMany(x => x.Tests)
+                .Where(x => x.ParentClass.Name.StartsWith("Proxy Test Class With"));
+            Assert.Single(tests, x => x.ParentClass.Name == "Proxy Test Class Without Access");
+        }
+
+        [Fact]
+        public void DiscoverTestDefinitions_ProxyTestWithRole1()
+        {
+            var discoverer = CreateTestDiscoveryService();
+            var userRoles = AccessRoles.WebAdmins;
+            var tests = discoverer.DiscoverTestDefinitions(userRoles)
+                .SelectMany(x => x.Tests)
+                .Where(x => x.ParentClass.Name.StartsWith("Proxy Test Class With"));
+            Assert.Equal(3, tests.Count());
+        }
+
+        [Fact]
+        public void DiscoverTestDefinitions_ProxyTestWithRole2()
+        {
+            var discoverer = CreateTestDiscoveryService();
+            var userRoles = AccessRoles.SystemAdmins | AccessRoles.WebAdmins;
+            var tests = discoverer.DiscoverTestDefinitions(userRoles)
+                .SelectMany(x => x.Tests)
+                .Where(x => x.ParentClass.Name.StartsWith("Proxy Test Class With"));
+            Assert.Equal(4, tests.Count());
+        }
+
+        [Fact]
+        public void DiscoverTestDefinitions_ProxyTestWithRole3()
+        {
+            var discoverer = CreateTestDiscoveryService();
+            var userRoles = AccessRoles.SystemAdmins;
+            var tests = discoverer.DiscoverTestDefinitions(userRoles)
+                .SelectMany(x => x.Tests)
+                .Where(x => x.ParentClass.Name.StartsWith("Proxy Test Class With"));
+            Assert.Equal(2, tests.Count());
+        }
+
         private TestDiscoveryService CreateTestDiscoveryService()
         {
             return new TestDiscoveryService()
             {
                 AssembliesContainingTests = new[] { GetType().Assembly }
             };
+        }
+        public class TestClassUsedInProxyTests
+        {
+            public bool ProxyTestedMethod(int id) => (id == 1);
+        }
+
+        [RuntimeTestClass]
+        public class ProxyTestClassWithMethodAccess
+        {
+            [ProxyRuntimeTests(RolesWithAccess = AccessRoles.WebAdmins)]
+            public static ProxyRuntimeTestConfig ProxyTest() => new ProxyRuntimeTestConfig(typeof(TestClassUsedInProxyTests));
+        }
+
+        [RuntimeTestClass(DefaultRolesWithAccess = AccessRoles.WebAdmins)]
+        public class ProxyTestClassWithClassAccess
+        {
+            [ProxyRuntimeTests]
+            public static ProxyRuntimeTestConfig ProxyTest() => new ProxyRuntimeTestConfig(typeof(TestClassUsedInProxyTests));
+        }
+
+        [RuntimeTestClass(DefaultRolesWithAccess = AccessRoles.WebAdmins)]
+        public class ProxyTestClassWithClassAndMethodAccess
+        {
+            [ProxyRuntimeTests(RolesWithAccess = AccessRoles.SystemAdmins)]
+            public static ProxyRuntimeTestConfig ProxyTest() => new ProxyRuntimeTestConfig(typeof(TestClassUsedInProxyTests));
+        }
+
+        [RuntimeTestClass]
+        public class ProxyTestClassWithoutAccess
+        {
+            [ProxyRuntimeTests]
+            public static ProxyRuntimeTestConfig ProxyTest() => new ProxyRuntimeTestConfig(typeof(TestClassUsedInProxyTests));
         }
 
         [RuntimeTestClass(Id = "TestSetId", Description = "Some test set", Name = "Dev test set")]

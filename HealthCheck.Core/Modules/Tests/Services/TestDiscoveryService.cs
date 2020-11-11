@@ -127,7 +127,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                         {
                             var testDef = new TestDefinition(proxyMethod, proxyTestAttribute, config, classDef);
                             bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef);
-                            if (includeTest)
+                            if (includeTest && testFilter?.Invoke(testDef) != false)
                             {
                                 classDef.Tests.Add(testDef);
                             }
