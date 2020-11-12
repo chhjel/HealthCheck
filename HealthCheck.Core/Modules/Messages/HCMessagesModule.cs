@@ -106,7 +106,7 @@ namespace HealthCheck.Core.Modules.Messages
             }
 
             var metadatas = GetInboxMetadata();
-            if (!metadatas.Any())
+            if (!metadatas.Any(x => x.Id == model.InboxId))
             {
                 return emptyResult;
             }

@@ -134,12 +134,6 @@ namespace HealthCheck.WebUI.Services
         public HCDataWithTotalCount<IEnumerable<IHCMessageItem>> GetLatestMessages(string inboxId, int pageSize, int pageIndex)
         {
             var result = new HCDataWithTotalCount<IEnumerable<IHCMessageItem>>() { Data = Enumerable.Empty<IHCMessageItem>() };
-
-            if (!HasStoreFor(inboxId))
-            {
-                return result;
-            }
-
             var store = GetOrCreateStoreFor(inboxId);
             var allItems = store.GetItems();
             var items = allItems.Skip(pageIndex * pageSize).Take(pageSize);

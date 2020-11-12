@@ -241,24 +241,27 @@ namespace HealthCheck.DevTest.Controllers
                 SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp)
             });
 
-            for (int i = 0; i < 10; i++)
+            if (Request.QueryString.AllKeys.Contains("addmessages"))
             {
-                var msg = new HCDefaultMessageItem($"Some summary here #{i}", $"{i}345678", $"841244{i}", $"Some test message #{i} here etc etc.", false);
-                if (i % 4 == 0)
+                for (int i = 0; i < 10; i++)
                 {
-                    msg.SetError("Failed to send because of server error.");
+                    var msg = new HCDefaultMessageItem($"Some summary here #{i}", $"{i}345678", $"841244{i}", $"Some test message #{i} here etc etc.", false);
+                    if (i % 4 == 0)
+                    {
+                        msg.SetError("Failed to send because of server error.");
+                    }
+                    _memoryMessageStore.StoreMessage("sms", msg);
                 }
-                _memoryMessageStore.StoreMessage("sms", msg);
-            }
-            for (int i = 0; i < 13; i++)
-            {
-                var msg = new HCDefaultMessageItem($"Subject #{i}, totally not spam", $"test_{i}@somewhe.re", $"to@{i}mail.com",
-                        $"<h3>Super fancy contents here!</h3>Now <b>this</b> is a mail! #{i} or something <img src=\"https://picsum.photos/200\" />.", true);
-                if (i % 5 == 0)
+                for (int i = 0; i < 13; i++)
                 {
-                    msg.SetError("Failed to send because of invalid email.");
+                    var msg = new HCDefaultMessageItem($"Subject #{i}, totally not spam", $"test_{i}@somewhe.re", $"to@{i}mail.com",
+                            $"<h3>Super fancy contents here!</h3>Now <b>this</b> is a mail! #{i} or something <img src=\"https://picsum.photos/200\" />.", true);
+                    if (i % 5 == 0)
+                    {
+                        msg.SetError("Failed to send because of invalid email.");
+                    }
+                    _memoryMessageStore.StoreMessage("mail", msg);
                 }
-                _memoryMessageStore.StoreMessage("mail", msg);
             }
 
             if (FlatFileSecureFileDownloadDefinitionStorage.GetDefinitionByUrlSegmentText("test") == null)
