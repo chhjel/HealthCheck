@@ -117,6 +117,17 @@ namespace HealthCheck.Module.DynamicCodeExecution.PreProcessors
             if (suggestedNamespaces.Count > 0)
             {
                 code = string.Join("\n", suggestedNamespaces.Select(x => $"using {x};")) + "\n" + code;
+
+                if (code.Contains("// Title: "))
+                {
+                    var lines = code
+                        .Replace("\r", "")
+                        .Split('\n');
+
+                    var newLines = lines.Where(x => x.StartsWith("// Title: "))
+                        .Concat(lines.Where(x => !x.StartsWith("// Title: ")));
+                    code = string.Join("\n", newLines);
+                }
             }
             return code;
         }

@@ -61,7 +61,9 @@ namespace HealthCheck.Module.DynamicCodeExecution.PreProcessors
             }
 
             var regionContent = ExtractAllUsingLines(lines);
-            var topComments = regionContent.TakeWhile(x => x.Trim().Length == 0 || x.Trim().StartsWith("//")).ToList();
+            var topComments = regionContent
+                .TakeWhile(x => x.Trim().Length == 0 || x.Trim().StartsWith("//"))
+                .ToList();
             regionContent = regionContent.Skip(topComments.Count).ToList();
 
             var regionLineIndex = lines.FindIndex(x => x.Trim() == $"#region {name}");
