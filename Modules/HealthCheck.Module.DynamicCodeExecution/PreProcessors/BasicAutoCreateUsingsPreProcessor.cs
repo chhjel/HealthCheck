@@ -100,8 +100,8 @@ namespace HealthCheck.Module.DynamicCodeExecution.PreProcessors
             /// <param name="ns">Given namespace</param>
             public bool Matches(string ns)
             {
-                ns ??= String.Empty;
-                return (Recursive) ? ns.StartsWith(Namespace) : ns == Namespace;
+                ns ??= string.Empty;
+                return Recursive ? ns.StartsWith(Namespace) : ns == Namespace;
             }
         }
 
@@ -116,7 +116,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.PreProcessors
             var suggestedNamespaces = GetSuggestedNamespaces(code, GetTargetAssemblies());
             if (suggestedNamespaces.Count > 0)
             {
-                code = String.Join("\n", suggestedNamespaces.Select(x => $"using {x};")) + "\n" + code;
+                code = string.Join("\n", suggestedNamespaces.Select(x => $"using {x};")) + "\n" + code;
             }
             return code;
         }
@@ -219,7 +219,16 @@ namespace HealthCheck.Module.DynamicCodeExecution.PreProcessors
 
             foreach (var type in parseResult.Types)
             {
-                var matchingType = types.FirstOrDefault(x => x.Name == type);
+                TypeInfo matchingType = null;
+                if (type.Contains("<"))
+                {
+                    var typePrefix = type.Substring(0, type.IndexOf("<")) + "`";
+                    matchingType = types.FirstOrDefault(x => x.Name.StartsWith(typePrefix));
+                }
+                else
+                {
+                    matchingType = types.FirstOrDefault(x => x.Name == type);
+                }
                 if (matchingType == null)
                 {
                     continue;
@@ -240,7 +249,10 @@ namespace HealthCheck.Module.DynamicCodeExecution.PreProcessors
             }
 
             requiredNamespaces.RemoveWhere(x => existingUsings.Contains(x));
-            return requiredNamespaces.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+            return requiredNamespaces
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .ToList();
         }
 
         private List<string> GetNamespacesInUsingsIn(string code)

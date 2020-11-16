@@ -6,10 +6,10 @@ namespace HealthCheck.Module.DynamicCodeExecution.Util
 {
     internal class CSharpParser
     {
-        private const string REGEX_TYPES = @"(?<![ ]=>[ ])[\t\n\r \(;]([a-zA-Z][a-zA-Z0-9]*)(?![ ]*=>[ ]*)";
-        private const string REGEX_TYPES_CAST = @"\<([a-zA-Z][a-zA-Z0-9]*)\>";
-        private const string REGEX_PROPERTIES = @"\.([a-zA-Z][a-zA-Z0-9]*)[ ]*(?![a-zA-Z0-9\(<])";
-        private const string REGEX_METHODS = @"\.([a-zA-Z][a-zA-Z0-9]*)[ ]*[\(<]";
+        private const string REGEX_TYPES = @"(?<![ ]=>[ ])[\t\n\r \(;]([a-zA-Z][a-zA-Z0-9]*<?)(?![ ]*=>[ ]*)";
+        private const string REGEX_TYPES_CAST = @"\<([a-zA-Z][a-zA-Z0-9]*<?)\>";
+        private const string REGEX_PROPERTIES = @"\.([a-zA-Z][a-zA-Z0-9]*<?)[ ]*(?![a-zA-Z0-9\(<])";
+        private const string REGEX_METHODS = @"\.([a-zA-Z][a-zA-Z0-9]*<?)[ ]*[\(<]";
 
         private readonly string[] ReservedKeywords = new[] {
             "abstract", "add", "as", "ascending", "async", "await", "base", "bool", "break", "by", "byte", "case", "catch", "char", "checked", "class",
@@ -67,6 +67,16 @@ namespace HealthCheck.Module.DynamicCodeExecution.Util
             list.AddRange(regularTypes);
             list.AddRange(castTypes);
             list.RemoveAll(x => IgnoredTypes.Contains(x));
+
+            list = list.Select(x =>
+            {
+                if (x.Contains("<"))
+                {
+                    x += ">";
+                }
+                return x;
+            }).ToList();
+
             return list;
         }
 

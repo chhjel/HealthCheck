@@ -47,9 +47,9 @@ namespace HealthCheck.WebUI.Services
             {
                 try
                 {
-                    if (setting.Value is T)
+                    if (setting.Value is T value)
                     {
-                        return (T)setting.Value;
+                        return value;
                     }
                 } catch(Exception) { /* Ignore error here */ }
 

@@ -135,7 +135,9 @@ namespace HealthCheck.DevTest.Controllers
                 ScriptStorage = new FlatFileDynamicCodeScriptStorage(@"C:\temp\DCE_Scripts.json"),
                 PreProcessors = new IDynamicCodePreProcessor[]
                 {
-                    new BasicAutoCreateUsingsPreProcessor(typeof(DevController).Assembly),
+                    new BasicAutoCreateUsingsPreProcessor(typeof(DevController).Assembly){
+                        IncludeReferencedAssemblies = true
+                    },
                     new WrapUsingsInRegionPreProcessor(),
                     new FuncPreProcessor("'test' replacer", (p, code) => code.Replace("test", "TEST"), "Replaces any instances of 'test' with 'TEST'"),
                     new FuncPreProcessor("Bad words be gone", (p, code) => code.Replace(" bad ", "***"), canBeDisabled: false)
