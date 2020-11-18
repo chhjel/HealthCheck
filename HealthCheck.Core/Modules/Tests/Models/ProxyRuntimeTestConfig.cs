@@ -104,10 +104,10 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// Add factory methods for reference parameter types.
         /// </summary>
         /// <typeparam name="TParameter">Type of the parameter.</typeparam>
-        /// <param name="choicesFactory">Method that returns all choices that the user can select.</param>
+        /// <param name="choicesFactory">Method that returns all choices that the user can select. Input is filter text.</param>
         /// <param name="getInstanceByIdFactory">Method that uses id from <paramref name="choicesFactory"/> and returns the matching instance.</param>
         public ProxyRuntimeTestConfig AddParameterTypeConfig<TParameter>(
-            Func<IEnumerable<RuntimeTestReferenceParameterChoice>> choicesFactory,
+            Func<string, IEnumerable<RuntimeTestReferenceParameterChoice>> choicesFactory,
             Func<string, object> getInstanceByIdFactory
         ) => AddParameterTypeConfig(typeof(TParameter), choicesFactory, getInstanceByIdFactory);
 
@@ -115,11 +115,11 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// Add factory methods for reference parameter types.
         /// </summary>
         /// <param name="type">Type of the parameter.</param>
-        /// <param name="choicesFactory">Method that returns all choices that the user can select.</param>
+        /// <param name="choicesFactory">Method that returns all choices that the user can select. Input is filter text.</param>
         /// <param name="getInstanceByIdFactory">Method that uses id from <paramref name="choicesFactory"/> and returns the matching instance.</param>
         public ProxyRuntimeTestConfig AddParameterTypeConfig(
             Type type,
-            Func<IEnumerable<RuntimeTestReferenceParameterChoice>> choicesFactory,
+            Func<string, IEnumerable<RuntimeTestReferenceParameterChoice>> choicesFactory,
             Func<string, object> getInstanceByIdFactory
         )
         {
@@ -132,10 +132,10 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <para>This overload can be used to support all subtypes of a given type.</para>
         /// </summary>
         /// <typeparam name="TParameterBaseType">Base type of the parameter.</typeparam>
-        /// <param name="choicesFactoryByType">Method that returns all choices that the user can select.</param>
+        /// <param name="choicesFactoryByType">Method that returns all choices that the user can select. Input is type of object and filter text.</param>
         /// <param name="getInstanceByIdFactoryByType">Method that uses id from <paramref name="choicesFactoryByType"/> and returns the matching instance.</param>
         public ProxyRuntimeTestConfig AddParameterTypeConfig<TParameterBaseType>(
-            Func<Type, IEnumerable<RuntimeTestReferenceParameterChoice>> choicesFactoryByType,
+            Func<Type, string, IEnumerable<RuntimeTestReferenceParameterChoice>> choicesFactoryByType,
             Func<Type, string, object> getInstanceByIdFactoryByType
         ) => AddParameterTypeConfig(typeof(TParameterBaseType), choicesFactoryByType, getInstanceByIdFactoryByType);
 
@@ -148,7 +148,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <param name="getInstanceByIdFactoryByType">Method that uses id from <paramref name="choicesFactoryByType"/> and returns the matching instance by type.</param>
         public ProxyRuntimeTestConfig AddParameterTypeConfig(
             Type baseType,
-            Func<Type, IEnumerable<RuntimeTestReferenceParameterChoice>> choicesFactoryByType,
+            Func<Type, string, IEnumerable<RuntimeTestReferenceParameterChoice>> choicesFactoryByType,
             Func<Type, string, object> getInstanceByIdFactoryByType
         )
         {

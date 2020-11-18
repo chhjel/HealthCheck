@@ -20,15 +20,15 @@ namespace HealthCheck.Core.Modules.Tests.Models
         private readonly bool _allowSubTypes;
 
         /// <summary>
-        /// Create all choices the user can select.
+        /// Create all choices the user can select. Input is filter text.
         /// </summary>
-        private readonly Func<IEnumerable<RuntimeTestReferenceParameterChoice>> _choicesFactory;
+        private readonly Func<string, IEnumerable<RuntimeTestReferenceParameterChoice>> _choicesFactory;
 
         /// <summary>
-        /// Create all choices the user can select for the given type.
+        /// Create all choices the user can select for the given type. Input is type of object and filter text.
         /// <para>This takes priority over <see cref="_choicesFactory"/>.</para>
         /// </summary>
-        private readonly Func<Type, IEnumerable<RuntimeTestReferenceParameterChoice>> _choicesFactoryByType;
+        private readonly Func<Type, string, IEnumerable<RuntimeTestReferenceParameterChoice>> _choicesFactoryByType;
 
         /// <summary>
         /// Get a single instance of the selected choice from the given selected id.
@@ -44,12 +44,12 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// <param name="parameterType">Type of the parameter to factorize for.</param>
         /// Creates choices and selected values for reference type parameters.
-        /// <param name="choicesFactory">Create all choices the user can select.</param>
+        /// <param name="choicesFactory">Create all choices the user can select. Input is filter text.</param>
         /// <param name="getInstanceByIdFactory">Get a single instance of the selected choice from the given selected id.</param>
         /// </summary>
         public RuntimeTestReferenceParameterFactory(
             Type parameterType,
-            Func<IEnumerable<RuntimeTestReferenceParameterChoice>> choicesFactory,
+            Func<string, IEnumerable<RuntimeTestReferenceParameterChoice>> choicesFactory,
             Func<string, object> getInstanceByIdFactory)
         {
             _parameterType = parameterType;
@@ -65,7 +65,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// </summary>
         public RuntimeTestReferenceParameterFactory(
             Type baseParameterType,
-            Func<Type, IEnumerable<RuntimeTestReferenceParameterChoice>> choicesFactoryByType,
+            Func<Type, string, IEnumerable<RuntimeTestReferenceParameterChoice>> choicesFactoryByType,
             Func<Type, string, object> getInstanceByIdFactoryByType)
         {
             _allowSubTypes = true;
@@ -87,12 +87,12 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Get all available choices for the given type.
         /// </summary>
-        public IEnumerable<RuntimeTestReferenceParameterChoice> GetChoicesFor(Type type)
+        public IEnumerable<RuntimeTestReferenceParameterChoice> GetChoicesFor(Type type, string filter)
         {
             if (!CanFactorizeFor(type)) return Enumerable.Empty<RuntimeTestReferenceParameterChoice>();
 
-            return _choicesFactoryByType?.Invoke(type)
-                ?? _choicesFactory?.Invoke()
+            return _choicesFactoryByType?.Invoke(type, filter)
+                ?? _choicesFactory?.Invoke(filter)
                 ?? Enumerable.Empty<RuntimeTestReferenceParameterChoice>();
         }
 

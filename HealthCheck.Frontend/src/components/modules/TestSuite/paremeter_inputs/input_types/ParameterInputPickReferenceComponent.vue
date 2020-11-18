@@ -21,13 +21,20 @@
                 <v-divider></v-divider>
                 
                 <v-card-text>
-                    <v-text-field
-                        class="pb-1"
-                        v-model="choicesFilterText"
-                        placeholder="Filter.." />
-                    <small>{{ filteredChoices.length }}/{{ maxFilteredResults }} of {{ choiceCount }} total</small>
+                    <v-layout row>
+                        <v-flex xs9>
+                            <v-text-field
+                                class="pb-1"
+                                v-model="choicesFilterText"
+                                placeholder="Filter.." />
+                        </v-flex>
+                        <v-flex xs3>
+                            <v-btn @click="loadChoices" :disabled="loadingChoicesStatus.inProgress">Search</v-btn>
+                        </v-flex>
+                    </v-layout>
+                    <small>{{ choices.length - 1 }} results</small>
                     <div
-                        v-for="(choice, cindex) in filteredChoices"
+                        v-for="(choice, cindex) in choices"
                         :key="`${parameter.index}-choices-${cindex}`"
                         class="mb-2">
                         <v-btn
@@ -76,7 +83,6 @@ export default class ParameterInputPickReferenceComponent extends Vue {
     selectedChoice: TestParameterReferenceChoiceViewModel = this.choices[0];
     choicesDialogVisible: boolean = false;
     choicesFilterText: string = '';
-    maxFilteredResults: number = 100;
     
     mounted(): void {
         if (this.parameter.Value == null) {
@@ -107,42 +113,32 @@ export default class ParameterInputPickReferenceComponent extends Vue {
         return values;
     }
 
-    get filteredChoices(): Array<TestParameterReferenceChoiceViewModel>
-    {
-        const filterText = this.choicesFilterText ?? '';
-        return this.choices.filter((x, index) => {
-            const idMatches = filterText.length == 0 || x.Id.toLowerCase().indexOf(filterText.toLowerCase()) != -1;
-            const nameMatches = filterText.length == 0 || x.Name.toLowerCase().indexOf(filterText.toLowerCase()) != -1;
-            const withinCountLimit = index < this.maxFilteredResults;
-            return withinCountLimit && (idMatches || nameMatches);
-        });
-    }
-
-    get choiceCount(): number {
-        return this.choices.length;
-    }
-
     showDialog(): void {
         this.choicesDialogVisible = true;
 
         if (!this.hasLoadedChoices && !this.loadingChoicesStatus.inProgress)
         {
-            const callbacks: ServiceFetchCallbacks<Array<TestParameterReferenceChoiceViewModel>> = {
-                onSuccess: (data) => {
-                    this.hasLoadedChoices = true;
-                    this.loadedChoices = data;
-                }
-            };
-
-            this.$root.$emit('hc__loadTestParameterChoices', 
-                {
-                    'component': this,
-                    'loadStatus' : this.loadingChoicesStatus,
-                    'callbacks': callbacks,
-                    'parameterIndex': this.parameter.Index
-                }
-            );
+            this.loadChoices();
         }
+    }
+
+    loadChoices(): void {
+        const callbacks: ServiceFetchCallbacks<Array<TestParameterReferenceChoiceViewModel>> = {
+            onSuccess: (data) => {
+                this.hasLoadedChoices = true;
+                this.loadedChoices = data;
+            }
+        };
+
+        this.$root.$emit('hc__loadTestParameterChoices', 
+            {
+                'component': this,
+                'loadStatus' : this.loadingChoicesStatus,
+                'callbacks': callbacks,
+                'parameterIndex': this.parameter.Index,
+                'filter': this.choicesFilterText ?? ''
+            }
+        );
     }
 
     selectChoice(choice: TestParameterReferenceChoiceViewModel): void

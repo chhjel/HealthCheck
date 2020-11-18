@@ -286,11 +286,11 @@ public static ProxyRuntimeTestConfig SomeServiceProxyTest()
     // This will result in one test per public method on the SomeService class.
     return new ProxyRuntimeTestConfig(typeof(SomeService))
         // The AddParameterTypeConfig call adds support for parameter types of SomeParameterType in the UI.
-        // Be careful to not load too much data, as all the choices from all tests are currently loaded when the tests-module loads.
         .AddParameterTypeConfig<SomeParameterType>(
-            choicesFactory: () => MyMethodToGetUsersToDisplay().Select(x => new RuntimeTestReferenceParameterChoice(x.Id, x.Name)),
+            choicesFactory: (filter) => MyMethodToGetUsersToDisplay().Select(x => new RuntimeTestReferenceParameterChoice(x.Id, x.Name)),
             getInstanceByIdFactory: (id) => MyMethodToFindUserById(id)
         );
+        // Optionally use overload that takes derived types: (type, filter) => ...
 }
 ```
 

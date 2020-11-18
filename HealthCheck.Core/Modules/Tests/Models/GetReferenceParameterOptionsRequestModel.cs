@@ -14,5 +14,10 @@
         /// Index of the target parameter.
         /// </summary>
         public int ParameterIndex { get; set; }
+
+        /// <summary>
+        /// Value to filter choices on.
+        /// </summary>
+        public string Filter { get; set; }
     }
 }

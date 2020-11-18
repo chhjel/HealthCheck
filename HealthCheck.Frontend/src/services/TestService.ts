@@ -41,14 +41,15 @@ export default class TestService extends HCServiceBase
     }
 
     public GetReferenceParameterOptions(
-        testId: string, parameterIndex: number,
+        testId: string, parameterIndex: number, filter: string,
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<Array<TestParameterReferenceChoiceViewModel>> | null = null
     ) : void
     {
         const payload = {
             testId: testId,
-            parameterIndex: parameterIndex
+            parameterIndex: parameterIndex,
+            filter: filter
         };
         this.invokeModuleMethod(this.moduleId, 'GetReferenceParameterOptions', payload, statusObject, callbacks);
     }

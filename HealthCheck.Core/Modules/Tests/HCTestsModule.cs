@@ -172,7 +172,7 @@ namespace HealthCheck.Core.Modules.Tests
             }
 
             var factory = parameter.GetParameterFactory(test);
-            return factory.GetChoicesFor(parameter.ParameterType)
+            return factory.GetChoicesFor(parameter.ParameterType, data.Filter)
                 ?? Enumerable.Empty<RuntimeTestReferenceParameterChoice>();
         }
         #endregion

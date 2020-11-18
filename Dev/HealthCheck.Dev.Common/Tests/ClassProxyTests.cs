@@ -52,11 +52,16 @@ namespace HealthCheck.Dev.Common.Tests
                     resultAction: (result, context) => result.AddCodeData(context.MemoryLogger.Contents)
                 )
                 .AddParameterTypeConfig<SomeParameterType>(
-                    choicesFactory: () => getUserChoices().Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Name)),
+                    choicesFactory: (filter) => getUserChoices()
+                        .Where(x => x.Name.Contains(filter))
+                        .Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Name)),
                     getInstanceByIdFactory: (id) => getUserChoices().FirstOrDefault(x => x.Id.ToString() == id)
                 )
                 .AddParameterTypeConfig<SomeOtherParameterType>(
-                    choicesFactoryByType: (type) => getOtherChoices(type).Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Name)),
+                    choicesFactoryByType: (type, filter)
+                        => getOtherChoices(type)
+                            .Where(x => x.Name.Contains(filter))
+                            .Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Name)),
                     getInstanceByIdFactoryByType: (type, id) => getOtherChoices(type).FirstOrDefault(x => x.Id.ToString() == id)
                 );
         }
@@ -168,7 +173,7 @@ namespace HealthCheck.Dev.Common.Tests
             {
                 new RuntimeTestReferenceParameterFactory(
                     typeof(SomeParameterType),
-                    () => getUserChoices().Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Name)),
+                    (filter) => getUserChoices().Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Name)),
                     (id) => getUserChoices().FirstOrDefault(x => x.Id.ToString() == id)
                 )
             };

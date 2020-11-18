@@ -229,7 +229,8 @@ export default class TestComponent extends Vue {
       const loadStatus = details.loadStatus;
       const callbacks = details.callbacks;
       const parameterIndex = details.parameterIndex;
-      this.service.GetReferenceParameterOptions(this.test.Id, parameterIndex, loadStatus, callbacks);
+      const filter = details.filter;
+      this.service.GetReferenceParameterOptions(this.test.Id, parameterIndex, filter, loadStatus, callbacks);
     }
 
     isChildOf(child: Node, parent: Node): boolean
