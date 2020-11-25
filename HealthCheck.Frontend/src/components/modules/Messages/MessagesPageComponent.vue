@@ -423,7 +423,7 @@ export default class EndpointControlPageComponent extends Vue {
         let prefix = '';
         if (millisecondsAgo <= 1000 * 60 * 60 * 24)
         {
-            const pretty = DateUtils.prettifyDurationString(millisecondsAgo) + ' ago';
+            const pretty = DateUtils.prettifyDurationString(millisecondsAgo, ' ago');
             if (!both)
             {
                 return pretty;

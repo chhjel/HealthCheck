@@ -35,7 +35,7 @@ export default class DateUtils
         return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padZero(2)}-${date.getDate().toString().padZero(2)}`;
     }
 
-    static prettifyDurationString(milliseconds: number): string {
+    static prettifyDurationString(milliseconds: number, suffix: string = '', nowText: string = 'just now'): string {
         const date = new Date(milliseconds);
         
         const minutes = date.getMinutes();
@@ -58,7 +58,12 @@ export default class DateUtils
             parts.push(`${seconds} ${(seconds == 1 ? 'second' : 'seconds')}`);
         }
 
-        return parts.joinForSentence(', ', ' and ');
+        if (parts.length == 0)
+        {
+            return nowText;
+        }
+
+        return parts.joinForSentence(', ', ' and ') + suffix;
     }
 
     static FormatDate(date: Date, format: string): string
