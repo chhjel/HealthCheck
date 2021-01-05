@@ -8,7 +8,7 @@
             :chips="multiple"
             v-on:change="onChanged"
             color="secondary"
-            class="parameter-select pt-0 mt-2">
+            class="parameter-select pt-0">
         </v-select>
     </div>
 </template>
