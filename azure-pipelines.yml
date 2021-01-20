@@ -61,6 +61,16 @@ jobs:
   ###########
   ## BUILD ##
   ###########
+  - task: ReplaceInFilesTextByText@1
+    displayName: Replace version in code
+    inputs:
+      parameterSearchText: 'https://unpkg.com/christianh-healthcheck@2/'
+      parameterReplaceText: 'https://unpkg.com/christianh-healthcheck@$(ComputedParameters.AssemblyVersion)/'
+      parameterTypeOfSearch: 'filesList'
+      parameterFilesList: |
+        HealthCheck.WebUI/Models/HCPageOptions.cs
+        HealthCheck.WebUI/Models/HCFrontEndOptions.cs
+
   - task: VSBuild@1
     displayName: Build solution
     inputs:
@@ -107,6 +117,7 @@ jobs:
 
   - task: Npm@1
     displayName: Set package.json version number
+    condition: and(succeeded(), eq(variables['ComputedParameters.IsMain'], 'true'))
     inputs:
       command: 'custom'
       workingDir: 'HealthCheck.Frontend/dist'
