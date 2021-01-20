@@ -68,8 +68,8 @@ jobs:
       parameterReplaceText: 'https://unpkg.com/christianh-healthcheck@$(ComputedParameters.AssemblyVersion)/'
       parameterTypeOfSearch: 'filesList'
       parameterFilesList: |
-        HealthCheck.WebUI/Models/HCPageOptions.cs
-        HealthCheck.WebUI/Models/HCFrontEndOptions.cs
+        /HealthCheck.WebUI/Models/HCPageOptions.cs
+        /HealthCheck.WebUI/Models/HCFrontEndOptions.cs
 
   - task: VSBuild@1
     displayName: Build solution
