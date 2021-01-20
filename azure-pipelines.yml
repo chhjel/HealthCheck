@@ -1,0 +1,127 @@
+variables:
+# Static variables
+- name: BuildParameters.MainBranchName
+  value: master
+- name: BuildParameters.Solution
+  value: '**\*.sln'
+- name: BuildParameters.ArtifactName
+  value: drop
+- name: BuildParameters.BuildPlatform
+  value: 'Any CPU'
+- name: BuildParameters.BuildConfiguration
+  value: 'Release'
+# Computed variables
+- name: ComputedParameters.CleanSourceBranch
+  value: $[replace(variables['Build.SourceBranch'], 'refs/heads/', '')]
+- name: ComputedParameters.IsMain
+  value: $[eq(variables['ComputedParameters.CleanSourceBranch'], variables['BuildParameters.MainBranchName'])]
+- name: ComputedParameters.IsPr
+  value: $[eq(variables['Build.Reason'], 'PullRequest')]
+
+name: $(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+
+# Trigger section does not support variables
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+
+resources:
+  repositories:
+  - repository: self
+    type: git
+    ref: $(BuildParameters.MainBranchName)
+
+jobs:
+- job: BuildAndTestSolution
+  displayName: Build and test solution
+  pool:
+    vmImage: windows-2019
+
+  steps:
+  - checkout: self
+
+  - task: NuGetToolInstaller@0
+    displayName: Use NuGet 5.x
+    inputs:
+      versionSpec: '5.x'
+
+  - task: NuGetCommand@2
+    inputs:
+      command: 'restore'
+      restoreSolution: '$(BuildParameters.Solution)'
+      feedsToUse: 'select'
+
+  ###########
+  ## BUILD ##
+  ###########
+  - task: VSBuild@1
+    displayName: Build solution
+    inputs:
+      solution: $(BuildParameters.Solution)
+      msbuildArgs: /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)\\"
+      platform: $(BuildParameters.BuildPlatform)
+      configuration: $(BuildParameters.BuildConfiguration)
+
+  - task: NodeTool@1 
+    displayName: 'Use node version 10.x'
+    inputs:
+      versionSpec: '10.x'
+
+  - script: cd HealthCheck.Frontend/ && yarn
+    displayName: 'Yarn install'
+  - script: cd HealthCheck.Frontend/ && yarn build
+    displayName: 'Yarn build'
+  
+  ##########
+  ## TEST ##
+  ##########
+  - task: VSTest@2
+    displayName: Test Assemblies
+    inputs:
+      testAssemblyVer2: >-
+        **\$(BuildParameters.BuildConfiguration)\**\*.tests.dll
+
+        !**\obj\**
+      platform: $(BuildParameters.BuildPlatform)
+      configuration: $(BuildParameters.BuildConfiguration)
+
+  #############
+  ## PUBLISH ##
+  #############
+  - task: NuGetCommand@2
+    displayName: Publish to nuget.org
+    condition: and(succeeded(), eq(variables['ComputedParameters.IsMain'], 'true'))
+    inputs:
+      command: 'push'
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+      nuGetFeedType: 'internal'
+      publishPackageMetadata: false
+
+  # Publish zip-file
+  # - task: PublishBuildArtifacts@1
+  #   displayName: Publish Artifact
+  #   condition: and(succeeded(), eq(variables['ComputedParameters.IsMain'], 'true'))
+  #   inputs:
+  #     PathtoPublish: $(build.artifactstagingdirectory)
+  #     ArtifactName: $(BuildParameters.ArtifactName)
+  #     TargetPath: '\\my\share\$(Build.DefinitionName)\$(Build.BuildNumber)'
+
+  # Publish for octopus deploy
+  # Extension is installed for OXXAS organization (https://marketplace.visualstudio.com/items?itemName=octopusdeploy.octopus-deploy-build-release-tasks)
+  # - task: OctopusPack@4
+  #   displayName: Create octopus package
+  #   inputs:
+  #     PackageId: 'Dev.AzureDevops.Web'
+  #     PackageFormat: 'NuPkg'
+  #     SourcePath: 'Dev.AzureDevops.Web'
+
+  # Push package to octopus through service connection
+  # - task: OctopusPush@4
+  #   inputs:
+  #     OctoConnectedServiceName: 'OctopusDeploy'
+  #     Space: 'Spaces-1'
+  #     Package: '**\obj\*.nupkg'
+  #     Replace: 'false'
+...
