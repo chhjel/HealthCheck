@@ -106,6 +106,13 @@ jobs:
       publishPackageMetadata: false
 
   - task: Npm@1
+    displayName: Set package.json version number
+    inputs:
+      command: 'custom'
+      workingDir: 'HealthCheck.Frontend/dist'
+      customCommand: 'version $(ComputedParameters.AssemblyVersion)'
+
+  - task: Npm@1
     displayName: Publish to npmjs.org
     condition: and(succeeded(), eq(variables['ComputedParameters.IsMain'], 'true'))
     inputs:
