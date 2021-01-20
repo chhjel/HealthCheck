@@ -51,7 +51,8 @@ jobs:
     inputs:
       command: 'restore'
       restoreSolution: '$(BuildParameters.Solution)'
-      feedsToUse: 'select'
+      feedsToUse: 'config'
+      nugetConfigPath: 'nuget.config'
 
   ###########
   ## BUILD ##
@@ -98,6 +99,8 @@ jobs:
       packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
       nuGetFeedType: 'internal'
       publishPackageMetadata: false
+
+
 
   # Publish zip-file
   # - task: PublishBuildArtifacts@1
