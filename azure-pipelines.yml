@@ -18,7 +18,7 @@ variables:
 - name: ComputedParameters.IsPr
   value: $[eq(variables['Build.Reason'], 'PullRequest')]
 - name: ComputedParameters.BuildReasonRevisionNumber
-  value: $[counter(variables['build.reason'], 0)]
+  value: $[counter(variables['ComputedParameters.IsMain'], 0)]
 - name: ComputedParameters.AssemblyVersion
   value: '3.1.$(ComputedParameters.BuildReasonRevisionNumber)'
 
