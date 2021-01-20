@@ -1,7 +1,5 @@
 variables:
 # Static variables
-- name: BuildParameters.Version
-  value: '$(Build.BuildNumber)'
 - name: BuildParameters.MainBranchName
   value: master
 - name: BuildParameters.Solution
@@ -19,8 +17,12 @@ variables:
   value: $[eq(variables['ComputedParameters.CleanSourceBranch'], variables['BuildParameters.MainBranchName'])]
 - name: ComputedParameters.IsPr
   value: $[eq(variables['Build.Reason'], 'PullRequest')]
+- name: ComputedParameters.BuildReasonRevisionNumber
+  value: $[counter(variables['build.reason'], 0)]
+- name: ComputedParameters.AssemblyVersion
+  value: '3.1.$(ComputedParameters.BuildReasonRevisionNumber)'
 
-name: 3.1.$(Rev:r)
+name: 3.1.$(Rev:r)-$(Build.Reason)
 
 # Trigger section does not support variables
 trigger:
@@ -63,7 +65,7 @@ jobs:
     displayName: Build solution
     inputs:
       solution: $(BuildParameters.Solution)
-      msbuildArgs: /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)\\" /p:Version=$(BuildParameters.Version)
+      msbuildArgs: /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)\\" /p:Version=$(ComputedParameters.AssemblyVersion)
       platform: $(BuildParameters.BuildPlatform)
       configuration: $(BuildParameters.BuildConfiguration)
 
@@ -100,6 +102,7 @@ jobs:
       command: 'push'
       packagesToPush: '**/Release/*.nupkg;!**/*.symbols.nupkg'
       nuGetFeedType: 'internal'
+      publishVstsFeed: '3d5fac32-7118-44ac-a9e9-e205c503bcc3'
       publishPackageMetadata: false
 
   - task: Npm@1
