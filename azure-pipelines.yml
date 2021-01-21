@@ -111,9 +111,8 @@ jobs:
     inputs:
       command: 'push'
       packagesToPush: '**/Release/*.nupkg;!**/*.symbols.nupkg'
-      nuGetFeedType: 'internal'
-      publishVstsFeed: '3d5fac32-7118-44ac-a9e9-e205c503bcc3'
-      publishPackageMetadata: false
+      nuGetFeedType: 'external'
+      publishFeedCredentials: 'Nuget.org - ChristianHj'
 
   - task: Npm@1
     displayName: Set package.json version number
@@ -130,8 +129,6 @@ jobs:
       command: 'publish'
       workingDir: 'HealthCheck.Frontend/dist/'
       verbose: true
-      publishRegistry: 'useFeed'
-      publishFeed: '3d5fac32-7118-44ac-a9e9-e205c503bcc3'
-      publishPackageMetadata: false
+      publishEndpoint: 'npmjs - ChristianH'
 
 ...
