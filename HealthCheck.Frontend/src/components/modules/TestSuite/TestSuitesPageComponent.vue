@@ -5,6 +5,7 @@
             <!-- NAVIGATION DRAWER -->
             <v-navigation-drawer
                 v-model="drawerState"
+                v-if="hasAnyTests"
                 clipped fixed floating app
                 mobile-break-point="1000"
                 dark
@@ -99,6 +100,11 @@
                                         </div>
                                     </li>
                                 </ul>
+                            </v-alert>
+
+                            <!-- NO TESTS INFO -->
+                            <v-alert :value="!hasAnyTests" type="info">
+                            No tests were found.
                             </v-alert>
 
                             <!-- DATA LOAD ERROR -->
@@ -208,6 +214,10 @@ export default class TestSuitesPageComponent extends Vue {
     }
 
     get allTestSets(): Array<TestSetViewModel> {
+        if (this.testSetGroups.length == 0)
+        {
+            return [];
+        }
         return this.testSetGroups.map(x => x.Sets).reduce((a, b) => a.concat(b));
     }
 
