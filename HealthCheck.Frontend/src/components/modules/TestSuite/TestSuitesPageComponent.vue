@@ -103,7 +103,7 @@
                             </v-alert>
 
                             <!-- NO TESTS INFO -->
-                            <v-alert :value="!hasAnyTests" type="info">
+                            <v-alert :value="!hasAnyTests && !setSetsLoadStatus.inProgress" type="info">
                             No tests were found.
                             </v-alert>
 
