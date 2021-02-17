@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Web.Http;
 using System.Web.Mvc;
 
-namespace HealthCheck.RequestLog.Util
+namespace HealthCheck.Module.RequestLog.Util
 {
     /// <summary>
     /// Utils related to the <see cref="IRequestLogService"/>.

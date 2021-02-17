@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Config;
+﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Config;
 
 #if NETFRAMEWORK
 using System.Web.Mvc;
@@ -6,12 +7,12 @@ using System.Web.Mvc;
 
 namespace HealthCheck.WebUI.Config
 {
-    internal static class ConfigInitializer
+    internal class ConfigInitializer : IHCExtModuleInitializer
     {
         /// <summary>
         /// Invoked from <see cref="HCGlobalConfig"/> constructor.
         /// </summary>
-        public static void Initialize()
+        public void Initialize()
         {
             if (HCGlobalConfig.DefaultInstanceResolver == null)
             {

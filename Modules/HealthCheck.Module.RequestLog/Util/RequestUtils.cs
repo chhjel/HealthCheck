@@ -6,7 +6,7 @@ using System.Web;
 #endif
 #pragma warning disable S2327
 
-namespace HealthCheck.RequestLog.Util
+namespace HealthCheck.Module.RequestLog.Util
 {
     internal static class RequestUtils
     {

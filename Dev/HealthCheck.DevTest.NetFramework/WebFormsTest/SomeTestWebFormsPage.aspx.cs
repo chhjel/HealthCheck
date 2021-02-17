@@ -1,5 +1,5 @@
-﻿using HealthCheck.RequestLog.Services;
-using HealthCheck.RequestLog.Util;
+﻿using HealthCheck.Module.RequestLog.Util;
+using HealthCheck.RequestLog.Services;
 using System;
 
 namespace HealthCheck.DevTest.WebFormsTest

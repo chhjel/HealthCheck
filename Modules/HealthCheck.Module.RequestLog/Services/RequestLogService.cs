@@ -1,8 +1,8 @@
 ﻿#if NETFULL
+using HealthCheck.Module.RequestLog.Util;
 using HealthCheck.RequestLog.Abstractions;
 using HealthCheck.RequestLog.Enums;
 using HealthCheck.RequestLog.Models;
-using HealthCheck.RequestLog.Util;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

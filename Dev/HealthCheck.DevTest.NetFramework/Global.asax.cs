@@ -5,9 +5,9 @@ using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Models;
 using HealthCheck.Module.EndpointControl.Services;
 using HealthCheck.Module.EndpointControl.Storage;
+using HealthCheck.Module.RequestLog.Util;
 using HealthCheck.RequestLog.Enums;
 using HealthCheck.RequestLog.Services;
-using HealthCheck.RequestLog.Util;
 using HealthCheck.WebUI.Services;
 using System;
 using System.Collections.Generic;
@@ -75,6 +75,9 @@ namespace HealthCheck.DevTest
                     UserLocationIdFilter = new EndpointControlPropertyFilter()
                 });
             }
+
+            //var lazyFactory = new HCLazyFlatFileFactory(@"c:\temp\HealthCheck");
+            //var instances = lazyFactory.CreateInstances();
 
             HCGlobalConfig.DefaultInstanceResolver = (type) =>
             {

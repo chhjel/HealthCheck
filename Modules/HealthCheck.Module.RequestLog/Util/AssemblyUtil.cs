@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace HealthCheck.RequestLog.Util
+namespace HealthCheck.Module.RequestLog.Util
 {
     /// <summary>
     /// Utilities related to the <see cref="Assembly"/>.

@@ -5,7 +5,7 @@ using HealthCheck.RequestLog.Models;
 using System;
 using System.Web;
 
-namespace HealthCheck.RequestLog.Util
+namespace HealthCheck.Module.RequestLog.Util
 {
     /// <summary>
     /// Utility methods for <see cref="IRequestLogService"/>.

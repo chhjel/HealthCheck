@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Abstractions;
+using System;
 using System.Collections.Generic;
 
 namespace HealthCheck.Core.Config
@@ -47,12 +48,23 @@ namespace HealthCheck.Core.Config
 
         static HCGlobalConfig()
         {
-            // Invoke WebUI ConfigInitializer if available. To be made more generic later.
-            var webUIInitializerType = Type.GetType("HealthCheck.WebUI.Config.ConfigInitializer, HealthCheck.WebUI");
-            if (webUIInitializerType != null)
+            // Invoke IHCExtModuleInitializer where available
+            var typeNames = new []
             {
-                var method = webUIInitializerType.GetMethod("Initialize");
-                method?.Invoke(null, new object[0]);
+                "HealthCheck.WebUI.Config.ConfigInitializer, HealthCheck.WebUI",
+                "HealthCheck.Module.EndpointControl.Utils.ConfigInitializer, HealthCheck.Module.EndpointControl",
+                "HealthCheck.Module.DynamicCodeExecution.Util.ConfigInitializer, HealthCheck.Module.DynamicCodeExecution",
+                "HealthCheck.Module.RequestLog.Util.ConfigInitializer, HealthCheck.Module.RequestLog"
+            };
+
+            foreach(var typeName in typeNames)
+            {
+                var type = Type.GetType(typeName);
+                if (type != null)
+                {
+                    var instance = Activator.CreateInstance(type) as IHCExtModuleInitializer;
+                    instance?.Initialize();
+                }
             }
         }
 
