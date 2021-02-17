@@ -4064,6 +4064,11 @@ vue-router@^3.2.0:
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.2.0.tgz#da35195ffe37fdf0bec9f5f8f72781d2a7718815"
   integrity sha512-khkrcUIzMcI1rDcNtqkvLwfRFzB97GmJEsPAQdj7t/VvpGhmXLOkUfhc+Ah8CvpSXGXwuWuQO+x8Sy/xDhXZIA==
 
+vue-shadow-dom@1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/vue-shadow-dom/-/vue-shadow-dom-1.5.0.tgz#9bf6ac66490e8bdaa9e45020b02bd28d1c448f06"
+  integrity sha512-jT3FjVm5i30XW9NdM2OKQRaEg3AQzzTB1NJ3NdSeu67u+bmX9xWn2Zb/jb/qUZD0lWAJdRGwgEztzBsMQybXhQ==
+
 vue-style-loader@^4.1.0:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/vue-style-loader/-/vue-style-loader-4.1.2.tgz#dedf349806f25ceb4e64f3ad7c0a44fba735fcf8"

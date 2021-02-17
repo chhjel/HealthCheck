@@ -141,8 +141,11 @@
                             Message contains an error, see below for details.
                         </div>
                         <block-component class="mt-2 mb-1">
-                            <div class="message__body" v-if="currentlyShownMessage.BodyIsHtml && !showMessageBodyRaw"
-                                v-html="currentlyShownMessage.Body"></div>
+                            <div class="message__body" v-if="currentlyShownMessage.BodyIsHtml && !showMessageBodyRaw">
+                                <shadow-root>
+                                    <div v-html="currentlyShownMessage.Body"></div>
+                                </shadow-root>
+                            </div>
                             <editor-component
                                 v-show="currentlyShownMessage.BodyIsHtml && showMessageBodyRaw"
                                 class="editor"

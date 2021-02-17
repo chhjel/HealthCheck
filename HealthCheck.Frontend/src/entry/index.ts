@@ -4,6 +4,7 @@ import VueRouter from "vue-router";
 import HealthCheckPageComponent from "../components/HealthCheckPageComponent.vue";
 import Vuetify from "vuetify";
 import ModuleConfig from "../models/Common/ModuleConfig";
+import shadow from 'vue-shadow-dom';
 
 // Store
 import store from './index_store';
@@ -38,6 +39,7 @@ Vue.use(Vuetify, {
 		error: "#d62839"
 	}
 });
+Vue.use(shadow);
 
 let moduleConfig = ((window as any).healthCheckModuleConfigs) as Array<ModuleConfig>;
 

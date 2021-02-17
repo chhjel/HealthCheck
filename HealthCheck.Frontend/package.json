@@ -32,7 +32,8 @@
     "vuetify": "^1.5.6",
     "vuex": "^3.4.0",
     "xregexp": "4.2.4",
-    "whatwg-fetch": "3.2.0"
+    "whatwg-fetch": "3.2.0",
+    "vue-shadow-dom": "1.5.0"
   },
   "devDependencies": {
     "@types/chart.js": "2.9.27",
