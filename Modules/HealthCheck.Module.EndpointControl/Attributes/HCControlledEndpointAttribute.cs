@@ -105,6 +105,7 @@ namespace HealthCheck.Module.EndpointControl.Attributes
             };
 
             data.EndpointName = Name ?? $"{data.ControllerName?.Replace("Controller", "")}.{data.ActionName} ({data.HttpMethod})";
+            data.EndpointId = $"{data.ControllerName?.Replace("Controller", "")}|{data.ActionName}|{data.HttpMethod}";
 
             return data;
         }
