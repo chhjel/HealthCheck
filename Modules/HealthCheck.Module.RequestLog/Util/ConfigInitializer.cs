@@ -3,6 +3,8 @@ using HealthCheck.Core.Config;
 using HealthCheck.Core.Enums;
 using System;
 using HealthCheck.Core.Util;
+using HealthCheck.RequestLog.Abstractions;
+using System.Collections.Generic;
 #if NETFULL
 using HealthCheck.RequestLog.Services;
 #endif
@@ -31,9 +33,10 @@ namespace HealthCheck.Module.RequestLog.Util
         private static void InitLazyFactory()
         {
 #if NETFULL
-            static object[] factory(Func<string, string> createPath) => new object[]
+            static Dictionary<Type, IEnumerable<object>> factory(Func<string, string> createPath) => new Dictionary<Type, IEnumerable<object>>
             {
-                new FlatFileRequestLogStorage(createPath(@"RequestLog_History.json"))
+                { typeof(IRequestLogStorage), new object[] {
+                    new FlatFileRequestLogStorage(createPath(@"RequestLog_History.json")) } }
             };
             HCExtModuleInitializerUtil.TryExternalLazyFactoryInit(HCModuleType.RequestLog, factory);
 #endif

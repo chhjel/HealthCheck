@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Enums;
+﻿using HealthCheck.Core.Config;
+using HealthCheck.Core.Enums;
 using HealthCheck.Core.Modules.AccessTokens.Abstractions;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.AuditLog.Services;
@@ -32,6 +33,7 @@ namespace HealthCheck.WebUI.Services
         public HCLazyFlatFileFactory(string rootFolder)
         {
             _rootFolder = rootFolder;
+            HCGlobalConfig.EnsureInitialized();
         }
 
         /// <summary>
@@ -114,7 +116,7 @@ namespace HealthCheck.WebUI.Services
             }
 
             TryAddExternalInstances(HCModuleType.EndpointControl, instances, includeType);
-            TryAddExternalInstances(HCModuleType.Code,  instances, includeType);
+            TryAddExternalInstances(HCModuleType.Code, instances, includeType);
             TryAddExternalInstances(HCModuleType.RequestLog, instances, includeType);
 
             return instances

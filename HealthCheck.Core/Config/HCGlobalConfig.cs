@@ -68,6 +68,13 @@ namespace HealthCheck.Core.Config
             }
         }
 
+        /// <summary>
+        /// Used internally between assemblies.
+        /// </summary>
+        public static void EnsureInitialized()
+            => _dummy = !_dummy; // Dummy method to be sure static ctor is invoked.
+        private static bool _dummy = false;
+
         private static object FallbackInstanceResolver(Type type)
         {
             try

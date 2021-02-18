@@ -3,6 +3,8 @@ using HealthCheck.Core.Config;
 using HealthCheck.Core.Enums;
 using System;
 using HealthCheck.Core.Util;
+using HealthCheck.Module.EndpointControl.Abstractions;
+using System.Collections.Generic;
 #if NETFULL
 using HealthCheck.Module.EndpointControl.Storage;
 #endif
@@ -31,11 +33,14 @@ namespace HealthCheck.Module.EndpointControl.Utils
         private static void InitLazyFactory()
         {
 #if NETFULL
-            static object[] factory(Func<string, string> createPath) => new object[]
+            static Dictionary<Type, IEnumerable<object>> factory(Func<string, string> createPath) => new Dictionary<Type, IEnumerable<object>>
             {
-                new FlatFileEndpointControlRequestHistoryStorage(createPath(@"EndpointControl_History.json")) { PrettyFormat = true },
-                new FlatFileEndpointControlEndpointDefinitionStorage(createPath(@"EndpointControl_Definitions.json")),
-                new FlatFileEndpointControlRuleStorage(createPath(@"EndpointControl_Rules.json"))
+                { typeof(IEndpointControlRequestHistoryStorage), new object[] {
+                    new FlatFileEndpointControlRequestHistoryStorage(createPath(@"EndpointControl_History.json")) { PrettyFormat = true }} },
+                { typeof(IEndpointControlEndpointDefinitionStorage), new object[] {
+                    new FlatFileEndpointControlEndpointDefinitionStorage(createPath(@"EndpointControl_Definitions.json")) } },
+                { typeof(IEndpointControlRuleStorage), new object[] {
+                    new FlatFileEndpointControlRuleStorage(createPath(@"EndpointControl_Rules.json")) } }
             };
             HCExtModuleInitializerUtil.TryExternalLazyFactoryInit(HCModuleType.EndpointControl, factory);
 #endif
