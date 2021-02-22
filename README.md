@@ -161,7 +161,9 @@ Allows given backend methods to be executed in a UI to check the status of integ
 
 ```csharp
 UseModule(new HCTestsModule(new HCTestsModuleOptions() {
-        AssembliesContainingTests = new[] { typeof(MyController).Assembly }
+        AssembliesContainingTests = new[] { typeof(MyController).Assembly },
+        // Optionally support custom reference parameter types
+        // ReferenceParameterFactories = ...
     }))
     // Optionally configure group order
     .ConfigureGroups((options) => options
@@ -235,33 +237,30 @@ If the first parameter is of the type `CancellationToken` a cancel button will b
 
 #### Custom types
 
-Custom parameter types for `[RuntimeTest]`-methods can be used by making a static method.
+Custom parameter types for `[RuntimeTest]`-methods can be used by providing parameter factories to `ReferenceParameterFactories` in `HCTestsModuleOptions`.
 
 <details><summary>Example</summary>
 <p>
 
 ```csharp
 
-[RuntimeTest(ReferenceParameterFactoryProviderMethodName = nameof(GetReferenceFactories))]
-public TestResult ReferenceParameterTest(SomeParameterType data)
-{
-    return TestResult.CreateSuccess($"Selected data was: {data?.Name}");
-}
-
 // The first factory with a matching parameter type will be used if any.
-public static List<RuntimeTestReferenceParameterFactory> GetReferenceFactories()
+private List<RuntimeTestReferenceParameterFactory> CreateReferenceParameterFactories()
 {
-    var getUserChoices = new Func<IEnumerable<SomeParameterType>>(() =>
-        Enumerable.Range(1, 1000).Select(x => new SomeParameterType(x, $"User #{x}"))
-    );
-
     return new List<RuntimeTestReferenceParameterFactory>()
     {
         new RuntimeTestReferenceParameterFactory(
-            typeof(SomeParameterType),
-            choicesFactory: () => MyMethodToGetUsersToDisplay().Select(x => new RuntimeTestReferenceParameterChoice(x.Id, x.Name)),
-            getInstanceByIdFactory: (id) => MyMethodToFindUserById(id)
+            parameterType: typeof(CustomReferenceType),
+            
+            // `choicesFactory` has to return all the available options for the user to pick
+            choicesFactory: (filter) => GetUserChoices()
+                .Where(x => string.IsNullOrWhiteSpace(filter) || x.Title.Contains(filter) || x.Id.ToString().Contains(filter))
+                .Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Title)),
+            // `getInstanceByIdFactory` has to return one selected instance by id.
+            getInstanceByIdFactory: (id) => GetUserChoices().FirstOrDefault(x => x.Id.ToString() == id)
         )
+        // Optionally use overload that takes derived types: (type, filter) => ...
+        // Can be used to easily support base types in e.g. a cms.
     };
 }
 ```
@@ -269,12 +268,12 @@ public static List<RuntimeTestReferenceParameterFactory> GetReferenceFactories()
 </p>
 </details>
 
+The global parameter factory provided in the options can be overridden per test through the `ReferenceParameterFactoryProviderMethodName` attribute option if needed: `RuntimeTest(ReferenceParameterFactoryProviderMethodName = nameof(GetReferenceFactories))`.
+
 #### Proxy tests
 
 To automatically create tests for all public methods of another class you can use the `[ProxyRuntimeTests]` instead of `[RuntimeTest]`.
 The method has to be static, take zero parameters and return a `ProxyRuntimeTestConfig` where you define what type to create tests from.
-Optionally reference parameter types can be supported by adding custom factory methods by using the `AddParameterTypeConfig` method.
-`choicesFactory` has to return all the available options for the user to pick, and `getInstanceByIdFactory` has to return one option by id.
 
 <details><summary>Example</summary>
 <p>
@@ -284,13 +283,7 @@ Optionally reference parameter types can be supported by adding custom factory m
 public static ProxyRuntimeTestConfig SomeServiceProxyTest()
 {
     // This will result in one test per public method on the SomeService class.
-    return new ProxyRuntimeTestConfig(typeof(SomeService))
-        // The AddParameterTypeConfig call adds support for parameter types of SomeParameterType in the UI.
-        .AddParameterTypeConfig<SomeParameterType>(
-            choicesFactory: (filter) => MyMethodToGetUsersToDisplay().Select(x => new RuntimeTestReferenceParameterChoice(x.Id, x.Name)),
-            getInstanceByIdFactory: (id) => MyMethodToFindUserById(id)
-        );
-        // Optionally use overload that takes derived types: (type, filter) => ...
+    return new ProxyRuntimeTestConfig(typeof(SomeService));
 }
 ```
 

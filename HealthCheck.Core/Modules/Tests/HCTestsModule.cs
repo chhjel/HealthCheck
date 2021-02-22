@@ -21,9 +21,11 @@ namespace HealthCheck.Core.Modules.Tests
         public StringConverter ParameterConverter { get; } = new StringConverter();
 
         private TestRunnerService TestRunner { get; } = new TestRunnerService();
-        private TestDiscoveryService TestDiscoverer { get; } = new TestDiscoveryService();
+        private TestDiscoveryService TestDiscoverer { get; }
         private TestViewModelsFactory TestsViewModelsFactory { get; } = new TestViewModelsFactory();
         private TestSetGroupsOptions GroupOptions { get; } = new TestSetGroupsOptions();
+        private static List<RuntimeTestReferenceParameterFactory> _referenceParameterFactories;
+        private static readonly object _referenceParameterFactoriesLock = new object();
 
         /// <summary>
         /// Module for executing tests at runtime.
@@ -37,7 +39,23 @@ namespace HealthCheck.Core.Modules.Tests
                     $"{nameof(HCTestsModuleOptions.AssembliesContainingTests)} must contain at least one assembly to retrieve tests from.");
             }
 
-            TestDiscoverer.AssembliesContainingTests = assemblies;
+            EnsureReferenceParameterFactoriesInitialized(options);
+
+            TestDiscoverer = new TestDiscoveryService()
+            {
+                AssembliesContainingTests = assemblies,
+                ReferenceParameterFactories = _referenceParameterFactories
+            };
+        }
+
+        private static void EnsureReferenceParameterFactoriesInitialized(HCTestsModuleOptions options)
+        {
+            lock (_referenceParameterFactoriesLock)
+            {
+                _referenceParameterFactories = _referenceParameterFactories
+                    ?? options.ReferenceParameterFactories?.Invoke()
+                    ?? new List<RuntimeTestReferenceParameterFactory>();
+            }
         }
 
         /// <summary>

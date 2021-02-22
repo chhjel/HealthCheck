@@ -99,14 +99,18 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// </summary>
         internal List<string> LoadErrors { get; set; }
 
+        private readonly List<RuntimeTestReferenceParameterFactory> _referenceParameterFactories;
+
         internal enum TestDefinitionType
         {
             Normal = 0,
             ProxyClassMethod
         }
 
-        internal TestDefinition(MethodInfo method, TestClassDefinition parentClass)
+        internal TestDefinition(MethodInfo method, TestClassDefinition parentClass, List<RuntimeTestReferenceParameterFactory> referenceParameterFactories)
         {
+            _referenceParameterFactories = referenceParameterFactories;
+
             Method = method;
             ParentClass = parentClass;
             RolesWithAccess = parentClass.DefaultRolesWithAccess;
@@ -121,8 +125,9 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Create a new <see cref="TestDefinition"/>.
         /// </summary>
-        public TestDefinition(MethodInfo method, RuntimeTestAttribute testAttribute, TestClassDefinition parentClass)
-            : this(method, parentClass)
+        public TestDefinition(MethodInfo method, RuntimeTestAttribute testAttribute, TestClassDefinition parentClass,
+            List<RuntimeTestReferenceParameterFactory> referenceParameterFactories)
+            : this(method, parentClass, referenceParameterFactories)
         {
             Name = testAttribute.Name ?? Method.Name.SpacifySentence();
             Description = testAttribute.Description.EnsureDotAtEndIfNotNull();
@@ -151,8 +156,8 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Create a new <see cref="TestDefinition"/>.
         /// </summary>
-        public TestDefinition(MethodInfo method, ProxyRuntimeTestsAttribute proxyAttribute, ProxyRuntimeTestConfig config, TestClassDefinition parentClass)
-            : this(method, parentClass)
+        public TestDefinition(MethodInfo method, ProxyRuntimeTestsAttribute proxyAttribute, ProxyRuntimeTestConfig config, TestClassDefinition parentClass, List<RuntimeTestReferenceParameterFactory> referenceParameterFactories)
+            : this(method, parentClass, referenceParameterFactories)
         {
             RolesWithAccess = proxyAttribute.RolesWithAccess ?? parentClass.DefaultRolesWithAccess;
             Type = TestDefinitionType.ProxyClassMethod;
@@ -184,8 +189,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 var parameterAttributesOnParameter = parameter.GetCustomAttribute<RuntimeTestParameterAttribute>(true);
                 var parameterAttribute = parameterAttributesOnParameter ?? parameterAttributesOnMethod.FirstOrDefault(x => x.Target == parameter.Name);
 
-                var referenceFactory = ClassProxyConfig?.GetFactoryForType(parameter.ParameterType)
-                    ?? TryFindParameterFactory(referenceChoicesFactoryMethodName, parameter);
+                var referenceFactory = TryFindParameterFactory(referenceChoicesFactoryMethodName, parameter);
                 var isCustomReferenceType = referenceFactory != null;
 
                 Parameters[i] = new TestParameter()
@@ -209,30 +213,37 @@ namespace HealthCheck.Core.Modules.Tests.Models
         private RuntimeTestReferenceParameterFactory TryFindParameterFactory(
             string referenceChoicesFactoryMethodName, ParameterInfo parameter)
         {
-            if (referenceChoicesFactoryMethodName == null)
+            // First check proxy config
+            var factoryFromProxyConfig = ClassProxyConfig?.GetFactoryForType(parameter.ParameterType);
+            if (factoryFromProxyConfig != null)
             {
-                return null;
+                return factoryFromProxyConfig;
             }
 
-            var factoryProviderMethod = ParentClass.ClassType
-                                    .GetMethod(referenceChoicesFactoryMethodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-            if (factoryProviderMethod != null
-                && factoryProviderMethod.GetParameters().Length == 0
-                && factoryProviderMethod.ReturnType == typeof(List<RuntimeTestReferenceParameterFactory>))
+            // Then check for factory method referenced by name from attribute
+            if (referenceChoicesFactoryMethodName != null)
             {
-                try
+                var factoryProviderMethod = ParentClass.ClassType
+                                        .GetMethod(referenceChoicesFactoryMethodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+                if (factoryProviderMethod != null
+                    && factoryProviderMethod.GetParameters().Length == 0
+                    && factoryProviderMethod.ReturnType == typeof(List<RuntimeTestReferenceParameterFactory>))
                 {
-                    var factories = factoryProviderMethod.Invoke(null, new object[0]) as List<RuntimeTestReferenceParameterFactory>;
-                    var factory = factories.FirstOrDefault(x => x.CanFactorizeFor(parameter.ParameterType));
-                    if (factory != null)
+                    try
                     {
-                        return factory;
+                        var factories = factoryProviderMethod.Invoke(null, new object[0]) as List<RuntimeTestReferenceParameterFactory>;
+                        var factory = factories.FirstOrDefault(x => x.CanFactorizeFor(parameter.ParameterType));
+                        if (factory != null)
+                        {
+                            return factory;
+                        }
                     }
+                    catch (Exception) { /* silence... */ }
                 }
-                catch (Exception) { /* silence... */ }
             }
 
-            return null;
+            // Finally check global testmodule config factories
+            return _referenceParameterFactories?.FirstOrDefault(x => x.CanFactorizeFor(parameter.ParameterType));
         }
 
         private List<object> GetPossibleValues(Type parameterType)

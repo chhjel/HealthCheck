@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using HealthCheck.Core.Modules.Tests.Models;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace HealthCheck.Core.Modules.Tests
@@ -10,7 +12,11 @@ namespace HealthCheck.Core.Modules.Tests
     {
         /// <summary>
         /// The assemblies that contains the test methods.
-        /// </summary>
         public IEnumerable<Assembly> AssembliesContainingTests { get; set; }
+
+        /// <summary>
+        /// To support custom reference types in tests, a <see cref="RuntimeTestReferenceParameterFactory"/> must be defined for the given type.
+        /// </summary>
+        public Func<List<RuntimeTestReferenceParameterFactory>> ReferenceParameterFactories { get; set; }
     }
 }

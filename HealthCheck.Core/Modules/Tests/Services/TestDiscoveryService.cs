@@ -21,6 +21,11 @@ namespace HealthCheck.Core.Modules.Tests.Services
         public IEnumerable<Assembly> AssembliesContainingTests { get; set; }
 
         /// <summary>
+        /// Used to support custom reference types.
+        /// </summary>
+        public List<RuntimeTestReferenceParameterFactory> ReferenceParameterFactories { get; set; } = new List<RuntimeTestReferenceParameterFactory>();
+
+        /// <summary>
         /// Create a new <see cref="TestDiscoveryService"/>.
         /// </summary>
         public TestDiscoveryService() {}
@@ -96,7 +101,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                     // Normal tests
                     if (testAttribute != null)
                     {
-                        var testDef = new TestDefinition(testMethod, testAttribute, classDef);
+                        var testDef = new TestDefinition(testMethod, testAttribute, classDef, ReferenceParameterFactories);
 
                         bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef);
                         if (includeTest && testFilter?.Invoke(testDef) != false)
@@ -111,7 +116,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                         var errors = ValidateProxyTestMethod(classType, testMethod);
                         if (errors.Any())
                         {
-                            var testDef = new TestDefinition(testMethod, classDef)
+                            var testDef = new TestDefinition(testMethod, classDef, ReferenceParameterFactories)
                             {
                                 LoadErrors = errors
                             };
@@ -125,7 +130,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                             .Where(m => !m.GetCustomAttributes(typeof(CompilerGeneratedAttribute), true).Any());
                         foreach (var proxyMethod in proxyMethods)
                         {
-                            var testDef = new TestDefinition(proxyMethod, proxyTestAttribute, config, classDef);
+                            var testDef = new TestDefinition(proxyMethod, proxyTestAttribute, config, classDef, ReferenceParameterFactories);
                             bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef);
                             if (includeTest && testFilter?.Invoke(testDef) != false)
                             {

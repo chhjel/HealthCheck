@@ -35,10 +35,12 @@ using HealthCheck.Core.Modules.SiteEvents.Enums;
 using HealthCheck.Core.Modules.SiteEvents.Models;
 using HealthCheck.Core.Modules.SiteEvents.Services;
 using HealthCheck.Core.Modules.Tests;
+using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Util;
 using HealthCheck.Dev.Common;
 using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.EventNotifier;
+using HealthCheck.Dev.Common.Tests;
 using HealthCheck.Module.DevModule;
 using HealthCheck.Module.DynamicCodeExecution.Abstractions;
 using HealthCheck.Module.DynamicCodeExecution.Models;
@@ -157,7 +159,10 @@ namespace HealthCheck.DevTest.Controllers
                     new CodeSuggestion("GetService<T>(id)", "Get a registered service", "GetService<${1:T}>(${2:x})")
                 }
             }));
-            UseModule(new HCTestsModule(new HCTestsModuleOptions() { AssembliesContainingTests = assemblies }))
+            UseModule(new HCTestsModule(new HCTestsModuleOptions() {
+                    AssembliesContainingTests = assemblies,
+                    ReferenceParameterFactories = CreateReferenceParameterFactories
+                }))
                 .ConfigureGroups((options) => options
                     .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
                     .ConfigureGroup(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)
@@ -189,6 +194,24 @@ namespace HealthCheck.DevTest.Controllers
             {
                 InitOnce();
             }
+        }
+
+        private List<RuntimeTestReferenceParameterFactory> CreateReferenceParameterFactories()
+        {
+            var getUserChoices = new Func<IEnumerable<CustomReferenceType>>(() =>
+                Enumerable.Range(1, 500).Select(x => new CustomReferenceType { Id = x, Title = $"Item #{x}" })
+            );
+
+            return new List<RuntimeTestReferenceParameterFactory>()
+            {
+                new RuntimeTestReferenceParameterFactory(
+                    typeof(CustomReferenceType),
+                    (filter) => getUserChoices()
+                        .Where(x => string.IsNullOrWhiteSpace(filter) || x.Title.Contains(filter) || x.Id.ToString().Contains(filter))
+                        .Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Title)),
+                    (id) => getUserChoices().FirstOrDefault(x => x.Id.ToString() == id)
+                )
+            };
         }
         #endregion
 
