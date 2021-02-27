@@ -8,6 +8,9 @@ namespace HealthCheck.Core.Serializers
     /// </summary>
     public class DumpNullJsonSerializer : IJsonSerializer
     {
+        /// <inheritdoc />
+        public string LastError { get; set; }
+
         /// <summary>
         /// Returns null.
         /// </summary>

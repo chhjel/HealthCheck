@@ -21,5 +21,10 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// A list of any invalid tests.
         /// </summary>
         public List<InvalidTestViewModel> InvalidTests { get; set; }
+
+        /// <summary>
+        /// Parameter templates.
+        /// </summary>
+        public List<TestParameterTemplateViewModel> ParameterTemplateValues { get; set; }
     }
 }

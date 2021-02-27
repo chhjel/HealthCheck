@@ -26,6 +26,7 @@ namespace HealthCheck.Core.Modules.Tests
         private TestSetGroupsOptions GroupOptions { get; } = new TestSetGroupsOptions();
         private static List<RuntimeTestReferenceParameterFactory> _referenceParameterFactories;
         private static readonly object _referenceParameterFactoriesLock = new object();
+        private readonly HCTestsModuleOptions _options;
 
         /// <summary>
         /// Module for executing tests at runtime.
@@ -46,6 +47,7 @@ namespace HealthCheck.Core.Modules.Tests
                 AssembliesContainingTests = assemblies,
                 ReferenceParameterFactories = _referenceParameterFactories
             };
+            _options = options;
         }
 
         private static void EnsureReferenceParameterFactoriesInitialized(HCTestsModuleOptions options)
@@ -61,7 +63,8 @@ namespace HealthCheck.Core.Modules.Tests
         /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => null;
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context)
+            => new { AllowAnyParameterType = _options.AllowAnyParameterType };
 
         /// <summary>
         /// Get config for this module.
@@ -112,7 +115,8 @@ namespace HealthCheck.Core.Modules.Tests
             {
                 TestSets = TestsViewModelsFactory.CreateViewModel(testDefinitions),
                 GroupOptions = TestsViewModelsFactory.CreateViewModel(GroupOptions),
-                InvalidTests = invalidTests.Select(x => (TestsViewModelsFactory.CreateViewModel(x))).ToList()
+                InvalidTests = invalidTests.Select(x => (TestsViewModelsFactory.CreateViewModel(x))).ToList(),
+                ParameterTemplateValues = TestsViewModelsFactory.CreateParameterTemplatesViewModel(testDefinitions)
             };
             return model;
         }
@@ -126,7 +130,7 @@ namespace HealthCheck.Core.Modules.Tests
             var result = await ExecuteTest(context.CurrentRequestRoles, data, context.HasAccess(AccessOption.IncludeExceptionStackTraces));
             context.AddAuditEvent(action: "Test executed", subject: result?.TestName)
                 .AddDetail("Test id", data?.TestId)
-                .AddDetail("Parameters", $"[{string.Join(", ", (data?.Parameters ?? new List<string>()))}]")
+                .AddDetail("Parameters", $"[{string.Join(", ", (data?.Parameters?.Select(x => x.Value) ?? Enumerable.Empty<string>()))}]")
                 .AddDetail("Result", result?.Message)
                 .AddDetail("Duration", $"{result?.DurationInMilliseconds}ms");
 

@@ -50,6 +50,8 @@ import ParameterInputTypeHttpPostedFileBaseComponent from './input_types/Paramet
 import ParameterInputPickReferenceComponent from './input_types/ParameterInputPickReferenceComponent.vue';
 import ParameterInputTypeGuidComponent from "./input_types/ParameterInputTypeGuidComponent.vue";
 import ParameterInputTypeNullableGuidComponent from "./input_types/ParameterInputTypeNullableGuidComponent.vue";
+import ParameterInputAnyJsonComponent from "./input_types/ParameterInputAnyJsonComponent.vue";
+import { TestModuleOptions } from "../TestSuitesPageComponent.vue";
 
 @Component({
     components: {
@@ -78,7 +80,8 @@ import ParameterInputTypeNullableGuidComponent from "./input_types/ParameterInpu
       ParameterInputTypeHttpPostedFileBaseComponent,
       ParameterInputPickReferenceComponent,
       ParameterInputTypeGuidComponent,
-      ParameterInputTypeNullableGuidComponent
+      ParameterInputTypeNullableGuidComponent,
+      ParameterInputAnyJsonComponent
     }
 })
 export default class ParameterInputComponent extends Vue {
@@ -107,6 +110,7 @@ export default class ParameterInputComponent extends Vue {
     
     getInputComponentName(parameter: TestParameterViewModel): string
     {
+        parameter.IsUnsupportedJson = false;
         if (parameter.IsCustomReferenceType)
         {
             return 'ParameterInputPickReferenceComponent';
@@ -121,9 +125,19 @@ export default class ParameterInputComponent extends Vue {
         typeName = typeName.replace('<', '').replace('>', '');
         let componentName = `ParameterInputType${typeName}Component`;
         let componentExists = (this.$options!.components![componentName] != undefined);
-        return componentExists 
-            ? componentName
-            : "UnknownParameterInputComponent";
+
+        if (componentExists)
+        {
+            return componentName;
+        }
+        else if (this.testModuleOptions.AllowAnyParameterType)
+        {
+            parameter.IsUnsupportedJson = true;
+            return "ParameterInputAnyJsonComponent";
+        }
+        else {
+            return "UnknownParameterInputComponent";
+        }
     }
 
     disableInputHeader(): void {
@@ -132,6 +146,13 @@ export default class ParameterInputComponent extends Vue {
 
     toggleDescription(): void {
         this.showDescription = !this.showDescription;
+    }
+    
+    ////////////////
+    //  GETTERS  //
+    //////////////
+    get testModuleOptions(): TestModuleOptions {
+        return this.$store.state.tests.options;
     }
 
     get hasDescription(): boolean {

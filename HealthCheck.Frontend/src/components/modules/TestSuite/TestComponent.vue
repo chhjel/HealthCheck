@@ -81,7 +81,7 @@
 import { Vue, Component, Prop } from "vue-property-decorator";
 import TestViewModel from  '../../../models/modules/TestSuite/TestViewModel';
 import TestResultViewModel from  '../../../models/modules/TestSuite/TestResultViewModel';
-import ExecuteTestPayload from  '../../../models/modules/TestSuite/ExecuteTestPayload';
+import ExecuteTestPayload, { ExecuteTestParameterInputData } from  '../../../models/modules/TestSuite/ExecuteTestPayload';
 import TestParametersComponent from './paremeter_inputs/TestParametersComponent.vue';
 import TestResultComponent from './TestResultComponent.vue';
 import TestService from  '../../../services/TestService';
@@ -294,10 +294,13 @@ export default class TestComponent extends Vue {
     }
 
     generatePayload(): ExecuteTestPayload {
-      let parameters = Array<string | null>();
+      let parameters = Array<ExecuteTestParameterInputData>();
       for(let param of this.test.Parameters)
       {
-        parameters.push(param.Value);
+        parameters.push({
+          Value: param.Value,
+          IsUnsupportedJson: param.IsUnsupportedJson
+        });
       }
 
       return {

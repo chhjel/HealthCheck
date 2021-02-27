@@ -14,11 +14,16 @@ namespace HealthCheck.WebUI.Serializers
     /// </summary>
     public class NewtonsoftJsonSerializer : IJsonSerializer
     {
+        /// <inheritdoc />
+        public string LastError { get; set; }
+
         /// <summary>
         /// Serializes dumps using Newtonsoft, ignoring any errors.
         /// </summary>
         public string Serialize(object obj)
         {
+            LastError = null;
+
             var settings = new JsonSerializerSettings()
             {
                 Formatting = Formatting.Indented,
@@ -37,12 +42,15 @@ namespace HealthCheck.WebUI.Serializers
         /// </summary>
         public T Deserialize<T>(string json)
         {
+            LastError = null;
+
             try
             {
                 return (T)Deserialize(json, typeof(T));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LastError = ex.ToString();
                 return default;
             }
         }
@@ -52,12 +60,15 @@ namespace HealthCheck.WebUI.Serializers
         /// </summary>
         public object Deserialize(string json, Type type)
         {
+            LastError = null;
+
             try
             {
                 return JsonConvert.DeserializeObject(json, type);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LastError = ex.ToString();
                 return null;
             }
         }

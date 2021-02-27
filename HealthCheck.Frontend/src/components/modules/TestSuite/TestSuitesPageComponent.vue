@@ -148,6 +148,10 @@ import ModuleOptions from  '../../../models/Common/ModuleOptions';
 import ModuleConfig from  '../../../models/Common/ModuleConfig';
 import UrlUtils from  '../../../util/UrlUtils';
 
+export interface TestModuleOptions {
+    AllowAnyParameterType: boolean;
+}
+
 @Component({
     components: {
         TestSetComponent,
@@ -159,7 +163,7 @@ export default class TestSuitesPageComponent extends Vue {
     config!: ModuleConfig;
     
     @Prop({ required: true })
-    options!: ModuleOptions<any>;
+    options!: ModuleOptions<TestModuleOptions>;
 
     // UI STATE
     testSetFilterText: string = "";
@@ -178,6 +182,7 @@ export default class TestSuitesPageComponent extends Vue {
     mounted(): void
     {
         this.$store.commit('showMenuButton', true);
+        this.$store.commit('setTestModuleOptions', this.options.Options);
 
         this.loadData();
     }
@@ -246,12 +251,23 @@ export default class TestSuitesPageComponent extends Vue {
 
     onTestSetDataRetrieved(testsData: TestsDataViewModel): void {
         this.invalidTests = testsData.InvalidTests;
+        
+        this.$store.commit('setTestModuleTemplateValues', testsData.ParameterTemplateValues);
 
         // Init default value
         for(let set of testsData.TestSets) {
             for(let test of set.Tests) {
                 for(let param of test.Parameters) {
                     param.Value = param.DefaultValue;
+
+                    if (param.Value == null)
+                    {
+                        const templateData = testsData.ParameterTemplateValues.filter(x => x.Type == param.Type)[0];
+                        if (templateData)
+                        {
+                            param.Value = templateData.Template;
+                        }
+                    }
                 }
             }
         }

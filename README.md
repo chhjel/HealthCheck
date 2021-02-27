@@ -226,10 +226,12 @@ Supported parameter types:
 * `DateTime`, `DateTime?`, `DateTimeOffset`, `DateTimeOffset?`
 * `Enum` (-> select)
 * `Enum` with `[Flags]` (-> multiselect)
+* `Guid`, `Guid?`
 * `HttpPostedFileBase` (.net framework only for now)
 * `List<T>` where `<T>` is any of the above types (w/ option for readable list for setting order only)
 * `CancellationToken` to make the method cancellable, see below.
-* Any custom types when custom factory methods are implemented, see below.
+* Search and filter for any custom type when custom factory methods are implemented, see below.
+* Any other serializable type can be inputted as json.
 
 #### Cancellable methods
 

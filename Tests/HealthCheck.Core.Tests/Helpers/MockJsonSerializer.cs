@@ -5,6 +5,9 @@ namespace HealthCheck.Core.Tests.Helpers
 {
     public class MockJsonSerializer : IJsonSerializer
     {
+        /// <inheritdoc />
+        public string LastError { get; set; }
+
         public string LastDeserializedJson { get; set; }
         public object LastSerializedObject { get; set; }
         public object DeserializeResult { get; }

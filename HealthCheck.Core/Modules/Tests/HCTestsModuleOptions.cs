@@ -18,5 +18,11 @@ namespace HealthCheck.Core.Modules.Tests
         /// To support custom reference types in tests, a <see cref="RuntimeTestReferenceParameterFactory"/> must be defined for the given type.
         /// </summary>
         public Func<List<RuntimeTestReferenceParameterFactory>> ReferenceParameterFactories { get; set; }
+
+        /// <summary>
+        /// If enabled, any parameter non-supported parameter type will be attempted supported through json-serialization.
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public bool AllowAnyParameterType { get; set; } = true;
     }
 }

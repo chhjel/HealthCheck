@@ -1,8 +1,12 @@
 ﻿using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Tests.Models;
+using HealthCheck.Core.Modules.Tests.Services;
+using HealthCheck.Core.Modules.Tests.Utils;
 using HealthCheck.Core.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace HealthCheck.Core.Modules.Tests.Factories
 {
@@ -97,18 +101,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         {
             var stringConverter = new StringConverter();
             var paramType = testParameter.ParameterType;
-            string type = paramType.GetFriendlyTypeName();
-            if (paramType.IsEnum)
-            {
-                type = EnumUtils.IsTypeEnumFlag(paramType) ? "FlaggedEnum" : "Enum";
-            }
-            else if (paramType.IsGenericType
-                && paramType.GetGenericTypeDefinition() == typeof(List<>)
-                && paramType.GetGenericArguments()[0].IsEnum)
-            {
-                var innerType = EnumUtils.IsTypeEnumFlag(paramType.GetGenericArguments()[0]) ? "FlaggedEnum" : "Enum";
-                type = $"List<{innerType}>";
-            }
+            string type = CreateParameterTypeName(paramType);
 
             var vm = new TestParameterViewModel()
             {
@@ -126,6 +119,60 @@ namespace HealthCheck.Core.Modules.Tests.Factories
             };
 
             return vm;
+        }
+
+        private string CreateParameterTypeName(Type type)
+        {
+            var typeName = type.GetFriendlyTypeName();
+            if (type.IsEnum)
+            {
+                typeName = EnumUtils.IsTypeEnumFlag(type) ? "FlaggedEnum" : "Enum";
+            }
+            else if (type.IsGenericType
+                && type.GetGenericTypeDefinition() == typeof(List<>)
+                && type.GetGenericArguments()[0].IsEnum)
+            {
+                var innerType = EnumUtils.IsTypeEnumFlag(type.GetGenericArguments()[0]) ? "FlaggedEnum" : "Enum";
+                typeName = $"List<{innerType}>";
+            }
+            return typeName;
+        }
+
+        /// <summary>
+        /// Create template values for any unsupported types.
+        /// </summary>
+        public List<TestParameterTemplateViewModel> CreateParameterTemplatesViewModel(List<TestClassDefinition> testDefinitions)
+        {
+            var parameters = testDefinitions.SelectMany(x => x.Tests.SelectMany(t => t.Parameters));
+            var relevantParameters = parameters
+                .GroupBy(x => x.ParameterType.Name)
+                .Select(x => x.First())
+                .Where(x => !x.IsCustomReferenceType && !TestsModuleUtils.IsBuiltInSupportedType(x.ParameterType));
+
+            return relevantParameters.Select(x =>
+            {
+                string template = null;
+                try
+                {
+                    var instance = Activator.CreateInstance(x.ParameterType);
+                    template = TestRunnerService.Serializer?.Serialize(instance);
+                }
+                catch (Exception)
+                {
+                    try
+                    {
+                        var instance = FormatterServices.GetUninitializedObject(x.ParameterType);
+                        template = TestRunnerService.Serializer?.Serialize(instance);
+                    }
+                    catch (Exception) { /* Ignored */ }
+                }
+
+                return new TestParameterTemplateViewModel
+                {
+                    Type = CreateParameterTypeName(x.ParameterType),
+                    Template = template ?? "{\n}"
+                };
+            }).ToList();
         }
 
         /// <summary>

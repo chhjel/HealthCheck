@@ -8,6 +8,11 @@ namespace HealthCheck.Core.Abstractions
     public interface IJsonSerializer
     {
         /// <summary>
+        /// Last error if any.
+        /// </summary>
+        string LastError { get; }
+
+        /// <summary>
         /// Serialize the given object into json.
         /// <para>
         /// Should ignore errors and indent result json.

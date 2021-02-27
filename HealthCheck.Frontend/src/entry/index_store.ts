@@ -13,6 +13,10 @@ export default new Vuex.Store({
           menuButtonVisible: false,
           menuExpanded: true,
           allowModuleSwitch: true
+      },
+      tests: {
+        options: { },
+        templateValues: { }
       }
     },
     mutations: {
@@ -27,6 +31,12 @@ export default new Vuex.Store({
         },
         toggleMenuExpanded (state) {
             state.ui.menuExpanded = !state.ui.menuExpanded;
+        },
+        setTestModuleOptions(state, options) {
+          state.tests.options = options;
+        },
+        setTestModuleTemplateValues(state, values) {
+          state.tests.templateValues = values;
         }
     }
 });
