@@ -35,7 +35,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Test parameters.
         /// </summary>
-        public TestParameter[] Parameters { get; private set; }
+        public TestParameter[] Parameters { get; private set; } = new TestParameter[0];
 
         /// <summary>
         /// Optional value to override default option on the test class.
@@ -303,7 +303,8 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// Run the test.
         /// </summary>
         public async Task<TestResult> ExecuteTest(object instance, object[] parameters, bool allowDefaultValues = true,
-            Action<CancellationTokenSource> onCancellationTokenCreated = null, bool allowAnyResultType = false)
+            Action<CancellationTokenSource> onCancellationTokenCreated = null,
+            bool allowAnyResultType = false, bool includeAutoCreateResult = false)
         {
             var methodParams = Method.GetParameters();
             if (methodParams.FirstOrDefault()?.ParameterType == typeof(CancellationToken))
@@ -358,6 +359,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
                     data = null;
                 }
                 return TestResult.CreateSuccess($"Method {Method?.Name} was successfully invoked.")
+                    .AddAutoCreatedResultData(data ?? fallbackValue, includeAutoCreateResult)
                     .AddSerializedData(data ?? fallbackValue, TestRunnerService.Serializer, "Result");
             }
             // Sync any
@@ -366,6 +368,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 var fallbackValue = (returnType == typeof(Task) || returnType == typeof(void)) ? null : "null";
                 var data = Method.Invoke(instance, parameterList);
                 return TestResult.CreateSuccess($"Method {Method?.Name} was successfully invoked.")
+                    .AddAutoCreatedResultData(data ?? fallbackValue, includeAutoCreateResult)
                     .AddSerializedData(data ?? fallbackValue, TestRunnerService.Serializer, "Result");
             }
             else

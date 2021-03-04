@@ -45,6 +45,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
         /// Uses <see cref="DefaultMultipleResultSiteEventMerge"/> by default if left null. If a Maybe(null) is given merge will be disabled.
         /// The default logic uses the highest severity event, and appends descriptions from any other one.
         /// </param>
+        /// <param name="resultAction">Optional action to execute on results.</param>
         /// <returns>All executed test results are returned.</returns>
         public async Task<List<TestResult>> ExecuteTests(
             TestDiscoveryService testDiscoveryService,
@@ -53,10 +54,11 @@ namespace HealthCheck.Core.Modules.Tests.Services
             Func<AuditEvent, Task> onAuditEvent = null,
             string auditUserId = "0",
             string auditUsername = "System",
-            Maybe<Func<IEnumerable<SiteEvent>, SiteEvent>> multipleResultSiteEventMergeLogic = null)
+            Maybe<Func<IEnumerable<SiteEvent>, SiteEvent>> multipleResultSiteEventMergeLogic = null,
+            Action<TestResult, object> resultAction = null)
         {
             var tests = testDiscoveryService.DiscoverTestDefinitions(includeInvalidTests: false, onlyTestsAllowedToBeManuallyExecuted: false, testFilter: testFilter);
-            var results = await ExecuteTests(tests, testFilter);
+            var results = await ExecuteTests(tests, testFilter, resultAction);
 
             if (onAuditEvent != null)
             {
@@ -126,9 +128,11 @@ namespace HealthCheck.Core.Modules.Tests.Services
         /// </summary>
         /// <param name="testClasses">Classes to execute.</param>
         /// <param name="testFilter">Only tests that return true to this condition will be executed. If null all tests will be included.</param>
+        /// <param name="resultAction">Optional action to run on results.</param>
         public async Task<List<TestResult>> ExecuteTests(
             List<TestClassDefinition> testClasses,
-            Func<TestDefinition, bool> testFilter = null)
+            Func<TestDefinition, bool> testFilter = null,
+            Action<TestResult, object> resultAction = null)
         {
             var results = new ConcurrentBag<TestResult>();
             foreach (var testClass in testClasses)
@@ -152,7 +156,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                     var tasks = new List<Task<TestResult>>();
                     foreach (var test in testsThatCanRunInParallel)
                     {
-                        var task = ExecuteTest(test, null, classInstance, allowDefaultValues: true);
+                        var task = ExecuteTest(test, null, classInstance, allowDefaultValues: true, resultAction: resultAction);
                         tasks.Add(task);
                     }
                     await Task.WhenAll(tasks);
@@ -163,7 +167,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                 // Run other tests after
                 foreach (var test in testsThatCannotRunInParallel)
                 {
-                    var result = await ExecuteTest(test, null, classInstance, allowDefaultValues: true);
+                    var result = await ExecuteTest(test, null, classInstance, allowDefaultValues: true, resultAction: resultAction);
                     results.Add(result);
                 }
             }
@@ -177,7 +181,8 @@ namespace HealthCheck.Core.Modules.Tests.Services
             object[] parameters = null,
             object testClassInstance = null,
             bool allowDefaultValues = true,
-            bool includeExceptionStackTraces = false)
+            bool includeExceptionStackTraces = false,
+            Action<TestResult, object> resultAction = null)
         {
             var removeCancellationTokenOnFinish = true;
             var stopWatch = new Stopwatch();
@@ -203,10 +208,24 @@ namespace HealthCheck.Core.Modules.Tests.Services
                 if (test.Type == TestDefinition.TestDefinitionType.Normal)
                 {
                     instance = testClassInstance ?? IoCUtils.GetInstanceExt(test.ParentClass.ClassType);
+                    postExecutionAction = (testResult, customContext) => {
+                        if (testResult.AutoCreateResultDataFromObject != null)
+                        {
+                            resultAction?.Invoke(testResult, testResult.AutoCreateResultDataFromObject);
+                        }
+                    };
                 }
                 else if (test.Type == TestDefinition.TestDefinitionType.ProxyClassMethod)
                 {
-                    postExecutionAction = test.ClassProxyConfig.ResultAction;
+                    postExecutionAction = (testResult, customContext) => {
+                        if (testResult.AutoCreateResultDataFromObject != null)
+                        {
+                            testResult.AllowOverrideMessage = true;
+                            testResult.SetDataExpandedByDefault();
+                            resultAction?.Invoke(testResult, testResult.AutoCreateResultDataFromObject);
+                        }
+                        test.ClassProxyConfig.ResultAction?.Invoke(testResult, customContext);
+                    };
                     customContextObject = test.ClassProxyConfig.ContextFactory?.Invoke();
 
                     if (test.ClassProxyConfig.InstanceFactoryWithContext != null)
@@ -226,7 +245,8 @@ namespace HealthCheck.Core.Modules.Tests.Services
 
                 var result = await test.ExecuteTest(instance, parameters, allowDefaultValues,
                     (tokenSource) => RegisterCancellableTestStarted(test.Id, tokenSource),
-                    allowAnyResultType: test.Type == TestDefinition.TestDefinitionType.ProxyClassMethod
+                    allowAnyResultType: test.Type == TestDefinition.TestDefinitionType.ProxyClassMethod,
+                    includeAutoCreateResult: test.Type == TestDefinition.TestDefinitionType.ProxyClassMethod
                 );
 
                 postExecutionAction?.Invoke(result, customContextObject);

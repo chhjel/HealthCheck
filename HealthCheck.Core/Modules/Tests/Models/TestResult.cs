@@ -68,6 +68,9 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// </summary>
         public long DurationInMilliseconds { get; set; }
 
+        internal object AutoCreateResultDataFromObject { get; set; }
+        internal bool AllowOverrideMessage { get; set; } = false;
+
         /// <summary>
         /// Create a new test result with the given status.
         /// </summary>
@@ -348,6 +351,21 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public TestResult SetResolvedSiteEvent(string eventTypeId, string resolvedMessage)
         {
             SiteEvent = new SiteEvent(eventTypeId, resolvedMessage);
+            return this;
+        }
+
+        /// <summary>
+        /// Attempt to auto-create result data from the given raw data.
+        /// <para>Does not change message or include the whole object, this method only attempts to parse out e.g. urls and images and show them.</para>
+        /// </summary>
+        /// <param name="data">Data to try to create result from.</param>
+        /// <param name="include">Set to false to don't do anything.</param>
+        public TestResult AddAutoCreatedResultData(object data, bool include = true)
+        {
+            if (include)
+            {
+                AutoCreateResultDataFromObject = data;
+            }
             return this;
         }
         #endregion

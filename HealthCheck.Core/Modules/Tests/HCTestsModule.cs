@@ -206,7 +206,8 @@ namespace HealthCheck.Core.Modules.Tests
         private TestDefinition GetTest(object currentRequestRoles, string testId)
             => GetTestDefinitions(currentRequestRoles).SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == testId);
 
-        private async Task<TestResultViewModel> ExecuteTest(object accessRoles, ExecuteTestInputData data, bool includeExceptionStackTraces)
+        private async Task<TestResultViewModel> ExecuteTest(object accessRoles, ExecuteTestInputData data,
+            bool includeExceptionStackTraces)
         {
             if (data == null || data.TestId == null)
             {
@@ -224,7 +225,8 @@ namespace HealthCheck.Core.Modules.Tests
                 var parameters = data?.GetParametersWithConvertedTypes(test.Parameters.Select(x => x.ParameterType).ToArray(), ParameterConverter, test);
                 var result = await TestRunner.ExecuteTest(test, parameters,
                     allowDefaultValues: false,
-                    includeExceptionStackTraces: includeExceptionStackTraces
+                    includeExceptionStackTraces: includeExceptionStackTraces,
+                    resultAction: _options.AutoResultAction
                 );
                 return TestsViewModelsFactory.CreateViewModel(result);
             }

@@ -147,7 +147,8 @@ namespace HealthCheck.Core.Modules.Tests.Factories
             var relevantParameters = parameters
                 .GroupBy(x => x.ParameterType.Name)
                 .Select(x => x.First())
-                .Where(x => !x.IsCustomReferenceType && !TestsModuleUtils.IsBuiltInSupportedType(x.ParameterType));
+                .Where(x => !x.IsCustomReferenceType && !TestsModuleUtils.IsBuiltInSupportedType(x.ParameterType))
+                .ToArray();
 
             return relevantParameters.Select(x =>
             {

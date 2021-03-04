@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Modules.Tests.Models;
+using HealthCheck.Core.Modules.Tests.Utils;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -24,5 +25,11 @@ namespace HealthCheck.Core.Modules.Tests
         /// <para>Defaults to true.</para>
         /// </summary>
         public bool AllowAnyParameterType { get; set; } = true;
+
+        /// <summary>
+        /// Action executed on results when <see cref="TestResult.AddAutoCreatedResultData"/> is used, and also for proxy test results.
+        /// </summary>
+        public Action<TestResult, object> AutoResultAction { get; set; } = AutoResultHelper.DefaultAutoResultAction;
+
     }
 }
