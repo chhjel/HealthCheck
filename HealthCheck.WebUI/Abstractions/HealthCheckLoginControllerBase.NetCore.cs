@@ -30,7 +30,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         protected TimeSpan? MaxAddedDelay { get; set; } = TimeSpan.FromSeconds(3);
 
-        private HealthCheckLoginControllerHelper Helper { get; set; } = new HealthCheckLoginControllerHelper();
+        private readonly HealthCheckLoginControllerHelper _helper = new HealthCheckLoginControllerHelper();
 
         #region Endpoints
         /// <summary>
@@ -42,15 +42,25 @@ namespace HealthCheck.WebUI.Abstractions
         public virtual async Task<ActionResult> Login(HCIntegratedLoginRequest model)
         {
             if (!Enabled) return NotFound();
-            
-            if (MinAddedDelay != null && MaxAddedDelay != null)
-            {
-                var random = new Random();
-                var msDelay = random.Next((int)MinAddedDelay.Value.TotalMilliseconds, (int)MaxAddedDelay.Value.TotalMilliseconds);
-                await Task.Delay(msDelay);
-            }
+            await Delay();
             
             var result = HandleLoginRequest(model);
+            if (result == null) return NotFound();
+
+            return CreateJsonResult(result);
+        }
+
+        /// <summary>
+        /// Invoked when requesting a 2FA code.
+        /// </summary>
+        [HideFromRequestLog]
+        [HttpPost]
+        public virtual async Task<ActionResult> Request2FACode(HCIntegratedLoginRequest2FACodeRequest model)
+        {
+            if (!Enabled) return NotFound();
+            await Delay();
+
+            var result = Handle2FACodeRequest(model);
             if (result == null) return NotFound();
 
             return CreateJsonResult(result);
@@ -62,6 +72,11 @@ namespace HealthCheck.WebUI.Abstractions
         /// Handle login request here.
         /// </summary>
         protected virtual HCIntegratedLoginResult HandleLoginRequest(HCIntegratedLoginRequest request) => null;
+
+        /// <summary>
+        /// Optionally handle 2FA code request here.
+        /// </summary>
+        protected virtual HCIntegratedLogin2FACodeRequestResult Handle2FACodeRequest(HCIntegratedLoginRequest2FACodeRequest request) => null;
         #endregion
 
         #region Helpers
@@ -69,7 +84,20 @@ namespace HealthCheck.WebUI.Abstractions
         /// Serializes the given object into a json result.
         /// </summary>
         protected ActionResult CreateJsonResult(object obj)
-            => Content(Helper.SerializeJson(obj), "application/json");
+            => Content(_helper.SerializeJson(obj), "application/json");
+
+        /// <summary>
+        /// Delay by the configured amount.
+        /// </summary>
+        protected async Task Delay()
+        {
+            if (MinAddedDelay != null && MaxAddedDelay != null)
+            {
+                var random = new Random();
+                var msDelay = random.Next((int)MinAddedDelay.Value.TotalMilliseconds, (int)MaxAddedDelay.Value.TotalMilliseconds);
+                await Task.Delay(msDelay);
+            }
+        }
         #endregion
     }
 }

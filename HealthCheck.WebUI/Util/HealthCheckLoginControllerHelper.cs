@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System;
+using System.Linq;
 
 namespace HealthCheck.WebUI.Util
 {
@@ -8,6 +10,8 @@ namespace HealthCheck.WebUI.Util
     /// </summary>
     internal class HealthCheckLoginControllerHelper
     {
+        private readonly Random _random = new Random();
+
         /// <summary>
         /// Shared code for .net framework/core login controllers.
         /// </summary>
@@ -28,5 +32,8 @@ namespace HealthCheck.WebUI.Util
 
             return JsonConvert.SerializeObject(obj, settings);
         }
+
+        public string Generate2FACode(int length = 6)
+            => string.Join("", Guid.NewGuid().ToString().Where(x => char.IsDigit(x)).Take(length));
     }
 }

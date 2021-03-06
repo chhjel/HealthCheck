@@ -19,6 +19,19 @@ namespace HealthCheck.WebUI.Models
         public bool Show2FAInput { get; set; }
 
         /// <summary>
+        /// Requests to send new 2FA codes will be sent to this endpoint.
+        /// <para>Setting this value results in the button to send codes being shown.</para>
+        /// <para>Should point to the <c>Request2FACode</c> action on a controller inheriting from <c>HealthCheckLoginControllerBase</c> where you can define the logic.</para>
+        /// </summary>
+        public string Send2FACodeEndpoint { get; set; }
+
+        /// <summary>
+        /// Text on button used to get code.
+        /// <para>Defaults to 'Send 2FA code'</para>
+        /// </summary>
+        public string Send2FACodeButtonText { get; set; } = "Send code";
+
+        /// <summary>
         /// Optionally set to show a progressbar for when codes expire.
         /// </summary>
         public DateTimeOffset? Current2FACodeExpirationTime { get; set; }

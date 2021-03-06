@@ -37,30 +37,39 @@
                                 @click:append="showPassword = !showPassword"
                                 class="pt-0 mt-2" />
                             
-                            <v-text-field 
-                                v-if="show2FAInput"
-                                v-model="twoFactorCode"
-                                :disabled="loadStatus.inProgress"
-                                v-on:keyup.enter="onLoginClicked"
-                                label="Two factor code"
-                                placeholder=" "
-                                type="text"
-                                class="pt-0 mt-2"
-                                loading>
-                                <template v-slot:progress>
-                                    <v-progress-linear
-                                    :value="twoFactorInputProgress"
-                                    :color="twoFactorInputColor"
-                                    height="7"
-                                    ></v-progress-linear>
-                                </template>
-                            </v-text-field>
+                            <v-layout row class="mt-4 mb-4" v-if="show2FAInput">
+                                <v-flex :xs6="show2FASendCodeButton" :xs12="!show2FASendCodeButton">
+                                    <v-text-field 
+                                        v-model="twoFactorCode"
+                                        :disabled="loadStatus.inProgress"
+                                        v-on:keyup.enter="onLoginClicked"
+                                        label="Two factor code"
+                                        placeholder=" "
+                                        type="text"
+                                        class="pt-0 mt-0"
+                                        :loading="show2FACodeExpirationTime">
+                                        <template v-slot:progress>
+                                            <v-progress-linear
+                                            :value="twoFactorInputProgress"
+                                            :color="twoFactorInputColor"
+                                            height="7"
+                                            ></v-progress-linear>
+                                        </template>
+                                    </v-text-field>
+                                </v-flex>
+                                <v-flex xs6 v-if="show2FASendCodeButton">
+                                    <v-btn round color="secondary" class="mt-0"
+                                        @click.prevent="onSendCodeClicked"
+                                        :disabled="loadStatus.inProgress">
+                                        <span style="white-space: normal;">{{ send2FASCodeButtonText }}</span>
+                                    </v-btn>
+                                </v-flex>
+                            </v-layout>
                         </div>
 
                         <v-btn round color="primary" large class="mt-4 login-button"
                             @click.prevent="onLoginClicked"
                             :disabled="loadStatus.inProgress">
-                            <!-- <v-icon dark left>login</v-icon> -->
                             <span style="white-space: normal;">Sign in</span>
                         </v-btn>
 
@@ -69,6 +78,11 @@
                         <div v-if="error != null && error.length > 0" class="error--text mt-4">
                             <b v-if="!showErrorAsHtml">{{ error }}</b>
                             <div v-if="showErrorAsHtml" v-html="error"></div>
+                        </div>
+
+                        <div v-if="codeMessage != null && codeMessage.length > 0" class="mt-4">
+                            <b v-if="!showCodeMessageAsHtml">{{ codeMessage }}</b>
+                            <div v-if="showCodeMessageAsHtml" v-html="codeMessage"></div>
                         </div>
 
                         <!-- LOAD STATUS -->
@@ -95,7 +109,7 @@
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
 import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
-import IntegratedLoginService, { HCIntegratedLoginRequest, HCIntegratedLoginResult } from '../../../services/IntegratedLoginService';
+import IntegratedLoginService, { HCIntegratedLoginRequest, HCIntegratedLoginRequest2FACodeRequest, HCIntegratedLoginResult } from '../../../services/IntegratedLoginService';
 import BlockComponent from '../../Common/Basic/BlockComponent.vue';
 import FloatingSquaresEffectComponent from '../../Common/Effects/FloatingSquaresEffectComponent.vue';
 
@@ -115,6 +129,8 @@ export default class IntegratedLoginPageComponent extends Vue {
     showPassword: boolean = false;
     error: string = '';
     showErrorAsHtml: boolean = false;
+    codeMessage: string = '';
+    showCodeMessageAsHtml: boolean = false;
     current2FACodeProgress: number = 0;
     twoFactorIntervalId: number = 0;
 
@@ -143,6 +159,18 @@ export default class IntegratedLoginPageComponent extends Vue {
 
     get show2FAInput(): boolean {
         return this.globalOptions.IntegratedLoginShow2FA;
+    }
+
+    get Send2FACodeEndpoint(): string {
+        return this.globalOptions.IntegratedLoginSend2FACodeEndpoint;
+    }
+
+    get show2FASendCodeButton(): boolean {
+        return !!this.Send2FACodeEndpoint;
+    }
+
+    get send2FASCodeButtonText(): string {
+        return this.globalOptions.IntegratedLoginSend2FACodeButtonText;
     }
 
     get show2FACodeExpirationTime(): boolean {
@@ -201,6 +229,36 @@ export default class IntegratedLoginPageComponent extends Vue {
             });
     }
 
+    request2FACode(): void {
+        if (this.loadStatus.inProgress) {
+            return;
+        }
+
+        this.error = '';
+        this.codeMessage = '';
+        let url = this.Send2FACodeEndpoint;
+        let payload: HCIntegratedLoginRequest2FACodeRequest = {
+            Username: this.username
+        };
+
+        let service = new IntegratedLoginService(true);
+        service.RequestCode(url, payload, this.loadStatus,
+            {
+                onSuccess: (result) => {
+                    if (result.Success)
+                    {
+                        this.codeMessage = result.SuccessMessage;
+                        this.showCodeMessageAsHtml = result.ShowSuccessAsHtml;
+                    }
+                    else
+                    {
+                        this.showErrorAsHtml = result.ShowErrorAsHtml;
+                        this.error = result.ErrorMessage;
+                    }
+                }
+            });
+    }
+
     update2FAProgress(): void {
         if (!this.show2FACodeExpirationTime)
         {
@@ -225,6 +283,10 @@ export default class IntegratedLoginPageComponent extends Vue {
     /////////////////////
     onLoginClicked(): void {
         this.login();
+    }
+
+    onSendCodeClicked(): void {
+        this.request2FACode();
     }
 }
 </script>

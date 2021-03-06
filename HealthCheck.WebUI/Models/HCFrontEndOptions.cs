@@ -55,6 +55,12 @@ namespace HealthCheck.WebUI.Models
         [JsonProperty]
         internal int IntegratedLogin2FACodeLifetime { get; set; } = 30;
 
+        [JsonProperty]
+        internal string IntegratedLoginSend2FACodeEndpoint { get; set; }
+
+        [JsonProperty]
+        internal string IntegratedLoginSend2FACodeButtonText { get; set; }
+
         /// <summary>
         /// Create a new <see cref="HCFrontEndOptions"/>.
         /// </summary>

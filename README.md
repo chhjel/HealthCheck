@@ -1107,7 +1107,7 @@ FlowChartsService = new DefaultFlowChartService(new DefaultFlowChartServiceOptio
 
 An integrated login dialog is included, but custom authentication logic must be provided. To enable the dialog two steps are required.
 
-1. The main controller uses readonly session behaviour that can cause some login logic dependent on sessions to fail, so a new controller is required that handles the login request. Inherit from `HealthCheckLoginControllerBase` and implement `HandleLoginRequest`. 
+1. The main controller uses readonly session behaviour that can cause some login logic dependent on sessions to fail, so a new controller is required that handles the login request. Inherit from `HealthCheckLoginControllerBase` and implement `HandleLoginRequest`.
 
     ```csharp
     public class HCLoginController : HealthCheckLoginControllerBase
@@ -1115,7 +1115,7 @@ An integrated login dialog is included, but custom authentication logic must be 
         protected override HCIntegratedLoginResult HandleLoginRequest(HCIntegratedLoginRequest request)
         {
             var success = _myAccessService.AuthenticateUser(request.Username, request.Password);
-            // If using 2FA controller (see below), the 2FA code can be validated using Validate2FACode(userSecret, request.TwoFactorCode);
+            // also validate request.TwoFactorCode if enabled
             return HCIntegratedLoginResult.CreateResult(success, "Wrong username or password, try again or give up.");
         }
     }
@@ -1129,23 +1129,63 @@ An integrated login dialog is included, but custom authentication logic must be 
         config.IntegratedLoginConfig = new HCIntegratedLoginConfig
         {
             IntegratedLoginEndpoint = "/hclogin/login",
-            // Optionally to show 2FA input:
+            // Optionally show 2FA input
             Show2FAInput = true,
-            // Optionally to show how much time left of the 2FA code:
-            Current2FACodeExpirationTime = HealthCheck2FAUtil.GetCurrentCodeExpirationTime()
+            // Optionally show how much time left of TOTP codes
+            Current2FACodeExpirationTime = HealthCheck2FAUtil.GetCurrentCodeExpirationTime(),
+            // Optionally allow sending codes to the user
+            Send2FACodeEndpoint = "/hclogin/Request2FACode"
         };
     }
     ```
 
 Any requests to the index action of the main controller that does not have access to any of the content will now be shown the login dialog. On a successfull login the page will refresh and the user will have access to any content you granted the request.
 
-### 2FA
+### TOTP
 
 To add TOTP 2FA validation you can inherit from `HealthCheckLogin2FAControllerBase` included in the [![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI.TFA?label=HealthCheck.WebUI.TFA&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI.TFA) package. If you already have code for validation of 2FA codes in your project this package is not needed.
 
 * For 2FA to work you need to store a 2FA secret per user to validate the codes against. The secret must be a base32 string and can be generated using e.g. `HealthCheck2FAUtil.GenerateOTPSecret()`.
-* Validate 2FA codes using the `Validate2FACode(userSecret, code)` method available in the controller, or using `HealthCheck2FAUtil`.
-* The built in logic uses TOTP so e.g. Bitwarden or the Google authenticator app can be used to generate codes.
+* Validate 2FA codes using the `Validate2FATotpCode(userSecret, code)` method available in the controller, or using `HealthCheck2FAUtil`.
+* The built in logic uses TOTP so e.g. Bitwarden or most authenticator apps can be used to generate codes.
+
+### Sending one time use codes to user
+
+To send a one-time-use code to the user instead of using TOTP you can set the `Send2FACodeEndpoint` option to target the `Request2FACode` action on the login controller. A button to send a code to the user will be shown in the login form, and you can override `Handle2FACodeRequest` to handle what happens when the button is clicked.
+
+Example logic using built in helper methods for creating 2FA codes in session:
+
+
+```csharp
+    protected override HCIntegratedLogin2FACodeRequestResult Handle2FACodeRequest(HCIntegratedLoginRequest2FACodeRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Username))
+        {
+            return HCIntegratedLogin2FACodeRequestResult.CreateError("You must enter your username first.");
+        }
+
+        var code = CreateSession2FACode(request.Username);
+        // E.g. send code by mail or sms to user here
+
+        return HCIntegratedLogin2FACodeRequestResult.CreateSuccess($"Code has been sent.");
+    }
+```
+
+```csharp
+    protected override HCIntegratedLoginResult HandleLoginRequest(HCIntegratedLoginRequest request)
+    {
+        if (!_myAccessService.AuthenticateUser(request.Username, request.Password))
+        {
+            return HCIntegratedLoginResult.CreateError("Wrong username or password.");
+        }
+        else if (!ValidateSession2FACode(request.Username, request.TwoFactorCode))
+        {
+            return HCIntegratedLoginResult.CreateError("Two-factor code was wrong, try again.");
+        }
+
+        return HCIntegratedLoginResult.CreateSuccess();
+    }
+```
 
 ---------
 

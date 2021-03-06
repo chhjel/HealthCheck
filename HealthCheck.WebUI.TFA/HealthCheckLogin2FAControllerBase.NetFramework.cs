@@ -15,7 +15,7 @@ namespace HealthCheck.WebUI.TFA
         /// </summary>
         /// <param name="userSecret">The 2FA secret for the user attempting to login.</param>
         /// <param name="code">Code user entered in the login dialog.</param>
-        protected bool Validate2FACode(string userSecret, string code) => HealthCheck2FAUtil.Validate2FACode(userSecret, code);
+        protected bool Validate2FATotpCode(string userSecret, string code) => HealthCheck2FAUtil.Validate2FACode(userSecret, code);
         #endregion
     }
 }
