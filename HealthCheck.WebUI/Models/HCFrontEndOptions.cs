@@ -40,10 +40,13 @@ namespace HealthCheck.WebUI.Models
         public EditorWorkerConfig EditorConfig { get; set; } = new EditorWorkerConfig();
 
         [JsonProperty]
-        internal bool ShowIntegratedLogin {get; set; }
+        internal bool ShowIntegratedLogin { get; set; }
 
         [JsonProperty]
         internal string IntegratedLoginEndpoint { get; set; }
+
+        [JsonProperty]
+        internal bool IntegratedLoginShow2FA { get; set; }
 
         /// <summary>
         /// Create a new <see cref="HCFrontEndOptions"/>.

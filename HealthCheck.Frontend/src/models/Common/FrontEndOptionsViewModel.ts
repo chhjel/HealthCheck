@@ -5,8 +5,10 @@ export default interface FrontEndOptionsViewModel {
     InvokeModuleMethodEndpoint: string;
     EndpointBase: string;
     EditorConfig: EditorWorkerConfig;
+    
     ShowIntegratedLogin: boolean;
     IntegratedLoginEndpoint: string;
+    IntegratedLoginShow2FA: boolean;
 }
 
 export interface EditorWorkerConfig {

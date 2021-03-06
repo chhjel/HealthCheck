@@ -105,7 +105,7 @@ namespace HealthCheck.WebUI.Abstractions
             if (!Enabled) return NotFound();
             else if (!Helper.HasAccessToAnyContent(CurrentRequestAccessRoles))
             {
-                if (Helper.AccessConfig.IntegratedLoginEndpoint != null)
+                if (Helper.AccessConfig.UseIntegratedLogin)
                 {
                     return CreateIntegratedLoginViewResult();
                 }
@@ -140,6 +140,8 @@ namespace HealthCheck.WebUI.Abstractions
         {
             var frontEndOptions = GetFrontEndOptions();
             frontEndOptions.ShowIntegratedLogin = true;
+            frontEndOptions.IntegratedLoginEndpoint = Helper?.AccessConfig?.IntegratedLoginConfig?.IntegratedLoginEndpoint;
+            frontEndOptions.IntegratedLoginShow2FA = Helper?.AccessConfig?.IntegratedLoginConfig?.Show2FAInput ?? false;
 
             var pageOptions = GetPageOptions();
             var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions);

@@ -14,5 +14,10 @@
         /// If not successfull this message will be displayed.
         /// </summary>
         public string ErrorMessage { get; set; }
+
+        /// <summary>
+        /// Allow rendering error message as html. Defaults to false.
+        /// </summary>
+        public bool ShowErrorAsHtml { get; set; }
     }
 }

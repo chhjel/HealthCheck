@@ -32,16 +32,16 @@ namespace HealthCheck.WebUI.Models
         public Maybe<TAccessRole> PingAccess { get; set; }
 
         /// <summary>
-        /// If this property is set a login popup will be shown that will invoke this endpoint.
-        /// <para>Should point to the <c>Login</c> action on a controller inheriting from <c>HealthCheckLoginControllerBase</c> where you can define the login logic.</para>
+        /// If this property is set a login dialog will be shown if the user does not have access to any of the content.
         /// <para>If this property is set, <see cref="RedirectTargetOnNoAccess"/> will have no effect.</para>
         /// <para>If neither this nor <see cref="RedirectTargetOnNoAccess"/> is set, a 404 will be returned.</para>
         /// </summary>
-        public string IntegratedLoginEndpoint { get; set; }
+        public HCIntegratedLoginConfig IntegratedLoginConfig { get; set; }
+        internal bool UseIntegratedLogin => IntegratedLoginConfig != null;
 
         /// <summary>
         /// Redirect url if the request does not have access to any of the content.
-        /// <para>If neither this nor <see cref="IntegratedLoginEndpoint"/> is set, a 404 will be returned.</para>
+        /// <para>If neither this nor <see cref="IntegratedLoginConfig"/> is set, a 404 will be returned.</para>
         /// </summary>
         public string RedirectTargetOnNoAccess { get; set; }
 

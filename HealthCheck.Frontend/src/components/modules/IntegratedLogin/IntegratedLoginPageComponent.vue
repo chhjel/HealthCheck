@@ -22,27 +22,28 @@
                                 :disabled="loadStatus.inProgress"
                                 type="text"
                                 label="Username"
+                                placeholder=" "
                                 class="pt-0 mt-5" />
+                            
                             <v-text-field 
                                 v-model="password"
                                 :disabled="loadStatus.inProgress"
                                 label="Password"
+                                placeholder=" "
                                 :type="showPassword ? 'text' : 'password'"
                                 :append-icon="showPassword ? 'visibility' : 'visibility_off'"
                                 @click:append="showPassword = !showPassword"
                                 class="pt-0 mt-2" />
-                        
-                            <div v-if="error != null && error.length > 0" class="error--text mt-4">
-                                <b>{{ error }}</b>
-                            </div>
+                            
+                            <v-text-field 
+                                v-if="show2FAInput"
+                                v-model="twoFactorCode"
+                                :disabled="loadStatus.inProgress"
+                                label="Two factor code"
+                                placeholder=" "
+                                type="text"
+                                class="pt-0 mt-2" />
                         </div>
-
-                        <!-- LOAD STATUS -->
-                        <v-alert
-                            :value="loadStatus.failed"
-                            type="error">
-                        {{ loadStatus.errorMessage }}
-                        </v-alert>
 
                         <v-btn round color="primary" large class="mt-4 login-button"
                             @click.prevent="onLoginClicked"
@@ -52,6 +53,18 @@
                         </v-btn>
 
                         <v-progress-linear color="primary" indeterminate v-if="loadStatus.inProgress"></v-progress-linear>
+                    
+                        <div v-if="error != null && error.length > 0" class="error--text mt-4">
+                            <b v-if="!showErrorAsHtml">{{ error }}</b>
+                            <div v-if="showErrorAsHtml" v-html="error"></div>
+                        </div>
+
+                        <!-- LOAD STATUS -->
+                        <v-alert
+                            :value="loadStatus.failed"
+                            type="error">
+                        {{ loadStatus.errorMessage }}
+                        </v-alert>
                     </div>
                 </div>
 
@@ -69,12 +82,9 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
 import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
 import IntegratedLoginService, { HCIntegratedLoginRequest, HCIntegratedLoginResult } from '../../../services/IntegratedLoginService';
 import BlockComponent from '../../Common/Basic/BlockComponent.vue';
-import UrlUtils from "../../../util/UrlUtils";
 import FloatingSquaresEffectComponent from '../../Common/Effects/FloatingSquaresEffectComponent.vue';
 
 @Component({
@@ -89,8 +99,10 @@ export default class IntegratedLoginPageComponent extends Vue {
     
     username: string = '';
     password: string = '';
+    twoFactorCode: string = '';
     showPassword: boolean = false;
     error: string = '';
+    showErrorAsHtml: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -110,6 +122,10 @@ export default class IntegratedLoginPageComponent extends Vue {
         return this.$store.state.globalOptions;
     }
 
+    get show2FAInput(): boolean {
+        return this.globalOptions.IntegratedLoginShow2FA;
+    }
+
     ////////////////
     //  METHODS  //
     //////////////
@@ -124,7 +140,7 @@ export default class IntegratedLoginPageComponent extends Vue {
         let payload: HCIntegratedLoginRequest = {
             Username: this.username,
             Password: this.password,
-            TwoFactorCode: ''
+            TwoFactorCode: this.twoFactorCode
         };
 
         let service = new IntegratedLoginService(true);
@@ -137,6 +153,7 @@ export default class IntegratedLoginPageComponent extends Vue {
                     }
                     else
                     {
+                        this.showErrorAsHtml = result.ShowErrorAsHtml;
                         this.error = result.ErrorMessage;
                     }
                 }

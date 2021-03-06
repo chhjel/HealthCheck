@@ -10,6 +10,7 @@ export interface HCIntegratedLoginResult
 {
     Success: boolean;
     ErrorMessage: string;
+    ShowErrorAsHtml: boolean;
 }
 
 export default class IntegratedLoginService extends HCServiceBase

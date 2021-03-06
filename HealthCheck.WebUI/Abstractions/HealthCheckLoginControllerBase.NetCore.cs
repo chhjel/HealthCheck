@@ -3,6 +3,8 @@ using HealthCheck.Core.Attributes;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Util;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 namespace HealthCheck.WebUI.Abstractions
 {
@@ -10,13 +12,23 @@ namespace HealthCheck.WebUI.Abstractions
     /// Base controller for integrated healthcheck login.
     /// </summary>
     [Route("[controller]")]
-    public abstract class HealthCheckLoginControllerBase: Controller
+    public abstract class HealthCheckLoginControllerBase : Controller
     {
         /// <summary>
         /// Set to false to return 404 for all actions.
         /// <para>Enabled by default.</para>
         /// </summary>
         protected bool Enabled { get; set; } = true;
+
+        /// <summary>
+        /// Minimum added delay on login to limit brute force.
+        /// </summary>
+        protected TimeSpan? MinAddedDelay { get; set; } = TimeSpan.FromSeconds(1.5);
+
+        /// <summary>
+        /// Maximum added delay on login to limit brute force.
+        /// </summary>
+        protected TimeSpan? MaxAddedDelay { get; set; } = TimeSpan.FromSeconds(3);
 
         private HealthCheckLoginControllerHelper Helper { get; set; } = new HealthCheckLoginControllerHelper();
 
@@ -27,9 +39,16 @@ namespace HealthCheck.WebUI.Abstractions
         [HideFromRequestLog]
         [HttpPost]
         [Route("Login")]
-        public virtual ActionResult Login(HCIntegratedLoginRequest model)
+        public virtual async Task<ActionResult> Login(HCIntegratedLoginRequest model)
         {
             if (!Enabled) return NotFound();
+            
+            if (MinAddedDelay != null && MaxAddedDelay != null)
+            {
+                var random = new Random();
+                var msDelay = random.Next((int)MinAddedDelay.Value.TotalMilliseconds, (int)MaxAddedDelay.Value.TotalMilliseconds);
+                await Task.Delay(msDelay);
+            }
             
             var result = HandleLoginRequest(model);
             if (result == null) return NotFound();

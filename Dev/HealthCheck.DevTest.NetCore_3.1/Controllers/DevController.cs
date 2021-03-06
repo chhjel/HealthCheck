@@ -178,7 +178,11 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
             config.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
             config.RedirectTargetOnNoAccess = "/no-access";
-            config.IntegratedLoginEndpoint = "/hclogin/login";
+            config.IntegratedLoginConfig = new HCIntegratedLoginConfig
+            {
+                IntegratedLoginEndpoint = "/hclogin/login",
+                Show2FAInput = true
+            };
         }
 
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequest request)
