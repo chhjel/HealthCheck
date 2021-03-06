@@ -39,6 +39,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Util
             };
             HCExtModuleInitializerUtil.TryExternalLazyFactoryInit(HCModuleType.Code, factory);
 #endif
+            /* Otherwise to nothing */
         }
     }
 }

@@ -13,6 +13,7 @@ namespace HealthCheck.Core.Modules.Tests
     {
         /// <summary>
         /// The assemblies that contains the test methods.
+        /// </summary>
         public IEnumerable<Assembly> AssembliesContainingTests { get; set; }
 
         /// <summary>

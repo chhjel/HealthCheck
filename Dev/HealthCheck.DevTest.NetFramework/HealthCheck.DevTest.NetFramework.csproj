@@ -182,6 +182,10 @@
       <Project>{df551db9-32a9-4519-b19c-2f306a486448}</Project>
       <Name>HealthCheck.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\HealthCheck.WebUI.TFA\HealthCheck.WebUI.TFA.csproj">
+      <Project>{5a193e4a-bc1c-413b-824c-c66f0f8d4674}</Project>
+      <Name>HealthCheck.WebUI.TFA</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\HealthCheck.WebUI\HealthCheck.WebUI.csproj">
       <Project>{2a641f75-5d28-4bf1-9019-8286fcbd6ac5}</Project>
       <Name>HealthCheck.WebUI</Name>

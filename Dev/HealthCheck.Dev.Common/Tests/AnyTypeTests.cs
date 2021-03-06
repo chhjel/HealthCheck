@@ -28,16 +28,22 @@ namespace HealthCheck.Dev.Common.Tests
 
         public class TestClassA
         {
-            public string PublicStringProperty { get; set; }
+#pragma warning disable S1144 // Unused private types or members should be removed
 #pragma warning disable S1104 // Fields should not have public accessibility
+#pragma warning disable IDE0044 // Add readonly modifier
+            public string PublicStringProperty { get; set; }
             public string PublicStringField;
-#pragma warning restore S1104 // Fields should not have public accessibility
             private string PrivateStringProperty { get; set; }
             private string PrivateStringField;
             public int IntProperty { get; set; }
             public DateTime DateProperty { get; set; }
-            // todo: [HCPropertyDescription]?
             public TestClassA RecursiveProperty { get; set; }
+
+            public string Test() 
+                => PublicStringField + PublicStringProperty + PrivateStringField + PrivateStringProperty + IntProperty + DateProperty + RecursiveProperty;
+#pragma warning restore S1104 // Fields should not have public accessibility
+#pragma warning restore S1144 // Unused private types or members should be removed
+#pragma warning restore IDE0044 // Add readonly modifier
         }
     }
 }

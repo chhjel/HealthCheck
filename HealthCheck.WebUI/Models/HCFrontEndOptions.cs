@@ -1,5 +1,6 @@
 ﻿using HealthCheck.WebUI.Exceptions;
 using Newtonsoft.Json;
+using System;
 
 namespace HealthCheck.WebUI.Models
 {
@@ -47,6 +48,12 @@ namespace HealthCheck.WebUI.Models
 
         [JsonProperty]
         internal bool IntegratedLoginShow2FA { get; set; }
+
+        [JsonProperty]
+        internal DateTimeOffset? IntegratedLoginCurrent2FACodeExpirationTime { get; set; }
+
+        [JsonProperty]
+        internal int IntegratedLogin2FACodeLifetime { get; set; } = 30;
 
         /// <summary>
         /// Create a new <see cref="HCFrontEndOptions"/>.

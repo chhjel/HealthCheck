@@ -9,6 +9,8 @@ export default interface FrontEndOptionsViewModel {
     ShowIntegratedLogin: boolean;
     IntegratedLoginEndpoint: string;
     IntegratedLoginShow2FA: boolean;
+    IntegratedLoginCurrent2FACodeExpirationTime: string | null;
+    IntegratedLogin2FACodeLifetime: number;
 }
 
 export interface EditorWorkerConfig {

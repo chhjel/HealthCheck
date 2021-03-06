@@ -40,6 +40,7 @@ namespace HealthCheck.Module.RequestLog.Util
             };
             HCExtModuleInitializerUtil.TryExternalLazyFactoryInit(HCModuleType.RequestLog, factory);
 #endif
+            /* Otherwise to nothing */
         }
     }
 }

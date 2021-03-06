@@ -1,6 +1,7 @@
 # HealthCheck
 
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI?label=HealthCheck.WebUI&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI)
+[![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI.TFA?label=HealthCheck.WebUI.TFA&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI.TFA)
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.DynamicCodeExecution?label=HealthCheck.Module.DynamicCodeExecution&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.DynamicCodeExecution)
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.EndpointControl?label=HealthCheck.Module.EndpointControl&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.EndpointControl)
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.RequestLog?label=HealthCheck.Module.RequestLog&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.RequestLog)
@@ -1104,9 +1105,9 @@ FlowChartsService = new DefaultFlowChartService(new DefaultFlowChartServiceOptio
 
 ## Integrated login dialog
 
-An integrated login dialog is included, but custom login logic must be provided. To enable the dialog two steps are required.
+An integrated login dialog is included, but custom authentication logic must be provided. To enable the dialog two steps are required.
 
-1. The main controller uses readonly session behaviour that will cause some login logic to fail, so a new controller is required that handles the login request. Inherit from `HealthCheckLoginControllerBase` and implement `HandleLoginRequest`.
+1. The main controller uses readonly session behaviour that can cause some login logic dependent on sessions to fail, so a new controller is required that handles the login request. Inherit from `HealthCheckLoginControllerBase` and implement `HandleLoginRequest`. 
 
     ```csharp
     public class HCLoginController : HealthCheckLoginControllerBase
@@ -1114,12 +1115,8 @@ An integrated login dialog is included, but custom login logic must be provided.
         protected override HCIntegratedLoginResult HandleLoginRequest(HCIntegratedLoginRequest request)
         {
             var success = _myAccessService.AuthenticateUser(request.Username, request.Password);
-
-            return new HCIntegratedLoginResult
-            {
-                Success = success,
-                ErrorMessage = $"Wrong username or password, try again or give up."
-            };
+            // If using 2FA controller (see below), the 2FA code can be validated using Validate2FACode(userSecret, request.TwoFactorCode);
+            return HCIntegratedLoginResult.CreateResult(success, "Wrong username or password, try again or give up.");
         }
     }
     ```
@@ -1129,11 +1126,26 @@ An integrated login dialog is included, but custom login logic must be provided.
     ```csharp
     protected override void ConfigureAccess(HttpRequestBase request,AccessConfig<RuntimeTestAccessRole> config) {
         ...
-        config.IntegratedLoginEndpoint = "hclogin/login";
+        config.IntegratedLoginConfig = new HCIntegratedLoginConfig
+        {
+            IntegratedLoginEndpoint = "/hclogin/login",
+            // Optionally to show 2FA input:
+            Show2FAInput = true,
+            // Optionally to show how much time left of the 2FA code:
+            Current2FACodeExpirationTime = HealthCheck2FAUtil.GetCurrentCodeExpirationTime()
+        };
     }
     ```
 
 Any requests to the index action of the main controller that does not have access to any of the content will now be shown the login dialog. On a successfull login the page will refresh and the user will have access to any content you granted the request.
+
+### 2FA
+
+To add TOTP 2FA validation you can inherit from `HealthCheckLogin2FAControllerBase` included in the [![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI.TFA?label=HealthCheck.WebUI.TFA&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI.TFA) package. If you already have code for validation of 2FA codes in your project this package is not needed.
+
+* For 2FA to work you need to store a 2FA secret per user to validate the codes against. The secret must be a base32 string and can be generated using e.g. `HealthCheck2FAUtil.GenerateOTPSecret()`.
+* Validate 2FA codes using the `Validate2FACode(userSecret, code)` method available in the controller, or using `HealthCheck2FAUtil`.
+* The built in logic uses TOTP so e.g. Bitwarden or the Google authenticator app can be used to generate codes.
 
 ---------
 

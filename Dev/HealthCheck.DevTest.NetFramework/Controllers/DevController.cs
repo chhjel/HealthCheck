@@ -54,6 +54,7 @@ using HealthCheck.RequestLog.Services;
 using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Services;
+using HealthCheck.WebUI.TFA.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -79,7 +80,7 @@ namespace HealthCheck.DevTest.Controllers
         private static readonly TestMemoryStream memoryStream = new TestMemoryStream("Memory");
         private static readonly TestMemoryStream otherStream1 = new TestMemoryStream(null);
         private static readonly TestMemoryStream otherStream2 = new TestMemoryStream(null);
-        //private static readonly HCMemoryMessageStore _memoryMessageStore = new HCMemoryMessageStore();
+        //private static readonly HCMemoryMessageStore _memoryMessageStore = new HCMemoryMessageStore()
         private static readonly IHCMessageStorage _memoryMessageStore = new HCFlatFileMessageStore(@"c:\temp\hc_messages")
         {
             EnableStoringMessages = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableStoringMessages)
@@ -259,7 +260,8 @@ namespace HealthCheck.DevTest.Controllers
             config.IntegratedLoginConfig = new HCIntegratedLoginConfig
             {
                 IntegratedLoginEndpoint = "/hclogin/login",
-                Show2FAInput = true
+                Show2FAInput = true,
+                Current2FACodeExpirationTime = HealthCheck2FAUtil.GetCurrentCodeExpirationTime()
             };
         }
 

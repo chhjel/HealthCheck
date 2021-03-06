@@ -136,6 +136,8 @@ namespace HealthCheck.WebUI.Abstractions
             frontEndOptions.ShowIntegratedLogin = true;
             frontEndOptions.IntegratedLoginEndpoint = Helper?.AccessConfig?.IntegratedLoginConfig?.IntegratedLoginEndpoint;
             frontEndOptions.IntegratedLoginShow2FA = Helper?.AccessConfig?.IntegratedLoginConfig?.Show2FAInput ?? false;
+            frontEndOptions.IntegratedLoginCurrent2FACodeExpirationTime = Helper?.AccessConfig?.IntegratedLoginConfig?.Current2FACodeExpirationTime;
+            frontEndOptions.IntegratedLogin2FACodeLifetime = Helper?.AccessConfig?.IntegratedLoginConfig?.TwoFactorCodeLifetime ?? 30;
 
             var pageOptions = GetPageOptions();
             var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions);

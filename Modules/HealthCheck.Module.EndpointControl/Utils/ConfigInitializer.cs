@@ -44,6 +44,7 @@ namespace HealthCheck.Module.EndpointControl.Utils
             };
             HCExtModuleInitializerUtil.TryExternalLazyFactoryInit(HCModuleType.EndpointControl, factory);
 #endif
+            /* Otherwise to nothing */
         }
     }
 }

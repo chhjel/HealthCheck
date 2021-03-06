@@ -20,6 +20,7 @@
                             <v-text-field 
                                 v-model="username"
                                 :disabled="loadStatus.inProgress"
+                                v-on:keyup.enter="onLoginClicked"
                                 type="text"
                                 label="Username"
                                 placeholder=" "
@@ -28,6 +29,7 @@
                             <v-text-field 
                                 v-model="password"
                                 :disabled="loadStatus.inProgress"
+                                v-on:keyup.enter="onLoginClicked"
                                 label="Password"
                                 placeholder=" "
                                 :type="showPassword ? 'text' : 'password'"
@@ -39,10 +41,20 @@
                                 v-if="show2FAInput"
                                 v-model="twoFactorCode"
                                 :disabled="loadStatus.inProgress"
+                                v-on:keyup.enter="onLoginClicked"
                                 label="Two factor code"
                                 placeholder=" "
                                 type="text"
-                                class="pt-0 mt-2" />
+                                class="pt-0 mt-2"
+                                loading>
+                                <template v-slot:progress>
+                                    <v-progress-linear
+                                    :value="twoFactorInputProgress"
+                                    :color="twoFactorInputColor"
+                                    height="7"
+                                    ></v-progress-linear>
+                                </template>
+                            </v-text-field>
                         </div>
 
                         <v-btn round color="primary" large class="mt-4 login-button"
@@ -103,12 +115,19 @@ export default class IntegratedLoginPageComponent extends Vue {
     showPassword: boolean = false;
     error: string = '';
     showErrorAsHtml: boolean = false;
+    current2FACodeProgress: number = 0;
+    twoFactorIntervalId: number = 0;
 
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     mounted(): void
     {
+        this.twoFactorIntervalId = setInterval(this.update2FAProgress, 1000);
+    }
+
+    beforeDestroy(): void {
+        clearInterval(this.twoFactorIntervalId);
     }
 
     ////////////////
@@ -124,6 +143,28 @@ export default class IntegratedLoginPageComponent extends Vue {
 
     get show2FAInput(): boolean {
         return this.globalOptions.IntegratedLoginShow2FA;
+    }
+
+    get show2FACodeExpirationTime(): boolean {
+        return !!this.globalOptions.IntegratedLoginCurrent2FACodeExpirationTime;
+    }
+
+    get twoFactorInputProgress(): number {
+        return this.current2FACodeProgress;
+    }
+
+    get twoFactorInputColor(): string {
+        if (this.twoFactorInputProgress < 20)
+        {
+            return 'error';
+        }
+        else if (this.twoFactorInputProgress < 35)
+        {
+            return 'warning'
+        }
+        else {
+            return 'success';
+        }
     }
 
     ////////////////
@@ -158,6 +199,25 @@ export default class IntegratedLoginPageComponent extends Vue {
                     }
                 }
             });
+    }
+
+    update2FAProgress(): void {
+        if (!this.show2FACodeExpirationTime)
+        {
+            return; 
+        }
+
+        const initialDate = new Date(this.globalOptions.IntegratedLoginCurrent2FACodeExpirationTime || '');
+        const lifetime = this.globalOptions.IntegratedLogin2FACodeLifetime;
+        let mod = (((new Date().getTime() - initialDate.getTime()) / 1000) % lifetime);
+        if (mod < 0)
+        {
+            mod = mod + lifetime;
+        }
+
+        const timeLeft = lifetime - mod;
+        const percentage = timeLeft / lifetime;
+        this.current2FACodeProgress = percentage * 100;
     }
 
     ///////////////////////
