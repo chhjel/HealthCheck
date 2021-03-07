@@ -133,6 +133,10 @@ export default class IntegratedLoginPageComponent extends Vue {
     showCodeMessageAsHtml: boolean = false;
     current2FACodeProgress: number = 0;
     twoFactorIntervalId: number = 0;
+    codeExpirationTime: Date | null = null;
+    codeExpirationDuration: number | null = null;
+    allowShowProgress: boolean = true;
+    isSingleProgress: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -174,7 +178,7 @@ export default class IntegratedLoginPageComponent extends Vue {
     }
 
     get show2FACodeExpirationTime(): boolean {
-        return !!this.globalOptions.IntegratedLoginCurrent2FACodeExpirationTime;
+        return this.allowShowProgress && !!(this.globalOptions.IntegratedLoginCurrent2FACodeExpirationTime || this.codeExpirationTime);
     }
 
     get twoFactorInputProgress(): number {
@@ -249,6 +253,15 @@ export default class IntegratedLoginPageComponent extends Vue {
                     {
                         this.codeMessage = result.SuccessMessage;
                         this.showCodeMessageAsHtml = result.ShowSuccessAsHtml;
+
+                        if (result.CodeExpiresInSeconds)
+                        {
+                            this.isSingleProgress = true;
+                            this.allowShowProgress = true;
+                            this.codeExpirationTime = new Date();
+                            this.codeExpirationTime.setSeconds(this.codeExpirationTime.getSeconds() + result.CodeExpiresInSeconds);
+                            this.codeExpirationDuration = result.CodeExpiresInSeconds;
+                        }
                     }
                     else
                     {
@@ -265,8 +278,9 @@ export default class IntegratedLoginPageComponent extends Vue {
             return; 
         }
 
-        const initialDate = new Date(this.globalOptions.IntegratedLoginCurrent2FACodeExpirationTime || '');
-        const lifetime = this.globalOptions.IntegratedLogin2FACodeLifetime;
+        const expirationTime = this.codeExpirationTime || this.globalOptions.IntegratedLoginCurrent2FACodeExpirationTime;
+        const initialDate = new Date(expirationTime || '');
+        const lifetime = this.codeExpirationDuration || this.globalOptions.IntegratedLogin2FACodeLifetime;
         let mod = (((new Date().getTime() - initialDate.getTime()) / 1000) % lifetime);
         if (mod < 0)
         {
@@ -276,6 +290,11 @@ export default class IntegratedLoginPageComponent extends Vue {
         const timeLeft = lifetime - mod;
         const percentage = timeLeft / lifetime;
         this.current2FACodeProgress = percentage * 100;
+
+        if (timeLeft <= 1.1 && this.isSingleProgress)
+        {
+            this.allowShowProgress = false;
+        }
     }
 
     ///////////////////////

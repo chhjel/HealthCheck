@@ -24,6 +24,7 @@ export interface HCIntegratedLogin2FACodeRequestResult
     ShowSuccessAsHtml: boolean;
     ErrorMessage: string;
     ShowErrorAsHtml: boolean;
+    CodeExpiresInSeconds: number | null;
 }
 
 export default class IntegratedLoginService extends HCServiceBase

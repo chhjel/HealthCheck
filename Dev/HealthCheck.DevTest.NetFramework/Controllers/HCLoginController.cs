@@ -1,6 +1,7 @@
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.TFA;
 using HealthCheck.WebUI.TFA.Util;
+using System;
 
 namespace HealthCheck.DevTest.Controllers
 {
@@ -38,7 +39,8 @@ namespace HealthCheck.DevTest.Controllers
 
             var code = HealthCheck2FAUtil.GenerateCode(DummySecret);
             var sessionCode = CreateSession2FACode(request.Username);
-            return HCIntegratedLogin2FACodeRequestResult.CreateSuccess($"TOTP code is <b>{code}</b>, session code is <b>{sessionCode}</b>.", true);
+            return HCIntegratedLogin2FACodeRequestResult.CreateSuccess($"TOTP code is <b>{code}</b>, session code is <b>{sessionCode}</b>.", true,
+                codeExpiresIn: TimeSpan.FromMinutes(5));
         }
     }
 }

@@ -1167,7 +1167,7 @@ Example logic using built in helper methods for creating 2FA codes in session:
         var code = CreateSession2FACode(request.Username);
         // E.g. send code by mail or sms to user here
 
-        return HCIntegratedLogin2FACodeRequestResult.CreateSuccess($"Code has been sent.");
+        return HCIntegratedLogin2FACodeRequestResult.CreateSuccess($"Code has been sent.", codeExpiresIn: TimeSpan.FromMinutes(5));
     }
 ```
 

@@ -1,4 +1,6 @@
-﻿namespace HealthCheck.WebUI.Models
+﻿using System;
+
+namespace HealthCheck.WebUI.Models
 {
     /// <summary>
     /// Result from custom login handler.
@@ -31,6 +33,12 @@
         public bool ShowErrorAsHtml { get; set; }
 
         /// <summary>
+        /// Can be set from <see cref="CreateSuccess"/> when <c>codeExpiresIn</c> is set.
+        /// <para>Causes a progress bar to be shown.</para>
+        /// </summary>
+        public int? CodeExpiresInSeconds { get; internal set; }
+
+        /// <summary>
         /// Create a new error result.
         /// </summary>
         /// <param name="error">The error message to display.</param>
@@ -55,7 +63,12 @@
         /// <summary>
         /// Create a new result allowing login.
         /// </summary>
-        public static HCIntegratedLogin2FACodeRequestResult CreateSuccess(string message = null, bool showAsHtml = false)
-            => new HCIntegratedLogin2FACodeRequestResult { Success = true, SuccessMessage = message, ShowSuccessAsHtml = showAsHtml };
+        public static HCIntegratedLogin2FACodeRequestResult CreateSuccess(string message = null, bool showAsHtml = false, TimeSpan? codeExpiresIn = null)
+            => new HCIntegratedLogin2FACodeRequestResult {
+                Success = true,
+                SuccessMessage = message,
+                ShowSuccessAsHtml = showAsHtml,
+                CodeExpiresInSeconds = codeExpiresIn.HasValue ? (int)codeExpiresIn.Value.TotalSeconds : default
+            };
     }
 }
