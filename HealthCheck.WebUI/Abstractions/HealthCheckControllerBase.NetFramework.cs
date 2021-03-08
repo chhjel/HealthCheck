@@ -90,7 +90,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Get the first registered module of the given type.
         /// </summary>
-        public TModule GetModule<TModule>() where TModule : class
+        protected TModule GetModule<TModule>() where TModule : class
             => Helper.GetModule<TModule>();
 #endregion
 
