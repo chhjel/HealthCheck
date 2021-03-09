@@ -163,7 +163,7 @@ namespace HealthCheck.DevTest.Controllers
             UseModule(new HCTestsModule(new HCTestsModuleOptions() {
                     AssembliesContainingTests = assemblies,
                     ReferenceParameterFactories = CreateReferenceParameterFactories
-                }))
+            }))
                 .ConfigureGroups((options) => options
                     .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
                     .ConfigureGroup(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)

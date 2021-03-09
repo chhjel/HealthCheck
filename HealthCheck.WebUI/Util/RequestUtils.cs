@@ -10,6 +10,7 @@ using System.Net;
 #endif
 
 using HealthCheck.Core.Config;
+using HealthCheck.Core.Extensions;
 
 namespace HealthCheck.WebUI.Util
 {
@@ -30,7 +31,7 @@ namespace HealthCheck.WebUI.Util
 
                 try
                 {
-                    var customIP = HCGlobalConfig.CurrentIPAddressResolver?.Invoke();
+                    var customIP = HCGlobalConfig.CurrentIPAddressResolver?.Invoke()?.StripPortNumber();
                     if (!string.IsNullOrWhiteSpace(customIP))
                     {
                         return customIP;
@@ -53,11 +54,12 @@ namespace HealthCheck.WebUI.Util
                     string[] addresses = ipAddress.Split(',');
                     if (addresses.Length != 0)
                     {
-                        return addresses[0];
+                        return addresses[0]?.StripPortNumber();
                     }
                 }
 
-                return request.ServerVariables?["REMOTE_ADDR"] ?? request?.UserHostAddress;
+                ipAddress = request.ServerVariables?["REMOTE_ADDR"] ?? request?.UserHostAddress;
+                return ipAddress?.StripPortNumber();
             }
             catch (Exception)
             {
@@ -83,7 +85,7 @@ namespace HealthCheck.WebUI.Util
 
                 try
                 {
-                    var customIP = HCGlobalConfig.CurrentIPAddressResolver?.Invoke();
+                    var customIP = HCGlobalConfig.CurrentIPAddressResolver?.Invoke()?.StripPortNumber();
                     if (!string.IsNullOrWhiteSpace(customIP))
                     {
                         return customIP;
@@ -106,11 +108,12 @@ namespace HealthCheck.WebUI.Util
                     string[] addresses = ipAddress.Split(',');
                     if (addresses.Length != 0)
                     {
-                        return addresses[0];
+                        return addresses[0]?.StripPortNumber();
                     }
                 }
 
-                return request?.Headers?["REMOTE_ADDR"] ?? context?.Connection?.RemoteIpAddress?.ToString();
+                ipAddress = request?.Headers?["REMOTE_ADDR"] ?? context?.Connection?.RemoteIpAddress?.ToString();
+                return ipAddress?.StripPortNumber();
             }
             catch (Exception)
             {

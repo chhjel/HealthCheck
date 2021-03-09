@@ -12,6 +12,19 @@ namespace HealthCheck.Core.Extensions
     public static class StringExtensions
     {
         /// <summary>
+        /// Strips anything past the first ':' if any.
+        /// </summary>
+        public static string StripPortNumber(this string text)
+        {
+            if (string.IsNullOrWhiteSpace(text) || !text.Contains(":"))
+            {
+                return text;
+            }
+
+            return text.Substring(0, text.IndexOf(":"));
+        }
+
+        /// <summary>
         /// Limit string length.
         /// </summary>
         public static string LimitMaxLength(this string text, int maxLength, string shortenedAffix = "..")

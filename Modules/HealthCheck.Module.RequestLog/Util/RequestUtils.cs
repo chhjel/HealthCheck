@@ -1,5 +1,6 @@
 ﻿#if NETFULL
 using HealthCheck.Core.Config;
+using HealthCheck.Core.Extensions;
 using System;
 using System.Net.Http;
 using System.Web;
@@ -51,7 +52,7 @@ namespace HealthCheck.Module.RequestLog.Util
 
                 try
                 {
-                    var customIP = HCGlobalConfig.CurrentIPAddressResolver?.Invoke();
+                    var customIP = HCGlobalConfig.CurrentIPAddressResolver?.Invoke()?.StripPortNumber();
                     if (!string.IsNullOrWhiteSpace(customIP))
                     {
                         return customIP;
@@ -83,7 +84,7 @@ namespace HealthCheck.Module.RequestLog.Util
                                     string[] addresses = ipAddress.Split(',');
                                     if (addresses.Length != 0)
                                     {
-                                        return addresses[0];
+                                        return addresses[0]?.StripPortNumber();
                                     }
                                 }
                             }
@@ -91,11 +92,11 @@ namespace HealthCheck.Module.RequestLog.Util
 
                             try
                             {
-                                return ctx.Request.ServerVariables["REMOTE_ADDR"];
+                                return (ctx.Request.ServerVariables["REMOTE_ADDR"] as string)?.StripPortNumber();
                             }
                             catch (Exception) { /* Ignore errors here */ }
 
-                            return ctx.Request.UserHostAddress;
+                            return (ctx.Request.UserHostAddress as string)?.StripPortNumber();
                         }
                     }
 
@@ -110,7 +111,7 @@ namespace HealthCheck.Module.RequestLog.Util
                         dynamic remoteEndpoint = request.Properties[_remoteEndpointMessage];
                         if (remoteEndpoint != null)
                         {
-                            return remoteEndpoint.Address;
+                            return (remoteEndpoint.Address as string)?.StripPortNumber();
                         }
                     }
                 }
@@ -122,7 +123,7 @@ namespace HealthCheck.Module.RequestLog.Util
                     dynamic owinContext = request.Properties[_owinContext];
                     if (owinContext != null)
                     {
-                        return owinContext.Request.RemoteIpAddress;
+                        return (owinContext.Request.RemoteIpAddress as string)?.StripPortNumber();
                     }
                 }
 
@@ -148,7 +149,7 @@ namespace HealthCheck.Module.RequestLog.Util
 
                 try
                 {
-                    var customIP = HCGlobalConfig.CurrentIPAddressResolver?.Invoke();
+                    var customIP = HCGlobalConfig.CurrentIPAddressResolver?.Invoke()?.StripPortNumber();
                     if (!string.IsNullOrWhiteSpace(customIP))
                     {
                         return customIP;
@@ -170,11 +171,12 @@ namespace HealthCheck.Module.RequestLog.Util
                     string[] addresses = ipAddress.Split(',');
                     if (addresses.Length != 0)
                     {
-                        return addresses[0];
+                        return addresses[0]?.StripPortNumber();
                     }
                 }
 
-                return request.ServerVariables?["REMOTE_ADDR"] ?? request?.UserHostAddress;
+                ipAddress = request.ServerVariables?["REMOTE_ADDR"] ?? request?.UserHostAddress;
+                return ipAddress?.StripPortNumber();
             }
             catch (Exception)
             {
