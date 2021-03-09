@@ -953,6 +953,8 @@ Also allows for optionally handling blocked requests in code manually, and only 
 
 Adding attributes to actions will not block anything until you add some rules in the interface.
 
+The default response when request is blocked is a 409 with either a text for GET requests and a json for any other method.
+
 ### Setup
 
 ```csharp

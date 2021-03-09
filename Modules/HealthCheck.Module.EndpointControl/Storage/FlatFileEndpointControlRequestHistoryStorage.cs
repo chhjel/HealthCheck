@@ -112,9 +112,11 @@ namespace HealthCheck.Module.EndpointControl.Storage
 		{
 			lock (_data.IdentityRequests)
 			{
-				return _data.IdentityRequests.ContainsKey(locationId)
-					? _data.IdentityRequests[locationId].LatestRequests.Count(x => x.Timestamp >= time)
-					: 0;
+				var queue = _data.IdentityRequests.ContainsKey(locationId) ? _data.IdentityRequests[locationId].LatestRequests : null;
+				lock (queue)
+				{
+					return queue?.Count(x => x.Timestamp >= time) ?? 0;
+				}
 			}
 		}
 
@@ -125,9 +127,11 @@ namespace HealthCheck.Module.EndpointControl.Storage
 		{
 			lock (_data.IdentityRequests)
 			{
-				return _data.IdentityRequests.ContainsKey(locationId)
-					? _data.IdentityRequests[locationId].LatestRequests.Count(x => x.EndpointId == endpointId && x.Timestamp >= time)
-					: 0;
+				var queue = _data.IdentityRequests.ContainsKey(locationId) ? _data.IdentityRequests[locationId].LatestRequests : null;
+				lock (queue)
+				{
+					return queue?.Count(x => x.EndpointId == endpointId && x.Timestamp >= time) ?? 0;
+				}
 			}
 		}
 

@@ -4,6 +4,7 @@ using HealthCheck.Module.EndpointControl.Models;
 using HealthCheck.Module.EndpointControl.Utils;
 using System;
 using System.Net;
+using System.Text;
 using System.Web.Mvc;
 
 namespace HealthCheck.Module.EndpointControl.Attributes
@@ -82,10 +83,43 @@ namespace HealthCheck.Module.EndpointControl.Attributes
 
         /// <summary>
         /// Result returned when execution is blocked.
-        /// <para>Defaults to <c>"Too many requests. Try again later."</c></para>
+        /// <para>Defaults to <c>"Too many requests. Try again later."</c> with status 409 for GET</para>
+        /// <para>Defaults to <c>{ success = false, errorMessage = "Too many requests. Try again later." }</c> with status 409 for any other methods.</para>
         /// </summary>
         protected virtual ActionResult CreateBlockedResult(ActionExecutingContext filterContext)
-            => new ContentResult { Content = "Too many requests. Try again later." };
+        {
+            if (filterContext.HttpContext.Request.HttpMethod == "GET")
+            {
+                return CreateDefaultBlockedResponse_Get(filterContext);
+            }
+            else
+            {
+                return CreateDefaultBlockedResponse_NotGet(filterContext);
+            }
+        }
+
+        /// <summary>
+        /// Create default blocked response for GET requests used by default <see cref="CreateBlockedResult"/> method.
+        /// </summary>
+        protected virtual ActionResult CreateDefaultBlockedResponse_Get(ActionExecutingContext filterContext)
+        {
+            filterContext.HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+            return new ContentResult { Content = "Too many requests. Try again later." };
+        }
+
+        /// <summary>
+        /// Create default blocked response for any non-GET requests used by default <see cref="CreateBlockedResult"/> method.
+        /// </summary>
+        protected virtual ActionResult CreateDefaultBlockedResponse_NotGet(ActionExecutingContext filterContext)
+        {
+            filterContext.HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+            return new ContentResult
+            {
+                ContentType = "application/json",
+                ContentEncoding = Encoding.UTF8,
+                Content = "{\"success\":false,\"errorMessage\":\"Too many requests. Try again later.\"}"
+            };
+        }
 
         /// <summary>
         /// Gather information about the request to send to <see cref="IEndpointControlService"/>.

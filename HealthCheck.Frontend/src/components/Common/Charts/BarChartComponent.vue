@@ -193,6 +193,15 @@ export default class BarChartComponent extends Vue {
 
 		let text = this.title;
 		this.chart.options.title.text = text;
+
+		if (this.chart.options.scales != null
+			&& this.chart.options.scales.yAxes != null
+			&& this.chart.options.scales.yAxes.length > 0
+			&& this.chart.options.scales.yAxes[0].scaleLabel != null
+			&& this.chart.options.scales.yAxes[0].scaleLabel.labelString != null)
+		{
+			this.chart.options.scales.yAxes[0].scaleLabel.labelString = this.ylabel;
+		}
 	}
 
     @Watch("bars")
