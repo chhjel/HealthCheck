@@ -45,7 +45,8 @@ namespace HealthCheck.Core.Modules.Tests
             TestDiscoverer = new TestDiscoveryService()
             {
                 AssembliesContainingTests = assemblies,
-                ReferenceParameterFactories = _referenceParameterFactories
+                ReferenceParameterFactories = _referenceParameterFactories,
+                IncludeProxyTests = options.IncludeProxyTests
             };
             _options = options;
         }

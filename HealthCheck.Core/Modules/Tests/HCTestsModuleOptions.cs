@@ -28,6 +28,11 @@ namespace HealthCheck.Core.Modules.Tests
         public bool AllowAnyParameterType { get; set; } = true;
 
         /// <summary>
+        /// Allow proxy tests to be discovered.
+        /// </summary>
+        public bool IncludeProxyTests { get; set; } = true;
+
+        /// <summary>
         /// Action executed on results when <see cref="TestResult.AddAutoCreatedResultData"/> is used, and also for proxy test results.
         /// </summary>
         public Action<TestResult, object> AutoResultAction { get; set; } = AutoResultHelper.DefaultAutoResultAction;

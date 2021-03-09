@@ -26,6 +26,11 @@ namespace HealthCheck.Core.Modules.Tests.Services
         public List<RuntimeTestReferenceParameterFactory> ReferenceParameterFactories { get; set; } = new List<RuntimeTestReferenceParameterFactory>();
 
         /// <summary>
+        /// Allow proxy tests to be discovered.
+        /// </summary>
+        public bool IncludeProxyTests { get; set; }
+
+        /// <summary>
         /// Create a new <see cref="TestDiscoveryService"/>.
         /// </summary>
         public TestDiscoveryService() {}
@@ -110,7 +115,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                         }
                     }
                     // Proxy class tests
-                    else if (proxyTestAttribute != null)
+                    else if (proxyTestAttribute != null && IncludeProxyTests)
                     {
                         // Check for load errors
                         var errors = ValidateProxyTestMethod(classType, testMethod);
