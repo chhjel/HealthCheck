@@ -28,7 +28,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
         /// <summary>
         /// Allow proxy tests to be discovered.
         /// </summary>
-        public bool IncludeProxyTests { get; set; }
+        public bool IncludeProxyTests { get; set; } = true;
 
         /// <summary>
         /// Create a new <see cref="TestDiscoveryService"/>.
