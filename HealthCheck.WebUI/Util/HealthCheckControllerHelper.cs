@@ -32,7 +32,18 @@ namespace HealthCheck.WebUI.Util
     /// </summary>
     internal class HealthCheckControllerHelper<TAccessRole>
     {
+        /// <summary>
+        /// Access related options.
+        /// </summary>
+        public AccessConfig<TAccessRole> AccessConfig { get; set; } = new AccessConfig<TAccessRole>();
+
+        /// <summary>
+        /// Used for auditing, is set from first audit module if any.
+        /// </summary>
+        public IAuditEventStorage AuditEventService { get; set; }
+
         private readonly Func<HCPageOptions> _pageOptionsGetter;
+        private bool _includeClientConnectionDetailsInAllAuditEvents;
 
         /// <summary>
         /// Initialize a new HealthCheck helper with the given services.
@@ -44,16 +55,6 @@ namespace HealthCheck.WebUI.Util
 
             TestRunnerService.Serializer = new NewtonsoftJsonSerializer();
         }
-
-        /// <summary>
-        /// Access related options.
-        /// </summary>
-        public AccessConfig<TAccessRole> AccessConfig { get; set; } = new AccessConfig<TAccessRole>();
-
-        /// <summary>
-        /// Used for auditing, is set from first audit module if any.
-        /// </summary>
-        public IAuditEventStorage AuditEventService { get; set; }
 
         internal bool HasAccessToAnyContent(Maybe<TAccessRole> currentRequestAccessRoles)
             => GetModulesRequestHasAccessTo(currentRequestAccessRoles).Count > 0;
@@ -217,6 +218,11 @@ namespace HealthCheck.WebUI.Util
                 {
                     foreach (var e in context.AuditEvents)
                     {
+                        if (_includeClientConnectionDetailsInAllAuditEvents)
+                        {
+                            e.AddClientConnectionDetails(context);
+                        }
+
                         await AuditEventService.StoreEvent(e);
                     }
                 }
@@ -263,6 +269,11 @@ namespace HealthCheck.WebUI.Util
                 {
                     foreach (var e in context.AuditEvents)
                     {
+                        if (_includeClientConnectionDetailsInAllAuditEvents)
+                        {
+                            e.AddClientConnectionDetails(context);
+                        }
+
                         await AuditEventService.StoreEvent(e);
                     }
                 }
@@ -495,6 +506,7 @@ namespace HealthCheck.WebUI.Util
                 else if (loadedModule.Module is HCAuditLogModule auditModule)
                 {
                     AuditEventService = auditModule.AuditEventService;
+                    _includeClientConnectionDetailsInAllAuditEvents = auditModule.IncludeClientConnectionDetailsInAllEvents;
                 }
             }
         }

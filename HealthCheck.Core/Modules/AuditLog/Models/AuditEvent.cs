@@ -2,6 +2,7 @@
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HealthCheck.Core.Modules.AuditLog.Models
 {
@@ -56,6 +57,7 @@ namespace HealthCheck.Core.Modules.AuditLog.Models
         public List<string> UserAccessRoles { get; set; }
 
         internal List<KeyValuePair<string, string>> _blobContents = new List<KeyValuePair<string, string>>();
+        private bool _clientConnectionDetailsAdded = false;
 
         /// <summary>
         /// Create a new empty <see cref="AuditEvent"/>.
@@ -114,8 +116,13 @@ namespace HealthCheck.Core.Modules.AuditLog.Models
         /// </summary>
         public AuditEvent AddClientConnectionDetails(HealthCheckModuleContext context)
         {
-            AddDetail("Client IP", context.Request.ClientIP);
-            AddDetail("Client User-Agent", context.Request.UserAgent);
+            if (!_clientConnectionDetailsAdded)
+            {
+                AddDetail("Client IP", context.Request.ClientIP);
+                AddDetail("Client User-Agent", context.Request.UserAgent);
+                _clientConnectionDetailsAdded = true;
+            }
+
             return this;
         }
 

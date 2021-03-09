@@ -19,6 +19,7 @@ namespace HealthCheck.Core.Modules.AuditLog
         public IAuditEventStorage AuditEventService => Options.AuditEventService;
 
         private HCAuditLogModuleOptions Options { get; }
+        internal bool IncludeClientConnectionDetailsInAllEvents => Options?.IncludeClientConnectionDetailsInAllEvents == true;
 
         /// <summary>
         /// Module for viewing audit logs.

@@ -123,7 +123,7 @@ namespace HealthCheck.DevTest.NetCore.Controllers
                 })
             }));
             UseModule(new HCDataflowModule<RuntimeTestAccessRole>(new HCDataflowModuleOptions<RuntimeTestAccessRole>() { DataflowService = DataflowService }));
-            UseModule(new HCAuditLogModule(new HCAuditLogModuleOptions() { AuditEventService = _auditEventService }));
+            UseModule(new HCAuditLogModule(new HCAuditLogModuleOptions() { AuditEventService = _auditEventService, IncludeClientConnectionDetailsInAllEvents = true }));
             UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = _siteEventService }));
             UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { SettingsService = SettingsService }));
 
