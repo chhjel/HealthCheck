@@ -1198,6 +1198,7 @@ A few utility classes are included below `HealthCheck.Core.Util`:
 * `TimeUtils` - Prettify durations.
 * `IoCUtils` -  Get instances of types with partial IoC etc.
 * `ReflectionUtils` - Invoke private members etc.
+* `AsyncUtils` - Invoke async through reflection, run async synchronous.
 * Log4Net and Episerver memory loggers are available in nuget packages `HealthCheck.Utility.Logger.*`
 * `HealthCheck.Core.Config.HCGlobalConfig` contains a few global static options:
   * Dependency resolver override.

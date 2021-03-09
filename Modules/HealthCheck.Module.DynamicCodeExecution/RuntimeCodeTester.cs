@@ -7,6 +7,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace HealthCheck.Module.DynamicCodeExecution
 {
@@ -182,13 +183,32 @@ namespace HealthCheck.Module.DynamicCodeExecution
             if (method == null)
             {
                 result.Status = CodeExecutionResult.StatusTypes.RuntimeError;
-                result.Errors.Add(new CodeError("No Main method was found. It has to exist within CodeTesting.EntryClass and optionally return something stringable."));
+                result.Errors.Add(new CodeError("No Main method was found. It has to exist within CodeTesting.EntryClass, can be async and optionally return something stringable."));
                 return result;
             }
 
             try
             {
-                result.Output = method.Invoke(instance, null)?.ToString();
+                var returnType = method.ReturnType;
+                object rawResult = null;
+
+                // Task or Task<T>
+                if (returnType == typeof(Task)
+                    || (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>)))
+                {
+                    rawResult = AsyncUtils.InvokeAsyncSync(method, instance, null);
+                    if (returnType == typeof(Task))
+                    {
+                        rawResult = null;
+                    }
+                }
+                // Not async
+                else
+                {
+                    rawResult = method.Invoke(instance, null);
+                }
+
+                result.Output = rawResult?.ToString();
                 result.Status = CodeExecutionResult.StatusTypes.Executed;
             }
             catch (Exception ex)
