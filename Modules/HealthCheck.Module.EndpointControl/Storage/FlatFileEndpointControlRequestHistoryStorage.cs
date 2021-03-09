@@ -1,4 +1,5 @@
 ﻿#if NETFULL
+using HealthCheck.Core.Extensions;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Models;
 using Newtonsoft.Json;
@@ -137,7 +138,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
 		{
 			lock (_data.LatestRequests)
 			{
-				return _data.LatestRequests.Take(maxCount).ToArray();
+				return _data.LatestRequests.TakeLast(maxCount).ToArray();
 			}
 		}
 
@@ -225,7 +226,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
 						};
 					}),
                 LatestRequestIdentities = _data.LatestRequestIdentities.Take(MaxStoredIdentityCount).ToList(),
-				LatestRequests = new Queue<EndpointRequestDetails>(_data.LatestRequests.Take(MaxStoredLatestRequestCount))
+				LatestRequests = new Queue<EndpointRequestDetails>(_data.LatestRequests.TakeLast(MaxStoredLatestRequestCount))
             };
         }
 

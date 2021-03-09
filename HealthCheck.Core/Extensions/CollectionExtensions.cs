@@ -11,6 +11,12 @@ namespace HealthCheck.Core.Extensions
     public static class CollectionExtensions
     {
         /// <summary>
+        /// Take the last n items up to the given max.
+        /// </summary>
+        public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> enumerable, int max)
+            => enumerable.Skip(Math.Max(0, enumerable.Count() - max));
+
+        /// <summary>
         /// Get a random item from the given list, optionally using the given random instance.
         /// </summary>
         public static T RandomElement<T>(this IEnumerable<T> enumerable, Random random = null)
