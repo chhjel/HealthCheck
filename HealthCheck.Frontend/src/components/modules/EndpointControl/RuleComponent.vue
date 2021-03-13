@@ -85,6 +85,29 @@
                 Add new limit
             </v-btn>
         </block-component>
+        
+        <block-component class="mb-4" v-if="internalRule != null" title="Block action">
+            <h3 class="mt-4 mb-2">Select what happens when a request is blocked</h3>
+            
+            <v-select
+                class="mode-select"
+                v-model="internalRule.BlockResultTypeId"
+                :items="blockResultOptions"
+                item-text="text" item-value="value" color="secondary"
+                :disabled="!allowChanges"
+                >
+            </v-select>
+
+            <p class="mt-4 mb-2">{{ selectedBlockResultDescription }}</p>
+
+            <custom-block-result-property-input-component
+                v-for="(def, defIndex) in selectedBlockResultPropertyDefinitions"
+                :key="`defx-${defIndex}`"
+                v-model="internalRule.CustomBlockResultProperties[def.Id]"
+                :definition="def"
+                :readonly="!allowChanges"
+                />
+        </block-component>
 
         <v-dialog v-model="deleteDialogVisible"
             @keydown.esc="deleteDialogVisible = false"
@@ -107,7 +130,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Component, Prop, Watch, Inject } from "vue-property-decorator";
 import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
 import RuleFilterComponent from './RuleFilterComponent.vue';
 import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
@@ -120,7 +143,8 @@ import TimespanInputComponent from  '../../Common/Basic/TimespanInputComponent.v
 import CountOverDurationComponent from './CountOverDurationComponent.vue';
 import RuleDescriptionComponent from  './RuleDescriptionComponent.vue';
 import EndpointControlService from "../../../services/EndpointControlService";
-import { EndpointControlCountOverDuration, EndpointControlEndpointDefinition, EndpointControlPropertyFilter, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
+import { EndpointControlCountOverDuration, EndpointControlCustomResultDefinitionViewModel, EndpointControlCustomResultPropertyDefinitionViewModel, EndpointControlDataViewModel, EndpointControlEndpointDefinition, EndpointControlPropertyFilter, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
+import CustomBlockResultPropertyInputComponent from "./inputs/CustomBlockResultPropertyInputComponent.vue"
 
 @Component({
     components: {
@@ -130,7 +154,8 @@ import { EndpointControlCountOverDuration, EndpointControlEndpointDefinition, En
         InputComponent,
         TimespanInputComponent,
         CountOverDurationComponent,
-        RuleDescriptionComponent
+        RuleDescriptionComponent,
+        CustomBlockResultPropertyInputComponent
     }
 })
 export default class RuleComponent extends Vue {
@@ -139,6 +164,9 @@ export default class RuleComponent extends Vue {
 
     @Prop({ required: true })
     rule!: EndpointControlRule;
+
+    @Prop({ required: true })
+    customResultDefinitions!: Array<EndpointControlCustomResultDefinitionViewModel> | null;
 
     @Prop({ required: false, default: null})
     endpointDefinitions!: Array<EndpointControlEndpointDefinition>;
@@ -188,6 +216,41 @@ export default class RuleComponent extends Vue {
 
     get endpointFilterOptions(): Array<string> {
         return this.EndpointDefinitionIds;
+    }
+
+    get blockResultOptions(): any {
+        let items = [ { text: 'Block request', value: '', description: 'Blocks the request with a 409 response.' } ];
+        if (this.customResultDefinitions)
+        {
+            items = [...items, ...this.customResultDefinitions.map(x => {
+                return {
+                    text: x.Name,
+                    value: x.Id,
+                    description: x.Description
+                }
+            })];
+        }
+        return items;
+    }
+
+    get selectedBlockResultDescription(): string {
+        const option = this.blockResultOptions.filter((x:any) => x.value == this.internalRule.BlockResultTypeId)[0];
+        return (option) ? option.description : '';
+    }
+
+    get selectedBlockResultPropertyDefinitions(): Array<EndpointControlCustomResultPropertyDefinitionViewModel> {
+        if (!this.customResultDefinitions)
+        {
+            return [];
+        }
+
+        const def = this.customResultDefinitions.filter(x => x.Id == this.internalRule.BlockResultTypeId)[0];
+        if (!def)
+        {
+            return [];
+        }
+
+        return def.CustomProperties;
     }
 
     ////////////////

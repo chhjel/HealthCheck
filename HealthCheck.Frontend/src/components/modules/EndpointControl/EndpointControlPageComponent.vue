@@ -114,6 +114,7 @@
                             :rule="currentRule"
                             :endpointDefinitions="EndpointDefinitions"
                             :readonly="!allowRuleChanges"
+                            :customResultDefinitions="data.CustomResultDefinitions"
                             v-on:ruleDeleted="onRuleDeleted"
                             v-on:ruleSaved="onRuleSaved"
                             v-on:serverInteractionInProgress="setServerInteractionInProgress"
@@ -247,7 +248,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Component, Prop, Watch, Provide } from "vue-property-decorator";
 import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
 import LoggedEndpointDefinitionViewModel from  '../../../models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
 import LoggedEndpointRequestViewModel from  '../../../models/modules/RequestLog/LoggedEndpointRequestViewModel';
@@ -596,7 +597,9 @@ export default class EndpointControlPageComponent extends Vue {
             UserAgentFilter: this.createDefaultFilter(),
             UrlFilter: this.createDefaultFilter(),
             TotalRequestCountLimits: [],
-            CurrentEndpointRequestCountLimits: []
+            CurrentEndpointRequestCountLimits: [],
+            BlockResultTypeId: '',
+            CustomBlockResultProperties: {}
         };
 
         this.showRule(rule);

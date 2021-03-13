@@ -161,6 +161,7 @@
     <Compile Include="WebFormsTest\SomeTestWebFormsPage.aspx.designer.cs">
       <DependentUpon>SomeTestWebFormsPage.aspx</DependentUpon>
     </Compile>
+    <Compile Include="_TestImplementation\EndpointControl\CustomBlockedJsonResult.cs" />
     <Compile Include="_TestImplementation\FileTests.cs" />
   </ItemGroup>
   <ItemGroup>

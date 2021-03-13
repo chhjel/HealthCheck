@@ -52,21 +52,24 @@ namespace HealthCheck.Module.EndpointControl.Attributes
         /// </summary>
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            var allowExecute = AllowExecute(filterContext);
+            var handledResult = AllowExecute(filterContext);
+            var allowExecute = handledResult.WasDecidedToAllowRequest;
             if (!allowExecute && !CustomBlockedHandling)
             {
-                filterContext.Result = CreateBlockedResult(filterContext);
                 filterContext.HttpContext.Response.StatusCode = (int)BlockedStatusCode;
+                filterContext.Result = CreateBlockedResult(filterContext, handledResult);
             }
         }
         
         /// <summary>
         /// Return false to deny execution.
         /// </summary>
-        protected virtual bool AllowExecute(ActionExecutingContext filterContext)
+        protected virtual EndpointControlHandledRequestResult AllowExecute(ActionExecutingContext filterContext)
         {
             var requestData = GetEndpointRequestData(filterContext);
-            var allowed = EndpointControlServices.EndpointControlService?.HandleRequest(requestData, storeData: !ManuallyCounted) != false;
+
+            var handledResult = EndpointControlServices.EndpointControlService?.HandleRequest(requestData, storeData: !ManuallyCounted);
+            var allowed = handledResult?.WasDecidedToAllowRequest != false;
 
             if (filterContext?.RequestContext?.HttpContext?.Items != null)
             {
@@ -78,7 +81,10 @@ namespace HealthCheck.Module.EndpointControl.Attributes
                 }
             }
 
-            return allowed;
+            return handledResult ?? new EndpointControlHandledRequestResult
+            {
+                WasDecidedToAllowRequest = true
+            };
         }
 
         /// <summary>
@@ -86,8 +92,14 @@ namespace HealthCheck.Module.EndpointControl.Attributes
         /// <para>Defaults to <c>"Too many requests. Try again later."</c> with status 409 for GET</para>
         /// <para>Defaults to <c>{ success = false, errorMessage = "Too many requests. Try again later." }</c> with status 409 for any other methods.</para>
         /// </summary>
-        protected virtual ActionResult CreateBlockedResult(ActionExecutingContext filterContext)
+        protected virtual ActionResult CreateBlockedResult(ActionExecutingContext filterContext, EndpointControlHandledRequestResult handledResult)
         {
+            var customResult = handledResult?.CustomBlockedResult?.CreateBlockedMvcResult(filterContext, handledResult?.CreateCustomResultProperties());
+            if (customResult != null)
+            {
+                return customResult;
+            }
+
             if (filterContext.HttpContext.Request.HttpMethod == "GET")
             {
                 return CreateDefaultBlockedResponse_Get(filterContext);

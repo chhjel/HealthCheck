@@ -6,6 +6,22 @@ export interface GenericEndpointControlResult {
 export interface EndpointControlDataViewModel {
     Rules: Array<EndpointControlRule>;
     EndpointDefinitions: Array<EndpointControlEndpointDefinition>;
+    CustomResultDefinitions: Array<EndpointControlCustomResultDefinitionViewModel>;
+}
+
+export interface EndpointControlCustomResultDefinitionViewModel
+{
+    Id: string;
+    Name: string;
+    Description: string;
+    CustomProperties: Array<EndpointControlCustomResultPropertyDefinitionViewModel>;
+}
+
+export interface EndpointControlCustomResultPropertyDefinitionViewModel
+{
+    Id: string;
+    Name: string;
+    Type: string;
 }
 
 export interface EndpointControlEndpointDefinition {
@@ -33,6 +49,8 @@ export interface EndpointControlRule {
     
     TotalRequestCountLimits: Array<EndpointControlCountOverDuration>;
     CurrentEndpointRequestCountLimits: Array<EndpointControlCountOverDuration>;
+    BlockResultTypeId: string;
+    CustomBlockResultProperties: { [key: string]: string };
 }
 
 export interface EndpointControlPropertyFilter {

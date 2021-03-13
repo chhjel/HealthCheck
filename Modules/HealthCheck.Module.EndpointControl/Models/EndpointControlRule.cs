@@ -59,6 +59,16 @@ namespace HealthCheck.Module.EndpointControl.Models
         public List<EndpointControlCountOverDuration> CurrentEndpointRequestCountLimits { get; set; } = new List<EndpointControlCountOverDuration>();
 
         /// <summary>
+        /// Type of custom result when blocked if any.
+        /// </summary>
+        public string BlockResultTypeId { get; set; }
+
+        /// <summary>
+        /// Custom result properties if any.
+        /// </summary>
+        public Dictionary<string, string> CustomBlockResultProperties { get; set; }
+
+        /// <summary>
         /// Check if the request should be blocked according to the rule data.
         /// </summary>
         public bool ShouldBlockRequest(EndpointControlEndpointRequestData data,

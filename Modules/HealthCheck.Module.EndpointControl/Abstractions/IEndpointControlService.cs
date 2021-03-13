@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Module.EndpointControl.Models;
+using System.Collections.Generic;
 
 namespace HealthCheck.Module.EndpointControl.Abstractions
 {
@@ -10,12 +11,17 @@ namespace HealthCheck.Module.EndpointControl.Abstractions
         /// <summary>
         /// Tracks the given request data and returns true if it is allowed to go through.
         /// </summary>
-        bool HandleRequest(EndpointControlEndpointRequestData requestData, bool storeData);
+        EndpointControlHandledRequestResult HandleRequest(EndpointControlEndpointRequestData requestData, bool storeData);
 
         /// <summary>
         /// Use to manually store request data.
         /// <para>Invoked from <c>EndpointControlUtils.CountCurrentRequest</c>.</para>
         /// </summary>
         void StoreHistoricalRequestData(EndpointControlEndpointRequestData requestData);
+
+        /// <summary>
+        /// Get any defined custom blocked results.
+        /// </summary>
+        IEnumerable<IEndpointControlBlockedRequestResult> GetCustomBlockedResults();
     }
 }

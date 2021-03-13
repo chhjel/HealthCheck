@@ -49,20 +49,23 @@ namespace HealthCheck.Module.EndpointControl.Attributes
         /// </summary>
         public override void OnActionExecuting(HttpActionContext actionContext)
         {
-            var allowExecute = AllowExecute(actionContext);
+            var handledResult = AllowExecute(actionContext);
+            var allowExecute = handledResult.WasDecidedToAllowRequest;
             if (!allowExecute && !CustomBlockedHandling)
             {
-                actionContext.Response = CreateBlockedResult(actionContext);
+                actionContext.Response = CreateBlockedResult(actionContext, handledResult);
             }
         }
 
         /// <summary>
         /// Return false to deny execution.
         /// </summary>
-        protected virtual bool AllowExecute(HttpActionContext actionContext)
+        protected virtual EndpointControlHandledRequestResult AllowExecute(HttpActionContext actionContext)
         {
             var requestData = GetEndpointRequestData(actionContext);
-            var allowed = EndpointControlServices.EndpointControlService?.HandleRequest(requestData, storeData: !ManuallyCounted) != false;
+            
+            var handledResult = EndpointControlServices.EndpointControlService?.HandleRequest(requestData, storeData: !ManuallyCounted);
+            var allowed = handledResult?.WasDecidedToAllowRequest != false;
 
             if (HttpContext.Current?.Items != null)
             {
@@ -74,15 +77,24 @@ namespace HealthCheck.Module.EndpointControl.Attributes
                 }
             }
 
-            return allowed;
+            return handledResult ?? new EndpointControlHandledRequestResult
+            {
+                WasDecidedToAllowRequest = true
+            };
         }
 
         /// <summary>
         /// Result returned when execution is blocked.
         /// <para>Defaults to <c>{ success = false, errorMessage = "Too many requests. Try again later." }</c> with status 409.</para>
         /// </summary>
-        protected virtual HttpResponseMessage CreateBlockedResult(HttpActionContext actionContext)
+        protected virtual HttpResponseMessage CreateBlockedResult(HttpActionContext actionContext, EndpointControlHandledRequestResult handledResult)
         {
+            var customResult = handledResult?.CustomBlockedResult?.CreateBlockedWebApiResult(actionContext, handledResult?.CreateCustomResultProperties());
+            if (customResult != null)
+            {
+                return customResult;
+            }
+
             return actionContext.Request.CreateResponse(
                 HttpStatusCode.Conflict,
                 new { success = false, errorMessage = "Too many requests. Try again later." },

@@ -16,5 +16,10 @@ namespace HealthCheck.Module.EndpointControl.Models
         /// All stored endpoint definitions.
         /// </summary>
         public IEnumerable<EndpointControlEndpointDefinition> EndpointDefinitions { get; set; }
+
+        /// <summary>
+        /// Any custom result definitions.
+        /// </summary>
+        public IEnumerable<EndpointControlCustomResultDefinitionViewModel> CustomResultDefinitions { get; set; }
     }
 }

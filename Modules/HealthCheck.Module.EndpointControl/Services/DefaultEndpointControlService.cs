@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace HealthCheck.Module.EndpointControl.Services
@@ -19,6 +20,7 @@ namespace HealthCheck.Module.EndpointControl.Services
         private readonly IEndpointControlRequestHistoryStorage _historicalDataStorage;
         private readonly IEndpointControlEndpointDefinitionStorage _definitionStorage;
         private readonly IEndpointControlRuleStorage _ruleStorage;
+        private readonly List<IEndpointControlBlockedRequestResult> _customBlockedResults = new List<IEndpointControlBlockedRequestResult>();
 
         /// <summary>
         /// Checks if requests to certain endpoints are allowed to execute.
@@ -35,16 +37,35 @@ namespace HealthCheck.Module.EndpointControl.Services
         }
 
         /// <summary>
+        /// Get any defined custom blocked results.
+        /// </summary>
+        public IEnumerable<IEndpointControlBlockedRequestResult> GetCustomBlockedResults() => _customBlockedResults;
+
+        /// <summary>
+        /// Add a custom result that can be selected in the UI and used when request are blocked.
+        /// </summary>
+        public DefaultEndpointControlService AddCustomBlockedResult(IEndpointControlBlockedRequestResult result)
+        {
+            _customBlockedResults.Add(result);
+            return this;
+        }
+
+        /// <summary>
         /// Tracks the given request data and returns true if it is allowed to go through.
         /// </summary>
-        public virtual bool HandleRequest(EndpointControlEndpointRequestData requestData, bool storeData)
+        public virtual EndpointControlHandledRequestResult HandleRequest(EndpointControlEndpointRequestData requestData, bool storeData)
         {
+            var result = new EndpointControlHandledRequestResult();
+
             if (!IsEnabledInternal())
             {
-                return true;
+                result.WasDecidedToAllowRequest = true;
+                return result;
             }
 
             var allow = AllowRequest(requestData, out EndpointControlRule blockingRule);
+            result.BlockingRule = blockingRule;
+            result.CustomBlockedResult = _customBlockedResults?.FirstOrDefault(x => x.Id == blockingRule?.BlockResultTypeId);
 
             requestData.WasBlocked = !allow;
             if (!allow)
@@ -68,7 +89,8 @@ namespace HealthCheck.Module.EndpointControl.Services
                 });
             }
 
-            return allow;
+            result.WasDecidedToAllowRequest = allow;
+            return result;
         }
 
         /// <summary>
