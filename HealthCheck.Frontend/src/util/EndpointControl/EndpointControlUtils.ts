@@ -64,7 +64,7 @@ export default class EndpointControlUtils
             .concat(rule.CurrentEndpointRequestCountLimits.map(x => { return { name: 'request(s) per IP per endpoint', limit: x } }))
             .map(x => this.describeRuleLimit(x.name, x.limit))
             .filter(x => x.length > 0);
-        
+
         return {
             limits: limits,
             filters: filters
@@ -122,6 +122,15 @@ export default class EndpointControlUtils
     
     static postProcessRule(rule: EndpointControlRule): void {
         rule.LastChangedAt = new Date(rule.LastChangedAt);
+
+        if (!rule.BlockResultTypeId)
+        {
+            rule.BlockResultTypeId = '';
+        }
+        if (!rule.CustomBlockResultProperties)
+        {
+            rule.CustomBlockResultProperties = {};
+        }
 
         this.postProcessPayloadFilter(rule.EndpointIdFilter);
         this.postProcessPayloadFilter(rule.UserLocationIdFilter);
