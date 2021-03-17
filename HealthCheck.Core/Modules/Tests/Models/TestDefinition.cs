@@ -359,6 +359,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
                     data = null;
                 }
                 return TestResult.CreateSuccess($"Method {Method?.Name} was successfully invoked.")
+                    .SetProxyTestResultObject(data)
                     .AddAutoCreatedResultData(data ?? fallbackValue, includeAutoCreateResult)
                     .AddSerializedData(data ?? fallbackValue, TestRunnerService.Serializer, "Result");
             }
@@ -368,6 +369,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 var fallbackValue = (returnType == typeof(Task) || returnType == typeof(void)) ? null : "null";
                 var data = Method.Invoke(instance, parameterList);
                 return TestResult.CreateSuccess($"Method {Method?.Name} was successfully invoked.")
+                    .SetProxyTestResultObject(data)
                     .AddAutoCreatedResultData(data ?? fallbackValue, includeAutoCreateResult)
                     .AddSerializedData(data ?? fallbackValue, TestRunnerService.Serializer, "Result");
             }

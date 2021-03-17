@@ -293,6 +293,56 @@ public static ProxyRuntimeTestConfig SomeServiceProxyTest()
 </p>
 </details>
 
+<details><summary>Example with custom result action</summary>
+<p>
+
+```csharp
+[ProxyRuntimeTests]
+public static ProxyRuntimeTestConfig SomeServiceProxyTest()
+{
+    return new ProxyRuntimeTestConfig(typeof(SomeService))
+        // After test is executed this callback is invoked where you can e.g. add any extra data to results
+        .SetCustomResultAction((result) => result.AddTextData(result.ProxyTestResultObject?.GetType()?.Name, "Result type");
+}
+```
+
+</p>
+</details>
+
+<details><summary>Example with context and custom result action</summary>
+<p>
+
+```csharp
+[ProxyRuntimeTests]
+public static ProxyRuntimeTestConfig SomeServiceProxyTest()
+{
+    return new ProxyRuntimeTestConfig(typeof(SomeService))
+        // Optionally add a custom context for more flexibility
+        .SetCustomContext(
+            // Create any object as a context object that will be used in the resultAction below
+            contextFactory: () => new { MemoryLogger = new HCMemoryLogger() },
+            
+            // Optionally override service activation to inject e.g. a memory logger and dump the log along with the test result.
+            // instanceFactory: (context) => new SomeService(context.MemoryLogger),
+
+            // After test is executed this callback is invoked where you can e.g. add any extra data to results
+            resultAction: (result, context) =>
+            {
+                result
+                    // For proxy tests, the raw return value from the executed method will be placed in result.ProxyTestResultObject
+                    .AddTextData(result.ProxyTestResultObject?.GetType()?.Name, "Result type")
+                    // Shortcut for executing the given action if the method result is of the given type.
+                    .ForProxyResult<OrderLinks>((value) => result.AddUrlsData(value.Select(x => x.Url)))
+                    // E.g. include data logged during execution
+                    .AddCodeData(context.MemoryLogger.Contents);
+            }
+        );
+}
+```
+
+</p>
+</details>
+
 #### The TestResult
 
 The `TestResult` class has a few static factory methods for quick creation of a result object, and can contain extra data in various formats.

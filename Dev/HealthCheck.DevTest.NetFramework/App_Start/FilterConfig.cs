@@ -11,12 +11,13 @@ namespace HealthCheck.DevTest
         {
             filters.Add(new RequestLogActionFilterAttribute());
             filters.Add(new RequestLogErrorFilterAttribute());
-            filters.Add(new HandleErrorAttribute());
             filters.Add(new HCControlledEndpointAttribute());
+            filters.Add(new HandleErrorAttribute());
         }
 
         public static void RegisterWebApiFilters(HttpFilterCollection filters)
         {
+            filters.Add(new HCControlledApiEndpointAttribute());
             filters.Add(new RequestLogWebApiActionFilterAttribute());
         }
     }
