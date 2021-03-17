@@ -54,7 +54,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Define a custom instance, context and action to run on the result object.
         /// </summary>
-        public ProxyRuntimeTestConfig AddCustomContext<T, TContext>(
+        public ProxyRuntimeTestConfig SetCustomContext<T, TContext>(
             Func<TContext> contextFactory,
             Func<TContext, T> instanceFactory,
             Action<TestResult, TContext> resultAction
@@ -69,7 +69,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Define a custom context and action to run on the result object.
         /// </summary>
-        public ProxyRuntimeTestConfig AddCustomContext<TContext>(
+        public ProxyRuntimeTestConfig SetCustomContext<TContext>(
             Func<TContext> factory,
             Action<TestResult, TContext> resultAction
         ) where TContext: class
@@ -80,9 +80,18 @@ namespace HealthCheck.Core.Modules.Tests.Models
         }
 
         /// <summary>
+        /// Define a custom action to run on the result object.
+        /// </summary>
+        public ProxyRuntimeTestConfig SetCustomResultAction(Action<TestResult> resultAction)
+        {
+            ResultAction = (result, context) => resultAction(result);
+            return this;
+        }
+
+        /// <summary>
         /// Add a custom instance factory.
         /// </summary>
-        public ProxyRuntimeTestConfig AddInstanceFactory<T>(Func<T> factory)
+        public ProxyRuntimeTestConfig SetInstanceFactory<T>(Func<T> factory)
         {
             InstanceFactory = () => factory();
             return this;
@@ -90,10 +99,10 @@ namespace HealthCheck.Core.Modules.Tests.Models
 
         /// <summary>
         /// Add a custom instance factory with a custom context object.
-        /// <para>This takes priority over <see cref="AddInstanceFactory{T}(Func{T})"/></para>
+        /// <para>This takes priority over <see cref="SetInstanceFactory{T}(Func{T})"/></para>
         /// <para>Custom context can be set from <c>AddCustomContext</c></para>
         /// </summary>
-        public ProxyRuntimeTestConfig AddInstanceFactory<T, TContext>(Func<TContext, T> factory)
+        public ProxyRuntimeTestConfig SetInstanceFactory<T, TContext>(Func<TContext, T> factory)
             where TContext: class
         {
             InstanceFactoryWithContext = (context) => factory(context as TContext);

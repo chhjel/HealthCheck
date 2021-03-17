@@ -13,19 +13,20 @@ Provides an almost plug and play web interface with a few different utility modu
 
 Available modules:
 
+* Tests module that allows given backend methods to be executed in a UI to check the status of integrations, run utility methods and other things.
+* Messages module where latest sent messages from the system can be viewed, optionally along with any error message. Can be used for e.g. outgoing mail and sms.
+* Endpoint Control module to set request limits for decorated endpoints, as well as viewing some request statistics.
 * Overview module where registed events that can be shown in a status interface, e.g. showing the stability of integrations.
 * Audit module where actions from other modules are logged.
-* Log searcher module for searching through logfiles on disk.
-* Request log module that lists controllers and actions with their latest requests and errors.
-* Documentation module that shows generated sequence diagrams from code decorated with attributes.
 * Dataflow module that can show filtered custom data. For e.g. previewing the latest imported/exported data.
 * Event notifications module for notifying through custom implementations when custom events occur.
 * Settings module for custom settings related to healthcheck.
 * IDE where C# scripts can be stored and executed in the context of the web application.
-* Access token module where tokens with limited access and lifespan can be created.
+* Access token module where tokens with limited access and lifespan can be created to access other modules.
 * Downloads module where files can be made available for download, optionally protected by password, expiration date and download count limit.
-* Endpoint Control module to set request limits for decorated endpoints, as well as viewing some request statistics.
-* Messages module where latest sent messages from the system can be viewed, optionally along with any error message. Can be used for e.g. outgoing mail and sms.
+* Request log module that lists controllers and actions with their latest requests and errors.
+* Log searcher module for searching through logfiles on disk.
+* Documentation module that shows generated sequence diagrams from code decorated with attributes.
 
 ## Getting started
 
@@ -287,6 +288,56 @@ public static ProxyRuntimeTestConfig SomeServiceProxyTest()
 {
     // This will result in one test per public method on the SomeService class.
     return new ProxyRuntimeTestConfig(typeof(SomeService));
+}
+```
+
+</p>
+</details>
+
+<details><summary>Example with custom result action</summary>
+<p>
+
+```csharp
+[ProxyRuntimeTests]
+public static ProxyRuntimeTestConfig SomeServiceProxyTest()
+{
+    return new ProxyRuntimeTestConfig(typeof(SomeService))
+        // After test is executed this callback is invoked where you can e.g. add any extra data to results
+        .SetCustomResultAction((result) => result.AddTextData(result.ProxyTestResultObject?.GetType()?.Name, "Result type");
+}
+```
+
+</p>
+</details>
+
+<details><summary>Example with context and custom result action</summary>
+<p>
+
+```csharp
+[ProxyRuntimeTests]
+public static ProxyRuntimeTestConfig SomeServiceProxyTest()
+{
+    return new ProxyRuntimeTestConfig(typeof(SomeService))
+        // Optionally add a custom context for more flexibility
+        .SetCustomContext(
+            // Create any object as a context object that will be used in the resultAction below
+            contextFactory: () => new { MemoryLogger = new HCMemoryLogger() },
+            
+            // Optionally override service activation to inject e.g. a memory logger and dump the log along with the test result.
+            // instanceFactory: (context) => new SomeService(context.MemoryLogger),
+
+            // After test is executed this callback is invoked where you can e.g. add any extra data to results
+            resultAction: (result, context) =>
+            {
+                result
+                    // For proxy tests, the raw return value from the executed method will be placed in result.ProxyTestResultObject
+                    .AddTextData(result.ProxyTestResultObject?.GetType()?.Name, "Result type")
+                    // Shortcut for executing the given action if the method result is of the given type.
+                    .ForProxyResult<OrderLinks>((value) => result.AddUrlsData(value.Select(x => x.Url)))
+                    // E.g. include data logged during execution
+                    .AddCodeData(context.MemoryLogger.Contents);
+            }
+        );
 }
 ```
 

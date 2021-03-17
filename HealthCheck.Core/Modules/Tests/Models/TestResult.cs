@@ -68,6 +68,11 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// </summary>
         public long DurationInMilliseconds { get; set; }
 
+        /// <summary>
+        /// For proxy tests this will be set to the return value from methods.
+        /// </summary>
+        public object ProxyTestResultObject { get; private set; }
+
         internal object AutoCreateResultDataFromObject { get; set; }
         internal bool AllowOverrideMessage { get; set; } = false;
 
@@ -365,6 +370,36 @@ namespace HealthCheck.Core.Modules.Tests.Models
             if (include)
             {
                 AutoCreateResultDataFromObject = data;
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Can be used with proxy-test results to clear auto-added data.
+        /// </summary>
+        public TestResult ClearAutoCreatedResultData()
+        {
+            AutoCreateResultDataFromObject = null;
+            return this;
+        }
+
+        /// <summary>
+        /// Used by proxy test logic.
+        /// </summary>
+        internal TestResult SetProxyTestResultObject(object value)
+        {
+            ProxyTestResultObject = value;
+            return this;
+        }
+
+        /// <summary>
+        /// If <see cref="ProxyTestResultObject"/> is of the given type, execute the given action.
+        /// </summary>
+        public TestResult ForProxyResult<TResultType>(Action<TResultType> action)
+        {
+            if (AutoCreateResultDataFromObject is TResultType result)
+            {
+                action(result);
             }
             return this;
         }

@@ -46,10 +46,16 @@ namespace HealthCheck.Dev.Common.Tests
             });
 
             return new ProxyRuntimeTestConfig(typeof(SomeService))
-                .AddCustomContext(
+                .SetCustomContext(
                     contextFactory: () => new { MemoryLogger = new HCMemoryLogger() },
                     instanceFactory: (context) => new SomeService(context.MemoryLogger),
-                    resultAction: (result, context) => result.AddCodeData(context.MemoryLogger.Contents)
+                    resultAction: (result, context) =>
+                    {
+                        result
+                            .AddCodeData(context.MemoryLogger.Contents)
+                            .ForProxyResult<SomeParameterType>((value) => result.AddTextData("Is of type SomeParameterType!"))
+                            .AddTextData(result.ProxyTestResultObject?.GetType()?.Name ?? "null", "Result type");
+                    }
                 )
                 .AddParameterTypeConfig<SomeParameterType>(
                     choicesFactory: (filter) => getUserChoices()
