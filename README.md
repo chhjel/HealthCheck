@@ -13,19 +13,20 @@ Provides an almost plug and play web interface with a few different utility modu
 
 Available modules:
 
+* Tests module that allows given backend methods to be executed in a UI to check the status of integrations, run utility methods and other things.
+* Messages module where latest sent messages from the system can be viewed, optionally along with any error message. Can be used for e.g. outgoing mail and sms.
+* Endpoint Control module to set request limits for decorated endpoints, as well as viewing some request statistics.
 * Overview module where registed events that can be shown in a status interface, e.g. showing the stability of integrations.
 * Audit module where actions from other modules are logged.
-* Log searcher module for searching through logfiles on disk.
-* Request log module that lists controllers and actions with their latest requests and errors.
-* Documentation module that shows generated sequence diagrams from code decorated with attributes.
 * Dataflow module that can show filtered custom data. For e.g. previewing the latest imported/exported data.
 * Event notifications module for notifying through custom implementations when custom events occur.
 * Settings module for custom settings related to healthcheck.
 * IDE where C# scripts can be stored and executed in the context of the web application.
-* Access token module where tokens with limited access and lifespan can be created.
+* Access token module where tokens with limited access and lifespan can be created to access other modules.
 * Downloads module where files can be made available for download, optionally protected by password, expiration date and download count limit.
-* Endpoint Control module to set request limits for decorated endpoints, as well as viewing some request statistics.
-* Messages module where latest sent messages from the system can be viewed, optionally along with any error message. Can be used for e.g. outgoing mail and sms.
+* Request log module that lists controllers and actions with their latest requests and errors.
+* Log searcher module for searching through logfiles on disk.
+* Documentation module that shows generated sequence diagrams from code decorated with attributes.
 
 ## Getting started
 
