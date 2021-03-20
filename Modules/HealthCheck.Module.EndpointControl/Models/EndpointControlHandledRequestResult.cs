@@ -22,7 +22,7 @@ namespace HealthCheck.Module.EndpointControl.Models
         /// <summary>
         /// Selected custom blocked result if any.
         /// </summary>
-        public IEndpointControlBlockedRequestResult CustomBlockedResult { get; set; }
+        public IEndpointControlRequestResult CustomBlockedResult { get; set; }
 
         /// <summary>
         /// Create a new instance of custom properties to send to the custom blocked result.

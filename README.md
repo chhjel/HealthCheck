@@ -1048,7 +1048,7 @@ public ActionResult Submit(MyModel model)
 </p>
 </details>
 
-<details><summary>Custom blocked handling</summary>
+<details><summary>Custom handling</summary>
 <p>
 
 ```csharp
@@ -1094,9 +1094,15 @@ public ActionResult Submit(MyModel model)
 </p>
 </details>
 
-### Custom blocked result types
+### Custom result types
 
-To create your own custom blocked result data when not using `CustomBlockedHandling`, create your own attributes inheriting from the provided ones and override `CreateBlockedResult`.
+To override the default blocked result when not using `CustomBlockedHandling`, create your own attributes inheriting from the provided ones and override `CreateBlockedResult`.
+
+To create new types of results that can be selected in the UI, create custom implementations of `IEndpointControlRequestResult` and add them to the endpoint control service through `AddCustomBlockedResult(..)`.
+
+Built in custom types:
+
+* `EndpointControlForwardedRequestResult`: Forwards request to a given url without blocking them.
 
 ---------
 

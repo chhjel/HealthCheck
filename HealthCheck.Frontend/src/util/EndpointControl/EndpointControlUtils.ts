@@ -1,4 +1,4 @@
-import { EndpointControlCountOverDuration, EndpointControlFilterMode, EndpointControlEndpointDefinition } from './../../models/modules/EndpointControl/EndpointControlModels';
+import { EndpointControlCountOverDuration, EndpointControlFilterMode, EndpointControlEndpointDefinition, EndpointControlCustomResultDefinitionViewModel } from './../../models/modules/EndpointControl/EndpointControlModels';
 import { EndpointControlPropertyFilter, EndpointControlRule } from "../../models/modules/EndpointControl/EndpointControlModels";
 import IdUtils from "../IdUtils";
 
@@ -6,6 +6,7 @@ export interface RuleDescription
 {
     filters: Array<string>;
     limits: Array<string>;
+    action: string;
 }
 
 export default class EndpointControlUtils
@@ -23,7 +24,9 @@ export default class EndpointControlUtils
         return `Rule ${rule.Id} description here`;
     }
 
-    static describeRuleExt(rule: EndpointControlRule, endpointDefs: Array<EndpointControlEndpointDefinition>): RuleDescription {
+    static describeRuleExt(rule: EndpointControlRule, 
+            endpointDefs: Array<EndpointControlEndpointDefinition>,
+            customResultDefinitions: Array<EndpointControlCustomResultDefinitionViewModel>): RuleDescription {
         let filters = [];
         let forcedFilters: Array<string> = [];
 
@@ -65,14 +68,29 @@ export default class EndpointControlUtils
             .map(x => this.describeRuleLimit(x.name, x.limit))
             .filter(x => x.length > 0);
 
+        let action = 'Block request';
+        if (rule.BlockResultTypeId && rule.BlockResultTypeId.length > 0)
+        {
+            const customAction = customResultDefinitions.filter(x => x.Id == rule.BlockResultTypeId)[0];
+            if (customAction)
+            {
+                action = customAction.Name;
+            }
+            else
+            {
+                action = `Unknown action '${rule.BlockResultTypeId}'`;
+            }
+        }
+
         return {
             limits: limits,
-            filters: filters
+            filters: filters,
+            action: action
         };
     }
 
     static describeRuleLimit(name: string, limit: EndpointControlCountOverDuration): string {
-        if (limit.Count == 0) return `Block all requests`;
+        if (limit.Count == 0) return `Always`;
 
         const duration = this.describeTimespan(limit.Duration);
         return `${limit.Count} request over the last ${duration} ${name}.`;

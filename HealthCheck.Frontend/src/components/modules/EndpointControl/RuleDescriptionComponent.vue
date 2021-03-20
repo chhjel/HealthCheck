@@ -10,8 +10,8 @@
             </li>
         </ul>
 
-        <div>
-            <b>Limit to</b>
+        <div v-if="!rule.AlwaysTrigger">
+            <b>And any of these limits are reached</b>
             <ul>
                 <li v-if="description.limits.length == 0">- no limits defined -</li>
                 <li v-for="(limit, limIndex) in description.limits"
@@ -20,12 +20,19 @@
                 </li>
             </ul>
         </div>
+
+        <div>
+            <b>Then</b>
+            <ul>
+                <li>{{ description.action }}</li>
+            </ul>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import { EndpointControlEndpointDefinition, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
+import { EndpointControlCustomResultDefinitionViewModel, EndpointControlEndpointDefinition, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
 import EndpointControlUtils, { RuleDescription } from "../../../util/EndpointControl/EndpointControlUtils";
 
 @Component({
@@ -38,6 +45,9 @@ export default class RuleDescriptionComponent extends Vue {
     @Prop({ required: false, default: null })
     endpointDefinitions!: Array<EndpointControlEndpointDefinition>;
 
+    @Prop({ required: false, default: null })
+    customResultDefinitions!: Array<EndpointControlCustomResultDefinitionViewModel>;
+
     //////////////////
     //  LIFECYCLE  //
     ////////////////
@@ -47,7 +57,7 @@ export default class RuleDescriptionComponent extends Vue {
     //////////////
     get description(): RuleDescription
     {
-        return EndpointControlUtils.describeRuleExt(this.rule, this.endpointDefinitions);
+        return EndpointControlUtils.describeRuleExt(this.rule, this.endpointDefinitions, this.customResultDefinitions);
     }
 
     ////////////////

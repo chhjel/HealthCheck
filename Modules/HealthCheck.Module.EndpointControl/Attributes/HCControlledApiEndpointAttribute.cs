@@ -53,7 +53,11 @@ namespace HealthCheck.Module.EndpointControl.Attributes
             var allowExecute = handledResult.WasDecidedToAllowRequest;
             if (!allowExecute && !CustomBlockedHandling)
             {
-                actionContext.Response = CreateBlockedResult(actionContext, handledResult);
+                var response = CreateBlockedResult(actionContext, handledResult);
+                if (response != null)
+                {
+                    actionContext.Response = response;
+                }
             }
         }
 
@@ -89,10 +93,14 @@ namespace HealthCheck.Module.EndpointControl.Attributes
         /// </summary>
         protected virtual HttpResponseMessage CreateBlockedResult(HttpActionContext actionContext, EndpointControlHandledRequestResult handledResult)
         {
-            var customResult = handledResult?.CustomBlockedResult?.CreateBlockedWebApiResult(actionContext, handledResult?.CreateCustomResultProperties());
-            if (customResult != null)
+            var customResult = handledResult?.CustomBlockedResult?.CreateWebApiResult(actionContext, handledResult?.CreateCustomResultProperties());
+            if (customResult?.Result != null)
             {
-                return customResult;
+                return customResult.Result;
+            }
+            else if (customResult?.UseBuiltInBlock == false)
+            {
+                return null;
             }
 
             return actionContext.Request.CreateResponse(

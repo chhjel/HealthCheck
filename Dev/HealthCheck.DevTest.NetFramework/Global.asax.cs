@@ -4,6 +4,7 @@ using HealthCheck.DevTest._TestImplementation.EndpointControl;
 using HealthCheck.DevTest.Controllers;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Models;
+using HealthCheck.Module.EndpointControl.Results;
 using HealthCheck.Module.EndpointControl.Services;
 using HealthCheck.Module.EndpointControl.Storage;
 using HealthCheck.Module.RequestLog.Util;
@@ -89,7 +90,8 @@ namespace HealthCheck.DevTest
                 if (type == typeof(IEndpointControlService))
                 {
                     return new DefaultEndpointControlService(_endpointControlHistoryStorage, _endpointControlDefinitionStorage, _endpointControlRuleStorage)
-                        .AddCustomBlockedResult(new CustomBlockedJsonResult());
+                        .AddCustomBlockedResult(new CustomBlockedJsonResult())
+                        .AddCustomBlockedResult(new EndpointControlForwardedRequestResult());
                 }
                 else if (type == typeof(IEndpointControlRuleStorage))
                 {

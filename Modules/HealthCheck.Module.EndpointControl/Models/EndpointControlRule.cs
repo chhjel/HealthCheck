@@ -19,6 +19,11 @@ namespace HealthCheck.Module.EndpointControl.Models
         public bool Enabled { get; set; }
 
         /// <summary>
+        /// Always trigger on any matching requests, ignoring any conditions.
+        /// </summary>
+        public bool AlwaysTrigger { get; set; }
+
+        /// <summary>
         /// Name of user that last changed this rule.
         /// </summary>
         public string LastChangedBy { get; set; }
@@ -79,16 +84,10 @@ namespace HealthCheck.Module.EndpointControl.Models
             {
                 return false;
             }
-            else if (AnyTotalRequestCountLimitBreached(totalRequestCountGetter))
-            {
-                return true;
-            }
-            else if (AnyEndpointRequestCountLimitBreached(endpointRequestCountGetter))
-            {
-                return true;
-            }
 
-            return false;
+            return AlwaysTrigger
+                || AnyTotalRequestCountLimitBreached(totalRequestCountGetter)
+                || AnyEndpointRequestCountLimitBreached(endpointRequestCountGetter);
         }
 
         private bool AllFiltersMatches(EndpointControlEndpointRequestData data)

@@ -17,7 +17,10 @@ namespace HealthCheck.DevTest.Controllers.RequestLogTestControllers.Api
         // GET: api/student/5
         public string Get(int id)
         {
-            if (id == -1) int.Parse("err pls");
+            if (id == -1)
+            {
+                _ = int.Parse("err pls");
+            }
             return "value";
         }
 

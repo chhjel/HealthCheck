@@ -31,7 +31,8 @@
         <div class="rule-summary">
             <rule-description-component
                 :rule="internalRule"
-                :endpointDefinitions="endpointDefinitions" />
+                :endpointDefinitions="endpointDefinitions"
+                :customResultDefinitions="customResultDefinitions" />
         </div>
 
         <block-component class="mb-4" title="Filters">
@@ -50,44 +51,53 @@
                 v-model="internalRule.UserAgentFilter" />
         </block-component>
         
-        <block-component class="mb-4" v-if="internalRule != null" title="Limits">
-            <h3 class="mt-4 mb-2">Limits request count per IP per endpoint</h3>
-            <count-over-duration-component
-                class="mt-2"
-                v-for="(item, index) in internalRule.CurrentEndpointRequestCountLimits"
-                :key="`endpoint-limit-${item._frontendId}`"
-                :value="item"
-                :readonly="!allowChanges"
-                @input="(val) => onCoDChanged(internalRule.CurrentEndpointRequestCountLimits, index, val)"
-                @delete="(val) => onCoDDelete(internalRule.CurrentEndpointRequestCountLimits, index)"
-                />
-            <v-btn class="ml-4"
-                :disabled="!allowChanges" 
-                @click.stop="addCodItem(internalRule.CurrentEndpointRequestCountLimits)">
-                <v-icon size="20px" class="mr-2">add</v-icon>
-                Add new limit
-            </v-btn>
+        <block-component class="mb-4" v-if="internalRule != null" title="Conditions">
+            <v-switch
+                v-model="internalRule.AlwaysTrigger" 
+                label="Always trigger for all matching requests"
+                color="secondary"
+                :disabled="!allowChanges"
+            ></v-switch>
 
-            <h3 class="mt-4 mb-2">Limit total request count per IP</h3>
-            <count-over-duration-component
-                class="mt-2"
-                v-for="(item, index) in internalRule.TotalRequestCountLimits"
-                :key="`total-limit-${item._frontendId}`"
-                :value="item"
-                :readonly="!allowChanges"
-                @input="(val) => onCoDChanged(internalRule.TotalRequestCountLimits, index, val)"
-                @delete="(val) => onCoDDelete(internalRule.TotalRequestCountLimits, index)"
-                />
-            <v-btn class="ml-4"
-                :disabled="!allowChanges" 
-                @click.stop="addCodItem(internalRule.TotalRequestCountLimits)">
-                <v-icon size="20px" class="mr-2">add</v-icon>
-                Add new limit
-            </v-btn>
+            <div v-if="!internalRule.AlwaysTrigger">
+                <h3 class="mt-4 mb-2">After request count per IP per endpoint</h3>
+                <count-over-duration-component
+                    class="mt-2"
+                    v-for="(item, index) in internalRule.CurrentEndpointRequestCountLimits"
+                    :key="`endpoint-limit-${item._frontendId}`"
+                    :value="item"
+                    :readonly="!allowChanges"
+                    @input="(val) => onCoDChanged(internalRule.CurrentEndpointRequestCountLimits, index, val)"
+                    @delete="(val) => onCoDDelete(internalRule.CurrentEndpointRequestCountLimits, index)"
+                    />
+                <v-btn class="ml-4"
+                    :disabled="!allowChanges" 
+                    @click.stop="addCodItem(internalRule.CurrentEndpointRequestCountLimits)">
+                    <v-icon size="20px" class="mr-2">add</v-icon>
+                    Add
+                </v-btn>
+
+                <h3 class="mt-4 mb-2">After total request count per IP</h3>
+                <count-over-duration-component
+                    class="mt-2"
+                    v-for="(item, index) in internalRule.TotalRequestCountLimits"
+                    :key="`total-limit-${item._frontendId}`"
+                    :value="item"
+                    :readonly="!allowChanges"
+                    @input="(val) => onCoDChanged(internalRule.TotalRequestCountLimits, index, val)"
+                    @delete="(val) => onCoDDelete(internalRule.TotalRequestCountLimits, index)"
+                    />
+                <v-btn class="ml-4"
+                    :disabled="!allowChanges" 
+                    @click.stop="addCodItem(internalRule.TotalRequestCountLimits)">
+                    <v-icon size="20px" class="mr-2">add</v-icon>
+                    Add
+                </v-btn>
+            </div>
         </block-component>
         
-        <block-component class="mb-4" v-if="internalRule != null" title="Block action">
-            <h3 class="mt-4 mb-2">Select what happens when a request is blocked</h3>
+        <block-component class="mb-4" v-if="internalRule != null" title="Resulting action">
+            <h3 class="mt-4 mb-2">Select what happens when a result is overridden</h3>
             
             <v-select
                 class="mode-select"

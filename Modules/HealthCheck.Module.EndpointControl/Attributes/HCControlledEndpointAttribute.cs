@@ -56,8 +56,11 @@ namespace HealthCheck.Module.EndpointControl.Attributes
             var allowExecute = handledResult.WasDecidedToAllowRequest;
             if (!allowExecute && !CustomBlockedHandling)
             {
-                filterContext.HttpContext.Response.StatusCode = (int)BlockedStatusCode;
-                filterContext.Result = CreateBlockedResult(filterContext, handledResult);
+                var response = CreateBlockedResult(filterContext, handledResult);
+                if (response != null)
+                {
+                    filterContext.Result = response;
+                }
             }
         }
         
@@ -94,12 +97,17 @@ namespace HealthCheck.Module.EndpointControl.Attributes
         /// </summary>
         protected virtual ActionResult CreateBlockedResult(ActionExecutingContext filterContext, EndpointControlHandledRequestResult handledResult)
         {
-            var customResult = handledResult?.CustomBlockedResult?.CreateBlockedMvcResult(filterContext, handledResult?.CreateCustomResultProperties());
-            if (customResult != null)
+            var customResult = handledResult?.CustomBlockedResult?.CreateMvcResult(filterContext, handledResult?.CreateCustomResultProperties());
+            if (customResult?.Result != null)
             {
-                return customResult;
+                return customResult.Result;
+            }
+            else if (customResult?.UseBuiltInBlock == false)
+            {
+                return null;
             }
 
+            filterContext.HttpContext.Response.StatusCode = (int)BlockedStatusCode;
             if (filterContext.HttpContext.Request.HttpMethod == "GET")
             {
                 return CreateDefaultBlockedResponse_Get(filterContext);
