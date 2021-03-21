@@ -139,6 +139,7 @@
     <Compile Include="Controllers\EndpointControlTestControllers\SomeApiTestController.cs" />
     <Compile Include="Controllers\EndpointControlTestControllers\SomeTestController.cs" />
     <Compile Include="Controllers\RequestLogTestControllers\Api\HiddenApiController.cs" />
+    <Compile Include="Controllers\RequestLogTestControllers\Api\TestApi2Controller.cs" />
     <Compile Include="Controllers\RequestLogTestControllers\Api\TestApiController.cs" />
     <Compile Include="Controllers\RequestLogTestControllers\Api\TestApiControllerBase.cs" />
     <Compile Include="Controllers\RequestLogTestControllers\HomeController.cs" />

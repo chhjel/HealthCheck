@@ -1,7 +1,9 @@
 ﻿#if NETFULL
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Models;
+using HealthCheck.Module.EndpointControl.Utils;
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -75,8 +77,17 @@ namespace HealthCheck.Module.EndpointControl.Results
 
             try
             {
-                var url = CreateForwardUrl(request.RequestUri.ToString(), options);
-                var data = (request.Method.Method != "GET") ? await request.Content.ReadAsByteArrayAsync() : null;
+                var rawUrl = RequestUtils.GetUrl(request);
+                var url = CreateForwardUrl(rawUrl, options);
+                byte[] data = null;
+                if (request.Method.Method != "GET")
+                {
+                    using var stream = new MemoryStream();
+                    var context = (HttpContextBase)request.Properties["MS_HttpContext"];
+                    context.Request.InputStream.Seek(0, SeekOrigin.Begin);
+                    context.Request.InputStream.CopyTo(stream);
+                    data = stream.ToArray();
+                }
                 await ForwardRequest(request.Method.Method, null, request, options, url, data);
             }
             catch (Exception ex)
@@ -102,8 +113,9 @@ namespace HealthCheck.Module.EndpointControl.Results
 
             try
             {
-                var url = CreateForwardUrl(request.RawUrl, options);
-                var data = (request.HttpMethod != "GET") ? request.BinaryRead(request.ContentLength) : null;
+                var rawUrl = RequestUtils.GetUrl(request);
+                var url = CreateForwardUrl(rawUrl, options);
+                var data = (request.HttpMethod != "GET") ? RequestUtils.ReadRequestBody(request.InputStream) : null;
                 await ForwardRequest(request.HttpMethod, request, null, options, url, data);
             }
             catch (Exception ex)
@@ -147,8 +159,13 @@ namespace HealthCheck.Module.EndpointControl.Results
             var targetUri = new UriBuilder(options.TargetUrl);
             var builder = new UriBuilder(rawUrl)
             {
-                Host = targetUri.Host
+                Host = targetUri.Host,
+                Scheme = targetUri.Scheme
             };
+            if (targetUri.Port != 80 && targetUri.Port != 443)
+            {
+                builder.Port = targetUri.Port;
+            }
             return builder.Uri.ToString();
         }
 

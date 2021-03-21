@@ -2,6 +2,7 @@
 using HealthCheck.Core.Config;
 using HealthCheck.Core.Extensions;
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Web;
 #endif
@@ -12,6 +13,15 @@ namespace HealthCheck.Module.EndpointControl.Utils
     internal static class RequestUtils
     {
 #if NETFULL
+        public static byte[] ReadRequestBody(Stream input)
+        {
+            using MemoryStream ms = new MemoryStream();
+            input.Seek(0, SeekOrigin.Begin);
+            input.CopyTo(ms);
+            input.Seek(0, SeekOrigin.Begin);
+            return ms.ToArray();
+        }
+
         public static string GetUrl(HttpRequestMessage request) => request?.RequestUri?.ToString();
 
         public static string GetUrl(HttpRequest request)
