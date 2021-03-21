@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Module.EndpointControl.Abstractions;
+using HealthCheck.Module.EndpointControl.Models;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -9,36 +10,39 @@ using System.Web.Mvc;
 
 namespace HealthCheck.DevTest._TestImplementation.EndpointControl
 {
-    public class CustomBlockedJsonResult : IEndpointControlBlockedRequestResult
+    public class CustomBlockedJsonResult : IEndpointControlRequestResult
     {
         public string Id => "CustomBlockedJsonResult";
 
         public string Name => "Json";
         public string Description => "Returns a json error response.";
+        public bool CountAsBlockedRequest => true;
         public Type CustomPropertiesModelType => typeof(CustomBlockedJsonResultProperties);
 
-        public ActionResult CreateBlockedMvcResult(ActionExecutingContext filterContext, object customProperties)
+        public EndpointControlRequestResultMvc CreateMvcResult(ActionExecutingContext filterContext, object customProperties)
         {
             var properties = customProperties as CustomBlockedJsonResultProperties;
 
             filterContext.HttpContext.Response.StatusCode = properties.StatusCode;
-            return new ContentResult
+            var result = new ContentResult
             {
                 ContentType = "application/json",
                 ContentEncoding = Encoding.UTF8,
                 Content = $"{{ \"success\":{properties.Success.ToString().ToLower()}, \"errorMessage\":\"{HttpUtility.HtmlAttributeEncode(properties.ErrorMessage)}\" }}"
             };
+            return new EndpointControlRequestResultMvc(result);
         }
 
-        public HttpResponseMessage CreateBlockedWebApiResult(HttpActionContext actionContext, object customProperties)
+        public EndpointControlRequestResultWebApi CreateWebApiResult(HttpActionContext actionContext, object customProperties)
         {
             var properties = customProperties as CustomBlockedJsonResultProperties;
 
-            return actionContext.Request.CreateResponse(
+            var result = actionContext.Request.CreateResponse(
                 (HttpStatusCode)properties.StatusCode,
                 new { success = properties.Success, errorMessage = properties.ErrorMessage },
                 actionContext.ControllerContext.Configuration.Formatters.JsonFormatter
             );
+            return new EndpointControlRequestResultWebApi(result);
         }
     }
 

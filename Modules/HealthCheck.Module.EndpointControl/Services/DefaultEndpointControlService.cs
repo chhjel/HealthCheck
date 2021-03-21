@@ -20,7 +20,7 @@ namespace HealthCheck.Module.EndpointControl.Services
         private readonly IEndpointControlRequestHistoryStorage _historicalDataStorage;
         private readonly IEndpointControlEndpointDefinitionStorage _definitionStorage;
         private readonly IEndpointControlRuleStorage _ruleStorage;
-        private readonly List<IEndpointControlBlockedRequestResult> _customBlockedResults = new List<IEndpointControlBlockedRequestResult>();
+        private readonly List<IEndpointControlRequestResult> _customBlockedResults = new List<IEndpointControlRequestResult>();
 
         /// <summary>
         /// Checks if requests to certain endpoints are allowed to execute.
@@ -39,12 +39,12 @@ namespace HealthCheck.Module.EndpointControl.Services
         /// <summary>
         /// Get any defined custom blocked results.
         /// </summary>
-        public IEnumerable<IEndpointControlBlockedRequestResult> GetCustomBlockedResults() => _customBlockedResults;
+        public IEnumerable<IEndpointControlRequestResult> GetCustomBlockedResults() => _customBlockedResults;
 
         /// <summary>
         /// Add a custom result that can be selected in the UI and used when request are blocked.
         /// </summary>
-        public DefaultEndpointControlService AddCustomBlockedResult(IEndpointControlBlockedRequestResult result)
+        public DefaultEndpointControlService AddCustomBlockedResult(IEndpointControlRequestResult result)
         {
             _customBlockedResults.Add(result);
             return this;
@@ -67,7 +67,7 @@ namespace HealthCheck.Module.EndpointControl.Services
             result.BlockingRule = blockingRule;
             result.CustomBlockedResult = _customBlockedResults?.FirstOrDefault(x => x.Id == blockingRule?.BlockResultTypeId);
 
-            requestData.WasBlocked = !allow;
+            requestData.WasBlocked = !allow && result.CustomBlockedResult?.CountAsBlockedRequest != false;
             if (!allow)
             {
                 requestData.BlockingRuleId = blockingRule?.Id;

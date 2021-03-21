@@ -39,6 +39,7 @@ export interface SetRuleEnabledRequestModel {
 export interface EndpointControlRule {
     Id: string;
     Enabled: boolean;
+    AlwaysTrigger: boolean;
     LastChangedBy: string;
     LastChangedAt: Date;
 

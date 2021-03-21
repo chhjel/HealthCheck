@@ -58,7 +58,10 @@
                         
                         <div class="rule-list-item--rule"
                             @click="showRule(rule)">
-                            <rule-description-component :rule="rule" :endpointDefinitions="EndpointDefinitions" />
+                            <rule-description-component 
+                                :rule="rule" 
+                                :endpointDefinitions="EndpointDefinitions"
+                                :customResultDefinitions="CustomResultDefinitions" />
                         </div>
                         
                         <v-tooltip bottom v-if="getRuleWarning(rule) != null">
@@ -273,7 +276,7 @@ import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
 import EndpointControlService from  '../../../services/EndpointControlService';
 import ModuleOptions from  '../../../models/Common/ModuleOptions';
 import ModuleConfig from "../../../models/Common/ModuleConfig";
-import { EndpointControlDataViewModel, EndpointControlEndpointDefinition, EndpointControlFilterMode, EndpointControlPropertyFilter, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
+import { EndpointControlCustomResultDefinitionViewModel, EndpointControlDataViewModel, EndpointControlEndpointDefinition, EndpointControlFilterMode, EndpointControlPropertyFilter, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
 import LatestRequestsComponent from './LatestRequestsComponent.vue';
 
 export interface ModuleFrontendOptions {
@@ -355,8 +358,8 @@ export default class EndpointControlPageComponent extends Vue {
     get currentDialogTitle(): string
     {
         return (this.currentRule != null && this.currentRule.Id != null)
-            ? 'Edit notification rule'
-            : 'Create new notification rule';
+            ? 'Edit endpoint rule'
+            : 'Create new endpoint rule';
     }
 
     get ruleDialogVisible(): boolean
@@ -368,6 +371,11 @@ export default class EndpointControlPageComponent extends Vue {
     {
         return (this.data == null) ? [] : this.data.EndpointDefinitions;
     };
+
+    get CustomResultDefinitions(): Array<EndpointControlCustomResultDefinitionViewModel>
+    {
+        return (this.data == null) ? [] : this.data.CustomResultDefinitions;
+    }
 
     get rules(): Array<EndpointControlRule>
     {
@@ -506,9 +514,11 @@ export default class EndpointControlPageComponent extends Vue {
 
     getRuleWarning(rule: EndpointControlRule): string | null
     {
-        if (rule.TotalRequestCountLimits.length == 0 && rule.CurrentEndpointRequestCountLimits.length == 0)
+        if (!rule.AlwaysTrigger
+            && rule.TotalRequestCountLimits.length == 0 
+            && rule.CurrentEndpointRequestCountLimits.length == 0)
         {
-            return 'No limits has been defined, the rule won\'t have any effect.';
+            return 'No conditions has been defined, the rule won\'t have any effect.';
         }
         return null;
     }
@@ -589,6 +599,7 @@ export default class EndpointControlPageComponent extends Vue {
 
         let rule: EndpointControlRule = {
             Id: '00000000-0000-0000-0000-000000000000',
+            AlwaysTrigger: false,
             LastChangedBy: 'You',
             Enabled: true,
             LastChangedAt: new Date(),

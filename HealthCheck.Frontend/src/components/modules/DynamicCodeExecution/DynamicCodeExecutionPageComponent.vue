@@ -256,7 +256,6 @@ import LinqUtils from  '../../../util/LinqUtils';
 import KeyArray from  '../../../util/models/KeyArray';
 import KeyValuePair from  '../../../models/Common/KeyValuePair';
 import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import EventNotificationService from  '../../../services/EventNotificationService';
 import ModuleConfig from  '../../../models/Common/ModuleConfig';
 import ModuleOptions from  '../../../models/Common/ModuleOptions';
 import EditorComponent from  '../../Common/EditorComponent.vue';
