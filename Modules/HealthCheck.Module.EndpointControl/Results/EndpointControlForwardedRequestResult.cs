@@ -62,7 +62,7 @@ namespace HealthCheck.Module.EndpointControl.Results
             /// <summary>
             /// If true, request paths will be appended to the target url.
             /// </summary>
-            public bool AppendRelativeUrl { get; set; } = true;
+            public bool KeepRelativeUrls { get; set; } = true;
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace HealthCheck.Module.EndpointControl.Results
         /// </summary>
         protected virtual string CreateForwardUrl(string rawUrl, EndpointControlForwardedRequestResultProperties options)
         {
-            if (!options.AppendRelativeUrl)
+            if (!options.KeepRelativeUrls)
             {
                 return options.TargetUrl;
             }
