@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Module.EndpointControl.Attributes;
 using HealthCheck.Module.EndpointControl.Models;
 using System;
 using System.Collections.Generic;
@@ -107,11 +108,15 @@ namespace HealthCheck.Module.EndpointControl.Module
         private List<EndpointControlCustomResultPropertyDefinitionViewModel> CreateCustomProperties(Type customPropertiesModelType)
         {
             return customPropertiesModelType.GetProperties()
-                .Select(x => new EndpointControlCustomResultPropertyDefinitionViewModel
-                {
-                    Id = x.Name,
-                    Name = x.Name.SpacifySentence(),
-                    Type = x.PropertyType.Name
+                .Select(x => {
+                    var attr = x.GetCustomAttributes(typeof(HCEndpointControlResultPropertyAttribute), true).FirstOrDefault() as HCEndpointControlResultPropertyAttribute;
+                    return new EndpointControlCustomResultPropertyDefinitionViewModel
+                    {
+                        Id = x.Name,
+                        Name = x.Name.SpacifySentence(),
+                        Type = x.PropertyType.Name,
+                        Description = attr?.Description
+                    };
                 })
                 .ToList();
         }

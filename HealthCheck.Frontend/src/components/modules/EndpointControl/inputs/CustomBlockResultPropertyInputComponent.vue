@@ -7,12 +7,19 @@
             v-model="localValue"
             :name="definition.Name"
             :disabled="readonly"
+            :description="definition.Description"
             :clearable="false"
         ></input-component>
         
-        <v-checkbox
+        <input-header-component
             v-if="type == 'Boolean'"
-            :label="definition.Name"
+            :name="definition.Name"
+            :description="definition.Description"
+            />
+        <v-switch
+            class="mt-0"
+            v-if="type == 'Boolean'"
+            :label="localValue ? 'Enabled' : 'Disabled'"
             v-model="localValue"
             :disabled="readonly" />
     </div>
@@ -21,10 +28,11 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import InputComponent from '../../../Common/Basic/InputComponent.vue';
+import InputHeaderComponent from '../../../Common/Basic/InputHeaderComponent.vue';
 import { EndpointControlCustomResultPropertyDefinitionViewModel } from "../../../../models/modules/EndpointControl/EndpointControlModels";
 
 @Component({
-    components: { InputComponent }
+    components: { InputComponent, InputHeaderComponent }
 })
 export default class CustomBlockResultPropertyInputComponent extends Vue {
     @Prop({ required: true })
@@ -34,13 +42,19 @@ export default class CustomBlockResultPropertyInputComponent extends Vue {
     @Prop({ required: true })
     definition!: EndpointControlCustomResultPropertyDefinitionViewModel;
 
-    localValue: string = '';
+    localValue: any = '';
 
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     mounted(): void {
-        this.localValue = this.value;
+        if (this.type == 'Boolean')
+        {
+            this.localValue = this.value === "true";
+        }
+        else {
+            this.localValue = this.value;
+        }
     }
 
     ////////////////

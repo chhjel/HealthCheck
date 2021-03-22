@@ -22,6 +22,7 @@ export interface EndpointControlCustomResultPropertyDefinitionViewModel
     Id: string;
     Name: string;
     Type: string;
+    Description: string;
 }
 
 export interface EndpointControlEndpointDefinition {

@@ -518,7 +518,7 @@ export default class EndpointControlPageComponent extends Vue {
             && rule.TotalRequestCountLimits.length == 0 
             && rule.CurrentEndpointRequestCountLimits.length == 0)
         {
-            return 'No conditions has been defined, the rule won\'t have any effect.';
+            return 'No limits have been defined, the rule won\'t have any effect.';
         }
         return null;
     }

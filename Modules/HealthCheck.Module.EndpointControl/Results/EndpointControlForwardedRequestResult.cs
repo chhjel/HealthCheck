@@ -1,11 +1,15 @@
 ﻿#if NETFULL
 using HealthCheck.Module.EndpointControl.Abstractions;
+using HealthCheck.Module.EndpointControl.Attributes;
 using HealthCheck.Module.EndpointControl.Models;
 using HealthCheck.Module.EndpointControl.Utils;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http.Controllers;
@@ -25,7 +29,7 @@ namespace HealthCheck.Module.EndpointControl.Results
         public string Name => "Forward request";
 
         /// <inheritdoc />
-        public string Description => "Forwards a copy of the request async without blocking it.";
+        public string Description => "Forwards a copy of the request async.";
 
         /// <inheritdoc />
         public bool CountAsBlockedRequest => false;
@@ -38,7 +42,18 @@ namespace HealthCheck.Module.EndpointControl.Results
         {
             var properties = customProperties as EndpointControlForwardedRequestResultProperties;
             Task.Run(() => ForwardMvcRequestAsync(filterContext.RequestContext.HttpContext.Request, properties));
-            return new EndpointControlRequestResultMvc { UseBuiltInBlock = false };
+
+            var result = new EndpointControlRequestResultMvc { UseBuiltInBlock = false };
+            if (properties?.ReplaceOriginalResponse == true)
+            {
+                result.Result = new ContentResult()
+                {
+                    Content = "",
+                    ContentType = "text/plain",
+                    ContentEncoding = Encoding.UTF8
+                };
+            }
+            return result;
         }
 
         /// <inheritdoc />
@@ -46,7 +61,13 @@ namespace HealthCheck.Module.EndpointControl.Results
         {
             var properties = customProperties as EndpointControlForwardedRequestResultProperties;
             Task.Run(() => ForwardWebApiRequestAsync(actionContext.Request, properties));
-            return new EndpointControlRequestResultWebApi { UseBuiltInBlock = false };
+
+            var result = new EndpointControlRequestResultWebApi { UseBuiltInBlock = false };
+            if (properties?.ReplaceOriginalResponse == true)
+            {
+                result.Result = actionContext.Request.CreateResponse(HttpStatusCode.OK);
+            }
+            return result;
         }
 
         /// <summary>
@@ -57,12 +78,26 @@ namespace HealthCheck.Module.EndpointControl.Results
             /// <summary>
             /// Where the requests will be forwarded to.
             /// </summary>
+            [HCEndpointControlResultProperty("Location where the requests will be forwarded.")]
             public string TargetUrl { get; set; }
 
             /// <summary>
             /// If true, request paths will be appended to the target url.
             /// </summary>
-            public bool KeepRelativeUrls { get; set; } = true;
+            [HCEndpointControlResultProperty("If enabled only the host of the target url will be used, and the path of requests will be appended.")]
+            public bool KeepRelativeUrls { get; set; }
+
+            /// <summary>
+            /// If true, header values will be forwarded as well.
+            /// </summary>
+            [HCEndpointControlResultProperty("Enable to forward most headers as well.")]
+            public bool IncludeHeaderValues { get; set; }
+
+            /// <summary>
+            /// If true, the original response will be replaced with an empty 200 OK response.
+            /// </summary>
+            [HCEndpointControlResultProperty("If enabled, the original response will be replaced with an empty 200 OK response.")]
+            public bool ReplaceOriginalResponse { get; set; }
         }
 
         /// <summary>
@@ -174,25 +209,73 @@ namespace HealthCheck.Module.EndpointControl.Results
             HttpRequestMessage apiRequest,
             EndpointControlForwardedRequestResultProperties options)
         {
+            var requestDetails = new RequestDetails();
+
             if (mvcRequest != null)
             {
+                requestDetails.RawUrl = RequestUtils.GetUrl(mvcRequest);
+                requestDetails.Headers = mvcRequest.Headers.AllKeys.ToDictionary(x => x, x => mvcRequest.Headers[x]);
                 ConfigureMvcWebClient(client, mvcRequest, options);
             }
             else if (apiRequest != null)
             {
+                requestDetails.RawUrl = RequestUtils.GetUrl(apiRequest);
+                requestDetails.Headers = apiRequest.Headers.ToDictionary(x => x.Key, x => apiRequest.Headers.GetValues(x.Key).FirstOrDefault());
                 ConfigureWebApiWebClient(client, apiRequest, options);
             }
+
+            ConfigureWebClient(client, requestDetails, options);
         }
 
         /// <summary>
-        /// Perform any custom configuration on the webclient that forwards the request here.
+        /// Perform any custom configuration on the webclient that forwards MVC requests here.
         /// </summary>
         protected virtual void ConfigureMvcWebClient(WebClient client, HttpRequestBase request, EndpointControlForwardedRequestResultProperties options) { }
 
         /// <summary>
-        /// Perform any custom configuration on the webclient that forwards the request here.
+        /// Perform any custom configuration on the webclient that forwards WebApi requests here.
         /// </summary>
         protected virtual void ConfigureWebApiWebClient(WebClient client, HttpRequestMessage request, EndpointControlForwardedRequestResultProperties options) { }
+
+        /// <summary>
+        /// Perform any custom configuration on the webclient for both Mvc and WebApi here.
+        /// </summary>
+        protected virtual void ConfigureWebClient(WebClient client, RequestDetails details, EndpointControlForwardedRequestResultProperties options)
+        {
+            if (options.IncludeHeaderValues && details?.Headers?.Any() == true)
+            {
+                foreach (var header in details.Headers.Where(x => includeHeader(x)))
+                {
+                    client.Headers.Set(header.Key, header.Value);
+                }
+            }
+
+            static bool includeHeader(KeyValuePair<string, string> kvp)
+            {
+                return !_exemptHeaders.Any(h => h.ToLower() == kvp.Key.ToLower());
+            }
+        }
+        private static readonly string[] _exemptHeaders = new[] {
+            "Connection",
+            "Host",
+            "Content-Length"
+        };
+
+        /// <summary>
+        /// Shared details for MVC and WebApi requests.
+        /// </summary>
+        public class RequestDetails
+        {
+            /// <summary>
+            /// All header values in the request.
+            /// </summary>
+            public Dictionary<string, string> Headers { get; set; } = new Dictionary<string, string>();
+
+            /// <summary>
+            /// Raw incoming url.
+            /// </summary>
+            public string RawUrl { get; set; }
+        }
     }
 }
 #endif
