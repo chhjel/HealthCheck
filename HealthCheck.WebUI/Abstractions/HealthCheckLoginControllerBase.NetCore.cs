@@ -39,7 +39,7 @@ namespace HealthCheck.WebUI.Abstractions
         [HideFromRequestLog]
         [HttpPost]
         [Route("Login")]
-        public virtual async Task<ActionResult> Login(HCIntegratedLoginRequest model)
+        public virtual async Task<ActionResult> Login([FromBody] HCIntegratedLoginRequest model)
         {
             if (!Enabled) return NotFound();
             await Delay();
@@ -55,7 +55,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         [HideFromRequestLog]
         [HttpPost]
-        public virtual async Task<ActionResult> Request2FACode(HCIntegratedLoginRequest2FACodeRequest model)
+        public virtual async Task<ActionResult> Request2FACode([FromBody] HCIntegratedLoginRequest2FACodeRequest model)
         {
             if (!Enabled) return NotFound();
             await Delay();

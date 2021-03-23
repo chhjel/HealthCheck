@@ -37,6 +37,7 @@ using HealthCheck.Module.DevModule;
 using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Services;
+using HealthCheck.WebUI.TFA.Util;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -180,8 +181,9 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             config.RedirectTargetOnNoAccess = "/no-access";
             config.IntegratedLoginConfig = new HCIntegratedLoginConfig
             {
-                IntegratedLoginEndpoint = "/hclogin/login",
-                Show2FAInput = true
+                IntegratedLoginEndpoint = "/HCLogin/login",
+                Show2FAInput = true,
+                Current2FACodeExpirationTime = HealthCheck2FAUtil.GetCurrentCodeExpirationTime(),
             };
         }
 

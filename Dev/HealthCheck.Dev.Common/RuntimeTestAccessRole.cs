@@ -10,6 +10,7 @@ namespace HealthCheck.Dev.Common
         WebAdmins = 2,
         SystemAdmins = 4,
         SomethingElse = 8,
-        API = 16
+        API = 16,
+        Testing = 32
     }
 }
