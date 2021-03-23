@@ -27,19 +27,5 @@ namespace HealthCheck.WebUI.Models
         /// Entered 2FA code.
         /// </summary>
         public string TwoFactorCode { get; set; }
-
-#if NETFULL
-        /// <summary>
-        /// Current request.
-        /// </summary>
-        public HttpRequestBase Request { get; set; }
-#endif
-
-#if NETCORE
-        /// <summary>
-        /// Current request.
-        /// </summary>
-        public HttpRequest Request { get; set; }
-#endif
     }
 }
