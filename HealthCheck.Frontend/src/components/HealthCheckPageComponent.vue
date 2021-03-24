@@ -27,6 +27,11 @@
                 v-if="invalidModuleConfigs.length > 0"
                 :invalid-configs="invalidModuleConfigs" />
 
+            <div style="margin: 40px; margin-top: 80px;">
+                <backend-input-component type="Int32" name="Test int" v-model="testValue" />
+                = '{{ testValue }}''
+            </div>
+
             <router-view></router-view>
 
             <no-page-available-page-component
@@ -45,17 +50,21 @@ import InvalidModuleConfigsComponent from './InvalidModuleConfigsComponent.vue';
 import IntegratedLoginPageComponent from './modules/IntegratedLogin/IntegratedLoginPageComponent.vue';
 import FrontEndOptionsViewModel from '../models/Common/FrontEndOptionsViewModel';
 import ModuleConfig from "../models/Common/ModuleConfig";
+import BackendInputComponent from "./Common/Inputs/BackendInputs/BackendInputComponent.vue";
 
 @Component({
     components: {
         NoPageAvailablePageComponent,
         InvalidModuleConfigsComponent,
-        IntegratedLoginPageComponent
+        IntegratedLoginPageComponent,
+        BackendInputComponent
     }
 })
 export default class HealthCheckPageComponent extends Vue {
     @Prop({ required: true })
     moduleConfig!: Array<ModuleConfig>;
+
+    testValue: string = "";
 
     //////////////////
     //  LIFECYCLE  //
