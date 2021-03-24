@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System;
-using System.Linq;
 using System.Reflection;
 
 namespace HealthCheck.WebUI.Serializers
@@ -23,6 +22,11 @@ namespace HealthCheck.WebUI.Serializers
         public string Serialize(object obj)
         {
             LastError = null;
+
+            if (obj != null && !HCGlobalConfig.AllowSerializingType(obj.GetType()))
+            {
+                return null;
+            }
 
             var settings = new JsonSerializerSettings()
             {
@@ -64,6 +68,10 @@ namespace HealthCheck.WebUI.Serializers
 
             try
             {
+                if (!HCGlobalConfig.AllowSerializingType(type))
+                {
+                    return null;
+                }
                 return JsonConvert.DeserializeObject(json, type);
             }
             catch (Exception ex)
@@ -78,21 +86,7 @@ namespace HealthCheck.WebUI.Serializers
             protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
             {
                 JsonProperty prop = base.CreateProperty(member, memberSerialization);
-                if (HCGlobalConfig.TypesIgnoredInSerialization
-                    ?.Any(x => prop.PropertyType == x) == true)
-                {
-                    prop.Ignored = true;
-                }
-                else if (HCGlobalConfig.TypesWithDescendantsIgnoredInSerialization
-                    ?.Any(x => x.IsAssignableFrom(prop.PropertyType)) == true)
-                {
-                    prop.Ignored = true;
-                }
-                else if (HCGlobalConfig.NamespacePrefixesIgnoredInSerialization
-                    ?.Any(x => prop.PropertyType.Namespace?.ToUpper()?.StartsWith(x?.ToUpper()) == true) == true)
-                {
-                    prop.Ignored = true;
-                }
+                prop.Ignored = !HCGlobalConfig.AllowSerializingType(prop.PropertyType);
                 return prop;
             }
         }

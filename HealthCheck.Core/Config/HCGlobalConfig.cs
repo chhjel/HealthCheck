@@ -1,6 +1,8 @@
 ﻿using HealthCheck.Core.Abstractions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace HealthCheck.Core.Config
 {
@@ -18,14 +20,33 @@ namespace HealthCheck.Core.Config
 
         /// <summary>
         /// Types ignored in default test-result serialization.
+        /// <para>Defaults to actions, and expressions.</para>
         /// </summary>
-        public static List<Type> TypesIgnoredInSerialization { get; set; }
+        public static List<Type> TypesIgnoredInSerialization { get; set; } = new List<Type>
+        {
+            typeof(Action), typeof(Expression)
+        };
+
+        /// <summary>
+        /// Generic types ignored in default test-result serialization.
+        /// <para>Defaults to actions, funcs, expressions.</para>
+        /// </summary>
+        public static List<Type> GenericTypesIgnoredInSerialization { get; set; } = new List<Type>
+        {
+            typeof(Action<>), typeof(Action<,>), typeof(Action<,,>), typeof(Action<,,,>), typeof(Action<,,,,>),
+            typeof(Func<>), typeof(Func<,>), typeof(Func<,,>), typeof(Func<,,,>), typeof(Func<,,,,>), typeof(Func<,,,,,>),
+            typeof(Expression<>)
+        };
 
         /// <summary>
         /// Types + all descendants ignored in default test-result serialization.
+        /// <para>Defaults expressions and delegates.</para>
         /// </summary>
-        public static List<Type> TypesWithDescendantsIgnoredInSerialization { get; set; }
-        
+        public static List<Type> TypesWithDescendantsIgnoredInSerialization { get; set; } = new List<Type>
+        {
+            typeof(Expression), typeof(Delegate),
+        };
+
         /// <summary>
         /// Namespace-prefixes ignored in default test-result serialization.
         /// </summary>
@@ -66,6 +87,34 @@ namespace HealthCheck.Core.Config
                     instance?.Initialize();
                 }
             }
+        }
+
+        /// <summary>
+        /// Checks the rules from the other properties.
+        /// </summary>
+        public static bool AllowSerializingType(Type type)
+        {
+            if (TypesIgnoredInSerialization?.Any(x => type == x) == true)
+            {
+                return false;
+            }
+            else if (TypesWithDescendantsIgnoredInSerialization?.Any(x => x.IsAssignableFrom(type)) == true)
+            {
+                return false;
+            }
+            else if (NamespacePrefixesIgnoredInSerialization?.Any(x => type?.Namespace?.ToUpper()?.StartsWith(x?.ToUpper()) == true) == true)
+            {
+                return false;
+            }
+            else if (type.IsGenericType)
+            {
+                var baseGenericType = type.GetGenericTypeDefinition();
+                if (GenericTypesIgnoredInSerialization?.Any(x => baseGenericType == x) == true)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         /// <summary>
