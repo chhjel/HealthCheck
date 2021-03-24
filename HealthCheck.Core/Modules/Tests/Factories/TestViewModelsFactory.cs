@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Extensions;
+﻿using HealthCheck.Core.Config;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Modules.Tests.Utils;
@@ -155,8 +156,16 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 string template = null;
                 try
                 {
-                    var instance = Activator.CreateInstance(x.ParameterType);
-                    template = TestRunnerService.Serializer?.Serialize(instance);
+                    if (HCGlobalConfig.AllowSerializingType(x.ParameterType))
+                    {
+                        var ctors = x.ParameterType.GetConstructors();
+                        var hasParameterlessConstructor = ctors?.Any() != true || ctors?.Any(x => x.GetParameters().Length == 0) == true;
+                        if (hasParameterlessConstructor)
+                        {
+                            var instance = Activator.CreateInstance(x.ParameterType);
+                            template = TestRunnerService.Serializer?.Serialize(instance);
+                        }
+                    }
                 }
                 catch (Exception)
                 {
