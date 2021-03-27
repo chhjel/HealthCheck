@@ -40,7 +40,6 @@ export default class ParameterInputTypeEnumComponent extends Vue {
     /////////////////
     //  WATCHERS  //
     ///////////////
-    @Watch('value')
     updateLocalValue(): void
     {
         this.localValue = this.value;

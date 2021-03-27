@@ -30,29 +30,20 @@ import BackendInputConfig from './BackendInputConfig';
 // Parameter input components
 import UnknownBackendInputComponent from './UnknownBackendInputComponent.vue';
 import ParameterInputTypeInt32Component from './Types/ParameterInputTypeInt32Component.vue';
-import ParameterInputTypeNullableInt32Component from './Types/ParameterInputTypeNullableInt32Component.vue';
 import ParameterInputTypeInt64Component from './Types/ParameterInputTypeInt64Component.vue';
-import ParameterInputTypeNullableInt64Component from './Types/ParameterInputTypeNullableInt64Component.vue';
 import ParameterInputTypeDecimalComponent from './Types/ParameterInputTypeDecimalComponent.vue';
-import ParameterInputTypeNullableDecimalComponent from './Types/ParameterInputTypeNullableDecimalComponent.vue';
 import ParameterInputTypeSingleComponent from './Types/ParameterInputTypeSingleComponent.vue';
-import ParameterInputTypeNullableSingleComponent from './Types/ParameterInputTypeNullableSingleComponent.vue';
 import ParameterInputTypeDoubleComponent from './Types/ParameterInputTypeDoubleComponent.vue';
-import ParameterInputTypeNullableDoubleComponent from './Types/ParameterInputTypeNullableDoubleComponent.vue';
 import ParameterInputTypeStringComponent from './Types/ParameterInputTypeStringComponent.vue';
 import ParameterInputTypeBooleanComponent from './Types/ParameterInputTypeBooleanComponent.vue';
-import ParameterInputTypeNullableBooleanComponent from './Types/ParameterInputTypeNullableBooleanComponent.vue';
 import ParameterInputTypeDateTimeComponent from './Types/ParameterInputTypeDateTimeComponent.vue';
-import ParameterInputTypeNullableDateTimeComponent from './Types/ParameterInputTypeNullableDateTimeComponent.vue';
 import ParameterInputTypeDateTimeOffsetComponent from './Types/ParameterInputTypeDateTimeOffsetComponent.vue';
-import ParameterInputTypeNullableDateTimeOffsetComponent from './Types/ParameterInputTypeNullableDateTimeOffsetComponent.vue';
 import ParameterInputTypeEnumComponent from './Types/ParameterInputTypeEnumComponent.vue';
 import ParameterInputTypeFlaggedEnumComponent from './Types/ParameterInputTypeFlaggedEnumComponent.vue';
 import ParameterInputTypeGenericListComponent from './Types/ParameterInputTypeGenericListComponent.vue';
 import ParameterInputTypeHttpPostedFileBaseComponent from './Types/ParameterInputTypeHttpPostedFileBaseComponent.vue';
 import ParameterInputPickReferenceComponent from './Types/ParameterInputPickReferenceComponent.vue';
 import ParameterInputTypeGuidComponent from "./Types/ParameterInputTypeGuidComponent.vue";
-import ParameterInputTypeNullableGuidComponent from "./Types/ParameterInputTypeNullableGuidComponent.vue";
 import ParameterInputAnyJsonComponent from "./Types/ParameterInputAnyJsonComponent.vue";
 
 @Component({
@@ -60,29 +51,20 @@ import ParameterInputAnyJsonComponent from "./Types/ParameterInputAnyJsonCompone
       // Parameter input components
       UnknownBackendInputComponent,
       ParameterInputTypeInt32Component,
-      ParameterInputTypeNullableInt32Component,
       ParameterInputTypeInt64Component,
-      ParameterInputTypeNullableInt64Component,
       ParameterInputTypeDecimalComponent,
-      ParameterInputTypeNullableDecimalComponent,
       ParameterInputTypeSingleComponent,
-      ParameterInputTypeNullableSingleComponent,
       ParameterInputTypeDoubleComponent,
-      ParameterInputTypeNullableDoubleComponent,
       ParameterInputTypeStringComponent,
       ParameterInputTypeBooleanComponent,
-      ParameterInputTypeNullableBooleanComponent,
       ParameterInputTypeDateTimeComponent,
-      ParameterInputTypeNullableDateTimeComponent,
       ParameterInputTypeDateTimeOffsetComponent,
-      ParameterInputTypeNullableDateTimeOffsetComponent,
       ParameterInputTypeEnumComponent,
       ParameterInputTypeFlaggedEnumComponent,
       ParameterInputTypeGenericListComponent,
       ParameterInputTypeHttpPostedFileBaseComponent,
       ParameterInputPickReferenceComponent,
       ParameterInputTypeGuidComponent,
-      ParameterInputTypeNullableGuidComponent,
       ParameterInputAnyJsonComponent
     }
 })

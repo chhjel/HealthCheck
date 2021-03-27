@@ -1,11 +1,34 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeGuidComponent.vue -->
 <template>
     <div>
-        <v-text-field
-            class="pt-0"
-            v-model="localValue"
-            :placeholder="placeholderText"
-            required />
+        <v-layout>
+            <v-flex :xs10="isNullable" :xs12="!isNullable">
+                <v-text-field
+                    class="pt-0"
+                    v-model="localValue"
+                    :placeholder="placeholderText"
+                    required />
+            </v-flex>
+
+            <v-flex xs2
+                :xs3="isListItem"
+                class="text-sm-right"
+                v-if="isNullable">
+                <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                        <span v-on="on">
+                            <v-btn flat icon color="primary" class="ma-0 pa-0"
+                                @click="setValueToNull"
+                                :disabled="localValue == null">
+                                <v-icon>clear</v-icon>
+                            </v-btn>
+                        </span>
+                    </template>
+                    <span>Sets value to null</span>
+                </v-tooltip>
+            </v-flex>
+
+        </v-layout>
     </div>
 </template>
 
@@ -37,8 +60,21 @@ export default class ParameterInputTypeGuidComponent extends Vue {
         this.localValue = null;
     }
 
+    validateValue(): void {
+        if (this.localValue == null) {
+            this.localValue = "";
+        }
+    }
+
+    get isNullable(): boolean {
+        return this.config.nullable;
+    }
+
     get placeholderText(): string {
-        // return this.localValue == null ? "null" : "";
+        if (this.isNullable)
+        {
+            return this.localValue == null || this.localValue.length == 0 ? "null" : "";
+        }
         return (this.localValue == null || this.localValue.length == 0)
             ? "00000000-0000-0000-0000-000000000000" : "";
     }
@@ -58,12 +94,6 @@ export default class ParameterInputTypeGuidComponent extends Vue {
     {
         this.validateValue();
         this.$emit('input', this.localValue);
-    }
-
-    validateValue(): void {
-        if (this.localValue == null && this.config.notNull) {
-            this.localValue = "";
-        }
     }
 }
 </script>
