@@ -72,7 +72,7 @@ export default class ParameterInputTypeStringComponent extends Vue {
     }
 
     get isTextArea(): boolean {
-        return this.config.flags.includes('textarea');
+        return this.config.flags.includes('TextArea');
     }
     
     /////////////////

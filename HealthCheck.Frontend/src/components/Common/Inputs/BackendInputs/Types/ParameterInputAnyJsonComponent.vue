@@ -10,7 +10,7 @@
             content-class="edit-json-value-dialog">
             <v-card style="background-color: #f4f4f4">
                 <v-toolbar class="elevation-0">
-                    <v-toolbar-title>Edit value of parameter '{{ parameter.Name }}' of type '{{ parameter.Type}}'</v-toolbar-title>
+                    <v-toolbar-title>Edit value of parameter '{{ name }}' of type '{{ type}}'</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-btn icon
                         @click="editorDialogVisible = false">
@@ -25,7 +25,7 @@
                     <editor-component
                         class="editor"
                         :language="'json'"
-                        v-model="parameter.Value"
+                        v-model="localValue"
                         :read-only="false"
                         ref="editor"/>
                         
@@ -35,6 +35,7 @@
                     <v-btn color="error"
                         @click="setValueToNull">Set value to null</v-btn>
                     <v-btn color="secondary"
+                        v-if="hasTemplate"
                         @click="setValueToTemplate">Reset value</v-btn>
                     <v-spacer></v-spacer>
                     <v-alert :value="error.length > 0" color="error">{{ error }}</v-alert>
@@ -50,8 +51,8 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import TestParameterTemplateViewModel from "../../../../../models/modules/TestSuite/TestParameterTemplateViewModel";
-import TestParameterViewModel from  '../../../../../models/modules/TestSuite/TestParameterViewModel';
 import EditorComponent from  '../../../../Common/EditorComponent.vue';
+import BackendInputConfig from "../BackendInputConfig";
 
 @Component({
     components: {
@@ -60,7 +61,18 @@ import EditorComponent from  '../../../../Common/EditorComponent.vue';
 })
 export default class ParameterInputAnyJsonComponent extends Vue {
     @Prop({ required: true })
-    parameter!: TestParameterViewModel;
+    name!: string;
+
+    @Prop({ required: true })
+    value!: string;
+
+    @Prop({ required: true })
+    type!: string;
+
+    @Prop({ required: true })
+    config!: BackendInputConfig;
+
+    localValue: string | null = '';
 
     @Prop({ required: false })
     isListItem!: boolean;
@@ -68,8 +80,8 @@ export default class ParameterInputAnyJsonComponent extends Vue {
     editorDialogVisible: boolean = false;
     
     mounted(): void {
-        if (this.parameter.Value == null) {
-            this.parameter.Value = '';
+        if (this.localValue == null) {
+            this.localValue = '';
         }
     }
 
@@ -83,21 +95,32 @@ export default class ParameterInputAnyJsonComponent extends Vue {
     }
 
     setValueToNull(): void {
-        this.parameter.Value = '';
+        this.localValue = '';
     }
 
     setValueToTemplate(): void {
-        this.parameter.Value = this.templateValue;
+        this.localValue = this.templateValue;
+    }
+
+    get hasTemplate(): boolean {
+        try {
+            const _ = (this.$store.state.tests.templateValues as Array<TestParameterTemplateViewModel>)
+                .filter(x => x.Type == this.type)[0];
+            return true;
+        } catch(e)
+        {
+            return false;
+        }
     }
     
     get templateValue(): string {
         const templateData = (this.$store.state.tests.templateValues as Array<TestParameterTemplateViewModel>)
-            .filter(x => x.Type == this.parameter.Type)[0];
+            .filter(x => x.Type == this.type)[0];
         return (templateData) ? templateData.Template : '{\n}';
     }
 
     get isNull(): boolean {
-        return this.parameter.Value === null || this.parameter.Value === undefined || this.parameter.Value === '';
+        return this.localValue === null || this.localValue === undefined || this.localValue === '';
     }
 
     get error(): string {
@@ -107,7 +130,7 @@ export default class ParameterInputAnyJsonComponent extends Vue {
         }
 
         try {
-            JSON.parse(this.parameter.Value ?? '');
+            JSON.parse(this.localValue ?? '');
             return '';
         } catch (e) {
             return `${e}`;
@@ -121,7 +144,7 @@ export default class ParameterInputAnyJsonComponent extends Vue {
         }
         else
         {
-            const json = this.parameter.Value ?? '';
+            const json = this.localValue ?? '';
             try {
                 const obj = JSON.parse(json);
                 let title: string = obj.name ?? obj.Name 
@@ -141,9 +164,9 @@ export default class ParameterInputAnyJsonComponent extends Vue {
         }
     }
     
-    ////////////////////////////////////////////////////////////
-    //// EVENTHANDLERS /////////////////////////////////////////
-    ////////////////////////////////////////////////////////////
+    /////////////////
+    //  WATCHERS  //
+    ///////////////
     @Watch("editorDialogVisible")
     onFullscreenChanged(): void {
         this.refreshSize();
@@ -151,6 +174,18 @@ export default class ParameterInputAnyJsonComponent extends Vue {
         setTimeout(() => {
             this.refreshSize();
         }, 100);
+    }
+
+    @Watch('value')
+    updateLocalValue(): void
+    {
+        this.localValue = this.value;
+    }
+
+    @Watch('localValue')
+    onLocalValueChanged(): void
+    {
+        this.$emit('input', this.localValue);
     }
 }
 </script>

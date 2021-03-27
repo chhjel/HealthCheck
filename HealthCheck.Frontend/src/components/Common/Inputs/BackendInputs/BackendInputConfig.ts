@@ -6,4 +6,5 @@ export default interface BackendInputConfig
     defaultValue: string | null;
     flags: Array<string>;
     possibleValues: Array<string>;
+    parameterIndex: number | null;
 }

@@ -27,17 +27,6 @@
                 v-if="invalidModuleConfigs.length > 0"
                 :invalid-configs="invalidModuleConfigs" />
 
-            <div style="margin: 40px; margin-top: 80px;">
-                <div v-for="(test, tIndex) in testValues"
-                     :key="`test-${tIndex}`">
-                    <backend-input-component 
-                        :type="test.type"
-                        :name="test.type"
-                        :config="test.config"
-                        v-model="test.value" /> = '{{ (test.value == null ? "null": test.value) }}'
-                </div>
-            </div>
-
             <router-view></router-view>
 
             <no-page-available-page-component
@@ -71,49 +60,12 @@ export default class HealthCheckPageComponent extends Vue {
     @Prop({ required: true })
     moduleConfig!: Array<ModuleConfig>;
 
-    testConfig: BackendInputConfig = {
-        flags: [],
-        notNull: false,
-        defaultValue: null,
-        possibleValues: [],
-        nullable: false
-    };
-    testValues: any[] = [
-        // AnyJson
-        // PickReference
-        { type: 'Boolean', value: '', config: {...this.testConfig} },
-        { type: 'DateTime', value: '', config: {...this.testConfig} },
-        { type: 'DateTimeOffset', value: '', config: {...this.testConfig} },
-        { type: 'Decimal', value: '', config: {...this.testConfig} },
-        { type: 'Double', value: '', config: {...this.testConfig} },
-        { type: 'Enum', value: '', config: {...this.testConfig, ...{possibleValues: ['A', 'B', 'C']}} },
-        { type: 'FlaggedEnum', value: '', config: {...this.testConfig, ...{possibleValues: ['A', 'B', 'C']}} },
-        { type: 'Guid', value: '', config: {...this.testConfig} },
-        // File
-        { type: 'Int32', value: '', config: {...this.testConfig} },
-        { type: 'Int64', value: '', config: {...this.testConfig} },
-        { type: 'Single', value: '', config: {...this.testConfig} },
-        { type: 'String', value: '', config: {...this.testConfig} },
-        { type: 'String', value: '', config: {...this.testConfig, ...{flags: 'textarea'}} },
-        { type: 'List<String>', value: '', config: {...this.testConfig} },
-        // Json?:
-        { type: 'SomeCustomType', value: '', config: {...this.testConfig} }
-    ];
-
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     mounted(): void
     {
         this.setInitialPage();
-        this.$router.push('/dev');
-
-        const orgValues = [...this.testValues]
-        orgValues.forEach(x => {
-            let item = x;
-            item.config = {...item.config, ...{ nullable: true } };
-            this.testValues.push(item);
-        });
     }
 
     ////////////////

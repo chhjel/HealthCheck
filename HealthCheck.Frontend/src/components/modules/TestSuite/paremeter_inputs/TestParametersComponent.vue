@@ -7,7 +7,15 @@
                   v-for="(parameter, index) in test.Parameters"
                   :key="`test-${test.Id}-parameter`+index"
                   class="parameter-block">
-                  <parameter-input-component :parameter="parameter" />
+
+                  <backend-input-component 
+                      v-model="parameter.Value"
+                      :type="cleanType(parameter.Type)"
+                      :name="parameter.Name"
+                      :description="parameter.Description"
+                      :isCustomReferenceType="parameter.IsCustomReferenceType"
+                      :config="createConfig(parameter, index)"
+                      @isAnyJson="parameter.IsUnsupportedJson = true" />
               </v-flex>
           </v-layout>
         </v-container>
@@ -17,12 +25,13 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 import TestViewModel from  '../../../../models/modules/TestSuite/TestViewModel';
-import ParameterInputComponent from './ParameterInputComponent.vue';
 import TestParameterViewModel from  '../../../../models/modules/TestSuite/TestParameterViewModel';
+import BackendInputConfig from "../../../Common/Inputs/BackendInputs/BackendInputConfig";
+import BackendInputComponent from "../../../Common/Inputs/BackendInputs/BackendInputComponent.vue";
 
 @Component({
     components: {
-      ParameterInputComponent
+      BackendInputComponent
     }
 })
 export default class TestParametersComponent extends Vue {
@@ -48,6 +57,29 @@ export default class TestParametersComponent extends Vue {
     allowMediumSize(parameter: TestParameterViewModel): boolean
     {
       return !parameter.FullWidth;
+    }
+
+    cleanType(type: string): string {
+      if (type.startsWith("Nullable"))
+      {
+        type = type.substring("Nullable".length);
+      }
+      return type;
+    }
+
+    createConfig(parameter: TestParameterViewModel, index: number): BackendInputConfig {
+      let flags: Array<string> = [];
+      if (parameter.ShowTextArea) { flags.push('TextArea') };
+      if (parameter.ReadOnlyList) { flags.push('ReadOnlyList') };
+
+      return {
+        notNull: parameter.NotNull,
+        nullable: parameter.Type.startsWith("Nullable"),
+        defaultValue: parameter.DefaultValue,
+        flags: flags,
+        possibleValues: parameter.PossibleValues,
+        parameterIndex: index
+      };
     }
 }
 </script>

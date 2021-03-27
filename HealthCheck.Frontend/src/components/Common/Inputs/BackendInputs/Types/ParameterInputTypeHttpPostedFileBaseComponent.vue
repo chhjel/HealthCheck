@@ -11,13 +11,13 @@
             <v-flex xs2
                 :xs3="isListItem"
                 class="text-sm-right pa-0"
-                v-if="parameter.Value != null">
+                v-if="localValue != null">
                 <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
                         <span v-on="on">
                             <v-btn flat icon color="primary" class="ma-0 pa-0"
                                 @click="setValueToNull"
-                                :disabled="parameter.Value == null">
+                                :disabled="localValue == null">
                                 <v-icon>clear</v-icon>
                             </v-btn>
                         </span>
@@ -31,8 +31,8 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestParameterViewModel from  '../../../../../models/modules/TestSuite/TestParameterViewModel';
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import BackendInputConfig from "../BackendInputConfig";
 
 @Component({
     components: {
@@ -40,45 +40,18 @@ import TestParameterViewModel from  '../../../../../models/modules/TestSuite/Tes
 })
 export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
     @Prop({ required: true })
-    parameter!: TestParameterViewModel;
+    value!: string;
+
+    @Prop({ required: true })
+    config!: BackendInputConfig;
 
     @Prop({ required: false })
     isListItem!: boolean;
 
+    localValue: string | null = '';
+    
     mounted(): void {
-    }
-
-    setValueToNull(): void {
-        this.parameter.Value = null;
-
-        let input: HTMLInputElement = (<HTMLInputElement>this.$refs.fileinput);
-        input.value = "";
-    }
-
-    get placeholderText(): string {
-        return this.parameter.Value == null ? "null" : "";
-    }
-
-    onFileChanged(): void {
-        let input: HTMLInputElement = (<HTMLInputElement>this.$refs.fileinput);
-        let files = input.files;
-        if (files == null || files.length == 0)
-        {
-            this.setValueToNull();
-            return;
-        }
-        
-        let file = files[0];
-        var reader = new FileReader();
-        reader.onload = ((theFile: File) => {
-            return (e: any) => {
-                var binaryData = e.target.result;
-                var base64String = window.btoa(binaryData);
-                this.parameter.Value = `${file.type}|${file.name}|${base64String}`;
-            };
-        })(file);
-        
-        reader.readAsBinaryString(file);
+        this.updateLocalValue();
     }
 
     getReadableFileSize(bytes: number, si: boolean = true): string
@@ -96,6 +69,58 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
             ++u;
         } while(Math.abs(bytes) >= thresh && u < units.length - 1);
         return bytes.toFixed(1)+' '+units[u];
+    }
+
+    setValueToNull(): void {
+        this.localValue = null;
+
+        let input: HTMLInputElement = (<HTMLInputElement>this.$refs.fileinput);
+        input.value = "";
+    }
+
+    get isNullable(): boolean {
+        return this.config.nullable;
+    }
+
+    get placeholderText(): string {
+        return this.localValue == null ? "null" : "";
+    }
+
+    /////////////////
+    //  WATCHERS  //
+    ///////////////
+    @Watch('value')
+    updateLocalValue(): void
+    {
+        this.localValue = this.value;
+    }
+
+    @Watch('localValue')
+    onLocalValueChanged(): void
+    {
+        this.$emit('input', this.localValue);
+    }
+
+    onFileChanged(): void {
+        let input: HTMLInputElement = (<HTMLInputElement>this.$refs.fileinput);
+        let files = input.files;
+        if (files == null || files.length == 0)
+        {
+            this.setValueToNull();
+            return;
+        }
+        
+        let file = files[0];
+        var reader = new FileReader();
+        reader.onload = ((theFile: File) => {
+            return (e: any) => {
+                var binaryData = e.target.result;
+                var base64String = window.btoa(binaryData);
+                this.localValue = `${file.type}|${file.name}|${base64String}`;
+            };
+        })(file);
+        
+        reader.readAsBinaryString(file);
     }
 }
 </script>

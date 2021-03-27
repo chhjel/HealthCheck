@@ -24,7 +24,7 @@
                                 v-model="items[itemIndex]"
                                 :config="config"
                                 :isListItem="true" />
-                            <span v-if="isReadOnlyList">{{ item.Value }}</span>
+                            <span v-if="isReadOnlyList">{{ items[itemIndex] }}</span>
                         </v-list-tile-content>
                     </v-list-tile>
                 </template>

@@ -139,6 +139,7 @@ export default class BackendInputComponent extends Vue {
         }
         else if (this.allowJsonInput)
         {
+            this.$emit('isAnyJson');
             return "ParameterInputAnyJsonComponent";
         }
         else {

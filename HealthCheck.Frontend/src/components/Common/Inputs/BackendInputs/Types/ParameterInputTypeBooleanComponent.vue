@@ -34,7 +34,7 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
     @Prop({ required: true })
     config!: BackendInputConfig;
 
-    localValue: any = '';
+    localValue: any = false;
     nullableCheckboxState: boolean = false;
     
     mounted(): void {
@@ -42,16 +42,20 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
     }
 
     validateValue(): void {
-        if (this.localValue == null || this.localValue === '') {
-            if (this.isNullable)
-            {
+        if (this.isNullable)
+        {
+            if (this.localValue == null || this.localValue === '') {
                 this.localValue = null;
             }
-            else
-            {
-                this.localValue = this.valueIsTrue(this.value);
+            else {
+                this.localValue = this.valueIsTrue(this.localValue);
             }
         }
+        else
+        {
+            this.localValue = this.valueIsTrue(this.localValue);
+        }
+
     }
 
     setNextState(): void {

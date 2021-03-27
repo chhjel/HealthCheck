@@ -35,7 +35,7 @@
                     <small>{{ choices.length - 1 }} results</small>
                     <div
                         v-for="(choice, cindex) in choices"
-                        :key="`${parameter.index}-choices-${cindex}`"
+                        :key="`${config.parameterIndex}-choices-${cindex}`"
                         class="mb-2">
                         <v-btn
                             @click="selectChoice(choice)"
@@ -60,9 +60,10 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestParameterViewModel, { TestParameterReferenceChoiceViewModel } from  '../../../../../models/modules/TestSuite/TestParameterViewModel';
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { TestParameterReferenceChoiceViewModel } from  '../../../../../models/modules/TestSuite/TestParameterViewModel';
 import { FetchStatus, ServiceFetchCallbacks } from "../../../../../services/abstractions/HCServiceBase";
+import BackendInputConfig from "../BackendInputConfig";
 
 @Component({
     components: {
@@ -70,7 +71,12 @@ import { FetchStatus, ServiceFetchCallbacks } from "../../../../../services/abst
 })
 export default class ParameterInputPickReferenceComponent extends Vue {
     @Prop({ required: true })
-    parameter!: TestParameterViewModel;
+    value!: string;
+
+    @Prop({ required: true })
+    config!: BackendInputConfig;
+
+    localValue: string | null = '';
 
     @Prop({ required: false })
     isListItem!: boolean;
@@ -85,8 +91,8 @@ export default class ParameterInputPickReferenceComponent extends Vue {
     choicesFilterText: string = '';
     
     mounted(): void {
-        if (this.parameter.Value == null) {
-            this.parameter.Value = "";
+        if (this.localValue == null) {
+            this.localValue = "";
         }
     }
 
@@ -135,7 +141,7 @@ export default class ParameterInputPickReferenceComponent extends Vue {
                 'component': this,
                 'loadStatus' : this.loadingChoicesStatus,
                 'callbacks': callbacks,
-                'parameterIndex': this.parameter.Index,
+                'parameterIndex': this.config.parameterIndex,
                 'filter': this.choicesFilterText ?? ''
             }
         );
@@ -144,13 +150,28 @@ export default class ParameterInputPickReferenceComponent extends Vue {
     selectChoice(choice: TestParameterReferenceChoiceViewModel): void
     {
         this.selectedChoice = choice;
-        this.parameter.Value = choice.Id;
+        this.localValue = choice.Id;
         this.choicesDialogVisible = false;
     }
 
     choiceColor(choice: TestParameterReferenceChoiceViewModel): string
     {
         return (choice.Id == null || choice.Id.length == 0) ? 'secondary' : 'primary';
+    }
+
+    /////////////////
+    //  WATCHERS  //
+    ///////////////
+    @Watch('value')
+    updateLocalValue(): void
+    {
+        this.localValue = this.value;
+    }
+
+    @Watch('localValue')
+    onLocalValueChanged(): void
+    {
+        this.$emit('input', this.localValue);
     }
 }
 </script>
