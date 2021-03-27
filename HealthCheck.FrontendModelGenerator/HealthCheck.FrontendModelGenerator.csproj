@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Reinforced.Typings" Version="1.5.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HealthCheck.WebUI\HealthCheck.WebUI.csproj" />
+    <ProjectReference Include="..\Modules\HealthCheck.Module.DynamicCodeExecution\HealthCheck.Module.DynamicCodeExecution.csproj" />
+    <ProjectReference Include="..\Modules\HealthCheck.Module.EndpointControl\HealthCheck.Module.EndpointControl.csproj" />
+  </ItemGroup>
+
+</Project>

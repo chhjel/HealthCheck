@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netcoreapp2.0;net461;net472</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp3.1;net461;net472</TargetFrameworks>
     <Configurations>Debug;Release</Configurations>
     <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
     <Authors>ChristianH</Authors>
@@ -35,11 +35,11 @@
 
   <!-- .NET CORE ############################# -->
   <!-- Compiler flags -->
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0'">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1'">
     <DefineConstants>NETCORE;NETCORE2_0</DefineConstants>
   </PropertyGroup>
   <!-- References -->
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
   </ItemGroup>
   <!-- ####################################### -->
@@ -59,7 +59,7 @@
   </ItemGroup>
   <!-- ####################################### -->
 
-  <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp2.0'">
+  <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp3.1'">
   </ItemGroup>
 
   <ItemGroup>
