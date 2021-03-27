@@ -9,10 +9,12 @@ namespace HealthCheck.Core.Modules.Tests.Utils
     /// </summary>
     public static class HCValueConversionUtils
     {
+        internal static StringConverter DefaultStringConverter { get; set; } = new StringConverter();
+
         /// <summary>
         /// Attempt to convert the given input to an instance of the given type.
         /// </summary>
-        public static object ConvertInput(HCValueInput input, StringConverter stringConverter)
+        public static object ConvertInput(HCValueInput input, StringConverter stringConverter = null)
         {
             object convertedObject = null;
             if (input.IsJson)
@@ -31,7 +33,7 @@ namespace HealthCheck.Core.Modules.Tests.Utils
             }
             else if (!input.IsCustomReferenceType)
             {
-                convertedObject = stringConverter.ConvertStringTo(input.Type, input.Value);
+                convertedObject = (stringConverter ?? DefaultStringConverter).ConvertStringTo(input.Type, input.Value);
             }
             return convertedObject;
         }
