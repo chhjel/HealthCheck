@@ -9,7 +9,7 @@ namespace HealthCheck.Dev.Common.Tests
         Name = "Special cases tests",
         DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins,
         GroupName = RuntimeTestConstants.Group.AlmostTopGroup,
-        UIOrder = 10
+        UIOrder = 50
     )]
     public class SpecialCasesTests
     {

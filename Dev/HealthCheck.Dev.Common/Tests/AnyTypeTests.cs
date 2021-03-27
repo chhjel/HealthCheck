@@ -10,7 +10,7 @@ namespace HealthCheck.Dev.Common.Tests
         Name = "Any type tests",
         DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins,
         GroupName = RuntimeTestConstants.Group.AlmostTopGroup,
-        UIOrder = 10
+        UIOrder = 100
     )]
     public class AnyTypeTests
     {

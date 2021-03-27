@@ -12,7 +12,7 @@ namespace HealthCheck.Dev.Common.Tests
         Name = "Class proxy tests",
         DefaultRolesWithAccess = RuntimeTestAccessRole.SystemAdmins,
         GroupName = RuntimeTestConstants.Group.AlmostTopGroup,
-        UIOrder = 30
+        UIOrder = 80
     )]
     public class ClassProxyTests
     {
