@@ -2,17 +2,17 @@
 <template>
     <div>
         <v-layout>
-            <v-flex :xs10="parameter.NotNull" :xs12="!parameter.NotNull">
+            <v-flex :xs10="config.notNull" :xs12="!config.notNull">
                 <v-text-field
-                    v-if="!parameter.ShowTextArea"
+                    v-if="!isTextArea"
                     class="pt-0"
-                    v-model="parameter.Value"
+                    v-model="localValue"
                     :placeholder="placeholderText"
                     required />
                 <v-textarea
-                    v-if="parameter.ShowTextArea"
+                    v-if="isTextArea"
                     class="pt-0"
-                    v-model="parameter.Value"
+                    v-model="localValue"
                     :placeholder="placeholderText"
                     required />
             </v-flex>
@@ -20,13 +20,13 @@
             <v-flex xs2
                 :xs3="isListItem"
                 class="text-sm-right"
-                v-if="!parameter.NotNull">
+                v-if="!config.notNull">
                 <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
                         <span v-on="on">
                             <v-btn flat icon color="primary" class="ma-0 pa-0"
                                 @click="setValueToNull"
-                                :disabled="parameter.Value == null">
+                                :disabled="localValue == null">
                                 <v-icon>clear</v-icon>
                             </v-btn>
                         </span>
@@ -40,8 +40,8 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestParameterViewModel from  '../../../../../models/modules/TestSuite/TestParameterViewModel';
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import BackendInputConfig from "../BackendInputConfig";
 
 @Component({
     components: {
@@ -49,23 +49,53 @@ import TestParameterViewModel from  '../../../../../models/modules/TestSuite/Tes
 })
 export default class ParameterInputTypeStringComponent extends Vue {
     @Prop({ required: true })
-    parameter!: TestParameterViewModel;
+    value!: string;
 
     @Prop({ required: false })
     isListItem!: boolean;
+
+    @Prop({ required: true })
+    config!: BackendInputConfig;
+
+    localValue: string | null = '';
     
     mounted(): void {
-        if (this.parameter.Value == null && this.parameter.NotNull) {
-            this.parameter.Value = "";
-        }
+        this.updateLocalValue();
     }
-
+    
     setValueToNull(): void {
-        this.parameter.Value = null;
+        this.localValue = null;
     }
 
     get placeholderText(): string {
-        return this.parameter.Value == null ? "null" : "";
+        return this.localValue == null ? "null" : "";
+    }
+
+    get isTextArea(): boolean {
+        return this.config.flags.includes('textarea');
+    }
+    
+    /////////////////
+    //  WATCHERS  //
+    ///////////////
+    @Watch('value')
+    updateLocalValue(): void
+    {
+        this.localValue = this.value;
+        this.validateValue();
+    }
+
+    @Watch('localValue')
+    onLocalValueChanged(): void
+    {
+        this.validateValue();
+        this.$emit('input', this.localValue);
+    }
+
+    validateValue(): void {
+        if (this.localValue == null && this.config.notNull) {
+            this.localValue = "";
+        }
     }
 }
 </script>

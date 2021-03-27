@@ -3,15 +3,13 @@
     <div>
         <v-text-field
             class="pt-0"
-            v-model="parameter.Value"
-            v-on:change="onValueChanged"
+            v-model="localValue"
             required />
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestParameterViewModel from  '../../../../../models/modules/TestSuite/TestParameterViewModel';
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import DateUtils from  '../../../../../util/DateUtils';
 
 @Component({
@@ -20,22 +18,39 @@ import DateUtils from  '../../../../../util/DateUtils';
 })
 export default class ParameterInputTypeDateTimeComponent extends Vue {
     @Prop({ required: true })
-    parameter!: TestParameterViewModel;
+    value!: string;
+
+    localValue: string = '';
     
     mounted(): void {
-        if (this.parameter.Value == null || this.parameter.Value === '') {
-            this.setValueToNow();
-        }
+        this.updateLocalValue();
     }
 
-    onValueChanged(): void {
-        if (this.parameter.Value == null || this.parameter.Value === '') {
+    /////////////////
+    //  WATCHERS  //
+    ///////////////
+    @Watch('value')
+    updateLocalValue(): void
+    {
+        this.localValue = this.value;
+        this.validateValue();
+    }
+
+    @Watch('localValue')
+    onLocalValueChanged(): void
+    {
+        this.validateValue();
+        this.$emit('input', this.localValue);
+    }
+
+    validateValue(): void {
+        if (this.localValue == null || this.localValue === '') {
             this.setValueToNow();
         }
     }
 
     setValueToNow(): void {
-        this.parameter.Value = DateUtils.FormatDate(new Date(), 'dd-MM-yy HH:mm:ss');
+        this.localValue = DateUtils.FormatDate(new Date(), 'dd-MM-yy HH:mm:ss');
     }
 }
 </script>

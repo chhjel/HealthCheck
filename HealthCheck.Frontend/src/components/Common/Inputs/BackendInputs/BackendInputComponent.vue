@@ -14,6 +14,8 @@
             class="parameter-input"
             v-model="localValue"
             :type="type"
+            :name="name"
+            :config="config"
             :listType="genericListInputType"
             :isListItem="isListItem"
             :is="inputComponentName"
@@ -24,6 +26,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import BackendInputConfig from './BackendInputConfig';
 // Parameter input components
 import UnknownBackendInputComponent from './UnknownBackendInputComponent.vue';
 import ParameterInputTypeInt32Component from './Types/ParameterInputTypeInt32Component.vue';
@@ -92,6 +95,9 @@ export default class BackendInputComponent extends Vue {
 
     @Prop({ required: true })
     value!: string;
+
+    @Prop({ required: true })
+    config!: BackendInputConfig;
     
     @Prop({ required: false, default: '' })
     description!: string;

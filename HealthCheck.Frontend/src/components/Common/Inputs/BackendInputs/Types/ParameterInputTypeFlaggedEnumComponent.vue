@@ -2,14 +2,15 @@
 <template>
     <div>
         <parameter-input-type-enum-component
-            :parameter="parameter"
+            v-model="localValue"
+            :config="config"
             :multiple="true" />
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestParameterViewModel from  '../../../../../models/modules/TestSuite/TestParameterViewModel';
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import BackendInputConfig from "../BackendInputConfig";
 import ParameterInputTypeEnumComponent from './ParameterInputTypeEnumComponent.vue';
 
 @Component({
@@ -19,7 +20,28 @@ import ParameterInputTypeEnumComponent from './ParameterInputTypeEnumComponent.v
 })
 export default class ParameterInputTypeFlaggedEnumComponent extends Vue {
     @Prop({ required: true })
-    parameter!: TestParameterViewModel;
+    value!: string;
+
+    @Prop({ required: true })
+    config!: BackendInputConfig;
+
+    localValue: any = "";
+
+    mounted(): void {
+        this.localValue = this.value;
+    }
+    
+    @Watch('value')
+    updateLocalValue(): void
+    {
+        this.localValue = this.value;
+    }
+
+    @Watch('localValue')
+    onLocalValueChanged(): void
+    {
+        this.$emit('input', this.localValue);
+    }
 }
 </script>
 

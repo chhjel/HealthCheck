@@ -7,25 +7,30 @@
                 group="grp"
                 style="min-height: 10px"
                 @end="onChanged">
-                <template v-for="item in items">
-                    <v-list-tile :key="item.Id">
+                <template v-for="(item, itemIndex) in items">
+                    <v-list-tile :key="`${id}-item-${itemIndex}`">
                         <v-list-tile-action v-if="items.length > 1">
                             <v-icon class="handle-icon">drag_handle</v-icon>
                         </v-list-tile-action>
-                        <v-list-tile-action v-if="!parameter.ReadOnlyList" @click="removeItem(item)">
+                        <v-list-tile-action v-if="!isReadOnlyList" @click="removeItem(itemIndex)">
                             <v-btn flat icon color="error">
                                 <v-icon>remove</v-icon>
                             </v-btn>
                         </v-list-tile-action>
                         <v-list-tile-content style="overflow: visible">
-                            <parameter-input-component v-if="!parameter.ReadOnlyList" :parameter="item" :isListItem="true" />
-                            <span v-if="parameter.ReadOnlyList">{{ item.Value }}</span>
+                            <backend-input-component v-if="!isReadOnlyList" 
+                                :type="listType"
+                                name=""
+                                v-model="items[itemIndex]"
+                                :config="config"
+                                :isListItem="true" />
+                            <span v-if="isReadOnlyList">{{ item.Value }}</span>
                         </v-list-tile-content>
                     </v-list-tile>
                 </template>
             </draggable>
         </v-list>
-        <v-btn v-if="!parameter.ReadOnlyList" small color="primary" @click="addNewItem()">
+        <v-btn v-if="!isReadOnlyList" small color="primary" @click="addNewItem()">
             <v-icon>add</v-icon>
         </v-btn>
     </div>
@@ -33,35 +38,50 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import TestParameterViewModel from  '../../../../../models/modules/TestSuite/TestParameterViewModel';
 
 //@ts-ignore
 import draggable from 'vuedraggable'
 import DateUtils from  '../../../../../util/DateUtils';
+import IdUtils from "../../../../../util/IdUtils";
+import BackendInputConfig from "../BackendInputConfig";
 
 @Component({
-    name: "ParameterInputComponent",
+    name: "BackendInputComponent",
     components: {
         draggable
     }
 })
 export default class ParameterInputTypeGenericListComponent extends Vue {
     @Prop({ required: true })
-    parameter!: TestParameterViewModel;
+    name!: string;
+
+    @Prop({ required: true })
+    value!: string;
 
     @Prop({ required: true })
     type!: string;
 
-    items: Array<Partial<TestParameterViewModel>> = [];
+    @Prop({ required: true })
+    listType!: string;
+
+    @Prop({ required: false })
+    isListItem!: boolean;
+
+    @Prop({ required: true })
+    config!: BackendInputConfig;
+
+    localValue: string | null = '';
+    items: Array<string | null> = [];
+    id: string = IdUtils.generateId();
 
     beforeCreate(): void {
         //@ts-ignore
-        this.$options.components.ParameterInputComponent = require('../ParameterInputComponent.vue').default
+        this.$options.components.BackendInputComponent = require('../BackendInputComponent.vue').default
     }
 
     mounted(): void {
-        if (this.parameter.DefaultValue != null) {
-            let defaultItems = JSON.parse(this.parameter.DefaultValue);
+        if (this.config.defaultValue != null) {
+            let defaultItems = JSON.parse(this.config.defaultValue);
             defaultItems.forEach((x: any) => {
                 this.addNewItem((x == null) ? null : x.toString());
             });
@@ -70,23 +90,33 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
             this.onChanged();
         });
     }
+
+    get isReadOnlyList(): boolean {
+        return this.config.flags.includes("ReadOnlyList");
+    }
     
     @Watch('items', {
         deep: true
     })
-    onItemsChanged(value: Array<Partial<TestParameterViewModel>>, oldValue: Array<Partial<TestParameterViewModel>>) {
+    onItemsChanged() {
         this.onChanged();
     }
 
+    @Watch('localValue')
+    onLocalValueChanged(): void
+    {
+        this.$emit('input', this.localValue);
+    }
+
     onChanged(): void {
-        this.parameter.Value = JSON.stringify(this.items.map(x => this.prepareValue(x.Value)));
+        this.localValue = JSON.stringify(this.items.map(x => this.prepareValue(x)));
     }
 
     prepareValue(val: string | null | undefined ): string | null {
         if (val == null || val == undefined) {
             return null;
         }
-        else if (this.type == "DateTime" || this.type == "DateTimeOffset") {
+        else if (this.listType == "DateTime" || this.listType == "DateTimeOffset") {
             let parts = val.split('-', 3);
             val = `${parts[1]}-${parts[0]}-${parts[2]}`;
             
@@ -99,28 +129,16 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
     }
 
     addNewItem(value: string | null = null): void {
-        let item = {
-            Type: this.type,
-            PossibleValues: this.parameter.PossibleValues,
-            NotNull: this.parameter.NotNull,
-            Value: value
-        };
-        (<any>item).Id = this.uuidv4();
-        this.items.push(item);
+        // (<any>item).Id = this.uuidv4();
+        this.items.push(value);
         
         this.$nextTick(() => {
             this.onChanged();
         });
     }
 
-    removeItem(item: Partial<TestParameterViewModel>): void {
-        this.items = this.items.filter(x => (<any>x).Id !== (<any>item).Id);
-    }
-
-    uuidv4(): string {
-        return (<any>[1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, (c:any) =>
-            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-        )
+    removeItem(itemIndex: number): void {
+        this.items.splice(itemIndex, 1);
     }
 }
 </script>

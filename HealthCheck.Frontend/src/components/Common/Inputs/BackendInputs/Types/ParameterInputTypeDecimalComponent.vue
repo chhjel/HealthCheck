@@ -4,15 +4,13 @@
         <v-text-field
             type="number"
             class="pt-0"
-            v-model="parameter.Value"
-            v-on:change="onValueChanged"
+            v-model="localValue"
             required />
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestParameterViewModel from  '../../../../../models/modules/TestSuite/TestParameterViewModel';
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 
 @Component({
     components: {
@@ -20,19 +18,34 @@ import TestParameterViewModel from  '../../../../../models/modules/TestSuite/Tes
 })
 export default class ParameterInputTypeDecimalComponent extends Vue {
     @Prop({ required: true })
-    parameter!: TestParameterViewModel;
+    value!: string;
+
+    localValue: string = '';
     
     mounted(): void {
-        this.validate();
+        this.updateLocalValue();
     }
 
-    onValueChanged(): void {
-        this.validate();
+    /////////////////
+    //  WATCHERS  //
+    ///////////////
+    @Watch('value')
+    updateLocalValue(): void
+    {
+        this.localValue = this.value;
+        this.validateValue();
     }
 
-    validate(): void {
-        if (this.parameter.Value == null || this.parameter.Value === '') {
-            this.parameter.Value = '0';
+    @Watch('localValue')
+    onLocalValueChanged(): void
+    {
+        this.validateValue();
+        this.$emit('input', this.localValue);
+    }
+
+    validateValue(): void {
+        if (this.localValue == null || this.localValue === '') {
+            this.localValue = "0";
         }
     }
 }

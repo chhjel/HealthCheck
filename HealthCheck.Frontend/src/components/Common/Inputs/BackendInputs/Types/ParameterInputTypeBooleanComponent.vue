@@ -2,9 +2,8 @@
 <template>
     <div>
         <v-switch 
-            v-model="value" 
+            v-model="localValue" 
             :label="label"
-            v-on:change="onChanged"
             color="secondary"
             class="parameter-checkbox pt-0 mt-2"
         ></v-switch>
@@ -12,8 +11,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestParameterViewModel from  '../../../../../models/modules/TestSuite/TestParameterViewModel';
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 
 @Component({
     components: {
@@ -21,22 +19,41 @@ import TestParameterViewModel from  '../../../../../models/modules/TestSuite/Tes
 })
 export default class ParameterInputTypeBooleanComponent extends Vue {
     @Prop({ required: true })
-    parameter!: TestParameterViewModel;
-    
-    value: boolean = false;
+    value!: any;
 
+    localValue: any = '';
+    
     mounted(): void {
-        // this.$emit("disableInputHeader");
-        this.value = (this.parameter.Value != null && this.parameter.Value.toLowerCase() == "true");
-        this.onChanged();
+        this.updateLocalValue();
+    }
+
+    /////////////////
+    //  WATCHERS  //
+    ///////////////
+    @Watch('value')
+    updateLocalValue(): void
+    {
+        this.localValue = this.value;
+        this.validateValue();
+    }
+
+    @Watch('localValue')
+    onLocalValueChanged(): void
+    {
+        this.validateValue();
+        this.$emit('input', this.localValue);
+    }
+
+    validateValue(): void {
+        if (this.localValue == null || this.localValue === '') {
+            this.localValue = (this.value != null && this.value.toLowerCase() == "true"));
+        }
     }
 
     get label(): string {
-        return (this.parameter.Value != null && this.parameter.Value.toLowerCase() == "true") ? "Yes" : "No";
-    }
-
-    onChanged(): void {
-        this.parameter.Value = this.value.toString();
+        return (typeof this.value === "boolean" && this.value)
+            || (typeof this.value === "string" && this.value.toLowerCase() == "true")
+             ? "Yes" : "No";
     }
 }
 </script>

@@ -2,7 +2,7 @@
 <template>
     <div>
         <v-select
-            v-model="value"
+            v-model="localValue"
             :items="items"
             :multiple="multiple"
             :chips="multiple"
@@ -14,8 +14,8 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestParameterViewModel from  '../../../../../models/modules/TestSuite/TestParameterViewModel';
+import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import BackendInputConfig from "../BackendInputConfig";
 
 @Component({
     components: {
@@ -23,36 +23,50 @@ import TestParameterViewModel from  '../../../../../models/modules/TestSuite/Tes
 })
 export default class ParameterInputTypeEnumComponent extends Vue {
     @Prop({ required: true })
-    parameter!: TestParameterViewModel;
+    value!: string;
+
+    @Prop({ required: true })
+    config!: BackendInputConfig;
 
     @Prop({ required: false, default: false })
     multiple!: boolean;
-    
-    value: string | string[] = "";
 
-    get items(): Array<string> {
-        return this.parameter.PossibleValues;
+    localValue: string | string[] = "";
+    
+    mounted(): void {
+        this.updateLocalValue();
     }
 
-    mounted(): void {
+    /////////////////
+    //  WATCHERS  //
+    ///////////////
+    @Watch('value')
+    updateLocalValue(): void
+    {
+        this.localValue = this.value;
+
         if (this.multiple) {
-            if (this.parameter.DefaultValue != null) {
-                this.value = this.parameter.DefaultValue.split(", ");
+            if (this.config.defaultValue != null) {
+                this.localValue = this.config.defaultValue.split(", ");
             } else {
-                this.value = [];
+                this.localValue = [];
             }
         } else {
-            this.value = this.parameter.DefaultValue || this.parameter.PossibleValues[0];
+            this.localValue = this.config.defaultValue || this.config.possibleValues[0];
         }
         this.onChanged();
+    }
+    
+    get items(): Array<string> {
+        return this.config.possibleValues;
     }
 
     onChanged(): void {
         if (this.multiple) {
-            let selected = <Array<string>>this.value;
-            this.parameter.Value = selected.join(", ");
+            let selected = <Array<string>>this.localValue;
+            this.$emit('input', selected.join(", "));
         } else {
-            this.parameter.Value = <string>this.value;
+            this.$emit('input', <string>this.localValue);
         }
     }
 }

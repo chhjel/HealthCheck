@@ -28,8 +28,14 @@
                 :invalid-configs="invalidModuleConfigs" />
 
             <div style="margin: 40px; margin-top: 80px;">
-                <backend-input-component type="Int32" name="Test int" v-model="testValue" />
-                = '{{ testValue }}''
+                <div v-for="(test, tIndex) in testValues"
+                     :key="`test-${tIndex}`">
+                    <backend-input-component 
+                        :type="test.type"
+                        :name="test.type"
+                        :config="test.config"
+                        v-model="test.value" /> = '{{ test.value }}''
+                </div>
             </div>
 
             <router-view></router-view>
@@ -51,6 +57,7 @@ import IntegratedLoginPageComponent from './modules/IntegratedLogin/IntegratedLo
 import FrontEndOptionsViewModel from '../models/Common/FrontEndOptionsViewModel';
 import ModuleConfig from "../models/Common/ModuleConfig";
 import BackendInputComponent from "./Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import BackendInputConfig from "./Common/Inputs/BackendInputs/BackendInputConfig";
 
 @Component({
     components: {
@@ -64,7 +71,28 @@ export default class HealthCheckPageComponent extends Vue {
     @Prop({ required: true })
     moduleConfig!: Array<ModuleConfig>;
 
-    testValue: string = "";
+    testConfig: BackendInputConfig = {
+        flags: [],
+        notNull: false,
+        defaultValue: null,
+        possibleValues: []
+    };
+    testValues: any[] = [
+        { type: 'Enum', value: '', config: {...this.testConfig, ...{possibleValues: ['A', 'B', 'C']}} },
+        { type: 'FlaggedEnum', value: '', config: {...this.testConfig, ...{possibleValues: ['A', 'B', 'C']}} },
+        { type: 'Int32', value: '', config: {...this.testConfig} },
+        { type: 'Int64', value: '', config: {...this.testConfig} },
+        { type: 'Double', value: '', config: {...this.testConfig} },
+        { type: 'Decimal', value: '', config: {...this.testConfig} },
+        { type: 'Single', value: '', config: {...this.testConfig} },
+        { type: 'DateTime', value: '', config: {...this.testConfig} },
+        { type: 'DateTimeOffset', value: '', config: {...this.testConfig} },
+        { type: 'Boolean', value: '', config: {...this.testConfig} },
+        { type: 'String', value: '', config: {...this.testConfig} },
+        { type: 'String', value: '', config: {...this.testConfig, ...{flags: 'textarea'}} },
+        { type: 'Guid', value: '', config: {...this.testConfig} },
+        { type: 'List<String>', value: '', config: {...this.testConfig} }
+    ];
 
     //////////////////
     //  LIFECYCLE  //
