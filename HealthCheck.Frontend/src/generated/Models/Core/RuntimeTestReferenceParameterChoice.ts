@@ -4,6 +4,6 @@
 
 export interface RuntimeTestReferenceParameterChoice
 {
-	id: string;
-	name: string;
+	Id: string;
+	Name: string;
 }

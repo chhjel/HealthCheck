@@ -4,5 +4,5 @@
 
 export interface ExecuteTestsInputData
 {
-	testCategory: string;
+	TestCategory: string;
 }

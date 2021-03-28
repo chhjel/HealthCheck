@@ -4,6 +4,6 @@
 
 export interface HyperLink
 {
-	text: string;
-	url: string;
+	Text: string;
+	Url: string;
 }

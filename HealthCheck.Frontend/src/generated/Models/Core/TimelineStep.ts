@@ -6,12 +6,12 @@ import { HyperLink } from './HyperLink';
 
 export interface TimelineStep
 {
-	title: string;
-	description: string;
-	links: HyperLink[];
-	error: string;
-	icon: string;
-	timestamp: Date;
-	hideTimeInTimestamp: boolean;
-	isCompleted: boolean;
+	Title: string;
+	Description: string;
+	Links: HyperLink[];
+	Error: string;
+	Icon: string;
+	Timestamp: Date;
+	HideTimeInTimestamp: boolean;
+	IsCompleted: boolean;
 }

@@ -19,8 +19,8 @@
                         </v-list-tile-action>
                         <v-list-tile-content style="overflow: visible">
                             <backend-input-component v-if="!isReadOnlyList" 
-                                :type="listType"
-                                name=""
+                                :forceType="listType"
+                                forceName=""
                                 v-model="items[itemIndex]"
                                 :config="config"
                                 :isListItem="true" />
@@ -43,12 +43,14 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import draggable from 'vuedraggable'
 import DateUtils from  '../../../../../util/DateUtils';
 import IdUtils from "../../../../../util/IdUtils";
-import BackendInputConfig from "../BackendInputConfig";
+import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
+import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 
 @Component({
     name: "BackendInputComponent",
     components: {
-        draggable
+        draggable,
+        BackendInputComponent
     }
 })
 export default class ParameterInputTypeGenericListComponent extends Vue {
@@ -68,7 +70,7 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
     isListItem!: boolean;
 
     @Prop({ required: true })
-    config!: BackendInputConfig;
+    config!: HCBackendInputConfig;
 
     localValue: string | null = '';
     items: Array<string | null> = [];
@@ -80,8 +82,8 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
     }
 
     mounted(): void {
-        if (this.config.defaultValue != null) {
-            let defaultItems = JSON.parse(this.config.defaultValue);
+        if (this.config.DefaultValue != null) {
+            let defaultItems = JSON.parse(this.config.DefaultValue);
             defaultItems.forEach((x: any) => {
                 this.addNewItem((x == null) ? null : x.toString());
             });
@@ -92,7 +94,7 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
     }
 
     get isReadOnlyList(): boolean {
-        return this.config.flags.includes("ReadOnlyList");
+        return this.config.Flags.includes("ReadOnlyList");
     }
     
     @Watch('items', {

@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import BackendInputConfig from "../BackendInputConfig";
+import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
 
 @Component({
     components: {
@@ -26,7 +26,7 @@ export default class ParameterInputTypeEnumComponent extends Vue {
     value!: string;
 
     @Prop({ required: true })
-    config!: BackendInputConfig;
+    config!: HCBackendInputConfig;
 
     @Prop({ required: false, default: false })
     multiple!: boolean;
@@ -45,19 +45,19 @@ export default class ParameterInputTypeEnumComponent extends Vue {
         this.localValue = this.value;
 
         if (this.multiple) {
-            if (this.config.defaultValue != null) {
-                this.localValue = this.config.defaultValue.split(", ");
+            if (this.config.DefaultValue != null) {
+                this.localValue = this.config.DefaultValue.split(", ");
             } else {
                 this.localValue = [];
             }
         } else {
-            this.localValue = this.config.defaultValue || this.config.possibleValues[0];
+            this.localValue = this.config.DefaultValue || this.config.PossibleValues[0];
         }
         this.onChanged();
     }
     
     get items(): Array<string> {
-        return this.config.possibleValues;
+        return this.config.PossibleValues;
     }
 
     onChanged(): void {

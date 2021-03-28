@@ -46,7 +46,6 @@ import IntegratedLoginPageComponent from './modules/IntegratedLogin/IntegratedLo
 import FrontEndOptionsViewModel from '../models/Common/FrontEndOptionsViewModel';
 import ModuleConfig from "../models/Common/ModuleConfig";
 import BackendInputComponent from "./Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import BackendInputConfig from "./Common/Inputs/BackendInputs/BackendInputConfig";
 
 @Component({
     components: {

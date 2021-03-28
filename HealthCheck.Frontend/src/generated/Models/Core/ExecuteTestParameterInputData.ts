@@ -4,6 +4,6 @@
 
 export interface ExecuteTestParameterInputData
 {
-	value: string;
-	isUnsupportedJson: boolean;
+	Value: string;
+	IsUnsupportedJson: boolean;
 }

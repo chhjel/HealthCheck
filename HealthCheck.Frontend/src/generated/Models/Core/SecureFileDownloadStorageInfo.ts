@@ -4,8 +4,8 @@
 
 export interface SecureFileDownloadStorageInfo
 {
-	storageId: string;
-	storageName: string;
-	fileIdInfo: string;
-	fileIdLabel: string;
+	StorageId: string;
+	StorageName: string;
+	FileIdInfo: string;
+	FileIdLabel: string;
 }

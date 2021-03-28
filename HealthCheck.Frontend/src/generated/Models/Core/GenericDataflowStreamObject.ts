@@ -4,5 +4,5 @@
 
 export interface GenericDataflowStreamObject
 {
-	insertionTime: Date;
+	InsertionTime: Date;
 }

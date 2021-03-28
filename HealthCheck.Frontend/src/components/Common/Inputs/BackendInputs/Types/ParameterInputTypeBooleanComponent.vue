@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import BackendInputConfig from "../BackendInputConfig";
+import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
 
 @Component({
     components: {
@@ -32,7 +32,7 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
     value!: any;
 
     @Prop({ required: true })
-    config!: BackendInputConfig;
+    config!: HCBackendInputConfig;
 
     localValue: any = false;
     nullableCheckboxState: boolean = false;
@@ -87,7 +87,7 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
     }
 
     get isNullable(): boolean {
-        return this.config.nullable;
+        return this.config.Nullable;
     }
 
     get isTrue(): boolean {

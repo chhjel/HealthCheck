@@ -34,7 +34,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import BackendInputConfig from "../BackendInputConfig";
+import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
 
 @Component({
     components: {
@@ -48,7 +48,7 @@ export default class ParameterInputTypeGuidComponent extends Vue {
     isListItem!: boolean;
 
     @Prop({ required: true })
-    config!: BackendInputConfig;
+    config!: HCBackendInputConfig;
 
     localValue: string | null = '';
     
@@ -67,7 +67,7 @@ export default class ParameterInputTypeGuidComponent extends Vue {
     }
 
     get isNullable(): boolean {
-        return this.config.nullable;
+        return this.config.Nullable;
     }
 
     get placeholderText(): string {

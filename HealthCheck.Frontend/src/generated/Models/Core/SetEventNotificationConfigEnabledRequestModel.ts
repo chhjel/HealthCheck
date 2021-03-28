@@ -4,6 +4,6 @@
 
 export interface SetEventNotificationConfigEnabledRequestModel
 {
-	configId: string;
-	enabled: boolean;
+	ConfigId: string;
+	Enabled: boolean;
 }

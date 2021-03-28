@@ -6,9 +6,9 @@ import { EventNotifierOptionDefinition } from './EventNotifierOptionDefinition';
 
 export interface EventNotifierViewModel
 {
-	id: string;
-	name: string;
-	description: string;
-	options: EventNotifierOptionDefinition[];
-	placeholders: string[];
+	Id: string;
+	Name: string;
+	Description: string;
+	Options: EventNotifierOptionDefinition[];
+	Placeholders: string[];
 }

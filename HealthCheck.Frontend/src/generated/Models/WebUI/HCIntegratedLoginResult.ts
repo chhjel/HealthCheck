@@ -4,7 +4,7 @@
 
 export interface HCIntegratedLoginResult
 {
-	success: boolean;
-	errorMessage: string;
-	showErrorAsHtml: boolean;
+	Success: boolean;
+	ErrorMessage: string;
+	ShowErrorAsHtml: boolean;
 }

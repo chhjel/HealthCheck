@@ -12,7 +12,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import DateUtils from  '../../../../../util/DateUtils';
-import BackendInputConfig from "../BackendInputConfig";
+import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
 
 @Component({
     components: {
@@ -23,7 +23,7 @@ export default class ParameterInputTypeDateTimeOffsetComponent extends Vue {
     value!: string;
 
     @Prop({ required: true })
-    config!: BackendInputConfig;
+    config!: HCBackendInputConfig;
 
     localValue: string | null = '';
     
@@ -49,7 +49,7 @@ export default class ParameterInputTypeDateTimeOffsetComponent extends Vue {
     }
 
     get isNullable(): boolean {
-        return this.config.nullable;
+        return this.config.Nullable;
     }
     
     get placeholderText(): string {

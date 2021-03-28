@@ -4,5 +4,5 @@
 
 export interface EndpointControlRequestResultBase
 {
-	useBuiltInBlock: boolean;
+	UseBuiltInBlock: boolean;
 }

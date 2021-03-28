@@ -4,7 +4,7 @@
 
 export interface KnownEventDefinition
 {
-	eventId: string;
-	payloadProperties: string[];
-	isStringified: boolean;
+	EventId: string;
+	PayloadProperties: string[];
+	IsStringified: boolean;
 }

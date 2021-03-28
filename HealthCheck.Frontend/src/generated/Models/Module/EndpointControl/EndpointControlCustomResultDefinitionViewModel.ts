@@ -2,12 +2,12 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import { EndpointControlCustomResultPropertyDefinitionViewModel } from './EndpointControlCustomResultPropertyDefinitionViewModel';
+import { HCBackendInputConfig } from '../../Core/HCBackendInputConfig';
 
 export interface EndpointControlCustomResultDefinitionViewModel
 {
-	id: string;
-	name: string;
-	description: string;
-	customProperties: EndpointControlCustomResultPropertyDefinitionViewModel[];
+	Id: string;
+	Name: string;
+	Description: string;
+	CustomProperties: HCBackendInputConfig[];
 }

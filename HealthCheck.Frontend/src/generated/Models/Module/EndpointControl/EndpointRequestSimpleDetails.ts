@@ -4,7 +4,7 @@
 
 export interface EndpointRequestSimpleDetails
 {
-	timestamp: Date;
-	wasBlocked: boolean;
-	endpointId: string;
+	Timestamp: Date;
+	WasBlocked: boolean;
+	EndpointId: string;
 }

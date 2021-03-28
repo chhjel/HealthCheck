@@ -6,11 +6,11 @@ import { TestViewModel } from './TestViewModel';
 
 export interface TestSetViewModel
 {
-	id: string;
-	name: string;
-	description: string;
-	groupName: string;
-	uiOrder: number;
-	allowRunAll: boolean;
-	tests: TestViewModel[];
+	Id: string;
+	Name: string;
+	Description: string;
+	GroupName: string;
+	UIOrder: number;
+	AllowRunAll: boolean;
+	Tests: TestViewModel[];
 }

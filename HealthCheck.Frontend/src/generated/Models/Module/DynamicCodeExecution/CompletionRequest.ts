@@ -4,6 +4,6 @@
 
 export interface CompletionRequest
 {
-	code: string;
-	position: number;
+	Code: string;
+	Position: number;
 }

@@ -6,5 +6,5 @@ import { SecureFileDownloadStorageInfo } from './SecureFileDownloadStorageInfo';
 
 export interface SecureFileDownloadFrontendOptionsModel
 {
-	storageInfos: SecureFileDownloadStorageInfo[];
+	StorageInfos: SecureFileDownloadStorageInfo[];
 }

@@ -7,6 +7,6 @@ import { FlowChart } from './FlowChart';
 
 export interface DiagramDataViewModel
 {
-	sequenceDiagrams: SequenceDiagram[];
-	flowCharts: FlowChart[];
+	SequenceDiagrams: SequenceDiagram[];
+	FlowCharts: FlowChart[];
 }

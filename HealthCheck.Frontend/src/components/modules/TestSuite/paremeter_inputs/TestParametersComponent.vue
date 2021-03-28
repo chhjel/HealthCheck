@@ -10,9 +10,9 @@
 
                   <backend-input-component 
                       v-model="parameter.Value"
-                      :type="cleanType(parameter.Type)"
-                      :name="parameter.Name"
-                      :description="parameter.Description"
+                      :forceType="cleanType(parameter.Type)"
+                      :forceName="parameter.Name"
+                      :forceDescription="parameter.Description"
                       :isCustomReferenceType="parameter.IsCustomReferenceType"
                       :config="createConfig(parameter, index)"
                       @isAnyJson="parameter.IsUnsupportedJson = true" />
@@ -26,8 +26,8 @@
 import { Vue, Component, Prop } from "vue-property-decorator";
 import TestViewModel from  '../../../../models/modules/TestSuite/TestViewModel';
 import TestParameterViewModel from  '../../../../models/modules/TestSuite/TestParameterViewModel';
-import BackendInputConfig from "../../../Common/Inputs/BackendInputs/BackendInputConfig";
-import BackendInputComponent from "../../../Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
+import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 
 @Component({
     components: {
@@ -67,18 +67,21 @@ export default class TestParametersComponent extends Vue {
       return type;
     }
 
-    createConfig(parameter: TestParameterViewModel, index: number): BackendInputConfig {
+    createConfig(parameter: TestParameterViewModel, index: number): HCBackendInputConfig {
       let flags: Array<string> = [];
       if (parameter.ShowTextArea) { flags.push('TextArea') };
       if (parameter.ReadOnlyList) { flags.push('ReadOnlyList') };
 
       return {
-        notNull: parameter.NotNull,
-        nullable: parameter.Type.startsWith("Nullable"),
-        defaultValue: parameter.DefaultValue,
-        flags: flags,
-        possibleValues: parameter.PossibleValues,
-        parameterIndex: index
+        Type: parameter.Type,
+        Name: parameter.Name,
+        Description: parameter.Description,
+        NotNull: parameter.NotNull,
+        Nullable: parameter.Type.startsWith("Nullable"),
+        DefaultValue: parameter.DefaultValue,
+        Flags: flags,
+        PossibleValues: parameter.PossibleValues,
+        ParameterIndex: index
       };
     }
 }

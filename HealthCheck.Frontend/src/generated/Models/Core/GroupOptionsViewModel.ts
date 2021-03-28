@@ -4,6 +4,6 @@
 
 export interface GroupOptionsViewModel
 {
-	groupName: string;
-	uiOrder: number;
+	GroupName: string;
+	UIOrder: number;
 }

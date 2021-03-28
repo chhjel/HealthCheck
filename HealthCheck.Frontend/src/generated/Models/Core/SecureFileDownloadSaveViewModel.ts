@@ -6,7 +6,7 @@ import { SecureFileDownloadDefinition } from './SecureFileDownloadDefinition';
 
 export interface SecureFileDownloadSaveViewModel
 {
-	success: boolean;
-	errorMessage: string;
-	definition: SecureFileDownloadDefinition;
+	Success: boolean;
+	ErrorMessage: string;
+	Definition: SecureFileDownloadDefinition;
 }

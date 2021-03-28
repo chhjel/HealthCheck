@@ -6,9 +6,9 @@ import { EndpointControlFilterMode } from '../../../Enums/Module/EndpointControl
 
 export interface EndpointControlPropertyFilter
 {
-	enabled: boolean;
-	filter: string;
-	filterMode: EndpointControlFilterMode;
-	inverted: boolean;
-	caseSensitive: boolean;
+	Enabled: boolean;
+	Filter: string;
+	FilterMode: EndpointControlFilterMode;
+	Inverted: boolean;
+	CaseSensitive: boolean;
 }

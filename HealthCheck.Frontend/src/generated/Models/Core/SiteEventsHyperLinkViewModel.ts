@@ -4,6 +4,6 @@
 
 export interface SiteEventsHyperLinkViewModel
 {
-	text: string;
-	url: string;
+	Text: string;
+	Url: string;
 }

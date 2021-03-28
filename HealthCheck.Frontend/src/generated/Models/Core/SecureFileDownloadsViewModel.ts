@@ -6,5 +6,5 @@ import { SecureFileDownloadDefinition } from './SecureFileDownloadDefinition';
 
 export interface SecureFileDownloadsViewModel
 {
-	definitions: SecureFileDownloadDefinition[];
+	Definitions: SecureFileDownloadDefinition[];
 }

@@ -4,6 +4,6 @@
 
 export interface DynamicCodeExecutionSourceModel
 {
-	code: string;
-	disabledPreProcessorIds: string[];
+	Code: string;
+	DisabledPreProcessorIds: string[];
 }

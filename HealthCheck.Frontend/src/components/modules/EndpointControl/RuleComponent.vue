@@ -110,13 +110,21 @@
 
             <p class="mt-4 mb-2">{{ selectedBlockResultDescription }}</p>
 
+            <backend-input-component
+                v-for="(def, defIndex) in selectedBlockResultPropertyDefinitions"
+                :key="`defx-${defIndex}`"
+                v-model="internalRule.CustomBlockResultProperties[def.Id]"
+                :config="def"
+                :readonly="!allowChanges"
+                />
+<!-- 
             <custom-block-result-property-input-component
                 v-for="(def, defIndex) in selectedBlockResultPropertyDefinitions"
                 :key="`defx-${defIndex}`"
                 v-model="internalRule.CustomBlockResultProperties[def.Id]"
                 :definition="def"
                 :readonly="!allowChanges"
-                />
+                /> -->
         </block-component>
 
         <v-dialog v-model="deleteDialogVisible"
@@ -155,6 +163,8 @@ import RuleDescriptionComponent from  './RuleDescriptionComponent.vue';
 import EndpointControlService from "../../../services/EndpointControlService";
 import { EndpointControlCountOverDuration, EndpointControlCustomResultDefinitionViewModel, EndpointControlCustomResultPropertyDefinitionViewModel, EndpointControlDataViewModel, EndpointControlEndpointDefinition, EndpointControlPropertyFilter, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
 import CustomBlockResultPropertyInputComponent from "./inputs/CustomBlockResultPropertyInputComponent.vue"
+import { HCBackendInputConfig } from "generated/Models/Core/HCBackendInputConfig";
+import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 
 @Component({
     components: {
@@ -165,7 +175,8 @@ import CustomBlockResultPropertyInputComponent from "./inputs/CustomBlockResultP
         TimespanInputComponent,
         CountOverDurationComponent,
         RuleDescriptionComponent,
-        CustomBlockResultPropertyInputComponent
+        CustomBlockResultPropertyInputComponent,
+        BackendInputComponent
     }
 })
 export default class RuleComponent extends Vue {
@@ -248,7 +259,7 @@ export default class RuleComponent extends Vue {
         return (option) ? option.description : '';
     }
 
-    get selectedBlockResultPropertyDefinitions(): Array<EndpointControlCustomResultPropertyDefinitionViewModel> {
+    get selectedBlockResultPropertyDefinitions(): Array<HCBackendInputConfig> {
         if (!this.customResultDefinitions)
         {
             return [];

@@ -6,5 +6,5 @@ import { EndpointControlRequestResultBase } from './EndpointControlRequestResult
 
 export interface EndpointControlRequestResultMvc extends EndpointControlRequestResultBase
 {
-	result: any;
+	Result: any;
 }

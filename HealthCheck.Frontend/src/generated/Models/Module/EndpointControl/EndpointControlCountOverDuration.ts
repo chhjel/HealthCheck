@@ -4,6 +4,6 @@
 
 export interface EndpointControlCountOverDuration
 {
-	count: number;
-	duration: any;
+	Count: number;
+	Duration: any;
 }

@@ -4,22 +4,22 @@
 
 export interface SecureFileDownloadDefinition
 {
-	id: string;
-	createdAt: Date;
-	createdByUsername: string;
-	createdByUserId: string;
-	lastModifiedAt: Date;
-	lastModifiedByUsername: string;
-	lastModifiedByUserId: string;
-	fileName: string;
-	storageId: string;
-	fileId: string;
-	urlSegmentText: string;
-	password: string;
-	downloadCount: number;
-	lastDownloadedAt: Date;
-	downloadCountLimit: number;
-	expiresAt: Date;
-	note: string;
-	isExpired: boolean;
+	Id: string;
+	CreatedAt: Date;
+	CreatedByUsername: string;
+	CreatedByUserId: string;
+	LastModifiedAt: Date;
+	LastModifiedByUsername: string;
+	LastModifiedByUserId: string;
+	FileName: string;
+	StorageId: string;
+	FileId: string;
+	UrlSegmentText: string;
+	Password: string;
+	DownloadCount: number;
+	LastDownloadedAt: Date;
+	DownloadCountLimit: number;
+	ExpiresAt: Date;
+	Note: string;
+	IsExpired: boolean;
 }

@@ -7,7 +7,7 @@ import { SequenceDiagramRemark } from './SequenceDiagramRemark';
 
 export interface SequenceDiagram
 {
-	name: string;
-	steps: SequenceDiagramStep[];
-	remarks: SequenceDiagramRemark[];
+	Name: string;
+	Steps: SequenceDiagramStep[];
+	Remarks: SequenceDiagramRemark[];
 }

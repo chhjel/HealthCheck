@@ -4,6 +4,6 @@
 
 export interface DynamicCodeValidationResult
 {
-	isAllowed: boolean;
-	message: string;
+	IsAllowed: boolean;
+	Message: string;
 }

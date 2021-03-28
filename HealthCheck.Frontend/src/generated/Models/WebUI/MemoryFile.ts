@@ -4,8 +4,8 @@
 
 export interface MemoryFile
 {
-	contentLength: number;
-	contentType: string;
-	fileName: string;
-	inputStream: any;
+	ContentLength: number;
+	ContentType: string;
+	FileName: string;
+	InputStream: any;
 }

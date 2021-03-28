@@ -4,7 +4,7 @@
 
 export interface DynamicCodeScript
 {
-	id: string;
-	title: string;
-	code: string;
+	Id: string;
+	Title: string;
+	Code: string;
 }

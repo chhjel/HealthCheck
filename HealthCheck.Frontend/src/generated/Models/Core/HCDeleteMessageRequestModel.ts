@@ -4,6 +4,6 @@
 
 export interface HCDeleteMessageRequestModel
 {
-	inboxId: string;
-	messageId: string;
+	InboxId: string;
+	MessageId: string;
 }

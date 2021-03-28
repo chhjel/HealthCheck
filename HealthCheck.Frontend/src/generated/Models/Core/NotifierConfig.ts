@@ -4,6 +4,6 @@
 
 export interface NotifierConfig
 {
-	notifierId: string;
-	options: { [key:string]: string };
+	NotifierId: string;
+	Options: { [key:string]: string };
 }

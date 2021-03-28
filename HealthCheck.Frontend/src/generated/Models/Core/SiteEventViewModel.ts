@@ -6,18 +6,18 @@ import { SiteEventsHyperLinkViewModel } from './SiteEventsHyperLinkViewModel';
 
 export interface SiteEventViewModel
 {
-	id: string;
-	severity: string;
-	severityCode: number;
-	timestamp: Date;
-	endTime: Date;
-	eventTypeId: string;
-	title: string;
-	description: string;
-	duration: number;
-	relatedLinks: SiteEventsHyperLinkViewModel[];
-	developerDetails: string;
-	resolved: boolean;
-	resolvedMessage: string;
-	resolvedAt: Date;
+	Id: string;
+	Severity: string;
+	SeverityCode: number;
+	Timestamp: Date;
+	EndTime: Date;
+	EventTypeId: string;
+	Title: string;
+	Description: string;
+	Duration: number;
+	RelatedLinks: SiteEventsHyperLinkViewModel[];
+	DeveloperDetails: string;
+	Resolved: boolean;
+	ResolvedMessage: string;
+	ResolvedAt: Date;
 }

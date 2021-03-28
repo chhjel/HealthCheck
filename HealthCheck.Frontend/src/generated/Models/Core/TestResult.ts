@@ -9,18 +9,18 @@ import { SiteEvent } from './SiteEvent';
 
 export interface TestResult
 {
-	status: TestResultStatus;
-	message: string;
-	stackTrace: string;
-	expandDataByDefault: boolean;
-	allowExpandData: boolean;
-	displayClean: boolean;
-	test: TestDefinition;
-	data: TestResultDataDump[];
-	siteEvent: SiteEvent;
-	tag: any;
-	durationInMilliseconds: number;
-	proxyTestResultObject: any;
-	autoCreateResultDataFromObject: any;
-	allowOverrideMessage: boolean;
+	Status: TestResultStatus;
+	Message: string;
+	StackTrace: string;
+	ExpandDataByDefault: boolean;
+	AllowExpandData: boolean;
+	DisplayClean: boolean;
+	Test: TestDefinition;
+	Data: TestResultDataDump[];
+	SiteEvent: SiteEvent;
+	Tag: any;
+	DurationInMilliseconds: number;
+	ProxyTestResultObject: any;
+	AutoCreateResultDataFromObject: any;
+	AllowOverrideMessage: boolean;
 }

@@ -6,16 +6,16 @@ import { TestDefinition } from './TestDefinition';
 
 export interface TestClassDefinition
 {
-	classType: any;
-	id: string;
-	name: string;
-	description: string;
-	defaultAllowParallelExecution: boolean;
-	defaultAllowManualExecution: boolean;
-	defaultRolesWithAccess: any;
-	defaultCategories: string[];
-	groupName: string;
-	uiOrder: number;
-	allowRunAll: boolean;
-	tests: TestDefinition[];
+	ClassType: any;
+	Id: string;
+	Name: string;
+	Description: string;
+	DefaultAllowParallelExecution: boolean;
+	DefaultAllowManualExecution: boolean;
+	DefaultRolesWithAccess: any;
+	DefaultCategories: string[];
+	GroupName: string;
+	UIOrder: number;
+	AllowRunAll: boolean;
+	Tests: TestDefinition[];
 }

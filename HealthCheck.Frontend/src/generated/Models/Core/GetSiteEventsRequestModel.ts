@@ -4,6 +4,6 @@
 
 export interface GetSiteEventsRequestModel
 {
-	from: Date;
-	to: Date;
+	From: Date;
+	To: Date;
 }

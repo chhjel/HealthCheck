@@ -4,13 +4,13 @@
 
 export interface AuditEventViewModel
 {
-	timestamp: Date;
-	area: string;
-	action: string;
-	subject: string;
-	details: any<string, string>[];
-	blobs: any<string, string>[];
-	userId: string;
-	userName: string;
-	userAccessRoles: string[];
+	Timestamp: Date;
+	Area: string;
+	Action: string;
+	Subject: string;
+	Details: { [key: string] : string; };
+	Blobs: { [key: string] : string; };
+	UserId: string;
+	UserName: string;
+	UserAccessRoles: string[];
 }

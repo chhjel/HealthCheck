@@ -4,9 +4,9 @@
 
 export interface DataflowStreamFilter
 {
-	skip: number;
-	take: number;
-	fromDate: Date;
-	toDate: Date;
-	propertyFilters: { [key:string]: string };
+	Skip: number;
+	Take: number;
+	FromDate: Date;
+	ToDate: Date;
+	PropertyFilters: { [key:string]: string };
 }

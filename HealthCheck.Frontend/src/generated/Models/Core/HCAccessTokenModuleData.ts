@@ -4,6 +4,6 @@
 
 export interface HCAccessTokenModuleData
 {
-	moduleId: string;
-	options: string[];
+	ModuleId: string;
+	Options: string[];
 }

@@ -4,10 +4,10 @@
 
 export interface HealthCheckSetting
 {
-	id: string;
-	displayName: string;
-	description: string;
-	type: string;
-	value: any;
-	groupName: string;
+	Id: string;
+	DisplayName: string;
+	Description: string;
+	Type: string;
+	Value: any;
+	GroupName: string;
 }

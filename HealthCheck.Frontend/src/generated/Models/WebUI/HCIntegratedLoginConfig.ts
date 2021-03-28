@@ -4,10 +4,10 @@
 
 export interface HCIntegratedLoginConfig
 {
-	integratedLoginEndpoint: string;
-	show2FAInput: boolean;
-	send2FACodeEndpoint: string;
-	send2FACodeButtonText: string;
-	current2FACodeExpirationTime: Date;
-	twoFactorCodeLifetime: number;
+	IntegratedLoginEndpoint: string;
+	Show2FAInput: boolean;
+	Send2FACodeEndpoint: string;
+	Send2FACodeButtonText: string;
+	Current2FACodeExpirationTime: Date;
+	TwoFactorCodeLifetime: number;
 }

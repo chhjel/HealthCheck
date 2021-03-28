@@ -4,8 +4,8 @@
 
 export interface EndpointControlCustomResultPropertyDefinitionViewModel
 {
-	id: string;
-	name: string;
-	type: string;
-	description: string;
+	Id: string;
+	Name: string;
+	Type: string;
+	Description: string;
 }

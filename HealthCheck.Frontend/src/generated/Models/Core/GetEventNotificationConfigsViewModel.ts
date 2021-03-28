@@ -8,8 +8,8 @@ import { KnownEventDefinition } from './KnownEventDefinition';
 
 export interface GetEventNotificationConfigsViewModel
 {
-	notifiers: EventNotifierViewModel[];
-	configs: EventSinkNotificationConfig[];
-	knownEventDefinitions: KnownEventDefinition[];
-	placeholders: string[];
+	Notifiers: EventNotifierViewModel[];
+	Configs: EventSinkNotificationConfig[];
+	KnownEventDefinitions: KnownEventDefinition[];
+	Placeholders: string[];
 }

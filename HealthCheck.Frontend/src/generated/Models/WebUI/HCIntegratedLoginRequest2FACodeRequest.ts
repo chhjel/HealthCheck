@@ -4,5 +4,5 @@
 
 export interface HCIntegratedLoginRequest2FACodeRequest
 {
-	username: string;
+	Username: string;
 }

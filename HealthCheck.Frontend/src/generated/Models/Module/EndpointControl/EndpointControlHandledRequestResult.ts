@@ -6,7 +6,7 @@ import { EndpointControlRule } from './EndpointControlRule';
 
 export interface EndpointControlHandledRequestResult
 {
-	wasDecidedToAllowRequest: boolean;
-	blockingRule: EndpointControlRule;
-	customBlockedResult: any;
+	WasDecidedToAllowRequest: boolean;
+	BlockingRule: EndpointControlRule;
+	CustomBlockedResult: any;
 }

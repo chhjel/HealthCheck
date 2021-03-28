@@ -9,8 +9,8 @@ import { TestParameterTemplateViewModel } from './TestParameterTemplateViewModel
 
 export interface TestsDataViewModel
 {
-	testSets: TestSetViewModel[];
-	groupOptions: GroupOptionsViewModel[];
-	invalidTests: InvalidTestViewModel[];
-	parameterTemplateValues: TestParameterTemplateViewModel[];
+	TestSets: TestSetViewModel[];
+	GroupOptions: GroupOptionsViewModel[];
+	InvalidTests: InvalidTestViewModel[];
+	ParameterTemplateValues: TestParameterTemplateViewModel[];
 }

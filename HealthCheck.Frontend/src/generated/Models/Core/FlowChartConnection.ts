@@ -4,6 +4,6 @@
 
 export interface FlowChartConnection
 {
-	target: string;
-	label: string;
+	Target: string;
+	Label: string;
 }

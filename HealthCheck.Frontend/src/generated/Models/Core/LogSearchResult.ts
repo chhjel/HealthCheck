@@ -8,23 +8,23 @@ import { ParsedQuery } from './ParsedQuery';
 
 export interface LogSearchResult
 {
-	totalCount: number;
-	count: number;
-	pageCount: number;
-	currentPage: number;
-	items: LogEntrySearchResultItem[];
-	groupedEntries: { [key:string]: LogEntrySearchResultItem[] };
-	columnNames: string[];
-	durationInMilliseconds: number;
-	wasCancelled: boolean;
-	error: string;
-	hasError: boolean;
-	lowestDate: Date;
-	highestDate: Date;
-	statistics: LogSearchStatisticsResult[];
-	statisticsIsComplete: boolean;
-	parsedQuery: ParsedQuery;
-	parsedExcludedQuery: ParsedQuery;
-	parsedLogPathQuery: ParsedQuery;
-	parsedExcludedLogPathQuery: ParsedQuery;
+	TotalCount: number;
+	Count: number;
+	PageCount: number;
+	CurrentPage: number;
+	Items: LogEntrySearchResultItem[];
+	GroupedEntries: { [key:string]: LogEntrySearchResultItem[] };
+	ColumnNames: string[];
+	DurationInMilliseconds: number;
+	WasCancelled: boolean;
+	Error: string;
+	HasError: boolean;
+	LowestDate: Date;
+	HighestDate: Date;
+	Statistics: LogSearchStatisticsResult[];
+	StatisticsIsComplete: boolean;
+	ParsedQuery: ParsedQuery;
+	ParsedExcludedQuery: ParsedQuery;
+	ParsedLogPathQuery: ParsedQuery;
+	ParsedExcludedLogPathQuery: ParsedQuery;
 }

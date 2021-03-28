@@ -6,6 +6,6 @@ import { ExecuteTestParameterInputData } from './ExecuteTestParameterInputData';
 
 export interface ExecuteTestInputData
 {
-	testId: string;
-	parameters: ExecuteTestParameterInputData[];
+	TestId: string;
+	Parameters: ExecuteTestParameterInputData[];
 }

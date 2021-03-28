@@ -4,11 +4,11 @@
 
 export interface HCPageOptions
 {
-	javaScriptUrls: string[];
-	cssUrls: string[];
-	pageTitle: string;
-	customHeadHtml: string;
-	customBodyHtml: string;
-	includeDefaultAssetLinks: boolean;
-	includeNoIndex: boolean;
+	JavaScriptUrls: string[];
+	CssUrls: string[];
+	PageTitle: string;
+	CustomHeadHtml: string;
+	CustomBodyHtml: string;
+	IncludeDefaultAssetLinks: boolean;
+	IncludeNoIndex: boolean;
 }

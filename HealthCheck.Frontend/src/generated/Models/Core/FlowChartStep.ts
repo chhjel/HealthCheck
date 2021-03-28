@@ -7,9 +7,9 @@ import { FlowChartConnection } from './FlowChartConnection';
 
 export interface FlowChartStep
 {
-	title: string;
-	type: FlowChartStepType;
-	connections: FlowChartConnection[];
-	className: string;
-	methodName: string;
+	Title: string;
+	Type: FlowChartStepType;
+	Connections: FlowChartConnection[];
+	ClassName: string;
+	MethodName: string;
 }

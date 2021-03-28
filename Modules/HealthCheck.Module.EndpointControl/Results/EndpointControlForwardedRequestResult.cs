@@ -1,6 +1,6 @@
 ﻿#if NETFULL
+using HealthCheck.Core.Attributes;
 using HealthCheck.Module.EndpointControl.Abstractions;
-using HealthCheck.Module.EndpointControl.Attributes;
 using HealthCheck.Module.EndpointControl.Models;
 using HealthCheck.Module.EndpointControl.Utils;
 using System;
@@ -78,25 +78,29 @@ namespace HealthCheck.Module.EndpointControl.Results
             /// <summary>
             /// Where the requests will be forwarded to.
             /// </summary>
-            [HCEndpointControlResultProperty("Location where the requests will be forwarded.")]
+            //[HCEndpointControlResultProperty("Location where the requests will be forwarded.")]
+            [HCCustomProperty(Description = "Location where the requests will be forwarded.")]
             public string TargetUrl { get; set; }
 
             /// <summary>
             /// If true, request paths will be appended to the target url.
             /// </summary>
-            [HCEndpointControlResultProperty("If enabled only the host of the target url will be used, and the path of requests will be appended.")]
+            //[HCEndpointControlResultProperty("If enabled only the host of the target url will be used, and the path of requests will be appended.")]
+            [HCCustomProperty(Description = "If enabled only the host of the target url will be used, and the path of requests will be appended.")]
             public bool KeepRelativeUrls { get; set; }
 
             /// <summary>
             /// If true, header values will be forwarded as well.
             /// </summary>
-            [HCEndpointControlResultProperty("Enable to forward most headers as well.")]
+            //[HCEndpointControlResultProperty("Enable to forward most headers as well.")]
+            [HCCustomProperty(Description = "Enable to forward most headers as well.")]
             public bool IncludeHeaderValues { get; set; }
 
             /// <summary>
             /// If true, the original response will be replaced with an empty 200 OK response.
             /// </summary>
-            [HCEndpointControlResultProperty("If enabled, the original response will be replaced with an empty 200 OK response.")]
+            //[HCEndpointControlResultProperty("If enabled, the original response will be replaced with an empty 200 OK response.")]
+            [HCCustomProperty(Description = "If enabled, the original response will be replaced with an empty 200 OK response.")]
             public bool ReplaceOriginalResponse { get; set; }
         }
 

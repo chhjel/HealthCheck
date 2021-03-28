@@ -9,13 +9,13 @@ import { DiffModel } from './DiffModel';
 
 export interface CodeExecutionResult
 {
-	code: string;
-	status: StatusTypes;
-	output: string;
-	errors: CodeError[];
-	dumps: DataDump[];
-	diffs: DiffModel[];
-	appliedPreProcessorIds: string[];
-	statusCode: number;
-	statusString: string;
+	Code: string;
+	Status: StatusTypes;
+	Output: string;
+	Errors: CodeError[];
+	Dumps: DataDump[];
+	Diffs: DiffModel[];
+	AppliedPreProcessorIds: string[];
+	StatusCode: number;
+	StatusString: string;
 }

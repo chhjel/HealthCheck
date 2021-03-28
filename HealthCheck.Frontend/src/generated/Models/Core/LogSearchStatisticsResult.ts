@@ -6,6 +6,6 @@ import { LogEntrySeverity } from '../../Enums/Core/LogEntrySeverity';
 
 export interface LogSearchStatisticsResult
 {
-	timestamp: Date;
-	severity: LogEntrySeverity;
+	Timestamp: Date;
+	Severity: LogEntrySeverity;
 }

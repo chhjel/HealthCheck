@@ -6,7 +6,7 @@ import { TestDefinition } from './TestDefinition';
 
 export interface TestDefinitionValidationResult
 {
-	test: TestDefinition;
-	isValid: boolean;
-	error: string;
+	Test: TestDefinition;
+	IsValid: boolean;
+	Error: string;
 }

@@ -7,17 +7,17 @@ import { HyperLink } from './HyperLink';
 
 export interface SiteEvent
 {
-	id: string;
-	severity: SiteEventSeverity;
-	timestamp: Date;
-	eventTypeId: string;
-	title: string;
-	description: string;
-	duration: number;
-	relatedLinks: HyperLink[];
-	developerDetails: string;
-	resolved: boolean;
-	resolvedMessage: string;
-	resolvedAt: Date;
-	allowMerge: boolean;
+	Id: string;
+	Severity: SiteEventSeverity;
+	Timestamp: Date;
+	EventTypeId: string;
+	Title: string;
+	Description: string;
+	Duration: number;
+	RelatedLinks: HyperLink[];
+	DeveloperDetails: string;
+	Resolved: boolean;
+	ResolvedMessage: string;
+	ResolvedAt: Date;
+	AllowMerge: boolean;
 }

@@ -4,7 +4,7 @@
 
 export interface DataDump
 {
-	title: string;
-	type: string;
-	data: string;
+	Title: string;
+	Type: string;
+	Data: string;
 }

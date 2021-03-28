@@ -41,7 +41,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import BackendInputConfig from "../BackendInputConfig";
+import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
 
 @Component({
     components: {
@@ -55,7 +55,7 @@ export default class ParameterInputTypeStringComponent extends Vue {
     isListItem!: boolean;
 
     @Prop({ required: true })
-    config!: BackendInputConfig;
+    config!: HCBackendInputConfig;
 
     localValue: string | null = '';
     
@@ -72,7 +72,7 @@ export default class ParameterInputTypeStringComponent extends Vue {
     }
 
     get isTextArea(): boolean {
-        return this.config.flags.includes('TextArea');
+        return this.config.Flags.includes('TextArea');
     }
     
     /////////////////
@@ -93,7 +93,7 @@ export default class ParameterInputTypeStringComponent extends Vue {
     }
 
     validateValue(): void {
-        if (this.localValue == null && this.config.notNull) {
+        if (this.localValue == null && this.config.NotNull) {
             this.localValue = "";
         }
     }

@@ -4,10 +4,10 @@
 
 export interface ConnectivityCheckResult
 {
-	success: boolean;
-	action: string;
-	successDetails: string;
-	error: string;
-	details: string;
-	exception: any;
+	Success: boolean;
+	Action: string;
+	SuccessDetails: string;
+	Error: string;
+	Details: string;
+	Exception: any;
 }

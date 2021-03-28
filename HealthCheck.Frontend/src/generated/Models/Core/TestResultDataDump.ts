@@ -6,7 +6,7 @@ import { TestResultDataDumpType } from '../../Enums/Core/TestResultDataDumpType'
 
 export interface TestResultDataDump
 {
-	title: string;
-	data: string;
-	type: TestResultDataDumpType;
+	Title: string;
+	Data: string;
+	Type: TestResultDataDumpType;
 }

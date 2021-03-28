@@ -6,5 +6,5 @@ import { HealthCheckSetting } from './HealthCheckSetting';
 
 export interface GetSettingsViewModel
 {
-	settings: HealthCheckSetting[];
+	Settings: HealthCheckSetting[];
 }

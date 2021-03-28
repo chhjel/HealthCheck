@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Config;
+﻿using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Config;
 using HealthCheck.Module.DynamicCodeExecution.Module;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Module;
@@ -22,7 +23,7 @@ namespace HealthCheck.FrontendModelGenerator
         {
             builder.Global((config) =>
             {
-                config.CamelCaseForProperties();
+                // config.CamelCaseForProperties() todo, convert frontend to consume it
                 config.UseModules(true);
             });
 
@@ -40,6 +41,8 @@ namespace HealthCheck.FrontendModelGenerator
             builder.Substitute(typeof(Exception), new RtSimpleTypeName("any"));
             builder.Substitute(typeof(DateTime), new RtSimpleTypeName("Date"));
             builder.Substitute(typeof(DateTimeOffset), new RtSimpleTypeName("Date"));
+            builder.Substitute(typeof(List<KeyValuePair<string, string>>), new RtSimpleTypeName("{ [key: string] : string; }"));
+            builder.Substitute(typeof(List<KeyValuePair<string, Guid>>), new RtSimpleTypeName("{ [key: string] : string; }"));
 
             IncludeAssembly(builder, typeof(HCGlobalConfig).Assembly);
             IncludeAssembly(builder, typeof(HCPageOptions).Assembly);
@@ -64,7 +67,22 @@ namespace HealthCheck.FrontendModelGenerator
         {
             config.AutoI(false);
             config.OverrideNamespace(CreateNamespace("Models.", assembly));
-            config.WithAllProperties();
+            config.WithAllMethods(m => m.Ignore());
+            config.WithAllProperties((c) =>
+            {
+                var attr = c.Member.GetCustomAttributes().FirstOrDefault(x => x is HCRtPropertyAttribute) as HCRtPropertyAttribute;
+                if (attr != null)
+                {
+                    if (attr.ForcedNullable)
+                    {
+                        c.ForceNullable(true);
+                    }
+                    if (!string.IsNullOrWhiteSpace(attr.ForcedType))
+                    {
+                        c.Type(attr.ForcedType);
+                    }
+                }
+            });
         }
 
         private static void ConfigureEnums(EnumExportBuilder config, Assembly assembly)

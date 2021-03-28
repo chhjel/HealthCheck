@@ -4,22 +4,22 @@
 
 export interface LogSearchFilter
 {
-	searchId: string;
-	skip: number;
-	take: number;
-	fromDate: Date;
-	toDate: Date;
-	query: string;
-	queryIsRegex: boolean;
-	excludedQuery: string;
-	excludedQueryIsRegex: boolean;
-	logPathQuery: string;
-	logPathQueryIsRegex: boolean;
-	excludedLogPathQuery: string;
-	excludedLogPathQueryIsRegex: boolean;
-	columnRegexPattern: string;
-	columnDelimiter: string;
-	orderDescending: boolean;
-	maxStatisticsCount: number;
-	marginMilliseconds: number;
+	SearchId: string;
+	Skip: number;
+	Take: number;
+	FromDate: Date;
+	ToDate: Date;
+	Query: string;
+	QueryIsRegex: boolean;
+	ExcludedQuery: string;
+	ExcludedQueryIsRegex: boolean;
+	LogPathQuery: string;
+	LogPathQueryIsRegex: boolean;
+	ExcludedLogPathQuery: string;
+	ExcludedLogPathQueryIsRegex: boolean;
+	ColumnRegexPattern: string;
+	ColumnDelimiter: string;
+	OrderDescending: boolean;
+	MaxStatisticsCount: number;
+	MarginMilliseconds: number;
 }

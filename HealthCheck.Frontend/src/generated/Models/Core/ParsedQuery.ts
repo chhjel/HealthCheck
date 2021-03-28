@@ -4,10 +4,10 @@
 
 export interface ParsedQuery
 {
-	mustContain: string[];
-	mustContainOneOf: string[][];
-	regexPattern: string;
-	isRegex: boolean;
-	parseError: string;
-	regex: any;
+	MustContain: string[];
+	MustContainOneOf: string[][];
+	RegexPattern: string;
+	IsRegex: boolean;
+	ParseError: string;
+	Regex: any;
 }

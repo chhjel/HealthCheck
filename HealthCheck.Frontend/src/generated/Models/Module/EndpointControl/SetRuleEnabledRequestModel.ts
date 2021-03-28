@@ -4,6 +4,6 @@
 
 export interface SetRuleEnabledRequestModel
 {
-	ruleId: string;
-	enabled: boolean;
+	RuleId: string;
+	Enabled: boolean;
 }

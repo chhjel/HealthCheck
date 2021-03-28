@@ -4,6 +4,6 @@
 
 export interface HCGetMessageRequestModel
 {
-	inboxId: string;
-	messageId: string;
+	InboxId: string;
+	MessageId: string;
 }

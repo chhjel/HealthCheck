@@ -7,15 +7,15 @@ import { TestResultDataDumpViewModel } from './TestResultDataDumpViewModel';
 
 export interface TestResultViewModel
 {
-	testId: string;
-	testName: string;
-	statusCode: number;
-	status: TestResultStatus;
-	message: string;
-	stackTrace: string;
-	expandDataByDefault: boolean;
-	allowExpandData: boolean;
-	displayClean: boolean;
-	data: TestResultDataDumpViewModel[];
-	durationInMilliseconds: number;
+	TestId: string;
+	TestName: string;
+	StatusCode: number;
+	Status: TestResultStatus;
+	Message: string;
+	StackTrace: string;
+	ExpandDataByDefault: boolean;
+	AllowExpandData: boolean;
+	DisplayClean: boolean;
+	Data: TestResultDataDumpViewModel[];
+	DurationInMilliseconds: number;
 }

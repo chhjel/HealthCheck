@@ -6,8 +6,8 @@ import { CodeExecutionResult } from './CodeExecutionResult';
 
 export interface DynamicCodeExecutionResultModel
 {
-	success: boolean;
-	message: string;
-	code: string;
-	codeExecutionResult: CodeExecutionResult;
+	Success: boolean;
+	Message: string;
+	Code: string;
+	CodeExecutionResult: CodeExecutionResult;
 }

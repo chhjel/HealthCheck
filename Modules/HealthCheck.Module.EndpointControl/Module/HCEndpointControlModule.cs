@@ -1,5 +1,7 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
+using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Util.Models;
 using HealthCheck.Module.EndpointControl.Attributes;
 using HealthCheck.Module.EndpointControl.Models;
 using System;
@@ -93,7 +95,7 @@ namespace HealthCheck.Module.EndpointControl.Module
                     Id = x.Id,
                     Name = x.Name,
                     Description = x.Description,
-                    CustomProperties = CreateCustomProperties(x.CustomPropertiesModelType)
+                    CustomProperties = HCCustomPropertyAttribute.CreateInputConfigs(x.CustomPropertiesModelType)
                 })
                 ?.ToList();
 
@@ -103,22 +105,6 @@ namespace HealthCheck.Module.EndpointControl.Module
                 EndpointDefinitions = Options.DefinitionStorage.GetDefinitions(),
                 CustomResultDefinitions = customResults
             };
-        }
-
-        private List<EndpointControlCustomResultPropertyDefinitionViewModel> CreateCustomProperties(Type customPropertiesModelType)
-        {
-            return customPropertiesModelType.GetProperties()
-                .Select(x => {
-                    var attr = x.GetCustomAttributes(typeof(HCEndpointControlResultPropertyAttribute), true).FirstOrDefault() as HCEndpointControlResultPropertyAttribute;
-                    return new EndpointControlCustomResultPropertyDefinitionViewModel
-                    {
-                        Id = x.Name,
-                        Name = x.Name.SpacifySentence(),
-                        Type = x.PropertyType.Name,
-                        Description = attr?.Description
-                    };
-                })
-                .ToList();
         }
 
         /// <summary>

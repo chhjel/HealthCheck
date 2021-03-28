@@ -6,9 +6,9 @@ import { TestResult } from './TestResult';
 
 export interface ProxyRuntimeTestConfig
 {
-	targetClassType: any;
-	instanceFactory: () => any;
-	instanceFactoryWithContext: (arg: any) => any;
-	contextFactory: () => any;
-	resultAction: (arg: TestResult, arg1: any) => void;
+	TargetClassType: any;
+	InstanceFactory: () => any;
+	InstanceFactoryWithContext: (arg: any) => any;
+	ContextFactory: () => any;
+	ResultAction: (arg: TestResult, arg1: any) => void;
 }

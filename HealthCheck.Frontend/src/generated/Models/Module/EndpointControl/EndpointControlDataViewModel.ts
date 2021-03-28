@@ -8,7 +8,7 @@ import { EndpointControlCustomResultDefinitionViewModel } from './EndpointContro
 
 export interface EndpointControlDataViewModel
 {
-	rules: EndpointControlRule[];
-	endpointDefinitions: EndpointControlEndpointDefinition[];
-	customResultDefinitions: EndpointControlCustomResultDefinitionViewModel[];
+	Rules: EndpointControlRule[];
+	EndpointDefinitions: EndpointControlEndpointDefinition[];
+	CustomResultDefinitions: EndpointControlCustomResultDefinitionViewModel[];
 }

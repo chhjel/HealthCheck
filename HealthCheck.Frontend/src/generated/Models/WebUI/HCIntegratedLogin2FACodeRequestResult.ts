@@ -4,10 +4,10 @@
 
 export interface HCIntegratedLogin2FACodeRequestResult
 {
-	success: boolean;
-	successMessage: string;
-	showSuccessAsHtml: boolean;
-	errorMessage: string;
-	showErrorAsHtml: boolean;
-	codeExpiresInSeconds: number;
+	Success: boolean;
+	SuccessMessage: string;
+	ShowSuccessAsHtml: boolean;
+	ErrorMessage: string;
+	ShowErrorAsHtml: boolean;
+	CodeExpiresInSeconds: number;
 }

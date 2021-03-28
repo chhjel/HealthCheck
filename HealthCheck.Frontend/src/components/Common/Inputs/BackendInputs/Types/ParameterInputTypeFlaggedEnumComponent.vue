@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import BackendInputConfig from "../BackendInputConfig";
+import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
 import ParameterInputTypeEnumComponent from './ParameterInputTypeEnumComponent.vue';
 
 @Component({
@@ -23,7 +23,7 @@ export default class ParameterInputTypeFlaggedEnumComponent extends Vue {
     value!: string;
 
     @Prop({ required: true })
-    config!: BackendInputConfig;
+    config!: HCBackendInputConfig;
 
     localValue: any = "";
 

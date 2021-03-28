@@ -6,13 +6,13 @@ import { HCAccessTokenModuleData } from './HCAccessTokenModuleData';
 
 export interface HCAccessToken
 {
-	id: string;
-	name: string;
-	hashedToken: string;
-	tokenSalt: string;
-	createdAt: Date;
-	expiresAt: Date;
-	lastUsedAt: Date;
-	roles: string[];
-	modules: HCAccessTokenModuleData[];
+	Id: string;
+	Name: string;
+	HashedToken: string;
+	TokenSalt: string;
+	CreatedAt: Date;
+	ExpiresAt: Date;
+	LastUsedAt: Date;
+	Roles: string[];
+	Modules: HCAccessTokenModuleData[];
 }

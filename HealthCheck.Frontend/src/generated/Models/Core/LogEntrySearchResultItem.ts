@@ -6,11 +6,11 @@ import { LogEntrySeverity } from '../../Enums/Core/LogEntrySeverity';
 
 export interface LogEntrySearchResultItem
 {
-	filePath: string;
-	raw: string;
-	lineNumber: number;
-	timestamp: Date;
-	columnValues: string[];
-	isMargin: boolean;
-	severity: LogEntrySeverity;
+	FilePath: string;
+	Raw: string;
+	LineNumber: number;
+	Timestamp: Date;
+	ColumnValues: string[];
+	IsMargin: boolean;
+	Severity: LogEntrySeverity;
 }

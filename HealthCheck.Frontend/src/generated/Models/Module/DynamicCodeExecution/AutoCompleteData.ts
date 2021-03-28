@@ -4,8 +4,8 @@
 
 export interface AutoCompleteData
 {
-	kind: string;
-	label: string;
-	documentation: string;
-	insertText: string;
+	Kind: string;
+	Label: string;
+	Documentation: string;
+	InsertText: string;
 }

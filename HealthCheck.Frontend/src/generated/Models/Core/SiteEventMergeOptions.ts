@@ -6,8 +6,8 @@ import { SiteEvent } from './SiteEvent';
 
 export interface SiteEventMergeOptions
 {
-	allowEventMerge: boolean;
-	maxMinutesSinceLastEventEnd: number;
-	lastEventDurationMultiplier: number;
-	eventMerger: (arg: SiteEvent, arg1: SiteEvent) => void;
+	AllowEventMerge: boolean;
+	MaxMinutesSinceLastEventEnd: number;
+	LastEventDurationMultiplier: number;
+	EventMerger: (arg: SiteEvent, arg1: SiteEvent) => void;
 }

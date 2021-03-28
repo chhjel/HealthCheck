@@ -7,10 +7,10 @@ import { ExecuteTestsTestResult } from './ExecuteTestsTestResult';
 
 export interface ExecuteTestsResult
 {
-	totalResult: TestResultStatus;
-	successCount: number;
-	warningCount: number;
-	errorCount: number;
-	errorMessage: string;
-	results: ExecuteTestsTestResult[];
+	TotalResult: TestResultStatus;
+	SuccessCount: number;
+	WarningCount: number;
+	ErrorCount: number;
+	ErrorMessage: string;
+	Results: ExecuteTestsTestResult[];
 }

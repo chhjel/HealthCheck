@@ -4,7 +4,7 @@
 
 export interface CodeError
 {
-	line: number;
-	column: number;
-	message: string;
+	Line: number;
+	Column: number;
+	Message: string;
 }

@@ -63,7 +63,7 @@
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import { TestParameterReferenceChoiceViewModel } from  '../../../../../models/modules/TestSuite/TestParameterViewModel';
 import { FetchStatus, ServiceFetchCallbacks } from "../../../../../services/abstractions/HCServiceBase";
-import BackendInputConfig from "../BackendInputConfig";
+import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
 
 @Component({
     components: {
@@ -74,7 +74,7 @@ export default class ParameterInputPickReferenceComponent extends Vue {
     value!: string;
 
     @Prop({ required: true })
-    config!: BackendInputConfig;
+    config!: HCBackendInputConfig;
 
     localValue: string | null = '';
 
@@ -141,7 +141,7 @@ export default class ParameterInputPickReferenceComponent extends Vue {
                 'component': this,
                 'loadStatus' : this.loadingChoicesStatus,
                 'callbacks': callbacks,
-                'parameterIndex': this.config.parameterIndex,
+                'parameterIndex': this.config.ParameterIndex,
                 'filter': this.choicesFilterText ?? ''
             }
         );

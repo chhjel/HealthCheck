@@ -4,7 +4,7 @@
 
 export interface CodeSuggestion
 {
-	name: string;
-	description: string;
-	suggestion: string;
+	Name: string;
+	Description: string;
+	Suggestion: string;
 }

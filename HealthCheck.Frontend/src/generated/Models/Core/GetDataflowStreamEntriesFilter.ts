@@ -6,6 +6,6 @@ import { DataflowStreamFilter } from './DataflowStreamFilter';
 
 export interface GetDataflowStreamEntriesFilter
 {
-	streamId: string;
-	streamFilter: DataflowStreamFilter;
+	StreamId: string;
+	StreamFilter: DataflowStreamFilter;
 }

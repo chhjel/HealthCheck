@@ -131,6 +131,21 @@ namespace HealthCheck.Core.Util
 		public static object TryGetMemberValue(object instance, string memberName)
 			=> TryGetMemberValue(instance.GetType(), instance, memberName);
 
+		/// <summary>
+		/// Attempts to create a new instance of the given type, ignoring any errors and returning null on failure.
+		/// </summary>
+		public static object TryActivate(Type type)
+		{
+			try
+			{
+				return Activator.CreateInstance(type);
+			}
+			catch (Exception)
+			{
+				return null;
+			}
+		}
+
 		private static object TryGetMemberValue(Type type, object instance, string memberName)
 		{
 			var members = type.GetMembers(

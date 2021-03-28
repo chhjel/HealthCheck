@@ -4,6 +4,6 @@
 
 export interface TestParameterTemplateViewModel
 {
-	type: string;
-	template: string;
+	Type: string;
+	Template: string;
 }

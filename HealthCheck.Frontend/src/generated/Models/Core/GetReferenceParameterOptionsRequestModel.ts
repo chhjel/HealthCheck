@@ -4,7 +4,7 @@
 
 export interface GetReferenceParameterOptionsRequestModel
 {
-	testId: string;
-	parameterIndex: number;
-	filter: string;
+	TestId: string;
+	ParameterIndex: number;
+	Filter: string;
 }

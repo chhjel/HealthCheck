@@ -4,10 +4,10 @@
 
 export interface EventNotifierOptionDefinition
 {
-	id: string;
-	name: string;
-	description: string;
-	supportsPlaceholders: boolean;
-	type: string;
-	uiHints: number;
+	Id: string;
+	Name: string;
+	Description: string;
+	SupportsPlaceholders: boolean;
+	Type: string;
+	UIHints: number;
 }

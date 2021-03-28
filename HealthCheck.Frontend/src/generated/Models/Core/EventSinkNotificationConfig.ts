@@ -7,19 +7,19 @@ import { EventSinkNotificationConfigFilter } from './EventSinkNotificationConfig
 
 export interface EventSinkNotificationConfig
 {
-	id: string;
-	lastChangedBy: string;
-	lastChangedAt: Date;
-	lastNotifiedAt: Date;
-	enabled: boolean;
-	notificationCountLimit: number;
-	distinctNotificationKey: string;
-	distinctNotificationCacheDuration: any;
-	fromTime: Date;
-	toTime: Date;
-	notifierConfigs: NotifierConfig[];
-	eventIdFilter: EventSinkNotificationConfigFilter;
-	payloadFilters: EventSinkNotificationConfigFilter[];
-	latestResults: string[];
-	distinctCacheEnabled: boolean;
+	Id: string;
+	LastChangedBy: string;
+	LastChangedAt: Date;
+	LastNotifiedAt: Date;
+	Enabled: boolean;
+	NotificationCountLimit: number;
+	DistinctNotificationKey: string;
+	DistinctNotificationCacheDuration: any;
+	FromTime: Date;
+	ToTime: Date;
+	NotifierConfigs: NotifierConfig[];
+	EventIdFilter: EventSinkNotificationConfigFilter;
+	PayloadFilters: EventSinkNotificationConfigFilter[];
+	LatestResults: string[];
+	DistinctCacheEnabled: boolean;
 }

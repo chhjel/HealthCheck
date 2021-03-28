@@ -4,8 +4,8 @@
 
 export interface DataDump
 {
-	title: string;
-	type: string;
-	data: string;
-	display: boolean;
+	Title: string;
+	Type: string;
+	Data: string;
+	Display: boolean;
 }

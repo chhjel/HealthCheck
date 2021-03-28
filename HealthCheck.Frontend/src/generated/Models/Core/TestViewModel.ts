@@ -6,11 +6,11 @@ import { TestParameterViewModel } from './TestParameterViewModel';
 
 export interface TestViewModel
 {
-	id: string;
-	name: string;
-	description: string;
-	runButtonText: string;
-	runningButtonText: string;
-	isCancellable: boolean;
-	parameters: TestParameterViewModel[];
+	Id: string;
+	Name: string;
+	Description: string;
+	RunButtonText: string;
+	RunningButtonText: string;
+	IsCancellable: boolean;
+	Parameters: TestParameterViewModel[];
 }

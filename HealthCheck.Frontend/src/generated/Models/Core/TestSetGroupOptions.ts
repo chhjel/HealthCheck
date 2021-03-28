@@ -4,6 +4,6 @@
 
 export interface TestSetGroupOptions
 {
-	groupName: string;
-	uiOrder: number;
+	GroupName: string;
+	UIOrder: number;
 }

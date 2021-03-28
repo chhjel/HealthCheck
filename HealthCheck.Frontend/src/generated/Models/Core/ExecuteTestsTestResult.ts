@@ -6,9 +6,9 @@ import { TestResultStatus } from '../../Enums/Core/TestResultStatus';
 
 export interface ExecuteTestsTestResult
 {
-	testId: string;
-	testName: string;
-	result: TestResultStatus;
-	message: string;
-	stackTrace: string;
+	TestId: string;
+	TestName: string;
+	Result: TestResultStatus;
+	Message: string;
+	StackTrace: string;
 }

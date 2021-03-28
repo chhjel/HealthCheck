@@ -4,7 +4,7 @@
 
 export interface HCGetMessagesRequestModel
 {
-	inboxId: string;
-	pageSize: number;
-	pageIndex: number;
+	InboxId: string;
+	PageSize: number;
+	PageIndex: number;
 }

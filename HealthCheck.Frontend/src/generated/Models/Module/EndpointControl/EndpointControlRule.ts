@@ -7,17 +7,17 @@ import { EndpointControlCountOverDuration } from './EndpointControlCountOverDura
 
 export interface EndpointControlRule
 {
-	id: string;
-	enabled: boolean;
-	alwaysTrigger: boolean;
-	lastChangedBy: string;
-	lastChangedAt: Date;
-	endpointIdFilter: EndpointControlPropertyFilter;
-	userLocationIdFilter: EndpointControlPropertyFilter;
-	userAgentFilter: EndpointControlPropertyFilter;
-	urlFilter: EndpointControlPropertyFilter;
-	totalRequestCountLimits: EndpointControlCountOverDuration[];
-	currentEndpointRequestCountLimits: EndpointControlCountOverDuration[];
-	blockResultTypeId: string;
-	customBlockResultProperties: { [key:string]: string };
+	Id: string;
+	Enabled: boolean;
+	AlwaysTrigger: boolean;
+	LastChangedBy: string;
+	LastChangedAt: Date;
+	EndpointIdFilter: EndpointControlPropertyFilter;
+	UserLocationIdFilter: EndpointControlPropertyFilter;
+	UserAgentFilter: EndpointControlPropertyFilter;
+	UrlFilter: EndpointControlPropertyFilter;
+	TotalRequestCountLimits: EndpointControlCountOverDuration[];
+	CurrentEndpointRequestCountLimits: EndpointControlCountOverDuration[];
+	BlockResultTypeId: string;
+	CustomBlockResultProperties: { [key:string]: string };
 }

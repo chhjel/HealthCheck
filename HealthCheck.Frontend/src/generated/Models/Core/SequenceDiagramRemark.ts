@@ -4,6 +4,6 @@
 
 export interface SequenceDiagramRemark
 {
-	number: number;
-	text: string;
+	Number: number;
+	Text: string;
 }

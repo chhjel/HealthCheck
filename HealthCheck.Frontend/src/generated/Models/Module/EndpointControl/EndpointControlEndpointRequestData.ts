@@ -4,16 +4,16 @@
 
 export interface EndpointControlEndpointRequestData
 {
-	timestamp: Date;
-	endpointName: string;
-	endpointId: string;
-	userLocationId: string;
-	userAgent: string;
-	httpMethod: string;
-	controllerType: any;
-	controllerName: string;
-	actionName: string;
-	url: string;
-	wasBlocked: boolean;
-	blockingRuleId: string;
+	Timestamp: Date;
+	EndpointName: string;
+	EndpointId: string;
+	UserLocationId: string;
+	UserAgent: string;
+	HttpMethod: string;
+	ControllerType: any;
+	ControllerName: string;
+	ActionName: string;
+	Url: string;
+	WasBlocked: boolean;
+	BlockingRuleId: string;
 }

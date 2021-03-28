@@ -4,7 +4,7 @@
 
 export interface InvalidTestViewModel
 {
-	id: string;
-	name: string;
-	reason: string;
+	Id: string;
+	Name: string;
+	Reason: string;
 }

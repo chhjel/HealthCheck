@@ -4,14 +4,14 @@
 
 export interface HCDefaultMessageItem
 {
-	id: string;
-	timestamp: Date;
-	summary: string;
-	from: string;
-	to: string;
-	body: string;
-	bodyIsHtml: boolean;
-	additionalDetails: { [key:string]: string };
-	hasError: boolean;
-	errorMessage: string;
+	Id: string;
+	Timestamp: Date;
+	Summary: string;
+	From: string;
+	To: string;
+	Body: string;
+	BodyIsHtml: boolean;
+	AdditionalDetails: { [key:string]: string };
+	HasError: boolean;
+	ErrorMessage: string;
 }

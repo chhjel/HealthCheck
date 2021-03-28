@@ -6,6 +6,6 @@ import { FlowChartStep } from './FlowChartStep';
 
 export interface FlowChart
 {
-	name: string;
-	steps: FlowChartStep[];
+	Name: string;
+	Steps: FlowChartStep[];
 }

@@ -6,16 +6,16 @@ import { RuntimeTestReferenceParameterFactory } from './RuntimeTestReferencePara
 
 export interface TestParameter
 {
-	index: number;
-	name: string;
-	description: string;
-	parameterType: any;
-	defaultValue: any;
-	possibleValues: any[];
-	notNull: boolean;
-	readOnlyList: boolean;
-	showTextArea: boolean;
-	fullWidth: boolean;
-	isCustomReferenceType: boolean;
-	referenceFactory: RuntimeTestReferenceParameterFactory;
+	Index: number;
+	Name: string;
+	Description: string;
+	ParameterType: any;
+	DefaultValue: any;
+	PossibleValues: any[];
+	NotNull: boolean;
+	ReadOnlyList: boolean;
+	ShowTextArea: boolean;
+	FullWidth: boolean;
+	IsCustomReferenceType: boolean;
+	ReferenceFactory: RuntimeTestReferenceParameterFactory;
 }

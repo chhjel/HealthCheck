@@ -4,11 +4,11 @@
 
 export interface AuditEventFilterInputData
 {
-	areaFilter: string;
-	actionFilter: string;
-	subjectFilter: string;
-	userIdFilter: string;
-	userNameFilter: string;
-	fromFilter: Date;
-	toFilter: Date;
+	AreaFilter: string;
+	ActionFilter: string;
+	SubjectFilter: string;
+	UserIdFilter: string;
+	UserNameFilter: string;
+	FromFilter: Date;
+	ToFilter: Date;
 }

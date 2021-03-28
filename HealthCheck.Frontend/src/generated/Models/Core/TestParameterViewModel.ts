@@ -4,15 +4,15 @@
 
 export interface TestParameterViewModel
 {
-	index: number;
-	name: string;
-	description: string;
-	type: string;
-	defaultValue: string;
-	possibleValues: string[];
-	notNull: boolean;
-	readOnlyList: boolean;
-	showTextArea: boolean;
-	fullWidth: boolean;
-	isCustomReferenceType: boolean;
+	Index: number;
+	Name: string;
+	Description: string;
+	Type: string;
+	DefaultValue: string;
+	PossibleValues: string[];
+	NotNull: boolean;
+	ReadOnlyList: boolean;
+	ShowTextArea: boolean;
+	FullWidth: boolean;
+	IsCustomReferenceType: boolean;
 }

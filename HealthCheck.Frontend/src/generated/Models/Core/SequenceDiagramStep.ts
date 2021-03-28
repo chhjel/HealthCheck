@@ -6,18 +6,18 @@ import { SequenceDiagramStepDirection } from '../../Enums/Core/SequenceDiagramSt
 
 export interface SequenceDiagramStep
 {
-	index: number;
-	from: string;
-	to: string;
-	description: string;
-	note: string;
-	remarks: string;
-	remarkNumber: number;
-	optionalGroupName: string;
-	direction: SequenceDiagramStepDirection;
-	branches: string[];
-	classNameFrom: string;
-	classNameTo: string;
-	methodNameFrom: string;
-	methodNameTo: string;
+	Index: number;
+	From: string;
+	To: string;
+	Description: string;
+	Note: string;
+	Remarks: string;
+	RemarkNumber: number;
+	OptionalGroupName: string;
+	Direction: SequenceDiagramStepDirection;
+	Branches: string[];
+	ClassNameFrom: string;
+	ClassNameTo: string;
+	MethodNameFrom: string;
+	MethodNameTo: string;
 }

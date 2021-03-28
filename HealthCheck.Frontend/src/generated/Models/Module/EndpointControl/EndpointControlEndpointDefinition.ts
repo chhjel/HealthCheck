@@ -4,8 +4,8 @@
 
 export interface EndpointControlEndpointDefinition
 {
-	endpointId: string;
-	controllerName: string;
-	actionName: string;
-	httpMethod: string;
+	EndpointId: string;
+	ControllerName: string;
+	ActionName: string;
+	HttpMethod: string;
 }

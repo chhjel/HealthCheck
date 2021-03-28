@@ -1,5 +1,5 @@
-﻿using HealthCheck.Core.Modules.Tests.Utils;
-using HealthCheck.Core.Util;
+﻿using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Models;
 using System;
 using System.Collections.Generic;
 

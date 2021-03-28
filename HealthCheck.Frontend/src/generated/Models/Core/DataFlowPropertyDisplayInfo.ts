@@ -7,11 +7,11 @@ import { DataFlowPropertyUIVisibilityOption } from '../../Enums/Core/DataFlowPro
 
 export interface DataFlowPropertyDisplayInfo
 {
-	propertyName: string;
-	displayName: string;
-	uiOrder: number;
-	uiHint: DataFlowPropertyUIHint;
-	visibility: DataFlowPropertyUIVisibilityOption;
-	isFilterable: boolean;
-	dateTimeFormat: string;
+	PropertyName: string;
+	DisplayName: string;
+	UIOrder: number;
+	UIHint: DataFlowPropertyUIHint;
+	Visibility: DataFlowPropertyUIVisibilityOption;
+	IsFilterable: boolean;
+	DateTimeFormat: string;
 }

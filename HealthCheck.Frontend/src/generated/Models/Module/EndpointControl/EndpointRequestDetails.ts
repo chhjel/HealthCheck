@@ -4,11 +4,11 @@
 
 export interface EndpointRequestDetails
 {
-	userLocationIdentifier: string;
-	endpointId: string;
-	timestamp: Date;
-	userAgent: string;
-	url: string;
-	wasBlocked: boolean;
-	blockingRuleId: string;
+	UserLocationIdentifier: string;
+	EndpointId: string;
+	Timestamp: Date;
+	UserAgent: string;
+	Url: string;
+	WasBlocked: boolean;
+	BlockingRuleId: string;
 }

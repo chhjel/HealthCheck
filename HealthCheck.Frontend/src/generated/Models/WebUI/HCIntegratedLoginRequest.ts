@@ -4,7 +4,7 @@
 
 export interface HCIntegratedLoginRequest
 {
-	username: string;
-	password: string;
-	twoFactorCode: string;
+	Username: string;
+	Password: string;
+	TwoFactorCode: string;
 }

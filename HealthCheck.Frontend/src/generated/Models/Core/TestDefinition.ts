@@ -8,20 +8,20 @@ import { ProxyRuntimeTestConfig } from './ProxyRuntimeTestConfig';
 
 export interface TestDefinition
 {
-	id: string;
-	name: string;
-	description: string;
-	parameters: TestParameter[];
-	allowParallelExecution: boolean;
-	allowManualExecution: boolean;
-	rolesWithAccess: any;
-	categories: string[];
-	runButtonText: string;
-	runningButtonText: string;
-	isCancellable: boolean;
-	method: any;
-	parentClass: TestClassDefinition;
-	classProxyConfig: ProxyRuntimeTestConfig;
-	type: number;
-	loadErrors: string[];
+	Id: string;
+	Name: string;
+	Description: string;
+	Parameters: TestParameter[];
+	AllowParallelExecution: boolean;
+	AllowManualExecution: boolean;
+	RolesWithAccess: any;
+	Categories: string[];
+	RunButtonText: string;
+	RunningButtonText: string;
+	IsCancellable: boolean;
+	Method: any;
+	ParentClass: TestClassDefinition;
+	ClassProxyConfig: ProxyRuntimeTestConfig;
+	Type: number;
+	LoadErrors: string[];
 }

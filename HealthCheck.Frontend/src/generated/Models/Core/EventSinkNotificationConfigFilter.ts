@@ -6,8 +6,8 @@ import { FilterMatchType } from '../../Enums/Core/FilterMatchType';
 
 export interface EventSinkNotificationConfigFilter
 {
-	propertyName: string;
-	filter: string;
-	matchType: FilterMatchType;
-	caseSensitive: boolean;
+	PropertyName: string;
+	Filter: string;
+	MatchType: FilterMatchType;
+	CaseSensitive: boolean;
 }

@@ -52,7 +52,7 @@
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import TestParameterTemplateViewModel from "../../../../../models/modules/TestSuite/TestParameterTemplateViewModel";
 import EditorComponent from  '../../../../Common/EditorComponent.vue';
-import BackendInputConfig from "../BackendInputConfig";
+import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
 
 @Component({
     components: {
@@ -70,7 +70,7 @@ export default class ParameterInputAnyJsonComponent extends Vue {
     type!: string;
 
     @Prop({ required: true })
-    config!: BackendInputConfig;
+    config!: HCBackendInputConfig;
 
     localValue: string | null = '';
 

@@ -4,6 +4,6 @@
 
 export interface EditorWorkerConfig
 {
-	editorWorkerUrl: string;
-	jsonWorkerUrl: string;
+	EditorWorkerUrl: string;
+	JsonWorkerUrl: string;
 }

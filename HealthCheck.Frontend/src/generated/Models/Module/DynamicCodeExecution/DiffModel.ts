@@ -6,7 +6,7 @@ import { DataDump } from './DataDump';
 
 export interface DiffModel
 {
-	title: string;
-	left: DataDump;
-	right: DataDump;
+	Title: string;
+	Left: DataDump;
+	Right: DataDump;
 }

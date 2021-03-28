@@ -2,23 +2,24 @@
 <template>
     <div>
         <div class="parameter-header" v-if="showInputHeader">
-            <div class="parameter-name">{{ name }}</div>
+            <div class="parameter-name">{{ displayName }}</div>
             <v-icon small v-if="hasDescription"
                 color="gray" class="parameter-help-icon"
                 @click="toggleDescription">help</v-icon>
         </div>
 
-        <div v-show="showDescription" class="parameter-description" v-html="description"></div>
+        <div v-show="showDescription" class="parameter-description" v-html="displayDescription"></div>
 
         <component
             class="parameter-input"
+            :is="inputComponentName"
             v-model="localValue"
-            :type="type"
-            :name="name"
+            :type="resolvedType"
+            :name="displayName"
             :config="config"
             :listType="genericListInputType"
             :isListItem="isListItem"
-            :is="inputComponentName"
+            :readonly="readonly"
             v-on:disableInputHeader="disableInputHeader">
         </component>
     </div>
@@ -26,7 +27,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import BackendInputConfig from './BackendInputConfig';
+import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
 // Parameter input components
 import UnknownBackendInputComponent from './UnknownBackendInputComponent.vue';
 import ParameterInputTypeInt32Component from './Types/ParameterInputTypeInt32Component.vue';
@@ -70,25 +71,28 @@ import ParameterInputAnyJsonComponent from "./Types/ParameterInputAnyJsonCompone
 })
 export default class BackendInputComponent extends Vue {
     @Prop({ required: true })
-    type!: string;
-    
-    @Prop({ required: true })
-    name!: string;
+    config!: HCBackendInputConfig;
 
     @Prop({ required: true })
     value!: string;
 
-    @Prop({ required: true })
-    config!: BackendInputConfig;
+    @Prop({ required: false, default: '' })
+    forceType!: string;
     
     @Prop({ required: false, default: '' })
-    description!: string;
+    forceName!: string;
+    
+    @Prop({ required: false, default: '' })
+    forceDescription!: string;
 
     @Prop({ required: false, default: false })
     isListItem!: boolean;
 
     @Prop({ required: false, default: true })
     allowJsonInput!: boolean;
+
+    @Prop({ required: false, default: false })
+    readonly!: boolean;
 
     @Prop({ required: false, default: false })
     isCustomReferenceType!: boolean;
@@ -112,8 +116,32 @@ export default class BackendInputComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get displayName(): string {
+        if (this.config.Name && this.config.Name.length > 0)
+        {
+            return this.config.Name;
+        }
+        return this.forceName;
+    }
+
+    get resolvedType(): string {
+        if (this.config.Type && this.config.Type.length > 0)
+        {
+            return this.config.Type;
+        }
+        return this.forceType;
+    }
+
+    get displayDescription(): string {
+        if (this.config.Description && this.config.Description.length > 0)
+        {
+            return this.config.Description;
+        }
+        return this.forceDescription;
+    }
+
     get hasDescription(): boolean {
-        return this.description != null && this.description.length > 0;
+        return this.displayDescription != null && this.displayDescription.length > 0;
     }
     
     get inputComponentName(): string
@@ -123,7 +151,7 @@ export default class BackendInputComponent extends Vue {
             return 'ParameterInputPickReferenceComponent';
         }
 
-        let typeName = this.type;
+        let typeName = this.resolvedType;
         let genericType = this.genericListInputType;
         if (genericType != null) {
             return "ParameterInputTypeGenericListComponent";
@@ -150,8 +178,8 @@ export default class BackendInputComponent extends Vue {
     get genericListInputType(): string | null
     {
         let genericListPattern = /^List<(\w+)>$/;
-        if (genericListPattern.test(this.type)) {
-            let match = this.type.match(genericListPattern);
+        if (genericListPattern.test(this.resolvedType)) {
+            let match = this.resolvedType.match(genericListPattern);
             let itemType: string | null = (match == null) ? null : match[1];
             return itemType;
         }
