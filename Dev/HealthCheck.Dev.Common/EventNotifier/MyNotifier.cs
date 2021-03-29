@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Modules.EventNotifications.Abstractions;
+﻿using HealthCheck.Core.Models;
+using HealthCheck.Core.Modules.EventNotifications.Abstractions;
 using HealthCheck.Core.Modules.EventNotifications.Attributes;
 using HealthCheck.Core.Modules.EventNotifications.Models;
 using System;
@@ -41,13 +42,13 @@ namespace HealthCheck.Dev.Common.EventNotifier
 
         public class MyNotifierOptions
         {
-            [EventNotifierOption(description: "Text that will be outputted")]
+            [EventNotifierOption(Description = "Text that will be outputted, UIHints = HCUIHint.NotNull")]
             public string Message { get; set; }
 
-            [EventNotifierOption(description: "Timeout in seconds")]
+            [EventNotifierOption(Description = "Timeout in seconds")]
             public int Timeout { get; set; }
 
-            [EventNotifierOption(description: "A test of TextArea UIHint", uiHints: EventNotifierOptionAttribute.UIHint.TextArea)]
+            [EventNotifierOption(Description = "A test of TextArea UIHint", UIHints = HCUIHint.TextArea | HCUIHint.NotNull)]
             public string BodyTest { get; set; }
 
             [EventNotifierOption]

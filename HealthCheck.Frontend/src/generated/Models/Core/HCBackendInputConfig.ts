@@ -10,6 +10,7 @@ export interface HCBackendInputConfig
 	Description: string;
 	NotNull: boolean;
 	Nullable: boolean;
+	FullWidth: boolean;
 	DefaultValue: string;
 	Flags: string[];
 	PossibleValues: string[];

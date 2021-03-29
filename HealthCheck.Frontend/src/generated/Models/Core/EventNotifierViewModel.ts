@@ -2,13 +2,13 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import { EventNotifierOptionDefinition } from './EventNotifierOptionDefinition';
+import { HCBackendInputConfig } from './HCBackendInputConfig';
 
 export interface EventNotifierViewModel
 {
 	Id: string;
 	Name: string;
 	Description: string;
-	Options: EventNotifierOptionDefinition[];
+	Options: HCBackendInputConfig[];
 	Placeholders: string[];
 }

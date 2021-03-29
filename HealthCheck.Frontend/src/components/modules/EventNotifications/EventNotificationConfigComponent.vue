@@ -136,20 +136,22 @@
                     </v-btn>
                 </div>
                 
+
+                <code>
+                // todo: add support for action icons to new component
+                </code>
+                
                 <div v-for="(notifierConfigOption, ncoindex) in getNotifierConfigOptions(notifierConfig.Notifier, notifierConfig.Options)"
                     :key="`notifierConfig-${ncindex}-option-${ncoindex}`"
                     style="margin-left:20px">
-
-                    <input-component
+                    
+                    <backend-input-component
                         v-model="notifierConfigOption.value"
                         v-on:input="notifierConfig.Options[notifierConfigOption.key] = $event"
-                        :disabled="!allowChanges"
-                        :name="notifierConfigOption.definition.Name"
-                        :description="notifierConfigOption.definition.Description"
+                        :config="notifierConfigOption.definition"
+                        :readonly="!allowChanges"
                         :action-icon="getPlaceholdersFor(notifierConfig.Notifier, notifierConfigOption).length > 0 ? 'insert_link' : ''"
                         @actionIconClicked="showPlaceholdersFor(notifierConfig, notifierConfigOption.key, notifierConfigOption)"
-                        :ui-hints="notifierConfigOption.definition.UIHints"
-                        :type="getNotifierOptionInputType(notifierConfigOption.definition.Type)"
                         />
                 </div>
             </div>
@@ -345,11 +347,12 @@ import ConfigFilterComponent from '.././EventNotifications/ConfigFilterComponent
 import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
 import DateUtils from  '../../../util/DateUtils';
 import IdUtils from  '../../../util/IdUtils';
-import EventSinkNotificationConfigUtils, { ConfigFilterDescription, ConfigDescription, ConfigActionDescription } from  '../../../util/EventNotifications/EventSinkNotificationConfigUtils';
+import EventSinkNotificationConfigUtils, { ConfigFilterDescription, ConfigActionDescription } from  '../../../util/EventNotifications/EventSinkNotificationConfigUtils';
 import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
 import InputComponent from  '../../Common/Basic/InputComponent.vue';
 import TimespanInputComponent from  '../../Common/Basic/TimespanInputComponent.vue';
 import EventNotificationService from  '../../../services/EventNotificationService';
+import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 
 @Component({
     components: {
@@ -357,7 +360,8 @@ import EventNotificationService from  '../../../services/EventNotificationServic
         SimpleDateTimeComponent,
         BlockComponent,
         InputComponent,
-        TimespanInputComponent
+        TimespanInputComponent,
+        BackendInputComponent
     }
 })
 export default class EventNotificationConfigComponent extends Vue {
@@ -552,7 +556,7 @@ export default class EventNotificationConfigComponent extends Vue {
 
     getPlaceholdersFor(notifier: IEventNotifier, option: NotifierConfigOptionsItem): Array<string>
     {
-        if (notifier == null || option == null || !option.definition.SupportsPlaceholders)
+        if (notifier == null || option == null || !option.definition.Flags.includes('SupportsPlaceholders'))
         {
             return [];
         }

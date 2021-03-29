@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Models;
 using HealthCheck.Core.Util;
 using HealthCheck.Core.Util.Models;
 using System;
@@ -23,31 +24,54 @@ namespace HealthCheck.Core.Attributes
         public string Description { get; set; }
 
         /// <summary>
-        /// Disallow null values, even for strings.
+        /// Hint of how to display a input.
         /// </summary>
-        public bool PreventNulls { get; set; }
+        public HCUIHint UIHints { get; set; }
 
-        // todo: uihints enum: TextArea, ReadOnlyList
+        private static readonly StringConverter _stringConverter = new();
 
-        private static StringConverter _stringConverter = new StringConverter();
+        /// <summary>
+        /// Create flags options for frontend consumption.
+        /// </summary>
+        protected virtual List<string> CreateFlags()
+        {
+            var flags = new List<string>();
+
+            if (UIHints.HasFlag(HCUIHint.ReadOnlyList))
+            {
+                flags.Add("ReadOnlyList");
+            }
+            if (UIHints.HasFlag(HCUIHint.TextArea))
+            {
+                flags.Add("TextArea");
+            }
+            
+            return flags;
+        }
 
         /// <summary>
         /// From backend to frontend.
         /// </summary>
-        public static List<HCBackendInputConfig> CreateInputConfigs(Type type)
+        public static List<HCBackendInputConfig> CreateInputConfigs(Type type,
+            Action<HCBackendInputConfig, PropertyInfo, HCCustomPropertyAttribute> modifier = null)
         {
+            if (type == null)
+            {
+                return new List<HCBackendInputConfig>();
+            }
+
             var instance = ReflectionUtils.TryActivate(type);
             return type.GetProperties()
-                .Select(x => CreateInputConfig(x, instance))
+                .Select(x => CreateInputConfig(x, instance, modifier))
                 .ToList();
         }
 
         /// <summary>
         /// From backend to frontend.
         /// </summary>
-        public static HCBackendInputConfig CreateInputConfig(PropertyInfo property, object instanceForDefaults = null)
+        public static HCBackendInputConfig CreateInputConfig(PropertyInfo property, object instanceForDefaults = null,
+            Action<HCBackendInputConfig, PropertyInfo, HCCustomPropertyAttribute> modifier = null)
         {
-            var flags = new List<string>();
             var possibleValues = new List<string>();
             var defaultValue = "";
             if (instanceForDefaults != null)
@@ -67,19 +91,22 @@ namespace HealthCheck.Core.Attributes
                 type = Nullable.GetUnderlyingType(type);
             }
 
-            return new HCBackendInputConfig
+            var config = new HCBackendInputConfig
             {
                 Id = property.Name,
                 Name = attr?.Name ?? property.Name.SpacifySentence(),
                 Type = type.Name,
                 Description = attr?.Description ?? "",
                 Nullable = isNullable,
-                NotNull = attr?.PreventNulls == true,
+                NotNull = attr?.UIHints.HasFlag(HCUIHint.NotNull) == true,
+                FullWidth = attr?.UIHints.HasFlag(HCUIHint.FullWidth) == true,
                 DefaultValue = defaultValue,
-                Flags = flags,
+                Flags = attr?.CreateFlags() ?? new List<string>(),
                 ParameterIndex = null,
                 PossibleValues = possibleValues
             };
+            modifier?.Invoke(config, property, GetFirst(property));
+            return config;
         }
 
         /// <summary>

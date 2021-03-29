@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Modules.EventNotifications.Abstractions;
+﻿using HealthCheck.Core.Models;
+using HealthCheck.Core.Modules.EventNotifications.Abstractions;
 using HealthCheck.Core.Modules.EventNotifications.Attributes;
 using HealthCheck.Core.Modules.EventNotifications.Models;
 using System;
@@ -78,7 +79,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Notifiers
             /// <summary>
             /// Where the GET request will be sent.
             /// </summary>
-            [EventNotifierOption(description: "Where the GET request will be sent.", placeholderTransformerMethod: nameof(UrlEncoder))]
+            [EventNotifierOption(Description = "Where the GET request will be sent.", PlaceholderTransformerMethod = nameof(UrlEncoder), UIHints = HCUIHint.NotNull)]
             public string Url { get; set; }
 
             /// <summary>

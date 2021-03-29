@@ -86,6 +86,7 @@ export default class TestParametersComponent extends Vue {
         Nullable: parameter.Type.startsWith("Nullable"),
         DefaultValue: parameter.DefaultValue,
         Flags: flags,
+        FullWidth: parameter.FullWidth,
         PossibleValues: parameter.PossibleValues,
         ParameterIndex: index
       };

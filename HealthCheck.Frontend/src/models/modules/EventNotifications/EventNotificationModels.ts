@@ -1,3 +1,5 @@
+import { HCBackendInputConfig } from "generated/Models/Core/HCBackendInputConfig";
+
 export interface Dictionary<T> {
     [Key: string]: T;
 }
@@ -13,17 +15,8 @@ export interface IEventNotifier {
     Id: string;
     Name: string;
     Description: string;
-    Options: Array<EventNotifierOptionDefinition>;
+    Options: Array<HCBackendInputConfig>;
     Placeholders: Array<string>;
-}
-
-export interface EventNotifierOptionDefinition {
-    Id: string;
-    Name: string;
-    Description: string;
-    SupportsPlaceholders: boolean;
-    Type: string;
-    UIHints: string;
 }
 
 export interface EventSinkNotificationConfig {
@@ -52,7 +45,7 @@ export interface NotifierConfig {
 
 export interface NotifierConfigOptionsItem {
     key: string;
-    definition: EventNotifierOptionDefinition;
+    definition: HCBackendInputConfig;
     value: string;
 }
 

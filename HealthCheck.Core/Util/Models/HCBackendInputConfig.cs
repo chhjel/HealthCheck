@@ -24,6 +24,9 @@ namespace HealthCheck.Core.Util.Models
         /// <summary></summary>
         public bool Nullable { get; set; }
 
+        /// <summary></summary>
+        public bool FullWidth { get; set; }
+
         /// <summary></summary>)
         public string DefaultValue { get; set; }
 

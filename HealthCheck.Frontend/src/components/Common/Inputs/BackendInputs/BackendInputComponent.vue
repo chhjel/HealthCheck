@@ -6,6 +6,9 @@
             <v-icon small v-if="hasDescription"
                 color="gray" class="parameter-help-icon"
                 @click="toggleDescription">help</v-icon>
+            <v-icon v-if="showActionIcon"
+                color="gray" class="parameter-action-icon"
+                @click="onActionIconClicked">{{ actionIcon }}</v-icon>
         </div>
 
         <div v-show="showDescription" class="parameter-description" v-html="displayDescription"></div>
@@ -96,6 +99,9 @@ export default class BackendInputComponent extends Vue {
 
     @Prop({ required: false, default: false })
     isCustomReferenceType!: boolean;
+    
+    @Prop({ required: false, default: '' })
+    actionIcon!: string;
 
     showInputHeader: boolean = true;
     showDescription: boolean = false;
@@ -116,6 +122,10 @@ export default class BackendInputComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get showActionIcon(): boolean {
+        return !!this.actionIcon && this.actionIcon.length > 0;
+    }
+
     get displayName(): string {
         if (this.forceName && this.forceName.length > 0)
         {
@@ -212,6 +222,10 @@ export default class BackendInputComponent extends Vue {
     {
         this.$emit('input', this.localValue);
     }
+
+    onActionIconClicked(): void {
+        this.$emit('actionIconClicked');
+    }
 }
 </script>
 
@@ -236,6 +250,13 @@ export default class BackendInputComponent extends Vue {
     font-size: 20px !important;
 }
 .parameter-help-icon:hover {
+    color: #1976d2;
+}
+.parameter-action-icon {
+    user-select: none;
+    font-size: 20px !important;
+}
+.parameter-action-icon:hover {
     color: #1976d2;
 }
 </style>
