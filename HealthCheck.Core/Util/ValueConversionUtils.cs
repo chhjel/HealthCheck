@@ -1,6 +1,9 @@
 ﻿using HealthCheck.Core.Exceptions;
 using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Util.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HealthCheck.Core.Util
 {
@@ -10,6 +13,53 @@ namespace HealthCheck.Core.Util
     public static class HCValueConversionUtils
     {
         internal static StringConverter DefaultStringConverter { get; set; } = new StringConverter();
+
+        /// <summary>
+        /// Convert the given raw input to the given model-
+        /// </summary>
+        public static T ConvertInputModel<T>(Dictionary<string, string> rawInput, StringConverter stringConverter = null)
+            where T: class, new()
+            => ConvertInputModel(typeof(T), rawInput, stringConverter) as T;
+
+        /// <summary>
+        /// Convert the given raw input to the given model-
+        /// </summary>
+        public static T ConvertInputModel<T>(Func<string, string> rawInputGetter, StringConverter stringConverter = null)
+            where T : class, new()
+            => ConvertInputModel(typeof(T), rawInputGetter, stringConverter) as T;
+
+        /// <summary>
+        /// Convert the given raw input to the given model-
+        /// </summary>
+        public static object ConvertInputModel(Type type, Dictionary<string, string> rawInput, StringConverter stringConverter = null)
+            => ConvertInputModel(type, 
+                (rawInput == null) ? null : (propName) => rawInput?.FirstOrDefault(x => x.Key == propName).Value,
+                stringConverter);
+
+        /// <summary>
+        /// Convert the given raw input to the given model-
+        /// </summary>
+        public static object ConvertInputModel(Type type, Func<string, string> rawInputGetter, StringConverter stringConverter = null)
+        {
+            stringConverter ??= DefaultStringConverter;
+
+            var instance = Activator.CreateInstance(type);
+            if (rawInputGetter != null)
+            {
+                var props = type.GetProperties();
+                foreach (var prop in props)
+                {
+                    var stringValue = rawInputGetter(prop.Name);
+                    if (stringValue != null)
+                    {
+                        var value = stringConverter.ConvertStringTo(prop.PropertyType, stringValue);
+                        prop.SetValue(instance, value);
+                    }
+                }
+            }
+
+            return instance;
+        }
 
         /// <summary>
         /// Attempt to convert the given input to an instance of the given type.

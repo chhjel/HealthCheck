@@ -1,4 +1,5 @@
-﻿using HealthCheck.Module.EndpointControl.Abstractions;
+﻿using HealthCheck.Core.Util;
+using HealthCheck.Module.EndpointControl.Abstractions;
 using System;
 using System.Linq;
 
@@ -33,29 +34,8 @@ namespace HealthCheck.Module.EndpointControl.Models
             {
                 return null;
             }
-            else if (BlockingRule?.CustomBlockResultProperties?.Any() != true)
-            {
-                return Activator.CreateInstance(CustomBlockedResult.CustomPropertiesModelType);
-            }
 
-            var instance = Activator.CreateInstance(CustomBlockedResult.CustomPropertiesModelType);
-            var props = CustomBlockedResult.CustomPropertiesModelType.GetProperties();
-            foreach (var prop in props)
-            {
-                var stringValue = BlockingRule?.CustomBlockResultProperties?.FirstOrDefault(x => x.Key == prop.Name).Value;
-                if (prop.PropertyType == typeof(string))
-                {
-                    prop.SetValue(instance, stringValue);
-                }
-                else if (prop.PropertyType == typeof(int) && int.TryParse(stringValue, out int intValue))
-                {
-                    prop.SetValue(instance, intValue);
-                }
-                else if (prop.PropertyType == typeof(bool) && bool.TryParse(stringValue, out bool boolValue))
-                {
-                    prop.SetValue(instance, boolValue);
-                }
-            }
+            var instance = HCValueConversionUtils.ConvertInputModel(CustomBlockedResult.CustomPropertiesModelType, BlockingRule?.CustomBlockResultProperties);
             return instance;
         }
     }
