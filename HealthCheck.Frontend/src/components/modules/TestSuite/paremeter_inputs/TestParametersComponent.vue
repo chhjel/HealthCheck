@@ -73,6 +73,7 @@ export default class TestParametersComponent extends Vue {
       if (parameter.ReadOnlyList) { flags.push('ReadOnlyList') };
 
       return {
+        Id: parameter.Name,
         Type: parameter.Type,
         Name: parameter.Name,
         Description: parameter.Description,

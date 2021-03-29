@@ -117,14 +117,6 @@
                 :config="def"
                 :readonly="!allowChanges"
                 />
-<!-- 
-            <custom-block-result-property-input-component
-                v-for="(def, defIndex) in selectedBlockResultPropertyDefinitions"
-                :key="`defx-${defIndex}`"
-                v-model="internalRule.CustomBlockResultProperties[def.Id]"
-                :definition="def"
-                :readonly="!allowChanges"
-                /> -->
         </block-component>
 
         <v-dialog v-model="deleteDialogVisible"
@@ -161,8 +153,7 @@ import TimespanInputComponent from  '../../Common/Basic/TimespanInputComponent.v
 import CountOverDurationComponent from './CountOverDurationComponent.vue';
 import RuleDescriptionComponent from  './RuleDescriptionComponent.vue';
 import EndpointControlService from "../../../services/EndpointControlService";
-import { EndpointControlCountOverDuration, EndpointControlCustomResultDefinitionViewModel, EndpointControlCustomResultPropertyDefinitionViewModel, EndpointControlDataViewModel, EndpointControlEndpointDefinition, EndpointControlPropertyFilter, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
-import CustomBlockResultPropertyInputComponent from "./inputs/CustomBlockResultPropertyInputComponent.vue"
+import { EndpointControlCountOverDuration, EndpointControlCustomResultDefinitionViewModel, EndpointControlEndpointDefinition, EndpointControlPropertyFilter, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
 import { HCBackendInputConfig } from "generated/Models/Core/HCBackendInputConfig";
 import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 
@@ -175,7 +166,6 @@ import BackendInputComponent from "components/Common/Inputs/BackendInputs/Backen
         TimespanInputComponent,
         CountOverDurationComponent,
         RuleDescriptionComponent,
-        CustomBlockResultPropertyInputComponent,
         BackendInputComponent
     }
 })

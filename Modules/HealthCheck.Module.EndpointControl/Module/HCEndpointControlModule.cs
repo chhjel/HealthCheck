@@ -1,8 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Extensions;
-using HealthCheck.Core.Util.Models;
-using HealthCheck.Module.EndpointControl.Attributes;
 using HealthCheck.Module.EndpointControl.Models;
 using System;
 using System.Collections.Generic;
