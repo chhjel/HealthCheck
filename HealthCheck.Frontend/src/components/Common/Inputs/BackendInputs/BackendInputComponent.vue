@@ -117,7 +117,11 @@ export default class BackendInputComponent extends Vue {
     //  GETTERS  //
     //////////////
     get displayName(): string {
-        if (this.config.Name && this.config.Name.length > 0)
+        if (this.forceName && this.forceName.length > 0)
+        {
+            return this.forceName;
+        }
+        else if (this.config.Name && this.config.Name.length > 0)
         {
             return this.config.Name;
         }
@@ -125,7 +129,11 @@ export default class BackendInputComponent extends Vue {
     }
 
     get resolvedType(): string {
-        if (this.config.Type && this.config.Type.length > 0)
+        if (this.forceType && this.forceType.length > 0)
+        {
+            return this.forceType;
+        }
+        else if (this.config.Type && this.config.Type.length > 0)
         {
             return this.config.Type;
         }
@@ -133,7 +141,11 @@ export default class BackendInputComponent extends Vue {
     }
 
     get displayDescription(): string {
-        if (this.config.Description && this.config.Description.length > 0)
+        if (this.forceDescription && this.forceDescription.length > 0)
+        {
+            return this.forceDescription;
+        }
+        else if (this.config.Description && this.config.Description.length > 0)
         {
             return this.config.Description;
         }

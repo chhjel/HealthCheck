@@ -60,7 +60,12 @@ export default class TestParametersComponent extends Vue {
     }
 
     cleanType(type: string): string {
-      if (type.startsWith("Nullable"))
+      if (type.startsWith("Nullable<"))
+      {
+        type = type.substring("Nullable<".length);
+        type = type.substr(0, type.length - 1);
+      }
+      else if (type.startsWith("Nullable"))
       {
         type = type.substring("Nullable".length);
       }
