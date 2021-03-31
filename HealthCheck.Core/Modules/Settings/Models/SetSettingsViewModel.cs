@@ -10,6 +10,6 @@ namespace HealthCheck.Core.Modules.Settings.Models
         /// <summary>
         /// Settings that will be set.
         /// </summary>
-        public IEnumerable<HealthCheckSetting> Settings { get; set; }
+        public Dictionary<string, string> Values { get; set; }
     }
 }

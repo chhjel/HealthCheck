@@ -2,9 +2,7 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import { HealthCheckSetting } from './HealthCheckSetting';
-
 export interface SetSettingsViewModel
 {
-	Settings: HealthCheckSetting[];
+	Values: { [key:string]: string };
 }

@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Modules.Settings.Abstractions;
+using System;
 
 namespace HealthCheck.Core.Modules.Settings
 {
@@ -8,8 +9,13 @@ namespace HealthCheck.Core.Modules.Settings
     public class HCSettingsModuleOptions
     {
         /// <summary>
+        /// Model type for settings.
+        /// </summary>
+        public Type ModelType { get; set; }
+
+        /// <summary>
         /// Gets and sets settings.
         /// </summary>
-        public IHealthCheckSettingsService SettingsService { get; set; }
+        public IHCSettingsService Service { get; set; }
     }
 }

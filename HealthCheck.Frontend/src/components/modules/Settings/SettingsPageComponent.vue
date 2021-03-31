@@ -29,11 +29,14 @@
                         <p v-if="group.description != null" class="setting-group-header--desc">{{ group.description }}}</p>
                     </div>
                     
-                    <setting-input-component v-for="(setting, sIndex) in group.settings"
-                        :key="`setting-group-${gIndex}-${sIndex}`"
+                    <backend-input-component
+                        v-for="(setting, sIndex) in group.settings"
+                        :key="`setting-item-${gIndex}-${sIndex}`"
                         class="setting-item"
-                        :disabled="!HasAccessToChangeSettings"
-                        :setting="setting" />
+                        v-model="setting.value"
+                        :config="setting.definition"
+                        :readonly="!HasAccessToChangeSettings"
+                        />
                 </div>
 
                 <v-layout v-if="settingGroups.length > 0">
@@ -64,15 +67,29 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
 import DateUtils from  '../../../util/DateUtils';
 import LinqUtils from  '../../../util/LinqUtils';
-import SettingInputComponent from '../Settings/SettingInputComponent.vue';
-import SettingsService, { GetSettingsModel, BackendSetting, CustomSetting, CustomSettingGroup }  from  '../../../services/SettingsService';
+import SettingsService from  '../../../services/SettingsService';
 import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
 import ModuleConfig from  '../../../models/Common/ModuleConfig';
 import ModuleOptions from  '../../../models/Common/ModuleOptions';
+import { HCBackendInputConfig } from "generated/Models/Core/HCBackendInputConfig";
+import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { GetSettingsViewModel } from "generated/Models/Core/GetSettingsViewModel";
+import { SetSettingsViewModel } from "generated/Models/Core/SetSettingsViewModel";
+
+interface CustomSettingGroup
+{
+    name: string | null;
+    settings: Array<CustomSetting>;
+}
+interface CustomSetting
+{
+    definition: HCBackendInputConfig;
+    value: string;
+}
 
 @Component({
     components: {
-        SettingInputComponent
+        BackendInputComponent
     }
 })
 export default class SettingsPageComponent extends Vue {
@@ -124,26 +141,37 @@ export default class SettingsPageComponent extends Vue {
         this.service.GetSettings(this.loadStatus, { onSuccess: (data) => this.onDataRetrieved(data) });
     }
 
-    onDataRetrieved(data: GetSettingsModel): void {
-        this.settingGroups = LinqUtils.GroupByInto(data.Settings, (item) => item.GroupName || "", (key, items) => {
-            return {
-                name: (key === "") ? null : key,
-                settings: items.map(s => {
-                    return {
-                        id: s.Id,
-                        displayName: s.DisplayName,
-                        description: s.Description,
-                        type: s.Type,
-                        value: s.Value,
-                        validationError: null,
-                    };
-                })
-            }
-        });
+    onDataRetrieved(data: GetSettingsViewModel): void {
+        this.settingGroups = LinqUtils.GroupByInto(data.Definitions,
+            (def) => def.ExtraValues['GroupName'] || "",
+            (key, defs) => {
+                const group: CustomSettingGroup = {
+                    name: (key === "") ? null : key,
+                    settings: defs.map(d => {
+                        const value = data.Values[d.Id];
+                        const setting: CustomSetting = {
+                            definition: d,
+                            value: value
+                        };
+                        return setting;
+                    })
+                }
+                return group;
+            });
     }
 
     saveSettings(): void {
-        this.service.SaveSettings(this.settingGroups, this.saveStatus);
+        const values: any = {};
+        this.settingGroups.map(x => x.settings)
+            .forEach(group => {
+                group.forEach(set => {
+                    values[set.definition.Id] = set.value;
+                });
+            });
+        const payload: SetSettingsViewModel = {
+            Values: values
+        };
+        this.service.SaveSettings(payload, this.saveStatus);
     }
 
     hasAccess(option: string): boolean {

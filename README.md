@@ -788,17 +788,17 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
 
 ## Module: Settings
 
-Allows custom settings to be configured. Only string, int and boolean properties are supported.
+Allows custom settings to be configured.
 
 ### Setup
 
 ```csharp
-UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { SettingsService = IHealthCheckSettingsService implementation }));
+UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { SettingsService = IHCSettingsService implementation }));
 ```
 
 ```csharp
 // Built in implementation examples
-SettingsService = new FlatFileHealthCheckSettingsService<TestSettings>(@"D:\settings.json");
+SettingsService = new HCDefaultSettingsService(new HCFlatFileStringDictionaryStorage(@"D:\settings.json"));
 ```
 
 <details><summary>Example</summary>
@@ -810,20 +810,23 @@ public class TestSettings
 {
     public string PropertyX { get; set; }
 
-    [HealthCheckSetting(GroupName = "Service X")]
+    [HCSetting(GroupName = "Service X")]
     public bool Enabled { get; set; }
 
-    [HealthCheckSetting(GroupName = "Service X")]
+    [HCSetting(GroupName = "Service X")]
     public int ThreadLimit { get; set; } = 2;
 
-    [HealthCheckSetting(GroupName = "Service X", description: "Some description here")]
+    [HCSetting(GroupName = "Service X", Description = "Some description here")]
     public int NumberOfThings { get; set; } = 321;
+
+    [HCSetting(GroupName = "Service X", Description = "When to start")]
+    public DateTime StartAt { get; set; };
 }
 ```
 
 ```csharp
-// Retrieve settings using the GetValue method.
-service.GetValue<bool>(nameof(TestSettings.Enabled))
+// Retrieve settings model using the GetSettings<T> method.
+service.GetSettings<TestSettings>().Enabled
 ```
 
 </p>

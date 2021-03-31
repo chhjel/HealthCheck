@@ -49,6 +49,9 @@ namespace HealthCheck.Core.Attributes
             return flags;
         }
 
+        /// <summary></summary>
+        protected virtual Dictionary<string, string> GetExtraValues() => new();
+
         /// <summary>
         /// From backend to frontend.
         /// </summary>
@@ -103,7 +106,9 @@ namespace HealthCheck.Core.Attributes
                 DefaultValue = defaultValue,
                 Flags = attr?.CreateFlags() ?? new List<string>(),
                 ParameterIndex = null,
-                PossibleValues = possibleValues
+                PossibleValues = possibleValues,
+                ExtraValues = attr?.GetExtraValues() ?? new Dictionary<string, string>(),
+                PropertyInfo = property
             };
             modifier?.Invoke(config, property, GetFirst(property));
             return config;

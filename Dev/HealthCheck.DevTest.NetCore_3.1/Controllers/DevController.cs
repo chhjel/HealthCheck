@@ -22,7 +22,7 @@ using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload.FileStorage;
 using HealthCheck.Core.Modules.Settings;
 using HealthCheck.Core.Modules.Settings.Abstractions;
-using HealthCheck.Core.Modules.Settings.Attributes;
+using HealthCheck.Core.Modules.Settings.Services;
 using HealthCheck.Core.Modules.SiteEvents;
 using HealthCheck.Core.Modules.SiteEvents.Abstractions;
 using HealthCheck.Core.Modules.SiteEvents.Enums;
@@ -33,6 +33,7 @@ using HealthCheck.Core.Util;
 using HealthCheck.Dev.Common;
 using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.EventNotifier;
+using HealthCheck.Dev.Common.Settings;
 using HealthCheck.Module.DevModule;
 using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.Models;
@@ -72,7 +73,8 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             = new FlatFileEventSinkKnownEventDefinitionsStorage(@"c:\temp\eventconfig_defs.json");
         private static readonly FlatFileSecureFileDownloadDefinitionStorage FlatFileSecureFileDownloadDefinitionStorage
             = new FlatFileSecureFileDownloadDefinitionStorage(@"c:\temp\securefile_defs.json");
-        private IHealthCheckSettingsService SettingsService { get; set; } = new FlatFileHealthCheckSettingsService<TestSettings>(@"C:\temp\settings.json");
+        private static HCFlatFileStringDictionaryStorage _settingsStorage = new HCFlatFileStringDictionaryStorage(@"C:\temp\settings.json");
+        private IHCSettingsService SettingsService { get; set; } = new HCDefaultSettingsService(_settingsStorage);
         private IDataflowService<RuntimeTestAccessRole> DataflowService { get; set; }
         private IEventDataSink EventSink { get; set; }
         private static bool ForceLogout { get; set; }
@@ -129,7 +131,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             UseModule(new HCDataflowModule<RuntimeTestAccessRole>(new HCDataflowModuleOptions<RuntimeTestAccessRole>() { DataflowService = DataflowService }));
             UseModule(new HCAuditLogModule(new HCAuditLogModuleOptions() { AuditEventService = _auditEventService }));
             UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = _siteEventService }));
-            UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { SettingsService = SettingsService }));
+            UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { Service = SettingsService, ModelType = typeof(TestSettings) }));
 
             if (!_hasInited)
             {
@@ -261,21 +263,21 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 {
                     Url = Request.GetDisplayUrl(),
                     User = CurrentRequestInformation?.UserName,
-                    SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp),
+                    SettingValue = SettingsService.GetSettings<TestSettings>().IntProp,
                     ExtraB = "BBBB"
                 },
                 2 => new
                 {
                     Url = Request.GetDisplayUrl(),
                     User = CurrentRequestInformation?.UserName,
-                    SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp),
+                    SettingValue = SettingsService.GetSettings<TestSettings>().IntProp,
                     ExtraA = "AAAA"
                 },
                 _ => new
                 {
                     Url = Request.GetDisplayUrl(),
                     User = CurrentRequestInformation?.UserName,
-                    SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp)
+                    SettingValue = SettingsService.GetSettings<TestSettings>().IntProp
                 },
             };
             EventSink.RegisterEvent("pageload", payload);
@@ -311,29 +313,6 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 ForcedRole = (RuntimeTestAccessRole)Enum.Parse(typeof(RuntimeTestAccessRole), name);
                 return Content($"Role set to: {ForcedRole}.");
             }
-        }
-
-        public class TestSettings
-        {
-            [HealthCheckSetting(description: "Some description here")]
-            public string StringProp { get; set; }
-            public bool BoolProp { get; set; } = false;
-            public int IntProp { get; set; } = 15523;
-
-            [HealthCheckSetting(GroupName = "Service X")]
-            public bool EnableX { get; set; }
-
-            [HealthCheckSetting(GroupName = "Service X")]
-            public string ConnectionString { get; set; }
-
-            [HealthCheckSetting(GroupName = "Service X")]
-            public int Threads { get; set; } = 2;
-
-            [HealthCheckSetting(GroupName = "Service X")]
-            public int NumberOfThings { get; set; } = 321;
-
-            [HealthCheckSetting(GroupName = "Event Notifications")]
-            public bool EnableEventRegistering { get; set; }
         }
 
         private ILogSearcherService CreateLogSearcherService()
@@ -386,7 +365,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 .AddNotifier(new SimpleNotifier())
                 .AddPlaceholder("NOW", () => DateTimeOffset.Now.ToString())
                 .AddPlaceholder("ServerName", () => Environment.MachineName);
-            (EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableEventRegistering);
+            (EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetSettings<TestSettings>().EnableEventRegistering;
         }
 
         // New mock data

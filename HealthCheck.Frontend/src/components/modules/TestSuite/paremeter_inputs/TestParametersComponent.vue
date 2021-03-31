@@ -88,7 +88,9 @@ export default class TestParametersComponent extends Vue {
         Flags: flags,
         FullWidth: parameter.FullWidth,
         PossibleValues: parameter.PossibleValues,
-        ParameterIndex: index
+        ParameterIndex: index,
+        ExtraValues: {},
+        PropertyInfo: {}
       };
     }
 }

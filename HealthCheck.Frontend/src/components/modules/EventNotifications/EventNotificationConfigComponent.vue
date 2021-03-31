@@ -136,11 +136,6 @@
                     </v-btn>
                 </div>
                 
-
-                <code>
-                // todo: add support for action icons to new component
-                </code>
-                
                 <div v-for="(notifierConfigOption, ncoindex) in getNotifierConfigOptions(notifierConfig.Notifier, notifierConfig.Options)"
                     :key="`notifierConfig-${ncindex}-option-${ncoindex}`"
                     style="margin-left:20px">

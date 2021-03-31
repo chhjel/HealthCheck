@@ -15,4 +15,6 @@ export interface HCBackendInputConfig
 	Flags: string[];
 	PossibleValues: string[];
 	ParameterIndex: number | null;
+	ExtraValues: { [key:string]: string };
+	PropertyInfo: any;
 }

@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Attributes;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace HealthCheck.Core.Util.Models
 {
@@ -39,5 +40,11 @@ namespace HealthCheck.Core.Util.Models
         /// <summary></summary>
         [HCRtProperty(ForcedType = "number | null")]
         public int? ParameterIndex { get; set; }
+
+        /// <summary></summary>
+        public Dictionary<string, string> ExtraValues { get; set; }
+
+        /// <summary></summary>
+        internal PropertyInfo PropertyInfo { get; set; }
     }
 }

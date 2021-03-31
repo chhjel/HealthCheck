@@ -1,5 +1,5 @@
-﻿using HealthCheck.Core.Config;
-using HealthCheck.Core.Modules.Settings.Abstractions;
+﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Config;
 using HealthCheck.DevTest._TestImplementation.EndpointControl;
 using HealthCheck.DevTest.Controllers;
 using HealthCheck.Module.EndpointControl.Abstractions;
@@ -18,7 +18,6 @@ using System.Web.Hosting;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Routing;
-using static HealthCheck.DevTest.Controllers.DevController;
 
 namespace HealthCheck.DevTest
 {
@@ -57,7 +56,7 @@ namespace HealthCheck.DevTest
 
         private static readonly FlatFileEndpointControlRuleStorage _endpointControlRuleStorage
             = new FlatFileEndpointControlRuleStorage(@"c:\temp\EC_Rules.json");
-        private readonly IHealthCheckSettingsService _settingsService = new FlatFileHealthCheckSettingsService<TestSettings>(@"C:\temp\settings.json");
+        private static readonly IHCStringDictionaryStorage _settingsService = new HCFlatFileStringDictionaryStorage(@"C:\temp\settings.json");
 
         private void SetupDummyIoC()
         {
@@ -105,7 +104,7 @@ namespace HealthCheck.DevTest
                 {
                     return _endpointControlHistoryStorage;
                 }
-                else if (type == typeof(IHealthCheckSettingsService))
+                else if (type == typeof(IHCStringDictionaryStorage))
                 {
                     return _settingsService;
                 }

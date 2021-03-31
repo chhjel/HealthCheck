@@ -6,6 +6,8 @@ using HealthCheck.Core.Modules.AuditLog.Services;
 using HealthCheck.Core.Modules.EventNotifications.Abstractions;
 using HealthCheck.Core.Modules.Messages.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
+using HealthCheck.Core.Modules.Settings.Abstractions;
+using HealthCheck.Core.Modules.Settings.Services;
 using HealthCheck.Core.Modules.SiteEvents.Abstractions;
 using System;
 using System.Collections.Generic;
@@ -112,6 +114,13 @@ namespace HealthCheck.WebUI.Services
                 AddItem(instances, typeof(ISiteEventStorage), new object[] {
                     new FlatFileSiteEventStorage(CreatePath(@"SiteEvent_Storage.json"),
                         maxEventAge: TimeSpan.FromDays(30), delayFirstCleanup: false)
+                });
+            }
+
+            if (includeType(HCModuleType.Settings))
+            {
+                AddItem(instances, typeof(IHCSettingsService), new object[] {
+                    new HCDefaultSettingsService(new HCFlatFileStringDictionaryStorage(CreatePath(@"Settings_Storage.json")))
                 });
             }
 
