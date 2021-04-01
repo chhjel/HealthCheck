@@ -6,6 +6,7 @@
             class="pt-0"
             v-model="localValue"
             :placeholder="placeholderText"
+            :disabled="readonly"
             required />
     </div>
 </template>
@@ -24,6 +25,9 @@ export default class ParameterInputTypeSingleComponent extends Vue {
 
     @Prop({ required: true })
     config!: HCBackendInputConfig;
+
+    @Prop({ required: false, default: false })
+    readonly!: boolean;
 
     localValue: string | null = '';
     

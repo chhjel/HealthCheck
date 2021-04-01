@@ -6,7 +6,8 @@
                 type="file"
                 @change="onFileChanged"
                 ref="fileinput"
-                style="width:100%" />
+                style="width:100%"
+                :disabled="readonly" />
             
             <v-flex xs2
                 :xs3="isListItem"
@@ -47,6 +48,9 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
 
     @Prop({ required: false })
     isListItem!: boolean;
+
+    @Prop({ required: false, default: false })
+    readonly!: boolean;
 
     localValue: string | null = '';
     

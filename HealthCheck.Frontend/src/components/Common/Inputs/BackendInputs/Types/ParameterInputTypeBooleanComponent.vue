@@ -6,12 +6,14 @@
             :label="label"
             color="secondary"
             class="parameter-checkbox pt-0 mt-2"
+            :disabled="readonly"
         ></v-switch>
 
         <v-checkbox v-if="isNullable"
             v-model="nullableCheckboxState"
             :indeterminate="localValue == null" 
             :label="label"
+            :disabled="readonly"
             @click="setNextState"
             color="secondary"
             class="parameter-checkbox pt-0 mt-2"
@@ -33,6 +35,9 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
 
     @Prop({ required: true })
     config!: HCBackendInputConfig;
+
+    @Prop({ required: false, default: false })
+    readonly!: boolean;
 
     localValue: any = false;
     nullableCheckboxState: boolean = false;
@@ -61,6 +66,11 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
     }
 
     setNextState(): void {
+        if (this.readonly)
+        {
+            return;
+        }
+        
         if (this.localValue == null) {
             this.localValue = "true";
         } else if (this.isTrue) {

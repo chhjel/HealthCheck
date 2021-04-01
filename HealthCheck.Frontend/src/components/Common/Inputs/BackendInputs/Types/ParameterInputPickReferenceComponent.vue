@@ -40,6 +40,7 @@
                         <v-btn
                             @click="selectChoice(choice)"
                             :color="choiceColor(choice)"
+                            :disabled="readonly"
                             >
                             {{ choice.Name }}
                         </v-btn>
@@ -80,6 +81,9 @@ export default class ParameterInputPickReferenceComponent extends Vue {
 
     @Prop({ required: false })
     isListItem!: boolean;
+
+    @Prop({ required: false, default: false })
+    readonly!: boolean;
 
     // Service
     loadingChoicesStatus: FetchStatus = new FetchStatus();

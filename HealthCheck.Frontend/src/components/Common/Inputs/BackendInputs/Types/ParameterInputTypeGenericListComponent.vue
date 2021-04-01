@@ -13,7 +13,7 @@
                             <v-icon class="handle-icon">drag_handle</v-icon>
                         </v-list-tile-action>
                         <v-list-tile-action v-if="!isReadOnlyList" @click="removeItem(itemIndex)">
-                            <v-btn flat icon color="error">
+                            <v-btn flat icon color="error" :disabled="readonly">
                                 <v-icon>remove</v-icon>
                             </v-btn>
                         </v-list-tile-action>
@@ -30,7 +30,7 @@
                 </template>
             </draggable>
         </v-list>
-        <v-btn v-if="!isReadOnlyList" small color="primary" @click="addNewItem()">
+        <v-btn v-if="!isReadOnlyList" small color="primary" @click="addNewItem()" :disabled="readonly">
             <v-icon>add</v-icon>
         </v-btn>
     </div>
@@ -71,6 +71,9 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
 
     @Prop({ required: true })
     config!: HCBackendInputConfig;
+
+    @Prop({ required: false, default: false })
+    readonly!: boolean;
 
     localValue: string | null = '';
     items: Array<string | null> = [];

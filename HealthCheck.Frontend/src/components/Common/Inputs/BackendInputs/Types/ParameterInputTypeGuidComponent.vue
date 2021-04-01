@@ -7,6 +7,7 @@
                     class="pt-0"
                     v-model="localValue"
                     :placeholder="placeholderText"
+                    :disabled="readonly"
                     required />
             </v-flex>
 
@@ -19,7 +20,7 @@
                         <span v-on="on">
                             <v-btn flat icon color="primary" class="ma-0 pa-0"
                                 @click="setValueToNull"
-                                :disabled="localValue == null">
+                                :disabled="localValue == null || readonly">
                                 <v-icon>clear</v-icon>
                             </v-btn>
                         </span>
@@ -49,6 +50,9 @@ export default class ParameterInputTypeGuidComponent extends Vue {
 
     @Prop({ required: true })
     config!: HCBackendInputConfig;
+
+    @Prop({ required: false, default: false })
+    readonly!: boolean;
 
     localValue: string | null = '';
     

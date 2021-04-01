@@ -4,6 +4,7 @@
         <parameter-input-type-enum-component
             v-model="localValue"
             :config="config"
+            :readonly="readonly"
             :multiple="true" />
     </div>
 </template>
@@ -24,6 +25,9 @@ export default class ParameterInputTypeFlaggedEnumComponent extends Vue {
 
     @Prop({ required: true })
     config!: HCBackendInputConfig;
+
+    @Prop({ required: false, default: false })
+    readonly!: boolean;
 
     localValue: any = "";
 

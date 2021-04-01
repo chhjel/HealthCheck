@@ -26,7 +26,7 @@
                         class="editor"
                         :language="'json'"
                         v-model="localValue"
-                        :read-only="false"
+                        :read-only="readonly"
                         ref="editor"/>
                         
                 </v-card-text>
@@ -76,6 +76,9 @@ export default class ParameterInputAnyJsonComponent extends Vue {
 
     @Prop({ required: false })
     isListItem!: boolean;
+
+    @Prop({ required: false, default: false })
+    readonly!: boolean;
 
     editorDialogVisible: boolean = false;
     

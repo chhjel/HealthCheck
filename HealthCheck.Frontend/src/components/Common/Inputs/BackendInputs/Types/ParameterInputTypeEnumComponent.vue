@@ -6,6 +6,7 @@
             :items="items"
             :multiple="multiple"
             :chips="multiple"
+            :disabled="readonly"
             v-on:change="onChanged"
             color="secondary"
             class="parameter-select pt-0">
@@ -30,6 +31,9 @@ export default class ParameterInputTypeEnumComponent extends Vue {
 
     @Prop({ required: false, default: false })
     multiple!: boolean;
+
+    @Prop({ required: false, default: false })
+    readonly!: boolean;
 
     localValue: string | string[] = "";
     
