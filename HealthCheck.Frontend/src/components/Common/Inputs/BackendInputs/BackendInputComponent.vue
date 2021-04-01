@@ -233,6 +233,8 @@ export default class BackendInputComponent extends Vue {
 <style scoped>
 .parameter-header {
     text-align: left;
+    display: flex;
+    align-items: center;
 }
 .parameter-name {
     display: inline-block;
@@ -249,13 +251,15 @@ export default class BackendInputComponent extends Vue {
 .parameter-help-icon {
     user-select: none;
     font-size: 20px !important;
+    margin-left: 4px;
 }
 .parameter-help-icon:hover {
     color: #1976d2;
 }
 .parameter-action-icon {
     user-select: none;
-    font-size: 20px !important;
+    font-size: 24px !important;
+    margin-left: 4px;
 }
 .parameter-action-icon:hover {
     color: #1976d2;
