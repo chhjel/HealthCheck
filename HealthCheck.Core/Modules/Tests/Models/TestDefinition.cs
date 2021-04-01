@@ -223,8 +223,14 @@ namespace HealthCheck.Core.Modules.Tests.Models
         private RuntimeTestReferenceParameterFactory TryFindParameterFactory(
             string referenceChoicesFactoryMethodName, ParameterInfo parameter)
         {
+            var type = parameter.ParameterType;
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                type = type.GetGenericArguments()[0];
+            }
+
             // First check proxy config
-            var factoryFromProxyConfig = ClassProxyConfig?.GetFactoryForType(parameter.ParameterType);
+            var factoryFromProxyConfig = ClassProxyConfig?.GetFactoryForType(type);
             if (factoryFromProxyConfig != null)
             {
                 return factoryFromProxyConfig;
@@ -242,7 +248,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
                     try
                     {
                         var factories = factoryProviderMethod.Invoke(null, new object[0]) as List<RuntimeTestReferenceParameterFactory>;
-                        var factory = factories.FirstOrDefault(x => x.CanFactorizeFor(parameter.ParameterType));
+                        var factory = factories.FirstOrDefault(x => x.CanFactorizeFor(type));
                         if (factory != null)
                         {
                             return factory;
@@ -253,7 +259,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
             }
 
             // Finally check global testmodule config factories
-            return _referenceParameterFactories?.FirstOrDefault(x => x.CanFactorizeFor(parameter.ParameterType));
+            return _referenceParameterFactories?.FirstOrDefault(x => x.CanFactorizeFor(type));
         }
 
         private List<object> GetPossibleValues(Type parameterType)

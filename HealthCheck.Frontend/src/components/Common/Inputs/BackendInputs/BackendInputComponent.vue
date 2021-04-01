@@ -23,6 +23,8 @@
             :listType="genericListInputType"
             :isListItem="isListItem"
             :readonly="readonly"
+            :isCustomReferenceType="isCustomReferenceType"
+            @isAnyJson="notifyIsAnyJson()"
             v-on:disableInputHeader="disableInputHeader">
         </component>
     </div>
@@ -49,6 +51,7 @@ import ParameterInputTypeHttpPostedFileBaseComponent from './Types/ParameterInpu
 import ParameterInputPickReferenceComponent from './Types/ParameterInputPickReferenceComponent.vue';
 import ParameterInputTypeGuidComponent from "./Types/ParameterInputTypeGuidComponent.vue";
 import ParameterInputAnyJsonComponent from "./Types/ParameterInputAnyJsonComponent.vue";
+import { TestModuleOptions } from "components/modules/TestSuite/TestSuitesPageComponent.vue";
 
 @Component({
     components: {
@@ -91,8 +94,8 @@ export default class BackendInputComponent extends Vue {
     @Prop({ required: false, default: false })
     isListItem!: boolean;
 
-    @Prop({ required: false, default: true })
-    allowJsonInput!: boolean;
+    // @Prop({ required: false, default: true })
+    // allowJsonInput!: boolean;
 
     @Prop({ required: false, default: false })
     readonly!: boolean;
@@ -110,6 +113,11 @@ export default class BackendInputComponent extends Vue {
     mounted(): void {
         this.updateLocalValue();
         this.emitLocalValue();
+
+        if (this.isListItem)
+        {
+            this.disableInputHeader();
+        }
     }
 
     disableInputHeader(): void {
@@ -119,10 +127,22 @@ export default class BackendInputComponent extends Vue {
     toggleDescription(): void {
         this.showDescription = !this.showDescription;
     }
+
+    notifyIsAnyJson(): void {
+        this.$emit('isAnyJson');
+    }
     
     ////////////////
     //  GETTERS  //
     //////////////
+    get testsOptions(): TestModuleOptions {
+        return this.$store.state.tests.options;
+    }
+
+    get allowJsonInput(): boolean {
+        return this.testsOptions.AllowAnyParameterType;
+    }
+
     get showActionIcon(): boolean {
         return !!this.actionIcon && this.actionIcon.length > 0;
     }
@@ -169,15 +189,19 @@ export default class BackendInputComponent extends Vue {
     
     get inputComponentName(): string
     {
-        if (this.isCustomReferenceType)
-        {
-            return 'ParameterInputPickReferenceComponent';
-        }
-
         let typeName = this.resolvedType;
         let genericType = this.genericListInputType;
+        // const isList = genericType != null;
+        // if (this.isCustomReferenceType && isList)
+        // {
+        //     return 'ParameterInputTypeGenericListComponent';
+        // }
         if (genericType != null) {
             return "ParameterInputTypeGenericListComponent";
+        }
+        else if (this.isCustomReferenceType)
+        {
+            return 'ParameterInputPickReferenceComponent';
         }
 
         typeName = typeName.replace('<', '').replace('>', '');
@@ -190,7 +214,7 @@ export default class BackendInputComponent extends Vue {
         }
         else if (this.allowJsonInput)
         {
-            this.$emit('isAnyJson');
+            this.notifyIsAnyJson();
             return "ParameterInputAnyJsonComponent";
         }
         else {

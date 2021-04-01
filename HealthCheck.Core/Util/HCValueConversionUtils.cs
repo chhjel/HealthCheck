@@ -102,7 +102,38 @@ namespace HealthCheck.Core.Util
         public static object ConvertInput(HCValueInput input, StringConverter stringConverter = null)
         {
             object convertedObject = null;
-            if (input.IsJson)
+            var isList = input.Type.IsGenericType && input.Type.GetGenericTypeDefinition() == typeof(List<>);
+            if (input.IsJson && isList)
+            {
+                var itemJsons = TestRunnerService.Serializer?.Deserialize(input.Value, typeof(string[])) as string[]
+                    ?? new string[0];
+                var error = TestRunnerService.Serializer?.LastError;
+                if (!string.IsNullOrWhiteSpace(error))
+                {
+                    throw new HCException(error);
+                }
+
+                var itemType = input.Type.GetGenericArguments()[0];
+                var list = Activator.CreateInstance(input.Type) as System.Collections.IList;
+                foreach (var json in itemJsons)
+                {
+                    if (json == null)
+                    {
+                        list.Add(null);
+                        continue;
+                    }
+
+                    var item = TestRunnerService.Serializer?.Deserialize(json, itemType);
+                    error = TestRunnerService.Serializer?.LastError;
+                    if (!string.IsNullOrWhiteSpace(error))
+                    {
+                        throw new HCException(error);
+                    }
+                    list.Add(item);
+                }
+                convertedObject = list;
+            }
+            else if (input.IsJson)
             {
                 convertedObject = TestRunnerService.Serializer?.Deserialize(input.Value, input.Type);
                 var error = TestRunnerService.Serializer?.LastError;
@@ -114,7 +145,23 @@ namespace HealthCheck.Core.Util
             else if (input.IsCustomReferenceType && !string.IsNullOrWhiteSpace(input.Value))
             {
                 var factory = input.ParameterFactoryFactory();
-                convertedObject = factory?.GetInstanceByIdFor(input.Type, input.Value);
+
+                if (isList)
+                {
+                    var ids = TestRunnerService.Serializer?.Deserialize(input.Value, typeof(string[])) as string[] ?? new string[0];
+                    var list = Activator.CreateInstance(input.Type) as System.Collections.IList;
+                    var itemType = input.Type.GetGenericArguments()[0];
+                    foreach (var id in ids)
+                    {
+                        var item = factory?.GetInstanceByIdFor(itemType, id);
+                        list.Add(item);
+                    }
+                    convertedObject = list;
+                }
+                else
+                {
+                    convertedObject = factory?.GetInstanceByIdFor(input.Type, input.Value);
+                }
             }
             else if (!input.IsCustomReferenceType)
             {

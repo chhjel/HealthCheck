@@ -188,6 +188,10 @@ export default class ParameterInputAnyJsonComponent extends Vue {
     @Watch('localValue')
     onLocalValueChanged(): void
     {
+        // if (this.isListItem)
+        // {
+        //     this.$emit('input', JSON.parse(this.localValue || ''));
+        // }
         this.$emit('input', this.localValue);
     }
 }

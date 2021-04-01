@@ -15,7 +15,7 @@
                       :forceDescription="parameter.Description"
                       :isCustomReferenceType="parameter.IsCustomReferenceType"
                       :config="createConfig(parameter, index)"
-                      @isAnyJson="parameter.IsUnsupportedJson = true" />
+                      @isAnyJson="onIsAnyJson(parameter)" />
               </v-flex>
           </v-layout>
         </v-container>
@@ -92,6 +92,10 @@ export default class TestParametersComponent extends Vue {
         ExtraValues: {},
         PropertyInfo: {}
       };
+    }
+
+    onIsAnyJson(parameter: TestParameterViewModel): void {
+      parameter.IsUnsupportedJson = true;
     }
 
     get filteredParameters(): Array<TestParameterViewModel> {

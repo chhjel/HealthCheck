@@ -292,11 +292,6 @@ export default class AuditLogPageComponent extends Vue {
 
     tableSorter(items: AuditEventViewModel[], index: string, isDescending: boolean): AuditEventViewModel[]
     {
-        // console.log({ 
-        //     items: items,
-        //     index: index,
-        //     isDescending: isDescending
-        // });
         if (index == null) {
             // Do nothing
         }

@@ -194,8 +194,14 @@ namespace HealthCheck.Core.Modules.Tests
                 return Enumerable.Empty<RuntimeTestReferenceParameterChoice>();
             }
 
+            var type = parameter.ParameterType;
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                type = type.GetGenericArguments()[0];
+            }
+
             var factory = parameter.GetParameterFactory(test);
-            return factory.GetChoicesFor(parameter.ParameterType, data.Filter)
+            return factory.GetChoicesFor(type, data.Filter)
                 ?? Enumerable.Empty<RuntimeTestReferenceParameterChoice>();
         }
         #endregion

@@ -1163,11 +1163,9 @@ namespace CodeTesting
     onNotAllowedModuleSwitch(): void {
         this.confirmUnsavedChanges()
             .then((confirmed) => {
-                console.log(`onNotAllowedModuleSwitch`, confirmed, this.currentScript);
                 if (confirmed && this.currentScript != null)
                 {
                     this.code = this.currentScript.Code;
-                    console.log(`this.code`, this.code);
                     setTimeout(() => (this.$parent.$parent as HealthCheckPageComponent).retryShowModule(), 50);
                 }
             });

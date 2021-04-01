@@ -18,12 +18,15 @@
                             </v-btn>
                         </v-list-tile-action>
                         <v-list-tile-content style="overflow: visible">
-                            <backend-input-component v-if="!isReadOnlyList" 
+                            <backend-input-component v-if="!isReadOnlyList"
+                                :key="`${id}-item-input-${itemIndex}`"
                                 :forceType="listType"
                                 forceName=""
                                 v-model="items[itemIndex]"
                                 :config="config"
-                                :isListItem="true" />
+                                :isListItem="true"
+                                :isCustomReferenceType="isCustomReferenceType"
+                                @isAnyJson="notifyIsAnyJson()" />
                             <span v-if="isReadOnlyList">{{ items[itemIndex] }}</span>
                         </v-list-tile-content>
                     </v-list-tile>
@@ -75,6 +78,9 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
     @Prop({ required: false, default: false })
     readonly!: boolean;
 
+    @Prop({ required: false, default: false })
+    isCustomReferenceType!: boolean;
+
     localValue: string | null = '';
     items: Array<string | null> = [];
     id: string = IdUtils.generateId();
@@ -98,6 +104,10 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
 
     get isReadOnlyList(): boolean {
         return this.config.Flags.includes("ReadOnlyList");
+    }
+
+    notifyIsAnyJson(): void {
+        this.$emit('isAnyJson');
     }
     
     @Watch('items', {

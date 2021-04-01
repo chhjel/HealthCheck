@@ -85,11 +85,17 @@ namespace HealthCheck.Core.Modules.Tests.Models
         {
             if (IsCustomReferenceType)
             {
-                if (test?.ClassProxyConfig?.GetFactoryForType(ParameterType) != null)
+                var type = ParameterType;
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
                 {
-                    return test.ClassProxyConfig.GetFactoryForType(ParameterType);
+                    type = type.GetGenericArguments()[0];
                 }
-                else if (ReferenceFactory?.CanFactorizeFor(ParameterType) != null)
+
+                if (test?.ClassProxyConfig?.GetFactoryForType(type) != null)
+                {
+                    return test.ClassProxyConfig.GetFactoryForType(type);
+                }
+                else if (ReferenceFactory?.CanFactorizeFor(type) != null)
                 {
                     return ReferenceFactory;
                 }
