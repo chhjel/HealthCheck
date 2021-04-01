@@ -31,6 +31,12 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 var parameter = test.Parameters[i];
                 var inputData = Parameters[i];
 
+                if (parameter.IsOut)
+                {
+                    objects[i] = null;
+                    continue;
+                }
+
                 var conversionInput = new HCValueInput
                 {
                     Value = inputData.Value,

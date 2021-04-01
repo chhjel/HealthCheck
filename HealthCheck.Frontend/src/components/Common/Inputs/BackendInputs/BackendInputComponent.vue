@@ -109,6 +109,7 @@ export default class BackendInputComponent extends Vue {
 
     mounted(): void {
         this.updateLocalValue();
+        this.emitLocalValue();
     }
 
     disableInputHeader(): void {

@@ -18,7 +18,19 @@ namespace HealthCheck.Dev.Common.Tests
             intTest = 123;
             complexTest = new ComplexDumy
             {
-                Value = "Complex"
+                Value = "Complex" + somethingStr
+            };
+            return TestResult.CreateSuccess($"Success hopefully. [{somethingStr}, {somethingInt}]");
+        }
+
+        [RuntimeTest]
+        public TestResult TestWithRefsParameters(string somethingStr, ref bool boolTest, int somethingInt, ref ComplexDumy complexTestRef, ref int intTest)
+        {
+            boolTest = true;
+            intTest = 123;
+            complexTestRef = new ComplexDumy
+            {
+                Value = "Complex" + somethingStr
             };
             return TestResult.CreateSuccess($"Success hopefully. [{somethingStr}, {somethingInt}]");
         }

@@ -12,6 +12,7 @@ export default interface TestParameterViewModel {
     FullWidth: boolean;
     IsCustomReferenceType: boolean;
     IsUnsupportedJson: boolean;
+    Hidden: boolean;
 }
 
 export interface TestParameterReferenceChoiceViewModel {

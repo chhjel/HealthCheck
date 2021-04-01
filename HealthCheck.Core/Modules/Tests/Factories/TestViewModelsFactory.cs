@@ -116,7 +116,8 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 ReadOnlyList = testParameter.ReadOnlyList,
                 ShowTextArea = testParameter.ShowTextArea,
                 FullWidth = testParameter.FullWidth,
-                IsCustomReferenceType = testParameter.IsCustomReferenceType
+                IsCustomReferenceType = testParameter.IsCustomReferenceType,
+                Hidden = testParameter.IsOut
             };
 
             return vm;
@@ -146,9 +147,11 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         {
             var parameters = testDefinitions.SelectMany(x => x.Tests.SelectMany(t => t.Parameters));
             var relevantParameters = parameters
+                .Where(x => !x.IsOut
+                    && !x.IsCustomReferenceType 
+                    && !TestsModuleUtils.IsBuiltInSupportedType(x.ParameterType))
                 .GroupBy(x => x.ParameterType.Name)
                 .Select(x => x.First())
-                .Where(x => !x.IsCustomReferenceType && !TestsModuleUtils.IsBuiltInSupportedType(x.ParameterType))
                 .ToArray();
 
             return relevantParameters.Select(x =>
@@ -159,7 +162,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                     if (HCGlobalConfig.AllowSerializingType(x.ParameterType))
                     {
                         var ctors = x.ParameterType.GetConstructors();
-                        var hasParameterlessConstructor = ctors?.Any() != true || ctors?.Any(x => x.GetParameters().Length == 0) == true;
+                        var hasParameterlessConstructor = ctors?.Any() != true || ctors?.Any(c => c.GetParameters().Length == 0) == true;
                         if (hasParameterlessConstructor)
                         {
                             var instance = Activator.CreateInstance(x.ParameterType);

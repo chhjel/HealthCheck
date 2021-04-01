@@ -4,7 +4,7 @@
         <v-container grid-list-lg class="parameter-container">
           <v-layout row wrap>
               <v-flex xs12 sm12 :md6="allowMediumSize(parameter)" :lg3="allowSmallSize(parameter)"
-                  v-for="(parameter, index) in test.Parameters"
+                  v-for="(parameter, index) in filteredParameters"
                   :key="`test-${test.Id}-parameter`+index"
                   class="parameter-block">
 
@@ -92,6 +92,10 @@ export default class TestParametersComponent extends Vue {
         ExtraValues: {},
         PropertyInfo: {}
       };
+    }
+
+    get filteredParameters(): Array<TestParameterViewModel> {
+      return this.test.Parameters.filter(x => !x.Hidden);
     }
 }
 </script>

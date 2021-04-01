@@ -38,7 +38,10 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
     nullableCheckboxState: boolean = false;
     
     mounted(): void {
-        this.updateLocalValue();
+        this.$nextTick(() => {
+            this.updateLocalValue();
+            this.onLocalValueChanged();
+        });
     }
 
     validateValue(): void {
@@ -55,7 +58,6 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
         {
             this.localValue = this.valueIsTrue(this.localValue);
         }
-
     }
 
     setNextState(): void {

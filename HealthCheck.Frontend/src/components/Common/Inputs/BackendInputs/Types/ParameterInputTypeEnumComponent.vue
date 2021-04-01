@@ -34,7 +34,10 @@ export default class ParameterInputTypeEnumComponent extends Vue {
     localValue: string | string[] = "";
     
     mounted(): void {
-        this.updateLocalValue();
+        this.$nextTick(() => {
+            this.updateLocalValue();
+            this.onChanged();
+        });
     }
 
     /////////////////
