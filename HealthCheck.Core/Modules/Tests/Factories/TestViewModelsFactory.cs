@@ -123,9 +123,13 @@ namespace HealthCheck.Core.Modules.Tests.Factories
             return vm;
         }
 
+        private static readonly Dictionary<string, string> _inputTypeAliases = new Dictionary<string, string>
+        {
+            { "IFormFile", "HttpPostedFileBase" }
+        };
         private string CreateParameterTypeName(Type type)
         {
-            var typeName = type.GetFriendlyTypeName();
+            var typeName = type.GetFriendlyTypeName(_inputTypeAliases);
             if (type.IsEnum)
             {
                 typeName = EnumUtils.IsTypeEnumFlag(type) ? "FlaggedEnum" : "Enum";

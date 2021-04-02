@@ -25,6 +25,12 @@ using System.IO;
 using System.Web;
 #endif
 
+#if NETCORE
+using System.IO;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
+#endif
+
 namespace HealthCheck.WebUI.Util
 {
     /// <summary>
@@ -633,7 +639,28 @@ namespace HealthCheck.WebUI.Util
         #region Init module extras
         private void InitStringConverter(StringConverter converter)
         {
-            // Only handles files for .net framework for now
+#if NETCORE
+            converter.RegisterConverter<IFormFile>(
+                (input) => ConvertInputToMemoryFile(input),
+                (file) => null);
+
+            converter.RegisterConverter<List<IFormFile>>(
+                (input) =>
+                {
+                    var list = new List<IFormFile>();
+                    if (input == null || string.IsNullOrWhiteSpace(input)) return list;
+
+                    var listItems = JsonConvert.DeserializeObject<List<string>>(input);
+                    list.AddRange(
+                        listItems
+                        .Select(x => ConvertInputToMemoryFile(x))
+                        .Where(x => x != null)
+                    );
+
+                    return list;
+                },
+                (file) => null);
+#endif
 #if NETFULL
             converter.RegisterConverter<HttpPostedFileBase>(
                 (input) => ConvertInputToMemoryFile(input),
@@ -657,6 +684,20 @@ namespace HealthCheck.WebUI.Util
                 (file) => null);
 #endif
         }
+
+#if NETCORE
+        private IFormFile ConvertInputToMemoryFile(string input)
+        {
+            if (input == null) return null;
+
+            var parts = input.Split('|');
+            if (parts.Length < 3) return null;
+
+            var bytes = Convert.FromBase64String(parts[2]);
+
+            return new FormFile(new MemoryStream(bytes), 0, bytes.Length, "Data", parts[1]);
+        }
+#endif
 
 #if NETFULL
         private MemoryFile ConvertInputToMemoryFile(string input)

@@ -171,6 +171,7 @@ export default class BackendInputComponent extends Vue {
         {
             return this.config.Type;
         }
+
         return this.forceType;
     }
 

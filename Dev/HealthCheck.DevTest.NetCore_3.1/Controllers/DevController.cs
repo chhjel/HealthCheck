@@ -29,11 +29,13 @@ using HealthCheck.Core.Modules.SiteEvents.Enums;
 using HealthCheck.Core.Modules.SiteEvents.Models;
 using HealthCheck.Core.Modules.SiteEvents.Services;
 using HealthCheck.Core.Modules.Tests;
+using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Util;
 using HealthCheck.Dev.Common;
 using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.EventNotifier;
 using HealthCheck.Dev.Common.Settings;
+using HealthCheck.Dev.Common.Tests;
 using HealthCheck.Module.DevModule;
 using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.Models;
@@ -105,7 +107,8 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                     {
                         typeof(DevController).Assembly,
                         typeof(RuntimeTestConstants).Assembly
-                    }
+                    },
+                ReferenceParameterFactories = CreateReferenceParameterFactories
             }))
                 .ConfigureGroups((options) => options
                     .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
@@ -139,11 +142,36 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             }
         }
 
+        private List<RuntimeTestReferenceParameterFactory> CreateReferenceParameterFactories()
+        {
+            var getUserChoices = new Func<IEnumerable<CustomReferenceType>>(() =>
+                Enumerable.Range(1, 50).Select(x => new CustomReferenceType { Id = x, Title = $"Item #{x}" })
+            );
+
+            return new List<RuntimeTestReferenceParameterFactory>()
+            {
+                new RuntimeTestReferenceParameterFactory(
+                    typeof(CustomReferenceType),
+                    (filter) => getUserChoices()
+                        .Where(x => string.IsNullOrWhiteSpace(filter) || x.Title.Contains(filter) || x.Id.ToString().Contains(filter))
+                        .Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Title)),
+                    (id) => getUserChoices().FirstOrDefault(x => x.Id.ToString() == id)
+                )
+            };
+        }
         #region Overrides
         protected override HCFrontEndOptions GetFrontEndOptions()
             => new HCFrontEndOptions(EndpointBase)
             {
-                ApplicationTitle = "HealthCheck"
+                ApplicationTitle = "HealthCheck",
+                ApplicationTitleLink = "/?sysadmin=x&webadmin=1",
+                EditorConfig = new HCFrontEndOptions.EditorWorkerConfig
+                {
+                    //EditorWorkerUrl = "blob:https://unpkg.com/christianh-healthcheck@3.0.5/editor.worker.js",
+                    //JsonWorkerUrl = "blob:https://unpkg.com/christianh-healthcheck@3.0.5/json.worker.js"
+                    EditorWorkerUrl = $"{EndpointBase.TrimEnd('/')}/getscript?name=editor.worker.js",
+                    JsonWorkerUrl = $"{EndpointBase.TrimEnd('/')}/getscript?name=json.worker.js"
+                }
             };
 
         protected override HCPageOptions GetPageOptions()

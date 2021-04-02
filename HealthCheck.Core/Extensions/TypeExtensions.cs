@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -24,7 +26,7 @@ namespace HealthCheck.Core.Extensions
         /// <summary>
         /// Get a prettier name for the type.
         /// </summary>
-        public static string GetFriendlyTypeName(this Type type)
+        public static string GetFriendlyTypeName(this Type type, Dictionary<string, string> aliases = null)
         {
             if (type == null)
             {
@@ -51,12 +53,24 @@ namespace HealthCheck.Core.Extensions
                 for (int i = 0; i < typeParameters.Length; ++i)
                 {
                     string typeParamName = GetFriendlyTypeName(typeParameters[i]);
+                    typeParamName = ResolveInputTypeAlias(typeParamName, aliases);
                     friendlyNameBuilder.Append(i == 0 ? typeParamName : "," + typeParamName);
                 }
                 friendlyNameBuilder.Append(">");
             }
 
-            return friendlyNameBuilder.ToString();
+
+            var resolvedName = friendlyNameBuilder.ToString();
+            return ResolveInputTypeAlias(resolvedName, aliases);
+        }
+
+        private static string ResolveInputTypeAlias(string name, Dictionary<string, string> aliases = null)
+        {
+            if (aliases?.Any() != true)
+            {
+                return name;
+            }
+            return aliases.ContainsKey(name) ? aliases[name] : name;
         }
     }
 }
