@@ -56,6 +56,7 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
     
     mounted(): void {
         this.updateLocalValue();
+        this.onLocalValueChanged();
     }
 
     getReadableFileSize(bytes: number, si: boolean = true): string
@@ -97,6 +98,10 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
     updateLocalValue(): void
     {
         this.localValue = this.value;
+        if (this.localValue && !this.localValue.includes('|'))
+        {
+            this.localValue = null;
+        }
     }
 
     @Watch('localValue')
