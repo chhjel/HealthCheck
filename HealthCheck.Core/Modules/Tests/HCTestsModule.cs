@@ -117,7 +117,7 @@ namespace HealthCheck.Core.Modules.Tests
                 TestSets = TestsViewModelsFactory.CreateViewModel(testDefinitions, _options),
                 GroupOptions = TestsViewModelsFactory.CreateViewModel(GroupOptions),
                 InvalidTests = invalidTests.Select(x => (TestsViewModelsFactory.CreateViewModel(x))).ToList(),
-                ParameterTemplateValues = TestsViewModelsFactory.CreateParameterTemplatesViewModel(testDefinitions)
+                ParameterTemplateValues = TestsViewModelsFactory.CreateParameterTemplatesViewModel(testDefinitions, _options)
             };
             return model;
         }

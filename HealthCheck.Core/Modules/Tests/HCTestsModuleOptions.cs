@@ -23,6 +23,12 @@ namespace HealthCheck.Core.Modules.Tests
         public Func<List<RuntimeTestReferenceParameterFactory>> ReferenceParameterFactories { get; set; }
 
         /// <summary>
+        /// To improve default json values, you can specify an instance factory to be serialized as a template here.
+        /// <para>If null is returned no template will be used.</para>
+        /// </summary>
+        public Func<Type, HCTestsJsonTemplateResult> JsonInputTemplateFactory { get; set; }
+
+        /// <summary>
         /// If enabled, any parameter non-supported parameter type will be attempted supported through json-serialization.
         /// <para>Defaults to true.</para>
         /// </summary>

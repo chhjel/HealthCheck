@@ -162,6 +162,14 @@ namespace HealthCheck.DevTest.Controllers
             UseModule(new HCTestsModule(new HCTestsModuleOptions() {
                     AssembliesContainingTests = assemblies,
                     ReferenceParameterFactories = CreateReferenceParameterFactories
+                    //JsonInputTemplateFactory = (type) =>
+                    //{
+                    //    if (type == typeof(System.Net.Mail.MailMessage))
+                    //    {
+                    //        return HCTestsJsonTemplateResult.CreateNoTemplate();
+                    //    }
+                    //    return HCTestsJsonTemplateResult.CreateDefault();
+                    //}
             }))
                 .ConfigureGroups((options) => options
                     .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)

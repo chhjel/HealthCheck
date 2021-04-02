@@ -151,7 +151,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         /// <summary>
         /// Create template values for any unsupported types.
         /// </summary>
-        public List<TestParameterTemplateViewModel> CreateParameterTemplatesViewModel(List<TestClassDefinition> testDefinitions)
+        public List<TestParameterTemplateViewModel> CreateParameterTemplatesViewModel(List<TestClassDefinition> testDefinitions, HCTestsModuleOptions options)
         {
             var parameters = testDefinitions.SelectMany(x => x.Tests.SelectMany(t => t.Parameters));
             var relevantParameters = parameters
@@ -167,7 +167,23 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 string template = null;
                 try
                 {
-                    if (HCGlobalConfig.AllowActivatingType(x.ParameterType) && HCGlobalConfig.AllowSerializingType(x.ParameterType))
+                    var useDefaultLogic = true;
+                    if (options.JsonInputTemplateFactory != null)
+                    {
+                        var factoryResult = options.JsonInputTemplateFactory(x.ParameterType);
+                        if (factoryResult?.NoTemplate == true)
+                        {
+                            template = "";
+                            useDefaultLogic = false;
+                        }
+                        else if (factoryResult?.Instance != null)
+                        {
+                            template = TestRunnerService.Serializer?.Serialize(factoryResult.Instance);
+                            useDefaultLogic = false;
+                        }
+                    }
+                    
+                    if (useDefaultLogic && HCGlobalConfig.AllowActivatingType(x.ParameterType) && HCGlobalConfig.AllowSerializingType(x.ParameterType))
                     {
                         var ctors = x.ParameterType.GetConstructors();
                         var hasParameterlessConstructor = ctors?.Any() != true || ctors?.Any(c => c.GetParameters().Length == 0) == true;
