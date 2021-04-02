@@ -202,8 +202,6 @@ namespace HealthCheck.DevTest.Controllers
             {
                 InitOnce();
             }
-
-            System.Diagnostics.Debug.WriteLine($"Settings.StringProp: {SettingsService.GetSettings<TestSettings>().StringProp}");
         }
 
         private List<RuntimeTestReferenceParameterFactory> CreateReferenceParameterFactories()

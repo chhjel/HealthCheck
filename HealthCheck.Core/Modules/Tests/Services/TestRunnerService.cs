@@ -185,6 +185,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
             Action<TestResult, object> resultAction = null)
         {
             var removeCancellationTokenOnFinish = true;
+
             var stopWatch = new Stopwatch();
             stopWatch.Start();
             try

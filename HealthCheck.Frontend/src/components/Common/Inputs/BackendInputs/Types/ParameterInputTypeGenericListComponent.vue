@@ -27,7 +27,7 @@
                                 :isListItem="true"
                                 :isCustomReferenceType="isCustomReferenceType"
                                 @isAnyJson="notifyIsAnyJson()" />
-                            <span v-if="isReadOnlyList">{{ items[itemIndex] }}</span>
+                            <span v-if="isReadOnlyList">{{ item.value }}</span>
                         </v-list-tile-content>
                     </v-list-tile>
                 </template>
