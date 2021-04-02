@@ -1,7 +1,7 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeGenericListComponent.vue -->
 <template>
     <div>
-        <v-list dense class="parameter-list-input">
+        <v-list dense class="parameter-list-input" v-if="items.length > 0">
             <draggable
                 v-model="items"
                 group="grp"
