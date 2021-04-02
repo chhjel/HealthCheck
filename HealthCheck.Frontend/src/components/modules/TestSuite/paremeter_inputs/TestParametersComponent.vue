@@ -10,6 +10,7 @@
 
                   <backend-input-component 
                       v-model="parameter.Value"
+                      v-show="!parameter.Hidden"
                       :forceType="cleanType(parameter.Type)"
                       :forceName="parameter.Name"
                       :forceDescription="parameter.Description"
@@ -99,7 +100,7 @@ export default class TestParametersComponent extends Vue {
     }
 
     get filteredParameters(): Array<TestParameterViewModel> {
-      return this.test.Parameters.filter(x => !x.Hidden);
+      return this.test.Parameters;//.filter(x => !x.Hidden); //todo: v-show instead
     }
 }
 </script>

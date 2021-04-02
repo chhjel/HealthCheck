@@ -114,7 +114,7 @@ namespace HealthCheck.Core.Modules.Tests
             var testDefinitions = GetTestDefinitions(context.CurrentRequestRoles);
             var model = new TestsDataViewModel()
             {
-                TestSets = TestsViewModelsFactory.CreateViewModel(testDefinitions),
+                TestSets = TestsViewModelsFactory.CreateViewModel(testDefinitions, _options),
                 GroupOptions = TestsViewModelsFactory.CreateViewModel(GroupOptions),
                 InvalidTests = invalidTests.Select(x => (TestsViewModelsFactory.CreateViewModel(x))).ToList(),
                 ParameterTemplateValues = TestsViewModelsFactory.CreateParameterTemplatesViewModel(testDefinitions)

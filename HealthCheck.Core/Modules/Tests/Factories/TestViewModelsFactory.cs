@@ -19,13 +19,13 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         /// <summary>
         /// Create a <see cref="TestSetViewModel"/> from the given list of <see cref="TestClassDefinition"/>.
         /// </summary>
-        public List<TestSetViewModel> CreateViewModel(IEnumerable<TestClassDefinition> testClassDefinitions)
-            => testClassDefinitions.Select(x => CreateViewModel(x)).ToList();
+        public List<TestSetViewModel> CreateViewModel(IEnumerable<TestClassDefinition> testClassDefinitions, HCTestsModuleOptions options)
+            => testClassDefinitions.Select(x => CreateViewModel(x, options)).ToList();
 
         /// <summary>
         /// Create a <see cref="TestSetViewModel"/> from the given <see cref="TestClassDefinition"/>.
         /// </summary>
-        public TestSetViewModel CreateViewModel(TestClassDefinition testClassDefinition)
+        public TestSetViewModel CreateViewModel(TestClassDefinition testClassDefinition, HCTestsModuleOptions options)
         {
             var vm = new TestSetViewModel()
             {
@@ -40,7 +40,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
 
             foreach (var test in testClassDefinition.Tests.Where(x => x.LoadErrors?.Any() != true))
             {
-                vm.Tests.AddRange(CreateViewModels(test));
+                vm.Tests.AddRange(CreateViewModels(test, options));
             }
 
             return vm;
@@ -49,17 +49,17 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         /// <summary>
         /// Create a <see cref="TestViewModel"/> from the given <see cref="TestDefinition"/>.
         /// </summary>
-        public IEnumerable<TestViewModel> CreateViewModels(TestDefinition testDefinition)
+        public IEnumerable<TestViewModel> CreateViewModels(TestDefinition testDefinition, HCTestsModuleOptions options)
         {
             List<TestViewModel> viewModels = new List<TestViewModel>();
 
-            var model = CreateViewModel(testDefinition);
+            var model = CreateViewModel(testDefinition, options);
             viewModels.Add(model);
 
             return viewModels;
         }
 
-        private TestViewModel CreateViewModel(TestDefinition testDefinition)
+        private TestViewModel CreateViewModel(TestDefinition testDefinition, HCTestsModuleOptions options)
         {
             var model = new TestViewModel()
             {
@@ -74,7 +74,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
 
             foreach (var parameter in testDefinition.Parameters)
             {
-                model.Parameters.Add(CreateViewModel(parameter));
+                model.Parameters.Add(CreateViewModel(parameter, options));
             }
 
             return model;
@@ -98,11 +98,14 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         /// <summary>
         /// Create a <see cref="TestParameterViewModel"/> from the given <see cref="TestParameter"/>.
         /// </summary>
-        public TestParameterViewModel CreateViewModel(TestParameter testParameter)
+        public TestParameterViewModel CreateViewModel(TestParameter testParameter, HCTestsModuleOptions options)
         {
             var stringConverter = new StringConverter();
             var paramType = testParameter.ParameterType;
             string type = CreateParameterTypeName(paramType);
+
+            var hidden = testParameter.IsOut
+                || options?.HideInputForTypes?.Any(x => x.IsAssignableFrom(testParameter.ParameterType)) == true;
 
             var vm = new TestParameterViewModel()
             {
@@ -117,7 +120,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 ShowTextArea = testParameter.ShowTextArea,
                 FullWidth = testParameter.FullWidth,
                 IsCustomReferenceType = testParameter.IsCustomReferenceType,
-                Hidden = testParameter.IsOut
+                Hidden = hidden
             };
 
             return vm;

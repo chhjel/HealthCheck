@@ -2,6 +2,7 @@
 using HealthCheck.Core.Modules.Tests.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace HealthCheck.Core.Modules.Tests
@@ -37,5 +38,16 @@ namespace HealthCheck.Core.Modules.Tests
         /// </summary>
         public Action<TestResult, object> AutoResultAction { get; set; } = AutoResultHelper.DefaultAutoResultAction;
 
+        /// <summary>
+        /// Parameter types that will have hidden input fields, including derived types.
+        /// </summary>
+        public List<Type> HideInputForTypes { get; set; } = new List<Type>
+        {
+            typeof(Action<>), typeof(Action<,>), typeof(Action<,,>), typeof(Action<,,,>), typeof(Action<,,,,>),
+            typeof(Func<>), typeof(Func<,>), typeof(Func<,,>), typeof(Func<,,,>), typeof(Func<,,,,>), typeof(Func<,,,,,>),
+            typeof(Action), typeof(Expression),
+            typeof(Expression<>),
+            typeof(Expression), typeof(Delegate),
+        };
     }
 }
