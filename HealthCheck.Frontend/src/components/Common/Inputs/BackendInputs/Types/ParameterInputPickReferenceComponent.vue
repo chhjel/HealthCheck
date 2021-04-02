@@ -1,7 +1,7 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputPickReferenceComponent.vue -->
 <template>
     <div>
-        <v-btn @click="showDialog">{{ selectedChoiceLabel }}</v-btn>
+        <v-btn @click="showDialog" :disabled="readonly">{{ selectedChoiceLabel }}</v-btn>
         
         <v-dialog v-model="choicesDialogVisible"
             @keydown.esc="choicesDialogVisible = false"

@@ -1,7 +1,7 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputAnyJsonComponent.vue -->
 <template>
     <div>
-        <v-btn @click="showDialog">{{ buttonText }}</v-btn>
+        <v-btn @click="showDialog" :disabled="readonly">{{ buttonText }}</v-btn>
         
         <v-dialog v-model="editorDialogVisible"
             @keydown.esc="editorDialogVisible = false"

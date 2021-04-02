@@ -8,7 +8,7 @@
                 style="min-height: 10px"
                 @end="onChanged">
                 <template v-for="(item, itemIndex) in items">
-                    <v-list-tile :key="`${id}-item-${itemIndex}`">
+                    <v-list-tile :key="`${id}-item-${item.id}`">
                         <v-list-tile-action v-if="items.length > 1">
                             <v-icon class="handle-icon">drag_handle</v-icon>
                         </v-list-tile-action>
@@ -19,10 +19,10 @@
                         </v-list-tile-action>
                         <v-list-tile-content style="overflow: visible">
                             <backend-input-component v-if="!isReadOnlyList"
-                                :key="`${id}-item-input-${itemIndex}`"
+                                :key="`${id}-item-input-${item.id}`"
                                 :forceType="listType"
                                 forceName=""
-                                v-model="items[itemIndex]"
+                                v-model="item.value"
                                 :config="config"
                                 :isListItem="true"
                                 :isCustomReferenceType="isCustomReferenceType"
@@ -44,10 +44,15 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 
 //@ts-ignore
 import draggable from 'vuedraggable'
-import DateUtils from  '../../../../../util/DateUtils';
-import IdUtils from "../../../../../util/IdUtils";
+import DateUtils from  'util/DateUtils';
+import IdUtils from "util/IdUtils";
 import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
 import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+
+interface ListItem {
+    id: string;
+    value: string | null;
+}
 
 @Component({
     name: "BackendInputComponent",
@@ -82,7 +87,7 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
     isCustomReferenceType!: boolean;
 
     localValue: string | null = '';
-    items: Array<string | null> = [];
+    items: Array<ListItem> = [];
     id: string = IdUtils.generateId();
 
     beforeCreate(): void {
@@ -124,7 +129,7 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
     }
 
     onChanged(): void {
-        this.localValue = JSON.stringify(this.items.map(x => this.prepareValue(x)));
+        this.localValue = JSON.stringify(this.items.map(x => this.prepareValue(x.value)));
     }
 
     prepareValue(val: string | null | undefined ): string | null {
@@ -144,8 +149,10 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
     }
 
     addNewItem(value: string | null = null): void {
-        // (<any>item).Id = this.uuidv4();
-        this.items.push(value);
+        this.items.push({
+            id: IdUtils.generateId(),
+            value: value
+        });
         
         this.$nextTick(() => {
             this.onChanged();

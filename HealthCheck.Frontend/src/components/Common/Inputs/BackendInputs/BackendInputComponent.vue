@@ -14,6 +14,7 @@
         <div v-show="showDescription" class="parameter-description" v-html="displayDescription"></div>
 
         <component
+            :key="`${id}-input`"
             class="parameter-input"
             :is="inputComponentName"
             v-model="localValue"
@@ -52,6 +53,7 @@ import ParameterInputPickReferenceComponent from './Types/ParameterInputPickRefe
 import ParameterInputTypeGuidComponent from "./Types/ParameterInputTypeGuidComponent.vue";
 import ParameterInputAnyJsonComponent from "./Types/ParameterInputAnyJsonComponent.vue";
 import { TestModuleOptions } from "components/modules/TestSuite/TestSuitesPageComponent.vue";
+import IdUtils from "../../../../util/IdUtils";
 
 @Component({
     components: {
@@ -109,6 +111,7 @@ export default class BackendInputComponent extends Vue {
     showInputHeader: boolean = true;
     showDescription: boolean = false;
     localValue: string = "";
+    id: string = IdUtils.generateId();
 
     mounted(): void {
         this.updateLocalValue();
