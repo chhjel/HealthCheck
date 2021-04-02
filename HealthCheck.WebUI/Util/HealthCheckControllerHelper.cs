@@ -639,9 +639,30 @@ namespace HealthCheck.WebUI.Util
         #region Init module extras
         private void InitStringConverter(StringConverter converter)
         {
+            converter.RegisterConverter<byte[]>(
+                (input) => ConvertFileInputToBytes(input),
+                (file) => null);
+
+            converter.RegisterConverter<List<byte[]>>(
+                (input) =>
+                {
+                    var list = new List<byte[]>();
+                    if (input == null || string.IsNullOrWhiteSpace(input)) return list;
+
+                    var listItems = JsonConvert.DeserializeObject<List<string>>(input);
+                    list.AddRange(
+                        listItems
+                        .Select(x => ConvertFileInputToBytes(x))
+                        .Where(x => x != null)
+                    );
+
+                    return list;
+                },
+                (file) => null);
+
 #if NETCORE
             converter.RegisterConverter<IFormFile>(
-                (input) => ConvertInputToMemoryFile(input),
+                (input) => ConvertFileInputToMemoryFile(input),
                 (file) => null);
 
             converter.RegisterConverter<List<IFormFile>>(
@@ -653,7 +674,7 @@ namespace HealthCheck.WebUI.Util
                     var listItems = JsonConvert.DeserializeObject<List<string>>(input);
                     list.AddRange(
                         listItems
-                        .Select(x => ConvertInputToMemoryFile(x))
+                        .Select(x => ConvertFileInputToMemoryFile(x))
                         .Where(x => x != null)
                     );
 
@@ -663,7 +684,7 @@ namespace HealthCheck.WebUI.Util
 #endif
 #if NETFULL
             converter.RegisterConverter<HttpPostedFileBase>(
-                (input) => ConvertInputToMemoryFile(input),
+                (input) => ConvertFileInputToMemoryFile(input),
                 (file) => null);
 
             converter.RegisterConverter<List<HttpPostedFileBase>>(
@@ -675,7 +696,7 @@ namespace HealthCheck.WebUI.Util
                     var listItems = JsonConvert.DeserializeObject<List<string>>(input);
                     list.AddRange(
                         listItems
-                        .Select(x => ConvertInputToMemoryFile(x))
+                        .Select(x => ConvertFileInputToMemoryFile(x))
                         .Where(x => x != null)
                     );
 
@@ -685,8 +706,19 @@ namespace HealthCheck.WebUI.Util
 #endif
         }
 
+        private byte[] ConvertFileInputToBytes(string input)
+        {
+            if (input == null) return null;
+
+            var parts = input.Split('|');
+            if (parts.Length < 3) return null;
+
+            var bytes = Convert.FromBase64String(parts[2]);
+            return bytes;
+        }
+
 #if NETCORE
-        private IFormFile ConvertInputToMemoryFile(string input)
+        private IFormFile ConvertFileInputToMemoryFile(string input)
         {
             if (input == null) return null;
 
@@ -700,7 +732,7 @@ namespace HealthCheck.WebUI.Util
 #endif
 
 #if NETFULL
-        private MemoryFile ConvertInputToMemoryFile(string input)
+        private MemoryFile ConvertFileInputToMemoryFile(string input)
         {
             if (input == null) return null;
 

@@ -1,6 +1,8 @@
 ﻿using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Dev.Common;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 
 namespace HealthCheck.DevTest._TestImplementation
@@ -16,10 +18,16 @@ namespace HealthCheck.DevTest._TestImplementation
     public class FileTests
     {
         [RuntimeTest]
-        public TestResult TestFileParameterType(HttpPostedFileBase file = null)
+        public TestResult TestFileParameterType(HttpPostedFileBase file = null, List<HttpPostedFileBase> files = null)
         {
             return TestResult.CreateSuccess("Ok")
-                .AddTextData($"File: {file?.FileName ?? "no file selected"}");
+                .AddTextData($"File: {file?.FileName ?? "no file selected"} + {string.Join(", ", files?.Select(x => x?.FileName))}");
+        }
+
+        [RuntimeTest]
+        public TestResult TestByteArrParameterType(byte[] bytes)
+        {
+            return TestResult.CreateSuccess($"Ok, byte count: {bytes?.Length}");
         }
     }
 }

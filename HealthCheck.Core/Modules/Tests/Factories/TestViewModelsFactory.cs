@@ -128,7 +128,8 @@ namespace HealthCheck.Core.Modules.Tests.Factories
 
         private static readonly Dictionary<string, string> _inputTypeAliases = new Dictionary<string, string>
         {
-            { "IFormFile", "HttpPostedFileBase" }
+            { "IFormFile", "HttpPostedFileBase" },
+            { "Byte[]", "HttpPostedFileBase" }
         };
         private string CreateParameterTypeName(Type type)
         {
