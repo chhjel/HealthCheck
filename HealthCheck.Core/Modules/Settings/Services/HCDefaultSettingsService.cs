@@ -134,6 +134,7 @@ namespace HealthCheck.Core.Modules.Settings.Services
                 _storage.SaveValues(values);
 
                 _valuesCache[key] = values;
+                _objCache.Remove(key);
             }
             finally
             {
