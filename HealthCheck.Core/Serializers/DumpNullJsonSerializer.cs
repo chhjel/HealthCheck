@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Models;
 using System;
 
 namespace HealthCheck.Core.Serializers
@@ -20,6 +21,11 @@ namespace HealthCheck.Core.Serializers
         /// Returns default.
         /// </summary>
         public T Deserialize<T>(string json) => default;
+
+        /// <summary>
+        /// Returns success w/ default.
+        /// </summary>
+        public HCGenericResult<object> DeserializeExt(string json, Type type) => HCGenericResult<object>.CreateSuccess(default);
 
         /// <summary>
         /// Returns an empty string.

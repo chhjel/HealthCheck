@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Models;
 using System;
 
 namespace HealthCheck.Core.Tests.Helpers
@@ -29,6 +30,12 @@ namespace HealthCheck.Core.Tests.Helpers
         {
             LastDeserializedJson = json;
             return (T)DeserializeResult;
+        }
+
+        public HCGenericResult<object> DeserializeExt(string json, Type type)
+        {
+            LastDeserializedJson = json;
+            return HCGenericResult<object>.CreateSuccess(DeserializeResult);
         }
 
         public string Serialize(object obj)

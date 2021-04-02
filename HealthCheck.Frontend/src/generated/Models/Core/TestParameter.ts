@@ -12,6 +12,8 @@ export interface TestParameter
 	ParameterType: any;
 	DefaultValue: any;
 	PossibleValues: any[];
+	IsOut: boolean;
+	IsRef: boolean;
 	NotNull: boolean;
 	ReadOnlyList: boolean;
 	ShowTextArea: boolean;

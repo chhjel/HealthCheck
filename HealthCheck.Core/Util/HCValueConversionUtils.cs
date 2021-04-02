@@ -105,12 +105,11 @@ namespace HealthCheck.Core.Util
             var isList = input.Type.IsGenericType && input.Type.GetGenericTypeDefinition() == typeof(List<>);
             if (input.IsJson && isList)
             {
-                var itemJsons = TestRunnerService.Serializer?.Deserialize(input.Value, typeof(string[])) as string[]
-                    ?? new string[0];
-                var error = TestRunnerService.Serializer?.LastError;
-                if (!string.IsNullOrWhiteSpace(error))
+                var deserializeResult = TestRunnerService.Serializer?.DeserializeExt(input.Value, typeof(string[]));
+                var itemJsons = deserializeResult?.Data as string[] ?? new string[0];
+                if (deserializeResult?.HasError == true)
                 {
-                    throw new HCException(error);
+                    throw new HCException(deserializeResult.Error);
                 }
 
                 var itemType = input.Type.GetGenericArguments()[0];
@@ -123,11 +122,11 @@ namespace HealthCheck.Core.Util
                         continue;
                     }
 
-                    var item = TestRunnerService.Serializer?.Deserialize(json, itemType);
-                    error = TestRunnerService.Serializer?.LastError;
-                    if (!string.IsNullOrWhiteSpace(error))
+                    deserializeResult = TestRunnerService.Serializer?.DeserializeExt(json, itemType);
+                    var item = deserializeResult?.Data;
+                    if (deserializeResult?.HasError == true)
                     {
-                        throw new HCException(error);
+                        throw new HCException(deserializeResult.Error);
                     }
                     list.Add(item);
                 }
@@ -135,11 +134,11 @@ namespace HealthCheck.Core.Util
             }
             else if (input.IsJson)
             {
-                convertedObject = TestRunnerService.Serializer?.Deserialize(input.Value, input.Type);
-                var error = TestRunnerService.Serializer?.LastError;
-                if (!string.IsNullOrWhiteSpace(error))
+                var deserializeResult = TestRunnerService.Serializer?.DeserializeExt(input.Value, input.Type);
+                convertedObject = deserializeResult?.Data;
+                if (deserializeResult?.HasError == true)
                 {
-                    throw new HCException(error);
+                    throw new HCException(deserializeResult.Error);
                 }
             }
             else if (input.IsCustomReferenceType && !string.IsNullOrWhiteSpace(input.Value))

@@ -15,4 +15,5 @@ export interface TestParameterViewModel
 	ShowTextArea: boolean;
 	FullWidth: boolean;
 	IsCustomReferenceType: boolean;
+	Hidden: boolean;
 }

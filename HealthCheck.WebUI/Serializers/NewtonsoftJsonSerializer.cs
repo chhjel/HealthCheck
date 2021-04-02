@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Config;
+using HealthCheck.Core.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -13,16 +14,11 @@ namespace HealthCheck.WebUI.Serializers
     /// </summary>
     public class NewtonsoftJsonSerializer : IJsonSerializer
     {
-        /// <inheritdoc />
-        public string LastError { get; set; }
-
         /// <summary>
         /// Serializes dumps using Newtonsoft, ignoring any errors.
         /// </summary>
         public string Serialize(object obj)
         {
-            LastError = null;
-
             if (obj != null && !HCGlobalConfig.AllowSerializingType(obj.GetType()))
             {
                 return null;
@@ -46,15 +42,12 @@ namespace HealthCheck.WebUI.Serializers
         /// </summary>
         public T Deserialize<T>(string json)
         {
-            LastError = null;
-
             try
             {
                 return (T)Deserialize(json, typeof(T));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                LastError = ex.ToString();
                 return default;
             }
         }
@@ -63,21 +56,25 @@ namespace HealthCheck.WebUI.Serializers
         /// Deserialize the given json into an object of the given type.
         /// </summary>
         public object Deserialize(string json, Type type)
-        {
-            LastError = null;
+            => DeserializeExt(json, type)?.Data;
 
+        /// <summary>
+        /// Deserialize the given json into an object of the given type.
+        /// </summary>
+        public HCGenericResult<object> DeserializeExt(string json, Type type)
+        {
             try
             {
                 if (!HCGlobalConfig.AllowSerializingType(type))
                 {
                     return null;
                 }
-                return JsonConvert.DeserializeObject(json, type);
+                var data = JsonConvert.DeserializeObject(json, type);
+                return HCGenericResult<object>.CreateSuccess(data);
             }
             catch (Exception ex)
             {
-                LastError = ex.ToString();
-                return null;
+                return HCGenericResult<object>.CreateError(ex);
             }
         }
 
