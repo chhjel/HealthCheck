@@ -229,8 +229,7 @@ Supported parameter types:
 * `Enum` (-> select)
 * `Enum` with `[Flags]` (-> multiselect)
 * `Guid`, `Guid?`
-* `HttpPostedFileBase` for .NET Framework
-* `IFormFile` for .NET Core
+* `byte[]`, `HttpPostedFileBase` (.NET Framework), `IFormFile` (.NET Core) (-> file upload)
 * `List<T>` where `<T>` is any of the above types (w/ option for readable list for setting order only)
 * `CancellationToken` to make the method cancellable, see below.
 * Search and filter for any custom type when custom factory methods are implemented, see below.
