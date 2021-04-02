@@ -386,6 +386,7 @@ export default class EventNotificationsPageComponent extends Vue {
     }
 
     onDataRetrieved(data: GetEventNotificationConfigsViewModel): void {
+        console.log(data);
         this.data = data;
         this.data.Configs.forEach(config => {
             EventSinkNotificationConfigUtils.postProcessConfig(config, this.notifiers);

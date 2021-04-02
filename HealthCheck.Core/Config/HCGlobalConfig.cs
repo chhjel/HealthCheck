@@ -90,15 +90,21 @@ namespace HealthCheck.Core.Config
         }
 
         /// <summary>
+        /// True if the type is allowed to be instantated.
+        /// </summary>
+        public static bool AllowActivatingType(Type type)
+        {
+            return !type.IsInterface
+                && !type.IsAbstract
+                && !type.IsGenericTypeDefinition;
+        }
+
+        /// <summary>
         /// Checks the rules from the other properties.
         /// </summary>
         public static bool AllowSerializingType(Type type)
         {
-            if (type.IsInterface)
-            {
-                return false;
-            }
-            else if (TypesIgnoredInSerialization?.Any(x => type == x) == true)
+            if (TypesIgnoredInSerialization?.Any(x => type == x) == true)
             {
                 return false;
             }

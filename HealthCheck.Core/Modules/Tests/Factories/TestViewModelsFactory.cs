@@ -167,7 +167,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 string template = null;
                 try
                 {
-                    if (HCGlobalConfig.AllowSerializingType(x.ParameterType))
+                    if (HCGlobalConfig.AllowActivatingType(x.ParameterType) && HCGlobalConfig.AllowSerializingType(x.ParameterType))
                     {
                         var ctors = x.ParameterType.GetConstructors();
                         var hasParameterlessConstructor = ctors?.Any() != true || ctors?.Any(c => c.GetParameters().Length == 0) == true;
