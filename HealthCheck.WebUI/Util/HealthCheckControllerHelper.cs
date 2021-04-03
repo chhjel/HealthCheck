@@ -19,6 +19,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HealthCheck.Core.Util.Modules;
 using HealthCheck.Core.Modules.Tests.Services;
+using HealthCheck.Core.Modules.Tests.Models;
 
 #if NETFULL
 using System.IO;
@@ -60,6 +61,9 @@ namespace HealthCheck.WebUI.Util
             AccessConfig.RoleModuleAccessLevels = RoleModuleAccessLevels;
 
             TestRunnerService.Serializer = new NewtonsoftJsonSerializer();
+            TestRunnerService.GetCurrentTestContext = HealthCheckTestContextHelper.GetCurrentTestContext;
+            TestRunnerService.CurrentRequestIsTest = () => HealthCheckTestContextHelper.CurrentRequestIsTest;
+            TestRunnerService.SetCurrentRequestIsTest = () => HealthCheckTestContextHelper.CurrentRequestIsTest = true;
         }
 
         internal bool HasAccessToAnyContent(Maybe<TAccessRole> currentRequestAccessRoles)
@@ -609,7 +613,7 @@ namespace HealthCheck.WebUI.Util
             pageOptions.Validate();
         }
 
-        #region Access
+#region Access
         /// <summary>
         /// Check if the given roles has access to calling the ping endpoint.
         /// </summary>
@@ -634,9 +638,9 @@ namespace HealthCheck.WebUI.Util
 
             return EnumUtils.EnumFlagHasAnyFlagsSet(accessRoles.Value, pageAccess.Value);
         }
-        #endregion
+#endregion
 
-        #region Init module extras
+#region Init module extras
         private void InitStringConverter(StringConverter converter)
         {
             converter.RegisterConverter<byte[]>(
@@ -747,6 +751,6 @@ namespace HealthCheck.WebUI.Util
             );
         }
 #endif
-        #endregion
+#endregion
     }
 }

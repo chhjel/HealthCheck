@@ -1,7 +1,6 @@
 <!-- src/components/modules/TestSuite/result_data/data_types/TestResultXmlDataComponent.vue -->
 <template>
     <div>
-      <div v-if="!fullscreen">{{data.Title}}</div>
       <code-editor language="xml"
         :data="data"
         :fullscreen="fullscreen" />

@@ -1,7 +1,6 @@
 <!-- src/components/modules/TestSuite/result_data/data_types/TestResultUrlsDataComponent.vue -->
 <template>
     <div>
-      <div v-if="!fullscreen">{{data.Title}}</div>
       <ul>
         <li v-for="(link, index) in links"
           :key="`result-data-item-url-${index}-${link.Url}`">

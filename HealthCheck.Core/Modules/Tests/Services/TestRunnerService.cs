@@ -25,6 +25,21 @@ namespace HealthCheck.Core.Modules.Tests.Services
         /// </summary>
         public static IJsonSerializer Serializer { get; set; }
 
+        /// <summary>
+        /// Creates context object for tests.
+        /// </summary>
+        public static Func<HCTestContext> GetCurrentTestContext { get; set; }
+
+        /// <summary>
+        /// Returns true when the current request is executing a test.
+        /// </summary>
+        public static Func<bool> CurrentRequestIsTest { get; set; }
+
+        /// <summary>
+        /// Sets the current request as being a test.
+        /// </summary>
+        public static Action SetCurrentRequestIsTest { get; set; }
+
         private static readonly Dictionary<string, CancellationTokenSource> TestCancellationTokenSources = new Dictionary<string, CancellationTokenSource>();
 
         /// <summary>
@@ -188,6 +203,9 @@ namespace HealthCheck.Core.Modules.Tests.Services
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
+
+            SetCurrentRequestIsTest?.Invoke();
+
             try
             {
                 // Abort if already running
@@ -244,6 +262,12 @@ namespace HealthCheck.Core.Modules.Tests.Services
                     }
                 }
 
+                var testContext = GetCurrentTestContext?.Invoke();
+                if (testContext != null)
+                {
+                    testContext.TestExecutionStartTime = DateTime.Now;
+                }
+
                 var result = await test.ExecuteTest(instance, parameters, allowDefaultValues,
                     (tokenSource) => RegisterCancellableTestStarted(test.Id, tokenSource),
                     allowAnyResultType: test.Type == TestDefinition.TestDefinitionType.ProxyClassMethod,
@@ -251,6 +275,17 @@ namespace HealthCheck.Core.Modules.Tests.Services
                 );
 
                 postExecutionAction?.Invoke(result, customContextObject);
+
+                testContext = GetCurrentTestContext?.Invoke();
+                if (testContext?.Timings?.Any() == true)
+                {
+                    testContext?.EndAllTimers();
+                    result.AddTimingData(testContext.Timings, "Timings");
+                }
+                if (testContext?.HasLoggedAnything() == true)
+                {
+                    result.AddCodeData(testContext.GetLog(), "Log");
+                }
 
                 // Post-process result
                 result.Test = test;
