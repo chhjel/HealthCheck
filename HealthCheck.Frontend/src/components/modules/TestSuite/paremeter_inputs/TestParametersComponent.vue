@@ -6,11 +6,11 @@
               <v-flex xs12 sm12 :md6="allowMediumSize(parameter)" :lg3="allowSmallSize(parameter)"
                   v-for="(parameter, index) in filteredParameters"
                   :key="`test-${test.Id}-parameter`+index"
-                  class="parameter-block">
+                  class="parameter-block"
+                  v-show="!parameter.Hidden">
 
                   <backend-input-component 
                       v-model="parameter.Value"
-                      v-show="!parameter.Hidden"
                       :forceType="cleanType(parameter.Type)"
                       :forceName="parameter.Name"
                       :forceDescription="parameter.Description"
