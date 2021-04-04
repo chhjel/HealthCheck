@@ -160,7 +160,20 @@ namespace HealthCheck.Core.Modules.Tests.Models
             DisplayClean = clean;
             return this;
         }
-        
+
+        /// <summary>
+        /// Removes expansion panel and copy/fullscreeen buttons for the latest added data.
+        /// </summary>
+        public TestResult SetLatestDataCleanMode(bool? clean = true)
+        {
+            var data = Data?.LastOrDefault();
+            if (data != null)
+            {
+                data.DisplayClean = clean;
+            }
+            return this;
+        }
+
         /// <summary>
         /// Include a serialized version of the given object in the result data.
         /// <para>If using HealthCheck.WebUI the NewtonsoftJsonSerializer() or just use the AddSerializedData(object data, string title=null) extension method from HealthCheck.WebUI.</para>

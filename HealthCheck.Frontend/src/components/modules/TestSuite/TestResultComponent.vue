@@ -27,7 +27,7 @@
                   v-for="(data, index) in testResult.Data"
                   :key="`test-${testResult.TestId}-result-data`+index"
                   :data="data"
-                  :clean="testResult.DisplayClean" />
+                  :clean="data.DisplayClean || testResult.DisplayClean" />
               </v-card-text>
             </v-card>
           </v-expansion-panel-content>

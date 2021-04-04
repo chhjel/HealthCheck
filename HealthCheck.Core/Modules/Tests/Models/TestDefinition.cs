@@ -376,7 +376,8 @@ namespace HealthCheck.Core.Modules.Tests.Models
 
                         if (methodParam.ParameterType.GetElementType().IsPrimitive)
                         {
-                            result.AddHtmlData($"<code>{prefix} {methodParam.Name} = {value}</code>");
+                            result.AddHtmlData($"Value = <code>{value}</code>", $"{prefix} {methodParam.Name}")
+                                .SetLatestDataCleanMode();
                         }
                         else
                         {
@@ -404,27 +405,37 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 ((returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
                 || returnType == typeof(Task)))
             {
-                var fallbackValue = (returnType == typeof(Task) || returnType == typeof(void)) ? null : "null";
+                var isResultless = (returnType == typeof(Task) || returnType == typeof(void));
+                var fallbackValue = isResultless ? null : "null";
                 var data = await InvokeAsync(Method, instance, parameterList);
                 if (returnType == typeof(Task))
                 {
                     data = null;
                 }
+
+                var dataTypeName = data?.GetType().GetFriendlyTypeName();
+                var dataResultTitle = (data == null) ? "Result" : $"Result of type '{dataTypeName}'";
+
                 var result = TestResult.CreateSuccess($"Method {Method?.Name} was successfully invoked.")
                     .SetProxyTestResultObject(data)
-                    .AddAutoCreatedResultData(data ?? fallbackValue, includeAutoCreateResult)
-                    .AddSerializedData(data ?? fallbackValue, TestRunnerService.Serializer, "Result");
+                    .AddAutoCreatedResultData(data ?? fallbackValue, includeAutoCreateResult && !isResultless)
+                    .AddSerializedData(data ?? fallbackValue, TestRunnerService.Serializer, dataResultTitle);
                 return postProcessResult(result);
             }
             // Sync any
             else if (allowAnyResultType)
             {
-                var fallbackValue = (returnType == typeof(Task) || returnType == typeof(void)) ? null : "null";
+                var isResultless = (returnType == typeof(Task) || returnType == typeof(void));
+                var fallbackValue = isResultless ? null : "null";
                 var data = Method.Invoke(instance, parameterList);
+
+                var dataTypeName = data?.GetType().GetFriendlyTypeName();
+                var dataResultTitle = (data == null) ? "Result" : $"Result of type '{dataTypeName}'";
+
                 var result = TestResult.CreateSuccess($"Method {Method?.Name} was successfully invoked.")
                     .SetProxyTestResultObject(data)
-                    .AddAutoCreatedResultData(data ?? fallbackValue, includeAutoCreateResult)
-                    .AddSerializedData(data ?? fallbackValue, TestRunnerService.Serializer, "Result");
+                    .AddAutoCreatedResultData(data ?? fallbackValue, includeAutoCreateResult && !isResultless)
+                    .AddSerializedData(data ?? fallbackValue, TestRunnerService.Serializer, dataResultTitle);
                 return postProcessResult(result);
             }
             else

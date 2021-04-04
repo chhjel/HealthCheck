@@ -53,8 +53,8 @@ namespace HealthCheck.Dev.Common.Tests
                     {
                         result
                             .AddCodeData(context.MemoryLogger.Contents)
-                            .ForProxyResult<SomeParameterType>((value) => result.AddTextData("Is of type SomeParameterType!"))
-                            .AddTextData(result.ProxyTestResultObject?.GetType()?.Name ?? "null", "Result type");
+                            .ForProxyResult<SomeParameterType>((value) => result.AddTextData("Is of type SomeParameterType!"));
+                            //.AddTextData(result.ProxyTestResultObject?.GetType()?.Name ?? "null", "Result type")
                     }
                 )
                 .AddParameterTypeConfig<SomeParameterType>(

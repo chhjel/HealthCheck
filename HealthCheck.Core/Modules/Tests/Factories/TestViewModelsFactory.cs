@@ -246,7 +246,8 @@ namespace HealthCheck.Core.Modules.Tests.Factories
             {
                 Title = dataDump.Title,
                 Data = dataDump.Data,
-                Type = dataDump.Type
+                Type = dataDump.Type,
+                DisplayClean = dataDump.DisplayClean
             };
 
             return vm;

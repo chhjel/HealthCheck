@@ -19,5 +19,10 @@
         /// Type of data.
         /// </summary>
         public TestResultDataDumpType Type { get; set; }
+
+        /// <summary>
+        /// Removes copy/fullscreeen buttons.
+        /// </summary>
+        public bool? DisplayClean { get; set; }
     }
 }
