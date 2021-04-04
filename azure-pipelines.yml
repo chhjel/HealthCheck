@@ -37,6 +37,7 @@ trigger:
   branches:
     include:
     - master
+    - experimental
 
 resources:
   repositories:
