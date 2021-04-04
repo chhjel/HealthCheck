@@ -370,7 +370,18 @@ namespace HealthCheck.Core.Modules.Tests.Models
                     {
                         var methodParam = methodParams[index];
                         var value = parameterList[index];
-                        result.AddSerializedData(value, TestRunnerService.Serializer, $"out {methodParam.Name}");
+
+                        var isOut = methodParam.ParameterType.IsByRef && methodParam.IsOut;
+                        var prefix = isOut ? "out" : "ref";
+
+                        if (methodParam.ParameterType.GetElementType().IsPrimitive)
+                        {
+                            result.AddHtmlData($"<code>{prefix} {methodParam.Name} = {value}</code>");
+                        }
+                        else
+                        {
+                            result.AddSerializedData(value, TestRunnerService.Serializer, $"{prefix} {methodParam.Name}");
+                        }
                     }
                 }
                 return result;
