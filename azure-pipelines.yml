@@ -24,9 +24,9 @@ variables:
 - name: BuildParameters.BuildReasonRevisionNumber
   value: $[counter(variables['BuildParameters.CleanSourceBranch'], 0)]
 - name: BuildParameters.AssemblyVersion
-  ${{ if eq( variables['BuildParameters.IsExperimental'], 'true' ) }}: 
+  ${{ if eq(variables['BuildParameters.CleanSourceBranch'], variables['BuildParameters.ExperimentalBranchName']) }}: 
     value: '3.2.$(BuildParameters.BuildReasonRevisionNumber)-experimental'
-  ${{ if ne( variables['BuildParameters.IsExperimental'], 'true' ) }}: 
+  ${{ if ne(variables['BuildParameters.CleanSourceBranch'], variables['BuildParameters.ExperimentalBranchName']) }}: 
     value: '3.2.$(BuildParameters.BuildReasonRevisionNumber)'
 
 name: 3.2.$(Rev:r)-$(Build.Reason)_$(SourceBranchName)

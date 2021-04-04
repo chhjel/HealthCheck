@@ -45,6 +45,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// </summary>
         /// <param name="description">Description of what is being timed.</param>
         /// <param name="duration">Duration of the timing.</param>
+        /// <param name="offset">How far into the test this timing started at.</param>
         public HCTestTiming(string description, TimeSpan? duration, TimeSpan? offset)
         {
             Id = Guid.NewGuid().ToString();
