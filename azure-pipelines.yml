@@ -24,10 +24,7 @@ variables:
 - name: BuildParameters.BuildReasonRevisionNumber
   value: $[counter(variables['BuildParameters.CleanSourceBranch'], 0)]
 - name: BuildParameters.AssemblyVersion
-  ${{ if eq(variables['BuildParameters.CleanSourceBranch'], variables['BuildParameters.ExperimentalBranchName']) }}: 
-    value: '3.2.$(BuildParameters.BuildReasonRevisionNumber)-experimental'
-  ${{ if ne(variables['BuildParameters.CleanSourceBranch'], variables['BuildParameters.ExperimentalBranchName']) }}: 
-    value: '3.2.$(BuildParameters.BuildReasonRevisionNumber)'
+  value: '3.2.$(BuildParameters.BuildReasonRevisionNumber)'
 
 name: 3.2.$(Rev:r)-$(Build.Reason)_$(SourceBranchName)
 
@@ -52,6 +49,10 @@ jobs:
     vmImage: windows-2019
 
   steps:
+  - script: echo '##vso[task.setvariable variable=BuildParameters.AssemblyVersion]-$(SourceBranchName)'
+    displayName: "Set experimental version suffix"
+    condition: and(succeeded(), eq(variables['BuildParameters.IsExperimental'], 'true'))
+
   - script: |
       echo $(BuildParameters.AssemblyVersion)
     displayName: Show version variable
