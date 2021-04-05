@@ -1,6 +1,5 @@
-﻿using HealthCheck.Core.Exceptions;
-using HealthCheck.Core.Modules.Tests.Services;
-using HealthCheck.Core.Util;
+﻿using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Models;
 using System;
 using System.Collections.Generic;
 
@@ -31,29 +30,22 @@ namespace HealthCheck.Core.Modules.Tests.Models
             {
                 var parameter = test.Parameters[i];
                 var inputData = Parameters[i];
-                var inputValue = inputData.Value;
-                var type = types[i];
 
-                object convertedObject = null;
-                if (inputData.IsUnsupportedJson)
+                if (parameter.IsOut)
                 {
-                    convertedObject = TestRunnerService.Serializer?.Deserialize(inputValue, type);
-                    var error = TestRunnerService.Serializer?.LastError;
-                    if (!string.IsNullOrWhiteSpace(error))
-                    {
-                        throw new HCException(error);
-                    }
+                    objects[i] = null;
+                    continue;
                 }
-                else if (parameter.IsCustomReferenceType && !string.IsNullOrWhiteSpace(inputValue))
+
+                var conversionInput = new HCValueInput
                 {
-                    var factory = parameter.GetParameterFactory(test);
-                    convertedObject = factory?.GetInstanceByIdFor(type, inputValue);
-                }
-                else if (!parameter.IsCustomReferenceType)
-                {
-                    convertedObject = stringConverter.ConvertStringTo(type, inputValue);
-                }
-                objects[i] = convertedObject;
+                    Value = inputData.Value,
+                    Type = types[i],
+                    IsCustomReferenceType = parameter.IsCustomReferenceType,
+                    IsJson = inputData.IsUnsupportedJson,
+                    ParameterFactoryFactory = () => parameter.GetParameterFactory(test)
+                };
+                objects[i] = HCValueConversionUtils.ConvertInput(conversionInput, stringConverter);
             }
             return objects;
         }

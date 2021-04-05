@@ -207,7 +207,6 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
 import DateUtils from  '../../../util/DateUtils';
 import LinqUtils from  '../../../util/LinqUtils';
-import SettingInputComponent from '../Settings/SettingInputComponent.vue';
 import AccessTokensService, { AccessData, CreatedAccessData, CreateNewTokenResponse, TokenData } from  '../../../services/AccessTokensService';
 import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
 import BlockComponent from '../../Common/Basic/BlockComponent.vue';
@@ -217,7 +216,6 @@ import EditAccessTokenComponent from './EditAccessTokenComponent.vue';
 
 @Component({
     components: {
-        SettingInputComponent,
         BlockComponent,
         EditAccessTokenComponent
     }

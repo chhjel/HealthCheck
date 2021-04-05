@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Modules.SiteEvents.Models;
+using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
@@ -159,7 +160,20 @@ namespace HealthCheck.Core.Modules.Tests.Models
             DisplayClean = clean;
             return this;
         }
-        
+
+        /// <summary>
+        /// Removes expansion panel and copy/fullscreeen buttons for the latest added data.
+        /// </summary>
+        public TestResult SetLatestDataCleanMode(bool? clean = true)
+        {
+            var data = Data?.LastOrDefault();
+            if (data != null)
+            {
+                data.DisplayClean = clean;
+            }
+            return this;
+        }
+
         /// <summary>
         /// Include a serialized version of the given object in the result data.
         /// <para>If using HealthCheck.WebUI the NewtonsoftJsonSerializer() or just use the AddSerializedData(object data, string title=null) extension method from HealthCheck.WebUI.</para>
@@ -238,6 +252,18 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public TestResult AddJsonData(string json, string title = null, bool onlyIfNotNullOrEmpty = true)
             => AddData(json, title, TestResultDataDumpType.Json, onlyIfNotNullOrEmpty);
 
+        /// <summary>
+        /// Include the given timing data in the result data.
+        /// </summary>
+        public TestResult AddTimingData(HCTestTiming timing, string title = null, bool onlyIfNotNullOrEmpty = true)
+            => AddTimingData(new [] { timing }, title, onlyIfNotNullOrEmpty);
+
+        /// <summary>
+        /// Include the given timing data in the result data.
+        /// </summary>
+        public TestResult AddTimingData(IEnumerable<HCTestTiming> timings, string title = null, bool onlyIfNotNullOrEmpty = true)
+            => AddData(TestRunnerService.Serializer?.Serialize(timings) ?? "[]", title, TestResultDataDumpType.Timings, onlyIfNotNullOrEmpty);
+        
         /// <summary>
         /// Include the given image urls in the result data.
         /// </summary>

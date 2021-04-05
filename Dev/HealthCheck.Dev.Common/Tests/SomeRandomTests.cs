@@ -206,6 +206,25 @@ namespace HealthCheck.Dev.Common.Tests
             await Task.Delay(TimeSpan.FromSeconds(2));
             return TestResult.CreateSuccess("Completed!");
         }
+
+        [RuntimeTest(description: "Should run for about 0.5 seconds.")]
+        public async Task<TestResult> ContextTest(CancellationToken cancellationToken)
+        {
+            HCTestContext.Log("Start of test");
+            HCTestContext.StartTiming("Total");
+
+            HCTestContext.StartTiming("First part with some extra text here and a bit more.");
+            await Task.Delay(TimeSpan.FromSeconds(0.15f), cancellationToken);
+            HCTestContext.EndTiming();
+
+            HCTestContext.Log("Middle of test");
+            HCTestContext.StartTiming("Last part! Some more details here 🚀");
+            await Task.Delay(TimeSpan.FromSeconds(0.35f), cancellationToken);
+            HCTestContext.Log("End of test");
+
+            return TestResult.CreateSuccess($"Completed!");
+        }
+
         [RuntimeTest(description: "Should run for about 10 seconds.")]
         public async Task<TestResult> CancellableTest2(CancellationToken cancellationToken)
         {
@@ -216,6 +235,18 @@ namespace HealthCheck.Dev.Common.Tests
                     break;
             }
             return TestResult.CreateSuccess("Completed!");
+        }
+
+        [RuntimeTest(description: "Should run for about 10 seconds.")]
+        public async Task<TestResult> CancellableTest3(CancellationToken cancellationToken, int value)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2));
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+            }
+            return TestResult.CreateSuccess($"Completed! Value was {value}");
         }
 
         [RuntimeTest]

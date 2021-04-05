@@ -10,8 +10,10 @@
 
                 <!-- LOAD PROGRESS -->
                 <v-progress-linear
+                    class="ma-0"
                     v-if="loadStatus.inProgress"
                     indeterminate color="green"></v-progress-linear>
+                <div style="height: 7px" v-else></div>
 
                 <!-- DATA LOAD ERROR -->
                 <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">

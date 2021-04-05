@@ -21,11 +21,6 @@ namespace HealthCheck.Core.Modules.EventNotifications.Services
         public int EventDefinitionSizeLimit { get; set; } = 1000;
 
         /// <summary>
-        /// Converts string input from the UI into the types of the notification option properties.
-        /// </summary>
-        public readonly StringConverter InputConverter = new StringConverter();
-
-        /// <summary>
         /// If disabled the sink will ignore any attempts to register events.
         /// <para>Enabled by default. Null value/exception = false.</para>
         /// </summary>
@@ -446,79 +441,23 @@ namespace HealthCheck.Core.Modules.EventNotifications.Services
                 return null;
             }
 
-            object instance = null;
-            try
-            {
-                instance = Activator.CreateInstance(type);
-            } catch(Exception) { return null; }
-
-            var options = type.GetProperties()
-                .Select(x => new
+            object instance = HCValueConversionUtils.ConvertInputModel(type, notifierConfig.Options,
+                placeholders: placeholders,
+                placeholderTransformerFactory: (prop, attr) =>
                 {
-                    Attribute = x.GetCustomAttributes(typeof(EventNotifierOptionAttribute), true).FirstOrDefault() as EventNotifierOptionAttribute,
-                    Property = x
-                })
-                .Where(x => x.Attribute != null
-                    && notifierConfig.Options.ContainsKey(x.Property.Name));
-
-            foreach (var option in options)
-            {
-                var value = notifierConfig.Options[option.Property.Name];
-
-                if (option.Attribute.ReplacePlaceholders && option.Property.PropertyType == typeof(string))
-                {
-                    Func<string, string> placeholderTransformer = null;
-                    if (option.Attribute.PlaceholderTransformerMethod != null)
+                    var transformationMethod = (attr as EventNotifierOptionAttribute).PlaceholderTransformerMethod;
+                    if (!string.IsNullOrWhiteSpace(transformationMethod))
                     {
-                        var methodInfo = type.GetMethod(option.Attribute.PlaceholderTransformerMethod, BindingFlags.Static | BindingFlags.Public);
+                        var methodInfo = type.GetMethod(transformationMethod, BindingFlags.Static | BindingFlags.Public);
                         if (methodInfo == null)
-                            throw new ArgumentException($"Placeholder transformation method '{option.Attribute.PlaceholderTransformerMethod}' was not found on '{type.Name}'.");
+                            throw new ArgumentException($"Placeholder transformation method '{transformationMethod}' was not found on '{type.Name}'.");
 
-                        placeholderTransformer = (v) => methodInfo.Invoke(null, new[] { value }) as string;
+                        return (value) => methodInfo.Invoke(null, new[] { value }) as string;
                     }
-
-                    value = ResolvePlaceholders(value, placeholderTransformer, placeholders);
-                }
-
-                if (option.Property.PropertyType == typeof(string))
-                {
-                    option.Property.SetValue(instance, value);
-                }
-                else
-                {
-                    try
-                    {
-                        var convertedValue = InputConverter.ConvertStringTo(option.Property.PropertyType, value);
-                        option.Property.SetValue(instance, convertedValue);
-                    }
-                    catch(Exception) { /* Ignore errors here */ }
-                }
-            }
+                    return null;
+                });
 
             return instance;
-        }
-
-        private string ResolvePlaceholders(string value, Func<string, string> transformer, Dictionary<string, string> placeholders)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return value;
-            }
-
-            foreach (var kvp in placeholders)
-            {
-                var key = kvp.Key;
-                var placeholderValue = kvp.Value ?? "";
-
-                if (transformer != null)
-                {
-                    placeholderValue = transformer.Invoke(placeholderValue) ?? "";
-                }
-
-                value = value.Replace($"{{{key?.ToUpper()}}}", placeholderValue);
-            }
-
-            return value;
         }
 
         private Dictionary<string, string> CreatePlaceholdersDictionary(Dictionary<string, string> payloadValues, IEventNotifier notifier)

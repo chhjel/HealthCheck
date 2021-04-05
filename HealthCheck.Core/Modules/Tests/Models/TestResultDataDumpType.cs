@@ -43,6 +43,11 @@
         /// <summary>
         /// Timeline consiting of some steps.
         /// </summary>
-        Timeline
+        Timeline,
+
+        /// <summary>
+        /// Timed data metrics.
+        /// </summary>
+        Timings
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Models;
+using System;
 
 namespace HealthCheck.Core.Abstractions
 {
@@ -7,11 +8,6 @@ namespace HealthCheck.Core.Abstractions
     /// </summary>
     public interface IJsonSerializer
     {
-        /// <summary>
-        /// Last error if any.
-        /// </summary>
-        string LastError { get; }
-
         /// <summary>
         /// Serialize the given object into json.
         /// <para>
@@ -29,5 +25,10 @@ namespace HealthCheck.Core.Abstractions
         /// Deserialize the given json into an object of the given type.
         /// </summary>
         T Deserialize<T>(string json);
+
+        /// <summary>
+        /// Deserialize the given json into an object of the given type.
+        /// </summary>
+        HCGenericResult<object> DeserializeExt(string json, Type type);
     }
 }

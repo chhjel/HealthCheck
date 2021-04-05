@@ -186,6 +186,14 @@ namespace HealthCheck.Core.Modules.Tests.Models
             for(int i = 0; i < methodParameters.Length; i++)
             {
                 var parameter = methodParameters[i];
+                var type = parameter.ParameterType;
+                var isOut = parameter.ParameterType.IsByRef && parameter.IsOut;
+                var isRef = parameter.ParameterType.IsByRef && !parameter.IsOut;
+                if (isRef || isOut)
+                {
+                    type = type.GetElementType();
+                }
+
                 var parameterAttributesOnParameter = parameter.GetCustomAttribute<RuntimeTestParameterAttribute>(true);
                 var parameterAttribute = parameterAttributesOnParameter ?? parameterAttributesOnMethod.FirstOrDefault(x => x.Target == parameter.Name);
 
@@ -198,14 +206,16 @@ namespace HealthCheck.Core.Modules.Tests.Models
                     Name = parameterAttribute?.Name ?? parameter.Name.SpacifySentence(),
                     Description = parameterAttribute?.Description.EnsureDotAtEndIfNotNull(),
                     DefaultValue = GetDefaultValue(parameter, parameterAttribute),
-                    ParameterType = parameter.ParameterType,
+                    ParameterType = type,
                     NotNull = parameterAttribute?.UIHints.HasFlag(UIHint.NotNull) == true,
                     ReadOnlyList = parameterAttribute?.UIHints.HasFlag(UIHint.ReadOnlyList) == true,
                     ShowTextArea = parameterAttribute?.UIHints.HasFlag(UIHint.TextArea) == true,
                     FullWidth = parameterAttribute?.UIHints.HasFlag(UIHint.FullWidth) == true,
                     PossibleValues = GetPossibleValues(parameter.ParameterType),
                     IsCustomReferenceType = isCustomReferenceType,
-                    ReferenceFactory = referenceFactory
+                    ReferenceFactory = referenceFactory,
+                    IsOut = isOut,
+                    IsRef = isRef
                 };
             }
         }
@@ -213,8 +223,14 @@ namespace HealthCheck.Core.Modules.Tests.Models
         private RuntimeTestReferenceParameterFactory TryFindParameterFactory(
             string referenceChoicesFactoryMethodName, ParameterInfo parameter)
         {
+            var type = parameter.ParameterType;
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                type = type.GetGenericArguments()[0];
+            }
+
             // First check proxy config
-            var factoryFromProxyConfig = ClassProxyConfig?.GetFactoryForType(parameter.ParameterType);
+            var factoryFromProxyConfig = ClassProxyConfig?.GetFactoryForType(type);
             if (factoryFromProxyConfig != null)
             {
                 return factoryFromProxyConfig;
@@ -232,7 +248,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
                     try
                     {
                         var factories = factoryProviderMethod.Invoke(null, new object[0]) as List<RuntimeTestReferenceParameterFactory>;
-                        var factory = factories.FirstOrDefault(x => x.CanFactorizeFor(parameter.ParameterType));
+                        var factory = factories.FirstOrDefault(x => x.CanFactorizeFor(type));
                         if (factory != null)
                         {
                             return factory;
@@ -243,7 +259,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
             }
 
             // Finally check global testmodule config factories
-            return _referenceParameterFactories?.FirstOrDefault(x => x.CanFactorizeFor(parameter.ParameterType));
+            return _referenceParameterFactories?.FirstOrDefault(x => x.CanFactorizeFor(type));
         }
 
         private List<object> GetPossibleValues(Type parameterType)
@@ -318,15 +334,17 @@ namespace HealthCheck.Core.Modules.Tests.Models
 
             var parameterCount = methodParams.Length;
             var parameterList = new object[parameterCount];
+            var refsIndices = new List<int>();
             for (int i = 0; i < parameterCount; i++)
             {
+                var methodParam = methodParams[i];
                 var value = (parameters != null && parameters.Length >= i - 1)
                     ? parameters[i]
                     : null;
 
-                if (allowDefaultValues && value == null && methodParams[i].DefaultValue != null)
+                if (allowDefaultValues && value == null && methodParam.DefaultValue != null)
                 {
-                    value = methodParams[i].DefaultValue;
+                    value = methodParam.DefaultValue;
                 }
 
                 if (Convert.IsDBNull(value))
@@ -335,43 +353,90 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 }
 
                 parameterList[i] = value;
+
+                var isOut = methodParam.ParameterType.IsByRef && methodParam.IsOut;
+                var isRef = methodParam.ParameterType.IsByRef && !methodParam.IsOut;
+                if (isRef || isOut)
+                {
+                    refsIndices.Add(i);
+                }
+            }
+
+            TestResult postProcessResult(TestResult result)
+            {
+                if (TestRunnerService.Serializer != null)
+                {
+                    foreach (var index in refsIndices)
+                    {
+                        var methodParam = methodParams[index];
+                        var value = parameterList[index];
+
+                        var isOut = methodParam.ParameterType.IsByRef && methodParam.IsOut;
+                        var prefix = isOut ? "out" : "ref";
+
+                        if (methodParam.ParameterType.GetElementType().IsPrimitive)
+                        {
+                            result.AddHtmlData($"Value = <code>{value}</code>", $"{prefix} {methodParam.Name}")
+                                .SetLatestDataCleanMode();
+                        }
+                        else
+                        {
+                            result.AddSerializedData(value, TestRunnerService.Serializer, $"{prefix} {methodParam.Name}");
+                        }
+                    }
+                }
+                return result;
             }
 
             var returnType = Method.ReturnType;
             if (returnType == typeof(TestResult))
             {
-                return (TestResult)Method.Invoke(instance, parameterList);
+                var result = (TestResult)Method.Invoke(instance, parameterList);
+                return postProcessResult(result);
             }
             else if (returnType == typeof(Task<TestResult>))
             {
                 var resultTask = (Task<TestResult>)Method.Invoke(instance, parameterList);
-                return await resultTask;
+                var result = await resultTask;
+                return postProcessResult(result);
             }
             // Async any
             else if (allowAnyResultType && 
                 ((returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
                 || returnType == typeof(Task)))
             {
-                var fallbackValue = (returnType == typeof(Task) || returnType == typeof(void)) ? null : "null";
+                var isResultless = (returnType == typeof(Task) || returnType == typeof(void));
+                var fallbackValue = isResultless ? null : "null";
                 var data = await InvokeAsync(Method, instance, parameterList);
                 if (returnType == typeof(Task))
                 {
                     data = null;
                 }
-                return TestResult.CreateSuccess($"Method {Method?.Name} was successfully invoked.")
+
+                var dataTypeName = data?.GetType().GetFriendlyTypeName();
+                var dataResultTitle = (data == null) ? "Result" : $"Result of type '{dataTypeName}'";
+
+                var result = TestResult.CreateSuccess($"Method {Method?.Name} was successfully invoked.")
                     .SetProxyTestResultObject(data)
-                    .AddAutoCreatedResultData(data ?? fallbackValue, includeAutoCreateResult)
-                    .AddSerializedData(data ?? fallbackValue, TestRunnerService.Serializer, "Result");
+                    .AddAutoCreatedResultData(data ?? fallbackValue, includeAutoCreateResult && !isResultless)
+                    .AddSerializedData(data ?? fallbackValue, TestRunnerService.Serializer, dataResultTitle);
+                return postProcessResult(result);
             }
             // Sync any
             else if (allowAnyResultType)
             {
-                var fallbackValue = (returnType == typeof(Task) || returnType == typeof(void)) ? null : "null";
+                var isResultless = (returnType == typeof(Task) || returnType == typeof(void));
+                var fallbackValue = isResultless ? null : "null";
                 var data = Method.Invoke(instance, parameterList);
-                return TestResult.CreateSuccess($"Method {Method?.Name} was successfully invoked.")
+
+                var dataTypeName = data?.GetType().GetFriendlyTypeName();
+                var dataResultTitle = (data == null) ? "Result" : $"Result of type '{dataTypeName}'";
+
+                var result = TestResult.CreateSuccess($"Method {Method?.Name} was successfully invoked.")
                     .SetProxyTestResultObject(data)
-                    .AddAutoCreatedResultData(data ?? fallbackValue, includeAutoCreateResult)
-                    .AddSerializedData(data ?? fallbackValue, TestRunnerService.Serializer, "Result");
+                    .AddAutoCreatedResultData(data ?? fallbackValue, includeAutoCreateResult && !isResultless)
+                    .AddSerializedData(data ?? fallbackValue, TestRunnerService.Serializer, dataResultTitle);
+                return postProcessResult(result);
             }
             else
             {

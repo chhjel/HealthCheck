@@ -1,3 +1,4 @@
+import { HCBackendInputConfig } from "generated/Models/Core/HCBackendInputConfig";
 
 export interface GenericEndpointControlResult {
     Success: boolean;
@@ -14,7 +15,7 @@ export interface EndpointControlCustomResultDefinitionViewModel
     Id: string;
     Name: string;
     Description: string;
-    CustomProperties: Array<EndpointControlCustomResultPropertyDefinitionViewModel>;
+    CustomProperties: Array<HCBackendInputConfig>;
 }
 
 export interface EndpointControlCustomResultPropertyDefinitionViewModel

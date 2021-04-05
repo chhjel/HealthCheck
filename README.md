@@ -229,7 +229,7 @@ Supported parameter types:
 * `Enum` (-> select)
 * `Enum` with `[Flags]` (-> multiselect)
 * `Guid`, `Guid?`
-* `HttpPostedFileBase` (.net framework only for now)
+* `byte[]`, `HttpPostedFileBase` (.NET Framework), `IFormFile` (.NET Core) (-> file upload)
 * `List<T>` where `<T>` is any of the above types (w/ option for readable list for setting order only)
 * `CancellationToken` to make the method cancellable, see below.
 * Search and filter for any custom type when custom factory methods are implemented, see below.
@@ -359,6 +359,7 @@ The `TestResult` class has a few static factory methods for quick creation of a 
 |AddData|Adds string data and optionally define the type yourself.|
 |AddSerializedData|Two variants of this method exists. Use the extension method variant unless you want to provide your own serializer implementation. The method simply serializes the given object to json and includes it.|
 |AddHtmlData|Two variants of this method exists. Use the extension method variant for html presets using `new HtmlPresetBuilder()` or the non-extension method for raw html.|
+|AddTimingData|Creates timing metric display.|
 |AddTimelineData|Creates a timeline from the given steps. Each step can show a dialog with more info/links.|
 
 ##### Cosmetics
@@ -460,6 +461,13 @@ Inject a memory logger into the instances being tested and include the output in
     // Include log data in the result
     result.AddCodeData(memoryLogger.Contents?.Trim(), "Log");
 ```
+
+#### Test context
+
+When a test is executed a context object is created for the current request that can be accessed through static methods on `HCTestContext`. This can be used in e.g. proxy tests to include some extra logging or timings. The context methods only have any effect when the request executed a test.
+
+* `HCTestContext.Log("Start of test")` Add some log data to the result.
+* `HCTestContext.StartTiming("Parsing data")` Start timing with the given description. Can be stopped with `HCTestContext.EndTiming` or continues until the end of the test method is reached.
 
 ---------
 
@@ -788,17 +796,17 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
 
 ## Module: Settings
 
-Allows custom settings to be configured. Only string, int and boolean properties are supported.
+Allows custom settings to be configured.
 
 ### Setup
 
 ```csharp
-UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { SettingsService = IHealthCheckSettingsService implementation }));
+UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { SettingsService = IHCSettingsService implementation }));
 ```
 
 ```csharp
 // Built in implementation examples
-SettingsService = new FlatFileHealthCheckSettingsService<TestSettings>(@"D:\settings.json");
+SettingsService = new HCDefaultSettingsService(new HCFlatFileStringDictionaryStorage(@"D:\settings.json"));
 ```
 
 <details><summary>Example</summary>
@@ -810,20 +818,23 @@ public class TestSettings
 {
     public string PropertyX { get; set; }
 
-    [HealthCheckSetting(GroupName = "Service X")]
+    [HCSetting(GroupName = "Service X")]
     public bool Enabled { get; set; }
 
-    [HealthCheckSetting(GroupName = "Service X")]
+    [HCSetting(GroupName = "Service X")]
     public int ThreadLimit { get; set; } = 2;
 
-    [HealthCheckSetting(GroupName = "Service X", description: "Some description here")]
+    [HCSetting(GroupName = "Service X", Description = "Some description here")]
     public int NumberOfThings { get; set; } = 321;
+
+    [HCSetting(GroupName = "Service X", Description = "When to start")]
+    public DateTime StartAt { get; set; };
 }
 ```
 
 ```csharp
-// Retrieve settings using the GetValue method.
-service.GetValue<bool>(nameof(TestSettings.Enabled))
+// Retrieve settings model using the GetSettings<T> method.
+service.GetSettings<TestSettings>().Enabled
 ```
 
 </p>

@@ -4,10 +4,19 @@
         <v-container grid-list-lg class="parameter-container">
           <v-layout row wrap>
               <v-flex xs12 sm12 :md6="allowMediumSize(parameter)" :lg3="allowSmallSize(parameter)"
-                  v-for="(parameter, index) in test.Parameters"
+                  v-for="(parameter, index) in filteredParameters"
                   :key="`test-${test.Id}-parameter`+index"
-                  class="parameter-block">
-                  <parameter-input-component :parameter="parameter" />
+                  class="parameter-block"
+                  v-show="!parameter.Hidden">
+
+                  <backend-input-component 
+                      v-model="parameter.Value"
+                      :forceType="cleanType(parameter.Type)"
+                      :forceName="parameter.Name"
+                      :forceDescription="parameter.Description"
+                      :isCustomReferenceType="parameter.IsCustomReferenceType"
+                      :config="createConfig(parameter, index)"
+                      @isAnyJson="onIsAnyJson(parameter)" />
               </v-flex>
           </v-layout>
         </v-container>
@@ -17,12 +26,13 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 import TestViewModel from  '../../../../models/modules/TestSuite/TestViewModel';
-import ParameterInputComponent from './ParameterInputComponent.vue';
 import TestParameterViewModel from  '../../../../models/modules/TestSuite/TestParameterViewModel';
+import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
+import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 
 @Component({
     components: {
-      ParameterInputComponent
+      BackendInputComponent
     }
 })
 export default class TestParametersComponent extends Vue {
@@ -48,6 +58,49 @@ export default class TestParametersComponent extends Vue {
     allowMediumSize(parameter: TestParameterViewModel): boolean
     {
       return !parameter.FullWidth;
+    }
+
+    cleanType(type: string): string {
+      if (type.startsWith("Nullable<"))
+      {
+        type = type.substring("Nullable<".length);
+        type = type.substr(0, type.length - 1);
+      }
+      else if (type.startsWith("Nullable"))
+      {
+        type = type.substring("Nullable".length);
+      }
+      return type;
+    }
+
+    createConfig(parameter: TestParameterViewModel, index: number): HCBackendInputConfig {
+      let flags: Array<string> = [];
+      if (parameter.ShowTextArea) { flags.push('TextArea') };
+      if (parameter.ReadOnlyList) { flags.push('ReadOnlyList') };
+
+      return {
+        Id: parameter.Name,
+        Type: parameter.Type,
+        Name: parameter.Name,
+        Description: parameter.Description,
+        NotNull: parameter.NotNull,
+        Nullable: parameter.Type.startsWith("Nullable"),
+        DefaultValue: parameter.DefaultValue,
+        Flags: flags,
+        FullWidth: parameter.FullWidth,
+        PossibleValues: parameter.PossibleValues,
+        ParameterIndex: index,
+        ExtraValues: {},
+        PropertyInfo: {}
+      };
+    }
+
+    onIsAnyJson(parameter: TestParameterViewModel): void {
+      parameter.IsUnsupportedJson = true;
+    }
+
+    get filteredParameters(): Array<TestParameterViewModel> {
+      return this.test.Parameters;//.filter(x => !x.Hidden); //todo: v-show instead
     }
 }
 </script>

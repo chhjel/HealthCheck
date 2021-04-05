@@ -1,4 +1,5 @@
-﻿using HealthCheck.Module.EndpointControl.Models;
+﻿using HealthCheck.Core.Attributes;
+using HealthCheck.Module.EndpointControl.Models;
 using System;
 #if NETFULL
 using System.Net.Http;
@@ -35,7 +36,7 @@ namespace HealthCheck.Module.EndpointControl.Abstractions
 
         /// <summary>
         /// Model for custom properties if any to display in the UI.
-        /// <para>Only string, int and bool properties supported for now.</para>
+        /// <para>Optionally decorate properties in the model with <see cref="HCCustomPropertyAttribute"/> to set descriptions etc.</para>
         /// </summary>
         Type CustomPropertiesModelType { get; }
 

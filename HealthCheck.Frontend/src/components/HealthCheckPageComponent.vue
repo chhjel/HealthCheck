@@ -45,12 +45,14 @@ import InvalidModuleConfigsComponent from './InvalidModuleConfigsComponent.vue';
 import IntegratedLoginPageComponent from './modules/IntegratedLogin/IntegratedLoginPageComponent.vue';
 import FrontEndOptionsViewModel from '../models/Common/FrontEndOptionsViewModel';
 import ModuleConfig from "../models/Common/ModuleConfig";
+import BackendInputComponent from "./Common/Inputs/BackendInputs/BackendInputComponent.vue";
 
 @Component({
     components: {
         NoPageAvailablePageComponent,
         InvalidModuleConfigsComponent,
-        IntegratedLoginPageComponent
+        IntegratedLoginPageComponent,
+        BackendInputComponent
     }
 })
 export default class HealthCheckPageComponent extends Vue {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using HealthCheck.Core.Util.Models;
+using System.Collections.Generic;
 
 namespace HealthCheck.Module.EndpointControl.Models
 {
@@ -15,6 +16,6 @@ namespace HealthCheck.Module.EndpointControl.Models
         public string Description { get; set; }
 
         /// <summary></summary>
-        public List<EndpointControlCustomResultPropertyDefinitionViewModel> CustomProperties { get; set; }
+        public List<HCBackendInputConfig> CustomProperties { get; set; }
     }
 }

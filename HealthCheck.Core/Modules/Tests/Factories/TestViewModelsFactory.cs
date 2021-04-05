@@ -19,13 +19,13 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         /// <summary>
         /// Create a <see cref="TestSetViewModel"/> from the given list of <see cref="TestClassDefinition"/>.
         /// </summary>
-        public List<TestSetViewModel> CreateViewModel(IEnumerable<TestClassDefinition> testClassDefinitions)
-            => testClassDefinitions.Select(x => CreateViewModel(x)).ToList();
+        public List<TestSetViewModel> CreateViewModel(IEnumerable<TestClassDefinition> testClassDefinitions, HCTestsModuleOptions options)
+            => testClassDefinitions.Select(x => CreateViewModel(x, options)).ToList();
 
         /// <summary>
         /// Create a <see cref="TestSetViewModel"/> from the given <see cref="TestClassDefinition"/>.
         /// </summary>
-        public TestSetViewModel CreateViewModel(TestClassDefinition testClassDefinition)
+        public TestSetViewModel CreateViewModel(TestClassDefinition testClassDefinition, HCTestsModuleOptions options)
         {
             var vm = new TestSetViewModel()
             {
@@ -40,7 +40,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
 
             foreach (var test in testClassDefinition.Tests.Where(x => x.LoadErrors?.Any() != true))
             {
-                vm.Tests.AddRange(CreateViewModels(test));
+                vm.Tests.AddRange(CreateViewModels(test, options));
             }
 
             return vm;
@@ -49,17 +49,17 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         /// <summary>
         /// Create a <see cref="TestViewModel"/> from the given <see cref="TestDefinition"/>.
         /// </summary>
-        public IEnumerable<TestViewModel> CreateViewModels(TestDefinition testDefinition)
+        public IEnumerable<TestViewModel> CreateViewModels(TestDefinition testDefinition, HCTestsModuleOptions options)
         {
             List<TestViewModel> viewModels = new List<TestViewModel>();
 
-            var model = CreateViewModel(testDefinition);
+            var model = CreateViewModel(testDefinition, options);
             viewModels.Add(model);
 
             return viewModels;
         }
 
-        private TestViewModel CreateViewModel(TestDefinition testDefinition)
+        private TestViewModel CreateViewModel(TestDefinition testDefinition, HCTestsModuleOptions options)
         {
             var model = new TestViewModel()
             {
@@ -74,7 +74,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
 
             foreach (var parameter in testDefinition.Parameters)
             {
-                model.Parameters.Add(CreateViewModel(parameter));
+                model.Parameters.Add(CreateViewModel(parameter, options));
             }
 
             return model;
@@ -98,11 +98,14 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         /// <summary>
         /// Create a <see cref="TestParameterViewModel"/> from the given <see cref="TestParameter"/>.
         /// </summary>
-        public TestParameterViewModel CreateViewModel(TestParameter testParameter)
+        public TestParameterViewModel CreateViewModel(TestParameter testParameter, HCTestsModuleOptions options)
         {
             var stringConverter = new StringConverter();
             var paramType = testParameter.ParameterType;
             string type = CreateParameterTypeName(paramType);
+
+            var hidden = testParameter.IsOut
+                || options?.HideInputForTypes?.Any(x => x.IsAssignableFrom(testParameter.ParameterType)) == true;
 
             var vm = new TestParameterViewModel()
             {
@@ -116,15 +119,21 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 ReadOnlyList = testParameter.ReadOnlyList,
                 ShowTextArea = testParameter.ShowTextArea,
                 FullWidth = testParameter.FullWidth,
-                IsCustomReferenceType = testParameter.IsCustomReferenceType
+                IsCustomReferenceType = testParameter.IsCustomReferenceType,
+                Hidden = hidden
             };
 
             return vm;
         }
 
+        private static readonly Dictionary<string, string> _inputTypeAliases = new Dictionary<string, string>
+        {
+            { "IFormFile", "HttpPostedFileBase" },
+            { "Byte[]", "HttpPostedFileBase" }
+        };
         private string CreateParameterTypeName(Type type)
         {
-            var typeName = type.GetFriendlyTypeName();
+            var typeName = type.GetFriendlyTypeName(_inputTypeAliases);
             if (type.IsEnum)
             {
                 typeName = EnumUtils.IsTypeEnumFlag(type) ? "FlaggedEnum" : "Enum";
@@ -142,13 +151,15 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         /// <summary>
         /// Create template values for any unsupported types.
         /// </summary>
-        public List<TestParameterTemplateViewModel> CreateParameterTemplatesViewModel(List<TestClassDefinition> testDefinitions)
+        public List<TestParameterTemplateViewModel> CreateParameterTemplatesViewModel(List<TestClassDefinition> testDefinitions, HCTestsModuleOptions options)
         {
             var parameters = testDefinitions.SelectMany(x => x.Tests.SelectMany(t => t.Parameters));
             var relevantParameters = parameters
+                .Where(x => !x.IsOut
+                    && !x.IsCustomReferenceType 
+                    && !TestsModuleUtils.IsBuiltInSupportedType(x.ParameterType))
                 .GroupBy(x => x.ParameterType.Name)
                 .Select(x => x.First())
-                .Where(x => !x.IsCustomReferenceType && !TestsModuleUtils.IsBuiltInSupportedType(x.ParameterType))
                 .ToArray();
 
             return relevantParameters.Select(x =>
@@ -156,10 +167,26 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 string template = null;
                 try
                 {
-                    if (HCGlobalConfig.AllowSerializingType(x.ParameterType))
+                    var useDefaultLogic = true;
+                    if (options.JsonInputTemplateFactory != null)
+                    {
+                        var factoryResult = options.JsonInputTemplateFactory(x.ParameterType);
+                        if (factoryResult?.NoTemplate == true)
+                        {
+                            template = "";
+                            useDefaultLogic = false;
+                        }
+                        else if (factoryResult?.Instance != null)
+                        {
+                            template = TestRunnerService.Serializer?.Serialize(factoryResult.Instance);
+                            useDefaultLogic = false;
+                        }
+                    }
+                    
+                    if (useDefaultLogic && HCGlobalConfig.AllowActivatingType(x.ParameterType) && HCGlobalConfig.AllowSerializingType(x.ParameterType))
                     {
                         var ctors = x.ParameterType.GetConstructors();
-                        var hasParameterlessConstructor = ctors?.Any() != true || ctors?.Any(x => x.GetParameters().Length == 0) == true;
+                        var hasParameterlessConstructor = ctors?.Any() != true || ctors?.Any(c => c.GetParameters().Length == 0) == true;
                         if (hasParameterlessConstructor)
                         {
                             var instance = Activator.CreateInstance(x.ParameterType);
@@ -219,7 +246,8 @@ namespace HealthCheck.Core.Modules.Tests.Factories
             {
                 Title = dataDump.Title,
                 Data = dataDump.Data,
-                Type = dataDump.Type
+                Type = dataDump.Type,
+                DisplayClean = dataDump.DisplayClean
             };
 
             return vm;

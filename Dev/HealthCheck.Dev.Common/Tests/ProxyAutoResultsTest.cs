@@ -8,7 +8,7 @@ namespace HealthCheck.Dev.Common.Tests
         Name = "Proxy auto results tests",
         DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins,
         GroupName = RuntimeTestConstants.Group.AlmostTopGroup,
-        UIOrder = 4
+        UIOrder = 60
     )]
     public class ProxyAutoResultsTest
     {

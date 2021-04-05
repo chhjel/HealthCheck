@@ -2,6 +2,7 @@
 using HealthCheck.Core.Modules.Tests.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace HealthCheck.Core.Modules.Tests
@@ -22,6 +23,12 @@ namespace HealthCheck.Core.Modules.Tests
         public Func<List<RuntimeTestReferenceParameterFactory>> ReferenceParameterFactories { get; set; }
 
         /// <summary>
+        /// To improve default json values, you can specify an instance factory to be serialized as a template here.
+        /// <para>If null is returned no template will be used.</para>
+        /// </summary>
+        public Func<Type, HCTestsJsonTemplateResult> JsonInputTemplateFactory { get; set; }
+
+        /// <summary>
         /// If enabled, any parameter non-supported parameter type will be attempted supported through json-serialization.
         /// <para>Defaults to true.</para>
         /// </summary>
@@ -37,5 +44,16 @@ namespace HealthCheck.Core.Modules.Tests
         /// </summary>
         public Action<TestResult, object> AutoResultAction { get; set; } = AutoResultHelper.DefaultAutoResultAction;
 
+        /// <summary>
+        /// Parameter types that will have hidden input fields, including derived types.
+        /// </summary>
+        public List<Type> HideInputForTypes { get; set; } = new List<Type>
+        {
+            typeof(Action<>), typeof(Action<,>), typeof(Action<,,>), typeof(Action<,,,>), typeof(Action<,,,,>),
+            typeof(Func<>), typeof(Func<,>), typeof(Func<,,>), typeof(Func<,,,>), typeof(Func<,,,,>), typeof(Func<,,,,,>),
+            typeof(Action), typeof(Expression),
+            typeof(Expression<>),
+            typeof(Expression), typeof(Delegate),
+        };
     }
 }

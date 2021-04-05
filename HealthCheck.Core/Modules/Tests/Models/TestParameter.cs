@@ -39,6 +39,16 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public List<object> PossibleValues { get; set; }
 
         /// <summary>
+        /// True if the parameter is an out-parameter.
+        /// </summary>
+        public bool IsOut { get; set; }
+
+        /// <summary>
+        /// True if the parameter is a ref-parameter.
+        /// </summary>
+        public bool IsRef { get; set; }
+
+        /// <summary>
         /// Do not allow null-values to be entered in the user interface. Does not affect nullable parameters.
         /// </summary>
         public bool NotNull { get; set; }
@@ -75,11 +85,17 @@ namespace HealthCheck.Core.Modules.Tests.Models
         {
             if (IsCustomReferenceType)
             {
-                if (test?.ClassProxyConfig?.GetFactoryForType(ParameterType) != null)
+                var type = ParameterType;
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
                 {
-                    return test.ClassProxyConfig.GetFactoryForType(ParameterType);
+                    type = type.GetGenericArguments()[0];
                 }
-                else if (ReferenceFactory?.CanFactorizeFor(ParameterType) != null)
+
+                if (test?.ClassProxyConfig?.GetFactoryForType(type) != null)
+                {
+                    return test.ClassProxyConfig.GetFactoryForType(type);
+                }
+                else if (ReferenceFactory?.CanFactorizeFor(type) != null)
                 {
                     return ReferenceFactory;
                 }

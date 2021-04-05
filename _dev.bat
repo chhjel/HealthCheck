@@ -8,4 +8,7 @@ start HealthCheck.sln
 cd HealthCheck.Frontend
 code .
 
+:: Start terminal
+"C:\Program Files\Git\git-bash.exe" --cd=./HealthCheck.Frontend
+
 ::pause

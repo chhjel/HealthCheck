@@ -1,6 +1,8 @@
 <!-- src/components/modules/TestSuite/result_data/TestResultDataComponent.vue -->
 <template>
-    <div>
+    <div class="data-dump-wrapper">
+        <div v-if="data.Title && data.Title.length > 0"
+          class="data-dump-title">{{data.Title}}</div>
         <component
             :class="`data-dump data-dump-${data.Type.toLowerCase()}`"
             :data="data"
@@ -8,15 +10,15 @@
             :is="getDataComponentNameFromType(data.Type)">
         </component>
 
-        <v-card-actions v-if="clean == false">
-          <v-btn flat color="secondary-darken2" @click="putDataOnCLipboard">Copy</v-btn>
+        <v-card-actions v-if="clean == false" class="data-dump-actions">
+          <v-btn outline small color="secondary-darken2" @click="putDataOnCLipboard">Copy</v-btn>
 
           <v-dialog
             v-model="showFullscreen"
             @keydown.esc="showFullscreen = false"
             fullscreen hide-overlay transition="dialog-transition">
             <template v-slot:activator="{ on }">
-              <v-btn flat color="secondary-darken2" v-on="on">Fullscreen</v-btn>
+              <v-btn outline small color="secondary-darken2" v-on="on">Fullscreen</v-btn>
             </template>
             <v-card>
               <!-- DIALOG TOOLBAR -->
@@ -64,7 +66,6 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import TestViewModel from  '../../../../models/modules/TestSuite/TestViewModel';
 import TestResultDataDumpViewModel from  '../../../../models/modules/TestSuite/TestResultDataDumpViewModel';
 // Parameter input components
 import UnknownDataTypeComponent from './UnknownDataTypeComponent.vue';
@@ -76,6 +77,7 @@ import TestResultHtmlDataComponent from './data_types/TestResultHtmlDataComponen
 import TestResultImageUrlsDataComponent from './data_types/TestResultImageUrlsDataComponent.vue';
 import TestResultUrlsDataComponent from './data_types/TestResultUrlsDataComponent.vue';
 import TestResultTimelineDataComponent from './data_types/TestResultTimelineDataComponent.vue';
+import TestResultTimingsDataComponent from './data_types/TestResultTimingsDataComponent.vue';
 
 @Component({
     components: {
@@ -88,7 +90,8 @@ import TestResultTimelineDataComponent from './data_types/TestResultTimelineData
       TestResultImageUrlsDataComponent,
       TestResultUrlsDataComponent,
       TestResultCodeDataComponent,
-      TestResultTimelineDataComponent
+      TestResultTimelineDataComponent,
+      TestResultTimingsDataComponent
     }
 })
 export default class TestResultDataComponent extends Vue {
@@ -155,5 +158,15 @@ export default class TestResultDataComponent extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.data-dump-wrapper {
+  margin-bottom: 1.2rem;
+}
+.data-dump-actions {
+  padding-left: 0;
+}
+.data-dump-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
 </style>

@@ -78,13 +78,8 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
 import DateUtils from  '../../../util/DateUtils';
 import LinqUtils from  '../../../util/LinqUtils';
-import SettingInputComponent from '../Settings/SettingInputComponent.vue';
 import { AccessData, CreatedAccessData } from  '../../../services/AccessTokensService';
 import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
-import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
-import BlockComponent from '../../Common/Basic/BlockComponent.vue';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
 
 @Component({
     components: {

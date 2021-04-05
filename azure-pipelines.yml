@@ -2,6 +2,8 @@ variables:
 # Static variables
 - name: BuildParameters.MainBranchName
   value: master
+- name: BuildParameters.ExperimentalBranchName
+  value: experimental
 - name: BuildParameters.Solution
   value: '**\*.sln'
 - name: BuildParameters.ArtifactName
@@ -11,18 +13,20 @@ variables:
 - name: BuildParameters.BuildConfiguration
   value: 'Release'
 # Computed variables
-- name: ComputedParameters.CleanSourceBranch
+- name: BuildParameters.CleanSourceBranch
   value: $[replace(variables['Build.SourceBranch'], 'refs/heads/', '')]
-- name: ComputedParameters.IsMain
-  value: $[eq(variables['ComputedParameters.CleanSourceBranch'], variables['BuildParameters.MainBranchName'])]
-- name: ComputedParameters.IsPr
+- name: BuildParameters.IsMain
+  value: $[eq(variables['BuildParameters.CleanSourceBranch'], variables['BuildParameters.MainBranchName'])]
+- name: BuildParameters.IsExperimental
+  value: $[eq(variables['BuildParameters.CleanSourceBranch'], variables['BuildParameters.ExperimentalBranchName'])]
+- name: BuildParameters.IsPr
   value: $[eq(variables['Build.Reason'], 'PullRequest')]
-- name: ComputedParameters.BuildReasonRevisionNumber
-  value: $[counter(variables['ComputedParameters.IsMain'], 0)]
-- name: ComputedParameters.AssemblyVersion
-  value: '3.1.$(ComputedParameters.BuildReasonRevisionNumber)'
+- name: BuildParameters.BuildReasonRevisionNumber
+  value: $[counter(variables['BuildParameters.CleanSourceBranch'], 0)]
+- name: BuildParameters.AssemblyVersion
+  value: '3.2.$(BuildParameters.BuildReasonRevisionNumber)'
 
-name: 3.1.$(Rev:r)-$(Build.Reason)
+name: 3.2.$(Rev:r)-$(Build.Reason)_$(SourceBranchName)
 
 # Trigger section does not support variables
 trigger:
@@ -30,6 +34,7 @@ trigger:
   branches:
     include:
     - master
+    - experimental
 
 resources:
   repositories:
@@ -44,6 +49,14 @@ jobs:
     vmImage: windows-2019
 
   steps:
+  - script: echo '##vso[task.setvariable variable=BuildParameters.AssemblyVersion]$(BuildParameters.AssemblyVersion)-$(BuildParameters.CleanSourceBranch)
+    displayName: "Set experimental version suffix"
+    condition: and(succeeded(), eq(variables['BuildParameters.IsExperimental'], 'true'))
+
+  - script: |
+      echo $(BuildParameters.AssemblyVersion)
+    displayName: Show version variable
+
   - checkout: self
 
   - task: NuGetToolInstaller@0
@@ -65,7 +78,7 @@ jobs:
     displayName: Replace version in code
     inputs:
       parameterSearchText: 'https://unpkg.com/christianh-healthcheck@2/'
-      parameterReplaceText: 'https://unpkg.com/christianh-healthcheck@$(ComputedParameters.AssemblyVersion)/'
+      parameterReplaceText: 'https://unpkg.com/christianh-healthcheck@$(BuildParameters.AssemblyVersion)/'
       parameterTypeOfSearch: 'filesList'
       parameterFilesList: |
         /HealthCheck.WebUI/Models/HCPageOptions.cs
@@ -75,7 +88,7 @@ jobs:
     displayName: Build solution
     inputs:
       solution: $(BuildParameters.Solution)
-      msbuildArgs: /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)\\" /p:Version=$(ComputedParameters.AssemblyVersion)
+      msbuildArgs: /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)\\" /p:Version=$(BuildParameters.AssemblyVersion)
       platform: $(BuildParameters.BuildPlatform)
       configuration: $(BuildParameters.BuildConfiguration)
 
@@ -107,7 +120,7 @@ jobs:
   #############
   - task: NuGetCommand@2
     displayName: Publish to nuget.org
-    condition: and(succeeded(), eq(variables['ComputedParameters.IsMain'], 'true'))
+    condition: and(succeeded(), eq(variables['BuildParameters.IsMain'], 'true'))
     inputs:
       command: 'push'
       packagesToPush: '**/Release/*.nupkg;!**/*.symbols.nupkg'
@@ -116,15 +129,15 @@ jobs:
 
   - task: Npm@1
     displayName: Set package.json version number
-    condition: and(succeeded(), eq(variables['ComputedParameters.IsMain'], 'true'))
+    condition: and(succeeded(), eq(variables['BuildParameters.IsMain'], 'true'))
     inputs:
       command: 'custom'
       workingDir: 'HealthCheck.Frontend/dist'
-      customCommand: 'version $(ComputedParameters.AssemblyVersion)'
+      customCommand: 'version $(BuildParameters.AssemblyVersion)'
 
   - task: Npm@1
     displayName: Publish to npmjs.org
-    condition: and(succeeded(), eq(variables['ComputedParameters.IsMain'], 'true'))
+    condition: and(succeeded(), eq(variables['BuildParameters.IsMain'], 'true'))
     inputs:
       command: 'publish'
       workingDir: 'HealthCheck.Frontend/dist/'

@@ -28,7 +28,7 @@ using HealthCheck.Core.Modules.SecureFileDownload.FileStorage;
 using HealthCheck.Core.Modules.SecureFileDownload.Models;
 using HealthCheck.Core.Modules.Settings;
 using HealthCheck.Core.Modules.Settings.Abstractions;
-using HealthCheck.Core.Modules.Settings.Attributes;
+using HealthCheck.Core.Modules.Settings.Services;
 using HealthCheck.Core.Modules.SiteEvents;
 using HealthCheck.Core.Modules.SiteEvents.Abstractions;
 using HealthCheck.Core.Modules.SiteEvents.Enums;
@@ -40,6 +40,7 @@ using HealthCheck.Core.Util;
 using HealthCheck.Dev.Common;
 using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.EventNotifier;
+using HealthCheck.Dev.Common.Settings;
 using HealthCheck.Dev.Common.Tests;
 using HealthCheck.Module.DevModule;
 using HealthCheck.Module.DynamicCodeExecution.Abstractions;
@@ -81,17 +82,15 @@ namespace HealthCheck.DevTest.Controllers
         private static readonly TestMemoryStream otherStream1 = new TestMemoryStream(null);
         private static readonly TestMemoryStream otherStream2 = new TestMemoryStream(null);
         //private static readonly HCMemoryMessageStore _memoryMessageStore = new HCMemoryMessageStore()
-        private static readonly IHCMessageStorage _memoryMessageStore = new HCFlatFileMessageStore(@"c:\temp\hc_messages")
-        {
-            EnableStoringMessages = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableStoringMessages)
-        };
+        private static readonly IHCMessageStorage _memoryMessageStore = new HCFlatFileMessageStore(@"c:\temp\hc_messages");
         private static readonly FlatFileEventSinkNotificationConfigStorage EventSinkNotificationConfigStorage
             = new FlatFileEventSinkNotificationConfigStorage(@"c:\temp\eventconfigs.json");
         private static readonly FlatFileEventSinkKnownEventDefinitionsStorage EventSinkNotificationDefinitionStorage
             = new FlatFileEventSinkKnownEventDefinitionsStorage(@"c:\temp\eventconfig_defs.json");
         private static readonly FlatFileSecureFileDownloadDefinitionStorage FlatFileSecureFileDownloadDefinitionStorage
             = new FlatFileSecureFileDownloadDefinitionStorage(@"c:\temp\securefile_defs.json");
-        private static IHealthCheckSettingsService SettingsService => HCGlobalConfig.DefaultInstanceResolver(typeof(IHealthCheckSettingsService)) as IHealthCheckSettingsService;
+        private static HCFlatFileStringDictionaryStorage _settingsStorage = new HCFlatFileStringDictionaryStorage(@"C:\temp\settings.json");
+        private IHCSettingsService SettingsService { get; set; } = new HCDefaultSettingsService(_settingsStorage);
         private IDataflowService<RuntimeTestAccessRole> DataflowService { get; set; }
         private IEventDataSink EventSink { get; set; }
         private static bool ForceLogout { get; set; }
@@ -163,6 +162,14 @@ namespace HealthCheck.DevTest.Controllers
             UseModule(new HCTestsModule(new HCTestsModuleOptions() {
                     AssembliesContainingTests = assemblies,
                     ReferenceParameterFactories = CreateReferenceParameterFactories
+                    //JsonInputTemplateFactory = (type) =>
+                    //{
+                    //    if (type == typeof(System.Net.Mail.MailMessage))
+                    //    {
+                    //        return HCTestsJsonTemplateResult.CreateNoTemplate();
+                    //    }
+                    //    return HCTestsJsonTemplateResult.CreateDefault();
+                    //}
             }))
                 .ConfigureGroups((options) => options
                     .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
@@ -189,7 +196,7 @@ namespace HealthCheck.DevTest.Controllers
             UseModule(new HCAuditLogModule(new HCAuditLogModuleOptions() { AuditEventService = _auditEventService, IncludeClientConnectionDetailsInAllEvents = true }));
             UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = _siteEventService }));
             UseModule(new HCRequestLogModule(new HCRequestLogModuleOptions() { RequestLogService = RequestLogServiceAccessor.Current }));
-            UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { SettingsService = SettingsService }));
+            UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { Service = SettingsService, ModelType = typeof(TestSettings) }));
 
             if (!_hasInited)
             {
@@ -200,7 +207,7 @@ namespace HealthCheck.DevTest.Controllers
         private List<RuntimeTestReferenceParameterFactory> CreateReferenceParameterFactories()
         {
             var getUserChoices = new Func<IEnumerable<CustomReferenceType>>(() =>
-                Enumerable.Range(1, 500).Select(x => new CustomReferenceType { Id = x, Title = $"Item #{x}" })
+                Enumerable.Range(1, 50).Select(x => new CustomReferenceType { Id = x, Title = $"Item #{x}" })
             );
 
             return new List<RuntimeTestReferenceParameterFactory>()
@@ -271,7 +278,7 @@ namespace HealthCheck.DevTest.Controllers
             EventSink.RegisterEvent("pageload", new {
                 Url = Request.RawUrl,
                 User = CurrentRequestInformation?.UserName,
-                SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp)
+                SettingValue = SettingsService.GetSettings<TestSettings>().IntProp
             });
 
             if (Request.QueryString.AllKeys.Contains("addmessages"))
@@ -381,7 +388,7 @@ namespace HealthCheck.DevTest.Controllers
                     EventSink.RegisterEvent("thing_imported", new
                     {
                         Code = 9999 + i,
-                        DisplayName = $"Some item #{(9999 + i)}",
+                        DisplayName = $"Some item #{9999 + i}",
                         PublicUrl = $"/products/item_{i}"
                     });
                 }
@@ -483,21 +490,21 @@ namespace HealthCheck.DevTest.Controllers
                 {
                     Url = Request.RawUrl,
                     User = CurrentRequestInformation?.UserName,
-                    SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp),
+                    SettingValue = SettingsService.GetSettings<TestSettings>().IntProp,
                     ExtraB = "BBBB"
                 },
                 2 => new
                 {
                     Url = Request.RawUrl,
                     User = CurrentRequestInformation?.UserName,
-                    SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp),
+                    SettingValue = SettingsService.GetSettings<TestSettings>().IntProp,
                     ExtraA = "AAAA"
                 },
                 _ => new
                 {
                     Url = Request.RawUrl,
                     User = CurrentRequestInformation?.UserName,
-                    SettingValue = SettingsService.GetValue<TestSettings, int>((setting) => setting.IntProp)
+                    SettingValue = SettingsService.GetSettings<TestSettings>().IntProp
                 },
             };
             EventSink.RegisterEvent("pageload", payload);
@@ -529,32 +536,6 @@ namespace HealthCheck.DevTest.Controllers
                 ForcedRole = (RuntimeTestAccessRole) Enum.Parse(typeof(RuntimeTestAccessRole), name);
                 return Content($"Role set to: {ForcedRole}.");
             }
-        }
-
-        public class TestSettings
-        {
-            [HealthCheckSetting(description: "Some description here")]
-            public string StringProp { get; set; }
-            public bool BoolProp { get; set; } = false;
-            public int IntProp { get; set; } = 15523;
-
-            [HealthCheckSetting(GroupName = "Store latest mail/sms")]
-            public bool EnableStoringMessages { get; set; } = true;
-
-            [HealthCheckSetting(GroupName = "Service X")]
-            public bool EnableX { get; set; }
-
-            [HealthCheckSetting(GroupName = "Service X")]
-            public string ConnectionString { get; set; }
-
-            [HealthCheckSetting(GroupName = "Service X")]
-            public int Threads { get; set; } = 2;
-
-            [HealthCheckSetting(GroupName = "Service X")]
-            public int NumberOfThings { get; set; } = 321;
-
-            [HealthCheckSetting(GroupName = "Event Notifications")]
-            public bool EnableEventRegistering { get; set; }
         }
 
         private ILogSearcherService CreateLogSearcherService()
@@ -607,7 +588,7 @@ namespace HealthCheck.DevTest.Controllers
                 .AddNotifier(new SimpleNotifier())
                 .AddPlaceholder("NOW", () => DateTimeOffset.Now.ToString())
                 .AddPlaceholder("ServerName", () => Environment.MachineName);
-            (EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetValue<TestSettings, bool>(x => x.EnableEventRegistering);
+            (EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetSettings<TestSettings>().EnableEventRegistering;
         }
 
         // New mock data

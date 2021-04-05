@@ -1,8 +1,6 @@
 <!-- src/components/modules/TestSuite/result_data/data_types/TestResultTimelineDataComponent.vue -->
 <template>
     <div>
-      <div v-if="!fullscreen">{{data.Title}}</div>
-      
       <v-stepper alt-labels non-linear>
         <v-stepper-header>
           <template v-for="(step, index) in steps">

@@ -2,11 +2,10 @@
 <template>
     <div>
         <v-textarea
-          :label="data.Title"
           :value="text"
           readonly
           :rows="rowCount"
-          class="data-textarea"
+          class="data-textarea mt-0"
           :autoGrow="fullscreen"
         ></v-textarea>
     </div>

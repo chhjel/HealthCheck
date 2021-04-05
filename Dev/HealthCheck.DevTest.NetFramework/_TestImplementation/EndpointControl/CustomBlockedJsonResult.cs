@@ -50,6 +50,9 @@ namespace HealthCheck.DevTest._TestImplementation.EndpointControl
     {
         public int StatusCode { get; set; } = 409;
         public string ErrorMessage { get; set; } = "Oh no!";
-        public bool Success { get; set; } = false;
+        public bool Success { get; set; } = true;
+        public DateTime Date { get; set; }
+        public bool? NullBool { get; set; }
+        public DateTimeOffset? DateOffset { get; set; }
     }
 }

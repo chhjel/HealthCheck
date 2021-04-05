@@ -12,7 +12,7 @@ namespace HealthCheck.Dev.Common.Tests
         Name = "Class proxy tests",
         DefaultRolesWithAccess = RuntimeTestAccessRole.SystemAdmins,
         GroupName = RuntimeTestConstants.Group.AlmostTopGroup,
-        UIOrder = 30
+        UIOrder = 80
     )]
     public class ClassProxyTests
     {
@@ -53,8 +53,8 @@ namespace HealthCheck.Dev.Common.Tests
                     {
                         result
                             .AddCodeData(context.MemoryLogger.Contents)
-                            .ForProxyResult<SomeParameterType>((value) => result.AddTextData("Is of type SomeParameterType!"))
-                            .AddTextData(result.ProxyTestResultObject?.GetType()?.Name ?? "null", "Result type");
+                            .ForProxyResult<SomeParameterType>((value) => result.AddTextData("Is of type SomeParameterType!"));
+                            //.AddTextData(result.ProxyTestResultObject?.GetType()?.Name ?? "null", "Result type")
                     }
                 )
                 .AddParameterTypeConfig<SomeParameterType>(

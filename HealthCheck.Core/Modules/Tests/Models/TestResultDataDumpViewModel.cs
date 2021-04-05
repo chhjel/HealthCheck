@@ -19,5 +19,10 @@
         /// True if data was serialized to json.
         /// </summary>
         public TestResultDataDumpType Type { get; set; }
+
+        /// <summary>
+        /// Removes expansion panel and copy/fullscreeen buttons.
+        /// </summary>
+        public bool? DisplayClean { get; set; }
     }
 }

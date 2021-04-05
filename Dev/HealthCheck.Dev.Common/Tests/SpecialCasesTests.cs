@@ -1,7 +1,10 @@
 ﻿using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
+using HealthCheck.WebUI.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
+using static HealthCheck.Dev.Common.Tests.OutParameterTests;
 
 namespace HealthCheck.Dev.Common.Tests
 {
@@ -9,7 +12,7 @@ namespace HealthCheck.Dev.Common.Tests
         Name = "Special cases tests",
         DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins,
         GroupName = RuntimeTestConstants.Group.AlmostTopGroup,
-        UIOrder = 10
+        UIOrder = 50
     )]
     public class SpecialCasesTests
     {
@@ -27,6 +30,13 @@ namespace HealthCheck.Dev.Common.Tests
             };
             return TestResult.CreateSuccess("Success hopefully.")
                 .AddCodeData(string.Join("\n", items));
+        }
+
+        [RuntimeTest]
+        public TestResult TestWithListOfComplexObjects(List<ComplexDumy> data)
+        {
+            return TestResult.CreateSuccess("Success hopefully.")
+                .AddSerializedData(data);
         }
     }
 }

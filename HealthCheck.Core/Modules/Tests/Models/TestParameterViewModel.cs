@@ -61,5 +61,10 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// True when a custom parameter factory has been defined for this type.
         /// </summary>
         public bool IsCustomReferenceType { get; set; }
+
+        /// <summary>
+        /// Hide input.
+        /// </summary>
+        public bool Hidden { get; set; }
     }
 }

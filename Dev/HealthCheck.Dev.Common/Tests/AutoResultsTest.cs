@@ -8,7 +8,7 @@ namespace HealthCheck.Dev.Common.Tests
         Name = "Auto results tests",
         DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins,
         GroupName = RuntimeTestConstants.Group.AlmostTopGroup,
-        UIOrder = 5
+        UIOrder = 90
     )]
     public class AutoResultsTest
     {

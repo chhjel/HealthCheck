@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
+using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Modules.Settings.Models;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,8 @@ namespace HealthCheck.Core.Modules.Settings
         public override IEnumerable<string> Validate()
         {
             var issues = new List<string>();
-            if (Options.SettingsService == null) issues.Add("Options.SettingsService must be set.");
+            if (Options.Service == null) issues.Add("Options.Service must be set.");
+            if (Options.ModelType == null) issues.Add("Options.ModelType must be set.");
             return issues;
         }
 
@@ -61,10 +63,11 @@ namespace HealthCheck.Core.Modules.Settings
         [HealthCheckModuleMethod]
         public GetSettingsViewModel GetSettings()
         {
-            var settings = Options.SettingsService.GetSettingItems();
+            var values = Options.Service.GetSettingValues(Options.ModelType);
             return new GetSettingsViewModel()
             {
-                Settings = settings
+                Definitions = HCCustomPropertyAttribute.CreateInputConfigs(Options.ModelType),
+                Values = values
             };
         }
 
@@ -74,11 +77,11 @@ namespace HealthCheck.Core.Modules.Settings
         [HealthCheckModuleMethod(AccessOption.ChangeSettings)]
         public void SetSettings(HealthCheckModuleContext context, SetSettingsViewModel model)
         {
-            string settingsString = $"[{string.Join("] [", model.Settings.Select(x => $"{x.Id}: {x.Value}"))}]";
+            string settingsString = $"[{string.Join("] [", model.Values.Select(x => $"{x.Key}: {x.Value}"))}]";
             context.AddAuditEvent(action: "Settings updated", subject: "Settings")
                 .AddDetail("Values", settingsString);
 
-            Options.SettingsService.SaveSettings(model.Settings);
+            Options.Service.SaveSettings(Options.ModelType, model.Values);
         }
         #endregion
     }

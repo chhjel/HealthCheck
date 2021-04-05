@@ -264,3 +264,5 @@ Dev/HealthCheck\.DevTest/App_Data/
 Dev/HealthCheck.DevTest.NetFramework/App_Data/
 
 Dev/HealthCheck.DevTest.NetCore_3.1/App_Data/
+
+HealthCheck.Frontend/dist/

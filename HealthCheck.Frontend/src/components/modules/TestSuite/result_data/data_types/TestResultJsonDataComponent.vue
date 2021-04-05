@@ -1,7 +1,6 @@
 <!-- src/components/modules/TestSuite/result_data/data_types/TestResultJsonDataComponent.vue -->
 <template>
     <div>
-      <div v-if="!fullscreen">{{data.Title}}</div>
       <code-editor language="json"
         :data="data"
         :fullscreen="fullscreen" />

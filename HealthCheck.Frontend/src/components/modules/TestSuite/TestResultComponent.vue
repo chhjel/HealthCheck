@@ -13,7 +13,7 @@
 
         <!-- DATA DUMPS -->
         <v-expansion-panel 
-          class="mt-2"
+          class="mt-2 test-result-expansion-panel"
           :class="{ 'clean-mode': testResult.DisplayClean }"
           v-if="showTestResultData"
           v-model="dataExpandedState">
@@ -27,7 +27,7 @@
                   v-for="(data, index) in testResult.Data"
                   :key="`test-${testResult.TestId}-result-data`+index"
                   :data="data"
-                  :clean="testResult.DisplayClean" />
+                  :clean="data.DisplayClean || testResult.DisplayClean" />
               </v-card-text>
             </v-card>
           </v-expansion-panel-content>
@@ -168,5 +168,16 @@ export default class TestResultComponent extends Vue {
 .v-expansion-panel.clean-mode {
   border: none;
   box-shadow: none;
+}
+</style>
+
+<style lang="scss">
+.test-result-expansion-panel {
+  .v-expansion-panel__header {
+    background-color: #f5f5f5;
+  }
+  .v-expansion-panel__body {
+    margin-left: 8px;
+  }
 }
 </style>
