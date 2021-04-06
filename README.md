@@ -801,7 +801,10 @@ Allows custom settings to be configured.
 ### Setup
 
 ```csharp
-UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { SettingsService = IHCSettingsService implementation }));
+UseModule(new HCSettingsModule(new HCSettingsModuleOptions() {
+    SettingsService = IHCSettingsService implementation,
+    ModelType = typeof(YourSettingsModel)
+}));
 ```
 
 ```csharp
@@ -814,7 +817,7 @@ SettingsService = new HCDefaultSettingsService(new HCFlatFileStringDictionarySto
 
 ```csharp
 // Create a custom model for your settings
-public class TestSettings
+public class YourSettingsModel
 {
     public string PropertyX { get; set; }
 
@@ -834,7 +837,7 @@ public class TestSettings
 
 ```csharp
 // Retrieve settings model using the GetSettings<T> method.
-service.GetSettings<TestSettings>().Enabled
+service.GetSettings<YourSettingsModel>().Enabled
 ```
 
 </p>
