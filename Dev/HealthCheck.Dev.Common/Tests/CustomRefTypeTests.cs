@@ -8,7 +8,7 @@ namespace HealthCheck.Dev.Common.Tests
     [RuntimeTestClass(
         Name = "Custom ref type tests",
         DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins,
-        GroupName = RuntimeTestConstants.Group.AlmostTopGroup,
+        GroupName = RuntimeTestConstants.Group.TopGroup,
         UIOrder = 70
     )]
     public class CustomRefTypeTests

@@ -11,7 +11,7 @@ namespace HealthCheck.Dev.Common.Tests
     [RuntimeTestClass(
         Name = "Special cases tests",
         DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins,
-        GroupName = RuntimeTestConstants.Group.AlmostTopGroup,
+        GroupName = RuntimeTestConstants.Group.TopGroup,
         UIOrder = 50
     )]
     public class SpecialCasesTests

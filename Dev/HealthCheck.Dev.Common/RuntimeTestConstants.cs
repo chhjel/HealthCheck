@@ -6,6 +6,7 @@
         {
             public const string AdminStuff = "Admin stuff";
             public const string AlmostTopGroup = "Almost at the top group";
+            public const string TopGroup = "Top group";
             public const string BottomGroup = "Bottom group";
             public const string AlmostBottomGroup = "Almost at the bottom group";
         }
