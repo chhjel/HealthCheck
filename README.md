@@ -870,7 +870,7 @@ new FlatFileAccessManagerTokenStorage(@"e:\config\access-tokens.json")
 
 ## Module: Event Notifications
 
-Enables notifications of custom events. Rules for notifications can be edited in a UI and events are easily triggered from code. Notifications are delivered through implementations of `IEventNotifier`. Built-in implementations: `DefaultEventDataSink`, `WebHookEventNotifier`.
+Enables notifications of custom events. Rules for notifications can be edited in a UI and events are easily triggered from code. Notifications are delivered through implementations of `IEventNotifier`. Built-in implementations: `DefaultEventDataSink`, `WebHookEventNotifier`, `HCMailEventNotifierBase`.
 
 Events can be filtered on their id, stringified payload or properties on their payload, and limits and distinctions can be set.
 
