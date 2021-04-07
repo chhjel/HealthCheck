@@ -1,4 +1,4 @@
-using HealthCheck.Core.Abstractions;
+﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Config;
 using HealthCheck.Core.Extensions;
@@ -22,6 +22,8 @@ using HealthCheck.Core.Modules.LogViewer.Services;
 using HealthCheck.Core.Modules.Messages;
 using HealthCheck.Core.Modules.Messages.Abstractions;
 using HealthCheck.Core.Modules.Messages.Models;
+using HealthCheck.Core.Modules.Metrics;
+using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Core.Modules.SecureFileDownload;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload.FileStorage;
@@ -107,6 +109,27 @@ namespace HealthCheck.DevTest.Controllers
                 typeof(RuntimeTestConstants).Assembly
             };
 
+            UseModule(new HCMetricsModule(new HCMetricsModuleOptions()));
+            UseModule(new HCTestsModule(new HCTestsModuleOptions()
+            {
+                AssembliesContainingTests = assemblies,
+                ReferenceParameterFactories = CreateReferenceParameterFactories
+                //JsonInputTemplateFactory = (type) =>
+                //{
+                //    if (type == typeof(System.Net.Mail.MailMessage))
+                //    {
+                //        return HCTestsJsonTemplateResult.CreateNoTemplate();
+                //    }
+                //    return HCTestsJsonTemplateResult.CreateDefault();
+                //}
+            }))
+                .ConfigureGroups((options) => options
+                    .ConfigureGroup(RuntimeTestConstants.Group.TopGroup, uiOrder: 110)
+                    .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
+                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)
+                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
+                    .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
+                );
             UseModule(new HCMessagesModule(new HCMessagesModuleOptions() { MessageStorage = _memoryMessageStore }
                 .DefineInbox("mail", "Mail", "All sent email ends up here.")
                 .DefineInbox("sms", "SMS", "All sent sms ends up here.")
@@ -159,25 +182,6 @@ namespace HealthCheck.DevTest.Controllers
                     new CodeSuggestion("GetService<T>(id)", "Get a registered service", "GetService<${1:T}>(${2:x})")
                 }
             }));
-            UseModule(new HCTestsModule(new HCTestsModuleOptions() {
-                    AssembliesContainingTests = assemblies,
-                    ReferenceParameterFactories = CreateReferenceParameterFactories
-                    //JsonInputTemplateFactory = (type) =>
-                    //{
-                    //    if (type == typeof(System.Net.Mail.MailMessage))
-                    //    {
-                    //        return HCTestsJsonTemplateResult.CreateNoTemplate();
-                    //    }
-                    //    return HCTestsJsonTemplateResult.CreateDefault();
-                    //}
-            }))
-                .ConfigureGroups((options) => options
-                    .ConfigureGroup(RuntimeTestConstants.Group.TopGroup, uiOrder: 110)
-                    .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
-                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)
-                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
-                    .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
-                );
             UseModule(new HCEventNotificationsModule(new HCEventNotificationsModuleOptions() { EventSink = EventSink }));
             UseModule(new HCLogViewerModule(new HCLogViewerModuleOptions() { LogSearcherService = CreateLogSearcherService() }));
             UseModule(new HCDocumentationModule(new HCDocumentationModuleOptions()
@@ -227,7 +231,7 @@ namespace HealthCheck.DevTest.Controllers
         #region Overrides
         protected override void ConfigureAccess(HttpRequestBase request, AccessConfig<RuntimeTestAccessRole> config)
         {
-            /// MODULES //
+            // MODULES //
             config.GiveRolesAccessToModule(
                 RuntimeTestAccessRole.Guest | RuntimeTestAccessRole.WebAdmins,
                 TestModuleA.TestModuleAAccessOption.DeleteThing | TestModuleA.TestModuleAAccessOption.EditThing
@@ -246,6 +250,7 @@ namespace HealthCheck.DevTest.Controllers
             config.GiveRolesAccessToModule(RuntimeTestAccessRole.API,
                 HCDynamicCodeExecutionModule.AccessOption.ExecuteSavedScript | HCDynamicCodeExecutionModule.AccessOption.LoadScriptFromServer);
 
+            config.GiveRolesAccessToModuleWithFullAccess<HCMetricsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSettingsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCRequestLogModule>(RuntimeTestAccessRole.WebAdmins);
@@ -522,6 +527,27 @@ namespace HealthCheck.DevTest.Controllers
         {
             ForceLogout = false;
             return Content("Logged in");
+        }
+
+        public async Task<ActionResult> MetricsTest()
+        {
+            HCMetricsContext.StartTiming("Total");
+
+            HCMetricsContext.StartTiming("First part");
+            await Task.Delay(TimeSpan.FromSeconds(0.1));
+            HCMetricsContext.EndTiming();
+
+            HCMetricsContext.StartTiming("Second part");
+            await Task.Delay(TimeSpan.FromSeconds(0.2));
+            HCMetricsContext.EndTiming();
+
+            HCMetricsContext.AddNote("What just happened? 🤔");
+
+            HCMetricsContext.StartTiming("Last part");
+            await Task.Delay(TimeSpan.FromSeconds(0.075));
+            HCMetricsContext.EndTiming();
+
+            return Content("Ok");
         }
 
         private static RuntimeTestAccessRole? ForcedRole { get; set; }

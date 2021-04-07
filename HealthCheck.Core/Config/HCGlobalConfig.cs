@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,11 @@ namespace HealthCheck.Core.Config
 		/// <para>Fallback is <c>Activator.CreateInstance</c></para>
         /// </summary>
         public static Func<Type, object> DefaultInstanceResolver { get; set; }
+
+        /// <summary>
+        /// Factory that creates information about the current request.
+        /// </summary>
+        public static Func<HCRequestContext> RequestContextFactory { get; set; }
 
         /// <summary>
         /// Types ignored in default test-result serialization.

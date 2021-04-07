@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Config;
+using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.DevTest._TestImplementation.EndpointControl;
 using HealthCheck.DevTest.Controllers;
 using HealthCheck.Module.EndpointControl.Abstractions;
@@ -42,6 +43,7 @@ namespace HealthCheck.DevTest
                 });
 
             RequestLogUtil.EnsureDefinitionsFromTypes(RequestLogServiceAccessor.Current, new[] { typeof(DevController).Assembly });
+            HCMetricsUtil.AllowTrackRequestMetrics = (r) => true;
             SetupDummyIoC();
         }
 

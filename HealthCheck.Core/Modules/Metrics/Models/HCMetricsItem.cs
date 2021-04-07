@@ -1,0 +1,109 @@
+﻿using System;
+
+namespace HealthCheck.Core.Modules.Metrics.Models
+{
+    /// <summary>
+    /// Traced metrics data.
+    /// </summary>
+    public class HCMetricsItem
+    {
+        /// <summary>
+        /// Type of metric item.
+        /// </summary>
+        public MetricItemType Type { get; private set; }
+
+        /// <summary>
+        /// Id of the event.
+        /// </summary>
+        public string Id { get; private set; }
+
+        /// <summary>
+        /// When it happened.
+        /// </summary>
+        public DateTime? Timestamp { get; private set; }
+
+        /// <summary>
+        /// Description of what happened.
+        /// </summary>
+        public string Description { get; private set; }
+
+        /// <summary>
+        /// Duration of the timing.
+        /// </summary>
+        public TimeSpan? Duration { get; private set; }
+
+        /// <summary>
+        /// Offset of the timing from the start of the request.
+        /// </summary>
+        public TimeSpan? Offset { get; private set; }
+
+        /// <summary>
+        /// Offset of the timing in milliseconds from the start of the request.
+        /// </summary>
+        public long OffsetMilliseconds => (long)(Offset?.TotalMilliseconds ?? 0);
+
+        /// <summary>
+        /// Duration of the timing in milliseconds.
+        /// </summary>
+        public long DurationMilliseconds => (long)(Duration?.TotalMilliseconds ?? 0);
+
+        /// <summary>
+        /// Offset + duration.
+        /// </summary>
+        public long EndMilliseconds => OffsetMilliseconds + DurationMilliseconds;
+
+        /// <summary>
+        /// Type of item.
+        /// </summary>
+        public enum MetricItemType
+        {
+            /// <summary></summary>
+            Timing = 0,
+            /// <summary></summary>
+            Note
+        }
+
+        #region Factory
+        /// <summary>
+        /// Create a new note.
+        /// </summary>
+        public static HCMetricsItem CreateNote(string note, TimeSpan? offset)
+            => new(MetricItemType.Note, null, note, offset);
+
+        /// <summary>
+        /// Create a new timing.
+        /// </summary>
+        public static HCMetricsItem CreateTimingStart(string id, string description, TimeSpan? offset)
+            => new(MetricItemType.Timing, id, description, offset);
+
+        /// <summary>
+        /// Create a new timing.
+        /// </summary>
+        public static HCMetricsItem CreateTiming(string id, string description, TimeSpan? offset, TimeSpan duration)
+            => new(MetricItemType.Timing, id, description, offset)
+            {
+                Duration = duration
+            };
+        #endregion
+
+        internal HCMetricsItem(MetricItemType type, string id, string description, TimeSpan? offset)
+        {
+            Type = type;
+            Id = id ?? Guid.NewGuid().ToString();
+            Description = description;
+            Timestamp = DateTime.Now;
+            Offset = offset;
+        }
+
+        internal void EndTimer()
+        {
+            if (Timestamp != null && Duration == null && Type == MetricItemType.Timing)
+            {
+                Duration = DateTime.Now - Timestamp;
+            }
+        }
+
+        /// <summary>Summary of the timing.</summary>
+        public override string ToString() => $"{Description}: {DurationMilliseconds}ms";
+    }
+}
