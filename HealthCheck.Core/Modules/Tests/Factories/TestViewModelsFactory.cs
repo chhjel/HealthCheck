@@ -105,6 +105,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
             string type = CreateParameterTypeName(paramType);
 
             var hidden = testParameter.IsOut
+                || testParameter.ParameterType.IsGenericParameter
                 || options?.HideInputForTypes?.Any(x => x.IsAssignableFrom(testParameter.ParameterType)) == true;
 
             var vm = new TestParameterViewModel()
