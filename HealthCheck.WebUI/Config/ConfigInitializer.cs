@@ -2,14 +2,15 @@
 using HealthCheck.Core.Config;
 using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.WebUI.Util;
-using System;
 
 #if NETFRAMEWORK
+using System;
 using System.Web;
 using System.Web.Mvc;
 #endif
 
 #if NETCORE
+using System;
 using HealthCheck.Core.Util;
 using Microsoft.AspNetCore.Http;
 #endif
@@ -41,6 +42,9 @@ namespace HealthCheck.WebUI.Config
         {
 #if NETFRAMEWORK || NETCORE
             HCMetricsUtil.CurrentContextFactory = DefaultHCMetricsContextFactory;
+#else
+            // Nothing needed otherwise
+            _ = nameof(DefaultHCMetricsContextFactory);
 #endif
         }
 
@@ -77,8 +81,7 @@ namespace HealthCheck.WebUI.Config
 
                 return items[_hcMetricsItemsContextKey] as HCMetricsContext;
             }
-#endif
-#if NETCORE
+#elif NETCORE
             var context = IoCUtils.GetInstance<IHttpContextAccessor>();
             var items = context?.HttpContext?.Items;
             if (items != null)

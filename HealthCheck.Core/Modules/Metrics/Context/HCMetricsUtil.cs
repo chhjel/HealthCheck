@@ -1,6 +1,8 @@
 ﻿using HealthCheck.Core.Models;
-using HealthCheck.Core.Modules.Metrics.Models;
+using HealthCheck.Core.Modules.Metrics.Abstractions;
+using HealthCheck.Core.Util;
 using System;
+using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.Metrics.Context
 {
@@ -11,6 +13,11 @@ namespace HealthCheck.Core.Modules.Metrics.Context
     {
         /// <summary>
         /// Gets the current context.
+        /// </summary>
+        public static HCMetricsContext Current => CurrentContextFactory?.Invoke();
+
+        /// <summary>
+        /// Factory to get or create the current context.
         /// </summary>
         public static Func<HCMetricsContext> CurrentContextFactory { get; set; }
 
@@ -31,7 +38,12 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         internal static void NotifyNewTrackedMetrics(HCMetricsContext context)
         {
             OnRequestMetricsReadyEvent?.Invoke(context);
-            // todo: try ioc service & invoke if any
+
+            var service = IoCUtils.GetInstance<IHCMetricsService>();
+            if (service != null)
+            {
+                Task.Run(async () =>  await service.StoreMetricDataAsync(context));
+            }
         }
     }
 }

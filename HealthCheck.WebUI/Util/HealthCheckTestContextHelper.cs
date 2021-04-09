@@ -20,12 +20,13 @@ namespace HealthCheck.WebUI.Util
                 var key = "___hc_request_is_test";
 #if NETFULL
                 return HttpContext.Current?.Items?[key] is bool value && value;
-#endif
-#if NETCORE
-            var httpContext = IoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext;
-            return httpContext?.Items?[key] is bool value && value;
-#endif
+#elif NETCORE
+                var httpContext = IoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext;
+                return httpContext?.Items?[key] is bool value && value;
+#else
+                _ = key;
                 return false;
+#endif
             }
             set
             {
@@ -36,14 +37,16 @@ namespace HealthCheck.WebUI.Util
                 {
                     items[key] = value;
                 }
-#endif
-#if NETCORE
+#elif NETCORE
                 var httpContext = IoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext;
                 var items = httpContext?.Items;
                 if (items != null)
                 {
                     items[key] = value;
                 }
+#else
+                _ = key;
+                _ = value;
 #endif
             }
         }
@@ -64,8 +67,7 @@ namespace HealthCheck.WebUI.Util
                     items[key] = context;
                 }
             }
-#endif
-#if NETCORE
+#elif NETCORE
             var httpContext = IoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext;
             var items = httpContext?.Items;
             if (items != null)
@@ -77,6 +79,8 @@ namespace HealthCheck.WebUI.Util
                     items[key] = context;
                 }
             }
+#else
+            _ = key + nameof(ContextFactory);
 #endif
             return context;
         }

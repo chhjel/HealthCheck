@@ -25,7 +25,19 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         /// </summary>
         public List<HCMetricsItem> Items { get; private set; } = new List<HCMetricsItem>();
 
+        /// <summary>
+        /// Any globally tracked counters.
+        /// </summary>
+        public Dictionary<string, long> GlobalCounters { get; private set; } = new();
+
+        /// <summary>
+        /// Any globally tracked values.
+        /// </summary>
+        public Dictionary<string, List<long>> GlobalValues { get; private set; } = new();
+
         private readonly object _itemsLock = new();
+        private readonly object _globalCountersLock = new();
+        private readonly object _globalValuesLock = new();
         private bool _disposed = false;
 
         /// <summary>
@@ -83,6 +95,53 @@ namespace HealthCheck.Core.Modules.Metrics.Context
 
 #pragma warning disable S4136 // Method overloads should be grouped together
         /// <summary>
+        /// Increments a global counter
+        /// </summary>
+        public static void IncrementGlobalCounter(string id, int amount)
+            => WithCurrentContext((c) => c.IncrementGlobalValueCounterInternal(id, amount));
+        internal void IncrementGlobalValueCounterInternal(string id, int amount)
+        {
+            lock (_globalCountersLock)
+            {
+                if (!GlobalCounters.ContainsKey(id))
+                {
+                    GlobalCounters[id] = 0;
+                }
+                GlobalCounters[id] += amount;
+            }
+        }
+
+        /// <summary>
+        /// Add a global value that will be min/max/avgeraged.
+        /// </summary>
+        public static void AddGlobalValue(string id, int value)
+            => WithCurrentContext((c) => c.AddGlobalValueInternal(id, value));
+        internal void AddGlobalValueInternal(string id, int value)
+        {
+            lock (_globalValuesLock)
+            {
+                if (!GlobalValues.ContainsKey(id))
+                {
+                    GlobalValues[id] = new();
+                }
+                GlobalValues[id].Add(value);
+            }
+        }
+
+        /// <summary>
+        /// Add an error.
+        /// </summary>
+        public static void AddError(string errorMessage)
+            => WithCurrentContext((c) => c.AddErrorInternal(errorMessage));
+        internal void AddErrorInternal(string errorMessage)
+        {
+            lock (_itemsLock)
+            {
+                Items.Add(HCMetricsItem.CreateError(errorMessage, CreateOffset()));
+            }
+        }
+
+        /// <summary>
         /// Add a note of what just happened without any duration data.
         /// </summary>
         public static void AddNote(string description)
@@ -96,28 +155,53 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         }
 
         /// <summary>
-        /// Add timing data with a given duration.
+        /// Add a note of what just happened without along with a value.
         /// </summary>
-        public static void AddTiming(string description, TimeSpan duration)
-            => WithCurrentContext((c) => c.AddTimingInternal(description, duration));
-        internal void AddTimingInternal(string description, TimeSpan duration)
+        public static void AddNote(string id, string description, int value)
+            => WithCurrentContext((c) => c.AddNoteInternal(id, description, value));
+
+        /// <summary>
+        /// Add a note of what just happened without along with a value.
+        /// </summary>
+        public static void AddNote(string description, int value)
+            => WithCurrentContext((c) => c.AddNoteInternal(null, description, value));
+        internal void AddNoteInternal(string id, string description, int value)
         {
             lock (_itemsLock)
             {
-                Items.Add(HCMetricsItem.CreateTiming(null, description, DateTime.Now - RequestTimestamp - duration, duration));
+                Items.Add(HCMetricsItem.CreateValue(id, description, value, CreateOffset()));
+            }
+        }
+
+        /// <summary>
+        /// Add timing data with a given duration.
+        /// </summary>
+        public static void AddTiming(string id, string description, TimeSpan duration, bool addToGlobals = false)
+            => WithCurrentContext((c) => c.AddTimingInternal(id, description, duration, addToGlobals));
+
+        /// <summary>
+        /// Add timing data with a given duration.
+        /// </summary>
+        public static void AddTiming(string description, TimeSpan duration)
+            => WithCurrentContext((c) => c.AddTimingInternal(null, description, duration, addToGlobals: false));
+        internal void AddTimingInternal(string id, string description, TimeSpan duration, bool addToGlobals)
+        {
+            lock (_itemsLock)
+            {
+                Items.Add(HCMetricsItem.CreateTiming(id, description, DateTime.Now - RequestTimestamp - duration, duration, addToGlobals));
             }
         }
 
         /// <summary>
         /// Start timing data with a given id.
         /// </summary>
-        public static void StartTiming(string id, string description)
-            => WithCurrentContext((c) => c.StartTimingInternal(id, description));
-        internal void StartTimingInternal(string id, string description)
+        public static void StartTiming(string id, string description, bool addToGlobals = false)
+            => WithCurrentContext((c) => c.StartTimingInternal(id, description, addToGlobals));
+        internal void StartTimingInternal(string id, string description, bool addToGlobals)
         {
             lock (_itemsLock)
             {
-                Items.Add(HCMetricsItem.CreateTimingStart(id, description, CreateOffset()));
+                Items.Add(HCMetricsItem.CreateTimingStart(id, description, CreateOffset(), addToGlobals));
             }
         }
 

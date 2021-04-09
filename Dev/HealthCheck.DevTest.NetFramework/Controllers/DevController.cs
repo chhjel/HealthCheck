@@ -42,6 +42,7 @@ using HealthCheck.Core.Util;
 using HealthCheck.Dev.Common;
 using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.EventNotifier;
+using HealthCheck.Dev.Common.Metrics;
 using HealthCheck.Dev.Common.Settings;
 using HealthCheck.Dev.Common.Tests;
 using HealthCheck.Module.DevModule;
@@ -531,21 +532,21 @@ namespace HealthCheck.DevTest.Controllers
 
         public async Task<ActionResult> MetricsTest()
         {
-            HCMetricsContext.StartTiming("Total");
+            HCMetricsContext.StartTiming("LoginTotal", "Total", addToGlobals: true);
 
-            HCMetricsContext.StartTiming("First part");
+            HCMetricsContext.StartTiming("Login", "Login", addToGlobals: true);
             await Task.Delay(TimeSpan.FromSeconds(0.1));
+            var service = new MetricsDummyService();
+            if (!(await service.Login()))
+            {
+                return Content("No");
+            }
             HCMetricsContext.EndTiming();
 
-            HCMetricsContext.StartTiming("Second part");
-            await Task.Delay(TimeSpan.FromSeconds(0.2));
-            HCMetricsContext.EndTiming();
-
+            HCMetricsContext.AddNote("Random value", new Random().Next());
             HCMetricsContext.AddNote("What just happened? 🤔");
 
-            HCMetricsContext.StartTiming("Last part");
-            await Task.Delay(TimeSpan.FromSeconds(0.075));
-            HCMetricsContext.EndTiming();
+            HCMetricsContext.AddGlobalValue("Rng", new Random().Next());
 
             return Content("Ok");
         }

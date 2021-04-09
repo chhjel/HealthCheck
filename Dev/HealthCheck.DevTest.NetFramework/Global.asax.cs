@@ -1,6 +1,8 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Config;
+using HealthCheck.Core.Modules.Metrics.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Context;
+using HealthCheck.Core.Modules.Metrics.Services;
 using HealthCheck.DevTest._TestImplementation.EndpointControl;
 using HealthCheck.DevTest.Controllers;
 using HealthCheck.Module.EndpointControl.Abstractions;
@@ -59,6 +61,7 @@ namespace HealthCheck.DevTest
         private static readonly FlatFileEndpointControlRuleStorage _endpointControlRuleStorage
             = new FlatFileEndpointControlRuleStorage(@"c:\temp\EC_Rules.json");
         private static readonly IHCStringDictionaryStorage _settingsService = new HCFlatFileStringDictionaryStorage(@"C:\temp\settings.json");
+        private static readonly HCMemoryMetricsService _memoryMetricsService = new();
 
         private void SetupDummyIoC()
         {
@@ -109,6 +112,10 @@ namespace HealthCheck.DevTest
                 else if (type == typeof(IHCStringDictionaryStorage))
                 {
                     return _settingsService;
+                }
+                else if(type == typeof(IHCMetricsService))
+                {
+                    return _memoryMetricsService;
                 }
                 return null;
             };

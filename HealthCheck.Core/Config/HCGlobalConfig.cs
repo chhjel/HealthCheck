@@ -102,7 +102,8 @@ namespace HealthCheck.Core.Config
         {
             return !type.IsInterface
                 && !type.IsAbstract
-                && !type.IsGenericTypeDefinition;
+                && !type.IsGenericTypeDefinition
+                && !type.IsGenericParameter;
         }
 
         /// <summary>
@@ -110,7 +111,11 @@ namespace HealthCheck.Core.Config
         /// </summary>
         public static bool AllowSerializingType(Type type)
         {
-            if (TypesIgnoredInSerialization?.Any(x => type == x) == true)
+            if (type.IsGenericParameter)
+            {
+                return false;
+            }
+            else if (TypesIgnoredInSerialization?.Any(x => type == x) == true)
             {
                 return false;
             }

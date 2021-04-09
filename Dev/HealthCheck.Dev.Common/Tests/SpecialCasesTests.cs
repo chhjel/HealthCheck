@@ -18,6 +18,16 @@ namespace HealthCheck.Dev.Common.Tests
     {
         public delegate void TestDelegate(string value);
 
+        // todo: json input & specify full typename to serialize to?
+        [RuntimeTest]
+        public TestResult TestWithInterfaces(IList<string> list, IDisposable disposable, IEnumerable<int> enumerable)
+        {
+            return TestResult.CreateSuccess("Success hopefully.")
+                .AddSerializedData(list)
+                .AddSerializedData(disposable)
+                .AddSerializedData(enumerable);
+        }
+
         [RuntimeTest]
         public TestResult TestWithDelegates(Action action, Func<string> func, TestDelegate deleg, Expression<Func<Action<bool>>> combination)
         {

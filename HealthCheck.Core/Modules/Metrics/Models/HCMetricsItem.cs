@@ -23,11 +23,6 @@ namespace HealthCheck.Core.Modules.Metrics.Models
         public DateTime? Timestamp { get; private set; }
 
         /// <summary>
-        /// Description of what happened.
-        /// </summary>
-        public string Description { get; private set; }
-
-        /// <summary>
         /// Duration of the timing.
         /// </summary>
         public TimeSpan? Duration { get; private set; }
@@ -36,6 +31,16 @@ namespace HealthCheck.Core.Modules.Metrics.Models
         /// Offset of the timing from the start of the request.
         /// </summary>
         public TimeSpan? Offset { get; private set; }
+
+        /// <summary>
+        /// Description of what happened.
+        /// </summary>
+        public string Description { get; private set; }
+
+        /// <summary>
+        /// Value of something.
+        /// </summary>
+        public int Value { get; private set; }
 
         /// <summary>
         /// Offset of the timing in milliseconds from the start of the request.
@@ -53,14 +58,23 @@ namespace HealthCheck.Core.Modules.Metrics.Models
         public long EndMilliseconds => OffsetMilliseconds + DurationMilliseconds;
 
         /// <summary>
+        /// Include timing if any to globally tracked values.
+        /// </summary>
+        public bool AddTimingToGlobals { get; private set; }
+
+        /// <summary>
         /// Type of item.
         /// </summary>
         public enum MetricItemType
         {
-            /// <summary></summary>
+            /// <summary>Duration of something</summary>
             Timing = 0,
-            /// <summary></summary>
-            Note
+            /// <summary>A single text</summary>
+            Note,
+            /// <summary>A text and a value</summary>
+            Value,
+            /// <summary>An errormessage</summary>
+            Error
         }
 
         #region Factory
@@ -71,19 +85,28 @@ namespace HealthCheck.Core.Modules.Metrics.Models
             => new(MetricItemType.Note, null, note, offset);
 
         /// <summary>
-        /// Create a new timing.
+        /// Create a new error.
         /// </summary>
-        public static HCMetricsItem CreateTimingStart(string id, string description, TimeSpan? offset)
-            => new(MetricItemType.Timing, id, description, offset);
+        public static HCMetricsItem CreateError(string error, TimeSpan? offset)
+            => new(MetricItemType.Error, null, error, offset);
+
+        /// <summary>
+        /// Create a new value.
+        /// </summary>
+        public static HCMetricsItem CreateValue(string id, string description, int value, TimeSpan? offset)
+            => new(MetricItemType.Value, id, description, offset) { Value = value };
 
         /// <summary>
         /// Create a new timing.
         /// </summary>
-        public static HCMetricsItem CreateTiming(string id, string description, TimeSpan? offset, TimeSpan duration)
-            => new(MetricItemType.Timing, id, description, offset)
-            {
-                Duration = duration
-            };
+        public static HCMetricsItem CreateTimingStart(string id, string description, TimeSpan? offset, bool addToGlobals = false)
+            => new(MetricItemType.Timing, id, description, offset) { AddTimingToGlobals = addToGlobals };
+
+        /// <summary>
+        /// Create a new timing.
+        /// </summary>
+        public static HCMetricsItem CreateTiming(string id, string description, TimeSpan? offset, TimeSpan duration, bool addToGlobals = false)
+            => new(MetricItemType.Timing, id, description, offset) { Duration = duration, AddTimingToGlobals = addToGlobals };
         #endregion
 
         internal HCMetricsItem(MetricItemType type, string id, string description, TimeSpan? offset)

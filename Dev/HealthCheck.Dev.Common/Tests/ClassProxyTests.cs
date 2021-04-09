@@ -99,6 +99,10 @@ namespace HealthCheck.Dev.Common.Tests
             public void WithParameter(Guid id, string data) { /**/ }
 #pragma warning restore IDE0060 // Remove unused parameter
 
+            public string With1GenericArgument<T1>(T1 a) => $"Input was {a}";
+            public string With2GenericArguments<T1, T2>(T1 a, T2 b) => $"Input was {a}, {b}";
+            public string With3GenericArguments<T1, T2, T3>(T1 a, T2 b, T3 c) => $"Input was {a}, {b}, {c}";
+
             public string WithParameterAndReturnValue1(Guid id) => $"Input was {id}";
 
             public string WithParameterAndReturnValue2(Guid? id) => $"Input was {id?.ToString() ?? "null"}";
