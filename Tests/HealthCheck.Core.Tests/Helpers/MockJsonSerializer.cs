@@ -38,7 +38,7 @@ namespace HealthCheck.Core.Tests.Helpers
             return HCGenericResult<object>.CreateSuccess(DeserializeResult);
         }
 
-        public string Serialize(object obj)
+        public string Serialize(object obj, bool pretty = true)
         {
             LastSerializedObject = obj;
             return SerializeResult;

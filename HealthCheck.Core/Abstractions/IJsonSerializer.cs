@@ -11,10 +11,10 @@ namespace HealthCheck.Core.Abstractions
         /// <summary>
         /// Serialize the given object into json.
         /// <para>
-        /// Should ignore errors and indent result json.
+        /// Should ignore errors and indent result json by default.
         /// </para>
         /// </summary>
-        string Serialize(object obj);
+        string Serialize(object obj, bool pretty = true);
 
         /// <summary>
         /// Deserialize the given json into an object of the given type.

@@ -93,6 +93,7 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         /// <summary></summary>
         public override string ToString() => Id.ToString();
 
+        #region Statics
 #pragma warning disable S4136 // Method overloads should be grouped together
         /// <summary>
         /// Increments a global counter
@@ -249,6 +250,7 @@ namespace HealthCheck.Core.Modules.Metrics.Context
             }
         }
 #pragma warning restore S4136 // Method overloads should be grouped together
+        #endregion
 
         private TimeSpan CreateOffset() => DateTime.Now - RequestTimestamp;
 
