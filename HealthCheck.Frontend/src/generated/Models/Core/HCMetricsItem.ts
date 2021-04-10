@@ -12,8 +12,10 @@ export interface HCMetricsItem
 	Duration: any;
 	Offset: any;
 	Description: string;
+	ExceptionDetails: string;
 	Value: number;
 	OffsetMilliseconds: number;
 	DurationMilliseconds: number;
 	EndMilliseconds: number;
+	AddTimingToGlobals: boolean;
 }

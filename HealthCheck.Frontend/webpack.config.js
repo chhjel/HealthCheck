@@ -6,12 +6,15 @@ var path = require('path')
 var webpack = require('webpack')
 
 module.exports = {
-  entry: './src/entry/index.ts',
+  entry: {
+    healthcheck: './src/entry/index.ts',
+    metrics: './src/entry/others/metrics.ts'
+  },
   output: {
     path: path.resolve(__dirname, './dist'),
     publicPath: '/dist/',
-    filename: 'healthcheck.js',
-    chunkFilename: 'healthcheck.vendor.[id].js'
+    filename: '[name].js',
+    chunkFilename: '[name].vendor.[id].js'
   },
   optimization: {
     splitChunks: {
@@ -108,7 +111,7 @@ module.exports.plugins = [
     // filename: '[name].worker.js'
     publicPath: '/'
   })
-  // new BundleAnalyzerPlugin()
+  // ,new BundleAnalyzerPlugin()
 ];
 
 if (process.env.NODE_ENV === 'production') {

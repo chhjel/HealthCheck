@@ -40,14 +40,15 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         /// <summary>
         /// Gets the current context as json, or null if no context was found.
         /// </summary>
-        public static string GetContextAsJson()
+        public static string GetContextAsJson(bool emptyIfNoData = false)
         {
             var context = Current;
-            if (context == null)
+            if (context == null || (emptyIfNoData && !context.ContainsData()))
             {
                 return null;
             }
 
+            context.EndAllTimingsInternal();
             return TestRunnerService.Serializer.Serialize(context, pretty: false);
         }
 
@@ -56,13 +57,15 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         /// </summary>
         public static string CreateContextSummaryHtml()
         {
-            var json = GetContextAsJson();
+            var json = GetContextAsJson(emptyIfNoData: true);
             if (string.IsNullOrWhiteSpace(json))
             {
                 return null;
             }
 
-            var jsUrl = "https://www.google.com?q=todo";
+            // JSON.parse(document.getElementById("ctx_02aecea7_e695_4749_bb2a_35e060975968").dataset.ctxData)
+
+            var jsUrl = "/dev/GetMetricsScript";
             return $@"
                 <div id=""ctx_02aecea7_e695_4749_bb2a_35e060975968"" data-ctx-data=""{HttpUtility.HtmlAttributeEncode(json)}""></div>
 <script src=""{jsUrl}""></script>

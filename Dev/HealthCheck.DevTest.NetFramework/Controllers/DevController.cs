@@ -479,6 +479,9 @@ namespace HealthCheck.DevTest.Controllers
         public ActionResult GetVendorScript() => LoadFile("healthcheck.vendor.js");
 
         [HideFromRequestLog]
+        public ActionResult GetMetricsScript() => LoadFile("metrics.js");
+
+        [HideFromRequestLog]
         public ActionResult GetScript([FromUri]string name) => LoadFile(name);
 
         private ActionResult LoadFile(string filename)

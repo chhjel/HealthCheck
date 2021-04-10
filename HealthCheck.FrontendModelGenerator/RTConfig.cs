@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Config;
+using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Module.DynamicCodeExecution.Module;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Module;
@@ -43,6 +44,9 @@ namespace HealthCheck.FrontendModelGenerator
             builder.Substitute(typeof(DateTimeOffset), new RtSimpleTypeName("Date"));
             builder.Substitute(typeof(List<KeyValuePair<string, string>>), new RtSimpleTypeName("{ [key: string] : string; }"));
             builder.Substitute(typeof(List<KeyValuePair<string, Guid>>), new RtSimpleTypeName("{ [key: string] : string; }"));
+
+            var extraTypes = new[] { typeof(HCMetricsContext) };
+            builder.ExportAsInterfaces(extraTypes.Where(x => !x.IsEnum), (config) => ConfigureInterfaces(config, typeof(HCGlobalConfig).Assembly));
 
             IncludeAssembly(builder, typeof(HCGlobalConfig).Assembly);
             IncludeAssembly(builder, typeof(HCPageOptions).Assembly);
@@ -92,6 +96,6 @@ namespace HealthCheck.FrontendModelGenerator
         }
 
         private static string CreateNamespace(string prefix, Assembly assembly)
-            => $"{prefix}{assembly.GetName().Name.Replace("HealthCheck.", "")}";
+            => $"{prefix}{(assembly?.GetName()?.Name?.Replace("HealthCheck.", "") ?? "Other")}";
     }
 }

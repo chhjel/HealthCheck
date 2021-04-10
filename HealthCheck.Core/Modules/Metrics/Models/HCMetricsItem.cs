@@ -10,37 +10,42 @@ namespace HealthCheck.Core.Modules.Metrics.Models
         /// <summary>
         /// Type of metric item.
         /// </summary>
-        public MetricItemType Type { get; private set; }
+        public MetricItemType Type { get; set; }
 
         /// <summary>
         /// Id of the event.
         /// </summary>
-        public string Id { get; private set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// When it happened.
         /// </summary>
-        public DateTime? Timestamp { get; private set; }
+        public DateTime? Timestamp { get; set; }
 
         /// <summary>
         /// Duration of the timing.
         /// </summary>
-        public TimeSpan? Duration { get; private set; }
+        public TimeSpan? Duration { get; set; }
 
         /// <summary>
         /// Offset of the timing from the start of the request.
         /// </summary>
-        public TimeSpan? Offset { get; private set; }
+        public TimeSpan? Offset { get; set; }
 
         /// <summary>
         /// Description of what happened.
         /// </summary>
-        public string Description { get; private set; }
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Exception details if any.
+        /// </summary>
+        public string ExceptionDetails { get; set; }
 
         /// <summary>
         /// Value of something.
         /// </summary>
-        public int Value { get; private set; }
+        public int Value { get; set; }
 
         /// <summary>
         /// Offset of the timing in milliseconds from the start of the request.
@@ -88,7 +93,13 @@ namespace HealthCheck.Core.Modules.Metrics.Models
         /// Create a new error.
         /// </summary>
         public static HCMetricsItem CreateError(string error, TimeSpan? offset)
-            => new(MetricItemType.Error, null, error, offset);
+            => CreateError(error, null, offset);
+
+        /// <summary>
+        /// Create a new error.
+        /// </summary>
+        public static HCMetricsItem CreateError(string error, Exception exception, TimeSpan? offset)
+            => new(MetricItemType.Error, null, error, offset) { ExceptionDetails = exception?.ToString() };
 
         /// <summary>
         /// Create a new value.

@@ -23,17 +23,17 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         /// <summary>
         /// Any tracked timings and notes.
         /// </summary>
-        public List<HCMetricsItem> Items { get; private set; } = new List<HCMetricsItem>();
+        public List<HCMetricsItem> Items { get; set; } = new List<HCMetricsItem>();
 
         /// <summary>
         /// Any globally tracked counters.
         /// </summary>
-        public Dictionary<string, long> GlobalCounters { get; private set; } = new();
+        public Dictionary<string, long> GlobalCounters { get; set; } = new();
 
         /// <summary>
         /// Any globally tracked values.
         /// </summary>
-        public Dictionary<string, List<long>> GlobalValues { get; private set; } = new();
+        public Dictionary<string, List<long>> GlobalValues { get; set; } = new();
 
         private readonly object _itemsLock = new();
         private readonly object _globalCountersLock = new();
@@ -90,6 +90,19 @@ namespace HealthCheck.Core.Modules.Metrics.Context
             }
         }
 
+        /// <summary>
+        /// True if there's any data to display.
+        /// </summary>
+        public bool ContainsData()
+        {
+            if (Items.Count == 0 || GlobalCounters.Count == 0 || GlobalValues.Count == 0)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary></summary>
         public override string ToString() => Id.ToString();
 
@@ -132,13 +145,13 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         /// <summary>
         /// Add an error.
         /// </summary>
-        public static void AddError(string errorMessage)
-            => WithCurrentContext((c) => c.AddErrorInternal(errorMessage));
-        internal void AddErrorInternal(string errorMessage)
+        public static void AddError(string errorMessage, Exception exception = null)
+            => WithCurrentContext((c) => c.AddErrorInternal(errorMessage, exception));
+        internal void AddErrorInternal(string errorMessage, Exception exception = null)
         {
             lock (_itemsLock)
             {
-                Items.Add(HCMetricsItem.CreateError(errorMessage, CreateOffset()));
+                Items.Add(HCMetricsItem.CreateError(errorMessage, exception, CreateOffset()));
             }
         }
 
