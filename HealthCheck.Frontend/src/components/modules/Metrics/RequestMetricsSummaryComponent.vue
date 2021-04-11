@@ -6,7 +6,6 @@
             <div @click="toggleVisibility" :style="styleToggleMetrics">{{ toggleButtonContent }}</div>
 
             <div :style="styleRoot" v-if="visible">
-
                 <metrics-block-component title="Timeline" v-if="items.length > 0">
                     <div v-for="(item, itemIndex) in items"
                         :key="`${id}-timing-${itemIndex}`"
@@ -46,7 +45,7 @@
                     </div>
                 </metrics-block-component>
 
-                <metrics-block-component title="Global values"
+                <metrics-block-component title="Values"
                                          v-if="globalValues.length > 0"
                                          style="margin-top: 10px">
                     <ul>
@@ -57,7 +56,7 @@
                     </ul>
                 </metrics-block-component>
 
-                <metrics-block-component title="Global counters incremented"
+                <metrics-block-component title="Counters incremented"
                                          v-if="globalCounters.length > 0"
                                          style="margin-top: 10px">
                     <ul>
