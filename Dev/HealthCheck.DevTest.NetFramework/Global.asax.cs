@@ -89,6 +89,7 @@ namespace HealthCheck.DevTest
                 System.Diagnostics.Debug.WriteLine($"Lazy: {instance.GetType().Name}");
             }
 
+            HCMetricsUtil.SummaryHtmlJavascriptUrl = "/dev/GetMetricsScript";
             HCGlobalConfig.DefaultInstanceResolver = (type) =>
             {
                 if (type == typeof(IEndpointControlService))

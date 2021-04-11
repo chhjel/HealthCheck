@@ -29,7 +29,15 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         /// </summary>
         public static Func<HCRequestContext, bool> AllowTrackRequestMetrics { get; set; }
 
-        /// <summary></summary>
+        /// <summary>
+        /// Url to the javascript included in <see cref="CreateContextSummaryHtml"/>.
+        /// <para>Defaults to matching version bundle from unpkg.com CDN.</para>
+        /// </summary>
+        public static string SummaryHtmlJavascriptUrl { get; set; } = "https://unpkg.com/christianh-healthcheck@2/metrics.js";
+
+        /// <summary>
+        /// Delegate used by <see cref="OnRequestMetricsReadyEvent"/>.
+        /// </summary>
         public delegate void OnMetricTracked(HCMetricsContext context);
 
         /// <summary>
@@ -63,12 +71,9 @@ namespace HealthCheck.Core.Modules.Metrics.Context
                 return null;
             }
 
-            // JSON.parse(document.getElementById("ctx_02aecea7_e695_4749_bb2a_35e060975968").dataset.ctxData)
-
-            var jsUrl = "/dev/GetMetricsScript";
             return $@"
                 <div id=""ctx_02aecea7_e695_4749_bb2a_35e060975968"" data-ctx-data=""{HttpUtility.HtmlAttributeEncode(json)}""></div>
-<script src=""{jsUrl}""></script>
+                <script src=""{SummaryHtmlJavascriptUrl}""></script>
 ";
         }
 
