@@ -9,4 +9,5 @@ export interface TestResultDataDumpViewModel
 	Title: string;
 	Data: string;
 	Type: TestResultDataDumpType;
+	DisplayClean: boolean;
 }

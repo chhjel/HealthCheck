@@ -288,7 +288,10 @@ export default class TestSuitesPageComponent extends Vue {
         // Give nameless group a name if any other groups exist
         if (this.testSetGroups.length > 1 && this.groupWithoutName != null) {
             this.groupWithoutName.Name = "Other";
-            
+        }
+        
+        // Apply order
+        if (this.testSetGroups.length > 1) {
             this.testSetGroups.forEach(group => {
                 let groupOptions = testsData.GroupOptions.filter(x => x.GroupName == group.Name)[0];
                 if (groupOptions != null) {

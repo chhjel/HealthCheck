@@ -6,7 +6,7 @@ namespace HealthCheck.Dev.Common.Tests
     [RuntimeTestClass(
         Name = "Out parameters tests",
         DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins,
-        GroupName = RuntimeTestConstants.Group.AlmostTopGroup,
+        GroupName = RuntimeTestConstants.Group.TopGroup,
         UIOrder = 101
     )]
     public class OutParameterTests

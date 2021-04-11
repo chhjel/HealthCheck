@@ -29,7 +29,7 @@ namespace HealthCheck.RequestLog.Services
                 return service;
             }
 
-            throw new ArgumentNullException($"Either IRequestLogService must be registered in the dependency resolver or RequestLogService.Current must be set.");
+            throw new ArgumentException($"Either IRequestLogService must be registered in the dependency resolver or RequestLogService.Current must be set.");
         }
     }
 }

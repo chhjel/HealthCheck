@@ -10,5 +10,6 @@ export enum TestResultDataDumpType {
 	Html = "Html", 
 	ImageUrls = "ImageUrls", 
 	Urls = "Urls", 
-	Timeline = "Timeline"
+	Timeline = "Timeline", 
+	Timings = "Timings"
 }

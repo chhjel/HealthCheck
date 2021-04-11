@@ -83,6 +83,7 @@ jobs:
       parameterFilesList: |
         /HealthCheck.WebUI/Models/HCPageOptions.cs
         /HealthCheck.WebUI/Models/HCFrontEndOptions.cs
+        /HealthCheck.Core/Modules/Metrics/Context/HCMetricsUtil.cs
 
   - task: VSBuild@1
     displayName: Build solution

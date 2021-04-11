@@ -712,7 +712,12 @@ namespace HealthCheck.WebUI.Util
 
         private byte[] ConvertFileInputToBytes(string input)
         {
-            if (input == null) return null;
+            if (input == null)
+            {
+#pragma warning disable S1168 // Empty arrays and collections should be returned instead of null
+                return null;
+#pragma warning restore S1168 // Empty arrays and collections should be returned instead of null
+            }
 
             var parts = input.Split('|');
             if (parts.Length < 3) return null;

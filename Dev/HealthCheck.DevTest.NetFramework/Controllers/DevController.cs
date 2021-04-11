@@ -1,4 +1,4 @@
-using HealthCheck.Core.Abstractions;
+﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Config;
 using HealthCheck.Core.Extensions;
@@ -22,6 +22,8 @@ using HealthCheck.Core.Modules.LogViewer.Services;
 using HealthCheck.Core.Modules.Messages;
 using HealthCheck.Core.Modules.Messages.Abstractions;
 using HealthCheck.Core.Modules.Messages.Models;
+using HealthCheck.Core.Modules.Metrics;
+using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Core.Modules.SecureFileDownload;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload.FileStorage;
@@ -40,6 +42,7 @@ using HealthCheck.Core.Util;
 using HealthCheck.Dev.Common;
 using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.EventNotifier;
+using HealthCheck.Dev.Common.Metrics;
 using HealthCheck.Dev.Common.Settings;
 using HealthCheck.Dev.Common.Tests;
 using HealthCheck.Module.DevModule;
@@ -107,6 +110,27 @@ namespace HealthCheck.DevTest.Controllers
                 typeof(RuntimeTestConstants).Assembly
             };
 
+            UseModule(new HCMetricsModule(new HCMetricsModuleOptions()));
+            UseModule(new HCTestsModule(new HCTestsModuleOptions()
+            {
+                AssembliesContainingTests = assemblies,
+                ReferenceParameterFactories = CreateReferenceParameterFactories
+                //JsonInputTemplateFactory = (type) =>
+                //{
+                //    if (type == typeof(System.Net.Mail.MailMessage))
+                //    {
+                //        return HCTestsJsonTemplateResult.CreateNoTemplate();
+                //    }
+                //    return HCTestsJsonTemplateResult.CreateDefault();
+                //}
+            }))
+                .ConfigureGroups((options) => options
+                    .ConfigureGroup(RuntimeTestConstants.Group.TopGroup, uiOrder: 110)
+                    .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
+                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)
+                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
+                    .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
+                );
             UseModule(new HCMessagesModule(new HCMessagesModuleOptions() { MessageStorage = _memoryMessageStore }
                 .DefineInbox("mail", "Mail", "All sent email ends up here.")
                 .DefineInbox("sms", "SMS", "All sent sms ends up here.")
@@ -159,24 +183,6 @@ namespace HealthCheck.DevTest.Controllers
                     new CodeSuggestion("GetService<T>(id)", "Get a registered service", "GetService<${1:T}>(${2:x})")
                 }
             }));
-            UseModule(new HCTestsModule(new HCTestsModuleOptions() {
-                    AssembliesContainingTests = assemblies,
-                    ReferenceParameterFactories = CreateReferenceParameterFactories
-                    //JsonInputTemplateFactory = (type) =>
-                    //{
-                    //    if (type == typeof(System.Net.Mail.MailMessage))
-                    //    {
-                    //        return HCTestsJsonTemplateResult.CreateNoTemplate();
-                    //    }
-                    //    return HCTestsJsonTemplateResult.CreateDefault();
-                    //}
-            }))
-                .ConfigureGroups((options) => options
-                    .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
-                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)
-                    .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
-                    .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
-                );
             UseModule(new HCEventNotificationsModule(new HCEventNotificationsModuleOptions() { EventSink = EventSink }));
             UseModule(new HCLogViewerModule(new HCLogViewerModuleOptions() { LogSearcherService = CreateLogSearcherService() }));
             UseModule(new HCDocumentationModule(new HCDocumentationModuleOptions()
@@ -226,7 +232,7 @@ namespace HealthCheck.DevTest.Controllers
         #region Overrides
         protected override void ConfigureAccess(HttpRequestBase request, AccessConfig<RuntimeTestAccessRole> config)
         {
-            /// MODULES //
+            // MODULES //
             config.GiveRolesAccessToModule(
                 RuntimeTestAccessRole.Guest | RuntimeTestAccessRole.WebAdmins,
                 TestModuleA.TestModuleAAccessOption.DeleteThing | TestModuleA.TestModuleAAccessOption.EditThing
@@ -245,6 +251,7 @@ namespace HealthCheck.DevTest.Controllers
             config.GiveRolesAccessToModule(RuntimeTestAccessRole.API,
                 HCDynamicCodeExecutionModule.AccessOption.ExecuteSavedScript | HCDynamicCodeExecutionModule.AccessOption.LoadScriptFromServer);
 
+            config.GiveRolesAccessToModuleWithFullAccess<HCMetricsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSettingsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCRequestLogModule>(RuntimeTestAccessRole.WebAdmins);
@@ -472,6 +479,9 @@ namespace HealthCheck.DevTest.Controllers
         public ActionResult GetVendorScript() => LoadFile("healthcheck.vendor.js");
 
         [HideFromRequestLog]
+        public ActionResult GetMetricsScript() => LoadFile("metrics.js");
+
+        [HideFromRequestLog]
         public ActionResult GetScript([FromUri]string name) => LoadFile(name);
 
         private ActionResult LoadFile(string filename)
@@ -521,6 +531,27 @@ namespace HealthCheck.DevTest.Controllers
         {
             ForceLogout = false;
             return Content("Logged in");
+        }
+
+        public async Task<ActionResult> MetricsTest()
+        {
+            HCMetricsContext.StartTiming("LoginTotal", "Total", addToGlobals: true);
+
+            HCMetricsContext.StartTiming("Login", "Login", addToGlobals: true);
+            await Task.Delay(TimeSpan.FromSeconds(0.1));
+            var service = new MetricsDummyService();
+            if (!(await service.Login()))
+            {
+                return Content("No");
+            }
+            HCMetricsContext.EndTiming();
+
+            HCMetricsContext.AddNote("Random value", new Random().Next());
+            HCMetricsContext.AddNote("What just happened? 🤔");
+
+            HCMetricsContext.AddGlobalValue("Rng", new Random().Next());
+
+            return Content("Ok");
         }
 
         private static RuntimeTestAccessRole? ForcedRole { get; set; }
@@ -583,7 +614,7 @@ namespace HealthCheck.DevTest.Controllers
                 }
             });
             EventSink = new DefaultEventDataSink(EventSinkNotificationConfigStorage, EventSinkNotificationDefinitionStorage)
-                .AddNotifier(new WebHookEventNotifier())
+                .AddNotifier(new HCWebHookEventNotifier())
                 .AddNotifier(new MyNotifier())
                 .AddNotifier(new SimpleNotifier())
                 .AddPlaceholder("NOW", () => DateTimeOffset.Now.ToString())

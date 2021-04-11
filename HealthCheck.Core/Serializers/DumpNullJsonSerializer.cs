@@ -30,6 +30,6 @@ namespace HealthCheck.Core.Serializers
         /// <summary>
         /// Returns an empty string.
         /// </summary>
-        public string Serialize(object obj) => "";
+        public string Serialize(object obj, bool pretty = true) => "";
     }
 }

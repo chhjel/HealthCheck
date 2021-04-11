@@ -13,13 +13,12 @@ namespace HealthCheck.Dev.Common.Tests
     public class ProxyAutoResultsTest
     {
         [ProxyRuntimeTests]
-        public static ProxyRuntimeTestConfig TestSimpleString()
+        public static ProxyRuntimeTestConfig TestProxy()
             => new ProxyRuntimeTestConfig(typeof(ProxyTestSubject));
 
         public class ProxyTestSubject
         {
 #pragma warning disable S3400 // Methods should not return constants
-#pragma warning disable S3218 // Inner class members should not shadow outer class "static" or type members
             public string TestSimpleString()
                 => "String result here";
 
@@ -40,7 +39,6 @@ namespace HealthCheck.Dev.Common.Tests
 
             public string TestImageUrls()
                 => "A mock image https://via.placeholder.com/150?ext=.jpg and https://via.placeholder.com/550?ext=.png 🤔";
-#pragma warning restore S3218 // Inner class members should not shadow outer class "static" or type members
 #pragma warning restore S3400 // Methods should not return constants
         }
     }

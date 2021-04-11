@@ -13,7 +13,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Notifiers
     /// <summary>
     /// Sends a GET request to the given url.
     /// </summary>
-    public class WebHookEventNotifier : IEventNotifier
+    public class HCWebHookEventNotifier : IEventNotifier
     {
         /// <summary>
         /// Unique id of this notifier.
@@ -72,7 +72,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Notifiers
         }
 
         /// <summary>
-        /// Options model for <see cref="WebHookEventNotifier"/>.
+        /// Options model for <see cref="HCWebHookEventNotifier"/>.
         /// </summary>
         public class WebHookEventNotifierOptions
         {

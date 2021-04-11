@@ -17,7 +17,7 @@ namespace HealthCheck.WebUI.Serializers
         /// <summary>
         /// Serializes dumps using Newtonsoft, ignoring any errors.
         /// </summary>
-        public string Serialize(object obj)
+        public string Serialize(object obj, bool pretty = true)
         {
             if (obj != null && !HCGlobalConfig.AllowSerializingType(obj.GetType()))
             {
@@ -26,7 +26,7 @@ namespace HealthCheck.WebUI.Serializers
 
             var settings = new JsonSerializerSettings()
             {
-                Formatting = Formatting.Indented,
+                Formatting = pretty ? Formatting.Indented : Formatting.None,
                 Error = (sender, e) =>
                 {
                     e.ErrorContext.Handled = true;

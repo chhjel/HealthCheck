@@ -149,7 +149,7 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
 
 ## A note about the built in flatfile storage implementations
 
-The built in flatfile storage classes should work fine for most use cases. If used make sure they are registered as singletons, they are thread safe but only within their own instances.
+The built in flatfile storage classes should work fine for most use cases. If used make sure they are registered as singletons, they are thread safe but only within their own instances. If multiple servers are used these are not optimal obviously.
 
 ---------
 
@@ -801,7 +801,10 @@ Allows custom settings to be configured.
 ### Setup
 
 ```csharp
-UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { SettingsService = IHCSettingsService implementation }));
+UseModule(new HCSettingsModule(new HCSettingsModuleOptions() {
+    SettingsService = IHCSettingsService implementation,
+    ModelType = typeof(YourSettingsModel)
+}));
 ```
 
 ```csharp
@@ -814,7 +817,7 @@ SettingsService = new HCDefaultSettingsService(new HCFlatFileStringDictionarySto
 
 ```csharp
 // Create a custom model for your settings
-public class TestSettings
+public class YourSettingsModel
 {
     public string PropertyX { get; set; }
 
@@ -834,7 +837,7 @@ public class TestSettings
 
 ```csharp
 // Retrieve settings model using the GetSettings<T> method.
-service.GetSettings<TestSettings>().Enabled
+service.GetSettings<YourSettingsModel>().Enabled
 ```
 
 </p>
@@ -867,7 +870,7 @@ new FlatFileAccessManagerTokenStorage(@"e:\config\access-tokens.json")
 
 ## Module: Event Notifications
 
-Enables notifications of custom events. Rules for notifications can be edited in a UI and events are easily triggered from code. Notifications are delivered through implementations of `IEventNotifier`. Built-in implementations: `DefaultEventDataSink`, `WebHookEventNotifier`.
+Enables notifications of custom events. Rules for notifications can be edited in a UI and events are easily triggered from code. Notifications are delivered through implementations of `IEventNotifier`. Built-in implementations: `DefaultEventDataSink`, `WebHookEventNotifier`, `HCMailEventNotifierBase`.
 
 Events can be filtered on their id, stringified payload or properties on their payload, and limits and distinctions can be set.
 
@@ -1270,6 +1273,10 @@ A few utility classes are included below `HealthCheck.Core.Util`:
 * `ReflectionUtils` - Invoke private members etc.
 * `AsyncUtils` - Invoke async through reflection, run async synchronous.
 * Log4Net and Episerver memory loggers are available in nuget packages `HealthCheck.Utility.Logger.*`
+* `HCMetricsUtil` - To log timings, notes and errors for the request and include in frontend.
+  * Configure `HCMetricsUtil.AllowTrackRequestMetrics` to select what requests to allow tracking. By default `false` is returned and no context will be created.
+  * Call static shortcuts on `HCMetricsContext` to track details for the current request.
+  * Use `HCMetricsUtil.CreateContextSummaryHtml()` to generate html displaying any logged data for the request. If no data has been logged through `HCMetricsContext` null will be returned.
 * `HealthCheck.Core.Config.HCGlobalConfig` contains a few global static options:
   * Dependency resolver override.
   * Types and namespaces ignored in data serialization.

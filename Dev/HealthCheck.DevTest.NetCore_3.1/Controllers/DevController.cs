@@ -388,7 +388,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 }
             });
             EventSink = new DefaultEventDataSink(EventSinkNotificationConfigStorage, EventSinkNotificationDefinitionStorage)
-                .AddNotifier(new WebHookEventNotifier())
+                .AddNotifier(new HCWebHookEventNotifier())
                 .AddNotifier(new MyNotifier())
                 .AddNotifier(new SimpleNotifier())
                 .AddPlaceholder("NOW", () => DateTimeOffset.Now.ToString())

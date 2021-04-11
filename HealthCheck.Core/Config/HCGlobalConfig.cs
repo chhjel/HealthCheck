@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,11 @@ namespace HealthCheck.Core.Config
 		/// <para>Fallback is <c>Activator.CreateInstance</c></para>
         /// </summary>
         public static Func<Type, object> DefaultInstanceResolver { get; set; }
+
+        /// <summary>
+        /// Factory that creates information about the current request.
+        /// </summary>
+        public static Func<HCRequestContext> RequestContextFactory { get; set; }
 
         /// <summary>
         /// Types ignored in default test-result serialization.
@@ -96,7 +102,8 @@ namespace HealthCheck.Core.Config
         {
             return !type.IsInterface
                 && !type.IsAbstract
-                && !type.IsGenericTypeDefinition;
+                && !type.IsGenericTypeDefinition
+                && !type.IsGenericParameter;
         }
 
         /// <summary>
@@ -104,7 +111,11 @@ namespace HealthCheck.Core.Config
         /// </summary>
         public static bool AllowSerializingType(Type type)
         {
-            if (TypesIgnoredInSerialization?.Any(x => type == x) == true)
+            if (type.IsGenericParameter)
+            {
+                return false;
+            }
+            else if (TypesIgnoredInSerialization?.Any(x => type == x) == true)
             {
                 return false;
             }
