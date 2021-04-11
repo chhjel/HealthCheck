@@ -46,6 +46,7 @@ namespace HealthCheck.DevTest
 
             RequestLogUtil.EnsureDefinitionsFromTypes(RequestLogServiceAccessor.Current, new[] { typeof(DevController).Assembly });
             HCMetricsUtil.AllowTrackRequestMetrics = (r) => true;
+            HCMetricsUtil.SummaryHtmlJavascriptUrl = "/dev/GetMetricsScript";
             SetupDummyIoC();
         }
 
@@ -89,7 +90,6 @@ namespace HealthCheck.DevTest
                 System.Diagnostics.Debug.WriteLine($"Lazy: {instance.GetType().Name}");
             }
 
-            HCMetricsUtil.SummaryHtmlJavascriptUrl = "/dev/GetMetricsScript";
             HCGlobalConfig.DefaultInstanceResolver = (type) =>
             {
                 if (type == typeof(IEndpointControlService))
