@@ -19,6 +19,11 @@ namespace HealthCheck.Core.Models
         public Dictionary<string, string> Headers { get; set; }
 
         /// <summary>
+        /// Is set automatically to all request cookies.
+        /// </summary>
+        public Dictionary<string, string> Cookies { get; set; }
+
+        /// <summary>
         /// POST, GET etc
         /// </summary>
         public string Method { get; set; }

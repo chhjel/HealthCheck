@@ -29,6 +29,7 @@ namespace HealthCheck.WebUI.Util
             model.Method = request?.HttpMethod;
             model.Url = request?.Url?.ToString();
             model.Headers = request?.Headers?.AllKeys?.ToDictionary(t => t, t => request.Headers[t]) ?? new Dictionary<string, string>();
+            model.Cookies = request?.Cookies?.AllKeys?.ToDictionary(t => t, t => request.Cookies[t].Value) ?? new Dictionary<string, string>();
 #endif
 
 #if NETCORE
@@ -39,6 +40,7 @@ namespace HealthCheck.WebUI.Util
             model.Method = request?.Method;
             model.Url = request?.GetDisplayUrl();
             model.Headers = request?.Headers.Keys?.ToDictionary(t => t, t => request.Headers[t].ToString()) ?? new Dictionary<string, string>();
+            model.Cookies = request?.Cookies.Keys?.ToDictionary(t => t, t => request.Cookies[t]) ?? new Dictionary<string, string>();
 #endif
 
             return model;
