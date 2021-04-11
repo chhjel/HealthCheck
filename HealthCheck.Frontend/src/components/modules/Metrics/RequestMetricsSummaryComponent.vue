@@ -35,13 +35,9 @@
                     <div v-for="(item, itemIndex) in errorItems"
                         :key="`${id}-error-${itemIndex}`"
                         :style="styleErrorItem">
-                        <code :style="styleErrorDescription">
-                            {{ item.Description }}
-                        </code>
+                        <code :style="styleErrorDescription">{{ item.Description }}</code>
 
-                        <code :style="styleErrorExceptionDetails" v-if="item.ExceptionDetails">
-                            {{ item.ExceptionDetails }}
-                        </code>
+                        <code :style="styleErrorExceptionDetails" v-if="item.ExceptionDetails">{{ item.ExceptionDetails }}</code>
                     </div>
                 </metrics-block-component>
 
@@ -322,7 +318,8 @@ export default class RequestMetricsSummaryComponent extends Vue {
             "margin-bottom": "10px",
             "border": "1px solid #b36b6b",
             "background": "#ffd6d6",
-            "overflow-wrap": "break-word"
+            "overflow-wrap": "break-word",
+            "white-space": "break-spaces"
         }
     }
 
