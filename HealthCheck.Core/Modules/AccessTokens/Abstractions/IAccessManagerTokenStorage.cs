@@ -26,6 +26,7 @@ namespace HealthCheck.Core.Modules.AccessTokens.Abstractions
 
         /// <summary>
         /// Update token last used at datetime.
+        /// <para>Called at max once per minute per token.</para>
         /// </summary>
         HCAccessToken UpdateTokenLastUsedAtTime(Guid id, DateTimeOffset time);
 

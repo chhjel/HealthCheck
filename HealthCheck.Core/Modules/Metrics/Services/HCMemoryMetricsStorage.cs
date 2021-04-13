@@ -11,7 +11,7 @@ namespace HealthCheck.Core.Modules.Metrics.Services
     /// <summary>
     /// Stores metrics data statically in memory.
     /// </summary>
-    public class HCMemoryMetricsService : IHCMetricsService
+    public class HCMemoryMetricsStorage : IHCMetricsStorage
     {
         /// <summary>
         /// Safeguard in case dynamic keys are attempted used.

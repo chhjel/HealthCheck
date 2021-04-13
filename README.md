@@ -1272,6 +1272,7 @@ A few utility classes are included below `HealthCheck.Core.Util`:
 * `IoCUtils` -  Get instances of types with partial IoC etc.
 * `ReflectionUtils` - Invoke private members etc.
 * `AsyncUtils` - Invoke async through reflection, run async synchronous.
+* `DelayedBufferQueue<T>` - Stack up inserts up until a given delay or max count.
 * Log4Net and Episerver memory loggers are available in nuget packages `HealthCheck.Utility.Logger.*`
 * `HCMetricsUtil` - To log timings, notes and errors for the request and include in frontend.
   * Configure `HCMetricsUtil.AllowTrackRequestMetrics` to select what requests to allow tracking. By default `false` is returned and no context will be created.
