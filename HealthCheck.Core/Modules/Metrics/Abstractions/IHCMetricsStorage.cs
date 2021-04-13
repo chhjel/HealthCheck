@@ -7,7 +7,7 @@ namespace HealthCheck.Core.Modules.Metrics.Abstractions
     /// <summary>
     /// Stores and retrieves metrics.
     /// </summary>
-    public interface IHCMetricsService
+    public interface IHCMetricsStorage
     {
         /// <summary>
         /// Store data from the given metrics context.

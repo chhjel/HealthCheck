@@ -25,6 +25,8 @@ variables:
   value: $[counter(variables['BuildParameters.CleanSourceBranch'], 0)]
 - name: BuildParameters.AssemblyVersion
   value: '3.2.$(BuildParameters.BuildReasonRevisionNumber)'
+- name: BuildParameters.Publish
+  value: $[or(eq(variables['BuildParameters.IsMain'], 'true'), eq(variables['BuildParameters.IsExperimental'], 'true'))]
 
 name: 3.2.$(Rev:r)-$(Build.Reason)_$(SourceBranchName)
 
@@ -54,8 +56,9 @@ jobs:
     condition: and(succeeded(), eq(variables['BuildParameters.IsExperimental'], 'true'))
 
   - script: |
-      echo $(BuildParameters.AssemblyVersion)
-    displayName: Show version variable
+      echo Version: $(BuildParameters.AssemblyVersion)
+      echo Publish: $(BuildParameters.Publish)
+    displayName: Debug variables
 
   - checkout: self
 
@@ -121,7 +124,7 @@ jobs:
   #############
   - task: NuGetCommand@2
     displayName: Publish to nuget.org
-    condition: and(succeeded(), eq(variables['BuildParameters.IsMain'], 'true'))
+    condition: and(succeeded(), eq(variables['BuildParameters.Publish'], 'true'))
     inputs:
       command: 'push'
       packagesToPush: '**/Release/*.nupkg;!**/*.symbols.nupkg'
@@ -130,7 +133,7 @@ jobs:
 
   - task: Npm@1
     displayName: Set package.json version number
-    condition: and(succeeded(), eq(variables['BuildParameters.IsMain'], 'true'))
+    condition: and(succeeded(), eq(variables['BuildParameters.Publish'], 'true'))
     inputs:
       command: 'custom'
       workingDir: 'HealthCheck.Frontend/dist'
@@ -138,7 +141,7 @@ jobs:
 
   - task: Npm@1
     displayName: Publish to npmjs.org
-    condition: and(succeeded(), eq(variables['BuildParameters.IsMain'], 'true'))
+    condition: and(succeeded(), eq(variables['BuildParameters.Publish'], 'true'))
     inputs:
       command: 'publish'
       workingDir: 'HealthCheck.Frontend/dist/'

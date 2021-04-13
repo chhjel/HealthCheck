@@ -62,7 +62,7 @@ namespace HealthCheck.DevTest
         private static readonly FlatFileEndpointControlRuleStorage _endpointControlRuleStorage
             = new FlatFileEndpointControlRuleStorage(@"c:\temp\EC_Rules.json");
         private static readonly IHCStringDictionaryStorage _settingsService = new HCFlatFileStringDictionaryStorage(@"C:\temp\settings.json");
-        private static readonly HCMemoryMetricsService _memoryMetricsService = new();
+        private static readonly HCMemoryMetricsStorage _memoryMetricsService = new();
 
         private void SetupDummyIoC()
         {
@@ -114,7 +114,7 @@ namespace HealthCheck.DevTest
                 {
                     return _settingsService;
                 }
-                else if(type == typeof(IHCMetricsService))
+                else if(type == typeof(IHCMetricsStorage))
                 {
                     return _memoryMetricsService;
                 }

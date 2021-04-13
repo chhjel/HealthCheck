@@ -81,7 +81,7 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         {
             OnRequestMetricsReadyEvent?.Invoke(context);
 
-            var service = IoCUtils.GetInstance<IHCMetricsService>();
+            var service = IoCUtils.GetInstance<IHCMetricsStorage>();
             if (service != null)
             {
                 Task.Run(async () =>  await service.StoreMetricDataAsync(context));

@@ -8,5 +8,4 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
     public interface IDataflowEntry
     {
     }
-
 }
