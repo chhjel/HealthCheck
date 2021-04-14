@@ -12,5 +12,6 @@ namespace HealthCheck.WebUI.Tests.ModuleSystem.Helpers
         public string RoutePath => "/{0}/:id?";
         public List<HealthCheckLinkTagModel> LinkTags => null;
         public List<HealthCheckScriptTagModel> ScriptTags => null;
+        public string RawHtml { get; }
     }
 }

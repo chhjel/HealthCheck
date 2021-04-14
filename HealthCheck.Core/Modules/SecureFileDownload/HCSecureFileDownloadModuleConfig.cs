@@ -12,5 +12,6 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         public string RoutePath => "/{0}/:id?";
         public List<HealthCheckLinkTagModel> LinkTags => new List<HealthCheckLinkTagModel>();
         public List<HealthCheckScriptTagModel> ScriptTags => new List<HealthCheckScriptTagModel>();
+        public string RawHtml { get; }
     }
 }

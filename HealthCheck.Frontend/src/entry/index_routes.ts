@@ -13,6 +13,7 @@ import AccessTokensPageComponent from '../components/modules/AccessTokens/Access
 import SecureFileDownloadPageComponent from '../components/modules/SecureFileDownload/SecureFileDownloadPageComponent.vue';
 import EndpointControlPageComponent from '../components/modules/EndpointControl/EndpointControlPageComponent.vue';
 import MessagesPageComponent from '../components/modules/Messages/MessagesPageComponent.vue';
+import CustomPageComponent from '../components/modules/Custom/CustomPageComponent.vue';
 import NoPageAvailablePageComponent from '../components/NoPageAvailablePageComponent.vue';
 import Vue, { VueConstructor } from "vue";
 import VueRouter, { RouteConfig } from 'vue-router';
@@ -34,7 +35,8 @@ export default function createRouter(moduleConfig: Array<ModuleConfig>): VueRout
     'AccessTokensPageComponent': AccessTokensPageComponent,
     'SecureFileDownloadPageComponent': SecureFileDownloadPageComponent,
     'EndpointControlPageComponent': EndpointControlPageComponent,
-    'MessagesPageComponent': MessagesPageComponent
+    'MessagesPageComponent': MessagesPageComponent,
+    'CustomPageComponent': CustomPageComponent
 };
 
 let moduleOptions = ((window as any).healthCheckModuleOptions) as Record<string, ModuleOptions<any>>;
@@ -46,7 +48,7 @@ let moduleOptions = ((window as any).healthCheckModuleOptions) as Record<string,
       routes.push({
           name: config.Id,
           path: config.RoutePath,
-          component: moduleComponents[config.ComponentName],
+          component: moduleComponents[config.ComponentName || 'CustomPageComponent'],
           props: {
               config: config,
               options: moduleOptions[config.Id]
@@ -59,7 +61,6 @@ let moduleOptions = ((window as any).healthCheckModuleOptions) as Record<string,
   {
     routes.push({ path: '/*', component: NoPageAvailablePageComponent });
   }
-  
   const router = new VueRouter({
     routes: routes,
   });

@@ -5,11 +5,12 @@ namespace HealthCheck.Module.DevModule
 {
     public class TestModuleAConfig : IHealthCheckModuleConfig
     {
-        public string Name { get; } = "Test Module A";
-        public string ComponentName => "DevPageComponent";
+        public string Name { get; } = "Custom test";
+        public string ComponentName => null;
         public string DefaultRootRouteSegment => "devA";
         public string InitialRoute => "/{0}";
         public string RoutePath => "/{0}/:sub1?/:sub2?";
+        public string RawHtml { get; } = "<b>Success?</b><br /><a href=\"/etc\">Test</a>";
 
         public List<HealthCheckLinkTagModel> LinkTags { get; } = new List<HealthCheckLinkTagModel>()
         {

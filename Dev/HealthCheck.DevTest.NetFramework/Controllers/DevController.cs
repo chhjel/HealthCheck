@@ -203,6 +203,7 @@ namespace HealthCheck.DevTest.Controllers
             UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = _siteEventService }));
             UseModule(new HCRequestLogModule(new HCRequestLogModuleOptions() { RequestLogService = RequestLogServiceAccessor.Current }));
             UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { Service = SettingsService, ModelType = typeof(TestSettings) }));
+            UseModule(new TestModuleA());
 
             if (!_hasInited)
             {
@@ -266,6 +267,7 @@ namespace HealthCheck.DevTest.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCSecureFileDownloadModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCEndpointControlModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCMessagesModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<TestModuleA>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);

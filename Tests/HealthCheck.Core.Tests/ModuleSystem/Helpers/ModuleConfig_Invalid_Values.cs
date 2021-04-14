@@ -12,5 +12,6 @@ namespace HealthCheck.Core.Tests.ModuleSystem.Helpers
         public string RoutePath => null;
         public List<HealthCheckLinkTagModel> LinkTags => null;
         public List<HealthCheckScriptTagModel> ScriptTags => null;
+        public string RawHtml { get; }
     }
 }

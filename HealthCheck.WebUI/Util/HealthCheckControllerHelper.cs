@@ -555,6 +555,7 @@ namespace HealthCheck.WebUI.Util
                 x.LoadErrors,
                 LoadErrorStacktrace = (allowStacktrace ? x.LoadErrorStacktrace : null),
                 x.Config?.ComponentName,
+                x.Config?.RawHtml,
                 InitialRoute = x?.Config?.InitialRoute == null ? null : string.Format(x.Config.InitialRoute, x.Config.DefaultRootRouteSegment),
                 RoutePath = x?.Config?.RoutePath == null ? null : string.Format(x.Config.RoutePath, x.Config.DefaultRootRouteSegment)
             });

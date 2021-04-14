@@ -12,5 +12,6 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         public string RoutePath => "/{0}/:id?";
         public List<HealthCheckLinkTagModel> LinkTags => new List<HealthCheckLinkTagModel>();
         public List<HealthCheckScriptTagModel> ScriptTags => new List<HealthCheckScriptTagModel>();
+        public string RawHtml { get; }
     }
 }
