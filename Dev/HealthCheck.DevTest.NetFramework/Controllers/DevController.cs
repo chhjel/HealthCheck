@@ -297,7 +297,12 @@ namespace HealthCheck.DevTest.Controllers
                     var msg = new HCDefaultMessageItem($"Some summary here #{i}", $"{i}345678", $"841244{i}", $"Some test message #{i} here etc etc.", false);
                     if (i % 4 == 0)
                     {
-                        msg.SetError("Failed to send because of server error.");
+                        msg.SetError("Failed to send because of server error.")
+                            .AddNote("Mail not actually sent, devmode enabled etc.");
+                    }
+                    if (i % 2 == 0)
+                    {
+                        msg.AddNote("Mail not actually sent, devmode enabled etc.");
                     }
                     _memoryMessageStore.StoreMessage("sms", msg);
                 }

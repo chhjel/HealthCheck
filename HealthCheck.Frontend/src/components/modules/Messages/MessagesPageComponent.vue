@@ -137,6 +137,14 @@
                         <div class="message__from"><b>From: </b>{{ currentlyShownMessage.From }}</div>
                         <div class="message__to"><b>To: </b>{{ currentlyShownMessage.To }}</div>
                         <div class="message__summary"><b>Summary: </b>{{ currentlyShownMessage.Summary }}</div>
+                        <div v-if="currentlyShownMessage.Notes && currentlyShownMessage.Notes.length > 0">
+                            <b>Notes:</b>
+                            <ul>
+                                <li class="message__note" v-for="(note, noteIndex) in currentlyShownMessage.Notes"
+                                    :key="`message-dialog-note-${noteIndex}`"
+                                    >{{ note }}</li>
+                            </ul>
+                        </div>
                         <div v-if="currentlyShownMessage.HasError" class="message__error-note">
                             Message contains an error, see below for details.
                         </div>

@@ -12,6 +12,7 @@ export interface HCDefaultMessageItem
 	Body: string;
 	BodyIsHtml: boolean;
 	AdditionalDetails: { [key:string]: string };
+	Notes: Array<string>;
 	HasError: boolean;
 	ErrorMessage: string;
 }

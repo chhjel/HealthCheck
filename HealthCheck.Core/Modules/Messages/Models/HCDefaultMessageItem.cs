@@ -52,6 +52,11 @@ namespace HealthCheck.Core.Modules.Messages.Models
         public Dictionary<string, string> AdditionalDetails { get; set; } = new Dictionary<string, string>();
 
         /// <summary>
+        /// Any additional notes.
+        /// </summary>
+        public List<string> Notes { get; set; } = new List<string>();
+
+        /// <summary>
         /// True if the message failed to send.
         /// </summary>
         public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
@@ -96,9 +101,18 @@ namespace HealthCheck.Core.Modules.Messages.Models
         /// <summary>
         /// Add any additional detail.
         /// </summary>
-        public HCDefaultMessageItem AddDetail(string name, string value)
+        public HCDefaultMessageItem SetDetail(string name, string value)
         {
             AdditionalDetails[name] = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Add any additional note about this email.
+        /// </summary>
+        public HCDefaultMessageItem AddNote(string note)
+        {
+            Notes.Add(note);
             return this;
         }
 
