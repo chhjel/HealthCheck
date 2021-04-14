@@ -6,6 +6,7 @@ export interface HCRequestContext
 {
 	Url: string;
 	Headers: { [key:string]: string };
+	Cookies: { [key:string]: string };
 	Method: string;
 	RequestExecutionStartTime: Date;
 }

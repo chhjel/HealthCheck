@@ -35,6 +35,11 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         /// </summary>
         public Dictionary<string, List<long>> GlobalValues { get; set; } = new();
 
+        /// <summary>
+        /// True if there's any data to display.
+        /// </summary>
+        public bool ContainsData => Items.Any() || GlobalCounters.Any() || GlobalValues.Any();
+
         private readonly object _itemsLock = new();
         private readonly object _globalCountersLock = new();
         private readonly object _globalValuesLock = new();
@@ -88,19 +93,6 @@ namespace HealthCheck.Core.Modules.Metrics.Context
             {
                 HCMetricsUtil.NotifyNewTrackedMetrics(this);
             }
-        }
-
-        /// <summary>
-        /// True if there's any data to display.
-        /// </summary>
-        public bool ContainsData()
-        {
-            if (Items.Count == 0 || GlobalCounters.Count == 0 || GlobalValues.Count == 0)
-            {
-                return false;
-            }
-
-            return true;
         }
 
         /// <summary></summary>

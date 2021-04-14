@@ -12,5 +12,6 @@ namespace HealthCheck.Core.Modules.Dataflow
         public string RoutePath => "/{0}/:group?/:streamName?";
         public List<HealthCheckLinkTagModel> LinkTags => new List<HealthCheckLinkTagModel>();
         public List<HealthCheckScriptTagModel> ScriptTags => new List<HealthCheckScriptTagModel>();
+        public string RawHtml { get; }
     }
 }

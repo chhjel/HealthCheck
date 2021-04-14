@@ -110,7 +110,7 @@ namespace HealthCheck.DevTest.Controllers
                 typeof(RuntimeTestConstants).Assembly
             };
 
-            UseModule(new HCMetricsModule(new HCMetricsModuleOptions()));
+            //UseModule(new HCMetricsModule(new HCMetricsModuleOptions()));
             UseModule(new HCTestsModule(new HCTestsModuleOptions()
             {
                 AssembliesContainingTests = assemblies,
@@ -203,6 +203,7 @@ namespace HealthCheck.DevTest.Controllers
             UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = _siteEventService }));
             UseModule(new HCRequestLogModule(new HCRequestLogModuleOptions() { RequestLogService = RequestLogServiceAccessor.Current }));
             UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { Service = SettingsService, ModelType = typeof(TestSettings) }));
+            UseModule(new TestModuleA());
 
             if (!_hasInited)
             {
@@ -266,6 +267,7 @@ namespace HealthCheck.DevTest.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCSecureFileDownloadModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCEndpointControlModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCMessagesModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<TestModuleA>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
@@ -295,7 +297,12 @@ namespace HealthCheck.DevTest.Controllers
                     var msg = new HCDefaultMessageItem($"Some summary here #{i}", $"{i}345678", $"841244{i}", $"Some test message #{i} here etc etc.", false);
                     if (i % 4 == 0)
                     {
-                        msg.SetError("Failed to send because of server error.");
+                        msg.SetError("Failed to send because of server error.")
+                            .AddNote("Mail not actually sent, devmode enabled etc.");
+                    }
+                    if (i % 2 == 0)
+                    {
+                        msg.AddNote("Mail not actually sent, devmode enabled etc.");
                     }
                     _memoryMessageStore.StoreMessage("sms", msg);
                 }

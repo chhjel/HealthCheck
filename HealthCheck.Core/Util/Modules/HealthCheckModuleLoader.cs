@@ -113,15 +113,20 @@ namespace HealthCheck.Core.Util.Modules
 
 		private static void ValidateConfigValues(HealthCheckLoadedModule loadedModule)
 		{
-			var invalidProps = new List<string>();
-			if (loadedModule.Config.DefaultRootRouteSegment == null) invalidProps.Add(nameof(IHealthCheckModuleConfig.DefaultRootRouteSegment));
-			if (loadedModule.Config.InitialRoute == null) invalidProps.Add(nameof(IHealthCheckModuleConfig.InitialRoute));
-			if (loadedModule.Config.RoutePath == null) invalidProps.Add(nameof(IHealthCheckModuleConfig.RoutePath));
-			if (loadedModule.Config.ComponentName == null) invalidProps.Add(nameof(IHealthCheckModuleConfig.ComponentName));
+			var requiredPropsNotSet = new List<string>();
+			if (loadedModule.Config.DefaultRootRouteSegment == null) requiredPropsNotSet.Add(nameof(IHealthCheckModuleConfig.DefaultRootRouteSegment));
+			if (loadedModule.Config.InitialRoute == null) requiredPropsNotSet.Add(nameof(IHealthCheckModuleConfig.InitialRoute));
+			if (loadedModule.Config.RoutePath == null) requiredPropsNotSet.Add(nameof(IHealthCheckModuleConfig.RoutePath));
 
-			foreach (var prop in invalidProps)
+			foreach (var prop in requiredPropsNotSet)
 			{
 				loadedModule.LoadErrors.Add($"Config property '{prop}' should not be null.");
+			}
+
+			if (string.IsNullOrWhiteSpace(loadedModule.Config.ComponentName) && string.IsNullOrWhiteSpace(loadedModule.Config.RawHtml))
+            {
+				loadedModule.LoadErrors.Add($"Either set config property '{nameof(IHealthCheckModuleConfig.ComponentName)}' or '{nameof(IHealthCheckModuleConfig.RawHtml)}'.");
+
 			}
 		}
 

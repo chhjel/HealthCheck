@@ -51,7 +51,7 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         public static string GetContextAsJson(bool emptyIfNoData = false)
         {
             var context = Current;
-            if (context == null || (emptyIfNoData && !context.ContainsData()))
+            if (context == null || (emptyIfNoData && !context.ContainsData))
             {
                 return null;
             }

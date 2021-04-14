@@ -128,6 +128,9 @@ export default class TestResultTimingsDataComponent extends Vue {
   .timingbar-bar-wrapper
   {
     width: 100%;
+    border-left:  1px solid silver;
+    border-right: 1px solid silver;
+    background-color: #eee;
 
     .timingbar-bar {
       position: relative;

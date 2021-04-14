@@ -32,8 +32,14 @@ namespace HealthCheck.Core.Abstractions.Modules
 
         /// <summary>
         /// Vue component name for the module page in frontend.
+        /// <para>If <see cref="RawHtml"/> is set this property will have no effect.</para>
         /// </summary>
         string ComponentName { get; }
+
+        /// <summary>
+        /// Raw html to show instead of <see cref="ComponentName"/>.
+        /// </summary>
+        string RawHtml { get; }
 
         /// <summary>
         /// Any custom link-tags to include.
