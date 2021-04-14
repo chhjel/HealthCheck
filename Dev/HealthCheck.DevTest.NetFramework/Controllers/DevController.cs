@@ -110,7 +110,7 @@ namespace HealthCheck.DevTest.Controllers
                 typeof(RuntimeTestConstants).Assembly
             };
 
-            UseModule(new HCMetricsModule(new HCMetricsModuleOptions()));
+            //UseModule(new HCMetricsModule(new HCMetricsModuleOptions()));
             UseModule(new HCTestsModule(new HCTestsModuleOptions()
             {
                 AssembliesContainingTests = assemblies,

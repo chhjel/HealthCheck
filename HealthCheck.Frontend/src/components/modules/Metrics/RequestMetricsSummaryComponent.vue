@@ -35,7 +35,7 @@
                     <div v-for="(item, itemIndex) in errorItems"
                         :key="`${id}-error-${itemIndex}`"
                         :style="styleErrorItem">
-                        <code :style="styleErrorDescription">{{ item.Description }}</code>
+                        <code :style="styleErrorDetails">{{ item.Description }}</code>
 
                         <code :style="styleErrorExceptionDetails" v-if="item.ExceptionDetails">{{ item.ExceptionDetails }}</code>
                     </div>
@@ -95,7 +95,7 @@ export default class RequestMetricsSummaryComponent extends Vue {
     barColors: Array<string> = [
       '#66bb6a', '#42a5f5',
       '#ab47bc', '#26a69a',
-      '#26c6da', '#ffca28', '#ef5350',
+      '#26c6da', '#ffca28',
       '#8d6e63', '#ec407a', '#78909c'
     ];
 
@@ -128,7 +128,7 @@ export default class RequestMetricsSummaryComponent extends Vue {
       {
         base['height'] = '16px';
         base['width'] = '16px';
-        base['margin-left'] = '-8px';
+        base['margin-left'] = '-9px';
         base['border-radius'] = '50%';
       }
 
@@ -187,6 +187,7 @@ export default class RequestMetricsSummaryComponent extends Vue {
     //////////////
     //  STYLE  //
     ////////////
+    // Using style getters because of shadow-dom
     get styleToggleMetrics(): any {
         const base: any = {
             "height": "1cm",
@@ -222,7 +223,7 @@ export default class RequestMetricsSummaryComponent extends Vue {
 
     get styleRoot(): any {
         return {
-            'margin': '40px',
+            'margin': '20px',
             'padding': '20px',
             'font-family': 'sans-serif',
             'color': '#333'
@@ -254,7 +255,13 @@ export default class RequestMetricsSummaryComponent extends Vue {
     get styleTimingbarBarWrapper() : any {
         return {
             "width": "100%",
-            "position": "relative"
+            "position": "relative",
+            'border-left':  '1px solid silver',
+            'border-right': '1px solid silver',
+            'background-color': '#eee',
+            "height": "30px",
+            "display": "flex",
+            "align-items": "center",
         }
     }
 
@@ -300,15 +307,16 @@ export default class RequestMetricsSummaryComponent extends Vue {
         }
     }
 
-    get styleErrorDescription() : any {
+    get styleErrorDetails() : any {
         return {
-            "display": "inline-block",
-            "margin": "5px 0",
+            "display": "block",
             "padding": "5px",
-            "font-weight": "600",
+            "margin-bottom": "2px",
+            "border": "1px solid #b36b6b",
             "background": "#ffd6d6",
-            "overflow-wrap": "break-word"
-        }
+            "overflow-wrap": "break-word",
+            "white-space": "break-spaces"
+        };
     }
 
     get styleErrorExceptionDetails() : any {
@@ -320,7 +328,7 @@ export default class RequestMetricsSummaryComponent extends Vue {
             "background": "#ffd6d6",
             "overflow-wrap": "break-word",
             "white-space": "break-spaces"
-        }
+        };
     }
 
     ////////////////
