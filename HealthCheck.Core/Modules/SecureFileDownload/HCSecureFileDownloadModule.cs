@@ -1,7 +1,7 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload.Models;
-using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Collections;
 using HealthCheck.Core.Util.Modules;
 using System;
 using System.Collections.Generic;

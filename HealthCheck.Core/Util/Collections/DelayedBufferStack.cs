@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HealthCheck.Core.Util
+namespace HealthCheck.Core.Util.Collections
 {
     /// <summary>
     /// Queues up additions either up to the given duration or max count, then invokes the callback and clears the queue.
