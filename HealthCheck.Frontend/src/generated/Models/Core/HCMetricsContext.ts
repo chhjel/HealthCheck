@@ -11,4 +11,5 @@ export interface HCMetricsContext
 	Items: HCMetricsItem[];
 	GlobalCounters: { [key:string]: number };
 	GlobalValues: { [key:string]: number[] };
+	ContainsData: boolean;
 }
