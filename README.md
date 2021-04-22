@@ -5,6 +5,7 @@
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.DynamicCodeExecution?label=HealthCheck.Module.DynamicCodeExecution&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.DynamicCodeExecution)
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.EndpointControl?label=HealthCheck.Module.EndpointControl&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.EndpointControl)
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.RequestLog?label=HealthCheck.Module.RequestLog&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.RequestLog)
+[![Nuget](https://img.shields.io/nuget/v/HealthCheck.Episerver?label=HealthCheck.Episerver&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Episerver)
 [![npm](https://img.shields.io/npm/v/christianh-healthcheck?label=christianh-healthcheck&logo=npm)](https://www.npmjs.com/package/christianh-healthcheck)
 
 ## What is it
@@ -144,12 +145,6 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
 
 </p>
 </details>
-
----------
-
-## A note about the built in flatfile storage implementations
-
-The built in flatfile storage classes should work fine for most use cases. If used make sure they are registered as singletons, they are thread safe but only within their own instances. If multiple servers are used these are not optimal obviously.
 
 ---------
 
@@ -1259,6 +1254,18 @@ Example logic using built in helper methods for creating 2FA codes in session:
         return HCIntegratedLoginResult.CreateSuccess();
     }
 ```
+
+---------
+
+## Data storage
+
+### Flatfile storage implementations
+
+The built in flatfile storage classes should work fine for most use cases when a persistent folder is available. If used make sure they are registered as singletons, they are thread safe but only within their own instances. If multiple servers are used these are not optimal obviously.
+
+### EpiServer
+
+For Episerver projects blob storage implementations can optionally be used from [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Episerver?label=HealthCheck.Episerver&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Episerver). If used they should be registered as singletons for optimal performance.
 
 ---------
 
