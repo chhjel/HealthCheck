@@ -1,18 +1,18 @@
 ﻿using EPiServer.Framework.Blobs;
 using HealthCheck.Core.Modules.AccessTokens.Abstractions;
 using HealthCheck.Core.Modules.AccessTokens.Models;
-using HealthCheck.Episerver.Abstractions;
+using HealthCheck.Episerver.Storage.Abstractions;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HealthCheck.Episerver
+namespace HealthCheck.Episerver.Storage
 {
     /// <summary>
     /// Stores data in blob storage.
     /// </summary>
-    public class HCEpiserverAccessTokenBlobStorage: HCEpiserverSingleBlobStorageBase<HCEpiserverAccessTokenBlobStorage.HCAccessTokenBlobData>, IAccessManagerTokenStorage
+    public class HCEpiserverBlobAccessTokenStorage: HCEpiserverSingleBlobStorageBase<HCEpiserverBlobAccessTokenStorage.HCAccessTokenBlobData>, IAccessManagerTokenStorage
     {
         /// <inheritdoc />
         protected override Guid DefaultContainerId => Guid.Parse("b00e5a54-2ade-4237-bc1c-aa9c32f77a8d");
@@ -20,7 +20,7 @@ namespace HealthCheck.Episerver
         /// <summary>
         /// Stores data in blob storage.
         /// </summary>
-        public HCEpiserverAccessTokenBlobStorage(IBlobFactory blobFactory, IMemoryCache cache)
+        public HCEpiserverBlobAccessTokenStorage(IBlobFactory blobFactory, IMemoryCache cache)
             : base(blobFactory, cache)
         {
         }

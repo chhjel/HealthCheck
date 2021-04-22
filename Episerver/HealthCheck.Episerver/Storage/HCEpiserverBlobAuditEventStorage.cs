@@ -1,7 +1,7 @@
 ﻿using EPiServer.Framework.Blobs;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.AuditLog.Models;
-using HealthCheck.Episerver.Abstractions;
+using HealthCheck.Episerver.Storage.Abstractions;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Concurrent;
@@ -9,12 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HealthCheck.Episerver
+namespace HealthCheck.Episerver.Storage
 {
     /// <summary>
     /// Stores audit events.
     /// </summary>
-    public class HCEpiserverAuditEventBlobStorage : HCEpiserverSingleBlobStorageBase<HCEpiserverAuditEventBlobStorage.HCAuditEventsBlobData>, IAuditEventStorage
+    public class HCEpiserverBlobAuditEventStorage : HCEpiserverSingleBlobStorageBase<HCEpiserverBlobAuditEventStorage.HCAuditEventsBlobData>, IAuditEventStorage
     {
         /// <inheritdoc />
         protected override Guid DefaultContainerId => Guid.Parse("85814e08-cf34-4e69-97c2-63d3833f7967");
@@ -22,7 +22,7 @@ namespace HealthCheck.Episerver
         /// <summary>
         /// Stores audit events.
         /// </summary>
-        public HCEpiserverAuditEventBlobStorage(IBlobFactory blobFactory, IMemoryCache cache)
+        public HCEpiserverBlobAuditEventStorage(IBlobFactory blobFactory, IMemoryCache cache)
             : base(blobFactory, cache)
         {
         }

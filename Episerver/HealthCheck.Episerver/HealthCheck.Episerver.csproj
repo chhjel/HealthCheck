@@ -7,7 +7,7 @@
     <Version>1.0.1</Version>
     <Authors>ChristianH</Authors>
     <Company>ChristianH</Company>
-    <Description>Various Episerver implementations.</Description>
+    <Description>Episerver related implementations.</Description>
     <Copyright>ChristianH</Copyright>
     <LangVersion>latest</LangVersion>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.Episerver.xml</DocumentationFile>

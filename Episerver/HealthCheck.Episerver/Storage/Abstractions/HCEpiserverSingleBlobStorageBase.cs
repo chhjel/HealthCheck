@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace HealthCheck.Episerver.Abstractions
+namespace HealthCheck.Episerver.Storage.Abstractions
 {
     /// <summary>
     /// Base implementation for storing a single object in a blob container with cache.
@@ -101,7 +101,6 @@ namespace HealthCheck.Episerver.Abstractions
             var blob = CreateBlob();
             var json = JsonConvert.SerializeObject(data);
 
-            // save and cache
             using var stream = blob.OpenWrite();
             var writer = new StreamWriter(stream);
             writer.WriteLine(json);

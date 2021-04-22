@@ -1,17 +1,17 @@
 ﻿using EPiServer.Framework.Blobs;
 using HealthCheck.Core.Abstractions;
-using HealthCheck.Episerver.Abstractions;
+using HealthCheck.Episerver.Storage.Abstractions;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 
-namespace HealthCheck.Episerver
+namespace HealthCheck.Episerver.Storage
 {
     /// <summary>
     /// Stores a dictionary in blob storage.
     /// </summary>
-    public class HCEpiserverStringDictionaryBlobStorage 
-        : HCEpiserverSingleBlobStorageBase<HCEpiserverStringDictionaryBlobStorage.HCDictionaryBlobData>, IHCStringDictionaryStorage
+    public class HCEpiserverBlobStringDictionaryStorage
+        : HCEpiserverSingleBlobStorageBase<HCEpiserverBlobStringDictionaryStorage.HCDictionaryBlobData>, IHCStringDictionaryStorage
     {
         /// <inheritdoc />
         protected override Guid DefaultContainerId => Guid.Parse("5dd58b96-06f2-4629-a8d4-82e01680bf79");
@@ -19,7 +19,7 @@ namespace HealthCheck.Episerver
         /// <summary>
         /// Stores a dictionary in blob storage.
         /// </summary>
-        public HCEpiserverStringDictionaryBlobStorage(IBlobFactory blobFactory, IMemoryCache cache) : base(blobFactory, cache)
+        public HCEpiserverBlobStringDictionaryStorage(IBlobFactory blobFactory, IMemoryCache cache) : base(blobFactory, cache)
         {
         }
 
