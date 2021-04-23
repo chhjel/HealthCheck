@@ -6,7 +6,7 @@ using System.Linq;
 namespace HealthCheck.Episerver.Storage.Abstractions
 {
     /// <summary>
-    /// Base implementation for storing a single object in a blob container with cache and buffer.
+    /// Base implementation for storing a list in a blob container with cache and buffer.
     /// </summary>
     public abstract class HCEpiserverSingleBufferedListBlobStorageBase<TData, TItem> : HCEpiserverSingleBufferedBlobStorageBase<TData, TItem>
         where TData : HCEpiserverSingleBufferedListBlobStorageBase<TData, TItem>.IBufferedBlobListStorageData, new()
@@ -25,14 +25,14 @@ namespace HealthCheck.Episerver.Storage.Abstractions
         }
 
         /// <inheritdoc />
-        protected override TData UpdateDataFromBuffer(TData data, Queue<TItem> bufferedItems)
+        protected override TData UpdateDataFromBuffer(TData data, Queue<BufferQueueItem> bufferedItems)
         {
-            data.Items.AddRange(bufferedItems);
+            data.Items.AddRange(bufferedItems.Select(x => x.Item));
 
             if (MaxItemCount != null && data.Items.Count > MaxItemCount)
             {
                 var skipCount = data.Items.Count - MaxItemCount.Value;
-                data.Items = data.Items.Skip(skipCount).ToList();
+                data.Items.RemoveRange(0, skipCount);
             }
 
             return data;

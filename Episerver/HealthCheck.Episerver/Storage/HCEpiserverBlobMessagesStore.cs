@@ -13,7 +13,7 @@ namespace HealthCheck.Episerver.Storage
     /// Stores messages in blob storage.
     /// </summary>
     public class HCEpiserverBlobMessagesStore
-        : HCEpiserverSingleBufferedListBlobStorageBase<HCEpiserverBlobMessagesStore.HCMessagesBlobData, KeyValuePair<string, IHCMessageItem>>, IHCMessageStorage
+        : HCEpiserverSingleBufferedMultiListBlobStorageBase<HCEpiserverBlobMessagesStore.HCMessagesBlobData, IHCMessageItem, string>, IHCMessageStorage
     {
         /// <inheritdoc />
         protected override Guid DefaultContainerId => Guid.Parse("d22175a0-28b2-4f5f-9acd-5c135666f08e");
@@ -30,14 +30,20 @@ namespace HealthCheck.Episerver.Storage
         {
             var data = GetBlobData();
 
+            var totalCount = 0;
+            IEnumerable<IHCMessageItem> items = null;
+            if (data.Lists.ContainsKey(inboxId))
+            {
+                totalCount = data.Lists[inboxId].Count;
+                items = data.Lists[inboxId]
+                    .Skip(pageIndex * pageSize)
+                    .Take(pageSize);
+            }
+
             return new HCDataWithTotalCount<IEnumerable<IHCMessageItem>>
             {
-                TotalCount = data.Items.Count,
-                Data = data.Items
-                    .Where(x => x.Key == inboxId)
-                    .Skip(pageIndex * pageSize)
-                    .Take(pageSize)
-                    .Select(x => x.Value)
+                TotalCount = totalCount,
+                Data = items ?? Enumerable.Empty<IHCMessageItem>()
             };
         }
 
@@ -45,18 +51,22 @@ namespace HealthCheck.Episerver.Storage
         public IHCMessageItem GetMessage(string inboxId, string messageId)
         {
             var data = GetBlobData();
-            return data.Items.FirstOrDefault(x => x.Key == inboxId && x.Value.Id == messageId).Value;
+            if (!data.Lists.ContainsKey(inboxId))
+            {
+                return null;
+            }
+            return data.Lists[inboxId].FirstOrDefault(x => x.Id == messageId);
         }
 
         /// <inheritdoc />
         public void StoreMessage(string inboxId, IHCMessageItem message)
-            => InsertItemBuffered(new KeyValuePair<string, IHCMessageItem>(inboxId, message));
+            => InsertItemBuffered(message, inboxId);
 
         /// <inheritdoc />
         public void DeleteAllData()
         {
             var data = GetBlobData();
-            data.Items.Clear();
+            data.Lists.Clear();
             SaveBlobData(data);
         }
 
@@ -64,8 +74,11 @@ namespace HealthCheck.Episerver.Storage
         public bool DeleteInbox(string inboxId)
         {
             var data = GetBlobData();
-            data.Items.RemoveAll(x => x.Key == inboxId);
-            SaveBlobData(data);
+            if (data.Lists.ContainsKey(inboxId))
+            {
+                data.Lists.Remove(inboxId);
+                SaveBlobData(data);
+            }
             return true;
         }
 
@@ -73,18 +86,21 @@ namespace HealthCheck.Episerver.Storage
         public bool DeleteMessage(string inboxId, string messageId)
         {
             var data = GetBlobData();
-            data.Items.RemoveAll(x => x.Key == inboxId && x.Value.Id == messageId);
-            SaveBlobData(data);
+            if (data.Lists.ContainsKey(inboxId))
+            {
+                data.Lists[inboxId].RemoveAll(x => x.Id == messageId);
+                SaveBlobData(data);
+            }
             return true;
         }
 
         /// <summary>
         /// Model stored in blob storage.
         /// </summary>
-        public class HCMessagesBlobData : IBufferedBlobListStorageData
+        public class HCMessagesBlobData : IBufferedBlobMultiListStorageData
         {
             /// <inheritdoc />
-            public List<KeyValuePair<string, IHCMessageItem>> Items { get; set; } = new List<KeyValuePair<string, IHCMessageItem>>();
+            public Dictionary<string, List<IHCMessageItem>> Lists { get; set; } = new Dictionary<string, List<IHCMessageItem>>();
         }
     }
 }

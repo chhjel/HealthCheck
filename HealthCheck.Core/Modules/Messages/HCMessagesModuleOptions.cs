@@ -17,7 +17,7 @@ namespace HealthCheck.Core.Modules.Messages
         internal List<HCMessagesInboxMetadata> InboxMetadata { get; } = new List<HCMessagesInboxMetadata>();
 
         /// <summary>
-        /// Optionally give inboxes a name, description and group.
+        /// Optionally give inboxes a name and description.
         /// </summary>
         public HCMessagesModuleOptions DefineInbox(string inboxId, string name, string description = null)
         {

@@ -27,12 +27,12 @@ namespace HealthCheck.Episerver.Storage.Abstractions
         }
 
         /// <inheritdoc />
-        protected override TData UpdateDataFromBuffer(TData data, Queue<TItem> bufferedItems)
+        protected override TData UpdateDataFromBuffer(TData data, Queue<BufferQueueItem> bufferedItems)
         {
             foreach (var item in bufferedItems)
             {
-                var id = GetItemId(item);
-                data.Items[id] = item;
+                var id = GetItemId(item.Item);
+                data.Items[id] = item.Item;
             }
 
             if (MaxItemCount != null && data.Items.Count > MaxItemCount)
