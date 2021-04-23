@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HealthCheck.Core.Util
+namespace HealthCheck.Core.Util.Collections
 {
     /// <summary>
     /// Queues up additions either up to the given duration or max count, then invokes the callback and clears the queue.
@@ -83,7 +83,23 @@ namespace HealthCheck.Core.Util
             }
         }
 
-		private void EnsureDelayedCallback()
+        /// <summary>
+        /// Inserts items into the buffer queue and ensures the callback timer is started.
+        /// </summary>
+        public virtual void Add(IEnumerable<T> items)
+        {
+            lock (BufferQueue)
+            {
+                foreach(var item in items)
+                {
+                    BufferQueue.Enqueue(item);
+                }
+
+                EnsureDelayedCallback();
+            }
+        }
+
+        private void EnsureDelayedCallback()
         {
             if (BufferQueue.Count >= QueueSizeLimit)
             {

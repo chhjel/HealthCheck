@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HealthCheck.Core.Util
+namespace HealthCheck.Core.Util.Collections
 {
     internal class ListWithExpiration<T>
     {
         public int MaxCount { get; set; } = 10000;
 
-        private readonly List<ListWithExpirationItem> _items = new List<ListWithExpirationItem>();
+        private readonly List<ListWithExpirationItem> _items = new();
 
         private struct ListWithExpirationItem
         {

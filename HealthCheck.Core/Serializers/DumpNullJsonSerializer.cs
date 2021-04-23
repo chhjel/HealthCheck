@@ -5,7 +5,7 @@ using System;
 namespace HealthCheck.Core.Serializers
 {
     /// <summary>
-    /// Only returns an empty string.
+    /// Returns empty strings and nulls.
     /// </summary>
     public class DumpNullJsonSerializer : IJsonSerializer
     {

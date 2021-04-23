@@ -13,8 +13,8 @@ namespace HealthCheck.Core.Util
     {
         #region Run async code sync
         // https://github.com/aspnet/AspNetIdentity/blob/master/src/Microsoft.AspNet.Identity.Core/AsyncHelper.cs
-        private static readonly TaskFactory _myTaskFactory = new TaskFactory(CancellationToken.None,
-            TaskCreationOptions.None, TaskContinuationOptions.None, TaskScheduler.Default);
+        private static readonly TaskFactory _myTaskFactory
+            = new(CancellationToken.None, TaskCreationOptions.None, TaskContinuationOptions.None, TaskScheduler.Default);
 
         /// <summary>
         /// Run async code synchronous with result.
