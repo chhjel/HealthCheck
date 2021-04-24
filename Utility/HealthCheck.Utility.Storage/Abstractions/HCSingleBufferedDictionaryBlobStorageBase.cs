@@ -1,16 +1,15 @@
-﻿using EPiServer.Framework.Blobs;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HealthCheck.Episerver.Storage.Abstractions
+namespace HealthCheck.Utility.Storage.Abstractions
 {
     /// <summary>
     /// Base implementation for storing a single object in a blob container with cache and buffer.
     /// </summary>
-    public abstract class HCEpiserverSingleBufferedDictionaryBlobStorageBase<TData, TItem, TId>
-        : HCEpiserverSingleBufferedBlobStorageBase<TData, TItem>
-        where TData : HCEpiserverSingleBufferedDictionaryBlobStorageBase<TData, TItem, TId>.IBufferedBlobDictionaryStorageData, new()
+    public abstract class HCSingleBufferedDictionaryBlobStorageBase<TData, TItem, TId>
+        : HCSingleBufferedBlobStorageBase<TData, TItem>
+        where TData : HCSingleBufferedDictionaryBlobStorageBase<TData, TItem, TId>.IBufferedBlobDictionaryStorageData, new()
     {
         /// <summary>
         /// Optionally limit the max number of items to store.
@@ -21,8 +20,8 @@ namespace HealthCheck.Episerver.Storage.Abstractions
         /// <summary>
         /// Base implementation for storing a single object in a blob container with cache.
         /// </summary>
-        protected HCEpiserverSingleBufferedDictionaryBlobStorageBase(IBlobFactory blobFactory, IMemoryCache cache)
-            : base(blobFactory, cache)
+        protected HCSingleBufferedDictionaryBlobStorageBase(IMemoryCache cache)
+            : base(cache)
         {
         }
 

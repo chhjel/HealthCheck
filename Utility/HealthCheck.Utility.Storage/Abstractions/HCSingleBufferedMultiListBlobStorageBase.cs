@@ -1,16 +1,15 @@
-﻿using EPiServer.Framework.Blobs;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HealthCheck.Episerver.Storage.Abstractions
+namespace HealthCheck.Utility.Storage.Abstractions
 {
     /// <summary>
     /// Base implementation for storing multiple lists by id in a blob container with cache and buffer.
     /// </summary>
-    public abstract class HCEpiserverSingleBufferedMultiListBlobStorageBase<TData, TItem, TId> 
-        : HCEpiserverSingleBufferedBlobStorageBase<TData, TItem>
-        where TData : HCEpiserverSingleBufferedMultiListBlobStorageBase<TData, TItem, TId>.IBufferedBlobMultiListStorageData, new()
+    public abstract class HCSingleBufferedMultiListBlobStorageBase<TData, TItem, TId> 
+        : HCSingleBufferedBlobStorageBase<TData, TItem>
+        where TData : HCSingleBufferedMultiListBlobStorageBase<TData, TItem, TId>.IBufferedBlobMultiListStorageData, new()
     {
         /// <summary>
         /// Optionally limit the max number of different lists.
@@ -28,8 +27,8 @@ namespace HealthCheck.Episerver.Storage.Abstractions
         /// <summary>
         /// Base implementation for storing a single object in a blob container with cache.
         /// </summary>
-        protected HCEpiserverSingleBufferedMultiListBlobStorageBase(IBlobFactory blobFactory, IMemoryCache cache)
-            : base(blobFactory, cache)
+        protected HCSingleBufferedMultiListBlobStorageBase(IMemoryCache cache)
+            : base(cache)
         {
         }
 

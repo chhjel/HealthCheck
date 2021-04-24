@@ -1,6 +1,7 @@
 ﻿using EPiServer.Framework.Blobs;
 using HealthCheck.Core.Abstractions;
-using HealthCheck.Episerver.Storage.Abstractions;
+using HealthCheck.Utility.Storage.Abstractions;
+using HealthCheck.Episerver.Utils;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
@@ -12,10 +13,32 @@ namespace HealthCheck.Episerver.Storage
     /// Stores messages in blob storage.
     /// </summary>
     public class HCEpiserverBufferedBlobDataStoreWithEntryId<TItem, TId>
-        : HCEpiserverSingleBufferedDictionaryBlobStorageBase<HCEpiserverBufferedBlobDataStoreWithEntryId<TItem, TId>.HCBlobDataStoreWithEntryIdData, TItem, TId>, IDataStoreWithEntryId<TItem>
+        : HCSingleBufferedDictionaryBlobStorageBase<HCEpiserverBufferedBlobDataStoreWithEntryId<TItem, TId>.HCBlobDataStoreWithEntryIdData, TItem, TId>, IDataStoreWithEntryId<TItem>
     {
+        /// <summary>
+        /// Container id used if not overridden.
+        /// </summary>
+        protected virtual Guid DefaultContainerId => Guid.Parse("854e5461-314a-4718-8d09-a441597c50f4");
+
+        /// <summary>
+        /// Defaults to the default provider if null.
+        /// </summary>
+        public string ProviderName { get; set; }
+
+        /// <summary>
+        /// Defaults to a hardcoded guid if null
+        /// </summary>
+        public Guid? ContainerId { get; set; }
+
+        /// <summary>
+        /// Shortcut to <c>ContainerId ?? DefaultContainerId</c>
+        /// </summary>
+        protected Guid ContainerIdWithFallback => ContainerId ?? DefaultContainerId;
+
         /// <inheritdoc />
-        protected override Guid DefaultContainerId => Guid.Parse("854e5461-314a-4718-8d09-a441597c50f4");
+        protected override string CacheKey => $"__hc_{ContainerIdWithFallback}";
+
+        private readonly EpiserverBlobHelper<HCBlobDataStoreWithEntryIdData> _blobHelper;
 
         private Func<TItem, TId> IdSelector { get; set; }
 
@@ -23,9 +46,10 @@ namespace HealthCheck.Episerver.Storage
         /// Stores messages in blob storage.
         /// </summary>
         public HCEpiserverBufferedBlobDataStoreWithEntryId(IBlobFactory blobFactory, IMemoryCache cache, Func<TItem, TId> idSelector)
-            : base(blobFactory, cache)
+            : base(cache)
         {
             IdSelector = idSelector;
+            _blobHelper = new EpiserverBlobHelper<HCBlobDataStoreWithEntryIdData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
         }
 
         /// <summary>
@@ -52,6 +76,12 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         protected override TId GetItemId(TItem item)
             => IdSelector(item);
+
+        /// <inheritdoc />
+        protected override HCBlobDataStoreWithEntryIdData RetrieveBlobData() => _blobHelper.RetrieveBlobData();
+
+        /// <inheritdoc />
+        protected override void StoreBlobData(HCBlobDataStoreWithEntryIdData data) => _blobHelper.StoreBlobData(data);
 
         /// <summary>
         /// Model stored in blob storage.

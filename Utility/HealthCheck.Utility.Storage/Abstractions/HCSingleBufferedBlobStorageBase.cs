@@ -1,16 +1,15 @@
-﻿using EPiServer.Framework.Blobs;
-using HealthCheck.Core.Util.Collections;
+﻿using HealthCheck.Core.Util.Collections;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HealthCheck.Episerver.Storage.Abstractions
+namespace HealthCheck.Utility.Storage.Abstractions
 {
     /// <summary>
     /// Base implementation for storing a single object in a blob container with cache and buffer.
     /// </summary>
-    public abstract class HCEpiserverSingleBufferedBlobStorageBase<TData, TItem> : HCEpiserverSingleBlobStorageBase<TData>
+    public abstract class HCSingleBufferedBlobStorageBase<TData, TItem> : HCSingleBlobStorageBase<TData>
         where TData : new()
     {
         /// <summary>
@@ -49,8 +48,8 @@ namespace HealthCheck.Episerver.Storage.Abstractions
         /// <summary>
         /// Base implementation for storing a single object in a blob container with cache.
         /// </summary>
-        protected HCEpiserverSingleBufferedBlobStorageBase(IBlobFactory blobFactory, IMemoryCache cache)
-            : base(blobFactory, cache)
+        protected HCSingleBufferedBlobStorageBase(IMemoryCache cache)
+            : base(cache)
         {
             BufferQueue = new DelayedBufferQueue<BufferQueueItem>(OnBufferCallback, TimeSpan.FromSeconds(10), 100);
         }

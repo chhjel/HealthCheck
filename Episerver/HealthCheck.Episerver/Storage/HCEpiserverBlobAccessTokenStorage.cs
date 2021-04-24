@@ -1,7 +1,8 @@
 ﻿using EPiServer.Framework.Blobs;
 using HealthCheck.Core.Modules.AccessTokens.Abstractions;
 using HealthCheck.Core.Modules.AccessTokens.Models;
-using HealthCheck.Episerver.Storage.Abstractions;
+using HealthCheck.Utility.Storage.Abstractions;
+using HealthCheck.Episerver.Utils;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
@@ -12,17 +13,40 @@ namespace HealthCheck.Episerver.Storage
     /// <summary>
     /// Stores data in blob storage.
     /// </summary>
-    public class HCEpiserverBlobAccessTokenStorage: HCEpiserverSingleBlobStorageBase<HCEpiserverBlobAccessTokenStorage.HCAccessTokenBlobData>, IAccessManagerTokenStorage
+    public class HCEpiserverBlobAccessTokenStorage: HCSingleBlobStorageBase<HCEpiserverBlobAccessTokenStorage.HCAccessTokenBlobData>, IAccessManagerTokenStorage
     {
+        /// <summary>
+        /// Container id used if not overridden.
+        /// </summary>
+        protected virtual Guid DefaultContainerId => Guid.Parse("b00e5a54-2ade-4237-bc1c-aa9c32f77a8d");
+
+        /// <summary>
+        /// Defaults to the default provider if null.
+        /// </summary>
+        public string ProviderName { get; set; }
+
+        /// <summary>
+        /// Defaults to a hardcoded guid if null
+        /// </summary>
+        public Guid? ContainerId { get; set; }
+
+        /// <summary>
+        /// Shortcut to <c>ContainerId ?? DefaultContainerId</c>
+        /// </summary>
+        protected Guid ContainerIdWithFallback => ContainerId ?? DefaultContainerId;
+
         /// <inheritdoc />
-        protected override Guid DefaultContainerId => Guid.Parse("b00e5a54-2ade-4237-bc1c-aa9c32f77a8d");
+        protected override string CacheKey => $"__hc_{ContainerIdWithFallback}";
+
+        private readonly EpiserverBlobHelper<HCAccessTokenBlobData> _blobHelper;
 
         /// <summary>
         /// Stores data in blob storage.
         /// </summary>
         public HCEpiserverBlobAccessTokenStorage(IBlobFactory blobFactory, IMemoryCache cache)
-            : base(blobFactory, cache)
+            : base(cache)
         {
+            _blobHelper = new EpiserverBlobHelper<HCAccessTokenBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
         }
 
         /// <inheritdoc />
@@ -70,6 +94,12 @@ namespace HealthCheck.Episerver.Storage
             }
             return token;
         }
+
+        /// <inheritdoc />
+        protected override HCAccessTokenBlobData RetrieveBlobData() => _blobHelper.RetrieveBlobData();
+
+        /// <inheritdoc />
+        protected override void StoreBlobData(HCAccessTokenBlobData data) => _blobHelper.StoreBlobData(data);
 
         /// <summary>
         /// Model stored in blob storage.
