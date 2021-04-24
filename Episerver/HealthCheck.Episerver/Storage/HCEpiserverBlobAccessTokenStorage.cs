@@ -7,13 +7,15 @@ using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using HealthCheck.Core.Util.Collections;
 
 namespace HealthCheck.Episerver.Storage
 {
     /// <summary>
     /// Stores data in blob storage.
     /// </summary>
-    public class HCEpiserverBlobAccessTokenStorage: HCSingleBlobStorageBase<HCEpiserverBlobAccessTokenStorage.HCAccessTokenBlobData>, IAccessManagerTokenStorage
+    public class HCEpiserverBlobAccessTokenStorage
+        : HCSingleBlobStorageBase<HCEpiserverBlobAccessTokenStorage.HCAccessTokenBlobData>, IAccessManagerTokenStorage
     {
         /// <summary>
         /// Container id used if not overridden.
@@ -39,6 +41,7 @@ namespace HealthCheck.Episerver.Storage
         protected override string CacheKey => $"__hc_{ContainerIdWithFallback}";
 
         private readonly EpiserverBlobHelper<HCAccessTokenBlobData> _blobHelper;
+        private readonly DelayedBufferQueue<AuditTimestampBufferQueueItem> _timestampBufferQueue;
 
         /// <summary>
         /// Stores data in blob storage.
@@ -47,6 +50,7 @@ namespace HealthCheck.Episerver.Storage
             : base(cache)
         {
             _blobHelper = new EpiserverBlobHelper<HCAccessTokenBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
+            _timestampBufferQueue = new DelayedBufferQueue<AuditTimestampBufferQueueItem>(OnTimestampBufferQueueCallback, TimeSpan.FromSeconds(10));
         }
 
         /// <inheritdoc />
@@ -87,12 +91,8 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public HCAccessToken UpdateTokenLastUsedAtTime(Guid id, DateTimeOffset time)
         {
-            var token = GetToken(id);
-            if (token != null)
-            {
-                token.LastUsedAt = time;
-            }
-            return token;
+            _timestampBufferQueue.Add(new AuditTimestampBufferQueueItem { Id = id, Timestamp = time });
+            return null;
         }
 
         /// <inheritdoc />
@@ -100,6 +100,26 @@ namespace HealthCheck.Episerver.Storage
 
         /// <inheritdoc />
         protected override void StoreBlobData(HCAccessTokenBlobData data) => _blobHelper.StoreBlobData(data);
+
+        private void OnTimestampBufferQueueCallback(Queue<AuditTimestampBufferQueueItem> items)
+        {
+            if (items?.Any() != true)
+            {
+                return;
+            }
+
+            var data = GetBlobData();
+
+            foreach (var item in items)
+            {
+                if (data?.AccessTokens != null && data.AccessTokens.TryGetValue(item.Id, out var token))
+                {
+                    token.LastUsedAt = item.Timestamp;
+                }
+            }
+
+            SaveBlobData(data);
+        }
 
         /// <summary>
         /// Model stored in blob storage.
@@ -110,6 +130,12 @@ namespace HealthCheck.Episerver.Storage
             /// All generated tokens by id.
             /// </summary>
             public Dictionary<Guid, HCAccessToken> AccessTokens { get; set; }
+        }
+
+        private struct AuditTimestampBufferQueueItem
+        {
+            public Guid Id;
+            public DateTimeOffset Timestamp;
         }
     }
 }

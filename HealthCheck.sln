@@ -53,6 +53,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Episerver", "Episerver", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.Utility.Storage", "Utility\HealthCheck.Utility.Storage\HealthCheck.Utility.Storage.csproj", "{26893E32-4554-4C2C-B5F8-23A65E0CE07A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.Utility.Storage.Tests", "Tests\HealthCheck.Utility.Storage.Tests\HealthCheck.Utility.Storage.Tests.csproj", "{F1A01B81-CC38-48BD-9774-39FC581170B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -130,6 +132,10 @@ Global
 		{26893E32-4554-4C2C-B5F8-23A65E0CE07A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26893E32-4554-4C2C-B5F8-23A65E0CE07A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26893E32-4554-4C2C-B5F8-23A65E0CE07A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1A01B81-CC38-48BD-9774-39FC581170B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1A01B81-CC38-48BD-9774-39FC581170B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1A01B81-CC38-48BD-9774-39FC581170B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1A01B81-CC38-48BD-9774-39FC581170B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -149,6 +155,7 @@ Global
 		{9F646F26-A7FE-4A26-88C7-3087412987BF} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
 		{0EBC2DA3-9E28-4623-9F20-83278D31D964} = {DFA1DC1E-CEA9-4C53-9677-A203B2B045E4}
 		{26893E32-4554-4C2C-B5F8-23A65E0CE07A} = {6A669F1D-22D1-4E66-A535-34AB35E7E981}
+		{F1A01B81-CC38-48BD-9774-39FC581170B3} = {23FF7575-64C7-43DC-9FDB-1FE4BF5A1D3F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F29D958F-997A-4DDE-B100-586ADFF9A3D3}

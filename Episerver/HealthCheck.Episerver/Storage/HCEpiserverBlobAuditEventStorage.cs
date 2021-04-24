@@ -1,11 +1,10 @@
 ﻿using EPiServer.Framework.Blobs;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.AuditLog.Models;
-using HealthCheck.Utility.Storage.Abstractions;
 using HealthCheck.Episerver.Utils;
+using HealthCheck.Utility.Storage.Abstractions;
 using Microsoft.Extensions.Caching.Memory;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,7 +14,8 @@ namespace HealthCheck.Episerver.Storage
     /// <summary>
     /// Stores audit events.
     /// </summary>
-    public class HCEpiserverBlobAuditEventStorage : HCSingleBlobStorageBase<HCEpiserverBlobAuditEventStorage.HCAuditEventsBlobData>, IAuditEventStorage
+    public class HCEpiserverBlobAuditEventStorage
+        : HCSingleBufferedListBlobStorageBase<HCEpiserverBlobAuditEventStorage.HCAuditEventsBlobData, AuditEvent>, IAuditEventStorage
     {
         /// <summary>
         /// Container id used if not overridden.
@@ -64,12 +64,7 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public virtual Task StoreEvent(AuditEvent auditEvent)
         {
-            var data = GetBlobData();
-            if (data != null)
-            {
-                data.Items.Add(auditEvent);
-                SaveBlobData(data);
-            }
+            InsertItemBuffered(auditEvent);
             return Task.CompletedTask;
         }
 
@@ -88,12 +83,12 @@ namespace HealthCheck.Episerver.Storage
         /// <summary>
         /// Model stored in blob storage.
         /// </summary>
-        public class HCAuditEventsBlobData
+        public class HCAuditEventsBlobData : IBufferedBlobListStorageData
         {
             /// <summary>
             /// All stored audit events.
             /// </summary>
-            public ConcurrentBag<AuditEvent> Items { get; set; } = new ConcurrentBag<AuditEvent>();
+            public List<AuditEvent> Items { get; set; } = new List<AuditEvent>();
         }
     }
 }
