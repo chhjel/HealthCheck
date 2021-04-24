@@ -1,28 +1,56 @@
 ﻿using EPiServer.Framework.Blobs;
 using HealthCheck.Core.Modules.AccessTokens.Abstractions;
 using HealthCheck.Core.Modules.AccessTokens.Models;
-using HealthCheck.Episerver.Storage.Abstractions;
+using HealthCheck.Utility.Storage.Abstractions;
+using HealthCheck.Episerver.Utils;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using HealthCheck.Core.Util.Collections;
 
 namespace HealthCheck.Episerver.Storage
 {
     /// <summary>
     /// Stores data in blob storage.
     /// </summary>
-    public class HCEpiserverBlobAccessTokenStorage: HCEpiserverSingleBlobStorageBase<HCEpiserverBlobAccessTokenStorage.HCAccessTokenBlobData>, IAccessManagerTokenStorage
+    public class HCEpiserverBlobAccessTokenStorage
+        : HCSingleBlobStorageBase<HCEpiserverBlobAccessTokenStorage.HCAccessTokenBlobData>, IAccessManagerTokenStorage
     {
+        /// <summary>
+        /// Container id used if not overridden.
+        /// </summary>
+        protected virtual Guid DefaultContainerId => Guid.Parse("b00e5a54-2ade-4237-bc1c-aa9c32f77a8d");
+
+        /// <summary>
+        /// Defaults to the default provider if null.
+        /// </summary>
+        public string ProviderName { get; set; }
+
+        /// <summary>
+        /// Defaults to a hardcoded guid if null
+        /// </summary>
+        public Guid? ContainerId { get; set; }
+
+        /// <summary>
+        /// Shortcut to <c>ContainerId ?? DefaultContainerId</c>
+        /// </summary>
+        protected Guid ContainerIdWithFallback => ContainerId ?? DefaultContainerId;
+
         /// <inheritdoc />
-        protected override Guid DefaultContainerId => Guid.Parse("b00e5a54-2ade-4237-bc1c-aa9c32f77a8d");
+        protected override string CacheKey => $"__hc_{ContainerIdWithFallback}";
+
+        private readonly EpiserverBlobHelper<HCAccessTokenBlobData> _blobHelper;
+        private readonly DelayedBufferQueue<AuditTimestampBufferQueueItem> _timestampBufferQueue;
 
         /// <summary>
         /// Stores data in blob storage.
         /// </summary>
         public HCEpiserverBlobAccessTokenStorage(IBlobFactory blobFactory, IMemoryCache cache)
-            : base(blobFactory, cache)
+            : base(cache)
         {
+            _blobHelper = new EpiserverBlobHelper<HCAccessTokenBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
+            _timestampBufferQueue = new DelayedBufferQueue<AuditTimestampBufferQueueItem>(OnTimestampBufferQueueCallback, TimeSpan.FromSeconds(10));
         }
 
         /// <inheritdoc />
@@ -63,12 +91,34 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public HCAccessToken UpdateTokenLastUsedAtTime(Guid id, DateTimeOffset time)
         {
-            var token = GetToken(id);
-            if (token != null)
+            _timestampBufferQueue.Add(new AuditTimestampBufferQueueItem { Id = id, Timestamp = time });
+            return null;
+        }
+
+        /// <inheritdoc />
+        protected override HCAccessTokenBlobData RetrieveBlobData() => _blobHelper.RetrieveBlobData();
+
+        /// <inheritdoc />
+        protected override void StoreBlobData(HCAccessTokenBlobData data) => _blobHelper.StoreBlobData(data);
+
+        private void OnTimestampBufferQueueCallback(Queue<AuditTimestampBufferQueueItem> items)
+        {
+            if (items?.Any() != true)
             {
-                token.LastUsedAt = time;
+                return;
             }
-            return token;
+
+            var data = GetBlobData();
+
+            foreach (var item in items)
+            {
+                if (data?.AccessTokens != null && data.AccessTokens.TryGetValue(item.Id, out var token))
+                {
+                    token.LastUsedAt = item.Timestamp;
+                }
+            }
+
+            SaveBlobData(data);
         }
 
         /// <summary>
@@ -80,6 +130,12 @@ namespace HealthCheck.Episerver.Storage
             /// All generated tokens by id.
             /// </summary>
             public Dictionary<Guid, HCAccessToken> AccessTokens { get; set; }
+        }
+
+        private struct AuditTimestampBufferQueueItem
+        {
+            public Guid Id;
+            public DateTimeOffset Timestamp;
         }
     }
 }

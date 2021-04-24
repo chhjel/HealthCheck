@@ -100,7 +100,11 @@ namespace HealthCheck.Core.Modules.AccessTokens
 
                 if (tokenFromStore.LastUsedAt == null || (DateTimeOffset.Now - tokenFromStore.LastUsedAt.Value).TotalMinutes >= 1)
                 {
-                    tokenFromStore = Options.TokenStorage.UpdateTokenLastUsedAtTime(tokenFromStore.Id, DateTimeOffset.Now);
+                    var updatedToken = Options.TokenStorage.UpdateTokenLastUsedAtTime(tokenFromStore.Id, DateTimeOffset.Now);
+                    if (updatedToken != null)
+                    {
+                        tokenFromStore = updatedToken;
+                    }
                 }
 
                 return tokenFromStore;
