@@ -15,7 +15,7 @@ namespace HealthCheck.Utility.Storage.Tests
             var setCounter = 0;
             var storage = new HCSingleBufferedBlobStorageTest(cache)
             {
-                BlobUpdateBufferDuration = TimeSpan.FromMilliseconds(50),
+                BlobUpdateBufferDuration = TimeSpan.FromMilliseconds(150),
                 MaxBufferSize = 30000,
                 Get = () => { getCounter++; return new HCSingleBufferedBlobStorageTest.TestData(); },
                 Store = (d) => { setCounter++; }
@@ -32,7 +32,7 @@ namespace HealthCheck.Utility.Storage.Tests
             Assert.Equal(1, setCounter);
             Assert.Equal(30000, data.Items.Count);
 
-            await Task.Delay(TimeSpan.FromMilliseconds(60));
+            await Task.Delay(TimeSpan.FromMilliseconds(300));
             Assert.Equal(2, setCounter);
             Assert.Equal(50000, data.Items.Count);
         }
