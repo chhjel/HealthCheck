@@ -1267,6 +1267,12 @@ The built in flatfile storage classes should work fine for most use cases when a
 
 For Episerver projects blob storage implementations can optionally be used from [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Episerver?label=HealthCheck.Episerver&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Episerver). If used they should be registered as singletons for optimal performance.
 
+Cache can optionally be set to null in constructor if not wanted, or the included memory cache `SimpleMemoryCache` can be used as a singleton.
+
+```csharp
+context.Services.AddSingleton<IHCCache, SimpleMemoryCache>();
+```
+
 ---------
 
 ## Utils

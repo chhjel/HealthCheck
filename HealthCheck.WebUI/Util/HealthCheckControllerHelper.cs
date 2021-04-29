@@ -226,7 +226,7 @@ namespace HealthCheck.WebUI.Util
             {
                 if (context?.AuditEvents != null && context.AuditEvents.Count > 0 && AuditEventService != null)
                 {
-                    foreach (var e in context.AuditEvents)
+                    foreach (var e in context.AuditEvents.Where(x => x != null))
                     {
                         if (_includeClientConnectionDetailsInAllAuditEvents)
                         {
@@ -277,7 +277,7 @@ namespace HealthCheck.WebUI.Util
             {
                 if (context?.AuditEvents != null && context.AuditEvents.Count > 0 && AuditEventService != null)
                 {
-                    foreach (var e in context.AuditEvents)
+                    foreach (var e in context.AuditEvents.Where(x => x != null))
                     {
                         if (_includeClientConnectionDetailsInAllAuditEvents)
                         {

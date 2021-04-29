@@ -1,9 +1,9 @@
 ﻿using EPiServer.Framework.Blobs;
+using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Modules.Messages.Abstractions;
 using HealthCheck.Core.Modules.Messages.Models;
-using HealthCheck.Utility.Storage.Abstractions;
 using HealthCheck.Episerver.Utils;
-using Microsoft.Extensions.Caching.Memory;
+using HealthCheck.Core.Util.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,7 +44,7 @@ namespace HealthCheck.Episerver.Storage
         /// <summary>
         /// Stores messages in blob storage.
         /// </summary>
-        public HCEpiserverBlobMessagesStore(IBlobFactory blobFactory, IMemoryCache cache)
+        public HCEpiserverBlobMessagesStore(IBlobFactory blobFactory, IHCCache cache)
             : base(cache)
         {
             _blobHelper = new EpiserverBlobHelper<HCMessagesBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);

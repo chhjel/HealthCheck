@@ -1,4 +1,4 @@
-﻿namespace HealthCheck.Utility.Storage.Tests.Implementations
+﻿namespace HealthCheck.Core.Tests.Storage.Implementations
 {
     public class TestItem
     {

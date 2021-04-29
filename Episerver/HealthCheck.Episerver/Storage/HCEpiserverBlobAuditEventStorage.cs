@@ -1,9 +1,9 @@
 ﻿using EPiServer.Framework.Blobs;
+using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.AuditLog.Models;
 using HealthCheck.Episerver.Utils;
-using HealthCheck.Utility.Storage.Abstractions;
-using Microsoft.Extensions.Caching.Memory;
+using HealthCheck.Core.Util.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,7 +45,7 @@ namespace HealthCheck.Episerver.Storage
         /// <summary>
         /// Stores audit events.
         /// </summary>
-        public HCEpiserverBlobAuditEventStorage(IBlobFactory blobFactory, IMemoryCache cache)
+        public HCEpiserverBlobAuditEventStorage(IBlobFactory blobFactory, IHCCache cache)
             : base(cache)
         {
             _blobHelper = new EpiserverBlobHelper<HCAuditEventsBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);

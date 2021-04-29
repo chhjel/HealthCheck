@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -27,7 +28,7 @@ namespace HealthCheck.Core.Util
     /// <summary>
     /// Simple in-memory cache.
     /// </summary>
-    public class SimpleMemoryCache
+    public class SimpleMemoryCache : IHCCache
     {
         /// <summary>
         /// Optional max entry count to store. If the limit is reached all entries are cleared.
@@ -45,7 +46,7 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Get a cached value casted to the given type.
         /// </summary>
-        public T GetValue<T>(string key, T fallback = default)
+        public virtual T GetValue<T>(string key, T fallback = default)
         {
             lock(_items)
             {
@@ -60,7 +61,7 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Check if a key is cached.
         /// </summary>
-        public bool ContainsKey(string key)
+        public virtual bool ContainsKey(string key)
         {
             lock (_items)
             {
@@ -73,31 +74,31 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Cache a boolean with the value true for the given duration.
         /// </summary>
-        public void SetFlag(string key, TimeSpan expiresIn)
+        public virtual void SetFlag(string key, TimeSpan expiresIn)
             => SetValue<bool>(key, true, expiresIn);
 
         /// <summary>
         /// Cache a boolean with the value true for the given duration.
         /// </summary>
-        public void SetFlag(string key, DateTime expiresAt)
+        public virtual void SetFlag(string key, DateTime expiresAt)
             => SetValue<bool>(key, true, expiresAt);
 
         /// <summary>
         /// Check if a boolean with the value true is cached for the given key.
         /// </summary>
-        public bool HasFlag(string key)
+        public virtual bool HasFlag(string key)
             => GetValue<bool>(key);
 
         /// <summary>
         /// Set a cached value of the given type.
         /// </summary>
-        public void SetValue<T>(string key, T value, TimeSpan expiresIn)
-            => SetValue<T>(key, value, DateTime.Now + expiresIn);
+        public virtual T SetValue<T>(string key, T value, TimeSpan expiresIn)
+            => SetValue(key, value, DateTime.Now + expiresIn);
 
         /// <summary>
         /// Set a cached value of the given type.
         /// </summary>
-        public void SetValue<T>(string key, T value, DateTime expiresAt)
+        public virtual T SetValue<T>(string key, T value, DateTime expiresAt)
         {
             lock (_items)
             {
@@ -113,13 +114,15 @@ namespace HealthCheck.Core.Util
                     Value = value,
                     ExpiresAt = expiresAt
                 };
+
+                return value;
             }
         }
 
         /// <summary>
         /// Clear the given cached entry.
         /// </summary>
-        public void ClearKey(string key)
+        public virtual void ClearKey(string key)
         {
             lock (_items)
             {
@@ -133,7 +136,7 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Clear the whole cache.
         /// </summary>
-        public void ClearAll()
+        public virtual void ClearAll()
         {
             lock (_items)
             {
@@ -145,7 +148,7 @@ namespace HealthCheck.Core.Util
         /// Remove all expired entries.
         /// <para>This is invoked automatically, but can also be used manually for special cases.</para>
         /// </summary>
-        public void RemoveExpired(TimeSpan? onlyIfLongerThanThisSinceLastCleanup = null)
+        public virtual void RemoveExpired(TimeSpan? onlyIfLongerThanThisSinceLastCleanup = null)
         {
             lock (_items)
             {
@@ -168,5 +171,30 @@ namespace HealthCheck.Core.Util
                 }
             }
         }
+
+        /// <summary>
+        /// Adds or updates cache.
+        /// </summary>
+        public virtual T Set<T>(string key, T value, TimeSpan absoluteExpirationRelativeToNow)
+            => SetValue(key, value, DateTime.Now + absoluteExpirationRelativeToNow);
+
+        /// <summary>
+        /// Attempts to get a cached value.
+        /// </summary>
+        public virtual bool TryGetValue<T>(string key, out T value)
+        {
+            value = default;
+            if (!ContainsKey(key))
+            {
+                return false;
+            }
+            value = GetValue<T>(key);
+            return true;
+        }
+
+        /// <summary>
+        /// Clear the given cached entry.
+        /// </summary>
+        public virtual void Remove(string key) => ClearKey(key);
     }
 }
