@@ -1,4 +1,5 @@
 ﻿using EPiServer.Framework.Blobs;
+using HealthCheck.Episerver.Extensions;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -12,20 +13,23 @@ namespace HealthCheck.Episerver.Utils
         private readonly IBlobFactory _blobFactory;
         private readonly Func<Guid> _containerIdFactory;
         private readonly Func<string> _providerNameFactory;
+        private readonly string _blobId;
 
         public EpiserverBlobHelper(IBlobFactory blobFactory,
             Func<Guid> containerIdFactory,
-            Func<string> providerNameFactory)
+            Func<string> providerNameFactory,
+            string blobId = null)
         {
             _blobFactory = blobFactory;
             _containerIdFactory = containerIdFactory;
             _providerNameFactory = providerNameFactory;
+            _blobId = blobId ?? "88888888-8888-8888-8888-888888888888.json";
         }
 
         public TData RetrieveBlobData()
         {
-            var blob = CreateBlob();
-            var bytes = blob.ReadAllBytes();
+            var blob = GetBlob();
+            var bytes = blob.TryReadAllBytes();
             if (bytes?.Any() != true)
             {
                 return default;
@@ -37,8 +41,7 @@ namespace HealthCheck.Episerver.Utils
 
         public void StoreBlobData(TData data)
         {
-            var blob = CreateBlob();
-
+            var blob = GetBlob();
             var json = JsonConvert.SerializeObject(data);
             
             using var stream = blob.OpenWrite();
@@ -47,7 +50,7 @@ namespace HealthCheck.Episerver.Utils
             writer.Flush();
         }
 
-        private Uri GetContainerUri()
+        private Uri GetContainerId()
         {
             var containerId = _containerIdFactory.Invoke();
             var providerName = _providerNameFactory?.Invoke();
@@ -58,10 +61,19 @@ namespace HealthCheck.Episerver.Utils
             return Blob.GetContainerIdentifier(containerId);
         }
 
-        private Blob CreateBlob()
+        private Uri CreateBlobId()
         {
-            var container = GetContainerUri();
-            return _blobFactory.CreateBlob(container, ".json");
+            // The unique identifier is exposed as a URI in the format:
+            // epi.fx.blob://[provider]/[container]/[blob]
+            var containerId = GetContainerId();
+            return new Uri(containerId + $"/{_blobId}");
+        }
+
+        private Blob GetBlob()
+        {
+            var blobId = CreateBlobId();
+            var blob = _blobFactory.GetBlob(blobId);
+            return blob;
         }
     }
 }

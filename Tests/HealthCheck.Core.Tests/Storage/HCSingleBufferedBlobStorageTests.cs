@@ -1,9 +1,9 @@
-using HealthCheck.Utility.Storage.Tests.Implementations;
+using HealthCheck.Core.Tests.Storage.Implementations;
 using System;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace HealthCheck.Utility.Storage.Tests
+namespace HealthCheck.Core.Tests.Storage
 {
     public class HCSingleBufferedBlobStorageTests
     {

@@ -1,8 +1,7 @@
 ﻿using EPiServer.Framework.Blobs;
 using HealthCheck.Core.Abstractions;
-using HealthCheck.Utility.Storage.Abstractions;
 using HealthCheck.Episerver.Utils;
-using Microsoft.Extensions.Caching.Memory;
+using HealthCheck.Core.Util.Storage;
 using System;
 using System.Collections.Generic;
 
@@ -42,7 +41,7 @@ namespace HealthCheck.Episerver.Storage
         /// <summary>
         /// Stores a dictionary in blob storage.
         /// </summary>
-        public HCEpiserverBlobStringDictionaryStorage(IBlobFactory blobFactory, IMemoryCache cache) : base(cache)
+        public HCEpiserverBlobStringDictionaryStorage(IBlobFactory blobFactory, IHCCache cache) : base(cache)
         {
             _blobHelper = new EpiserverBlobHelper<HCDictionaryBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
         }

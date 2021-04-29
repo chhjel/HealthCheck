@@ -1,14 +1,14 @@
-﻿using HealthCheck.Utility.Storage.Abstractions;
-using Microsoft.Extensions.Caching.Memory;
+﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Util.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HealthCheck.Utility.Storage.Tests.Implementations
+namespace HealthCheck.Core.Tests.Storage.Implementations
 {
     public class HCSingleBufferedBlobStorageTest : HCSingleBufferedBlobStorageBase<HCSingleBufferedBlobStorageTest.TestData, TestItem>
 	{
-		public HCSingleBufferedBlobStorageTest(IMemoryCache cache) : base(cache) { }
+		public HCSingleBufferedBlobStorageTest(IHCCache cache) : base(cache) { }
 
 		public Func<TestData> Get { get; set; }
 		public Action<TestData> Store { get; set; }

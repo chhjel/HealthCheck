@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using HealthCheck.Core.Abstractions;
 using System;
 
-namespace HealthCheck.Utility.Storage.Abstractions
+namespace HealthCheck.Core.Util.Storage
 {
     /// <summary>
     /// Base implementation for storing a single object in a blob container with cache.
@@ -18,7 +18,7 @@ namespace HealthCheck.Utility.Storage.Abstractions
         /// <summary>
         /// Caches blob data.
         /// </summary>
-        protected IMemoryCache Cache { get; }
+        protected IHCCache Cache { get; }
 
         /// <summary>
         /// Key used to cache data in <see cref="Cache"/>
@@ -28,7 +28,7 @@ namespace HealthCheck.Utility.Storage.Abstractions
         /// <summary>
         /// Base implementation for storing a single object in a blob container with cache.
         /// </summary>
-        protected HCSingleBlobStorageBase(IMemoryCache cache)
+        protected HCSingleBlobStorageBase(IHCCache cache)
         {
             Cache = cache;
         }

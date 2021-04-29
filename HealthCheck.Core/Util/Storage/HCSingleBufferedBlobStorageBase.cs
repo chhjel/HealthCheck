@@ -1,10 +1,10 @@
-﻿using HealthCheck.Core.Util.Collections;
-using Microsoft.Extensions.Caching.Memory;
+﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Util.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HealthCheck.Utility.Storage.Abstractions
+namespace HealthCheck.Core.Util.Storage
 {
     /// <summary>
     /// Base implementation for storing a single object in a blob container with cache and buffer.
@@ -48,7 +48,7 @@ namespace HealthCheck.Utility.Storage.Abstractions
         /// <summary>
         /// Base implementation for storing a single object in a blob container with cache.
         /// </summary>
-        protected HCSingleBufferedBlobStorageBase(IMemoryCache cache)
+        protected HCSingleBufferedBlobStorageBase(IHCCache cache)
             : base(cache)
         {
             BufferQueue = new DelayedBufferQueue<BufferQueueItem>(OnBufferCallback, TimeSpan.FromSeconds(10), 100);

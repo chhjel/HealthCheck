@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using HealthCheck.Core.Abstractions;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HealthCheck.Utility.Storage.Abstractions
+namespace HealthCheck.Core.Util.Storage
 {
     /// <summary>
     /// Base implementation for storing a single object in a blob container with cache and buffer.
@@ -20,7 +20,7 @@ namespace HealthCheck.Utility.Storage.Abstractions
         /// <summary>
         /// Base implementation for storing a single object in a blob container with cache.
         /// </summary>
-        protected HCSingleBufferedDictionaryBlobStorageBase(IMemoryCache cache)
+        protected HCSingleBufferedDictionaryBlobStorageBase(IHCCache cache)
             : base(cache)
         {
         }
