@@ -37,7 +37,7 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         protected override string CacheKey => $"__hc_{ContainerIdWithFallback}";
 
-        private readonly EpiserverBlobHelper<HCBlobDataStoreWithEntryIdData> _blobHelper;
+        private readonly HCEpiserverBlobHelper<HCBlobDataStoreWithEntryIdData> _blobHelper;
 
         private Func<TItem, TId> IdSelector { get; set; }
 
@@ -48,7 +48,7 @@ namespace HealthCheck.Episerver.Storage
             : base(cache)
         {
             IdSelector = idSelector;
-            _blobHelper = new EpiserverBlobHelper<HCBlobDataStoreWithEntryIdData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
+            _blobHelper = new HCEpiserverBlobHelper<HCBlobDataStoreWithEntryIdData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
         }
 
         /// <summary>

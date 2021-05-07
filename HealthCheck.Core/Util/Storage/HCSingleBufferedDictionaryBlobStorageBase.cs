@@ -25,6 +25,16 @@ namespace HealthCheck.Core.Util.Storage
         {
         }
 
+        /// <summary>
+        /// Sets <see cref="MaxItemCount"/>, the max number of items to store.
+        /// <para>The first n items will be kept.</para>
+        /// </summary>
+        public HCSingleBufferedDictionaryBlobStorageBase<TData, TItem, TId> SetMaxItemCount(int? maxCount)
+        {
+            MaxItemCount = maxCount;
+            return this;
+        }
+
         /// <inheritdoc />
         protected override TData UpdateDataFromBuffer(TData data, Queue<BufferQueueItem> bufferedItems)
         {

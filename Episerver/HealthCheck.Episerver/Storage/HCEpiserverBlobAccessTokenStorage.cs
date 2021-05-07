@@ -3,8 +3,8 @@ using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Modules.AccessTokens.Abstractions;
 using HealthCheck.Core.Modules.AccessTokens.Models;
 using HealthCheck.Core.Util.Collections;
-using HealthCheck.Episerver.Utils;
 using HealthCheck.Core.Util.Storage;
+using HealthCheck.Episerver.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +40,7 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         protected override string CacheKey => $"__hc_{ContainerIdWithFallback}";
 
-        private readonly EpiserverBlobHelper<HCAccessTokenBlobData> _blobHelper;
+        private readonly HCEpiserverBlobHelper<HCAccessTokenBlobData> _blobHelper;
         private readonly DelayedBufferQueue<AuditTimestampBufferQueueItem> _timestampBufferQueue;
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace HealthCheck.Episerver.Storage
         public HCEpiserverBlobAccessTokenStorage(IBlobFactory blobFactory, IHCCache cache)
             : base(cache)
         {
-            _blobHelper = new EpiserverBlobHelper<HCAccessTokenBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
+            _blobHelper = new HCEpiserverBlobHelper<HCAccessTokenBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
             _timestampBufferQueue = new DelayedBufferQueue<AuditTimestampBufferQueueItem>(OnTimestampBufferQueueCallback, TimeSpan.FromSeconds(10));
         }
 
@@ -129,7 +129,7 @@ namespace HealthCheck.Episerver.Storage
             /// <summary>
             /// All generated tokens by id.
             /// </summary>
-            public Dictionary<Guid, HCAccessToken> AccessTokens { get; set; }
+            public Dictionary<Guid, HCAccessToken> AccessTokens { get; set; } = new Dictionary<Guid, HCAccessToken>();
         }
 
         private struct AuditTimestampBufferQueueItem

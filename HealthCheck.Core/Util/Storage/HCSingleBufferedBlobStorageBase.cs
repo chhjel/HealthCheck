@@ -19,7 +19,7 @@ namespace HealthCheck.Core.Util.Storage
         public virtual TimeSpan BlobUpdateBufferDuration { get => BufferQueue.Delay; set => BufferQueue.Delay = value; }
 
         /// <summary>
-        /// Max item count 
+        /// Max buffer size.
         /// <para>Defaults to 100.</para>
         /// </summary>
         public virtual int MaxBufferSize { get => BufferQueue.QueueSizeLimit; set => BufferQueue.QueueSizeLimit = value; }
@@ -52,6 +52,24 @@ namespace HealthCheck.Core.Util.Storage
             : base(cache)
         {
             BufferQueue = new DelayedBufferQueue<BufferQueueItem>(OnBufferCallback, TimeSpan.FromSeconds(10), 100);
+        }
+
+        /// <summary>
+        /// Max buffer size.
+        /// </summary>
+        public HCSingleBufferedBlobStorageBase<TData, TItem> SetMaxBufferSize(int maxCount)
+        {
+            MaxBufferSize = maxCount;
+            return this;
+        }
+
+        /// <summary>
+        /// Max duration to buffer data in memory for before writing to blob storage.
+        /// </summary>
+        public HCSingleBufferedBlobStorageBase<TData, TItem> SetBlobUpdateBufferDuration(TimeSpan duration)
+        {
+            BlobUpdateBufferDuration = duration;
+            return this;
         }
 
         /// <summary>

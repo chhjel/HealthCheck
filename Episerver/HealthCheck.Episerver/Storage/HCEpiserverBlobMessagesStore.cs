@@ -2,8 +2,8 @@
 using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Modules.Messages.Abstractions;
 using HealthCheck.Core.Modules.Messages.Models;
-using HealthCheck.Episerver.Utils;
 using HealthCheck.Core.Util.Storage;
+using HealthCheck.Episerver.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +39,7 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         protected override string CacheKey => $"__hc_{ContainerIdWithFallback}";
 
-        private readonly EpiserverBlobHelper<HCMessagesBlobData> _blobHelper;
+        private readonly HCEpiserverBlobHelper<HCMessagesBlobData> _blobHelper;
 
         /// <summary>
         /// Stores messages in blob storage.
@@ -47,7 +47,7 @@ namespace HealthCheck.Episerver.Storage
         public HCEpiserverBlobMessagesStore(IBlobFactory blobFactory, IHCCache cache)
             : base(cache)
         {
-            _blobHelper = new EpiserverBlobHelper<HCMessagesBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
+            _blobHelper = new HCEpiserverBlobHelper<HCMessagesBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
         }
 
         /// <inheritdoc />

@@ -40,7 +40,7 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         protected override string CacheKey => $"__hc_{ContainerIdWithFallback}";
 
-        private readonly EpiserverBlobHelper<HCAuditEventsBlobData> _blobHelper;
+        private readonly HCEpiserverBlobHelper<HCAuditEventsBlobData> _blobHelper;
 
         /// <summary>
         /// Stores audit events.
@@ -48,7 +48,7 @@ namespace HealthCheck.Episerver.Storage
         public HCEpiserverBlobAuditEventStorage(IBlobFactory blobFactory, IHCCache cache)
             : base(cache)
         {
-            _blobHelper = new EpiserverBlobHelper<HCAuditEventsBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
+            _blobHelper = new HCEpiserverBlobHelper<HCAuditEventsBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
         }
 
         /// <inheritdoc />

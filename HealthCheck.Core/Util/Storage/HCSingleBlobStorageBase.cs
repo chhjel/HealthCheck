@@ -34,6 +34,25 @@ namespace HealthCheck.Core.Util.Storage
         }
 
         /// <summary>
+        /// Invokes the given action with this object as the parameter.
+        /// <para>For use in method chained configuration.</para>
+        /// </summary>
+        public HCSingleBlobStorageBase<TData> Configure(Action<HCSingleBlobStorageBase<TData>> action)
+        {
+            action?.Invoke(this);
+            return this;
+        }
+
+        /// <summary>
+        /// How long to cache data in memory for before fetching again from blob storage.
+        /// </summary>
+        public HCSingleBlobStorageBase<TData> SetCacheDuration(TimeSpan duration)
+        {
+            CacheDuration = duration;
+            return this;
+        }
+
+        /// <summary>
         /// Get the blob data.
         /// </summary>
         protected abstract TData RetrieveBlobData();

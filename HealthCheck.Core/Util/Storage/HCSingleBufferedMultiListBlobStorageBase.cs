@@ -7,7 +7,7 @@ namespace HealthCheck.Core.Util.Storage
     /// <summary>
     /// Base implementation for storing multiple lists by id in a blob container with cache and buffer.
     /// </summary>
-    public abstract class HCSingleBufferedMultiListBlobStorageBase<TData, TItem, TId> 
+    public abstract class HCSingleBufferedMultiListBlobStorageBase<TData, TItem, TId>
         : HCSingleBufferedBlobStorageBase<TData, TItem>
         where TData : HCSingleBufferedMultiListBlobStorageBase<TData, TItem, TId>.IBufferedBlobMultiListStorageData, new()
     {
@@ -30,6 +30,24 @@ namespace HealthCheck.Core.Util.Storage
         protected HCSingleBufferedMultiListBlobStorageBase(IHCCache cache)
             : base(cache)
         {
+        }
+
+        /// <summary>
+        /// Optionally limit the max number of different lists.
+        /// </summary>
+        public HCSingleBufferedMultiListBlobStorageBase<TData, TItem, TId> SetMaxListCount(int? maxListCount)
+        {
+            MaxListCount = maxListCount;
+            return this;
+        }
+
+        /// <summary>
+        /// Optionally limit the max number of latest items to store per list.
+        /// </summary>
+        public HCSingleBufferedMultiListBlobStorageBase<TData, TItem, TId> SetMaxItemCountPerList(int? maxItemCountPerList)
+        {
+            MaxItemCountPerList = maxItemCountPerList;
+            return this;
         }
 
         /// <inheritdoc />
