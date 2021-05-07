@@ -36,14 +36,14 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         protected override string CacheKey => $"__hc_{ContainerIdWithFallback}";
 
-        private readonly EpiserverBlobHelper<HCDictionaryBlobData> _blobHelper;
+        private readonly HCEpiserverBlobHelper<HCDictionaryBlobData> _blobHelper;
 
         /// <summary>
         /// Stores a dictionary in blob storage.
         /// </summary>
         public HCEpiserverBlobStringDictionaryStorage(IBlobFactory blobFactory, IHCCache cache) : base(cache)
         {
-            _blobHelper = new EpiserverBlobHelper<HCDictionaryBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
+            _blobHelper = new HCEpiserverBlobHelper<HCDictionaryBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
         }
 
         /// <inheritdoc />

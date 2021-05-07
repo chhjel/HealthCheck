@@ -7,20 +7,18 @@
     <Version>1.0.1</Version>
     <Authors>ChristianH</Authors>
     <Company>ChristianH</Company>
-    <Description>Episerver related implementations for the Dynamic Code Execution module.</Description>
+    <Description>Episerver related implementations for the DynamicCodeExecution module.</Description>
     <Copyright>ChristianH</Copyright>
     <LangVersion>latest</LangVersion>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.Episerver.xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.Episerver.DynamicCodeExecution.xml</DocumentationFile>
     <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-HealthCheck</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EPiServer.Framework" Version="11.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\HealthCheck.Core\HealthCheck.Core.csproj" />
+    <ProjectReference Include="..\..\..\HealthCheck.Core\HealthCheck.Core.csproj" />
+    <ProjectReference Include="..\..\..\Modules\HealthCheck.Module.DynamicCodeExecution\HealthCheck.Module.DynamicCodeExecution.csproj" />
+    <ProjectReference Include="..\..\HealthCheck.Episerver\HealthCheck.Episerver.csproj" />
   </ItemGroup>
 
 </Project>

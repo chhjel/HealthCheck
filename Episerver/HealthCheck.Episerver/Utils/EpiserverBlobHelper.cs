@@ -8,14 +8,20 @@ using System.Text;
 
 namespace HealthCheck.Episerver.Utils
 {
-    internal class EpiserverBlobHelper<TData>
+    /// <summary>
+    /// Healthcheck util for handling blob data storage.
+    /// </summary>
+    public class HCEpiserverBlobHelper<TData>
     {
         private readonly IBlobFactory _blobFactory;
         private readonly Func<Guid> _containerIdFactory;
         private readonly Func<string> _providerNameFactory;
         private readonly string _blobId;
 
-        public EpiserverBlobHelper(IBlobFactory blobFactory,
+        /// <summary>
+        /// Healthcheck util for handling blob data storage.
+        /// </summary>
+        public HCEpiserverBlobHelper(IBlobFactory blobFactory,
             Func<Guid> containerIdFactory,
             Func<string> providerNameFactory,
             string blobId = null)
@@ -26,6 +32,9 @@ namespace HealthCheck.Episerver.Utils
             _blobId = blobId ?? "88888888-8888-8888-8888-888888888888.json";
         }
 
+        /// <summary>
+        /// Get blob data.
+        /// </summary>
         public TData RetrieveBlobData()
         {
             var blob = GetBlob();
@@ -39,6 +48,9 @@ namespace HealthCheck.Episerver.Utils
             return JsonConvert.DeserializeObject<TData>(json);
         }
 
+        /// <summary>
+        /// Store blob data.
+        /// </summary>
         public void StoreBlobData(TData data)
         {
             var blob = GetBlob();
