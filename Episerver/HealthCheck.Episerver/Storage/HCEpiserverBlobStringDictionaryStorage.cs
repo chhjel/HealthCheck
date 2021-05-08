@@ -16,7 +16,7 @@ namespace HealthCheck.Episerver.Storage
         /// <summary>
         /// Container id used if not overridden.
         /// </summary>
-        protected virtual Guid DefaultContainerId => Guid.Parse("5dd58b96-06f2-4629-a8d4-82e01680bf79");
+        protected virtual Guid DefaultContainerId => Guid.Parse("89d58b96-06f2-4629-a8d4-82e01680bf79");
 
         /// <summary>
         /// Defaults to the default provider if null.

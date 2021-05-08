@@ -13,7 +13,7 @@ namespace HealthCheck.Core.Extensions
         /// <summary>
         /// Take the last n items up to the given max.
         /// </summary>
-        public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> enumerable, int max)
+        public static IEnumerable<T> TakeLastN<T>(this IEnumerable<T> enumerable, int max)
             => enumerable.Skip(Math.Max(0, enumerable.Count() - max));
 
         /// <summary>

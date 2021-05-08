@@ -1117,7 +1117,7 @@ Built in custom types:
 
 ## Module: Downloads
 
-The downloads module allow files to be made available for download, optionally protected by password, expiration date and download count limit. Downloads are tracked in the audit log. Built-in implementations: `FlatFileSecureFileDownloadDefinitionStorage` for download definition storage, and two file storage implementations: `FolderFileStorage` and `UrlFileStorage`. 
+The downloads module allow files to be made available for download, optionally protected by password, expiration date and download count limit. Downloads are tracked in the audit log. Built-in implementations: `FlatFileSecureFileDownloadDefinitionStorage` for download definition storage, and two file storage implementations: `FolderFileStorage` and `UrlFileStorage`.
 
 ### Setup
 
@@ -1265,13 +1265,46 @@ The built in flatfile storage classes should work fine for most use cases when a
 
 ### EpiServer
 
-For Episerver projects blob storage implementations can optionally be used from [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Episerver?label=HealthCheck.Episerver&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Episerver). If used they should be registered as singletons for optimal performance.
+For Episerver projects blob storage implementations can optionally be used from [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Episerver?label=HealthCheck.Episerver&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Episerver) and the other episerver packages for specific modules. If used they should be registered as singletons for optimal performance.
 
 Cache can optionally be set to null in constructor if not wanted, or the included memory cache `SimpleMemoryCache` can be used as a singleton.
 
+
+<details><summary>Example IoC setup</summary>
+<p>
+
 ```csharp
-context.Services.AddSingleton<IHCCache, SimpleMemoryCache>();
+    // Cache used by most of the epi blob implementations below
+    context.Services.AddSingleton<IHCCache, SimpleMemoryCache>();
+    // Audit log
+    context.Services.AddSingleton<IAuditEventStorage, HCEpiserverBlobAuditEventStorage>();
+    // Messages
+    context.Services.AddSingleton<IHCMessageStorage, HCEpiserverBlobMessagesStore<HCDefaultMessageItem>>();
+    // AccessTokens
+    context.Services.AddSingleton<IAccessManagerTokenStorage, HCEpiserverBlobAccessTokenStorage>();
+    // Settings
+    context.Services.AddSingleton<IHCStringDictionaryStorage, HCEpiserverBlobStringDictionaryStorage>();
+    context.Services.AddSingleton<IHCSettingsService, HCDefaultSettingsService>();
+    // DynamicCodeExecution
+    context.Services.AddSingleton<IDynamicCodeScriptStorage, HCEpiserverBlobDynamicCodeScriptStorage>();
+    // Endpoint control
+    context.Services.AddSingleton<IEndpointControlRuleStorage, HCEpiserverBlobEndpointControlRuleStorage>();
+    context.Services.AddSingleton<IEndpointControlEndpointDefinitionStorage, HCEpiserverBlobEndpointControlEndpointDefinitionStorage>();
+    context.Services.AddSingleton<IEndpointControlRequestHistoryStorage, HCEpiserverBlobEndpointControlRequestHistoryStorage>();
+    context.Services.AddSingleton<IEndpointControlService, DefaultEndpointControlService>();
+    // Dataflow
+    context.Services.AddSingleton<TestDataStream>();
+    context.Services.AddSingleton((s) => new DefaultDataflowServiceOptions<AccessRoles>
+    {
+        Streams = new[] {
+            s.GetInstance<TestDataStream>()
+        }
+    });
+    context.Services.AddSingleton<IDataflowService<AccessRoles>, DefaultDataflowService<AccessRoles>>();
 ```
+
+</p>
+</details>
 
 ---------
 

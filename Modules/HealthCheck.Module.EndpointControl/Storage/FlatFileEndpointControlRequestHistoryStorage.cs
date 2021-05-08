@@ -67,11 +67,11 @@ namespace HealthCheck.Module.EndpointControl.Storage
 		/// </summary>
 		public bool PrettyFormat { get; set; }
 
-		private LatestEndpointRequestsHistory _data = new LatestEndpointRequestsHistory();
-		private readonly object _delayedStorageLock = new object();
-		private readonly object _fileLock = new object();
+		private LatestEndpointRequestsHistory _data = new();
+		private readonly object _delayedStorageLock = new();
+		private readonly object _fileLock = new();
 		private bool _isSaving = false;
-		private readonly JsonSerializer _serializer = new JsonSerializer();
+		private readonly JsonSerializer _serializer = new();
 
 		/// <summary>
 		/// Stores request data in json format on disk.
@@ -113,6 +113,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
 			lock (_data.IdentityRequests)
 			{
 				var queue = _data.IdentityRequests.ContainsKey(locationId) ? _data.IdentityRequests[locationId].LatestRequests : null;
+				if (queue == null) { return 0; }
 				lock (queue)
 				{
 					return queue?.Count(x => x.Timestamp >= time) ?? 0;
@@ -128,6 +129,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
 			lock (_data.IdentityRequests)
 			{
 				var queue = _data.IdentityRequests.ContainsKey(locationId) ? _data.IdentityRequests[locationId].LatestRequests : null;
+				if (queue == null) { return 0; }
 				lock (queue)
 				{
 					return queue?.Count(x => x.EndpointId == endpointId && x.Timestamp >= time) ?? 0;
@@ -142,7 +144,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
 		{
 			lock (_data.LatestRequests)
 			{
-				return _data.LatestRequests.TakeLast(maxCount).ToArray();
+				return _data.LatestRequests.TakeLastN(maxCount).ToArray();
 			}
 		}
 
@@ -230,7 +232,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
 						};
 					}),
                 LatestRequestIdentities = _data.LatestRequestIdentities.Take(MaxStoredIdentityCount).ToList(),
-				LatestRequests = new Queue<EndpointRequestDetails>(_data.LatestRequests.TakeLast(MaxStoredLatestRequestCount))
+				LatestRequests = new Queue<EndpointRequestDetails>(_data.LatestRequests.TakeLastN(MaxStoredLatestRequestCount))
             };
         }
 
