@@ -20,7 +20,7 @@ namespace HealthCheck.Episerver.DynamicCodeExecution
         /// <summary>
         /// Container id used if not overridden.
         /// </summary>
-        protected virtual Guid DefaultContainerId => Guid.Parse("84b6186e-5909-4148-b527-f6e2be64c759");
+        protected virtual Guid DefaultContainerId => Guid.Parse("81b6186e-5909-4148-b527-f6e2be64c759");
 
         /// <summary>
         /// Defaults to the default provider if null.
@@ -91,7 +91,7 @@ namespace HealthCheck.Episerver.DynamicCodeExecution
             if (scriptToSave == null)
             {
                 scriptToSave = script;
-                scriptToSave.Id = Guid.NewGuid();
+                scriptToSave.Id = (scriptToSave.Id == Guid.Empty) ? Guid.NewGuid() : scriptToSave.Id;
                 data.Scripts.Add(scriptToSave);
             }
 
@@ -114,7 +114,7 @@ namespace HealthCheck.Episerver.DynamicCodeExecution
         public class HCDynamicCodeExecutionBlobData
         {
             /// <summary>
-            /// All generated tokens by id.
+            /// Stored scripts.
             /// </summary>
             public List<DynamicCodeScript> Scripts { get; set; } = new List<DynamicCodeScript>();
         }

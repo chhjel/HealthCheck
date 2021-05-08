@@ -13,13 +13,14 @@ namespace HealthCheck.Episerver.Storage
     /// <summary>
     /// Stores messages in blob storage.
     /// </summary>
-    public class HCEpiserverBlobMessagesStore
-        : HCSingleBufferedMultiListBlobStorageBase<HCEpiserverBlobMessagesStore.HCMessagesBlobData, IHCMessageItem, string>, IHCMessageStorage
+    public class HCEpiserverBlobMessagesStore<TMessageModel>
+        : HCSingleBufferedMultiListBlobStorageBase<HCEpiserverBlobMessagesStore<TMessageModel>.HCMessagesBlobData, TMessageModel, string>, IHCMessageStorage
+        where TMessageModel: class, IHCMessageItem
     {
         /// <summary>
         /// Container id used if not overridden.
         /// </summary>
-        protected virtual Guid DefaultContainerId => Guid.Parse("d22175a0-28b2-4f5f-9acd-5c135666f08e");
+        protected virtual Guid DefaultContainerId => Guid.Parse("882175a0-28b2-4f5f-9acd-5c135666f08e");
 
         /// <summary>
         /// Defaults to the default provider if null.
@@ -47,6 +48,7 @@ namespace HealthCheck.Episerver.Storage
         public HCEpiserverBlobMessagesStore(IBlobFactory blobFactory, IHCCache cache)
             : base(cache)
         {
+            MaxBufferSize = 2500;
             _blobHelper = new HCEpiserverBlobHelper<HCMessagesBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
         }
 
@@ -61,6 +63,7 @@ namespace HealthCheck.Episerver.Storage
             {
                 totalCount = data.Lists[inboxId].Count;
                 items = data.Lists[inboxId]
+                    .OfType<IHCMessageItem>()
                     .Skip(pageIndex * pageSize)
                     .Take(pageSize);
             }
@@ -85,7 +88,7 @@ namespace HealthCheck.Episerver.Storage
 
         /// <inheritdoc />
         public void StoreMessage(string inboxId, IHCMessageItem message)
-            => InsertItemBuffered(message, inboxId);
+            => InsertItemBuffered(message as TMessageModel, inboxId);
 
         /// <inheritdoc />
         public void DeleteAllData()
@@ -131,7 +134,7 @@ namespace HealthCheck.Episerver.Storage
         public class HCMessagesBlobData : IBufferedBlobMultiListStorageData
         {
             /// <inheritdoc />
-            public Dictionary<string, List<IHCMessageItem>> Lists { get; set; } = new Dictionary<string, List<IHCMessageItem>>();
+            public Dictionary<string, List<TMessageModel>> Lists { get; set; } = new Dictionary<string, List<TMessageModel>>();
         }
     }
 }

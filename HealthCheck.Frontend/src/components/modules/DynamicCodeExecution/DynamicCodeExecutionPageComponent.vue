@@ -972,6 +972,8 @@ namespace CodeTesting
         else {
             console.warn(`Save action did nothing.`);
             console.warn({ script: script, location: location });
+            console.warn(`scriptIsServerSide: ${this.scriptIsServerSide(script)}`);
+            console.warn(this.serverScripts);
         }
     }
 

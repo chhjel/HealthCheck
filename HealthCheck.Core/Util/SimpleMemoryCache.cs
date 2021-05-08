@@ -52,9 +52,15 @@ namespace HealthCheck.Core.Util
             {
                 RemoveExpired();
 
-                return _items.ContainsKey(key) 
-                    ? (T)_items[key].Value
+                var value = _items.ContainsKey(key) 
+                    ? _items[key].Value
                     : fallback;
+
+                if (value != null && value.GetType() != typeof(T))
+                {
+                    return fallback;
+                }
+                return (T)value;
             }
         }
 

@@ -74,11 +74,7 @@ namespace HealthCheck.Core.Util.Storage
 
             try
             {
-                var data = RetrieveBlobData();
-                if (data == null)
-                {
-                    return new TData();
-                }
+                var data = RetrieveBlobData() ?? new TData();
 
                 Cache?.Set(CacheKey, data, CacheDuration);
                 return data;
