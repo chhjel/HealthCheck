@@ -1263,7 +1263,7 @@ Example logic using built in helper methods for creating 2FA codes in session:
 
 The built in flatfile storage classes should work fine for most use cases when a persistent folder is available. If used make sure they are registered as singletons, they are thread safe but only within their own instances. If multiple servers are used these are not optimal obviously.
 
-### EpiServer
+### Episerver
 
 For Episerver projects blob storage implementations can optionally be used from [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Episerver?label=HealthCheck.Episerver&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Episerver) and the other episerver packages for specific modules. If used they should be registered as singletons for optimal performance.
 
