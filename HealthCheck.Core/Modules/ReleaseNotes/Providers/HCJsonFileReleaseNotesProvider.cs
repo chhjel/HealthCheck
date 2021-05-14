@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Modules.ReleaseNotes.Abstractions;
+﻿using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.ReleaseNotes.Abstractions;
 using HealthCheck.Core.Modules.ReleaseNotes.Models;
 using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Util;
@@ -143,7 +144,11 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Providers
                 Title = "Release Notes",
                 Description = "Auto-generated release notes from changes since last production deploy.",
                 BuiltCommitHash = includeDevDetails ? data.builtCommitHash : null,
-                Changes = data.changes?.Select(x => BuildChangeViewModel(x, includeDevDetails)).ToList()
+                Changes = data.changes
+                    ?.Select(x => BuildChangeViewModel(x, includeDevDetails))
+                    ?.Where(x => x != null)
+                    ?.ToList()
+                    ?? new List<HCReleaseNoteChangeViewModel>()
             };
 
             return model;
@@ -154,6 +159,11 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Providers
         /// </summary>
         protected virtual HCReleaseNoteChangeViewModel BuildChangeViewModel(HCDefaultReleaseNotesChangeJsonModel data, bool includeDevDetails)
         {
+            if (string.IsNullOrWhiteSpace(data.issueId) && !includeDevDetails)
+            {
+                return null;
+            }
+
             List<HCReleaseNoteLinkViewModel> links = new();
 
             if (data.issueIds?.Any() == true && IssueUrlFactory != null)
@@ -164,7 +174,7 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Providers
                     {
                         Title = IssueLinkTitleFactory?.Invoke(issueId) ?? $"Issue {issueId}",
                         Url = IssueUrlFactory.Invoke(issueId),
-                        Icon = IssueLinkIcon ?? "link"
+                        Icon = IssueLinkIcon ?? MaterialIcons.AllIcons.Link
                     });
                 }
             }
@@ -175,14 +185,14 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Providers
                 {
                     Title = PullRequestLinkTitleFactory?.Invoke(data.pullRequestNumber) ?? $"PR #{data.pullRequestNumber}",
                     Url = PullRequestUrlFactory.Invoke(data.pullRequestNumber),
-                    Icon = PullRequestLinkIcon ?? "link"
+                    Icon = PullRequestLinkIcon ?? MaterialIcons.AllIcons.Link
                 });
             }
 
-            var icon = "circle";
+            var icon = MaterialIcons.AllIcons.Fiber_Manual_Record;
             if (!string.IsNullOrWhiteSpace(data.issueId))
             {
-                icon = "task";
+                icon = MaterialIcons.AllIcons.Description;
             }
 
             var descriptionBuilder = new StringBuilder();
@@ -200,13 +210,23 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Providers
                 }
             }
 
+            string title = null;
+            if (includeDevDetails)
+            {
+                title = $"{data.issueId} {data.cleanMessage?.CapitalizeFirst()}".Trim();
+            }
+            else if (!string.IsNullOrWhiteSpace(data.issueId))
+            {
+                title = data.issueId;
+            }
+
             return new HCReleaseNoteChangeViewModel
             {
                 CommitHash = includeDevDetails ? data.hash : null,
                 AuthorName = includeDevDetails ? data.authorName : null,
                 Timestamp = data.timestamp,
 
-                Title = data.cleanMessage,
+                Title = title,
                 Description = descriptionBuilder.ToString(),
                 Icon = icon,
 

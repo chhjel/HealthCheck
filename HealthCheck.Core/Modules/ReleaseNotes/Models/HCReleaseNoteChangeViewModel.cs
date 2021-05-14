@@ -22,9 +22,9 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Models
         /// <summary>
         /// Optional icon of the change.
         /// <para>Value should be a constant from <see cref="MaterialIcons"/>.</para>
-        /// <para>Defaults to 'circle'</para>
+        /// <para>Defaults to <c>MaterialIcons.AllIcons.Fiber_Manual_Record</c></para>
         /// </summary>
-        public string Icon { get; set; } = "circle";
+        public string Icon { get; set; } = MaterialIcons.AllIcons.Fiber_Manual_Record;
 
         /// <summary>
         /// Optionally include time when the change was committed.
