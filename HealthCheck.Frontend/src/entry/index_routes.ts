@@ -14,6 +14,7 @@ import SecureFileDownloadPageComponent from '../components/modules/SecureFileDow
 import EndpointControlPageComponent from '../components/modules/EndpointControl/EndpointControlPageComponent.vue';
 import MessagesPageComponent from '../components/modules/Messages/MessagesPageComponent.vue';
 import CustomPageComponent from '../components/modules/Custom/CustomPageComponent.vue';
+import ReleaseNotesPageComponent from '../components/modules/ReleaseNotes/ReleaseNotesPageComponent.vue';
 import NoPageAvailablePageComponent from '../components/NoPageAvailablePageComponent.vue';
 import Vue, { VueConstructor } from "vue";
 import VueRouter, { RouteConfig } from 'vue-router';
@@ -36,7 +37,8 @@ export default function createRouter(moduleConfig: Array<ModuleConfig>): VueRout
     'SecureFileDownloadPageComponent': SecureFileDownloadPageComponent,
     'EndpointControlPageComponent': EndpointControlPageComponent,
     'MessagesPageComponent': MessagesPageComponent,
-    'CustomPageComponent': CustomPageComponent
+    'CustomPageComponent': CustomPageComponent,
+    'ReleaseNotesPageComponent': ReleaseNotesPageComponent
 };
 
 let moduleOptions = ((window as any).healthCheckModuleOptions) as Record<string, ModuleOptions<any>>;

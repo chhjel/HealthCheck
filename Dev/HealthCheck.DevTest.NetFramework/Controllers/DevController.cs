@@ -24,6 +24,8 @@ using HealthCheck.Core.Modules.Messages.Abstractions;
 using HealthCheck.Core.Modules.Messages.Models;
 using HealthCheck.Core.Modules.Metrics;
 using HealthCheck.Core.Modules.Metrics.Context;
+using HealthCheck.Core.Modules.ReleaseNotes;
+using HealthCheck.Core.Modules.ReleaseNotes.Providers;
 using HealthCheck.Core.Modules.SecureFileDownload;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload.FileStorage;
@@ -131,6 +133,13 @@ namespace HealthCheck.DevTest.Controllers
                     .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
                     .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
                 );
+            UseModule(new HCReleaseNotesModule(new HCReleaseNotesModuleOptions {
+                ReleaseNotesProvider = new HCJsonFileReleaseNotesProvider(HostingEnvironment.MapPath(@"~\App_Data\ReleaseNotes.json"))
+                {
+                    IssueUrlFactory = (id) => $"{"https://"}www.google.com/q=Issue+{id}",
+                    PullRequestUrlFactory = (number) => $"{"https://"}www.google.com/q=PR+{number}"
+                }
+            }));
             UseModule(new HCMessagesModule(new HCMessagesModuleOptions() { MessageStorage = _memoryMessageStore }
                 .DefineInbox("mail", "Mail", "All sent email ends up here.")
                 .DefineInbox("sms", "SMS", "All sent sms ends up here.")
@@ -268,6 +277,7 @@ namespace HealthCheck.DevTest.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCEndpointControlModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCMessagesModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<TestModuleA>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCReleaseNotesModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
