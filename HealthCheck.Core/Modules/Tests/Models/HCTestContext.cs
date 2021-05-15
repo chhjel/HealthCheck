@@ -12,7 +12,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
     /// </summary>
     public class HCTestContext
     {
-        internal DateTime TestExecutionStartTime { get; set; }
+        internal DateTimeOffset TestExecutionStartTime { get; set; }
         internal List<HCTestTiming> Timings { get; private set; } = new List<HCTestTiming>();
 
         private readonly object _timingsLock = new();
@@ -22,7 +22,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Formats the given log entry given to <see cref="Log"/>
         /// </summary>
-        protected virtual string FormatLogText(string text) => $"[{DateTime.Now:HH:mm:ss:fff}]\t{text}";
+        protected virtual string FormatLogText(string text) => $"[{DateTimeOffset.Now:HH:mm:ss:fff}]\t{text}";
 
         internal bool HasLoggedAnything() => _logBuilder?.Length > 0;
         internal string GetLog() => _logBuilder?.ToString()?.Trim();
@@ -59,7 +59,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
             => WithCurrentContext(c => {
                 lock (c._timingsLock)
                 {
-                    c.Timings.Add(new HCTestTiming(description, duration, DateTime.Now - c.TestExecutionStartTime - duration));
+                    c.Timings.Add(new HCTestTiming(description, duration, DateTimeOffset.Now - c.TestExecutionStartTime - duration));
                 }
             });
 
@@ -71,7 +71,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
             {
                 lock (c._timingsLock)
                 {
-                    c.Timings.Add(new HCTestTiming(id, description, (DateTime.Now - c.TestExecutionStartTime)));
+                    c.Timings.Add(new HCTestTiming(id, description, (DateTimeOffset.Now - c.TestExecutionStartTime)));
                 }
             });
 
@@ -83,7 +83,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
             {
                 lock(c._timingsLock)
                 {
-                    c.Timings.Add(new HCTestTiming(Guid.NewGuid().ToString(), description, (DateTime.Now - c.TestExecutionStartTime)));
+                    c.Timings.Add(new HCTestTiming(Guid.NewGuid().ToString(), description, (DateTimeOffset.Now - c.TestExecutionStartTime)));
                 }
             });
 

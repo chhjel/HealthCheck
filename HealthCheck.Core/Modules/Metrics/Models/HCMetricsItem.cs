@@ -20,7 +20,7 @@ namespace HealthCheck.Core.Modules.Metrics.Models
         /// <summary>
         /// When it happened.
         /// </summary>
-        public DateTime? Timestamp { get; set; }
+        public DateTimeOffset? Timestamp { get; set; }
 
         /// <summary>
         /// Duration of the timing.
@@ -125,7 +125,7 @@ namespace HealthCheck.Core.Modules.Metrics.Models
             Type = type;
             Id = id ?? Guid.NewGuid().ToString();
             Description = description;
-            Timestamp = DateTime.Now;
+            Timestamp = DateTimeOffset.Now;
             Offset = offset;
         }
 
@@ -133,7 +133,7 @@ namespace HealthCheck.Core.Modules.Metrics.Models
         {
             if (Timestamp != null && Duration == null && Type == MetricItemType.Timing)
             {
-                Duration = DateTime.Now - Timestamp;
+                Duration = DateTimeOffset.Now - Timestamp;
             }
         }
 

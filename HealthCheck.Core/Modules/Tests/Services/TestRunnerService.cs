@@ -265,7 +265,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                 var testContext = GetCurrentTestContext?.Invoke();
                 if (testContext != null)
                 {
-                    testContext.TestExecutionStartTime = DateTime.Now;
+                    testContext.TestExecutionStartTime = DateTimeOffset.Now;
                 }
 
                 var result = await test.ExecuteTest(instance, parameters, allowDefaultValues,

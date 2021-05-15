@@ -103,7 +103,7 @@ export interface ModuleFrontendOptions {
         BlockComponent
     }
 })
-export default class EndpointControlPageComponent extends Vue {
+export default class ReleaseNotesPageComponent extends Vue {
     @Prop({ required: true })
     config!: ModuleConfig;
     

@@ -76,7 +76,7 @@ namespace HealthCheck.WebUI.Config
 
                 if (items[_hcMetricsItemsContextKey] == null)
                 {
-                    items[_hcMetricsItemsContextKey] = new HCMetricsContext(context?.Timestamp ?? DateTime.Now);
+                    items[_hcMetricsItemsContextKey] = new HCMetricsContext(context?.Timestamp ?? DateTimeOffset.Now);
                 }
 
                 return items[_hcMetricsItemsContextKey] as HCMetricsContext;
@@ -103,7 +103,7 @@ namespace HealthCheck.WebUI.Config
 
                 if (items[_hcMetricsItemsContextKey] == null)
                 {
-                    items[_hcMetricsItemsContextKey] = new HCMetricsContext(DateTime.Now);
+                    items[_hcMetricsItemsContextKey] = new HCMetricsContext(DateTimeOffset.Now);
                 }
 
                 return items[_hcMetricsItemsContextKey] as HCMetricsContext;

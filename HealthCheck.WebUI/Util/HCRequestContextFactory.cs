@@ -25,7 +25,7 @@ namespace HealthCheck.WebUI.Util
             var context = HttpContext.Current;
             var request = context?.Request;
 
-            model.RequestExecutionStartTime = context?.Timestamp ?? DateTime.Now;
+            model.RequestExecutionStartTime = context?.Timestamp ?? DateTimeOffset.Now;
             model.Method = request?.HttpMethod;
             model.Url = request?.Url?.ToString();
             model.Headers = request?.Headers?.AllKeys?.ToDictionary(t => t, t => request.Headers[t]) ?? new Dictionary<string, string>();
@@ -36,7 +36,7 @@ namespace HealthCheck.WebUI.Util
             var context = IoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext;
             var request = context?.Request;
 
-            model.RequestExecutionStartTime = DateTime.Now; // todo
+            model.RequestExecutionStartTime = DateTimeOffset.Now; // todo
             model.Method = request?.Method;
             model.Url = request?.GetDisplayUrl();
             model.Headers = request?.Headers.Keys?.ToDictionary(t => t, t => request.Headers[t].ToString()) ?? new Dictionary<string, string>();

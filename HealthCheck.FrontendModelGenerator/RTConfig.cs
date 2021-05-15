@@ -32,6 +32,7 @@ namespace HealthCheck.FrontendModelGenerator
             builder.Substitute(typeof(Guid), new RtSimpleTypeName("string"));
             builder.Substitute(typeof(Type), new RtSimpleTypeName("any"));
             builder.Substitute(typeof(MethodInfo), new RtSimpleTypeName("any"));
+            builder.Substitute(typeof(PropertyInfo), new RtSimpleTypeName("any"));
             builder.Substitute(typeof(Regex), new RtSimpleTypeName("any"));
             builder.Substitute(typeof(TimeSpan), new RtSimpleTypeName("any"));
             builder.Substitute(typeof(KeyValuePair<,>), new RtSimpleTypeName("any"));
