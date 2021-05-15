@@ -68,6 +68,11 @@ export default class DateUtils
 
     static FormatDate(date: Date, format: string): string
     {
+        if (typeof date === 'string')
+        {
+            date = new Date(date);
+        }
+
         let _pad = (n: any, c: any): any => {
             if ((n = n + '').length < c) {
                 return new Array((++c) - n.length).join('0') + n;

@@ -18,7 +18,7 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         /// <summary>
         /// When the request started.
         /// </summary>
-        public DateTime RequestTimestamp { get; }
+        public DateTimeOffset RequestTimestamp { get; }
 
         /// <summary>
         /// Any tracked timings and notes.
@@ -48,7 +48,7 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         /// <summary>
         /// Contains the currently tracked metrics for this context.
         /// </summary>
-        public HCMetricsContext(DateTime requestTimestamp)
+        public HCMetricsContext(DateTimeOffset requestTimestamp)
         {
             RequestTimestamp = requestTimestamp;
         }
@@ -86,7 +86,7 @@ namespace HealthCheck.Core.Modules.Metrics.Context
             var notify = false;
             lock (_itemsLock)
             {
-                notify = Items.Any();
+                notify = ContainsData;
             }
 
             if (notify)
@@ -194,7 +194,7 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         {
             lock (_itemsLock)
             {
-                Items.Add(HCMetricsItem.CreateTiming(id, description, DateTime.Now - RequestTimestamp - duration, duration, addToGlobals));
+                Items.Add(HCMetricsItem.CreateTiming(id, description, DateTimeOffset.Now - RequestTimestamp - duration, duration, addToGlobals));
             }
         }
 
@@ -257,7 +257,7 @@ namespace HealthCheck.Core.Modules.Metrics.Context
 #pragma warning restore S4136 // Method overloads should be grouped together
         #endregion
 
-        private TimeSpan CreateOffset() => DateTime.Now - RequestTimestamp;
+        private TimeSpan CreateOffset() => DateTimeOffset.Now - RequestTimestamp;
 
         internal static void WithCurrentContext(Action<HCMetricsContext> action)
         {

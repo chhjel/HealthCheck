@@ -25,6 +25,7 @@ Available modules:
 * IDE where C# scripts can be stored and executed in the context of the web application.
 * Access token module where tokens with limited access and lifespan can be created to access other modules.
 * Downloads module where files can be made available for download, optionally protected by password, expiration date and download count limit.
+* Metrics module that outputs some simple metrics you can track manually.
 * Request log module that lists controllers and actions with their latest requests and errors.
 * Log searcher module for searching through logfiles on disk.
 * Documentation module that shows generated sequence diagrams from code decorated with attributes.
@@ -1141,6 +1142,58 @@ var downloadDefinitionStorage = new FlatFileSecureFileDownloadDefinitionStorage(
 
 ---------
 
+## Module: Metrics
+
+Very simple module that outputs some metrics you can track manually through `HCMetricsContext` statically, to e.g. verify that some methods are not called too often, or to include extra details on every page (timings, errors, notes, etc).
+
+### Setup
+
+`HCMetricsUtil.AllowTrackRequestMetrics` must be configured to select what requests to allow tracking. By default `false` is returned and no context will be created, causing any attempt to track metrics to be ignored.
+
+To enable the module to view globally tracked metrics register `<IHCMetricsStorage, HCMemoryMetricsStorage>` as a singleton to store data in memory and enable the module:
+
+```csharp
+UseModule(new HCMetricsModule(new HCMetricsModuleOptions()
+{
+    // Register HCMemoryMetricsStorage as a singleton and pass to storage here
+    Storage = IHCMetricsStorage instance
+}));
+```
+
+To include metrics data on every page when any metrics are available use `CreateContextSummaryHtml()` in a view to create the html:
+
+```csharp
+@if (allowMetrics)
+{
+    // If no data has been logged through `HCMetricsContext` for the current request null will be returned.
+    @HCMetricsUtil.CreateContextSummaryHtml()
+}
+```
+
+### Usage
+
+Call static shortcuts on `HCMetricsContext` to track details for the current request.
+
+* Global methods `IncrementGlobalCounter` and `AddGlobalValue` stores data for display in the module, non-global methods only stores data temporarily to be shown using `CreateContextSummaryHtml`.
+* Data is stored to the registered `IHCMetricsStorage` instance when the context object for the request is disposed, so expect some delays before data shows up in the module interface if used.
+
+```csharp
+HCMetricsContext.StartTiming("LoadData()");
+// .. do something to be timed here
+HCMetricsContext.EndTiming();
+
+// Count something
+HCMetricsContext.IncrementGlobalCounter("GetRequestInformation()", 1);
+
+// Add a value that will be stored with counter, min, max and average values
+HCMetricsContext.AddGlobalValue("Some value", 42);
+
+// Include some error details
+HCMetricsContext.AddError("etc", ex);
+```
+
+---------
+
 ## Module: Documentation
 
 Work in progress. At the moment sequence diagrams and flowcharts generated from decorated code will be shown.
@@ -1320,10 +1373,6 @@ A few utility classes are included below `HealthCheck.Core.Util`:
 * `AsyncUtils` - Invoke async through reflection, run async synchronous.
 * `DelayedBufferQueue<T>` - Stack up inserts up until a given delay or max count.
 * Log4Net and Episerver memory loggers are available in nuget packages `HealthCheck.Utility.Logger.*`
-* `HCMetricsUtil` - To log timings, notes and errors for the request and include in frontend.
-  * Configure `HCMetricsUtil.AllowTrackRequestMetrics` to select what requests to allow tracking. By default `false` is returned and no context will be created.
-  * Call static shortcuts on `HCMetricsContext` to track details for the current request.
-  * Use `HCMetricsUtil.CreateContextSummaryHtml()` to generate html displaying any logged data for the request. If no data has been logged through `HCMetricsContext` null will be returned.
 * `HealthCheck.Core.Config.HCGlobalConfig` contains a few global static options:
   * Dependency resolver override.
   * Types and namespaces ignored in data serialization.

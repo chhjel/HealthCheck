@@ -38,7 +38,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public long EndMilliseconds => OffsetMilliseconds + DurationMilliseconds;
 
         internal string Id { get; set; }
-        internal DateTime? Timestamp { get; set; }
+        internal DateTimeOffset? Timestamp { get; set; }
 
         /// <summary>
         /// Create a new timing.
@@ -58,7 +58,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         {
             Id = id;
             Description = description;
-            Timestamp = DateTime.Now;
+            Timestamp = DateTimeOffset.Now;
             Offset = offset;
         }
 
@@ -66,7 +66,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         {
             if (Timestamp != null && Duration == null)
             {
-                Duration = DateTime.Now - Timestamp;
+                Duration = DateTimeOffset.Now - Timestamp;
             }
         }
     }

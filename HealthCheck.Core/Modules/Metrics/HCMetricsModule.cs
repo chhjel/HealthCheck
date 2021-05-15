@@ -2,6 +2,7 @@
 using HealthCheck.Core.Modules.Metrics.Models;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.Metrics
 {
@@ -26,8 +27,7 @@ namespace HealthCheck.Core.Modules.Metrics
         public override IEnumerable<string> Validate()
         {
             var issues = new List<string>();
-            //if (Options.Service == null) issues.Add("Options.Service must be set.");
-            //if (Options.ModelType == null) issues.Add("Options.ModelType must be set.");
+            if (Options.Storage == null) issues.Add("Options.Storage must be set.");
             return issues;
         }
 
@@ -56,10 +56,13 @@ namespace HealthCheck.Core.Modules.Metrics
         /// Get settings.
         /// </summary>
         [HealthCheckModuleMethod]
-        public GetMetricsViewModel GetMetrics()
+        public async Task<GetMetricsViewModel> GetMetrics()
         {
-            return new GetMetricsViewModel()
+            var data = await (Options.Storage?.GetCompiledMetricsDataAsync() ?? Task.FromResult(new CompiledMetricsData()));
+            return new GetMetricsViewModel
             {
+                GlobalCounters = data?.GlobalCounters ?? new Dictionary<string, CompiledMetricsCounterData>(),
+                GlobalValues = data?.GlobalValues ?? new Dictionary<string, CompiledMetricsValueData>()
             };
         }
         #endregion

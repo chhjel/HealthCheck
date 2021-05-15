@@ -23,7 +23,10 @@ using HealthCheck.Core.Modules.Messages;
 using HealthCheck.Core.Modules.Messages.Abstractions;
 using HealthCheck.Core.Modules.Messages.Models;
 using HealthCheck.Core.Modules.Metrics;
+using HealthCheck.Core.Modules.Metrics.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Context;
+using HealthCheck.Core.Modules.ReleaseNotes;
+using HealthCheck.Core.Modules.ReleaseNotes.Providers;
 using HealthCheck.Core.Modules.SecureFileDownload;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload.FileStorage;
@@ -110,7 +113,6 @@ namespace HealthCheck.DevTest.Controllers
                 typeof(RuntimeTestConstants).Assembly
             };
 
-            //UseModule(new HCMetricsModule(new HCMetricsModuleOptions()));
             UseModule(new HCTestsModule(new HCTestsModuleOptions()
             {
                 AssembliesContainingTests = assemblies,
@@ -131,6 +133,18 @@ namespace HealthCheck.DevTest.Controllers
                     .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
                     .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
                 );
+            UseModule(new HCMetricsModule(new HCMetricsModuleOptions()
+            {
+                Storage = IoCUtils.GetInstance<IHCMetricsStorage>()
+            }));
+            UseModule(new HCReleaseNotesModule(new HCReleaseNotesModuleOptions {
+                ReleaseNotesProvider = new HCJsonFileReleaseNotesProvider(HostingEnvironment.MapPath(@"~\App_Data\ReleaseNotes.json"))
+                {
+                    IssueUrlFactory = (id) => $"{"https://"}www.google.com/?q=Issue+{id}",
+                    IssueLinkTitleFactory = (id) => $"Jira {id}",
+                    PullRequestUrlFactory = (number) => $"{"https://"}www.google.com/?q=PR+{number}",
+                }
+            }));
             UseModule(new HCMessagesModule(new HCMessagesModuleOptions() { MessageStorage = _memoryMessageStore }
                 .DefineInbox("mail", "Mail", "All sent email ends up here.")
                 .DefineInbox("sms", "SMS", "All sent sms ends up here.")
@@ -268,6 +282,7 @@ namespace HealthCheck.DevTest.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCEndpointControlModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCMessagesModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<TestModuleA>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCReleaseNotesModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
@@ -284,6 +299,7 @@ namespace HealthCheck.DevTest.Controllers
 
         public override ActionResult Index()
         {
+            HCMetricsContext.StartTiming("HealthCheck.Index()", "HealthCheck.Index()", true);
             EventSink.RegisterEvent("pageload", new {
                 Url = Request.RawUrl,
                 User = CurrentRequestInformation?.UserName,
@@ -408,7 +424,9 @@ namespace HealthCheck.DevTest.Controllers
                 }
             }
 
-            return base.Index();
+            var result = base.Index();
+            HCMetricsContext.EndAllTimings();
+            return result;
         }
 
         protected override HCFrontEndOptions GetFrontEndOptions()
@@ -437,6 +455,7 @@ namespace HealthCheck.DevTest.Controllers
 
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequestBase request)
         {
+            HCMetricsContext.IncrementGlobalCounter("GetRequestInformation()", 1);
             EventSink.RegisterEvent("GetRequestInfo", new
             {
                 Type = this.GetType().Name,
@@ -493,6 +512,7 @@ namespace HealthCheck.DevTest.Controllers
 
         private ActionResult LoadFile(string filename)
         {
+            HCMetricsContext.IncrementGlobalCounter(Path.GetFileName(filename) + ".Load()", 1);
             var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\..\HealthCheck.Frontend\dist\{filename}");
             if (!System.IO.File.Exists(filepath)) return Content("");
             return new FileStreamResult(System.IO.File.Open(filepath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "content-disposition");

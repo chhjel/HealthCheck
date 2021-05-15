@@ -13,6 +13,8 @@ import AccessTokensPageComponent from '../components/modules/AccessTokens/Access
 import SecureFileDownloadPageComponent from '../components/modules/SecureFileDownload/SecureFileDownloadPageComponent.vue';
 import EndpointControlPageComponent from '../components/modules/EndpointControl/EndpointControlPageComponent.vue';
 import MessagesPageComponent from '../components/modules/Messages/MessagesPageComponent.vue';
+import ReleaseNotesPageComponent from '../components/modules/ReleaseNotes/ReleaseNotesPageComponent.vue';
+import MetricsPageComponent from '../components/modules/Metrics/MetricsPageComponent.vue';
 import CustomPageComponent from '../components/modules/Custom/CustomPageComponent.vue';
 import NoPageAvailablePageComponent from '../components/NoPageAvailablePageComponent.vue';
 import Vue, { VueConstructor } from "vue";
@@ -36,6 +38,8 @@ export default function createRouter(moduleConfig: Array<ModuleConfig>): VueRout
     'SecureFileDownloadPageComponent': SecureFileDownloadPageComponent,
     'EndpointControlPageComponent': EndpointControlPageComponent,
     'MessagesPageComponent': MessagesPageComponent,
+    'ReleaseNotesPageComponent': ReleaseNotesPageComponent,
+    'MetricsPageComponent': MetricsPageComponent,
     'CustomPageComponent': CustomPageComponent
 };
 

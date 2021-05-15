@@ -2,6 +2,11 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import { CompiledMetricsCounterData } from './CompiledMetricsCounterData';
+import { CompiledMetricsValueData } from './CompiledMetricsValueData';
+
 export interface GetMetricsViewModel
 {
+	GlobalCounters: { [key:string]: CompiledMetricsCounterData };
+	GlobalValues: { [key:string]: CompiledMetricsValueData };
 }

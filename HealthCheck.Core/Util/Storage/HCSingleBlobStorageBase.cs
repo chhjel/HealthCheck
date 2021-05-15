@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Modules.Metrics.Context;
 using System;
 
 namespace HealthCheck.Core.Util.Storage
@@ -77,6 +78,7 @@ namespace HealthCheck.Core.Util.Storage
                 var data = RetrieveBlobData() ?? new TData();
 
                 Cache?.Set(CacheKey, data, CacheDuration);
+                HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}.RetrieveBlobData()", 1);
                 return data;
             }
             catch(Exception)
@@ -92,6 +94,7 @@ namespace HealthCheck.Core.Util.Storage
         {
             Cache?.Set(CacheKey, data, CacheDuration);
             StoreBlobData(data);
+            HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}.SaveBlobData()", 1);
         }
 
         /// <summary>

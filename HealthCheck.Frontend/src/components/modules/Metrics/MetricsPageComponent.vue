@@ -1,0 +1,162 @@
+<!-- src/components/modules/Metrics/MetricsPageComponent.vue -->
+<template>
+    <div>
+        <v-content class="pl-0">
+            <!-- CONTENT -->
+            <v-container fluid fill-height class="content-root">
+            <v-layout>
+            <v-flex>
+            <v-container>
+                <h1>Metrics</h1>
+                <p>Values might be delayed before they are stored and displayed here.</p>
+
+                <v-btn :disabled="loadStatus.inProgress" @click="loadData" class="mb-3">
+                    <v-icon size="20px" class="mr-2">refresh</v-icon>
+                    Refresh
+                </v-btn>
+
+                <!-- LOAD PROGRESS -->
+                <v-progress-linear
+                    v-if="loadStatus.inProgress"
+                    indeterminate color="green"></v-progress-linear>
+
+                <!-- DATA LOAD ERROR -->
+                <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+                {{ loadStatus.errorMessage }}
+                </v-alert>
+
+                <div v-if="!hasData && !loadStatus.inProgress">
+                    <b>No metrics data was found.</b>
+                </div>
+
+                <div v-if="hasData" class="metrics">
+                    <div v-if="globalCounters.length > 0">
+                        <h2>Global counters</h2>
+                        <ul>
+                            <li v-for="(item, itemIndex) in globalCounters"
+                                :key="`gcounter-${itemIndex}`">
+                                <b class="mr-1">{{ item.key }}:</b> <code>{{ item.value.Value }}</code> <small class="ml-1">({{ formatDate(item.value.LastChanged) }})</small>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div v-if="globalValues.length > 0" class="mt-4">
+                        <h2>Global values</h2>
+                        <ul v-if="globalValues.length > 0">
+                            <li v-for="(item, itemIndex) in globalValues"
+                                :key="`gvalue-${itemIndex}`">
+                                <b class="mr-1">{{ item.key }}:</b> 
+                                <code>{{ item.values.Min }}</code> to <code>{{ item.values.Max }}</code>, average <code>{{ item.values.Average }}</code>. 
+                                n=<code>{{ item.values.ValueCount }}</code>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </v-container>
+            </v-flex>
+            </v-layout>
+            </v-container>
+        </v-content>
+    </div>
+</template>
+
+<script lang="ts">
+import { Vue, Component, Prop } from "vue-property-decorator";
+import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
+import DateUtils from  '../../../util/DateUtils';
+import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
+import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
+import MetricsService from  '../../../services/MetricsService';
+import ModuleOptions from  '../../../models/Common/ModuleOptions';
+import ModuleConfig from "../../../models/Common/ModuleConfig";
+import { GetMetricsViewModel } from "generated/Models/Core/GetMetricsViewModel";
+
+export interface ModuleFrontendOptions {
+}
+
+@Component({
+    components: {
+        BlockComponent
+    }
+})
+export default class MetricsPageComponent extends Vue {
+    @Prop({ required: true })
+    config!: ModuleConfig;
+    
+    @Prop({ required: true })
+    options!: ModuleOptions<ModuleFrontendOptions>;
+
+    service: MetricsService = new MetricsService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
+    data: GetMetricsViewModel | null = null;
+
+    // UI STATE
+    loadStatus: FetchStatus = new FetchStatus();
+
+    //////////////////
+    //  LIFECYCLE  //
+    ////////////////
+    mounted(): void
+    {
+        this.loadData();
+    }
+
+    ////////////////
+    //  GETTERS  //
+    //////////////
+    get globalOptions(): FrontEndOptionsViewModel {
+        return this.$store.state.globalOptions;
+    }
+
+    get hasData(): boolean {
+        return this.globalCounters.length > 0 || this.globalValues.length > 0;
+    }
+
+    get globalCounters(): Array<any> {
+        if (!this.data || !this.data.GlobalCounters) {
+            return [];
+        }
+
+        return Object.keys(this.data.GlobalCounters).map(x => {
+            return {
+                key: x,
+                value: this.data!.GlobalCounters[x]
+            };
+        });
+    }
+
+    get globalValues(): Array<any> {
+        if (!this.data || !this.data.GlobalValues) {
+            return [];
+        }
+        
+        return Object.keys(this.data.GlobalValues).map(x => {
+            return {
+                key: x,
+                values: this.data!.GlobalValues[x]
+            };
+        });
+    }
+
+    ////////////////
+    //  METHODS  //
+    //////////////
+    loadData(): void {
+        this.service.GetMetrics(this.loadStatus, { onSuccess: (data) => this.onDataRetrieved(data) });
+    }
+
+    onDataRetrieved(data: GetMetricsViewModel | null): void {
+        this.data = data;
+    }
+
+    formatDate(date: Date): string {
+        return DateUtils.FormatDate(date, "dddd dd. MMMM yyyy HH:mm:ss");
+    }
+}
+</script>
+
+<style scoped lang="scss">
+.metrics {
+
+}
+</style>

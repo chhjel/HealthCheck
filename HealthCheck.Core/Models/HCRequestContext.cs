@@ -31,6 +31,6 @@ namespace HealthCheck.Core.Models
         /// <summary>
         /// When the request started.
         /// </summary>
-        public DateTime RequestExecutionStartTime { get; internal set; }
+        public DateTimeOffset RequestExecutionStartTime { get; internal set; }
     }
 }
