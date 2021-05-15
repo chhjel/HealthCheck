@@ -59,6 +59,16 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Providers
         /// </summary>
         public string PullRequestLinkIcon { get; set; }
 
+        /// <summary>
+        /// If set, the default title will be "Latest release notes" for production and for non-prod "Latest changes"
+        /// </summary>
+        public Func<bool> IsProduction { get; set; }
+
+        /// <summary>
+        /// Use to set title based on e.g. environment.
+        /// </summary>
+        public Func<string> Title { get; set; }
+
         private HCReleaseNotesViewModels _cachedModel;
 
         /// <summary>
@@ -135,14 +145,20 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Providers
         /// </summary>
         protected virtual HCReleaseNotesViewModel BuildViewModel(HCDefaultReleaseNotesJsonModel data, bool includeDevDetails)
         {
+            var title = Title?.Invoke() ?? "Latest release notes";
+            if (Title == null && IsProduction?.Invoke() != true)
+            {
+                title = "Latest changes";
+            }
+
             var model = new HCReleaseNotesViewModel
             {
                 Version = data.version,
                 //DeployedAt = DateTime.Now,
                 BuiltAt = data.builtAt,
 
-                Title = "Release Notes",
-                Description = "Auto-generated release notes from changes since last production deploy.",
+                Title = title,
+                Description = "Auto-generated release notes from changes since the previous production deploy.",
                 BuiltCommitHash = includeDevDetails ? data.builtCommitHash : null,
                 Changes = data.changes
                     ?.Select(x => BuildChangeViewModel(x, includeDevDetails))
@@ -165,46 +181,45 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Providers
             }
 
             List<HCReleaseNoteLinkViewModel> links = new();
+            var hasIssueLink = false;
+            var hasPrLink = false;
 
             if (data.issueIds?.Any() == true && IssueUrlFactory != null)
             {
-                foreach(var issueId in data.issueIds)
+                hasIssueLink = true;
+                foreach (var issueId in data.issueIds)
                 {
                     links.Add(new HCReleaseNoteLinkViewModel
                     {
                         Title = IssueLinkTitleFactory?.Invoke(issueId) ?? $"Issue {issueId}",
-                        Url = IssueUrlFactory.Invoke(issueId),
-                        Icon = IssueLinkIcon ?? MaterialIcons.AllIcons.Link
+                        Url = IssueUrlFactory.Invoke(issueId)
                     });
                 }
             }
 
             if (includeDevDetails && !string.IsNullOrWhiteSpace(data.pullRequestNumber) && PullRequestUrlFactory != null)
             {
+                hasPrLink = true;
                 links.Add(new HCReleaseNoteLinkViewModel
                 {
-                    Title = PullRequestLinkTitleFactory?.Invoke(data.pullRequestNumber) ?? $"PR #{data.pullRequestNumber}",
-                    Url = PullRequestUrlFactory.Invoke(data.pullRequestNumber),
-                    Icon = PullRequestLinkIcon ?? MaterialIcons.AllIcons.Link
+                    Title = PullRequestLinkTitleFactory?.Invoke(data.pullRequestNumber) ?? $"Pull request #{data.pullRequestNumber}",
+                    Url = PullRequestUrlFactory.Invoke(data.pullRequestNumber)
                 });
             }
 
-            var icon = MaterialIcons.AllIcons.Fiber_Manual_Record;
-            if (!string.IsNullOrWhiteSpace(data.issueId))
-            {
-                icon = MaterialIcons.AllIcons.Description;
-            }
-
             var descriptionBuilder = new StringBuilder();
-            descriptionBuilder.Append(data.body?.Trim() ?? "");
+            if (includeDevDetails && !string.IsNullOrWhiteSpace(data.body))
+            {
+                descriptionBuilder.Append(data.body?.Trim());
+            }
             if (includeDevDetails && !string.IsNullOrWhiteSpace(data.pullRequestNumber) && PullRequestUrlFactory == null)
             {
                 descriptionBuilder.Append($"\n\nPull-request #{data.pullRequestNumber}");
             }
-            if (data.issueIds?.Any() == true && IssueUrlFactory == null)
+            if (data.issueIds?.Count() > 1 && IssueUrlFactory == null)
             {
-                descriptionBuilder.Append($"\n\nIssues:");
-                foreach (var issueId in data.issueIds)
+                descriptionBuilder.Append($"\n\nAlso related to:");
+                foreach (var issueId in data.issueIds.Skip(1))
                 {
                     descriptionBuilder.Append($"\n-{issueId}");
                 }
@@ -228,10 +243,12 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Providers
 
                 Title = title,
                 Description = descriptionBuilder.ToString(),
-                Icon = icon,
 
                 Links = links,
                 MainLink = links.FirstOrDefault()?.Url,
+
+                HasIssueLink = hasIssueLink,
+                HasPullRequestLink = hasPrLink
             };
         }
 

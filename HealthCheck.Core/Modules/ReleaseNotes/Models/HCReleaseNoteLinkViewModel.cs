@@ -20,8 +20,8 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Models
         /// <summary>
         /// Optional icon of the link.
         /// <para>Value should be a constant from <see cref="MaterialIcons"/>.</para>
-        /// <para>Defaults to <c>MaterialIcons.AllIcons.Link</c></para>
+        /// <para>Defaults to no icon.</para>
         /// </summary>
-        public string Icon { get; set; } = MaterialIcons.AllIcons.Link;
+        public string Icon { get; set; }
     }
 }

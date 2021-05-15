@@ -17,37 +17,63 @@
                 {{ loadStatus.errorMessage }}
                 </v-alert>
 
-                <div v-if="!data && loadStatus.inProgress">
+                <div v-if="!data && !loadStatus.inProgress">
                     No release notes data was found.
                 </div>
                 <v-alert :value="data && data.ErrorMessage" v-if="data && data.ErrorMessage" type="error">
                     {{ data.ErrorMessage }}
                 </v-alert>
 
-                <div v-if="data">
-                    <h1 v-if="data.Title">{{ data.Title }}</h1>
-                    <p v-if="data.Description">{{ data.Description }}</p>
-                    
-                    <h2 v-if="data.Version">Version {{ data.Version }}</h2>
-                    <div v-if="data.BuiltAt">Built: {{ data.BuiltAt }}</div>
-                    <div v-if="data.DeployedAt">Deployed: {{ data.DeployedAt }}</div>
-                    <div v-if="data.BuiltCommitHash">BuiltCommitHash: {{ data.BuiltCommitHash }}</div>
+                <div v-if="data" class="release-notes">
+                    <h1 v-if="data.Title" class="release-notes__title">{{ data.Title }} (Version {{ data.Version }})</h1>
+                    <p v-if="data.Description" class="release-notes__description">{{ data.Description }}</p>
 
-                    <div v-if="data.Changes">
-                        <h3>Changes</h3>
+                    <v-chip v-if="data.BuiltAt" class="release-notes__metadata">Built at {{ formatDate(data.BuiltAt) }}</v-chip>
+                    <v-chip v-if="data.BuiltCommitHash" class="release-notes__metadata">Built hash: {{ data.BuiltCommitHash }}</v-chip>
+                    <v-chip v-if="data.DeployedAt" class="release-notes__metadata">Deployed at {{ formatDate(data.DeployedAt) }}</v-chip>
+
+                    <div class="release-notes__changes" v-if="data.Changes">
+                        <h2 class="release-notes-changes__title">{{ changesTitle }}</h2>
                         <div v-for="(change, cindex) in data.Changes"
                             :key="`change-${cindex}`"
-                            style="border-left: 3px solid blue; margin-bottom: 10px; padding: 10px;">
-                            <div>Title: {{ change.Title }}</div>
-                            <div>Description: {{ change.Description }}</div>
-                            <div>Icon: {{ change.Icon }}</div>
-                            <div>Timestamp: {{ change.Timestamp }}</div>
-                            <div>CommitHash: {{ change.CommitHash }}</div>
-                            <div>Author: {{ change.AuthorName }}</div>
-                            <div>MainLink: {{ change.MainLink }}</div>
-                            <div>Links: {{ change.Links }}</div>
+                            class="release-notes-change"
+                            :class="{ 'has-link': !!change.MainLink, 'has-pr': change.HasPullRequestLink, 'has-issue': change.HasIssueLink }"
+                            :href="change.MainLink">
+                            
+                            <div class="release-notes-change__header">
+                                <div>
+                                    <h3 class="release-notes-change__title">
+                                        <v-icon class="release-notes-change__icon" v-if="change.Icon">{{ change.Icon }}</v-icon>
+                                        {{ change.Title }}
+                                    </h3>
+                                    <div class="release-notes-change__description"
+                                        v-if="change.Description">{{ change.Description }}</div>
+                                </div>
+                                <div>
+                                    <div class="release-notes-change__timestamp"
+                                        v-if="change.Timestamp">{{ formatDate(change.Timestamp) }}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="release-notes-change__links">
+                                <div v-for="(link, lindex) in change.Links"
+                                    :key="`change-${cindex}-link-${lindex}`"
+                                    class="release-notes-change-link">
+                                    <v-icon v-if="link.Icon">{{ link.Icon }}</v-icon>
+                                    <a :href="link.Url">{{ link.Title }}</a>
+                                </div>
+                            </div>
+
+                            <div class="release-notes-change__metadata">
+                                <span v-if="change.CommitHash">Commit ({{ change.CommitHash }})</span>
+                                <span v-if="change.AuthorName">by {{ change.AuthorName }}</span>
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                <div v-if="HasAccessToDevDetails" class="mt-4">
+                    <v-btn flat @click.left="loadDataToggled()">{{ (forcedWithoutDevDetails) ? 'Show with dev details' : 'Show without dev details' }}</v-btn>
                 </div>
 
             </v-container>
@@ -86,6 +112,7 @@ export default class EndpointControlPageComponent extends Vue {
 
     service: ReleaseNotesService = new ReleaseNotesService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     data: HCReleaseNotesViewModel | null = null;
+    forcedWithoutDevDetails: boolean = false;
 
     // UI STATE
     loadStatus: FetchStatus = new FetchStatus();
@@ -107,19 +134,113 @@ export default class EndpointControlPageComponent extends Vue {
     get HasAccessToDevDetails(): boolean {
         return this.options.AccessOptions.indexOf("DeveloperDetails") != -1;
     }
+    get changesTitle(): string {
+        if (!this.data || !this.data.Changes)
+        {
+            return 'Changes';
+        }
+        const changeCount = this.data.Changes.length;
+        const suffix = (changeCount === 1) ? '' : 's';
+        return `${changeCount} change${suffix}`;
+    }
 
     ////////////////
     //  METHODS  //
     //////////////
     loadData(): void {
-        this.service.GetReleaseNotes(this.HasAccessToDevDetails, this.loadStatus, { onSuccess: (data) => this.onDataRetrieved(data) });
+        this.service.GetReleaseNotes(!this.forcedWithoutDevDetails && this.HasAccessToDevDetails, this.loadStatus, { onSuccess: (data) => this.onDataRetrieved(data) });
+    }
+
+    loadDataToggled(): void {
+        this.forcedWithoutDevDetails = !this.forcedWithoutDevDetails;
+        this.loadData();
     }
 
     onDataRetrieved(data: HCReleaseNotesViewModel | null): void {
         this.data = data;
     }
+
+    formatDate(date: Date): string {
+        return DateUtils.FormatDate(date, "dddd dd. MMMM yyyy HH:mm:ss");
+    }
 }
 </script>
 
 <style scoped lang="scss">
+.release-notes {
+    &__title {
+        
+    }
+    
+    &__description {
+        
+    }
+
+    &__changes {
+        margin-top: 10px;
+        margin-bottom: -10px;
+
+        &__title {
+            
+        }
+    }
+}
+.release-notes-change {
+    margin: 10px 0;
+    padding: 10px 10px;
+    transition: all 0.1s ease-in-out;
+    
+    color: #666;
+    /* border-radius: 5px; */
+    border: 1px solid #ccc;
+    border-left: 3px solid var(--v-success-base);
+    text-decoration: none;
+
+    &:not(.has-issue) {
+        border-left: 3px solid #91a6e2;
+    }
+
+    /* &.has-link {
+        &:hover {
+            box-shadow: 1px 1px 5px 0px #5a5a5a54;
+        }
+    } */
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    &__title {
+        display: flex;
+        margin-bottom: 5px;
+    }
+
+    &__description {
+        margin-bottom: 10px;
+    }
+
+    &__timestamp {
+    }
+
+    &__metadata {
+    }
+
+    &__links {
+        display: flex;
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+}
+.release-notes-change-link {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 10px;
+
+    .v-icon {
+        margin-right: 2px;
+    }
+}
 </style>

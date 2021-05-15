@@ -22,9 +22,9 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Models
         /// <summary>
         /// Optional icon of the change.
         /// <para>Value should be a constant from <see cref="MaterialIcons"/>.</para>
-        /// <para>Defaults to <c>MaterialIcons.AllIcons.Fiber_Manual_Record</c></para>
+        /// <para>Defaults to no icon.</para>
         /// </summary>
-        public string Icon { get; set; } = MaterialIcons.AllIcons.Fiber_Manual_Record;
+        public string Icon { get; set; }
 
         /// <summary>
         /// Optionally include time when the change was committed.
@@ -40,6 +40,16 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Models
         /// Optionally include author of this change.
         /// </summary>
         public string AuthorName { get; set; }
+
+        /// <summary>
+        /// True if the change has an issue link.
+        /// </summary>
+        public bool HasIssueLink { get; set; }
+
+        /// <summary>
+        /// True if the change has a pull-request link.
+        /// </summary>
+        public bool HasPullRequestLink { get; set; }
 
         /// <summary>
         /// Optional link when the change is clicked.
