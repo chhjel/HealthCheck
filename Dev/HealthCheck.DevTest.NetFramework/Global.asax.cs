@@ -83,13 +83,6 @@ namespace HealthCheck.DevTest
                 });
             }
 
-            var lazyFactory = new HCLazyFlatFileFactory(@"c:\temp\HealthCheck");
-            var instances = lazyFactory.CreateInstances();
-            foreach(var instance in instances)
-            {
-                System.Diagnostics.Debug.WriteLine($"Lazy: {instance.GetType().Name}");
-            }
-
             HCGlobalConfig.DefaultInstanceResolver = (type) =>
             {
                 if (type == typeof(IEndpointControlService))

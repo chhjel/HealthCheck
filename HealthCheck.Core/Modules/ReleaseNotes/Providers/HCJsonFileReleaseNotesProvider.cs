@@ -151,6 +151,14 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Providers
                 title = "Latest changes";
             }
 
+            var changes = data.changes
+                    ?.Select(x => BuildChangeViewModel(x, includeDevDetails))
+                    ?.Where(x => x != null)
+                    ?.ToList()
+                    ?? new List<HCReleaseNoteChangeViewModel>();
+
+            changes = PostProcessChanges(changes, includeDevDetails);
+
             var model = new HCReleaseNotesViewModel
             {
                 Version = data.version,
@@ -160,14 +168,24 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Providers
                 Title = title,
                 Description = "Auto-generated release notes from changes since the previous production deploy.",
                 BuiltCommitHash = includeDevDetails ? data.builtCommitHash : null,
-                Changes = data.changes
-                    ?.Select(x => BuildChangeViewModel(x, includeDevDetails))
-                    ?.Where(x => x != null)
-                    ?.ToList()
-                    ?? new List<HCReleaseNoteChangeViewModel>()
+                Changes = changes
             };
 
             return model;
+        }
+
+        /// <summary>
+        /// Removes duplicates etc when no dev details are shown.
+        /// </summary>
+        protected virtual List<HCReleaseNoteChangeViewModel> PostProcessChanges(List<HCReleaseNoteChangeViewModel> changes, bool includeDevDetails)
+        {
+            if (!includeDevDetails)
+            {
+                changes = changes
+                    .GroupBy(x => x.Title).Select(x => x.First())
+                    .ToList();
+            }
+            return changes;
         }
 
         /// <summary>
