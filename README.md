@@ -29,6 +29,7 @@ Available modules:
 * Request log module that lists controllers and actions with their latest requests and errors.
 * Log searcher module for searching through logfiles on disk.
 * Documentation module that shows generated sequence diagrams from code decorated with attributes.
+* Release notes module that can show release notes.
 
 ## Getting started
 
@@ -1220,6 +1221,26 @@ FlowChartsService = new DefaultFlowChartService(new DefaultFlowChartServiceOptio
 {
     DefaultSourceAssemblies = new[] { typeof(MyController).Assembly }
 })
+```
+
+---------
+
+## Module: Release notes
+
+Simple module that shows release notes e.g. generated during the build process. Supports dev-mode where developers can see any extra details.
+
+### Setup
+
+```csharp
+UseModule(new HCReleaseNotesModule(new HCReleaseNotesModuleOptions {
+    // Note: inject HCJsonFileReleaseNotesProvider as a singleton
+    ReleaseNotesProvider = new HCJsonFileReleaseNotesProvider(HostingEnvironment.MapPath(@"~\App_Data\ReleaseNotes.json"))
+    {
+        IssueUrlFactory = (id) => $"https://www.yourjira.com/etc/{id}",
+        IssueLinkTitleFactory = (id) => $"Jira {id}",
+        PullRequestUrlFactory = (number) => $"https://github.com/yourOrg/yourProject/pull/{number}",
+    }
+}));
 ```
 
 ---------
