@@ -1167,7 +1167,7 @@ To include metrics data on every page when any metrics are available use `Create
 @if (allowMetrics)
 {
     // If no data has been logged through `HCMetricsContext` for the current request null will be returned.
-    @HCMetricsUtil.CreateContextSummaryHtml()
+    @Html.Raw(HealthCheck.Core.Modules.Metrics.Context.HCMetricsUtil.CreateContextSummaryHtml())
 }
 ```
 

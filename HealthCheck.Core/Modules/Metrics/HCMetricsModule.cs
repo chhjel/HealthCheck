@@ -53,7 +53,7 @@ namespace HealthCheck.Core.Modules.Metrics
 
         #region Invokable methods
         /// <summary>
-        /// Get settings.
+        /// Get metrics.
         /// </summary>
         [HealthCheckModuleMethod]
         public async Task<GetMetricsViewModel> GetMetrics()
