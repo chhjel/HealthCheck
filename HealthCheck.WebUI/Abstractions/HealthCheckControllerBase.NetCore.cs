@@ -1,6 +1,7 @@
 ﻿#if NETCORE
 using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Util;
@@ -249,7 +250,7 @@ namespace HealthCheck.WebUI.Abstractions
             CurrentRequestInformation.Method = request?.Method;
             CurrentRequestInformation.Url = request?.GetDisplayUrl();
             CurrentRequestInformation.ClientIP = GetRequestIP(context);
-            CurrentRequestInformation.Headers = request?.Headers.Keys?.ToDictionary(t => t, t => request.Headers[t].ToString())
+            CurrentRequestInformation.Headers = request?.Headers.Keys?.ToDictionaryIgnoreDuplicates(t => t, t => request.Headers[t].ToString())
                 ?? new Dictionary<string, string>();
             
             var requestInfoOverridden = Helper.ApplyTokenAccessIfDetected(CurrentRequestInformation);

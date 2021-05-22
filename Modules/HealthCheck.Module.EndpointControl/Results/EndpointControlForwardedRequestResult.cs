@@ -1,5 +1,6 @@
 ﻿#if NETFULL
 using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Models;
 using HealthCheck.Module.EndpointControl.Utils;
@@ -218,13 +219,13 @@ namespace HealthCheck.Module.EndpointControl.Results
             if (mvcRequest != null)
             {
                 requestDetails.RawUrl = RequestUtils.GetUrl(mvcRequest);
-                requestDetails.Headers = mvcRequest.Headers.AllKeys.ToDictionary(x => x, x => mvcRequest.Headers[x]);
+                requestDetails.Headers = mvcRequest.Headers.AllKeys.ToDictionaryIgnoreDuplicates(x => x, x => mvcRequest.Headers[x]);
                 ConfigureMvcWebClient(client, mvcRequest, options);
             }
             else if (apiRequest != null)
             {
                 requestDetails.RawUrl = RequestUtils.GetUrl(apiRequest);
-                requestDetails.Headers = apiRequest.Headers.ToDictionary(x => x.Key, x => apiRequest.Headers.GetValues(x.Key).FirstOrDefault());
+                requestDetails.Headers = apiRequest.Headers.ToDictionaryIgnoreDuplicates(x => x.Key, x => apiRequest.Headers.GetValues(x.Key).FirstOrDefault());
                 ConfigureWebApiWebClient(client, apiRequest, options);
             }
 

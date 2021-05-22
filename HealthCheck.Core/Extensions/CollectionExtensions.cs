@@ -11,6 +11,42 @@ namespace HealthCheck.Core.Extensions
     public static class CollectionExtensions
     {
         /// <summary>
+        /// Create a dictionary, keeping the last of any duplicates.
+        /// </summary>
+        public static Dictionary<TKey, TElement> ToDictionaryIgnoreDuplicates<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector)
+        {
+            if (source?.Any() != true)
+            {
+                return new();
+            }
+
+            var dict = new Dictionary<TKey, TElement>();
+            foreach (var item in source)
+            {
+                dict[keySelector(item)] = elementSelector(item);
+            }
+            return dict;
+        }
+
+        /// <summary>
+        /// Create a dictionary, keeping the last of any duplicates.
+        /// </summary>
+        public static Dictionary<TKey, TSource> ToDictionaryIgnoreDuplicates<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+        {
+            if (source?.Any() != true)
+            {
+                return new();
+            }
+
+            var dict = new Dictionary<TKey, TSource>();
+            foreach (var item in source)
+            {
+                dict[keySelector(item)] = item;
+            }
+            return dict;
+        }
+
+        /// <summary>
         /// Take the last n items up to the given max.
         /// </summary>
         public static IEnumerable<T> TakeLastN<T>(this IEnumerable<T> enumerable, int max)
