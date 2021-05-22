@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Models;
+﻿using HealthCheck.Core.Config;
+using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.Metrics.Abstractions;
 using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Util;
@@ -57,7 +58,8 @@ namespace HealthCheck.Core.Modules.Metrics.Context
             }
 
             context.EndAllTimingsInternal();
-            return TestRunnerService.Serializer.Serialize(context, pretty: false);
+            HCGlobalConfig.EnsureInitialized();
+            return TestRunnerService.Serializer?.Serialize(context, pretty: false);
         }
 
         /// <summary>

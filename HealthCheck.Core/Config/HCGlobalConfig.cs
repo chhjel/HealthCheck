@@ -96,6 +96,13 @@ namespace HealthCheck.Core.Config
         }
 
         /// <summary>
+        /// Ensure some parts are initialized.
+        /// </summary>
+        public static void EnsureInitialized()
+            => _dummy = !_dummy; // Dummy method to be sure static ctor is invoked.
+        private static bool _dummy = false;
+
+        /// <summary>
         /// True if the type is allowed to be instantated.
         /// </summary>
         public static bool AllowActivatingType(Type type)
@@ -137,13 +144,6 @@ namespace HealthCheck.Core.Config
             }
             return true;
         }
-
-        /// <summary>
-        /// Used internally between assemblies.
-        /// </summary>
-        public static void EnsureInitialized()
-            => _dummy = !_dummy; // Dummy method to be sure static ctor is invoked.
-        private static bool _dummy = false;
 
         private static object FallbackInstanceResolver(Type type)
         {
