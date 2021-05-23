@@ -14,7 +14,7 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Providers
 {
     /// <summary>
     /// Provides data from a json file path.
-    /// <para>Caches data statically.</para>
+    /// <para>Caches data in memory when used as a singleton.</para>
     /// </summary>
     public class HCJsonFileReleaseNotesProvider : IHCReleaseNotesProvider
     {
