@@ -58,8 +58,7 @@ namespace HealthCheck.Core.Modules.Metrics.Context
             }
 
             context.EndAllTimingsInternal();
-            HCGlobalConfig.EnsureInitialized();
-            return TestRunnerService.Serializer?.Serialize(context, pretty: false);
+            return HCGlobalConfig.Serializer?.Serialize(context, pretty: false);
         }
 
         /// <summary>
