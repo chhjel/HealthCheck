@@ -1,6 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Config;
 using HealthCheck.Core.Modules.SiteEvents.Models;
-using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
@@ -262,7 +262,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// Include the given timing data in the result data.
         /// </summary>
         public TestResult AddTimingData(IEnumerable<HCTestTiming> timings, string title = null, bool onlyIfNotNullOrEmpty = true)
-            => AddData(TestRunnerService.Serializer?.Serialize(timings) ?? "[]", title, TestResultDataDumpType.Timings, onlyIfNotNullOrEmpty);
+            => AddData(HCGlobalConfig.Serializer?.Serialize(timings) ?? "[]", title, TestResultDataDumpType.Timings, onlyIfNotNullOrEmpty);
         
         /// <summary>
         /// Include the given image urls in the result data.

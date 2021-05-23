@@ -1,7 +1,7 @@
-﻿using HealthCheck.Core.Extensions;
+﻿using HealthCheck.Core.Config;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.ReleaseNotes.Abstractions;
 using HealthCheck.Core.Modules.ReleaseNotes.Models;
-using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
@@ -274,6 +274,6 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Providers
         /// Deserializes the json into the default model.
         /// </summary>
         protected virtual HCDefaultReleaseNotesJsonModel DeserializeJsonData(string json)
-            => TestRunnerService.Serializer?.Deserialize<HCDefaultReleaseNotesJsonModel>(json);
+            => HCGlobalConfig.Serializer?.Deserialize<HCDefaultReleaseNotesJsonModel>(json);
     }
 }

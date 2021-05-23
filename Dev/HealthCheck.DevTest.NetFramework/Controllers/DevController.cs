@@ -508,6 +508,9 @@ namespace HealthCheck.DevTest.Controllers
         public ActionResult GetMetricsScript() => LoadFile("metrics.js");
 
         [HideFromRequestLog]
+        public ActionResult GetReleaseNotesScript() => LoadFile("release-notes-summary.js");
+
+        [HideFromRequestLog]
         public ActionResult GetScript([FromUri]string name) => LoadFile(name);
 
         private ActionResult LoadFile(string filename)

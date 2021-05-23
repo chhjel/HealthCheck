@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Config;
 using HealthCheck.Core.Modules.Metrics.Context;
+using HealthCheck.WebUI.Serializers;
 using HealthCheck.WebUI.Util;
 
 #if NETFRAMEWORK
@@ -35,6 +36,10 @@ namespace HealthCheck.WebUI.Config
             if (HCGlobalConfig.RequestContextFactory == null)
             {
                 HCGlobalConfig.RequestContextFactory = HCRequestContextFactory.Create;
+            }
+            if (HCGlobalConfig.Serializer == null)
+            {
+                HCGlobalConfig.Serializer = new NewtonsoftJsonSerializer();
             }
         }
 

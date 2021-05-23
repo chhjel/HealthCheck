@@ -69,6 +69,8 @@ namespace HealthCheck.Core.Config
         /// </summary>
         public static Func<Type, object> GetDefaultInstanceResolver() => DefaultInstanceResolver ?? FallbackInstanceResolver;
 
+        internal static IJsonSerializer Serializer { get; set; }
+
         internal static T GetService<T>()
             where T: class
             => GetDefaultInstanceResolver() as T;
