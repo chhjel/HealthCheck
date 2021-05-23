@@ -1243,6 +1243,17 @@ UseModule(new HCReleaseNotesModule(new HCReleaseNotesModuleOptions {
 }));
 ```
 
+To include a floating release notes button on every page when any notes are available use `CreateReleaseNotesSummaryHtml()` in a view to create the html. The button pulses when new notes are available.
+
+```csharp
+@if (showReleaseNotes)
+{
+    // If there's nothing to display it outputs a html comment with the reason why.
+    @Html.Raw(HealthCheck.Core.Modules.ReleaseNotes.Util.HCReleaseNotesUtil.CreateReleaseNotesSummaryHtml(/* optionally pass true here to include dev details */))
+}
+```
+
+
 ---------
 
 ## Integrated login dialog
