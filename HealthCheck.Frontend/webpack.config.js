@@ -8,7 +8,8 @@ var webpack = require('webpack')
 module.exports = {
   entry: {
     healthcheck: './src/entry/index.ts',
-    metrics: './src/entry/others/metrics.ts'
+    metrics: './src/entry/others/metrics.ts',
+    releaseNotesSummary: './src/entry/others/release-notes-summary.ts'
   },
   output: {
     path: path.resolve(__dirname, './dist'),

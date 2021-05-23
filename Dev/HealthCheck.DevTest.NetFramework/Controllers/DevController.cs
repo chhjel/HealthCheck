@@ -26,7 +26,7 @@ using HealthCheck.Core.Modules.Metrics;
 using HealthCheck.Core.Modules.Metrics.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Core.Modules.ReleaseNotes;
-using HealthCheck.Core.Modules.ReleaseNotes.Providers;
+using HealthCheck.Core.Modules.ReleaseNotes.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload.FileStorage;
@@ -138,12 +138,7 @@ namespace HealthCheck.DevTest.Controllers
                 Storage = IoCUtils.GetInstance<IHCMetricsStorage>()
             }));
             UseModule(new HCReleaseNotesModule(new HCReleaseNotesModuleOptions {
-                ReleaseNotesProvider = new HCJsonFileReleaseNotesProvider(HostingEnvironment.MapPath(@"~\App_Data\ReleaseNotes.json"))
-                {
-                    IssueUrlFactory = (id) => $"{"https://"}www.google.com/?q=Issue+{id}",
-                    IssueLinkTitleFactory = (id) => $"Jira {id}",
-                    PullRequestUrlFactory = (number) => $"{"https://"}www.google.com/?q=PR+{number}",
-                }
+                ReleaseNotesProvider = IoCUtils.GetInstance<IHCReleaseNotesProvider>()
             }));
             UseModule(new HCMessagesModule(new HCMessagesModuleOptions() { MessageStorage = _memoryMessageStore }
                 .DefineInbox("mail", "Mail", "All sent email ends up here.")
@@ -508,7 +503,7 @@ namespace HealthCheck.DevTest.Controllers
         public ActionResult GetMetricsScript() => LoadFile("metrics.js");
 
         [HideFromRequestLog]
-        public ActionResult GetReleaseNotesScript() => LoadFile("release-notes-summary.js");
+        public ActionResult GetReleaseNotesScript() => LoadFile("releaseNotesSummary.js");
 
         [HideFromRequestLog]
         public ActionResult GetScript([FromUri]string name) => LoadFile(name);

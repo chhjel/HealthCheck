@@ -87,6 +87,7 @@ jobs:
         /HealthCheck.WebUI/Models/HCPageOptions.cs
         /HealthCheck.WebUI/Models/HCFrontEndOptions.cs
         /HealthCheck.Core/Modules/Metrics/Context/HCMetricsUtil.cs
+        /HealthCheck.Core/Modules/ReleaseNotes/Util/HCReleaseNotesUtil.cs
 
   - task: VSBuild@1
     displayName: Build solution

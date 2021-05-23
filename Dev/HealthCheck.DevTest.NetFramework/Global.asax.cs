@@ -3,6 +3,8 @@ using HealthCheck.Core.Config;
 using HealthCheck.Core.Modules.Metrics.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Core.Modules.Metrics.Services;
+using HealthCheck.Core.Modules.ReleaseNotes.Abstractions;
+using HealthCheck.Core.Modules.ReleaseNotes.Providers;
 using HealthCheck.Core.Modules.ReleaseNotes.Util;
 using HealthCheck.DevTest._TestImplementation.EndpointControl;
 using HealthCheck.DevTest.Controllers;
@@ -65,8 +67,14 @@ namespace HealthCheck.DevTest
             = new FlatFileEndpointControlRuleStorage(@"c:\temp\EC_Rules.json");
         private static readonly IHCStringDictionaryStorage _settingsService = new HCFlatFileStringDictionaryStorage(@"C:\temp\settings.json");
         private static readonly HCMemoryMetricsStorage _memoryMetricsService = new();
+        private static readonly IHCReleaseNotesProvider _releaseNotesProvider = new HCJsonFileReleaseNotesProvider(HostingEnvironment.MapPath(@"~\App_Data\ReleaseNotes.json"))
+            {
+                IssueUrlFactory = (id) => $"{"https://"}www.google.com/?q=Issue+{id}",
+                IssueLinkTitleFactory = (id) => $"Jira {id}",
+                PullRequestUrlFactory = (number) => $"{"https://"}www.google.com/?q=PR+{number}",
+            };
 
-        private void SetupDummyIoC()
+    private void SetupDummyIoC()
         {
             if (!_endpointControlRuleStorage.GetRules().Any())
             {
@@ -109,9 +117,13 @@ namespace HealthCheck.DevTest
                 {
                     return _settingsService;
                 }
-                else if(type == typeof(IHCMetricsStorage))
+                else if (type == typeof(IHCMetricsStorage))
                 {
                     return _memoryMetricsService;
+                }
+                else if (type == typeof(IHCReleaseNotesProvider))
+                {
+                    return _releaseNotesProvider;
                 }
                 return null;
             };

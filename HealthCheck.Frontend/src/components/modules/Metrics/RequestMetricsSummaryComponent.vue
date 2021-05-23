@@ -192,7 +192,7 @@ export default class RequestMetricsSummaryComponent extends Vue {
         const base: any = {
             "height": "1cm",
             "width": "1cm",
-            "border-radius": "50%",
+            "border-radius": "35%",
 
             "position": "fixed",
             "left": "10px",
@@ -209,13 +209,13 @@ export default class RequestMetricsSummaryComponent extends Vue {
         };
 
         let colors: any = {
-            "background-color": "#bed2ff",
-            "border": "1px solid #929fbd",
+            "background-color": "#fff",
+            "border": "2px solid #929fbd",
         };
         if (this.hasError)
         {
             colors["background-color"] = "#f1b1b1";
-            colors["border"] = "1px solid #a51e1e";
+            colors["border"] = "2px solid #a51e1e";
         }
 
         return { ...base, ...colors };
