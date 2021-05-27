@@ -435,7 +435,8 @@ namespace HealthCheck.DevTest.Controllers
                     //JsonWorkerUrl = "blob:https://unpkg.com/christianh-healthcheck@3.0.5/json.worker.js"
                     EditorWorkerUrl = $"{EndpointBase}/getscript?name=editor.worker.js",
                     JsonWorkerUrl = $"{EndpointBase}/getscript?name=json.worker.js"
-                }
+                },
+                LogoutLinkUrl = $"{EndpointBase}/logout"
             };
 
         protected override HCPageOptions GetPageOptions()

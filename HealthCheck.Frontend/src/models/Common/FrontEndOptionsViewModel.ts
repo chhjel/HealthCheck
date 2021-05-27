@@ -13,6 +13,8 @@ export default interface FrontEndOptionsViewModel {
     IntegratedLoginSend2FACodeButtonText: string;
     IntegratedLoginCurrent2FACodeExpirationTime: string | null;
     IntegratedLogin2FACodeLifetime: number;
+    LogoutLinkTitle: string;
+    LogoutLinkUrl: string;
 }
 
 export interface EditorWorkerConfig {

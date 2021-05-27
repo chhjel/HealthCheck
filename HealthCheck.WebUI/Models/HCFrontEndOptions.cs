@@ -30,6 +30,18 @@ namespace HealthCheck.WebUI.Models
         public string InvokeModuleMethodEndpoint { get; set; }
 
         /// <summary>
+        /// Optional logout url title.
+        /// <para>Defaults to "Logout"</para>
+        /// </summary>
+        public string LogoutLinkTitle { get; set; } = "Logout";
+
+        /// <summary>
+        /// Optional logout url.
+        /// <para>Defaults to null, hiding it.</para>
+        /// </summary>
+        public string LogoutLinkUrl { get; set; }
+
+        /// <summary>
         /// Include current query string in API calls to backend.
         /// <para>Enabled by default, can be used to set some roles based on query strings etc.</para>
         /// </summary>
