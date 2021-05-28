@@ -16,6 +16,7 @@
                       :forceDescription="parameter.Description"
                       :isCustomReferenceType="parameter.IsCustomReferenceType"
                       :config="createConfig(parameter, index)"
+                      :parameterDetailContext="test.Id"
                       @isAnyJson="onIsAnyJson(parameter)" />
               </v-flex>
           </v-layout>

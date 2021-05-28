@@ -6,6 +6,13 @@ let globalOptions = ((window as any).healthCheckOptions) as FrontEndOptionsViewM
 
 Vue.use(Vuex);
 
+export interface ParameterDetails
+{
+  parameterId: string;
+  key: string;
+  value: any;
+}
+
 export default new Vuex.Store({
     state: {
       globalOptions: globalOptions,
@@ -16,7 +23,8 @@ export default new Vuex.Store({
       },
       tests: {
         options: { },
-        templateValues: { }
+        templateValues: { },
+        parameterDetails: { }
       }
     },
     mutations: {
@@ -37,6 +45,13 @@ export default new Vuex.Store({
         },
         setTestModuleTemplateValues(state, values) {
           state.tests.templateValues = values;
+        },
+        setTestParameterDetails(state: any, details: ParameterDetails) {
+          if (!state.tests.parameterDetails[details.parameterId])
+          {
+            state.tests.parameterDetails[details.parameterId] = {};
+          }
+          state.tests.parameterDetails[details.parameterId][details.key] = details.value;
         }
     }
 });

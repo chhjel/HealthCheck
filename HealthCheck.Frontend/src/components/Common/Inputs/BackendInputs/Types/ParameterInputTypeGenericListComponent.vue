@@ -26,6 +26,7 @@
                                 :config="config"
                                 :isListItem="true"
                                 :isCustomReferenceType="isCustomReferenceType"
+                                :parameterDetailContext="`${parameterDetailContext}_${itemIndex}`"
                                 @isAnyJson="notifyIsAnyJson()" />
                             <span v-if="isReadOnlyList">{{ item.value }}</span>
                         </v-list-tile-content>
@@ -40,7 +41,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Component, Prop, Watch, Inject } from "vue-property-decorator";
 
 //@ts-ignore
 import draggable from 'vuedraggable'
@@ -48,6 +49,7 @@ import DateUtils from  'util/DateUtils';
 import IdUtils from "util/IdUtils";
 import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
 import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import TestsUtils from "util/TestsModule/TestsUtils";
 
 interface ListItem {
     id: string;
@@ -86,6 +88,9 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
     @Prop({ required: false, default: false })
     isCustomReferenceType!: boolean;
 
+    @Prop({ required: false, default: '' })
+    parameterDetailContext!: string;
+
     localValue: string | null = '';
     items: Array<ListItem> = [];
     id: string = IdUtils.generateId();
@@ -96,6 +101,9 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
     }
 
     mounted(): void {
+        const loadedValue = this.getParameterDetail('selection');
+        if (loadedValue) { this.items = loadedValue as Array<ListItem>; }
+
         if (this.config.DefaultValue != null) {
             let defaultItems = JSON.parse(this.config.DefaultValue);
             defaultItems.forEach((x: any) => {
@@ -130,6 +138,7 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
 
     onChanged(): void {
         this.localValue = JSON.stringify(this.items.map(x => this.prepareValue(x.value)));
+        this.updateParameterDetails();
     }
 
     prepareValue(val: string | null | undefined ): string | null {
@@ -161,6 +170,24 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
 
     removeItem(itemIndex: number): void {
         this.items.splice(itemIndex, 1);
+        this.updateParameterDetails();
+    }
+
+    updateParameterDetails(): void {
+        this.setParameterDetail('selection', this.items);
+    }
+
+    //////////////////////////
+    //  PARAMETER DETAILS  //
+    ////////////////////////
+    createParameterDetailKey(): string {
+        return this.parameterDetailContext + "_" + this.config.Id;
+    }
+    setParameterDetail<T>(key: string, value: T): void {
+        return TestsUtils.setParameterDetail<T>(this.$store, this.createParameterDetailKey(), key, value);
+    }
+    getParameterDetail<T>(key: string): T | null {
+        return TestsUtils.getParameterDetail<T>(this.$store, this.createParameterDetailKey(), key);
     }
 }
 </script>

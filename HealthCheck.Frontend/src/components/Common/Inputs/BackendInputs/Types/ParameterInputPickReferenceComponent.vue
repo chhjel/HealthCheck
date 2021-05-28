@@ -65,6 +65,7 @@ import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import { TestParameterReferenceChoiceViewModel } from  '../../../../../models/modules/TestSuite/TestParameterViewModel';
 import { FetchStatus, ServiceFetchCallbacks } from "../../../../../services/abstractions/HCServiceBase";
 import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
+import TestsUtils from "util/TestsModule/TestsUtils";
 
 @Component({
     components: {
@@ -85,6 +86,9 @@ export default class ParameterInputPickReferenceComponent extends Vue {
     @Prop({ required: false, default: false })
     readonly!: boolean;
 
+    @Prop({ required: false, default: '' })
+    parameterDetailContext!: string;
+
     // Service
     loadingChoicesStatus: FetchStatus = new FetchStatus();
     hasLoadedChoices: boolean = false;
@@ -95,6 +99,9 @@ export default class ParameterInputPickReferenceComponent extends Vue {
     choicesFilterText: string = '';
     
     mounted(): void {
+        const loadedValue = this.getParameterDetail('choice');
+        if (loadedValue) { this.selectedChoice = loadedValue as TestParameterReferenceChoiceViewModel; }
+
         if (this.localValue == null) {
             this.localValue = "";
         }
@@ -156,11 +163,25 @@ export default class ParameterInputPickReferenceComponent extends Vue {
         this.selectedChoice = choice;
         this.localValue = choice.Id;
         this.choicesDialogVisible = false;
+        this.setParameterDetail('choice', this.selectedChoice);
     }
 
     choiceColor(choice: TestParameterReferenceChoiceViewModel): string
     {
         return (choice.Id == null || choice.Id.length == 0) ? 'secondary' : 'primary';
+    }
+
+    //////////////////////////
+    //  PARAMETER DETAILS  //
+    ////////////////////////
+    createParameterDetailKey(): string {
+        return this.parameterDetailContext + "_" + this.config.Id;
+    }
+    setParameterDetail<T>(key: string, value: T): void {
+        return TestsUtils.setParameterDetail<T>(this.$store, this.createParameterDetailKey(), key, value);
+    }
+    getParameterDetail<T>(key: string): T | null {
+        return TestsUtils.getParameterDetail<T>(this.$store, this.createParameterDetailKey(), key);
     }
 
     /////////////////
