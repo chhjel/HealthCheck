@@ -19,6 +19,12 @@
                         :href="`#${mconf.InitialRoute}`"
                         :class="{ 'active-tab': isModuleShowing(mconf) }"
                         @click.left.prevent="showModule(mconf)">{{ mconf.Name }}</v-btn>
+                    <v-btn flat 
+                        v-if="showLogoutLink"
+                        @click.left.prevent="logoutRedirect">
+                        <v-icon>logout</v-icon>
+                        {{ logoutLinkTitle }}
+                        </v-btn>
                 </v-toolbar-items>
             </v-toolbar>
 
@@ -84,6 +90,18 @@ export default class HealthCheckPageComponent extends Vue {
 
     get globalOptions(): FrontEndOptionsViewModel {
         return this.$store.state.globalOptions;
+    }
+
+    get showLogoutLink(): boolean {
+        return !!this.globalOptions.LogoutLinkUrl && this.globalOptions.LogoutLinkUrl.length > 0;
+    }
+
+    get logoutLinkTitle(): string {
+        return this.globalOptions.LogoutLinkTitle;
+    }
+
+    get logoutLinkUrl(): string {
+        return this.globalOptions.LogoutLinkUrl;
     }
     
     get showMenuButton(): boolean {
@@ -157,6 +175,10 @@ export default class HealthCheckPageComponent extends Vue {
         {
             this.showModule(this.validModuleConfigs[0]);
         }
+    }
+
+    logoutRedirect(): void {
+        window.location.href = this.logoutLinkUrl;
     }
 
     ///////////////////////

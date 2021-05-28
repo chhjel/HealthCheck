@@ -10,6 +10,8 @@ export interface HCFrontEndOptions
 	ApplicationTitleLink: string;
 	EndpointBase: string;
 	InvokeModuleMethodEndpoint: string;
+	LogoutLinkTitle: string;
+	LogoutLinkUrl: string;
 	InludeQueryStringInApiCalls: boolean;
 	EditorConfig: EditorWorkerConfig;
 	ShowIntegratedLogin: boolean;
