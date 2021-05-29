@@ -25,6 +25,7 @@
             :isListItem="isListItem"
             :readonly="readonly"
             :isCustomReferenceType="isCustomReferenceType"
+            :parameterDetailContext="parameterDetailContext"
             @isAnyJson="notifyIsAnyJson()"
             v-on:disableInputHeader="disableInputHeader">
         </component>
@@ -107,6 +108,9 @@ export default class BackendInputComponent extends Vue {
     
     @Prop({ required: false, default: '' })
     actionIcon!: string;
+
+    @Prop({ required: false, default: '' })
+    parameterDetailContext!: string;
 
     showInputHeader: boolean = true;
     showDescription: boolean = false;

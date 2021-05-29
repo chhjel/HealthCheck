@@ -1,32 +1,45 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeHttpPostedFileBaseComponent.vue -->
 <template>
     <div>
-        <v-layout style="margin:0">
-            <input
+        <v-layout class="parameter-input-file">
+            <!-- <input
                 type="file"
                 @change="onFileChanged"
                 ref="fileinput"
                 style="width:100%"
+                :disabled="readonly" /> -->
+
+            <input type="file"
+                :id="`file-parameter-${id}`"
+                style="display: none;"
+                ref="fileinput"
+                @change="onFileChanged"
                 :disabled="readonly" />
-            
-            <v-flex xs2
-                :xs3="isListItem"
-                class="text-sm-right pa-0"
-                v-if="localValue != null">
+            <div class="upload-label-wrapper">
                 <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
-                        <span v-on="on">
-                            <v-btn flat icon color="primary" class="ma-0 pa-0"
-                                @click="setValueToNull"
-                                :disabled="localValue == null">
-                                <v-icon>clear</v-icon>
-                            </v-btn>
-                        </span>
+                        <label :for="`file-parameter-${id}`"
+                            v-on="on"
+                            class="v-btn v-btn--small theme--light upload-label"
+                            :class="{ 'disabled': readonly }">
+                            <div>{{ label }}</div>
+                        </label>
                     </template>
-                    <span>Clear file</span>
+                    <span>{{ tooltip }}</span>
                 </v-tooltip>
-            </v-flex>
-
+            </div>
+            <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                    <span v-on="on">
+                        <v-btn flat icon color="primary" class="ma-0 pa-0"
+                            @click="setValueToNull"
+                            :disabled="localValue == null">
+                            <v-icon>clear</v-icon>
+                        </v-btn>
+                    </span>
+                </template>
+                <span>Clear file</span>
+            </v-tooltip>
         </v-layout>
     </div>
 </template>
@@ -34,6 +47,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
+import IdUtils from "util/IdUtils";
 
 @Component({
     components: {
@@ -53,6 +67,7 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
     readonly!: boolean;
 
     localValue: string | null = '';
+    id: string = IdUtils.generateId();
     
     mounted(): void {
         this.updateLocalValue();
@@ -83,12 +98,31 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
         input.value = "";
     }
 
-    get isNullable(): boolean {
-        return this.config.Nullable;
+    get label(): string {
+        const fileName = this.selectedFileName;
+        if (fileName)
+        {
+            return `'${fileName}'`;
+        }
+        return 'Select file';
     }
 
-    get placeholderText(): string {
-        return this.localValue == null ? "null" : "";
+    get tooltip(): string {
+        const fileName = this.selectedFileName;
+        if (fileName)
+        {
+            return `'${fileName}'`;
+        }
+        return 'Click to select a file';
+    }
+
+    get selectedFileName(): string | null {
+        if (this.localValue && this.localValue.includes('|'))
+        {
+            const parts = this.localValue.split('|');
+            return parts[1];
+        }
+        return null;
     }
 
     /////////////////
@@ -134,5 +168,28 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.parameter-input-file {
+    position: relative;
+    align-items: baseline;
+    margin-top: 0 !important;
+}
+.upload-label-wrapper {
+    overflow: hidden;
+    max-width: 100%;
+}
+.upload-label {
+    cursor: pointer;
+    white-space: nowrap;
+    max-width: 100%;
+
+    max-width: calc(100% - 10px);
+    overflow: hidden;
+    justify-content: flex-start;
+
+    div {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
 </style>

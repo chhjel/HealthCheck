@@ -16,6 +16,7 @@
                       :forceDescription="parameter.Description"
                       :isCustomReferenceType="parameter.IsCustomReferenceType"
                       :config="createConfig(parameter, index)"
+                      :parameterDetailContext="test.Id"
                       @isAnyJson="onIsAnyJson(parameter)" />
               </v-flex>
           </v-layout>
@@ -45,8 +46,6 @@ export default class TestParametersComponent extends Vue {
     allowSmallSize(parameter: TestParameterViewModel): boolean
     {
       const largerParameters = [
-        'HttpPostedFileBase',
-        'List<HttpPostedFileBase>',
         'Guid',
         'Nullable<Guid>'
       ];

@@ -102,7 +102,7 @@ namespace HealthCheck.WebUI.Abstractions
         [HideFromRequestLog]
         public virtual ActionResult Index()
         {
-            if (!Enabled) return ThrowNotFound();
+            if (!Enabled) return CreateNoAccessResult();
             else if (!Helper.HasAccessToAnyContent(CurrentRequestAccessRoles))
             {
                 if (Helper.AccessConfig.UseIntegratedLogin)
@@ -121,7 +121,7 @@ namespace HealthCheck.WebUI.Abstractions
                 }
                 else
                 {
-                    return ThrowNotFound();
+                    return CreateNoAccessResult();
                 }
             }
 
@@ -154,12 +154,12 @@ namespace HealthCheck.WebUI.Abstractions
         [HttpPost]
         public async Task<ActionResult> InvokeModuleMethod(string moduleId, string methodName, string jsonPayload)
         {
-            if (!Enabled) return ThrowNotFound();
+            if (!Enabled) return CreateNoAccessResult();
 
             var result = await Helper.InvokeModuleMethod(CurrentRequestInformation, moduleId, methodName, jsonPayload);
             if (!result.HasAccess)
             {
-                return ThrowNotFound();
+                return CreateNoAccessResult();
             }
             return Content(result.Result);
         }
@@ -202,7 +202,7 @@ namespace HealthCheck.WebUI.Abstractions
         public virtual ActionResult Ping()
         {
             if (!Enabled || !Helper.CanUsePingEndpoint(CurrentRequestAccessRoles))
-                return ThrowNotFound();
+                return CreateNoAccessResult();
 
             return Content("OK");
         }
@@ -251,9 +251,9 @@ namespace HealthCheck.WebUI.Abstractions
             => Content(Helper.SerializeJson(obj), "application/json");
 
         /// <summary>
-        /// Throws a <see cref="HttpException"/>.
+        /// By default throws a <see cref="HttpException"/> 404 when something is attempted accessed that the request does not have access to obscure whats available a bit.
         /// </summary>
-        protected ActionResult ThrowNotFound() => throw new HttpException(404, "Not Found");
+        protected virtual ActionResult CreateNoAccessResult() => throw new HttpException(404, "Not Found");
 #endregion
     }
 }
