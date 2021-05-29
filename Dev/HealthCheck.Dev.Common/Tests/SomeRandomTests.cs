@@ -57,7 +57,8 @@ namespace HealthCheck.Dev.Common.Tests
             decimal dec = 11.22m, decimal? nullableDec = null,
             double dbl = 22.33, double? nullableDbl = null,
             EnumTestType enm = EnumTestType.SecondValue,
-            EnumFlagsTestType enumFlags = EnumFlagsTestType.A | EnumFlagsTestType.B | EnumFlagsTestType.C
+            EnumFlagsTestType enumFlags = EnumFlagsTestType.A | EnumFlagsTestType.B | EnumFlagsTestType.C,
+            byte[] byteArray = null, List<byte[]> listOfByteArray = null
         )
         {
             return TestResult.CreateSuccess("Ok");

@@ -17,7 +17,7 @@
                                 <v-icon>remove</v-icon>
                             </v-btn>
                         </v-list-tile-action>
-                        <v-list-tile-content style="overflow: visible">
+                        <v-list-tile-content style="overflow: visible; max-width: 100%;">
                             <backend-input-component v-if="!isReadOnlyList"
                                 :key="`${id}-item-input-${item.id}`"
                                 :forceType="listType"
@@ -27,7 +27,8 @@
                                 :isListItem="true"
                                 :isCustomReferenceType="isCustomReferenceType"
                                 :parameterDetailContext="`${parameterDetailContext}_${itemIndex}`"
-                                @isAnyJson="notifyIsAnyJson()" />
+                                @isAnyJson="notifyIsAnyJson()"
+                                style="max-width: 100%;" />
                             <span v-if="isReadOnlyList">{{ item.value }}</span>
                         </v-list-tile-content>
                     </v-list-tile>

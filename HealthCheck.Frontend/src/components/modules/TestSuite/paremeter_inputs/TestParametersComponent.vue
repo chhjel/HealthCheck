@@ -46,8 +46,6 @@ export default class TestParametersComponent extends Vue {
     allowSmallSize(parameter: TestParameterViewModel): boolean
     {
       const largerParameters = [
-        'HttpPostedFileBase',
-        'List<HttpPostedFileBase>',
         'Guid',
         'Nullable<Guid>'
       ];
