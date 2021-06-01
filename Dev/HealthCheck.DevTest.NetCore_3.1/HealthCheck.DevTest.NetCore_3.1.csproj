@@ -6,8 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Fido2.Models" Version="2.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\HealthCheck.Core\HealthCheck.Core.csproj" />
-    <ProjectReference Include="..\..\HealthCheck.WebUI.TFA\HealthCheck.WebUI.TFA.csproj" />
+    <ProjectReference Include="..\..\HealthCheck.WebUI.MFA.FIDO2\HealthCheck.WebUI.MFA.FIDO2.csproj" />
+    <ProjectReference Include="..\..\HealthCheck.WebUI.MFA.TOTP\HealthCheck.WebUI.MFA.TOTP.csproj" />
     <ProjectReference Include="..\..\HealthCheck.WebUI\HealthCheck.WebUI.csproj" />
     <ProjectReference Include="..\HealthCheck.Dev.Common\HealthCheck.Dev.Common.csproj" />
     <ProjectReference Include="..\HealthCheck.Module.DevModule\HealthCheck.Module.DevModule.csproj" />

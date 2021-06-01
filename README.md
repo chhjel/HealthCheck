@@ -1,7 +1,7 @@
 # HealthCheck
 
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI?label=HealthCheck.WebUI&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI)
-[![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI.TFA?label=HealthCheck.WebUI.TFA&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI.TFA)
+[![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI.MFA.TOTP?label=HealthCheck.WebUI.MFA.TOTP&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI.MFA.TOTP)
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.DynamicCodeExecution?label=HealthCheck.Module.DynamicCodeExecution&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.DynamicCodeExecution)
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.EndpointControl?label=HealthCheck.Module.EndpointControl&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.EndpointControl)
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.RequestLog?label=HealthCheck.Module.RequestLog&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.RequestLog)
@@ -1285,7 +1285,7 @@ An integrated login dialog is included, but custom authentication logic must be 
             // Optionally show 2FA input
             Show2FAInput = true,
             // Optionally show how much time left of TOTP codes
-            Current2FACodeExpirationTime = HealthCheck2FAUtil.GetCurrentCodeExpirationTime(),
+            Current2FACodeExpirationTime = HCMfaTotpUtil.GetCurrentCodeExpirationTime(),
             // Optionally allow sending codes to the user
             Send2FACodeEndpoint = "/hclogin/Request2FACode"
         };
@@ -1294,15 +1294,15 @@ An integrated login dialog is included, but custom authentication logic must be 
 
 Any requests to the index action of the main controller that does not have access to any of the content will now be shown the login dialog. On a successfull login the page will refresh and the user will have access to any content you granted the request.
 
-### TOTP
+### MFA: TOTP
 
-To add TOTP 2FA validation you can inherit from `HealthCheckLogin2FAControllerBase` included in the [![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI.TFA?label=HealthCheck.WebUI.TFA&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI.TFA) package. If you already have code for validation of 2FA codes in your project this package is not needed.
+To add TOTP MFA you can add the [![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI.MFA.TOTP?label=HealthCheck.WebUI.MFA.TOTP&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI.MFA.TOTP) package. If you already have code for validation of TOTP codes in your project this package is not needed.
 
-* For 2FA to work you need to store a 2FA secret per user to validate the codes against. The secret must be a base32 string and can be generated using e.g. `HealthCheck2FAUtil.GenerateOTPSecret()`.
-* Validate 2FA codes using the `Validate2FATotpCode(userSecret, code)` method available in the controller, or using `HealthCheck2FAUtil`.
-* The built in logic uses TOTP so e.g. Bitwarden or most authenticator apps can be used to generate codes.
+* For it to work you need to store a 2FA secret per user to validate the codes against. The secret must be a base32 string and can be generated using e.g. `HCMfaTotpUtil.GenerateOTPSecret()`.
+* Validate codes using the `HCMfaTotpUtil.ValidateTotpCode(userSecret, code)` method.
+* Bitwarden and most authenticator apps supports TOTP and can be used to generate codes from the generated secret.
 
-### Sending one time use codes to user
+### MFA: Sending one time use codes to user
 
 To send a one-time-use code to the user instead of using TOTP you can set the `Send2FACodeEndpoint` option to target the `Request2FACode` action on the login controller. A button to send a code to the user will be shown in the login form, and you can override `Handle2FACodeRequest` to handle what happens when the button is clicked.
 
@@ -1336,7 +1336,14 @@ Example logic using built in helper methods for creating 2FA codes in session:
             return HCIntegratedLoginResult.CreateError("Two-factor code was wrong, try again.");
         }
 
-        return HCIntegratedLoginResult.CreateSuccess();
+        return HCIntegratedLogin2FACodeRequestResult.CreateSuccess(
+            message: "<b>Success!</b> Your code has been sent.",
+            showAsHtml: true,
+            codeExpiresIn: TimeSpan.FromMinutes(5)
+        );
+
+        // Or the simple way without any extra details
+        // return HCIntegratedLoginResult.CreateSuccess();
     }
 ```
 

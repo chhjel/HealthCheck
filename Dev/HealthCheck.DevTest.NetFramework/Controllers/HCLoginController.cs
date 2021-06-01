@@ -1,11 +1,11 @@
+using HealthCheck.WebUI.Abstractions;
+using HealthCheck.WebUI.MFA.TOTP;
 using HealthCheck.WebUI.Models;
-using HealthCheck.WebUI.TFA;
-using HealthCheck.WebUI.TFA.Util;
 using System;
 
 namespace HealthCheck.DevTest.Controllers
 {
-    public class HCLoginController : HealthCheckLogin2FAControllerBase
+    public class HCLoginController : HealthCheckLoginControllerBase
     {
         private const string DummySecret = "J5V5XFSQCT2TDG6AZIQ46TTEAXGU7GCW";
 
@@ -19,7 +19,7 @@ namespace HealthCheck.DevTest.Controllers
                 return HCIntegratedLoginResult.CreateError("Wrong username or password, try again or <b>give up</b>.<br /><a href=\"https://www.google.com\">Help me!</a>", true);
             }
 
-            var otpOk = Validate2FATotpCode(DummySecret, request.TwoFactorCode);
+            var otpOk = HCMfaTotpUtil.ValidateTotpCode(DummySecret, request.TwoFactorCode);
             var sessionCodeValid = ValidateSession2FACode(request.Username, request.TwoFactorCode);
 
             if (!otpOk && !sessionCodeValid)
@@ -37,9 +37,10 @@ namespace HealthCheck.DevTest.Controllers
                 return HCIntegratedLogin2FACodeRequestResult.CreateError("You must enter your username first.");
             }
 
-            var code = HealthCheck2FAUtil.GenerateCode(DummySecret);
+            var code = HCMfaTotpUtil.GenerateTotpCode(DummySecret);
             var sessionCode = CreateSession2FACode(request.Username);
-            return HCIntegratedLogin2FACodeRequestResult.CreateSuccess($"TOTP code is <b>{code}</b>, session code is <b>{sessionCode}</b>.", true,
+            return HCIntegratedLogin2FACodeRequestResult.CreateSuccess($"TOTP code is <b>{code}</b>, session code is <b>{sessionCode}</b>.",
+                showAsHtml: true,
                 codeExpiresIn: TimeSpan.FromMinutes(5));
         }
     }

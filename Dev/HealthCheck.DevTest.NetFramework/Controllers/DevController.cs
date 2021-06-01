@@ -59,9 +59,9 @@ using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Module;
 using HealthCheck.RequestLog.Services;
 using HealthCheck.WebUI.Abstractions;
+using HealthCheck.WebUI.MFA.TOTP;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Services;
-using HealthCheck.WebUI.TFA.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -287,7 +287,7 @@ namespace HealthCheck.DevTest.Controllers
             {
                 IntegratedLoginEndpoint = "/hclogin/login",
                 Show2FAInput = true,
-                Current2FACodeExpirationTime = HealthCheck2FAUtil.GetCurrentCodeExpirationTime(),
+                Current2FACodeExpirationTime = HCMfaTotpUtil.GetCurrentTotpCodeExpirationTime(),
                 Send2FACodeEndpoint = "/hclogin/Request2FACode"
             };
         }

@@ -11,13 +11,13 @@
         <v-flex class="pl-4 pr-4 pb-4">
           <!-- CONTENT BEGIN -->
             <v-container>
-                
+
                 <div class="mb-4 login-block">
                     <div>
                         <!-- INPUTS -->
                         <div>
                             <h1 class="login-title">{{ title }}</h1>
-                            <v-text-field 
+                            <v-text-field
                                 v-model="username"
                                 :disabled="loadStatus.inProgress"
                                 v-on:keyup.enter="onLoginClicked"
@@ -25,8 +25,8 @@
                                 label="Username"
                                 placeholder=" "
                                 class="pt-0 mt-5" />
-                            
-                            <v-text-field 
+
+                            <v-text-field
                                 v-model="password"
                                 :disabled="loadStatus.inProgress"
                                 v-on:keyup.enter="onLoginClicked"
@@ -36,10 +36,10 @@
                                 :append-icon="showPassword ? 'visibility' : 'visibility_off'"
                                 @click:append="showPassword = !showPassword"
                                 class="pt-0 mt-2" />
-                            
+
                             <v-layout row class="mt-4 mb-4" v-if="show2FAInput">
                                 <v-flex :xs6="show2FASendCodeButton" :xs12="!show2FASendCodeButton">
-                                    <v-text-field 
+                                    <v-text-field
                                         v-model="twoFactorCode"
                                         :disabled="loadStatus.inProgress"
                                         v-on:keyup.enter="onLoginClicked"
@@ -73,8 +73,20 @@
                             <span style="white-space: normal;">Sign in</span>
                         </v-btn>
 
+                        <v-btn round color="primary" large class="mt-4 login-button"
+                            @click.prevent="registerFido"
+                            :disabled="loadStatus.inProgress">
+                            <span style="white-space: normal;">Register FIDO</span>
+                        </v-btn>
+
+                        <v-btn round color="primary" large class="mt-4 login-button"
+                            @click.prevent="loginFido"
+                            :disabled="loadStatus.inProgress">
+                            <span style="white-space: normal;">Login using FIDO</span>
+                        </v-btn>
+
                         <v-progress-linear color="primary" indeterminate v-if="loadStatus.inProgress"></v-progress-linear>
-                    
+
                         <div v-if="error != null && error.length > 0" class="error--text mt-4">
                             <b v-if="!showErrorAsHtml">{{ error }}</b>
                             <div v-if="showErrorAsHtml" v-html="error"></div>
@@ -112,6 +124,7 @@ import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
 import IntegratedLoginService, { HCIntegratedLoginRequest, HCIntegratedLoginRequest2FACodeRequest, HCIntegratedLoginResult } from '../../../services/IntegratedLoginService';
 import BlockComponent from '../../Common/Basic/BlockComponent.vue';
 import FloatingSquaresEffectComponent from '../../Common/Effects/FloatingSquaresEffectComponent.vue';
+import FidoUtils from 'util/IntegratedLogin/FidoUtils';
 
 @Component({
     components: {
@@ -122,7 +135,7 @@ import FloatingSquaresEffectComponent from '../../Common/Effects/FloatingSquares
 export default class IntegratedLoginPageComponent extends Vue {
 
     loadStatus: FetchStatus = new FetchStatus();
-    
+
     username: string = '';
     password: string = '';
     twoFactorCode: string = '';
@@ -275,7 +288,7 @@ export default class IntegratedLoginPageComponent extends Vue {
     update2FAProgress(): void {
         if (!this.show2FACodeExpirationTime)
         {
-            return; 
+            return;
         }
 
         const expirationTime = this.codeExpirationTime || this.globalOptions.IntegratedLoginCurrent2FACodeExpirationTime;
@@ -297,6 +310,159 @@ export default class IntegratedLoginPageComponent extends Vue {
         }
     }
 
+    //////////////////
+    //  MFA: FIDO  //
+    ////////////////
+    loginFido(): void {
+        let service = new IntegratedLoginService(true);
+        service.CreateFidoAssertionOptions('TestUserAsd', this.loadStatus, {
+            onSuccess: (options) => {
+                console.log(options);
+                // this.onFidoRegistrationOptionsCreated(options);
+            }
+        });
+    }
+
+    registerFido(): void {
+        let service = new IntegratedLoginService(true);
+        service.CreateFidoRegistrationOptions('TestUserAsd', this.loadStatus, {
+            onSuccess: (options) => {
+                this.onFidoRegistrationOptionsCreated(options);
+            }
+        });
+    }
+
+    async onFidoRegistrationOptionsCreated(options: any): Promise<void> {
+        if (options.status !== "ok")
+        {
+            alert('Status not ok, check log.');
+            console.error(options);
+            return;
+        }
+
+        // Turn the challenge back into the accepted format of padded base64
+        options.challenge = this.coerceToArrayBuffer(options.challenge);
+        // Turn ID into a UInt8Array Buffer for some reason
+        options.user.id = this.coerceToArrayBuffer(options.user.id);
+        options.excludeCredentials = options.excludeCredentials.map((c: any) => {
+            c.id = this.coerceToArrayBuffer(c.id);
+            return c;
+        });
+        if (options.authenticatorSelection.authenticatorAttachment === null) options.authenticatorSelection.authenticatorAttachment = undefined;
+
+        let newCredential;
+        try {
+            newCredential = await navigator.credentials.create({
+                publicKey: options
+            }) as any;
+        } catch (e) {
+            var msg = "Could not create credentials in browser. Probably because the username is already registered with your authenticator. Please change username or authenticator."
+            console.error(msg, e);
+            alert(msg);
+            return;
+        }
+
+        console.log("PublicKeyCredential Created", newCredential);
+
+        try {
+            let attestationObject = new Uint8Array(newCredential.response.attestationObject);
+            let clientDataJSON = new Uint8Array(newCredential.response.clientDataJSON);
+            let rawId = new Uint8Array(newCredential.rawId);
+
+            const registerPayload = {
+                id: newCredential.id,
+                rawId: this.coerceToBase64Url(rawId),
+                type: newCredential.type,
+                extensions: newCredential.getClientExtensionResults(),
+                response: {
+                    AttestationObject: this.coerceToBase64Url(attestationObject),
+                    clientDataJson: this.coerceToBase64Url(clientDataJSON)
+                }
+            };
+
+            console.log("RegisterFido", registerPayload);
+            let service = new IntegratedLoginService(true);
+            service.RegisterFido(registerPayload, this.loadStatus, {
+                onSuccess: (d) => console.log(d)
+            });
+        } catch (e) {
+            console.error(e);
+            alert(e);
+        }
+    }
+    
+    coerceToArrayBuffer(thing: string | Array<any> | Uint8Array | ArrayBufferLike): ArrayBuffer {
+        let converted = thing;
+        if (typeof converted === "string") {
+            // base64url to base64
+            converted = converted.replace(/-/g, "+").replace(/_/g, "/");
+
+            // base64 to Uint8Array
+            const str = window.atob(converted);
+            const bytes = new Uint8Array(str.length);
+            for (let i = 0; i < str.length; i++) {
+                bytes[i] = str.charCodeAt(i);
+            }
+            converted = bytes;
+        }
+
+        // Array to Uint8Array
+        if (Array.isArray(converted)) {
+            converted = new Uint8Array(converted);
+        }
+
+        // Uint8Array to ArrayBuffer
+        if (converted instanceof Uint8Array) {
+            converted = converted.buffer;
+        }
+
+        // error if none of the above worked
+        if (!(converted instanceof ArrayBuffer)) {
+            throw new TypeError("could not coerce to ArrayBuffer");
+        }
+
+        if (converted.byteLength <= 0)
+        {
+            throw new TypeError("coerced  length is zero");
+        }
+
+        return converted;
+    };
+
+
+    coerceToBase64Url(thing: any): any {
+        // Array or ArrayBuffer to Uint8Array
+        if (Array.isArray(thing)) {
+            thing = Uint8Array.from(thing);
+        }
+
+        if (thing instanceof ArrayBuffer) {
+            thing = new Uint8Array(thing);
+        }
+
+        // Uint8Array to base64
+        if (thing instanceof Uint8Array) {
+            var str = "";
+            var len = thing.byteLength;
+
+            for (var i = 0; i < len; i++) {
+                str += String.fromCharCode(thing[i]);
+            }
+            thing = window.btoa(str);
+        }
+
+        if (typeof thing !== "string") {
+            throw new Error("could not coerce to string");
+        }
+
+        // base64 to base64url
+        // NOTE: "=" at the end of challenge is optional, strip it off here
+        thing = thing.replace(/\+/g, "-").replace(/\//g, "_").replace(/=*$/g, "");
+
+        return thing;
+    };
+
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
@@ -316,7 +482,7 @@ export default class IntegratedLoginPageComponent extends Vue {
     height: 100%;
     text-align: center;
     font-family: 'Montserrat';
-    
+
     .content-root {
         max-width: 500px;
         margin-top: 8vh;

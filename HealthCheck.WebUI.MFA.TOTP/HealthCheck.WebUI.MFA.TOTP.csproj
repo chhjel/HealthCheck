@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netcoreapp3.1;net461;net472</TargetFrameworks>
@@ -8,10 +8,10 @@
     <Company>ChristianH</Company>
     <Version>1.0.1</Version>
     <Copyright>ChristianH</Copyright>
-    <Description>Extension of login controller with shortcuts for adding 2FA.</Description>
+    <Description>Shortcuts for adding TOTP multi-factor authentication support to HealtCheck login.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>latest</LangVersion>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.WebUI.xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.WebUI.MFA.TOTP.xml</DocumentationFile>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-HealthCheck</PackageProjectUrl>
   </PropertyGroup>
 
@@ -22,8 +22,8 @@
 
   <PropertyGroup>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-    <RootNamespace>HealthCheck.WebUI.TFA</RootNamespace>
-    <AssemblyName>HealthCheck.WebUI.TFA</AssemblyName>
+    <RootNamespace>HealthCheck.WebUI.MFA.TOTP</RootNamespace>
+    <AssemblyName>HealthCheck.WebUI.MFA.TOTP</AssemblyName>
   </PropertyGroup>
 
   <!-- .NET STANDARD ######################### -->
@@ -65,7 +65,7 @@
   <ItemGroup>
     <PackageReference Include="Otp.NET" Version="1.2.2" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\HealthCheck.WebUI\HealthCheck.WebUI.csproj" />
   </ItemGroup>

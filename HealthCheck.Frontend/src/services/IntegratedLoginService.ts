@@ -51,4 +51,50 @@ export default class IntegratedLoginService extends HCServiceBase
     ): void {
         this.fetchExt<HCIntegratedLogin2FACodeRequestResult>(url, 'POST', payload, statusObject, callbacks, true);
     }
+
+    // MFA: Fido
+    
+    // CredentialCreateOptions CreateFidoRegistrationOptions(string username)
+    public CreateFidoRegistrationOptions(
+        // url: string,
+        username: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<any> | null = null
+    ): void {
+        const url = '/hclogin/CreateFidoRegistrationOptions';
+        this.fetchExt<any>(url, 'POST', { Username: username }, statusObject, callbacks, true);
+    }
+    
+    // void RegisterFido(RegisterFidoRequest request)
+    public RegisterFido(
+        // url: string,
+        payload: any,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<any> | null = null
+    ): void {
+        const url = '/hclogin/RegisterFido';
+        this.fetchExt<any>(url, 'POST', payload, statusObject, callbacks, true);
+    }
+
+    // AssertionOptions CreateFidoAssertionOptions(string username)
+    public CreateFidoAssertionOptions(
+        // url: string,
+        username: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<any> | null = null
+    ): void {
+        const url = '/hclogin/CreateFidoAssertionOptions';
+        this.fetchExt<any>(url, 'POST', { Username: username }, statusObject, callbacks, true);
+    }
+
+    // AssertionVerificationResult VerifyFido(VerifyFidoRequest request)
+    public VerifyFido(
+        // url: string,
+        payload: any,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<any> | null = null
+    ): void {
+        const url = '/hclogin/VerifyFido';
+        this.fetchExt<any>(url, 'POST', payload, statusObject, callbacks, true);
+    }
 }

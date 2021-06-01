@@ -1,0 +1,73 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netcoreapp3.1;net472</TargetFrameworks>
+    <Configurations>Debug;Release</Configurations>
+    <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
+    <Authors>ChristianH</Authors>
+    <Company>ChristianH</Company>
+    <Version>1.0.1</Version>
+    <Copyright>ChristianH</Copyright>
+    <Description>Shortcuts for adding FIDO2/WebAuthn multi-factor authentication support to HealtCheck login.</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <LangVersion>latest</LangVersion>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.WebUI.MFA.FIDO2.xml</DocumentationFile>
+    <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-HealthCheck</PackageProjectUrl>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <RootNamespace>HealthCheck.WebUI.MFA.FIDO2</RootNamespace>
+    <AssemblyName>HealthCheck.WebUI.MFA.FIDO2</AssemblyName>
+  </PropertyGroup>
+
+  <!-- .NET STANDARD ######################### -->
+  <!-- Compiler flags -->
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>NETSTANDARD;NETSTANDARD2_0</DefineConstants>
+  </PropertyGroup>
+  <!-- ####################################### -->
+
+  <!-- .NET CORE ############################# -->
+  <!-- Compiler flags -->
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1'">
+    <DefineConstants>NETCORE;NETCORE2_0</DefineConstants>
+  </PropertyGroup>
+  <!-- References -->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
+  </ItemGroup>
+  <!-- ####################################### -->
+
+  <!-- .NET FRAMEWORK ######################## -->
+  <!-- Compiler flags -->
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net461'">
+    <DefineConstants>NETFULL;NET461</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net472'">
+    <DefineConstants>NETFULL;NET472</DefineConstants>
+  </PropertyGroup>
+  <!-- References -->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net472' ">
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.0.0" />
+    <Reference Include="System.Web" />
+  </ItemGroup>
+  <!-- ####################################### -->
+
+  <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp3.1'">
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fido2" Version="2.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HealthCheck.WebUI\HealthCheck.WebUI.csproj" />
+  </ItemGroup>
+
+</Project>

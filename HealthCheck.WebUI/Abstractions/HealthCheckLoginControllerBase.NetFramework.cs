@@ -81,8 +81,8 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Serializes the given object into a json result.
         /// </summary>
-        protected ActionResult CreateJsonResult(object obj)
-            => Content(_helper.SerializeJson(obj), "application/json");
+        protected ActionResult CreateJsonResult(object obj, bool stringEnums = true)
+            => Content(_helper.SerializeJson(obj, stringEnums), "application/json");
 
         /// <summary>
         /// Delay by the configured amount.

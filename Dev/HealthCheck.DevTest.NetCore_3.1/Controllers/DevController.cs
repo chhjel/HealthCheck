@@ -38,9 +38,9 @@ using HealthCheck.Dev.Common.Settings;
 using HealthCheck.Dev.Common.Tests;
 using HealthCheck.Module.DevModule;
 using HealthCheck.WebUI.Abstractions;
+using HealthCheck.WebUI.MFA.TOTP;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Services;
-using HealthCheck.WebUI.TFA.Util;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -214,7 +214,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             {
                 IntegratedLoginEndpoint = "/HCLogin/login",
                 Show2FAInput = true,
-                Current2FACodeExpirationTime = HealthCheck2FAUtil.GetCurrentCodeExpirationTime(),
+                Current2FACodeExpirationTime = HCMfaTotpUtil.GetCurrentTotpCodeExpirationTime(),
             };
         }
 
