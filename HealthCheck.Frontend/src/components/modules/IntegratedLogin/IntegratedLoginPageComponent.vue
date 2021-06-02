@@ -318,9 +318,56 @@ export default class IntegratedLoginPageComponent extends Vue {
         service.CreateFidoAssertionOptions('TestUserAsd', this.loadStatus, {
             onSuccess: (options) => {
                 console.log(options);
-                // this.onFidoRegistrationOptionsCreated(options);
-            }
+                this.onFidoAssertionOptionsCreated(options);
+            },
+            onError: (e) => console.error(e)
         });
+    }
+
+    async onFidoAssertionOptionsCreated(options: any): Promise<void> {
+        if (options.status !== "ok")
+        {
+            alert('Status not ok, check log.');
+            console.error(options);
+            return;
+        }
+
+        options.challenge = this.coerceToArrayBuffer(options.challenge);
+        options.allowCredentials.forEach((item: any) => {
+            item.id = this.coerceToArrayBuffer(item.id);
+        });
+        console.log("VerifyAssertion", options);
+
+        try {
+            const assertedCredential = (await navigator.credentials.get({ publicKey: options })) as any;
+            
+            let authData = new Uint8Array(assertedCredential.response.authenticatorData);
+            let clientDataJSON = new Uint8Array(assertedCredential.response.clientDataJSON);
+            let rawId = new Uint8Array(assertedCredential.rawId);
+            let sig = new Uint8Array(assertedCredential.response.signature);
+            const payload = {
+                id: assertedCredential.id,
+                rawId: this.coerceToBase64Url(rawId),
+                type: assertedCredential.type,
+                extensions: assertedCredential.getClientExtensionResults(),
+                response: {
+                    authenticatorData: this.coerceToBase64Url(authData),
+                    clientDataJson: this.coerceToBase64Url(clientDataJSON),
+                    signature: this.coerceToBase64Url(sig)
+                }
+            };
+            console.log("VerifyAssertion payload", payload);
+
+            let service = new IntegratedLoginService(true);
+            service.VerifyAssertion(payload, this.loadStatus, {
+                onSuccess: (d) => console.log(d),
+                onError: (e) => console.error(e)
+            });
+        } catch (e) {
+            console.error('VerifyAssertion failed');
+            console.error(e);
+            alert(e);
+        }
     }
 
     registerFido(): void {
@@ -328,7 +375,8 @@ export default class IntegratedLoginPageComponent extends Vue {
         service.CreateFidoRegistrationOptions('TestUserAsd', this.loadStatus, {
             onSuccess: (options) => {
                 this.onFidoRegistrationOptionsCreated(options);
-            }
+            },
+            onError: (e) => console.error(e)
         });
     }
 
@@ -383,9 +431,11 @@ export default class IntegratedLoginPageComponent extends Vue {
             console.log("RegisterFido", registerPayload);
             let service = new IntegratedLoginService(true);
             service.RegisterFido(registerPayload, this.loadStatus, {
-                onSuccess: (d) => console.log(d)
+                onSuccess: (d) => console.log(d),
+                onError: (e) => console.error(e)
             });
         } catch (e) {
+            console.error('RegisterFido failed');
             console.error(e);
             alert(e);
         }

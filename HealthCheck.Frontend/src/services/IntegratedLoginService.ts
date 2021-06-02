@@ -53,8 +53,6 @@ export default class IntegratedLoginService extends HCServiceBase
     }
 
     // MFA: Fido
-    
-    // CredentialCreateOptions CreateFidoRegistrationOptions(string username)
     public CreateFidoRegistrationOptions(
         // url: string,
         username: string,
@@ -65,7 +63,6 @@ export default class IntegratedLoginService extends HCServiceBase
         this.fetchExt<any>(url, 'POST', { Username: username }, statusObject, callbacks, true);
     }
     
-    // void RegisterFido(RegisterFidoRequest request)
     public RegisterFido(
         // url: string,
         payload: any,
@@ -76,7 +73,6 @@ export default class IntegratedLoginService extends HCServiceBase
         this.fetchExt<any>(url, 'POST', payload, statusObject, callbacks, true);
     }
 
-    // AssertionOptions CreateFidoAssertionOptions(string username)
     public CreateFidoAssertionOptions(
         // url: string,
         username: string,
@@ -87,14 +83,13 @@ export default class IntegratedLoginService extends HCServiceBase
         this.fetchExt<any>(url, 'POST', { Username: username }, statusObject, callbacks, true);
     }
 
-    // AssertionVerificationResult VerifyFido(VerifyFidoRequest request)
-    public VerifyFido(
+    public VerifyAssertion(
         // url: string,
         payload: any,
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<any> | null = null
     ): void {
-        const url = '/hclogin/VerifyFido';
+        const url = '/hclogin/VerifyFidoAssertion';
         this.fetchExt<any>(url, 'POST', payload, statusObject, callbacks, true);
     }
 }

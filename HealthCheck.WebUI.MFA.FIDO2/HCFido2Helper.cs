@@ -121,19 +121,23 @@ namespace HealthCheck.WebUI.MFA.FIDO2
 		{
 			// 2. Get registered credential from database
 			StoredCredential creds = _store.GetCredentialById(clientResponse.Id);
+			if (creds == null)
+            {
+				return null;
+            }
 
 			// 3. Get credential counter from database
 			var storedCounter = creds.SignatureCounter;
 
-			// 4. Create callback to check if userhandle owns the credentialId
-			IsUserHandleOwnerOfCredentialIdAsync callback = async (args) =>
-			{
-				List<StoredCredential> storedCreds = await _store.GetCredentialsByUserHandleAsync(args.UserHandle);
-				return storedCreds.Exists(c => c.Descriptor.Id.SequenceEqual(args.CredentialId));
-			};
+            // 4. Create callback to check if userhandle owns the credentialId
+            async Task<bool> callback(IsUserHandleOwnerOfCredentialIdParams args)
+            {
+                List<StoredCredential> storedCreds = await _store.GetCredentialsByUserHandleAsync(args.UserHandle);
+                return storedCreds.Exists(c => c.Descriptor.Id.SequenceEqual(args.CredentialId));
+            }
 
-			// 5. Make the assertion
-			var res = await _lib.MakeAssertionAsync(clientResponse, options, creds.PublicKey, storedCounter, callback);
+            // 5. Make the assertion
+            var res = await _lib.MakeAssertionAsync(clientResponse, options, creds.PublicKey, storedCounter, callback);
 
 			// 6. Store the updated counter
 			_store.UpdateCounter(res.CredentialId, res.Counter);

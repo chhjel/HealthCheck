@@ -52,10 +52,9 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
         [HideFromRequestLog]
         [HttpPost]
         [Route("CreateFidoRegistrationOptions")]
-        public virtual async Task<ActionResult> CreateFidoRegistrationOptions([FromBody] CreateFidoRegistrationOptionsRequest request)
+        public virtual ActionResult CreateFidoRegistrationOptions([FromBody] CreateFidoRegistrationOptionsRequest request)
         {
             if (!Enabled) return NotFound();
-            await Delay();
 
             if (!ModelState.IsValid)
             {
@@ -80,7 +79,6 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
         public virtual async Task<ActionResult> RegisterFido([FromBody] RegisterFidoRequest request)
         {
             if (!Enabled) return NotFound();
-            await Delay();
 
             if (!ModelState.IsValid)
             {
@@ -135,10 +133,9 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
         [HideFromRequestLog]
         [HttpPost]
         [Route("CreateFidoAssertionOptions")]
-        public virtual async Task<ActionResult> CreateFidoAssertionOptions([FromBody] CreateFidoAssertionOptionsRequest request)
+        public virtual ActionResult CreateFidoAssertionOptions([FromBody] CreateFidoAssertionOptionsRequest request)
         {
             if (!Enabled) return NotFound();
-            await Delay();
 
             if (!ModelState.IsValid)
             {
@@ -148,6 +145,12 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
 
             var fido = CreateFido();
             var options = fido.CreateAssertionOptions(request.Username);
+            if (options == null)
+            {
+                return BadRequest($"User not found.");
+            }
+
+            HttpContext.Session.SetString("fido2.assertionOptions", options.ToJson());
             return CreateJsonResult(options);
         }
 
@@ -158,11 +161,10 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
 
         [HideFromRequestLog]
         [HttpPost]
-        [Route("VerifyFido")]
-        public virtual async Task<ActionResult> VerifyFido([FromBody] VerifyFidoRequest request)
+        [Route("VerifyFidoAssertion")]
+        public virtual async Task<ActionResult> VerifyFidoAssertion([FromBody] VerifyFidoAssertionRequest attestationResponse)
         {
             if (!Enabled) return NotFound();
-            await Delay();
 
             if (!ModelState.IsValid)
             {
@@ -171,14 +173,51 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             }
 
             var fido = CreateFido();
-            var result = fido.VerifyAssertion(request.Options, request.AttestationResponse);
+            var jsonOptions = HttpContext.Session.GetString("fido2.assertionOptions");
+            var options = AssertionOptions.FromJson(jsonOptions);
+
+            var result = await fido.VerifyAssertion(options, attestationResponse.ToAuthenticatorAssertionRawResponse());
+
+            if (result.Status == "ok")
+            {
+
+            }
+
             return CreateJsonResult(result);
         }
 
-        public class VerifyFidoRequest
+        public class VerifyFidoAssertionRequest
         {
-            public AssertionOptions Options { get; set; }
-            public AuthenticatorAssertionRawResponse AttestationResponse { get; set; }
+            public string Id { get; set; }
+            public string RawId { get; set; }
+            public AssertionResponse Response { get; set; }
+            public AuthenticationExtensionsClientOutputs Extensions { get; set; }
+
+            public class AssertionResponse
+            {
+                public string AuthenticatorData { get; set; }
+                public string Signature { get; set; }
+                public string ClientDataJson { get; set; }
+                //public string UserHandle { get; set; }
+            }
+
+            public AuthenticatorAssertionRawResponse ToAuthenticatorAssertionRawResponse()
+            {
+                return new AuthenticatorAssertionRawResponse
+                {
+                    Id = Base64Url.Decode(Id),
+                    RawId = Base64Url.Decode(RawId),
+                    Type = PublicKeyCredentialType.PublicKey,
+                    Extensions = Extensions,
+                    Response = new AuthenticatorAssertionRawResponse.AssertionResponse
+                    {
+                        AuthenticatorData = Base64Url.Decode(Response.AuthenticatorData),
+                        Signature = Base64Url.Decode(Response.Signature),
+                        ClientDataJson = Base64Url.Decode(Response.ClientDataJson),
+                        //UserHandle = Base64Url.Decode(Response.UserHandle)
+                    }
+                };
+            }
         }
     }
 }
