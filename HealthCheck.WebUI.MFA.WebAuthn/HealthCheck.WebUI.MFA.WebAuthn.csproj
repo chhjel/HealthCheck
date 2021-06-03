@@ -11,7 +11,7 @@
     <Description>Shortcuts for adding FIDO2/WebAuthn multi-factor authentication support to HealtCheck login.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>latest</LangVersion>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.WebUI.MFA.FIDO2.xml</DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\HealthCheck.WebUI.MFA.WebAuthn.xml</DocumentationFile>
     <PackageProjectUrl>https://github.com/chhjel/Releases/releases/tag/nuget-HealthCheck</PackageProjectUrl>
   </PropertyGroup>
 
@@ -22,8 +22,8 @@
 
   <PropertyGroup>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-    <RootNamespace>HealthCheck.WebUI.MFA.FIDO2</RootNamespace>
-    <AssemblyName>HealthCheck.WebUI.MFA.FIDO2</AssemblyName>
+    <RootNamespace>HealthCheck.WebUI.MFA.WebAuthn</RootNamespace>
+    <AssemblyName>HealthCheck.WebUI.MFA.WebAuthn</AssemblyName>
   </PropertyGroup>
 
   <!-- .NET STANDARD ######################### -->

@@ -1,9 +1,11 @@
 using Fido2NetLib;
 using Fido2NetLib.Objects;
 using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Util;
 using HealthCheck.WebUI.Abstractions;
-using HealthCheck.WebUI.MFA.FIDO2;
 using HealthCheck.WebUI.MFA.TOTP;
+using HealthCheck.WebUI.MFA.WebAuthn;
+using HealthCheck.WebUI.MFA.WebAuthn.Storage;
 using HealthCheck.WebUI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,10 +16,16 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
 {
     public class HCLoginController : HealthCheckLoginControllerBase
     {
-        private const string DummySecret = "J5V5XFSQCT2TDG6AZIQ46TTEAXGU7GCW";
+        private const string DummyTotpSecret = "J5V5XFSQCT2TDG6AZIQ46TTEAXGU7GCW";
 
         protected override HCIntegratedLoginResult HandleLoginRequest(HCIntegratedLoginRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                var errors = string.Join("\n", ModelState.SelectMany(x => x.Value.Errors).Select(x => x.ErrorMessage));
+                return HCIntegratedLoginResult.CreateError(errors);
+            }
+
             var userPassOk = request.Username == "root"
                 && request.Password == "toor";
 
@@ -26,10 +34,22 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 return HCIntegratedLoginResult.CreateError("Wrong username or password, try again or <b>give up</b>.<br /><a href=\"https://www.google.com\">Help me!</a>", true);
             }
 
-            var otpOk = string.IsNullOrWhiteSpace(request.TwoFactorCode) || HCMfaTotpUtil.ValidateTotpCode(DummySecret, request.TwoFactorCode);
+            var otpOk = string.IsNullOrWhiteSpace(request.TwoFactorCode) || HCMfaTotpUtil.ValidateTotpCode(DummyTotpSecret, request.TwoFactorCode);
             if (!otpOk)
             {
                 return HCIntegratedLoginResult.CreateError("Two-factor code was wrong, try again.");
+            }
+
+            if (request.WebAuthnPayload != null)
+            {
+                var webauthn = CreateWebAuthnHelper();
+                var jsonOptions = GetWebAuthnAssertionOptionsJsonForSession();
+                var options = AssertionOptions.FromJson(jsonOptions);
+                var webAuthnResult = AsyncUtils.RunSync(() => webauthn.VerifyAssertion(options, request.WebAuthnPayload));
+                if (!webAuthnResult.Success)
+                {
+                    return HCIntegratedLoginResult.CreateError(webAuthnResult.Error);
+                }
             }
 
             return HCIntegratedLoginResult.CreateSuccess();
@@ -42,17 +62,23 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 return HCIntegratedLogin2FACodeRequestResult.CreateError("You must enter your username first.");
             }
 
-            var code = HCMfaTotpUtil.GenerateTotpCode(DummySecret);
+            var code = HCMfaTotpUtil.GenerateTotpCode(DummyTotpSecret);
             return HCIntegratedLogin2FACodeRequestResult.CreateSuccess($"TOTP code is <b>{code}</b>", true);
         }
 
-        protected virtual HCFido2Helper CreateFido()
-            => new HCFido2Helper("localhost", "HCDev", Request.Headers["Origin"]);
+        protected override string CreateWebAuthnAssertionOptionsJson(HCIntegratedLoginCreateWebAuthnAssertionOptionsRequest request)
+        {
+            var webauthn = CreateWebAuthnHelper();
+            var options = webauthn.CreateAssertionOptions(request.Username);
+            return options?.ToJson();
+        }
+
+        private HCWebAuthnHelper CreateWebAuthnHelper() => new HCWebAuthnHelper("localhost", "HCDev", Request.Headers["Origin"], new HCMemoryWebAuthnCredentialManager());
 
         [HideFromRequestLog]
         [HttpPost]
-        [Route("CreateFidoRegistrationOptions")]
-        public virtual ActionResult CreateFidoRegistrationOptions([FromBody] CreateFidoRegistrationOptionsRequest request)
+        [Route("CreateWebAuthnRegistrationOptions")]
+        public virtual ActionResult CreateWebAuthnRegistrationOptions([FromBody] CreateWebAuthnRegistrationOptionsRequest request)
         {
             if (!Enabled) return NotFound();
 
@@ -62,21 +88,20 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 return BadRequest(errors);
             }
 
-            var fido = CreateFido();
-            var options = fido.CreateClientOptions(request.Username);
-            HttpContext.Session.SetString("fido2.attestationOptions", options.ToJson());
+            var webauthn = CreateWebAuthnHelper();
+            var options = webauthn.CreateClientOptions(request.Username);
+            HttpContext.Session.SetString("WebAuthn.attestationOptions", options.ToJson());
             return CreateJsonResult(options, stringEnums: false);
         }
-
-        public class CreateFidoRegistrationOptionsRequest
+        public class CreateWebAuthnRegistrationOptionsRequest
         {
             public string Username { get; set; }
         }
 
         [HideFromRequestLog]
         [HttpPost]
-        [Route("RegisterFido")]
-        public virtual async Task<ActionResult> RegisterFido([FromBody] RegisterFidoRequest request)
+        [Route("RegisterWebAuthn")]
+        public virtual async Task<ActionResult> RegisterWebAuthn([FromBody] RegisterWebAuthnRequest request)
         {
             if (!Enabled) return NotFound();
 
@@ -86,30 +111,24 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 return BadRequest(errors);
             }
 
-            var fido = CreateFido();
-            var jsonOptions = HttpContext.Session.GetString("fido2.attestationOptions");
+            var webauthn = CreateWebAuthnHelper();
+            var jsonOptions = HttpContext.Session.GetString("WebAuthn.attestationOptions");
             var options = CredentialCreateOptions.FromJson(jsonOptions);
 
             var convertedRequest = request.ToAuthenticatorAttestationRawResponse();
-            await fido.RegisterCredentials(options, convertedRequest);
+            await webauthn.RegisterCredentials(options, convertedRequest);
             return CreateJsonResult("OK");
         }
-
-        public class RegisterFidoRequest
+        public class RegisterWebAuthnRequest
         {
-            //[JsonConverter(typeof(Base64UrlConverter))]
             public string Id { get; set; }
-            //[JsonConverter(typeof(Base64UrlConverter))]
             public string RawId { get; set; }
-            //public PublicKeyCredentialType? Type { get; set; }
             public ResponseData Response { get; set; }
             public AuthenticationExtensionsClientOutputs Extensions { get; set; }
 
             public class ResponseData
             {
-                //[JsonConverter(typeof(Base64UrlConverter))]
                 public string AttestationObject { get; set; }
-                //[JsonConverter(typeof(Base64UrlConverter))]
                 public string ClientDataJson { get; set; }
             }
 
@@ -125,96 +144,6 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                     {
                         AttestationObject = Base64Url.Decode(Response.AttestationObject),
                         ClientDataJson = Base64Url.Decode(Response.ClientDataJson)
-                    }
-                };
-            }
-        }
-
-        [HideFromRequestLog]
-        [HttpPost]
-        [Route("CreateFidoAssertionOptions")]
-        public virtual ActionResult CreateFidoAssertionOptions([FromBody] CreateFidoAssertionOptionsRequest request)
-        {
-            if (!Enabled) return NotFound();
-
-            if (!ModelState.IsValid)
-            {
-                var errors = string.Join("\n", ModelState.SelectMany(x => x.Value.Errors).Select(x => x.ErrorMessage));
-                return BadRequest(errors);
-            }
-
-            var fido = CreateFido();
-            var options = fido.CreateAssertionOptions(request.Username);
-            if (options == null)
-            {
-                return BadRequest($"User not found.");
-            }
-
-            HttpContext.Session.SetString("fido2.assertionOptions", options.ToJson());
-            return CreateJsonResult(options);
-        }
-
-        public class CreateFidoAssertionOptionsRequest
-        {
-            public string Username { get; set; }
-        }
-
-        [HideFromRequestLog]
-        [HttpPost]
-        [Route("VerifyFidoAssertion")]
-        public virtual async Task<ActionResult> VerifyFidoAssertion([FromBody] VerifyFidoAssertionRequest attestationResponse)
-        {
-            if (!Enabled) return NotFound();
-
-            if (!ModelState.IsValid)
-            {
-                var errors = string.Join("\n", ModelState.SelectMany(x => x.Value.Errors).Select(x => x.ErrorMessage));
-                return BadRequest(errors);
-            }
-
-            var fido = CreateFido();
-            var jsonOptions = HttpContext.Session.GetString("fido2.assertionOptions");
-            var options = AssertionOptions.FromJson(jsonOptions);
-
-            var result = await fido.VerifyAssertion(options, attestationResponse.ToAuthenticatorAssertionRawResponse());
-
-            if (result.Status == "ok")
-            {
-
-            }
-
-            return CreateJsonResult(result);
-        }
-
-        public class VerifyFidoAssertionRequest
-        {
-            public string Id { get; set; }
-            public string RawId { get; set; }
-            public AssertionResponse Response { get; set; }
-            public AuthenticationExtensionsClientOutputs Extensions { get; set; }
-
-            public class AssertionResponse
-            {
-                public string AuthenticatorData { get; set; }
-                public string Signature { get; set; }
-                public string ClientDataJson { get; set; }
-                //public string UserHandle { get; set; }
-            }
-
-            public AuthenticatorAssertionRawResponse ToAuthenticatorAssertionRawResponse()
-            {
-                return new AuthenticatorAssertionRawResponse
-                {
-                    Id = Base64Url.Decode(Id),
-                    RawId = Base64Url.Decode(RawId),
-                    Type = PublicKeyCredentialType.PublicKey,
-                    Extensions = Extensions,
-                    Response = new AuthenticatorAssertionRawResponse.AssertionResponse
-                    {
-                        AuthenticatorData = Base64Url.Decode(Response.AuthenticatorData),
-                        Signature = Base64Url.Decode(Response.Signature),
-                        ClientDataJson = Base64Url.Decode(Response.ClientDataJson),
-                        //UserHandle = Base64Url.Decode(Response.UserHandle)
                     }
                 };
             }

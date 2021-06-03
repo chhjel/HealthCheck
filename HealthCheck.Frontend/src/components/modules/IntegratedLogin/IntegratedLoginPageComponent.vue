@@ -74,16 +74,27 @@
                         </v-btn>
 
                         <v-btn round color="primary" large class="mt-4 login-button"
-                            @click.prevent="registerFido"
+                            @click.prevent="registerWebAuthn"
                             :disabled="loadStatus.inProgress">
-                            <span style="white-space: normal;">Register FIDO</span>
+                            <span style="white-space: normal;">Register WebAuthn</span>
                         </v-btn>
 
                         <v-btn round color="primary" large class="mt-4 login-button"
-                            @click.prevent="loginFido"
+                            @click.prevent="loginWebAuthn"
                             :disabled="loadStatus.inProgress">
-                            <span style="white-space: normal;">Login using FIDO</span>
+                            <span style="white-space: normal;">Login using WebAuthn</span>
                         </v-btn>
+
+                        <div>
+                            ToDo:
+                            <ul>
+                                <li>add options for WebAuthn mode: Off, Optional, Required</li>
+                                <li> - Off: hidden</li>
+                                <li> - Optional: visible all the time, can use WebAuthn to elevate before using password?</li>
+                                <li> - Required: visible all the time, hide password field until WebAuthn is used?</li>
+                                <li>Add optional button in header that shows login in order to elevate access.</li>
+                            </ul>
+                        </div>
 
                         <v-progress-linear color="primary" indeterminate v-if="loadStatus.inProgress"></v-progress-linear>
 
@@ -118,13 +129,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { HCIntegratedLoginRequest } from "generated/Models/WebUI/HCIntegratedLoginRequest";
+import { VerifyWebAuthnAssertionModel } from "generated/Models/WebUI/VerifyWebAuthnAssertionModel";
+import { Vue, Component } from "vue-property-decorator";
 import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
 import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
-import IntegratedLoginService, { HCIntegratedLoginRequest, HCIntegratedLoginRequest2FACodeRequest, HCIntegratedLoginResult } from '../../../services/IntegratedLoginService';
+import IntegratedLoginService, { HCIntegratedLoginRequest2FACodeRequest, HCIntegratedLoginResult } from '../../../services/IntegratedLoginService';
 import BlockComponent from '../../Common/Basic/BlockComponent.vue';
 import FloatingSquaresEffectComponent from '../../Common/Effects/FloatingSquaresEffectComponent.vue';
-import FidoUtils from 'util/IntegratedLogin/FidoUtils';
 
 @Component({
     components: {
@@ -139,6 +151,7 @@ export default class IntegratedLoginPageComponent extends Vue {
     username: string = '';
     password: string = '';
     twoFactorCode: string = '';
+    webAuthnLoginPayload: VerifyWebAuthnAssertionModel | null = null;
     showPassword: boolean = false;
     error: string = '';
     showErrorAsHtml: boolean = false;
@@ -226,7 +239,8 @@ export default class IntegratedLoginPageComponent extends Vue {
         let payload: HCIntegratedLoginRequest = {
             Username: this.username,
             Password: this.password,
-            TwoFactorCode: this.twoFactorCode
+            TwoFactorCode: this.twoFactorCode,
+            WebAuthnPayload: (this.webAuthnLoginPayload || {}) as VerifyWebAuthnAssertionModel
         };
 
         let service = new IntegratedLoginService(true);
@@ -310,21 +324,21 @@ export default class IntegratedLoginPageComponent extends Vue {
         }
     }
 
-    //////////////////
-    //  MFA: FIDO  //
-    ////////////////
-    loginFido(): void {
+    //////////////////////
+    //  MFA: WebAuthn  //
+    ////////////////////
+    loginWebAuthn(): void {
         let service = new IntegratedLoginService(true);
-        service.CreateFidoAssertionOptions('TestUserAsd', this.loadStatus, {
+        service.CreateWebAuthnAssertionOptions('TestUserAsd', this.loadStatus, {
             onSuccess: (options) => {
                 console.log(options);
-                this.onFidoAssertionOptionsCreated(options);
+                this.onWebAuthnAssertionOptionsCreated(options);
             },
             onError: (e) => console.error(e)
         });
     }
 
-    async onFidoAssertionOptionsCreated(options: any): Promise<void> {
+    async onWebAuthnAssertionOptionsCreated(options: any): Promise<void> {
         if (options.status !== "ok")
         {
             alert('Status not ok, check log.');
@@ -345,24 +359,25 @@ export default class IntegratedLoginPageComponent extends Vue {
             let clientDataJSON = new Uint8Array(assertedCredential.response.clientDataJSON);
             let rawId = new Uint8Array(assertedCredential.rawId);
             let sig = new Uint8Array(assertedCredential.response.signature);
-            const payload = {
-                id: assertedCredential.id,
-                rawId: this.coerceToBase64Url(rawId),
-                type: assertedCredential.type,
-                extensions: assertedCredential.getClientExtensionResults(),
-                response: {
-                    authenticatorData: this.coerceToBase64Url(authData),
-                    clientDataJson: this.coerceToBase64Url(clientDataJSON),
-                    signature: this.coerceToBase64Url(sig)
+            const payload: VerifyWebAuthnAssertionModel = {
+                Id: assertedCredential.id,
+                RawId: this.coerceToBase64Url(rawId),
+                Extensions: assertedCredential.getClientExtensionResults(),
+                Response: {
+                    AuthenticatorData: this.coerceToBase64Url(authData),
+                    ClientDataJson: this.coerceToBase64Url(clientDataJSON),
+                    Signature: this.coerceToBase64Url(sig)
                 }
             };
             console.log("VerifyAssertion payload", payload);
 
-            let service = new IntegratedLoginService(true);
-            service.VerifyAssertion(payload, this.loadStatus, {
-                onSuccess: (d) => console.log(d),
-                onError: (e) => console.error(e)
-            });
+            this.webAuthnLoginPayload = payload;
+
+            // let service = new IntegratedLoginService(true);
+            // service.VerifyAssertion(payload, this.loadStatus, {
+            //     onSuccess: (d) => console.log(d),
+            //     onError: (e) => console.error(e)
+            // });
         } catch (e) {
             console.error('VerifyAssertion failed');
             console.error(e);
@@ -370,17 +385,17 @@ export default class IntegratedLoginPageComponent extends Vue {
         }
     }
 
-    registerFido(): void {
+    registerWebAuthn(): void {
         let service = new IntegratedLoginService(true);
-        service.CreateFidoRegistrationOptions('TestUserAsd', this.loadStatus, {
+        service.CreateWebAuthnRegistrationOptions('TestUserAsd', this.loadStatus, {
             onSuccess: (options) => {
-                this.onFidoRegistrationOptionsCreated(options);
+                this.onWebAuthnRegistrationOptionsCreated(options);
             },
             onError: (e) => console.error(e)
         });
     }
 
-    async onFidoRegistrationOptionsCreated(options: any): Promise<void> {
+    async onWebAuthnRegistrationOptionsCreated(options: any): Promise<void> {
         if (options.status !== "ok")
         {
             alert('Status not ok, check log.');
@@ -428,14 +443,14 @@ export default class IntegratedLoginPageComponent extends Vue {
                 }
             };
 
-            console.log("RegisterFido", registerPayload);
+            console.log("RegisterWebAuthn", registerPayload);
             let service = new IntegratedLoginService(true);
-            service.RegisterFido(registerPayload, this.loadStatus, {
+            service.RegisterWebAuthn(registerPayload, this.loadStatus, {
                 onSuccess: (d) => console.log(d),
                 onError: (e) => console.error(e)
             });
         } catch (e) {
-            console.error('RegisterFido failed');
+            console.error('RegisterWebAuthn failed');
             console.error(e);
             alert(e);
         }

@@ -1302,6 +1302,62 @@ To add TOTP MFA you can add the [![Nuget](https://img.shields.io/nuget/v/HealthC
 * Validate codes using the `HCMfaTotpUtil.ValidateTotpCode(userSecret, code)` method.
 * Bitwarden and most authenticator apps supports TOTP and can be used to generate codes from the generated secret.
 
+### MFA: WebAuthn/FIDO2
+
+To add WebAuthn MFA you can add the [![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI.MFA.WebAuthn?label=HealthCheck.WebUI.MFA.WebAuthn&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI.MFA.WebAuthn) package.
+
+You can use the included `HCWebAuthnHelper` to register FIDO2 keys and create data secrets to store on your user objects.
+
+1. In the healthcheck controller specify desired WebAuthn mode for the login page.
+
+    ```csharp
+    // TODO
+    ```
+
+2. In the login controller add a factory method to create the `HCWebAuthnHelper`, or get it from IoC.
+
+    ```csharp
+    private HCWebAuthnHelper GetWebAuthnHelper()
+        => new HCWebAuthnHelper("localhost", "My fancy site", Request.Headers["Origin"], new HCMemoryWebAuthnCredentialManager());
+    ```
+
+3. Override `CreateWebAuthnAssertionOptionsJson` in the login controller with e.g. the following:
+
+    ```csharp
+    protected override string CreateWebAuthnAssertionOptionsJson(HCIntegratedLoginCreateWebAuthnAssertionOptionsRequest request)
+    {
+        var webauthn = GetWebAuthnHelper();
+        var options = webauthn.CreateAssertionOptions(request.Username);
+        return options?.ToJson();
+    }
+    ```
+
+4. Verify the new data in `HandleLoginRequest`.
+
+    ```csharp
+    protected override HCIntegratedLoginResult HandleLoginRequest(HCIntegratedLoginRequest request)
+    {
+        //... username/pass validation etc
+
+        // Verify WebAuthn payload
+        if (request.WebAuthnPayload == null)
+        {
+            return HCIntegratedLoginResult.CreateError("Invalid FIDO key assertion data.");
+        }
+
+        var webauthn = GetWebAuthnHelper();
+        var jsonOptions = GetWebAuthnAssertionOptionsJsonForSession();
+        var options = AssertionOptions.FromJson(jsonOptions);
+        var webAuthnResult = AsyncUtils.RunSync(() => webauthn.VerifyAssertion(options, request.WebAuthnPayload));
+        if (!webAuthnResult.Success)
+        {
+            return HCIntegratedLoginResult.CreateError(webAuthnResult.Error);
+        }
+
+        return HCIntegratedLoginResult.CreateSuccess();
+    }
+    ```
+
 ### MFA: Sending one time use codes to user
 
 To send a one-time-use code to the user instead of using TOTP you can set the `Send2FACodeEndpoint` option to target the `Request2FACode` action on the login controller. A button to send a code to the user will be shown in the login form, and you can override `Handle2FACodeRequest` to handle what happens when the button is clicked.

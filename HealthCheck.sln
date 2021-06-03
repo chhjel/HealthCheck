@@ -55,7 +55,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Episerver.Endpo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.WebUI.MFA.TOTP", "HealthCheck.WebUI.MFA.TOTP\HealthCheck.WebUI.MFA.TOTP.csproj", "{883A169F-A2F1-4001-AD95-1807951F9B7E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.WebUI.MFA.FIDO2", "HealthCheck.WebUI.MFA.FIDO2\HealthCheck.WebUI.MFA.FIDO2.csproj", "{82CDE395-B98B-4481-95CE-C757225F1674}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.WebUI.MFA.WebAuthn", "HealthCheck.WebUI.MFA.WebAuthn\HealthCheck.WebUI.MFA.WebAuthn.csproj", "{959A9717-65A2-4DCF-84FE-8757347B00FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -138,10 +138,10 @@ Global
 		{883A169F-A2F1-4001-AD95-1807951F9B7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{883A169F-A2F1-4001-AD95-1807951F9B7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{883A169F-A2F1-4001-AD95-1807951F9B7E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{82CDE395-B98B-4481-95CE-C757225F1674}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{82CDE395-B98B-4481-95CE-C757225F1674}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{82CDE395-B98B-4481-95CE-C757225F1674}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{82CDE395-B98B-4481-95CE-C757225F1674}.Release|Any CPU.Build.0 = Release|Any CPU
+		{959A9717-65A2-4DCF-84FE-8757347B00FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{959A9717-65A2-4DCF-84FE-8757347B00FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{959A9717-65A2-4DCF-84FE-8757347B00FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{959A9717-65A2-4DCF-84FE-8757347B00FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

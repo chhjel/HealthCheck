@@ -1,11 +1,6 @@
+import { HCIntegratedLoginRequest } from "generated/Models/WebUI/HCIntegratedLoginRequest";
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
 
-export interface HCIntegratedLoginRequest
-{
-    Username: string;
-    Password: string;
-    TwoFactorCode: string;
-}
 export interface HCIntegratedLoginResult
 {
     Success: boolean;
@@ -52,34 +47,34 @@ export default class IntegratedLoginService extends HCServiceBase
         this.fetchExt<HCIntegratedLogin2FACodeRequestResult>(url, 'POST', payload, statusObject, callbacks, true);
     }
 
-    // MFA: Fido
-    public CreateFidoRegistrationOptions(
+    // MFA: WebAuthn
+    public CreateWebAuthnRegistrationOptions(
         // url: string,
         username: string,
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<any> | null = null
     ): void {
-        const url = '/hclogin/CreateFidoRegistrationOptions';
+        const url = '/hclogin/CreateWebAuthnRegistrationOptions';
         this.fetchExt<any>(url, 'POST', { Username: username }, statusObject, callbacks, true);
     }
     
-    public RegisterFido(
+    public RegisterWebAuthn(
         // url: string,
         payload: any,
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<any> | null = null
     ): void {
-        const url = '/hclogin/RegisterFido';
+        const url = '/hclogin/RegisterWebAuthn';
         this.fetchExt<any>(url, 'POST', payload, statusObject, callbacks, true);
     }
 
-    public CreateFidoAssertionOptions(
+    public CreateWebAuthnAssertionOptions(
         // url: string,
         username: string,
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<any> | null = null
     ): void {
-        const url = '/hclogin/CreateFidoAssertionOptions';
+        const url = '/hclogin/CreateWebAuthnAssertionOptions';
         this.fetchExt<any>(url, 'POST', { Username: username }, statusObject, callbacks, true);
     }
 
@@ -89,7 +84,7 @@ export default class IntegratedLoginService extends HCServiceBase
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<any> | null = null
     ): void {
-        const url = '/hclogin/VerifyFidoAssertion';
+        const url = '/hclogin/VerifyWebAuthnAssertion';
         this.fetchExt<any>(url, 'POST', payload, statusObject, callbacks, true);
     }
 }

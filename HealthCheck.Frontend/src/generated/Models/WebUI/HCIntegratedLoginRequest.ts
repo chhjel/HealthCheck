@@ -2,9 +2,12 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import { VerifyWebAuthnAssertionModel } from './VerifyWebAuthnAssertionModel';
+
 export interface HCIntegratedLoginRequest
 {
 	Username: string;
 	Password: string;
 	TwoFactorCode: string;
+	WebAuthnPayload: VerifyWebAuthnAssertionModel;
 }

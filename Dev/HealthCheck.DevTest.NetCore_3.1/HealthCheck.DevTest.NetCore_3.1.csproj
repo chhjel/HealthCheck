@@ -11,8 +11,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\HealthCheck.Core\HealthCheck.Core.csproj" />
-    <ProjectReference Include="..\..\HealthCheck.WebUI.MFA.FIDO2\HealthCheck.WebUI.MFA.FIDO2.csproj" />
+    <ProjectReference Include="..\..\HealthCheck.WebUI.MFA.FIDO2\HealthCheck.WebUI.MFA.WebAuthn.csproj" />
     <ProjectReference Include="..\..\HealthCheck.WebUI.MFA.TOTP\HealthCheck.WebUI.MFA.TOTP.csproj" />
+    <ProjectReference Include="..\..\HealthCheck.WebUI.MFA.WebAuthn\HealthCheck.WebUI.MFA.WebAuthn.csproj" />
     <ProjectReference Include="..\..\HealthCheck.WebUI\HealthCheck.WebUI.csproj" />
     <ProjectReference Include="..\HealthCheck.Dev.Common\HealthCheck.Dev.Common.csproj" />
     <ProjectReference Include="..\HealthCheck.Module.DevModule\HealthCheck.Module.DevModule.csproj" />
