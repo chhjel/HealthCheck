@@ -145,7 +145,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
         private List<RuntimeTestReferenceParameterFactory> CreateReferenceParameterFactories()
         {
             var getUserChoices = new Func<IEnumerable<CustomReferenceType>>(() =>
-                Enumerable.Range(1, 50).Select(x => new CustomReferenceType { Id = x, Title = $"Item #{x}" })
+                Enumerable.Range(1, 50).Select(x => new CustomReferenceType { Id = x, Title = (x % 2 == 0 ? "Item" : "ItemWithSomeLongerValueHereEtcEtcEtc") + $" #{x}" })
             );
 
             return new List<RuntimeTestReferenceParameterFactory>()

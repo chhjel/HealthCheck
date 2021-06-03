@@ -20,7 +20,10 @@ namespace HealthCheck.Dev.Common.Tests
         }
 
         [RuntimeTest]
-        public TestResult ListCustoms(CustomReferenceType item, List<CustomReferenceType> listRefs)
+        public TestResult ListCustoms(CustomReferenceType item, List<CustomReferenceType> listRefs,
+            List<CustomReferenceType> listRefs2, CustomReferenceType item2,
+            List<CustomReferenceType> listRefs3, List<CustomReferenceType> listRefs4,
+            CustomReferenceType item3, CustomReferenceType item4)
         {
             return TestResult.CreateSuccess($"Selected: [{item?.Title}] + [{string.Join(", ", listRefs.Select(x => $"{x?.Title}/{x?.Id}"))}]");
         }
