@@ -1,7 +1,7 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputPickReferenceComponent.vue -->
 <template>
     <div>
-        <v-btn @click="showDialog" :disabled="readonly">{{ selectedChoiceLabel }}</v-btn>
+        <v-btn @click="showDialog" :disabled="readonly" class="pick-ref-button">{{ selectedChoiceLabel }}</v-btn>
         
         <v-dialog v-model="choicesDialogVisible"
             @keydown.esc="choicesDialogVisible = false"
@@ -202,4 +202,9 @@ export default class ParameterInputPickReferenceComponent extends Vue {
 </script>
 
 <style scoped>
+.pick-ref-button {
+    max-width: 100%;
+    overflow: hidden;
+    justify-content: flex-start;
+}
 </style>

@@ -8,7 +8,7 @@
                 style="min-height: 10px"
                 @end="onChanged">
                 <template v-for="(item, itemIndex) in items">
-                    <v-list-tile :key="`${id}-item-${item.id}`">
+                    <v-list-tile :key="`${id}-item-${item.id}`" class="parameter-list-input-tile">
                         <v-list-tile-action v-if="items.length > 1">
                             <v-icon class="handle-icon">drag_handle</v-icon>
                         </v-list-tile-action>
@@ -17,7 +17,7 @@
                                 <v-icon>remove</v-icon>
                             </v-btn>
                         </v-list-tile-action>
-                        <v-list-tile-content style="overflow: visible; max-width: 100%;">
+                        <v-list-tile-content style="max-width: 100%;">
                             <backend-input-component v-if="!isReadOnlyList"
                                 :key="`${id}-item-input-${item.id}`"
                                 :forceType="listType"
@@ -26,7 +26,7 @@
                                 :config="config"
                                 :isListItem="true"
                                 :isCustomReferenceType="isCustomReferenceType"
-                                :parameterDetailContext="`${parameterDetailContext}_${itemIndex}`"
+                                :parameterDetailContext="`${parameterDetailContext}_${item.id}`"
                                 @isAnyJson="notifyIsAnyJson()"
                                 style="max-width: 100%;" />
                             <span v-if="isReadOnlyList">{{ item.value }}</span>
@@ -205,5 +205,8 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
 }
 .parameter-list-input .v-list__tile__action {
     min-width: 32px;
+}
+.parameter-list-input-tile {
+    overflow: hidden;
 }
 </style>
