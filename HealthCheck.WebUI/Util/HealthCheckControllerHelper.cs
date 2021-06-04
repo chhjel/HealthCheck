@@ -568,6 +568,7 @@ namespace HealthCheck.WebUI.Util
             var scriptAssetsHtml = string.Join("\n", moduleScriptAssets);
 
             var moduleOptions = GetModuleFrontendOptions(accessRoles);
+            var serializer = new NewtonsoftJsonSerializer();
 
             var javascriptUrlTags = pageOptions.JavaScriptUrls
                 .Select(url => $"<script src=\"{url}\"></script>")
@@ -598,9 +599,9 @@ namespace HealthCheck.WebUI.Util
     <div id={Q}app{Q}></div>
 
     <script>
-        window.healthCheckOptions = {JsonConvert.SerializeObject(frontEndOptions) ?? "{}"};
-        window.healthCheckModuleOptions = {JsonConvert.SerializeObject(moduleOptions) ?? "{}"};
-        window.healthCheckModuleConfigs = {JsonConvert.SerializeObject(moduleConfigData) ?? "{}"};
+        window.healthCheckOptions = {serializer.Serialize(frontEndOptions) ?? "{}"};
+        window.healthCheckModuleOptions = {serializer.Serialize(moduleOptions) ?? "{}"};
+        window.healthCheckModuleConfigs = {serializer.Serialize(moduleConfigData) ?? "{}"};
     </script>
     {scriptAssetsHtml}
     {javascriptUrlTagsHtml}

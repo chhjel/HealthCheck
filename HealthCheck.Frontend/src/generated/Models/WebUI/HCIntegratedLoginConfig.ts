@@ -8,7 +8,6 @@ import { HCLoginTwoFactorCodeInputMode } from '../../Enums/WebUI/HCLoginTwoFacto
 export interface HCIntegratedLoginConfig
 {
 	IntegratedLoginEndpoint: string;
-	Show2FAInput: boolean;
 	Send2FACodeEndpoint: string;
 	Send2FACodeButtonText: string;
 	Current2FACodeExpirationTime: Date;

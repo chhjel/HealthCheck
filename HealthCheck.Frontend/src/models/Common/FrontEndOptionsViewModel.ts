@@ -8,7 +8,6 @@ export default interface FrontEndOptionsViewModel {
     
     ShowIntegratedLogin: boolean;
     IntegratedLoginEndpoint: string;
-    IntegratedLoginShow2FA: boolean;
     IntegratedLoginSend2FACodeEndpoint: string;
     IntegratedLoginSend2FACodeButtonText: string;
     IntegratedLoginCurrent2FACodeExpirationTime: string | null;

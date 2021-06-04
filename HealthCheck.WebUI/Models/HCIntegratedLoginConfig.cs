@@ -14,11 +14,6 @@ namespace HealthCheck.WebUI.Models
         public string IntegratedLoginEndpoint { get; set; }
 
         /// <summary>
-        /// If enabled, 2FA input will be visible in the login dialog.
-        /// </summary>
-        public bool Show2FAInput { get; set; }
-
-        /// <summary>
         /// Requests to send new 2FA codes will be sent to this endpoint.
         /// <para>Setting this value results in the button to send codes being shown.</para>
         /// <para>Should point to the <c>Request2FACode</c> action on a controller inheriting from <c>HealthCheckLoginControllerBase</c> where you can define the logic.</para>

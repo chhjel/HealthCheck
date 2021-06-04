@@ -37,7 +37,7 @@
                                 @click:append="showPassword = !showPassword"
                                 class="pt-0 mt-2" />
 
-                            <v-layout row class="mt-4 mb-4" v-if="show2FAInput">
+                            <v-layout row class="mt-4 mb-4" v-if="showTwoFactorCodeInput">
                                 <v-flex :xs6="show2FASendCodeButton" :xs12="!show2FASendCodeButton">
                                     <v-text-field
                                         v-model="twoFactorCode"
@@ -67,34 +67,20 @@
                             </v-layout>
                         </div>
 
+                        <div v-if="showWebAuthnInput">
+                            <v-btn round outline  color="primary" 
+                                class="webauthn-button"
+                                @click.prevent="verifyWebAuthn"
+                                :disabled="loadStatus.inProgress">
+                                <span style="white-space: normal;">Verify WebAuthn</span>
+                            </v-btn>
+                        </div>
+
                         <v-btn round color="primary" large class="mt-4 login-button"
                             @click.prevent="onLoginClicked"
                             :disabled="loadStatus.inProgress">
                             <span style="white-space: normal;">Sign in</span>
                         </v-btn>
-
-                        <v-btn round color="primary" large class="mt-4 login-button"
-                            @click.prevent="registerWebAuthn"
-                            :disabled="loadStatus.inProgress">
-                            <span style="white-space: normal;">Register WebAuthn</span>
-                        </v-btn>
-
-                        <v-btn round color="primary" large class="mt-4 login-button"
-                            @click.prevent="loginWebAuthn"
-                            :disabled="loadStatus.inProgress">
-                            <span style="white-space: normal;">Login using WebAuthn</span>
-                        </v-btn>
-
-                        <div>
-                            ToDo:
-                            <ul>
-                                <li>add options for WebAuthn mode: Off, Optional, Required</li>
-                                <li> - Off: hidden</li>
-                                <li> - Optional: visible all the time, can use WebAuthn to elevate before using password?</li>
-                                <li> - Required: visible all the time, hide password field until WebAuthn is used?</li>
-                                <li>Add optional button in header that shows login in order to elevate access.</li>
-                            </ul>
-                        </div>
 
                         <v-progress-linear color="primary" indeterminate v-if="loadStatus.inProgress"></v-progress-linear>
 
@@ -114,6 +100,20 @@
                             type="error">
                         {{ loadStatus.errorMessage }}
                         </v-alert>
+
+                        <v-btn round color="primary" large class="mt-4 login-button"
+                            @click.prevent="registerWebAuthn"
+                            :disabled="loadStatus.inProgress">
+                            <span style="white-space: normal;">Register WebAuthn</span>
+                        </v-btn>
+
+                        <div>
+                            ToDo:
+                            <ul>
+                                <li>after login click causes webauthn, auto-call login() again after auth</li>
+                                <li>Add optional button in header that shows login in order to elevate access. AllowTOTPElevation, AllowWebAuthnElevation</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
@@ -129,6 +129,9 @@
 </template>
 
 <script lang="ts">
+import { HCLoginTwoFactorCodeInputMode } from "generated/Enums/WebUI/HCLoginTwoFactorCodeInputMode";
+import { HCLoginWebAuthnMode } from "generated/Enums/WebUI/HCLoginWebAuthnMode";
+import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
 import { HCIntegratedLoginRequest } from "generated/Models/WebUI/HCIntegratedLoginRequest";
 import { VerifyWebAuthnAssertionModel } from "generated/Models/WebUI/VerifyWebAuthnAssertionModel";
 import { Vue, Component } from "vue-property-decorator";
@@ -183,12 +186,8 @@ export default class IntegratedLoginPageComponent extends Vue {
         return this.globalOptions.ApplicationTitle;
     }
 
-    get globalOptions(): FrontEndOptionsViewModel {
+    get globalOptions(): HCFrontEndOptions {
         return this.$store.state.globalOptions;
-    }
-
-    get show2FAInput(): boolean {
-        return this.globalOptions.IntegratedLoginShow2FA;
     }
 
     get Send2FACodeEndpoint(): string {
@@ -205,6 +204,30 @@ export default class IntegratedLoginPageComponent extends Vue {
 
     get show2FACodeExpirationTime(): boolean {
         return this.allowShowProgress && !!(this.globalOptions.IntegratedLoginCurrent2FACodeExpirationTime || this.codeExpirationTime);
+    }
+
+    get webAuthnMode(): HCLoginWebAuthnMode {
+        return this.globalOptions.IntegratedLoginWebAuthnMode;
+    }
+    get requireWebAuthn(): boolean
+    {
+        return this.webAuthnMode == HCLoginWebAuthnMode.Required;
+    }
+    get showWebAuthnInput(): boolean
+    {
+        return this.webAuthnMode != HCLoginWebAuthnMode.Off;
+    }
+
+    get twoFactorCodeInputMode(): HCLoginTwoFactorCodeInputMode {
+        return this.globalOptions.IntegratedLoginTwoFactorCodeInputMode;
+    }
+    get requireTwoFactorCode(): boolean
+    {
+        return this.twoFactorCodeInputMode == HCLoginTwoFactorCodeInputMode.Required;
+    }
+    get showTwoFactorCodeInput(): boolean
+    {
+        return this.twoFactorCodeInputMode != HCLoginTwoFactorCodeInputMode.Off;
     }
 
     get twoFactorInputProgress(): number {
@@ -230,11 +253,20 @@ export default class IntegratedLoginPageComponent extends Vue {
     //////////////
     login(): void
     {
+        this.error = '';
+        
         if (this.loadStatus.inProgress) {
             return;
         }
+        else if (this.requireWebAuthn && !this.webAuthnLoginPayload) {
+            this.verifyWebAuthn();
+            return;
+        }
+        else if (this.requireTwoFactorCode && !this.twoFactorCode) {
+            this.error = 'Multi-factor code required.';
+            return;
+        }
 
-        this.error = '';
         let url = this.globalOptions.IntegratedLoginEndpoint;
         let payload: HCIntegratedLoginRequest = {
             Username: this.username,
@@ -327,7 +359,7 @@ export default class IntegratedLoginPageComponent extends Vue {
     //////////////////////
     //  MFA: WebAuthn  //
     ////////////////////
-    loginWebAuthn(): void {
+    verifyWebAuthn(): void {
         let service = new IntegratedLoginService(true);
         service.CreateWebAuthnAssertionOptions('TestUserAsd', this.loadStatus, {
             onSuccess: (options) => {
@@ -560,6 +592,12 @@ export default class IntegratedLoginPageComponent extends Vue {
         text-transform: none;
         font-size: 19px;
         height: 46px;
+    }
+
+    .webauthn-button {
+        margin: 0;
+        text-transform: none;
+        font-size: 19px;
     }
 
     .login-block {

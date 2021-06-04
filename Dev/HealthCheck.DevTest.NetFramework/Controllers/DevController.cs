@@ -286,7 +286,6 @@ namespace HealthCheck.DevTest.Controllers
             config.IntegratedLoginConfig = new HCIntegratedLoginConfig
             {
                 IntegratedLoginEndpoint = "/hclogin/login",
-                Show2FAInput = true,
                 Current2FACodeExpirationTime = HCMfaTotpUtil.GetCurrentTotpCodeExpirationTime(),
                 Send2FACodeEndpoint = "/hclogin/Request2FACode"
             };

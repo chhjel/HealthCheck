@@ -213,8 +213,10 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             config.IntegratedLoginConfig = new HCIntegratedLoginConfig
             {
                 IntegratedLoginEndpoint = "/HCLogin/login",
-                Show2FAInput = true,
                 Current2FACodeExpirationTime = HCMfaTotpUtil.GetCurrentTotpCodeExpirationTime(),
+                Send2FACodeEndpoint = "/hclogin/Request2FACode",
+                TwoFactorCodeInputMode = HCIntegratedLoginConfig.HCLoginTwoFactorCodeInputMode.Required,
+                WebAuthnMode = HCIntegratedLoginConfig.HCLoginWebAuthnMode.Required
             };
         }
 

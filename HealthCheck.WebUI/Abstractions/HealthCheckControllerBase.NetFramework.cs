@@ -136,11 +136,12 @@ namespace HealthCheck.WebUI.Abstractions
             var frontEndOptions = GetFrontEndOptions();
             frontEndOptions.ShowIntegratedLogin = true;
             frontEndOptions.IntegratedLoginEndpoint = Helper?.AccessConfig?.IntegratedLoginConfig?.IntegratedLoginEndpoint;
-            frontEndOptions.IntegratedLoginShow2FA = Helper?.AccessConfig?.IntegratedLoginConfig?.Show2FAInput ?? false;
             frontEndOptions.IntegratedLoginSend2FACodeEndpoint = Helper?.AccessConfig?.IntegratedLoginConfig?.Send2FACodeEndpoint ?? "";
             frontEndOptions.IntegratedLoginSend2FACodeButtonText = Helper?.AccessConfig?.IntegratedLoginConfig?.Send2FACodeButtonText ?? "";
             frontEndOptions.IntegratedLoginCurrent2FACodeExpirationTime = Helper?.AccessConfig?.IntegratedLoginConfig?.Current2FACodeExpirationTime;
             frontEndOptions.IntegratedLogin2FACodeLifetime = Helper?.AccessConfig?.IntegratedLoginConfig?.TwoFactorCodeLifetime ?? 30;
+            frontEndOptions.IntegratedLoginTwoFactorCodeInputMode = Helper?.AccessConfig?.IntegratedLoginConfig?.TwoFactorCodeInputMode ?? HCIntegratedLoginConfig.HCLoginTwoFactorCodeInputMode.Off;
+            frontEndOptions.IntegratedLoginWebAuthnMode = Helper?.AccessConfig?.IntegratedLoginConfig?.WebAuthnMode ?? HCIntegratedLoginConfig.HCLoginWebAuthnMode.Off;
 
             var pageOptions = GetPageOptions();
             var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions);
