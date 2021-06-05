@@ -3,7 +3,7 @@
     /// <summary>
     /// WebAuthn login payload model.
     /// </summary>
-    public class VerifyWebAuthnAssertionModel
+    public class HCVerifyWebAuthnAssertionModel
     {
         /// <summary></summary>
         public string Id { get; set; }

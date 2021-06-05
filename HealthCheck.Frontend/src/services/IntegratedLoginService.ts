@@ -48,26 +48,6 @@ export default class IntegratedLoginService extends HCServiceBase
     }
 
     // MFA: WebAuthn
-    public CreateWebAuthnRegistrationOptions(
-        // url: string,
-        username: string,
-        statusObject: FetchStatus | null = null,
-        callbacks: ServiceFetchCallbacks<any> | null = null
-    ): void {
-        const url = '/hclogin/CreateWebAuthnRegistrationOptions';
-        this.fetchExt<any>(url, 'POST', { Username: username }, statusObject, callbacks, true);
-    }
-    
-    public RegisterWebAuthn(
-        // url: string,
-        payload: any,
-        statusObject: FetchStatus | null = null,
-        callbacks: ServiceFetchCallbacks<any> | null = null
-    ): void {
-        const url = '/hclogin/RegisterWebAuthn';
-        this.fetchExt<any>(url, 'POST', payload, statusObject, callbacks, true);
-    }
-
     public CreateWebAuthnAssertionOptions(
         // url: string,
         username: string,

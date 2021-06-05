@@ -615,7 +615,7 @@ namespace HealthCheck.WebUI.Util
             pageOptions.Validate();
         }
 
-#region Access
+        #region Access
         /// <summary>
         /// Check if the given roles has access to calling the ping endpoint.
         /// </summary>

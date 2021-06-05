@@ -128,7 +128,7 @@ namespace HealthCheck.WebUI.MFA.WebAuthn
 		/// <summary>
 		/// When the client returns a response, we verify it and accepts the login.
 		/// </summary>
-		public async Task<HCGenericResult<AssertionVerificationResult>> VerifyAssertion(AssertionOptions options, VerifyWebAuthnAssertionModel attestationResponse)
+		public async Task<HCGenericResult<AssertionVerificationResult>> VerifyAssertion(AssertionOptions options, HCVerifyWebAuthnAssertionModel attestationResponse)
 			=> await VerifyAssertion(options, attestationResponse.ToAuthenticatorAssertionRawResponse());
 
 		/// <summary>
@@ -140,7 +140,7 @@ namespace HealthCheck.WebUI.MFA.WebAuthn
 			HCWebAuthnStoredCredential creds = _credentialManager.GetCredentialById(clientResponse.Id);
 			if (creds == null)
             {
-				return HCGenericResult<AssertionVerificationResult>.CreateError("Invalid credentials.");
+				return HCGenericResult<AssertionVerificationResult>.CreateError<AssertionVerificationResult>("Invalid credentials.");
             }
 
 			// 3. Get credential counter from database
@@ -161,7 +161,7 @@ namespace HealthCheck.WebUI.MFA.WebAuthn
 
 			if (res?.Status != "ok")
             {
-				return HCGenericResult<AssertionVerificationResult>.CreateError($"Verification failed. {res.ErrorMessage}");
+				return HCGenericResult<AssertionVerificationResult>.CreateError<AssertionVerificationResult>($"Verification failed. {res.ErrorMessage}");
 			}
 
 			return HCGenericResult<AssertionVerificationResult>.CreateSuccess(res);

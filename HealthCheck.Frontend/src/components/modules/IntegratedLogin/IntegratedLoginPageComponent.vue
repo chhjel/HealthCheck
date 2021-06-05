@@ -101,17 +101,46 @@
                         {{ loadStatus.errorMessage }}
                         </v-alert>
 
-                        <v-btn round color="primary" large class="mt-4 login-button"
-                            @click.prevent="registerWebAuthn"
-                            :disabled="loadStatus.inProgress">
-                            <span style="white-space: normal;">Register WebAuthn</span>
-                        </v-btn>
-
                         <div>
                             ToDo:
                             <ul>
-                                <li>after login click causes webauthn, auto-call login() again after auth</li>
-                                <li>Add optional button in header that shows login in order to elevate access. AllowTOTPElevation, AllowWebAuthnElevation</li>
+                                <li>
+                                    Add optional button in header that shows user details.
+                                    <ul>
+                                        <li>Show current roles and username</li>
+                                        <li>Logout link if configured</li>
+                                        <li>Access elevation if enabled</li>
+                                        <li>Setup MFA if enabled</li>
+                                        <li>(later) change password if enabled</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    UserProfileOptions (get per request):
+                                    <ul>
+                                        <li>ShowHealthCheckRoles</li>
+                                        <li>List`HCHyperlink` CustomLinks</li>
+
+                                        <li>AllowTotpElevation</li>
+                                        <li>AllowAddTtop => QR Code</li>
+                                        <li>AllowRemoveTtop</li>
+
+                                        <li>AllowWebAuthnElevation</li>
+                                        <li>AllowAddWebAuthn</li>
+                                        <li>AllowRemoveWebAuthn</li>
+                                    </ul>
+                                </li>
+                                <li>HCMfaTotpService/HCMfaOtpService/HCMfaWebAuthnService?
+                                    <ul>
+                                        <li>StoreTotpSecret(username)</li>
+                                        <li>SupportsGetTotpSecret</li>
+                                        <li>SupportsStoreTotpSecret</li>
+                                        
+                                        <li>GetWebAuthnSecret(username)</li>
+                                        <li>StoreWebAuthnSecret(username, data)</li>
+                                        <li>SupportsGetWebAuthnSecret</li>
+                                        <li>SupportsStoreWebAuthnSecret</li>
+                                    </ul>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -135,11 +164,11 @@ import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
 import { HCIntegratedLoginRequest } from "generated/Models/WebUI/HCIntegratedLoginRequest";
 import { VerifyWebAuthnAssertionModel } from "generated/Models/WebUI/VerifyWebAuthnAssertionModel";
 import { Vue, Component } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
 import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
 import IntegratedLoginService, { HCIntegratedLoginRequest2FACodeRequest, HCIntegratedLoginResult } from '../../../services/IntegratedLoginService';
 import BlockComponent from '../../Common/Basic/BlockComponent.vue';
 import FloatingSquaresEffectComponent from '../../Common/Effects/FloatingSquaresEffectComponent.vue';
+import WebAuthnUtil from 'util/WebAuthnUtil';
 
 @Component({
     components: {
@@ -166,6 +195,7 @@ export default class IntegratedLoginPageComponent extends Vue {
     codeExpirationDuration: number | null = null;
     allowShowProgress: boolean = true;
     isSingleProgress: boolean = false;
+    autoCallLoginAfterNextWebAuthn: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -260,6 +290,7 @@ export default class IntegratedLoginPageComponent extends Vue {
         }
         else if (this.requireWebAuthn && !this.webAuthnLoginPayload) {
             this.verifyWebAuthn();
+            this.autoCallLoginAfterNextWebAuthn = true;
             return;
         }
         else if (this.requireTwoFactorCode && !this.twoFactorCode) {
@@ -361,12 +392,13 @@ export default class IntegratedLoginPageComponent extends Vue {
     ////////////////////
     verifyWebAuthn(): void {
         let service = new IntegratedLoginService(true);
-        service.CreateWebAuthnAssertionOptions('TestUserAsd', this.loadStatus, {
+        service.CreateWebAuthnAssertionOptions(this.username, this.loadStatus, {
             onSuccess: (options) => {
                 console.log(options);
                 this.onWebAuthnAssertionOptionsCreated(options);
             },
-            onError: (e) => console.error(e)
+            onError: (e) => console.error(e),
+            onDone: () => this.autoCallLoginAfterNextWebAuthn = false
         });
     }
 
@@ -378,9 +410,9 @@ export default class IntegratedLoginPageComponent extends Vue {
             return;
         }
 
-        options.challenge = this.coerceToArrayBuffer(options.challenge);
+        options.challenge = WebAuthnUtil.coerceToArrayBuffer(options.challenge);
         options.allowCredentials.forEach((item: any) => {
-            item.id = this.coerceToArrayBuffer(item.id);
+            item.id = WebAuthnUtil.coerceToArrayBuffer(item.id);
         });
         console.log("VerifyAssertion", options);
 
@@ -393,17 +425,21 @@ export default class IntegratedLoginPageComponent extends Vue {
             let sig = new Uint8Array(assertedCredential.response.signature);
             const payload: VerifyWebAuthnAssertionModel = {
                 Id: assertedCredential.id,
-                RawId: this.coerceToBase64Url(rawId),
+                RawId: WebAuthnUtil.coerceToBase64Url(rawId),
                 Extensions: assertedCredential.getClientExtensionResults(),
                 Response: {
-                    AuthenticatorData: this.coerceToBase64Url(authData),
-                    ClientDataJson: this.coerceToBase64Url(clientDataJSON),
-                    Signature: this.coerceToBase64Url(sig)
+                    AuthenticatorData: WebAuthnUtil.coerceToBase64Url(authData),
+                    ClientDataJson: WebAuthnUtil.coerceToBase64Url(clientDataJSON),
+                    Signature: WebAuthnUtil.coerceToBase64Url(sig)
                 }
             };
             console.log("VerifyAssertion payload", payload);
 
             this.webAuthnLoginPayload = payload;
+            if (this.autoCallLoginAfterNextWebAuthn)
+            {
+                this.login();
+            }
 
             // let service = new IntegratedLoginService(true);
             // service.VerifyAssertion(payload, this.loadStatus, {
@@ -416,149 +452,6 @@ export default class IntegratedLoginPageComponent extends Vue {
             alert(e);
         }
     }
-
-    registerWebAuthn(): void {
-        let service = new IntegratedLoginService(true);
-        service.CreateWebAuthnRegistrationOptions('TestUserAsd', this.loadStatus, {
-            onSuccess: (options) => {
-                this.onWebAuthnRegistrationOptionsCreated(options);
-            },
-            onError: (e) => console.error(e)
-        });
-    }
-
-    async onWebAuthnRegistrationOptionsCreated(options: any): Promise<void> {
-        if (options.status !== "ok")
-        {
-            alert('Status not ok, check log.');
-            console.error(options);
-            return;
-        }
-
-        // Turn the challenge back into the accepted format of padded base64
-        options.challenge = this.coerceToArrayBuffer(options.challenge);
-        // Turn ID into a UInt8Array Buffer for some reason
-        options.user.id = this.coerceToArrayBuffer(options.user.id);
-        options.excludeCredentials = options.excludeCredentials.map((c: any) => {
-            c.id = this.coerceToArrayBuffer(c.id);
-            return c;
-        });
-        if (options.authenticatorSelection.authenticatorAttachment === null) options.authenticatorSelection.authenticatorAttachment = undefined;
-
-        let newCredential;
-        try {
-            newCredential = await navigator.credentials.create({
-                publicKey: options
-            }) as any;
-        } catch (e) {
-            var msg = "Could not create credentials in browser. Probably because the username is already registered with your authenticator. Please change username or authenticator."
-            console.error(msg, e);
-            alert(msg);
-            return;
-        }
-
-        console.log("PublicKeyCredential Created", newCredential);
-
-        try {
-            let attestationObject = new Uint8Array(newCredential.response.attestationObject);
-            let clientDataJSON = new Uint8Array(newCredential.response.clientDataJSON);
-            let rawId = new Uint8Array(newCredential.rawId);
-
-            const registerPayload = {
-                id: newCredential.id,
-                rawId: this.coerceToBase64Url(rawId),
-                type: newCredential.type,
-                extensions: newCredential.getClientExtensionResults(),
-                response: {
-                    AttestationObject: this.coerceToBase64Url(attestationObject),
-                    clientDataJson: this.coerceToBase64Url(clientDataJSON)
-                }
-            };
-
-            console.log("RegisterWebAuthn", registerPayload);
-            let service = new IntegratedLoginService(true);
-            service.RegisterWebAuthn(registerPayload, this.loadStatus, {
-                onSuccess: (d) => console.log(d),
-                onError: (e) => console.error(e)
-            });
-        } catch (e) {
-            console.error('RegisterWebAuthn failed');
-            console.error(e);
-            alert(e);
-        }
-    }
-    
-    coerceToArrayBuffer(thing: string | Array<any> | Uint8Array | ArrayBufferLike): ArrayBuffer {
-        let converted = thing;
-        if (typeof converted === "string") {
-            // base64url to base64
-            converted = converted.replace(/-/g, "+").replace(/_/g, "/");
-
-            // base64 to Uint8Array
-            const str = window.atob(converted);
-            const bytes = new Uint8Array(str.length);
-            for (let i = 0; i < str.length; i++) {
-                bytes[i] = str.charCodeAt(i);
-            }
-            converted = bytes;
-        }
-
-        // Array to Uint8Array
-        if (Array.isArray(converted)) {
-            converted = new Uint8Array(converted);
-        }
-
-        // Uint8Array to ArrayBuffer
-        if (converted instanceof Uint8Array) {
-            converted = converted.buffer;
-        }
-
-        // error if none of the above worked
-        if (!(converted instanceof ArrayBuffer)) {
-            throw new TypeError("could not coerce to ArrayBuffer");
-        }
-
-        if (converted.byteLength <= 0)
-        {
-            throw new TypeError("coerced  length is zero");
-        }
-
-        return converted;
-    };
-
-
-    coerceToBase64Url(thing: any): any {
-        // Array or ArrayBuffer to Uint8Array
-        if (Array.isArray(thing)) {
-            thing = Uint8Array.from(thing);
-        }
-
-        if (thing instanceof ArrayBuffer) {
-            thing = new Uint8Array(thing);
-        }
-
-        // Uint8Array to base64
-        if (thing instanceof Uint8Array) {
-            var str = "";
-            var len = thing.byteLength;
-
-            for (var i = 0; i < len; i++) {
-                str += String.fromCharCode(thing[i]);
-            }
-            thing = window.btoa(str);
-        }
-
-        if (typeof thing !== "string") {
-            throw new Error("could not coerce to string");
-        }
-
-        // base64 to base64url
-        // NOTE: "=" at the end of challenge is optional, strip it off here
-        thing = thing.replace(/\+/g, "-").replace(/\//g, "_").replace(/=*$/g, "");
-
-        return thing;
-    };
-
 
     ///////////////////////
     //  EVENT HANDLERS  //

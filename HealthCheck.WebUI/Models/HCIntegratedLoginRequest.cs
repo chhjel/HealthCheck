@@ -23,6 +23,6 @@
         /// <summary>
         /// Payload from WebAuthn if any.
         /// </summary>
-        public VerifyWebAuthnAssertionModel WebAuthnPayload { get; set; }
+        public HCVerifyWebAuthnAssertionModel WebAuthnPayload { get; set; }
     }
 }

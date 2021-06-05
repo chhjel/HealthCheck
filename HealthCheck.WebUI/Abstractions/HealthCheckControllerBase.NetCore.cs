@@ -127,6 +127,12 @@ namespace HealthCheck.WebUI.Abstractions
             }
 
             var frontEndOptions = GetFrontEndOptions();
+            frontEndOptions.IntegratedProfileConfig = Helper?.AccessConfig?.IntegratedProfileConfig ?? new HCIntegratedProfileConfig();
+            if (frontEndOptions?.IntegratedProfileConfig?.Hide == false)
+            {
+                frontEndOptions.UserRoles = EnumUtils.TryGetEnumFlaggedValueNames(CurrentRequestAccessRoles.Value);
+            }
+
             var pageOptions = GetPageOptions();
             var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions);
 
@@ -229,9 +235,140 @@ namespace HealthCheck.WebUI.Abstractions
 
             return Content("OK");
         }
-#endregion
 
-#region Virtuals
+        #region MFA
+        /// <summary>
+        /// Attempts to elevate access using a TOTP code if enabled.
+        /// </summary>
+        [HideFromRequestLog]
+        [HttpPost]
+        [Route("ProfileElevateTotp")]
+        public virtual ActionResult ProfileElevateTotp(ProfileElevateTotpRequest model)
+        {
+            if (!Enabled
+                || Helper?.AccessConfig?.IntegratedProfileConfig?.TotpElevationEnabled != true
+                || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
+                return NotFound();
+
+            var result = Helper.AccessConfig.IntegratedProfileConfig.TotpElevationLogic(model?.Code);
+            return Json(result);
+        }
+        ///<summary></summary>
+        public class ProfileElevateTotpRequest
+        {
+            ///<summary></summary>
+            public string Code { get; set; }
+        }
+
+        /// <summary>
+        /// Attempts to register a TOTP code if enabled.
+        /// </summary>
+        [HideFromRequestLog]
+        [HttpPost]
+        [Route("ProfileRegisterTotp")]
+        public virtual ActionResult ProfileRegisterTotp([FromBody] ProfileRegisterTotpRequest model)
+        {
+            if (!Enabled
+                || Helper?.AccessConfig?.IntegratedProfileConfig?.AddTotpEnabled != true
+                || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
+                return NotFound();
+
+            var result = Helper.AccessConfig.IntegratedProfileConfig.AddTotpLogic(model?.Secret, model?.Code);
+            return Json(result);
+        }
+        ///<summary></summary>
+        public class ProfileRegisterTotpRequest
+        {
+            ///<summary></summary>
+            public string Secret { get; set; }
+
+            ///<summary></summary>
+            public string Code { get; set; }
+        }
+
+        /// <summary>
+        /// Attempts to remove any TOTP code from the profile if enabled.
+        /// </summary>
+        [HideFromRequestLog]
+        [HttpPost]
+        [Route("ProfileRemoveTotp")]
+        public virtual ActionResult ProfileRemoveTotp()
+        {
+            if (!Enabled
+                || Helper?.AccessConfig?.IntegratedProfileConfig?.RemoveTotpEnabled != true
+                || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
+                return NotFound();
+
+            var result = Helper.AccessConfig.IntegratedProfileConfig.RemoveTotpLogic();
+            return Json(result);
+        }
+
+        /// <summary>
+        /// Attempts to elevate access using WebAuthn if enabled.
+        /// </summary>
+        [HideFromRequestLog]
+        [HttpPost]
+        [Route("ProfileElevateWebAuthn")]
+        public virtual ActionResult ProfileElevateWebAuthn(ProfileElevateWebAuthnRequest model)
+        {
+            if (!Enabled
+                || Helper?.AccessConfig?.IntegratedProfileConfig?.WebAuthnElevationEnabled != true
+                || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
+                return NotFound();
+
+            var result = Helper.AccessConfig.IntegratedProfileConfig.WebAuthnElevationLogic(model?.Data);
+            return Json(result);
+        }
+        ///<summary></summary>
+        public class ProfileElevateWebAuthnRequest
+        {
+            ///<summary></summary>
+            public HCVerifyWebAuthnAssertionModel Data { get; set; }
+        }
+
+        /// <summary>
+        /// Attempts to register WebAuthn if enabled.
+        /// </summary>
+        [HideFromRequestLog]
+        [HttpPost]
+        [Route("ProfileRegisterWebAuthn")]
+        public virtual ActionResult ProfileRegisterWebAuthn([FromBody] ProfileRegisterWebAuthnRequest model)
+        {
+            if (!Enabled
+                || Helper?.AccessConfig?.IntegratedProfileConfig?.AddWebAuthnEnabled != true
+                || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
+                return NotFound();
+
+            var result = Helper.AccessConfig.IntegratedProfileConfig.AddWebAuthnLogic(model?.Data);
+            return Json(result);
+        }
+        ///<summary></summary>
+        public class ProfileRegisterWebAuthnRequest
+        {
+            ///<summary></summary>
+            public string Data { get; set; }
+        }
+
+        /// <summary>
+        /// Attempts to remove WebAuthn from the profile if enabled.
+        /// </summary>
+        [HideFromRequestLog]
+        [HttpPost]
+        [Route("ProfileRemoveWebAuthn")]
+        public virtual ActionResult ProfileRemoveWebAuthn()
+        {
+            if (!Enabled
+                || Helper?.AccessConfig?.IntegratedProfileConfig?.RemoveWebAuthnEnabled != true
+                || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
+                return NotFound();
+
+            var result = Helper.AccessConfig.IntegratedProfileConfig.RemoveWebAuthnLogic();
+            return Json(result);
+        }
+        #endregion
+        #endregion
+
+        #region Virtuals
         /// <summary>
         /// Resolve client ip from the current request.
         /// </summary>

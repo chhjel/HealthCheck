@@ -5,14 +5,14 @@ using HealthCheck.WebUI.Models;
 namespace HealthCheck.WebUI.MFA.WebAuthn.Extensions
 {
     /// <summary>
-    /// Extensions for <see cref="VerifyWebAuthnAssertionModel"/>.
+    /// Extensions for <see cref="HCVerifyWebAuthnAssertionModel"/>.
     /// </summary>
     public static class VerifyFidoAssertionRequestExtensions
     {
         /// <summary>
         /// Convert into a <see cref="AuthenticatorAssertionRawResponse"/>.
         /// </summary>
-        public static AuthenticatorAssertionRawResponse ToAuthenticatorAssertionRawResponse(this VerifyWebAuthnAssertionModel model)
+        public static AuthenticatorAssertionRawResponse ToAuthenticatorAssertionRawResponse(this HCVerifyWebAuthnAssertionModel model)
         {
             if (model == null)
             {

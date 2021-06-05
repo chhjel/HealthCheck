@@ -218,6 +218,48 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 TwoFactorCodeInputMode = HCIntegratedLoginConfig.HCLoginTwoFactorCodeInputMode.Required,
                 WebAuthnMode = HCIntegratedLoginConfig.HCLoginWebAuthnMode.Required
             };
+            config.IntegratedProfileConfig = new HCIntegratedProfileConfig
+            {
+                Username = CurrentRequestInformation.UserName,
+                TotpElevationLogic = (c) =>
+                {
+                    var key = "_dev_totp_secret";
+                    var secret = Request.HttpContext.Session.GetString(key);
+                    if (string.IsNullOrWhiteSpace(secret) || !HCMfaTotpUtil.ValidateTotpCode(secret, c))
+                    {
+                        return HCGenericResult.CreateError("Invalid code");
+                    }
+                    Request.HttpContext.Session.SetString("_dev_2fa_validated", "true");
+                    return HCGenericResult.CreateSuccess();
+                },
+                AddTotpLogic = (secret, code) =>
+                {
+                    var key = "_dev_totp_secret";
+                    if (!string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(key)))
+                    {
+                        return HCGenericResult.CreateError("TOTP already activated.");
+                    }
+                    else if (!HCMfaTotpUtil.ValidateTotpCode(secret, code))
+                    {
+                        return HCGenericResult.CreateError("Invalid code");
+                    }
+                    Request.HttpContext.Session.SetString(key, secret);
+                    return HCGenericResult.CreateSuccess();
+                },
+                RemoveTotpLogic = () =>
+                {
+                    var key = "_dev_totp_secret";
+                    if (string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(key)))
+                    {
+                        return HCGenericResult.CreateError("TOTP already removed.");
+                    }
+                    Request.HttpContext.Session.Remove(key);
+                    return HCGenericResult.CreateSuccess();
+                },
+                WebAuthnElevationLogic = (d) => HCGenericResult.CreateError("Not implemented yet"),
+                AddWebAuthnLogic = (d) => HCGenericResult.CreateError("Not implemented yet"),
+                RemoveWebAuthnLogic = () => HCGenericResult.CreateError("Not implemented yet")
+            };
         }
 
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequest request)

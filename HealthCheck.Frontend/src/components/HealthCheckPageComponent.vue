@@ -28,6 +28,10 @@
                 </v-toolbar-items>
             </v-toolbar>
 
+            <!-- TMP -->
+            <health-check-profile-component v-if="showIntegratedProfile" />
+            <!-- EO_TMP -->
+
             <!-- CONTENT -->
             <invalid-module-configs-component
                 v-if="invalidModuleConfigs.length > 0"
@@ -49,16 +53,18 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 import NoPageAvailablePageComponent from './NoPageAvailablePageComponent.vue';
 import InvalidModuleConfigsComponent from './InvalidModuleConfigsComponent.vue';
 import IntegratedLoginPageComponent from './modules/IntegratedLogin/IntegratedLoginPageComponent.vue';
-import FrontEndOptionsViewModel from '../models/Common/FrontEndOptionsViewModel';
 import ModuleConfig from "../models/Common/ModuleConfig";
 import BackendInputComponent from "./Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import HealthCheckProfileComponent from 'components/profile/HealthCheckProfileComponent.vue';
+import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
 
 @Component({
     components: {
         NoPageAvailablePageComponent,
         InvalidModuleConfigsComponent,
         IntegratedLoginPageComponent,
-        BackendInputComponent
+        BackendInputComponent,
+        HealthCheckProfileComponent
     }
 })
 export default class HealthCheckPageComponent extends Vue {
@@ -76,6 +82,11 @@ export default class HealthCheckPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get showIntegratedProfile(): boolean {
+        return this.globalOptions.IntegratedProfileConfig
+            && !this.globalOptions.IntegratedProfileConfig.Hide;
+    }
+
     get showIntegratedLogin(): boolean {
         return this.globalOptions.ShowIntegratedLogin;
     }
@@ -88,7 +99,7 @@ export default class HealthCheckPageComponent extends Vue {
         return this.moduleConfig.filter(x => x.LoadedSuccessfully);
     }
 
-    get globalOptions(): FrontEndOptionsViewModel {
+    get globalOptions(): HCFrontEndOptions {
         return this.$store.state.globalOptions;
     }
 

@@ -74,7 +74,7 @@ namespace HealthCheck.WebUI.Serializers
             }
             catch (Exception ex)
             {
-                return HCGenericResult<object>.CreateError(ex);
+                return HCGenericResult<object>.CreateError<object>(ex);
             }
         }
 
