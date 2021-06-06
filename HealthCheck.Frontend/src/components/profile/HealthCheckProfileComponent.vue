@@ -32,29 +32,27 @@
             Remove TOTP
         </v-btn>
 
-        <v-alert :value="totpLoadStatus.failed" type="error">
-        {{ totpLoadStatus.errorMessage }}
-        </v-alert>
-        <br />
-
-        <div v-if="profileOptions.WebAuthnElevationEnabled && false">
+        <div v-if="profileOptions.WebAuthnElevationEnabled" style="border: 2px solid gray; margin: 20px; padding: 10px;">
             <h2>WebAuthn elevation</h2>
             <v-btn
                 round color="primary" large
                 @click.prevent="elevateWebAuthn"
                 :disabled="webAuthnLoadStatus.inProgress">
-                Elevate access using WebAuthn
+                Elevate access
             </v-btn>
             <div class="error-result">{{ webAuthnElevationError }}</div>
         </div>
 
-        <div v-if="profileOptions.AddWebAuthnEnabled && false">
+        <div v-if="profileOptions.AddWebAuthnEnabled" style="border: 2px solid gray; margin: 20px; padding: 10px;">
+            <!--
+            addWebAuthnDialogVisible: boolean = false;
+            -->
             <h2>Add WebAuthn</h2>
             <input-component
                 name="Confirm account password"
                 autocomplete="current-password"
                 v-model="registerWebAuthnPassword"
-                :disabled="totpAddLoadStatus.inProgress"
+                :disabled="webAuthnAddLoadStatus.inProgress"
                 type="password"
                 :clearable="true"
             ></input-component>
@@ -65,10 +63,16 @@
                 :disabled="webAuthnLoadStatus.inProgress">
                 Register WebAuthn
             </v-btn>
+
+            <v-alert :value="webAuthnAddLoadStatus.failed" type="error">
+            {{ webAuthnAddLoadStatus.errorMessage }}
+            </v-alert>
+
+            <div class="success-result">{{ webAuthnAddSuccessMessage }}</div>
             <div class="error-result">{{ webAuthnAddError }}</div>
         </div>
 
-        <div v-if="profileOptions.RemoveWebAuthnEnabled && false">
+        <div v-if="profileOptions.RemoveWebAuthnEnabled" style="border: 2px solid gray; margin: 20px; padding: 10px;">
             <h2>Remove WebAuthn</h2>
             <input-component
                 name="Confirm account password"
@@ -112,15 +116,15 @@
                 <v-card-text>
                     <input-component
                         name="TOTP code"
-                        v-model="totpCode"
-                        :disabled="totpLoadStatus.inProgress"
+                        v-model="totpElevateCode"
+                        :disabled="totpElevateLoadStatus.inProgress"
                         :clearable="true"
                     ></input-component>
 
                     <v-btn
                         round color="primary" large class="mt-4"
                         @click.prevent="elevateTotp"
-                        :disabled="totpLoadStatus.inProgress">
+                        :disabled="totpElevateLoadStatus.inProgress">
                         Elevate access
                     </v-btn>
 
@@ -276,33 +280,38 @@ export default class HealthCheckProfileComponent extends Vue
 {
     service: IntegratedProfileService = new IntegratedProfileService(this.globalOptions.EndpointBase, this.globalOptions.InludeQueryStringInApiCalls);
 
-    totpLoadStatus: FetchStatus = new FetchStatus();
+    // TOTP
     totpElevateLoadStatus: FetchStatus = new FetchStatus();
-    totpAddLoadStatus: FetchStatus = new FetchStatus();
-    totpRemoveLoadStatus: FetchStatus = new FetchStatus();
-    totpCode: string = '';
-    registerTotpSecret: string = '';
-    registerTotpCode: string = '';
-    registerTotpPassword: string = '';
-    removeTotpPassword: string = '';
-
     elevateTotpDialogVisible: boolean = false;
     totpElevationError: string = '';
     totpElevateSuccessMessage: string = '';
+    totpElevateCode: string = '';
 
+    totpAddLoadStatus: FetchStatus = new FetchStatus();
     addTotpDialogVisible: boolean = false;
     totpAddError: string = '';
     totpAddSuccessMessage: string = '';
+    registerTotpSecret: string = '';
+    registerTotpCode: string = '';
+    registerTotpPassword: string = '';
     
+    totpRemoveLoadStatus: FetchStatus = new FetchStatus();
     removeTotpDialogVisible: boolean = false;
     totpRemoveError: string = '';
     totpRemoveSuccessMessage: string = '';
+    removeTotpPassword: string = '';
 
+    // WEBAUTHN
+    webAuthnAddLoadStatus: FetchStatus = new FetchStatus();
+    addWebAuthnDialogVisible: boolean = false;
+    webAuthnAddError: string = '';
+    webAuthnAddSuccessMessage: string = '';
+    registerWebAuthnPassword: string = '';
+
+    // Other
     webAuthnLoadStatus: FetchStatus = new FetchStatus();
     webAuthnElevationError: string = '';
-    webAuthnAddError: string = '';
     webAuthnRemoveError: string = '';
-    registerWebAuthnPassword: string = '';
     removeWebAuthnPassword: string = '';
 
     //////////////////
@@ -344,19 +353,22 @@ export default class HealthCheckProfileComponent extends Vue
     //  METHODS  //
     //////////////
     elevateTotp(): void {
-        this.service.ElevateTotp(this.totpCode, this.totpLoadStatus,
+        this.service.ElevateTotp(this.totpElevateCode, this.totpElevateLoadStatus,
             { onSuccess: (d) => this.totpElevationError = (d as any).error || '' });
     }
 
     registerTotp(): void {
         this.totpAddSuccessMessage = '';
-        this.service.RegisterTotp(this.registerTotpSecret, this.registerTotpCode, this.registerTotpPassword, this.totpLoadStatus,
+        this.service.RegisterTotp(this.registerTotpSecret, this.registerTotpCode, this.registerTotpPassword, this.totpAddLoadStatus,
             {
                 onSuccess: (d) => {
                     this.totpAddError = (d as any).error || '';
+                    this.registerTotpPassword = '';
                     if (!this.totpAddError)
                     {
                         this.totpAddSuccessMessage = 'TOTP authenticator added';
+                        this.registerTotpSecret = '';
+                        this.registerTotpCode = '';
                     }
                 }
             });
@@ -364,10 +376,11 @@ export default class HealthCheckProfileComponent extends Vue
 
     removeTotp(): void {
         this.totpRemoveSuccessMessage = '';
-        this.service.RemoveTotp(this.removeTotpPassword, this.totpLoadStatus,
+        this.service.RemoveTotp(this.removeTotpPassword, this.totpRemoveLoadStatus,
             {
                 onSuccess: (d) => {
                     this.totpRemoveError = (d as any).error || '';
+                    this.removeTotpPassword = '';
                     if (!this.totpRemoveError)
                     {
                         this.totpRemoveSuccessMessage = 'TOTP authenticator removed';
@@ -389,9 +402,15 @@ export default class HealthCheckProfileComponent extends Vue
 
     registerWebAuthn(): void {
         this.webAuthnAddError = '';
-        this.service.CreateWebAuthnRegistrationOptions(this.username, this.webAuthnLoadStatus, {
-            onSuccess: (options) => {
-                this.onWebAuthnRegistrationOptionsCreated(options);
+        this.service.CreateWebAuthnRegistrationOptions(this.username, this.registerWebAuthnPassword, this.webAuthnAddLoadStatus, {
+            onSuccess: (d) => {
+                if (d.Success)
+                {
+                    this.onWebAuthnRegistrationOptionsCreated(d.Data);
+                }
+                else {
+                    this.webAuthnAddError = d.Error;
+                }
             },
             onError: (e) => this.webAuthnAddError = e
         });
@@ -421,10 +440,9 @@ export default class HealthCheckProfileComponent extends Vue
                 publicKey: options
             }) as any;
         } catch (e) {
-            var msg = "Could not create credentials in browser. Probably because the username is already registered with your authenticator. Please change username or authenticator."
+            var msg = "Could not create credentials in browser. Probably either because the username is already registered with your authenticator, or you cancelled the process. Please change username or authenticator, or try again."
             this.webAuthnAddError = msg;
             console.error(msg, e);
-            alert(msg);
             return;
         }
 
@@ -444,12 +462,15 @@ export default class HealthCheckProfileComponent extends Vue
                 }
             };
 
-            this.service.RegisterWebAuthn(this.registerWebAuthnPassword, registerPayload, this.webAuthnLoadStatus);
+            this.service.RegisterWebAuthn(this.registerWebAuthnPassword, registerPayload, this.webAuthnAddLoadStatus, {
+                onSuccess: (d) => {
+                    this.registerWebAuthnPassword = '';
+                }
+            });
         } catch (e) {
             this.webAuthnAddError = e;
             console.error('RegisterWebAuthn failed');
             console.error(e);
-            alert(e);
         }
     }
 

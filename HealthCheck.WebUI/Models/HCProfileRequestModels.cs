@@ -50,4 +50,14 @@
         ///<summary></summary>
         public string RegistrationData { get; set; }
     }
+
+    ///<summary></summary>
+    public class HCCreateWebAuthnRegistrationOptionsRequest
+    {
+        ///<summary></summary>
+        public string UserName { get; set; }
+
+        ///<summary></summary>
+        public string Password { get; set; }
+    }
 }

@@ -39,6 +39,8 @@ using HealthCheck.Dev.Common.Tests;
 using HealthCheck.Module.DevModule;
 using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.MFA.TOTP;
+using HealthCheck.WebUI.MFA.WebAuthn;
+using HealthCheck.WebUI.MFA.WebAuthn.Storage;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Services;
 using Microsoft.AspNetCore.Hosting;
@@ -264,6 +266,17 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                     Request.HttpContext.Session.Remove(key);
                     return HCGenericResult.CreateSuccess();
                 },
+                CreateWebAuthnRegistrationOptionsLogic = (username, password) =>
+                {
+                    if (password != "toor")
+                    {
+                        return HCGenericResult<object>.CreateError<object>("Invalid password");
+                    }
+                    var webauthn = CreateWebAuthnHelper();
+                    var options = webauthn.CreateClientOptions(username);
+                    HttpContext.Session.SetString("WebAuthn.attestationOptions", options.ToJson());
+                    return HCGenericResult<object>.CreateSuccess<object>(options);
+                },
                 WebAuthnElevationLogic = (d) => HCGenericResult.CreateError("Not configured yet"),
                 AddWebAuthnLogic = (pwd, d) => HCGenericResult.CreateError("Not configured yet"),
                 RemoveWebAuthnLogic = (pwd) => HCGenericResult.CreateError("Not configured yet")
@@ -313,6 +326,8 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
         #endregion
 
         #region dev
+        private HCWebAuthnHelper CreateWebAuthnHelper() => new HCWebAuthnHelper("localhost", "HCDev", Request.Headers["Origin"], new HCMemoryWebAuthnCredentialManager());
+
         [Route("GetMainScript")]
         public ActionResult GetMainScript() => LoadFile("healthcheck.js");
 

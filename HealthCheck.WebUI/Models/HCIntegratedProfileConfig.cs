@@ -93,6 +93,7 @@ namespace HealthCheck.WebUI.Models
         /// <para>Requires <see cref="Username"/> to be set.</para>
         /// <para>Input string 1 is the users password to validate.</para>
         /// <para>Input string 2 is the WebAuthn payload in json format to store on the user.</para>
+        /// <para>Also requires <see cref="CreateWebAuthnRegistrationOptionsLogic"/> to be set.</para>
         /// </summary>
         [JsonIgnore]
         public AddWebAuthnDelegate AddWebAuthnLogic { get; set; }
@@ -103,7 +104,18 @@ namespace HealthCheck.WebUI.Models
         /// <para>Defaults to true.</para>
         /// </summary>
         public bool ShowAddWebAuthn { get; set; } = true;
-        [JsonProperty] internal bool AddWebAuthnEnabled => ShowAddWebAuthn && AddWebAuthnLogic != null && !string.IsNullOrWhiteSpace(Username);
+        [JsonProperty] internal bool AddWebAuthnEnabled => ShowAddWebAuthn 
+            && AddWebAuthnLogic != null && CreateWebAuthnRegistrationOptionsLogic != null
+            && !string.IsNullOrWhiteSpace(Username);
+
+        /// <summary>
+        /// Required for <see cref="AddWebAuthnLogic"/> to function.
+        /// <para>Should return the webauthn credentials create options object.</para>
+        /// </summary>
+        [JsonIgnore]
+        public CreateWebAuthnRegistrationOptionsDelegate CreateWebAuthnRegistrationOptionsLogic { get; set; }
+        /// <summary>Signature for creating the webauthn credentials create options object. Password should be validated.</summary>
+        public delegate HCGenericResult<object> CreateWebAuthnRegistrationOptionsDelegate(string username, string password);
 
         /// <summary>
         /// If set, allows removing the users WebAuthn binding from the profile page.

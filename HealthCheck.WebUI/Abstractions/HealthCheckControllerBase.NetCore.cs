@@ -236,7 +236,7 @@ namespace HealthCheck.WebUI.Abstractions
             return Content("OK");
         }
 
-        #region MFA
+#region MFA
         /// <summary>
         /// Attempts to elevate access using a TOTP code if enabled.
         /// </summary>
@@ -306,6 +306,23 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
+        /// Attempts to create register options WebAuthn if enabled.
+        /// </summary>
+        [HideFromRequestLog]
+        [HttpPost]
+        [Route("ProfileCreateWebAuthnRegistrationOptions")]
+        public virtual ActionResult ProfileCreateWebAuthnRegistrationOptions([FromBody] HCCreateWebAuthnRegistrationOptionsRequest model)
+        {
+            if (!Enabled
+                || Helper?.AccessConfig?.IntegratedProfileConfig?.AddWebAuthnEnabled != true
+                || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
+                return NotFound();
+
+            var options = Helper.AccessConfig.IntegratedProfileConfig.CreateWebAuthnRegistrationOptionsLogic(model?.UserName, model?.Password);
+            return CreateJsonResult(options, stringEnums: false);
+        }
+
+        /// <summary>
         /// Attempts to register WebAuthn if enabled.
         /// </summary>
         [HideFromRequestLog]
@@ -338,10 +355,10 @@ namespace HealthCheck.WebUI.Abstractions
             var result = Helper.AccessConfig.IntegratedProfileConfig.RemoveWebAuthnLogic(model?.Password);
             return Json(result);
         }
-        #endregion
-        #endregion
+#endregion
+#endregion
 
-        #region Virtuals
+#region Virtuals
         /// <summary>
         /// Resolve client ip from the current request.
         /// </summary>
@@ -352,7 +369,7 @@ namespace HealthCheck.WebUI.Abstractions
 #region Overrides
         /// <summary>
         /// Calls GetRequestInformation and SetOptions.
-        /// </summary>
+        /// </summar
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var request = context?.HttpContext?.Request;
@@ -380,8 +397,8 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Serializes the given object into a json result.
         /// </summary>
-        protected ActionResult CreateJsonResult(object obj)
-            => Content(Helper.SerializeJson(obj), "application/json");
+        protected ActionResult CreateJsonResult(object obj, bool stringEnums = true)
+            => Content(Helper.SerializeJson(obj, stringEnums), "application/json");
 
         /// <summary>
         /// Request model sent to <see cref="InvokeModuleMethod"/>.

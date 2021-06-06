@@ -1,3 +1,4 @@
+import { HCCreateWebAuthnRegistrationOptionsRequest } from './../generated/Models/WebUI/HCCreateWebAuthnRegistrationOptionsRequest';
 import { HCVerifyWebAuthnAssertionModel } from 'generated/Models/WebUI/HCVerifyWebAuthnAssertionModel';
 import { HCGenericResult } from 'generated/Models/Core/HCGenericResult';
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
@@ -91,11 +92,16 @@ export default class IntegratedProfileService extends HCServiceBase
 
     public CreateWebAuthnRegistrationOptions(
         username: string,
+        password: string,
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<any> | null = null
     ): void {
+        const payload: HCCreateWebAuthnRegistrationOptionsRequest = {
+            UserName: username,
+            Password: password
+        };
         const url = `${this._endpointBase}/ProfileCreateWebAuthnRegistrationOptions`;
-        this.fetchExt<any>(url, 'POST', { Username: username }, statusObject, callbacks, true);
+        this.fetchExt<any>(url, 'POST', payload, statusObject, callbacks, true);
     }
     
     // public RegisterWebAuthn(

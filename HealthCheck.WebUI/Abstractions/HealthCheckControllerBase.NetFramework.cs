@@ -280,6 +280,22 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
+        /// Attempts to create register options WebAuthn if enabled.
+        /// </summary>
+        [HideFromRequestLog]
+        [HttpPost]
+        public virtual ActionResult ProfileCreateWebAuthnRegistrationOptions(HCCreateWebAuthnRegistrationOptionsRequest model)
+        {
+            if (!Enabled
+                || Helper?.AccessConfig?.IntegratedProfileConfig?.AddWebAuthnEnabled != true
+                || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
+                return HttpNotFound();
+
+            var options = Helper.AccessConfig.IntegratedProfileConfig.CreateWebAuthnRegistrationOptionsLogic(model?.UserName, model?.Password);
+            return CreateJsonResult(options, stringEnums: false);
+        }
+
+        /// <summary>
         /// Attempts to register WebAuthn if enabled.
         /// </summary>
         [HideFromRequestLog]
@@ -352,8 +368,8 @@ namespace HealthCheck.WebUI.Abstractions
         /// <summary>
         /// Serializes the given object into a json result.
         /// </summary>
-        protected ActionResult CreateJsonResult(object obj)
-            => Content(Helper.SerializeJson(obj), "application/json");
+        protected ActionResult CreateJsonResult(object obj, bool stringEnums = true)
+            => Content(Helper.SerializeJson(obj, stringEnums), "application/json");
 
         /// <summary>
         /// By default throws a <see cref="HttpException"/> 404 when something is attempted accessed that the request does not have access to obscure whats available a bit.

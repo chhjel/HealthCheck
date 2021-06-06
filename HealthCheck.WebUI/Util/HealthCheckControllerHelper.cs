@@ -524,13 +524,16 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Serializes the given object into a json string.
         /// </summary>
-        public string SerializeJson(object obj)
+        public string SerializeJson(object obj, bool stringEnums = true)
         {
             var settings = new JsonSerializerSettings
             {
                 Formatting = Formatting.Indented
             };
-            settings.Converters.Add(new StringEnumConverter());
+            if (stringEnums)
+            {
+                settings.Converters.Add(new StringEnumConverter());
+            }
 
             return JsonConvert.SerializeObject(obj, settings);
         }
