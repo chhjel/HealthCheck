@@ -122,6 +122,10 @@ export default class HealthCheckProfileComponent extends Vue
     totpCode: string = '';
     registerTotpSecret: string = '';
     registerTotpCode: string = '';
+    registerTotpPassword: string = '';
+    removeTotpPassword: string = '';
+    registerWebAuthnPassword: string = '';
+    removeWebAuthnPassword: string = '';
 
     //////////////////
     //  LIFECYCLE  //
@@ -149,6 +153,14 @@ export default class HealthCheckProfileComponent extends Vue
     get username(): string {
         return this.profileOptions.Username;
     }
+
+    get totpQrCodeIssuer(): string {
+        return 'Issuer';
+    }
+
+    get totpQrCodeLabel(): string {
+        return 'Label';
+    }
     
     ////////////////
     //  METHODS  //
@@ -158,11 +170,11 @@ export default class HealthCheckProfileComponent extends Vue
     }
 
     registerTotp(): void {
-        this.service.RegisterTotp(this.registerTotpSecret, this.registerTotpCode, this.totpLoadStatus);
+        this.service.RegisterTotp(this.registerTotpSecret, this.registerTotpCode, this.registerTotpPassword, this.totpLoadStatus);
     }
 
     removeTotp(): void {
-        this.service.RemoveTotp(this.totpLoadStatus);
+        this.service.RemoveTotp(this.removeTotpPassword, this.totpLoadStatus);
     }
 
     elevateWebAuthn(): void {
@@ -171,7 +183,7 @@ export default class HealthCheckProfileComponent extends Vue
     }
 
     removeWebAuthn(): void {
-        this.service.RemoveWebAuthn(this.webAuthnLoadStatus);
+        this.service.RemoveWebAuthn(this.removeWebAuthnPassword, this.webAuthnLoadStatus);
     }
 
     registerWebAuthn(): void {
@@ -213,8 +225,6 @@ export default class HealthCheckProfileComponent extends Vue
             return;
         }
 
-        console.log("PublicKeyCredential Created", newCredential);
-
         try {
             let attestationObject = new Uint8Array(newCredential.response.attestationObject);
             let clientDataJSON = new Uint8Array(newCredential.response.clientDataJSON);
@@ -231,10 +241,7 @@ export default class HealthCheckProfileComponent extends Vue
                 }
             };
 
-            console.log("RegisterWebAuthn", registerPayload);
-            
-            const data = {};
-            this.service.RegisterWebAuthn(data, this.webAuthnLoadStatus);
+            this.service.RegisterWebAuthn(this.registerWebAuthnPassword, registerPayload, this.webAuthnLoadStatus);
         } catch (e) {
             console.error('RegisterWebAuthn failed');
             console.error(e);
@@ -249,13 +256,10 @@ export default class HealthCheckProfileComponent extends Vue
     }
 
     generateTotpQrCodeData(): string {
-        const issuer = "Issuer";
-        const label = "Label";
-
         const randomStr = Math.random().toString(36);
         const secret = Base32Util.encode(randomStr).substr(0, 20);
         this.registerTotpSecret = secret;
-        return `otpauth://totp/${label}?secret=${secret}&issuer=${issuer}`;
+        return `otpauth://totp/${this.totpQrCodeLabel}?secret=${secret}&issuer=${this.totpQrCodeIssuer}`;
     }
 
     ///////////////////////

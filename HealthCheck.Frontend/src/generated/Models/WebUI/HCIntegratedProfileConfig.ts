@@ -2,24 +2,28 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import { HCGenericResult } from '../Core/HCGenericResult';
-import { HCVerifyWebAuthnAssertionModel } from './HCVerifyWebAuthnAssertionModel';
+import { ElevateTotpDelegate } from './ElevateTotpDelegate';
+import { AddTotpDelegate } from './AddTotpDelegate';
+import { RemoveTotpDelegate } from './RemoveTotpDelegate';
+import { ElevateWebAuthnDelegate } from './ElevateWebAuthnDelegate';
+import { AddWebAuthnDelegate } from './AddWebAuthnDelegate';
+import { RemoveWebAuthnDelegate } from './RemoveWebAuthnDelegate';
 
 export interface HCIntegratedProfileConfig
 {
 	Hide: boolean;
 	ShowHealthCheckRoles: boolean;
 	Username: string;
-	TotpElevationLogic: (arg: string) => HCGenericResult;
+	TotpElevationLogic: ElevateTotpDelegate;
 	TotpElevationEnabled: boolean;
-	AddTotpLogic: (arg: string, arg1: string) => HCGenericResult;
+	AddTotpLogic: AddTotpDelegate;
 	AddTotpEnabled: boolean;
-	RemoveTotpLogic: () => HCGenericResult;
+	RemoveTotpLogic: RemoveTotpDelegate;
 	RemoveTotpEnabled: boolean;
-	WebAuthnElevationLogic: (arg: HCVerifyWebAuthnAssertionModel) => HCGenericResult;
+	WebAuthnElevationLogic: ElevateWebAuthnDelegate;
 	WebAuthnElevationEnabled: boolean;
-	AddWebAuthnLogic: (arg: string) => HCGenericResult;
+	AddWebAuthnLogic: AddWebAuthnDelegate;
 	AddWebAuthnEnabled: boolean;
-	RemoveWebAuthnLogic: () => HCGenericResult;
+	RemoveWebAuthnLogic: RemoveWebAuthnDelegate;
 	RemoveWebAuthnEnabled: boolean;
 }

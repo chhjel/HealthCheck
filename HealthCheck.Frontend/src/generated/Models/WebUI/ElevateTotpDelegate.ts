@@ -2,12 +2,6 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface EventNotifierOptionDefinition
+export interface ElevateTotpDelegate
 {
-	Id: string;
-	Name: string;
-	Description: string;
-	SupportsPlaceholders: boolean;
-	Type: string;
-	UIHints: number;
 }

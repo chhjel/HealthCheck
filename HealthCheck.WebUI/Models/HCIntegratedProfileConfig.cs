@@ -30,23 +30,47 @@ namespace HealthCheck.WebUI.Models
         /// <para>Input string is the one-time code.</para>
         /// </summary>
         [JsonIgnore]
-        public Func<string, HCGenericResult> TotpElevationLogic { get; set; }
-        [JsonProperty] internal bool TotpElevationEnabled => TotpElevationLogic != null;
+        public ElevateTotpDelegate TotpElevationLogic { get; set; }
+        /// <summary>Signature for elevating Totp.</summary>
+        public delegate HCGenericResult ElevateTotpDelegate(string totpCode);
+        /// <summary>
+        /// Allows entering TOTP code from the profile to elevate access, requires <see cref="TotpElevationLogic"/> to be set.
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public bool ShowTotpElevation { get; set; } = true;
+        [JsonProperty] internal bool TotpElevationEnabled => ShowTotpElevation && TotpElevationLogic != null;
 
         /// <summary>
         /// If set, allows registering the users TOTP binding from the profile page.
-        /// <para>Input string 1 is the TOTP secret to store on the user, input string 2 is a code generated using the secret to be validated.</para>
+        /// <para>Input string 1 is the users password to validate.</para>
+        /// <para>Input string 2 is the TOTP secret to store on the user.</para>
+        /// <para>Input string 3 is a code generated using the secret to be validated.</para>
         /// </summary>
         [JsonIgnore]
-        public Func<string, string, HCGenericResult> AddTotpLogic { get; set; }
-        [JsonProperty] internal bool AddTotpEnabled => AddTotpLogic != null;
+        public AddTotpDelegate AddTotpLogic { get; set; }
+        /// <summary>Signature for adding Totp.</summary>
+        public delegate HCGenericResult AddTotpDelegate(string password, string totpSecret, string totpCode);
+        /// <summary>
+        /// Allows registering the users TOTP binding from the profile page, requires <see cref="AddTotpLogic"/> to be set.
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public bool ShowAddTotp { get; set; } = true;
+        [JsonProperty] internal bool AddTotpEnabled => ShowAddTotp && AddTotpLogic != null;
 
         /// <summary>
         /// If set, allows removing the users TOTP binding from the profile page.
+        /// <para>Input string is the users password to validate.</para>
         /// </summary>
         [JsonIgnore]
-        public Func<HCGenericResult> RemoveTotpLogic { get; set; }
-        [JsonProperty] internal bool RemoveTotpEnabled => RemoveTotpLogic != null;
+        public RemoveTotpDelegate RemoveTotpLogic { get; set; }
+        /// <summary>Signature for removing TOTP.</summary>
+        public delegate HCGenericResult RemoveTotpDelegate(string password);
+        /// <summary>
+        /// Allows removing the users TOTP binding from the profile page, requires <see cref="RemoveTotpLogic"/> to be set.
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public bool ShowRemoveTotp { get; set; } = true;
+        [JsonProperty] internal bool RemoveTotpEnabled => ShowRemoveTotp && RemoveTotpLogic != null;
 
         /// <summary>
         /// If set, allows authenticating using WebAuthn from the profile to elevate access.
@@ -54,23 +78,46 @@ namespace HealthCheck.WebUI.Models
         /// <para>Input string is the webauthn payload.</para>
         /// </summary>
         [JsonIgnore]
-        public Func<HCVerifyWebAuthnAssertionModel, HCGenericResult> WebAuthnElevationLogic { get; set; }
-        [JsonProperty] internal bool WebAuthnElevationEnabled => WebAuthnElevationLogic != null && !string.IsNullOrWhiteSpace(Username);
+        public ElevateWebAuthnDelegate WebAuthnElevationLogic { get; set; }
+        /// <summary>Signature for elevating WebAuthn.</summary>
+        public delegate HCGenericResult ElevateWebAuthnDelegate(HCVerifyWebAuthnAssertionModel payload);
+        /// <summary>
+        /// Allows authenticating using WebAuthn from the profile to elevate access, requires <see cref="WebAuthnElevationLogic"/> to be set.
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public bool ShowWebAuthnElevation { get; set; } = true;
+        [JsonProperty] internal bool WebAuthnElevationEnabled => ShowWebAuthnElevation && WebAuthnElevationLogic != null && !string.IsNullOrWhiteSpace(Username);
 
         /// <summary>
         /// If set, allows registering the users WebAuthn binding from the profile page.
         /// <para>Requires <see cref="Username"/> to be set.</para>
-        /// <para>Input string is the WebAuthn payload in json format to store on the user.</para>
+        /// <para>Input string 1 is the users password to validate.</para>
+        /// <para>Input string 2 is the WebAuthn payload in json format to store on the user.</para>
         /// </summary>
         [JsonIgnore]
-        public Func<string, HCGenericResult> AddWebAuthnLogic { get; set; }
-        [JsonProperty] internal bool AddWebAuthnEnabled => AddWebAuthnLogic != null && !string.IsNullOrWhiteSpace(Username);
+        public AddWebAuthnDelegate AddWebAuthnLogic { get; set; }
+        /// <summary>Signature for adding WebAuthn.</summary>
+        public delegate HCGenericResult AddWebAuthnDelegate(string password, string webAuthnPayloadJson);
+        /// <summary>
+        /// Allows registering the users WebAuthn binding from the profile page, requires <see cref="AddWebAuthnLogic"/> to be set.
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public bool ShowAddWebAuthn { get; set; } = true;
+        [JsonProperty] internal bool AddWebAuthnEnabled => ShowAddWebAuthn && AddWebAuthnLogic != null && !string.IsNullOrWhiteSpace(Username);
 
         /// <summary>
         /// If set, allows removing the users WebAuthn binding from the profile page.
+        /// <para>Input string is the users password to validate.</para>
         /// </summary>
         [JsonIgnore]
-        public Func<HCGenericResult> RemoveWebAuthnLogic { get; set; }
-        [JsonProperty] internal bool RemoveWebAuthnEnabled => RemoveWebAuthnLogic != null;
+        public RemoveWebAuthnDelegate RemoveWebAuthnLogic { get; set; }
+        /// <summary>Signature for removing WebAuthn.</summary>
+        public delegate HCGenericResult RemoveWebAuthnDelegate(string password);
+        /// <summary>
+        /// Allows removing the users WebAuthn binding from the profile page, requires <see cref="RemoveWebAuthnLogic"/> to be set.
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public bool ShowRemoveWebAuthn { get; set; } = true;
+        [JsonProperty] internal bool RemoveWebAuthnEnabled => ShowRemoveWebAuthn && RemoveWebAuthnLogic != null;
     }
 }

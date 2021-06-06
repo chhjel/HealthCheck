@@ -162,13 +162,13 @@ import { HCLoginTwoFactorCodeInputMode } from "generated/Enums/WebUI/HCLoginTwoF
 import { HCLoginWebAuthnMode } from "generated/Enums/WebUI/HCLoginWebAuthnMode";
 import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
 import { HCIntegratedLoginRequest } from "generated/Models/WebUI/HCIntegratedLoginRequest";
-import { VerifyWebAuthnAssertionModel } from "generated/Models/WebUI/VerifyWebAuthnAssertionModel";
 import { Vue, Component } from "vue-property-decorator";
 import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
 import IntegratedLoginService, { HCIntegratedLoginRequest2FACodeRequest, HCIntegratedLoginResult } from '../../../services/IntegratedLoginService';
 import BlockComponent from '../../Common/Basic/BlockComponent.vue';
 import FloatingSquaresEffectComponent from '../../Common/Effects/FloatingSquaresEffectComponent.vue';
 import WebAuthnUtil from 'util/WebAuthnUtil';
+import { HCVerifyWebAuthnAssertionModel } from "generated/Models/WebUI/HCVerifyWebAuthnAssertionModel";
 
 @Component({
     components: {
@@ -183,7 +183,7 @@ export default class IntegratedLoginPageComponent extends Vue {
     username: string = '';
     password: string = '';
     twoFactorCode: string = '';
-    webAuthnLoginPayload: VerifyWebAuthnAssertionModel | null = null;
+    webAuthnLoginPayload: HCVerifyWebAuthnAssertionModel | null = null;
     showPassword: boolean = false;
     error: string = '';
     showErrorAsHtml: boolean = false;
@@ -303,7 +303,7 @@ export default class IntegratedLoginPageComponent extends Vue {
             Username: this.username,
             Password: this.password,
             TwoFactorCode: this.twoFactorCode,
-            WebAuthnPayload: (this.webAuthnLoginPayload || {}) as VerifyWebAuthnAssertionModel
+            WebAuthnPayload: (this.webAuthnLoginPayload || {}) as HCVerifyWebAuthnAssertionModel
         };
 
         let service = new IntegratedLoginService(true);
@@ -423,7 +423,7 @@ export default class IntegratedLoginPageComponent extends Vue {
             let clientDataJSON = new Uint8Array(assertedCredential.response.clientDataJSON);
             let rawId = new Uint8Array(assertedCredential.rawId);
             let sig = new Uint8Array(assertedCredential.response.signature);
-            const payload: VerifyWebAuthnAssertionModel = {
+            const payload: HCVerifyWebAuthnAssertionModel = {
                 Id: assertedCredential.id,
                 RawId: WebAuthnUtil.coerceToBase64Url(rawId),
                 Extensions: assertedCredential.getClientExtensionResults(),

@@ -26,23 +26,29 @@ export default class IntegratedProfileService extends HCServiceBase
 
     public RegisterTotp(
         secret: string, code: string,
+        password: string,
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<HCGenericResult> | null = null
     ): void {
         const url = `${this._endpointBase}/ProfileRegisterTotp`;
         const payload = {
             Secret: secret,
-            Code: code
+            Code: code,
+            Password: password
         };
         this.fetchExt<HCGenericResult>(url, 'POST', payload, statusObject, callbacks, true);
     }
     
     public RemoveTotp(
+        password: string,
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<HCGenericResult> | null = null
     ): void {
+        const payload = {
+            Password: password
+        };
         const url = `${this._endpointBase}/ProfileRemoveTotp`;
-        this.fetchExt<HCGenericResult>(url, 'POST', null, statusObject, callbacks, true);
+        this.fetchExt<HCGenericResult>(url, 'POST', payload, statusObject, callbacks, true);
     }
     
     public ElevateWebAuthn(
@@ -58,20 +64,29 @@ export default class IntegratedProfileService extends HCServiceBase
     }
     
     public RegisterWebAuthn(
-        payload: any,
+        password: string,
+        authData: any,
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<HCGenericResult> | null = null
     ): void {
+        const payload = {
+            Password: password,
+            RegistrationData: authData
+        };
         const url = `${this._endpointBase}/ProfileRegisterWebAuthn`;
         this.fetchExt<HCGenericResult>(url, 'POST', payload, statusObject, callbacks, true);
     }
     
     public RemoveWebAuthn(
+        password: string,
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<HCGenericResult> | null = null
     ): void {
+        const payload = {
+            Password: password
+        };
         const url = `${this._endpointBase}/ProfileRemoveWebAuthn`;
-        this.fetchExt<HCGenericResult>(url, 'POST', null, statusObject, callbacks, true);
+        this.fetchExt<HCGenericResult>(url, 'POST', payload, statusObject, callbacks, true);
     }
 
     public CreateWebAuthnRegistrationOptions(

@@ -2,12 +2,8 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface HealthCheckSetting
+export interface HCProfileRegisterWebAuthnRequest
 {
-	Id: string;
-	DisplayName: string;
-	Description: string;
-	Type: string;
-	Value: any;
-	GroupName: string;
+	Password: string;
+	RegistrationData: string;
 }
