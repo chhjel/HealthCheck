@@ -1,5 +1,5 @@
 import { HCVerifyWebAuthnAssertionModel } from 'generated/Models/WebUI/HCVerifyWebAuthnAssertionModel';
-import { HCGenericResult } from './../generated/Models/Core/HCGenericResult';
+import { HCGenericResult } from 'generated/Models/Core/HCGenericResult';
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
 
 export default class IntegratedProfileService extends HCServiceBase
