@@ -1,100 +1,116 @@
 <!-- src/components/profile/HealthCheckProfileComponent.vue -->
 <template>
     <div>
-        <div style="margin-top: 100px;"></div>
-
         <div v-if="profileOptions.Username">
-            Username: <code>{{ profileOptions.Username }}</code>
+            <div class="meta-header">Username:</div> <div class="username">{{ profileOptions.Username }}</div>
         </div>
 
         <div v-if="profileOptions.ShowHealthCheckRoles">
-            User roles: <code>{{ userRoles }}</code>
+            <div class="meta-header">Roles:</div>
+            <div class="userrole">{{ userRoles.join(', ') }}</div>
         </div>
         
-        <v-btn v-if="profileOptions.TotpElevationEnabled"
-            round color="primary" large
-            @click.prevent="elevateTotpDialogVisible = true"
-            :disabled="totpElevateLoadStatus.inProgress">
-            Elevate access using TOTP
-        </v-btn>
-        
-        <v-btn v-if="profileOptions.AddTotpEnabled"
-            round color="primary" large
-            @click.prevent="addTotpDialogVisible = true"
-            :disabled="totpAddLoadStatus.inProgress">
-            Register TOTP
-        </v-btn>
+        <block-component v-if="profileOptions.TotpElevationEnabled || profileOptions.AddTotpEnabled || profileOptions.RemoveTotpEnabled"
+            title="Time-based One-time Password authentication"
+            class="mt-4">
 
-        <v-btn v-if="profileOptions.RemoveTotpEnabled"
-            round color="error" large
-            @click.prevent="removeTotpDialogVisible = true"
-            :disabled="totpRemoveLoadStatus.inProgress">
-            Remove TOTP
-        </v-btn>
+            <div class="mt-4">
+                <v-btn v-if="profileOptions.TotpElevationEnabled"
+                    round color="primary" large
+                    @click.prevent="elevateTotpDialogVisible = true"
+                    :disabled="disableTotpElevate">
+                    Elevate access using TOTP
+                </v-btn>
+                
+                <v-btn v-if="profileOptions.AddTotpEnabled"
+                    round color="primary" large
+                    @click.prevent="addTotpDialogVisible = true"
+                    :disabled="disableTotpAdd">
+                    Register TOTP
+                </v-btn>
 
-        <div v-if="profileOptions.WebAuthnElevationEnabled" style="border: 2px solid gray; margin: 20px; padding: 10px;">
-            <h2>WebAuthn elevation</h2>
-            <v-btn
-                round color="primary" large
-                @click.prevent="elevateWebAuthn"
-                :disabled="webAuthnLoadStatus.inProgress">
-                Elevate access
-            </v-btn>
-            <div class="error-result">{{ webAuthnElevationError }}</div>
-        </div>
+                <v-btn v-if="profileOptions.RemoveTotpEnabled"
+                    round color="error" large
+                    @click.prevent="removeTotpDialogVisible = true"
+                    :disabled="disableTotpRemove">
+                    Remove TOTP
+                </v-btn>
+            </div>
 
-        <div v-if="profileOptions.AddWebAuthnEnabled" style="border: 2px solid gray; margin: 20px; padding: 10px;">
-            <!--
-            addWebAuthnDialogVisible: boolean = false;
-            -->
-            <h2>Add WebAuthn</h2>
-            <input-component
-                name="Confirm account password"
-                autocomplete="current-password"
-                v-model="registerWebAuthnPassword"
-                :disabled="webAuthnAddLoadStatus.inProgress"
-                type="password"
-                :clearable="true"
-            ></input-component>
+            <p class="status-text">{{ totpStatus }}</p>
+        </block-component>
 
-            <v-btn
-                round color="primary" large
-                @click.prevent="registerWebAuthn"
-                :disabled="webAuthnLoadStatus.inProgress">
-                Register WebAuthn
-            </v-btn>
+        <block-component v-if="profileOptions.WebAuthnElevationEnabled || profileOptions.AddWebAuthnEnabled || profileOptions.RemoveWebAuthnEnabled"
+            title="Web Authentication (WebAuthn)"
+            class="mt-4">
 
-            <v-alert :value="webAuthnAddLoadStatus.failed" type="error">
-            {{ webAuthnAddLoadStatus.errorMessage }}
-            </v-alert>
+            <div class="mt-4">
+                <div v-if="profileOptions.WebAuthnElevationEnabled" style="border: 2px solid gray; margin: 20px; padding: 10px;">
+                    <h2>WebAuthn elevation</h2>
+                    <v-btn
+                        round color="primary" large
+                        @click.prevent="elevateWebAuthn"
+                        :disabled="webAuthnLoadStatus.inProgress">
+                        Elevate access
+                    </v-btn>
+                    <div class="error-result">{{ webAuthnElevationError }}</div>
+                </div>
 
-            <div class="success-result">{{ webAuthnAddSuccessMessage }}</div>
-            <div class="error-result">{{ webAuthnAddError }}</div>
-        </div>
+                <div v-if="profileOptions.AddWebAuthnEnabled" style="border: 2px solid gray; margin: 20px; padding: 10px;">
+                    <!--
+                    addWebAuthnDialogVisible: boolean = false;
+                    -->
+                    <h2>Add WebAuthn</h2>
+                    <input-component
+                        name="Confirm account password"
+                        autocomplete="current-password"
+                        v-model="registerWebAuthnPassword"
+                        :disabled="webAuthnAddLoadStatus.inProgress"
+                        type="password"
+                        :clearable="true"
+                    ></input-component>
 
-        <div v-if="profileOptions.RemoveWebAuthnEnabled" style="border: 2px solid gray; margin: 20px; padding: 10px;">
-            <h2>Remove WebAuthn</h2>
-            <input-component
-                name="Confirm account password"
-                autocomplete="current-password"
-                v-model="removeWebAuthnPassword"
-                :disabled="totpAddLoadStatus.inProgress"
-                type="password"
-                :clearable="true"
-            ></input-component>
+                    <v-btn
+                        round color="primary" large
+                        @click.prevent="registerWebAuthn"
+                        :disabled="webAuthnLoadStatus.inProgress">
+                        Register WebAuthn
+                    </v-btn>
 
-            <v-btn
-                round color="primary" large
-                @click.prevent="removeWebAuthn"
-                :disabled="webAuthnLoadStatus.inProgress">
-                Remove WebAuthn
-            </v-btn>
-            <div class="error-result">{{ webAuthnRemoveError }}</div>
+                    <v-alert :value="webAuthnAddLoadStatus.failed" type="error">
+                    {{ webAuthnAddLoadStatus.errorMessage }}
+                    </v-alert>
 
-            <v-alert :value="webAuthnLoadStatus.failed" type="error">
-            {{ webAuthnLoadStatus.errorMessage }}
-            </v-alert>
-        </div>
+                    <div class="success-result">{{ webAuthnAddSuccessMessage }}</div>
+                    <div class="error-result">{{ webAuthnAddError }}</div>
+                </div>
+
+                <div v-if="profileOptions.RemoveWebAuthnEnabled" style="border: 2px solid gray; margin: 20px; padding: 10px;">
+                    <h2>Remove WebAuthn</h2>
+                    <input-component
+                        name="Confirm account password"
+                        autocomplete="current-password"
+                        v-model="removeWebAuthnPassword"
+                        :disabled="disableTotpAdd"
+                        type="password"
+                        :clearable="true"
+                    ></input-component>
+
+                    <v-btn
+                        round color="primary" large
+                        @click.prevent="removeWebAuthn"
+                        :disabled="webAuthnLoadStatus.inProgress">
+                        Remove WebAuthn
+                    </v-btn>
+                    <div class="error-result">{{ webAuthnRemoveError }}</div>
+
+                    <v-alert :value="webAuthnLoadStatus.failed" type="error">
+                    {{ webAuthnLoadStatus.errorMessage }}
+                    </v-alert>
+                </div>
+            </div>
+
+        </block-component>
 
         <v-dialog v-model="elevateTotpDialogVisible"
             @keydown.esc="elevateTotpDialogVisible = false"
@@ -117,14 +133,14 @@
                     <input-component
                         name="TOTP code"
                         v-model="totpElevateCode"
-                        :disabled="totpElevateLoadStatus.inProgress"
+                        :disabled="disableTotpElevate"
                         :clearable="true"
                     ></input-component>
 
                     <v-btn
                         round color="primary" large class="mt-4"
                         @click.prevent="elevateTotp"
-                        :disabled="totpElevateLoadStatus.inProgress">
+                        :disabled="disableTotpElevate">
                         Elevate access
                     </v-btn>
 
@@ -143,6 +159,7 @@
                             @click="elevateTotpDialogVisible = false">Close</v-btn>
                 </v-card-actions>
             </v-card>
+        
         </v-dialog>
 
         <v-dialog v-model="addTotpDialogVisible"
@@ -171,7 +188,7 @@
                         name="Code from authenticator"
                         autocomplete="one-time-code"
                         v-model="registerTotpCode"
-                        :disabled="totpAddLoadStatus.inProgress"
+                        :disabled="disableTotpAdd"
                         :clearable="true"
                     ></input-component>
 
@@ -179,7 +196,7 @@
                         name="Confirm account password"
                         autocomplete="current-password"
                         v-model="registerTotpPassword"
-                        :disabled="totpAddLoadStatus.inProgress"
+                        :disabled="disableTotpAdd"
                         type="password"
                         :clearable="true"
                     ></input-component>
@@ -187,7 +204,7 @@
                     <v-btn 
                         round color="primary" large
                         @click.prevent="registerTotp"
-                        :disabled="totpAddLoadStatus.inProgress">
+                        :disabled="disableTotpAdd">
                         Register TOTP
                     </v-btn>
 
@@ -232,7 +249,7 @@
                         name="Confirm account password"
                         autocomplete="current-password"
                         v-model="removeTotpPassword"
-                        :disabled="totpRemoveLoadStatus.inProgress"
+                        :disabled="disableTotpRemove"
                         type="password"
                         :clearable="true"
                     ></input-component>
@@ -240,9 +257,13 @@
                     <v-btn
                         round color="error" large
                         @click.prevent="removeTotp"
-                        :disabled="totpRemoveLoadStatus.inProgress">
+                        :disabled="disableTotpRemove">
                         Remove TOTP
                     </v-btn>
+
+                    <v-alert :value="totpRemoveLoadStatus.failed" type="error">
+                    {{ totpRemoveLoadStatus.errorMessage }}
+                    </v-alert>
                     
                     <div class="success-result">{{ totpRemoveSuccessMessage }}</div>
                     <div class="error-result">{{ totpRemoveError }}</div>
@@ -270,10 +291,12 @@ import WebAuthnUtil from "util/WebAuthnUtil";
 import Base32Util from "util/Base32Util";
 import { HCVerifyWebAuthnAssertionModel } from "generated/Models/WebUI/HCVerifyWebAuthnAssertionModel";
 import { Ecc, QrCode } from 'util/QRCodeUtil';
+import BlockComponent from 'components/Common/Basic/BlockComponent.vue';
 
 @Component({
     components: {
-        InputComponent
+        InputComponent,
+        BlockComponent
     }
 })
 export default class HealthCheckProfileComponent extends Vue
@@ -286,6 +309,7 @@ export default class HealthCheckProfileComponent extends Vue
     totpElevationError: string = '';
     totpElevateSuccessMessage: string = '';
     totpElevateCode: string = '';
+    hasRegisteredTotp: boolean | null = null;
 
     totpAddLoadStatus: FetchStatus = new FetchStatus();
     addTotpDialogVisible: boolean = false;
@@ -305,8 +329,10 @@ export default class HealthCheckProfileComponent extends Vue
     webAuthnAddLoadStatus: FetchStatus = new FetchStatus();
     addWebAuthnDialogVisible: boolean = false;
     webAuthnAddError: string = '';
-    webAuthnAddSuccessMessage: string = '';
     registerWebAuthnPassword: string = '';
+    webAuthnAddSuccessMessage: string = '';
+    webAuthnElevationSuccessMessage: string = '';
+    webAuthnRemoveSuccessMessage: string = '';
 
     // Other
     webAuthnLoadStatus: FetchStatus = new FetchStatus();
@@ -348,13 +374,45 @@ export default class HealthCheckProfileComponent extends Vue
     get totpQrCodeLabel(): string {
         return 'Label';
     }
+
+    get disableTotpAdd(): boolean {
+        return this.hasRegisteredTotp === true || this.totpAddLoadStatus.inProgress;
+    }
+
+    get disableTotpRemove(): boolean {
+        return this.hasRegisteredTotp === false || this.totpRemoveLoadStatus.inProgress;
+    }
+
+    get disableTotpElevate(): boolean {
+        return this.totpElevateLoadStatus.inProgress;
+    }
+
+    get totpStatus(): string {
+        if (this.hasRegisteredTotp === true) {
+            return 'TOTP authentication added.';
+        }
+        else if (this.hasRegisteredTotp === false) {
+            return 'TOTP authentication removed.';
+        }
+        return '';
+    }
     
     ////////////////
     //  METHODS  //
     //////////////
     elevateTotp(): void {
+        this.totpElevateSuccessMessage = '';
         this.service.ElevateTotp(this.totpElevateCode, this.totpElevateLoadStatus,
-            { onSuccess: (d) => this.totpElevationError = (d as any).error || '' });
+            {
+                onSuccess: (d) => {
+                    this.totpElevationError = (d as any).error || '';
+                    if (!this.totpElevationError)
+                    {
+                        this.totpElevateSuccessMessage = 'Elevated successfully';
+                    }
+                }
+            }
+        );
     }
 
     registerTotp(): void {
@@ -369,6 +427,7 @@ export default class HealthCheckProfileComponent extends Vue
                         this.totpAddSuccessMessage = 'TOTP authenticator added';
                         this.registerTotpSecret = '';
                         this.registerTotpCode = '';
+                        this.hasRegisteredTotp = true;
                     }
                 }
             });
@@ -384,24 +443,48 @@ export default class HealthCheckProfileComponent extends Vue
                     if (!this.totpRemoveError)
                     {
                         this.totpRemoveSuccessMessage = 'TOTP authenticator removed';
+                        this.hasRegisteredTotp = false;
                     }
                 }
-            });
+            }
+        );
     }
 
     elevateWebAuthn(): void {
+        this.webAuthnElevationSuccessMessage = '';
         const payload = {} as HCVerifyWebAuthnAssertionModel;
         this.service.ElevateWebAuthn(payload, this.webAuthnLoadStatus,
-            { onSuccess: (d) => this.webAuthnElevationError = (d as any).error || '' });
+            {
+                onSuccess: (d) => {
+                    this.webAuthnElevationError = (d as any).error || '';
+                    if (!this.webAuthnElevationError)
+                    {
+                        this.webAuthnElevationSuccessMessage = 'Elevated successfully';
+                    }
+                }
+            }
+        );
     }
 
     removeWebAuthn(): void {
+        this.webAuthnRemoveSuccessMessage = '';
         this.service.RemoveWebAuthn(this.removeWebAuthnPassword, this.webAuthnLoadStatus,
-            { onSuccess: (d) => this.webAuthnRemoveError = (d as any).error || '' });
+            {
+                onSuccess: (d) => {
+                    this.webAuthnRemoveError = (d as any).error || '';
+                    this.removeWebAuthnPassword = '';
+                    if (!this.webAuthnRemoveError)
+                    {
+                        this.webAuthnRemoveSuccessMessage = 'WebAuthn authenticator removed';
+                    }
+                }
+            }
+        );
     }
 
     registerWebAuthn(): void {
         this.webAuthnAddError = '';
+        this.webAuthnAddSuccessMessage = '';
         this.service.CreateWebAuthnRegistrationOptions(this.username, this.registerWebAuthnPassword, this.webAuthnAddLoadStatus, {
             onSuccess: (d) => {
                 if (d.Success)
@@ -465,6 +548,7 @@ export default class HealthCheckProfileComponent extends Vue
             this.service.RegisterWebAuthn(this.registerWebAuthnPassword, registerPayload, this.webAuthnAddLoadStatus, {
                 onSuccess: (d) => {
                     this.registerWebAuthnPassword = '';
+                    this.webAuthnAddSuccessMessage = 'WebAuthn registered successfully.';
                 }
             });
         } catch (e) {
@@ -500,6 +584,24 @@ export default class HealthCheckProfileComponent extends Vue
     font-weight: 600;
     color: #8a2222;
     min-height: 21px;
+}
+.meta-header {
+    display: inline-block;
+    margin-right: 5px;
+    font-size: 16px;
+}
+.username {
+    display: inline-block;
+    font-size: 16px;
+}
+.userrole {
+    display: inline-block;
+    font-size: 16px;
+}
+.status-text {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: -20px;
 }
 </style>
 

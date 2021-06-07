@@ -25,12 +25,14 @@
                         <v-icon>logout</v-icon>
                         {{ logoutLinkTitle }}
                         </v-btn>
+                    <v-btn flat 
+                        v-if="showIntegratedProfile"
+                        @click.left.prevent="integratedProfileDialogVisible = true">
+                        <v-icon class="toolbar-icon">person</v-icon>
+                        Profile
+                        </v-btn>
                 </v-toolbar-items>
             </v-toolbar>
-
-            <!-- TMP -->
-            <health-check-profile-component v-if="showIntegratedProfile" />
-            <!-- EO_TMP -->
 
             <!-- CONTENT -->
             <invalid-module-configs-component
@@ -42,6 +44,8 @@
             <no-page-available-page-component
                 v-if="noModuleAccess"
                 v-show="noModuleAccess" />
+            
+            <health-check-profile-dialog-component v-if="showIntegratedProfile" v-model="integratedProfileDialogVisible" />
         </v-app>
         
         <integrated-login-page-component v-if="showIntegratedLogin" />
@@ -55,7 +59,7 @@ import InvalidModuleConfigsComponent from './InvalidModuleConfigsComponent.vue';
 import IntegratedLoginPageComponent from './modules/IntegratedLogin/IntegratedLoginPageComponent.vue';
 import ModuleConfig from "../models/Common/ModuleConfig";
 import BackendInputComponent from "./Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import HealthCheckProfileComponent from 'components/profile/HealthCheckProfileComponent.vue';
+import HealthCheckProfileDialogComponent from 'components/profile/HealthCheckProfileDialogComponent.vue';
 import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
 
 @Component({
@@ -64,12 +68,14 @@ import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
         InvalidModuleConfigsComponent,
         IntegratedLoginPageComponent,
         BackendInputComponent,
-        HealthCheckProfileComponent
+        HealthCheckProfileDialogComponent
     }
 })
 export default class HealthCheckPageComponent extends Vue {
     @Prop({ required: true })
     moduleConfig!: Array<ModuleConfig>;
+
+    integratedProfileDialogVisible: boolean = true;
 
     //////////////////
     //  LIFECYCLE  //
@@ -233,6 +239,9 @@ export default class HealthCheckPageComponent extends Vue {
     &::-webkit-scrollbar {
         display: none;
     }
+}
+.toolbar-icon {
+    color: #0000008a !important;
 }
 </style>
 

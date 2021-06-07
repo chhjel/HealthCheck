@@ -220,28 +220,31 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 TwoFactorCodeInputMode = HCIntegratedLoginConfig.HCLoginTwoFactorCodeInputMode.Required,
                 WebAuthnMode = HCIntegratedLoginConfig.HCLoginWebAuthnMode.Required
             };
+
+            var totpKey = "_dev_totp_secret";
             config.IntegratedProfileConfig = new HCIntegratedProfileConfig
             {
                 Username = CurrentRequestInformation.UserName,
+                ShowTotpElevation = !string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey)),
                 TotpElevationLogic = (c) =>
                 {
-                    var key = "_dev_totp_secret";
-                    var secret = Request.HttpContext.Session.GetString(key);
+                    var secret = Request.HttpContext.Session.GetString(totpKey);
                     if (string.IsNullOrWhiteSpace(secret) || !HCMfaTotpUtil.ValidateTotpCode(secret, c))
                     {
                         return HCGenericResult.CreateError("Invalid code");
                     }
                     Request.HttpContext.Session.SetString("_dev_2fa_validated", "true");
+                    // todo: return HCGenericResult<HCResultPageAction> [None, RefreshPage]
                     return HCGenericResult.CreateSuccess();
                 },
+                ShowAddTotp = string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey)),
                 AddTotpLogic = (pwd, secret, code) =>
                 {
-                    var key = "_dev_totp_secret";
                     if (pwd != "toor")
                     {
                         return HCGenericResult.CreateError("Invalid password");
                     }
-                    else if (!string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(key)))
+                    else if (!string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey)))
                     {
                         return HCGenericResult.CreateError("TOTP already activated.");
                     }
@@ -249,23 +252,24 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                     {
                         return HCGenericResult.CreateError("Invalid code");
                     }
-                    Request.HttpContext.Session.SetString(key, secret);
+                    Request.HttpContext.Session.SetString(totpKey, secret);
                     return HCGenericResult.CreateSuccess();
                 },
+                ShowRemoveTotp = !string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey)),
                 RemoveTotpLogic = (pwd) =>
                 {
-                    var key = "_dev_totp_secret";
                     if (pwd != "toor")
                     {
                         return HCGenericResult.CreateError("Invalid password");
                     }
-                    else if (string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(key)))
+                    else if (string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey)))
                     {
                         return HCGenericResult.CreateError("TOTP already removed.");
                     }
-                    Request.HttpContext.Session.Remove(key);
+                    Request.HttpContext.Session.Remove(totpKey);
                     return HCGenericResult.CreateSuccess();
                 },
+                //ShowAddWebAuthn = true,
                 CreateWebAuthnRegistrationOptionsLogic = (username, password) =>
                 {
                     if (password != "toor")
@@ -277,8 +281,11 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                     HttpContext.Session.SetString("WebAuthn.attestationOptions", options.ToJson());
                     return HCGenericResult<object>.CreateSuccess<object>(options);
                 },
+                //ShowWebAuthnElevation = true,
                 WebAuthnElevationLogic = (d) => HCGenericResult.CreateError("Not configured yet"),
+                //ShowAddWebAuthn = true,
                 AddWebAuthnLogic = (pwd, d) => HCGenericResult.CreateError("Not configured yet"),
+                //ShowRemoveWebAuthn = true,
                 RemoveWebAuthnLogic = (pwd) => HCGenericResult.CreateError("Not configured yet")
             };
         }
@@ -341,7 +348,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
         {
             var filepath = GetFilePath($@"..\..\HealthCheck.Frontend\dist\{filename}");
             if (!System.IO.File.Exists(filepath)) return Content("");
-            return new FileStreamResult(new FileStream(filepath, FileMode.Open), new MediaTypeHeaderValue("text/plain"))
+            return new FileStreamResult(new FileStream(filepath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), new MediaTypeHeaderValue("text/plain"))
             {
                 FileDownloadName = Path.GetFileName(filepath)
             };

@@ -243,7 +243,7 @@ namespace HealthCheck.WebUI.Abstractions
         [HideFromRequestLog]
         [HttpPost]
         [Route("ProfileElevateTotp")]
-        public virtual ActionResult ProfileElevateTotp(HCProfileElevateTotpRequest model)
+        public virtual ActionResult ProfileElevateTotp([FromBody] HCProfileElevateTotpRequest model)
         {
             if (!Enabled
                 || Helper?.AccessConfig?.IntegratedProfileConfig?.TotpElevationEnabled != true
