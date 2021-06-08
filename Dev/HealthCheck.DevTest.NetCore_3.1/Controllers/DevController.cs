@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Abstractions;
+﻿using Fido2NetLib;
+using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.AccessTokens;
@@ -40,6 +41,7 @@ using HealthCheck.Module.DevModule;
 using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.MFA.TOTP;
 using HealthCheck.WebUI.MFA.WebAuthn;
+using HealthCheck.WebUI.MFA.WebAuthn.Extensions;
 using HealthCheck.WebUI.MFA.WebAuthn.Storage;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Services;
@@ -48,11 +50,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using static HealthCheck.DevTest.NetCore_3._1.Controllers.HCLoginController;
 
 namespace HealthCheck.DevTest.NetCore_3._1.Controllers
 {
@@ -222,10 +226,12 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             };
 
             var totpKey = "_dev_totp_secret";
+            var webAuthnKey = "_dev_webAuthn_secret";
             config.IntegratedProfileConfig = new HCIntegratedProfileConfig
             {
                 Username = CurrentRequestInformation.UserName,
-                ShowTotpElevation = !string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey)),
+                ShowTotpElevation = !string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey))
+                    && !string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString("_dev_2fa_validated")),
                 TotpElevationLogic = (c) =>
                 {
                     var secret = Request.HttpContext.Session.GetString(totpKey);
@@ -240,10 +246,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 ShowAddTotp = string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey)),
                 AddTotpLogic = (pwd, secret, code) =>
                 {
-                    if (pwd != "toor")
-                    {
-                        return HCGenericResult.CreateError("Invalid password");
-                    }
+                    if (pwd != "toor") return HCGenericResult<object>.CreateError("Invalid password");
                     else if (!string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey)))
                     {
                         return HCGenericResult.CreateError("TOTP already activated.");
@@ -258,10 +261,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 ShowRemoveTotp = !string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey)),
                 RemoveTotpLogic = (pwd) =>
                 {
-                    if (pwd != "toor")
-                    {
-                        return HCGenericResult.CreateError("Invalid password");
-                    }
+                    if (pwd != "toor") return HCGenericResult<object>.CreateError("Invalid password");
                     else if (string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey)))
                     {
                         return HCGenericResult.CreateError("TOTP already removed.");
@@ -269,24 +269,67 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                     Request.HttpContext.Session.Remove(totpKey);
                     return HCGenericResult.CreateSuccess();
                 },
-                //ShowAddWebAuthn = true,
-                CreateWebAuthnRegistrationOptionsLogic = (username, password) =>
+                // Elevate
+                ShowWebAuthnElevation = !string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(webAuthnKey))
+                    && !string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString("_dev_webAuthn_validated")),
+                CreateWebAuthnAssertionOptionsLogic = (u) =>
                 {
-                    if (password != "toor")
+                    var webauthn = CreateWebAuthnHelper();
+                    var options = webauthn.CreateAssertionOptions(u);
+                    if (options == null)
                     {
-                        return HCGenericResult<object>.CreateError<object>("Invalid password");
+                        return HCGenericResult<object>.CreateError($"User not found.");
                     }
+
+                    HttpContext.Session.SetString("WebAuthn.assertionOptionsDev", JsonConvert.SerializeObject(options));
+                    return HCGenericResult<object>.CreateSuccess(options);
+                },
+                WebAuthnElevationLogic = (d) =>
+                {
+                    var webauthn = CreateWebAuthnHelper();
+                    var jsonOptions = GetWebAuthnAssertionOptionsJsonForSession();
+                    var options = AssertionOptions.FromJson(jsonOptions);
+                    var webAuthnResult = AsyncUtils.RunSync(() => webauthn.VerifyAssertion(options, d));
+                    if (!webAuthnResult.Success)
+                    {
+                        return HCGenericResult.CreateError(webAuthnResult.Error);
+                    }
+                    Request.HttpContext.Session.SetString("_dev_webAuthn_validated", "true");
+                    return HCGenericResult.CreateSuccess();
+                },
+                // Add
+                ShowAddWebAuthn = string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(webAuthnKey)),
+                CreateWebAuthnRegistrationOptionsLogic = (username, pwd) =>
+                {
+                    if (pwd != "toor") return HCGenericResult<object>.CreateError("Invalid password");
                     var webauthn = CreateWebAuthnHelper();
                     var options = webauthn.CreateClientOptions(username);
                     HttpContext.Session.SetString("WebAuthn.attestationOptions", options.ToJson());
-                    return HCGenericResult<object>.CreateSuccess<object>(options);
+                    return HCGenericResult<object>.CreateSuccess(options);
                 },
-                //ShowWebAuthnElevation = true,
-                WebAuthnElevationLogic = (d) => HCGenericResult.CreateError("Not configured yet"),
-                //ShowAddWebAuthn = true,
-                AddWebAuthnLogic = (pwd, d) => HCGenericResult.CreateError("Not configured yet"),
-                //ShowRemoveWebAuthn = true,
-                RemoveWebAuthnLogic = (pwd) => HCGenericResult.CreateError("Not configured yet")
+                AddWebAuthnLogic = (pwd, d) =>
+                {
+                    if (pwd != "toor") return HCGenericResult<object>.CreateError("Invalid password");
+                    var webauthn = CreateWebAuthnHelper();
+                    var jsonOptions = HttpContext.Session.GetString("WebAuthn.attestationOptions");
+                    var options = CredentialCreateOptions.FromJson(jsonOptions);
+
+                    var attestation = d.ToAuthenticatorAttestationRawResponse();
+                    AsyncUtils.RunSync(() => webauthn.RegisterCredentials(options, attestation));
+                    return HCGenericResult.CreateSuccess();
+                },
+                // Remove
+                ShowRemoveWebAuthn = !string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(webAuthnKey)),
+                RemoveWebAuthnLogic = (pwd) =>
+                {
+                    if (pwd != "toor") return HCGenericResult<object>.CreateError("Invalid password");
+                    else if (string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(webAuthnKey)))
+                    {
+                        return HCGenericResult.CreateError("WebAuthn already removed.");
+                    }
+                    Request.HttpContext.Session.Remove(webAuthnKey);
+                    return HCGenericResult.CreateSuccess();
+                },
             };
         }
 
@@ -334,6 +377,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
 
         #region dev
         private HCWebAuthnHelper CreateWebAuthnHelper() => new HCWebAuthnHelper("localhost", "HCDev", Request.Headers["Origin"], new HCMemoryWebAuthnCredentialManager());
+        private string GetWebAuthnAssertionOptionsJsonForSession() => HttpContext.Session.GetString("WebAuthn.assertionOptionsDev");
 
         [Route("GetMainScript")]
         public ActionResult GetMainScript() => LoadFile("healthcheck.js");

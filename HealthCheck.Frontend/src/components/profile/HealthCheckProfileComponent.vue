@@ -547,8 +547,12 @@ export default class HealthCheckProfileComponent extends Vue
 
             this.service.RegisterWebAuthn(this.registerWebAuthnPassword, registerPayload, this.webAuthnAddLoadStatus, {
                 onSuccess: (d) => {
+                    this.webAuthnAddError = (d as any).error || '';
+                    if (!this.webAuthnAddError)
+                    {
+                        this.webAuthnAddSuccessMessage = 'WebAuthn registered successfully.';
+                    }
                     this.registerWebAuthnPassword = '';
-                    this.webAuthnAddSuccessMessage = 'WebAuthn registered successfully.';
                 }
             });
         } catch (e) {

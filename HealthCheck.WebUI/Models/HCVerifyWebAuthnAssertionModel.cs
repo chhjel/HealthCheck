@@ -10,14 +10,14 @@
         /// <summary></summary>
         public string RawId { get; set; }
         /// <summary></summary>
-        public AssertionResponse Response { get; set; }
+        public HCAssertionResponse Response { get; set; }
         /// <summary></summary>
-        public AuthenticationExtensionsClientOutputs Extensions { get; set; }
+        public HCAuthenticationExtensionsClientOutputs Extensions { get; set; }
 
         /// <summary>
         /// Part of WebAuthn login payload model.
         /// </summary>
-        public class AssertionResponse
+        public class HCAssertionResponse
         {
             /// <summary></summary>
             public string AuthenticatorData { get; set; }
@@ -31,7 +31,7 @@
         /// <summary>
         /// Part of WebAuthn login payload model.
         /// </summary>
-        public class AuthenticationExtensionsClientOutputs
+        public class HCAuthenticationExtensionsClientOutputs
         {
             /// <summary></summary>
             public object Example { get; set; }
@@ -48,7 +48,7 @@
             /// <summary></summary>
             public byte[] uvi { get; set; }
             /// <summary></summary>
-            public AuthenticationGeoCoordinate loc { get; set; }
+            public HCAuthenticationGeoCoordinate loc { get; set; }
             /// <summary></summary>
             public ulong[][] uvm { get; set; }
             /// <summary></summary>
@@ -58,7 +58,7 @@
         /// <summary>
         /// Part of WebAuthn login payload model.
         /// </summary>
-        public class AuthenticationGeoCoordinate
+        public class HCAuthenticationGeoCoordinate
         {
             /// <summary></summary>
             public double Course { get; set; }
@@ -75,7 +75,7 @@
             /// <summary></summary>
             public double Altitude { get; set; }
             /// <summary></summary>
-            public bool IsUnknown { get; }
+            public bool IsUnknown { get; set; }
         }
     }
 }

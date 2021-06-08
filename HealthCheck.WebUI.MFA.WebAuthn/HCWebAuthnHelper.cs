@@ -44,12 +44,12 @@ namespace HealthCheck.WebUI.MFA.WebAuthn
 		/// <summary>
 		/// To add FIDO2 credentials to an existing user account, we we perform a attestation process. It starts with returning options to the client.
 		/// </summary>
-		public CredentialCreateOptions CreateClientOptions(string username)
+		public CredentialCreateOptions CreateClientOptions(string username, string displayName = null)
 		{
 			// 1. Get user from DB by username (in our example, auto create missing users)
 			var user = _credentialManager.GetOrAddUser(username, () => new Fido2User
 			{
-				DisplayName = "Display " + username,
+				DisplayName = displayName ?? username,
 				Name = username,
 				Id = Encoding.UTF8.GetBytes(username) // byte representation of userID is required
 			});
@@ -140,7 +140,7 @@ namespace HealthCheck.WebUI.MFA.WebAuthn
 			HCWebAuthnStoredCredential creds = _credentialManager.GetCredentialById(clientResponse.Id);
 			if (creds == null)
             {
-				return HCGenericResult<AssertionVerificationResult>.CreateError<AssertionVerificationResult>("Invalid credentials.");
+				return HCGenericResult<AssertionVerificationResult>.CreateError("Invalid credentials.");
             }
 
 			// 3. Get credential counter from database
@@ -161,7 +161,7 @@ namespace HealthCheck.WebUI.MFA.WebAuthn
 
 			if (res?.Status != "ok")
             {
-				return HCGenericResult<AssertionVerificationResult>.CreateError<AssertionVerificationResult>($"Verification failed. {res.ErrorMessage}");
+				return HCGenericResult<AssertionVerificationResult>.CreateError($"Verification failed. {res.ErrorMessage}");
 			}
 
 			return HCGenericResult<AssertionVerificationResult>.CreateSuccess(res);

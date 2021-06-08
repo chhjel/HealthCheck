@@ -48,7 +48,7 @@
         public string Password { get; set; }
 
         ///<summary></summary>
-        public string RegistrationData { get; set; }
+        public HCRegisterWebAuthnModel RegistrationData { get; set; }
     }
 
     ///<summary></summary>

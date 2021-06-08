@@ -103,14 +103,4 @@ export default class IntegratedProfileService extends HCServiceBase
         const url = `${this._endpointBase}/ProfileCreateWebAuthnRegistrationOptions`;
         this.fetchExt<any>(url, 'POST', payload, statusObject, callbacks, true);
     }
-    
-    // public RegisterWebAuthn(
-    //     // url: string,
-    //     payload: any,
-    //     statusObject: FetchStatus | null = null,
-    //     callbacks: ServiceFetchCallbacks<any> | null = null
-    // ): void {
-    //     const url = '/hclogin/RegisterWebAuthn';
-    //     this.fetchExt<any>(url, 'POST', payload, statusObject, callbacks, true);
-    // }
 }

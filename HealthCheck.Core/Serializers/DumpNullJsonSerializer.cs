@@ -25,7 +25,7 @@ namespace HealthCheck.Core.Serializers
         /// <summary>
         /// Returns success w/ default.
         /// </summary>
-        public HCGenericResult<object> DeserializeExt(string json, Type type) => HCGenericResult<object>.CreateSuccess<object>(default);
+        public HCGenericResult<object> DeserializeExt(string json, Type type) => HCGenericResult<object>.CreateSuccess(default);
 
         /// <summary>
         /// Returns an empty string.

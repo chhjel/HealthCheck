@@ -289,6 +289,10 @@ namespace HealthCheck.DevTest.Controllers
                 Current2FACodeExpirationTime = HCMfaTotpUtil.GetCurrentTotpCodeExpirationTime(),
                 Send2FACodeEndpoint = "/hclogin/Request2FACode"
             };
+            config.IntegratedProfileConfig = new HCIntegratedProfileConfig
+            {
+                Username = CurrentRequestInformation.UserName
+            };
         }
 
         public override ActionResult Index()

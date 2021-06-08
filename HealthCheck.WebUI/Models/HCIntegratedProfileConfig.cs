@@ -76,6 +76,7 @@ namespace HealthCheck.WebUI.Models
         /// If set, allows authenticating using WebAuthn from the profile to elevate access.
         /// <para>Requires <see cref="Username"/> to be set.</para>
         /// <para>Input string is the webauthn payload.</para>
+        /// <para>Also requires <see cref="CreateWebAuthnAssertionOptionsLogic"/> to be set.</para>
         /// </summary>
         [JsonIgnore]
         public ElevateWebAuthnDelegate WebAuthnElevationLogic { get; set; }
@@ -86,7 +87,18 @@ namespace HealthCheck.WebUI.Models
         /// <para>Defaults to true.</para>
         /// </summary>
         public bool ShowWebAuthnElevation { get; set; } = true;
-        [JsonProperty] internal bool WebAuthnElevationEnabled => ShowWebAuthnElevation && WebAuthnElevationLogic != null && !string.IsNullOrWhiteSpace(Username);
+        [JsonProperty] internal bool WebAuthnElevationEnabled => ShowWebAuthnElevation 
+            && WebAuthnElevationLogic != null && CreateWebAuthnAssertionOptionsLogic != null
+            && !string.IsNullOrWhiteSpace(Username);
+
+        /// <summary>
+        /// Required for <see cref="WebAuthnElevationLogic"/> to function.
+        /// <para>Should return the webauthn assertion options object.</para>
+        /// </summary>
+        [JsonIgnore]
+        public CreateWebAuthnAssertionOptionsDelegate CreateWebAuthnAssertionOptionsLogic { get; set; }
+        /// <summary>Signature for creating the webauthn assertion options object.</summary>
+        public delegate HCGenericResult<object> CreateWebAuthnAssertionOptionsDelegate(string username);
 
         /// <summary>
         /// If set, allows registering the users WebAuthn binding from the profile page.
@@ -98,7 +110,7 @@ namespace HealthCheck.WebUI.Models
         [JsonIgnore]
         public AddWebAuthnDelegate AddWebAuthnLogic { get; set; }
         /// <summary>Signature for adding WebAuthn.</summary>
-        public delegate HCGenericResult AddWebAuthnDelegate(string password, string webAuthnPayloadJson);
+        public delegate HCGenericResult AddWebAuthnDelegate(string password, HCRegisterWebAuthnModel webAuthnPayload);
         /// <summary>
         /// Allows registering the users WebAuthn binding from the profile page, requires <see cref="AddWebAuthnLogic"/> to be set.
         /// <para>Defaults to true.</para>
