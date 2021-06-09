@@ -2,8 +2,10 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import { HCRegisterWebAuthnModel } from './HCRegisterWebAuthnModel';
+
 export interface HCProfileRegisterWebAuthnRequest
 {
 	Password: string;
-	RegistrationData: string;
+	RegistrationData: HCRegisterWebAuthnModel;
 }

@@ -2,13 +2,13 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import { HCAssertionResponse } from './HCAssertionResponse';
+import { HCResponseData } from './HCResponseData';
 import { HCAuthenticationExtensionsClientOutputs } from './HCAuthenticationExtensionsClientOutputs';
 
-export interface HCVerifyWebAuthnAssertionModel
+export interface HCRegisterWebAuthnModel
 {
 	Id: string;
 	RawId: string;
-	Response: HCAssertionResponse;
+	Response: HCResponseData;
 	Extensions: HCAuthenticationExtensionsClientOutputs;
 }

@@ -21,22 +21,22 @@ namespace HealthCheck.WebUI.MFA.WebAuthn
 		private readonly Fido2 _lib;
 		private readonly IHCWebAuthnCredentialManager _credentialManager;
 
-		/// <summary>
-		/// Helper methods for WebAuthn/FIDO2.
-		/// </summary>
-		/// <param name="serverDomain">Domain of the server the site is running on. For localhost use 'localhost'.</param>
-		/// <param name="serverName">Display name shown in the browser popup when requesting access to the FIDO key.</param>
-		/// <param name="origin">Origin from request headers. E.g. <c>Request.Headers["Origin"]</c></param>
-		/// <param name="credentialManager">Implementation that stores webauthn credentials.</param>
-		/// <param name="timestampDriftTolerance">Time in milliseconds that will be allowed for clock drift on a timestamped attestation.</param>
-		public HCWebAuthnHelper(string serverDomain, string serverName, string origin, IHCWebAuthnCredentialManager credentialManager, int timestampDriftTolerance = 300000)
+        /// <summary>
+        /// Helper methods for WebAuthn/FIDO2.
+        /// </summary>
+        /// <param name="options">Options passed to Fido2.</param>
+        /// <param name="credentialManager">Implementation that stores webauthn credentials.</param>
+        public HCWebAuthnHelper(HCWebAuthnHelperOptions options, IHCWebAuthnCredentialManager credentialManager)
 		{
+			if (options == null) throw new ArgumentNullException(nameof(options));
+			options.Validate();
+
 			_lib = new Fido2(new Fido2Configuration()
 			{
-				ServerDomain = serverDomain,
-				ServerName = serverName,
-				Origin = origin,
-                TimestampDriftTolerance = timestampDriftTolerance
+				ServerDomain = options.ServerDomain,
+				ServerName = options.ServerName,
+				Origin = options.Origin,
+                TimestampDriftTolerance = (int)options.TimestampDriftTolerance.TotalMilliseconds
 			});
             _credentialManager = credentialManager;
         }
@@ -44,7 +44,9 @@ namespace HealthCheck.WebUI.MFA.WebAuthn
 		/// <summary>
 		/// To add FIDO2 credentials to an existing user account, we we perform a attestation process. It starts with returning options to the client.
 		/// </summary>
-		public CredentialCreateOptions CreateClientOptions(string username, string displayName = null)
+		public CredentialCreateOptions CreateClientOptions(string username, string displayName = null,
+			Action<AuthenticationExtensionsClientInputs> extentsionsConfig = null,
+			Action<AuthenticatorSelection> authSelectionConfig = null)
 		{
 			// 1. Get user from DB by username (in our example, auto create missing users)
 			var user = _credentialManager.GetOrAddUser(username, () => new Fido2User
@@ -63,6 +65,8 @@ namespace HealthCheck.WebUI.MFA.WebAuthn
 				RequireResidentKey = false,
 				UserVerification = UserVerificationRequirement.Preferred
 			};
+			authSelectionConfig?.Invoke(authenticatorSelection);
+
 			var exts = new AuthenticationExtensionsClientInputs()
 			{
 				Extensions = true,
@@ -75,10 +79,17 @@ namespace HealthCheck.WebUI.MFA.WebAuthn
 					FRR = float.MaxValue
 				}
 			};
+			extentsionsConfig?.Invoke(exts);
 
 			var options = _lib.RequestNewCredential(user, existingKeys, authenticatorSelection, AttestationConveyancePreference.None, exts);
 			return options;
 		}
+
+		/// <summary>
+		/// When the client returns a response, we verify and register the credentials.
+		/// </summary>
+		public async Task RegisterCredentials(CredentialCreateOptions options, HCRegisterWebAuthnModel attestation)
+			=> await RegisterCredentials(options, attestation.ToAuthenticatorAttestationRawResponse());
 
 		/// <summary>
 		/// When the client returns a response, we verify and register the credentials.
@@ -175,5 +186,5 @@ namespace HealthCheck.WebUI.MFA.WebAuthn
             var options = CreateAssertionOptions(request.Username);
 			return options.ToJson();
         }
-	}
+    }
 }

@@ -52,6 +52,15 @@ export default class IntegratedProfileService extends HCServiceBase
         this.fetchExt<HCGenericResult>(url, 'POST', payload, statusObject, callbacks, true);
     }
     
+    public CreateWebAuthnAssertionOptions(
+        username: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<any> | null = null
+    ): void {
+        const url = `${this._endpointBase}/ProfileCreateWebAuthnAssertionOptions`;
+        this.fetchExt<any>(url, 'POST', { Username: username }, statusObject, callbacks, true);
+    }
+    
     public ElevateWebAuthn(
         data: HCVerifyWebAuthnAssertionModel,
         statusObject: FetchStatus | null = null,

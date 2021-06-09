@@ -86,7 +86,7 @@ namespace HealthCheck.WebUI.Abstractions
             var optionsJson = CreateWebAuthnAssertionOptionsJson(request);
             if (optionsJson == null)
             {
-                return BadRequest($"User not found.");
+                return Json(new { status = "error", error = "User not found." });
             }
 
             HttpContext.Session.SetString("WebAuthn.assertionOptions", optionsJson);

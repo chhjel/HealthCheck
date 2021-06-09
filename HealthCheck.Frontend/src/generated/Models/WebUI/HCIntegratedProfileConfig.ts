@@ -6,6 +6,7 @@ import { ElevateTotpDelegate } from './ElevateTotpDelegate';
 import { AddTotpDelegate } from './AddTotpDelegate';
 import { RemoveTotpDelegate } from './RemoveTotpDelegate';
 import { ElevateWebAuthnDelegate } from './ElevateWebAuthnDelegate';
+import { CreateWebAuthnAssertionOptionsDelegate } from './CreateWebAuthnAssertionOptionsDelegate';
 import { AddWebAuthnDelegate } from './AddWebAuthnDelegate';
 import { CreateWebAuthnRegistrationOptionsDelegate } from './CreateWebAuthnRegistrationOptionsDelegate';
 import { RemoveWebAuthnDelegate } from './RemoveWebAuthnDelegate';
@@ -27,6 +28,7 @@ export interface HCIntegratedProfileConfig
 	WebAuthnElevationLogic: ElevateWebAuthnDelegate;
 	ShowWebAuthnElevation: boolean;
 	WebAuthnElevationEnabled: boolean;
+	CreateWebAuthnAssertionOptionsLogic: CreateWebAuthnAssertionOptionsDelegate;
 	AddWebAuthnLogic: AddWebAuthnDelegate;
 	ShowAddWebAuthn: boolean;
 	AddWebAuthnEnabled: boolean;

@@ -60,4 +60,11 @@
         ///<summary></summary>
         public string Password { get; set; }
     }
+
+    ///<summary></summary>
+    public class HCCreateWebAuthnAssertionOptionsRequest
+    {
+        ///<summary></summary>
+        public string UserName { get; set; }
+    }
 }

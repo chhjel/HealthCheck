@@ -289,6 +289,23 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
+        /// Attempts to create assertion options if enabled.
+        /// </summary>
+        [HideFromRequestLog]
+        [HttpPost]
+        [Route("ProfileCreateWebAuthnAssertionOptions")]
+        public virtual ActionResult ProfileCreateWebAuthnAssertionOptions([FromBody] HCCreateWebAuthnAssertionOptionsRequest model)
+        {
+            if (!Enabled
+                || Helper?.AccessConfig?.IntegratedProfileConfig?.WebAuthnElevationEnabled != true
+                || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
+                return NotFound();
+
+            var options = Helper.AccessConfig.IntegratedProfileConfig.CreateWebAuthnAssertionOptionsLogic(model?.UserName);
+            return CreateJsonResult(options, stringEnums: false);
+        }
+
+        /// <summary>
         /// Attempts to elevate access using WebAuthn if enabled.
         /// </summary>
         [HideFromRequestLog]
@@ -306,7 +323,7 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
-        /// Attempts to create register options WebAuthn if enabled.
+        /// Attempts to create WebAuthn register options if enabled.
         /// </summary>
         [HideFromRequestLog]
         [HttpPost]
@@ -369,7 +386,7 @@ namespace HealthCheck.WebUI.Abstractions
 #region Overrides
         /// <summary>
         /// Calls GetRequestInformation and SetOptions.
-        /// </summar
+        /// </summary>
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var request = context?.HttpContext?.Request;

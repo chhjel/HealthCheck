@@ -1,6 +1,5 @@
 ﻿using HealthCheck.Core.Models;
 using Newtonsoft.Json;
-using System;
 
 namespace HealthCheck.WebUI.Models
 {
@@ -24,6 +23,11 @@ namespace HealthCheck.WebUI.Models
         /// Displayed username, also used for WebAuthn elevation and registration.
         /// </summary>
         public string Username { get; set; }
+
+        /// <summary>
+        /// Any extra html to display on the profile.
+        /// </summary>
+        public string BodyHtml { get; set; }
 
         /// <summary>
         /// If set, allows entering TOTP code from the profile to elevate access.

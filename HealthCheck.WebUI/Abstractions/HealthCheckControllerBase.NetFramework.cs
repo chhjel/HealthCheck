@@ -264,6 +264,22 @@ namespace HealthCheck.WebUI.Abstractions
         }
 
         /// <summary>
+        /// Attempts to create assertion options if enabled.
+        /// </summary>
+        [HideFromRequestLog]
+        [HttpPost]
+        public virtual ActionResult ProfileCreateWebAuthnAssertionOptions(HCCreateWebAuthnAssertionOptionsRequest model)
+        {
+            if (!Enabled
+                || Helper?.AccessConfig?.IntegratedProfileConfig?.WebAuthnElevationEnabled != true
+                || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
+                return CreateNoAccessResult();
+
+            var options = Helper.AccessConfig.IntegratedProfileConfig.CreateWebAuthnAssertionOptionsLogic(model?.UserName);
+            return CreateJsonResult(options, stringEnums: false);
+        }
+
+        /// <summary>
         /// Attempts to elevate access using WebAuthn if enabled.
         /// </summary>
         [HideFromRequestLog]

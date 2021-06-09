@@ -68,6 +68,12 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             return options?.ToJson();
         }
 
-        private HCWebAuthnHelper CreateWebAuthnHelper() => new HCWebAuthnHelper("localhost", "HCDev", Request.Headers["Origin"], new HCMemoryWebAuthnCredentialManager());
+        private HCWebAuthnHelper CreateWebAuthnHelper()
+            => new HCWebAuthnHelper(new HCWebAuthnHelperOptions
+            {
+                ServerDomain = "localhost",
+                ServerName = "HCDev",
+                Origin = Request.Headers["Origin"]
+            }, new HCMemoryWebAuthnCredentialManager());
     }
 }

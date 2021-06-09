@@ -100,49 +100,6 @@
                             type="error">
                         {{ loadStatus.errorMessage }}
                         </v-alert>
-
-                        <div>
-                            ToDo:
-                            <ul>
-                                <li>
-                                    Add optional button in header that shows user details.
-                                    <ul>
-                                        <li>Show current roles and username</li>
-                                        <li>Logout link if configured</li>
-                                        <li>Access elevation if enabled</li>
-                                        <li>Setup MFA if enabled</li>
-                                        <li>(later) change password if enabled</li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    UserProfileOptions (get per request):
-                                    <ul>
-                                        <li>ShowHealthCheckRoles</li>
-                                        <li>List`HCHyperlink` CustomLinks</li>
-
-                                        <li>AllowTotpElevation</li>
-                                        <li>AllowAddTtop => QR Code</li>
-                                        <li>AllowRemoveTtop</li>
-
-                                        <li>AllowWebAuthnElevation</li>
-                                        <li>AllowAddWebAuthn</li>
-                                        <li>AllowRemoveWebAuthn</li>
-                                    </ul>
-                                </li>
-                                <li>HCMfaTotpService/HCMfaOtpService/HCMfaWebAuthnService?
-                                    <ul>
-                                        <li>StoreTotpSecret(username)</li>
-                                        <li>SupportsGetTotpSecret</li>
-                                        <li>SupportsStoreTotpSecret</li>
-                                        
-                                        <li>GetWebAuthnSecret(username)</li>
-                                        <li>StoreWebAuthnSecret(username, data)</li>
-                                        <li>SupportsGetWebAuthnSecret</li>
-                                        <li>SupportsStoreWebAuthnSecret</li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </div>
                     </div>
                 </div>
 
@@ -405,7 +362,7 @@ export default class IntegratedLoginPageComponent extends Vue {
     async onWebAuthnAssertionOptionsCreated(options: any): Promise<void> {
         if (options.status !== "ok")
         {
-            alert('Status not ok, check log.');
+            this.error = options.error || 'Assertion options creation failed.';
             console.error(options);
             return;
         }
@@ -414,7 +371,6 @@ export default class IntegratedLoginPageComponent extends Vue {
         options.allowCredentials.forEach((item: any) => {
             item.id = WebAuthnUtil.coerceToArrayBuffer(item.id);
         });
-        console.log("VerifyAssertion", options);
 
         try {
             const assertedCredential = (await navigator.credentials.get({ publicKey: options })) as any;
@@ -433,23 +389,15 @@ export default class IntegratedLoginPageComponent extends Vue {
                     Signature: WebAuthnUtil.coerceToBase64Url(sig)
                 }
             };
-            console.log("VerifyAssertion payload", payload);
 
             this.webAuthnLoginPayload = payload;
             if (this.autoCallLoginAfterNextWebAuthn)
             {
                 this.login();
             }
-
-            // let service = new IntegratedLoginService(true);
-            // service.VerifyAssertion(payload, this.loadStatus, {
-            //     onSuccess: (d) => console.log(d),
-            //     onError: (e) => console.error(e)
-            // });
         } catch (e) {
-            console.error('VerifyAssertion failed');
+            this.error = 'Assertion failed.';
             console.error(e);
-            alert(e);
         }
     }
 
