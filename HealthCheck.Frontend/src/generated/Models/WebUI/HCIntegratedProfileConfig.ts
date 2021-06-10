@@ -16,6 +16,7 @@ export interface HCIntegratedProfileConfig
 	Hide: boolean;
 	ShowHealthCheckRoles: boolean;
 	Username: string;
+	BodyHtml: string;
 	TotpElevationLogic: ElevateTotpDelegate;
 	ShowTotpElevation: boolean;
 	TotpElevationEnabled: boolean;

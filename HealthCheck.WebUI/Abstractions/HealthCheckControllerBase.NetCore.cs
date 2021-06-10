@@ -251,7 +251,7 @@ namespace HealthCheck.WebUI.Abstractions
                 return NotFound();
 
             var result = Helper.AccessConfig.IntegratedProfileConfig.TotpElevationLogic(model?.Code);
-            return Json(result);
+            return CreateJsonResult(result);
         }
 
         /// <summary>
@@ -268,7 +268,7 @@ namespace HealthCheck.WebUI.Abstractions
                 return NotFound();
 
             var result = Helper.AccessConfig.IntegratedProfileConfig.AddTotpLogic(model?.Password, model?.Secret, model?.Code);
-            return Json(result);
+            return CreateJsonResult(result);
         }
 
         /// <summary>
@@ -285,7 +285,7 @@ namespace HealthCheck.WebUI.Abstractions
                 return NotFound();
 
             var result = Helper.AccessConfig.IntegratedProfileConfig.RemoveTotpLogic(model?.Password);
-            return Json(result);
+            return CreateJsonResult(result);
         }
 
         /// <summary>
@@ -319,7 +319,7 @@ namespace HealthCheck.WebUI.Abstractions
                 return NotFound();
 
             var result = Helper.AccessConfig.IntegratedProfileConfig.WebAuthnElevationLogic(model?.Data);
-            return Json(result);
+            return CreateJsonResult(result);
         }
 
         /// <summary>
@@ -353,7 +353,7 @@ namespace HealthCheck.WebUI.Abstractions
                 return NotFound();
 
             var result = Helper.AccessConfig.IntegratedProfileConfig.AddWebAuthnLogic(model?.Password, model?.RegistrationData);
-            return Json(result);
+            return CreateJsonResult(result);
         }
 
         /// <summary>
@@ -370,7 +370,7 @@ namespace HealthCheck.WebUI.Abstractions
                 return NotFound();
 
             var result = Helper.AccessConfig.IntegratedProfileConfig.RemoveWebAuthnLogic(model?.Password);
-            return Json(result);
+            return CreateJsonResult(result);
         }
 #endregion
 #endregion

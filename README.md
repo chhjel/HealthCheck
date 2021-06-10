@@ -1355,7 +1355,7 @@ You can use the included `HCWebAuthnHelper` to register FIDO2 keys and create da
         //... username/pass validation etc
 
         // Verify WebAuthn payload
-        if (request.WebAuthnPayload == null)
+        if (request.WebAuthnPayload?.Id == null)
         {
             return HCIntegratedLoginResult.CreateError("Invalid FIDO key assertion data.");
         }

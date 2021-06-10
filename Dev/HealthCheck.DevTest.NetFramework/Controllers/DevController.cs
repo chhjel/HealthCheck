@@ -287,11 +287,42 @@ namespace HealthCheck.DevTest.Controllers
             {
                 IntegratedLoginEndpoint = "/hclogin/login",
                 Current2FACodeExpirationTime = HCMfaTotpUtil.GetCurrentTotpCodeExpirationTime(),
-                Send2FACodeEndpoint = "/hclogin/Request2FACode"
+                Send2FACodeEndpoint = "/hclogin/Request2FACode",
+                TwoFactorCodeInputMode = HCIntegratedLoginConfig.HCLoginTwoFactorCodeInputMode.Optional
             };
             config.IntegratedProfileConfig = new HCIntegratedProfileConfig
             {
-                Username = CurrentRequestInformation.UserName
+                Username = CurrentRequestInformation.UserName,
+                BodyHtml = "Here is some custom content.<ul><li><a href=\"https://www.google.com\">A link here</a></li></ul>",
+                // TOTP: Elevate
+                ShowTotpElevation = true,
+                TotpElevationLogic = (c) =>
+                {
+                    if (!HCMfaTotpUtil.ValidateTotpCode(HCLoginController.DummySecret, c))
+                    {
+                        return HCGenericResult<HCResultPageAction>.CreateError("Invalid code");
+                    }
+
+                    return HCGenericResult<HCResultPageAction>.CreateSuccess(HCResultPageAction.CreateRefresh());
+                },
+                // TOTP: Add
+                ShowAddTotp = true,
+                AddTotpLogic = (pwd, secret, code) =>
+                {
+                    if (pwd != "toor") return HCGenericResult<object>.CreateError("Invalid password");
+                    if (!HCMfaTotpUtil.ValidateTotpCode(secret, code))
+                    {
+                        return HCGenericResult.CreateError("Invalid code");
+                    }
+                    return HCGenericResult.CreateSuccess();
+                },
+                // TOTP: Remove
+                ShowRemoveTotp = true,
+                RemoveTotpLogic = (pwd) =>
+                {
+                    if (pwd != "toor") return HCGenericResult<object>.CreateError("Invalid password");
+                    return HCGenericResult.CreateSuccess();
+                },
             };
         }
 

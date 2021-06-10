@@ -35,7 +35,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 return HCIntegratedLoginResult.CreateError("Two-factor code was wrong, try again.");
             }
 
-            if (request.WebAuthnPayload != null)
+            if (request.WebAuthnPayload?.Id != null)
             {
                 var webauthn = CreateWebAuthnHelper();
                 var jsonOptions = GetWebAuthnAssertionOptionsJsonForSession();

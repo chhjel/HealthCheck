@@ -36,7 +36,7 @@ namespace HealthCheck.WebUI.Models
         [JsonIgnore]
         public ElevateTotpDelegate TotpElevationLogic { get; set; }
         /// <summary>Signature for elevating Totp.</summary>
-        public delegate HCGenericResult ElevateTotpDelegate(string totpCode);
+        public delegate HCGenericResult<HCResultPageAction> ElevateTotpDelegate(string totpCode);
         /// <summary>
         /// Allows entering TOTP code from the profile to elevate access, requires <see cref="TotpElevationLogic"/> to be set.
         /// <para>Defaults to true.</para>
@@ -85,7 +85,7 @@ namespace HealthCheck.WebUI.Models
         [JsonIgnore]
         public ElevateWebAuthnDelegate WebAuthnElevationLogic { get; set; }
         /// <summary>Signature for elevating WebAuthn.</summary>
-        public delegate HCGenericResult ElevateWebAuthnDelegate(HCVerifyWebAuthnAssertionModel payload);
+        public delegate HCGenericResult<HCResultPageAction> ElevateWebAuthnDelegate(HCVerifyWebAuthnAssertionModel payload);
         /// <summary>
         /// Allows authenticating using WebAuthn from the profile to elevate access, requires <see cref="WebAuthnElevationLogic"/> to be set.
         /// <para>Defaults to true.</para>

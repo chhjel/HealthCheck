@@ -219,8 +219,8 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 IntegratedLoginEndpoint = "/HCLogin/login",
                 Current2FACodeExpirationTime = HCMfaTotpUtil.GetCurrentTotpCodeExpirationTime(),
                 Send2FACodeEndpoint = "/hclogin/Request2FACode",
-                TwoFactorCodeInputMode = HCIntegratedLoginConfig.HCLoginTwoFactorCodeInputMode.Required,
-                WebAuthnMode = HCIntegratedLoginConfig.HCLoginWebAuthnMode.Required
+                TwoFactorCodeInputMode = HCIntegratedLoginConfig.HCLoginTwoFactorCodeInputMode.Optional,
+                WebAuthnMode = HCIntegratedLoginConfig.HCLoginWebAuthnMode.Optional
             };
 
             var totpKey = "_dev_totp_secret";
@@ -237,11 +237,11 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                     var secret = Request.HttpContext.Session.GetString(totpKey);
                     if (string.IsNullOrWhiteSpace(secret) || !HCMfaTotpUtil.ValidateTotpCode(secret, c))
                     {
-                        return HCGenericResult.CreateError("Invalid code");
+                        return HCGenericResult<HCResultPageAction>.CreateError("Invalid code");
                     }
                     Request.HttpContext.Session.SetString("_dev_2fa_validated", "true");
-                    // todo: return HCGenericResult<HCResultPageAction> [None, RefreshPage]
-                    return HCGenericResult.CreateSuccess();
+                    
+                    return HCGenericResult<HCResultPageAction>.CreateSuccess(HCResultPageAction.CreateRefresh());
                 },
                 // TOTP: Add
                 ShowAddTotp = string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey)),
@@ -296,10 +296,10 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                     var webAuthnResult = AsyncUtils.RunSync(() => webauthn.VerifyAssertion(options, d));
                     if (!webAuthnResult.Success)
                     {
-                        return HCGenericResult.CreateError(webAuthnResult.Error);
+                        return HCGenericResult<HCResultPageAction>.CreateError(webAuthnResult.Error);
                     }
                     Request.HttpContext.Session.SetString("_dev_webAuthn_validated", "true");
-                    return HCGenericResult.CreateSuccess();
+                    return HCGenericResult<HCResultPageAction>.CreateSuccess(HCResultPageAction.CreateRefresh());
                 },
                 // WebAuthn: Add
                 ShowAddWebAuthn = string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(webAuthnKey)),

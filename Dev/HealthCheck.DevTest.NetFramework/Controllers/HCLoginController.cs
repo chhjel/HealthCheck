@@ -7,7 +7,7 @@ namespace HealthCheck.DevTest.Controllers
 {
     public class HCLoginController : HealthCheckLoginControllerBase
     {
-        private const string DummySecret = "J5V5XFSQCT2TDG6AZIQ46TTEAXGU7GCW";
+        public const string DummySecret = "J5V5XFSQCT2TDG6AZIQ46TTEAXGU7GCW";
 
         protected override HCIntegratedLoginResult HandleLoginRequest(HCIntegratedLoginRequest request)
         {

@@ -401,6 +401,8 @@ import Base32Util from "util/Base32Util";
 import { HCVerifyWebAuthnAssertionModel } from "generated/Models/WebUI/HCVerifyWebAuthnAssertionModel";
 import { Ecc, QrCode } from 'util/QRCodeUtil';
 import BlockComponent from 'components/Common/Basic/BlockComponent.vue';
+import { HCResultPageAction } from "generated/Models/WebUI/HCResultPageAction";
+import { HCResultPageActionType } from "generated/Enums/WebUI/HCResultPageActionType";
 
 @Component({
     components: {
@@ -542,11 +544,22 @@ export default class HealthCheckProfileComponent extends Vue
         this.service.ElevateTotp(this.totpElevateCode, this.totpElevateLoadStatus,
             {
                 onSuccess: (d) => {
-                    this.totpElevationError = (d as any).error || '';
+                    this.totpElevationError = d.Error || '';
                     if (!this.totpElevationError)
                     {
                         this.totpElevateSuccessMessage = 'Elevated successfully';
                         this.hasElevatedTotp = true;
+
+                        const action = (d as any).Data as HCResultPageAction;
+                        const actionType = action ? action.Type : HCResultPageActionType.None;
+                        if (actionType === HCResultPageActionType.Refresh)
+                        {
+                            window.location.reload();
+                        }
+                        if (actionType === HCResultPageActionType.Redirect)
+                        {
+                            window.location.href = action.RedirectTarget;
+                        }
                     }
                 }
             }
@@ -558,7 +571,7 @@ export default class HealthCheckProfileComponent extends Vue
         this.service.RegisterTotp(this.registerTotpSecret, this.registerTotpCode, this.registerTotpPassword, this.totpAddLoadStatus,
             {
                 onSuccess: (d) => {
-                    this.totpAddError = (d as any).error || '';
+                    this.totpAddError = d.Error || '';
                     this.registerTotpPassword = '';
                     if (!this.totpAddError)
                     {
@@ -576,7 +589,7 @@ export default class HealthCheckProfileComponent extends Vue
         this.service.RemoveTotp(this.removeTotpPassword, this.totpRemoveLoadStatus,
             {
                 onSuccess: (d) => {
-                    this.totpRemoveError = (d as any).error || '';
+                    this.totpRemoveError = d.Error || '';
                     this.removeTotpPassword = '';
                     if (!this.totpRemoveError)
                     {
@@ -636,7 +649,7 @@ export default class HealthCheckProfileComponent extends Vue
             this.service.ElevateWebAuthn(payload, this.webAuthnElevateStatus,
                 {
                     onSuccess: (d) => {
-                        this.webAuthnElevationError = (d as any).error || '';
+                        this.webAuthnElevationError = d.Error || '';
                         if (!this.webAuthnElevationError)
                         {
                             this.webAuthnElevationSuccessMessage = 'Elevated successfully';
@@ -733,7 +746,7 @@ export default class HealthCheckProfileComponent extends Vue
 
             this.service.RegisterWebAuthn(this.registerWebAuthnPassword, registerPayload, this.webAuthnAddLoadStatus, {
                 onSuccess: (d) => {
-                    this.webAuthnAddError = (d as any).error || '';
+                    this.webAuthnAddError = d.Error || '';
                     if (!this.webAuthnAddError)
                     {
                         this.webAuthnAddSuccessMessage = 'WebAuthn registered successfully.';
