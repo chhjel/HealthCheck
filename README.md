@@ -1282,8 +1282,8 @@ An integrated login dialog is included, but custom authentication logic must be 
         config.IntegratedLoginConfig = new HCIntegratedLoginConfig
         {
             IntegratedLoginEndpoint = "/hclogin/login",
-            // Optionally show 2FA input
-            Show2FAInput = true,
+            // Optionally require 2FA input
+            TwoFactorCodeInputMode = HCIntegratedLoginConfig.HCLoginTwoFactorCodeInputMode.Required,
             // Optionally show how much time left of TOTP codes
             Current2FACodeExpirationTime = HCMfaTotpUtil.GetCurrentCodeExpirationTime(),
             // Optionally allow sending codes to the user
@@ -1308,20 +1308,35 @@ To add WebAuthn MFA you can add the [![Nuget](https://img.shields.io/nuget/v/Hea
 
 You can use the included `HCWebAuthnHelper` to register FIDO2 keys and create data secrets to store on your user objects.
 
-1. In the healthcheck controller specify desired WebAuthn mode for the login page.
+<details><summary>Example setup</summary>
+<p>
+
+1. Create your implementation of `IHCWebAuthnCredentialManager` that will store and retrieve WebAuthn credential data.
+
+2. In the healthcheck controller specify desired WebAuthn mode for the login page.
 
     ```csharp
-    // TODO
+        config.IntegratedLoginConfig = new HCIntegratedLoginConfig
+        {
+            // ...
+            WebAuthnMode = HCIntegratedLoginConfig.HCLoginWebAuthnMode.Required
+        };
     ```
 
-2. In the login controller add a factory method to create the `HCWebAuthnHelper`, or get it from IoC.
+3. In the login controller add a factory method to create the `HCWebAuthnHelper`.
 
     ```csharp
+    private HCWebAuthnHelper CreateWebAuthnHelper()
+        => new HCWebAuthnHelper(new HCWebAuthnHelperOptions
+        {
+            ServerDomain = "localhost",
+            ServerName = "My fancy site",
+            Origin = Request.Headers["Origin"]
+        }, new HCMemoryWebAuthnCredentialManager() /* Add your own implementation here that actually stores data */ );
     private HCWebAuthnHelper GetWebAuthnHelper()
-        => new HCWebAuthnHelper("localhost", "My fancy site", Request.Headers["Origin"], new HCMemoryWebAuthnCredentialManager());
     ```
 
-3. Override `CreateWebAuthnAssertionOptionsJson` in the login controller with e.g. the following:
+4. Override `CreateWebAuthnAssertionOptionsJson` in the login controller with e.g. the following:
 
     ```csharp
     protected override string CreateWebAuthnAssertionOptionsJson(HCIntegratedLoginCreateWebAuthnAssertionOptionsRequest request)
@@ -1332,7 +1347,7 @@ You can use the included `HCWebAuthnHelper` to register FIDO2 keys and create da
     }
     ```
 
-4. Verify the new data in `HandleLoginRequest`.
+5. Verify the new data in `HandleLoginRequest`.
 
     ```csharp
     protected override HCIntegratedLoginResult HandleLoginRequest(HCIntegratedLoginRequest request)
@@ -1357,6 +1372,9 @@ You can use the included `HCWebAuthnHelper` to register FIDO2 keys and create da
         return HCIntegratedLoginResult.CreateSuccess();
     }
     ```
+
+</p>
+</details>
 
 ### MFA: Sending one time use codes to user
 
@@ -1401,6 +1419,23 @@ Example logic using built in helper methods for creating 2FA codes in session:
         // Or the simple way without any extra details
         // return HCIntegratedLoginResult.CreateSuccess();
     }
+```
+
+---------
+
+## Integrated Profile
+
+Set `IntegratedProfileConfig` to show a profile button that displays the username, resolved healthcheck roles, and optionally add/remove/elevate access for TOTP and WebAuthn.
+
+```csharp
+    config.IntegratedProfileConfig = new HCIntegratedProfileConfig
+    {
+        Username = CurrentRequestInformation.UserName,
+        // BodyHtml = "Here is some custom content.<ul><li><a href=\"https://www.google.com\">A link here</a></li></ul>",
+        // ShowTotpElevation = ..
+        // TotpElevationLogic = (code) => ..
+        // ...
+    };
 ```
 
 ---------
