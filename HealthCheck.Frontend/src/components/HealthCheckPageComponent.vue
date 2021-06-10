@@ -75,7 +75,7 @@ export default class HealthCheckPageComponent extends Vue {
     @Prop({ required: true })
     moduleConfig!: Array<ModuleConfig>;
 
-    integratedProfileDialogVisible: boolean = true;
+    integratedProfileDialogVisible: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
