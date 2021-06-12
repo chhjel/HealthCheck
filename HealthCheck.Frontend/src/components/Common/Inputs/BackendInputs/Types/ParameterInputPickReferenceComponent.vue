@@ -33,7 +33,7 @@
             content-class="select-reference-item-dialog">
             <v-card style="background-color: #f4f4f4">
                 <v-toolbar class="elevation-0">
-                    <v-toolbar-title>Select value</v-toolbar-title>
+                    <v-toolbar-title>{{ dialogTitle }}</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-btn icon
                         @click="choicesDialogVisible = false">
@@ -44,6 +44,7 @@
                 <v-divider></v-divider>
                 
                 <v-card-text>
+                    <p v-if="dialogDescription">{{ dialogDescription }}</p>
                     <v-layout row>
                         <v-flex xs9>
                             <v-text-field
@@ -52,7 +53,7 @@
                                 placeholder="Filter.." />
                         </v-flex>
                         <v-flex xs3>
-                            <v-btn @click="loadChoices" :disabled="loadingChoicesStatus.inProgress">Search</v-btn>
+                            <v-btn @click="loadChoices" :disabled="loadingChoicesStatus.inProgress">{{ dialogSearchButtonText }}</v-btn>
                         </v-flex>
                     </v-layout>
                     <small>{{ choices.length - 1 }} results</small>
@@ -90,6 +91,7 @@ import { FetchStatus, ServiceFetchCallbacks } from "../../../../../services/abst
 import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
 import TestsUtils from "util/TestsModule/TestsUtils";
 import ClipboardUtil from "util/ClipboardUtil";
+import { ReferenceValueFactoryConfigViewModel } from "generated/Models/Core/ReferenceValueFactoryConfigViewModel";
 
 @Component({
     components: {
@@ -112,6 +114,9 @@ export default class ParameterInputPickReferenceComponent extends Vue {
 
     @Prop({ required: false, default: '' })
     parameterDetailContext!: string;
+
+    @Prop({ required: false, default: null })
+    referenceValueFactoryConfig!: ReferenceValueFactoryConfigViewModel | null;
 
     // Service
     loadingChoicesStatus: FetchStatus = new FetchStatus();
@@ -161,6 +166,30 @@ export default class ParameterInputPickReferenceComponent extends Vue {
         }
 
         return values;
+    }
+
+    get dialogTitle(): string {
+        if (this.referenceValueFactoryConfig && this.referenceValueFactoryConfig.Title)
+        {
+            return this.referenceValueFactoryConfig.Title;
+        }
+        return "Select value";
+    }
+
+    get dialogDescription(): string {
+        if (this.referenceValueFactoryConfig && this.referenceValueFactoryConfig.Description)
+        {
+            return this.referenceValueFactoryConfig.Description;
+        }
+        return "";
+    }
+
+    get dialogSearchButtonText(): string {
+        if (this.referenceValueFactoryConfig && this.referenceValueFactoryConfig.SearchButtonText)
+        {
+            return this.referenceValueFactoryConfig.SearchButtonText;
+        }
+        return "Search";
     }
 
     showDialog(): void {

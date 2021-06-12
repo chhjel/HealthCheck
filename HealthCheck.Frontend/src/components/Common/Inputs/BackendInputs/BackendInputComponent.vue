@@ -26,6 +26,7 @@
             :readonly="readonly"
             :isCustomReferenceType="isCustomReferenceType"
             :parameterDetailContext="parameterDetailContext"
+            :referenceValueFactoryConfig="referenceValueFactoryConfig"
             @isAnyJson="notifyIsAnyJson()"
             v-on:disableInputHeader="disableInputHeader">
         </component>
@@ -55,6 +56,7 @@ import ParameterInputTypeGuidComponent from "./Types/ParameterInputTypeGuidCompo
 import ParameterInputAnyJsonComponent from "./Types/ParameterInputAnyJsonComponent.vue";
 import { TestModuleOptions } from "components/modules/TestSuite/TestSuitesPageComponent.vue";
 import IdUtils from "../../../../util/IdUtils";
+import { ReferenceValueFactoryConfigViewModel } from "generated/Models/Core/ReferenceValueFactoryConfigViewModel";
 
 @Component({
     components: {
@@ -111,6 +113,9 @@ export default class BackendInputComponent extends Vue {
 
     @Prop({ required: false, default: '' })
     parameterDetailContext!: string;
+
+    @Prop({ required: false, default: null })
+    referenceValueFactoryConfig!: ReferenceValueFactoryConfigViewModel | null;
 
     showInputHeader: boolean = true;
     showDescription: boolean = false;

@@ -121,10 +121,28 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 ShowTextArea = testParameter.ShowTextArea,
                 FullWidth = testParameter.FullWidth,
                 IsCustomReferenceType = testParameter.IsCustomReferenceType,
-                Hidden = hidden
+                Hidden = hidden,
+                ReferenceValueFactoryConfig = CreateReferenceValueFactoryConfig(testParameter.ReferenceFactory)
             };
 
             return vm;
+        }
+
+        private ReferenceValueFactoryConfigViewModel CreateReferenceValueFactoryConfig(RuntimeTestReferenceParameterFactory referenceFactory)
+        {
+            if (string.IsNullOrWhiteSpace(referenceFactory?.Title) 
+                && string.IsNullOrWhiteSpace(referenceFactory?.Description)
+                && string.IsNullOrWhiteSpace(referenceFactory?.SearchButtonText))
+            {
+                return null;
+            }
+
+            return new ReferenceValueFactoryConfigViewModel
+            {
+                Title = referenceFactory.Title,
+                Description = referenceFactory.Description,
+                SearchButtonText = referenceFactory.SearchButtonText                
+            };
         }
 
         private static readonly Dictionary<string, string> _inputTypeAliases = new Dictionary<string, string>

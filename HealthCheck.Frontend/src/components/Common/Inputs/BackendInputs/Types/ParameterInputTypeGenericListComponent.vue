@@ -34,6 +34,7 @@
                                 :isListItem="true"
                                 :isCustomReferenceType="isCustomReferenceType"
                                 :parameterDetailContext="`${parameterDetailContext}_${item.id}`"
+                                :referenceValueFactoryConfig="referenceValueFactoryConfig"
                                 @isAnyJson="notifyIsAnyJson()"
                                 style="max-width: 100%;" />
                             <span v-if="isReadOnlyList">{{ item.value }}</span>
@@ -58,6 +59,7 @@ import IdUtils from "util/IdUtils";
 import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
 import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 import TestsUtils from "util/TestsModule/TestsUtils";
+import { ReferenceValueFactoryConfigViewModel } from "generated/Models/Core/ReferenceValueFactoryConfigViewModel";
 
 interface ListItem {
     id: string;
@@ -98,6 +100,9 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
 
     @Prop({ required: false, default: '' })
     parameterDetailContext!: string;
+
+    @Prop({ required: false, default: null })
+    referenceValueFactoryConfig!: ReferenceValueFactoryConfigViewModel | null;
 
     localValue: string | null = '';
     items: Array<ListItem> = [];

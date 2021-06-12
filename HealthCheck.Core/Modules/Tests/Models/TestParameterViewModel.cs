@@ -63,6 +63,11 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public bool IsCustomReferenceType { get; set; }
 
         /// <summary>
+        /// Config for ReferenceValueFactory if any.
+        /// </summary>
+        public ReferenceValueFactoryConfigViewModel ReferenceValueFactoryConfig { get; set; }
+
+        /// <summary>
         /// Hide input.
         /// </summary>
         public bool Hidden { get; set; }
