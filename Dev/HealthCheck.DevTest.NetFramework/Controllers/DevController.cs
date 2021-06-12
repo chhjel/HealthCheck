@@ -296,8 +296,9 @@ namespace HealthCheck.DevTest.Controllers
                 BodyHtml = "Here is some custom content.<ul><li><a href=\"https://www.google.com\">A link here</a></li></ul>",
                 // TOTP: Elevate
                 ShowTotpElevation = true,
-                TotpElevationLogic = (c) =>
+                TotpElevationLogic = async (c) =>
                 {
+                    await Task.Delay(100);
                     if (!HCMfaTotpUtil.ValidateTotpCode(HCLoginController.DummySecret, c))
                     {
                         return HCGenericResult<HCResultPageAction>.CreateError("Invalid code");
@@ -307,8 +308,9 @@ namespace HealthCheck.DevTest.Controllers
                 },
                 // TOTP: Add
                 ShowAddTotp = true,
-                AddTotpLogic = (pwd, secret, code) =>
+                AddTotpLogic = async (pwd, secret, code) =>
                 {
+                    await Task.Delay(100);
                     if (pwd != "toor") return HCGenericResult<object>.CreateError("Invalid password");
                     if (!HCMfaTotpUtil.ValidateTotpCode(secret, code))
                     {
@@ -318,8 +320,9 @@ namespace HealthCheck.DevTest.Controllers
                 },
                 // TOTP: Remove
                 ShowRemoveTotp = true,
-                RemoveTotpLogic = (pwd) =>
+                RemoveTotpLogic = async (pwd) =>
                 {
+                    await Task.Delay(100);
                     if (pwd != "toor") return HCGenericResult<object>.CreateError("Invalid password");
                     return HCGenericResult.CreateSuccess();
                 },

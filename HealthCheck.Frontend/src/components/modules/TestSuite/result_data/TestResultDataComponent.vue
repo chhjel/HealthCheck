@@ -45,14 +45,13 @@
             </v-card>
           </v-dialog>
         </v-card-actions>
-        <!-- <div v-if="showCopyAlert">{{ copyAlertText }}</div> -->
         
         <textarea style="display:none;" ref="copyValue" :value="data.Data" />
         <v-snackbar
           v-model="showCopyAlert"
           :timeout="5000"
           :color="copyAlertColor"
-          :top="true"
+          :bottom="true"
         >
           {{ copyAlertText }}
           <v-btn

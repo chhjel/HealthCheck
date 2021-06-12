@@ -126,7 +126,14 @@ namespace HealthCheck.WebUI.Abstractions
             }
 
             var frontEndOptions = GetFrontEndOptions();
-            frontEndOptions.IntegratedProfileConfig = Helper?.AccessConfig?.IntegratedProfileConfig ?? new HCIntegratedProfileConfig();
+            frontEndOptions.IntegratedProfileConfig = Helper?.AccessConfig?.IntegratedProfileConfig;
+            if (Helper?.AccessConfig?.IntegratedProfileConfig == null)
+            {
+                frontEndOptions.IntegratedProfileConfig = new HCIntegratedProfileConfig()
+                {
+                    Hide = true
+                };
+            }
             if (frontEndOptions?.IntegratedProfileConfig?.Hide == false)
             {
                 frontEndOptions.UserRoles = EnumUtils.TryGetEnumFlaggedValueNames(CurrentRequestAccessRoles.Value);

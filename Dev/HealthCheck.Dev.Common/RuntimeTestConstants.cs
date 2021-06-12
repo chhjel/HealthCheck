@@ -4,7 +4,7 @@
     {
         public static class Group
         {
-            public const string AdminStuff = "Admin stuff";
+            public const string AdminStuff = "Admin: Stuff";
             public const string AlmostTopGroup = "Almost at the top group";
             public const string TopGroup = "Top group";
             public const string BottomGroup = "Bottom group";

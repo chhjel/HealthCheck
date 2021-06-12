@@ -1,7 +1,24 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputPickReferenceComponent.vue -->
 <template>
     <div>
-        <v-btn @click="showDialog" :disabled="readonly" class="pick-ref-button">{{ selectedChoiceLabel }}</v-btn>
+        <div class="pick-ref-button-wrapper">
+            <v-btn @click="showDialog" :disabled="readonly" class="pick-ref-button ml-0 mr-0">{{ selectedChoiceLabel }}</v-btn>
+        
+            <v-tooltip bottom v-if="localValue" >
+                <template v-slot:activator="{ on }">
+                    <v-btn flat small icon color="primary" v-if="localValue" class="mr-0" @click="copyToClipboard" v-on="on">
+                        <v-icon small>content_copy</v-icon>
+                    </v-btn>
+                </template>
+                <span>Copy to clipboard</span>
+            </v-tooltip>
+        </div>
+
+        <textarea style="display:none;" ref="copyValue" :value="localValue" />
+        <v-snackbar v-model="showCopyAlert" :timeout="5000" :color="copyAlertColor" :bottom="true">
+          {{ copyAlertText }}
+          <v-btn flat @click="showCopyAlert = false">Close</v-btn>
+        </v-snackbar>
         
         <v-dialog v-model="choicesDialogVisible"
             @keydown.esc="choicesDialogVisible = false"
@@ -66,6 +83,7 @@ import { TestParameterReferenceChoiceViewModel } from  '../../../../../models/mo
 import { FetchStatus, ServiceFetchCallbacks } from "../../../../../services/abstractions/HCServiceBase";
 import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
 import TestsUtils from "util/TestsModule/TestsUtils";
+import ClipboardUtil from "util/ClipboardUtil";
 
 @Component({
     components: {
@@ -97,6 +115,10 @@ export default class ParameterInputPickReferenceComponent extends Vue {
     selectedChoice: TestParameterReferenceChoiceViewModel = this.choices[0];
     choicesDialogVisible: boolean = false;
     choicesFilterText: string = '';
+    
+    showCopyAlert: boolean = false;
+    copyAlertText: string = "";
+    copyAlertColor: string = "success";
     
     mounted(): void {
         const loadedValue = this.getParameterDetail('choice');
@@ -171,6 +193,24 @@ export default class ParameterInputPickReferenceComponent extends Vue {
         return (choice.Id == null || choice.Id.length == 0) ? 'secondary' : 'primary';
     }
 
+    copyToClipboard(): void {
+        let copySourceElement = this.$refs.copyValue as HTMLTextAreaElement;
+        const err = ClipboardUtil.putDataOnClipboard(copySourceElement);
+        if (err)
+        {
+            this.ShowCopyAlert(err, true);
+        }
+        else {
+            this.ShowCopyAlert("Data successfully put on clipboard.", true);
+        }
+    }
+
+    ShowCopyAlert(msg: string, isSuccess: boolean): void {
+      this.showCopyAlert = true;
+      this.copyAlertText = msg;
+      this.copyAlertColor = (isSuccess) ? "success" : "error";
+    }
+
     //////////////////////////
     //  PARAMETER DETAILS  //
     ////////////////////////
@@ -202,9 +242,17 @@ export default class ParameterInputPickReferenceComponent extends Vue {
 </script>
 
 <style scoped>
+.pick-ref-button-wrapper {
+    max-width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+}
 .pick-ref-button {
     max-width: 100%;
     overflow: hidden;
     justify-content: flex-start;
+    flex: 1;
 }
 </style>

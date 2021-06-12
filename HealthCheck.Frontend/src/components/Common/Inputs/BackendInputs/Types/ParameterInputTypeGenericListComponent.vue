@@ -12,11 +12,13 @@
                         <v-list-tile-action v-if="items.length > 1">
                             <v-icon class="handle-icon">drag_handle</v-icon>
                         </v-list-tile-action>
+
                         <v-list-tile-action v-if="!isReadOnlyList" @click="removeItem(itemIndex)">
                             <v-btn flat icon color="error" :disabled="readonly">
                                 <v-icon>remove</v-icon>
                             </v-btn>
                         </v-list-tile-action>
+
                         <v-list-tile-content style="max-width: 100%;">
                             <backend-input-component v-if="!isReadOnlyList"
                                 :key="`${id}-item-input-${item.id}`"
@@ -35,7 +37,7 @@
                 </template>
             </draggable>
         </v-list>
-        <v-btn v-if="!isReadOnlyList" small color="primary" @click="addNewItem()" :disabled="readonly">
+        <v-btn v-if="!isReadOnlyList" small color="primary" @click="addNewItem()" :disabled="readonly" class="ml-0">
             <v-icon>add</v-icon>
         </v-btn>
     </div>

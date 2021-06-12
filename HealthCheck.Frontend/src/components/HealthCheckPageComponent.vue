@@ -20,16 +20,16 @@
                         :class="{ 'active-tab': isModuleShowing(mconf) }"
                         @click.left.prevent="showModule(mconf)">{{ mconf.Name }}</v-btn>
                     <v-btn flat 
-                        v-if="showLogoutLink"
-                        @click.left.prevent="logoutRedirect">
-                        <v-icon>logout</v-icon>
-                        {{ logoutLinkTitle }}
-                        </v-btn>
-                    <v-btn flat 
                         v-if="showIntegratedProfile"
                         @click.left.prevent="integratedProfileDialogVisible = true">
                         <v-icon class="toolbar-icon">person</v-icon>
                         Profile
+                        </v-btn>
+                    <v-btn flat 
+                        v-if="showLogoutLink"
+                        @click.left.prevent="logoutRedirect">
+                        <v-icon>logout</v-icon>
+                        {{ logoutLinkTitle }}
                         </v-btn>
                 </v-toolbar-items>
             </v-toolbar>

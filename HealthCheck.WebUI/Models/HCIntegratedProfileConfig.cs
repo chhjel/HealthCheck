@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Models;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace HealthCheck.WebUI.Models
 {
@@ -36,7 +37,7 @@ namespace HealthCheck.WebUI.Models
         [JsonIgnore]
         public ElevateTotpDelegate TotpElevationLogic { get; set; }
         /// <summary>Signature for elevating Totp.</summary>
-        public delegate HCGenericResult<HCResultPageAction> ElevateTotpDelegate(string totpCode);
+        public delegate Task<HCGenericResult<HCResultPageAction>> ElevateTotpDelegate(string totpCode);
         /// <summary>
         /// Allows entering TOTP code from the profile to elevate access, requires <see cref="TotpElevationLogic"/> to be set.
         /// <para>Defaults to true.</para>
@@ -53,7 +54,7 @@ namespace HealthCheck.WebUI.Models
         [JsonIgnore]
         public AddTotpDelegate AddTotpLogic { get; set; }
         /// <summary>Signature for adding Totp.</summary>
-        public delegate HCGenericResult AddTotpDelegate(string password, string totpSecret, string totpCode);
+        public delegate Task<HCGenericResult> AddTotpDelegate(string password, string totpSecret, string totpCode);
         /// <summary>
         /// Allows registering the users TOTP binding from the profile page, requires <see cref="AddTotpLogic"/> to be set.
         /// <para>Defaults to true.</para>
@@ -68,7 +69,7 @@ namespace HealthCheck.WebUI.Models
         [JsonIgnore]
         public RemoveTotpDelegate RemoveTotpLogic { get; set; }
         /// <summary>Signature for removing TOTP.</summary>
-        public delegate HCGenericResult RemoveTotpDelegate(string password);
+        public delegate Task<HCGenericResult> RemoveTotpDelegate(string password);
         /// <summary>
         /// Allows removing the users TOTP binding from the profile page, requires <see cref="RemoveTotpLogic"/> to be set.
         /// <para>Defaults to true.</para>
@@ -85,7 +86,7 @@ namespace HealthCheck.WebUI.Models
         [JsonIgnore]
         public ElevateWebAuthnDelegate WebAuthnElevationLogic { get; set; }
         /// <summary>Signature for elevating WebAuthn.</summary>
-        public delegate HCGenericResult<HCResultPageAction> ElevateWebAuthnDelegate(HCVerifyWebAuthnAssertionModel payload);
+        public delegate Task<HCGenericResult<HCResultPageAction>> ElevateWebAuthnDelegate(HCVerifyWebAuthnAssertionModel payload);
         /// <summary>
         /// Allows authenticating using WebAuthn from the profile to elevate access, requires <see cref="WebAuthnElevationLogic"/> to be set.
         /// <para>Defaults to true.</para>
@@ -102,7 +103,7 @@ namespace HealthCheck.WebUI.Models
         [JsonIgnore]
         public CreateWebAuthnAssertionOptionsDelegate CreateWebAuthnAssertionOptionsLogic { get; set; }
         /// <summary>Signature for creating the webauthn assertion options object.</summary>
-        public delegate HCGenericResult<object> CreateWebAuthnAssertionOptionsDelegate(string username);
+        public delegate Task<HCGenericResult<object>> CreateWebAuthnAssertionOptionsDelegate(string username);
 
         /// <summary>
         /// If set, allows registering the users WebAuthn binding from the profile page.
@@ -114,7 +115,7 @@ namespace HealthCheck.WebUI.Models
         [JsonIgnore]
         public AddWebAuthnDelegate AddWebAuthnLogic { get; set; }
         /// <summary>Signature for adding WebAuthn.</summary>
-        public delegate HCGenericResult AddWebAuthnDelegate(string password, HCRegisterWebAuthnModel webAuthnPayload);
+        public delegate Task<HCGenericResult> AddWebAuthnDelegate(string password, HCRegisterWebAuthnModel webAuthnPayload);
         /// <summary>
         /// Allows registering the users WebAuthn binding from the profile page, requires <see cref="AddWebAuthnLogic"/> to be set.
         /// <para>Defaults to true.</para>
@@ -131,7 +132,7 @@ namespace HealthCheck.WebUI.Models
         [JsonIgnore]
         public CreateWebAuthnRegistrationOptionsDelegate CreateWebAuthnRegistrationOptionsLogic { get; set; }
         /// <summary>Signature for creating the webauthn credentials create options object. Password should be validated.</summary>
-        public delegate HCGenericResult<object> CreateWebAuthnRegistrationOptionsDelegate(string username, string password);
+        public delegate Task<HCGenericResult<object>> CreateWebAuthnRegistrationOptionsDelegate(string username, string password);
 
         /// <summary>
         /// If set, allows removing the users WebAuthn binding from the profile page.
@@ -140,7 +141,7 @@ namespace HealthCheck.WebUI.Models
         [JsonIgnore]
         public RemoveWebAuthnDelegate RemoveWebAuthnLogic { get; set; }
         /// <summary>Signature for removing WebAuthn.</summary>
-        public delegate HCGenericResult RemoveWebAuthnDelegate(string password);
+        public delegate Task<HCGenericResult> RemoveWebAuthnDelegate(string password);
         /// <summary>
         /// Allows removing the users WebAuthn binding from the profile page, requires <see cref="RemoveWebAuthnLogic"/> to be set.
         /// <para>Defaults to true.</para>

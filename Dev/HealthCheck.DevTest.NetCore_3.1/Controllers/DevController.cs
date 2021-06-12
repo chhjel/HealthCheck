@@ -232,8 +232,9 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 // TOTP: Elevate
                 ShowTotpElevation = !string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey))
                     && string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString("_dev_2fa_validated")),
-                TotpElevationLogic = (c) =>
+                TotpElevationLogic = async (c) =>
                 {
+                    await Task.Delay(100);
                     var secret = Request.HttpContext.Session.GetString(totpKey);
                     if (string.IsNullOrWhiteSpace(secret) || !HCMfaTotpUtil.ValidateTotpCode(secret, c))
                     {
@@ -276,8 +277,9 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 // WebAuthn: Elevate
                 ShowWebAuthnElevation = !string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(webAuthnKey))
                     && string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString("_dev_webAuthn_validated")),
-                CreateWebAuthnAssertionOptionsLogic = (u) =>
+                CreateWebAuthnAssertionOptionsLogic = async (u) =>
                 {
+                    await Task.Delay(100);
                     var webauthn = CreateWebAuthnHelper();
                     var options = webauthn.CreateAssertionOptions(u);
                     if (options == null)
@@ -288,8 +290,9 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                     HttpContext.Session.SetString("WebAuthn.assertionOptionsDev", JsonConvert.SerializeObject(options));
                     return HCGenericResult<object>.CreateSuccess(options);
                 },
-                WebAuthnElevationLogic = (d) =>
+                WebAuthnElevationLogic = async (d) =>
                 {
+                    await Task.Delay(100);
                     var webauthn = CreateWebAuthnHelper();
                     var jsonOptions = HttpContext.Session.GetString("WebAuthn.assertionOptionsDev");
                     var options = AssertionOptions.FromJson(jsonOptions);
@@ -311,8 +314,9 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                     HttpContext.Session.SetString("WebAuthn.attestationOptions", options.ToJson());
                     return HCGenericResult<object>.CreateSuccess(options);
                 },
-                AddWebAuthnLogic = (pwd, attestation) =>
+                AddWebAuthnLogic = async (pwd, attestation) =>
                 {
+                    await Task.Delay(100);
                     if (pwd != "toor") return HCGenericResult<object>.CreateError("Invalid password");
                     var webauthn = CreateWebAuthnHelper();
                     var jsonOptions = HttpContext.Session.GetString("WebAuthn.attestationOptions");
@@ -324,8 +328,9 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 },
                 // WebAuthn: Remove
                 ShowRemoveWebAuthn = !string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(webAuthnKey)),
-                RemoveWebAuthnLogic = (pwd) =>
+                RemoveWebAuthnLogic = async (pwd) =>
                 {
+                    await Task.Delay(100);
                     if (pwd != "toor") return HCGenericResult<object>.CreateError("Invalid password");
                     else if (string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(webAuthnKey)))
                     {
