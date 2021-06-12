@@ -2,8 +2,10 @@
 using HealthCheck.Core.Attributes;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Util;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HealthCheck.WebUI.Abstractions
@@ -65,6 +67,31 @@ namespace HealthCheck.WebUI.Abstractions
 
             return CreateJsonResult(result);
         }
+
+        /// <summary>
+        /// Handles WebAuthn assertion options creation.
+        /// </summary>
+        [HideFromRequestLog]
+        [HttpPost]
+        [Route("CreateWebAuthnAssertionOptions")]
+        public virtual ActionResult CreateWebAuthnAssertionOptions([FromBody] HCIntegratedLoginCreateWebAuthnAssertionOptionsRequest request)
+        {
+            if (!Enabled) return NotFound();
+            else if (!ModelState.IsValid)
+            {
+                var errors = string.Join("\n", ModelState.SelectMany(x => x.Value.Errors).Select(x => x.ErrorMessage));
+                return BadRequest(errors);
+            }
+
+            var optionsJson = CreateWebAuthnAssertionOptionsJson(request);
+            if (optionsJson == null)
+            {
+                return Json(new { status = "error", error = "User not found." });
+            }
+
+            HttpContext.Session.SetString("WebAuthn.assertionOptions", optionsJson);
+            return Content(optionsJson, "application/json");
+        }
         #endregion
 
         #region Overridables
@@ -77,14 +104,24 @@ namespace HealthCheck.WebUI.Abstractions
         /// Optionally handle 2FA code request here.
         /// </summary>
         protected virtual HCIntegratedLogin2FACodeRequestResult Handle2FACodeRequest(HCIntegratedLoginRequest2FACodeRequest request) => null;
+
+        /// <summary>
+        /// Handles WebAuthn assertion options creation.
+        /// </summary>
+        protected virtual string CreateWebAuthnAssertionOptionsJson(HCIntegratedLoginCreateWebAuthnAssertionOptionsRequest request) => null;
+
+        /// <summary>
+        /// Retrieves 'WebAuthn.assertionOptions' from session.
+        /// </summary>
+        protected virtual string GetWebAuthnAssertionOptionsJsonForSession() => HttpContext.Session.GetString("WebAuthn.assertionOptions");
         #endregion
 
         #region Helpers
         /// <summary>
         /// Serializes the given object into a json result.
         /// </summary>
-        protected ActionResult CreateJsonResult(object obj)
-            => Content(_helper.SerializeJson(obj), "application/json");
+        protected ActionResult CreateJsonResult(object obj, bool stringEnums = true)
+            => Content(_helper.SerializeJson(obj, stringEnums), "application/json");
 
         /// <summary>
         /// Delay by the configured amount.

@@ -17,6 +17,7 @@
                       :isCustomReferenceType="parameter.IsCustomReferenceType"
                       :config="createConfig(parameter, index)"
                       :parameterDetailContext="test.Id"
+                      :referenceValueFactoryConfig="parameter.ReferenceValueFactoryConfig"
                       @isAnyJson="onIsAnyJson(parameter)" />
               </v-flex>
           </v-layout>

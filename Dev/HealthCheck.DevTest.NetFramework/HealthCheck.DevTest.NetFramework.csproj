@@ -61,9 +61,8 @@
       <HintPath>..\..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -184,9 +183,9 @@
       <Project>{df551db9-32a9-4519-b19c-2f306a486448}</Project>
       <Name>HealthCheck.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\HealthCheck.WebUI.TFA\HealthCheck.WebUI.TFA.csproj">
-      <Project>{5a193e4a-bc1c-413b-824c-c66f0f8d4674}</Project>
-      <Name>HealthCheck.WebUI.TFA</Name>
+    <ProjectReference Include="..\..\HealthCheck.WebUI.MFA.TOTP\HealthCheck.WebUI.MFA.TOTP.csproj">
+      <Project>{883a169f-a2f1-4001-ad95-1807951f9b7e}</Project>
+      <Name>HealthCheck.WebUI.MFA.TOTP</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\HealthCheck.WebUI\HealthCheck.WebUI.csproj">
       <Project>{2a641f75-5d28-4bf1-9019-8286fcbd6ac5}</Project>

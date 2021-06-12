@@ -43,17 +43,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Utility.Logger.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Module.EndpointControl", "Modules\HealthCheck.Module.EndpointControl\HealthCheck.Module.EndpointControl.csproj", "{9F646F26-A7FE-4A26-88C7-3087412987BF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.WebUI.TFA", "HealthCheck.WebUI.TFA\HealthCheck.WebUI.TFA.csproj", "{5A193E4A-BC1C-413B-824C-C66F0F8D4674}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.FrontendModelGenerator", "HealthCheck.FrontendModelGenerator\HealthCheck.FrontendModelGenerator.csproj", "{900270EB-1E6B-45E8-A283-D0AABE4E5A98}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Episerver", "Episerver\HealthCheck.Episerver\HealthCheck.Episerver.csproj", "{0EBC2DA3-9E28-4623-9F20-83278D31D964}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Episerver", "Episerver", "{DFA1DC1E-CEA9-4C53-9677-A203B2B045E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.Episerver.DynamicCodeExecution", "Episerver\HealthCheck.Episerver.DynamicCodeExecution\HealthCheck.Episerver.DynamicCodeExecution\HealthCheck.Episerver.DynamicCodeExecution.csproj", "{20376DC6-4F30-4D20-BC35-90B677C145CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Episerver.DynamicCodeExecution", "Episerver\HealthCheck.Episerver.DynamicCodeExecution\HealthCheck.Episerver.DynamicCodeExecution\HealthCheck.Episerver.DynamicCodeExecution.csproj", "{20376DC6-4F30-4D20-BC35-90B677C145CB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.Episerver.EndpointControl", "Episerver\HealthCheck.Episerver.EndpointControl\HealthCheck.Episerver.EndpointControl.csproj", "{57E360B0-A55C-4D2D-9B04-73F15DEA5325}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Episerver.EndpointControl", "Episerver\HealthCheck.Episerver.EndpointControl\HealthCheck.Episerver.EndpointControl.csproj", "{57E360B0-A55C-4D2D-9B04-73F15DEA5325}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.WebUI.MFA.TOTP", "HealthCheck.WebUI.MFA.TOTP\HealthCheck.WebUI.MFA.TOTP.csproj", "{883A169F-A2F1-4001-AD95-1807951F9B7E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.WebUI.MFA.WebAuthn", "HealthCheck.WebUI.MFA.WebAuthn\HealthCheck.WebUI.MFA.WebAuthn.csproj", "{959A9717-65A2-4DCF-84FE-8757347B00FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -116,10 +118,6 @@ Global
 		{9F646F26-A7FE-4A26-88C7-3087412987BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F646F26-A7FE-4A26-88C7-3087412987BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F646F26-A7FE-4A26-88C7-3087412987BF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5A193E4A-BC1C-413B-824C-C66F0F8D4674}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5A193E4A-BC1C-413B-824C-C66F0F8D4674}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5A193E4A-BC1C-413B-824C-C66F0F8D4674}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5A193E4A-BC1C-413B-824C-C66F0F8D4674}.Release|Any CPU.Build.0 = Release|Any CPU
 		{900270EB-1E6B-45E8-A283-D0AABE4E5A98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{900270EB-1E6B-45E8-A283-D0AABE4E5A98}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{900270EB-1E6B-45E8-A283-D0AABE4E5A98}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -136,6 +134,14 @@ Global
 		{57E360B0-A55C-4D2D-9B04-73F15DEA5325}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57E360B0-A55C-4D2D-9B04-73F15DEA5325}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57E360B0-A55C-4D2D-9B04-73F15DEA5325}.Release|Any CPU.Build.0 = Release|Any CPU
+		{883A169F-A2F1-4001-AD95-1807951F9B7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{883A169F-A2F1-4001-AD95-1807951F9B7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{883A169F-A2F1-4001-AD95-1807951F9B7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{883A169F-A2F1-4001-AD95-1807951F9B7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{959A9717-65A2-4DCF-84FE-8757347B00FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{959A9717-65A2-4DCF-84FE-8757347B00FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{959A9717-65A2-4DCF-84FE-8757347B00FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{959A9717-65A2-4DCF-84FE-8757347B00FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

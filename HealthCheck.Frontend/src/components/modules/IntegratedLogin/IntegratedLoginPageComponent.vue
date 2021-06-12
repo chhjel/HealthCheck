@@ -11,13 +11,13 @@
         <v-flex class="pl-4 pr-4 pb-4">
           <!-- CONTENT BEGIN -->
             <v-container>
-                
+
                 <div class="mb-4 login-block">
                     <div>
                         <!-- INPUTS -->
                         <div>
                             <h1 class="login-title">{{ title }}</h1>
-                            <v-text-field 
+                            <v-text-field
                                 v-model="username"
                                 :disabled="loadStatus.inProgress"
                                 v-on:keyup.enter="onLoginClicked"
@@ -25,8 +25,8 @@
                                 label="Username"
                                 placeholder=" "
                                 class="pt-0 mt-5" />
-                            
-                            <v-text-field 
+
+                            <v-text-field
                                 v-model="password"
                                 :disabled="loadStatus.inProgress"
                                 v-on:keyup.enter="onLoginClicked"
@@ -36,10 +36,10 @@
                                 :append-icon="showPassword ? 'visibility' : 'visibility_off'"
                                 @click:append="showPassword = !showPassword"
                                 class="pt-0 mt-2" />
-                            
-                            <v-layout row class="mt-4 mb-4" v-if="show2FAInput">
+
+                            <v-layout row class="mt-4 mb-4" v-if="showTwoFactorCodeInput">
                                 <v-flex :xs6="show2FASendCodeButton" :xs12="!show2FASendCodeButton">
-                                    <v-text-field 
+                                    <v-text-field
                                         v-model="twoFactorCode"
                                         :disabled="loadStatus.inProgress"
                                         v-on:keyup.enter="onLoginClicked"
@@ -67,6 +67,15 @@
                             </v-layout>
                         </div>
 
+                        <div v-if="showWebAuthnInput">
+                            <v-btn round outline  color="primary" 
+                                class="webauthn-button"
+                                @click.prevent="verifyWebAuthn"
+                                :disabled="loadStatus.inProgress">
+                                <span style="white-space: normal;">Verify WebAuthn</span>
+                            </v-btn>
+                        </div>
+
                         <v-btn round color="primary" large class="mt-4 login-button"
                             @click.prevent="onLoginClicked"
                             :disabled="loadStatus.inProgress">
@@ -74,7 +83,7 @@
                         </v-btn>
 
                         <v-progress-linear color="primary" indeterminate v-if="loadStatus.inProgress"></v-progress-linear>
-                    
+
                         <div v-if="error != null && error.length > 0" class="error--text mt-4">
                             <b v-if="!showErrorAsHtml">{{ error }}</b>
                             <div v-if="showErrorAsHtml" v-html="error"></div>
@@ -106,12 +115,17 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
+import { HCLoginTwoFactorCodeInputMode } from "generated/Enums/WebUI/HCLoginTwoFactorCodeInputMode";
+import { HCLoginWebAuthnMode } from "generated/Enums/WebUI/HCLoginWebAuthnMode";
+import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
+import { HCIntegratedLoginRequest } from "generated/Models/WebUI/HCIntegratedLoginRequest";
+import { Vue, Component } from "vue-property-decorator";
 import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
-import IntegratedLoginService, { HCIntegratedLoginRequest, HCIntegratedLoginRequest2FACodeRequest, HCIntegratedLoginResult } from '../../../services/IntegratedLoginService';
+import IntegratedLoginService, { HCIntegratedLoginRequest2FACodeRequest, HCIntegratedLoginResult } from '../../../services/IntegratedLoginService';
 import BlockComponent from '../../Common/Basic/BlockComponent.vue';
 import FloatingSquaresEffectComponent from '../../Common/Effects/FloatingSquaresEffectComponent.vue';
+import WebAuthnUtil from 'util/WebAuthnUtil';
+import { HCVerifyWebAuthnAssertionModel } from "generated/Models/WebUI/HCVerifyWebAuthnAssertionModel";
 
 @Component({
     components: {
@@ -122,10 +136,11 @@ import FloatingSquaresEffectComponent from '../../Common/Effects/FloatingSquares
 export default class IntegratedLoginPageComponent extends Vue {
 
     loadStatus: FetchStatus = new FetchStatus();
-    
+
     username: string = '';
     password: string = '';
     twoFactorCode: string = '';
+    webAuthnLoginPayload: HCVerifyWebAuthnAssertionModel | null = null;
     showPassword: boolean = false;
     error: string = '';
     showErrorAsHtml: boolean = false;
@@ -137,6 +152,7 @@ export default class IntegratedLoginPageComponent extends Vue {
     codeExpirationDuration: number | null = null;
     allowShowProgress: boolean = true;
     isSingleProgress: boolean = false;
+    autoCallLoginAfterNextWebAuthn: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -157,12 +173,8 @@ export default class IntegratedLoginPageComponent extends Vue {
         return this.globalOptions.ApplicationTitle;
     }
 
-    get globalOptions(): FrontEndOptionsViewModel {
+    get globalOptions(): HCFrontEndOptions {
         return this.$store.state.globalOptions;
-    }
-
-    get show2FAInput(): boolean {
-        return this.globalOptions.IntegratedLoginShow2FA;
     }
 
     get Send2FACodeEndpoint(): string {
@@ -179,6 +191,30 @@ export default class IntegratedLoginPageComponent extends Vue {
 
     get show2FACodeExpirationTime(): boolean {
         return this.allowShowProgress && !!(this.globalOptions.IntegratedLoginCurrent2FACodeExpirationTime || this.codeExpirationTime);
+    }
+
+    get webAuthnMode(): HCLoginWebAuthnMode {
+        return this.globalOptions.IntegratedLoginWebAuthnMode;
+    }
+    get requireWebAuthn(): boolean
+    {
+        return this.webAuthnMode == HCLoginWebAuthnMode.Required;
+    }
+    get showWebAuthnInput(): boolean
+    {
+        return this.webAuthnMode != HCLoginWebAuthnMode.Off;
+    }
+
+    get twoFactorCodeInputMode(): HCLoginTwoFactorCodeInputMode {
+        return this.globalOptions.IntegratedLoginTwoFactorCodeInputMode;
+    }
+    get requireTwoFactorCode(): boolean
+    {
+        return this.twoFactorCodeInputMode == HCLoginTwoFactorCodeInputMode.Required;
+    }
+    get showTwoFactorCodeInput(): boolean
+    {
+        return this.twoFactorCodeInputMode != HCLoginTwoFactorCodeInputMode.Off;
     }
 
     get twoFactorInputProgress(): number {
@@ -204,16 +240,27 @@ export default class IntegratedLoginPageComponent extends Vue {
     //////////////
     login(): void
     {
+        this.error = '';
+        
         if (this.loadStatus.inProgress) {
             return;
         }
+        else if (this.requireWebAuthn && !this.webAuthnLoginPayload) {
+            this.verifyWebAuthn();
+            this.autoCallLoginAfterNextWebAuthn = true;
+            return;
+        }
+        else if (this.requireTwoFactorCode && !this.twoFactorCode) {
+            this.error = 'Multi-factor code required.';
+            return;
+        }
 
-        this.error = '';
         let url = this.globalOptions.IntegratedLoginEndpoint;
         let payload: HCIntegratedLoginRequest = {
             Username: this.username,
             Password: this.password,
-            TwoFactorCode: this.twoFactorCode
+            TwoFactorCode: this.twoFactorCode,
+            WebAuthnPayload: (this.webAuthnLoginPayload || {}) as HCVerifyWebAuthnAssertionModel
         };
 
         let service = new IntegratedLoginService(true);
@@ -275,7 +322,7 @@ export default class IntegratedLoginPageComponent extends Vue {
     update2FAProgress(): void {
         if (!this.show2FACodeExpirationTime)
         {
-            return; 
+            return;
         }
 
         const expirationTime = this.codeExpirationTime || this.globalOptions.IntegratedLoginCurrent2FACodeExpirationTime;
@@ -294,6 +341,63 @@ export default class IntegratedLoginPageComponent extends Vue {
         if (timeLeft <= 1.1 && this.isSingleProgress)
         {
             this.allowShowProgress = false;
+        }
+    }
+
+    //////////////////////
+    //  MFA: WebAuthn  //
+    ////////////////////
+    verifyWebAuthn(): void {
+        let service = new IntegratedLoginService(true);
+        service.CreateWebAuthnAssertionOptions(this.username, this.loadStatus, {
+            onSuccess: (options) => {
+                console.log(options);
+                this.onWebAuthnAssertionOptionsCreated(options);
+            },
+            onError: (e) => console.error(e),
+            onDone: () => this.autoCallLoginAfterNextWebAuthn = false
+        });
+    }
+
+    async onWebAuthnAssertionOptionsCreated(options: any): Promise<void> {
+        if (options.status !== "ok")
+        {
+            this.error = options.error || 'Assertion options creation failed.';
+            console.error(options);
+            return;
+        }
+
+        options.challenge = WebAuthnUtil.coerceToArrayBuffer(options.challenge);
+        options.allowCredentials.forEach((item: any) => {
+            item.id = WebAuthnUtil.coerceToArrayBuffer(item.id);
+        });
+
+        try {
+            const assertedCredential = (await navigator.credentials.get({ publicKey: options })) as any;
+            
+            let authData = new Uint8Array(assertedCredential.response.authenticatorData);
+            let clientDataJSON = new Uint8Array(assertedCredential.response.clientDataJSON);
+            let rawId = new Uint8Array(assertedCredential.rawId);
+            let sig = new Uint8Array(assertedCredential.response.signature);
+            const payload: HCVerifyWebAuthnAssertionModel = {
+                Id: assertedCredential.id,
+                RawId: WebAuthnUtil.coerceToBase64Url(rawId),
+                Extensions: assertedCredential.getClientExtensionResults(),
+                Response: {
+                    AuthenticatorData: WebAuthnUtil.coerceToBase64Url(authData),
+                    ClientDataJson: WebAuthnUtil.coerceToBase64Url(clientDataJSON),
+                    Signature: WebAuthnUtil.coerceToBase64Url(sig)
+                }
+            };
+
+            this.webAuthnLoginPayload = payload;
+            if (this.autoCallLoginAfterNextWebAuthn)
+            {
+                this.login();
+            }
+        } catch (e) {
+            this.error = 'Assertion failed.';
+            console.error(e);
         }
     }
 
@@ -316,7 +420,7 @@ export default class IntegratedLoginPageComponent extends Vue {
     height: 100%;
     text-align: center;
     font-family: 'Montserrat';
-    
+
     .content-root {
         max-width: 500px;
         margin-top: 8vh;
@@ -329,6 +433,12 @@ export default class IntegratedLoginPageComponent extends Vue {
         text-transform: none;
         font-size: 19px;
         height: 46px;
+    }
+
+    .webauthn-button {
+        margin: 0;
+        text-transform: none;
+        font-size: 19px;
     }
 
     .login-block {

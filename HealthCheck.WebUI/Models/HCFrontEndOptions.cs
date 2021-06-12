@@ -1,6 +1,8 @@
 ﻿using HealthCheck.WebUI.Exceptions;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using static HealthCheck.WebUI.Models.HCIntegratedLoginConfig;
 
 namespace HealthCheck.WebUI.Models
 {
@@ -59,9 +61,6 @@ namespace HealthCheck.WebUI.Models
         internal string IntegratedLoginEndpoint { get; set; }
 
         [JsonProperty]
-        internal bool IntegratedLoginShow2FA { get; set; }
-
-        [JsonProperty]
         internal DateTimeOffset? IntegratedLoginCurrent2FACodeExpirationTime { get; set; }
 
         [JsonProperty]
@@ -73,13 +72,25 @@ namespace HealthCheck.WebUI.Models
         [JsonProperty]
         internal string IntegratedLoginSend2FACodeButtonText { get; set; }
 
+        [JsonProperty]
+        internal HCLoginWebAuthnMode IntegratedLoginWebAuthnMode { get; set; }
+
+        [JsonProperty]
+        internal HCLoginTwoFactorCodeInputMode IntegratedLoginTwoFactorCodeInputMode { get; set; }
+
+        [JsonProperty]
+        internal HCIntegratedProfileConfig IntegratedProfileConfig { get; set; }
+
+        [JsonProperty]
+        internal List<string> UserRoles { get; set; }
+
         /// <summary>
         /// Create a new <see cref="HCFrontEndOptions"/>.
         /// </summary>
         /// <param name="baseApiEndpoint"></param>
         public HCFrontEndOptions(string baseApiEndpoint)
         {
-            EndpointBase = baseApiEndpoint;
+            EndpointBase = baseApiEndpoint?.TrimEnd('/');
             InvokeModuleMethodEndpoint = $"{baseApiEndpoint?.TrimEnd('/')}/InvokeModuleMethod";
         }
 

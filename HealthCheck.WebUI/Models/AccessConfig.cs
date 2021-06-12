@@ -40,6 +40,11 @@ namespace HealthCheck.WebUI.Models
         internal bool UseIntegratedLogin => IntegratedLoginConfig != null;
 
         /// <summary>
+        /// If this property is set a profile dialog button will be available.
+        /// </summary>
+        public HCIntegratedProfileConfig IntegratedProfileConfig { get; set; }
+
+        /// <summary>
         /// Redirect url if the request does not have access to any of the content.
         /// <para>If neither this nor <see cref="IntegratedLoginConfig"/> is set, a 404 will be returned.</para>
         /// </summary>

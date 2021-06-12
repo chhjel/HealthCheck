@@ -524,13 +524,16 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Serializes the given object into a json string.
         /// </summary>
-        public string SerializeJson(object obj)
+        public string SerializeJson(object obj, bool stringEnums = true)
         {
             var settings = new JsonSerializerSettings
             {
                 Formatting = Formatting.Indented
             };
-            settings.Converters.Add(new StringEnumConverter());
+            if (stringEnums)
+            {
+                settings.Converters.Add(new StringEnumConverter());
+            }
 
             return JsonConvert.SerializeObject(obj, settings);
         }
@@ -568,6 +571,7 @@ namespace HealthCheck.WebUI.Util
             var scriptAssetsHtml = string.Join("\n", moduleScriptAssets);
 
             var moduleOptions = GetModuleFrontendOptions(accessRoles);
+            var serializer = new NewtonsoftJsonSerializer();
 
             var javascriptUrlTags = pageOptions.JavaScriptUrls
                 .Select(url => $"<script src=\"{url}\"></script>")
@@ -598,9 +602,9 @@ namespace HealthCheck.WebUI.Util
     <div id={Q}app{Q}></div>
 
     <script>
-        window.healthCheckOptions = {JsonConvert.SerializeObject(frontEndOptions) ?? "{}"};
-        window.healthCheckModuleOptions = {JsonConvert.SerializeObject(moduleOptions) ?? "{}"};
-        window.healthCheckModuleConfigs = {JsonConvert.SerializeObject(moduleConfigData) ?? "{}"};
+        window.healthCheckOptions = {serializer.Serialize(frontEndOptions) ?? "{}"};
+        window.healthCheckModuleOptions = {serializer.Serialize(moduleOptions) ?? "{}"};
+        window.healthCheckModuleConfigs = {serializer.Serialize(moduleConfigData) ?? "{}"};
     </script>
     {scriptAssetsHtml}
     {javascriptUrlTagsHtml}
@@ -614,7 +618,7 @@ namespace HealthCheck.WebUI.Util
             pageOptions.Validate();
         }
 
-#region Access
+        #region Access
         /// <summary>
         /// Check if the given roles has access to calling the ping endpoint.
         /// </summary>

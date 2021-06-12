@@ -3,6 +3,9 @@
 //     the code is regenerated.
 
 import { EditorWorkerConfig } from './EditorWorkerConfig';
+import { HCLoginWebAuthnMode } from '../../Enums/WebUI/HCLoginWebAuthnMode';
+import { HCLoginTwoFactorCodeInputMode } from '../../Enums/WebUI/HCLoginTwoFactorCodeInputMode';
+import { HCIntegratedProfileConfig } from './HCIntegratedProfileConfig';
 
 export interface HCFrontEndOptions
 {
@@ -16,9 +19,12 @@ export interface HCFrontEndOptions
 	EditorConfig: EditorWorkerConfig;
 	ShowIntegratedLogin: boolean;
 	IntegratedLoginEndpoint: string;
-	IntegratedLoginShow2FA: boolean;
 	IntegratedLoginCurrent2FACodeExpirationTime: Date;
 	IntegratedLogin2FACodeLifetime: number;
 	IntegratedLoginSend2FACodeEndpoint: string;
 	IntegratedLoginSend2FACodeButtonText: string;
+	IntegratedLoginWebAuthnMode: HCLoginWebAuthnMode;
+	IntegratedLoginTwoFactorCodeInputMode: HCLoginTwoFactorCodeInputMode;
+	IntegratedProfileConfig: HCIntegratedProfileConfig;
+	UserRoles: string[];
 }

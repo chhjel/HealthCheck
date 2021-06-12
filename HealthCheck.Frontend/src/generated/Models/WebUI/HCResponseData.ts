@@ -2,12 +2,8 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface HealthCheckSetting
+export interface HCResponseData
 {
-	Id: string;
-	DisplayName: string;
-	Description: string;
-	Type: string;
-	Value: any;
-	GroupName: string;
+	AttestationObject: string;
+	ClientDataJson: string;
 }

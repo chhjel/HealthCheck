@@ -4,4 +4,7 @@
 
 export interface RuntimeTestReferenceParameterFactory
 {
+	Title: string;
+	Description: string;
+	SearchButtonText: string;
 }

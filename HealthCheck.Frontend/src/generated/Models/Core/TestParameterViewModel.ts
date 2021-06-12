@@ -2,6 +2,8 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import { ReferenceValueFactoryConfigViewModel } from './ReferenceValueFactoryConfigViewModel';
+
 export interface TestParameterViewModel
 {
 	Index: number;
@@ -15,5 +17,6 @@ export interface TestParameterViewModel
 	ShowTextArea: boolean;
 	FullWidth: boolean;
 	IsCustomReferenceType: boolean;
+	ReferenceValueFactoryConfig: ReferenceValueFactoryConfigViewModel;
 	Hidden: boolean;
 }

@@ -16,7 +16,7 @@ namespace HealthCheck.Dev.Common.Tests
 {
 #pragma warning disable IDE0060 // Remove unused parameter
     [RuntimeTestClass(
-        Name = "Some fancy tests",
+        Name = "Some fancy tests: X",
         Description = "Some fancy <a href=\"https://www.google.com\">description</a>.",
         DefaultRolesWithAccess = RuntimeTestAccessRole.SystemAdmins,
         GroupName = RuntimeTestConstants.Group.AdminStuff,
@@ -409,7 +409,7 @@ namespace HealthCheck.Dev.Common.Tests
             return result;
         }
 
-        [RuntimeTest]
+        [RuntimeTest("Test: Should return error")]
         public async Task<TestResult> ThisOneShouldReturnAnError()
         {
             await Task.Delay(800);

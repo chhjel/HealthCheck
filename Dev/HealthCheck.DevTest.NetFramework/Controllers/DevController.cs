@@ -59,9 +59,9 @@ using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Module;
 using HealthCheck.RequestLog.Services;
 using HealthCheck.WebUI.Abstractions;
+using HealthCheck.WebUI.MFA.TOTP;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Services;
-using HealthCheck.WebUI.TFA.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -233,7 +233,10 @@ namespace HealthCheck.DevTest.Controllers
                     (filter) => getUserChoices()
                         .Where(x => string.IsNullOrWhiteSpace(filter) || x.Title.Contains(filter) || x.Id.ToString().Contains(filter))
                         .Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Title)),
-                    (id) => getUserChoices().FirstOrDefault(x => x.Id.ToString() == id)
+                    (id) => getUserChoices().FirstOrDefault(x => x.Id.ToString() == id),
+                    title: "Custom title here",
+                    description: "Custom description here",
+                    searchButtonText: "Go!"
                 )
             };
         }
@@ -286,9 +289,46 @@ namespace HealthCheck.DevTest.Controllers
             config.IntegratedLoginConfig = new HCIntegratedLoginConfig
             {
                 IntegratedLoginEndpoint = "/hclogin/login",
-                Show2FAInput = true,
-                Current2FACodeExpirationTime = HealthCheck2FAUtil.GetCurrentCodeExpirationTime(),
-                Send2FACodeEndpoint = "/hclogin/Request2FACode"
+                Current2FACodeExpirationTime = HCMfaTotpUtil.GetCurrentTotpCodeExpirationTime(),
+                Send2FACodeEndpoint = "/hclogin/Request2FACode",
+                TwoFactorCodeInputMode = HCIntegratedLoginConfig.HCLoginTwoFactorCodeInputMode.Optional
+            };
+            config.IntegratedProfileConfig = new HCIntegratedProfileConfig
+            {
+                Username = CurrentRequestInformation.UserName,
+                BodyHtml = "Here is some custom content.<ul><li><a href=\"https://www.google.com\">A link here</a></li></ul>",
+                // TOTP: Elevate
+                ShowTotpElevation = true,
+                TotpElevationLogic = async (c) =>
+                {
+                    await Task.Delay(100);
+                    if (!HCMfaTotpUtil.ValidateTotpCode(HCLoginController.DummySecret, c))
+                    {
+                        return HCGenericResult<HCResultPageAction>.CreateError("Invalid code");
+                    }
+
+                    return HCGenericResult<HCResultPageAction>.CreateSuccess(HCResultPageAction.CreateRefresh());
+                },
+                // TOTP: Add
+                ShowAddTotp = true,
+                AddTotpLogic = async (pwd, secret, code) =>
+                {
+                    await Task.Delay(100);
+                    if (pwd != "toor") return HCGenericResult<object>.CreateError("Invalid password");
+                    if (!HCMfaTotpUtil.ValidateTotpCode(secret, code))
+                    {
+                        return HCGenericResult.CreateError("Invalid code");
+                    }
+                    return HCGenericResult.CreateSuccess();
+                },
+                // TOTP: Remove
+                ShowRemoveTotp = true,
+                RemoveTotpLogic = async (pwd) =>
+                {
+                    await Task.Delay(100);
+                    if (pwd != "toor") return HCGenericResult<object>.CreateError("Invalid password");
+                    return HCGenericResult.CreateSuccess();
+                },
             };
         }
 

@@ -12,11 +12,18 @@
                         <v-list-tile-action v-if="items.length > 1">
                             <v-icon class="handle-icon">drag_handle</v-icon>
                         </v-list-tile-action>
-                        <v-list-tile-action v-if="!isReadOnlyList" @click="removeItem(itemIndex)">
-                            <v-btn flat icon color="error" :disabled="readonly">
-                                <v-icon>remove</v-icon>
-                            </v-btn>
-                        </v-list-tile-action>
+
+                        <v-tooltip bottom v-if="!isReadOnlyList" >
+                            <template v-slot:activator="{ on }">
+                                <v-list-tile-action v-if="!isReadOnlyList" @click="removeItem(itemIndex)" v-on="on">
+                                    <v-btn flat icon color="error" :disabled="readonly">
+                                        <v-icon>remove</v-icon>
+                                    </v-btn>
+                                </v-list-tile-action>
+                            </template>
+                            <span>Remove</span>
+                        </v-tooltip>
+
                         <v-list-tile-content style="max-width: 100%;">
                             <backend-input-component v-if="!isReadOnlyList"
                                 :key="`${id}-item-input-${item.id}`"
@@ -27,6 +34,7 @@
                                 :isListItem="true"
                                 :isCustomReferenceType="isCustomReferenceType"
                                 :parameterDetailContext="`${parameterDetailContext}_${item.id}`"
+                                :referenceValueFactoryConfig="referenceValueFactoryConfig"
                                 @isAnyJson="notifyIsAnyJson()"
                                 style="max-width: 100%;" />
                             <span v-if="isReadOnlyList">{{ item.value }}</span>
@@ -35,7 +43,7 @@
                 </template>
             </draggable>
         </v-list>
-        <v-btn v-if="!isReadOnlyList" small color="primary" @click="addNewItem()" :disabled="readonly">
+        <v-btn v-if="!isReadOnlyList" small color="primary" @click="addNewItem()" :disabled="readonly" class="ml-0">
             <v-icon>add</v-icon>
         </v-btn>
     </div>
@@ -51,6 +59,7 @@ import IdUtils from "util/IdUtils";
 import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
 import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 import TestsUtils from "util/TestsModule/TestsUtils";
+import { ReferenceValueFactoryConfigViewModel } from "generated/Models/Core/ReferenceValueFactoryConfigViewModel";
 
 interface ListItem {
     id: string;
@@ -91,6 +100,9 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
 
     @Prop({ required: false, default: '' })
     parameterDetailContext!: string;
+
+    @Prop({ required: false, default: null })
+    referenceValueFactoryConfig!: ReferenceValueFactoryConfigViewModel | null;
 
     localValue: string | null = '';
     items: Array<ListItem> = [];

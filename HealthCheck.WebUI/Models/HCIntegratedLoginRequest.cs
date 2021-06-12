@@ -1,12 +1,4 @@
-﻿#if NETFULL
-using System.Web;
-#endif
-
-#if NETCORE
-using Microsoft.AspNetCore.Http;
-#endif
-
-namespace HealthCheck.WebUI.Models
+﻿namespace HealthCheck.WebUI.Models
 {
     /// <summary>
     /// Request sent to custom login handler.
@@ -27,5 +19,10 @@ namespace HealthCheck.WebUI.Models
         /// Entered 2FA code.
         /// </summary>
         public string TwoFactorCode { get; set; }
+
+        /// <summary>
+        /// Payload from WebAuthn if any.
+        /// </summary>
+        public HCVerifyWebAuthnAssertionModel WebAuthnPayload { get; set; }
     }
 }
