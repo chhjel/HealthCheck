@@ -13,11 +13,16 @@
                             <v-icon class="handle-icon">drag_handle</v-icon>
                         </v-list-tile-action>
 
-                        <v-list-tile-action v-if="!isReadOnlyList" @click="removeItem(itemIndex)">
-                            <v-btn flat icon color="error" :disabled="readonly">
-                                <v-icon>remove</v-icon>
-                            </v-btn>
-                        </v-list-tile-action>
+                        <v-tooltip bottom v-if="!isReadOnlyList" >
+                            <template v-slot:activator="{ on }">
+                                <v-list-tile-action v-if="!isReadOnlyList" @click="removeItem(itemIndex)" v-on="on">
+                                    <v-btn flat icon color="error" :disabled="readonly">
+                                        <v-icon>remove</v-icon>
+                                    </v-btn>
+                                </v-list-tile-action>
+                            </template>
+                            <span>Remove</span>
+                        </v-tooltip>
 
                         <v-list-tile-content style="max-width: 100%;">
                             <backend-input-component v-if="!isReadOnlyList"

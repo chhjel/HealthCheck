@@ -2,7 +2,13 @@
 <template>
     <div>
         <div class="pick-ref-button-wrapper">
-            <v-btn @click="showDialog" :disabled="readonly" class="pick-ref-button ml-0 mr-0">{{ selectedChoiceLabel }}</v-btn>
+            
+            <v-tooltip bottom :disabled="!tooltip">
+                <template v-slot:activator="{ on }">
+                    <v-btn @click="showDialog" :disabled="readonly" class="pick-ref-button ml-0 mr-0" v-on="on">{{ selectedChoiceLabel }}</v-btn>
+                </template>
+                <span>{{tooltip}}</span>
+            </v-tooltip>
         
             <v-tooltip bottom v-if="localValue" >
                 <template v-slot:activator="{ on }">
@@ -127,6 +133,11 @@ export default class ParameterInputPickReferenceComponent extends Vue {
         if (this.localValue == null) {
             this.localValue = "";
         }
+    }
+
+    get tooltip(): string {
+        if (!this.localValue || !this.selectedChoice || !this.selectedChoice.Name) return '';
+        else return this.selectedChoice.Name;
     }
 
     get selectedChoiceLabel(): string {
