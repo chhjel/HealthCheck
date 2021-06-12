@@ -246,8 +246,9 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 },
                 // TOTP: Add
                 ShowAddTotp = string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey)),
-                AddTotpLogic = (pwd, secret, code) =>
+                AddTotpLogic = async (pwd, secret, code) =>
                 {
+                    await Task.Delay(100);
                     if (pwd != "toor") return HCGenericResult<object>.CreateError("Invalid password");
                     else if (!string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey)))
                     {
@@ -262,8 +263,9 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 },
                 // TOTP: Remove
                 ShowRemoveTotp = !string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey)),
-                RemoveTotpLogic = (pwd) =>
+                RemoveTotpLogic = async (pwd) =>
                 {
+                    await Task.Delay(100);
                     if (pwd != "toor") return HCGenericResult<object>.CreateError("Invalid password");
                     else if (string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey)))
                     {
@@ -306,8 +308,9 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 },
                 // WebAuthn: Add
                 ShowAddWebAuthn = string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(webAuthnKey)),
-                CreateWebAuthnRegistrationOptionsLogic = (username, pwd) =>
+                CreateWebAuthnRegistrationOptionsLogic = async (username, pwd) =>
                 {
+                    await Task.Delay(100);
                     if (pwd != "toor") return HCGenericResult<object>.CreateError("Invalid password");
                     var webauthn = CreateWebAuthnHelper();
                     var options = webauthn.CreateClientOptions(username);
