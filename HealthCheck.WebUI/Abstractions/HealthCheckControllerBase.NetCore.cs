@@ -243,14 +243,14 @@ namespace HealthCheck.WebUI.Abstractions
         [HideFromRequestLog]
         [HttpPost]
         [Route("ProfileElevateTotp")]
-        public virtual ActionResult ProfileElevateTotp([FromBody] HCProfileElevateTotpRequest model)
+        public virtual async Task<ActionResult> ProfileElevateTotp([FromBody] HCProfileElevateTotpRequest model)
         {
             if (!Enabled
                 || Helper?.AccessConfig?.IntegratedProfileConfig?.TotpElevationEnabled != true
                 || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
                 return NotFound();
 
-            var result = Helper.AccessConfig.IntegratedProfileConfig.TotpElevationLogic(model?.Code);
+            var result = await Helper.AccessConfig.IntegratedProfileConfig.TotpElevationLogic(model?.Code);
             return CreateJsonResult(result);
         }
 
@@ -260,14 +260,14 @@ namespace HealthCheck.WebUI.Abstractions
         [HideFromRequestLog]
         [HttpPost]
         [Route("ProfileRegisterTotp")]
-        public virtual ActionResult ProfileRegisterTotp([FromBody] HCProfileRegisterTotpRequest model)
+        public virtual async Task<ActionResult> ProfileRegisterTotp([FromBody] HCProfileRegisterTotpRequest model)
         {
             if (!Enabled
                 || Helper?.AccessConfig?.IntegratedProfileConfig?.AddTotpEnabled != true
                 || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
                 return NotFound();
 
-            var result = Helper.AccessConfig.IntegratedProfileConfig.AddTotpLogic(model?.Password, model?.Secret, model?.Code);
+            var result = await Helper.AccessConfig.IntegratedProfileConfig.AddTotpLogic(model?.Password, model?.Secret, model?.Code);
             return CreateJsonResult(result);
         }
 
@@ -277,14 +277,14 @@ namespace HealthCheck.WebUI.Abstractions
         [HideFromRequestLog]
         [HttpPost]
         [Route("ProfileRemoveTotp")]
-        public virtual ActionResult ProfileRemoveTotp([FromBody] HCProfileRemoveTotpRequest model)
+        public virtual async Task<ActionResult> ProfileRemoveTotp([FromBody] HCProfileRemoveTotpRequest model)
         {
             if (!Enabled
                 || Helper?.AccessConfig?.IntegratedProfileConfig?.RemoveTotpEnabled != true
                 || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
                 return NotFound();
 
-            var result = Helper.AccessConfig.IntegratedProfileConfig.RemoveTotpLogic(model?.Password);
+            var result = await Helper.AccessConfig.IntegratedProfileConfig.RemoveTotpLogic(model?.Password);
             return CreateJsonResult(result);
         }
 
@@ -294,14 +294,14 @@ namespace HealthCheck.WebUI.Abstractions
         [HideFromRequestLog]
         [HttpPost]
         [Route("ProfileCreateWebAuthnAssertionOptions")]
-        public virtual ActionResult ProfileCreateWebAuthnAssertionOptions([FromBody] HCCreateWebAuthnAssertionOptionsRequest model)
+        public virtual async Task<ActionResult> ProfileCreateWebAuthnAssertionOptions([FromBody] HCCreateWebAuthnAssertionOptionsRequest model)
         {
             if (!Enabled
                 || Helper?.AccessConfig?.IntegratedProfileConfig?.WebAuthnElevationEnabled != true
                 || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
                 return NotFound();
 
-            var options = Helper.AccessConfig.IntegratedProfileConfig.CreateWebAuthnAssertionOptionsLogic(model?.UserName);
+            var options = await Helper.AccessConfig.IntegratedProfileConfig.CreateWebAuthnAssertionOptionsLogic(model?.UserName);
             return CreateJsonResult(options, stringEnums: false);
         }
 
@@ -311,14 +311,14 @@ namespace HealthCheck.WebUI.Abstractions
         [HideFromRequestLog]
         [HttpPost]
         [Route("ProfileElevateWebAuthn")]
-        public virtual ActionResult ProfileElevateWebAuthn([FromBody] HCProfileElevateWebAuthnRequest model)
+        public virtual async Task<ActionResult> ProfileElevateWebAuthn([FromBody] HCProfileElevateWebAuthnRequest model)
         {
             if (!Enabled
                 || Helper?.AccessConfig?.IntegratedProfileConfig?.WebAuthnElevationEnabled != true
                 || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
                 return NotFound();
 
-            var result = Helper.AccessConfig.IntegratedProfileConfig.WebAuthnElevationLogic(model?.Data);
+            var result = await Helper.AccessConfig.IntegratedProfileConfig.WebAuthnElevationLogic(model?.Data);
             return CreateJsonResult(result);
         }
 
@@ -328,14 +328,14 @@ namespace HealthCheck.WebUI.Abstractions
         [HideFromRequestLog]
         [HttpPost]
         [Route("ProfileCreateWebAuthnRegistrationOptions")]
-        public virtual ActionResult ProfileCreateWebAuthnRegistrationOptions([FromBody] HCCreateWebAuthnRegistrationOptionsRequest model)
+        public virtual async Task<ActionResult> ProfileCreateWebAuthnRegistrationOptions([FromBody] HCCreateWebAuthnRegistrationOptionsRequest model)
         {
             if (!Enabled
                 || Helper?.AccessConfig?.IntegratedProfileConfig?.AddWebAuthnEnabled != true
                 || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
                 return NotFound();
 
-            var options = Helper.AccessConfig.IntegratedProfileConfig.CreateWebAuthnRegistrationOptionsLogic(model?.UserName, model?.Password);
+            var options = await Helper.AccessConfig.IntegratedProfileConfig.CreateWebAuthnRegistrationOptionsLogic(model?.UserName, model?.Password);
             return CreateJsonResult(options, stringEnums: false);
         }
 
@@ -345,14 +345,14 @@ namespace HealthCheck.WebUI.Abstractions
         [HideFromRequestLog]
         [HttpPost]
         [Route("ProfileRegisterWebAuthn")]
-        public virtual ActionResult ProfileRegisterWebAuthn([FromBody] HCProfileRegisterWebAuthnRequest model)
+        public virtual async Task<ActionResult> ProfileRegisterWebAuthn([FromBody] HCProfileRegisterWebAuthnRequest model)
         {
             if (!Enabled
                 || Helper?.AccessConfig?.IntegratedProfileConfig?.AddWebAuthnEnabled != true
                 || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
                 return NotFound();
 
-            var result = Helper.AccessConfig.IntegratedProfileConfig.AddWebAuthnLogic(model?.Password, model?.RegistrationData);
+            var result = await Helper.AccessConfig.IntegratedProfileConfig.AddWebAuthnLogic(model?.Password, model?.RegistrationData);
             return CreateJsonResult(result);
         }
 
@@ -362,14 +362,14 @@ namespace HealthCheck.WebUI.Abstractions
         [HideFromRequestLog]
         [HttpPost]
         [Route("ProfileRemoveWebAuthn")]
-        public virtual ActionResult ProfileRemoveWebAuthn([FromBody] HCProfileRemoveWebAuthnRequest model)
+        public virtual async Task<ActionResult> ProfileRemoveWebAuthn([FromBody] HCProfileRemoveWebAuthnRequest model)
         {
             if (!Enabled
                 || Helper?.AccessConfig?.IntegratedProfileConfig?.RemoveWebAuthnEnabled != true
                 || Helper?.HasAccessToAnyContent(CurrentRequestAccessRoles) != true)
                 return NotFound();
 
-            var result = Helper.AccessConfig.IntegratedProfileConfig.RemoveWebAuthnLogic(model?.Password);
+            var result = await Helper.AccessConfig.IntegratedProfileConfig.RemoveWebAuthnLogic(model?.Password);
             return CreateJsonResult(result);
         }
 #endregion

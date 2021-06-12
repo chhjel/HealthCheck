@@ -1,4 +1,4 @@
-﻿using Fido2NetLib;
+using Fido2NetLib;
 using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
