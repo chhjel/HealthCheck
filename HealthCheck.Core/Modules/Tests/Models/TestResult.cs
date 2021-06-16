@@ -178,7 +178,12 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// Include a serialized version of the given object in the result data.
         /// <para>If using HealthCheck.WebUI the NewtonsoftJsonSerializer() or just use the AddSerializedData(object data, string title=null) extension method from HealthCheck.WebUI.</para>
         /// </summary>
-        public TestResult AddSerializedData(object data, IJsonSerializer serializer, string title = null, bool onlyIfNotNull = true)
+        /// <param name="data">Data to serialize as json and display.</param>
+        /// <param name="serializer">What serializer implementation to use.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfNotNull">Only include the result if the data is not null or empty.</param>
+        /// <param name="downloadFileName">Optionally specify a filename used when downloading the data.</param>
+        public TestResult AddSerializedData(object data, IJsonSerializer serializer, string title = null, bool onlyIfNotNull = true, string downloadFileName = null)
         {
             if (data == null && onlyIfNotNull)
                 return this;
@@ -190,7 +195,8 @@ namespace HealthCheck.Core.Modules.Tests.Models
             {
                 Title = dump.Title,
                 Data = dump.Data,
-                Type = TestResultDataDumpType.Json
+                Type = TestResultDataDumpType.Json,
+                DownloadFileName = CreateDownloadFilename(downloadFileName, title, TestResultDataDumpType.Json)
             });
             return this;
         }
@@ -198,7 +204,12 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Include the given content in the result data.
         /// </summary>
-        public TestResult AddData(string data, string title = null, TestResultDataDumpType type = TestResultDataDumpType.PlainText, bool onlyIfNotNullOrEmpty = true)
+        /// <param name="data">Raw content to display.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="type">How to display the data.</param>
+        /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
+        /// <param name="downloadFileName">Optionally specify a filename, if given a download button will be shown where the html can be downloaded.</param>
+        public TestResult AddData(string data, string title = null, TestResultDataDumpType type = TestResultDataDumpType.PlainText, bool onlyIfNotNullOrEmpty = true, string downloadFileName = null)
         {
             if (string.IsNullOrWhiteSpace(data) && onlyIfNotNullOrEmpty)
                 return this;
@@ -207,15 +218,19 @@ namespace HealthCheck.Core.Modules.Tests.Models
             {
                 Title = title,
                 Data = data,
-                Type = type
+                Type = type,
+                DownloadFileName = downloadFileName
             });
             return this;
         }
-        
+
         /// <summary>
         /// Include details about the given exception in the result data.
         /// <para>Shortcut to AddTextData(ExceptionUtils.GetFullExceptionDetails(exception), ..)</para>
         /// </summary>
+        /// <param name="exception">Exception data to display.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
         public TestResult AddExceptionData(Exception exception, string title = null, bool onlyIfNotNullOrEmpty = true)
             => AddTextData(
                 (exception != null) ? ExceptionUtils.GetFullExceptionDetails(exception) : null, 
@@ -225,48 +240,77 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Include the given plain text in the result data.
         /// </summary>
-        public TestResult AddTextData(string text, string title = null, bool onlyIfNotNullOrEmpty = true)
-            => AddData(text, title, TestResultDataDumpType.PlainText, onlyIfNotNullOrEmpty);
+        /// <param name="text">Content to display.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
+        /// <param name="downloadFileName">Optionally specify a filename used when downloading the data.</param>
+        public TestResult AddTextData(string text, string title = null, bool onlyIfNotNullOrEmpty = true, string downloadFileName = null)
+            => AddData(text, title, TestResultDataDumpType.PlainText, onlyIfNotNullOrEmpty, CreateDownloadFilename(downloadFileName, title, TestResultDataDumpType.PlainText));
 
         /// <summary>
         /// Include the given code text in the result data. Will be shown in a monaco-editor.
         /// </summary>
-        public TestResult AddCodeData(string code, string title = null, bool onlyIfNotNullOrEmpty = true)
-            => AddData(code, title, TestResultDataDumpType.Code, onlyIfNotNullOrEmpty);
+        /// <param name="code">Content to display.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
+        /// <param name="downloadFileName">Optionally specify a filename used when downloading the data.</param>
+        public TestResult AddCodeData(string code, string title = null, bool onlyIfNotNullOrEmpty = true, string downloadFileName = null)
+            => AddData(code, title, TestResultDataDumpType.Code, onlyIfNotNullOrEmpty, CreateDownloadFilename(downloadFileName, title, TestResultDataDumpType.Code));
 
         /// <summary>
         /// Include the given html in the result data.
         /// </summary>
-        public TestResult AddHtmlData(string html, string title = null, bool onlyIfNotNullOrEmpty = true)
-            => AddData(html, title, TestResultDataDumpType.Html, onlyIfNotNullOrEmpty);
+        /// <param name="html">Html to render.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
+        /// <param name="downloadFileName">Optionally specify a filename, if given a download button will be shown where the html can be downloaded.</param>
+        public TestResult AddHtmlData(string html, string title = null, bool onlyIfNotNullOrEmpty = true, string downloadFileName = null)
+            => AddData(html, title, TestResultDataDumpType.Html, onlyIfNotNullOrEmpty, downloadFileName);
 
         /// <summary>
         /// Include the given xml in the result data.
         /// </summary>
-        public TestResult AddXmlData(string xml, string title = null, bool onlyIfNotNullOrEmpty = true)
-            => AddData(xml, title, TestResultDataDumpType.Xml, onlyIfNotNullOrEmpty);
+        /// <param name="xml">Content to display.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
+        /// <param name="downloadFileName">Optionally specify a filename used when downloading the data.</param>
+        public TestResult AddXmlData(string xml, string title = null, bool onlyIfNotNullOrEmpty = true, string downloadFileName = null)
+            => AddData(xml, title, TestResultDataDumpType.Xml, onlyIfNotNullOrEmpty, CreateDownloadFilename(downloadFileName, title, TestResultDataDumpType.Xml));
 
         /// <summary>
         /// Include the given json in the result data.
         /// </summary>
-        public TestResult AddJsonData(string json, string title = null, bool onlyIfNotNullOrEmpty = true)
-            => AddData(json, title, TestResultDataDumpType.Json, onlyIfNotNullOrEmpty);
+        /// <param name="json">Content to display.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
+        /// <param name="downloadFileName">Optionally specify a filename used when downloading the data.</param>
+        public TestResult AddJsonData(string json, string title = null, bool onlyIfNotNullOrEmpty = true, string downloadFileName = null)
+            => AddData(json, title, TestResultDataDumpType.Json, onlyIfNotNullOrEmpty, CreateDownloadFilename(downloadFileName, title, TestResultDataDumpType.Json));
 
         /// <summary>
         /// Include the given timing data in the result data.
         /// </summary>
+        /// <param name="timing">Timing data to display.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
         public TestResult AddTimingData(HCTestTiming timing, string title = null, bool onlyIfNotNullOrEmpty = true)
             => AddTimingData(new [] { timing }, title, onlyIfNotNullOrEmpty);
 
         /// <summary>
         /// Include the given timing data in the result data.
         /// </summary>
+        /// <param name="timings">Timing data to display.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
         public TestResult AddTimingData(IEnumerable<HCTestTiming> timings, string title = null, bool onlyIfNotNullOrEmpty = true)
             => AddData(HCGlobalConfig.Serializer?.Serialize(timings) ?? "[]", title, TestResultDataDumpType.Timings, onlyIfNotNullOrEmpty);
-        
+
         /// <summary>
         /// Include the given image urls in the result data.
         /// </summary>
+        /// <param name="urls">Image urls to display.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
         public TestResult AddImageUrlsData(IEnumerable<string> urls, string title = null, bool onlyIfNotNullOrEmpty = true)
         {
             urls ??= new string[0];
@@ -284,12 +328,18 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Include the given image url in the result data.
         /// </summary>
+        /// <param name="url">Image urls to display.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
         public TestResult AddImageUrlData(string url, string title = null, bool onlyIfNotNullOrEmpty = true)
             => AddImageUrlsData(new[] { url }, title, onlyIfNotNullOrEmpty);
 
         /// <summary>
         /// Include the given urls in the result data.
         /// </summary>
+        /// <param name="urls">Urls to display.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyifAnyUrls">Only include the result if the data is not null or empty.</param>
         public TestResult AddUrlsData(IEnumerable<HyperLink> urls, string title = null, bool onlyifAnyUrls = true)
         {
             urls ??= new HyperLink[0];
@@ -302,18 +352,27 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Include the given urls in the result data.
         /// </summary>
+        /// <param name="urls">Urls to display.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
         public TestResult AddUrlsData(IEnumerable<string> urls, string title = null, bool onlyIfNotNullOrEmpty = true)
             => AddUrlsData(urls?.Select(x => new HyperLink(x, x)), title, onlyIfNotNullOrEmpty);
 
         /// <summary>
         /// Include the given url in the result data.
         /// </summary>
+        /// <param name="url">Url to display.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
         public TestResult AddUrlData(string url, string title = null, bool onlyIfNotNullOrEmpty = true)
             => AddUrlData(new HyperLink(url, url), title, onlyIfNotNullOrEmpty);
 
         /// <summary>
         /// Include the given url in the result data.
         /// </summary>
+        /// <param name="link">Url to display.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
         public TestResult AddUrlData(HyperLink link, string title = null, bool onlyIfNotNullOrEmpty = true)
             => AddUrlsData(
                 (string.IsNullOrWhiteSpace(link?.Url) && onlyIfNotNullOrEmpty) ? new HyperLink[0] : new[] { link },
@@ -322,6 +381,9 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Include a timeline built from the given data in the result data.
         /// </summary>
+        /// <param name="steps">Timeline steps to render.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfAnySteps">Only include the result if the data is not null or empty.</param>
         public TestResult AddTimelineData(IEnumerable<TimelineStep> steps, string title = null, bool onlyIfAnySteps = true)
         {
             steps ??= Enumerable.Empty<TimelineStep>();
@@ -435,5 +497,24 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// Name and severity of the result.
         /// </summary>
         public override string ToString() => $"[{Status}] {Message}";
+
+        private static string CreateDownloadFilename(string customName, string title, TestResultDataDumpType type)
+        {
+            // Only check for null, since if customName is an empty string we hide the download button.
+            if (customName != null)
+            {
+                return customName;
+            }
+
+            var name = IOUtils.SanitizeFilename(title ?? $"{type}Data");
+            var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+
+            var extension = ".txt";
+            if (type == TestResultDataDumpType.Xml) extension = ".xml";
+            else if (type == TestResultDataDumpType.Html) extension = ".html";
+            else if (type == TestResultDataDumpType.Json) extension = ".json";
+
+            return $"{name}_{timestamp}{extension}";
+        }
     }
 }

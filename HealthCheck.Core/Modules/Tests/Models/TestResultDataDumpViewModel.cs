@@ -24,5 +24,10 @@
         /// Removes expansion panel and copy/fullscreeen buttons.
         /// </summary>
         public bool? DisplayClean { get; set; }
+
+        /// <summary>
+        /// Filename for download if any.
+        /// </summary>
+        public string DownloadFileName { get; set; }
     }
 }
