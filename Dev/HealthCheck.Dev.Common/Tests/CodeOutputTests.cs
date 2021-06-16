@@ -23,6 +23,7 @@ namespace HealthCheck.Dev.Common.Tests
                 .AddCodeData("public class Test {\n\tpublic string Prop { get; set; }\n}\n", "Code test")
                 .AddXmlData("<test>\n\t<el test=\"asd\">Some Value</el>\n</test>\n", "Xml test")
                 .AddHtmlData($"Some <b>html</b> here!<br /><a href='https://www.google.com'>some link</a>", "Some html")
+                .AddHtmlData($"Some <b>html</b> here with download!<br /><a href='https://www.google.com'>some link</a>", "Some html with download", downloadFileName: "Custom name.html")
                 .AddSerializedData(objectToSerialize, "Serialized object data")
                 .AddJsonData(LargeJson, "Big json data");
         }

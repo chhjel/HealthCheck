@@ -24,5 +24,11 @@
         /// Removes copy/fullscreeen buttons.
         /// </summary>
         public bool? DisplayClean { get; set; }
+
+        /// <summary>
+        /// Optional filename for download.
+        /// <para>If set, a download button will be displayed where the data can be downloaded.</para>
+        /// </summary>
+        public string DownloadFileName { get; set; }
     }
 }

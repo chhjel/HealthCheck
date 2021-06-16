@@ -20,7 +20,12 @@ namespace HealthCheck.WebUI.Extensions
         /// <summary>
         /// Include html preset data.
         /// </summary>
-        public static TestResult AddHtmlData(this TestResult testResult, HtmlPresetBuilder htmlBuilder, string title = null, bool onlyIfNotNullOrEmpty = true)
-            => testResult.AddHtmlData(htmlBuilder?.ToHtml(), title, onlyIfNotNullOrEmpty);
+        /// <param name="testResult">The result to add data to.</param>
+        /// <param name="htmlBuilder">Source of the html.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
+        /// <param name="downloadFileName">Optionally specify a filename, if given a download button will be shown where the html can be downloaded.</param>
+        public static TestResult AddHtmlData(this TestResult testResult, HtmlPresetBuilder htmlBuilder, string title = null, bool onlyIfNotNullOrEmpty = true, string downloadFileName = null)
+            => testResult.AddHtmlData(htmlBuilder?.ToHtml(), title, onlyIfNotNullOrEmpty, downloadFileName);
     }
 }

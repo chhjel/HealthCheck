@@ -10,15 +10,15 @@
             :is="getDataComponentNameFromType(data.Type)">
         </component>
 
-        <v-card-actions v-if="clean == false" class="data-dump-actions">
-          <v-btn outline small color="secondary-darken2" @click="putDataOnCLipboard">Copy</v-btn>
+        <v-card-actions v-if="clean == false" class="data-dump-actions pt-0">
+          <v-btn outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2" @click="putDataOnClipboard">Copy</v-btn>
 
           <v-dialog
             v-model="showFullscreen"
             @keydown.esc="showFullscreen = false"
             fullscreen hide-overlay transition="dialog-transition">
             <template v-slot:activator="{ on }">
-              <v-btn outline small color="secondary-darken2" v-on="on">Fullscreen</v-btn>
+              <v-btn outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2 ml-0" v-on="on">Fullscreen</v-btn>
             </template>
             <v-card>
               <!-- DIALOG TOOLBAR -->
@@ -29,7 +29,7 @@
                 <v-toolbar-title>{{data.Title}}</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-toolbar-items>
-                  <v-btn dark flat @click="putDataOnCLipboard">Put data on clipboard</v-btn>
+                  <v-btn dark flat @click="putDataOnClipboard">Put data on clipboard</v-btn>
                 </v-toolbar-items>
                 <v-toolbar-items>
                   <v-btn dark flat @click="showFullscreen = false">Close</v-btn>
@@ -44,6 +44,10 @@
               </component>
             </v-card>
           </v-dialog>
+        
+          <v-btn outline small color="secondary-darken2" class="data-dump-action-button mt-2"
+            @click="downloadData" 
+            v-if="showDownloadButton">Download '{{ data.DownloadFileName }}'</v-btn>
         </v-card-actions>
         
         <textarea style="display:none;" ref="copyValue" :value="data.Data" />
@@ -77,6 +81,7 @@ import TestResultImageUrlsDataComponent from './data_types/TestResultImageUrlsDa
 import TestResultUrlsDataComponent from './data_types/TestResultUrlsDataComponent.vue';
 import TestResultTimelineDataComponent from './data_types/TestResultTimelineDataComponent.vue';
 import TestResultTimingsDataComponent from './data_types/TestResultTimingsDataComponent.vue';
+import DownloadUtil from 'util/DownloadUtil';
 
 @Component({
     components: {
@@ -124,8 +129,12 @@ export default class TestResultDataComponent extends Vue {
       let lineCount = this.data.Data.split(/\r\n|\r|\n/).length;
       return Math.min(10, lineCount);
     }
+
+    get showDownloadButton(): boolean {
+      return !!this.data.DownloadFileName;
+    }
     
-    putDataOnCLipboard(): void {
+    putDataOnClipboard(): void {
       let copySourceElement = this.$refs.copyValue as HTMLTextAreaElement;
       copySourceElement.setAttribute('style', 'display:inherit;');
       copySourceElement.select()
@@ -154,6 +163,11 @@ export default class TestResultDataComponent extends Vue {
       this.copyAlertText = msg;
       this.copyAlertColor = (isSuccess) ? "success" : "error";
     }
+
+    downloadData(): void {
+      const filename = this.data.DownloadFileName || 'data.txt';
+      DownloadUtil.downloadText(filename, this.data.Data || '');
+    }
 }
 </script>
 
@@ -163,9 +177,24 @@ export default class TestResultDataComponent extends Vue {
 }
 .data-dump-actions {
   padding-left: 0;
+  flex-flow: wrap;
 }
 .data-dump-title {
   font-weight: 600;
   margin-bottom: 6px;
+}
+.data-dump-action-button {
+  max-width: 100%;
+}
+</style>
+<style lang="scss">
+.data-dump-action-button {
+  .v-btn__content {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 100%;
+    display: inline-block;
+  }
 }
 </style>
