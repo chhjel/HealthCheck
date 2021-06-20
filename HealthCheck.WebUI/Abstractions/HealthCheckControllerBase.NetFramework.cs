@@ -185,7 +185,6 @@ namespace HealthCheck.WebUI.Abstractions
         protected override void HandleUnknownAction(string actionName)
         {
             ActionResult CreateContentResult(string content) => Content(content);
-            FileResult CreateFileResult(Stream stream, string filename) => File(stream, "content-disposition", filename);
 
             var url = Request.RawUrl.ToString();
             url = url.Substring(url.ToLower().Trim().IndexOf($"/{actionName.ToLower()}"));
@@ -198,10 +197,20 @@ namespace HealthCheck.WebUI.Abstractions
                 {
                     CreateContentResult(contentStr).ExecuteResult(this.ControllerContext);
                 }
-                else if (result is HealthCheckFileStreamResult stream)
+                else if (result is HealthCheckFileDownloadResult file)
                 {
-                    var filename = stream.FileName;
-                    CreateFileResult(stream.ContentStream, filename).ExecuteResult(this.ControllerContext);
+                    if (file.Stream != null)
+                    {
+                        File(file.Stream, file.ContentType, file.FileName).ExecuteResult(this.ControllerContext);
+                    }
+                    else if (file.Bytes != null)
+                    {
+                        File(file.Bytes, file.ContentType, file.FileName).ExecuteResult(this.ControllerContext);
+                    }
+                    else
+                    {
+                        File(file.Content ?? "", file.ContentType, file.FileName).ExecuteResult(this.ControllerContext);
+                    }
                 }
                 return;
             }

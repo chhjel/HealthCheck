@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace HealthCheck.WebUI.Abstractions
@@ -200,7 +201,6 @@ namespace HealthCheck.WebUI.Abstractions
         public IActionResult HandleUnknownAction_GET([FromRoute] string actionName)
         {
             ActionResult CreateContentResult(string content) => Content(content, "text/html");
-            FileResult CreateFileResult(Stream stream, string filename) => File(stream, "text/plain", filename);
 
             var url = Request.GetDisplayUrl();
             url = url.Substring(url.ToLower().Trim().IndexOf($"/{actionName.ToLower()}"));
@@ -213,10 +213,20 @@ namespace HealthCheck.WebUI.Abstractions
                 {
                     return CreateContentResult(contentStr);
                 }
-                else if (result is HealthCheckFileStreamResult stream)
+                else if (result is HealthCheckFileDownloadResult file)
                 {
-                    var filename = stream.FileName;
-                    return CreateFileResult(stream.ContentStream, filename);
+                    if (file.Stream != null)
+                    {
+                        return File(file.Stream, file.ContentType, file.FileName);
+                    }
+                    else if (file.Bytes != null)
+                    {
+                        return File(file.Bytes, file.ContentType, file.FileName);
+                    }
+                    else
+                    {
+                        return File(file.Content ?? "", file.ContentType, file.FileName);
+                    }
                 }
             }
 

@@ -7,13 +7,18 @@
             :class="`data-dump data-dump-${data.Type.toLowerCase()}`"
             :data="data"
             :fullscreen="false"
-            :is="getDataComponentNameFromType(data.Type)">
+            :is="getDataComponentNameFromType(data.Type)"
+            @hideCopyButton="showCopyButton = false"
+            @hideFullscreenButton="showFullscreenButton = false">
         </component>
 
         <v-card-actions v-if="clean == false" class="data-dump-actions pt-0">
-          <v-btn outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2" @click="putDataOnClipboard">Copy</v-btn>
+          <v-btn outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2"
+            v-if="showCopyButton"
+            @click="putDataOnClipboard">Copy</v-btn>
 
           <v-dialog
+            v-if="showFullscreenButton"
             v-model="showFullscreen"
             @keydown.esc="showFullscreen = false"
             fullscreen hide-overlay transition="dialog-transition">
@@ -81,6 +86,7 @@ import TestResultImageUrlsDataComponent from './data_types/TestResultImageUrlsDa
 import TestResultUrlsDataComponent from './data_types/TestResultUrlsDataComponent.vue';
 import TestResultTimelineDataComponent from './data_types/TestResultTimelineDataComponent.vue';
 import TestResultTimingsDataComponent from './data_types/TestResultTimingsDataComponent.vue';
+import TestResultFileDownloadDataComponent from './data_types/TestResultFileDownloadDataComponent.vue';
 import DownloadUtil from 'util/DownloadUtil';
 
 @Component({
@@ -95,7 +101,8 @@ import DownloadUtil from 'util/DownloadUtil';
       TestResultUrlsDataComponent,
       TestResultCodeDataComponent,
       TestResultTimelineDataComponent,
-      TestResultTimingsDataComponent
+      TestResultTimingsDataComponent,
+      TestResultFileDownloadDataComponent
     }
 })
 export default class TestResultDataComponent extends Vue {
@@ -108,6 +115,8 @@ export default class TestResultDataComponent extends Vue {
     copyAlertText: string = "";
     copyAlertColor: string = "success";
     showFullscreen: boolean = false;
+    showCopyButton: boolean = true;
+    showFullscreenButton: boolean = true;
 
     mounted(): void {
     }

@@ -3,9 +3,11 @@ using HealthCheck.Core.Modules.Tests.Factories;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Modules;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.Tests
@@ -203,6 +205,48 @@ namespace HealthCheck.Core.Modules.Tests
             var factory = parameter.GetParameterFactory(test);
             return factory.GetChoicesFor(type, data.Filter)
                 ?? Enumerable.Empty<RuntimeTestReferenceParameterChoice>();
+        }
+        #endregion
+
+        #region Actions
+        private static readonly Regex _downloadFileUrlRegex
+            = new(@"^/TMDownloadFile/(?<type>[\w-]+)?__(?<id>[\w-]+)/?", RegexOptions.IgnoreCase);
+
+        /// <summary>
+        /// Download a file.
+        /// </summary>
+        [HealthCheckModuleAction]
+        public object TMDownloadFile(HealthCheckModuleContext context, string url)
+        {
+            var match = _downloadFileUrlRegex.Match(url);
+            if (!match.Success)
+            {
+                return null;
+            }
+
+            // Parse url
+            var idFromUrl = match.Groups["id"].Value.Trim().ToLower();
+            var typeUrlMatch = match.Groups["type"];
+            string typeFromUrl = typeUrlMatch.Success ? typeUrlMatch.Value : null;
+
+            if (_options.FileDownloadHandler == null)
+            {
+                return HealthCheckFileDownloadResult.CreateFromString("not_configured.txt",
+                    $"FileDownloadHandler has not been configured. Please set {nameof(HCTestsModuleOptions)}.{nameof(HCTestsModuleOptions.FileDownloadHandler)}.");
+            }
+
+            var file = _options.FileDownloadHandler?.Invoke(typeFromUrl, idFromUrl);
+            if (file == null)
+            {
+                return null;
+            }
+
+            // Store audit data
+            context.AddAuditEvent("File download", file.FileName)
+                .AddClientConnectionDetails(context)
+                .AddDetail("File Name", file.FileName);
+
+            return file;
         }
         #endregion
 

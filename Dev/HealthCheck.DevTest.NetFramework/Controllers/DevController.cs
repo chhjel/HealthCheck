@@ -42,6 +42,7 @@ using HealthCheck.Core.Modules.SiteEvents.Services;
 using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Modules;
 using HealthCheck.Dev.Common;
 using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.EventNotifier;
@@ -116,7 +117,12 @@ namespace HealthCheck.DevTest.Controllers
             UseModule(new HCTestsModule(new HCTestsModuleOptions()
             {
                 AssembliesContainingTests = assemblies,
-                ReferenceParameterFactories = CreateReferenceParameterFactories
+                ReferenceParameterFactories = CreateReferenceParameterFactories,
+                FileDownloadHandler = (type, id) =>
+                {
+                    if (id == "404") return null;
+                    else return HealthCheckFileDownloadResult.CreateFromString("Success.txt", $"Type: {type}, Id: {id}");
+                }
                 //JsonInputTemplateFactory = (type) =>
                 //{
                 //    if (type == typeof(System.Net.Mail.MailMessage))
@@ -124,7 +130,7 @@ namespace HealthCheck.DevTest.Controllers
                 //        return HCTestsJsonTemplateResult.CreateNoTemplate();
                 //    }
                 //    return HCTestsJsonTemplateResult.CreateDefault();
-                //}
+                //},
             }))
                 .ConfigureGroups((options) => options
                     .ConfigureGroup(RuntimeTestConstants.Group.TopGroup, uiOrder: 110)

@@ -425,6 +425,28 @@ namespace HealthCheck.Core.Modules.Tests.Models
             return AddData(json, title, TestResultDataDumpType.Timeline);
         }
 
+        // Disabled for now, todo: complete frontend and ensure that only id+type combinations passed to frontend can ever be passed to the handler method.
+//        /// <summary>
+//        /// Include a link to download a file with the given name.
+//        /// <para>Requires HandleDownloadFileById to be implemented.</para>
+//        /// </summary>
+//        /// <param name="id">An id that will be sent to HandleDownloadFileById to select what file to download.</param>
+//        /// <param name="name">Filename displayed.</param>
+//        /// <param name="description">Description of the file if any.</param>
+//        /// <param name="type">Optional value sent to HandleDownloadFileById.</param>
+//        /// <param name="title">Title of the result data if any.</param>
+//        public TestResult AddFileDownload(string id, string name, string description = null, string type = null, string title = null)
+//        {
+//            var data = $@"
+//{{
+//    ""id"": {DumpHelper.EncodeForJson(id)},
+//    ""name"": {DumpHelper.EncodeForJson(name)},
+//    ""description"": {DumpHelper.EncodeForJson(description)},
+//    ""type"": {DumpHelper.EncodeForJson(type)}
+//}}";
+//            return AddData(data, title, TestResultDataDumpType.FileDownload);
+//        }
+
         /// <summary>
         /// Include the given <see cref="SiteEvent"/>.
         /// <para>Only the data from this object will be included in the overview.</para>

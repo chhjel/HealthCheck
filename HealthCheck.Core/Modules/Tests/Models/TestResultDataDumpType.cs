@@ -48,6 +48,11 @@
         /// <summary>
         /// Timed data metrics.
         /// </summary>
-        Timings
+        Timings,
+
+        /// <summary>
+        /// Id of a file to download.
+        /// </summary>
+        FileDownload
     }
 }
