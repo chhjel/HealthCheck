@@ -3,6 +3,7 @@ using HealthCheck.Core.Modules.Tests.Factories;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Modules;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -223,30 +224,29 @@ namespace HealthCheck.Core.Modules.Tests
                 return null;
             }
 
-            //// Parse url
-            //var idFromUrl = match.Groups["id"].Value.Trim().ToLower();
-            //var typeUrlMatch = match.Groups["type"];
-            //string typeFromUrl = typeUrlMatch.Success ? typeUrlMatch.Value : null;
+            // Parse url
+            var idFromUrl = match.Groups["id"].Value.Trim().ToLower();
+            var typeUrlMatch = match.Groups["type"];
+            string typeFromUrl = typeUrlMatch.Success ? typeUrlMatch.Value : null;
 
-            //if (_options.FileDownloadHandler == null)
-            //{
-            //    return HealthCheckFileDownloadResult.CreateFromString("not_configured.txt",
-            //        $"FileDownloadHandler has not been configured. Please set {nameof(HCTestsModuleOptions)}.{nameof(HCTestsModuleOptions.FileDownloadHandler)}.");
-            //}
+            if (_options.FileDownloadHandler == null)
+            {
+                return HealthCheckFileDownloadResult.CreateFromString("not_configured.txt",
+                    $"FileDownloadHandler has not been configured. Please set {nameof(HCTestsModuleOptions)}.{nameof(HCTestsModuleOptions.FileDownloadHandler)}.");
+            }
 
-            //var file = _options.FileDownloadHandler?.Invoke(typeFromUrl, idFromUrl);
-            //if (file == null)
-            //{
-            //    return null;
-            //}
+            var file = _options.FileDownloadHandler?.Invoke(typeFromUrl, idFromUrl);
+            if (file == null)
+            {
+                return null;
+            }
 
-            //// Store audit data
-            //context.AddAuditEvent("File download", file.FileName)
-            //    .AddClientConnectionDetails(context)
-            //    .AddDetail("File Name", file.FileName);
+            // Store audit data
+            context.AddAuditEvent("File download", file.FileName)
+                .AddClientConnectionDetails(context)
+                .AddDetail("File Name", file.FileName);
 
-            //return file;
-            return null;
+            return file;
         }
         #endregion
 
