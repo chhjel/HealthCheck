@@ -30,11 +30,11 @@ namespace HealthCheck.DevTest._TestImplementation
             return TestResult.CreateSuccess($"Ok, byte count: {bytes?.Length}");
         }
 
-        //[RuntimeTest]
-        //public TestResult TestDownloadResult()
-        //    => TestResult.CreateSuccess($"Hopefully success?")
-        //        .AddFileDownload("test1", "Some file.txt", "Description of the file here")
-        //        .AddFileDownload("test2", "Some file.pdf")
-        //        .AddFileDownload("404", "missing.txt");
+        [RuntimeTest]
+        public TestResult TestDownloadResult()
+            => TestResult.CreateSuccess($"Hopefully success?")
+                .AddFileDownload("test1", "Some file.txt", "Description of the file here")
+                .AddFileDownload("test2", "Some file.pdf")
+                .AddFileDownload("404", "missing.txt");
     }
 }
