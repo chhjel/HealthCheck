@@ -1,6 +1,5 @@
 ﻿using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Modules.Tests.Utils;
-using HealthCheck.Core.Util.Modules;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -57,17 +56,17 @@ namespace HealthCheck.Core.Modules.Tests
             typeof(Delegate)
         };
 
-        /// <summary>
-        /// Must be set in order for <see cref="TestResult.AddFileDownload"/> to work.
-        /// <para>Should handle the input and return a <see cref="HealthCheckFileDownloadResult"/> with the matching file to download, or null if no file should be downloaded.</para>
-        /// </summary>
-        public FileDownloadHandlerDelegate FileDownloadHandler { get; set; }
+        ///// <summary>
+        ///// Must be set in order for <see cref="TestResult.AddFileDownload"/> to work.
+        ///// <para>Should handle the input and return a <see cref="HealthCheckFileDownloadResult"/> with the matching file to download, or null if no file should be downloaded.</para>
+        ///// </summary>
+        //public FileDownloadHandlerDelegate FileDownloadHandler { get; set; }
 
-        /// <summary>
-        /// Definition of the handler for downloading files from <see cref="TestResult.AddFileDownload"/>.
-        /// </summary>
-        /// <param name="type">Optionally given. Use to e.g. support different sources for files.</param>
-        /// <param name="id">Id of the file to download.</param>
-        public delegate HealthCheckFileDownloadResult FileDownloadHandlerDelegate(string type, string id);
+        ///// <summary>
+        ///// Definition of the handler for downloading files from <see cref="TestResult.AddFileDownload"/>.
+        ///// </summary>
+        ///// <param name="type">Optionally given. Use to e.g. support different sources for files.</param>
+        ///// <param name="id">Id of the file to download.</param>
+        //public delegate HealthCheckFileDownloadResult FileDownloadHandlerDelegate(string type, string id);
     }
 }
