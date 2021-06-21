@@ -358,6 +358,7 @@ The `TestResult` class has a few static factory methods for quick creation of a 
 |AddHtmlData|Two variants of this method exists. Use the extension method variant for html presets using `new HtmlPresetBuilder()` or the non-extension method for raw html.|
 |AddTimingData|Creates timing metric display.|
 |AddTimelineData|Creates a timeline from the given steps. Each step can show a dialog with more info/links.|
+|AddFileDownload|Creates a download button that can download e.g. larger files by id. Requires `HCTestsModuleOptions.FileDownloadHandler` to be implemented, see further below.|
 
 ##### Cosmetics
 
@@ -365,9 +366,25 @@ The following methods can be called on the testresult instance to tweak the outp
 
 |Method|Effect|
 |-|-|
-|`SetCleanMode()`|Removes expansion panel and copy/fullscreeen buttons. Always shows any dump data.|
+|`SetCleanMode()`|Removes expansion panel and copy/fullscreeen/download buttons. Always shows any dump data.|
 |`DisallowDataExpansion()`|Always shows any dump data.|
 |`SetDataExpandedByDefault()`|Expands any dump data by default.|
+
+##### FileDownloadHandler
+
+Example:
+
+```csharp
+UseModule(new HCTestsModule(new HCTestsModuleOptions()
+{
+    AssembliesContainingTests = assemblies,
+    FileDownloadHandler = (type, id) =>
+    {
+        if (type == "blob") return HealthCheckFileDownloadResult.CreateFromStream("myfile.pdf", CreateFileDownloadBlobStream(id));
+        else return null;
+    }
+    ...
+```
 
 ### Attributes
 
