@@ -41,6 +41,14 @@ namespace HealthCheck.WebUI.Config
             {
                 HCGlobalConfig.Serializer = new NewtonsoftJsonSerializer();
             }
+            if (HCGlobalConfig.GetCurrentSessionId == null)
+            {
+#if NETFRAMEWORK
+                HCGlobalConfig.GetCurrentSessionId = () => HttpContext.Current?.Session?.SessionID;
+#elif NETCORE
+                HCGlobalConfig.GetCurrentSessionId = () => { try { return IoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext?.Session?.Id; } catch (Exception) { return null; } };
+#endif
+            }
         }
 
         private void SetDefaultHCMetricsContextFactory()

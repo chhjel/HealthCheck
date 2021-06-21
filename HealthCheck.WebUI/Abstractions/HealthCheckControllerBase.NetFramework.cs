@@ -10,8 +10,7 @@ using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Util;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -209,7 +208,7 @@ namespace HealthCheck.WebUI.Abstractions
                     }
                     else
                     {
-                        File(file.Content ?? "", file.ContentType, file.FileName).ExecuteResult(this.ControllerContext);
+                        File(Encoding.UTF8.GetBytes(file.Content ?? ""), file.ContentType, file.FileName).ExecuteResult(this.ControllerContext);
                     }
                 }
                 return;

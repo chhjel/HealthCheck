@@ -121,6 +121,7 @@ namespace HealthCheck.DevTest.Controllers
                 FileDownloadHandler = (type, id) =>
                 {
                     if (id == "404") return null;
+                    else if (Guid.TryParse(id, out var fileGuid)) return HealthCheckFileDownloadResult.CreateFromString("guid.txt", $"The guid was {id}");
                     else return HealthCheckFileDownloadResult.CreateFromString("Success.txt", $"Type: {type}, Id: {id}");
                 }
                 //JsonInputTemplateFactory = (type) =>

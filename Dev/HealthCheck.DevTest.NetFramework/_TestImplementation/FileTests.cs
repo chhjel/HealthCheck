@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Dev.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -18,6 +19,15 @@ namespace HealthCheck.DevTest._TestImplementation
     public class FileTests
     {
         [RuntimeTest]
+        public TestResult TestDownloadResult()
+            => TestResult.CreateSuccess($"Hopefully success?")
+                //.SetCleanMode()
+                .AddFileDownload("test1", "Some file.txt", "Description of the file here. Also with type.", type: "url")
+                .AddFileDownload("test2", "Some file.pdf")
+                .AddFileDownload("404", "missing.txt", "This one should give a 404.", title: "Even a title here")
+                .AddFileDownload(Guid.NewGuid().ToString(), "random_guid.txt");
+
+        [RuntimeTest]
         public TestResult TestFileParameterType(HttpPostedFileBase file = null, List<HttpPostedFileBase> files = null)
         {
             return TestResult.CreateSuccess("Ok")
@@ -29,12 +39,5 @@ namespace HealthCheck.DevTest._TestImplementation
         {
             return TestResult.CreateSuccess($"Ok, byte count: {bytes?.Length}");
         }
-
-        [RuntimeTest]
-        public TestResult TestDownloadResult()
-            => TestResult.CreateSuccess($"Hopefully success?")
-                .AddFileDownload("test1", "Some file.txt", "Description of the file here")
-                .AddFileDownload("test2", "Some file.pdf")
-                .AddFileDownload("404", "missing.txt");
     }
 }

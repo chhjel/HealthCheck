@@ -60,13 +60,15 @@ namespace HealthCheck.Core.Modules.Tests
         /// <summary>
         /// Must be set in order for <see cref="TestResult.AddFileDownload"/> to work.
         /// <para>Should handle the input and return a <see cref="HealthCheckFileDownloadResult"/> with the matching file to download, or null if no file should be downloaded.</para>
+        /// <para>Only type and id values passed to <see cref="TestResult.AddFileDownload"/> will be allowed to be passed to this handler.</para>
+        /// <para>Type-value should not contain underscores as it is used as a delimiter in the url.</para>
         /// </summary>
         public FileDownloadHandlerDelegate FileDownloadHandler { get; set; }
 
         /// <summary>
         /// Definition of the handler for downloading files from <see cref="TestResult.AddFileDownload"/>.
         /// </summary>
-        /// <param name="type">Optionally given. Use to e.g. support different sources for files.</param>
+        /// <param name="type">Optionally given. Use to e.g. support different sources for files. Should not contain underscores.</param>
         /// <param name="id">Id of the file to download.</param>
         public delegate HealthCheckFileDownloadResult FileDownloadHandlerDelegate(string type, string id);
     }

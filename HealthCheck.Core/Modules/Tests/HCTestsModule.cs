@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
+using HealthCheck.Core.Config;
 using HealthCheck.Core.Modules.Tests.Factories;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Modules.Tests.Services;
@@ -51,6 +52,11 @@ namespace HealthCheck.Core.Modules.Tests
                 IncludeProxyTests = options.IncludeProxyTests
             };
             _options = options;
+
+            lock(_allowedDownloadsCache)
+            {
+                _allowedDownloadsCache.RemoveExpired(TimeSpan.FromMinutes(5));
+            }
         }
 
         private static void EnsureReferenceParameterFactoriesInitialized(HCTestsModuleOptions options)
@@ -229,7 +235,11 @@ namespace HealthCheck.Core.Modules.Tests
             var typeUrlMatch = match.Groups["type"];
             string typeFromUrl = typeUrlMatch.Success ? typeUrlMatch.Value : null;
 
-            if (_options.FileDownloadHandler == null)
+            if (!IsFileDownloadAllowedForSession(typeFromUrl, idFromUrl))
+            {
+                return null;
+            }
+            else if (_options.FileDownloadHandler == null)
             {
                 return HealthCheckFileDownloadResult.CreateFromString("not_configured.txt",
                     $"FileDownloadHandler has not been configured. Please set {nameof(HCTestsModuleOptions)}.{nameof(HCTestsModuleOptions.FileDownloadHandler)}.");
@@ -247,6 +257,68 @@ namespace HealthCheck.Core.Modules.Tests
                 .AddDetail("File Name", file.FileName);
 
             return file;
+        }
+        #endregion
+
+        #region Internal helpers
+        private static readonly SimpleMemoryCache<List<string[]>> _allowedDownloadsCache = new()
+        {
+            MaxCount = 100,
+            DefaultDuration = TimeSpan.FromMinutes(10)
+        };
+        internal static void AllowFileDownloadForSession(string type, string id)
+        {
+            lock (_allowedDownloadsCache)
+            {
+                try
+                {
+                    var sessionId = HCGlobalConfig.GetCurrentSessionId?.Invoke();
+                    if (string.IsNullOrWhiteSpace(sessionId))
+                    {
+                        return;
+                    }
+
+                    var key = $"{sessionId}__{type}__{id}";
+                    var maxLimitPerSession = 100;
+                    var list = _allowedDownloadsCache[key] ?? new List<string[]>();
+                    if (list.Any(x => x[0] == type && x[1] == id))
+                    {
+                        return;
+                    }
+
+                    list.Add(new[] { type, id });
+                    if (list.Count > maxLimitPerSession)
+                    {
+                        list.RemoveAt(0);
+                    }
+
+                    _allowedDownloadsCache[key] = list;
+                }
+                catch (Exception) { /* Ignored */ }
+            }
+        }
+
+        internal static bool IsFileDownloadAllowedForSession(string type, string id)
+        {
+            lock (_allowedDownloadsCache)
+            {
+                try
+                {
+                    var sessionId = HCGlobalConfig.GetCurrentSessionId?.Invoke();
+                    if (string.IsNullOrWhiteSpace(sessionId))
+                    {
+                        return false;
+                    }
+
+                    var key = $"{sessionId}__{type}__{id}";
+                    var list = _allowedDownloadsCache[key];
+                    return list?.Any(x => x[0] == type && x[1] == id) == true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
         }
         #endregion
 

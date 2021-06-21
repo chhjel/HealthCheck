@@ -19,7 +19,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using HealthCheck.Core.Util.Modules;
 using HealthCheck.Core.Modules.Tests.Services;
-using HealthCheck.Core.Modules.Tests.Models;
 
 #if NETFULL
 using System.IO;

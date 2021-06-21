@@ -14,8 +14,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -225,7 +223,7 @@ namespace HealthCheck.WebUI.Abstractions
                     }
                     else
                     {
-                        return File(file.Content ?? "", file.ContentType, file.FileName);
+                        return File(Encoding.UTF8.GetBytes(file.Content ?? ""), file.ContentType, file.FileName);
                     }
                 }
             }
