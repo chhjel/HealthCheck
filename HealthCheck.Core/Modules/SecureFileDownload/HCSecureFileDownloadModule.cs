@@ -395,11 +395,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
                 .AddDetail("File Id", definition.FileId)
                 .AddDetail("Storage Id", definition.StorageId);
 
-            return new HealthCheckFileStreamResult
-            {
-                FileName = definition.FileName,
-                ContentStream = fileStream
-            };
+            return HealthCheckFileDownloadResult.CreateFromStream(definition.FileName, fileStream);
         }
         #endregion
 

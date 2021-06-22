@@ -69,6 +69,11 @@ namespace HealthCheck.Core.Config
         /// </summary>
         public static Func<Type, object> GetDefaultInstanceResolver() => DefaultInstanceResolver ?? FallbackInstanceResolver;
 
+        /// <summary>
+        /// Retrieves the current session id if any.
+        /// </summary>
+        public static Func<string> GetCurrentSessionId { get; set; }
+
         internal static IJsonSerializer Serializer { get; set; }
 
         internal static T GetService<T>()

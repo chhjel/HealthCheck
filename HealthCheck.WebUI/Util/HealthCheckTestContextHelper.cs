@@ -85,9 +85,6 @@ namespace HealthCheck.WebUI.Util
             return context;
         }
 
-        private static HCTestContext ContextFactory()
-        {
-            return new HCTestContext();
-        }
+        private static HCTestContext ContextFactory() => new();
     }
 }

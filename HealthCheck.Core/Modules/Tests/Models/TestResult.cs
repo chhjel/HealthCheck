@@ -426,6 +426,31 @@ namespace HealthCheck.Core.Modules.Tests.Models
         }
 
         /// <summary>
+        /// Include a link to download a file with the given name.
+        /// <para>Requires <see cref="HCTestsModuleOptions.FileDownloadHandler"/> to be implemented, that will resolve the given id/type into the actual file contents.</para>
+        /// <para>Recommended practice is to make your own custom extension methods that invoke this method, with constant type etc.</para>
+        /// <para>Up to the latest 100 download links per session will be active for 10 minutes from the last time the session invoked this method.</para>
+        /// </summary>
+        /// <param name="id">An id that will be sent to HandleDownloadFileById to select what file to download.</param>
+        /// <param name="name">Filename displayed.</param>
+        /// <param name="description">Description of the file if any.</param>
+        /// <param name="type">Optional value sent to HandleDownloadFileById.</param>
+        /// <param name="title">Title of the result data if any.</param>
+        public TestResult AddFileDownload(string id, string name, string description = null, string type = null, string title = null)
+        {
+            var data = $@"
+{{
+    ""Id"": {DumpHelper.EncodeForJson(id)},
+    ""Type"": {DumpHelper.EncodeForJson(type)},
+    ""Name"": {DumpHelper.EncodeForJson(name)},
+    ""Description"": {DumpHelper.EncodeForJson(description)}
+}}";
+
+            HCTestsModule.AllowFileDownloadForSession(type, id);
+            return AddData(data, title, TestResultDataDumpType.FileDownload);
+        }
+
+        /// <summary>
         /// Include the given <see cref="SiteEvent"/>.
         /// <para>Only the data from this object will be included in the overview.</para>
         /// <para>Manual test executions from the UI will not be reported to any overview by default.</para>
