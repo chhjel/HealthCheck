@@ -66,9 +66,10 @@ namespace HealthCheck.Core.Modules.Tests.Services
         public List<TestClassDefinition> DiscoverTestDefinitions<TAccessRolesEnum>(TAccessRolesEnum userRoles,
             bool includeInvalidTests = false,
             bool onlyTestsAllowedToBeManuallyExecuted = false,
-            Func<TestDefinition, bool> testFilter = null)
+            Func<TestDefinition, bool> testFilter = null,
+            object defaultTestAccessLevel = null)
             where TAccessRolesEnum : Enum
-            => DiscoverTestDefinitions(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRoles, testFilter);
+            => DiscoverTestDefinitions(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRoles, testFilter, defaultTestAccessLevel);
 
         /// <summary>
         /// Discover tests.
@@ -77,7 +78,8 @@ namespace HealthCheck.Core.Modules.Tests.Services
             bool includeInvalidTests = false,
             bool onlyTestsAllowedToBeManuallyExecuted = false,
             object userRolesEnum = null,
-            Func<TestDefinition, bool> testFilter = null)
+            Func<TestDefinition, bool> testFilter = null,
+            object defaultTestAccessLevel = null)
         {
             var assemblies = AssembliesContainingTests;
             if (assemblies == null || !assemblies.Any())
@@ -108,7 +110,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                     {
                         var testDef = new TestDefinition(testMethod, testAttribute, classDef, ReferenceParameterFactories);
 
-                        bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef);
+                        bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef, defaultTestAccessLevel);
                         if (includeTest && testFilter?.Invoke(testDef) != false)
                         {
                             classDef.Tests.Add(testDef);
@@ -136,7 +138,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                         foreach (var proxyMethod in proxyMethods)
                         {
                             var testDef = new TestDefinition(proxyMethod, proxyTestAttribute, config, classDef, ReferenceParameterFactories);
-                            bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef);
+                            bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef, defaultTestAccessLevel);
                             if (includeTest && testFilter?.Invoke(testDef) != false)
                             {
                                 classDef.Tests.Add(testDef);
@@ -177,7 +179,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
             return errors;
         }
 
-        private bool ShouldIncludeTest(bool includeInvalidTests, bool onlyTestsAllowedToBeManuallyExecuted, object userRolesEnum, TestDefinition testDef)
+        private bool ShouldIncludeTest(bool includeInvalidTests, bool onlyTestsAllowedToBeManuallyExecuted, object userRolesEnum, TestDefinition testDef, object defaultTestAccessLevel)
         {
             // Check for invalid tests
             if (!includeInvalidTests && !testDef.Validate().IsValid)
@@ -190,7 +192,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                 return false;
             }
             // Exclude tests that are outside the given roles if any
-            else if (!IsTestIncludedForRoles(testDef, userRolesEnum))
+            else if (!IsTestIncludedForRoles(testDef, userRolesEnum, defaultTestAccessLevel))
             {
                 return false;
             }
@@ -198,26 +200,28 @@ namespace HealthCheck.Core.Modules.Tests.Services
             return true;
         }
 
-        private bool IsTestIncludedForRoles(TestDefinition test, object roles)
+        private bool IsTestIncludedForRoles(TestDefinition test, object roles, object defaultTestAccessLevel)
         {
+            var rolesToCheckAgainst = test.RolesWithAccess ?? defaultTestAccessLevel;
+
             // No access set => allow
-            if (roles == null || test.RolesWithAccess == null)
+            if (roles == null || rolesToCheckAgainst == null)
             {
                 return true;
             }
             
             // Check for invalid setup
-            if (!EnumUtils.IsEnumFlagOfType(test.RolesWithAccess, new[] { typeof(int), typeof(byte) }))
+            if (!EnumUtils.IsEnumFlagOfType(rolesToCheckAgainst, new[] { typeof(int), typeof(byte) }))
             {
                 throw new InvalidAccessRolesDefinitionException($"Access role set on test '{test.Name}' is either missing a [Flags] attribute or does not have the underlying type int or byte.");
             }
-            else if(roles.GetType() != test.RolesWithAccess.GetType())
+            else if(roles.GetType() != rolesToCheckAgainst.GetType())
             {
                 throw new InvalidAccessRolesDefinitionException($"Different access role types used on '{test.Name}' and in the discover tests call. " +
-                    $"({test.RolesWithAccess.GetType().Name} and {roles.GetType().Name})");
+                    $"({rolesToCheckAgainst.GetType().Name} and {roles.GetType().Name})");
             }
 
-            return EnumUtils.EnumFlagHasAnyFlagsSet(roles, test.RolesWithAccess);
+            return EnumUtils.EnumFlagHasAnyFlagsSet(roles, rolesToCheckAgainst);
         }
     }
 }

@@ -5,7 +5,6 @@ using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Tests.Helpers;
 using System;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -67,6 +66,32 @@ namespace HealthCheck.Core.Tests.Modules.Tests
             Assert.Equal("First desc.", test.Parameters[0].Description);
             Assert.Equal("Second desc.", test.Parameters[1].Description);
             Assert.Equal("Third desc.", test.Parameters[2].Description);
+        }
+
+        [Fact]
+        public void DiscoverTestDefinitions_WithDefaultRoleThatUserHas_HasAccess()
+        {
+            var discoverer = CreateTestDiscoveryService();
+            var userRoles = AccessRoles.WebAdmins;
+            var tests = discoverer.DiscoverTestDefinitions(userRoles,
+                testFilter: (test) => test.Name == nameof(TestClass.TestMethodA),
+                defaultTestAccessLevel: AccessRoles.WebAdmins)
+                .SelectMany(x => x.Tests);
+            Assert.Single(tests);
+            Assert.Single(tests, x => x.Name == nameof(TestClass.TestMethodA));
+        }
+
+        [Fact]
+        public void DiscoverTestDefinitions_WithDefaultRoleThatUserHasNot_NoAccess()
+        {
+            var discoverer = CreateTestDiscoveryService();
+            var userRoles = AccessRoles.WebAdmins;
+            var tests = discoverer.DiscoverTestDefinitions(userRoles,
+                testFilter: (test) => test.Name == nameof(TestClass.TestMethodA),
+                defaultTestAccessLevel: AccessRoles.SystemAdmins)
+                .SelectMany(x => x.Tests);
+            Assert.Empty(tests);
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodA));
         }
 
         [Fact]

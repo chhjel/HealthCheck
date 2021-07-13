@@ -61,6 +61,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
         /// The default logic uses the highest severity event, and appends descriptions from any other one.
         /// </param>
         /// <param name="resultAction">Optional action to execute on results.</param>
+        /// <param name="defaultTestAccessLevel">Default roles with access if any.</param>
         /// <returns>All executed test results are returned.</returns>
         public async Task<List<TestResult>> ExecuteTests(
             TestDiscoveryService testDiscoveryService,
@@ -70,9 +71,11 @@ namespace HealthCheck.Core.Modules.Tests.Services
             string auditUserId = "0",
             string auditUsername = "System",
             Maybe<Func<IEnumerable<SiteEvent>, SiteEvent>> multipleResultSiteEventMergeLogic = null,
-            Action<TestResult, object> resultAction = null)
+            Action<TestResult, object> resultAction = null,
+            object defaultTestAccessLevel = null)
         {
-            var tests = testDiscoveryService.DiscoverTestDefinitions(includeInvalidTests: false, onlyTestsAllowedToBeManuallyExecuted: false, testFilter: testFilter);
+            var tests = testDiscoveryService.DiscoverTestDefinitions(includeInvalidTests: false, onlyTestsAllowedToBeManuallyExecuted: false,
+                testFilter: testFilter, defaultTestAccessLevel: defaultTestAccessLevel);
             var results = await ExecuteTests(tests, testFilter, resultAction);
 
             if (onAuditEvent != null)

@@ -30,6 +30,13 @@ namespace HealthCheck.Core.Modules.Tests
         public Func<Type, HCTestsJsonTemplateResult> JsonInputTemplateFactory { get; set; }
 
         /// <summary>
+        /// Default roles that are required to access tests.
+        /// <para>Must be an enum flags value.</para>
+        /// <para>Defaults to null, causing anyone with access to the module to have access to the tests.</para>
+        /// </summary>
+        public object DefaultTestAccessLevel { get; set; }
+
+        /// <summary>
         /// If enabled, any parameter non-supported parameter type will be attempted supported through json-serialization.
         /// <para>Defaults to true.</para>
         /// </summary>

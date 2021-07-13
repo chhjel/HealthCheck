@@ -324,7 +324,8 @@ namespace HealthCheck.Core.Modules.Tests
 
         #region Private helpers
         private List<TestClassDefinition> GetTestDefinitions(object currentRequestRoles)
-            => TestDiscoverer.DiscoverTestDefinitions(onlyTestsAllowedToBeManuallyExecuted: true, userRolesEnum: currentRequestRoles);
+            => TestDiscoverer.DiscoverTestDefinitions(onlyTestsAllowedToBeManuallyExecuted: true,
+                userRolesEnum: currentRequestRoles, defaultTestAccessLevel: _options.DefaultTestAccessLevel);
 
         private TestDefinition GetTest(object currentRequestRoles, string testId)
             => GetTestDefinitions(currentRequestRoles).SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == testId);
