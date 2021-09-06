@@ -163,6 +163,7 @@
     </Compile>
     <Compile Include="_TestImplementation\EndpointControl\CustomBlockedJsonResult.cs" />
     <Compile Include="_TestImplementation\FileTests.cs" />
+    <Compile Include="_TestImplementation\Modules\HCTestsModuleExt.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\Site.css" />

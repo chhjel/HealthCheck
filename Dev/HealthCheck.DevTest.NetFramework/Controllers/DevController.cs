@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Config;
 using HealthCheck.Core.Extensions;
@@ -67,6 +68,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Hosting;
@@ -114,7 +116,7 @@ namespace HealthCheck.DevTest.Controllers
                 typeof(RuntimeTestConstants).Assembly
             };
 
-            UseModule(new HCTestsModule(new HCTestsModuleOptions()
+            UseModule(new HCTestsModuleExt(new HCTestsModuleOptions()
             {
                 AssembliesContainingTests = assemblies,
                 ReferenceParameterFactories = CreateReferenceParameterFactories,

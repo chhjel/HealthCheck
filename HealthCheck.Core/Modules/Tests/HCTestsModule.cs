@@ -29,7 +29,11 @@ namespace HealthCheck.Core.Modules.Tests
         private TestSetGroupsOptions GroupOptions { get; } = new TestSetGroupsOptions();
         private static List<RuntimeTestReferenceParameterFactory> _referenceParameterFactories;
         private static readonly object _referenceParameterFactoriesLock = new object();
-        private readonly HCTestsModuleOptions _options;
+
+        /// <summary>
+        /// Options model for this module.
+        /// </summary>
+        protected readonly HCTestsModuleOptions Options;
 
         /// <summary>
         /// Module for executing tests at runtime.
@@ -51,11 +55,11 @@ namespace HealthCheck.Core.Modules.Tests
                 ReferenceParameterFactories = _referenceParameterFactories,
                 IncludeProxyTests = options.IncludeProxyTests
             };
-            _options = options;
+            Options = options;
 
-            lock(_allowedDownloadsCache)
+            lock(AllowedDownloadsCache)
             {
-                _allowedDownloadsCache.RemoveExpired(TimeSpan.FromMinutes(5));
+                AllowedDownloadsCache.RemoveExpired(TimeSpan.FromMinutes(5));
             }
         }
 
@@ -73,7 +77,7 @@ namespace HealthCheck.Core.Modules.Tests
         /// Get frontend options for this module.
         /// </summary>
         public override object GetFrontendOptionsObject(HealthCheckModuleContext context)
-            => new { AllowAnyParameterType = _options.AllowAnyParameterType };
+            => new { AllowAnyParameterType = Options.AllowAnyParameterType };
 
         /// <summary>
         /// Get config for this module.
@@ -122,10 +126,10 @@ namespace HealthCheck.Core.Modules.Tests
             var testDefinitions = GetTestDefinitions(context.CurrentRequestRoles);
             var model = new TestsDataViewModel()
             {
-                TestSets = TestsViewModelsFactory.CreateViewModel(testDefinitions, _options),
+                TestSets = TestsViewModelsFactory.CreateViewModel(testDefinitions, Options),
                 GroupOptions = TestsViewModelsFactory.CreateViewModel(GroupOptions),
                 InvalidTests = invalidTests.Select(x => (TestsViewModelsFactory.CreateViewModel(x))).ToList(),
-                ParameterTemplateValues = TestsViewModelsFactory.CreateParameterTemplatesViewModel(testDefinitions, _options)
+                ParameterTemplateValues = TestsViewModelsFactory.CreateParameterTemplatesViewModel(testDefinitions, Options)
             };
             return model;
         }
@@ -222,7 +226,7 @@ namespace HealthCheck.Core.Modules.Tests
         /// Download a file.
         /// </summary>
         [HealthCheckModuleAction]
-        public object TMDownloadFile(HealthCheckModuleContext context, string url)
+        public virtual object TMDownloadFile(HealthCheckModuleContext context, string url)
         {
             var match = _downloadFileUrlRegex.Match(url);
             if (!match.Success)
@@ -239,13 +243,13 @@ namespace HealthCheck.Core.Modules.Tests
             {
                 return null;
             }
-            else if (_options.FileDownloadHandler == null)
+            else if (Options.FileDownloadHandler == null)
             {
                 return HealthCheckFileDownloadResult.CreateFromString("not_configured.txt",
                     $"FileDownloadHandler has not been configured. Please set {nameof(HCTestsModuleOptions)}.{nameof(HCTestsModuleOptions.FileDownloadHandler)}.");
             }
 
-            var file = _options.FileDownloadHandler?.Invoke(typeFromUrl, idFromUrl);
+            var file = Options.FileDownloadHandler?.Invoke(typeFromUrl, idFromUrl);
             if (file == null)
             {
                 return null;
@@ -261,14 +265,17 @@ namespace HealthCheck.Core.Modules.Tests
         #endregion
 
         #region Internal helpers
-        private static readonly SimpleMemoryCache<List<string[]>> _allowedDownloadsCache = new()
+        /// <summary>
+        /// Stores the last 100 allowed download type/ids.
+        /// </summary>
+        protected static readonly SimpleMemoryCache<List<string[]>> AllowedDownloadsCache = new()
         {
             MaxCount = 100,
             DefaultDuration = TimeSpan.FromMinutes(10)
         };
         internal static void AllowFileDownloadForSession(string type, string id)
         {
-            lock (_allowedDownloadsCache)
+            lock (AllowedDownloadsCache)
             {
                 try
                 {
@@ -280,7 +287,7 @@ namespace HealthCheck.Core.Modules.Tests
 
                     var key = $"{sessionId}__{type}__{id}";
                     var maxLimitPerSession = 100;
-                    var list = _allowedDownloadsCache[key] ?? new List<string[]>();
+                    var list = AllowedDownloadsCache[key] ?? new List<string[]>();
                     if (list.Any(x => x[0] == type && x[1] == id))
                     {
                         return;
@@ -292,15 +299,18 @@ namespace HealthCheck.Core.Modules.Tests
                         list.RemoveAt(0);
                     }
 
-                    _allowedDownloadsCache[key] = list;
+                    AllowedDownloadsCache[key] = list;
                 }
                 catch (Exception) { /* Ignored */ }
             }
         }
 
-        internal static bool IsFileDownloadAllowedForSession(string type, string id)
+        /// <summary>
+        /// Checks if session contains the type and id combination.
+        /// </summary>
+        protected virtual bool IsFileDownloadAllowedForSession(string type, string id)
         {
-            lock (_allowedDownloadsCache)
+            lock (AllowedDownloadsCache)
             {
                 try
                 {
@@ -311,7 +321,7 @@ namespace HealthCheck.Core.Modules.Tests
                     }
 
                     var key = $"{sessionId}__{type}__{id}";
-                    var list = _allowedDownloadsCache[key];
+                    var list = AllowedDownloadsCache[key];
                     return list?.Any(x => x[0] == type && x[1] == id) == true;
                 }
                 catch (Exception)
@@ -325,7 +335,7 @@ namespace HealthCheck.Core.Modules.Tests
         #region Private helpers
         private List<TestClassDefinition> GetTestDefinitions(object currentRequestRoles)
             => TestDiscoverer.DiscoverTestDefinitions(onlyTestsAllowedToBeManuallyExecuted: true,
-                userRolesEnum: currentRequestRoles, defaultTestAccessLevel: _options.DefaultTestAccessLevel);
+                userRolesEnum: currentRequestRoles, defaultTestAccessLevel: Options.DefaultTestAccessLevel);
 
         private TestDefinition GetTest(object currentRequestRoles, string testId)
             => GetTestDefinitions(currentRequestRoles).SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == testId);
@@ -350,7 +360,7 @@ namespace HealthCheck.Core.Modules.Tests
                 var result = await TestRunner.ExecuteTest(test, parameters,
                     allowDefaultValues: false,
                     includeExceptionStackTraces: includeExceptionStackTraces,
-                    resultAction: _options.AutoResultAction
+                    resultAction: Options.AutoResultAction
                 );
                 return TestsViewModelsFactory.CreateViewModel(result);
             }
