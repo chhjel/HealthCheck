@@ -1,5 +1,4 @@
 ﻿using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Config;
 using HealthCheck.Core.Extensions;
@@ -50,6 +49,7 @@ using HealthCheck.Dev.Common.EventNotifier;
 using HealthCheck.Dev.Common.Metrics;
 using HealthCheck.Dev.Common.Settings;
 using HealthCheck.Dev.Common.Tests;
+using HealthCheck.DevTest._TestImplementation.Modules;
 using HealthCheck.Module.DevModule;
 using HealthCheck.Module.DynamicCodeExecution.Abstractions;
 using HealthCheck.Module.DynamicCodeExecution.Models;
@@ -68,7 +68,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Hosting;
@@ -124,7 +124,8 @@ namespace HealthCheck.DevTest.Controllers
                 {
                     if (id == "404") return null;
                     else if (Guid.TryParse(id, out var fileGuid)) return HealthCheckFileDownloadResult.CreateFromString("guid.txt", $"The guid was {id}");
-                    else return HealthCheckFileDownloadResult.CreateFromString("Success.txt", $"Type: {type}, Id: {id}");
+                    else if (id == "ascii") return HealthCheckFileDownloadResult.CreateFromString("Success.txt", $"Type: {type}, Id: {id}. ÆØÅæøå etc ôasd. ASCII", encoding: Encoding.ASCII);
+                    else return HealthCheckFileDownloadResult.CreateFromString("Success.txt", $"Type: {type}, Id: {id}. ÆØÅæøå etc ôasd.");
                 },
                 DefaultTestAccessLevel = RuntimeTestAccessRole.WebAdmins
                 //JsonInputTemplateFactory = (type) =>

@@ -235,7 +235,7 @@ namespace HealthCheck.Core.Modules.Tests
             }
 
             // Parse url
-            var idFromUrl = match.Groups["id"].Value.Trim().ToLower();
+            var idFromUrl = match.Groups["id"].Value.Trim();
             var typeUrlMatch = match.Groups["type"];
             string typeFromUrl = typeUrlMatch.Success ? typeUrlMatch.Value : null;
 

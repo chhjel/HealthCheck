@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 
 namespace HealthCheck.Core.Util.Modules
 {
@@ -33,6 +34,11 @@ namespace HealthCheck.Core.Util.Modules
 		public byte[] Bytes { get; private set; }
 
 		/// <summary>
+		/// Encoding to use.
+		/// </summary>
+		public Encoding Encoding { get; set; }
+
+		/// <summary>
 		/// Create a new file result from a stream.
 		/// </summary>
 		public static HealthCheckFileDownloadResult CreateFromStream(string filename, Stream stream, string contentType = null)
@@ -46,8 +52,9 @@ namespace HealthCheck.Core.Util.Modules
 
 		/// <summary>
 		/// Create a new file result from a string.
+		/// <para>Defaults encoding to <see cref="Encoding.UTF8"/></para>
 		/// </summary>
-		public static HealthCheckFileDownloadResult CreateFromString(string filename, string content, string contentType = null)
-			=> new() { FileName = filename, Content = content, ContentType = contentType ?? "text/plain" };
+		public static HealthCheckFileDownloadResult CreateFromString(string filename, string content, string contentType = null, Encoding encoding = null)
+			=> new() { FileName = filename, Content = content, ContentType = contentType ?? "text/plain", Encoding = encoding ?? Encoding.UTF8 };
 	}
 }

@@ -208,7 +208,13 @@ namespace HealthCheck.WebUI.Abstractions
                     }
                     else
                     {
-                        File(Encoding.UTF8.GetBytes(file.Content ?? ""), file.ContentType, file.FileName).ExecuteResult(this.ControllerContext);
+                        var encoding = file.Encoding ?? Encoding.UTF8;
+                        File(encoding.GetBytes(file.Content ?? ""), file.ContentType, file.FileName).ExecuteResult(this.ControllerContext);
+                    }
+
+                    if (file.Encoding != null)
+                    {
+                        Response.Charset = file.Encoding.WebName;
                     }
                 }
                 return;

@@ -22,8 +22,9 @@ namespace HealthCheck.DevTest._TestImplementation
         public TestResult TestDownloadResult()
             => TestResult.CreateSuccess($"Hopefully success?")
                 //.SetCleanMode()
-                .AddFileDownload("test1", "Some file.txt", "Description of the file here. Also with type.", type: "url")
-                .AddFileDownload("test2", "Some file.pdf")
+                .AddFileDownload("Test1", "Some file.txt", "Description of the file here. Also with type.", type: "url")
+                .AddFileDownload("Test2", "Some file.pdf")
+                .AddFileDownload("ascii", "Ascii file.txt")
                 .AddFileDownload("404", "missing.txt", "This one should give a 404.", title: "Even a title here")
                 .AddFileDownload(Guid.NewGuid().ToString(), "random_guid.txt");
 
