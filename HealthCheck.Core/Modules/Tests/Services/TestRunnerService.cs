@@ -40,6 +40,12 @@ namespace HealthCheck.Core.Modules.Tests.Services
         /// </summary>
         public static Action SetCurrentRequestIsTest { get; set; }
 
+        /// <summary>
+        /// Only traverse this deep in any test class contructor parameter injection.
+        /// <para>Defaults to 20.</para>
+        /// </summary>
+        public static int MaxIoCRecursiveDepth { get; set; } = 20;
+
         private static readonly Dictionary<string, CancellationTokenSource> TestCancellationTokenSources = new Dictionary<string, CancellationTokenSource>();
 
         /// <summary>
@@ -155,7 +161,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
             var results = new ConcurrentBag<TestResult>();
             foreach (var testClass in testClasses)
             {
-                var classInstance = IoCUtils.GetInstanceExt(testClass.ClassType);
+                var classInstance = IoCUtils.GetInstanceExt(testClass.ClassType, maxDepth: MaxIoCRecursiveDepth);
                 var includedTests = testClass.Tests.Where(x => testFilter?.Invoke(x) != false).ToList();
 
                 var defaultAllowsParallel = testClass.DefaultAllowParallelExecution;
@@ -226,10 +232,18 @@ namespace HealthCheck.Core.Modules.Tests.Services
                 // Execute test
                 object instance = null;
                 object customContextObject = null;
+                string instanceError = null;
                 Action<TestResult, object> postExecutionAction = null;
                 if (test.Type == TestDefinition.TestDefinitionType.Normal)
                 {
-                    instance = testClassInstance ?? IoCUtils.GetInstanceExt(test.ParentClass.ClassType);
+                    instance = testClassInstance;
+                    if (instance == null)
+                    {
+                        var instanceResult = IoCUtils.GetInstanceExtWithDetails(test.ParentClass.ClassType, maxDepth: MaxIoCRecursiveDepth);
+                        instance = instanceResult.Instance;
+                        instanceError = instanceResult.ErrorDetails;
+                    }
+
                     postExecutionAction = (testResult, customContext) => {
                         if (testResult.AutoCreateResultDataFromObject != null)
                         {
@@ -261,7 +275,9 @@ namespace HealthCheck.Core.Modules.Tests.Services
 
                     if (instance == null)
                     {
-                        instance = IoCUtils.GetInstanceExt(test.ClassProxyConfig.TargetClassType);
+                        var instanceResult = IoCUtils.GetInstanceExtWithDetails(test.ClassProxyConfig.TargetClassType, maxDepth: MaxIoCRecursiveDepth);
+                        instance = instanceResult.Instance;
+                        instanceError = instanceResult.ErrorDetails;
                     }
                 }
 
@@ -271,7 +287,22 @@ namespace HealthCheck.Core.Modules.Tests.Services
                     testContext.TestExecutionStartTime = DateTimeOffset.Now;
                 }
 
-                var result = await test.ExecuteTest(instance, parameters, allowDefaultValues,
+                TestResult result = null;
+                var type = test.Method.DeclaringType;
+                if (!type.IsAbstract
+                    && instance == null)
+                {
+                    var reason = string.IsNullOrWhiteSpace(instanceError)
+                        ? "Unknown."
+                        : instanceError;
+                    if (type.GetConstructors().Any(x => x.GetParameters().Length > 0))
+                    {
+                        reason = $"Might be in the constructor injection. {instanceError}";
+                    }
+                    result = TestResult.CreateError($"Could not create an instance of the type '{test.Method.DeclaringType.Name}'. Reason: {reason}");
+                }
+
+                result = result ?? await test.ExecuteTest(instance, parameters, allowDefaultValues,
                     (tokenSource) => RegisterCancellableTestStarted(test.Id, tokenSource),
                     allowAnyResultType: test.Type == TestDefinition.TestDefinitionType.ProxyClassMethod,
                     includeAutoCreateResult: test.Type == TestDefinition.TestDefinitionType.ProxyClassMethod

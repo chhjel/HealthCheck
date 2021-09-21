@@ -49,10 +49,26 @@ namespace HealthCheck.Core.Util
             Func<Type, object> instanceFactory = null,
             object[] forcedParameterValues = null,
             bool recursive = true,
-            int maxDepth = 10
+            int maxDepth = 20
+        ) => GetInstanceExt(type, instanceFactory, forcedParameterValues, recursive, maxDepth, 0).Instance;
+
+        /// <summary>
+        /// Attempts to get an instance of the given type.
+        /// </summary>
+        /// <param name="type">Type to create or get.</param>
+        /// <param name="instanceFactory">Defaults to <see cref="HCGlobalConfig.DefaultInstanceResolver"/></param>
+        /// <param name="forcedParameterValues">Any values used here will be used on the first matching constructor parameter if any.</param>
+        /// <param name="recursive">Any parameter values in constructors in injected parameters will also be using forced parameter values if enabled.</param>
+        /// <param name="maxDepth">Max recursive depth.</param>
+        public static ActivatedInstanceResult GetInstanceExtWithDetails(
+            Type type,
+            Func<Type, object> instanceFactory = null,
+            object[] forcedParameterValues = null,
+            bool recursive = true,
+            int maxDepth = 20
         ) => GetInstanceExt(type, instanceFactory, forcedParameterValues, recursive, maxDepth, 0);
 
-        private static object GetInstanceExt(
+        private static ActivatedInstanceResult GetInstanceExt(
             Type type,
             Func<Type, object> instanceFactory,
             object[] forcedParameterValues,
@@ -63,12 +79,18 @@ namespace HealthCheck.Core.Util
         {
             if (currentDepth >= maxDepth)
             {
-                return null;
+                return new ActivatedInstanceResult
+                {
+                    ErrorDetails = $"Max IoC recursion depth reached (depth: {maxDepth}, type: '{type.Name}')"
+                };
             }
 
             if (type.IsValueType || type.IsPrimitive || type == typeof(object))
             {
-                return null;
+                return new ActivatedInstanceResult
+                {
+                    ErrorDetails = $"Can't inject value type, primitive or object. Attempted {type.Name}."
+                };
             }
 
             instanceFactory ??= HCGlobalConfig.GetDefaultInstanceResolver();
@@ -84,36 +106,54 @@ namespace HealthCheck.Core.Util
                         var instanceType = defInstance.GetType();
                         try
                         {
-                            var instance = GetInstanceExt(
+                            var instanceResult = GetInstanceExt(
                                 instanceType, instanceFactory,
                                 forcedParameterValues, recursive,
                                 maxDepth, currentDepth + 1);
-                            if (instance != null)
+                            if (instanceResult.Instance != null)
                             {
-                                return instance;
+                                return instanceResult;
                             }
                         }
                         catch (Exception) { /* Ignore recursive errors */ }
                     }
                 }
-                return instanceFactory?.Invoke(type);
+                var instance = instanceFactory?.Invoke(type);
+                return new ActivatedInstanceResult
+                {
+                    Success = true,
+                    Instance = instance
+                };
             }
 
             var constructor = GetConstructor(type);
             if (constructor == null)
             {
-                return instanceFactory?.Invoke(type) ?? Activator.CreateInstance(type);
+                var instance = instanceFactory?.Invoke(type) ?? Activator.CreateInstance(type);
+                return new ActivatedInstanceResult
+                {
+                    Success = true,
+                    Instance = instance
+                };
             }
 
             // Build forced parameters data by joining by name and by value parameters
             var constructorParameters = constructor.GetParameters();
             if (constructorParameters.Length == 0)
             {
-                return instanceFactory?.Invoke(type) ?? Activator.CreateInstance(type);
+                var instance = instanceFactory?.Invoke(type) ?? Activator.CreateInstance(type);
+                return new ActivatedInstanceResult
+                {
+                    Success = true,
+                    Instance = instance
+                };
             }
             else if (constructorParameters.Any(x => x.ParameterType == typeof(object)))
             {
-                return null;
+                return new ActivatedInstanceResult
+                {
+                    ErrorDetails = $"Constructor on type '{type.Name}' contains parameter of type object."
+                };
             }
 
             var forcedParameterValuesByName = BuildNamedParametersList(constructorParameters, forcedParameterValues);
@@ -133,7 +173,7 @@ namespace HealthCheck.Core.Util
                     parameterInstance = GetInstanceExt(
                         parameter.ParameterType, instanceFactory,
                         forcedParameterValues, recursive,
-                        maxDepth, currentDepth + 1)
+                        maxDepth, currentDepth + 1).Instance
                         ?? instanceFactory.Invoke(parameter.ParameterType);
                 }
                 else
@@ -144,7 +184,33 @@ namespace HealthCheck.Core.Util
                 parameters.Add(parameterInstance);
             }
 
-            return constructor.Invoke(parameters.ToArray());
+            var ctoredInstance = constructor.Invoke(parameters.ToArray());
+            return new ActivatedInstanceResult
+            {
+                Success = true,
+                Instance = ctoredInstance
+            };
+        }
+
+        /// <summary>
+        /// Wrapper containing success/error/instance data.
+        /// </summary>
+        public struct ActivatedInstanceResult
+        {
+            /// <summary>
+            /// True if the type was activated.
+            /// </summary>
+            public bool Success { get; set; }
+
+            /// <summary>
+            /// Details if any.
+            /// </summary>
+            public string ErrorDetails { get; set; }
+
+            /// <summary>
+            /// Activated instance.
+            /// </summary>
+            public object Instance { get; set; }
         }
 
         private static Dictionary<string, object> BuildNamedParametersList(ParameterInfo[] parameters, object[] instances)

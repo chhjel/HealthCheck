@@ -346,6 +346,21 @@ namespace HealthCheck.Core.Tests.Modules.Tests
             Assert.Equal("Completed! input here", result.Message);
         }
 
+        [Fact]
+        public async Task ExecuteTest_WithIoCErrors_ShouldGiveExplainatoryException()
+        {
+            var discoverer = CreateTestDiscoveryService();
+            var test = discoverer.DiscoverTestDefinitions()
+                .Where(x => x.Id == "TestClass_IoCExceptionA")
+                .SelectMany(x => x.Tests)
+                .FirstOrDefault();
+
+            var runner = new TestRunnerService();
+            var result = await runner.ExecuteTest(test, new object[] { }, allowDefaultValues: true);
+            Output.WriteLine(result.Message);
+            Assert.Contains("Could not create an instance of the type '", result.Message);
+        }
+
         private TestDiscoveryService CreateTestDiscoveryService()
         {
             return new TestDiscoveryService()
@@ -516,5 +531,25 @@ namespace HealthCheck.Core.Tests.Modules.Tests
                 return TestResult.CreateSuccess($"Completed! {param1}");
             }
         }
+
+        [RuntimeTestClass(Id = "TestClass_IoCExceptionA", DefaultCategory = "DCategory_IoCException")]
+        public class TestClass_IoCExceptionA
+        {
+            private readonly IDummyInterfaceA _notRegisteredInterface;
+
+            public TestClass_IoCExceptionA(IDummyInterfaceA notRegisteredInterface, int number, object obj)
+            {
+                _notRegisteredInterface = notRegisteredInterface;
+            }
+
+            [RuntimeTest(name: "ExceptionTest1")]
+            public TestResult ExceptionTest1()
+            {
+                return TestResult.CreateSuccess($"Completed! Value is {_notRegisteredInterface.PropA}");
+            }
+        }
+
+        public class DummyClassA : IDummyInterfaceA { public string PropA { get; set; } = "Value"; }
+        public interface IDummyInterfaceA { string PropA { get; } }
     }
 }
