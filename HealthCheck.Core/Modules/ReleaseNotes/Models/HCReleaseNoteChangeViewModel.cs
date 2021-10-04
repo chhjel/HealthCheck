@@ -52,6 +52,11 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Models
         public bool HasPullRequestLink { get; set; }
 
         /// <summary>
+        /// True if the change has a commit-sha link.
+        /// </summary>
+        public bool HasShaLink { get; internal set; }
+
+        /// <summary>
         /// Optional link when the change is clicked.
         /// </summary>
         public string MainLink { get; set; }

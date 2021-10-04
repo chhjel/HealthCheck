@@ -72,6 +72,7 @@ namespace HealthCheck.DevTest
                 IssueUrlFactory = (id) => $"{"https://"}www.google.com/?q=Issue+{id}",
                 IssueLinkTitleFactory = (id) => $"Jira {id}",
                 PullRequestUrlFactory = (number) => $"{"https://"}www.google.com/?q=PR+{number}",
+                //CommitShaUrlFactory = (sha) => $"{"https://"}github.com/chhjel/HealthCheck/commit/{sha}"
             };
 
     private void SetupDummyIoC()
