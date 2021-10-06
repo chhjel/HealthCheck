@@ -343,6 +343,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
             }
             catch (Exception ex)
             {
+                var extraDetails = ExceptionUtils.GetExceptionDetails(ex);
                 return new TestResult()
                 {
                     Test = test,
@@ -350,7 +351,8 @@ namespace HealthCheck.Core.Modules.Tests.Services
                     Message = $"Failed to execute test with the exception: {ex.Message}",
                     StackTrace = includeExceptionStackTraces ? ex.ToString() : null,
                     DurationInMilliseconds = stopWatch.ElapsedMilliseconds
-                };
+                }
+                .AddCodeData(extraDetails, "WebException response");
             }
             finally
             {

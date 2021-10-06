@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Util;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Dev.Common.Tests
@@ -51,6 +52,13 @@ namespace HealthCheck.Dev.Common.Tests
         {
             var result = await ConnectivityUtils.PerformWebRequestCheck("https://www.google.com/nonexistentpagehopefully");
             return result.ToTestResult();
+        }
+
+        [RuntimeTest]
+        public async Task<TestResult> SendAFailingWebRequestToGoogleWithoutUtil()
+        {
+            var result = await new WebClient().DownloadStringTaskAsync("https://www.google.com/nonexistentpagehopefully");
+            return TestResult.CreateSuccess("Ok");
         }
 
         [RuntimeTest]
