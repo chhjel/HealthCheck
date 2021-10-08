@@ -63,7 +63,7 @@ namespace HealthCheck.Dev.Common.Tests
             string codeArea = "{ a: true }"
         )
         {
-            return TestResult.CreateSuccess($"Ok - code is: {codeArea}");
+            return TestResult.CreateSuccess($"Ok - Code:{codeArea}|date:{date}|nullableDate:{nullableDate}|dateOffset:{dateOffset}|nullableDateOffset:{nullableDateOffset}|");
         }
 
         [RuntimeTest]

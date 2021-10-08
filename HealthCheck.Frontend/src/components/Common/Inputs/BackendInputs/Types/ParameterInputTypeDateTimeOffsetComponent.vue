@@ -6,7 +6,13 @@
             v-model="localValue"
             :placeholder="placeholderText"
             :disabled="readonly"
-            required />
+            type="datetime-local"
+            required>
+            <v-tooltip slot="append-outer" bottom v-if="isNullable">
+                <v-icon slot="activator" @click="clearValue">clear</v-icon>
+                Set value to null
+            </v-tooltip>
+        </v-text-field>
     </div>
 </template>
 
@@ -48,8 +54,12 @@ export default class ParameterInputTypeDateTimeOffsetComponent extends Vue {
         }
     }
 
+    clearValue(): void {
+        this.localValue = null;
+    }
+
     setValueToNow(): void {
-        this.localValue = DateUtils.FormatDate(new Date(), 'dd-MM-yy HH:mm:ss');
+        this.localValue = DateUtils.FormatDate(new Date(), 'yyyy-MM-ddThh:mm:ss');
     }
 
     get isNullable(): boolean {
