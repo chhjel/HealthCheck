@@ -45,7 +45,11 @@ namespace HealthCheck.Core.Attributes
             {
                 flags.Add("TextArea");
             }
-            
+            //if (UIHints.HasFlag(HCUIHint.CodeArea))
+            //{
+            //    flags.Add("CodeArea");
+            //}
+
             return flags;
         }
 

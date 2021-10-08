@@ -14,6 +14,7 @@ export interface HCReleaseNoteChangeViewModel
 	AuthorName: string;
 	HasIssueLink: boolean;
 	HasPullRequestLink: boolean;
+	HasShaLink: boolean;
 	MainLink: string;
 	Links: HCReleaseNoteLinkViewModel[];
 }

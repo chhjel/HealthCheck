@@ -45,6 +45,7 @@ namespace HealthCheck.Dev.Common.Tests
 
         [RuntimeTest]
         [RuntimeTestParameter(target: "textArea", "Text Area", "Testing a text area here", RuntimeTestParameterAttribute.UIHint.TextArea | RuntimeTestParameterAttribute.UIHint.FullWidth)]
+        [RuntimeTestParameter(target: "codeArea", "Code Area", "Testing a code area here", RuntimeTestParameterAttribute.UIHint.CodeArea)]
         public TestResult TestParameterTypes(
             DateTime date, DateTime? nullableDate = null,
             DateTimeOffset dateOffset = default, DateTimeOffset? nullableDateOffset = null,
@@ -58,10 +59,11 @@ namespace HealthCheck.Dev.Common.Tests
             double dbl = 22.33, double? nullableDbl = null,
             EnumTestType enm = EnumTestType.SecondValue,
             EnumFlagsTestType enumFlags = EnumFlagsTestType.A | EnumFlagsTestType.B | EnumFlagsTestType.C,
-            byte[] byteArray = null, List<byte[]> listOfByteArray = null
+            byte[] byteArray = null, List<byte[]> listOfByteArray = null,
+            string codeArea = "{ a: true }"
         )
         {
-            return TestResult.CreateSuccess("Ok");
+            return TestResult.CreateSuccess($"Ok - Code:{codeArea}|date:{date}|nullableDate:{nullableDate}|dateOffset:{dateOffset}|nullableDateOffset:{nullableDateOffset}|");
         }
 
         [RuntimeTest]
