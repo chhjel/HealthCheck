@@ -52,7 +52,7 @@ export default class TestParametersComponent extends Vue {
       ];
       return !parameter.FullWidth
         && !largerParameters.some(x => parameter.Type == x)
-        && !(parameter.Type == 'String' && parameter.ShowTextArea);
+        && !(parameter.Type == 'String' && parameter.ShowTextArea && parameter.ShowCodeArea);
     }
 
     allowMediumSize(parameter: TestParameterViewModel): boolean
@@ -76,6 +76,7 @@ export default class TestParametersComponent extends Vue {
     createConfig(parameter: TestParameterViewModel, index: number): HCBackendInputConfig {
       let flags: Array<string> = [];
       if (parameter.ShowTextArea) { flags.push('TextArea') };
+      if (parameter.ShowCodeArea) { flags.push('CodeArea') };
       if (parameter.ReadOnlyList) { flags.push('ReadOnlyList') };
 
       return {

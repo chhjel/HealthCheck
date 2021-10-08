@@ -200,6 +200,12 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 var referenceFactory = TryFindParameterFactory(referenceChoicesFactoryMethodName, parameter);
                 var isCustomReferenceType = referenceFactory != null;
 
+                var isCodeArea = parameterAttribute?.UIHints.HasFlag(UIHint.CodeArea) == true;
+                var fullWidth = parameterAttribute?.UIHints.HasFlag(UIHint.FullWidth) == true
+                    || isCodeArea;
+                var notNull = parameterAttribute?.UIHints.HasFlag(UIHint.NotNull) == true
+                    || isCodeArea;
+
                 Parameters[i] = new TestParameter()
                 {
                     Index = i,
@@ -207,10 +213,11 @@ namespace HealthCheck.Core.Modules.Tests.Models
                     Description = parameterAttribute?.Description.EnsureDotAtEndIfNotNull(),
                     DefaultValue = GetDefaultValue(parameter, parameterAttribute),
                     ParameterType = type,
-                    NotNull = parameterAttribute?.UIHints.HasFlag(UIHint.NotNull) == true,
+                    NotNull = notNull,
                     ReadOnlyList = parameterAttribute?.UIHints.HasFlag(UIHint.ReadOnlyList) == true,
                     ShowTextArea = parameterAttribute?.UIHints.HasFlag(UIHint.TextArea) == true,
-                    FullWidth = parameterAttribute?.UIHints.HasFlag(UIHint.FullWidth) == true,
+                    ShowCodeArea = isCodeArea,
+                    FullWidth = fullWidth,
                     PossibleValues = GetPossibleValues(parameter.ParameterType),
                     IsCustomReferenceType = isCustomReferenceType,
                     ReferenceFactory = referenceFactory,

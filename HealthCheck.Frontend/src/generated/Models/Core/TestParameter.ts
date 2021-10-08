@@ -17,6 +17,7 @@ export interface TestParameter
 	NotNull: boolean;
 	ReadOnlyList: boolean;
 	ShowTextArea: boolean;
+	ShowCodeArea: boolean;
 	FullWidth: boolean;
 	IsCustomReferenceType: boolean;
 	ReferenceFactory: RuntimeTestReferenceParameterFactory;

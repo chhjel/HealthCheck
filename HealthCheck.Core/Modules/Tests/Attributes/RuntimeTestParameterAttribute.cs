@@ -93,7 +93,12 @@ namespace HealthCheck.Core.Modules.Tests.Attributes
             /// <summary>
             /// Make the input field full width in size.
             /// </summary>
-            FullWidth = 8
+            FullWidth = 8,
+
+            /// <summary>
+            /// Make the input field a full width vscode editor.
+            /// </summary>
+            CodeArea = 16
         }
 
     }

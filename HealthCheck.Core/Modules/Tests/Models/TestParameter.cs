@@ -64,6 +64,11 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public bool ShowTextArea { get; set; }
 
         /// <summary>
+        /// Show as text area if this is a string.
+        /// </summary>
+        public bool ShowCodeArea { get; set; }
+
+        /// <summary>
         /// Make the input field full width in size.
         /// </summary>
         public bool FullWidth { get; set; }

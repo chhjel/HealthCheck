@@ -119,6 +119,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 NotNull = testParameter.NotNull,
                 ReadOnlyList = testParameter.ReadOnlyList,
                 ShowTextArea = testParameter.ShowTextArea,
+                ShowCodeArea = testParameter.ShowCodeArea,
                 FullWidth = testParameter.FullWidth,
                 IsCustomReferenceType = testParameter.IsCustomReferenceType,
                 Hidden = hidden,

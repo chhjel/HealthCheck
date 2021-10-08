@@ -9,6 +9,7 @@ export default interface TestParameterViewModel {
     NotNull: boolean;
     ReadOnlyList: boolean;
     ShowTextArea: boolean;
+    ShowCodeArea: boolean;
     FullWidth: boolean;
     IsCustomReferenceType: boolean;
     IsUnsupportedJson: boolean;

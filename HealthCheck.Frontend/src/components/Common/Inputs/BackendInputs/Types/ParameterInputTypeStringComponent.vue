@@ -1,10 +1,11 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeStringComponent.vue -->
+<!-- todo: flex 1 & max-width: npx -->
 <template>
     <div>
         <v-layout>
-            <v-flex :xs10="config.notNull" :xs12="!config.notNull">
+            <v-flex :xs10="!config.NotNull" :xs12="config.NotNull">
                 <v-text-field
-                    v-if="!isTextArea"
+                    v-if="isTextField"
                     class="pt-0"
                     v-model="localValue"
                     :placeholder="placeholderText"
@@ -17,12 +18,20 @@
                     :placeholder="placeholderText"
                     :disabled="readonly"
                     required />
+                <editor-component
+                    v-if="isCodeArea"
+                    class="editor"
+                    :language="'json'"
+                    v-model="localValue"
+                    :read-only="readonly"
+                    theme="vs"
+                    ref="editor" />
             </v-flex>
 
             <v-flex xs2
                 :xs3="isListItem"
                 class="text-sm-right"
-                v-if="!config.notNull">
+                v-if="!config.NotNull">
                 <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
                         <span v-on="on">
@@ -44,9 +53,11 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
+import EditorComponent from '../../../EditorComponent.vue'
 
 @Component({
     components: {
+        EditorComponent
     }
 })
 export default class ParameterInputTypeStringComponent extends Vue {
@@ -66,6 +77,12 @@ export default class ParameterInputTypeStringComponent extends Vue {
     
     mounted(): void {
         this.updateLocalValue();
+        
+        this.refreshEditorSize();
+        this.$nextTick(() => this.refreshEditorSize());
+        setTimeout(() => {
+            this.refreshEditorSize();
+        }, 100);
     }
     
     setValueToNull(): void {
@@ -78,6 +95,22 @@ export default class ParameterInputTypeStringComponent extends Vue {
 
     get isTextArea(): boolean {
         return this.config.Flags.includes('TextArea');
+    }
+
+    get isCodeArea(): boolean {
+        return this.config.Flags.includes('CodeArea');
+    }
+
+    get isTextField(): boolean {
+        return !this.isTextArea && !this.isCodeArea;
+    }
+    
+    refreshEditorSize(): void {
+        const editor: EditorComponent = <EditorComponent>this.$refs.editor;
+        if (editor)
+        {
+            editor.refreshSize();
+        }
     }
     
     /////////////////
@@ -106,4 +139,9 @@ export default class ParameterInputTypeStringComponent extends Vue {
 </script>
 
 <style scoped>
+.editor {
+  width: 100%;
+  height: 200px;
+  border: 1px solid #949494;
+}
 </style>
