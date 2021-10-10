@@ -11,4 +11,5 @@ export interface TestResultDataDumpViewModel
 	Type: TestResultDataDumpType;
 	DisplayClean: boolean;
 	DownloadFileName: string;
+	Flags: string[];
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,7 +22,7 @@ namespace HealthCheck.Core.Extensions
                 return text;
             }
 
-            return text.Substring(0, text.IndexOf(":"));
+            return IPAddressUtils.StripAnyPortNumber(text);
         }
 
         /// <summary>

@@ -67,5 +67,36 @@ namespace HealthCheck.Core.Tests.Extensions
             var actual = input.SpacifySentence();
             Assert.Equal(expected, actual);
         }
+
+        [Theory]
+        [InlineData("127.0.0.1:8080", "127.0.0.1")]
+        [InlineData("[::1]:8001", "::1")]
+        [InlineData("[1fff:0:a88:85a3::ac1f]:8001", "1fff:0:a88:85a3::ac1f")]
+        public void StripPortNumber_WithPortNumber_ShouldStripPortNumber(string ip, string expected)
+        {
+            var actual = ip.StripPortNumber();
+            Assert.Equal(expected, actual);
+        }
+
+        [Theory]
+        [InlineData("127.0.0.1")]
+        [InlineData("::1")]
+        [InlineData("2001:db8:3333:4444:5555:6666:7777:8888")]
+        [InlineData("1fff:0:a88:85a3::ac1f")]
+        public void StripPortNumber_WithoutPortNumber_ShouldReturnSame(string ip)
+        {
+            var actual = ip.StripPortNumber();
+            Assert.Equal(ip, actual);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void StripPortNumber_ShouldReturnSameForNullOrWhitespace(string ip)
+        {
+            var actual = ip.StripPortNumber();
+            Assert.Equal(ip, actual);
+        }
     }
 }
