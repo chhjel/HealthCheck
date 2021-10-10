@@ -5,4 +5,5 @@ export default interface TestResultDataDumpViewModel {
     Data: string;
     Type: TestResultDataDumpType;
     DownloadFileName: string | null;
+    Flags: Array<string>;
 }

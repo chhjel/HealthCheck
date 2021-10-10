@@ -268,7 +268,8 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 Data = dataDump.Data,
                 Type = dataDump.Type,
                 DisplayClean = dataDump.DisplayClean,
-                DownloadFileName = dataDump.DownloadFileName
+                DownloadFileName = dataDump.DownloadFileName,
+                Flags = dataDump.Flags ?? new List<string>()
             };
 
             return vm;

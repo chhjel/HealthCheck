@@ -19,11 +19,14 @@ namespace HealthCheck.Dev.Common.Tests
         {
             var objectToSerialize = TestResult.CreateWarning($"Some random json object");
 
+            var shadowDomTestHtml = "<div class=\"test\">Testing!</div>";
             return TestResult.CreateSuccess($"Data has been served.")
                 .AddCodeData("public class Test {\n\tpublic string Prop { get; set; }\n}\n", "Code test")
                 .AddXmlData("<test>\n\t<el test=\"asd\">Some Value</el>\n</test>\n", "Xml test")
                 .AddHtmlData($"Some <b>html</b> here!<br /><a href='https://www.google.com'>some link</a>", "Some html")
                 .AddHtmlData($"Some <b>html</b> here with download!<br /><a href='https://www.google.com'>some link</a>", "Some html with download", downloadFileName: "Custom name.html")
+                .AddHtmlData(shadowDomTestHtml, "Not shadow dom")
+                .AddHtmlData(shadowDomTestHtml, "Shadow dom", useShadowDom: true)
                 .AddSerializedData(objectToSerialize, "Serialized object data")
                 .AddJsonData(LargeJson, "Big json data");
         }

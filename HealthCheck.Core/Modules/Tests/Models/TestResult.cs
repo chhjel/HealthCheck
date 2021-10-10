@@ -210,19 +210,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
         /// <param name="downloadFileName">Optionally specify a filename, if given a download button will be shown where the html can be downloaded.</param>
         public TestResult AddData(string data, string title = null, TestResultDataDumpType type = TestResultDataDumpType.PlainText, bool onlyIfNotNullOrEmpty = true, string downloadFileName = null)
-        {
-            if (string.IsNullOrWhiteSpace(data) && onlyIfNotNullOrEmpty)
-                return this;
-
-            Data.Add(new TestResultDataDump()
-            {
-                Title = title,
-                Data = data,
-                Type = type,
-                DownloadFileName = downloadFileName
-            });
-            return this;
-        }
+            => AddData(data, title, type, onlyIfNotNullOrEmpty, downloadFileName, new string[0]);
 
         /// <summary>
         /// Include details about the given exception in the result data.
@@ -264,8 +252,12 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <param name="title">Title of the result data if any.</param>
         /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
         /// <param name="downloadFileName">Optionally specify a filename, if given a download button will be shown where the html can be downloaded.</param>
-        public TestResult AddHtmlData(string html, string title = null, bool onlyIfNotNullOrEmpty = true, string downloadFileName = null)
-            => AddData(html, title, TestResultDataDumpType.Html, onlyIfNotNullOrEmpty, downloadFileName);
+        /// <param name="useShadowDom">Wraps the output in a shadow DOM.</param>
+        public TestResult AddHtmlData(string html, string title = null, bool onlyIfNotNullOrEmpty = true, string downloadFileName = null, bool useShadowDom = false)
+        {
+            string[] flags = useShadowDom ? new[] { "ShadowDom" } : null;
+            return AddData(html, title, TestResultDataDumpType.Html, onlyIfNotNullOrEmpty, downloadFileName, flags);
+        }
 
         /// <summary>
         /// Include the given xml in the result data.
@@ -522,6 +514,27 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// Name and severity of the result.
         /// </summary>
         public override string ToString() => $"[{Status}] {Message}";
+
+        private TestResult AddData(string data, string title, TestResultDataDumpType type, bool onlyIfNotNullOrEmpty, string downloadFileName, params string[] flags)
+        {
+            if (string.IsNullOrWhiteSpace(data) && onlyIfNotNullOrEmpty)
+                return this;
+
+            var flagList = flags
+                ?.Where(x => x != null)
+                ?.ToList()
+                ?? new List<string>();
+
+            Data.Add(new TestResultDataDump()
+            {
+                Title = title,
+                Data = data,
+                Type = type,
+                DownloadFileName = downloadFileName,
+                Flags = flagList
+            });
+            return this;
+        }
 
         private static string CreateDownloadFilename(string customName, string title, TestResultDataDumpType type)
         {

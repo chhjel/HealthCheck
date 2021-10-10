@@ -25,7 +25,8 @@ namespace HealthCheck.WebUI.Extensions
         /// <param name="title">Title of the result data if any.</param>
         /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
         /// <param name="downloadFileName">Optionally specify a filename, if given a download button will be shown where the html can be downloaded.</param>
-        public static TestResult AddHtmlData(this TestResult testResult, HtmlPresetBuilder htmlBuilder, string title = null, bool onlyIfNotNullOrEmpty = true, string downloadFileName = null)
-            => testResult.AddHtmlData(htmlBuilder?.ToHtml(), title, onlyIfNotNullOrEmpty, downloadFileName);
+        /// <param name="useShadowDom">Wraps the output in a shadow DOM.</param>
+        public static TestResult AddHtmlData(this TestResult testResult, HtmlPresetBuilder htmlBuilder, string title = null, bool onlyIfNotNullOrEmpty = true, string downloadFileName = null, bool useShadowDom = false)
+            => testResult.AddHtmlData(htmlBuilder?.ToHtml(), title, onlyIfNotNullOrEmpty, downloadFileName, useShadowDom);
     }
 }
