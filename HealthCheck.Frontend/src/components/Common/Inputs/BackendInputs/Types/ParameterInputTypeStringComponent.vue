@@ -24,7 +24,6 @@
                     :language="'json'"
                     v-model="localValue"
                     :read-only="readonly"
-                    theme="vs"
                     ref="editor" />
             </v-flex>
 
