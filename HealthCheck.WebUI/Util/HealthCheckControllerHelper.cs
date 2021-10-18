@@ -7,7 +7,9 @@ using HealthCheck.Core.Modules.AccessTokens.Models;
 using HealthCheck.Core.Modules.AuditLog;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.Tests;
+using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Modules;
 using HealthCheck.WebUI.Exceptions;
 using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Serializers;
@@ -17,8 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HealthCheck.Core.Util.Modules;
-using HealthCheck.Core.Modules.Tests.Services;
 
 #if NETFULL
 using System.IO;
@@ -203,7 +203,7 @@ namespace HealthCheck.WebUI.Util
             var action = match.Action;
             var module = match.Module;
 
-            var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Module);
+            var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Id, module.Module);
             try
             {
                 var result = await action.Invoke(module.Module, context, url).ConfigureAwait(false);
@@ -254,7 +254,7 @@ namespace HealthCheck.WebUI.Util
                 return new InvokeModuleMethodResult();
             }
 
-            var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Module);
+            var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Id, module.Module);
             try
             {
                 var result = await method.Invoke(module.Module, context, jsonPayload, new NewtonsoftJsonSerializer());
@@ -290,7 +290,7 @@ namespace HealthCheck.WebUI.Util
         }
 
         private HealthCheckModuleContext CreateModuleContext(RequestInformation<TAccessRole> requestInfo, Maybe<TAccessRole> accessRoles,
-            string moduleName,
+            string moduleName, string moduleId,
             IHealthCheckModule module)
         {
             var moduleAccess = new List<HealthCheckModuleContext.ModuleAccess>();
@@ -305,7 +305,8 @@ namespace HealthCheck.WebUI.Util
                     item = new HealthCheckModuleContext.ModuleAccess
                     {
                         ModuleId = accessModuleId,
-                        AccessOptions = new List<string>()
+                        AccessOptions = new List<string>(),
+                        AccessCategories = new List<string>()
                     };
                     moduleAccess.Add(item);
                 }
@@ -313,6 +314,9 @@ namespace HealthCheck.WebUI.Util
                 item.AccessOptions = item.AccessOptions
                     .Union(access.GetAllSelectedAccessOptions().Select(x => x.ToString()))
                     .ToList();
+                item.AccessCategories = access.FullAccess
+                    ? new List<string>()
+                    : access.Categories?.ToList() ?? new List<string>();
             }
 
             var request = new HealthCheckModuleRequestData()
@@ -325,11 +329,13 @@ namespace HealthCheck.WebUI.Util
 
             var pageOptions = _pageOptionsGetter?.Invoke();
 
+            var currentModuleAccess = moduleAccess.FirstOrDefault(x => x.ModuleId == moduleId);
             return new HealthCheckModuleContext()
             {
                 UserId = requestInfo.UserId,
                 UserName = requestInfo.UserName,
                 ModuleName = moduleName,
+                ModuleId = moduleId,
 
                 JavaScriptUrls = pageOptions?.JavaScriptUrls ?? new List<string>(),
                 CssUrls = pageOptions?.CssUrls ?? new List<string>(),
@@ -338,6 +344,8 @@ namespace HealthCheck.WebUI.Util
                 CurrentRequestModuleAccessOptions = GetCurrentRequestModuleAccessOptions(accessRoles, module?.GetType()),
 
                 CurrentRequestModulesAccess = moduleAccess,
+                CurrentModuleAccess = currentModuleAccess,
+                CurrentModuleCategoryAccess = currentModuleAccess?.AccessCategories ?? new List<string>(),
                 LoadedModules = LoadedModules.AsReadOnly(),
 
                 Request = request
@@ -488,7 +496,7 @@ namespace HealthCheck.WebUI.Util
                 }
                 var moduleOptions = Enum.ToObject(moduleOptionsType, moduleOptionsValue);
 
-                AccessConfig.GiveRolesAccessToModule(moduleOptionsType, currentRequestInformation.AccessRole.Value, moduleOptions);
+                AccessConfig.GiveRolesAccessToModule(moduleOptionsType, currentRequestInformation.AccessRole.Value, moduleOptions, moduleData.Categories?.ToArray());
             }
         }
 
@@ -497,7 +505,7 @@ namespace HealthCheck.WebUI.Util
             HealthCheckModuleContext createModuleContext(RegisteredModuleData module)
             {
                 return CreateModuleContext(currentRequestInformation, currentRequestInformation.AccessRole,
-                    module.NameOverride ?? module.Module.GetType().Name, module.Module);
+                    module.NameOverride ?? module.Module.GetType().Name, module.Module.GetType().Name, module.Module);
             }
 
             var loader = new HealthCheckModuleLoader();

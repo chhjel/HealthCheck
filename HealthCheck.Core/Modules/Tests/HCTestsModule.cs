@@ -18,6 +18,9 @@ namespace HealthCheck.Core.Modules.Tests
     /// </summary>
     public class HCTestsModule : HealthCheckModuleBase<HCTestsModule.AccessOption>
     {
+        /// <inheritdoc />
+        public override List<string> AllCategories => _allCategories;
+
         /// <summary>
         /// Handles conversion from stringified test input to parameter types.
         /// </summary>
@@ -29,6 +32,8 @@ namespace HealthCheck.Core.Modules.Tests
         private TestSetGroupsOptions GroupOptions { get; } = new TestSetGroupsOptions();
         private static List<RuntimeTestReferenceParameterFactory> _referenceParameterFactories;
         private static readonly object _referenceParameterFactoriesLock = new object();
+        private static List<string> _allCategories;
+        private static readonly object _allCategoriesLock = new object();
 
         /// <summary>
         /// Options model for this module.
@@ -57,7 +62,8 @@ namespace HealthCheck.Core.Modules.Tests
             };
             Options = options;
 
-            lock(AllowedDownloadsCache)
+            EnsureAllCategoriesInitialized();
+            lock (AllowedDownloadsCache)
             {
                 AllowedDownloadsCache.RemoveExpired(TimeSpan.FromMinutes(5));
             }
@@ -70,6 +76,24 @@ namespace HealthCheck.Core.Modules.Tests
                 _referenceParameterFactories = _referenceParameterFactories
                     ?? options.ReferenceParameterFactories?.Invoke()
                     ?? new List<RuntimeTestReferenceParameterFactory>();
+            }
+        }
+
+        private void EnsureAllCategoriesInitialized()
+        {
+            lock (_allCategoriesLock)
+            {
+                if (_allCategories != null)
+                {
+                    return;
+                }
+
+                var allTests = TestDiscoverer.DiscoverTestDefinitions();
+                _allCategories = allTests
+                    .SelectMany(x => x.Tests).SelectMany(x => x.Categories)
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Distinct()
+                    .ToList();
             }
         }
 
@@ -123,7 +147,7 @@ namespace HealthCheck.Core.Modules.Tests
             }
 
             TestDiscoverer.GetInvalidTests();
-            var testDefinitions = GetTestDefinitions(context.CurrentRequestRoles);
+            var testDefinitions = GetTestDefinitions(context.CurrentRequestRoles, context.CurrentModuleCategoryAccess);
             var model = new TestsDataViewModel()
             {
                 TestSets = TestsViewModelsFactory.CreateViewModel(testDefinitions, Options),
@@ -140,7 +164,7 @@ namespace HealthCheck.Core.Modules.Tests
         [HealthCheckModuleMethod]
         public async Task<object> ExecuteTest(HealthCheckModuleContext context, ExecuteTestInputData data)
         {
-            var result = await ExecuteTest(context.CurrentRequestRoles, data, context.HasAccess(AccessOption.IncludeExceptionStackTraces));
+            var result = await ExecuteTest(context.CurrentRequestRoles, context.CurrentModuleCategoryAccess, data, context.HasAccess(AccessOption.IncludeExceptionStackTraces));
             context.AddAuditEvent(action: "Test executed", subject: result?.TestName)
                 .AddDetail("Test id", data?.TestId)
                 .AddDetail("Parameters", $"[{string.Join(", ", (data?.Parameters?.Select(x => x.Value) ?? Enumerable.Empty<string>()))}]")
@@ -177,7 +201,7 @@ namespace HealthCheck.Core.Modules.Tests
                 return false;
             }
 
-            var test = GetTest(context.CurrentRequestRoles, testId);
+            var test = GetTest(context.CurrentRequestRoles, context.CurrentModuleCategoryAccess, testId);
             if (test == null)
             {
                 return false;
@@ -198,7 +222,7 @@ namespace HealthCheck.Core.Modules.Tests
         [HealthCheckModuleMethod]
         public IEnumerable<RuntimeTestReferenceParameterChoice> GetReferenceParameterOptions(HealthCheckModuleContext context, GetReferenceParameterOptionsRequestModel data)
         {
-            var testDefinitions = GetTestDefinitions(context.CurrentRequestRoles);
+            var testDefinitions = GetTestDefinitions(context.CurrentRequestRoles, context.CurrentModuleCategoryAccess);
             var test = testDefinitions.SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == data.TestId);
             var parameter = test?.Parameters?.FirstOrDefault(x => x.Index == data.ParameterIndex);
             if (parameter == null)
@@ -333,14 +357,15 @@ namespace HealthCheck.Core.Modules.Tests
         #endregion
 
         #region Private helpers
-        private List<TestClassDefinition> GetTestDefinitions(object currentRequestRoles)
+        private List<TestClassDefinition> GetTestDefinitions(object currentRequestRoles, List<string> userCategoryAccess)
             => TestDiscoverer.DiscoverTestDefinitions(onlyTestsAllowedToBeManuallyExecuted: true,
-                userRolesEnum: currentRequestRoles, defaultTestAccessLevel: Options.DefaultTestAccessLevel);
+                userRolesEnum: currentRequestRoles, defaultTestAccessLevel: Options.DefaultTestAccessLevel, userCategoryAccess: userCategoryAccess);
 
-        private TestDefinition GetTest(object currentRequestRoles, string testId)
-            => GetTestDefinitions(currentRequestRoles).SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == testId);
+        private TestDefinition GetTest(object currentRequestRoles, List<string> userCategoryAccess, string testId)
+            => GetTestDefinitions(currentRequestRoles, userCategoryAccess)
+                .SelectMany(x => x.Tests).FirstOrDefault(x => x.Id == testId);
 
-        private async Task<TestResultViewModel> ExecuteTest(object accessRoles, ExecuteTestInputData data,
+        private async Task<TestResultViewModel> ExecuteTest(object accessRoles, List<string> categoryAccess, ExecuteTestInputData data,
             bool includeExceptionStackTraces)
         {
             if (data == null || data.TestId == null)
@@ -348,7 +373,7 @@ namespace HealthCheck.Core.Modules.Tests
                 return TestResultViewModel.CreateError("No test id was given.", null, "<Unknown>");
             }
 
-            var test = GetTest(accessRoles, data.TestId);
+            var test = GetTest(accessRoles, categoryAccess, data.TestId);
             if (test == null)
             {
                 return TestResultViewModel.CreateError($"Test with id '{data.TestId}' not found.", data.TestId, "<Unknown>");

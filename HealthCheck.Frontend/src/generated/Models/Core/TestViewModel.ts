@@ -13,4 +13,5 @@ export interface TestViewModel
 	RunningButtonText: string;
 	IsCancellable: boolean;
 	Parameters: TestParameterViewModel[];
+	Categories: string[];
 }

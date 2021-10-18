@@ -79,6 +79,7 @@ export interface CreatedModuleAccessData
 {
     ModuleId: string;
     Options: Array<string>;
+    Categories: Array<string>;
 }
 
 export interface AccessData {
@@ -90,6 +91,7 @@ export interface ModuleAccessData {
     ModuleName: string;
     ModuleId: string;
     AccessOptions: Array<ModuleAccessOption>;
+    AccessCategories: Array<ModuleAccessOption>;
 }
 
 export interface ModuleAccessOption {

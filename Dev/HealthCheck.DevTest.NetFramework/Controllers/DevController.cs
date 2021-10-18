@@ -276,7 +276,15 @@ namespace HealthCheck.DevTest.Controllers
                 HCDynamicCodeExecutionModule.AccessOption.ExecuteSavedScript | HCDynamicCodeExecutionModule.AccessOption.LoadScriptFromServer);
 
             config.GiveRolesAccessToModuleWithFullAccess<HCMetricsModule>(RuntimeTestAccessRole.WebAdmins);
-            config.GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(RuntimeTestAccessRole.WebAdmins);
+            var category = request?.QueryString?["testCategory"];
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                config.GiveRolesAccessToModule(RuntimeTestAccessRole.WebAdmins, HCTestsModule.AccessOption.ViewInvalidTests, new[] { category });
+            }
+            else
+            {
+                config.GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(RuntimeTestAccessRole.WebAdmins);
+            }
             config.GiveRolesAccessToModuleWithFullAccess<HCSettingsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCRequestLogModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSiteEventsModule>(RuntimeTestAccessRole.WebAdmins);

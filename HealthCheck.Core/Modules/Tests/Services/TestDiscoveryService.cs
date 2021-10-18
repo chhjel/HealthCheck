@@ -67,9 +67,10 @@ namespace HealthCheck.Core.Modules.Tests.Services
             bool includeInvalidTests = false,
             bool onlyTestsAllowedToBeManuallyExecuted = false,
             Func<TestDefinition, bool> testFilter = null,
-            object defaultTestAccessLevel = null)
+            object defaultTestAccessLevel = null,
+            List<string> userCategoryAccess = null)
             where TAccessRolesEnum : Enum
-            => DiscoverTestDefinitions(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRoles, testFilter, defaultTestAccessLevel);
+            => DiscoverTestDefinitions(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRoles, testFilter, defaultTestAccessLevel, userCategoryAccess);
 
         /// <summary>
         /// Discover tests.
@@ -79,7 +80,8 @@ namespace HealthCheck.Core.Modules.Tests.Services
             bool onlyTestsAllowedToBeManuallyExecuted = false,
             object userRolesEnum = null,
             Func<TestDefinition, bool> testFilter = null,
-            object defaultTestAccessLevel = null)
+            object defaultTestAccessLevel = null,
+            List<string> userCategoryAccess = null)
         {
             var assemblies = AssembliesContainingTests;
             if (assemblies == null || !assemblies.Any())
@@ -110,7 +112,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                     {
                         var testDef = new TestDefinition(testMethod, testAttribute, classDef, ReferenceParameterFactories);
 
-                        bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef, defaultTestAccessLevel);
+                        bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef, defaultTestAccessLevel, userCategoryAccess);
                         if (includeTest && testFilter?.Invoke(testDef) != false)
                         {
                             classDef.Tests.Add(testDef);
@@ -138,7 +140,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                         foreach (var proxyMethod in proxyMethods)
                         {
                             var testDef = new TestDefinition(proxyMethod, proxyTestAttribute, config, classDef, ReferenceParameterFactories);
-                            bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef, defaultTestAccessLevel);
+                            bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef, defaultTestAccessLevel, userCategoryAccess);
                             if (includeTest && testFilter?.Invoke(testDef) != false)
                             {
                                 classDef.Tests.Add(testDef);
@@ -179,7 +181,8 @@ namespace HealthCheck.Core.Modules.Tests.Services
             return errors;
         }
 
-        private bool ShouldIncludeTest(bool includeInvalidTests, bool onlyTestsAllowedToBeManuallyExecuted, object userRolesEnum, TestDefinition testDef, object defaultTestAccessLevel)
+        private bool ShouldIncludeTest(bool includeInvalidTests, bool onlyTestsAllowedToBeManuallyExecuted,
+            object userRolesEnum, TestDefinition testDef, object defaultTestAccessLevel, List<string> userCategoryAccess)
         {
             // Check for invalid tests
             if (!includeInvalidTests && !testDef.Validate().IsValid)
@@ -196,8 +199,23 @@ namespace HealthCheck.Core.Modules.Tests.Services
             {
                 return false;
             }
+            // Exclude tests that are outside the given category access if any
+            else if (!IsTestIncludedForCategories(testDef, userCategoryAccess))
+            {
+                return false;
+            }
 
             return true;
+        }
+
+        private bool IsTestIncludedForCategories(TestDefinition testDef, List<string> userCategoryAccess)
+        {
+            // No categories set = access to any.
+            if (userCategoryAccess?.Any() != true)
+            {
+                return true;
+            }
+            return testDef.Categories?.Any(cat => userCategoryAccess.Contains(cat)) == true;
         }
 
         private bool IsTestIncludedForRoles(TestDefinition test, object roles, object defaultTestAccessLevel)

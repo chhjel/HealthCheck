@@ -12,6 +12,9 @@ namespace HealthCheck.Core.Abstractions.Modules
     public abstract class HealthCheckModuleBase<TModuleAccessOptionsEnum> : IHealthCheckModule
         where TModuleAccessOptionsEnum : Enum
     {
+        /// <inheritdoc />
+        public virtual List<string> AllCategories => null;
+
         /// <summary>
         /// Optional object that will be serialized and used as the options model in frontend for the module pages.
         /// </summary>

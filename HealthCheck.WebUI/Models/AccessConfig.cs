@@ -3,6 +3,7 @@ using HealthCheck.Core.Util;
 using HealthCheck.Core.Util.Modules;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 #if NETFULL
 using System.Web;
@@ -70,11 +71,12 @@ namespace HealthCheck.WebUI.Models
 
         internal List<ModuleAccessData<TAccessRole>> RoleModuleAccessLevels { get; set; }
 
-        internal void GiveRolesAccessToModule(Type moduleAccessOptionsEnumType, TAccessRole roles, object access)
+        internal void GiveRolesAccessToModule(Type moduleAccessOptionsEnumType, TAccessRole roles, object access, string[] categories)
             => RoleModuleAccessLevels.Add(new ModuleAccessData<TAccessRole> {
                 Roles = roles,
                 AccessOptions = access,
-                AccessOptionsType = moduleAccessOptionsEnumType
+                AccessOptionsType = moduleAccessOptionsEnumType,
+                Categories = categories ?? Array.Empty<string>()
             });
 
         /// <summary>
@@ -83,25 +85,27 @@ namespace HealthCheck.WebUI.Models
         /// <para>ConfigureModuleAccess(MyAccessRoles.Admin, ModuleAccess.EditThing | ModuleAccess.CreateThing)</para>
         /// <para>ConfigureModuleAccess(MyAccessRoles.Guest | MyAccessRoles.Member, ModuleAccess.AnotherThing)</para>
         /// </summary>
-        public void GiveRolesAccessToModule<TModuleAccessOptionsEnum>(TAccessRole roles, TModuleAccessOptionsEnum access)
+        public void GiveRolesAccessToModule<TModuleAccessOptionsEnum>(TAccessRole roles, TModuleAccessOptionsEnum access, IEnumerable<string> limitToCategories = null)
             where TModuleAccessOptionsEnum : Enum
             => RoleModuleAccessLevels.Add(new ModuleAccessData<TAccessRole>
             {
                 Roles = roles,
                 AccessOptions = access,
-                AccessOptionsType = typeof(TModuleAccessOptionsEnum)
+                AccessOptionsType = typeof(TModuleAccessOptionsEnum),
+                Categories = limitToCategories?.ToArray() ?? Array.Empty<string>()
             });
 
         /// <summary>
         /// Grants the given roles access to a module without any specific access options.
         /// </summary>
-        public void GiveRolesAccessToModule<TModule>(TAccessRole roles)
+        public void GiveRolesAccessToModule<TModule>(TAccessRole roles, IEnumerable<string> limitToCategories = null)
             where TModule : IHealthCheckModule
             => RoleModuleAccessLevels.Add(new ModuleAccessData<TAccessRole>
             {
                 Roles = roles,
                 AccessOptions = null,
-                AccessOptionsType = HealthCheckModuleLoader.GetModuleAccessOptionsType(typeof(TModule))
+                AccessOptionsType = HealthCheckModuleLoader.GetModuleAccessOptionsType(typeof(TModule)),
+                Categories = limitToCategories?.ToArray() ?? Array.Empty<string>()
             });
 
         /// <summary>

@@ -43,5 +43,10 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// Test parameters.
         /// </summary>
         public List<TestParameterViewModel> Parameters { get; set; }
+
+        /// <summary>
+        /// Test categories if any.
+        /// </summary>
+        public List<string> Categories { get; set; }
     }
 }

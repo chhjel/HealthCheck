@@ -2,14 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace HealthCheck.Core.Util.Modules
 {
-	/// <summary>
-	/// A loaded module.
-	/// </summary>
-	public class HealthCheckLoadedModule
+    /// <summary>
+    /// A loaded module.
+    /// </summary>
+    public class HealthCheckLoadedModule
 	{
 		/// <summary>
 		/// Unique id of the module.
@@ -70,5 +69,10 @@ namespace HealthCheck.Core.Util.Modules
 		/// The module that was loaded.
 		/// </summary>
 		public IHealthCheckModule Module { get; set; }
+
+		/// <summary>
+		/// All available module categories if any.
+		/// </summary>
+		public List<string> AllModuleCategories => Module?.AllCategories;
 	}
 }

@@ -69,7 +69,8 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 RunButtonText = testDefinition.RunButtonText,
                 RunningButtonText = testDefinition.RunningButtonText,
                 IsCancellable = testDefinition.IsCancellable,
-                Parameters = new List<TestParameterViewModel>()
+                Parameters = new List<TestParameterViewModel>(),
+                Categories = testDefinition.Categories ?? new List<string>()
             };
 
             foreach (var parameter in testDefinition.Parameters)
