@@ -94,5 +94,10 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 .Distinct()
                 .ToList();
         }
+
+        /// <summary>
+        /// Short summary of the data.
+        /// </summary>
+        public override string ToString() => $"'{Name}' - {Tests?.Count ?? 0} tests.";
     }
 }

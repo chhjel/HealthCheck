@@ -128,6 +128,8 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
         // #2: Give a given role access to a given module,
         // with the given access options:
         config.GiveRolesAccessToModule(AccessRoles.SystemAdmins, HCTestsModule.AccessOption.ViewInvalidTests);
+        // Optionally limit access to the given categories
+        config.GiveRolesAccessToModule(AccessRoles.SystemAdmins, HCTestsModule.AccessOption.ViewInvalidTests, new[] { "CategoryX" });
 
         // #3: Give a given role full access to a given module,
         // including all module access options:
@@ -861,7 +863,7 @@ service.GetSettings<YourSettingsModel>().Enabled
 
 ## Module: Access Tokens
 
-Allows access tokens to be generated with limited access and duration. Tokens are stored hashed and salted in the given `IAccessManagerTokenStorage` implementation. The data being hashed includes given roles, module options and expiration to prevent tampering.
+Allows access tokens to be generated with limited access and duration. Tokens are stored hashed and salted in the given `IAccessManagerTokenStorage` implementation. The data being hashed includes given roles, module options, categories and expiration to prevent tampering. Tokens can be used in e.g. querystring to share quick and easy access to limited parts of the healthcheck functionality.
 
 ### Setup
 

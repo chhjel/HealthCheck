@@ -1,12 +1,12 @@
 using HealthCheck.Core.Exceptions;
-using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Tests.Helpers;
+using HealthCheck.Core.Tests.Modules.Tests.TestClasses;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -228,125 +228,108 @@ namespace HealthCheck.Core.Tests.Modules.Tests
             Assert.Equal(2, tests.Count());
         }
 
+        [Fact]
+        public void DiscoverTestDefinitions_WithRolesAndCategoriesAccess_ReturnsOnlyAllowedCategorizedTests()
+        {
+            var discoverer = CreateTestDiscoveryService();
+            var userRoles = AccessRoles.SystemAdmins;
+            var categories = new List<string> { "XYZ" };
+            var tests = discoverer.DiscoverTestDefinitions(userRoles, userCategoryAccess: categories)
+                .SelectMany(x => x.Tests);
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodForSysAdmins));
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZ));
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZAndASysdmin));
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZAndWebAdmin));
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodA));
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodB));
+        }
+
+        [Fact]
+        public void DiscoverTestDefinitions_WithRolesAndEmptyCategoriesAccess_ReturnsOnlyAllowedTests()
+        {
+            var discoverer = CreateTestDiscoveryService();
+            var userRoles = AccessRoles.SystemAdmins;
+            var categories = new List<string>();
+            var tests = discoverer.DiscoverTestDefinitions(userRoles, userCategoryAccess: categories)
+                .SelectMany(x => x.Tests);
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodForSysAdmins));
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZ));
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZAndASysdmin));
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZAndWebAdmin));
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodA));
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodB));
+        }
+
+        [Fact]
+        public void DiscoverTestDefinitions_WithRolesAndNullCategoriesAccess_ReturnsOnlyAllowedTests()
+        {
+            var discoverer = CreateTestDiscoveryService();
+            var userRoles = AccessRoles.SystemAdmins;
+            List<string> categories = null;
+            var tests = discoverer.DiscoverTestDefinitions(userRoles, userCategoryAccess: categories)
+                .SelectMany(x => x.Tests);
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodForSysAdmins));
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZ));
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZAndASysdmin));
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZAndWebAdmin));
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodA));
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodB));
+        }
+
+        [Fact]
+        public void DiscoverTestDefinitions_WithoutRolesAndHasCategoryAAccess_ReturnsOnlyAllowedTests()
+        {
+            var discoverer = CreateTestDiscoveryService();
+            var userRoles = AccessRoles.None;
+            var categories = new List<string> { "XYZ" };
+            var tests = discoverer.DiscoverTestDefinitions(userRoles, userCategoryAccess: categories)
+                .SelectMany(x => x.Tests);
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodForSysAdmins));
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZ));
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZAndASysdmin));
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZAndWebAdmin));
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodA));
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodB));
+        }
+
+        [Fact]
+        public void DiscoverTestDefinitions_WithoutRolesAndHasCategoryBAccess_ReturnsOnlyAllowedTests()
+        {
+            var discoverer = CreateTestDiscoveryService();
+            var userRoles = AccessRoles.None;
+            var categories = new List<string> { "TestMethodACategory" };
+            var tests = discoverer.DiscoverTestDefinitions(userRoles, userCategoryAccess: categories)
+                .SelectMany(x => x.Tests);
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodForSysAdmins));
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZ));
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZAndASysdmin));
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZAndWebAdmin));
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodA));
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodB));
+        }
+
+        [Fact]
+        public void DiscoverTestDefinitions_WithoutRolesAndHasMultipleCategoriesAccess_ReturnsOnlyAllowedTests()
+        {
+            var discoverer = CreateTestDiscoveryService();
+            var userRoles = AccessRoles.None;
+            var categories = new List<string> { "TestMethodACategory", "XYZ" };
+            var tests = discoverer.DiscoverTestDefinitions(userRoles, userCategoryAccess: categories)
+                .SelectMany(x => x.Tests);
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodForSysAdmins));
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZ));
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZAndASysdmin));
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodForCategoryXYZAndWebAdmin));
+            Assert.Contains(tests, x => x.Name == nameof(TestClass.TestMethodA));
+            Assert.DoesNotContain(tests, x => x.Name == nameof(TestClass.TestMethodB));
+        }
+
         private TestDiscoveryService CreateTestDiscoveryService()
         {
             return new TestDiscoveryService()
             {
                 AssembliesContainingTests = new[] { GetType().Assembly }
             };
-        }
-        public class TestClassUsedInProxyTests
-        {
-            public bool ProxyTestedMethod(int id) => (id == 1);
-        }
-
-        [RuntimeTestClass]
-        public class ProxyTestClassWithMethodAccess
-        {
-            [ProxyRuntimeTests(RolesWithAccess = AccessRoles.WebAdmins)]
-            public static ProxyRuntimeTestConfig ProxyTest() => new ProxyRuntimeTestConfig(typeof(TestClassUsedInProxyTests));
-        }
-
-        [RuntimeTestClass(DefaultRolesWithAccess = AccessRoles.WebAdmins)]
-        public class ProxyTestClassWithClassAccess
-        {
-            [ProxyRuntimeTests]
-            public static ProxyRuntimeTestConfig ProxyTest() => new ProxyRuntimeTestConfig(typeof(TestClassUsedInProxyTests));
-        }
-
-        [RuntimeTestClass(DefaultRolesWithAccess = AccessRoles.WebAdmins)]
-        public class ProxyTestClassWithClassAndMethodAccess
-        {
-            [ProxyRuntimeTests(RolesWithAccess = AccessRoles.SystemAdmins)]
-            public static ProxyRuntimeTestConfig ProxyTest() => new ProxyRuntimeTestConfig(typeof(TestClassUsedInProxyTests));
-        }
-
-        [RuntimeTestClass]
-        public class ProxyTestClassWithoutAccess
-        {
-            [ProxyRuntimeTests]
-            public static ProxyRuntimeTestConfig ProxyTest() => new ProxyRuntimeTestConfig(typeof(TestClassUsedInProxyTests));
-        }
-
-        [RuntimeTestClass(Id = "TestSetId", Description = "Some test set", Name = "Dev test set")]
-        public class TestClass
-        {
-            public TestClass()
-            {
-            }
-
-            [RuntimeTest(Name = "TestMethodForSysAdmins", RolesWithAccess = AccessRoles.SystemAdmins)]
-            public TestResult TestMethodForSysAdmins()
-            {
-                return TestResult.CreateSuccess($"Success!");
-            }
-
-            [RuntimeTest(Name = "TestMethodA", Category = "TestMethodACategory")]
-            public TestResult TestMethodA(string stringArg = "wut", bool boolArg = true, int intArg = 123)
-            {
-                return TestResult.CreateSuccess($"Success! [{stringArg}, {boolArg}, {intArg}]");
-            }
-
-            [RuntimeTest(Name = "TestMethodB")]
-            public TestResult TestMethodB()
-            {
-                return new TestResult();
-            }
-
-            [RuntimeTest(Name = "InvalidMethodA")]
-            public bool InvalidMethodA() => true;
-
-            [RuntimeTest(Name = "InvalidMethodB")]
-            public void InvalidMethodB()
-            {
-                // Method intentionally left empty.
-            }
-
-            [RuntimeTest(Name = "InvalidMethodC")]
-            [RuntimeTestParameter("Name", "Description")]
-            [RuntimeTestParameter("c", "Name", "Description")]
-            public TestResult InvalidMethodC(string a, string b) => TestResult.CreateSuccess($"{a}, {b}");
-
-            public TestResult NotATestMethod() => new TestResult();
-
-            [RuntimeTest("TestMethodWithCustomNames")]
-            [RuntimeTestParameter("stringArg", "First name", "First desc")]
-            public TestResult TestMethodWithCustomNames(
-                string stringArg = "wut",
-                [RuntimeTestParameter("Second name", "Second desc")] bool boolArg = true,
-                [RuntimeTestParameter("Third name", "Third desc")] int intArg = 123)
-            {
-                return TestResult.CreateSuccess($"Success! [{stringArg}, {boolArg}, {intArg}]");
-            }
-        }
-
-        [RuntimeTestClass(Id = "TestSetId2", Description = "Some test set #2", Name = "Dev test set #2", DefaultCategory = "TestSetId2Category")]
-        public class TestClass2
-        {
-            [RuntimeTest(Name = "TestMethodA2")]
-            public async Task<TestResult> TestMethodA2(string stringArg = "wut", bool boolArg = true, int intArg = 123)
-            {
-                await Task.Delay(1);
-                return TestResult.CreateSuccess($"Success! [{stringArg}, {boolArg}, {intArg}]");
-            }
-
-            [RuntimeTest(Name = "TestMethodB2", Category = "TestMethodB2Category")]
-            public async Task<TestResult> TestMethodB2()
-            {
-                await Task.Delay(1);
-                return TestResult.CreateSuccess($"Success!");
-            }
-        }
-
-        [RuntimeTestClass(Id = "TestSetId3", Description = "Some test set #3", Name = "Dev test set #3", DefaultCategory = "TestSetId3Category")]
-        public class TestClass3
-        {
-            [RuntimeTest(name: "TestMethodA3")]
-            public async Task<TestResult> CancellableTest1(CancellationToken cancellationToken, string param1)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(0.1), cancellationToken);
-                return TestResult.CreateSuccess("Completed! " + param1);
-            }
         }
     }
 }

@@ -19,6 +19,11 @@ namespace HealthCheck.Core.Abstractions.Modules
         public string ModuleName { get; set; }
 
         /// <summary>
+        /// Id of the current method.
+        /// </summary>
+        public string ModuleId { get; set; }
+
+        /// <summary>
         /// Id of the current user.
         /// </summary>
         public string UserId { get; set; }
@@ -47,6 +52,16 @@ namespace HealthCheck.Core.Abstractions.Modules
         /// List of modules the request has access to.
         /// </summary>
         public List<ModuleAccess> CurrentRequestModulesAccess { get; set; }
+
+        /// <summary>
+        /// Access options for the current module.
+        /// </summary>
+        public ModuleAccess CurrentModuleAccess { get; set; }
+
+        /// <summary>
+        /// Access categories for the current module.
+        /// </summary>
+        public List<string> CurrentModuleCategoryAccess { get; set; }
 
         /// <summary>
         /// Url to the javascripts for the UI.
@@ -144,6 +159,12 @@ namespace HealthCheck.Core.Abstractions.Modules
             /// Stringified enum values that the request has access to.
             /// </summary>
             public List<string> AccessOptions { get; set; }
+
+            /// <summary>
+            /// Category values that the request has access to.
+            /// <para>Null/empty = all.</para>
+            /// </summary>
+            public List<string> AccessCategories { get; set; }
         }
     }
 }

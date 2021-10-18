@@ -146,6 +146,11 @@ namespace HealthCheck.Core.Modules.AccessTokens
 
                 string createdSummary = $"Created {TimeUtils.PrettifyDurationSince(x.CreatedAt, TimeSpan.FromMinutes(1), "less than a minute")} ago";
 
+                foreach(var module in x.Modules)
+                {
+                    module.Categories ??= new List<string>();
+                }
+
                 return new
                 {
                     Id = x.Id,
@@ -190,11 +195,12 @@ namespace HealthCheck.Core.Modules.AccessTokens
                 .Where(x => context.CurrentRequestModulesAccess.Any(m => m.ModuleId == x.ModuleId))
                 .Select(x =>
                 {
-                    var requestModuleOptions = context.CurrentRequestModulesAccess.FirstOrDefault(m => m.ModuleId == x.ModuleId).AccessOptions;
+                    var moduleAccess = context.CurrentRequestModulesAccess.FirstOrDefault(m => m.ModuleId == x.ModuleId);
                     return new HCAccessTokenModuleData()
                     {
                         ModuleId = x.ModuleId,
-                        Options = x.Options.Where(o => requestModuleOptions.Contains(o)).ToList()
+                        Options = x.Options.Where(o => moduleAccess.AccessOptions.Contains(o)).ToList(),
+                        Categories = x.Categories.Where(o => moduleAccess.AccessCategories?.Any() != true || moduleAccess.AccessCategories.Contains(o)).ToList()
                     };
                 }).ToList();
 
@@ -243,8 +249,21 @@ namespace HealthCheck.Core.Modules.AccessTokens
             var moduleOptions = context.LoadedModules
                 .Where(x => context.CurrentRequestModulesAccess.Any(m => m.ModuleId == x.Module.GetType().Name))
                 .Select(x => {
-                    var requestModuleOptions = context.CurrentRequestModulesAccess
-                        .FirstOrDefault(m => m.ModuleId == x.Module.GetType().Name).AccessOptions;
+                    var moduleAccess = context.CurrentRequestModulesAccess
+                        .FirstOrDefault(m => m.ModuleId == x.Module.GetType().Name);
+                    var requestModuleOptions = moduleAccess.AccessOptions;
+                    var requestModuleCategories = moduleAccess.AccessCategories;
+
+                    List<string> categories;
+                    if (requestModuleCategories?.Any() == true)
+                    {
+                        categories = requestModuleCategories ?? new List<string>();
+                    }
+                    else
+                    {
+                        categories = x.AllModuleCategories ?? new List<string>();
+                    }
+
                     return new ModuleAccessData()
                     {
                         ModuleName = x.Name,
@@ -254,7 +273,15 @@ namespace HealthCheck.Core.Modules.AccessTokens
                                 {
                                     Id = x.ToString(),
                                     Name = x.ToString().SpacifySentence()
-                                }).ToList()
+                                }).ToList(),
+                        AccessCategories = categories
+                                .Select(x => new ModuleAccessOption()
+                                {
+                                    Id = x.ToString(),
+                                    Name = x.ToString().SpacifySentence()
+                                })
+                                .OrderBy(x => x.Id)
+                                .ToList()
                     };
                 })
                 .ToList();
@@ -271,7 +298,15 @@ namespace HealthCheck.Core.Modules.AccessTokens
         private string CreateBaseForHash(string rawToken, List<string> roles, List<HCAccessTokenModuleData> modules, DateTimeOffset? expiresAt)
         {
             var rolesString = string.Join("$", roles);
-            var modulesString = string.Join("$", modules.Select(x => $"({x.ModuleId}:{string.Join(",", x.Options)})"));
+            var modulesString = string.Join("$", modules.Select(x =>
+            {
+                var categoryPart = "";
+                if (x.Categories?.Any() == true)
+                {
+                    categoryPart = $":[{string.Join(",", x.Categories)}]";
+                }
+                return $"({x.ModuleId}:{string.Join(",", x.Options)}{categoryPart})";
+            }));
             var expirationString = (expiresAt == null) ? "no-expiration" : expiresAt.Value.Ticks.ToString();
             return $"{rawToken}|{rolesString}|{modulesString}|{expirationString}";
         }
@@ -301,6 +336,8 @@ namespace HealthCheck.Core.Modules.AccessTokens
             public string ModuleId { get; set; }
             /// <summary></summary>
             public List<string> Options { get; set; }
+            /// <summary></summary>
+            public List<string> Categories { get; set; }
         }
 
         private class ModuleAccessData
@@ -308,6 +345,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
             public string ModuleName { get; set; }
             public string ModuleId { get; set; }
             public List<ModuleAccessOption> AccessOptions { get; set; }
+            public List<ModuleAccessOption> AccessCategories { get; set; }
         }
         private class ModuleAccessOption
         {

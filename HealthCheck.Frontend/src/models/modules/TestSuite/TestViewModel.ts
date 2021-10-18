@@ -9,6 +9,7 @@ export default interface TestViewModel {
     RunningButtonText: string;
     IsCancellable: boolean;
     Parameters: Array<TestParameterViewModel>;
+	Categories: string[];
 
     // Extra data
     TestResult: TestResultViewModel | null;

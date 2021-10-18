@@ -4,6 +4,7 @@ namespace HealthCheck.Core.Abstractions.Modules
 {
     /// <summary>
     /// Methods must be decorated with this attribute to be invokable.
+    /// <para>First parameter can optionaly be a <see cref="HealthCheckModuleContext"/></para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class HealthCheckModuleMethodAttribute : Attribute
@@ -17,6 +18,7 @@ namespace HealthCheck.Core.Abstractions.Modules
 
         /// <summary>
         /// Methods must be decorated with this attribute to be invokable.
+        /// <para>First parameter can optionaly be a <see cref="HealthCheckModuleContext"/></para>
         /// </summary>
         /// <param name="requiresAccessTo">
         /// Optional access required to invoke the method. Must be a TModuleAccessOptionsEnum enum flags value or null.

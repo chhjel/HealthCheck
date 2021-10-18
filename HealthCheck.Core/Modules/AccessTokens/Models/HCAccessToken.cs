@@ -69,5 +69,11 @@ namespace HealthCheck.Core.Modules.AccessTokens.Models
         /// Access options for the module.
         /// </summary>
         public List<string> Options { get; set; }
+
+        /// <summary>
+        /// Categories within the module if any that the token will be limited to.
+        /// <para>If null or empty all categories will be available including things without categories.</para>
+        /// </summary>
+        public List<string> Categories { get; set; }
     }
 }

@@ -116,6 +116,18 @@
                                 <span v-if="module.Options.length == 0">
                                     without any specific access options
                                 </span>
+
+                                <span v-if="module.Categories.length > 0">
+                                    <br />
+                                    * Access limited to the following categories:
+                                    <span class="token-item--modules--item--option"
+                                        v-for="(cat, catIndex) in module.Categories"
+                                        :key="`token-${tokenIndex}-module-${moduleIndex}-cat-${catIndex}`">
+                                        <code>{{ cat }}</code>
+                                        <span v-if="module.Categories.length >= 2 && catIndex == module.Categories.length - 2">and</span>
+                                        <span v-else-if="module.Categories.length >= 2 && catIndex < module.Categories.length - 2">,</span>
+                                    </span>
+                                </span>
                             </span>
                             <span v-if="token.Modules.length == 0">
                                 None

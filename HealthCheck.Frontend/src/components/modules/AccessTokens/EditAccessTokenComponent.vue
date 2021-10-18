@@ -54,10 +54,13 @@
                     {{ module.ModuleName }}
                 </div>
 
-                <div v-if="module.AccessOptions.length == 0"
+                <div v-if="module.AccessOptions.length == 0 && module.AccessCategories.length == 0"
                     style="margin-left: 20px;">No specific access options available for this module.</div>
+                
                 <div class="access-grid--row--options"
                     v-if="hasAccessToModule(module.ModuleId)">
+                    <div v-if="module.AccessOptions.length > 0"
+                        class="access-grid--row--options--header">Access options:</div>
                     <div class="access-grid--row--options--item"
                         v-for="(option, moindex) in module.AccessOptions"
                         :key="`access-module-${mindex}-option-${moindex}`">
@@ -68,6 +71,21 @@
                             @change="(v) => onModuleAccessOptionToggled(module.ModuleId, option.Id, v)" />
                     </div>
                 </div>
+
+                <div class="access-grid--row--options"
+                    v-if="hasAccessToModule(module.ModuleId)">
+                    <div v-if="module.AccessCategories.length > 0"
+                        class="access-grid--row--options--header">Limit to categories:</div>
+                    <div class="access-grid--row--cat--item"
+                        v-for="(cat, moindex) in module.AccessCategories"
+                        :key="`access-module-${mindex}-cat-${moindex}`">
+                        <v-checkbox hide-details
+                            :label="cat.Name"
+                            :disabled="readonly"
+                            :input-value="moduleCategoryIsEnabled(module.ModuleId, cat.Id)"
+                            @change="(v) => onModuleAccessCategoryToggled(module.ModuleId, cat.Id, v)" />
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -75,9 +93,6 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
 import { AccessData, CreatedAccessData } from  '../../../services/AccessTokensService';
 import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
 
@@ -143,6 +158,12 @@ export default class EditAccessTokenComponent extends Vue {
         return module.Options.some(x => x == option);
     }
     
+    moduleCategoryIsEnabled(moduleId: string, category: string): boolean {
+        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
+        if (module == null) return false;
+        return module.Categories.some(x => x == category);
+    }
+
     roleIsEnabled(roleId: string): boolean {
         return this.data.Roles.some(x => x == roleId);
     }
@@ -177,7 +198,8 @@ export default class EditAccessTokenComponent extends Vue {
         {
             this.data.Modules.push({
                 ModuleId: moduleId,
-                Options: []
+                Options: [],
+                Categories: [],
             });
         }
         else if (!enabled && this.hasAccessToModule(moduleId))
@@ -206,6 +228,25 @@ export default class EditAccessTokenComponent extends Vue {
         }
         this.notifyChange();
     }
+
+    onModuleAccessCategoryToggled(moduleId: string, category: string, enabled: boolean): void {
+        if (enabled && !this.hasAccessToModule(moduleId))
+        {
+            this.onModuleAccessToggled(moduleId, true);
+        }
+
+        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
+        if (enabled && !this.moduleCategoryIsEnabled(moduleId, category))
+        {
+            module.Categories.push(category);
+        }
+        else if (!enabled && this.moduleCategoryIsEnabled(moduleId, category))
+        {
+            const index = module.Categories.findIndex(x => x == category);
+            Vue.delete(module.Categories, index);
+        }
+        this.notifyChange();
+    }
 }
 </script>
 
@@ -218,12 +259,18 @@ export default class EditAccessTokenComponent extends Vue {
             font-weight: 600;
             font-size: 15px;
         }
+        .access-grid--row--options--header {
+            align-self: center;
+            margin-left: 20px;
+            margin-top: 5px;
+        }
 
         .access-grid--row--options {
             display: flex;
             flex-wrap: wrap;
 
-            .access-grid--row--options--item {
+            .access-grid--row--options--item,
+            .access-grid--row--cat--item {
                 margin-left: 20px;
             }
         }
@@ -241,7 +288,8 @@ export default class EditAccessTokenComponent extends Vue {
 .access-grid {
     .access-grid--row {
         .access-grid--row--options {
-            .access-grid--row--options--item {
+            .access-grid--row--options--item,
+            .access-grid--row--cat--item {
                 .v-input {
                     margin-top: 4px;
                     margin-bottom: 4px;
