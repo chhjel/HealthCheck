@@ -136,6 +136,10 @@ namespace HealthCheck.WebUI.Abstractions
             if (frontEndOptions?.IntegratedProfileConfig?.Hide == false)
             {
                 frontEndOptions.UserRoles = EnumUtils.TryGetEnumFlaggedValueNames(CurrentRequestAccessRoles.Value);
+                if (frontEndOptions.IntegratedProfileConfig.ShowHealthCheckCategories)
+                {
+                    frontEndOptions.UserModuleCategories = Helper.GetUserModuleCategories(CurrentRequestAccessRoles);
+                }
             }
 
             var pageOptions = GetPageOptions();

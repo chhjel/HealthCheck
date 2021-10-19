@@ -4,11 +4,6 @@
         <div v-if="profileOptions.Username">
             <div class="meta-header">Username:</div> <div class="username">{{ profileOptions.Username }}</div>
         </div>
-
-        <div v-if="profileOptions.ShowHealthCheckRoles">
-            <div class="meta-header">Roles:</div>
-            <div class="userrole">{{ userRoles.join(', ') }}</div>
-        </div>
         
         <div v-if="profileOptions.BodyHtml" v-html="profileOptions.BodyHtml" class="mt-2 mb-2"></div>
         
@@ -70,6 +65,35 @@
             </div>
 
             <p class="status-text">{{ webAuthnStatus }}</p>
+        </block-component>
+
+        <block-component v-if="profileOptions.ShowHealthCheckRoles || profileOptions.ShowHealthCheckCategories"
+            title="Request access details"
+            class="mt-4">
+            <div v-if="profileOptions.ShowHealthCheckRoles" class="mt-2">
+                <div class="meta-header">Access roles:</div>
+                <ul>
+                    <li
+                        v-for="(userRole, urIndex) in userRoles"
+                        :key="`urolename-${urIndex}`">
+                        <b>{{ userRole }}</b> 
+                    </li>
+                </ul>
+            </div>
+
+            <div v-if="profileOptions.ShowHealthCheckCategories" class="mt-2">
+                <div class="meta-header">Category access per module:</div>
+                <ul>
+                    <li
+                        v-for="(modCat, mcIndex) in userModuleCategories"
+                        :key="`modcat-${mcIndex}`"
+                    >
+                        <b>{{ modCat.ModuleName }}:</b> 
+                        <span v-if="modCat.Categories && modCat.Categories.length > 0" class="usercategories">{{ (modCat.Categories.join(', ')) }}</span>
+                        <span v-else class="usercategoriesall">All categories</span>
+                    </li>
+                </ul>
+            </div>
         </block-component>
 
         <!-- WEBAUTHN DIALOGS -->
@@ -403,6 +427,7 @@ import { Ecc, QrCode } from 'util/QRCodeUtil';
 import BlockComponent from 'components/Common/Basic/BlockComponent.vue';
 import { HCResultPageAction } from "generated/Models/WebUI/HCResultPageAction";
 import { HCResultPageActionType } from "generated/Enums/WebUI/HCResultPageActionType";
+import { HCUserModuleCategories } from "generated/Models/Core/HCUserModuleCategories";
 
 @Component({
     components: {
@@ -478,6 +503,10 @@ export default class HealthCheckProfileComponent extends Vue
 
     get userRoles(): Array<string> {
         return this.globalOptions.UserRoles;
+    }
+
+    get userModuleCategories(): Array<HCUserModuleCategories> {
+        return this.globalOptions.UserModuleCategories;
     }
 
     get username(): string {
@@ -756,7 +785,7 @@ export default class HealthCheckProfileComponent extends Vue
                 }
             });
         } catch (e) {
-            this.webAuthnAddError = e;
+            this.webAuthnAddError = e as any;
             console.error('RegisterWebAuthn failed');
             console.error(e);
         }
@@ -798,14 +827,17 @@ export default class HealthCheckProfileComponent extends Vue
     display: inline-block;
     font-size: 16px;
 }
-.userrole {
-    display: inline-block;
-    font-size: 16px;
-}
 .status-text {
     text-align: center;
     margin-top: 20px;
     margin-bottom: -20px;
+}
+.usercategoriesall {
+    color: #999;
+}
+.usercategories {
+    color: #38933b;
+    font-weight: 600;
 }
 </style>
 

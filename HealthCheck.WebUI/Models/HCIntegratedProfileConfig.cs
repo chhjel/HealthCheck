@@ -21,6 +21,12 @@ namespace HealthCheck.WebUI.Models
         public bool ShowHealthCheckRoles { get; set; } = true;
 
         /// <summary>
+        /// Show resolved healthcheck access categories for the user.
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public bool ShowHealthCheckCategories { get; set; } = true;
+
+        /// <summary>
         /// Displayed username, also used for WebAuthn elevation and registration.
         /// </summary>
         public string Username { get; set; }

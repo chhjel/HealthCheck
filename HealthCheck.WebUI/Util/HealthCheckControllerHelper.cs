@@ -69,8 +69,7 @@ namespace HealthCheck.WebUI.Util
             => GetModulesRequestHasAccessTo(currentRequestAccessRoles).Count > 0;
 
         #region Modules
-        private List<HealthCheckLoadedModule> LoadedModules { get; set; }
-            = new List<HealthCheckLoadedModule>();
+        private List<HealthCheckLoadedModule> LoadedModules { get; set; } = new List<HealthCheckLoadedModule>();
         private List<RegisteredModuleData> RegisteredModules { get; set; } = new List<RegisteredModuleData>();
         private class RegisteredModuleData
         {
@@ -79,6 +78,31 @@ namespace HealthCheck.WebUI.Util
         }
 
         private List<ModuleAccessData<TAccessRole>> RoleModuleAccessLevels { get; set; } = new List<ModuleAccessData<TAccessRole>>();
+
+        internal List<HCFrontEndOptions.HCUserModuleCategories> GetUserModuleCategories(Maybe<TAccessRole> currentRequestAccessRoles)
+            => RoleModuleAccessLevels
+                .GroupBy(x => x.AccessOptionsType)
+                .Select(g =>
+                {
+                    var accessOptionsType = g.First().AccessOptionsType;
+                    var moduleType = GetModuleTypeFromAccessOptionsType(accessOptionsType);
+                    var module = LoadedModules.FirstOrDefault(x => x.Type == moduleType);
+                    if (module == null || !RequestCanViewModule(currentRequestAccessRoles, module))
+                    {
+                        return null;
+                    }
+                    return new HCFrontEndOptions.HCUserModuleCategories
+                    {
+                        ModuleId = module.Id,
+                        ModuleName = module.Name,
+                        Categories = g.Any(x => x.FullAccess)
+                            ? new List<string>()
+                            : (g.SelectMany(x => x.Categories ?? Array.Empty<string>())?.ToList())
+                    };
+                })
+                .Where(x => x != null)
+                .OrderBy(x => x.ModuleName)
+                .ToList();
 
         private List<HealthCheckLoadedModule> GetModulesRequestHasAccessTo(Maybe<TAccessRole> accessRoles)
             => LoadedModules.Where(x => RequestCanViewModule(accessRoles, x)).ToList();
