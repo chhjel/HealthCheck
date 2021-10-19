@@ -46,7 +46,7 @@ namespace HealthCheck.FrontendModelGenerator
             builder.Substitute(typeof(List<KeyValuePair<string, string>>), new RtSimpleTypeName("{ [key: string] : string; }"));
             builder.Substitute(typeof(List<KeyValuePair<string, Guid>>), new RtSimpleTypeName("{ [key: string] : string; }"));
 
-            var extraTypes = new[] { typeof(HCMetricsContext) };
+            var extraTypes = new[] { typeof(HCMetricsContext), typeof(HCFrontEndOptions.HCUserModuleCategories) };
             builder.ExportAsInterfaces(extraTypes.Where(x => !x.IsEnum), (config) => ConfigureInterfaces(config, typeof(HCGlobalConfig).Assembly));
 
             IncludeAssembly(builder, typeof(HCGlobalConfig).Assembly);

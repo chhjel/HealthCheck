@@ -6,6 +6,7 @@ import { EditorWorkerConfig } from './EditorWorkerConfig';
 import { HCLoginWebAuthnMode } from '../../Enums/WebUI/HCLoginWebAuthnMode';
 import { HCLoginTwoFactorCodeInputMode } from '../../Enums/WebUI/HCLoginTwoFactorCodeInputMode';
 import { HCIntegratedProfileConfig } from './HCIntegratedProfileConfig';
+import { HCUserModuleCategories } from '../Core/HCUserModuleCategories';
 
 export interface HCFrontEndOptions
 {
@@ -27,4 +28,5 @@ export interface HCFrontEndOptions
 	IntegratedLoginTwoFactorCodeInputMode: HCLoginTwoFactorCodeInputMode;
 	IntegratedProfileConfig: HCIntegratedProfileConfig;
 	UserRoles: string[];
+	UserModuleCategories: HCUserModuleCategories[];
 }

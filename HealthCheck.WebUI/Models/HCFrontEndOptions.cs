@@ -84,6 +84,9 @@ namespace HealthCheck.WebUI.Models
         [JsonProperty]
         internal List<string> UserRoles { get; set; }
 
+        [JsonProperty]
+        internal List<HCUserModuleCategories> UserModuleCategories { get; set; } = new List<HCUserModuleCategories>();
+
         /// <summary>
         /// Create a new <see cref="HCFrontEndOptions"/>.
         /// </summary>
@@ -119,6 +122,13 @@ namespace HealthCheck.WebUI.Models
             /// <para>Can be prefixed with "blob:" to proxy it through a generated blob url.</para>
             /// </summary>
             public string JsonWorkerUrl { get; set; } = "blob:https://unpkg.com/christianh-healthcheck@2/json.worker.js";
+        }
+
+        internal class HCUserModuleCategories
+        {
+            public string ModuleId { get; set; }
+            public string ModuleName { get; set; }
+            public List<string> Categories { get; set; }
         }
     }
 }

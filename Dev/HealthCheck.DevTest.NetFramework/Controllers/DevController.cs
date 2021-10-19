@@ -300,6 +300,7 @@ namespace HealthCheck.DevTest.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCMessagesModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<TestModuleA>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCReleaseNotesModule>(RuntimeTestAccessRole.WebAdmins);
+            //config.GiveRolesAccessToModule<HCReleaseNotesModule>(RuntimeTestAccessRole.WebAdmins, new string[] { "Testing" });
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
@@ -539,6 +540,10 @@ namespace HealthCheck.DevTest.Controllers
             if (request.QueryString["notsysadmin"] != null)
             {
                 roles &= ~RuntimeTestAccessRole.SystemAdmins;
+            }
+            if (request.QueryString["notwebadmin"] != null)
+            {
+                roles &= ~RuntimeTestAccessRole.WebAdmins;
             }
 
             if (request.QueryString["key"] == "test")
