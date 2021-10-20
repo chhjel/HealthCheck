@@ -3,6 +3,7 @@
     <div>
       <div class="test-item pa-4">
           <!-- HEADER -->
+          <div class="test-categories" v-if="showCategories" v-html="categoriesString"></div>
           <div class="test-header" 
             :class="{'no-details': !showDetails}"
             :data-test-title-encoded="encodedTestTitle"
@@ -134,6 +135,14 @@ export default class TestComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get showCategories() : boolean {
+      return this.test.Categories && this.test.Categories.length > 0 && this.$store.state.input.ctrlIsHeldDown;
+    }
+
+    get categoriesString(): string {
+      return 'Categories: <b>' + this.test.Categories.joinForSentence('</b>, <b>', '</b> and <b>') + '</b>';
+    }
+
     get globalOptions(): FrontEndOptionsViewModel {
         return this.$store.state.globalOptions;
     }
@@ -327,9 +336,17 @@ export default class TestComponent extends Vue {
 <style scoped>
 .test-item {
   /* border-radius: 0 25px 0 25px; */
+  position: relative;
   border-radius: 25px;
   background-color: #fff;
   box-shadow: #d5d7d5 4px 4px 6px 0px;
+}
+.test-categories {
+    position: absolute;
+    top: 5px;
+    right: 25px;
+    font-size: 11px;
+    color: #838383;
 }
 .test-header {
   display: flex;
