@@ -25,9 +25,23 @@ export default new Vuex.Store({
         options: { },
         templateValues: { },
         parameterDetails: { }
+      },
+      input: {
+        ctrlIsHeldDown: false,
+        altIsHeldDown: false,
+        shiftIsHeldDown: false
       }
     },
     mutations: {
+        setCtrlHeldDown (state, isDown) {
+          state.input.ctrlIsHeldDown = isDown;
+        },
+        setAltHeldDown (state, isDown) {
+          state.input.altIsHeldDown = isDown;
+        },
+        setShiftHeldDown (state, isDown) {
+          state.input.shiftIsHeldDown = isDown;
+        },
         showMenuButton (state, visible) {
           state.ui.menuButtonVisible = visible;
         },

@@ -83,6 +83,7 @@ export default class HealthCheckPageComponent extends Vue {
     mounted(): void
     {
         this.setInitialPage();
+        this.bindRootEvents();
     }
 
     ////////////////
@@ -145,6 +146,25 @@ export default class HealthCheckPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    bindRootEvents(): void {
+        document.addEventListener('keyup', this.onDocumentKeyDownOrDown);
+        document.addEventListener('keydown', this.onDocumentKeyDownOrDown);
+    }
+    onDocumentKeyDownOrDown(e: KeyboardEvent): void {
+        if (this.$store.state.input.ctrlIsHeldDown != e.ctrlKey)
+        {
+            this.$store.commit('setCtrlHeldDown', e.ctrlKey);
+        }
+        if (this.$store.state.input.altIsHeldDown != e.altKey)
+        {
+            this.$store.commit('setAltHeldDown', e.altKey);
+        }
+        if (this.$store.state.input.shiftIsHeldDown != e.shiftKey)
+        {
+            this.$store.commit('setShiftHeldDown', e.shiftKey);
+        }
+    }
+
     getModuleOptions(moduleId: string): any
     {
         var options = (<any>window).healthCheckModuleOptions;
