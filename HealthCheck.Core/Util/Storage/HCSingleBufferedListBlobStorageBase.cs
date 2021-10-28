@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,6 +15,16 @@ namespace HealthCheck.Core.Util.Storage
         /// Optionally limit the max number of latest items to store.
         /// </summary>
         public virtual int? MaxItemCount { get; set; }
+
+        /// <summary>
+        /// Optionally limit the max age of items to store.
+        /// </summary>
+        public virtual TimeSpan? MaxItemAge { get; set; }
+
+        /// <summary>
+        /// True if GetItemTimestamp is implemented.
+        /// </summary>
+        protected bool SupportsMaxItemAge { get; set; }
 
         /// <summary>
         /// Base implementation for storing a single object in a blob container with cache.
@@ -33,10 +44,26 @@ namespace HealthCheck.Core.Util.Storage
             return this;
         }
 
+        /// <summary>
+        /// Get the timestamp of an item.
+        /// </summary>
+        protected virtual DateTimeOffset GetItemTimestamp(TItem item) => default;
+
         /// <inheritdoc />
         protected override TData UpdateDataFromBuffer(TData data, Queue<BufferQueueItem> bufferedItems)
         {
-            data.Items.AddRange(bufferedItems.Select(x => x.Item));
+            var toInsert = bufferedItems.Where(x => x.IsInsert).Select(x => x.ItemToInsert);
+            data.Items.AddRange(toInsert.Select(x => x));
+
+            var toUpdate = bufferedItems.Where(x => x.IsUpdate);
+            foreach (var action in toUpdate)
+            {
+                var existing = data.Items.FirstOrDefault(x => GetItemId(x) == action.Id);
+                if (existing != null)
+                {
+                    action.UpdateAction(existing);
+                }
+            }
 
             if (MaxItemCount != null && data.Items.Count > MaxItemCount)
             {
@@ -44,8 +71,18 @@ namespace HealthCheck.Core.Util.Storage
                 data.Items.RemoveRange(0, skipCount);
             }
 
+            if (SupportsMaxItemAge && MaxItemAge != null)
+            {
+                data.Items.RemoveAll(x => (DateTimeOffset.Now - GetItemTimestamp(x)) > MaxItemAge);
+            }
+
             return data;
         }
+
+        /// <summary>
+        /// For buffered updates to work the id must be known.
+        /// </summary>
+        protected virtual object GetItemId(TItem item) => default;
 
         /// <summary>
         /// Stored data model.

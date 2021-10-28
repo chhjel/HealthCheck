@@ -15,9 +15,10 @@ namespace HealthCheck.Module.EndpointControl.Utils
     {
         internal const string RequestItemKey_Allowed = "HC_HCControlledEndpoint_Allowed";
         internal const string RequestItemKey_RequestData = "HC_HCControlledEndpoint_RequestData";
-        private static readonly object _countLock = new object();
 
 #if NETFULL
+        private static readonly object _countLock = new object();
+
         /// <summary>
         /// Invoke manually from an action when using <see cref="HCControlledEndpointAttribute.ManuallyCounted"/> to store the request data where it's suitable.
         /// <para>More than one call to this method per request is ignored, so call it as many times you want.</para>

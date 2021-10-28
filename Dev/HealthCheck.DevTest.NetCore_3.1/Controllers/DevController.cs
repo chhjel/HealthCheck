@@ -1,5 +1,6 @@
 using Fido2NetLib;
 using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Config;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.AccessTokens;
@@ -29,6 +30,7 @@ using HealthCheck.Core.Modules.SiteEvents.Abstractions;
 using HealthCheck.Core.Modules.SiteEvents.Enums;
 using HealthCheck.Core.Modules.SiteEvents.Models;
 using HealthCheck.Core.Modules.SiteEvents.Services;
+using HealthCheck.Core.Modules.SiteEvents.Utils;
 using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Util;
@@ -92,6 +94,13 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
 
             InitServices();
 
+            //UseModule(new HCEndpointControlModule(new HCEndpointControlModuleOptions()
+            //{
+            //    EndpointControlService = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlService)) as IEndpointControlService,
+            //    RuleStorage = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlRuleStorage)) as IEndpointControlRuleStorage,
+            //    DefinitionStorage = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlEndpointDefinitionStorage)) as IEndpointControlEndpointDefinitionStorage,
+            //    HistoryStorage = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlRequestHistoryStorage)) as IEndpointControlRequestHistoryStorage
+            //}));
             UseModule(new HCSecureFileDownloadModule(new HCSecureFileDownloadModuleOptions()
             {
                 DefinitionStorage = FlatFileSecureFileDownloadDefinitionStorage,
@@ -201,6 +210,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSettingsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSiteEventsModule>(RuntimeTestAccessRole.WebAdmins);
+            //config.GiveRolesAccessToModule(RuntimeTestAccessRole.WebAdmins, HCSiteEventsModule.AccessOption.None);
             config.GiveRolesAccessToModuleWithFullAccess<HCAuditLogModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCDataflowModule<RuntimeTestAccessRole>>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCDocumentationModule>(RuntimeTestAccessRole.WebAdmins);
@@ -209,6 +219,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCAccessTokensModule>(RuntimeTestAccessRole.SystemAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSecureFileDownloadModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<TestModuleB>(RuntimeTestAccessRole.WebAdmins);
+            //config.GiveRolesAccessToModuleWithFullAccess<HCEndpointControlModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
@@ -360,7 +371,23 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             }
 
             var roles = RuntimeTestAccessRole.Guest;
-            
+
+            if (request.Query.ContainsKey("siteEvent"))
+            {
+                HCSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Error, "api_x_error", "Oh no! API X is broken!", "How could this happen to us!?",
+                    developerDetails: "Hmm this is probably why.",
+                    config: x => x.AddRelatedLink("Status page", "https://status.otherapi.com"));
+            }
+            if (request.Query.ContainsKey("siteEventResolved"))
+            {
+                HCSiteEventUtils.TryRegisterResolvedEvent("api_x_error", "Seems it fixed itself somehow.",
+                    config: x => x.AddRelatedLink("Another page", "https://www.google.com"));
+            }
+            if (request.Query.ContainsKey("simulateSiteEventResolveJob"))
+            {
+                SimulateSiteEventResolveJob();
+            }
+
             if (request.Query.ContainsKey("noaccess"))
             {
                 roles = RuntimeTestAccessRole.None;
@@ -389,6 +416,19 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
         #endregion
 
         #region dev
+        private void SimulateSiteEventResolveJob()
+        {
+            var unresolvedEvents = HCSiteEventUtils.TryGetAllUnresolvedEvents();
+            foreach (var unresolvedEvent in unresolvedEvents)
+            {
+                var timeSince = DateTimeOffset.Now - (unresolvedEvent.Timestamp + TimeSpan.FromMinutes(unresolvedEvent.Duration));
+                if (timeSince > TimeSpan.FromMinutes(15))
+                {
+                    HCSiteEventUtils.TryRegisterResolvedEvent(unresolvedEvent.EventTypeId, "Seems to be fixed now.");
+                }
+            }
+        }
+
         private HCWebAuthnHelper CreateWebAuthnHelper()
             => new HCWebAuthnHelper(new HCWebAuthnHelperOptions
             {
@@ -507,7 +547,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
         {
             if (_siteEventService == null)
             {
-                _siteEventService = CreateSiteEventService();
+                _siteEventService = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(ISiteEventService)) as ISiteEventService ?? CreateSiteEventService();
                 _auditEventService = CreateAuditEventService();
             }
 

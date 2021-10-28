@@ -1,5 +1,4 @@
-﻿#if NETFULL
-using HealthCheck.Module.EndpointControl.Abstractions;
+﻿using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,4 +46,3 @@ namespace HealthCheck.Module.EndpointControl.Storage
         public IEnumerable<EndpointControlEndpointDefinition> GetDefinitions() => _data;
     }
 }
-#endif

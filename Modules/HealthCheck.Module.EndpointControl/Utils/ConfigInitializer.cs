@@ -5,9 +5,7 @@ using System;
 using HealthCheck.Core.Util;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using System.Collections.Generic;
-#if NETFULL
 using HealthCheck.Module.EndpointControl.Storage;
-#endif
 
 namespace HealthCheck.Module.EndpointControl.Utils
 {
@@ -32,7 +30,6 @@ namespace HealthCheck.Module.EndpointControl.Utils
 
         private static void InitLazyFactory()
         {
-#if NETFULL
             static Dictionary<Type, IEnumerable<object>> factory(Func<string, string> createPath) => new Dictionary<Type, IEnumerable<object>>
             {
                 { typeof(IEndpointControlRequestHistoryStorage), new object[] {
@@ -43,7 +40,6 @@ namespace HealthCheck.Module.EndpointControl.Utils
                     new FlatFileEndpointControlRuleStorage(createPath(@"EndpointControl_Rules.json")) } }
             };
             HCExtModuleInitializerUtil.TryExternalLazyFactoryInit(HCModuleType.EndpointControl, factory);
-#endif
             /* Otherwise to nothing */
         }
     }

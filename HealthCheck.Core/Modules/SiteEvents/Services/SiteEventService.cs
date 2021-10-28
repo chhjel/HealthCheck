@@ -2,6 +2,7 @@
 using HealthCheck.Core.Modules.SiteEvents.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.SiteEvents.Services
@@ -100,5 +101,13 @@ namespace HealthCheck.Core.Modules.SiteEvents.Services
         /// </summary>
         public virtual async Task<List<SiteEvent>> GetEvents(DateTimeOffset from, DateTimeOffset to)
             => await Storage.GetEvents(from, to);
+
+        /// <inheritdoc />
+        public virtual async Task<List<SiteEvent>> GetUnresolvedEvents(DateTimeOffset? from = null, DateTimeOffset? to = null)
+        {
+            var all = await Storage.GetEvents(from ?? DateTimeOffset.MinValue, to ?? DateTimeOffset.MaxValue);
+            return all.Where(x => !x.Resolved).ToList();
+        }
+        
     }
 }

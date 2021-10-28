@@ -16,6 +16,11 @@ namespace HealthCheck.Core.Modules.SiteEvents.Abstractions
         Task<List<SiteEvent>> GetEvents(DateTimeOffset from, DateTimeOffset to);
 
         /// <summary>
+        /// Get all stored unresolved <see cref="SiteEvent"/>s objects, optionally with a <see cref="SiteEvent.Timestamp"/> within the given threshold.
+        /// </summary>
+        Task<List<SiteEvent>> GetUnresolvedEvents(DateTimeOffset? from = null, DateTimeOffset? to = null);
+
+        /// <summary>
         /// Mark the last event with the given <paramref name="eventTypeId"/> as resolved with the given message.
         /// </summary>
         Task<bool> MarkEventAsResolved(string eventTypeId, string resolveMessage);

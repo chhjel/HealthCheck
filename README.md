@@ -554,10 +554,12 @@ UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventServ
 
 ```csharp
 // Built in implementation example
-ISiteEventService siteEventService = new SiteEventService(new FlatFileSiteEventStorage(HostingEnvironment.MapPath("~/App_Data/SiteEventStorage.json"), maxEventAge: TimeSpan.FromDays(5)));
+// Flatfile storages should be injected as singletons, for epi storage implementation see further below
+ISiteEventStorage flatfileStorage = new FlatFileSiteEventStorage(HostingEnvironment.MapPath("~/App_Data/SiteEventStorage.json"), maxEventAge: TimeSpan.FromDays(30));
+ISiteEventService siteEventService = new SiteEventService(flatfileStorage);
 ```
 
-#### Example method
+#### Example usage from tests module
 
 <details><summary>Example</summary>
 <p>
@@ -594,6 +596,41 @@ public TestResult CheckIntegrationX()
 
 </p>
 </details>
+
+#### Example usage from static utility or service directly
+
+The included class `HCSiteEventUtils` can optionally be used to quickly register events. (If nothing happens when calling the methods, verify that `HCGlobalConfig.DefaultInstanceResolver` is configured to your resolver.)
+
+<details><summary>Example</summary>
+<p>
+
+```csharp
+// When something fails you can register an event 
+HCSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Error, "api_x_error", "Oh no! API X is broken!", "How could this happen to us!?",
+    developerDetails: "Error code X, reason Y etc.",
+    config: x => x.AddRelatedLink("Status page", "https://status.otherapi.com"));
+}
+
+// When the event has been resolved you can mark it as resolved using the same id:
+HCSiteEventUtils.TryRegisterResolvedEvent("api_x_error", "Seems it fixed itself somehow.");
+
+// The following could be executed from a scheduled job to resolve events you deem no longer failing based on some criteria.
+var unresolvedEvents = HCSiteEventUtils.TryGetAllUnresolvedEvents();
+foreach (var unresolvedEvent in unresolvedEvents)
+{
+    // Basic check, it would probably be better to store somewhere statically when the event ids last worked,
+    // and compare against that to check if the issue should be marked as resolved.
+    var timeSince = DateTimeOffset.Now - (unresolvedEvent.Timestamp + TimeSpan.FromMinutes(unresolvedEvent.Duration));
+    if (timeSince > TimeSpan.FromMinutes(15))
+    {
+        HCSiteEventUtils.TryRegisterResolvedEvent(unresolvedEvent.EventTypeId, "Seems to be fixed now.");
+    }
+}
+```
+
+</p>
+</details>
+
 
 ---------
 
@@ -1476,9 +1513,10 @@ Cache can optionally be set to null in constructor if not wanted, or the include
 <p>
 
 ```csharp
-    // Cache used by most of the epi blob implementations below
+    // Cache required by most of the epi blob implementations below
     context.Services.AddSingleton<IHCCache, SimpleMemoryCache>();
-    // Audit log
+
+    // Audit log (defaults to storing the last 10000 events/30 days)
     context.Services.AddSingleton<IAuditEventStorage, HCEpiserverBlobAuditEventStorage>();
     // Messages
     context.Services.AddSingleton<IHCMessageStorage, HCEpiserverBlobMessagesStore<HCDefaultMessageItem>>();
@@ -1503,6 +1541,8 @@ Cache can optionally be set to null in constructor if not wanted, or the include
         }
     });
     context.Services.AddSingleton<IDataflowService<AccessRoles>, DefaultDataflowService<AccessRoles>>();
+    // Site events (defaults to storing the last 1000 events/30 days)
+    context.Services.AddSingleton<ISiteEventStorage, HCEpiserverBlobSiteEventStorage>();
 ```
 
 </p>
