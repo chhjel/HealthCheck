@@ -48,7 +48,7 @@ jobs:
 - job: BuildAndTestSolution
   displayName: Build and test solution
   pool:
-    vmImage: windows-2022
+    vmImage: windows-2019
 
   steps:
   - script: echo '##vso[task.setvariable variable=BuildParameters.AssemblyVersion]$(BuildParameters.AssemblyVersion)-$(BuildParameters.CleanSourceBranch)
@@ -93,7 +93,6 @@ jobs:
     displayName: Build solution
     inputs:
       solution: $(BuildParameters.Solution)
-      vsVersion: '17.0'
       msbuildArgs: /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)\\" /p:Version=$(BuildParameters.AssemblyVersion)
       platform: $(BuildParameters.BuildPlatform)
       configuration: $(BuildParameters.BuildConfiguration)

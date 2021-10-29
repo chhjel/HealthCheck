@@ -148,9 +148,14 @@ namespace HealthCheck.Module.EndpointControl.Attributes
         /// </summary>
         protected virtual EndpointControlEndpointRequestData GetEndpointRequestData(ActionExecutingContext filterContext)
         {
-            var actionName =
-                (filterContext?.ActionDescriptor as ControllerActionDescriptor)?.MethodInfo?.Name
-                ?? (filterContext?.ActionDescriptor?.RouteValues?.TryGetValue("action", out var routeAction) == true ? routeAction : null);
+            var actionName = (filterContext?.ActionDescriptor as ControllerActionDescriptor)?.MethodInfo?.Name;
+            if (string.IsNullOrWhiteSpace(actionName)
+                && filterContext?.ActionDescriptor?.RouteValues != null
+                && filterContext.ActionDescriptor.RouteValues.TryGetValue("action", out var routeAction))
+            {
+                actionName = routeAction;
+            }
+
             var data = new EndpointControlEndpointRequestData
             {
                 ControllerType = filterContext?.Controller?.GetType(),
