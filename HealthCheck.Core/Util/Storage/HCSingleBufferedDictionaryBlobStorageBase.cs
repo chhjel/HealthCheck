@@ -40,8 +40,19 @@ namespace HealthCheck.Core.Util.Storage
         {
             foreach (var item in bufferedItems)
             {
-                var id = GetItemId(item.Item);
-                data.Items[id] = item.Item;
+                if (item.IsInsert)
+                {
+                    var id = GetItemId(item.ItemToInsert);
+                    data.Items[id] = item.ItemToInsert;
+                }
+                else if (item.IsUpdate && item.Id is TId id)
+                {
+                    var existingItem = data.Items.FirstOrDefault(x => GetItemId(x.Value)?.ToString() == id?.ToString()).Value;
+                    if (existingItem != null)
+                    {
+                        item.UpdateAction(existingItem);
+                    }
+                }
             }
 
             if (MaxItemCount != null && data.Items.Count > MaxItemCount)

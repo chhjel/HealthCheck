@@ -5,7 +5,7 @@
             v-model="localValue" 
             :label="label"
             color="secondary"
-            class="parameter-checkbox pt-0 mt-2"
+            class="parameter-checkbox pt-0"
             :disabled="readonly"
         ></v-switch>
 
@@ -16,7 +16,7 @@
             :disabled="readonly"
             @click="setNextState"
             color="secondary"
-            class="parameter-checkbox pt-0 mt-2"
+            class="parameter-checkbox pt-0"
         ></v-checkbox>
     </div>
 </template>
@@ -126,8 +126,17 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
 }
 </script>
 
-<style>
+<style lang="scss">
 .parameter-checkbox label {
     color: #000 !important;
+}
+.parameter-checkbox {
+    margin-top: 8px;
+}
+.parameter-list-input {
+    .parameter-checkbox {
+        margin-top: 24px;
+        margin-left: 8px;
+    }
 }
 </style>

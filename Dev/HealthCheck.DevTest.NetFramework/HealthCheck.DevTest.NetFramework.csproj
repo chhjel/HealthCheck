@@ -135,8 +135,8 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\HCLoginController.cs" />
     <Compile Include="Controllers\DevController.cs" />
-    <Compile Include="Controllers\EndpointControlTestControllers\SomeApiTestController.cs" />
-    <Compile Include="Controllers\EndpointControlTestControllers\SomeTestController.cs" />
+    <Compile Include="Controllers\EndpointControlTestControllers\TestECApiController.cs" />
+    <Compile Include="Controllers\EndpointControlTestControllers\TestECController.cs" />
     <Compile Include="Controllers\RequestLogTestControllers\Api\HiddenApiController.cs" />
     <Compile Include="Controllers\RequestLogTestControllers\Api\TestApi2Controller.cs" />
     <Compile Include="Controllers\RequestLogTestControllers\Api\TestApiController.cs" />

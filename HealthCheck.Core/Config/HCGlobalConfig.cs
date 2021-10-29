@@ -78,7 +78,7 @@ namespace HealthCheck.Core.Config
 
         internal static T GetService<T>()
             where T: class
-            => GetDefaultInstanceResolver() as T;
+            => GetDefaultInstanceResolver()(typeof(T)) as T;
 
         static HCGlobalConfig()
         {

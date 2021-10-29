@@ -48,7 +48,10 @@ namespace HealthCheck.Episerver.Storage
         public HCEpiserverBlobAuditEventStorage(IBlobFactory blobFactory, IHCCache cache)
             : base(cache)
         {
+            SupportsMaxItemAge = true;
             _blobHelper = new HCEpiserverBlobHelper<HCAuditEventsBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
+            MaxItemCount = 10000;
+            MaxItemAge = TimeSpan.FromDays(30);
         }
 
         /// <inheritdoc />
@@ -79,6 +82,9 @@ namespace HealthCheck.Episerver.Storage
 
         /// <inheritdoc />
         protected override void StoreBlobData(HCAuditEventsBlobData data) => _blobHelper.StoreBlobData(data);
+
+        /// <inheritdoc />
+        protected override DateTimeOffset GetItemTimestamp(AuditEvent item) => item.Timestamp;
 
         /// <summary>
         /// Model stored in blob storage.

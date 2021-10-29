@@ -14,6 +14,7 @@
     <ProjectReference Include="..\..\HealthCheck.WebUI.MFA.TOTP\HealthCheck.WebUI.MFA.TOTP.csproj" />
     <ProjectReference Include="..\..\HealthCheck.WebUI.MFA.WebAuthn\HealthCheck.WebUI.MFA.WebAuthn.csproj" />
     <ProjectReference Include="..\..\HealthCheck.WebUI\HealthCheck.WebUI.csproj" />
+    <ProjectReference Include="..\..\Modules\HealthCheck.Module.EndpointControl\HealthCheck.Module.EndpointControl.csproj" />
     <ProjectReference Include="..\HealthCheck.Dev.Common\HealthCheck.Dev.Common.csproj" />
     <ProjectReference Include="..\HealthCheck.Module.DevModule\HealthCheck.Module.DevModule.csproj" />
   </ItemGroup>

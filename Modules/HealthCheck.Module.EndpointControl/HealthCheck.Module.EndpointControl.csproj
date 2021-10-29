@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net461;net472</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net461;net472;netcoreapp3.1</TargetFrameworks>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.0.1</Version>
@@ -20,6 +20,17 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
+
+  <!-- .NET STANDARD ######################## -->
+  <!-- Compiler flags -->
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>NETSTANDARD</DefineConstants>
+  </PropertyGroup>
+  <!-- References -->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+  </ItemGroup>
+  <!-- ####################################### -->
 
   <!-- .NET FRAMEWORK ######################## -->
   <!-- Compiler flags -->
@@ -40,6 +51,18 @@
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <Reference Include="System.Web" />
     <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <!-- ####################################### -->
+
+  <!-- .NET CORE ############################# -->
+  <!-- Compiler flags -->
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1'">
+    <DefineConstants>NETCORE;NETCORE2_0</DefineConstants>
+  </PropertyGroup>
+  <!-- References -->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.1" />
   </ItemGroup>
   <!-- ####################################### -->
 

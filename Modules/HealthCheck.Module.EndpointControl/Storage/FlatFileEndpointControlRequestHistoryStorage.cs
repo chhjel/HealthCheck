@@ -1,5 +1,4 @@
-﻿#if NETFULL
-using HealthCheck.Core.Extensions;
+﻿using HealthCheck.Core.Extensions;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Models;
 using Newtonsoft.Json;
@@ -330,4 +329,3 @@ namespace HealthCheck.Module.EndpointControl.Storage
         }
     }
 }
-#endif

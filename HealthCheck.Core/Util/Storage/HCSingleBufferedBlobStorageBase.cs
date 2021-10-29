@@ -42,7 +42,22 @@ namespace HealthCheck.Core.Util.Storage
             /// <summary>
             /// Buffered item.
             /// </summary>
-            public TItem Item { get; set; }
+            public TItem ItemToInsert { get; set; }
+
+            /// <summary>
+            /// True if <see cref="ItemToInsert"/> is set.
+            /// </summary>
+            public bool IsInsert => ItemToInsert != null;
+
+            /// <summary>
+            /// Action to perform on existing item.
+            /// </summary>
+            public Action<TItem> UpdateAction { get; set; }
+
+            /// <summary>
+            /// True if <see cref="UpdateAction"/> is set.
+            /// </summary>
+            public bool IsUpdate => UpdateAction != null;
         }
 
         /// <summary>
@@ -75,13 +90,19 @@ namespace HealthCheck.Core.Util.Storage
         /// <summary>
         /// Queues up items and calls <see cref="OnBufferCallback"/> after a delay or when max count is reached.
         /// </summary>
-        protected void InsertItemBuffered(TItem item, object id = null) => BufferQueue.Add(new BufferQueueItem { Id = id, Item = item });
+        protected void InsertItemBuffered(TItem item, object id = null) => BufferQueue.Add(new BufferQueueItem { Id = id, ItemToInsert = item });
 
         /// <summary>
         /// Queues up items and calls <see cref="OnBufferCallback"/> after a delay or when max count is reached.
         /// </summary>
         protected void InsertItemsBuffered(IEnumerable<TItem> items, object id = null)
-            => BufferQueue.Add(items.Select(x => new BufferQueueItem { Id = id, Item = x }));
+            => BufferQueue.Add(items.Select(x => new BufferQueueItem { Id = id, ItemToInsert = x }));
+
+        /// <summary>
+        /// Queues up an update to an item and calls <see cref="OnBufferCallback"/> after a delay or when max count is reached.
+        /// </summary>
+        protected void UpdateItemBuffered(object id, Action<TItem> updateAction)
+            => BufferQueue.Add(new BufferQueueItem { Id = id, UpdateAction = updateAction });
 
         /// <summary>
         /// Called when the buffer is full or duration has been reached.

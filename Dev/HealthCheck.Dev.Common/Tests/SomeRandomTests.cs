@@ -161,7 +161,10 @@ namespace HealthCheck.Dev.Common.Tests
         [RuntimeTestParameter(Target = "number", Description = "Some <b>fancy</b> text! :D <a href=\"https://www.google.com\">woop</a>")]
         public async Task<TestResult> TestWithoutDefaultValues(int number, string text, bool toggle, DateTime date, DateTimeOffset dateOffset,
             EnumTestType enumParam, EnumFlagsTestType enumFlagsParam,
-            List<string> stringList, List<DateTime> dateList, List<DateTime> dateOffsetList, List<bool> boolList, List<EnumTestType> enumList)
+            List<string> stringList,
+            List<DateTime> dateList, List<DateTime> dateOffsetList,
+            List<bool> boolList, List<EnumTestType> enumList,
+            List<DateTime> nullableDateList, List<DateTime> nullableDateOffsetList)
         {
             await Task.Delay(TimeSpan.FromSeconds(2));
             var result = TestResult.CreateSuccess($"Recieved: [{PrettifyValue(number)}, {PrettifyValue(text)}, " +
@@ -169,6 +172,8 @@ namespace HealthCheck.Dev.Common.Tests
                 .AddSerializedData(stringList, "stringList")
                 .AddSerializedData(dateList, "dateList")
                 .AddSerializedData(dateOffsetList, "dateList")
+                .AddSerializedData(nullableDateList, "nullableDateList")
+                .AddSerializedData(nullableDateOffsetList, "nullableDateOffsetList")
                 .AddSerializedData(boolList, "boolList")
                 .AddSerializedData(enumList, "enumList");
             return await Task.FromResult(result);

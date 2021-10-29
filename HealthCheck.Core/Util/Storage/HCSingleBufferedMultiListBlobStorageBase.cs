@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -55,16 +56,18 @@ namespace HealthCheck.Core.Util.Storage
         {
             foreach(var item in bufferedItems)
             {
+                if (item.IsUpdate) throw new NotImplementedException($"{GetType().Name} does not have support for buffered updates yet.");
+
                 var id = (item.Id != null) ? (TId)item.Id : default;
 
                 if (!data.Lists.ContainsKey(id))
                 {
-                    var list = new List<TItem>() { item.Item };
+                    var list = new List<TItem>() { item.ItemToInsert };
                     data.Lists[id] = list;
                 }
                 else
                 {
-                    data.Lists[id].Add(item.Item);
+                    data.Lists[id].Add(item.ItemToInsert);
                 }
             }
 

@@ -16,13 +16,27 @@ namespace HealthCheck.Core.Tests.Storage.Implementations
 		protected override string CacheKey => "HCSingleBufferedBlobStorageTest";
 
 		public void Add(TestItem item) => InsertItemBuffered(item);
+        public void Update(TestItem item) => UpdateItemBuffered(item.Id, x => x.Value = item.Value);
 		public TestData GetData() => GetBlobData();
 
 		protected override TestData RetrieveBlobData() => Get();
         protected override void StoreBlobData(TestData data) => Store(data);
+
 		protected override TestData UpdateDataFromBuffer(TestData data, Queue<BufferQueueItem> bufferedItems)
         {
-			data.Items.AddRange(bufferedItems.Select(x => x.Item));
+            var toInsert = bufferedItems.Where(x => x.IsInsert).Select(x => x.ItemToInsert);
+            data.Items.AddRange(toInsert.Select(x => x));
+
+            var toUpdate = bufferedItems.Where(x => x.IsUpdate && x.Id is int);
+            foreach (var action in toUpdate)
+            {
+                var existing = data.Items.FirstOrDefault(x => x.Id == (int)action.Id);
+                if (existing != null)
+                {
+                    action.UpdateAction(existing);
+                }
+            }
+
 			return data;
         }
 
