@@ -303,9 +303,14 @@ export default class BackendInputComponent extends Vue {
 }
 </style>
 
-<style>
+<style lang="scss">
 .parameter-input input {
     font-size: 18px;
     color: #000 !important;
+}
+.parameter-input {
+    .v-text-field__slot {
+        max-width: 100%;
+    }
 }
 </style>

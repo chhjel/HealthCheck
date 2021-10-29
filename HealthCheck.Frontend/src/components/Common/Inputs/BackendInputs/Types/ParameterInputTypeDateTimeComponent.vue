@@ -8,7 +8,7 @@
             :disabled="readonly"
             type="datetime-local"
             required> 
-            <v-tooltip slot="append-outer" bottom v-if="isNullable">
+            <v-tooltip slot="append" bottom v-if="isNullable">
                 <v-icon slot="activator" @click="clearValue">clear</v-icon>
                 Set value to null
             </v-tooltip>
@@ -89,5 +89,5 @@ export default class ParameterInputTypeDateTimeComponent extends Vue {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
 </style>
