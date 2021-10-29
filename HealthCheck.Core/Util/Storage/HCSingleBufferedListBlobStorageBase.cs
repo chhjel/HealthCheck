@@ -45,6 +45,15 @@ namespace HealthCheck.Core.Util.Storage
         }
 
         /// <summary>
+        /// Sets <see cref="MaxItemAge"/>, the max age of items before they will be deleted on the next update/insert.
+        /// </summary>
+        public HCSingleBufferedListBlobStorageBase<TData, TItem> SetMaxItemAge(TimeSpan? maxAge)
+        {
+            MaxItemAge = maxAge;
+            return this;
+        }
+
+        /// <summary>
         /// Get the timestamp of an item.
         /// </summary>
         protected virtual DateTimeOffset GetItemTimestamp(TItem item) => default;
