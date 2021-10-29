@@ -14,8 +14,15 @@ namespace HealthCheck.Core.Modules.SiteEvents.Services
     {
         /// <summary>
         /// Default options for merging of close events.
+        /// Defaults to [allowEventMerge: true, maxMinutesSinceLastEventEnd: 15, lastEventDurationMultiplier: 1.2f]
         /// </summary>
         public SiteEventMergeOptions DefaultMergeOptions { get; set; }
+            = new SiteEventMergeOptions(
+                allowEventMerge: true,
+                maxMinutesSinceLastEventEnd: 15,
+                lastEventDurationMultiplier: 1.2f,
+                eventMerger: null
+            );
 
         private ISiteEventStorage Storage { get; set; }
 
@@ -23,17 +30,19 @@ namespace HealthCheck.Core.Modules.SiteEvents.Services
         /// Create a new <see cref="SiteEventService"/> that manages <see cref="SiteEvent"/>s.
         /// </summary>
         /// <param name="storage">Implementation for event storage.</param>
-        /// <param name="defaultMergeOptions">Default event merge options. Defaults to [allowEventMerge: true, maxMinutesSinceLastEventEnd: 15, lastEventDurationMultiplier: 1.2f]</param>
-        public SiteEventService(ISiteEventStorage storage, SiteEventMergeOptions defaultMergeOptions = null)
+        public SiteEventService(ISiteEventStorage storage)
         {
             Storage = storage;
-            DefaultMergeOptions = defaultMergeOptions
-                ?? new SiteEventMergeOptions(
-                    allowEventMerge: true,
-                    maxMinutesSinceLastEventEnd: 15,
-                    lastEventDurationMultiplier: 1.2f,
-                    eventMerger: null
-                );
+        }
+
+        /// <summary>
+        /// Sets default event merge options.
+        /// Defaults to [allowEventMerge: true, maxMinutesSinceLastEventEnd: 15, lastEventDurationMultiplier: 1.2f]
+        /// </summary>
+        public SiteEventService SetDefaultMergeOptions(SiteEventMergeOptions options)
+        {
+            DefaultMergeOptions = options;
+            return this;
         }
 
         /// <summary>

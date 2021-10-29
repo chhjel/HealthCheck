@@ -127,7 +127,8 @@ namespace HealthCheck.Core.Services
         {
             var storage = new MemorySiteEventStorage();
             var defaultMergeOptions = new SiteEventMergeOptions(allowEventMerge: true, maxMinutesSinceLastEventEnd: 10, lastEventDurationMultiplier: null);
-            var service = new SiteEventService(storage, defaultMergeOptions);
+            var service = new SiteEventService(storage)
+                .SetDefaultMergeOptions(defaultMergeOptions);
 
             var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
             {
@@ -150,7 +151,8 @@ namespace HealthCheck.Core.Services
         {
             var storage = new MemorySiteEventStorage();
             var defaultMergeOptions = new SiteEventMergeOptions(allowEventMerge: true, maxMinutesSinceLastEventEnd: 10, lastEventDurationMultiplier: null);
-            var service = new SiteEventService(storage, defaultMergeOptions);
+            var service = new SiteEventService(storage)
+                .SetDefaultMergeOptions(defaultMergeOptions);
 
             var eventA = new SiteEvent(SiteEventSeverity.Error, null, "TitleA", "DescriptionA", duration: 10)
             {
@@ -170,7 +172,8 @@ namespace HealthCheck.Core.Services
         {
             var storage = new MemorySiteEventStorage();
             var defaultMergeOptions = new SiteEventMergeOptions(allowEventMerge: true, maxMinutesSinceLastEventEnd: 10, lastEventDurationMultiplier: 2f);
-            var service = new SiteEventService(storage, defaultMergeOptions);
+            var service = new SiteEventService(storage)
+                .SetDefaultMergeOptions(defaultMergeOptions);
 
             var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
             {
@@ -193,7 +196,8 @@ namespace HealthCheck.Core.Services
         {
             var storage = new MemorySiteEventStorage();
             var defaultMergeOptions = new SiteEventMergeOptions(allowEventMerge: true, maxMinutesSinceLastEventEnd: 10, lastEventDurationMultiplier: null);
-            var service = new SiteEventService(storage, defaultMergeOptions);
+            var service = new SiteEventService(storage)
+                .SetDefaultMergeOptions(defaultMergeOptions);
 
             var previouslyResolvedEvent = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
             {
@@ -220,7 +224,8 @@ namespace HealthCheck.Core.Services
         {
             var storage = new MemorySiteEventStorage();
             var defaultMergeOptions = new SiteEventMergeOptions(allowEventMerge: true, maxMinutesSinceLastEventEnd: 10, lastEventDurationMultiplier: null);
-            var service = new SiteEventService(storage, defaultMergeOptions);
+            var service = new SiteEventService(storage)
+                .SetDefaultMergeOptions(defaultMergeOptions);
 
             var previouslyUnresolvedEvent = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 10)
             {
@@ -259,7 +264,8 @@ namespace HealthCheck.Core.Services
                     oldEvent.Duration += newEvent.Duration;
                 }
             );
-            var service = new SiteEventService(storage, defaultMergeOptions);
+            var service = new SiteEventService(storage)
+                .SetDefaultMergeOptions(defaultMergeOptions);
             var eventA = new SiteEvent(SiteEventSeverity.Error, "typeIdA", "TitleA", "DescriptionA", duration: 5)
             {
                 Timestamp = DateTimeOffset.Now.AddMinutes(-3)
