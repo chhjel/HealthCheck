@@ -1,51 +1,43 @@
 using Fido2NetLib;
 using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Config;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.AccessTokens;
+using HealthCheck.Core.Modules.AccessTokens.Abstractions;
 using HealthCheck.Core.Modules.AuditLog;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
-using HealthCheck.Core.Modules.AuditLog.Services;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.Dataflow.Abstractions;
-using HealthCheck.Core.Modules.Dataflow.Models;
-using HealthCheck.Core.Modules.Dataflow.Services;
 using HealthCheck.Core.Modules.Documentation;
 using HealthCheck.Core.Modules.Documentation.Services;
 using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.EventNotifications.Abstractions;
-using HealthCheck.Core.Modules.EventNotifications.Notifiers;
-using HealthCheck.Core.Modules.EventNotifications.Services;
 using HealthCheck.Core.Modules.LogViewer;
-using HealthCheck.Core.Modules.LogViewer.Services;
 using HealthCheck.Core.Modules.SecureFileDownload;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload.FileStorage;
 using HealthCheck.Core.Modules.Settings;
 using HealthCheck.Core.Modules.Settings.Abstractions;
-using HealthCheck.Core.Modules.Settings.Services;
 using HealthCheck.Core.Modules.SiteEvents;
 using HealthCheck.Core.Modules.SiteEvents.Abstractions;
 using HealthCheck.Core.Modules.SiteEvents.Enums;
 using HealthCheck.Core.Modules.SiteEvents.Models;
-using HealthCheck.Core.Modules.SiteEvents.Services;
 using HealthCheck.Core.Modules.SiteEvents.Utils;
 using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Util;
 using HealthCheck.Dev.Common;
 using HealthCheck.Dev.Common.Dataflow;
-using HealthCheck.Dev.Common.EventNotifier;
 using HealthCheck.Dev.Common.Settings;
 using HealthCheck.Dev.Common.Tests;
 using HealthCheck.Module.DevModule;
+using HealthCheck.Module.EndpointControl.Abstractions;
+using HealthCheck.Module.EndpointControl.Module;
 using HealthCheck.WebUI.Abstractions;
 using HealthCheck.WebUI.MFA.TOTP;
 using HealthCheck.WebUI.MFA.WebAuthn;
 using HealthCheck.WebUI.MFA.WebAuthn.Storage;
 using HealthCheck.WebUI.Models;
-using HealthCheck.WebUI.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -65,45 +57,43 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
     {
         #region Props & Fields
         private readonly IWebHostEnvironment _env;
+        private readonly IEventDataSink _eventDataSink;
+        private readonly ISiteEventService _siteEventService;
+        private readonly IHCSettingsService _settingsService;
         private const string EndpointBase = "/";
-        private static ISiteEventService _siteEventService;
-        private static IAuditEventStorage _auditEventService;
-        private static readonly TestStreamA testStreamA = new TestStreamA();
-        private static readonly TestStreamB testStreamB = new TestStreamB();
-        private static readonly TestStreamC testStreamC = new TestStreamC();
-        private static readonly SimpleStream simpleStream = new SimpleStream("Simple A");
-        private static readonly TestMemoryStream memoryStream = new TestMemoryStream("Memory");
-        private static readonly TestMemoryStream otherStream1 = new TestMemoryStream(null);
-        private static readonly TestMemoryStream otherStream2 = new TestMemoryStream(null);
-        private static readonly FlatFileEventSinkNotificationConfigStorage EventSinkNotificationConfigStorage
-            = new FlatFileEventSinkNotificationConfigStorage(@"c:\temp\eventconfigs.json");
-        private static readonly FlatFileEventSinkKnownEventDefinitionsStorage EventSinkNotificationDefinitionStorage
-            = new FlatFileEventSinkKnownEventDefinitionsStorage(@"c:\temp\eventconfig_defs.json");
-        private static readonly FlatFileSecureFileDownloadDefinitionStorage FlatFileSecureFileDownloadDefinitionStorage
-            = new FlatFileSecureFileDownloadDefinitionStorage(@"c:\temp\securefile_defs.json");
-        private static HCFlatFileStringDictionaryStorage _settingsStorage = new HCFlatFileStringDictionaryStorage(@"C:\temp\settings.json");
-        private IHCSettingsService SettingsService { get; set; } = new HCDefaultSettingsService(_settingsStorage);
-        private IDataflowService<RuntimeTestAccessRole> DataflowService { get; set; }
-        private IEventDataSink EventSink { get; set; }
         private static bool ForceLogout { get; set; }
         #endregion
 
-        public DevController(IWebHostEnvironment env) : base()
+        public DevController(IWebHostEnvironment env,
+            IEndpointControlService endpointControlService,
+            IEndpointControlRuleStorage endpointControlRuleStorage,
+            IEndpointControlEndpointDefinitionStorage endpointControlEndpointDefinitionStorage,
+            IEndpointControlRequestHistoryStorage endpointControlRequestHistoryStorage,
+            ISecureFileDownloadDefinitionStorage secureFileDownloadDefinitionStorage,
+            IAccessManagerTokenStorage accessManagerTokenStorage,
+            IEventDataSink eventDataSink,
+            ILogSearcherService logSearcherService,
+            IDataflowService<RuntimeTestAccessRole> dataflowService,
+            IAuditEventStorage auditEventStorage,
+            ISiteEventService siteEventService,
+            IHCSettingsService settingsService
+        )
+            : base()
         {
             _env = env;
-
-            InitServices();
-
-            //UseModule(new HCEndpointControlModule(new HCEndpointControlModuleOptions()
-            //{
-            //    EndpointControlService = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlService)) as IEndpointControlService,
-            //    RuleStorage = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlRuleStorage)) as IEndpointControlRuleStorage,
-            //    DefinitionStorage = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlEndpointDefinitionStorage)) as IEndpointControlEndpointDefinitionStorage,
-            //    HistoryStorage = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(IEndpointControlRequestHistoryStorage)) as IEndpointControlRequestHistoryStorage
-            //}));
+            _eventDataSink = eventDataSink;
+            _siteEventService = siteEventService;
+            _settingsService = settingsService;
+            UseModule(new HCEndpointControlModule(new HCEndpointControlModuleOptions()
+            {
+                EndpointControlService = endpointControlService,
+                RuleStorage = endpointControlRuleStorage,
+                DefinitionStorage = endpointControlEndpointDefinitionStorage,
+                HistoryStorage = endpointControlRequestHistoryStorage
+            }));
             UseModule(new HCSecureFileDownloadModule(new HCSecureFileDownloadModuleOptions()
             {
-                DefinitionStorage = FlatFileSecureFileDownloadDefinitionStorage,
+                DefinitionStorage = secureFileDownloadDefinitionStorage,
                 FileStorages = new ISecureFileDownloadFileStorage[]
                 {
                     new FolderFileStorage("files_test", "Disk storage", @"C:\temp\fileStorageTest"),
@@ -112,7 +102,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             }));
             UseModule(new HCAccessTokensModule(new HCAccessTokensModuleOptions()
             {
-                TokenStorage = new FlatFileAccessManagerTokenStorage(@"C:\temp\AccessTokens.json")
+                TokenStorage = accessManagerTokenStorage
             }));
             UseModule(new HCTestsModule(new HCTestsModuleOptions()
             {
@@ -129,8 +119,8 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                     .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
                     .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
                 );
-            UseModule(new HCEventNotificationsModule(new HCEventNotificationsModuleOptions() { EventSink = EventSink }));
-            UseModule(new HCLogViewerModule(new HCLogViewerModuleOptions() { LogSearcherService = CreateLogSearcherService() }));
+            UseModule(new HCEventNotificationsModule(new HCEventNotificationsModuleOptions() { EventSink = eventDataSink }));
+            UseModule(new HCLogViewerModule(new HCLogViewerModuleOptions() { LogSearcherService = logSearcherService }));
             UseModule(new HCDocumentationModule(new HCDocumentationModuleOptions()
             {
                 EnableDiagramDetails = true,
@@ -144,10 +134,10 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                     DefaultSourceAssemblies = new[] { typeof(DevController).Assembly }
                 })
             }));
-            UseModule(new HCDataflowModule<RuntimeTestAccessRole>(new HCDataflowModuleOptions<RuntimeTestAccessRole>() { DataflowService = DataflowService }));
-            UseModule(new HCAuditLogModule(new HCAuditLogModuleOptions() { AuditEventService = _auditEventService }));
-            UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = _siteEventService }));
-            UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { Service = SettingsService, ModelType = typeof(TestSettings) }));
+            UseModule(new HCDataflowModule<RuntimeTestAccessRole>(new HCDataflowModuleOptions<RuntimeTestAccessRole>() { DataflowService = dataflowService }));
+            UseModule(new HCAuditLogModule(new HCAuditLogModuleOptions() { AuditEventService = auditEventStorage }));
+            UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = siteEventService }));
+            UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { Service = settingsService, ModelType = typeof(TestSettings) }));
 
             if (!_hasInited)
             {
@@ -219,7 +209,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCAccessTokensModule>(RuntimeTestAccessRole.SystemAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSecureFileDownloadModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<TestModuleB>(RuntimeTestAccessRole.WebAdmins);
-            //config.GiveRolesAccessToModuleWithFullAccess<HCEndpointControlModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCEndpointControlModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
@@ -359,7 +349,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
 
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequest request)
         {
-            EventSink.RegisterEvent("GetRequestInfo", new
+            _eventDataSink.RegisterEvent("GetRequestInfo", new
             {
                 Type = this.GetType().Name,
                 Path = Request?.Path
@@ -468,24 +458,24 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 {
                     Url = Request.GetDisplayUrl(),
                     User = CurrentRequestInformation?.UserName,
-                    SettingValue = SettingsService.GetSettings<TestSettings>().IntProp,
+                    SettingValue = _settingsService.GetSettings<TestSettings>().IntProp,
                     ExtraB = "BBBB"
                 },
                 2 => new
                 {
                     Url = Request.GetDisplayUrl(),
                     User = CurrentRequestInformation?.UserName,
-                    SettingValue = SettingsService.GetSettings<TestSettings>().IntProp,
+                    SettingValue = _settingsService.GetSettings<TestSettings>().IntProp,
                     ExtraA = "AAAA"
                 },
                 _ => new
                 {
                     Url = Request.GetDisplayUrl(),
                     User = CurrentRequestInformation?.UserName,
-                    SettingValue = SettingsService.GetSettings<TestSettings>().IntProp
+                    SettingValue = _settingsService.GetSettings<TestSettings>().IntProp
                 },
             };
-            EventSink.RegisterEvent("pageload", payload);
+            _eventDataSink.RegisterEvent("pageload", payload);
             return Content($"Registered variant #{v}");
         }
 
@@ -520,57 +510,11 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             }
         }
 
-        private ILogSearcherService CreateLogSearcherService()
-            => new FlatFileLogSearcherService(new FlatFileLogSearcherServiceOptions()
-                    .IncludeLogFilesInDirectory(GetFilePath(@"App_Data\TestLogs")));
-
-        private ISiteEventService CreateSiteEventService()
-            => new SiteEventService(new FlatFileSiteEventStorage(GetFilePath(@"App_Data\SiteEventStorage.json"),
-                maxEventAge: TimeSpan.FromDays(5), delayFirstCleanup: false));
-
-        private IAuditEventStorage CreateAuditEventService()
-        {
-            var blobFolder = GetFilePath(@"App_Data\AuditEventBlobs");
-            var blobService = new FlatFileAuditBlobStorage(blobFolder, maxEventAge: TimeSpan.FromDays(1));
-            return new FlatFileAuditEventStorage(GetFilePath(@"App_Data\AuditEventStorage.json"),
-                maxEventAge: TimeSpan.FromDays(30), delayFirstCleanup: false, blobStorage: blobService);
-        }
-
         private static bool _hasInited = false;
         private void InitOnce()
         {
             _hasInited = true;
             Task.Run(() => AddEvents());
-        }
-
-        private void InitServices()
-        {
-            if (_siteEventService == null)
-            {
-                _siteEventService = HCGlobalConfig.GetDefaultInstanceResolver()(typeof(ISiteEventService)) as ISiteEventService ?? CreateSiteEventService();
-                _auditEventService = CreateAuditEventService();
-            }
-
-            DataflowService = new DefaultDataflowService<RuntimeTestAccessRole>(new DefaultDataflowServiceOptions<RuntimeTestAccessRole>()
-            {
-                Streams = new IDataflowStream<RuntimeTestAccessRole>[]
-                {
-                    testStreamA,
-                    testStreamB,
-                    testStreamC,
-                    simpleStream,
-                    memoryStream,
-                    otherStream1,
-                    otherStream2
-                }
-            });
-            EventSink = new DefaultEventDataSink(EventSinkNotificationConfigStorage, EventSinkNotificationDefinitionStorage)
-                .AddNotifier(new HCWebHookEventNotifier())
-                .AddNotifier(new MyNotifier())
-                .AddNotifier(new SimpleNotifier())
-                .AddPlaceholder("NOW", () => DateTimeOffset.Now.ToString())
-                .AddPlaceholder("ServerName", () => Environment.MachineName);
-            (EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetSettings<TestSettings>().EnableEventRegistering;
         }
 
         // New mock data
@@ -602,7 +546,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 })
                 .ToList();
 
-            testStreamA.InsertEntries(entriesToInsert);
+            Config.IoCConfig.TestStreamA.InsertEntries(entriesToInsert);
 
             return Content("OK :]");
         }

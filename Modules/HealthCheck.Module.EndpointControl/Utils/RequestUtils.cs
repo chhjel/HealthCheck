@@ -1,11 +1,17 @@
 ﻿#if NETFULL
-using HealthCheck.Core.Config;
-using HealthCheck.Core.Extensions;
-using System;
 using System.IO;
 using System.Net.Http;
 using System.Web;
 #endif
+#if NETCORE
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using System.Net;
+#endif
+using HealthCheck.Core.Config;
+using HealthCheck.Core.Extensions;
+using System;
+
 #pragma warning disable S2327
 
 namespace HealthCheck.Module.EndpointControl.Utils
@@ -193,6 +199,79 @@ namespace HealthCheck.Module.EndpointControl.Utils
             {
                 return null;
             }
+        }
+#endif
+
+#if NETCORE
+        public static string GetUrl(HttpRequest request) => request?.GetDisplayUrl();
+
+        /// <summary>
+        /// For .Core.
+        /// </summary>
+        public static string GetIPAddress(HttpContext context)
+        {
+            try
+            {
+                var request = context?.Request;
+
+                if (request == null)
+                {
+                    return null;
+                }
+
+                try
+                {
+                    var customIP = HCGlobalConfig.CurrentIPAddressResolver?.Invoke()?.StripPortNumber();
+                    if (!string.IsNullOrWhiteSpace(customIP))
+                    {
+                        return customIP;
+                    }
+                }
+                catch (Exception)
+                {
+                    // Ignored
+                }
+
+                if (IsLocalRequest(context))
+                {
+                    return "localhost";
+                }
+
+                string ipAddress = request?.Headers?["HTTP_X_FORWARDED_FOR"];
+
+                if (!string.IsNullOrEmpty(ipAddress))
+                {
+                    string[] addresses = ipAddress.Split(',');
+                    if (addresses.Length != 0)
+                    {
+                        return addresses[0]?.StripPortNumber();
+                    }
+                }
+
+                ipAddress = request?.Headers?["REMOTE_ADDR"] ?? context?.Connection?.RemoteIpAddress?.ToString();
+                return ipAddress?.StripPortNumber();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public static bool IsLocalRequest(HttpContext context)
+        {
+            if (context?.Connection?.RemoteIpAddress == null && context?.Connection?.LocalIpAddress == null)
+            {
+                return true;
+            }
+            else if (context.Connection.RemoteIpAddress.Equals(context.Connection.LocalIpAddress))
+            {
+                return true;
+            }
+            else if (IPAddress.IsLoopback(context.Connection.RemoteIpAddress))
+            {
+                return true;
+            }
+            return false;
         }
 #endif
     }

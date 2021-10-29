@@ -4,7 +4,7 @@ using System.Web.Http;
 
 namespace HealthCheck.DevTest.Controllers.RequestLogTestControllers
 {
-    public class SomeApiTestController : ApiController
+    public class TestECApiController : ApiController
     {
         [Route("TestGetA")]
         [HttpGet]

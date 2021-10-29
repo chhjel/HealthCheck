@@ -2,9 +2,11 @@
 using HealthCheck.Module.EndpointControl.Models;
 using System;
 #if NETFULL
-using System.Net.Http;
 using System.Web.Http.Controllers;
 using System.Web.Mvc;
+#endif
+#if NETCORE
+using Microsoft.AspNetCore.Mvc.Filters;
 #endif
 
 namespace HealthCheck.Module.EndpointControl.Abstractions
@@ -50,6 +52,13 @@ namespace HealthCheck.Module.EndpointControl.Abstractions
         /// Used by controllers inheriting from <see cref="System.Web.Http.ApiController"/>.
         /// </summary>
         EndpointControlRequestResultWebApi CreateWebApiResult(HttpActionContext actionContext, object customProperties);
+#endif
+
+#if NETCORE
+        /// <summary>
+        /// Used by controllers inheriting from <see cref="Microsoft.AspNetCore.Mvc.Controller"/>.
+        /// </summary>
+        EndpointControlRequestResultMvc CreateMvcResult(ActionExecutingContext filterContext, object customProperties);
 #endif
     }
 }

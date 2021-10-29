@@ -1063,7 +1063,7 @@ _messageStore.StoreMessage(inboxId: "mail", message);
 
 ## Module: Endpoint Control
 
-Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.EndpointControl?label=HealthCheck.Module.EndpointControl&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.EndpointControl) and only currently works on .net framework.
+Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.EndpointControl?label=HealthCheck.Module.EndpointControl&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.EndpointControl).
 
 Decorate mvc and webapi actions with `HCControlledEndpointAttribute` or `HCControlledApiEndpointAttribute` to allow for a bit of spam control by setting conditional rules at runtime using the interface. The module can also show the latest requests sent to decorated endpoints, including a few graphs.
 
@@ -1093,8 +1093,8 @@ UseModule(new HCEndpointControlModule(new HCEndpointControlModuleOptions()
 ... new FlatFileEndpointControlEndpointDefinitionStorage(@"e:\etc\ec_definitions.json");
 ... new FlatFileEndpointControlRequestHistoryStorage(@"e:\etc\ec_history.json");
 
-// DefaultEndpointControlService can be scoped
-...Register<IEndpointControlService, DefaultEndpointControlService>();
+// DefaultEndpointControlService can be scoped or singleton depending on your DI framework
+...RegisterSingleton<IEndpointControlService, DefaultEndpointControlService>();
 ```
 
 ### Usage in code

@@ -4,7 +4,7 @@ using System.Web.Mvc;
 
 namespace HealthCheck.DevTest.Controllers.RequestLogTestControllers
 {
-    public class SomeTestController : Controller
+    public class TestECController : Controller
     {
         [HCControlledEndpoint("Getty Somethingy")]
         public ActionResult GetSomething()
