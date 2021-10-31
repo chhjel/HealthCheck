@@ -68,8 +68,19 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public IEnumerable<TItem> GetEnumerable()
         {
+            foreach (var item in GetBufferedItemsToInsert())
+            {
+                yield return item;
+            }
+
             var data = GetBlobData();
-            return data?.Items.Values ?? Enumerable.Empty<TItem>();
+            if (data?.Items != null)
+            {
+                foreach (var item in data.Items.Values ?? Enumerable.Empty<TItem>())
+                {
+                    yield return item;
+                }
+            }
         }
 
         /// <inheritdoc />

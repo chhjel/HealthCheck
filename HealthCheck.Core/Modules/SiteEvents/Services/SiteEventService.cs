@@ -3,6 +3,7 @@ using HealthCheck.Core.Modules.SiteEvents.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.SiteEvents.Services
@@ -54,38 +55,48 @@ namespace HealthCheck.Core.Modules.SiteEvents.Services
             var mergeOptions = forcedMergeOptions ?? DefaultMergeOptions;
             var shouldUpdate = false;
 
-            SiteEvent lastEvent = null;
-            if (!string.IsNullOrWhiteSpace(siteEvent.EventTypeId))
+            try
             {
-                lastEvent = await Storage.GetLastMergableEventOfType(siteEvent.EventTypeId);
-            }
+                _storeSemaphore.WaitOne();
 
-            if (mergeOptions.AllowEventMerge && lastEvent != null)
-            {
-                var lastEventDuration = lastEvent.Duration;
-                if (mergeOptions.LastEventDurationMultiplier != null)
+                SiteEvent lastEvent = null;
+                if (!string.IsNullOrWhiteSpace(siteEvent.EventTypeId))
                 {
-                    lastEventDuration = (int)((float)lastEventDuration * mergeOptions.LastEventDurationMultiplier);
+                    lastEvent = await Storage.GetLastMergableEventOfType(siteEvent.EventTypeId).ConfigureAwait(false);
                 }
 
-                var lastCalculatedEndTime = lastEvent.Timestamp.AddMinutes(lastEventDuration);
-                var minutesBetweenEvents = siteEvent.Timestamp - lastCalculatedEndTime;
-                if (minutesBetweenEvents.TotalMinutes <= mergeOptions.MaxMinutesSinceLastEventEnd)
+                if (mergeOptions.AllowEventMerge && lastEvent != null)
                 {
-                    shouldUpdate = true;
-                    DefaultMergeOptions.EventMerger(lastEvent, siteEvent);
+                    var lastEventDuration = lastEvent.Duration;
+                    if (mergeOptions.LastEventDurationMultiplier != null)
+                    {
+                        lastEventDuration = (int)((float)lastEventDuration * mergeOptions.LastEventDurationMultiplier);
+                    }
+
+                    var lastCalculatedEndTime = lastEvent.Timestamp.AddMinutes(lastEventDuration);
+                    var minutesBetweenEvents = siteEvent.Timestamp - lastCalculatedEndTime;
+                    if (minutesBetweenEvents.TotalMinutes <= mergeOptions.MaxMinutesSinceLastEventEnd)
+                    {
+                        shouldUpdate = true;
+                        DefaultMergeOptions.EventMerger(lastEvent, siteEvent);
+                    }
+                }
+
+                if (shouldUpdate)
+                {
+                    await Storage.UpdateEvent(lastEvent).ConfigureAwait(false);
+                }
+                else
+                {
+                    await Storage.StoreEvent(siteEvent).ConfigureAwait(false);
                 }
             }
-
-            if (shouldUpdate)
+            finally
             {
-                await Storage.UpdateEvent(lastEvent);
-            }
-            else
-            {
-                await Storage.StoreEvent(siteEvent);
+                _storeSemaphore.Release();
             }
         }
+        private static readonly Semaphore _storeSemaphore = new(1, 1);
 
         /// <summary>
         /// Mark the last event with the given <paramref name="eventTypeId"/> as resolved with the given message.

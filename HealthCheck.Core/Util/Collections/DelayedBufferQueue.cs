@@ -99,6 +99,37 @@ namespace HealthCheck.Core.Util.Collections
             }
         }
 
+        /// <summary>
+        /// Performs the given update on all items matchin the condition.
+        /// </summary>
+        public virtual void UpdateQueuedItem(Func<T, bool> condition, Action<T> updateAction)
+        {
+            lock (BufferQueue)
+            {
+                foreach (var item in BufferQueue)
+                {
+                    if (condition(item))
+                    {
+                        updateAction(item);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Retrieves all buffered items
+        /// </summary>
+        public virtual IEnumerable<T> GetBufferedItems()
+        {
+            lock (BufferQueue)
+            {
+                foreach (var item in BufferQueue)
+                {
+                    yield return item;
+                }
+            }
+        }
+
         private void EnsureDelayedCallback()
         {
             if (BufferQueue.Count >= QueueSizeLimit)

@@ -57,8 +57,7 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public virtual Task<List<AuditEvent>> GetEvents(DateTimeOffset from, DateTimeOffset to)
         {
-            var data = GetBlobData();
-            var items = data.Items
+            var items = GetItems()
                 .Where(x => x.Timestamp.ToUniversalTime() >= from && x.Timestamp.ToUniversalTime() <= to)
                 .ToList();
             return Task.FromResult(items);

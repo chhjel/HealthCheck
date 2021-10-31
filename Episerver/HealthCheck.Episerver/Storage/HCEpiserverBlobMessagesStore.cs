@@ -55,18 +55,12 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public HCDataWithTotalCount<IEnumerable<IHCMessageItem>> GetLatestMessages(string inboxId, int pageSize, int pageIndex)
         {
-            var data = GetBlobData();
-
-            var totalCount = 0;
-            IEnumerable<IHCMessageItem> items = null;
-            if (data.Lists.ContainsKey(inboxId))
-            {
-                totalCount = data.Lists[inboxId].Count;
-                items = data.Lists[inboxId]
-                    .OfType<IHCMessageItem>()
-                    .Skip(pageIndex * pageSize)
-                    .Take(pageSize);
-            }
+            var allItems = GetItems(inboxId).ToArray();
+            var totalCount = allItems.Length;
+            var items = allItems
+                .OfType<IHCMessageItem>()
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize);
 
             return new HCDataWithTotalCount<IEnumerable<IHCMessageItem>>
             {
@@ -78,12 +72,8 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public IHCMessageItem GetMessage(string inboxId, string messageId)
         {
-            var data = GetBlobData();
-            if (!data.Lists.ContainsKey(inboxId))
-            {
-                return null;
-            }
-            return data.Lists[inboxId].FirstOrDefault(x => x.Id == messageId);
+            var items = GetItems(inboxId);
+            return items.FirstOrDefault(x => x.Id == messageId);
         }
 
         /// <inheritdoc />

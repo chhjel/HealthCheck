@@ -103,15 +103,14 @@ namespace HealthCheck.Core.Util
         public TItem InsertOrUpdateItem(TItem item, Func<TItem, TItem> update = null)
         {
             var id = GetItemId(item);
-            var existingItem = GetItem(id);
-            if (existingItem == null)
+            var updateCount = UpdateWhere(x => ItemHasId(x, id), update ?? ((old) => item));
+            if (updateCount > 0)
             {
-                return InsertItem(item);
+                return item;
             }
             else
             {
-                UpdateWhere(x => ItemHasId(x, id), update ?? ((old) => item));
-                return item;
+                return InsertItem(item);
             }
         }
 

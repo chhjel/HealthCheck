@@ -70,7 +70,7 @@ namespace HealthCheck.Episerver.EndpointControl
 			: base(cache)
 		{
 			BlobUpdateBufferDuration = TimeSpan.FromSeconds(30);
-			MaxBufferSize = 500;
+			MaxBufferSize = 2500;
 			_blobHelper = new HCEpiserverBlobHelper<LatestEndpointRequestsHistory>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
 		}
 

@@ -20,14 +20,14 @@ namespace HealthCheck.Core.Util.Storage
 
         /// <summary>
         /// Max buffer size.
-        /// <para>Defaults to 100.</para>
+        /// <para>Defaults to 100, and is usually set to a suitable number per implementation.</para>
         /// </summary>
         public virtual int MaxBufferSize { get => BufferQueue.QueueSizeLimit; set => BufferQueue.QueueSizeLimit = value; }
 
         /// <summary>
         /// The buffered queue of items to add.
         /// </summary>
-        private readonly DelayedBufferQueue<BufferQueueItem> BufferQueue;
+        protected readonly DelayedBufferQueue<BufferQueueItem> BufferQueue;
 
         /// <summary>
         /// Wrapper type for buffered items.
@@ -90,7 +90,8 @@ namespace HealthCheck.Core.Util.Storage
         /// <summary>
         /// Queues up items and calls <see cref="OnBufferCallback"/> after a delay or when max count is reached.
         /// </summary>
-        protected void InsertItemBuffered(TItem item, object id = null) => BufferQueue.Add(new BufferQueueItem { Id = id, ItemToInsert = item });
+        protected void InsertItemBuffered(TItem item, object id = null)
+            => BufferQueue.Add(new BufferQueueItem { Id = id, ItemToInsert = item });
 
         /// <summary>
         /// Queues up items and calls <see cref="OnBufferCallback"/> after a delay or when max count is reached.
@@ -103,6 +104,18 @@ namespace HealthCheck.Core.Util.Storage
         /// </summary>
         protected void UpdateItemBuffered(object id, Action<TItem> updateAction)
             => BufferQueue.Add(new BufferQueueItem { Id = id, UpdateAction = updateAction });
+
+        /// <summary>
+        /// Updates an enqueued buffer item.
+        /// </summary>
+        protected void UpdateBufferQueueItem(object id, Action<TItem> updateAction)
+            => BufferQueue.UpdateQueuedItem(x => x.Id == id && x.IsInsert, x => updateAction(x.ItemToInsert));
+
+        /// <summary>
+        /// Get all buffered new items not yet stored.
+        /// </summary>
+        protected IEnumerable<TItem> GetBufferedItemsToInsert()
+            => BufferQueue.GetBufferedItems().Where(x => x.IsInsert).Select(x => x.ItemToInsert);
 
         /// <summary>
         /// Called when the buffer is full or duration has been reached.

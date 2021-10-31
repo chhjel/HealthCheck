@@ -13,6 +13,9 @@ using HealthCheck.Core.Modules.Documentation.Services;
 using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.EventNotifications.Abstractions;
 using HealthCheck.Core.Modules.LogViewer;
+using HealthCheck.Core.Modules.Metrics;
+using HealthCheck.Core.Modules.Metrics.Abstractions;
+using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Core.Modules.SecureFileDownload;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload.FileStorage;
@@ -76,7 +79,8 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             IDataflowService<RuntimeTestAccessRole> dataflowService,
             IAuditEventStorage auditEventStorage,
             ISiteEventService siteEventService,
-            IHCSettingsService settingsService
+            IHCSettingsService settingsService,
+            IHCMetricsStorage metricsStorage
         )
             : base()
         {
@@ -90,6 +94,10 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 RuleStorage = endpointControlRuleStorage,
                 DefinitionStorage = endpointControlEndpointDefinitionStorage,
                 HistoryStorage = endpointControlRequestHistoryStorage
+            }));
+            UseModule(new HCMetricsModule(new HCMetricsModuleOptions()
+            {
+                Storage = metricsStorage
             }));
             UseModule(new HCSecureFileDownloadModule(new HCSecureFileDownloadModuleOptions()
             {
@@ -210,6 +218,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCSecureFileDownloadModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<TestModuleB>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCEndpointControlModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCMetricsModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
@@ -347,6 +356,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             };
         }
 
+        private static readonly DateTime _eventTime = DateTime.Now;
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequest request)
         {
             _eventDataSink.RegisterEvent("GetRequestInfo", new
@@ -354,6 +364,8 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 Type = this.GetType().Name,
                 Path = Request?.Path
             });
+            HCMetricsContext.AddNote("Random value", new Random().Next());
+            HCMetricsContext.AddGlobalValue("Rng", new Random().Next());
 
             if (ForcedRole != null)
             {
@@ -362,6 +374,16 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
 
             var roles = RuntimeTestAccessRole.Guest;
 
+            if (request.Query.ContainsKey("siteEvents"))
+            {
+                for (int i = 0; i < 500; i++)
+                {
+                    HCSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Warning, $"pageError_{_eventTime.Ticks}", $"Slow page #{_eventTime.Ticks}",
+                        $"Pageload seems a bit slow currently on page #{_eventTime.Ticks}, we're working on it.",
+                        duration: 5,
+                        developerDetails: $"Duration: {i} ms");
+                }
+            }
             if (request.Query.ContainsKey("siteEvent"))
             {
                 HCSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Error, "api_x_error", "Oh no! API X is broken!", "How could this happen to us!?",

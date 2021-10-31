@@ -51,6 +51,8 @@ Available modules:
 
 4. Invoke `UseModule(..)` to enable any desired modules.
 
+5. For .NET Core usage many of the HC modules require the following injected on startup: `services.AddHttpContextAccessor()`
+
 <details><summary>Example controller</summary>
 <p>
 

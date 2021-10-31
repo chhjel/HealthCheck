@@ -2,12 +2,13 @@ using HealthCheck.Core.Modules.SiteEvents.Enums;
 using HealthCheck.Core.Modules.SiteEvents.Models;
 using HealthCheck.Core.Modules.SiteEvents.Services;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace HealthCheck.Core.Services
+namespace HealthCheck.Core.Tests.Modules.SiteEvents
 {
     public class SiteEventServiceTests
     {
@@ -46,6 +47,23 @@ namespace HealthCheck.Core.Services
             await service.MarkEventAsResolved("typeIdX", "Resolved!");
             var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Single(items.Where(x => x.Resolved && x.ResolvedMessage == "Resolved!" && x.ResolvedAt != null));
+        }
+
+        [Fact]
+        public async Task StoreEvent_WithLoadsOfMatchingEvents_ShouldResultInSingle()
+        {
+            var storage = new MemorySiteEventStorage();
+            var service = new SiteEventService(storage);
+            var tasks = new List<Task>();
+            for(int i=0;i<5000;i++)
+            {
+                var eventX = new SiteEvent(SiteEventSeverity.Error, "typeIdX", "TitleB", "DescriptionB");
+                tasks.Add(service.StoreEvent(eventX));
+            }
+
+            await Task.WhenAll(tasks);
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
+            Assert.Single(items);
         }
 
         [Fact]

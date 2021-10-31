@@ -9,6 +9,9 @@ using HealthCheck.Core.Modules.EventNotifications.Abstractions;
 using HealthCheck.Core.Modules.EventNotifications.Notifiers;
 using HealthCheck.Core.Modules.EventNotifications.Services;
 using HealthCheck.Core.Modules.LogViewer.Services;
+using HealthCheck.Core.Modules.Metrics.Abstractions;
+using HealthCheck.Core.Modules.Metrics.Context;
+using HealthCheck.Core.Modules.Metrics.Services;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.Settings.Abstractions;
 using HealthCheck.Core.Modules.Settings.Services;
@@ -33,6 +36,10 @@ namespace HealthCheck.DevTest.NetCore_3._1.Config
     {
         internal static void Configure(IServiceCollection services, IWebHostEnvironment env)
         {
+            // .Net Core things
+            services.AddHttpContextAccessor();
+
+            // HC things
             services.AddSingleton<IEndpointControlRuleStorage>((x) => new FlatFileEndpointControlRuleStorage(GetFilePath(@"App_Data\ec_rules.json", env)));
             services.AddSingleton<IEndpointControlEndpointDefinitionStorage>((x) => new FlatFileEndpointControlEndpointDefinitionStorage(GetFilePath(@"App_Data\ec_defs.json", env)));
             services.AddSingleton<IEndpointControlRequestHistoryStorage>((x) => new FlatFileEndpointControlRequestHistoryStorage(GetFilePath(@"App_Data\ec_history.json", env)));
@@ -47,6 +54,9 @@ namespace HealthCheck.DevTest.NetCore_3._1.Config
             services.AddSingleton(x => CreateEventDataSinkService(x, env));
             services.AddSingleton<ISecureFileDownloadDefinitionStorage>(x => new FlatFileSecureFileDownloadDefinitionStorage(@"c:\temp\securefile_defs.json"));
             services.AddSingleton<IAccessManagerTokenStorage>(x => new FlatFileAccessManagerTokenStorage(@"C:\temp\AccessTokens.json"));
+            services.AddSingleton<IHCMetricsStorage, HCMemoryMetricsStorage>();
+
+            HCMetricsUtil.AllowTrackRequestMetrics = (r) => true;
         }
 
         private static string GetFilePath(string relativePath, IWebHostEnvironment env)

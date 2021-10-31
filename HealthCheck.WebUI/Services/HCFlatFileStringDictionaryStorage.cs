@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Core.Util;
 using Newtonsoft.Json;
 using System;
@@ -41,6 +42,7 @@ namespace HealthCheck.WebUI.Services
             lock (_fileLock)
             {
                 File.WriteAllText(FilePath, json);
+                HCMetricsContext.IncrementGlobalCounter($"StringDictionaryStorage({Path.GetFileNameWithoutExtension(FilePath)}).SaveData()", 1);
             }
         }
 
@@ -76,6 +78,7 @@ namespace HealthCheck.WebUI.Services
                     {
                         contents = IOUtils.ReadFile(FilePath);
                     }
+                    HCMetricsContext.IncrementGlobalCounter($"StringDictionaryStorage({Path.GetFileNameWithoutExtension(FilePath)}).LoadData()", 1);
                     return JsonConvert.DeserializeObject<Dictionary<string, string>>(contents)
                         ?? new Dictionary<string, string>();
                 }
