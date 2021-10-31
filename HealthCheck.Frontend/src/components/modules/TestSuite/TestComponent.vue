@@ -136,7 +136,9 @@ export default class TestComponent extends Vue {
     //  GETTERS  //
     //////////////
     get showCategories() : boolean {
-      return this.test.Categories && this.test.Categories.length > 0 && this.$store.state.input.ctrlIsHeldDown;
+      return this.test.Categories && this.test.Categories.length > 0
+        && this.$store.state.input.ctrlIsHeldDown
+        && this.$store.state.input.shiftIsHeldDown;
     }
 
     get categoriesString(): string {

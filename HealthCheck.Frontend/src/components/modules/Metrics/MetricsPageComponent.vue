@@ -8,7 +8,7 @@
             <v-flex>
             <v-container>
                 <h1>Metrics</h1>
-                <p>Values might be delayed before they are stored and displayed here.</p>
+                <p>Debug metrics to verify performance of code, values might be a bit delayed until the tracker is disposed.</p>
 
                 <v-btn :disabled="loadStatus.inProgress" @click="loadData" class="mb-3">
                     <v-icon size="20px" class="mr-2">refresh</v-icon>
@@ -71,6 +71,7 @@ import MetricsService from  '../../../services/MetricsService';
 import ModuleOptions from  '../../../models/Common/ModuleOptions';
 import ModuleConfig from "../../../models/Common/ModuleConfig";
 import { GetMetricsViewModel } from "generated/Models/Core/GetMetricsViewModel";
+import LinqUtils from "util/LinqUtils";
 
 export interface ModuleFrontendOptions {
 }
@@ -117,12 +118,14 @@ export default class MetricsPageComponent extends Vue {
             return [];
         }
 
-        return Object.keys(this.data.GlobalCounters).map(x => {
-            return {
-                key: x,
-                value: this.data!.GlobalCounters[x]
-            };
-        });
+        return Object.keys(this.data.GlobalCounters)
+            .map(x => {
+                return {
+                    key: x,
+                    value: this.data!.GlobalCounters[x]
+                };
+            })
+            .sort((a, b) => LinqUtils.SortBy(a, b, x => x.key));
     }
 
     get globalValues(): Array<any> {
@@ -130,12 +133,14 @@ export default class MetricsPageComponent extends Vue {
             return [];
         }
         
-        return Object.keys(this.data.GlobalValues).map(x => {
-            return {
-                key: x,
-                values: this.data!.GlobalValues[x]
-            };
-        });
+        return Object.keys(this.data.GlobalValues)
+            .map(x => {
+                return {
+                    key: x,
+                    values: this.data!.GlobalValues[x]
+                };
+            })
+            .sort((a, b) => LinqUtils.SortBy(a, b, x => x.key));
     }
 
     ////////////////

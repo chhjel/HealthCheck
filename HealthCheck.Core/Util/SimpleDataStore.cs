@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Modules.Metrics.Context;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -35,8 +36,8 @@ namespace HealthCheck.Core.Util
         internal Func<TItem, string[]> _serializer;
         internal Func<string[], TItem> _deserializer;
         internal bool _isWriteQueued;
-        internal List<string> _newRowsBuffer = new List<string>();
-        internal readonly object _fileLock = new object();
+        internal List<string> _newRowsBuffer = new();
+        internal readonly object _fileLock = new();
         private DateTimeOffset? _lastCleanupPerformedAt;
 
         /// <summary>
@@ -98,7 +99,7 @@ namespace HealthCheck.Core.Util
         public virtual TItem InsertItem(TItem item)
         {
             var row = SerializeItem(item);
-            Task.Run(() => QueueWriteBufferToFile(row));
+            QueueWriteBufferToFile(row);
             CheckCleanup();
             return item;
         }
@@ -125,6 +126,8 @@ namespace HealthCheck.Core.Util
                 File.Delete(FilePath);
                 File.Move(tempFile, FilePath);
                 OnFileWrittenEvent?.Invoke();
+                HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}<{typeof(TItem).Name}>.LoadData()", 1);
+                HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}<{typeof(TItem).Name}>.SaveData()", 1);
             }
         }
 
@@ -138,19 +141,20 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Perform the given changes on all rows that match the given condition.
         /// </summary>
-        public void UpdateWhere(Func<TItem, bool> condition, Func<TItem, TItem> update)
+        public int UpdateWhere(Func<TItem, bool> condition, Func<TItem, TItem> update)
             => UpdateWhereInternal(condition, update);
 
         /// <summary>
         /// Perform the given changes on all rows that match the given condition.
         /// </summary>
-        internal void UpdateWhereInternal(Func<TItem, bool> condition, Func<TItem, TItem> update, IEnumerable<string> mustContainAny = null)
+        internal int UpdateWhereInternal(Func<TItem, bool> condition, Func<TItem, TItem> update, IEnumerable<string> mustContainAny = null)
         {
             bool mustContainCheck(string line)
             {
                 return mustContainAny == null || mustContainAny.Any(x => line.Contains(x));
             }
 
+            int matchCount = 0;
             lock (_newRowsBuffer)
             {
                 for (int i = 0; i < _newRowsBuffer.Count; i++)
@@ -163,6 +167,7 @@ namespace HealthCheck.Core.Util
                     var item = DeserializeRow(_newRowsBuffer[i]);
                     if (item != null && condition(item))
                     {
+                        matchCount++;
                         _newRowsBuffer[i] = SerializeItem(update(item));
                     }
                 }
@@ -176,17 +181,25 @@ namespace HealthCheck.Core.Util
                 var updatedLines = File.ReadLines(FilePath)
                     .Select(row => new { row, item = mustContainCheck(row) ? new Maybe<TItem>(DeserializeRow(row)) : null })
                     .Select(x =>
-                        (x.item != null && x.item.HasValue && condition(x.item.Value))
-                            ? SerializeItem(update(x.item.Value))
-                            : x.row
-                    );
+                    {
+                        if (x.item != null && x.item.HasValue && condition(x.item.Value))
+                        {
+                            matchCount++;
+                            return SerializeItem(update(x.item.Value));
+                        }
+                        return x.row;
+                    });
 
                 File.WriteAllLines(tempFile, updatedLines);
 
                 File.Delete(FilePath);
                 File.Move(tempFile, FilePath);
                 OnFileWrittenEvent?.Invoke();
+                HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}<{typeof(TItem).Name}>.LoadData()", 1);
+                HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}<{typeof(TItem).Name}>.SaveData()", 1);
             }
+
+            return matchCount;
         }
 
         /// <summary>
@@ -251,6 +264,7 @@ namespace HealthCheck.Core.Util
 
                 lock (_fileLock)
                 {
+                    HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}<{typeof(TItem).Name}>.LoadData()", 1);
                     var fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     using ReverseStreamReader streamReader = new ReverseStreamReader(fileStream);
                     string row;
@@ -271,6 +285,7 @@ namespace HealthCheck.Core.Util
             {
                 lock (_fileLock)
                 {
+                    HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}<{typeof(TItem).Name}>.LoadData()", 1);
                     var fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     var bufferedStream = new BufferedStream(fileStream);
                     using StreamReader streamReader = new StreamReader(bufferedStream);
@@ -350,7 +365,7 @@ namespace HealthCheck.Core.Util
             }
         }
 
-        private async Task QueueWriteBufferToFile(string row)
+        private void QueueWriteBufferToFile(string row)
         {
             // Store text in memory
             lock (_newRowsBuffer)
@@ -365,6 +380,11 @@ namespace HealthCheck.Core.Util
                 _isWriteQueued = true;
             }
 
+            Task.Run(() => QueueWriteBufferToFileAsync());
+        }
+
+        private async Task QueueWriteBufferToFileAsync()
+        {
             // Wait to write
             await Task.Delay(TimeSpan.FromSeconds(WriteDelay));
 

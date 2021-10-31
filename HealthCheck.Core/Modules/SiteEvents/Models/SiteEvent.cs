@@ -87,7 +87,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
         /// <param name="description">Description of the event.</param>
         /// <param name="duration">Duration of event in minutes.</param>
         /// <param name="developerDetails">Extra details for developers.</param>
-        public SiteEvent(SiteEventSeverity severity, string eventTypeId, string title, string description, int duration = 1, string developerDetails = null)
+        public SiteEvent(SiteEventSeverity severity, string eventTypeId, string title, string description, int duration = 1, string developerDetails = null) : this()
         {
             Id = Guid.NewGuid();
             Severity = severity;
@@ -104,7 +104,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
         /// </summary>
         /// <param name="eventTypeId">Custom id of this type of event.</param>
         /// <param name="resolvedMessage">Resolved message.</param>
-        public SiteEvent(string eventTypeId, string resolvedMessage)
+        public SiteEvent(string eventTypeId, string resolvedMessage) : this()
         {
             EventTypeId = eventTypeId;
             Resolved = true;
@@ -112,9 +112,12 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
         }
 
         /// <summary>
-        /// Create a new <see cref="SiteEvent"/> without any values set.
+        /// Create a new <see cref="SiteEvent"/> without any values set except for a randomly generated id.
         /// </summary>
-        public SiteEvent() {}
+        public SiteEvent()
+        {
+            Id = Guid.NewGuid();
+        }
 
         /// <summary>
         /// Add an url related to this event.

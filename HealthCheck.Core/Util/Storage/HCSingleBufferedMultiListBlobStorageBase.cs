@@ -93,6 +93,31 @@ namespace HealthCheck.Core.Util.Storage
         }
 
         /// <summary>
+        /// Get all items, buffered or stored.
+        /// </summary>
+        protected IEnumerable<TItem> GetItems(TId listId)
+        {
+            var bufferedItems = BufferQueue.GetBufferedItems()
+                .Where(x => x.IsInsert && x.Id == (listId as object));
+            foreach (var item in bufferedItems)
+            {
+                yield return item.ItemToInsert;
+            }
+
+            var data = GetBlobData();
+            if (data != null)
+            {
+                if (data.Lists.TryGetValue(listId, out var list))
+                {
+                    foreach (var item in list)
+                    {
+                        yield return item;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Stored data model.
         /// </summary>
         public interface IBufferedBlobMultiListStorageData

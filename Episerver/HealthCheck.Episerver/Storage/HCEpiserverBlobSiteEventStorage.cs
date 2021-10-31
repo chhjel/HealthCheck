@@ -59,8 +59,7 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public virtual Task<List<SiteEvent>> GetEvents(DateTimeOffset from, DateTimeOffset to)
         {
-            var data = GetBlobData();
-            var items = data.Items
+            var items = GetItems()
                 .Where(x => x.Timestamp.ToUniversalTime() >= from && x.Timestamp.ToUniversalTime() <= to)
                 .ToList();
             return Task.FromResult(items);
@@ -89,16 +88,14 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public virtual Task<SiteEvent> GetLastMergableEventOfType(string eventTypeId)
         {
-            var data = GetBlobData();
-            var match = data?.Items?.FirstOrDefault(x => x.EventTypeId == eventTypeId && x.AllowMerge);
+            var match = GetItems()?.FirstOrDefault(x => x.EventTypeId == eventTypeId && x.AllowMerge);
             return Task.FromResult(match);
         }
 
         /// <inheritdoc />
         public virtual Task<SiteEvent> GetLastEventOfType(string eventTypeId)
         {
-            var data = GetBlobData();
-            var match = data?.Items?.FirstOrDefault(x => x.EventTypeId == eventTypeId);
+            var match = GetItems()?.FirstOrDefault(x => x.EventTypeId == eventTypeId);
             return Task.FromResult(match);
         }
 

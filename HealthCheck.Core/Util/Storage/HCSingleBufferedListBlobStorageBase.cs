@@ -94,6 +94,26 @@ namespace HealthCheck.Core.Util.Storage
         protected virtual object GetItemId(TItem item) => default;
 
         /// <summary>
+        /// Get all items, buffered or stored.
+        /// </summary>
+        protected IEnumerable<TItem> GetItems()
+        {
+            foreach (var item in GetBufferedItemsToInsert())
+            {
+                yield return item;
+            }
+
+            var data = GetBlobData();
+            if (data != null)
+            {
+                foreach (var item in data.Items)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        /// <summary>
         /// Stored data model.
         /// </summary>
         public interface IBufferedBlobListStorageData

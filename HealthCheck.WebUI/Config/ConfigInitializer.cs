@@ -75,7 +75,7 @@ namespace HealthCheck.WebUI.Config
                 if (!items.Contains(_hcMetricsItemsAllowedKey))
                 {
                     var hcContext = HCGlobalConfig.RequestContextFactory?.Invoke();
-                    var allowed = hcContext != null && HCMetricsUtil.AllowTrackRequestMetrics(hcContext);
+                    var allowed = hcContext != null && HCMetricsUtil.AllowTrackRequestMetrics?.Invoke(hcContext) == true;
                     items[_hcMetricsItemsAllowedKey] = allowed;
                     if (!allowed)
                     {
@@ -102,7 +102,7 @@ namespace HealthCheck.WebUI.Config
                 if (!items.ContainsKey(_hcMetricsItemsAllowedKey))
                 {
                     var hcContext = HCGlobalConfig.RequestContextFactory?.Invoke();
-                    var allowed = hcContext != null && HCMetricsUtil.AllowTrackRequestMetrics(hcContext);
+                    var allowed = hcContext != null && HCMetricsUtil.AllowTrackRequestMetrics?.Invoke(hcContext) == true;
                     items[_hcMetricsItemsAllowedKey] = allowed;
                     if (!allowed)
                     {

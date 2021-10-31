@@ -27,6 +27,16 @@ namespace HealthCheck.Core.Util.Storage
         protected abstract string CacheKey { get; }
 
         /// <summary>
+        /// Number of time blob was saved.
+        /// </summary>
+        public long SaveCounter { get; private set; }
+
+        /// <summary>
+        /// Number of time blob was loaded.
+        /// </summary>
+        public long LoadCounter { get; private set; }
+
+        /// <summary>
         /// Base implementation for storing a single object in a blob container with cache.
         /// </summary>
         protected HCSingleBlobStorageBase(IHCCache cache)
@@ -79,6 +89,7 @@ namespace HealthCheck.Core.Util.Storage
 
                 Cache?.Set(CacheKey, data, CacheDuration);
                 HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}.RetrieveBlobData()", 1);
+                if (LoadCounter < long.MaxValue) LoadCounter++;
                 return data;
             }
             catch(Exception)
@@ -90,11 +101,12 @@ namespace HealthCheck.Core.Util.Storage
         /// <summary>
         /// Save blob data and update cache.
         /// </summary>
-        protected void SaveBlobData(TData data)
+        protected virtual void SaveBlobData(TData data)
         {
             Cache?.Set(CacheKey, data, CacheDuration);
             StoreBlobData(data);
             HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}.SaveBlobData()", 1);
+            if (SaveCounter < long.MaxValue) SaveCounter++;
         }
 
         /// <summary>
