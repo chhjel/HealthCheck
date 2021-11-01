@@ -172,8 +172,15 @@ namespace HealthCheck.Core.Modules.AccessTokens
         /// View all token data.
         /// </summary>
         [HealthCheckModuleMethod(AccessOption.DeleteToken)]
-        public object DeleteToken(Guid id)
+        public object DeleteToken(HealthCheckModuleContext context, Guid id)
         {
+            var token = Options.TokenStorage.GetToken(id);
+            if (token != null)
+            {
+                context.AddAuditEvent(action: "Access token deleted", subject: token.Name)
+                    .AddDetail("Token id", token.Id.ToString());
+            }
+
             Options.TokenStorage.DeleteToken(id);
             return new { Success = true };
         }
@@ -222,6 +229,8 @@ namespace HealthCheck.Core.Modules.AccessTokens
             };
 
             token = Options.TokenStorage.SaveNewToken(token);
+            context.AddAuditEvent(action: "Access token created", subject: token.Name)
+                .AddDetail("Token id", token.Id.ToString());
 
             return new
             {
