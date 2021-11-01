@@ -46,6 +46,7 @@ namespace HealthCheck.Dev.Common.Tests
             });
 
             return new ProxyRuntimeTestConfig(typeof(SomeService))
+                .SetMethodFilter(x => !x.Name.StartsWith("FilteredOut"))
                 .SetCustomContext(
                     contextFactory: () => new { MemoryLogger = new HCMemoryLogger() },
                     instanceFactory: (context) => new SomeService(context.MemoryLogger),
@@ -106,6 +107,8 @@ namespace HealthCheck.Dev.Common.Tests
             public string WithParameterAndReturnValue1(Guid id) => $"Input was {id}";
 
             public string WithParameterAndReturnValue2(Guid? id) => $"Input was {id?.ToString() ?? "null"}";
+
+            public string FilteredOutMethod(Guid id) => $"Input was {id}";
 
             public async Task<DateTimeOffset?> NullableTaskResultTest()
             {
