@@ -1,7 +1,6 @@
 ﻿using HealthCheck.Core.Config;
 using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.Metrics.Abstractions;
-using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Util;
 using System;
 using System.Threading.Tasks;

@@ -1204,6 +1204,7 @@ var downloadDefinitionStorage = new FlatFileSecureFileDownloadDefinitionStorage(
 ## Module: Metrics
 
 Very simple module that outputs some metrics you can track manually through `HCMetricsContext` statically, to e.g. verify that some methods are not called too often, or to include extra details on every page (timings, errors, notes, etc).
+Currently only functions while in a request context, if attempted used outside one nothing will happen.
 
 ### Setup
 
