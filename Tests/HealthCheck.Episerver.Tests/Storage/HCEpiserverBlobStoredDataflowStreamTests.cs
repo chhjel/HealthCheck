@@ -36,8 +36,8 @@ namespace HealthCheck.Episerver.Tests.Storage
 
         private DummyStream CreateStorage(Func<MockBlob> blobFactory = null, string blobJson = null)
         {
-            var cache = BlobTestHelpers.CreateMockCache();
-            var factoryMock = BlobTestHelpers.CreateBlobFactoryMock(blobFactory, blobJson);
+            var cache = EpiBlobTestHelpers.CreateMockCache();
+            var factoryMock = EpiBlobTestHelpers.CreateBlobFactoryMock(blobFactory, blobJson);
             return new DummyStream(factoryMock.Object, cache, Guid.NewGuid(), x => x.Id);
         }
         public class DummyStream : HCEpiserverBlobStoredDataflowStream<DummyEnum, DummyItem, string>

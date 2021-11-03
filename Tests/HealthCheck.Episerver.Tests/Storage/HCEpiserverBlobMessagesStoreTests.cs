@@ -48,8 +48,8 @@ namespace HealthCheck.Episerver.Tests.Storage
 
         private HCEpiserverBlobMessagesStore<HCDefaultMessageItem> CreateStorage(Func<MockBlob> blobFactory = null, string blobJson = null)
         {
-            var cache = BlobTestHelpers.CreateMockCache();
-            var factoryMock = BlobTestHelpers.CreateBlobFactoryMock(blobFactory, blobJson);
+            var cache = EpiBlobTestHelpers.CreateMockCache();
+            var factoryMock = EpiBlobTestHelpers.CreateBlobFactoryMock(blobFactory, blobJson);
             return new HCEpiserverBlobMessagesStore<HCDefaultMessageItem>(factoryMock.Object, cache);
         }
     }

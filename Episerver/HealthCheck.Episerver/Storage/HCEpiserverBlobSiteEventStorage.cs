@@ -16,12 +16,12 @@ namespace HealthCheck.Episerver.Storage
     /// <para>Defaults to storing the last 1000 events, and max 30 days old.</para>
     /// </summary>
     public class HCEpiserverBlobSiteEventStorage
-        : HCSingleBufferedListBlobStorageBase<HCEpiserverBlobSiteEventStorage.HCSiteEventBlobData, SiteEvent>, ISiteEventStorage
+        : HCSingleBufferedDictionaryBlobStorageBase<HCEpiserverBlobSiteEventStorage.HCSiteEventBlobData, SiteEvent, Guid>, ISiteEventStorage
     {
         /// <summary>
         /// Container id used if not overridden.
         /// </summary>
-        protected virtual Guid DefaultContainerId => Guid.Parse("808214C8-2881-49C9-9C6E-82E64257AF75");
+        protected virtual Guid DefaultContainerId => Guid.Parse("808214C8-2882-49C9-9C6E-82E64257AF75");
 
         /// <summary>
         /// Defaults to the default provider if null.
@@ -50,12 +50,13 @@ namespace HealthCheck.Episerver.Storage
         public HCEpiserverBlobSiteEventStorage(IBlobFactory blobFactory, IHCCache cache)
             : base(cache)
         {
-            SupportsMaxItemAge = true;
             _blobHelper = new HCEpiserverBlobHelper<HCSiteEventBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
             MaxItemCount = 1000;
+            SupportsMaxItemAge = true;
             MaxItemAge = TimeSpan.FromDays(30);
         }
 
+        #region ISiteEventStorage Implementation
         /// <inheritdoc />
         public virtual Task<List<SiteEvent>> GetEvents(DateTimeOffset from, DateTimeOffset to)
         {
@@ -68,22 +69,16 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public virtual Task StoreEvent(SiteEvent siteEvent)
         {
-            InsertItemBuffered(siteEvent);
+            InsertItemBuffered(siteEvent, siteEvent.Id);
             return Task.CompletedTask;
         }
 
         /// <inheritdoc />
         public virtual Task UpdateEvent(SiteEvent siteEvent)
         {
-            UpdateItemBuffered(siteEvent.Id, x => x.SetValuesFrom(siteEvent));
+            InsertItemBuffered(siteEvent, siteEvent.Id, isUpdate: true);
             return Task.CompletedTask;
         }
-
-        /// <inheritdoc />
-        protected override object GetItemId(SiteEvent item) => item.Id;
-
-        /// <inheritdoc />
-        protected override DateTimeOffset GetItemTimestamp(SiteEvent item) => item.Timestamp;
 
         /// <inheritdoc />
         public virtual Task<SiteEvent> GetLastMergableEventOfType(string eventTypeId)
@@ -98,12 +93,10 @@ namespace HealthCheck.Episerver.Storage
             var match = GetItems()?.FirstOrDefault(x => x.EventTypeId == eventTypeId);
             return Task.FromResult(match);
         }
+        #endregion
 
         /// <inheritdoc />
-        public virtual bool SupportsBlobs() => false;
-
-        /// <inheritdoc />
-        public virtual Task<string> GetBlob(Guid id) => Task.FromResult<string>(null);
+        protected override DateTimeOffset GetItemTimestamp(SiteEvent item) => item.Timestamp;
 
         /// <inheritdoc />
         protected override HCSiteEventBlobData RetrieveBlobData() => _blobHelper.RetrieveBlobData();
@@ -114,12 +107,12 @@ namespace HealthCheck.Episerver.Storage
         /// <summary>
         /// Model stored in blob storage.
         /// </summary>
-        public class HCSiteEventBlobData : IBufferedBlobListStorageData
+        public class HCSiteEventBlobData : IBufferedBlobDictionaryStorageData
         {
             /// <summary>
             /// All stored site events.
             /// </summary>
-            public List<SiteEvent> Items { get; set; } = new List<SiteEvent>();
+            Dictionary<Guid, SiteEvent> IBufferedBlobDictionaryStorageData.Items { get; set; } = new Dictionary<Guid, SiteEvent>();
         }
     }
 }

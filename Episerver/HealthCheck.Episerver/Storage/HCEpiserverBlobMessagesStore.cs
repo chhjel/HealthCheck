@@ -78,7 +78,7 @@ namespace HealthCheck.Episerver.Storage
 
         /// <inheritdoc />
         public void StoreMessage(string inboxId, IHCMessageItem message)
-            => InsertItemBuffered(message as TMessageModel, inboxId);
+            => InsertItemBuffered(message as TMessageModel, id: message.Id, groupId: inboxId);
 
         /// <inheritdoc />
         public void DeleteAllData()

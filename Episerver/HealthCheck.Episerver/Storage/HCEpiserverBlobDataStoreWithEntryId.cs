@@ -57,18 +57,18 @@ namespace HealthCheck.Episerver.Storage
         /// </summary>
         public TItem InsertOrUpdateItem(TItem item, Func<TItem, TItem> update = null)
         {
-            InsertItemBuffered(item);
+            InsertItemBuffered(item, IdSelector(item));
             return item;
         }
 
         /// <inheritdoc />
         public void InsertOrUpdateItems(IEnumerable<TItem> items)
-            => InsertItemsBuffered(items);
+            => InsertItemsBuffered(items, IdSelector);
 
         /// <inheritdoc />
         public IEnumerable<TItem> GetEnumerable()
         {
-            foreach (var item in GetBufferedItemsToInsert())
+            foreach (var item in GetBufferedItems())
             {
                 yield return item;
             }
@@ -82,10 +82,6 @@ namespace HealthCheck.Episerver.Storage
                 }
             }
         }
-
-        /// <inheritdoc />
-        protected override TId GetItemId(TItem item)
-            => IdSelector(item);
 
         /// <inheritdoc />
         protected override HCBlobDataStoreWithEntryIdData RetrieveBlobData() => _blobHelper.RetrieveBlobData();

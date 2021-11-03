@@ -56,18 +56,16 @@ namespace HealthCheck.Core.Util.Storage
         {
             foreach(var item in bufferedItems)
             {
-                if (item.IsUpdate) throw new NotImplementedException($"{GetType().Name} does not have support for buffered updates yet.");
+                var listId = (item.GroupId != null) ? (TId)item.GroupId : default;
 
-                var id = (item.Id != null) ? (TId)item.Id : default;
-
-                if (!data.Lists.ContainsKey(id))
+                if (!data.Lists.ContainsKey(listId))
                 {
-                    var list = new List<TItem>() { item.ItemToInsert };
-                    data.Lists[id] = list;
+                    var list = new List<TItem>() { item.Item };
+                    data.Lists[listId] = list;
                 }
                 else
                 {
-                    data.Lists[id].Add(item.ItemToInsert);
+                    data.Lists[listId].Add(item.Item);
                 }
             }
 
@@ -97,11 +95,10 @@ namespace HealthCheck.Core.Util.Storage
         /// </summary>
         protected IEnumerable<TItem> GetItems(TId listId)
         {
-            var bufferedItems = BufferQueue.GetBufferedItems()
-                .Where(x => x.IsInsert && x.Id == (listId as object));
+            var bufferedItems = BufferQueue.GetBufferedItems().Where(x => x.GroupId == (listId as object));
             foreach (var item in bufferedItems)
             {
-                yield return item.ItemToInsert;
+                yield return item.Item;
             }
 
             var data = GetBlobData();

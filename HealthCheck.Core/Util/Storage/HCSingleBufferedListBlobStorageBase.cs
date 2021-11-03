@@ -1,7 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace HealthCheck.Core.Util.Storage
 {
@@ -61,16 +60,20 @@ namespace HealthCheck.Core.Util.Storage
         /// <inheritdoc />
         protected override TData UpdateDataFromBuffer(TData data, Queue<BufferQueueItem> bufferedItems)
         {
-            var toInsert = bufferedItems.Where(x => x.IsInsert).Select(x => x.ItemToInsert);
-            data.Items.AddRange(toInsert.Select(x => x));
-
-            var toUpdate = bufferedItems.Where(x => x.IsUpdate);
-            foreach (var action in toUpdate)
+            foreach (var bufferItem in bufferedItems)
             {
-                var existing = data.Items.FirstOrDefault(x => GetItemId(x) == action.Id);
-                if (existing != null)
+                if (bufferItem.IsUpdate)
                 {
-                    action.UpdateAction(existing);
+                    var existingIndex = data.Items.FindIndex(x => GetItemId(x).Equals(bufferItem.Id));
+                    if (existingIndex != -1)
+                    {
+                        data.Items.RemoveAt(existingIndex);
+                        data.Items.Insert(existingIndex, bufferItem.Item);
+                    }
+                }
+                else
+                {
+                    data.Items.Add(bufferItem.Item);
                 }
             }
 
@@ -89,16 +92,11 @@ namespace HealthCheck.Core.Util.Storage
         }
 
         /// <summary>
-        /// For buffered updates to work the id must be known.
-        /// </summary>
-        protected virtual object GetItemId(TItem item) => default;
-
-        /// <summary>
         /// Get all items, buffered or stored.
         /// </summary>
         protected IEnumerable<TItem> GetItems()
         {
-            foreach (var item in GetBufferedItemsToInsert())
+            foreach (var item in GetBufferedItems())
             {
                 yield return item;
             }
