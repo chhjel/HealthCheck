@@ -34,30 +34,26 @@ namespace HealthCheck.Core.Util.Storage
         /// </summary>
         protected struct BufferQueueItem
         {
-            /// <summary>
-            /// Id used in some implementations.
-            /// </summary>
+            /// <summary></summary>
             public object Id { get; set; }
+
+            /// <summary></summary>
+            public object GroupId { get; set; }
 
             /// <summary>
             /// Buffered item.
             /// </summary>
-            public TItem ItemToInsert { get; set; }
+            public TItem Item { get; set; }
 
             /// <summary>
-            /// True if <see cref="ItemToInsert"/> is set.
+            /// True if it's an update.
             /// </summary>
-            public bool IsInsert => ItemToInsert != null;
+            public bool IsUpdate { get; set; }
 
             /// <summary>
-            /// Action to perform on existing item.
+            /// Summary.
             /// </summary>
-            public Action<TItem> UpdateAction { get; set; }
-
-            /// <summary>
-            /// True if <see cref="UpdateAction"/> is set.
-            /// </summary>
-            public bool IsUpdate => UpdateAction != null;
+            public override string ToString() => $"{(Item?.ToString() ?? "null")}";
         }
 
         /// <summary>
@@ -88,34 +84,52 @@ namespace HealthCheck.Core.Util.Storage
         }
 
         /// <summary>
-        /// Queues up items and calls <see cref="OnBufferCallback"/> after a delay or when max count is reached.
+        /// For buffered updates to work the id must be known.
         /// </summary>
-        protected void InsertItemBuffered(TItem item, object id = null)
-            => BufferQueue.Add(new BufferQueueItem { Id = id, ItemToInsert = item });
+        protected virtual object GetItemId(TItem item) => default;
 
         /// <summary>
         /// Queues up items and calls <see cref="OnBufferCallback"/> after a delay or when max count is reached.
         /// </summary>
-        protected void InsertItemsBuffered(IEnumerable<TItem> items, object id = null)
-            => BufferQueue.Add(items.Select(x => new BufferQueueItem { Id = id, ItemToInsert = x }));
+        protected virtual void InsertItemBuffered(TItem item, object id = null, object groupId = null, bool isUpdate = false, Action<BufferQueueItem> config = null)
+        {
+            var data = new BufferQueueItem { Item = item, Id = id, GroupId = groupId, IsUpdate = isUpdate };
+            config?.Invoke(data);
+            BufferQueue.Add(data);
+        }
+
+        /// <summary>
+        /// Queues up items and calls <see cref="OnBufferCallback"/> after a delay or when max count is reached.
+        /// </summary>
+        protected void InsertItemsBuffered(IEnumerable<TItem> items)
+            => BufferQueue.Add(items.Select(x => new BufferQueueItem { Item = x }));
 
         /// <summary>
         /// Queues up an update to an item and calls <see cref="OnBufferCallback"/> after a delay or when max count is reached.
+        /// <para>Requires <see cref="GetItemId"/> to be implemented.</para>
         /// </summary>
-        protected void UpdateItemBuffered(object id, Action<TItem> updateAction)
-            => BufferQueue.Add(new BufferQueueItem { Id = id, UpdateAction = updateAction });
+        protected void UpdateItemBuffered(object id, Action<TItem> updateAction, Func<TItem> getExistingNonBufferedItem)
+        {
+            BufferQueue.UpdateQueuedItemOrInsertUpdated(
+                updateCondition: x => x.Id == id,
+                updateAction: updateAction,
+                updateBuffer: x => x.IsUpdate = true,
+                getExistingNonBufferedItem: getExistingNonBufferedItem,
+                addBuffered: x => InsertItemBuffered(x, id, isUpdate: true)
+            );
+        }
 
         /// <summary>
-        /// Updates an enqueued buffer item.
+        /// Removes all matching items from the buffer queue.
         /// </summary>
-        protected void UpdateBufferQueueItem(object id, Action<TItem> updateAction)
-            => BufferQueue.UpdateQueuedItem(x => x.Id == id && x.IsInsert, x => updateAction(x.ItemToInsert));
+        protected void RemoveFromBufferQueue(Func<BufferQueueItem, bool> filter)
+            => BufferQueue.RemoveMatching(filter);
 
         /// <summary>
         /// Get all buffered new items not yet stored.
         /// </summary>
-        protected IEnumerable<TItem> GetBufferedItemsToInsert()
-            => BufferQueue.GetBufferedItems().Where(x => x.IsInsert).Select(x => x.ItemToInsert);
+        protected IEnumerable<TItem> GetBufferedItems()
+            => BufferQueue.GetBufferedItems().Select(x => x.Item);
 
         /// <summary>
         /// Called when the buffer is full or duration has been reached.
@@ -136,5 +150,11 @@ namespace HealthCheck.Core.Util.Storage
         /// Update the actual data here before its saved.
         /// </summary>
         protected abstract TData UpdateDataFromBuffer(TData data, Queue<BufferQueueItem> bufferedItems);
+
+        /// <summary>
+        /// Skips waiting for the buffer and processes it at once.
+        /// <para>Should not be needed for other things than unit testing.</para>
+        /// </summary>
+        public void ForceBufferCallback() => BufferQueue.ForceBufferCallback();
     }
 }

@@ -64,7 +64,7 @@ namespace HealthCheck.Core.Modules.ReleaseNotes
         }
 
         /// <summary></summary>
-        [HealthCheckModuleMethod]
+        [HealthCheckModuleMethod(AccessOption.DeveloperDetails)]
         public async Task<HCReleaseNotesViewModel> GetReleaseNotesWithDevDetails()
         {
             var model = await Options.ReleaseNotesProvider.GetViewModelAsync();

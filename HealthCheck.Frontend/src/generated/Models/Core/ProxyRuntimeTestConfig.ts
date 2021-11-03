@@ -11,4 +11,5 @@ export interface ProxyRuntimeTestConfig
 	InstanceFactoryWithContext: (arg: any) => any;
 	ContextFactory: () => any;
 	ResultAction: (arg: TestResult, arg1: any) => void;
+	MethodFilter: (arg: any) => boolean;
 }

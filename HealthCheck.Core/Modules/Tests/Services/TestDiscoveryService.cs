@@ -136,7 +136,8 @@ namespace HealthCheck.Core.Modules.Tests.Services
                         var config = testMethod.Invoke(null, new object[0]) as ProxyRuntimeTestConfig;
                         var proxyMethods = config.TargetClassType.GetMethods()
                             .Where(t => !_excludedProxyMethodNames.Contains(t.Name) && !t.IsSpecialName && t.IsPublic && !t.IsStatic && !t.IsGenericMethod)
-                            .Where(m => !m.GetCustomAttributes(typeof(CompilerGeneratedAttribute), true).Any());
+                            .Where(m => !m.GetCustomAttributes(typeof(CompilerGeneratedAttribute), true).Any())
+                            .Where(m => config?.MethodFilter?.Invoke(m) != false);
                         foreach (var proxyMethod in proxyMethods)
                         {
                             var testDef = new TestDefinition(proxyMethod, proxyTestAttribute, config, classDef, ReferenceParameterFactories);

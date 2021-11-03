@@ -206,10 +206,12 @@ namespace HealthCheck.Core.Extensions
                 }
             }
 
+            value = value.Replace("_ ", "_").Replace("- ", "-");
+
             return value;
         }
 
-        private static readonly Regex _threePlusCapitalizedRegex = new Regex(@"( |^)(?<value>([A-Z]( |$)){3,})", RegexOptions.Multiline);
+        private static readonly Regex _threePlusCapitalizedRegex = new Regex(@"( |^|_|\-)(?<value>([A-Z]( |$|_|\-)){3,})", RegexOptions.Multiline);
 
         private static bool ANumberIsStartingAtPosition(string text, int index)
         {

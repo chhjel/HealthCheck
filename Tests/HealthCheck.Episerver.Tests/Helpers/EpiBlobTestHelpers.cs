@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace HealthCheck.Episerver.Tests.Helpers
 {
-    public static class BlobTestHelpers
+    public static class EpiBlobTestHelpers
     {
         public static List<MockBlob> CreatedBlobs { get; set; } = new List<MockBlob>();
 

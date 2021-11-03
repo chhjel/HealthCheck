@@ -14,7 +14,7 @@ namespace HealthCheck.Core.Tests.Storage.Implementations
 
 		protected override string CacheKey => "HCSingleBufferedMultiListBlobStorageTest";
 
-		public void Add(TestItem item) => InsertItemBuffered(item);
+		public void Add(TestItem item) => InsertItemBuffered(item, item.Id);
 		public TestData GetData() => GetBlobData();
 
 		protected override TestData RetrieveBlobData() => Get();

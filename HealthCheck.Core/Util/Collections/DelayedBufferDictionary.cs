@@ -9,7 +9,7 @@ namespace HealthCheck.Core.Util.Collections
     /// Queues up additions either up to the given duration or max count, then invokes the callback and clears the queue.
     /// <para>Is threadsafe and invokes callback async.</para>
     /// </summary>
-    public class DelayedBufferQueue<T>
+    public class DelayedBufferDictionary<TId, T>
     {
         /// <summary>
         /// If the queue size goes above this count the callback will be invoked, the queue cleared and duration reset.
@@ -25,26 +25,35 @@ namespace HealthCheck.Core.Util.Collections
         public TimeSpan Delay { get; set; } = TimeSpan.FromSeconds(5);
 
         /// <summary>
+        /// Retrieves id from an item.
+        /// </summary>
+        public Func<T, TId> IdGetter { get; }
+
+        /// <summary>
         /// Invoked when either the given duration or max count is reached after adding an item.
         /// <para>Before this call the buffer will be cleared, a copy of the buffer is passed async to this action.</para>
         /// </summary>
-        public Action<Queue<T>> Callback { get; set; }
+        public Action<Dictionary<TId, T>> Callback { get; set; }
 
         /// <summary>
         /// Contains added items until the callback is invoked.
         /// </summary>
-        protected Queue<T> BufferQueue = new();
+        protected Dictionary<TId, T> BufferQueue = new();
 
         private bool _isDelaying = false;
 
         /// <summary>
         /// Queues up additions either up to the given duration or max count, then invokes the callback and clears the queue.
         /// </summary>
+        /// <param name="idGetter">Retrieves id from an item.</param>
         /// <param name="callback">Invoked when either the given duration or max count is reached after adding an item.</param>
         /// <param name="delay">The max duration to wait before the callback will be invoked, the queue cleared and duration reset. Default: 5 seconds.</param>
         /// <param name="queueSizeLimit">The max duration to wait before the callback will be invoked, the queue cleared and duration reset. Default: 1000.</param>
-        public DelayedBufferQueue(Action<Queue<T>> callback = null, TimeSpan? delay = null, int? queueSizeLimit = null)
+        public DelayedBufferDictionary(
+            Func<T, TId> idGetter,
+            Action<Dictionary<TId, T>> callback = null,TimeSpan? delay = null, int? queueSizeLimit = null)
         {
+            IdGetter = idGetter;
             Callback = callback;
             if (delay != null)
             {
@@ -59,7 +68,7 @@ namespace HealthCheck.Core.Util.Collections
         /// <summary>
         /// Deconstructor. Stores any buffered data before self destructing.
         /// </summary>
-        ~DelayedBufferQueue()
+        ~DelayedBufferDictionary()
         {
             lock (BufferQueue)
             {
@@ -77,7 +86,7 @@ namespace HealthCheck.Core.Util.Collections
         {
             lock (BufferQueue)
             {
-                BufferQueue.Enqueue(item);
+                BufferQueue[IdGetter(item)] = item;
 
                 EnsureDelayedCallback();
             }
@@ -92,7 +101,7 @@ namespace HealthCheck.Core.Util.Collections
             {
                 foreach(var item in items)
                 {
-                    BufferQueue.Enqueue(item);
+                    BufferQueue[IdGetter(item)] = item;
                 }
 
                 EnsureDelayedCallback();
@@ -100,16 +109,15 @@ namespace HealthCheck.Core.Util.Collections
         }
 
         /// <summary>
-        /// Removes all matching items from the buffer queue.
+        /// Removes item with the given key.
         /// </summary>
-        public void RemoveMatching(Func<T, bool> filter)
+        public void Remove(TId key)
         {
             lock (BufferQueue)
             {
-                var newQueue = BufferQueue.Where(x => !filter(x)).ToArray();
-                if (newQueue.Length != BufferQueue.Count)
+                if (BufferQueue.ContainsKey(key))
                 {
-                    BufferQueue = new Queue<T>(newQueue);
+                    BufferQueue.Remove(key);
                 }
             }
         }
@@ -117,11 +125,11 @@ namespace HealthCheck.Core.Util.Collections
         /// <summary>
         /// True if the queue contains a matching item.
         /// </summary>
-        public bool Contains(Func<T, bool> predicate)
+        public bool ContainsKey(TId key)
         {
             lock (BufferQueue)
             {
-                return BufferQueue.Any(predicate);
+                return BufferQueue.ContainsKey(key);
             }
         }
 
@@ -129,19 +137,18 @@ namespace HealthCheck.Core.Util.Collections
         /// Updates existing item if in queue, or inserts an updated item. 
         /// </summary>
         public bool UpdateQueuedItemOrInsertUpdated<TInnerItem>(
-            Func<T, bool> updateCondition, Action<TInnerItem> updateAction, Action<T> updateBuffer,
+            TId id,
+            Action<TInnerItem> updateAction, Action<T> updateBuffer,
             Func<TInnerItem> getExistingNonBufferedItem, Action<TInnerItem> addBuffered)
         {
             lock (BufferQueue)
             {
                 // if bufferqueue has item => update it
-                foreach (var item in BufferQueue)
+                if (ContainsKey(id))
                 {
-                    if (updateCondition(item))
-                    {
-                        updateBuffer(item);
-                        return true;
-                    }
+                    var item = BufferQueue[id];
+                    updateBuffer(item);
+                    return true;
                 }
 
                 // else add existing item to queue and update it
@@ -157,26 +164,6 @@ namespace HealthCheck.Core.Util.Collections
         }
 
         /// <summary>
-        /// Performs the given update on all items matchin the condition.
-        /// </summary>
-        public virtual int UpdateQueuedItem(Func<T, bool> condition, Action<T> updateAction)
-        {
-            lock (BufferQueue)
-            {
-                var count = 0;
-                foreach (var item in BufferQueue)
-                {
-                    if (condition(item))
-                    {
-                        updateAction(item);
-                        count++;
-                    }
-                }
-                return count;
-            }
-        }
-
-        /// <summary>
         /// Retrieves all buffered items
         /// </summary>
         public virtual IEnumerable<T> GetBufferedItems()
@@ -185,7 +172,7 @@ namespace HealthCheck.Core.Util.Collections
             {
                 foreach (var item in BufferQueue)
                 {
-                    yield return item;
+                    yield return item.Value;
                 }
             }
         }
@@ -232,7 +219,7 @@ namespace HealthCheck.Core.Util.Collections
                 return;
             }
 
-            var bufferCopy = new Queue<T>(BufferQueue);
+            var bufferCopy = new Dictionary<TId, T>(BufferQueue);
             BufferQueue.Clear();
             Callback.Invoke(bufferCopy);
         }

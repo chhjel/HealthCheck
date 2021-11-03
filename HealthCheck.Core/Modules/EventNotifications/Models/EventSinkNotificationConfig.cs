@@ -195,5 +195,10 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
 
             return false;
         }
+
+        /// <summary>
+        /// Summary.
+        /// </summary>
+        public override string ToString() => $"[{Id}] Enabled: {Enabled}, LastChangedBy: {LastChangedBy}";
     }
 }

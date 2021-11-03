@@ -53,7 +53,37 @@ namespace HealthCheck.Core.Tests.Extensions
         {
             var input = "word";
             var expected = "Word";
-            
+
+            var actual = input.SpacifySentence();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void SpacifySentence_WithMultipleUppercase_ShouldReturnKeepThemUppercase()
+        {
+            var input = "SomeValueXYZHere";
+            var expected = "Some Value XYZ Here";
+
+            var actual = input.SpacifySentence();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void SpacifySentence_WithMultipleUppercaseSeparatedV1_ShouldReturnKeepThemUppercase()
+        {
+            var input = "SomeValueXYZ_ABCHere";
+            var expected = "Some Value XYZ_ABC Here";
+
+            var actual = input.SpacifySentence();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void SpacifySentence_WithMultipleUppercaseSeparatedV2_ShouldReturnKeepThemUppercase()
+        {
+            var input = "SomeValueXYZ_ABC-GGGHere";
+            var expected = "Some Value XYZ_ABC-GGG Here";
+
             var actual = input.SpacifySentence();
             Assert.Equal(expected, actual);
         }

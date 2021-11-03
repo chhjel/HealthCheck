@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace HealthCheck.Core.Modules.Tests.Models
 {
@@ -33,6 +34,11 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// Custom action to run on test results after execution.
         /// </summary>
         internal Action<TestResult, object> ResultAction { get; set; }
+
+        /// <summary>
+        /// Optionally filtering of methods to include.
+        /// </summary>
+        internal Func<MethodInfo, bool> MethodFilter { get; set; }
 
         private readonly List<RuntimeTestReferenceParameterFactory> _parameterFactories = new List<RuntimeTestReferenceParameterFactory>();
 
@@ -164,7 +170,15 @@ namespace HealthCheck.Core.Modules.Tests.Models
             _parameterFactories.Add(new RuntimeTestReferenceParameterFactory(baseType, choicesFactoryByType, getInstanceByIdFactoryByType));
             return this;
         }
-        #endregion
 
+        /// <summary>
+        /// Filter methods to include.
+        /// </summary>
+        public ProxyRuntimeTestConfig SetMethodFilter(Func<MethodInfo, bool> filter)
+        {
+            MethodFilter = filter;
+            return this;
+        }
+        #endregion
     }
 }

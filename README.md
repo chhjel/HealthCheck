@@ -405,7 +405,7 @@ Must be applied to the class that contains methods to include. Constructor param
 |DefaultAllowParallelExecution|Default value for `AllowParallelExecution` for all methods within this class.|
 |DefaultAllowManualExecution|Default value for `AllowManualExecution` for all methods within this class.|
 |DefaultRolesWithAccess|Default value for `RolesWithAccess` for all methods within this class. Defaults to controller access options value.|
-|DefaultCategory/DefaultCategories|Default value for `Category/Categories` for all methods within this class.|
+|DefaultCategory/DefaultCategories|Default value for `Category/Categories` for all methods within this class. Categories can be viewed in the UI by holding ctrl+shift|
 |GroupName|Optional group name in the UI.|
 |UIOrder|Order of the set in the UI, higher value = higher up.|
 
@@ -1204,6 +1204,7 @@ var downloadDefinitionStorage = new FlatFileSecureFileDownloadDefinitionStorage(
 ## Module: Metrics
 
 Very simple module that outputs some metrics you can track manually through `HCMetricsContext` statically, to e.g. verify that some methods are not called too often, or to include extra details on every page (timings, errors, notes, etc).
+Currently only functions while in a request context, if attempted used outside one nothing will happen.
 
 ### Setup
 
