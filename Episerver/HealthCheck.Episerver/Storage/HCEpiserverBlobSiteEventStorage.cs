@@ -112,7 +112,7 @@ namespace HealthCheck.Episerver.Storage
             /// <summary>
             /// All stored site events.
             /// </summary>
-            Dictionary<Guid, SiteEvent> IBufferedBlobDictionaryStorageData.Items { get; set; } = new Dictionary<Guid, SiteEvent>();
+            public Dictionary<Guid, SiteEvent> Items { get; set; } = new Dictionary<Guid, SiteEvent>();
         }
     }
 }
