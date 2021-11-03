@@ -16,12 +16,12 @@ namespace HealthCheck.Episerver.Storage
     /// <para>Defaults to storing the last 1000 events, and max 30 days old.</para>
     /// </summary>
     public class HCEpiserverBlobSiteEventStorage
-        : HCSingleBufferedDictionaryBlobStorageBase<HCEpiserverBlobSiteEventStorage.HCSiteEventBlobData, SiteEvent, Guid>, ISiteEventStorage
+        : HCSingleBufferedDictionaryBlobStorageBase<HCEpiserverBlobSiteEventStorage.HCSiteEventBlobData, SiteEvent, string>, ISiteEventStorage
     {
         /// <summary>
         /// Container id used if not overridden.
         /// </summary>
-        protected virtual Guid DefaultContainerId => Guid.Parse("808214C8-2882-49C9-9C6E-82E64257AF75");
+        protected virtual Guid DefaultContainerId => Guid.Parse("808216C8-2882-49C9-9C6E-82E64257AF75");
 
         /// <summary>
         /// Defaults to the default provider if null.
@@ -45,12 +45,13 @@ namespace HealthCheck.Episerver.Storage
 
         /// <summary>
         /// Stores site events.
-        /// <para>Defaults to storing the last 1000 events.</para>
+        /// <para>Defaults to storing the last 1000 events / 30 days.</para>
         /// </summary>
         public HCEpiserverBlobSiteEventStorage(IBlobFactory blobFactory, IHCCache cache)
             : base(cache)
         {
             _blobHelper = new HCEpiserverBlobHelper<HCSiteEventBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
+            BlobUpdateBufferDuration = TimeSpan.FromSeconds(30);
             MaxItemCount = 1000;
             SupportsMaxItemAge = true;
             MaxItemAge = TimeSpan.FromDays(30);
@@ -69,14 +70,14 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public virtual Task StoreEvent(SiteEvent siteEvent)
         {
-            InsertItemBuffered(siteEvent, siteEvent.Id);
+            InsertItemBuffered(siteEvent, siteEvent.EventTypeId);
             return Task.CompletedTask;
         }
 
         /// <inheritdoc />
         public virtual Task UpdateEvent(SiteEvent siteEvent)
         {
-            InsertItemBuffered(siteEvent, siteEvent.Id, isUpdate: true);
+            InsertItemBuffered(siteEvent, siteEvent.EventTypeId, isUpdate: true);
             return Task.CompletedTask;
         }
 
@@ -112,7 +113,7 @@ namespace HealthCheck.Episerver.Storage
             /// <summary>
             /// All stored site events.
             /// </summary>
-            public Dictionary<Guid, SiteEvent> Items { get; set; } = new Dictionary<Guid, SiteEvent>();
+            public Dictionary<string, SiteEvent> Items { get; set; } = new Dictionary<string, SiteEvent>();
         }
     }
 }

@@ -89,9 +89,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
         /// <param name="developerDetails">Extra details for developers.</param>
         public SiteEvent(SiteEventSeverity severity, string eventTypeId, string title, string description, int duration = 1, string developerDetails = null) : this()
         {
-            Id = Guid.NewGuid();
             Severity = severity;
-            Timestamp = DateTimeOffset.Now;
             EventTypeId = eventTypeId;
             Title = title;
             Description = description;
@@ -117,6 +115,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
         public SiteEvent()
         {
             Id = Guid.NewGuid();
+            Timestamp = DateTimeOffset.Now;
         }
 
         /// <summary>

@@ -112,14 +112,20 @@ namespace HealthCheck.Core.Util.Storage
         protected virtual void InsertItemBuffered(TItem item, TId id, object groupId = null, bool isUpdate = false)
         {
             var data = new BufferQueueItem { Item = item, Id = id, GroupId = groupId, IsUpdate = isUpdate };
-            BufferQueue.Add(data);
+            // Bug: when updating in buffer, the resulting buffer = isUpdate
+            // => when no stored item the update is discarded.
+            if (isUpdate && BufferQueue.TryGet(id, out var existing) && !existing.IsUpdate)
+            {
+                data.IsUpdate = false;
+            }
+            BufferQueue.Set(data);
         }
 
         /// <summary>
         /// Queues up items and calls <see cref="OnBufferCallback"/> after a delay or when max count is reached.
         /// </summary>
         protected void InsertItemsBuffered(IEnumerable<TItem> items, Func<TItem, TId> idSelector)
-            => BufferQueue.Add(items.Select(x => new BufferQueueItem { Item = x, Id = idSelector(x) }));
+            => BufferQueue.Set(items.Select(x => new BufferQueueItem { Item = x, Id = idSelector(x) }));
 
         /// <summary>
         /// Removes an item from both buffer and storage. Instantly saves if data was stored.

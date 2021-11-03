@@ -82,11 +82,16 @@ namespace HealthCheck.Core.Util.Collections
         /// <summary>
         /// Inserts an item into the buffer queue and ensures the callback timer is started.
         /// </summary>
-        public virtual void Add(T item)
+        public virtual void Set(T item, Action<T, T> onUpdate = null)
         {
             lock (BufferQueue)
             {
-                BufferQueue[IdGetter(item)] = item;
+                var id = IdGetter(item);
+                if (onUpdate != null && id != null && BufferQueue.ContainsKey(id))
+                {
+                    onUpdate?.Invoke(BufferQueue[id], item);
+                }
+                BufferQueue[id] = item;
 
                 EnsureDelayedCallback();
             }
@@ -95,7 +100,7 @@ namespace HealthCheck.Core.Util.Collections
         /// <summary>
         /// Inserts items into the buffer queue and ensures the callback timer is started.
         /// </summary>
-        public virtual void Add(IEnumerable<T> items)
+        public virtual void Set(IEnumerable<T> items)
         {
             lock (BufferQueue)
             {
@@ -130,6 +135,28 @@ namespace HealthCheck.Core.Util.Collections
             lock (BufferQueue)
             {
                 return BufferQueue.ContainsKey(key);
+            }
+        }
+
+        /// <summary>
+        /// Get a single item.
+        /// </summary>
+        public T Get(TId key)
+        {
+            lock (BufferQueue)
+            {
+                return BufferQueue[key];
+            }
+        }
+
+        /// <summary>
+        /// Get a single item.
+        /// </summary>
+        public bool TryGet(TId key, out T value)
+        {
+            lock (BufferQueue)
+            {
+                return BufferQueue.TryGetValue(key, out value);
             }
         }
 
