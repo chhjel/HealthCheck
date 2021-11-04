@@ -386,9 +386,42 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             }
             if (request.Query.ContainsKey("siteEvent"))
             {
-                HCSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Error, "api_x_error", "Oh no! API X is broken!", "How could this happen to us!?",
+                HCSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Error, "api_z_error", "Oh no! API Z is broken!", "How could this happen to us!?",
                     developerDetails: "Hmm this is probably why.",
                     config: x => x.AddRelatedLink("Status page", "https://status.otherapi.com"));
+            }
+            if (request.Query.ContainsKey("siteEvent2"))
+            {
+                var now = DateTime.Now;
+                var times = new List<(string, DateTime)>
+                {
+                    ("aaa", new DateTime(now.Year, now.Month, now.Day - 2, 15, 38, 05)),
+                    ("ccc", new DateTime(now.Year, now.Month, now.Day - 1, 8, 11, 05)),
+                    ("ddd", new DateTime(now.Year, now.Month, now.Day - 1, 6, 09, 05))
+                };
+                var from = new DateTime(now.Year, now.Month, now.Day - 2, 12, 23, 05);
+                var to = new DateTime(now.Year, now.Month, now.Day - 1, 0, 12, 52);
+                for (var d = from; d <= to; d += TimeSpan.FromMinutes(1))
+                {
+                    times.Add(("bbb", d));
+                }
+
+                times.AddRange(new List<(string, DateTime)>
+                {
+                    ("aaa", new DateTime(now.Year, now.Month, now.Day - 2, 15, 38, 05)),
+                    ("ccc", new DateTime(now.Year, now.Month, now.Day - 1, 8, 11, 05)),
+                    ("ddd", new DateTime(now.Year, now.Month, now.Day - 1, 6, 09, 05))
+                });
+
+                foreach (var d in times)
+                {
+                    var e = new SiteEvent(SiteEventSeverity.Error, $"test_{d.Item1}", $"Oh no! API {d.Item1.ToUpper()} is broken!", "How could this happen to us!?",
+                        developerDetails: "Hmm this is probably why.")
+                    {
+                        Timestamp = d.Item2
+                    };
+                    HCSiteEventUtils.TryRegisterNewEvent(e);
+                }
             }
             if (request.Query.ContainsKey("siteEventResolved"))
             {
@@ -536,7 +569,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
         private void InitOnce()
         {
             _hasInited = true;
-            Task.Run(() => AddEvents());
+            //Task.Run(() => AddEvents());
         }
 
         // New mock data
