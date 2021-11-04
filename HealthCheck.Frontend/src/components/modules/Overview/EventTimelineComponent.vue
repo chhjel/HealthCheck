@@ -96,15 +96,17 @@ export default class EventTimelineComponent extends Vue {
             .sort((a, b) => a.Timestamp > b.Timestamp ? -1 : a < b ? 1 : 0)
             .filter(x => x.Timestamp.getTime() >= this.thresholdFromDate.getTime());
 
-        return LinqUtils.GroupByInto(sortedEvents, (item) => this.createTimelineGroupName(item.Timestamp), (title, items) => {
-            let groupEvents = items.sort((a, b) => a.Timestamp > b.Timestamp ? -1 : a < b ? 1 : 0);
+        return LinqUtils.GroupByInto(sortedEvents,
+            (item) => this.createTimelineGroupName(item.Timestamp),
+            (title, items) => {
+                let groupEvents = items.sort((a, b) => a.Timestamp.getTime() > b.Timestamp.getTime() ? -1 : 0);
 
-            return {
-                index: index++,
-                title: title,
-                date: items[0].Timestamp,
-                events: groupEvents
-            };
+                return {
+                    index: index++,
+                    title: title,
+                    date: items[0].Timestamp,
+                    events: groupEvents
+                };
         });
     }
 
@@ -117,21 +119,24 @@ export default class EventTimelineComponent extends Vue {
             .forEach(x => {
                 let fromDate = new Date(x.Timestamp);
                 fromDate.setHours(x.Timestamp.getHours() + 24);
-                let fromDay = fromDate.getDate();
-                let toDay = x.EndTime.getDate();
                 
                 let toDate = new Date(x.EndTime);
                 toDate.setHours(toDate.getHours() + 24);
-                let now = new Date();
                 for (let d = new Date(fromDate); d <= toDate; d.setDate(d.getDate() + 1)) {
                     if (DateUtils.IsDatePastDay(d, x.EndTime)) {
                         break;
                     }
 
-                    let date = new Date(d);
                     let dupe = Object.assign({}, x);
                     (<any>dupe).ActualStart = x.Timestamp;
+                    
+                    let date = new Date(d);
+                    date.setHours(0);
+                    date.setMinutes(0);
+                    date.setSeconds(0);
+                    date.setMilliseconds(0);
                     dupe.Timestamp = date;
+
                     dupes.push(dupe);
                 }
             });
