@@ -101,7 +101,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Services
         /// <summary>
         /// Mark the last event with the given <paramref name="eventTypeId"/> as resolved with the given message.
         /// </summary>
-        public virtual async Task<bool> MarkEventAsResolved(string eventTypeId, string resolveMessage)
+        public virtual async Task<bool> MarkEventAsResolved(string eventTypeId, string resolveMessage, Action<SiteEvent> config = null)
         {
             var lastEvent = await Storage.GetLastEventOfType(eventTypeId);
             if (lastEvent == null || lastEvent.Resolved)
@@ -112,6 +112,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Services
             lastEvent.Resolved = true;
             lastEvent.ResolvedAt = DateTimeOffset.Now;
             lastEvent.ResolvedMessage = resolveMessage;
+            config?.Invoke(lastEvent);
             await Storage.UpdateEvent(lastEvent);
             return true;
         }

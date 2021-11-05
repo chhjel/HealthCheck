@@ -41,11 +41,19 @@ namespace HealthCheck.Core.Modules.SiteEvents.Utils
             }
             catch (Exception) { /* Ignore error here */ }
         }
+
         /// <summary>
-        /// Attempts to register an event as resolved, ignoring any error that might be thrown.
+        /// Attempts to mark the latest event with the given event type id as resolved, ignoring any error that might be thrown.
         /// </summary>
-        public static void TryRegisterResolvedEvent(string eventTypeId, string resolvedMessage, Action<SiteEvent> config = null)
-            => TryRegisterNewEvent(new SiteEvent(eventTypeId, resolvedMessage), config);
+        public static void TryMarkEventAsResolved(string eventTypeId, string resolvedMessage, Action<SiteEvent> config = null)
+        {
+            try
+            {
+                var service = HCGlobalConfig.GetService<ISiteEventService>();
+                Task.Run(async () => await service?.MarkEventAsResolved(eventTypeId, resolvedMessage, config));
+            }
+            catch (Exception) { /* Ignore error here */ }
+        }
 
         /// <summary>
         /// Attempts to get all stored unresolved <see cref="SiteEvent"/>s objects, ignoring any error that might be thrown.

@@ -23,7 +23,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Abstractions
         /// <summary>
         /// Mark the last event with the given <paramref name="eventTypeId"/> as resolved with the given message.
         /// </summary>
-        Task<bool> MarkEventAsResolved(string eventTypeId, string resolveMessage);
+        Task<bool> MarkEventAsResolved(string eventTypeId, string resolveMessage, Action<SiteEvent> config = null);
 
         /// <summary>
         /// Store a <see cref="SiteEvent"/> object.
