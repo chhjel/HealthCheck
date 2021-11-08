@@ -59,6 +59,9 @@ namespace HealthCheck.Core.Modules.SiteEvents
 
             /// <summary>Include stacktrace in some views.</summary>
             DeveloperDetails = 1,
+
+            /// <summary>Delete stored events.</summary>
+            DeleteEvents = 2,
         }
 
         #region Invokable methods
@@ -76,6 +79,29 @@ namespace HealthCheck.Core.Modules.SiteEvents
                 .Select(x => SiteEventViewModelsFactory.CreateViewModel(x, includeDeveloperDetails))
                 .ToList();
             return viewModel;
+        }
+
+        /// <summary>
+        /// Clears all site events.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.DeleteEvents)]
+        public async Task<bool> ClearSiteEvents(HealthCheckModuleContext context)
+        {
+            await Options.SiteEventService.DeleteAllEvents();
+            context.AddAuditEvent(action: "Cleared all events");
+            return true;
+        }
+
+        /// <summary>
+        /// Clears a single site event.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.DeleteEvents)]
+        public async Task<bool> DeleteSiteEvent(HealthCheckModuleContext context, DeleteSiteEventRequestModel model)
+        {
+            await Options.SiteEventService.DeleteEvent(model.Id);
+            context.AddAuditEvent(action: "Delete event")
+                .AddDetail("Event id", model.Id.ToString());
+            return true;
         }
         #endregion
     }

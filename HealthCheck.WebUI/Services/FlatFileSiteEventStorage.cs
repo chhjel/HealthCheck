@@ -97,5 +97,18 @@ namespace HealthCheck.WebUI.Services
                 .FirstOrDefault(x => x.EventTypeId == eventTypeId);
             return Task.FromResult(item);
         }
+
+        /// <inheritdoc />
+        public async Task DeleteAllEvents()
+        {
+            await Store.ClearDataAsync();
+        }
+
+        /// <inheritdoc />
+        public Task DeleteEvent(Guid id)
+        {
+            Store.DeleteItem(id);
+            return Task.CompletedTask;
+        }
     }
 }

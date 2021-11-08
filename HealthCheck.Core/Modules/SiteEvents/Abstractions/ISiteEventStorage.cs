@@ -34,5 +34,15 @@ namespace HealthCheck.Core.Modules.SiteEvents.Abstractions
         /// Get the latest <see cref="SiteEvent"/> with the given <see cref="SiteEvent.EventTypeId"/>.
         /// </summary>
         Task<SiteEvent> GetLastEventOfType(string eventTypeId);
+
+        /// <summary>
+        /// Clear all events.
+        /// </summary>
+        Task DeleteAllEvents();
+
+        /// <summary>
+        /// Clear single event.
+        /// </summary>
+        Task DeleteEvent(Guid id);
     }
 }
