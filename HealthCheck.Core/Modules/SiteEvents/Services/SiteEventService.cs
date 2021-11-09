@@ -129,6 +129,14 @@ namespace HealthCheck.Core.Modules.SiteEvents.Services
             var all = await Storage.GetEvents(from ?? DateTimeOffset.MinValue, to ?? DateTimeOffset.MaxValue);
             return all.Where(x => !x.Resolved).ToList();
         }
-        
+
+
+        /// <inheritdoc />
+        public virtual async Task DeleteAllEvents()
+            => await Storage.DeleteAllEvents().ConfigureAwait(false);
+
+        /// <inheritdoc />
+        public virtual async Task DeleteEvent(Guid id)
+            => await Storage.DeleteEvent(id).ConfigureAwait(false);
     }
 }

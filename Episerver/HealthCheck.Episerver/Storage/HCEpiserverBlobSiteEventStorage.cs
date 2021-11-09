@@ -16,12 +16,12 @@ namespace HealthCheck.Episerver.Storage
     /// <para>Defaults to storing the last 1000 events, and max 30 days old.</para>
     /// </summary>
     public class HCEpiserverBlobSiteEventStorage
-        : HCSingleBufferedDictionaryBlobStorageBase<HCEpiserverBlobSiteEventStorage.HCSiteEventBlobData, SiteEvent, string>, ISiteEventStorage
+        : HCSingleBufferedDictionaryBlobStorageBase<HCEpiserverBlobSiteEventStorage.HCSiteEventBlobData, SiteEvent, Guid>, ISiteEventStorage
     {
         /// <summary>
         /// Container id used if not overridden.
         /// </summary>
-        protected virtual Guid DefaultContainerId => Guid.Parse("808216C8-2882-49C9-9C6E-82E64257AF75");
+        protected virtual Guid DefaultContainerId => Guid.Parse("808216C8-2883-49C9-9C6E-82E64257AF75");
 
         /// <summary>
         /// Defaults to the default provider if null.
@@ -70,14 +70,14 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public virtual Task StoreEvent(SiteEvent siteEvent)
         {
-            InsertItemBuffered(siteEvent, siteEvent.EventTypeId);
+            InsertItemBuffered(siteEvent, siteEvent.Id, siteEvent.EventTypeId);
             return Task.CompletedTask;
         }
 
         /// <inheritdoc />
         public virtual Task UpdateEvent(SiteEvent siteEvent)
         {
-            InsertItemBuffered(siteEvent, siteEvent.EventTypeId, isUpdate: true);
+            InsertItemBuffered(siteEvent, siteEvent.Id, siteEvent.EventTypeId, isUpdate: true);
             return Task.CompletedTask;
         }
 
@@ -93,6 +93,25 @@ namespace HealthCheck.Episerver.Storage
         {
             var match = GetItems()?.FirstOrDefault(x => x.EventTypeId == eventTypeId);
             return Task.FromResult(match);
+        }
+
+        /// <inheritdoc />
+        public Task DeleteAllEvents()
+        {
+            BufferQueue.Clear();
+
+            var data = GetBlobData();
+            data.Items.Clear();
+            SaveBlobData(data);
+
+            return Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public Task DeleteEvent(Guid id)
+        {
+            RemoveItem(id);
+            return Task.CompletedTask;
         }
         #endregion
 
@@ -113,7 +132,7 @@ namespace HealthCheck.Episerver.Storage
             /// <summary>
             /// All stored site events.
             /// </summary>
-            public Dictionary<string, SiteEvent> Items { get; set; } = new Dictionary<string, SiteEvent>();
+            public Dictionary<Guid, SiteEvent> Items { get; set; } = new Dictionary<Guid, SiteEvent>();
         }
     }
 }

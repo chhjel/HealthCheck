@@ -25,7 +25,19 @@
                 
                 <!-- SUMMARY -->
                 <v-flex sm12 v-if="showContent" class="mb-4" >
-                    <h1 class="mb-2">Current status</h1>
+                    <div style="display: flex">
+                        <h1 class="mb-2" style="flex: 1">Current status</h1>
+            
+                        <div v-if="canDeleteEvents">
+                            <v-btn @click="deleteAllDialogVisible = true"
+                                :loading="deleteStatus.inProgress"
+                                :disabled="deleteStatus.inProgress || !siteEvents || siteEvents.length == 0"
+                                flat color="error" class="mr-0">
+                                <v-icon size="20px" class="mr-2">clear</v-icon>
+                                Delete all
+                            </v-btn>
+                        </div>
+                    </div>
 
                     <status-component :type="summaryType" :text="summaryText" />
 
@@ -61,15 +73,58 @@
         </v-container>
         </v-content>
 
-        <!-- DIALOGS -->
+        <!-- ##################### -->
+        <!-- ###### DIALOGS ######-->
         <v-dialog v-model="eventDetailsDialogState" width="700">
             <site-event-details-component :event="selectedEventForDetails" v-if="selectedEventForDetails != null">
                 <template v-slot:actions>
                     <v-btn flat color="secondary" @click="eventDetailsDialogState = false">
                         Close
                     </v-btn>
+                    <v-btn @click="showDeleteSingleDialog(selectedEventForDetails)"
+                        v-if="canDeleteEvents"
+                        :loading="deleteStatus.inProgress"
+                        :disabled="deleteStatus.inProgress"
+                        flat color="error">
+                        <v-icon size="20px" class="mr-2">clear</v-icon>
+                        Delete
+                    </v-btn>
                 </template>
             </site-event-details-component>
+        </v-dialog>
+        <!-- ##################### -->
+        <v-dialog v-model="deleteAllDialogVisible"
+            @keydown.esc="deleteAllDialogVisible = false"
+            max-width="350">
+            <v-card>
+                <v-card-title class="headline">Confirm deletion</v-card-title>
+                <v-card-text>
+                    Clear all site events?
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" @click="deleteAllDialogVisible = false">Cancel</v-btn>
+                    <v-btn color="error" @click="clearAllEvents">Clear all</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <!-- ##################### -->
+        <v-dialog v-model="deleteSingleDialogVisible"
+            @keydown.esc="deleteSingleDialogVisible = false"
+            max-width="550">
+            <v-card>
+                <v-card-title class="headline">{{ deleteSingleDialogTitle }}</v-card-title>
+                <v-card-text>
+                    {{ deleteSingleDialogText }}
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" @click="deleteSingleDialogVisible = false">Cancel</v-btn>
+                    <v-btn color="error" @click="deleteSingleEvent">Delete</v-btn>
+                </v-card-actions>
+            </v-card>
         </v-dialog>
         <!-- DIALOGS END -->
     </div>
@@ -92,6 +147,7 @@ import OverviewService from  '../../../services/OverviewService';
 import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
 import ModuleOptions from  '../../../models/Common/ModuleOptions';
 import ModuleConfig from  '../../../models/Common/ModuleConfig';
+import { SiteEvent } from "generated/Models/Core/SiteEvent";
 
 interface OverviewPageOptions
 {
@@ -121,6 +177,13 @@ export default class OverviewPageComponent extends Vue {
     // Service
     service: OverviewService = new OverviewService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     loadStatus: FetchStatus = new FetchStatus();
+
+    deleteAllDialogVisible: boolean = false;
+    deleteSingleDialogVisible: boolean = false;
+    targetIdToDelete: string = '';
+    deleteSingleDialogText: string = '';
+    deleteSingleDialogTitle: string = '';
+    deleteStatus: FetchStatus = new FetchStatus();
 
     siteEvents: Array<SiteEventViewModel> = [];
 
@@ -232,6 +295,14 @@ export default class OverviewPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    hasAccess(option: string): boolean {
+        return this.options.AccessOptions.indexOf(option) != -1;
+    }
+
+    get canDeleteEvents(): boolean {
+        return this.hasAccess('DeleteEvents');
+    }
+
     loadData(): void {
         this.service.GetSiteEvents(this.loadStatus, { onSuccess: (data) => this.onEventDataRetrieved(data) });
     }
@@ -246,6 +317,33 @@ export default class OverviewPageComponent extends Vue {
             x.ResolvedAt = (x.ResolvedAt != null) ? new Date(x.ResolvedAt) : null;
         });
         this.siteEvents = events;
+    }
+
+    clearAllEvents(): void {
+        this.deleteAllDialogVisible = false;
+        this.service.ClearSiteEvents(this.deleteStatus, {
+            onSuccess: () => {
+                this.siteEvents = [];
+            }
+        });
+    }
+
+    showDeleteSingleDialog(e: SiteEvent): void {
+        this.targetIdToDelete = e.Id;
+        this.deleteSingleDialogTitle = `Delete event '${e.Title}'?`;
+        this.deleteSingleDialogText = `Confirm that you want to delete the event '${e.Title}'.`;
+        this.deleteSingleDialogVisible = true;
+    }
+
+    deleteSingleEvent(): void {
+        this.deleteSingleDialogVisible = false;
+        this.eventDetailsDialogState = false;
+        this.service.DeleteSiteEvent(this.targetIdToDelete, this.deleteStatus, {
+            onSuccess: () => {
+                this.siteEvents = this.siteEvents.filter(x => x.Id != this.targetIdToDelete);
+                this.targetIdToDelete = '';
+            }
+        });
     }
 
     getCurrentSeverity(): SiteEventSeverity | null {

@@ -29,5 +29,15 @@ namespace HealthCheck.Core.Modules.SiteEvents.Abstractions
         /// Store a <see cref="SiteEvent"/> object.
         /// </summary>
         Task StoreEvent(SiteEvent siteEvent, SiteEventMergeOptions forcedMergeOptions = null);
+
+        /// <summary>
+        /// Clear all events.
+        /// </summary>
+        Task DeleteAllEvents();
+
+        /// <summary>
+        /// Clear single event.
+        /// </summary>
+        Task DeleteEvent(Guid id);
     }
 }

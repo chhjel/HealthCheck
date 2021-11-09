@@ -128,6 +128,34 @@ namespace HealthCheck.Core.Util.Collections
         }
 
         /// <summary>
+        /// Removes matching items.
+        /// </summary>
+        public void RemoveWhere(Func<T, bool> condition)
+        {
+            lock (BufferQueue)
+            {
+                foreach (var item in BufferQueue.ToArray())
+                {
+                    if (condition(item.Value))
+                    {
+                        BufferQueue.Remove(item.Key);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Removes all items.
+        /// </summary>
+        public void Clear()
+        {
+            lock (BufferQueue)
+            {
+                BufferQueue.Clear();
+            }
+        }
+
+        /// <summary>
         /// True if the queue contains a matching item.
         /// </summary>
         public bool ContainsKey(TId key)

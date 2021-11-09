@@ -112,8 +112,6 @@ namespace HealthCheck.Core.Util.Storage
         protected virtual void InsertItemBuffered(TItem item, TId id, object groupId = null, bool isUpdate = false)
         {
             var data = new BufferQueueItem { Item = item, Id = id, GroupId = groupId, IsUpdate = isUpdate };
-            // Bug: when updating in buffer, the resulting buffer = isUpdate
-            // => when no stored item the update is discarded.
             if (isUpdate && BufferQueue.TryGet(id, out var existing) && !existing.IsUpdate)
             {
                 data.IsUpdate = false;

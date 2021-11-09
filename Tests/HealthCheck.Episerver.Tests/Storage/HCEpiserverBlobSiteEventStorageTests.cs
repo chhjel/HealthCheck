@@ -73,7 +73,7 @@ namespace HealthCheck.Episerver.Tests.Storage
         }
 
         [Fact]
-        public async Task UpdateEvent_UsingService_ShouldNotCreateNew()
+        public async Task StoreEvent_ToUpdateUsingService_ShouldNotCreateNew()
         {
             var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
             var storage = CreateStorage(() => blob)
@@ -107,7 +107,7 @@ namespace HealthCheck.Episerver.Tests.Storage
         }
 
         [Fact]
-        public async Task UpdateEvent_UsingService_UpdatesCorrectItem()
+        public async Task StoreEvent_ToUpdateUsingService_UpdatesCorrectItem()
         {
             var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
             var storage = CreateStorage(() => blob)
@@ -147,6 +147,61 @@ namespace HealthCheck.Episerver.Tests.Storage
             Assert.Equal(2, items.Count);
             items[0].Title = "Av2";
             items[1].Title = "Bv2";
+        }
+
+        [Fact]
+        public async Task StoreEvent_WithUpdateOutsideMergeWindow_RespectsMergeThreshold()
+        {
+            var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
+            var storage = CreateStorage(() => blob)
+                .SetMaxItemCount(500)
+                .SetMaxItemAge(TimeSpan.FromDays(30))
+                as HCEpiserverBlobSiteEventStorage;
+            storage.MaxBufferSize = 500;
+            storage.BlobUpdateBufferDuration = TimeSpan.FromDays(1);
+
+            SiteEvent createEvent(int id, string name, DateTimeOffset timestamp)
+                => new SiteEvent { EventTypeId = "type_" + id, Title = name, Description = $"Desc#{id}", Timestamp = timestamp, Duration = 1 };
+
+            var service = new SiteEventService(storage);
+
+            await service.StoreEvent(createEvent(1, "Event Old", DateTimeOffset.Now.AddMinutes(-(service.DefaultMergeOptions.MaxMinutesSinceLastEventEnd+2))));
+            storage.ForceBufferCallback();
+
+            await service.StoreEvent(createEvent(1, "Event New", DateTimeOffset.Now));
+            storage.ForceBufferCallback();
+
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
+            Assert.Equal(2, items.Count);
+            Assert.Equal("Event Old", items[0].Title);
+            Assert.Equal("Event New", items[1].Title);
+        }
+
+        [Fact]
+        public async Task StoreEvent_WithUpdateWithinMergeWindow_RespectsMergeThreshold()
+        {
+            var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
+            var storage = CreateStorage(() => blob)
+                .SetMaxItemCount(500)
+                .SetMaxItemAge(TimeSpan.FromDays(30))
+                as HCEpiserverBlobSiteEventStorage;
+            storage.MaxBufferSize = 500;
+            storage.BlobUpdateBufferDuration = TimeSpan.FromDays(1);
+
+            SiteEvent createEvent(int id, string name, DateTimeOffset timestamp)
+                => new SiteEvent { EventTypeId = "type_" + id, Title = name, Description = $"Desc#{id}", Timestamp = timestamp, Duration = 1 };
+
+            var service = new SiteEventService(storage);
+
+            await service.StoreEvent(createEvent(1, "Event Old", DateTimeOffset.Now - TimeSpan.FromMinutes(service.DefaultMergeOptions.MaxMinutesSinceLastEventEnd / 2)));
+            storage.ForceBufferCallback();
+
+            await service.StoreEvent(createEvent(1, "Event New", DateTimeOffset.Now));
+            storage.ForceBufferCallback();
+
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
+            Assert.Single(items);
+            Assert.Equal("Event New", items[0].Title);
         }
 
         [Fact]
