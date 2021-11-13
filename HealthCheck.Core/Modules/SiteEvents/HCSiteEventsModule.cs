@@ -99,7 +99,7 @@ namespace HealthCheck.Core.Modules.SiteEvents
         public async Task<bool> DeleteSiteEvent(HealthCheckModuleContext context, DeleteSiteEventRequestModel model)
         {
             await Options.SiteEventService.DeleteEvent(model.Id);
-            context.AddAuditEvent(action: "Delete event")
+            context.AddAuditEvent(action: "Delete event", subject: model.Id.ToString())
                 .AddDetail("Event id", model.Id.ToString());
             return true;
         }

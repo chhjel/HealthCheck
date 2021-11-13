@@ -72,7 +72,8 @@ namespace HealthCheck.Core.Modules.LogViewer
 
             if (!result.WasCancelled)
             {
-                context.AddAuditEvent(action: "Searched logs", subject: filter?.Query)
+                var subject = context.TryStripSensitiveData(filter?.Query);
+                context.AddAuditEvent(action: "Searched logs", subject: subject)
                     .AddDetail("Skip", filter?.Skip.ToString() ?? "null")
                     .AddDetail("Take", filter?.Take.ToString() ?? "null")
                     .AddDetail("Range", $"{filter?.FromDate?.ToString() ?? "min"} -> {filter?.ToDate?.ToString() ?? "max"}")

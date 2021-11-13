@@ -146,7 +146,8 @@ namespace HealthCheck.Core.Modules.Messages
 
             if (message != null)
             {
-                context.AddAuditEvent(action: "Message fetched", subject: message.Summary)
+                var subject = context.TryStripSensitiveData(message.Summary);
+                context.AddAuditEvent(action: "Message fetched", subject: subject)
                     .AddDetail("Inbox id", model.InboxId)
                     .AddDetail("Message id", model.MessageId);
             }

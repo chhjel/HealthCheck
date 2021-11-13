@@ -165,10 +165,14 @@ namespace HealthCheck.Core.Modules.Tests
         public async Task<object> ExecuteTest(HealthCheckModuleContext context, ExecuteTestInputData data)
         {
             var result = await ExecuteTest(context.CurrentRequestRoles, context.CurrentModuleCategoryAccess, data, context.HasAccess(AccessOption.IncludeExceptionStackTraces));
+            var parameters = data?.Parameters?.Select(x => context.TryStripSensitiveData(x.Value))
+                ?? Enumerable.Empty<string>();
+            var testOutput = context.TryStripSensitiveData(result?.Message);
+
             context.AddAuditEvent(action: "Test executed", subject: result?.TestName)
                 .AddDetail("Test id", data?.TestId)
-                .AddDetail("Parameters", $"[{string.Join(", ", (data?.Parameters?.Select(x => x.Value) ?? Enumerable.Empty<string>()))}]")
-                .AddDetail("Result", result?.Message)
+                .AddDetail("Parameters", $"[{string.Join(", ", parameters)}]")
+                .AddDetail("Result", testOutput)
                 .AddDetail("Duration", $"{result?.DurationInMilliseconds}ms");
 
             return result;

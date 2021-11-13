@@ -1,10 +1,12 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.AuditLog.Models;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static HealthCheck.Core.Modules.AuditLog.HCAuditLogModuleOptions;
 
 namespace HealthCheck.Core.Modules.AuditLog
 {
@@ -17,6 +19,13 @@ namespace HealthCheck.Core.Modules.AuditLog
         /// Retrieve the service from the Options object.
         /// </summary>
         public IAuditEventStorage AuditEventService => Options.AuditEventService;
+
+        /// <summary>
+        /// Optional logic for stripping any sensitive data.
+        /// <para>Various usefull util methods can be found in <see cref="HCSensitiveDataUtils"/>.</para>
+        /// <para>Retrieved from the Options object.</para>
+        /// </summary>
+        public StripSensitiveDataDelegate SensitiveDataStripper => Options.SensitiveDataStripper;
 
         private HCAuditLogModuleOptions Options { get; }
         internal bool IncludeClientConnectionDetailsInAllEvents => Options?.IncludeClientConnectionDetailsInAllEvents == true;

@@ -496,7 +496,15 @@ If the audit log module is used, actions by other modules will be logged and can
 ### Setup
 
 ```csharp
-UseModule(new HCAuditLogModule(new HCAuditLogModuleOptions() { AuditEventService = IAuditEventStorage implementation }));
+UseModule(new HCAuditLogModule(new HCAuditLogModuleOptions() {
+    AuditEventService = IAuditEventStorage implementation,
+    // Optional strip sensitive information in parts of audit event data
+    SensitiveDataStripper = (value) => {
+        value = HCSensitiveDataUtils.MaskNorwegianNINs(value);
+        value = HCSensitiveDataUtils.MaskAllEmails(value);
+        return value;
+    }
+}));
 ```
 
 ```csharp
@@ -1557,6 +1565,7 @@ Cache can optionally be set to null in constructor if not wanted, or the include
 
 A few utility classes are included below `HealthCheck.Core.Util`:
 
+* `HCSensitiveDataUtils` - Util methods for stripping numbers of given lengths, emails etc from texts.
 * `ExceptionUtils` - Get a summary of exceptions to include in test results.
 * `ConnectivityUtils` - Ping or send webrequests to check if a host is alive and return `TestResult` objects.
 * `TimeUtils` - Prettify durations.
