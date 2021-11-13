@@ -143,7 +143,14 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 })
             }));
             UseModule(new HCDataflowModule<RuntimeTestAccessRole>(new HCDataflowModuleOptions<RuntimeTestAccessRole>() { DataflowService = dataflowService }));
-            UseModule(new HCAuditLogModule(new HCAuditLogModuleOptions() { AuditEventService = auditEventStorage }));
+            UseModule(new HCAuditLogModule(new HCAuditLogModuleOptions() {
+                AuditEventService = auditEventStorage,
+                SensitiveDataStripper = (value) => {
+                    value = HCSensitiveDataUtils.MaskNorwegianNINs(value);
+                    value = HCSensitiveDataUtils.MaskAllEmails(value);
+                    return value;
+                }
+            }));
             UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = siteEventService }));
             UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { Service = settingsService, ModelType = typeof(TestSettings) }));
 

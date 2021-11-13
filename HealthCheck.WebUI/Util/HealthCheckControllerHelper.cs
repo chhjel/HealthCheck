@@ -6,6 +6,7 @@ using HealthCheck.Core.Modules.AccessTokens;
 using HealthCheck.Core.Modules.AccessTokens.Models;
 using HealthCheck.Core.Modules.AuditLog;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
+using HealthCheck.Core.Modules.AuditLog.Models;
 using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Util;
@@ -227,7 +228,8 @@ namespace HealthCheck.WebUI.Util
             var action = match.Action;
             var module = match.Module;
 
-            var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Id, module.Module);
+            var sensitiveDataStripper = (RegisteredModules.FirstOrDefault(x => x?.Module is HCAuditLogModule am)?.Module as HCAuditLogModule)?.SensitiveDataStripper;
+            var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Id, module.Module, sensitiveDataStripper);
             try
             {
                 var result = await action.Invoke(module.Module, context, url).ConfigureAwait(false);
@@ -255,7 +257,6 @@ namespace HealthCheck.WebUI.Util
                         {
                             e.AddClientConnectionDetails(context);
                         }
-
                         await AuditEventService.StoreEvent(e);
                     }
                 }
@@ -278,7 +279,8 @@ namespace HealthCheck.WebUI.Util
                 return new InvokeModuleMethodResult();
             }
 
-            var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Id, module.Module);
+            var sensitiveDataStripper = (RegisteredModules.FirstOrDefault(x => x?.Module is HCAuditLogModule am)?.Module as HCAuditLogModule)?.SensitiveDataStripper;
+            var context = CreateModuleContext(requestInfo, accessRoles, module.Name, module.Id, module.Module, sensitiveDataStripper);
             try
             {
                 var result = await method.Invoke(module.Module, context, jsonPayload, new NewtonsoftJsonSerializer());
@@ -306,7 +308,6 @@ namespace HealthCheck.WebUI.Util
                         {
                             e.AddClientConnectionDetails(context);
                         }
-
                         await AuditEventService.StoreEvent(e);
                     }
                 }
@@ -315,7 +316,8 @@ namespace HealthCheck.WebUI.Util
 
         private HealthCheckModuleContext CreateModuleContext(RequestInformation<TAccessRole> requestInfo, Maybe<TAccessRole> accessRoles,
             string moduleName, string moduleId,
-            IHealthCheckModule module)
+            IHealthCheckModule module,
+            HCAuditLogModuleOptions.StripSensitiveDataDelegate sensitiveDataStripper)
         {
             var moduleAccess = new List<HealthCheckModuleContext.ModuleAccess>();
             foreach (var access in RoleModuleAccessLevels)
@@ -372,7 +374,8 @@ namespace HealthCheck.WebUI.Util
                 CurrentModuleCategoryAccess = currentModuleAccess?.AccessCategories ?? new List<string>(),
                 LoadedModules = LoadedModules.AsReadOnly(),
 
-                Request = request
+                Request = request,
+                SensitiveDataStripper = sensitiveDataStripper
             };
         }
 
@@ -526,15 +529,17 @@ namespace HealthCheck.WebUI.Util
 
         internal void AfterConfigure(RequestInformation<TAccessRole> currentRequestInformation)
         {
-            HealthCheckModuleContext createModuleContext(RegisteredModuleData module)
+            HealthCheckModuleContext createModuleContext(RegisteredModuleData module, HCAuditLogModuleOptions.StripSensitiveDataDelegate sensitiveDataStripper)
             {
                 return CreateModuleContext(currentRequestInformation, currentRequestInformation.AccessRole,
-                    module.NameOverride ?? module.Module.GetType().Name, module.Module.GetType().Name, module.Module);
+                    module.NameOverride ?? module.Module.GetType().Name, module.Module.GetType().Name, module.Module, sensitiveDataStripper);
             }
+
+            var sensitiveDataStripper = (RegisteredModules.FirstOrDefault(x => x?.Module is HCAuditLogModule am)?.Module as HCAuditLogModule)?.SensitiveDataStripper;
 
             var loader = new HealthCheckModuleLoader();
             LoadedModules = RegisteredModules
-                .Select(x => loader.Load(x.Module, createModuleContext(x), x.NameOverride))
+                .Select(x => loader.Load(x.Module, createModuleContext(x, sensitiveDataStripper), x.NameOverride))
                 .Where(x => x != null)
                 .ToList();
 

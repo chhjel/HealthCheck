@@ -1,10 +1,12 @@
 ﻿using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.AuditLog;
 using HealthCheck.Core.Modules.AuditLog.Models;
 using HealthCheck.Core.Util;
 using HealthCheck.Core.Util.Modules;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace HealthCheck.Core.Abstractions.Modules
 {
@@ -79,6 +81,11 @@ namespace HealthCheck.Core.Abstractions.Modules
         public T GetCurrentRequestModuleAccessOptionsAs<T>() where T : Enum => (T)CurrentRequestModuleAccessOptions;
 
         /// <summary>
+        /// Logic for stripping any sensitive data if configured.
+        /// </summary>
+        public HCAuditLogModuleOptions.StripSensitiveDataDelegate SensitiveDataStripper { get; set; }
+
+        /// <summary>
         /// Check if the current request has access to the given module access option.
         /// </summary>
         public bool HasAccess<TAccess>(TAccess access, bool defaultValue = false) where TAccess : Enum
@@ -126,12 +133,20 @@ namespace HealthCheck.Core.Abstractions.Modules
         /// <summary>
         /// Register audit events.
         /// </summary>
-        public AuditEvent AddAuditEvent(AuditEvent @event) { AuditEvents.Add(@event); return @event; }
+        public AuditEvent AddAuditEvent(AuditEvent @event, bool maskSensitiveData = false)
+        {
+            if (maskSensitiveData)
+            {
+                TryStripSensitiveData(@event);
+            }
+            AuditEvents.Add(@event);
+            return @event;
+        }
 
         /// <summary>
         /// Register audit events.
         /// </summary>
-        public AuditEvent AddAuditEvent(string action, string subject = null)
+        public AuditEvent AddAuditEvent(string action, string subject = null, bool maskSensitiveData = false)
         {
             return AddAuditEvent(new AuditEvent()
             {
@@ -142,7 +157,41 @@ namespace HealthCheck.Core.Abstractions.Modules
                 UserId = UserId,
                 UserName = UserName,
                 UserAccessRoles = EnumUtils.TryGetEnumFlaggedValueNames(CurrentRequestRoles)
-            });
+            }, maskSensitiveData);
+        }
+
+        /// <summary>
+        /// Attempt to strip any sensitive data using the configured options on the audit module.
+        /// </summary>
+        public void TryStripSensitiveData(AuditEvent e)
+        {
+            if (SensitiveDataStripper != null)
+            {
+                try
+                {
+                    e.Subject = SensitiveDataStripper(e.Subject);
+                    e.Details = e.Details
+                        .Select(x => new KeyValuePair<string, string>(SensitiveDataStripper(x.Key), SensitiveDataStripper(x.Value)))
+                        .ToList();
+                }
+                catch (Exception) { /* Ignored */ }
+            }
+        }
+
+        /// <summary>
+        /// Attempt to strip any sensitive data using the configured options on the audit module.
+        /// </summary>
+        public string TryStripSensitiveData(string input)
+        {
+            if (SensitiveDataStripper != null)
+            {
+                try
+                {
+                    input = SensitiveDataStripper?.Invoke(input);
+                }
+                catch (Exception) { /* Ignored */ }
+            }
+            return input;
         }
 
         /// <summary>
