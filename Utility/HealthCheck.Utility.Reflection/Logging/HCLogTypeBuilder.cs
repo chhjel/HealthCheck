@@ -49,10 +49,15 @@ namespace HealthCheck.Utility.Reflection.Logging
 		{
 			var typeBuilder = GetTypeBuilder(baseClass, interfce);
 
-			typeBuilder.AddInterfaceImplementation(interfce);
-			foreach (var methodInfo in interfce.GetMethods())
+			// Include target and any parent interfaces
+			var interfaces = new[] { interfce }.Union(interfce.GetInterfaces());
+			foreach (var inter in interfaces)
 			{
-				CreateMethodImplementation(typeBuilder, methodInfo);
+				typeBuilder.AddInterfaceImplementation(inter);
+				foreach (var methodInfo in inter.GetMethods())
+				{
+					CreateMethodImplementation(typeBuilder, methodInfo);
+				}
 			}
 
 			return typeBuilder.CreateTypeInfo();
