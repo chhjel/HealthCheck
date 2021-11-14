@@ -322,7 +322,8 @@ public static ProxyRuntimeTestConfig SomeServiceProxyTest()
         // Optionally add a custom context for more flexibility
         .SetCustomContext(
             // Create any object as a context object that will be used in the resultAction below
-            contextFactory: () => new { MemoryLogger = new HCMemoryLogger() },
+            // Using logger auto-creation logic from the HealthCheck.Utility.Reflection nuget package here.
+            contextFactory: () => new { MemoryLogger = HCLogTypeBuilder.CreateMemoryLoggerFor<ISomeLogger>() },
             
             // Optionally override service activation to inject e.g. a memory logger and dump the log along with the test result.
             // instanceFactory: (context) => new SomeService(context.MemoryLogger),
@@ -336,7 +337,7 @@ public static ProxyRuntimeTestConfig SomeServiceProxyTest()
                     // Shortcut for executing the given action if the method result is of the given type.
                     .ForProxyResult<OrderLinks>((value) => result.AddUrlsData(value.Select(x => x.Url)))
                     // E.g. include data logged during execution
-                    .AddCodeData(context.MemoryLogger.Contents);
+                    .AddCodeData(context.MemoryLogger.ToString());
             }
         );
 }
@@ -464,8 +465,8 @@ var results = await runner.ExecuteTests(testDiscovererService,
 Inject a memory logger into the instances being tested and include the output in the result.
 
 ```csharp
-    // Log4Net memory logger can be found in the nuget HealthCheck.Utility.Logger.Log4Net
-    var memoryLogger = new HCLog4NetMemoryLogger();
+    // Optionally include the nuget package HealthCheck.Utility.Reflection to create a memory logger for any interface at runtime e.g:
+    var memoryLogger = HCLogTypeBuilder.CreateMemoryLoggerFor<ILogger>();
 
     // GetInstance<T> attempts to create a new instance of the given type by calling the
     // types' constructor with parameters retrieved from the IoC container, except for the values given to the GetInstance method.
@@ -477,7 +478,7 @@ Inject a memory logger into the instances being tested and include the output in
     myService.DoSomething();
 
     // Include log data in the result
-    result.AddCodeData(memoryLogger.Contents?.Trim(), "Log");
+    result.AddCodeData(memoryLogger.ToString(), "Log");
 ```
 
 #### Test context
@@ -1573,7 +1574,7 @@ A few utility classes are included below `HealthCheck.Core.Util`:
 * `ReflectionUtils` - Invoke private members etc.
 * `AsyncUtils` - Invoke async through reflection, run async synchronous.
 * `DelayedBufferQueue<T>` - Stack up inserts up until a given delay or max count.
-* Log4Net and Episerver memory loggers are available in nuget packages `HealthCheck.Utility.Logger.*`
+* Memory loggers for any interface can be created at runtime by using `HCLogTypeBuilder.CreateMemoryLoggerFor<TInterface>` included the nuget package `HealthCheck.Utility.Reflection`.
 * `HealthCheck.Core.Config.HCGlobalConfig` contains a few global static options:
   * Dependency resolver override.
   * Types and namespaces ignored in data serialization.

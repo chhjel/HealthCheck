@@ -1,6 +1,6 @@
 ﻿using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
-using HealthCheck.Core.Util;
+using HealthCheck.Utility.Reflection.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,12 +48,12 @@ namespace HealthCheck.Dev.Common.Tests
             return new ProxyRuntimeTestConfig(typeof(SomeService))
                 .SetMethodFilter(x => !x.Name.StartsWith("FilteredOut"))
                 .SetCustomContext(
-                    contextFactory: () => new { MemoryLogger = new HCMemoryLogger() },
+                    contextFactory: () => new { MemoryLogger = HCLogTypeBuilder.CreateMemoryLoggerFor<ISomeLogger>() },
                     instanceFactory: (context) => new SomeService(context.MemoryLogger),
                     resultAction: (result, context) =>
                     {
                         result
-                            .AddCodeData(context.MemoryLogger.Contents)
+                            .AddCodeData(context.MemoryLogger.ToString())
                             .ForProxyResult<SomeParameterType>((value) => result.AddTextData("Is of type SomeParameterType!"));
                             //.AddTextData(result.ProxyTestResultObject?.GetType()?.Name ?? "null", "Result type")
                     }
@@ -73,28 +73,41 @@ namespace HealthCheck.Dev.Common.Tests
                 );
         }
 
+        public interface ISomeLogger
+        {
+            void Error(string msg, Exception ex = null);
+        }
         internal class SomeService
         {
-            private readonly HCMemoryLogger _logger;
+            private readonly ISomeLogger _logger;
 
             public SomeService() {}
-            public SomeService(HCMemoryLogger logger) => _logger = logger;
+            public SomeService(ISomeLogger logger) => _logger = logger;
 
             public async Task WithTaskReturnValue() => await Task.Delay(100);
 
-#pragma warning disable S1186 // Methods should not be empty
             public void WithVoidReturnValue() {}
-#pragma warning restore S1186 // Methods should not be empty
 
             public SomeParameterType WithComplexReturnValue() => new SomeParameterType(42, "Test");
 
-#pragma warning disable S3400 // Methods should not return constants
             public string WithReturnValue()
             {
                 _logger?.Error("A logged error test");
                 return $"Success!";
             }
-#pragma warning restore S3400 // Methods should not return constants
+
+            public string WithExceptionLogged()
+            {
+                try
+                {
+                    int.Parse("asd");
+                }
+                catch(Exception ex)
+                {
+                    _logger?.Error("Testing logged exception here.", ex);
+                }
+                return $"Success!";
+            }
 
 #pragma warning disable IDE0060 // Remove unused parameter
             public void WithParameter(Guid id, string data) { /**/ }

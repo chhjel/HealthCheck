@@ -293,6 +293,33 @@ namespace HealthCheck.Episerver.Tests.Storage
             Assert.Single(items);
         }
 
+        [Fact]
+        public async Task MarkEventAsResolved_WithEventFromYesterday_ShouldResolveEvent()
+        {
+            var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
+            var storage = CreateStorage(() => blob)
+                .SetMaxItemCount(500)
+                .SetMaxItemAge(TimeSpan.FromDays(30))
+                as HCEpiserverBlobSiteEventStorage;
+            storage.MaxBufferSize = 500;
+            storage.BlobUpdateBufferDuration = TimeSpan.FromDays(1);
+
+            SiteEvent e = new SiteEvent { EventTypeId = "id", Title = "Title", Description = $"Desc", Timestamp = DateTimeOffset.Now.AddDays(-1), Duration = 1 };
+
+            var service = new SiteEventService(storage);
+
+            await service.StoreEvent(e);
+            storage.ForceBufferCallback();
+
+            await service.MarkEventAsResolved(e.EventTypeId, "Resolved!");
+            storage.ForceBufferCallback();
+
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
+            Assert.Single(items);
+            Assert.Equal(e.Id, items[0].Id);
+            Assert.Equal(e.EventTypeId, items[0].EventTypeId);
+        }
+
         private HCEpiserverBlobSiteEventStorage CreateStorage(Func<MockBlob> blobFactory = null, string blobJson = null)
         {
             var cache = EpiBlobTestHelpers.CreateMockCache();
