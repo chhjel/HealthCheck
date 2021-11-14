@@ -39,9 +39,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.DevTest.NetCore
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utility", "Utility", "{6A669F1D-22D1-4E66-A535-34AB35E7E981}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Utility.Logger.Log4Net", "Utility\HealthCheck.Utility.Logger.Log4Net\HealthCheck.Utility.Logger.Log4Net.csproj", "{C30BDA09-C02F-470A-B386-BF69391C5FB4}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Utility.Logger.EpiServer", "Utility\HealthCheck.Utility.Logger.EpiServer\HealthCheck.Utility.Logger.EpiServer.csproj", "{D5F7ED2E-28ED-4698-A516-E19F3B829F8C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Utility.Reflection", "Utility\HealthCheck.Utility.Reflection\HealthCheck.Utility.Reflection.csproj", "{D5F7ED2E-28ED-4698-A516-E19F3B829F8C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Module.EndpointControl", "Modules\HealthCheck.Module.EndpointControl\HealthCheck.Module.EndpointControl.csproj", "{9F646F26-A7FE-4A26-88C7-3087412987BF}"
 EndProject
@@ -59,7 +57,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.WebUI.MFA.TOTP"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.WebUI.MFA.WebAuthn", "HealthCheck.WebUI.MFA.WebAuthn\HealthCheck.WebUI.MFA.WebAuthn.csproj", "{959A9717-65A2-4DCF-84FE-8757347B00FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.Episerver.Tests", "Tests\HealthCheck.Episerver.Tests\HealthCheck.Episerver.Tests.csproj", "{4AA61542-531D-4216-8B4D-DBEE43DE29C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Episerver.Tests", "Tests\HealthCheck.Episerver.Tests\HealthCheck.Episerver.Tests.csproj", "{4AA61542-531D-4216-8B4D-DBEE43DE29C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -110,10 +108,6 @@ Global
 		{C6B01B68-C3F8-421A-BA2C-AC92726DFACD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6B01B68-C3F8-421A-BA2C-AC92726DFACD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6B01B68-C3F8-421A-BA2C-AC92726DFACD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C30BDA09-C02F-470A-B386-BF69391C5FB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C30BDA09-C02F-470A-B386-BF69391C5FB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C30BDA09-C02F-470A-B386-BF69391C5FB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C30BDA09-C02F-470A-B386-BF69391C5FB4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D5F7ED2E-28ED-4698-A516-E19F3B829F8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D5F7ED2E-28ED-4698-A516-E19F3B829F8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5F7ED2E-28ED-4698-A516-E19F3B829F8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -164,7 +158,6 @@ Global
 		{DE9EA2DB-5D18-4CF8-A3B7-B32D0BF48D96} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
 		{179722CB-48F2-47FB-B2A2-1526959935AE} = {B26DDE73-0369-4977-A004-3CCDE2B38825}
 		{C6B01B68-C3F8-421A-BA2C-AC92726DFACD} = {B26DDE73-0369-4977-A004-3CCDE2B38825}
-		{C30BDA09-C02F-470A-B386-BF69391C5FB4} = {6A669F1D-22D1-4E66-A535-34AB35E7E981}
 		{D5F7ED2E-28ED-4698-A516-E19F3B829F8C} = {6A669F1D-22D1-4E66-A535-34AB35E7E981}
 		{9F646F26-A7FE-4A26-88C7-3087412987BF} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
 		{0EBC2DA3-9E28-4623-9F20-83278D31D964} = {DFA1DC1E-CEA9-4C53-9677-A203B2B045E4}

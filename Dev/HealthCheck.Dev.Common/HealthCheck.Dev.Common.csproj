@@ -7,6 +7,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\HealthCheck.Core\HealthCheck.Core.csproj" />
     <ProjectReference Include="..\..\HealthCheck.WebUI\HealthCheck.WebUI.csproj" />
+    <ProjectReference Include="..\..\Utility\HealthCheck.Utility.Logger.EpiServer\HealthCheck.Utility.Reflection.csproj" />
+    <ProjectReference Include="..\..\Utility\HealthCheck.Utility.Reflection\HealthCheck.Utility.Reflection.csproj" />
   </ItemGroup>
 
 </Project>
