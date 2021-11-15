@@ -318,6 +318,46 @@ namespace HealthCheck.Episerver.Tests.Storage
             Assert.Single(items);
             Assert.Equal(e.Id, items[0].Id);
             Assert.Equal(e.EventTypeId, items[0].EventTypeId);
+            Assert.Equal("Resolved!", items[0].ResolvedMessage);
+            Assert.True(items[0].Resolved);
+        }
+
+        [Fact]
+        public async Task MarkEventAsResolved_WithEventFromYesterdayAndResolvedEarlier_ShouldResolveEvent()
+        {
+            var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
+            var storage = CreateStorage(() => blob)
+                .SetMaxItemCount(500)
+                .SetMaxItemAge(TimeSpan.FromDays(30))
+                as HCEpiserverBlobSiteEventStorage;
+            storage.MaxBufferSize = 500;
+            storage.BlobUpdateBufferDuration = TimeSpan.FromDays(1);
+
+            var service = new SiteEventService(storage);
+
+            var earlyEvent = new SiteEvent { EventTypeId = "id1", Title = "Title1", Description = $"Desc1", Timestamp = DateTimeOffset.Now.AddDays(-2), Duration = 1,
+                Resolved = true, ResolvedAt = DateTimeOffset.Now.AddDays(-1.5), ResolvedMessage = "Resolved1"
+            };
+            await service.StoreEvent(earlyEvent);
+            storage.ForceBufferCallback();
+
+            var e = new SiteEvent { EventTypeId = "id2", Title = "Title2", Description = $"Desc2", Timestamp = DateTimeOffset.Now.AddDays(-1), Duration = 1 };
+            await service.StoreEvent(e);
+            storage.ForceBufferCallback();
+
+            await service.MarkEventAsResolved(e.EventTypeId, "Resolved2");
+            storage.ForceBufferCallback();
+
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
+            Assert.Equal(2, items.Count);
+            Assert.Equal(earlyEvent.Id, items[0].Id);
+            Assert.Equal(e.Id, items[1].Id);
+            Assert.Equal("id1", items[0].EventTypeId);
+            Assert.Equal("id2", items[1].EventTypeId);
+            Assert.Equal("Resolved1", items[0].ResolvedMessage);
+            Assert.Equal("Resolved2", items[1].ResolvedMessage);
+            Assert.True(items[0].Resolved);
+            Assert.True(items[1].Resolved);
         }
 
         private HCEpiserverBlobSiteEventStorage CreateStorage(Func<MockBlob> blobFactory = null, string blobJson = null)

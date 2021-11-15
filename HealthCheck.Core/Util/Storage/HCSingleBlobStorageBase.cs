@@ -76,7 +76,7 @@ namespace HealthCheck.Core.Util.Storage
         /// <summary>
         /// Get stored or cached blob data as <c>TData</c>.
         /// </summary>
-        protected TData GetBlobData()
+        public TData GetBlobData()
         {
             if (Cache != null && Cache.TryGetValue(CacheKey, out TData cachedData))
             {
