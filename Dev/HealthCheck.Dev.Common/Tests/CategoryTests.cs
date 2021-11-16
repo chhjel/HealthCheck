@@ -28,6 +28,7 @@ namespace HealthCheck.Dev.Common.Tests
 
         public static class TestCategoryConstants
         {
+            public const string Common = "Common";
             public const string Internal = "Internal";
             public const string API_A = "API_A";
             public const string API_B = "API_B";

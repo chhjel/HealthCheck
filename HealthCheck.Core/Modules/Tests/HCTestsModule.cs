@@ -147,10 +147,11 @@ namespace HealthCheck.Core.Modules.Tests
             }
 
             TestDiscoverer.GetInvalidTests();
+
             var testDefinitions = GetTestDefinitions(context.CurrentRequestRoles, context.CurrentModuleCategoryAccess);
             var model = new TestsDataViewModel()
             {
-                TestSets = TestsViewModelsFactory.CreateViewModel(testDefinitions, Options),
+                TestSets = TestsViewModelsFactory.CreateViewModel(testDefinitions, Options, context.CurrentModuleCategoryAccess),
                 GroupOptions = TestsViewModelsFactory.CreateViewModel(GroupOptions),
                 InvalidTests = invalidTests.Select(x => (TestsViewModelsFactory.CreateViewModel(x))).ToList(),
                 ParameterTemplateValues = TestsViewModelsFactory.CreateParameterTemplatesViewModel(testDefinitions, Options)

@@ -19,13 +19,13 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         /// <summary>
         /// Create a <see cref="TestSetViewModel"/> from the given list of <see cref="TestClassDefinition"/>.
         /// </summary>
-        public List<TestSetViewModel> CreateViewModel(IEnumerable<TestClassDefinition> testClassDefinitions, HCTestsModuleOptions options)
-            => testClassDefinitions.Select(x => CreateViewModel(x, options)).ToList();
+        public List<TestSetViewModel> CreateViewModel(IEnumerable<TestClassDefinition> testClassDefinitions, HCTestsModuleOptions options, List<string> userCategoryAccess)
+            => testClassDefinitions.Select(x => CreateViewModel(x, options, userCategoryAccess)).ToList();
 
         /// <summary>
         /// Create a <see cref="TestSetViewModel"/> from the given <see cref="TestClassDefinition"/>.
         /// </summary>
-        public TestSetViewModel CreateViewModel(TestClassDefinition testClassDefinition, HCTestsModuleOptions options)
+        public TestSetViewModel CreateViewModel(TestClassDefinition testClassDefinition, HCTestsModuleOptions options, List<string> userCategoryAccess)
         {
             var vm = new TestSetViewModel()
             {
@@ -40,7 +40,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
 
             foreach (var test in testClassDefinition.Tests.Where(x => x.LoadErrors?.Any() != true))
             {
-                vm.Tests.AddRange(CreateViewModels(test, options));
+                vm.Tests.AddRange(CreateViewModels(test, options, userCategoryAccess));
             }
 
             return vm;
@@ -49,18 +49,24 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         /// <summary>
         /// Create a <see cref="TestViewModel"/> from the given <see cref="TestDefinition"/>.
         /// </summary>
-        public IEnumerable<TestViewModel> CreateViewModels(TestDefinition testDefinition, HCTestsModuleOptions options)
+        public IEnumerable<TestViewModel> CreateViewModels(TestDefinition testDefinition, HCTestsModuleOptions options, List<string> userCategoryAccess)
         {
             List<TestViewModel> viewModels = new List<TestViewModel>();
 
-            var model = CreateViewModel(testDefinition, options);
+            var model = CreateViewModel(testDefinition, options, userCategoryAccess);
             viewModels.Add(model);
 
             return viewModels;
         }
 
-        private TestViewModel CreateViewModel(TestDefinition testDefinition, HCTestsModuleOptions options)
+        private TestViewModel CreateViewModel(TestDefinition testDefinition, HCTestsModuleOptions options, List<string> userCategoryAccess)
         {
+            var categories = testDefinition.Categories ?? new List<string>();
+            if (userCategoryAccess?.Any() == true)
+            {
+                categories = categories.Where(x => userCategoryAccess.Contains(x)).ToList();
+            }
+
             var model = new TestViewModel()
             {
                 Id = testDefinition.Id,
@@ -70,7 +76,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 RunningButtonText = testDefinition.RunningButtonText,
                 IsCancellable = testDefinition.IsCancellable,
                 Parameters = new List<TestParameterViewModel>(),
-                Categories = testDefinition.Categories ?? new List<string>()
+                Categories = categories
             };
 
             foreach (var parameter in testDefinition.Parameters)
