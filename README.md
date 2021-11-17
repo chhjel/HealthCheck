@@ -502,6 +502,7 @@ UseModule(new HCAuditLogModule(new HCAuditLogModuleOptions() {
     // Optional strip sensitive information in parts of audit event data
     SensitiveDataStripper = (value) => {
         value = HCSensitiveDataUtils.MaskNorwegianNINs(value);
+        // MaskAllEmails defaults to masking partially, e.g: ***my@****in.com
         value = HCSensitiveDataUtils.MaskAllEmails(value);
         return value;
     }
@@ -721,7 +722,7 @@ Optionally decorate methods or classes with the `RequestLogInfoAttribute` attrib
 
 Provides a monaco-editor IDE where C# scripts can be stored and executed in the context of the web application to extract data, debug issues or other things. Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.DynamicCodeExecution?label=HealthCheck.Module.DynamicCodeExecution&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.DynamicCodeExecution)
 
-Should be heavily locked down if used other places than localhost.
+Should be heavily locked down if used other places than localhost, optimally behind MFA.
 
 ### Setup
 
@@ -751,7 +752,7 @@ UseModule(new HCDynamicCodeExecutionModule(new HCDynamicCodeExecutionModuleOptio
 
 ## Module: Dataflow
 
-If the Dataflow module is enabled the dataflow tab will become available where custom data can be shown.
+If the Dataflow module is enabled the dataflow tab will become available where custom data can be shown. The module can show a filtered list of any data and was made for showing latest imported data per id to quickly verify that incoming data was correct.
 
 A default implementation `DefaultDataflowService` is provided where custom data streams can be registered. Data can be fetched in the ui for each registered stream, optionally filtered on and each property given a hint for how to be displayed. Only `Raw` and `HTML` types have any effect when not expanded.
 
