@@ -75,6 +75,12 @@ jobs:
       feedsToUse: 'config'
       nugetConfigPath: 'nuget.config'
   
+  - task: UseDotNet@2
+    displayName: Use .NET 6.0 SDK
+    inputs:
+      packageType: 'sdk'
+      version: '6.x'
+
   - task: DotNetCoreCLI@2
     displayName: dotnet restore
     inputs:
