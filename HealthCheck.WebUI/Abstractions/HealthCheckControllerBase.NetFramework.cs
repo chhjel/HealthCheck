@@ -410,7 +410,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// Serializes the given object into a json result.
         /// </summary>
         protected ActionResult CreateJsonResult(object obj, bool stringEnums = true)
-            => Content(Helper.SerializeJson(obj, stringEnums), "application/json");
+            => Content(HealthCheckControllerHelper<TAccessRole>.SerializeJson(obj, stringEnums), "application/json");
 
         /// <summary>
         /// By default throws a <see cref="HttpException"/> 404 when something is attempted accessed that the request does not have access to obscure whats available a bit.

@@ -20,7 +20,7 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Serializes the given object into a json string.
         /// </summary>
-        public string SerializeJson(object obj, bool stringEnums = true)
+        public static string SerializeJson(object obj, bool stringEnums = true)
         {
             var settings = new JsonSerializerSettings
             {
@@ -34,7 +34,7 @@ namespace HealthCheck.WebUI.Util
             return JsonConvert.SerializeObject(obj, settings);
         }
 
-        public string Generate2FACode(int length = 6)
+        public static string Generate2FACode(int length = 6)
             => string.Join("", Guid.NewGuid().ToString().Where(x => char.IsDigit(x)).Take(length));
     }
 }

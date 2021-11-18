@@ -428,7 +428,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// Serializes the given object into a json result.
         /// </summary>
         protected ActionResult CreateJsonResult(object obj, bool stringEnums = true)
-            => Content(Helper.SerializeJson(obj, stringEnums), "application/json");
+            => Content(HealthCheckControllerHelper<TAccessRole>.SerializeJson(obj, stringEnums), "application/json");
 
         /// <summary>
         /// Request model sent to <see cref="InvokeModuleMethod"/>.

@@ -51,7 +51,7 @@ namespace HealthCheck.WebUI.Config
             }
         }
 
-        private void SetDefaultHCMetricsContextFactory()
+        private static void SetDefaultHCMetricsContextFactory()
         {
 #if NETFRAMEWORK || NETCORE
             HCMetricsUtil.CurrentContextFactory = DefaultHCMetricsContextFactory;
