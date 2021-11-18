@@ -294,7 +294,7 @@ namespace HealthCheck.Episerver.Tests.Storage
         }
 
         [Fact]
-        public async Task MarkEventAsResolved_WithEventFromYesterday_ShouldResolveEvent()
+        public async Task MarkLatestEventAsResolved_WithEventFromYesterday_ShouldResolveEvent()
         {
             var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
             var storage = CreateStorage(() => blob)
@@ -311,7 +311,7 @@ namespace HealthCheck.Episerver.Tests.Storage
             await service.StoreEvent(e);
             storage.ForceBufferCallback();
 
-            await service.MarkEventAsResolved(e.EventTypeId, "Resolved!");
+            await service.MarkLatestEventAsResolved(e.EventTypeId, "Resolved!");
             storage.ForceBufferCallback();
 
             var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
@@ -323,7 +323,7 @@ namespace HealthCheck.Episerver.Tests.Storage
         }
 
         [Fact]
-        public async Task MarkEventAsResolved_WithEventFromYesterdayAndResolvedEarlier_ShouldResolveEvent()
+        public async Task MarkLatestEventAsResolved_WithEventFromYesterdayAndResolvedEarlier_ShouldResolveEvent()
         {
             var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
             var storage = CreateStorage(() => blob)
@@ -335,8 +335,16 @@ namespace HealthCheck.Episerver.Tests.Storage
 
             var service = new SiteEventService(storage);
 
-            var earlyEvent = new SiteEvent { EventTypeId = "id1", Title = "Title1", Description = $"Desc1", Timestamp = DateTimeOffset.Now.AddDays(-2), Duration = 1,
-                Resolved = true, ResolvedAt = DateTimeOffset.Now.AddDays(-1.5), ResolvedMessage = "Resolved1"
+            var earlyEvent = new SiteEvent
+            {
+                EventTypeId = "id1",
+                Title = "Title1",
+                Description = $"Desc1",
+                Timestamp = DateTimeOffset.Now.AddDays(-2),
+                Duration = 1,
+                Resolved = true,
+                ResolvedAt = DateTimeOffset.Now.AddDays(-1.5),
+                ResolvedMessage = "Resolved1"
             };
             await service.StoreEvent(earlyEvent);
             storage.ForceBufferCallback();
@@ -345,7 +353,7 @@ namespace HealthCheck.Episerver.Tests.Storage
             await service.StoreEvent(e);
             storage.ForceBufferCallback();
 
-            await service.MarkEventAsResolved(e.EventTypeId, "Resolved2");
+            await service.MarkLatestEventAsResolved(e.EventTypeId, "Resolved2");
             storage.ForceBufferCallback();
 
             var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
@@ -360,11 +368,314 @@ namespace HealthCheck.Episerver.Tests.Storage
             Assert.True(items[1].Resolved);
         }
 
+        [Fact]
+        public async Task MarkEventAsResolved_UsingGetUnresolvedEvents_ShouldResolveEvents()
+        {
+            var blob = new MockBlob(new Uri("https://mock.blob"), JsonScenario1);
+            var storage = CreateStorage(() => blob).SetMaxItemCount(500)
+                as HCEpiserverBlobSiteEventStorage;
+            storage.MaxBufferSize = 500;
+            storage.BlobUpdateBufferDuration = TimeSpan.FromDays(1);
+
+            var service = new SiteEventService(storage);
+
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
+            Assert.Equal(13, items.Count);
+
+            var unresolvedItems = await service.GetUnresolvedEvents();
+            Assert.Equal(8, unresolvedItems.Count);
+
+            foreach (var e in unresolvedItems)
+            {
+                await service.MarkEventAsResolved(e.Id, "The issue seems to be resolved now.");
+            }
+
+            items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
+            Assert.Equal(13, items.Count);
+            Assert.Equal(13, items.Count(x => x.Resolved));
+            Assert.Equal(13, items.Count(x => x.ResolvedAt != null));
+            Assert.Equal(13, items.Count(x => !string.IsNullOrWhiteSpace(x.ResolvedMessage)));
+
+            unresolvedItems = await service.GetUnresolvedEvents();
+            Assert.Empty(unresolvedItems);
+        }
+
         private HCEpiserverBlobSiteEventStorage CreateStorage(Func<MockBlob> blobFactory = null, string blobJson = null)
         {
             var cache = EpiBlobTestHelpers.CreateMockCache();
             var factoryMock = EpiBlobTestHelpers.CreateBlobFactoryMock(blobFactory, blobJson);
             return new HCEpiserverBlobSiteEventStorage(factoryMock.Object, cache);
         }
+
+        private const string JsonScenario1 = @"
+{
+    ""Items"": {
+      ""250e90c0-ffe0-42d3-bd13-7ada1dbf3823"": {
+        ""Id"": ""250e90c0-ffe0-42d3-bd13-7ada1dbf3823"",
+        ""Severity"": 1,
+        ""Timestamp"": ""2021-11-10T14:11:51.0862481+01:00"",
+        ""EventTypeId"": ""ServiceX_5xx"",
+        ""Title"": ""ServiceX availability reduced"",
+        ""Description"": ""desc"",
+        ""Duration"": 1,
+        ""RelatedLinks"": [],
+        ""DeveloperDetails"": ""etc"",
+        ""Resolved"": true,
+        ""ResolvedMessage"": ""The issue seems to be resolved now."",
+        ""ResolvedAt"": ""2021-11-10T14:30:10.6050031+01:00"",
+        ""AllowMerge"": true
+      },
+      ""a1ba86aa-13c9-4e55-a9d1-2e13686d3497"": {
+        ""Id"": ""a1ba86aa-13c9-4e55-a9d1-2e13686d3497"",
+        ""Severity"": 1,
+        ""Timestamp"": ""2021-11-11T20:52:11.5304947+01:00"",
+        ""EventTypeId"": ""ServiceY_5xx"",
+        ""Title"": ""ServiceY availability reduced"",
+        ""Description"": ""desc"",
+        ""Duration"": 1,
+        ""RelatedLinks"": [
+          {
+            ""Text"": ""Title"",
+            ""Url"": ""https://www.etc.com""
+          },
+          {
+            ""Text"": ""Title"",
+            ""Url"": ""https://www.etc.com""
+          }
+        ],
+        ""DeveloperDetails"": ""etc"",
+        ""Resolved"": true,
+        ""ResolvedMessage"": ""The issue seems to be resolved now."",
+        ""ResolvedAt"": ""2021-11-11T21:15:00.1313196+01:00"",
+        ""AllowMerge"": true
+      },
+      ""b612eec5-aa28-4d65-8910-3398b738ec95"": {
+        ""Id"": ""b612eec5-aa28-4d65-8910-3398b738ec95"",
+        ""Severity"": 1,
+        ""Timestamp"": ""2021-11-13T02:51:41.257456+01:00"",
+        ""EventTypeId"": ""ServiceX_5xx"",
+        ""Title"": ""ServiceX availability reduced"",
+        ""Description"": ""desc"",
+        ""Duration"": 1,
+        ""RelatedLinks"": [],
+        ""DeveloperDetails"": ""etc"",
+        ""Resolved"": false,
+        ""ResolvedMessage"": null,
+        ""ResolvedAt"": null,
+        ""AllowMerge"": true
+      },
+      ""02003d21-88b1-4d6a-8609-8daa465006c0"": {
+        ""Id"": ""02003d21-88b1-4d6a-8609-8daa465006c0"",
+        ""Severity"": 1,
+        ""Timestamp"": ""2021-11-13T23:25:14.6236359+01:00"",
+        ""EventTypeId"": ""ServiceZ_5xx"",
+        ""Title"": ""ServiceZ availability reduced"",
+        ""Description"": ""desc"",
+        ""Duration"": 1,
+        ""RelatedLinks"": [
+          {
+            ""Text"": ""Title"",
+            ""Url"": ""https://www.etc.com""
+          }
+        ],
+        ""DeveloperDetails"": ""etc"",
+        ""Resolved"": true,
+        ""ResolvedMessage"": ""The issue seems to be resolved now."",
+        ""ResolvedAt"": ""2021-11-13T23:45:00.7233975+01:00"",
+        ""AllowMerge"": true
+      },
+      ""57e6138d-c205-4eb4-baa3-c675acdd0091"": {
+        ""Id"": ""57e6138d-c205-4eb4-baa3-c675acdd0091"",
+        ""Severity"": 1,
+        ""Timestamp"": ""2021-11-14T22:59:25.7102606+01:00"",
+        ""EventTypeId"": ""ServiceY_5xx"",
+        ""Title"": ""ServiceY availability reduced"",
+        ""Description"": ""desc"",
+        ""Duration"": 1,
+        ""RelatedLinks"": [
+          {
+            ""Text"": ""Title"",
+            ""Url"": ""https://www.etc.com""
+          },
+          {
+            ""Text"": ""Title"",
+            ""Url"": ""https://www.etc.com""
+          }
+        ],
+        ""DeveloperDetails"": ""etc"",
+        ""Resolved"": false,
+        ""ResolvedMessage"": null,
+        ""ResolvedAt"": null,
+        ""AllowMerge"": true
+      },
+      ""4f8be927-da1d-43ec-b00c-78e802d25b40"": {
+        ""Id"": ""4f8be927-da1d-43ec-b00c-78e802d25b40"",
+        ""Severity"": 1,
+        ""Timestamp"": ""2021-11-15T01:26:53.9614574+01:00"",
+        ""EventTypeId"": ""ServiceY_5xx"",
+        ""Title"": ""ServiceY availability reduced"",
+        ""Description"": ""desc"",
+        ""Duration"": 1,
+        ""RelatedLinks"": [
+          {
+            ""Text"": ""Title"",
+            ""Url"": ""https://www.etc.com""
+          },
+          {
+            ""Text"": ""Title"",
+            ""Url"": ""https://www.etc.com""
+          }
+        ],
+        ""DeveloperDetails"": ""etc"",
+        ""Resolved"": false,
+        ""ResolvedMessage"": null,
+        ""ResolvedAt"": null,
+        ""AllowMerge"": true
+      },
+      ""c85805a3-703b-4f31-9be3-903cb1e55cfc"": {
+        ""Id"": ""c85805a3-703b-4f31-9be3-903cb1e55cfc"",
+        ""Severity"": 1,
+        ""Timestamp"": ""2021-11-15T11:28:50.9349063+01:00"",
+        ""EventTypeId"": ""ServiceY_5xx"",
+        ""Title"": ""ServiceY availability reduced"",
+        ""Description"": ""desc"",
+        ""Duration"": 1,
+        ""RelatedLinks"": [
+          {
+            ""Text"": ""Title"",
+            ""Url"": ""https://www.etc.com""
+          },
+          {
+            ""Text"": ""Title"",
+            ""Url"": ""https://www.etc.com""
+          }
+        ],
+        ""DeveloperDetails"": ""etc"",
+        ""Resolved"": false,
+        ""ResolvedMessage"": null,
+        ""ResolvedAt"": null,
+        ""AllowMerge"": true
+      },
+      ""eef04d55-ee62-4870-8c04-063ac15f351e"": {
+        ""Id"": ""eef04d55-ee62-4870-8c04-063ac15f351e"",
+        ""Severity"": 1,
+        ""Timestamp"": ""2021-11-15T17:52:18.4504295+01:00"",
+        ""EventTypeId"": ""ServiceX_5xx"",
+        ""Title"": ""ServiceX availability reduced"",
+        ""Description"": ""desc"",
+        ""Duration"": 1,
+        ""RelatedLinks"": [],
+        ""DeveloperDetails"": ""etc"",
+        ""Resolved"": false,
+        ""ResolvedMessage"": null,
+        ""ResolvedAt"": null,
+        ""AllowMerge"": true
+      },
+      ""daa8cd4b-2870-40b3-98ca-149d334c605d"": {
+        ""Id"": ""daa8cd4b-2870-40b3-98ca-149d334c605d"",
+        ""Severity"": 1,
+        ""Timestamp"": ""2021-11-16T14:58:32.6470479+01:00"",
+        ""EventTypeId"": ""ServiceA_5xx"",
+        ""Title"": ""ServiceA availability reduced"",
+        ""Description"": ""desc"",
+        ""Duration"": 1,
+        ""RelatedLinks"": [
+          {
+            ""Text"": ""Title"",
+            ""Url"": ""https://www.etc.com""
+          }
+        ],
+        ""DeveloperDetails"": ""etc"",
+        ""Resolved"": true,
+        ""ResolvedMessage"": ""The issue seems to be resolved now."",
+        ""ResolvedAt"": ""2021-11-16T15:15:00.980823+01:00"",
+        ""AllowMerge"": true
+      },
+      ""aed53c30-05aa-480d-9595-04c6043af964"": {
+        ""Id"": ""aed53c30-05aa-480d-9595-04c6043af964"",
+        ""Severity"": 1,
+        ""Timestamp"": ""2021-11-16T15:59:43.6030209+01:00"",
+        ""EventTypeId"": ""ServiceY_5xx"",
+        ""Title"": ""ServiceY availability reduced"",
+        ""Description"": ""desc"",
+        ""Duration"": 1,
+        ""RelatedLinks"": [
+          {
+            ""Text"": ""Title"",
+            ""Url"": ""https://www.etc.com""
+          },
+          {
+            ""Text"": ""Title"",
+            ""Url"": ""https://www.etc.com""
+          }
+        ],
+        ""DeveloperDetails"": ""etc"",
+        ""Resolved"": false,
+        ""ResolvedMessage"": null,
+        ""ResolvedAt"": null,
+        ""AllowMerge"": true
+      },
+      ""f3ed401c-85fb-421d-9bb2-5d6aa2811988"": {
+        ""Id"": ""f3ed401c-85fb-421d-9bb2-5d6aa2811988"",
+        ""Severity"": 1,
+        ""Timestamp"": ""2021-11-16T18:11:50.9668919+01:00"",
+        ""EventTypeId"": ""ServiceX_5xx"",
+        ""Title"": ""ServiceX availability reduced"",
+        ""Description"": ""desc"",
+        ""Duration"": 1,
+        ""RelatedLinks"": [],
+        ""DeveloperDetails"": ""etc"",
+        ""Resolved"": false,
+        ""ResolvedMessage"": null,
+        ""ResolvedAt"": null,
+        ""AllowMerge"": true
+      },
+      ""e029c16b-14ad-4989-b9b0-fda68cb94be4"": {
+        ""Id"": ""e029c16b-14ad-4989-b9b0-fda68cb94be4"",
+        ""Severity"": 1,
+        ""Timestamp"": ""2021-11-16T20:24:10.2130044+01:00"",
+        ""EventTypeId"": ""ServiceY_5xx"",
+        ""Title"": ""ServiceY availability reduced"",
+        ""Description"": ""desc"",
+        ""Duration"": 1,
+        ""RelatedLinks"": [
+          {
+            ""Text"": ""Title"",
+            ""Url"": ""https://www.etc.com""
+          },
+          {
+            ""Text"": ""Title"",
+            ""Url"": ""https://www.etc.com""
+          }
+        ],
+        ""DeveloperDetails"": ""etc"",
+        ""Resolved"": false,
+        ""ResolvedMessage"": null,
+        ""ResolvedAt"": null,
+        ""AllowMerge"": true
+      },
+      ""428b6c9a-2c69-4ce6-ba6c-3489082509be"": {
+        ""Id"": ""428b6c9a-2c69-4ce6-ba6c-3489082509be"",
+        ""Severity"": 1,
+        ""Timestamp"": ""2021-11-17T08:25:06.1350088+01:00"",
+        ""EventTypeId"": ""ServiceB_5xx"",
+        ""Title"": ""ServiceB availability reduced"",
+        ""Description"": ""desc"",
+        ""Duration"": 1,
+        ""RelatedLinks"": [
+          {
+            ""Text"": ""Title"",
+            ""Url"": ""https://www.etc.com""
+          }
+        ],
+        ""DeveloperDetails"": ""etc"",
+        ""Resolved"": true,
+        ""ResolvedMessage"": ""The issue seems to be resolved now."",
+        ""ResolvedAt"": ""2021-11-17T08:45:00.1014633+01:00"",
+        ""AllowMerge"": true
+      }
+    }
+  }
+";
     }
 }

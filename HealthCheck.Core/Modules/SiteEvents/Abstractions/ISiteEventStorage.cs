@@ -31,9 +31,19 @@ namespace HealthCheck.Core.Modules.SiteEvents.Abstractions
         Task<SiteEvent> GetLastMergableEventOfType(string eventTypeId);
 
         /// <summary>
-        /// Get the latest <see cref="SiteEvent"/> with the given <see cref="SiteEvent.EventTypeId"/>.
+        /// Get the latest unresolved <see cref="SiteEvent"/> with the given <see cref="SiteEvent.EventTypeId"/>.
         /// </summary>
-        Task<SiteEvent> GetLastEventOfType(string eventTypeId);
+        Task<SiteEvent> GetLastUnresolvedEventOfType(string eventTypeId);
+
+        /// <summary>
+        /// Get the <see cref="SiteEvent"/> with the given id.
+        /// </summary>
+        Task<SiteEvent> GetEvent(Guid id);
+
+        /// <summary>
+        /// Get all unresolved <see cref="SiteEvent"/>s with the given <see cref="SiteEvent.EventTypeId"/>.
+        /// </summary>
+        Task<IEnumerable<SiteEvent>> GetUnresolvedEventsOfType(string eventTypeId);
 
         /// <summary>
         /// Clear all events.

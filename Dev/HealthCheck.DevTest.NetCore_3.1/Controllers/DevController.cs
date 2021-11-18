@@ -432,7 +432,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             }
             if (request.Query.ContainsKey("siteEventResolved"))
             {
-                HCSiteEventUtils.TryMarkEventAsResolved("api_x_error", "Seems it fixed itself somehow.",
+                HCSiteEventUtils.TryMarkLatestEventAsResolved("api_x_error", "Seems it fixed itself somehow.",
                     config: x => x.AddRelatedLink("Another page", "https://www.google.com"));
             }
             if (request.Query.ContainsKey("simulateSiteEventResolveJob"))
@@ -476,7 +476,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 var timeSince = DateTimeOffset.Now - (unresolvedEvent.Timestamp + TimeSpan.FromMinutes(unresolvedEvent.Duration));
                 if (timeSince > TimeSpan.FromMinutes(15))
                 {
-                    HCSiteEventUtils.TryMarkEventAsResolved(unresolvedEvent.EventTypeId, "Seems to be fixed now.");
+                    HCSiteEventUtils.TryMarkEventAsResolved(unresolvedEvent.Id, "Seems to be fixed now.");
                 }
             }
         }

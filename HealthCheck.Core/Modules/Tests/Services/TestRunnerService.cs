@@ -136,7 +136,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                 {
                     if (ev.Resolved)
                     {
-                        await siteEventService.MarkEventAsResolved(ev.EventTypeId, ev.ResolvedMessage);
+                        await siteEventService.MarkLatestEventAsResolved(ev.EventTypeId, ev.ResolvedMessage);
                     } else
                     {
                         await siteEventService.StoreEvent(ev);

@@ -16,6 +16,16 @@ namespace HealthCheck.Core.Modules.SiteEvents.Services
         private ConcurrentBag<SiteEvent> Items = new ConcurrentBag<SiteEvent>();
         private readonly object _lock = new object();
 
+        /// <inheritdoc />
+        public Task<SiteEvent> GetEvent(Guid id)
+        {
+            lock (_lock)
+            {
+                var item = Items.FirstOrDefault(x => x.Id == id);
+                return Task.FromResult(item);
+            }
+        }
+
         /// <summary>
         /// Store the given event in memory.
         /// </summary>
@@ -63,23 +73,34 @@ namespace HealthCheck.Core.Modules.SiteEvents.Services
             lock (_lock)
             {
                 var item = Items
-                .OrderByDescending(x => x.Timestamp)
-                .FirstOrDefault(x => x.AllowMerge && x.EventTypeId == eventTypeId);
+                    .OrderByDescending(x => x.Timestamp)
+                    .FirstOrDefault(x => x.AllowMerge && x.EventTypeId == eventTypeId);
                 return Task.FromResult(item);
             }
         }
 
-        /// <summary>
-        /// Get the latest <see cref="SiteEvent"/> with the given <see cref="SiteEvent.EventTypeId"/>.
-        /// </summary>
-        public Task<SiteEvent> GetLastEventOfType(string eventTypeId)
+        /// <inheritdoc />
+        public Task<SiteEvent> GetLastUnresolvedEventOfType(string eventTypeId)
         {
             lock (_lock)
             {
                 var item = Items
+                    .Where(x => x.EventTypeId == eventTypeId && !x.Resolved)
                     .OrderByDescending(x => x.Timestamp)
-                    .FirstOrDefault(x => x.EventTypeId == eventTypeId);
+                    .FirstOrDefault();
                 return Task.FromResult(item);
+            }
+        }
+
+        /// <inheritdoc />
+        public Task<IEnumerable<SiteEvent>> GetUnresolvedEventsOfType(string eventTypeId)
+        {
+            lock (_lock)
+            {
+                var items = Items
+                    .Where(x => x.EventTypeId == eventTypeId && !x.Resolved)
+                    .AsEnumerable();
+                return Task.FromResult(items);
             }
         }
 

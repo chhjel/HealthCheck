@@ -20,7 +20,7 @@ namespace HealthCheck.Core.Tests.Modules.SiteEvents
         }
 
         [Fact]
-        public async Task MarkEventAsResolved_WithoutMatchingEvent_ShouldDoNothing()
+        public async Task MarkLatestEventAsResolved_WithoutMatchingEvent_ShouldDoNothing()
         {
             var storage = new MemorySiteEventStorage();
             var service = new SiteEventService(storage);
@@ -29,13 +29,13 @@ namespace HealthCheck.Core.Tests.Modules.SiteEvents
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
 
-            await service.MarkEventAsResolved("typeIdC", "Resolved!");
+            await service.MarkLatestEventAsResolved("typeIdC", "Resolved!");
             var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Empty(items.Where(x => x.Resolved));
         }
 
         [Fact]
-        public async Task MarkEventAsResolved_WithoutMultipleMatchingEvents_ShouldMarkLast()
+        public async Task MarkLatestEventAsResolved_WithoutMultipleMatchingEvents_ShouldMarkLast()
         {
             var storage = new MemorySiteEventStorage();
             var service = new SiteEventService(storage);
@@ -44,7 +44,7 @@ namespace HealthCheck.Core.Tests.Modules.SiteEvents
             await service.StoreEvent(eventA);
             await service.StoreEvent(eventB);
 
-            await service.MarkEventAsResolved("typeIdX", "Resolved!");
+            await service.MarkLatestEventAsResolved("typeIdX", "Resolved!");
             var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
             Assert.Single(items.Where(x => x.Resolved && x.ResolvedMessage == "Resolved!" && x.ResolvedAt != null));
         }

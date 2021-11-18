@@ -59,6 +59,13 @@ namespace HealthCheck.Episerver.Storage
 
         #region ISiteEventStorage Implementation
         /// <inheritdoc />
+        public Task<SiteEvent> GetEvent(Guid id)
+        {
+            var item = GetItems().FirstOrDefault(x => x.Id == id);
+            return Task.FromResult(item);
+        }
+
+        /// <inheritdoc />
         public virtual Task<List<SiteEvent>> GetEvents(DateTimeOffset from, DateTimeOffset to)
         {
             var items = GetItems()
@@ -89,10 +96,22 @@ namespace HealthCheck.Episerver.Storage
         }
 
         /// <inheritdoc />
-        public virtual Task<SiteEvent> GetLastEventOfType(string eventTypeId)
+        public virtual Task<SiteEvent> GetLastUnresolvedEventOfType(string eventTypeId)
         {
-            var match = GetItems()?.FirstOrDefault(x => x.EventTypeId == eventTypeId);
+            var match = GetItems()
+                    ?.Where(x => x.EventTypeId == eventTypeId && !x.Resolved)
+                    ?.OrderByDescending(x => x.Timestamp)
+                    ?.FirstOrDefault();
             return Task.FromResult(match);
+        }
+
+        /// <inheritdoc />
+        public Task<IEnumerable<SiteEvent>> GetUnresolvedEventsOfType(string eventTypeId)
+        {
+            var items = GetItems()
+                .Where(x => x.EventTypeId == eventTypeId && !x.Resolved)
+                .AsEnumerable();
+            return Task.FromResult(items);
         }
 
         /// <inheritdoc />

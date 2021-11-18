@@ -47,6 +47,13 @@ namespace HealthCheck.WebUI.Services
             }
         }
 
+        /// <inheritdoc />
+        public Task<SiteEvent> GetEvent(Guid id)
+        {
+            var item = Store.GetEnumerable().FirstOrDefault(x => x.Id == id);
+            return Task.FromResult(item);
+        }
+
         /// <summary>
         /// Store the given event. There is a 2 second buffer delay before the item is written.
         /// </summary>
@@ -88,14 +95,23 @@ namespace HealthCheck.WebUI.Services
             return Task.FromResult(item);
         }
 
-        /// <summary>
-        /// Get the latest <see cref="SiteEvent"/> with the given <see cref="SiteEvent.EventTypeId"/>.
-        /// </summary>
-        public Task<SiteEvent> GetLastEventOfType(string eventTypeId)
+        /// <inheritdoc />
+        public virtual Task<SiteEvent> GetLastUnresolvedEventOfType(string eventTypeId)
         {
-            var item = Store.GetEnumerable(fromEnd: true)
-                .FirstOrDefault(x => x.EventTypeId == eventTypeId);
-            return Task.FromResult(item);
+            var match = Store.GetEnumerable(fromEnd: true)
+                    ?.Where(x => x.EventTypeId == eventTypeId && !x.Resolved)
+                    ?.OrderByDescending(x => x.Timestamp)
+                    ?.FirstOrDefault();
+            return Task.FromResult(match);
+        }
+
+        /// <inheritdoc />
+        public Task<IEnumerable<SiteEvent>> GetUnresolvedEventsOfType(string eventTypeId)
+        {
+            var items = Store.GetEnumerable(fromEnd: true)
+                        .Where(x => x.EventTypeId == eventTypeId && !x.Resolved)
+                        .AsEnumerable();
+            return Task.FromResult(items);
         }
 
         /// <inheritdoc />

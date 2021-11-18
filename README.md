@@ -635,7 +635,7 @@ foreach (var unresolvedEvent in unresolvedEvents)
     var timeSince = DateTimeOffset.Now - (unresolvedEvent.Timestamp + TimeSpan.FromMinutes(unresolvedEvent.Duration));
     if (timeSince > TimeSpan.FromMinutes(15))
     {
-        HCSiteEventUtils.TryMarkEventAsResolved(unresolvedEvent.EventTypeId, "Seems to be fixed now.");
+        HCSiteEventUtils.TryMarkEventAsResolved(unresolvedEvent.Id, "Seems to be fixed now.");
     }
 }
 ```

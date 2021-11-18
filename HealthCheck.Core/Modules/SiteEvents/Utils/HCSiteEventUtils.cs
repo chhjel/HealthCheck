@@ -45,12 +45,38 @@ namespace HealthCheck.Core.Modules.SiteEvents.Utils
         /// <summary>
         /// Attempts to mark the latest event with the given event type id as resolved, ignoring any error that might be thrown.
         /// </summary>
-        public static void TryMarkEventAsResolved(string eventTypeId, string resolvedMessage, Action<SiteEvent> config = null)
+        public static void TryMarkLatestEventAsResolved(string eventTypeId, string resolvedMessage, Action<SiteEvent> config = null)
         {
             try
             {
                 var service = HCGlobalConfig.GetService<ISiteEventService>();
-                Task.Run(async () => await service?.MarkEventAsResolved(eventTypeId, resolvedMessage, config));
+                Task.Run(async () => await service?.MarkLatestEventAsResolved(eventTypeId, resolvedMessage, config));
+            }
+            catch (Exception) { /* Ignore error here */ }
+        }
+
+        /// <summary>
+        /// Attempts to mark all events with the given event type id as resolved, ignoring any error that might be thrown.
+        /// </summary>
+        public static void TryMarkAllEventsAsResolved(string eventTypeId, string resolvedMessage, Action<SiteEvent> config = null)
+        {
+            try
+            {
+                var service = HCGlobalConfig.GetService<ISiteEventService>();
+                Task.Run(async () => await service?.MarkAllEventsAsResolved(eventTypeId, resolvedMessage, config));
+            }
+            catch (Exception) { /* Ignore error here */ }
+        }
+
+        /// <summary>
+        /// Attempts to mark the event with the given id as resolved, ignoring any error that might be thrown.
+        /// </summary>
+        public static void TryMarkEventAsResolved(Guid id, string resolvedMessage, Action<SiteEvent> config = null)
+        {
+            try
+            {
+                var service = HCGlobalConfig.GetService<ISiteEventService>();
+                Task.Run(async () => await service?.MarkEventAsResolved(id, resolvedMessage, config));
             }
             catch (Exception) { /* Ignore error here */ }
         }

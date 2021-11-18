@@ -99,22 +99,63 @@ namespace HealthCheck.Core.Modules.SiteEvents.Services
         private static readonly Semaphore _storeSemaphore = new(1, 1);
 
         /// <summary>
+        /// Mark all events with the given <paramref name="eventTypeId"/> as resolved with the given message.
+        /// </summary>
+        public virtual async Task<bool> MarkAllEventsAsResolved(string eventTypeId, string resolveMessage, Action<SiteEvent> config = null)
+        {
+            var events = await Storage.GetUnresolvedEventsOfType(eventTypeId);
+            if (events?.Any() != true)
+            {
+                return false;
+            }
+
+            foreach (var e in events)
+            {
+                ResolveEvent(resolveMessage, config, e);
+                await Storage.UpdateEvent(e);
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Mark the last event with the given <paramref name="eventTypeId"/> as resolved with the given message.
         /// </summary>
-        public virtual async Task<bool> MarkEventAsResolved(string eventTypeId, string resolveMessage, Action<SiteEvent> config = null)
+        public virtual async Task<bool> MarkLatestEventAsResolved(string eventTypeId, string resolveMessage, Action<SiteEvent> config = null)
         {
-            var lastEvent = await Storage.GetLastEventOfType(eventTypeId);
+            var lastEvent = await Storage.GetLastUnresolvedEventOfType(eventTypeId);
             if (lastEvent == null || lastEvent.Resolved)
             {
                 return false;
             }
 
-            lastEvent.Resolved = true;
-            lastEvent.ResolvedAt = DateTimeOffset.Now;
-            lastEvent.ResolvedMessage = resolveMessage;
-            config?.Invoke(lastEvent);
+            ResolveEvent(resolveMessage, config, lastEvent);
             await Storage.UpdateEvent(lastEvent);
             return true;
+        }
+
+        /// <summary>
+        /// Mark the <see cref="SiteEvent"/> with the given id as resolved with the given message.
+        /// </summary>
+        public virtual async Task<bool> MarkEventAsResolved(Guid id, string resolveMessage, Action<SiteEvent> config = null)
+        {
+            var lastEvent = await Storage.GetEvent(id);
+            if (lastEvent == null || lastEvent.Resolved)
+            {
+                return false;
+            }
+
+            ResolveEvent(resolveMessage, config, lastEvent);
+            await Storage.UpdateEvent(lastEvent);
+            return true;
+        }
+
+        private static void ResolveEvent(string resolveMessage, Action<SiteEvent> config, SiteEvent e)
+        {
+            e.Resolved = true;
+            e.ResolvedAt = DateTimeOffset.Now;
+            e.ResolvedMessage = resolveMessage;
+            config?.Invoke(e);
         }
 
         /// <summary>
