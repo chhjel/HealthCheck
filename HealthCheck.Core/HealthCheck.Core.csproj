@@ -60,6 +60,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Modules\DataRepeater\Services\" />
     <Folder Include="Modules\Tests\Utils\HtmlPresets\" />
   </ItemGroup>
 
