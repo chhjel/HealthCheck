@@ -43,10 +43,10 @@ namespace HealthCheck.Core.Util
 		/// </summary>
 		public TimeSpan DataSaveDelay { get; set; } = TimeSpan.FromSeconds(5);
 
-		private SimpleCachedDataContainer _container = new SimpleCachedDataContainer();
+		private SimpleCachedDataContainer _container = new();
 
-		private readonly object _delayedStorageLock = new object();
-		private readonly object _fileLock = new object();
+		private readonly object _delayedStorageLock = new();
+		private readonly object _fileLock = new();
 		private bool _isSaving = false;
 		private readonly IJsonSerializer _serializer;
 

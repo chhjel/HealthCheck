@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Tests.ModuleSystem.Helpers
 {
-#pragma warning disable IDE0060 // Remove unused parameter
     public class Module_Valid : HealthCheckModuleBase<ModuleAccessOptions_Valid>
     {
         public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => null;
@@ -42,5 +41,4 @@ namespace HealthCheck.Core.Tests.ModuleSystem.Helpers
         [HealthCheckModuleMethod]
         public async Task<int> ValidMethodAsync_OpenAccess_NoParameter_ReturnsValue() => await Task.FromResult(123);
     }
-#pragma warning restore IDE0060 // Remove unused parameter
 }

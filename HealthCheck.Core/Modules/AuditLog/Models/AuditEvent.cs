@@ -56,7 +56,7 @@ namespace HealthCheck.Core.Modules.AuditLog.Models
         /// </summary>
         public List<string> UserAccessRoles { get; set; }
 
-        internal List<KeyValuePair<string, string>> _blobContents = new List<KeyValuePair<string, string>>();
+        internal List<KeyValuePair<string, string>> _blobContents = new();
         private bool _clientConnectionDetailsAdded = false;
 
         /// <summary>

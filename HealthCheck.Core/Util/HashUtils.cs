@@ -11,7 +11,7 @@ namespace HealthCheck.Core.Util
 
         internal static string GenerateHash(string input, out string salt)
         {
-            using Rfc2898DeriveBytes rfc2898DeriveBytes = new Rfc2898DeriveBytes(input, SaltSize)
+            using Rfc2898DeriveBytes rfc2898DeriveBytes = new(input, SaltSize)
             {
                 IterationCount = IterationCount
             };
@@ -24,7 +24,7 @@ namespace HealthCheck.Core.Util
 
         internal static bool ValidateHash(string input, string inputHash, string salt)
         {
-            using Rfc2898DeriveBytes rfc2898DeriveBytes = new Rfc2898DeriveBytes(input, SaltSize)
+            using Rfc2898DeriveBytes rfc2898DeriveBytes = new(input, SaltSize)
             {
                 IterationCount = IterationCount,
                 Salt = Convert.FromBase64String(salt)

@@ -18,7 +18,6 @@ namespace HealthCheck.Dev.Common.Tests
 
         public class ProxyTestSubject
         {
-#pragma warning disable S3400 // Methods should not return constants
             public string TestSimpleString()
                 => "String result here";
 
@@ -39,7 +38,6 @@ namespace HealthCheck.Dev.Common.Tests
 
             public string TestImageUrls()
                 => "A mock image https://via.placeholder.com/150?ext=.jpg and https://via.placeholder.com/550?ext=.png 🤔";
-#pragma warning restore S3400 // Methods should not return constants
         }
     }
 }

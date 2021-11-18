@@ -10,7 +10,7 @@ namespace HealthCheck.Core.Modules.AuditLog.Services
     /// </summary>
     public class MemoryAuditBlobStorage : IAuditBlobStorage
     {
-        private readonly Dictionary<Guid, string> _data = new Dictionary<Guid, string>();
+        private readonly Dictionary<Guid, string> _data = new();
 
         /// <summary>
         /// Store the given blob in memory.

@@ -32,7 +32,7 @@ namespace HealthCheck.Module.EndpointControl.Models
         /// </summary>
         public bool CaseSensitive { get; set; }
 
-        private static readonly CachedRegexContainer _regexCache = new CachedRegexContainer();
+        private static readonly CachedRegexContainer _regexCache = new();
 
         /// <summary>
         /// Returns true if the condition is true for the given value.

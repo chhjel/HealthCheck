@@ -30,7 +30,7 @@ namespace HealthCheck.Module.EndpointControl.Utils
 
         private static void InitLazyFactory()
         {
-            static Dictionary<Type, IEnumerable<object>> factory(Func<string, string> createPath) => new Dictionary<Type, IEnumerable<object>>
+            static Dictionary<Type, IEnumerable<object>> factory(Func<string, string> createPath) => new()
             {
                 { typeof(IEndpointControlRequestHistoryStorage), new object[] {
                     new FlatFileEndpointControlRequestHistoryStorage(createPath(@"EndpointControl_History.json")) { PrettyFormat = true }} },

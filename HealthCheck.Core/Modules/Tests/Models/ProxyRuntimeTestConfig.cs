@@ -40,7 +40,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// </summary>
         internal Func<MethodInfo, bool> MethodFilter { get; set; }
 
-        private readonly List<RuntimeTestReferenceParameterFactory> _parameterFactories = new List<RuntimeTestReferenceParameterFactory>();
+        private readonly List<RuntimeTestReferenceParameterFactory> _parameterFactories = new();
 
         /// <summary>
         /// Config for class proxy tests.

@@ -12,8 +12,6 @@ using HealthCheck.Core.Config;
 using HealthCheck.Core.Extensions;
 using System;
 
-#pragma warning disable S2327
-
 namespace HealthCheck.Module.EndpointControl.Utils
 {
     internal static class RequestUtils
@@ -21,7 +19,7 @@ namespace HealthCheck.Module.EndpointControl.Utils
 #if NETFULL
         public static byte[] ReadRequestBody(Stream input)
         {
-            using MemoryStream ms = new MemoryStream();
+            using MemoryStream ms = new();
             input.Seek(0, SeekOrigin.Begin);
             input.CopyTo(ms);
             input.Seek(0, SeekOrigin.Begin);

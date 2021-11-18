@@ -10,11 +10,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-#pragma warning disable S3928 // Parameter names used into ArgumentException constructors should match an existing one 
 
 namespace HealthCheck.Dev.Common.Tests
 {
-#pragma warning disable IDE0060 // Remove unused parameter
     [RuntimeTestClass(
         Name = "Some fancy tests: X",
         Description = "Some fancy <a href=\"https://www.google.com\">description</a>.",
@@ -882,5 +880,4 @@ namespace HealthCheck.Dev.Common.Tests
             + "  }\n"
             + "]\n";
     }
-#pragma warning restore IDE0060 // Remove unused parameter
 }

@@ -35,7 +35,7 @@ namespace HealthCheck.Core.Util
         /// </summary>
         public int? MaxCount { get; set; }
 
-        private readonly Dictionary<string, SimpleMemoryCacheItem> _items = new Dictionary<string, SimpleMemoryCacheItem>();
+        private readonly Dictionary<string, SimpleMemoryCacheItem> _items = new();
         private DateTime? _lastCleanupTime = null;
 
         private struct SimpleMemoryCacheItem {

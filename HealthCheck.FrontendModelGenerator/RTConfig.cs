@@ -75,8 +75,7 @@ namespace HealthCheck.FrontendModelGenerator
             config.WithAllMethods(m => m.Ignore());
             config.WithAllProperties((c) =>
             {
-                var attr = c.Member.GetCustomAttributes().FirstOrDefault(x => x is HCRtPropertyAttribute) as HCRtPropertyAttribute;
-                if (attr != null)
+                if (c.Member.GetCustomAttributes().FirstOrDefault(x => x is HCRtPropertyAttribute) is HCRtPropertyAttribute attr)
                 {
                     if (attr.ForcedNullable)
                     {

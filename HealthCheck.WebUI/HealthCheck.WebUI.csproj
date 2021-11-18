@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netcoreapp3.1;net461;net472</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp3.1;net461;net472;net6.0</TargetFrameworks>
     <Configurations>Debug;Release</Configurations>
     <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)\</OutputPath>
     <Authors>ChristianH</Authors>
@@ -40,15 +40,19 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>NETSTANDARD;NETSTANDARD2_0</DefineConstants>
   </PropertyGroup>
+  <!-- References -->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+  </ItemGroup>
   <!-- ####################################### -->
 
   <!-- .NET CORE ############################# -->
   <!-- Compiler flags -->
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1'">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' or '$(TargetFramework)' == 'net6.0'">
     <DefineConstants>NETCORE;NETCORE2_0</DefineConstants>
   </PropertyGroup>
   <!-- References -->
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' or '$(TargetFramework)' == 'net6.0'">
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.1" />
   </ItemGroup>
@@ -65,13 +69,11 @@
   <!-- References -->
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net472' ">
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <Reference Include="System.Web" />
   </ItemGroup>
   <!-- ####################################### -->
 
-  <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp3.1'">
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HealthCheck.Core\HealthCheck.Core.csproj" />
   </ItemGroup>

@@ -68,9 +68,23 @@ jobs:
       versionSpec: '5.x'
 
   - task: NuGetCommand@2
+    displayName: Nuget restore
     inputs:
       command: 'restore'
       restoreSolution: '$(BuildParameters.Solution)'
+      feedsToUse: 'config'
+      nugetConfigPath: 'nuget.config'
+  
+  - task: UseDotNet@2
+    displayName: Use .NET 6.0 SDK
+    inputs:
+      packageType: 'sdk'
+      version: '6.x'
+
+  - task: DotNetCoreCLI@2
+    displayName: dotnet restore
+    inputs:
+      command: 'restore'
       feedsToUse: 'config'
       nugetConfigPath: 'nuget.config'
 

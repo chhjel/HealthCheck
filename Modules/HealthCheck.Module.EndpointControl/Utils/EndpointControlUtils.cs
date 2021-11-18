@@ -22,7 +22,9 @@ namespace HealthCheck.Module.EndpointControl.Utils
         internal const string RequestItemKey_Allowed = "HC_HCControlledEndpoint_Allowed";
         internal const string RequestItemKey_RequestData = "HC_HCControlledEndpoint_RequestData";
 
-        private static readonly object _countLock = new object();
+#if NETFULL || NETCORE
+        private static readonly object _countLock = new();
+#endif
 
 #if NETFULL
         /// <summary>

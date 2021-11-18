@@ -109,9 +109,7 @@ namespace HealthCheck.Dev.Common.Tests
                 return $"Success!";
             }
 
-#pragma warning disable IDE0060 // Remove unused parameter
             public void WithParameter(Guid id, string data) { /**/ }
-#pragma warning restore IDE0060 // Remove unused parameter
 
             public string With1GenericArgument<T1>(T1 a) => $"Input was {a}";
             public string With2GenericArguments<T1, T2>(T1 a, T2 b) => $"Input was {a}, {b}";

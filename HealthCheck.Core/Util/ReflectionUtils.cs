@@ -161,15 +161,12 @@ namespace HealthCheck.Core.Util
 
 		private static object GetMemberValue(this MemberInfo memberInfo, object instance)
 		{
-			switch (memberInfo.MemberType)
-			{
-				case MemberTypes.Field:
-					return ((FieldInfo)memberInfo).GetValue(instance);
-				case MemberTypes.Property:
-					return ((PropertyInfo)memberInfo).GetValue(instance);
-				default:
-					return null;
-			}
-		}
+            return memberInfo.MemberType switch
+            {
+                MemberTypes.Field => ((FieldInfo)memberInfo).GetValue(instance),
+                MemberTypes.Property => ((PropertyInfo)memberInfo).GetValue(instance),
+                _ => null,
+            };
+        }
 	}
 }

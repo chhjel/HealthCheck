@@ -149,7 +149,7 @@ namespace HealthCheck.WebUI.Services
             }
         }
 
-        private void AddItem(Dictionary<Type, List<object>> list, Type type, IEnumerable<object> items)
+        private static void AddItem(Dictionary<Type, List<object>> list, Type type, IEnumerable<object> items)
         {
             if (items?.Any() != true)
             {

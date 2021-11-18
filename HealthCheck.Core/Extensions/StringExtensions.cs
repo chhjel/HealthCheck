@@ -39,7 +39,7 @@ namespace HealthCheck.Core.Extensions
         /// Strip everything inside tags.
         /// </summary>
         public static string StripHtml(this string input) => String.IsNullOrWhiteSpace(input) ? input : _stripTagsRegex.Replace(input, "");
-        private static readonly Regex _stripTagsRegex = new Regex("<.*?>");
+        private static readonly Regex _stripTagsRegex = new("<.*?>");
 
         /// <summary>
         /// Prepends the given affix if the string is not null and does not already end with it.
@@ -120,7 +120,7 @@ namespace HealthCheck.Core.Extensions
             var count = int.Parse(match.Groups["count"].Value);
             return value.Pluralize(count, pluralSuffix, pluralWord, singularPrefix);
         }
-        private static readonly Regex _autoPluralizeCountRegex = new Regex(@"\s*(?<count>[0-9]+)\s+\w+");
+        private static readonly Regex _autoPluralizeCountRegex = new(@"\s*(?<count>[0-9]+)\s+\w+");
 
         /// <summary>
         /// Wrap the string with quotes if not null, otherwise return the text null.
@@ -211,7 +211,7 @@ namespace HealthCheck.Core.Extensions
             return value;
         }
 
-        private static readonly Regex _threePlusCapitalizedRegex = new Regex(@"( |^|_|\-)(?<value>([A-Z]( |$|_|\-)){3,})", RegexOptions.Multiline);
+        private static readonly Regex _threePlusCapitalizedRegex = new(@"( |^|_|\-)(?<value>([A-Z]( |$|_|\-)){3,})", RegexOptions.Multiline);
 
         private static bool ANumberIsStartingAtPosition(string text, int index)
         {

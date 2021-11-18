@@ -20,17 +20,17 @@
         /// <summary>
         /// Create a result that does nothing.
         /// </summary>
-        public static HCResultPageAction CreateNoAction() => new HCResultPageAction(HCResultPageActionType.None);
+        public static HCResultPageAction CreateNoAction() => new(HCResultPageActionType.None);
 
         /// <summary>
         /// Create a result that refreshes the page.
         /// </summary>
-        public static HCResultPageAction CreateRefresh() => new HCResultPageAction(HCResultPageActionType.Refresh);
+        public static HCResultPageAction CreateRefresh() => new(HCResultPageActionType.Refresh);
 
         /// <summary>
         /// Create a result that redirects somewhere.
         /// </summary>
-        public static HCResultPageAction CreateRedirect(string url) => new HCResultPageAction(HCResultPageActionType.Redirect) { RedirectTarget = url };
+        public static HCResultPageAction CreateRedirect(string url) => new(HCResultPageActionType.Redirect) { RedirectTarget = url };
 
         /// <summary></summary>
         public enum HCResultPageActionType

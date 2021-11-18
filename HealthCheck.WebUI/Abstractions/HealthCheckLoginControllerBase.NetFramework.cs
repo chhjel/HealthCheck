@@ -31,8 +31,6 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         protected TimeSpan? MaxAddedDelay { get; set; } = TimeSpan.FromSeconds(3);
 
-        private readonly HealthCheckLoginControllerHelper _helper = new HealthCheckLoginControllerHelper();
-
         #region Endpoints
         /// <summary>
         /// Attempts to login using custom logic from <see cref="HandleLoginRequest"/>.
@@ -118,7 +116,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// Serializes the given object into a json result.
         /// </summary>
         protected ActionResult CreateJsonResult(object obj, bool stringEnums = true)
-            => Content(_helper.SerializeJson(obj, stringEnums), "application/json");
+            => Content(HealthCheckLoginControllerHelper.SerializeJson(obj, stringEnums), "application/json");
 
         /// <summary>
         /// Delay by the configured amount.
@@ -138,7 +136,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         protected string CreateSession2FACode(string username, int length = 6)
         {
-            var code = _helper.Generate2FACode(length);
+            var code = HealthCheckLoginControllerHelper.Generate2FACode(length);
             Session[CreateSession2FACodeKey(username)] = code;
             return code;
         }

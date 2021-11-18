@@ -51,7 +51,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         /// </summary>
         public IEnumerable<TestViewModel> CreateViewModels(TestDefinition testDefinition, HCTestsModuleOptions options, List<string> userCategoryAccess)
         {
-            List<TestViewModel> viewModels = new List<TestViewModel>();
+            List<TestViewModel> viewModels = new();
 
             var model = CreateViewModel(testDefinition, options, userCategoryAccess);
             viewModels.Add(model);
@@ -153,7 +153,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
             };
         }
 
-        private static readonly Dictionary<string, string> _inputTypeAliases = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> _inputTypeAliases = new()
         {
             { "IFormFile", "HttpPostedFileBase" },
             { "Byte[]", "HttpPostedFileBase" }

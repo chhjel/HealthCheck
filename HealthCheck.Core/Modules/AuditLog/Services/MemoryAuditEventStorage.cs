@@ -13,7 +13,7 @@ namespace HealthCheck.Core.Modules.AuditLog.Services
     /// </summary>
     public class MemoryAuditEventStorage : IAuditEventStorage
     {
-        private readonly ConcurrentBag<AuditEvent> Items = new ConcurrentBag<AuditEvent>();
+        private readonly ConcurrentBag<AuditEvent> Items = new();
 
         /// <summary>
         /// Store the given event in memory.

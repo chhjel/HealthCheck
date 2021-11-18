@@ -38,8 +38,6 @@ namespace HealthCheck.Episerver.Extensions
         /// Returns null if <c>ReadAllBytes</c> throws an exception.
         /// <para>Returns null at once if blob is null, or if it's a FileBlob without an existing file.</para>
         /// </summary>
-        [SuppressMessage("Major Code Smell", "S1168:Empty arrays and collections should be returned instead of null",
-            Justification = "Try methods usually return null.")]
         public static byte[] TryReadAllBytes(this Blob blob)
         {
             try

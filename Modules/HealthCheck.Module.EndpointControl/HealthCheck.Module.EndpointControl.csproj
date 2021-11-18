@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net461;net472;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net461;net472;netcoreapp3.1;net6.0</TargetFrameworks>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.0.1</Version>
@@ -56,11 +56,11 @@
 
   <!-- .NET CORE ############################# -->
   <!-- Compiler flags -->
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1'">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' or '$(TargetFramework)' == 'net6.0'">
     <DefineConstants>NETCORE;NETCORE2_0</DefineConstants>
   </PropertyGroup>
   <!-- References -->
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' or '$(TargetFramework)' == 'net6.0'">
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.1" />
   </ItemGroup>

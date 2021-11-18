@@ -86,7 +86,7 @@ namespace HealthCheck.Core.Util.Modules
 		/// </summary>
 		public async Task<string> Invoke(IHealthCheckModule instance, HealthCheckModuleContext context, string jsonPayload, IJsonSerializer serializer)
 		{
-			List<object> parameters = new List<object>();
+			List<object> parameters = new();
 			if (HasContextParameter)
 			{
 				parameters.Add(context);

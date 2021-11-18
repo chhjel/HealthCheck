@@ -20,7 +20,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         private HCSecureFileDownloadModuleOptions Options { get; }
 
         private const string Q = "\"";
-        private static readonly ListWithExpiration<CachedToken> _tokenCache = new ListWithExpiration<CachedToken>();
+        private static readonly ListWithExpiration<CachedToken> _tokenCache = new();
         private struct CachedToken
         {
             public string Token;
@@ -211,9 +211,9 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
 
         #region Actions
         private static readonly Regex DownloadUrlRegex
-            = new Regex(@"^/Download/(?<id>[\w-]+)/?", RegexOptions.IgnoreCase);
+            = new(@"^/Download/(?<id>[\w-]+)/?", RegexOptions.IgnoreCase);
         private static readonly Regex DownloadFileUrlRegex
-            = new Regex(@"^/SFDDownloadFile/(?<token>[\w-]+)?__(?<id>[\w-]+)/?", RegexOptions.IgnoreCase);
+            = new(@"^/SFDDownloadFile/(?<token>[\w-]+)?__(?<id>[\w-]+)/?", RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Show download page for a file.

@@ -83,22 +83,22 @@ namespace HealthCheck.DevTest.Controllers
         private const string EndpointBase = "/dev";
         private static ISiteEventService _siteEventService;
         private static IAuditEventStorage _auditEventService;
-        private static readonly TestStreamA testStreamA = new TestStreamA();
-        private static readonly TestStreamB testStreamB = new TestStreamB();
-        private static readonly TestStreamC testStreamC = new TestStreamC();
-        private static readonly SimpleStream simpleStream = new SimpleStream("Simple A");
-        private static readonly TestMemoryStream memoryStream = new TestMemoryStream("Memory");
-        private static readonly TestMemoryStream otherStream1 = new TestMemoryStream(null);
-        private static readonly TestMemoryStream otherStream2 = new TestMemoryStream(null);
+        private static readonly TestStreamA testStreamA = new();
+        private static readonly TestStreamB testStreamB = new();
+        private static readonly TestStreamC testStreamC = new();
+        private static readonly SimpleStream simpleStream = new("Simple A");
+        private static readonly TestMemoryStream memoryStream = new("Memory");
+        private static readonly TestMemoryStream otherStream1 = new(null);
+        private static readonly TestMemoryStream otherStream2 = new(null);
         //private static readonly HCMemoryMessageStore _memoryMessageStore = new HCMemoryMessageStore()
         private static readonly IHCMessageStorage _memoryMessageStore = new HCFlatFileMessageStore(@"c:\temp\hc_messages");
         private static readonly FlatFileEventSinkNotificationConfigStorage EventSinkNotificationConfigStorage
-            = new FlatFileEventSinkNotificationConfigStorage(@"c:\temp\eventconfigs.json");
+            = new(@"c:\temp\eventconfigs.json");
         private static readonly FlatFileEventSinkKnownEventDefinitionsStorage EventSinkNotificationDefinitionStorage
-            = new FlatFileEventSinkKnownEventDefinitionsStorage(@"c:\temp\eventconfig_defs.json");
+            = new(@"c:\temp\eventconfig_defs.json");
         private static readonly FlatFileSecureFileDownloadDefinitionStorage FlatFileSecureFileDownloadDefinitionStorage
-            = new FlatFileSecureFileDownloadDefinitionStorage(@"c:\temp\securefile_defs.json");
-        private static HCFlatFileStringDictionaryStorage _settingsStorage = new HCFlatFileStringDictionaryStorage(@"C:\temp\settings.json");
+            = new(@"c:\temp\securefile_defs.json");
+        private static readonly HCFlatFileStringDictionaryStorage _settingsStorage = new(@"C:\temp\settings.json");
         private IHCSettingsService SettingsService { get; set; } = new HCDefaultSettingsService(_settingsStorage);
         private IDataflowService<RuntimeTestAccessRole> DataflowService { get; set; }
         private IEventDataSink EventSink { get; set; }
@@ -485,7 +485,7 @@ namespace HealthCheck.DevTest.Controllers
         }
 
         protected override HCFrontEndOptions GetFrontEndOptions()
-            => new HCFrontEndOptions(EndpointBase)
+            => new(EndpointBase)
             {
                 ApplicationTitle = "HealthCheck",
                 ApplicationTitleLink = "/?sysadmin=x&webadmin=1",
@@ -500,7 +500,7 @@ namespace HealthCheck.DevTest.Controllers
             };
 
         protected override HCPageOptions GetPageOptions()
-            => new HCPageOptions()
+            => new()
             {
                 PageTitle = "HealthCheck",
                 JavaScriptUrls = new List<string> {
@@ -583,8 +583,7 @@ namespace HealthCheck.DevTest.Controllers
 
         public ActionResult TestEvent(int v = 1)
         {
-            object payload = null;
-            payload = v switch
+            object payload = v switch
             {
                 3 => new
                 {
@@ -745,7 +744,7 @@ namespace HealthCheck.DevTest.Controllers
         }
 
         // New mock data
-        private static readonly Random _rand = new Random();
+        private static readonly Random _rand = new();
         public async Task<ActionResult> AddEvent()
         {
             if (!Enabled || _siteEventService == null) return HttpNotFound();

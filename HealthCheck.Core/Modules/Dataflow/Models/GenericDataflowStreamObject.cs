@@ -35,7 +35,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
         }
 
         internal List<Func<IEnumerable<GenericDataflowStreamObject>, DataflowStreamFilter, IEnumerable<GenericDataflowStreamObject>>>
-            PropertyFilters = new List<Func<IEnumerable<GenericDataflowStreamObject>, DataflowStreamFilter, IEnumerable<GenericDataflowStreamObject>>>();
+            PropertyFilters = new();
 
         /// <summary>
         /// Get value of a field/property name that was stored.
@@ -197,7 +197,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
                 return (entry) =>
                 {
                     var memberValue = objectGetter?.Invoke(entry);
-                    if (!(memberValue is System.Collections.IList list))
+                    if (memberValue is not System.Collections.IList list)
                     {
                         return "";
                     }
@@ -218,7 +218,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
                 return (entry) =>
                 {
                     var memberValue = objectGetter?.Invoke(entry);
-                    if (!(memberValue is System.Collections.IDictionary dictionary))
+                    if (memberValue is not System.Collections.IDictionary dictionary)
                     {
                         return "";
                     }

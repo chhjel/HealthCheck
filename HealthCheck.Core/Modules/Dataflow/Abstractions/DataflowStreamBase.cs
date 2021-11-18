@@ -59,9 +59,9 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
 
         private bool IsVisibleSafe => IsVisible == null || IsVisible();
 
-        private readonly Dictionary<string, DataFlowPropertyDisplayInfo> PropertyInfos = new Dictionary<string, DataFlowPropertyDisplayInfo>();
+        private readonly Dictionary<string, DataFlowPropertyDisplayInfo> PropertyInfos = new();
         private readonly List<Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>>
-            InternalPropertyFilters = new List<Func<IEnumerable<TEntry>, DataflowStreamFilter, IEnumerable<TEntry>>>();
+            InternalPropertyFilters = new();
 
         private int RegisterPropertyDisplayInfoInvokeCount = 0;
 

@@ -2,7 +2,6 @@
 using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
-#pragma warning disable S3358 // Ternary operators should not be nested
 
 namespace HealthCheck.Dev.Common.Dataflow
 {

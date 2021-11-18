@@ -547,7 +547,7 @@ namespace HealthCheck.WebUI.Util
             {
                 if (loadedModule.Module is HCTestsModule testsModule)
                 {
-                    InitStringConverter(testsModule.ParameterConverter);
+                    HealthCheckControllerHelper<TAccessRole>.InitStringConverter(testsModule.ParameterConverter);
                 }
                 else if (loadedModule.Module is HCAuditLogModule auditModule)
                 {
@@ -560,7 +560,7 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Serializes the given object into a json string.
         /// </summary>
-        public string SerializeJson(object obj, bool stringEnums = true)
+        public static string SerializeJson(object obj, bool stringEnums = true)
         {
             var settings = new JsonSerializerSettings
             {
@@ -648,7 +648,7 @@ namespace HealthCheck.WebUI.Util
 </body>
 </html>";
         }
-        private void ValidateConfig(HCFrontEndOptions frontEndOptions, HCPageOptions pageOptions)
+        private static void ValidateConfig(HCFrontEndOptions frontEndOptions, HCPageOptions pageOptions)
         {
             frontEndOptions.Validate();
             pageOptions.Validate();
@@ -664,7 +664,7 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Default value if pageAccess is null, false if no roles were given.
         /// </summary>
-        private bool AccessRolesHasAccessTo(Maybe<TAccessRole> accessRoles, Maybe<TAccessRole> pageAccess, bool defaultValue = true)
+        private static bool AccessRolesHasAccessTo(Maybe<TAccessRole> accessRoles, Maybe<TAccessRole> pageAccess, bool defaultValue = true)
         {
             // No access defined => default
             if (pageAccess == null || !pageAccess.HasValue)
@@ -682,7 +682,7 @@ namespace HealthCheck.WebUI.Util
 #endregion
 
 #region Init module extras
-        private void InitStringConverter(StringConverter converter)
+        private static void InitStringConverter(StringConverter converter)
         {
             converter.RegisterConverter<byte[]>(
                 (input) => ConvertFileInputToBytes(input),
@@ -751,13 +751,11 @@ namespace HealthCheck.WebUI.Util
 #endif
         }
 
-        private byte[] ConvertFileInputToBytes(string input)
+        private static byte[] ConvertFileInputToBytes(string input)
         {
             if (input == null)
             {
-#pragma warning disable S1168 // Empty arrays and collections should be returned instead of null
                 return null;
-#pragma warning restore S1168 // Empty arrays and collections should be returned instead of null
             }
 
             var parts = input.Split('|');
@@ -768,7 +766,7 @@ namespace HealthCheck.WebUI.Util
         }
 
 #if NETCORE
-        private IFormFile ConvertFileInputToMemoryFile(string input)
+        private static IFormFile ConvertFileInputToMemoryFile(string input)
         {
             if (input == null) return null;
 
@@ -782,7 +780,7 @@ namespace HealthCheck.WebUI.Util
 #endif
 
 #if NETFULL
-        private MemoryFile ConvertFileInputToMemoryFile(string input)
+        private static MemoryFile ConvertFileInputToMemoryFile(string input)
         {
             if (input == null) return null;
 

@@ -205,7 +205,7 @@ namespace HealthCheck.WebUI.Abstractions
             ActionResult CreateContentResult(string content) => Content(content, "text/html");
 
             var url = Request.GetDisplayUrl();
-            url = url.Substring(url.ToLower().Trim().IndexOf($"/{actionName.ToLower()}"));
+            url = url[url.ToLower().Trim().IndexOf($"/{actionName.ToLower()}")..];
 
             var content = Helper.InvokeModuleAction(CurrentRequestInformation, actionName, url).Result;
             if (content?.HasAccess == true && content.Result != null)
@@ -428,7 +428,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// Serializes the given object into a json result.
         /// </summary>
         protected ActionResult CreateJsonResult(object obj, bool stringEnums = true)
-            => Content(Helper.SerializeJson(obj, stringEnums), "application/json");
+            => Content(HealthCheckControllerHelper<TAccessRole>.SerializeJson(obj, stringEnums), "application/json");
 
         /// <summary>
         /// Request model sent to <see cref="InvokeModuleMethod"/>.

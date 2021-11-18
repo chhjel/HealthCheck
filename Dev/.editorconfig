@@ -1,0 +1,16 @@
+﻿root = false
+
+[*.{cs,vb}]
+
+# IDE0037: Use inferred member name
+dotnet_style_prefer_inferred_anonymous_type_member_names = false:suggestion
+dotnet_style_readonly_field = false:none
+
+# IDE0060: Remove unused parameter
+dotnet_diagnostic.IDE0060.severity = none
+
+# CS0649: Field 'xx' is never assigned to, and will always have its default value null
+dotnet_diagnostic.CS0649.severity = none
+
+# IDE0051 Private member is unused.
+dotnet_diagnostic.IDE0051.severity = none

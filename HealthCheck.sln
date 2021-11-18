@@ -3,6 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.0.31815.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dev", "Dev", "{B26DDE73-0369-4977-A004-3CCDE2B38825}"
+	ProjectSection(SolutionItems) = preProject
+		Dev\.editorconfig = Dev\.editorconfig
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.DevTest.NetFramework", "Dev\HealthCheck.DevTest.NetFramework\HealthCheck.DevTest.NetFramework.csproj", "{7692E64E-1510-4362-AE3A-E4BE6A68EDDF}"
 EndProject
@@ -32,6 +35,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA", "Modules\HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA\HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA.csproj", "{DE9EA2DB-5D18-4CF8-A3B7-B32D0BF48D96}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{23FF7575-64C7-43DC-9FDB-1FE4BF5A1D3F}"
+	ProjectSection(SolutionItems) = preProject
+		Tests\.editorconfig = Tests\.editorconfig
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Dev.Common", "Dev\HealthCheck.Dev.Common\HealthCheck.Dev.Common.csproj", "{179722CB-48F2-47FB-B2A2-1526959935AE}"
 EndProject

@@ -28,7 +28,7 @@ namespace HealthCheck.Core.Abstractions.Modules
         /// Create a link tag for css with the given href.
         /// </summary>
         public static HealthCheckLinkTagModel CreateStylesheet(string url)
-            => new HealthCheckLinkTagModel { Rel = "stylesheet", Type = "text/css", Href = url };
+            => new() { Rel = "stylesheet", Type = "text/css", Href = url };
 
         /// <summary>
         /// Returns the built link element string.

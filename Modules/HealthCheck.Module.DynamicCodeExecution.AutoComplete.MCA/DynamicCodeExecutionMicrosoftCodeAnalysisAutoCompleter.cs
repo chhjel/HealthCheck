@@ -28,9 +28,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA
         public Task<IEnumerable<IDynamicCodeCompletionData>> GetAutoCompleteSuggestionsAsync(string code, string[] assemblyLocations, int position)
         {
             // Force MSBuild to not strip away the assembly
-#pragma warning disable S1481 // Unused local variables should be removed
             var _ = typeof(Microsoft.CodeAnalysis.CSharp.Formatting.CSharpFormattingOptions);
-#pragma warning restore S1481 // Unused local variables should be removed
 
             var assemblies = assemblyLocations
                 ?.Where(x => File.Exists(x))

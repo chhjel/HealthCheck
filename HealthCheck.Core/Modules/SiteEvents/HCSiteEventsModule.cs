@@ -15,7 +15,7 @@ namespace HealthCheck.Core.Modules.SiteEvents
     {
         private HCSiteEventsModuleOptions Options { get; }
 
-        private readonly SiteEventViewModelsFactory SiteEventViewModelsFactory = new SiteEventViewModelsFactory();
+        private readonly SiteEventViewModelsFactory SiteEventViewModelsFactory = new();
 
         /// <summary>
         /// Module that gives an overview of stability by showing reported events.
