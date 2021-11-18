@@ -84,7 +84,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <param name="message">Message text. If null exception message will be used if any.</param>
         /// <param name="exception">Exception if any to get stack trace from.</param>
         public static TestResult Create(TestResultStatus status, string message, Exception exception = null)
-            => new TestResult()
+            => new()
             {
                 Status = status,
                 Message = message ?? exception?.Message,

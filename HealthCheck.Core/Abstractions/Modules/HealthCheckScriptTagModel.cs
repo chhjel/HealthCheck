@@ -23,13 +23,13 @@ namespace HealthCheck.Core.Abstractions.Modules
         /// Create a script tag with the given src value.
         /// </summary>
         public static HealthCheckScriptTagModel CreateSrc(string url)
-            => new HealthCheckScriptTagModel { Src = url };
+            => new() { Src = url };
 
         /// <summary>
         /// Create a script tag with the given inline script.
         /// </summary>
         public static HealthCheckScriptTagModel CreateInline(string script)
-            => new HealthCheckScriptTagModel { InlineScript = script };
+            => new() { InlineScript = script };
 
         /// <summary>
         /// Returns the built script element string.

@@ -16,7 +16,7 @@ namespace HealthCheck.WebUI.Services
     {
         private SimpleDataStoreWithId<EventSinkNotificationConfig, Guid> Store { get; set; }
 
-        private static readonly object _cacheUpdateLock = new object();
+        private static readonly object _cacheUpdateLock = new();
         private static Dictionary<string, IEnumerable<EventSinkNotificationConfig>> ConfigCache { get; set; } = new Dictionary<string, IEnumerable<EventSinkNotificationConfig>>();
         private string CacheKey => Store.FilePath.ToLower();
         private static Dictionary<string, EventSinkNotificationConfig> SaveBuffer { get; set; } = new Dictionary<string, EventSinkNotificationConfig>();

@@ -12,9 +12,7 @@ namespace HealthCheck.DevTest.Controllers.RequestLogTestControllers.Api
         }
 
         // DELETE: api/student/5
-#pragma warning disable IDE0060 // Remove unused parameter
         public void AnotherBaseAction(int id)
-#pragma warning restore IDE0060 // Remove unused parameter
         {
             // Method intentionally left empty.
         }

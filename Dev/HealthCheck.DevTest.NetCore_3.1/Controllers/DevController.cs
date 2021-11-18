@@ -513,8 +513,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
         [Route("TestEvent")]
         public ActionResult TestEvent(int v = 1)
         {
-            object payload = null;
-            payload = v switch
+            object payload = v switch
             {
                 3 => new
                 {

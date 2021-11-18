@@ -9,9 +9,9 @@ namespace HealthCheck.Core.Modules.Tests.Utils
     {
         // Relative or absolute url.
         private static readonly Regex _urlRegex
-            = new Regex(@"(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}|\/)\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)");
+            = new(@"(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}|\/)\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)");
         private static readonly Regex _absoluteUrlRegex
-            = new Regex(@"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)");
+            = new(@"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)");
         private static readonly string[] _imgExtensions = new[] 
             { "APNG", "AVIF", "GIF", "JPG", "JPEG", "PNG", "SVG", "WEBP", "BMP", "ICO", "TIFF" };
         private static readonly Type[] _stringifiableTypes = new[]

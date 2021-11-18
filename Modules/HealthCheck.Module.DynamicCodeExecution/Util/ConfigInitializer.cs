@@ -33,7 +33,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Util
         private static void InitLazyFactory()
         {
 #if NETFULL
-            static Dictionary<Type, IEnumerable<object>> factory(Func<string, string> createPath) => new Dictionary<Type, IEnumerable<object>>
+            static Dictionary<Type, IEnumerable<object>> factory(Func<string, string> createPath) => new()
             {
                 { typeof(IDynamicCodeScriptStorage), new object[] { new FlatFileDynamicCodeScriptStorage(createPath(@"DCE_Scripts.json")) } }
             };

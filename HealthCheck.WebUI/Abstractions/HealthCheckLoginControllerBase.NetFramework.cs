@@ -31,7 +31,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         protected TimeSpan? MaxAddedDelay { get; set; } = TimeSpan.FromSeconds(3);
 
-        private readonly HealthCheckLoginControllerHelper _helper = new HealthCheckLoginControllerHelper();
+        private readonly HealthCheckLoginControllerHelper _helper = new();
 
         #region Endpoints
         /// <summary>

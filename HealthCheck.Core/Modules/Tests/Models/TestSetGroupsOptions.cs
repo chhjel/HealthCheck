@@ -8,7 +8,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
     /// </summary>
     public class TestSetGroupsOptions
     {
-        private readonly Dictionary<string, TestSetGroupOptions> Options = new Dictionary<string, TestSetGroupOptions>();
+        private readonly Dictionary<string, TestSetGroupOptions> Options = new();
 
         /// <summary>
         /// Set a groups option by group name.

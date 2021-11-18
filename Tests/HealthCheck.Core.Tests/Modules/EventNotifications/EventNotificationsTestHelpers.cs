@@ -89,20 +89,20 @@ namespace HealthCheck.Core.Tests.Modules.EventNotifications
             }
         }
 
-        internal static TestEventSinkNotificationConfigStorage CreateConfigStorage() => new TestEventSinkNotificationConfigStorage();
+        internal static TestEventSinkNotificationConfigStorage CreateConfigStorage() => new();
         internal class TestEventSinkNotificationConfigStorage : IEventSinkNotificationConfigStorage
         {
-            private readonly Dictionary<Guid, EventSinkNotificationConfig> _data = new Dictionary<Guid, EventSinkNotificationConfig>();
+            private readonly Dictionary<Guid, EventSinkNotificationConfig> _data = new();
 
             public EventSinkNotificationConfig SaveConfig(EventSinkNotificationConfig config) => _data[config.Id] = config;
             public void DeleteConfig(Guid configId) => _data.Remove(configId);
             public IEnumerable<EventSinkNotificationConfig> GetConfigs() => _data.Values;
         }
 
-        internal static TestEventSinkKnownEventDefinitionsStorage CreateDefinitionStorage() => new TestEventSinkKnownEventDefinitionsStorage();
+        internal static TestEventSinkKnownEventDefinitionsStorage CreateDefinitionStorage() => new();
         internal class TestEventSinkKnownEventDefinitionsStorage : IEventSinkKnownEventDefinitionsStorage
         {
-            private readonly Dictionary<string, KnownEventDefinition> _data = new Dictionary<string, KnownEventDefinition>();
+            private readonly Dictionary<string, KnownEventDefinition> _data = new();
 
             public IEnumerable<KnownEventDefinition> GetDefinitions() => _data.Values;
 

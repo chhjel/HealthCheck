@@ -124,7 +124,7 @@ namespace HealthCheck.Core.Modules.LogViewer
 
         private async Task<LogSearchResult> SearchLogsInternal(LogSearchFilter filter)
         {
-            CancellationTokenSource cts = new CancellationTokenSource();
+            CancellationTokenSource cts = new();
 
             var search = new LogSearchInProgress
             {

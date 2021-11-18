@@ -13,8 +13,8 @@ namespace HealthCheck.Core.Modules.SiteEvents.Services
     /// </summary>
     public class MemorySiteEventStorage : ISiteEventStorage
     {
-        private ConcurrentBag<SiteEvent> Items = new ConcurrentBag<SiteEvent>();
-        private readonly object _lock = new object();
+        private ConcurrentBag<SiteEvent> Items = new();
+        private readonly object _lock = new();
 
         /// <inheritdoc />
         public Task<SiteEvent> GetEvent(Guid id)

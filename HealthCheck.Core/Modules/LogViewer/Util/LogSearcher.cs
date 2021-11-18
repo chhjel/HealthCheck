@@ -80,7 +80,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Util
             var highestDate = filter.OrderDescending ? firstDate : lastDate;
             var lowestDate = filter.OrderDescending ? lastDate : firstDate;
 
-            Dictionary<string, List<LogEntry>> groupedEntries = new Dictionary<string, List<LogEntry>>();
+            Dictionary<string, List<LogEntry>> groupedEntries = new();
             if (parsedQuery.IsRegex && parsedQuery.RegexPattern.Contains("(?<GroupBy>"))
             {
                 groupedEntries = matchingEntries

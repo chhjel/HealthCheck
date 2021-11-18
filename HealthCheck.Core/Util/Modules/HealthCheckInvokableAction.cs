@@ -85,7 +85,7 @@ namespace HealthCheck.Core.Util.Modules
 		/// </summary>
 		public async Task<object> Invoke(IHealthCheckModule instance, HealthCheckModuleContext context, string url)
 		{
-			List<object> parameters = new List<object>();
+			List<object> parameters = new();
 			if (HasContextParameter)
 			{
 				parameters.Add(context);

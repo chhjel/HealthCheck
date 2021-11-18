@@ -10,8 +10,8 @@ namespace HealthCheck.Module.EndpointControl.Module
         public string DefaultRootRouteSegment => "endpoints";
         public string InitialRoute => "/{0}";
         public string RoutePath => "/{0}/:id?";
-        public List<HealthCheckLinkTagModel> LinkTags => new List<HealthCheckLinkTagModel>();
-        public List<HealthCheckScriptTagModel> ScriptTags => new List<HealthCheckScriptTagModel>();
+        public List<HealthCheckLinkTagModel> LinkTags => new();
+        public List<HealthCheckScriptTagModel> ScriptTags => new();
         public string RawHtml { get; }
     }
 }

@@ -7,8 +7,8 @@ namespace HealthCheck.Core.Modules.LogViewer.Util
 {
     internal static class QueryParser
     {
-        private static readonly Regex ExactRegex = new Regex(@"([^\\]|^)""(?<contents>[^""]+?)""([^\\]|$)");
-        private static readonly Regex AnyRegex = new Regex(@"\((?<contents>[^\(]+\|[^\)]+)\)");
+        private static readonly Regex ExactRegex = new(@"([^\\]|^)""(?<contents>[^""]+?)""([^\\]|$)");
+        private static readonly Regex AnyRegex = new(@"\((?<contents>[^\(]+\|[^\)]+)\)");
 
         public static ParsedQuery ParseQuery(string input, bool isRegex)
         {

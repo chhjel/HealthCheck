@@ -46,7 +46,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
         /// </summary>
         public static int MaxIoCRecursiveDepth { get; set; } = 20;
 
-        private static readonly Dictionary<string, CancellationTokenSource> TestCancellationTokenSources = new Dictionary<string, CancellationTokenSource>();
+        private static readonly Dictionary<string, CancellationTokenSource> TestCancellationTokenSources = new();
 
         /// <summary>
         /// Executes matching tests.
@@ -302,7 +302,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                     result = TestResult.CreateError($"Could not create an instance of the type '{test.Method.DeclaringType.Name}'. Reason: {reason}");
                 }
 
-                result = result ?? await test.ExecuteTest(instance, parameters, allowDefaultValues,
+                result ??= await test.ExecuteTest(instance, parameters, allowDefaultValues,
                     (tokenSource) => RegisterCancellableTestStarted(test.Id, tokenSource),
                     allowAnyResultType: test.Type == TestDefinition.TestDefinitionType.ProxyClassMethod,
                     includeAutoCreateResult: test.Type == TestDefinition.TestDefinitionType.ProxyClassMethod

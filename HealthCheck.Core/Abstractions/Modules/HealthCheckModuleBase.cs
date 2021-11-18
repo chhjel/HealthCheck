@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-#pragma warning disable S2326
 
 namespace HealthCheck.Core.Abstractions.Modules
 {

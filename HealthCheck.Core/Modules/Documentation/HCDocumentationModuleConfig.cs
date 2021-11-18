@@ -10,8 +10,8 @@ namespace HealthCheck.Core.Modules.Documentation
         public string DefaultRootRouteSegment => "documentation";
         public string InitialRoute => "/{0}";
         public string RoutePath => "/{0}/:title?";
-        public List<HealthCheckLinkTagModel> LinkTags => new List<HealthCheckLinkTagModel>();
-        public List<HealthCheckScriptTagModel> ScriptTags => new List<HealthCheckScriptTagModel>();
+        public List<HealthCheckLinkTagModel> LinkTags => new();
+        public List<HealthCheckScriptTagModel> ScriptTags => new();
         public string RawHtml { get; }
     }
 }

@@ -80,7 +80,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
         /// </summary>
         public List<string> LatestResults { get; set; } = new List<string>();
 
-        private static readonly SimpleMemoryCache<DateTimeOffset?> _distinctCache = new SimpleMemoryCache<DateTimeOffset?>();
+        private static readonly SimpleMemoryCache<DateTimeOffset?> _distinctCache = new();
         private bool DistinctCacheEnabled => !string.IsNullOrWhiteSpace(DistinctNotificationKey) && DistinctNotificationCacheDuration.TotalSeconds > 0;
 
         /// <summary>

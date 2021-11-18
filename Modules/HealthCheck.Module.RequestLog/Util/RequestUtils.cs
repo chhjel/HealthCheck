@@ -5,7 +5,6 @@ using System;
 using System.Net.Http;
 using System.Web;
 #endif
-#pragma warning disable S2327
 
 namespace HealthCheck.Module.RequestLog.Util
 {

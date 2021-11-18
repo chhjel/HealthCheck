@@ -26,7 +26,8 @@
         /// <param name="error">The error message to display.</param>
         /// <param name="showAsHtml">Allow rendering error message as html. Defaults to false.</param>
         public static HCIntegratedLoginResult CreateError(string error, bool showAsHtml = false)
-            => new HCIntegratedLoginResult { Success = false, ErrorMessage = error, ShowErrorAsHtml = showAsHtml };
+            => new()
+            { Success = false, ErrorMessage = error, ShowErrorAsHtml = showAsHtml };
 
         /// <summary>
         /// Create a new result, success or error depending on the given bool.
@@ -35,7 +36,8 @@
         /// <param name="error">If not successfull this message will be displayed.</param>
         /// <param name="showAsHtml">Allow rendering error message as html. Defaults to false.</param>
         public static HCIntegratedLoginResult CreateResult(bool success, string error, bool showAsHtml = false)
-            => new HCIntegratedLoginResult {
+            => new()
+            {
                 Success = success,
                 ErrorMessage = !success ? error : "",
                 ShowErrorAsHtml = showAsHtml
@@ -45,6 +47,7 @@
         /// Create a new result allowing login.
         /// </summary>
         public static HCIntegratedLoginResult CreateSuccess()
-            => new HCIntegratedLoginResult { Success = true };
+            => new()
+            { Success = true };
     }
 }

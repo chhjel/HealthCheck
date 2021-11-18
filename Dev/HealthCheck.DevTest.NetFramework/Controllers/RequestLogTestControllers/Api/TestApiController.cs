@@ -3,7 +3,6 @@ using System.Web.Http;
 
 namespace HealthCheck.DevTest.Controllers.RequestLogTestControllers.Api
 {
-#pragma warning disable IDE0060 // Remove unused parameter
     public class TestApiController : TestApiControllerBase
     {
         [Route("TestGet")]
@@ -46,5 +45,4 @@ namespace HealthCheck.DevTest.Controllers.RequestLogTestControllers.Api
             // Method intentionally left empty.
         }
     }
-#pragma warning restore IDE0060 // Remove unused parameter
 }

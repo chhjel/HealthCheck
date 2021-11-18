@@ -32,9 +32,9 @@ namespace HealthCheck.WebUI.Services
         /// </summary>
         public TimeSpan MaxMessageAge { get; set; } = TimeSpan.FromDays(7);
 
-        private readonly object _storeLock = new object();
+        private readonly object _storeLock = new();
         private readonly Dictionary<string, SimpleCachedDataStore<HCDefaultMessageItem>> _inboxStores
-            = new Dictionary<string, SimpleCachedDataStore<HCDefaultMessageItem>>();
+            = new();
         private readonly string _baseFilepath;
         private readonly IJsonSerializer _jsonSerializer = new NewtonsoftJsonSerializer();
 
@@ -166,7 +166,7 @@ namespace HealthCheck.WebUI.Services
                 return;
             }
 
-            if (!(message is HCDefaultMessageItem hcMessage))
+            if (message is not HCDefaultMessageItem hcMessage)
             {
                 throw new ArgumentException($"Message parameter must be of type {nameof(HCDefaultMessageItem)}.", nameof(message));
             }

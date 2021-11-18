@@ -45,13 +45,13 @@ namespace HealthCheck.DevTest.NetCore_3._1.Config
             services.AddSingleton<IEndpointControlRequestHistoryStorage>((x) => new FlatFileEndpointControlRequestHistoryStorage(GetFilePath(@"App_Data\ec_history.json", env)));
             services.AddSingleton<IEndpointControlService, DefaultEndpointControlService>();
 
-            services.AddSingleton(x => CreateSettingsService(env));
+            services.AddSingleton(x => CreateSettingsService());
             services.AddSingleton(x => CreateSiteEventService(env));
             services.AddSingleton(x => CreateAuditEventService(env));
             services.AddSingleton(x => CreateLogSearcherService(env));
             services.AddSingleton(x => CreateAuditEventService(env));
-            services.AddSingleton(x => CreateDataflowService(env));
-            services.AddSingleton(x => CreateEventDataSinkService(x, env));
+            services.AddSingleton(x => CreateDataflowService());
+            services.AddSingleton(x => CreateEventDataSinkService(x));
             services.AddSingleton<ISecureFileDownloadDefinitionStorage>(x => new FlatFileSecureFileDownloadDefinitionStorage(@"c:\temp\securefile_defs.json"));
             services.AddSingleton<IAccessManagerTokenStorage>(x => new FlatFileAccessManagerTokenStorage(@"C:\temp\AccessTokens.json"));
             services.AddSingleton<IHCMetricsStorage, HCMemoryMetricsStorage>();
@@ -63,14 +63,14 @@ namespace HealthCheck.DevTest.NetCore_3._1.Config
             => Path.GetFullPath(Path.Combine(env.ContentRootPath, relativePath));
 
         private static readonly HCFlatFileStringDictionaryStorage _settingsStorage = new HCFlatFileStringDictionaryStorage(@"C:\temp\settings.json");
-        private static IHCSettingsService CreateSettingsService(IWebHostEnvironment env)
+        private static IHCSettingsService CreateSettingsService()
             => new HCDefaultSettingsService(_settingsStorage);
 
         private static readonly FlatFileEventSinkNotificationConfigStorage _eventSinkNotificationConfigStorage
             = new FlatFileEventSinkNotificationConfigStorage(@"c:\temp\eventconfigs.json");
         private static readonly FlatFileEventSinkKnownEventDefinitionsStorage _eventSinkNotificationDefinitionStorage
             = new FlatFileEventSinkKnownEventDefinitionsStorage(@"c:\temp\eventconfig_defs.json");
-        private static IEventDataSink CreateEventDataSinkService(IServiceProvider x, IWebHostEnvironment env)
+        private static IEventDataSink CreateEventDataSinkService(IServiceProvider x)
         {
             var sink = new DefaultEventDataSink(_eventSinkNotificationConfigStorage, _eventSinkNotificationDefinitionStorage)
                 .AddNotifier(new HCWebHookEventNotifier())
@@ -89,7 +89,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Config
         private static readonly TestMemoryStream _memoryStream = new TestMemoryStream("Memory");
         private static readonly TestMemoryStream _otherStream1 = new TestMemoryStream(null);
         private static readonly TestMemoryStream _otherStream2 = new TestMemoryStream(null);
-        private static IDataflowService<RuntimeTestAccessRole> CreateDataflowService(IWebHostEnvironment env)
+        private static IDataflowService<RuntimeTestAccessRole> CreateDataflowService()
         {
             return new DefaultDataflowService<RuntimeTestAccessRole>(new DefaultDataflowServiceOptions<RuntimeTestAccessRole>()
             {

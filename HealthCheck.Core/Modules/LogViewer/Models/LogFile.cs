@@ -66,7 +66,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
 
             var fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             var bufferedStream = new BufferedStream(fileStream);
-            using StreamReader streamReader = new StreamReader(bufferedStream);
+            using StreamReader streamReader = new(bufferedStream);
 
             string line;
             string nextStartingLine = null;

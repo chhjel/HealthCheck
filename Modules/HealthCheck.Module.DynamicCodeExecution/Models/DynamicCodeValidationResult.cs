@@ -26,11 +26,11 @@
         /// Create a result that denies the code execution with the given message.
         /// </summary>
         /// <param name="message">The message that will be displayed to the user if the code is not allowed to run.</param>
-        public static DynamicCodeValidationResult Deny(string message) => new DynamicCodeValidationResult(false, message);
+        public static DynamicCodeValidationResult Deny(string message) => new(false, message);
 
         /// <summary>
         /// Create a result that allows the code execution.
         /// </summary>
-        public static DynamicCodeValidationResult Allow() => new DynamicCodeValidationResult(true, "OK");
+        public static DynamicCodeValidationResult Allow() => new(true, "OK");
     }
 }

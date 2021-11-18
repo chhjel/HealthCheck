@@ -122,9 +122,11 @@ namespace HealthCheck.Episerver.Tests.Storage
 
             var service = new SiteEventService(storage);
 
-            var tasks = new List<Task>();
-            tasks.Add(service.StoreEvent(createEvent(0, "A")));
-            tasks.Add(service.StoreEvent(createEvent(1, "B")));
+            var tasks = new List<Task>
+            {
+                service.StoreEvent(createEvent(0, "A")),
+                service.StoreEvent(createEvent(1, "B"))
+            };
             await Task.WhenAll(tasks);
 
             var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);

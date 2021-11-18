@@ -204,28 +204,28 @@ namespace HealthCheck.Core.Tests.Modules.Tests.TestClasses
     public class ProxyTestClassWithMethodAccess
     {
         [ProxyRuntimeTests(RolesWithAccess = AccessRoles.WebAdmins)]
-        public static ProxyRuntimeTestConfig ProxyTest() => new ProxyRuntimeTestConfig(typeof(TestClassUsedInProxyTests));
+        public static ProxyRuntimeTestConfig ProxyTest() => new(typeof(TestClassUsedInProxyTests));
     }
 
     [RuntimeTestClass(DefaultRolesWithAccess = AccessRoles.WebAdmins)]
     public class ProxyTestClassWithClassAccess
     {
         [ProxyRuntimeTests]
-        public static ProxyRuntimeTestConfig ProxyTest() => new ProxyRuntimeTestConfig(typeof(TestClassUsedInProxyTests));
+        public static ProxyRuntimeTestConfig ProxyTest() => new(typeof(TestClassUsedInProxyTests));
     }
 
     [RuntimeTestClass(DefaultRolesWithAccess = AccessRoles.WebAdmins)]
     public class ProxyTestClassWithClassAndMethodAccess
     {
         [ProxyRuntimeTests(RolesWithAccess = AccessRoles.SystemAdmins)]
-        public static ProxyRuntimeTestConfig ProxyTest() => new ProxyRuntimeTestConfig(typeof(TestClassUsedInProxyTests));
+        public static ProxyRuntimeTestConfig ProxyTest() => new(typeof(TestClassUsedInProxyTests));
     }
 
     [RuntimeTestClass]
     public class ProxyTestClassWithoutAccess
     {
         [ProxyRuntimeTests]
-        public static ProxyRuntimeTestConfig ProxyTest() => new ProxyRuntimeTestConfig(typeof(TestClassUsedInProxyTests));
+        public static ProxyRuntimeTestConfig ProxyTest() => new(typeof(TestClassUsedInProxyTests));
     }
 
     [RuntimeTestClass(Id = "TestSetId", Description = "Some test set", Name = "Dev test set")]
@@ -285,7 +285,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests.TestClasses
         [RuntimeTestParameter("c", "Name", "Description")]
         public TestResult InvalidMethodC(string a, string b) => TestResult.CreateSuccess($"{a}, {b}");
 
-        public TestResult NotATestMethod() => new TestResult();
+        public TestResult NotATestMethod() => new();
 
         [RuntimeTest("TestMethodWithCustomNames")]
         [RuntimeTestParameter("stringArg", "First name", "First desc")]

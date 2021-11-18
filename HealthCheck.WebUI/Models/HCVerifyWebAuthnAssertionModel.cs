@@ -33,6 +33,7 @@
         /// </summary>
         public class HCAuthenticationExtensionsClientOutputs
         {
+#pragma warning disable IDE1006 // Naming Styles, reason: lazy
             /// <summary></summary>
             public object Example { get; set; }
             /// <summary></summary>
@@ -53,6 +54,7 @@
             public ulong[][] uvm { get; set; }
             /// <summary></summary>
             public bool biometricPerfBounds { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
         }
 
         /// <summary>

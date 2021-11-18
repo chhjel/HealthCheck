@@ -32,7 +32,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Services
 
         private Dictionary<string, Func<string>> Placeholders { get; set; } = new Dictionary<string, Func<string>>();
 
-        private static readonly object _cacheUpdateLock = new object();
+        private static readonly object _cacheUpdateLock = new();
         private static Dictionary<string, KnownEventDefinition> KnownEventDefinitionsCache { get; set; }
         private static List<KnownEventDefinition> KnownEventDefinitionsListCache { get; set; }
         private static int KnownEventDefinitionsCacheSize { get; set; }

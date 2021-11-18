@@ -19,7 +19,7 @@ namespace HealthCheck.Core.Util
         /// </summary>
         public bool IgnoreExceptions { get; set; } = true;
 
-        private static readonly Dictionary<string, Regex> _regexCache = new Dictionary<string, Regex>();
+        private static readonly Dictionary<string, Regex> _regexCache = new();
 
         /// <summary>
         /// Get or create a regex with the given pattern.

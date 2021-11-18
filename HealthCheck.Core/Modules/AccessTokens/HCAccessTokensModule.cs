@@ -114,7 +114,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
             }
         }
 
-        private static readonly Regex KeyParseRegex = new Regex(@"^KEY-(?<id>[\w]+-[\w]+-[\w]+-[\w]+-[\w]+)-.+");
+        private static readonly Regex KeyParseRegex = new(@"^KEY-(?<id>[\w]+-[\w]+-[\w]+-[\w]+-[\w]+)-.+");
 
         #region Invokable methods
         /// <summary>

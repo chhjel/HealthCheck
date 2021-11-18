@@ -14,11 +14,9 @@ namespace HealthCheck.Core.Tests.ModuleSystem.Helpers
         }
 
         [HealthCheckModuleMethod]
-#pragma warning disable IDE0060 // Remove unused parameter
         public void TestMethod(int id)
         {
             // Method intentionally left empty.
         }
-#pragma warning restore IDE0060 // Remove unused parameter
     }
 }

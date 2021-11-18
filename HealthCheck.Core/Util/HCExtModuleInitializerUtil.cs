@@ -20,8 +20,7 @@ namespace HealthCheck.Core.Util
             if (type != null)
             {
                 var prop = type.GetProperty("ExternalModuleInstanceFactories");
-                var dict = prop?.GetValue(null) as Dictionary<HCModuleType, Func<Func<string, string>, Dictionary<Type, IEnumerable<object>>>>;
-                if (dict != null)
+                if (prop?.GetValue(null) is Dictionary<HCModuleType, Func<Func<string, string>, Dictionary<Type, IEnumerable<object>>>> dict)
                 {
                     dict[moduleType] = instanceFactory;
                 }

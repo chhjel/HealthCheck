@@ -2,7 +2,6 @@
 
 namespace HealthCheck.DevTest.Controllers.RequestLogTestControllers.Api
 {
-#pragma warning disable IDE0060 // Remove unused parameter
     public class TestApi2Controller : ApiController
     {
         [Route("TestGet")]
@@ -14,5 +13,4 @@ namespace HealthCheck.DevTest.Controllers.RequestLogTestControllers.Api
             return value;
         }
     }
-#pragma warning restore IDE0060 // Remove unused parameter
 }

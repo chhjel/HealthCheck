@@ -101,7 +101,7 @@ namespace HealthCheck.Core.Util
         /// </summary>
         public static string TryReadWebExceptionResponse(WebException wex)
         {
-            if (wex == null || !(wex.Response is HttpWebResponse httpWebResponse))
+            if (wex == null || wex.Response is not HttpWebResponse httpWebResponse)
             {
                 return null;
             }

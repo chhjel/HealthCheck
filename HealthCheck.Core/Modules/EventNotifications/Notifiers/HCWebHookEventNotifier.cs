@@ -38,12 +38,12 @@ namespace HealthCheck.Core.Modules.EventNotifications.Notifiers
         /// <summary>
         /// No special placeholders for this one.
         /// </summary>
-        public virtual Dictionary<string, Func<string>> Placeholders => new Dictionary<string, Func<string>>();
+        public virtual Dictionary<string, Func<string>> Placeholders => new();
 
         /// <summary>
         /// No special placeholders for this one.
         /// </summary>
-        public virtual HashSet<string> PlaceholdersWithOnlyNames => new HashSet<string>();
+        public virtual HashSet<string> PlaceholdersWithOnlyNames => new();
 
         /// <summary>
         /// Provide the options model type.

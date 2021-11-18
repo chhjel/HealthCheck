@@ -205,7 +205,7 @@ namespace HealthCheck.WebUI.Abstractions
             ActionResult CreateContentResult(string content) => Content(content, "text/html");
 
             var url = Request.GetDisplayUrl();
-            url = url.Substring(url.ToLower().Trim().IndexOf($"/{actionName.ToLower()}"));
+            url = url[url.ToLower().Trim().IndexOf($"/{actionName.ToLower()}")..];
 
             var content = Helper.InvokeModuleAction(CurrentRequestInformation, actionName, url).Result;
             if (content?.HasAccess == true && content.Result != null)

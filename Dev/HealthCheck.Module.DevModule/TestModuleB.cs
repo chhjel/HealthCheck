@@ -34,9 +34,7 @@ namespace HealthCheck.Module.DevModule
         [HealthCheckModuleMethod(TestModuleBAccessOption.NumberTwo)]
         public async Task TestSimpleAsync() => await Task.Delay(10);
 
-#pragma warning disable S3265 // Non-flags enums should not be used in bitwise operations
         [HealthCheckModuleMethod(TestModuleBAccessOption.NumberTwo | TestModuleBAccessOption.NumberOne)]
-#pragma warning restore S3265 // Non-flags enums should not be used in bitwise operations
         public async Task TestNoReturnAsync(int id) => await Task.Delay((id * 0) + 1);
 
         [HealthCheckModuleMethod(TestModuleBAccessOption.NumberTwo)]

@@ -57,7 +57,7 @@ namespace HealthCheck.Dev.Common.Tests
         [RuntimeTest]
         public async Task<TestResult> SendAFailingWebRequestToGoogleWithoutUtil()
         {
-            var result = await new WebClient().DownloadStringTaskAsync("https://www.google.com/nonexistentpagehopefully");
+            await new WebClient().DownloadStringTaskAsync("https://www.google.com/nonexistentpagehopefully");
             return TestResult.CreateSuccess("Ok");
         }
 

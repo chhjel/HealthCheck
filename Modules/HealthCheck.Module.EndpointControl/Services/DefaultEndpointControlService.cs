@@ -20,7 +20,7 @@ namespace HealthCheck.Module.EndpointControl.Services
         private readonly IEndpointControlRequestHistoryStorage _historicalDataStorage;
         private readonly IEndpointControlEndpointDefinitionStorage _definitionStorage;
         private readonly IEndpointControlRuleStorage _ruleStorage;
-        private readonly List<IEndpointControlRequestResult> _customBlockedResults = new List<IEndpointControlRequestResult>();
+        private readonly List<IEndpointControlRequestResult> _customBlockedResults = new();
 
         /// <summary>
         /// Checks if requests to certain endpoints are allowed to execute.

@@ -31,9 +31,9 @@ namespace HealthCheck.Core.Modules.Tests
         private TestViewModelsFactory TestsViewModelsFactory { get; } = new TestViewModelsFactory();
         private TestSetGroupsOptions GroupOptions { get; } = new TestSetGroupsOptions();
         private static List<RuntimeTestReferenceParameterFactory> _referenceParameterFactories;
-        private static readonly object _referenceParameterFactoriesLock = new object();
+        private static readonly object _referenceParameterFactoriesLock = new();
         private static List<string> _allCategories;
-        private static readonly object _allCategoriesLock = new object();
+        private static readonly object _allCategoriesLock = new();
 
         /// <summary>
         /// Options model for this module.
@@ -73,8 +73,7 @@ namespace HealthCheck.Core.Modules.Tests
         {
             lock (_referenceParameterFactoriesLock)
             {
-                _referenceParameterFactories = _referenceParameterFactories
-                    ?? options.ReferenceParameterFactories?.Invoke()
+                _referenceParameterFactories ??= options.ReferenceParameterFactories?.Invoke()
                     ?? new List<RuntimeTestReferenceParameterFactory>();
             }
         }

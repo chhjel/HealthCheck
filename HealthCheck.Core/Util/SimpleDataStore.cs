@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-#pragma warning disable S3427
 
 namespace HealthCheck.Core.Util
 {
@@ -266,7 +265,7 @@ namespace HealthCheck.Core.Util
                 {
                     HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}<{typeof(TItem).Name}>.LoadData()", 1);
                     var fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                    using ReverseStreamReader streamReader = new ReverseStreamReader(fileStream);
+                    using ReverseStreamReader streamReader = new(fileStream);
                     string row;
                     while ((row = streamReader.ReadLine()) != null)
                     {
@@ -288,7 +287,7 @@ namespace HealthCheck.Core.Util
                     HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}<{typeof(TItem).Name}>.LoadData()", 1);
                     var fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     var bufferedStream = new BufferedStream(fileStream);
-                    using StreamReader streamReader = new StreamReader(bufferedStream);
+                    using StreamReader streamReader = new(bufferedStream);
                     string row;
                     while ((row = streamReader.ReadLine()) != null)
                     {
@@ -435,8 +434,8 @@ namespace HealthCheck.Core.Util
             return string.Join(Delimiter, encodedValues);
         }
 
-        private readonly Regex _partSplitRegex = new Regex(@"(?<=[^\\])\|");
-        private readonly Regex _newlineRegex = new Regex(@"(?<!\\)(?:\\{2})*\\n");
+        private readonly Regex _partSplitRegex = new(@"(?<=[^\\])\|");
+        private readonly Regex _newlineRegex = new(@"(?<!\\)(?:\\{2})*\\n");
         private string[] Decode(string encoded)
         {
             return _partSplitRegex

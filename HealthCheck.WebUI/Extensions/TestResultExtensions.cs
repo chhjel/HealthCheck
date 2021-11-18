@@ -9,7 +9,7 @@ namespace HealthCheck.WebUI.Extensions
     /// </summary>
     public static class TestResultExtensions
     {
-        private static readonly NewtonsoftJsonSerializer _serializer = new NewtonsoftJsonSerializer();
+        private static readonly NewtonsoftJsonSerializer _serializer = new();
 
         /// <summary>
         /// Include a json serialized version of the given object in the result data.

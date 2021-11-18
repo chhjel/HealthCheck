@@ -44,7 +44,8 @@ namespace HealthCheck.WebUI.Models
         /// <param name="error">The error message to display.</param>
         /// <param name="showAsHtml">Allow rendering error message as html. Defaults to false.</param>
         public static HCIntegratedLogin2FACodeRequestResult CreateError(string error, bool showAsHtml = false)
-            => new HCIntegratedLogin2FACodeRequestResult { Success = false, ErrorMessage = error, ShowErrorAsHtml = showAsHtml };
+            => new()
+            { Success = false, ErrorMessage = error, ShowErrorAsHtml = showAsHtml };
 
         /// <summary>
         /// Create a new result, success or error depending on the given bool.
@@ -53,7 +54,7 @@ namespace HealthCheck.WebUI.Models
         /// <param name="error">If not successfull this message will be displayed.</param>
         /// <param name="showAsHtml">Allow rendering error message as html. Defaults to false.</param>
         public static HCIntegratedLogin2FACodeRequestResult CreateResult(bool success, string error, bool showAsHtml = false)
-            => new HCIntegratedLogin2FACodeRequestResult
+            => new()
             {
                 Success = success,
                 ErrorMessage = !success ? error : "",
@@ -64,7 +65,8 @@ namespace HealthCheck.WebUI.Models
         /// Create a new result allowing login.
         /// </summary>
         public static HCIntegratedLogin2FACodeRequestResult CreateSuccess(string message = null, bool showAsHtml = false, TimeSpan? codeExpiresIn = null)
-            => new HCIntegratedLogin2FACodeRequestResult {
+            => new()
+            {
                 Success = true,
                 SuccessMessage = message,
                 ShowSuccessAsHtml = showAsHtml,

@@ -33,7 +33,7 @@ namespace HealthCheck.Module.RequestLog.Util
         private static void InitLazyFactory()
         {
 #if NETFULL
-            static Dictionary<Type, IEnumerable<object>> factory(Func<string, string> createPath) => new Dictionary<Type, IEnumerable<object>>
+            static Dictionary<Type, IEnumerable<object>> factory(Func<string, string> createPath) => new()
             {
                 { typeof(IRequestLogStorage), new object[] {
                     new FlatFileRequestLogStorage(createPath(@"RequestLog_History.json")) } }

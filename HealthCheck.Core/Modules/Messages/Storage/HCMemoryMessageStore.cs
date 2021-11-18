@@ -27,9 +27,9 @@ namespace HealthCheck.Core.Modules.Messages.Storage
         /// </summary>
         public int MaxLatestMessageCountPerInbox { get; set; } = 100;
 
-        private readonly List<Inbox> _inboxes = new List<Inbox>();
-        private readonly Dictionary<string, Inbox> _inboxesById = new Dictionary<string, Inbox>();
-        private readonly object _cleanupLock = new object();
+        private readonly List<Inbox> _inboxes = new();
+        private readonly Dictionary<string, Inbox> _inboxesById = new();
+        private readonly object _cleanupLock = new();
 
         /// <summary>
         /// If disabled no messages will be stored.

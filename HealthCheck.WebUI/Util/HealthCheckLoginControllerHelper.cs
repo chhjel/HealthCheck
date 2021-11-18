@@ -10,8 +10,6 @@ namespace HealthCheck.WebUI.Util
     /// </summary>
     internal class HealthCheckLoginControllerHelper
     {
-        private readonly Random _random = new Random();
-
         /// <summary>
         /// Shared code for .net framework/core login controllers.
         /// </summary>
