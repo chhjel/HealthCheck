@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Modules.DataRepeater.Models;
+using HealthCheck.Core.Modules.DataRepeater.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +30,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         public virtual List<string> ManuallyAllowedTags { get; }
 
         /// <inheritdoc />
+        public abstract List<IHCDataRepeaterStreamItemAction> Actions { get; }
+
+        /// <inheritdoc />
         public abstract Task<IHCDataRepeaterStreamItem> GetItemAsync(Guid id, string itemId);
 
         /// <inheritdoc />
@@ -42,11 +46,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         {
             if (AnalyzeOnStoreNew)
             {
-                var analyticResult = await ApplyAnalysisAsync(item);
+                var analyticResult = await AnalyzeItemAsync(item);
                 if (analyticResult.DontStore)
                 {
                     return;
                 }
+                HCDataRepeaterUtils.ApplyChangesToItem(item, analyticResult);
             }
 
             await StoreNewItemAsync(item, hint);
@@ -114,7 +119,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         }
 
         /// <inheritdoc />
-        public abstract Task<HCDataRepeaterActionResult> RetryItemAsync(IHCDataRepeaterStreamItem item);
+        public abstract Task<HCDataRepeaterRetryResult> RetryItemAsync(IHCDataRepeaterStreamItem item);
 
         /// <inheritdoc />
         public abstract Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(IHCDataRepeaterStreamItem item);
@@ -125,79 +130,6 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// <para>Defaults to true</para>.
         /// </summary>
         public bool AnalyzeOnStoreNew { get; set; } = true;
-
-        #region Shortcuts
-        /// <summary>
-        /// Get item matching the given id.
-        /// </summary>
-        public async Task<IHCDataRepeaterStreamItem> GetItemAsync(Guid id) => await GetItemAsync(id, null);
-
-        /// <summary>
-        /// Delete item matching the given id.
-        /// </summary>
-        public async Task DeleteItemAsync(Guid id) => await DeleteItemAsync(id, null);
-
-        /// <summary>
-        /// Remove all tags from the item matching the given id.
-        /// </summary>
-        public async Task RemoveAllItemTagsAsync(Guid id) => await RemoveAllItemTagsAsync(id, null);
-
-        /// <summary>
-        /// Remove a single tag from the item matching the given id.
-        /// </summary>
-        public async Task RemoveItemTagAsync(Guid id, string tag) => await RemoveItemTagAsync(id, null, tag);
-
-        /// <summary>
-        /// Add a tag to the item matching the given id.
-        /// </summary>
-        public async Task AddItemTagAsync(Guid id, string tag) => await AddItemTagAsync(id, null, tag);
-
-        /// <summary>
-        /// Toggle allow retry on the item matching the given id.
-        /// </summary>
-        public async Task SetAllowItemRetryAsync(Guid id, bool allow) => await SetAllowItemRetryAsync(id, null, allow);
-        #endregion
-
-        /// <summary>
-        /// Runs analysis and applies the result to the given item.
-        /// </summary>
-        protected virtual async Task<HCDataRepeaterItemAnalysisResult> ApplyAnalysisAsync(IHCDataRepeaterStreamItem item)
-        {
-            var analyticResult = await AnalyzeItemAsync(item);
-            if (analyticResult == null)
-            {
-                return new HCDataRepeaterItemAnalysisResult();
-            }
-
-            if (analyticResult.DontStore)
-            {
-                return analyticResult;
-            }
-
-            item.Tags ??= new HashSet<string>();
-            if (analyticResult?.TagsThatShouldExist?.Any() == true)
-            {
-                foreach (var tag in analyticResult.TagsThatShouldExist)
-                {
-                    item.Tags.Add(tag);
-                }
-            }
-
-            if (analyticResult?.TagsThatShouldNotExist?.Any() == true)
-            {
-                foreach (var tag in analyticResult.TagsThatShouldNotExist)
-                {
-                    item.Tags.Remove(tag);
-                }
-            }
-
-            if (analyticResult?.AllowRetry != null)
-            {
-                item.AllowRetry = analyticResult.AllowRetry.Value;
-            }
-
-            return analyticResult;
-        }
 
         /// <summary>
         /// Store a new item. <see cref="AnalyzeItemAsync"/> has already been called on it, and any tags added.

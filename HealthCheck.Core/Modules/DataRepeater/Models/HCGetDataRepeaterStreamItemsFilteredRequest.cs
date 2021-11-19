@@ -9,6 +9,11 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
     public class HCGetDataRepeaterStreamItemsFilteredRequest
     {
         /// <summary>
+        /// Type of the stream.
+        /// </summary>
+        public string StreamId { get; set; }
+
+        /// <summary>
         /// Item id to search for.
         /// </summary>
         public string ItemId { get; set; }

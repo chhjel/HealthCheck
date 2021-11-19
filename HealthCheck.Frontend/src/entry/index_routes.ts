@@ -15,6 +15,7 @@ import EndpointControlPageComponent from '../components/modules/EndpointControl/
 import MessagesPageComponent from '../components/modules/Messages/MessagesPageComponent.vue';
 import ReleaseNotesPageComponent from '../components/modules/ReleaseNotes/ReleaseNotesPageComponent.vue';
 import MetricsPageComponent from '../components/modules/Metrics/MetricsPageComponent.vue';
+import DataRepeaterPageComponent from '../components/modules/DataRepeater/DataRepeaterPageComponent.vue';
 import CustomPageComponent from '../components/modules/Custom/CustomPageComponent.vue';
 import NoPageAvailablePageComponent from '../components/NoPageAvailablePageComponent.vue';
 import Vue, { VueConstructor } from "vue";
@@ -40,6 +41,7 @@ export default function createRouter(moduleConfig: Array<ModuleConfig>): VueRout
     'MessagesPageComponent': MessagesPageComponent,
     'ReleaseNotesPageComponent': ReleaseNotesPageComponent,
     'MetricsPageComponent': MetricsPageComponent,
+    'DataRepeaterPageComponent': DataRepeaterPageComponent,
     'CustomPageComponent': CustomPageComponent
 };
 

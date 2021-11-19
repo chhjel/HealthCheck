@@ -36,6 +36,11 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         List<string> ManuallyAllowedTags { get; }
 
         /// <summary>
+        /// Optional extra actions that can be executed on items.
+        /// </summary>
+        List<IHCDataRepeaterStreamItemAction> Actions { get; }
+
+        /// <summary>
         /// Store a new item.
         /// </summary>
         Task StoreItemAsync(IHCDataRepeaterStreamItem item, object hint = null);
@@ -78,7 +83,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// <summary>
         /// Retry the given item.
         /// </summary>
-        Task<HCDataRepeaterActionResult> RetryItemAsync(IHCDataRepeaterStreamItem item);
+        Task<HCDataRepeaterRetryResult> RetryItemAsync(IHCDataRepeaterStreamItem item);
 
         /// <summary>
         /// Analyze item for potential issues and apply suitable tags.

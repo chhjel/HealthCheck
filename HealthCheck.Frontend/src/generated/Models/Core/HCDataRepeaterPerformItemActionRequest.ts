@@ -2,11 +2,11 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface HCGetDataRepeaterStreamItemsFilteredRequest
+export interface HCDataRepeaterPerformItemActionRequest
 {
 	StreamId: string;
+	ActionId: string;
+	ItemGuid: string;
 	ItemId: string;
-	PageIndex: number;
-	PageSize: number;
-	Tags: string[];
+	Parameters: { [key:string]: string };
 }

@@ -1,5 +1,7 @@
 ﻿using HealthCheck.Core.Modules.DataRepeater.Abstractions;
 using HealthCheck.Core.Modules.DataRepeater.Models;
+using HealthCheck.Core.Modules.DataRepeater.Utils;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,64 +14,136 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
     /// </summary>
     public class HCDataRepeaterService : IHCDataRepeaterService
     {
-        /// <inheritdoc />
-        public Task<IEnumerable<IHCDataRepeaterStream>> GetStreamsAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        //public virtual async Task AnalyseAll ?
+        private readonly IEnumerable<IHCDataRepeaterStream> _streams;
 
         /// <summary>
-        /// Attempts to retry an item.
+        /// Handles repeater streams for reprocessing data.
         /// </summary>
-        public virtual async Task<HCDataRepeaterActionResult> RetryItemAsync(string streamTypeName, IHCDataRepeaterStreamItem item)
+        public HCDataRepeaterService(IEnumerable<IHCDataRepeaterStream> streams)
+        {
+            _streams = streams;
+        }
+
+        /// <inheritdoc />
+        public Task<IEnumerable<IHCDataRepeaterStream>> GetStreamsAsync() => Task.FromResult(_streams);
+
+        /// <inheritdoc />
+        public virtual async Task<HCDataRepeaterRetryResult> RetryItemAsync(string streamId, IHCDataRepeaterStreamItem item)
+        {
+            var stream = (await GetStreamsAsync()).FirstOrDefault(x => x.GetType().FullName == streamId);
+            if (stream == null)
+            {
+                return HCDataRepeaterRetryResult.CreateError("Stream or action not found.");
+            }
+
+            item.LastRetriedAt = DateTimeOffset.Now;
+            item.Log ??= new();
+
+            // Handle any exception
+            HCDataRepeaterRetryResult result = null;
+            try
+            {
+                result = await stream.RetryItemAsync(item);
+            }
+            catch(Exception ex)
+            {
+                item.LastRetryWasSuccessful = false;
+                await stream.UpdateItemAsync(item);
+                return HCDataRepeaterRetryResult.CreateError(ex);
+            }
+
+            // Update last success and message
+            item.LastRetryWasSuccessful = result.Success;
+            var statusMessage = result.Message;
+            if (string.IsNullOrWhiteSpace(statusMessage))
+            {
+                statusMessage = result.Success ? "Retry was successful" : "Retry failed.";
+            }
+            item.Log.Add(statusMessage);
+            if (item.Log.Count > 10)
+            {
+                item.Log = item.Log.Skip(item.Log.Count - 10).Take(10).ToList();
+            }
+
+            // Apply AllowRetry and tag changes
+            HCDataRepeaterUtils.ApplyChangesToItem(item, result);
+
+            if (result.Delete)
+            {
+                await stream.DeleteItemAsync(item.Id, item.ItemId);
+            }
+            else
+            {
+                // Save changes
+                await stream.UpdateItemAsync(item);
+            }
+
+            return result;
+        }
+
+        /// <inheritdoc />
+        public virtual async Task<HCDataRepeaterStreamItemActionResult> PerformItemAction(string streamId, string actionId,
+            IHCDataRepeaterStreamItem item, Dictionary<string, string> parameters)
         {
             var stream = (await GetStreamsAsync())
-                .FirstOrDefault(x => x.GetType().FullName == streamTypeName);
-            var result = await stream.RetryItemAsync(item);
-
-            var shouldSave = false;
-            if (result?.AllowRetry != null && item.AllowRetry != result.AllowRetry)
+                .FirstOrDefault(x => x.GetType().FullName == streamId);
+            if (stream == null)
             {
-                item.AllowRetry = result.AllowRetry.Value;
-                shouldSave = true;
+                return HCDataRepeaterStreamItemActionResult.CreateError($"Stream '{streamId}' not found.");
             }
 
-            if (result.RemoveAllTags && item.Tags?.Any() == true)
+            IHCDataRepeaterStreamItemAction action = stream.Actions?.FirstOrDefault(x => x?.GetType()?.FullName == actionId);
+            if (action == null)
             {
-                item.Tags.Clear();
-                shouldSave = true;
+                return HCDataRepeaterStreamItemActionResult.CreateError($"Action '{actionId}' not found.");
+            }
+            else if (action.AllowedOnItemsWithTags?.Any() == true
+                && action.AllowedOnItemsWithTags.Any(t => item.Tags?.Contains(t) == true) == false)
+            {
+                return HCDataRepeaterStreamItemActionResult.CreateError($"Item '{item.ItemId}' does not allow for the action to be executed. Item is missing required tags.");
             }
 
-            if (result?.TagsThatShouldExist?.Any() == true)
+            object parametersObject = action.ParametersType == null ? null : HCValueConversionUtils.ConvertInputModel(action.ParametersType, parameters);
+
+            item.LastActionAt = DateTimeOffset.Now;
+            item.Log ??= new();
+
+            // Handle any exception
+            HCDataRepeaterStreamItemActionResult result = null;
+            try
             {
-                foreach (var tag in result.TagsThatShouldExist)
-                {
-                    item.Tags ??= new HashSet<string>();
-                    if (!item.Tags.Contains(tag))
-                    {
-                        item.Tags.Add(tag);
-                        shouldSave = true;
-                    }
-                }
+                result = await action.ExecuteActionAsync(item, parametersObject);
+            }
+            catch (Exception ex)
+            {
+                item.LastActionWasSuccessful = false;
+                await stream.UpdateItemAsync(item);
+                return HCDataRepeaterStreamItemActionResult.CreateError(ex);
             }
 
-            if (result?.TagsThatShouldNotExist?.Any() == true)
+            // Update last success and message
+            item.LastActionWasSuccessful = result.Success;
+            var statusMessage = result.Message;
+            if (string.IsNullOrWhiteSpace(statusMessage))
             {
-                foreach (var tag in result.TagsThatShouldNotExist)
-                {
-                    item.Tags ??= new HashSet<string>();
-                    if (item.Tags.Contains(tag))
-                    {
-                        item.Tags.Remove(tag);
-                        shouldSave = true;
-                    }
-                }
+                statusMessage = result.Success ? "Action was successful" : "Action failed.";
+            }
+            item.Log.Add(statusMessage);
+            if (item.Log.Count > 10)
+            {
+                item.Log = item.Log.Skip(item.Log.Count - 10).Take(10).ToList();
             }
 
-            if (shouldSave)
+            // Apply AllowRetry and tag changes
+            HCDataRepeaterUtils.ApplyChangesToItem(item, result);
+
+            if (result.Delete)
             {
+                await stream.DeleteItemAsync(item.Id, item.ItemId);
+            }
+            else
+            {
+                // Save changes
                 await stream.UpdateItemAsync(item);
             }
 

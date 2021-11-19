@@ -4,8 +4,10 @@
 
 import { HCDataItemChangeBase } from './HCDataItemChangeBase';
 
-export interface HCDataRepeaterItemAnalysisResult extends HCDataItemChangeBase
+export interface HCDataRepeaterRetryResult extends HCDataItemChangeBase
 {
+	Success: boolean;
+	HasError: boolean;
 	Message: string;
-	DontStore: boolean;
+	Delete: boolean;
 }

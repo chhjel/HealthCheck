@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using HealthCheck.Core.Modules.DataRepeater.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
@@ -12,5 +13,15 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// Get all configured streams.
         /// </summary>
         Task<IEnumerable<IHCDataRepeaterStream>> GetStreamsAsync();
+
+        /// <summary>
+        /// Attempts to retry an item.
+        /// </summary>
+        Task<HCDataRepeaterRetryResult> RetryItemAsync(string streamId, IHCDataRepeaterStreamItem item);
+
+        /// <summary>
+        /// Performs an action on an item.
+        /// </summary>
+        Task<HCDataRepeaterStreamItemActionResult> PerformItemAction(string streamId, string actionId, IHCDataRepeaterStreamItem item, Dictionary<string, string> parameters);
     }
 }

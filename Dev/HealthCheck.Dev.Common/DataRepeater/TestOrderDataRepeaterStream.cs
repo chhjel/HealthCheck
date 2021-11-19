@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Modules.DataRepeater.Abstractions;
+﻿using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Modules.DataRepeater.Abstractions;
 using HealthCheck.Core.Modules.DataRepeater.Models;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,10 @@ namespace HealthCheck.Dev.Common.DataRepeater
         public override string StreamGroupName => "Orders";
         public override string ItemIdDisplayName => "Order number";
         public override List<string> InitiallySelectedTags => new List<string> { "Retry allowed" };
+        public override List<IHCDataRepeaterStreamItemAction> Actions => new List<IHCDataRepeaterStreamItemAction>
+        {
+            new TestOrderDataRepeaterStreamItemActionToggleAllow()
+        };
 
         private static Dictionary<Guid, IHCDataRepeaterStreamItem> _items = new Dictionary<Guid, IHCDataRepeaterStreamItem>();
 
@@ -98,13 +103,14 @@ namespace HealthCheck.Dev.Common.DataRepeater
             return Task.FromResult(result);
         }
 
-        public override Task<HCDataRepeaterActionResult> RetryItemAsync(IHCDataRepeaterStreamItem item)
+        public override Task<HCDataRepeaterRetryResult> RetryItemAsync(IHCDataRepeaterStreamItem item)
         {
             Debug.WriteLine($"Processed '{item.ItemId}'");
 
-            var result = new HCDataRepeaterActionResult
+            var result = new HCDataRepeaterRetryResult
             {
                 Success = true,
+                Message = "Success!",
 
                 AllowRetry = false,
                 Delete = false,
@@ -114,4 +120,36 @@ namespace HealthCheck.Dev.Common.DataRepeater
             return Task.FromResult(result);
         }
     }
+
+    public class TestOrderDataRepeaterStreamItemActionToggleAllow : HCDataRepeaterStreamItemActionBase<TestOrderDataRepeaterStreamItemActionToggleAllow.TestOrderDataRepeaterStreamItemActionToggleAllowParameters>
+    {
+        public override List<string> AllowedOnItemsWithTags => new List<string> { };
+
+        public override string DisplayName => "Set allow retry";
+
+        public override string Description => "Sets AllowRetry property";
+
+        protected override Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStreamItem item, TestOrderDataRepeaterStreamItemActionToggleAllowParameters parameters)
+        {
+            var result = new HCDataRepeaterStreamItemActionResult
+            {
+                AllowRetry = parameters.Allowed,
+                Message = "Action A performed!"
+            };
+            return Task.FromResult(result);
+        }
+
+        public class TestOrderDataRepeaterStreamItemActionToggleAllowParameters
+        {
+            [HCCustomProperty]
+            public bool Allowed { get; set; }
+
+            [HCCustomProperty]
+            public List<string> Test { get; set; }
+
+            [HCCustomProperty]
+            public DateTimeOffset? Date { get; set; }
+        }
+    }
+
 }

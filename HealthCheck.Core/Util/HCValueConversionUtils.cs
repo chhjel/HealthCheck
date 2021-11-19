@@ -16,7 +16,7 @@ namespace HealthCheck.Core.Util
         internal static StringConverter DefaultStringConverter { get; set; } = new StringConverter();
 
         /// <summary>
-        /// Convert the given raw input to the given model-
+        /// Convert the given raw input to the given model.
         /// </summary>
         public static T ConvertInputModel<T>(Dictionary<string, string> rawInput, StringConverter stringConverter = null,
             Dictionary<string, string> placeholders = null, Func<string, HCCustomPropertyAttribute, Func<string, string>> placeholderTransformerFactory = null)
@@ -24,7 +24,7 @@ namespace HealthCheck.Core.Util
             => ConvertInputModel(typeof(T), rawInput, stringConverter, placeholders, placeholderTransformerFactory) as T;
 
         /// <summary>
-        /// Convert the given raw input to the given model-
+        /// Convert the given raw input to the given model.
         /// </summary>
         public static T ConvertInputModel<T>(Func<string, string> rawInputGetter, StringConverter stringConverter = null,
             Dictionary<string, string> placeholders = null, Func<string, HCCustomPropertyAttribute, Func<string, string>> placeholderTransformerFactory = null)
@@ -32,7 +32,7 @@ namespace HealthCheck.Core.Util
             => ConvertInputModel(typeof(T), rawInputGetter, stringConverter, placeholders, placeholderTransformerFactory) as T;
 
         /// <summary>
-        /// Convert the given raw input to the given model-
+        /// Convert the given raw input to the given model.
         /// </summary>
         public static object ConvertInputModel(Type type, Dictionary<string, string> rawInput, StringConverter stringConverter = null,
             Dictionary<string, string> placeholders = null, Func<string, HCCustomPropertyAttribute, Func<string, string>> placeholderTransformerFactory = null)
@@ -41,7 +41,7 @@ namespace HealthCheck.Core.Util
                 stringConverter, placeholders, placeholderTransformerFactory);
 
         /// <summary>
-        /// Convert the given raw input to the given model-
+        /// Convert the given raw input to the given model.
         /// </summary>
         public static object ConvertInputModel(Type type, Func<string, string> rawInputGetter, StringConverter stringConverter = null,
             Dictionary<string, string> placeholders = null, Func<string, HCCustomPropertyAttribute, Func<string, string>> placeholderTransformerFactory = null)

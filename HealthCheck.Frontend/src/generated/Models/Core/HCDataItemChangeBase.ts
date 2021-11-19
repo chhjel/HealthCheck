@@ -2,11 +2,10 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface HCGetDataRepeaterStreamItemsFilteredRequest
+export interface HCDataItemChangeBase
 {
-	StreamId: string;
-	ItemId: string;
-	PageIndex: number;
-	PageSize: number;
-	Tags: string[];
+	AllowRetry: boolean;
+	RemoveAllTags: boolean;
+	TagsThatShouldExist: string[];
+	TagsThatShouldNotExist: string[];
 }

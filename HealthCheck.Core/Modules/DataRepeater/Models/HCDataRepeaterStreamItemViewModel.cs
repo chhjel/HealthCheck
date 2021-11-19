@@ -1,71 +1,71 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
+namespace HealthCheck.Core.Modules.DataRepeater.Models
 {
     /// <summary>
-    /// An item that can be stored in a <see cref="IHCDataRepeaterStream"/>.
+    /// Viewmodel for <see cref="HCDataRepeaterStreamItemsPagedModel"/>
     /// </summary>
-    public interface IHCDataRepeaterStreamItem
+    public class HCDataRepeaterStreamItemViewModel
     {
         /// <summary>
         /// Unique id of this item.
         /// </summary>
-        Guid Id { get; set; }
+        public Guid Id { get; set; }
 
         /// <summary>
         /// When this item was stored.
         /// </summary>
-        DateTimeOffset InsertedAt { get; set; }
+        public DateTimeOffset InsertedAt { get; set; }
 
         /// <summary>
         /// When this item was last retried.
         /// </summary>
-        DateTimeOffset LastRetriedAt { get; set; }
+        public DateTimeOffset LastRetriedAt { get; set; }
 
         /// <summary>
         /// Was the last retry successful?
         /// </summary>
-        bool LastRetryWasSuccessful { get; set; }
+        public bool LastRetryWasSuccessful { get; set; }
 
         /// <summary>
         /// When this item was last performed an action on.
         /// </summary>
-        DateTimeOffset LastActionAt { get; set; }
+        public DateTimeOffset LastActionAt { get; set; }
 
         /// <summary>
         /// Was the last action successful?
         /// </summary>
-        bool LastActionWasSuccessful { get; set; }
+        public bool LastActionWasSuccessful { get; set; }
 
         /// <summary>
         /// Optional id of the serialized data.
         /// </summary>
-        string ItemId { get; set; }
+        public string ItemId { get; set; }
 
         /// <summary>
         /// If false, the item can't be retried processed from the interface.
         /// </summary>
-        bool AllowRetry { get; set; }
+        public bool AllowRetry { get; set; }
 
         /// <summary>
         /// Any tags applied to the item.
         /// </summary>
-        HashSet<string> Tags { get; set; }
+        public List<string> Tags { get; set; }
 
         /// <summary>
         /// Optional initial error.
         /// </summary>
-        string InitialError { get; set; }
+        public string InitialError { get; set; }
 
         /// <summary>
         /// Last retry/action results.
         /// </summary>
-        List<string> Log { get; set; }
+        public List<string> Log { get; set; }
 
         /// <summary>
         /// The data serialized to a string.
         /// </summary>
-        string SerializedData { get; set; }
+        public string SerializedData { get; set; }
     }
 }
