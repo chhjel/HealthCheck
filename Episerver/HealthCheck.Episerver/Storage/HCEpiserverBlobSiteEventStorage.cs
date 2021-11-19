@@ -91,7 +91,9 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public virtual Task<SiteEvent> GetLastMergableEventOfType(string eventTypeId)
         {
-            var match = GetItems()?.FirstOrDefault(x => x.EventTypeId == eventTypeId && x.AllowMerge);
+            var match = GetItems()
+                    ?.OrderByDescending(x => x.Timestamp)
+                    ?.FirstOrDefault(x => x.EventTypeId == eventTypeId && x.AllowMerge);
             return Task.FromResult(match);
         }
 

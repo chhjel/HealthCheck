@@ -402,6 +402,78 @@ namespace HealthCheck.Episerver.Tests.Storage
             Assert.Empty(unresolvedItems);
         }
 
+        [Fact]
+        public async Task GetLast_WithLatestFirst_GetsLatest()
+        {
+            var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
+            var storage = CreateStorage(() => blob).SetMaxItemCount(500)
+                as HCEpiserverBlobSiteEventStorage;
+            storage.MaxBufferSize = 500;
+            storage.BlobUpdateBufferDuration = TimeSpan.FromDays(1);
+
+            for (int i = 0; i < 10; i++)
+            {
+                var e = new SiteEvent { EventTypeId = "etid", Title = "Title" + i, Description = "Desc" + i, Timestamp = DateTimeOffset.Now.AddDays(-i), Duration = 1, Resolved = true };
+                await storage.StoreEvent(e);
+
+                e = new SiteEvent
+                {
+                    EventTypeId = "etidX",
+                    Title = "TitleX" + i,
+                    Description = "DescX" + i,
+                    Timestamp = DateTimeOffset.Now.AddDays(-i).AddMinutes(1),
+                    Duration = 1
+                };
+                await storage.StoreEvent(e);
+
+            }
+
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
+            Assert.Equal(20, items.Count);
+
+            var latestMergable = await storage.GetLastMergableEventOfType("etid");
+            Assert.Equal("Title0", latestMergable.Title);
+
+            var lastUnresolved = await storage.GetLastUnresolvedEventOfType("etidX");
+            Assert.Equal("TitleX0", lastUnresolved.Title);
+        }
+
+        [Fact]
+        public async Task GetLast_WithLatestLast_GetsLatest()
+        {
+            var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
+            var storage = CreateStorage(() => blob).SetMaxItemCount(500)
+                as HCEpiserverBlobSiteEventStorage;
+            storage.MaxBufferSize = 500;
+            storage.BlobUpdateBufferDuration = TimeSpan.FromDays(1);
+
+            for (int i = 10; i > 0; i--)
+            {
+                var e = new SiteEvent { EventTypeId = "etid", Title = "Title" + i, Description = "Desc" + i, Timestamp = DateTimeOffset.Now.AddDays(-i), Duration = 1, Resolved = true };
+                await storage.StoreEvent(e);
+
+                e = new SiteEvent
+                {
+                    EventTypeId = "etidX",
+                    Title = "TitleX" + i,
+                    Description = "DescX" + i,
+                    Timestamp = DateTimeOffset.Now.AddDays(-i).AddMinutes(1),
+                    Duration = 1
+                };
+                await storage.StoreEvent(e);
+
+            }
+
+            var items = await storage.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue);
+            Assert.Equal(20, items.Count);
+
+            var latestMergable = await storage.GetLastMergableEventOfType("etid");
+            Assert.Equal("Title1", latestMergable.Title);
+
+            var lastUnresolved = await storage.GetLastUnresolvedEventOfType("etidX");
+            Assert.Equal("TitleX1", lastUnresolved.Title);
+        }
+
         private HCEpiserverBlobSiteEventStorage CreateStorage(Func<MockBlob> blobFactory = null, string blobJson = null)
         {
             var cache = EpiBlobTestHelpers.CreateMockCache();
