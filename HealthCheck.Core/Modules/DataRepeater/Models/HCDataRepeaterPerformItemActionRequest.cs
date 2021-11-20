@@ -17,10 +17,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public string ActionId { get; set; }
 
         /// <summary></summary>
-        public Guid ItemGuid { get; set; }
-
-        /// <summary></summary>
-        public string ItemId { get; set; }
+        public Guid ItemId { get; set; }
 
         /// <summary></summary>
         public Dictionary<string, string> Parameters { get; set; }

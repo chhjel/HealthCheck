@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Config;
+using HealthCheck.Core.Modules.DataRepeater.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Module.DynamicCodeExecution.Module;
 using HealthCheck.Module.EndpointControl.Abstractions;
@@ -41,6 +42,7 @@ namespace HealthCheck.FrontendModelGenerator
             builder.Substitute(typeof(ActionResult), new RtSimpleTypeName("any"));
             builder.Substitute(typeof(HttpResponseMessage), new RtSimpleTypeName("any"));
             builder.Substitute(typeof(Exception), new RtSimpleTypeName("any"));
+            builder.Substitute(typeof(IHCDataRepeaterStreamItem), new RtSimpleTypeName("any"));
             builder.Substitute(typeof(DateTime), new RtSimpleTypeName("Date"));
             builder.Substitute(typeof(DateTimeOffset), new RtSimpleTypeName("Date"));
             builder.Substitute(typeof(List<KeyValuePair<string, string>>), new RtSimpleTypeName("{ [key: string] : string; }"));

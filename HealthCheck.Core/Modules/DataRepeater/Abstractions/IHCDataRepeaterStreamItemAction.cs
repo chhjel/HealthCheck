@@ -11,6 +11,11 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
     public interface IHCDataRepeaterStreamItemAction
     {
         /// <summary>
+        /// Id of the stream this item belongs to.
+        /// </summary>
+        string StreamId { get; }
+
+        /// <summary>
         /// Type of the parameters object passed to <see cref="ExecuteActionAsync"/>.
         /// <para>Can be null if no parameters are used.</para>
         /// </summary>
@@ -26,7 +31,10 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// </summary>
         string Description { get; }
 
-        //todo: access rights & categories
+        /// <summary>
+        /// Label on button to show in the UI.
+        /// </summary>
+        string ExecuteButtonLabel { get; }
 
         /// <summary>
         /// If any tags are set here, then only items with those tags will have this action available.

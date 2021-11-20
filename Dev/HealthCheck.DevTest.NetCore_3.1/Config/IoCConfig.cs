@@ -49,6 +49,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Config
             services.AddSingleton<IEndpointControlService, DefaultEndpointControlService>();
 
             services.AddScoped<IHCDataRepeaterStream, TestOrderDataRepeaterStream>();
+            services.AddScoped<IHCDataRepeaterStream, TestXDataRepeaterStream>();
             services.AddScoped<IHCDataRepeaterService, HCDataRepeaterService>();
             services.AddSingleton(x => CreateSettingsService());
             services.AddSingleton(x => CreateSiteEventService(env));

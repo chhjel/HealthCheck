@@ -37,23 +37,42 @@
                             {{ dataLoadStatus.errorMessage }}
                             </v-alert>
 
-                            <div v-if="selectedStream">
-                                <div v-for="(action, aIndex) in selectedStream.Actions"
-                                    :key="`action-${aIndex}-${action.Id}`">
-                                    <h3>{{ action.Name }}</h3>
-                                    <p v-if="action.Description">{{ action.Description }}</p>
+                            <div v-if="selectedStream && selectedItemId == null">
+                                <!-- ITEMS -->
+                                <h2>Items</h2>
 
-                                    <backend-input-component
-                                        v-for="(parameterDef, pIndex) in action.ParameterDefinitions"
-                                        :key="`action-parameter-item-${aIndex}-${pIndex}-${action.Id}`"
-                                        class="action-parameter-item"
-                                        v-model="actionParameters[action.Id][pIndex]"
-                                        :config="parameterDef"
-                                        />
+                                <paging-component
+                                    :count="totalResultCount"
+                                    :pageSize="pageSize"
+                                    v-model="pageIndex"
+                                    :asIndex="true"
+                                    class="mb-2 mt-2"
+                                    />
+
+                                <div v-for="(item, iIndex) in items"
+                                    :key="`item-${iIndex}-${item.Id}`"
+                                    @click="setActiveItemId(item.Id)">
+                                    <b>{{ selectedStream.ItemIdName }}: {{ item.ItemId }}</b>
+                                    <code>{{ item.Tags.join(', ') }}</code>
                                 </div>
+                                
+                                <paging-component
+                                    :count="totalResultCount"
+                                    :pageSize="pageSize"
+                                    v-model="pageIndex"
+                                    :asIndex="true"
+                                    class="mb-2 mt-2"
+                                    />
                             </div>
 
-                            <!-- <code>{{ streamDefinitions }}</code> -->
+                            <!-- ITEM -->
+                            <div v-if="selectedItemId">
+                                <data-repeater-item-component
+                                    :itemId="selectedItemId"
+                                    :stream="selectedStream"
+                                    :config="config"
+                                    @close="setActiveItemId(null)" />
+                            </div>
 
                         </v-container>
                     </v-flex>
@@ -75,11 +94,18 @@ import DataRepeaterService from  '../../../services/DataRepeaterService';
 import { HCGetDataRepeaterStreamDefinitionsViewModel } from "generated/Models/Core/HCGetDataRepeaterStreamDefinitionsViewModel";
 import { HCDataRepeaterStreamViewModel } from "generated/Models/Core/HCDataRepeaterStreamViewModel";
 import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { HCDataRepeaterStreamItemViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemViewModel";
+import DataRepeaterItemComponent from "./DataRepeaterItemComponent.vue";
+import PagingComponent from "../../Common/Basic/PagingComponent.vue";
+import HashUtils from "../../../util/HashUtils";
+import { HCDataRepeaterStreamItemsPagedViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemsPagedViewModel";
 
 @Component({
     components: {
         FilterableListComponent,
-        BackendInputComponent
+        BackendInputComponent,
+        DataRepeaterItemComponent,
+        PagingComponent
     }
 })
 export default class DataRepeaterPageComponent extends Vue {
@@ -88,9 +114,6 @@ export default class DataRepeaterPageComponent extends Vue {
     
     @Prop({ required: true })
     options!: ModuleOptions<any>;
-
-    // UI STATE
-    streamsFilterText: string = "";
     
     // Service
     service: DataRepeaterService = new DataRepeaterService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
@@ -99,11 +122,16 @@ export default class DataRepeaterPageComponent extends Vue {
 
     streamDefinitions: HCGetDataRepeaterStreamDefinitionsViewModel | null = null;
     selectedStream: HCDataRepeaterStreamViewModel | null = null;
+    selectedItemId: string | null = null;
     actionParameters: any = {}; //Array<string> = [];
+    items: Array<HCDataRepeaterStreamItemViewModel> = [];
 
     // Filter/pagination
     pageIndex: number = 0;
     pageSize: number = 50;
+    filterItemId: string = '';
+    filterTags: Array<string> = [];
+    totalResultCount: number = 0;
 
     //////////////////
     //  LIFECYCLE  //
@@ -169,9 +197,15 @@ export default class DataRepeaterPageComponent extends Vue {
             });
         });
 
-        if (this.streamDefinitions && this.streamDefinitions.Streams.length > 0)
+        const idFromHash = this.$route.params.streamId;
+        if (this.streamDefinitions)
         {
-            this.setActiveStream(this.streamDefinitions.Streams[0]);
+            const matchingStream = this.streamDefinitions.Streams.filter(x => this.hash(x.Id) == idFromHash)[0];
+            if (matchingStream) {
+                this.setActiveStream(matchingStream, false);
+            } else if (this.streamDefinitions.Streams.length > 0) {
+                this.setActiveStream(this.streamDefinitions.Streams[0]);   
+            }
         }
     }
 
@@ -181,6 +215,58 @@ export default class DataRepeaterPageComponent extends Vue {
         }
 
         this.selectedStream = stream;
+        this.selectedItemId = null;
+        this.resetFilter();
+        this.loadCurrentStreamItems();
+
+        if (updateUrl)
+        {
+            this.$router.push(`/dataRepeater/${this.hash(stream.Id)}`);
+        }
+    }
+
+    hash(input: string) { return HashUtils.md5(input); }
+
+    loadCurrentStreamItems(): void {
+        if (!this.selectedStream) return;
+
+        this.service.GetStreamItemsPaged({
+            StreamId: this.selectedStream.Id,
+            ItemId: this.filterItemId,
+            PageIndex: this.pageIndex,
+            PageSize: this.pageSize,
+            Tags: this.filterTags
+        }, this.dataLoadStatus, {
+            onSuccess: (data) => {
+                if (data != null)
+                {
+                    this.onStreamItemsLoaded(data);
+                }
+            }
+        })
+    }
+
+    onStreamItemsLoaded(data: HCDataRepeaterStreamItemsPagedViewModel): void {
+        this.totalResultCount = data.TotalCount;
+        this.items = data.Items;
+        
+        const idFromHash = this.$route.params.itemId;
+        this.setActiveItemId(idFromHash, false);
+    }
+
+    setActiveItemId(itemId: string | null, updateUrl: boolean = true): void {
+        if (this.selectedItemId == itemId) {
+            return;
+        }
+
+        this.selectedItemId = itemId;
+
+        if (updateUrl)
+        {
+            const streamId = this.selectedStream?.Id || '';
+            const itemIdParam = itemId == null ? '' : `/${itemId}`;
+            this.$router.push(`/dataRepeater/${this.hash(streamId)}${itemIdParam}`);
+        }
     }
     
     ///////////////////////
@@ -188,6 +274,11 @@ export default class DataRepeaterPageComponent extends Vue {
     /////////////////////
     onMenuItemClicked(item: FilterableListItem): void {
         this.setActiveStream(item.data);
+    }
+
+    @Watch("pageIndex")
+    onPageIndexChanged(): void {
+        this.loadCurrentStreamItems();
     }
 }
 </script>

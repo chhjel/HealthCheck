@@ -2,6 +2,8 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import { HCDataRepeaterSimpleLogEntry } from './HCDataRepeaterSimpleLogEntry';
+
 export interface HCDataRepeaterStreamItemViewModel
 {
 	Id: string;
@@ -14,6 +16,7 @@ export interface HCDataRepeaterStreamItemViewModel
 	AllowRetry: boolean;
 	Tags: string[];
 	InitialError: string;
-	Log: string[];
+	Log: HCDataRepeaterSimpleLogEntry[];
 	SerializedData: string;
+	SerializedDataOverride: string;
 }

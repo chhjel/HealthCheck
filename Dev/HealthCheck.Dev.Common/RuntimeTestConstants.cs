@@ -9,6 +9,7 @@
             public const string TopGroup = "Top group";
             public const string BottomGroup = "Bottom group";
             public const string AlmostBottomGroup = "Almost at the bottom group";
+            public const string DataRepeater = "Data Repeater";
         }
 
         public static class Categories

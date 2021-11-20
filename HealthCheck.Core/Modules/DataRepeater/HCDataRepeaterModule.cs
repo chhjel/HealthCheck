@@ -75,7 +75,9 @@ namespace HealthCheck.Core.Modules.DataRepeater
                     Id = stream.GetType().FullName,
                     Name = stream.StreamDisplayName,
                     ItemIdName = stream.ItemIdDisplayName,
-                    GroupName = stream.StreamGroupName
+                    GroupName = stream.StreamGroupName,
+                    RetryActionName = stream.RetryActionName,
+                    RetryDescription = stream.RetryDescription
                 };
                 model.Streams.Add(streamModel);
                 foreach (var action in actions)
@@ -85,6 +87,8 @@ namespace HealthCheck.Core.Modules.DataRepeater
                         Id = action.GetType().FullName,
                         Name = !string.IsNullOrWhiteSpace(action.DisplayName) ? action.DisplayName : action.GetType().Name,
                         Description = action.Description ?? "",
+                        ExecuteButtonLabel = action.ExecuteButtonLabel,
+                        AllowedOnItemsWithTags = action.AllowedOnItemsWithTags,
                         ParameterDefinitions = HCCustomPropertyAttribute.CreateInputConfigs(action.ParametersType)
                     });
                 }
@@ -99,24 +103,8 @@ namespace HealthCheck.Core.Modules.DataRepeater
         public async Task<HCDataRepeaterStreamItemsPagedViewModel> GetStreamItemsPaged(HCGetDataRepeaterStreamItemsFilteredRequest model)
         {
             var stream = await GetStreamAsync(model.StreamId);
-            var result = await stream.GetItemsPagedAsync(model);
-            var items = result.Items
-                .Select(x => new HCDataRepeaterStreamItemViewModel
-                {
-                    Id = x.Id,
-                    ItemId = x.ItemId,
-                    AllowRetry = x.AllowRetry,
-                    InsertedAt = x.InsertedAt,
-                    LastRetriedAt = x.LastRetriedAt,
-                    LastRetryWasSuccessful = x.LastRetryWasSuccessful,
-                    LastActionAt = x.LastActionAt,
-                    LastActionWasSuccessful = x.LastActionWasSuccessful,
-                    Tags = x.Tags?.ToList() ?? new List<string>(),
-                    InitialError = x.InitialError,
-                    Log = x.Log ?? new List<string>(),
-                    SerializedData = x.SerializedData ?? ""
-                })
-                .ToList();
+            var result = await stream.Storage.GetItemsPagedAsync(model);
+            var items = result.Items.Select(x => Create(x)).Where(x => x != null).ToList();
             
             return new HCDataRepeaterStreamItemsPagedViewModel
             {
@@ -129,37 +117,82 @@ namespace HealthCheck.Core.Modules.DataRepeater
         /// Get item details.
         /// </summary>
         [HealthCheckModuleMethod]
-        public async Task<HCDataRepeaterStreamItemDetails> GetItemDetails(HCGetDataRepeaterItemDetailsRequest model)
+        public async Task<HCDataRepeaterStreamItemDetailsViewModel> GetItemDetails(HCGetDataRepeaterItemDetailsRequest model)
         {
             var stream = await GetStreamAsync(model.StreamId);
-            var details = await stream.GetItemDetailsAsync(model.ItemGuid, model.ItemId);
-            return details;
+            var item = await stream.Storage.GetItemAsync(model.ItemId);
+            var details = await stream.GetItemDetailsAsync(model.ItemId);
+            return new HCDataRepeaterStreamItemDetailsViewModel
+            {
+                Description = details?.Description ?? "",
+                Links = details?.Links ?? new(),
+                Item = Create(item)
+            };
         }
 
         /// <summary>
         /// Retry an item.
         /// </summary>
         [HealthCheckModuleMethod(AccessOption.RetryItems)]
-        public async Task<HCDataRepeaterRetryResult> RetryItem(HCDataRepeaterRetryItemRequest model)
+        public async Task<HCDataRepeaterResultWithLogMessage<HCDataRepeaterRetryResult>> RetryItem(HCDataRepeaterRetryItemRequest model)
         {
             var stream = await GetStreamAsync(model.StreamId);
-            var item = await stream.GetItemAsync(model.ItemGuid, model.ItemId);
-            return await Options.Service.RetryItemAsync(model.StreamId, item);
+            var item = await stream.Storage.GetItemAsync(model.ItemId);
+            if (!item.AllowRetry)
+            {
+                return new HCDataRepeaterResultWithLogMessage<HCDataRepeaterRetryResult>
+                {
+                    Data = HCDataRepeaterRetryResult.CreateError("Item does not allow retry."),
+                    LogMessage = null
+                };
+            }
+            if (item.SerializedData != item.SerializedDataOverride)
+            {
+                item.SerializedDataOverride = model.SerializedDataOverride;
+            }
+            var data = await Options.Service.RetryItemAsync(model.StreamId, item);
+            return new HCDataRepeaterResultWithLogMessage<HCDataRepeaterRetryResult>
+            {
+                Data = data,
+                LogMessage = item.Log.Last()
+            };
         }
 
         /// <summary>
         /// Perform an action on an item.
         /// </summary>
         [HealthCheckModuleMethod(AccessOption.ExecuteItemActions)]
-        public async Task<HCDataRepeaterStreamItemActionResult> PerformItemAction(HCDataRepeaterPerformItemActionRequest model)
+        public async Task<HCDataRepeaterResultWithLogMessage<HCDataRepeaterStreamItemActionResult>> PerformItemAction(HCDataRepeaterPerformItemActionRequest model)
         {
             var stream = await GetStreamAsync(model.StreamId);
-            var item = await stream.GetItemAsync(model.ItemGuid, model.ItemId);
-            return await Options.Service.PerformItemAction(model.StreamId, model.ActionId, item, model.Parameters);
+            var item = await stream.Storage.GetItemAsync(model.ItemId);
+            var data = await Options.Service.PerformItemAction(model.StreamId, model.ActionId, item, model.Parameters);
+            return new HCDataRepeaterResultWithLogMessage<HCDataRepeaterStreamItemActionResult>
+            {
+                Data = data,
+                LogMessage = item.Log.Last()
+            };
         }
         #endregion
 
         #region Helpers
+        private HCDataRepeaterStreamItemViewModel Create(IHCDataRepeaterStreamItem item)
+            => item == null ? null : new()
+            {
+                Id = item.Id,
+                ItemId = item.ItemId,
+                AllowRetry = item.AllowRetry,
+                InsertedAt = item.InsertedAt,
+                LastRetriedAt = item.LastRetriedAt,
+                LastRetryWasSuccessful = item.LastRetryWasSuccessful,
+                LastActionAt = item.LastActionAt,
+                Tags = item.Tags?.ToList() ?? new List<string>(),
+                InitialError = item.InitialError,
+                Log = item.Log ?? new(),
+                SerializedData = item.SerializedData ?? "",
+                SerializedDataOverride = item.SerializedDataOverride ?? ""
+            };
+
         private async Task<IHCDataRepeaterStream> GetStreamAsync(string streamId)
         {
             var streams = await Options.Service.GetStreamsAsync();

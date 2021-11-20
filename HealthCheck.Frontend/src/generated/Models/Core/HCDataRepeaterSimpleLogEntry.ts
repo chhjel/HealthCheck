@@ -2,9 +2,8 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface HCDataRepeaterRetryItemRequest
+export interface HCDataRepeaterSimpleLogEntry
 {
-	StreamId: string;
-	ItemId: string;
-	SerializedDataOverride: string;
+	Timestamp: Date;
+	Message: string;
 }

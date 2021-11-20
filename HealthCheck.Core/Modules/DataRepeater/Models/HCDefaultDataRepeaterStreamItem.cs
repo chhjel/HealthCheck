@@ -10,8 +10,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
     /// Default item model that can be stored in a <see cref="IHCDataRepeaterStream"/>.
     /// <typeparamref name="TData"/> must be serializable. Can be a string or complex object.
     /// </summary>
-    public class HCDefaultDataRepeaterStreamItem<TData> : IHCDataRepeaterStreamItem
+    public class HCDefaultDataRepeaterStreamItem<TData, TSelf> : IHCDataRepeaterStreamItem
         where TData : class
+        where TSelf : HCDefaultDataRepeaterStreamItem<TData, TSelf>, new()
     {
         #region IHCDataRepeaterStreamItem Implementation
         /// <inheritdoc />
@@ -27,19 +28,19 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public string SerializedData { get; set; }
 
         /// <inheritdoc />
+        public string SerializedDataOverride { get; set; }
+
+        /// <inheritdoc />
         public bool AllowRetry { get; set; }
 
         /// <inheritdoc />
-        public DateTimeOffset LastRetriedAt { get; set; }
+        public DateTimeOffset? LastRetriedAt { get; set; }
 
         /// <inheritdoc />
-        public bool LastRetryWasSuccessful { get; set; }
+        public bool? LastRetryWasSuccessful { get; set; }
 
         /// <inheritdoc />
-        public DateTimeOffset LastActionAt { get; set; }
-
-        /// <inheritdoc />
-        public bool LastActionWasSuccessful { get; set; }
+        public DateTimeOffset? LastActionAt { get; set; }
 
         /// <inheritdoc />
         public HashSet<string> Tags { get; set; }
@@ -48,14 +49,29 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public string InitialError { get; set; }
 
         /// <inheritdoc />
-        public List<string> Log { get; set; }
+        public List<HCDataRepeaterSimpleLogEntry> Log { get; set; }
         #endregion
+
+        /// <summary>
+        /// Deserialize <see cref="SerializedData"/> into <typeparamref name="TData"/>.
+        /// <para>If <see cref="SerializedDataOverride"/> from frontend is not empty it will be used instead.</para>
+        /// If <typeparamref name="TData"/> is of type string it will be returned.
+        /// </summary>
+        public TData Data
+        {
+            get
+            {
+                var serializedData = string.IsNullOrWhiteSpace(SerializedDataOverride) ? SerializedData : SerializedDataOverride;
+                if (typeof(TData) == typeof(string)) return serializedData as TData;
+                else return HCGlobalConfig.Serializer.Deserialize<TData>(serializedData);
+            }
+        }
 
         /// <summary>
         /// Deserialize <see cref="SerializedData"/> into <typeparamref name="TData"/>.
         /// If <typeparamref name="TData"/> is of type string it will be returned.
         /// </summary>
-        public TData Data
+        public TData OriginalData
         {
             get
             {
@@ -68,7 +84,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// Create a new item from the given <typeparamref name="TData"/>.
         /// <typeparamref name="TData"/> must be serializable. Can be a string or complex object.
         /// </summary>
-        public static HCDefaultDataRepeaterStreamItem<TData> CreateFrom(TData data, string itemId,
+        public static TSelf CreateFrom(TData data, string itemId,
             string initialError = null, IEnumerable<string> tags = null, bool allowRetry = true)
         {
             string serializedData = null;

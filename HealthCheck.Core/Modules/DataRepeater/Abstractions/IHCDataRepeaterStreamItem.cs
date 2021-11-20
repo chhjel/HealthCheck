@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Modules.DataRepeater.Models;
+using System;
 using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
@@ -21,22 +22,17 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// <summary>
         /// When this item was last retried.
         /// </summary>
-        DateTimeOffset LastRetriedAt { get; set; }
+        DateTimeOffset? LastRetriedAt { get; set; }
 
         /// <summary>
         /// Was the last retry successful?
         /// </summary>
-        bool LastRetryWasSuccessful { get; set; }
+        bool? LastRetryWasSuccessful { get; set; }
 
         /// <summary>
         /// When this item was last performed an action on.
         /// </summary>
-        DateTimeOffset LastActionAt { get; set; }
-
-        /// <summary>
-        /// Was the last action successful?
-        /// </summary>
-        bool LastActionWasSuccessful { get; set; }
+        DateTimeOffset? LastActionAt { get; set; }
 
         /// <summary>
         /// Optional id of the serialized data.
@@ -61,11 +57,16 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// <summary>
         /// Last retry/action results.
         /// </summary>
-        List<string> Log { get; set; }
+        List<HCDataRepeaterSimpleLogEntry> Log { get; set; }
 
         /// <summary>
         /// The data serialized to a string.
         /// </summary>
         string SerializedData { get; set; }
+
+        /// <summary>
+        /// Custom override of serialized data.
+        /// </summary>
+        string SerializedDataOverride { get; set; }
     }
 }

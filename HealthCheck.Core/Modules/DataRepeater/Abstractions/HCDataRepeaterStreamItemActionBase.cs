@@ -13,6 +13,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         where TParameters: class, new()
     {
         /// <inheritdoc />
+        public string StreamId { get; }
+
+        /// <inheritdoc />
         public Type ParametersType => typeof(TParameters);
 
         /// <inheritdoc />
@@ -20,6 +23,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
 
         /// <inheritdoc />
         public abstract string Description { get; }
+
+        /// <inheritdoc />
+        public abstract string ExecuteButtonLabel { get; }
 
         /// <inheritdoc />
         public abstract List<string> AllowedOnItemsWithTags { get; }

@@ -2,27 +2,24 @@
 using HealthCheck.Core.Modules.DataRepeater.Models;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Dev.Common.DataRepeater
 {
-    public class TestOrderDataRepeaterStream : HCDataRepeaterStreamBase<TestOrderStreamItem>
+    public class TestXDataRepeaterStream : HCDataRepeaterStreamBase<TestXStreamItem>
     {
-        public override string StreamDisplayName => "Order Captures";
-        public override string StreamGroupName => "Orders";
-        public override string ItemIdDisplayName => "Order number";
-        public override string RetryActionName => "Retry capture";
-        public override string RetryDescription => "Attempts to perform the capture action again.";
-        public override List<string> InitiallySelectedTags => new List<string> { "Retry allowed" };
+        public override string StreamDisplayName => "Test Stream";
+        public override string StreamGroupName => "Items";
+        public override string ItemIdDisplayName => "Id";
+        public override string RetryActionName => "Retry";
+        public override string RetryDescription => null;
+        public override List<string> InitiallySelectedTags => new List<string> { };
         public override List<IHCDataRepeaterStreamItemAction> Actions => new List<IHCDataRepeaterStreamItemAction>
         {
-            new TestOrderDataRepeaterStreamItemActionToggleAllow(),
-            new TestOrderDataRepeaterStreamItemActionRemoveAllTags(),
-            new TestOrderDataRepeaterStreamItemActionTest()
+            new TestOrderDataRepeaterStreamItemActionRemoveAllTags()
         };
 
-        public TestOrderDataRepeaterStream() : base(new MemoryDataRepeaterStreamItemStorage("ordertest"))
+        public TestXDataRepeaterStream() : base(new MemoryDataRepeaterStreamItemStorage("testX"))
         {
         }
 
@@ -40,7 +37,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
             return Task.FromResult(details);
         }
 
-        protected override Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(TestOrderStreamItem item)
+        protected override Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(TestXStreamItem item)
         {
             var result = new HCDataRepeaterItemAnalysisResult();
 
@@ -69,14 +66,12 @@ namespace HealthCheck.Dev.Common.DataRepeater
             return Task.FromResult(result);
         }
 
-        protected override Task<HCDataRepeaterRetryResult> RetryItemAsync(TestOrderStreamItem item)
+        protected override Task<HCDataRepeaterRetryResult> RetryItemAsync(TestXStreamItem item)
         {
-            Debug.WriteLine($"Processed '{item.ItemId}'");
-
             var result = new HCDataRepeaterRetryResult
             {
                 Success = true,
-                Message = $"Success! New #{item.Data.OrderNumber}, ${item.Data.Amount}",
+                Message = $"Success!",
 
                 AllowRetry = false,
                 Delete = false,

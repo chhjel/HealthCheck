@@ -2,7 +2,6 @@
 using HealthCheck.Core.Modules.DataRepeater.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
@@ -15,6 +14,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
     {
         #region IHCDataRepeaterStream Implementation
         /// <inheritdoc />
+        public IHCDataRepeaterStreamItemStorage Storage { get; }
+
+        /// <inheritdoc />
         public abstract string StreamDisplayName { get; }
 
         /// <inheritdoc />
@@ -22,6 +24,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
 
         /// <inheritdoc />
         public abstract string ItemIdDisplayName { get; }
+
+        /// <inheritdoc />
+        public abstract string RetryActionName { get; }
+
+        /// <inheritdoc />
+        public abstract string RetryDescription { get; }
 
         /// <inheritdoc />
         public virtual List<string> InitiallySelectedTags { get; }
@@ -33,90 +41,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         public abstract List<IHCDataRepeaterStreamItemAction> Actions { get; }
 
         /// <inheritdoc />
-        public abstract Task<IHCDataRepeaterStreamItem> GetItemAsync(Guid id, string itemId);
-
-        /// <inheritdoc />
-        public abstract Task DeleteItemAsync(Guid id, string itemId);
-
-        /// <inheritdoc />
-        public abstract Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(Guid id, string itemId);
-
-        /// <inheritdoc />
-        public virtual async Task StoreItemAsync(IHCDataRepeaterStreamItem item, object hint = null)
-        {
-            if (AnalyzeOnStoreNew)
-            {
-                var analyticResult = await AnalyzeItemAsync(item);
-                if (analyticResult.DontStore)
-                {
-                    return;
-                }
-                HCDataRepeaterUtils.ApplyChangesToItem(item, analyticResult);
-            }
-
-            await StoreNewItemAsync(item, hint);
-        }
-
-        /// <inheritdoc />
-        public abstract Task UpdateItemAsync(IHCDataRepeaterStreamItem item);
-
-        /// <inheritdoc />
-        public abstract Task<HCDataRepeaterStreamItemsPagedModel> GetItemsPagedAsync(HCGetDataRepeaterStreamItemsFilteredRequest model);
-
-        /// <inheritdoc />
-        public virtual async Task SetAllowItemRetryAsync(Guid id, string itemId, bool allow)
-        {
-            var item = await GetItemAsync(id, itemId);
-            if (item == null || item.AllowRetry == allow)
-            {
-                return;
-            }
-
-            item.AllowRetry = allow;
-            await UpdateItemAsync(item);
-        }
-
-        /// <inheritdoc />
-        public virtual async Task AddItemTagAsync(Guid id, string itemId, string tag)
-        {
-            var item = await GetItemAsync(id, itemId);
-            if (item == null || item.Tags?.Contains(tag) == true)
-            {
-                return;
-            }
-
-            item.Tags ??= new HashSet<string>();
-            item.Tags.Add(tag);
-            await UpdateItemAsync(item);
-        }
-
-        /// <inheritdoc />
-        public virtual async Task RemoveItemTagAsync(Guid id, string itemId, string tag)
-        {
-            var item = await GetItemAsync(id, itemId);
-            if (item == null || item.Tags?.Contains(tag) != true)
-            {
-                return;
-            }
-
-            item.Tags ??= new HashSet<string>();
-            item.Tags.Add(tag);
-            await UpdateItemAsync(item);
-        }
-
-        /// <inheritdoc />
-        public virtual async Task RemoveAllItemTagsAsync(Guid id, string itemId)
-        {
-            var item = await GetItemAsync(id, itemId);
-            if (item == null || item.Tags?.Any() != true)
-            {
-                return;
-            }
-
-            item.Tags ??= new HashSet<string>();
-            item.Tags.Clear();
-            await UpdateItemAsync(item);
-        }
+        public abstract Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(Guid id);
 
         /// <inheritdoc />
         public abstract Task<HCDataRepeaterRetryResult> RetryItemAsync(IHCDataRepeaterStreamItem item);
@@ -132,8 +57,62 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         public bool AnalyzeOnStoreNew { get; set; } = true;
 
         /// <summary>
+        /// A stream of data that supports being modified and reprocessed.
+        /// <para>Optional base class that strips away a bit of boilerplate code and adds some shortcuts.</para>
+        /// </summary>
+        public HCDataRepeaterStreamBase(IHCDataRepeaterStreamItemStorage storage)
+        {
+            Storage = storage;
+        }
+
+        /// <summary>
         /// Store a new item. <see cref="AnalyzeItemAsync"/> has already been called on it, and any tags added.
         /// </summary>
-        protected abstract Task StoreNewItemAsync(IHCDataRepeaterStreamItem item, object hint = null);
+        public virtual async Task StoreItemAsync(IHCDataRepeaterStreamItem item, object hint = null)
+        {
+            if (AnalyzeOnStoreNew)
+            {
+                var analyticResult = await AnalyzeItemAsync(item);
+                if (analyticResult.DontStore)
+                {
+                    return;
+                }
+                HCDataRepeaterUtils.ApplyChangesToItem(item, analyticResult);
+            }
+
+            await Storage.StoreItemAsync(item, hint);
+        }
+    }
+
+    /// <summary>
+    /// A stream of data that supports being modified and reprocessed.
+    /// <para>Optional base class that strips away a bit of boilerplate code and adds some shortcuts.</para>
+    /// </summary>
+    public abstract class HCDataRepeaterStreamBase<TData> : HCDataRepeaterStreamBase
+        where TData : class, IHCDataRepeaterStreamItem
+    {
+        /// <summary>
+        /// A stream of data that supports being modified and reprocessed.
+        /// <para>Optional base class that strips away a bit of boilerplate code and adds some shortcuts.</para>
+        /// </summary>
+        public HCDataRepeaterStreamBase(IHCDataRepeaterStreamItemStorage storage) : base(storage) { }
+
+        /// <inheritdoc />
+        public override Task<HCDataRepeaterRetryResult> RetryItemAsync(IHCDataRepeaterStreamItem item)
+            => RetryItemAsync(item as TData);
+
+        /// <summary>
+        /// Retry the given item.
+        /// </summary>
+        protected abstract Task<HCDataRepeaterRetryResult> RetryItemAsync(TData item);
+
+        /// <inheritdoc />
+        public override Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(IHCDataRepeaterStreamItem item)
+            => AnalyzeItemAsync(item as TData);
+
+        /// <summary>
+        /// Analyze item for potential issues and apply suitable tags.
+        /// </summary>
+        protected abstract Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(TData item);
     }
 }

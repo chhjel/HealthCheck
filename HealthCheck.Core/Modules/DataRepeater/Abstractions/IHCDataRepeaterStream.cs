@@ -11,6 +11,11 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
     public interface IHCDataRepeaterStream
     {
         /// <summary>
+        /// Get the storage for the items of this stream.
+        /// </summary>
+        IHCDataRepeaterStreamItemStorage Storage { get; }
+
+        /// <summary>
         /// Name of the stream.
         /// </summary>
         string StreamDisplayName { get; }
@@ -24,6 +29,16 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// Name of the item id.
         /// </summary>
         string ItemIdDisplayName { get; }
+
+        /// <summary>
+        /// Label on the retry-button.
+        /// </summary>
+        string RetryActionName { get; }
+
+        /// <summary>
+        /// Optional description of the retry action.
+        /// </summary>
+        string RetryDescription { get; }
 
         /// <summary>
         /// List of initially selected tags in the UI for this stream.
@@ -41,46 +56,6 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         List<IHCDataRepeaterStreamItemAction> Actions { get; }
 
         /// <summary>
-        /// Store a new item.
-        /// </summary>
-        Task StoreItemAsync(IHCDataRepeaterStreamItem item, object hint = null);
-
-        /// <summary>
-        /// Updates an existing item.
-        /// </summary>
-        Task UpdateItemAsync(IHCDataRepeaterStreamItem item);
-
-        /// <summary>
-        /// Get item matching either id or itemId.
-        /// </summary>
-        Task<IHCDataRepeaterStreamItem> GetItemAsync(Guid id, string itemId);
-
-        /// <summary>
-        /// Delete item matching either id or itemId.
-        /// </summary>
-        Task DeleteItemAsync(Guid id, string itemId);
-
-        /// <summary>
-        /// Apply tag to item matching either id or itemId.
-        /// </summary>
-        Task AddItemTagAsync(Guid id, string itemId, string tag);
-
-        /// <summary>
-        /// Remove tag from item matching either id or itemId.
-        /// </summary>
-        Task RemoveItemTagAsync(Guid id, string itemId, string tag);
-
-        /// <summary>
-        /// Remove all tags from item matching either id or itemId.
-        /// </summary>
-        Task RemoveAllItemTagsAsync(Guid id, string itemId);
-
-        /// <summary>
-        /// Allow item matching either id or itemId to be retried processed from the interface.
-        /// </summary>
-        Task SetAllowItemRetryAsync(Guid id, string itemId, bool allow);
-
-        /// <summary>
         /// Retry the given item.
         /// </summary>
         Task<HCDataRepeaterRetryResult> RetryItemAsync(IHCDataRepeaterStreamItem item);
@@ -91,13 +66,8 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(IHCDataRepeaterStreamItem item);
 
         /// <summary>
-        /// Get stream items with filter and paging.
+        /// Optional extra details about an item to display in the UI.
         /// </summary>
-        Task<HCDataRepeaterStreamItemsPagedModel> GetItemsPagedAsync(HCGetDataRepeaterStreamItemsFilteredRequest model);
-
-        /// <summary>
-        /// Extra details about an item to display in the UI.
-        /// </summary>
-        Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(Guid id, string itemId);
+        Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(Guid id);
     }
 }

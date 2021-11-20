@@ -5,6 +5,5 @@
 export interface HCGetDataRepeaterItemDetailsRequest
 {
 	StreamId: string;
-	ItemGuid: string;
 	ItemId: string;
 }

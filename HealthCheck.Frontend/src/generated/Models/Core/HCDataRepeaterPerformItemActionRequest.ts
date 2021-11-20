@@ -6,7 +6,6 @@ export interface HCDataRepeaterPerformItemActionRequest
 {
 	StreamId: string;
 	ActionId: string;
-	ItemGuid: string;
 	ItemId: string;
 	Parameters: { [key:string]: string };
 }

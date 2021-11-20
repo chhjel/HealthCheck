@@ -21,17 +21,17 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// <summary>
         /// When this item was last retried.
         /// </summary>
-        public DateTimeOffset LastRetriedAt { get; set; }
+        public DateTimeOffset? LastRetriedAt { get; set; }
 
         /// <summary>
         /// Was the last retry successful?
         /// </summary>
-        public bool LastRetryWasSuccessful { get; set; }
+        public bool? LastRetryWasSuccessful { get; set; }
 
         /// <summary>
         /// When this item was last performed an action on.
         /// </summary>
-        public DateTimeOffset LastActionAt { get; set; }
+        public DateTimeOffset? LastActionAt { get; set; }
 
         /// <summary>
         /// Was the last action successful?
@@ -61,11 +61,16 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// <summary>
         /// Last retry/action results.
         /// </summary>
-        public List<string> Log { get; set; }
+        public List<HCDataRepeaterSimpleLogEntry> Log { get; set; }
 
         /// <summary>
         /// The data serialized to a string.
         /// </summary>
         public string SerializedData { get; set; }
+
+        /// <summary>
+        /// Override from frontend if any.
+        /// </summary>
+        public string SerializedDataOverride { get; set; }
     }
 }

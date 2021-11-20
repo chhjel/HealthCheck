@@ -9,6 +9,8 @@ export interface HCDataRepeaterStreamViewModel
 	Id: string;
 	Name: string;
 	ItemIdName: string;
+	RetryActionName: string;
+	RetryDescription: string;
 	GroupName: string;
 	Actions: HCDataRepeaterStreamActionViewModel[];
 }

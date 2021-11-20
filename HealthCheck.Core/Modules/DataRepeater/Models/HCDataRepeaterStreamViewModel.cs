@@ -9,13 +9,19 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public string Id { get; set; }
 
         /// <summary></summary>
-        public string Name { get; internal set; }
+        public string Name { get; set; }
 
         /// <summary></summary>
-        public string ItemIdName { get; internal set; }
+        public string ItemIdName { get; set; }
 
         /// <summary></summary>
-        public string GroupName { get; internal set; }
+        public string RetryActionName { get; set; }
+
+        /// <summary></summary>
+        public string RetryDescription { get; set; }
+
+        /// <summary></summary>
+        public string GroupName { get; set; }
 
         /// <summary></summary>
         public List<HCDataRepeaterStreamActionViewModel> Actions { get; set; } = new();

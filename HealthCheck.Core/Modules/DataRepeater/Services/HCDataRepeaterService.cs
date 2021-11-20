@@ -38,6 +38,18 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
 
             item.LastRetriedAt = DateTimeOffset.Now;
             item.Log ??= new();
+            void log(string message)
+            {
+                item.Log.Add(new HCDataRepeaterSimpleLogEntry
+                {
+                    Timestamp = DateTimeOffset.Now,
+                    Message = $"Retry was attempted. Result: {message}"
+                });
+                if (item.Log.Count > 10)
+                {
+                    item.Log = item.Log.Skip(item.Log.Count - 10).Take(10).ToList();
+                }
+            }
 
             // Handle any exception
             HCDataRepeaterRetryResult result = null;
@@ -48,7 +60,8 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             catch(Exception ex)
             {
                 item.LastRetryWasSuccessful = false;
-                await stream.UpdateItemAsync(item);
+                await stream.Storage.UpdateItemAsync(item);
+                log($"Failed with exception: {ex.Message}");
                 return HCDataRepeaterRetryResult.CreateError(ex);
             }
 
@@ -59,23 +72,19 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             {
                 statusMessage = result.Success ? "Retry was successful" : "Retry failed.";
             }
-            item.Log.Add(statusMessage);
-            if (item.Log.Count > 10)
-            {
-                item.Log = item.Log.Skip(item.Log.Count - 10).Take(10).ToList();
-            }
+            log(statusMessage);
 
             // Apply AllowRetry and tag changes
             HCDataRepeaterUtils.ApplyChangesToItem(item, result);
 
             if (result.Delete)
             {
-                await stream.DeleteItemAsync(item.Id, item.ItemId);
+                await stream.Storage.DeleteItemAsync(item.Id);
             }
             else
             {
                 // Save changes
-                await stream.UpdateItemAsync(item);
+                await stream.Storage.UpdateItemAsync(item);
             }
 
             return result;
@@ -107,6 +116,18 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
 
             item.LastActionAt = DateTimeOffset.Now;
             item.Log ??= new();
+            void log(string message)
+            {
+                item.Log.Add(new HCDataRepeaterSimpleLogEntry
+                {
+                    Timestamp = DateTimeOffset.Now,
+                    Message = $"Action '{action.DisplayName}' was executed. Result: {message}"
+                });
+                if (item.Log.Count > 10)
+                {
+                    item.Log = item.Log.Skip(item.Log.Count - 10).Take(10).ToList();
+                }
+            }
 
             // Handle any exception
             HCDataRepeaterStreamItemActionResult result = null;
@@ -116,35 +137,30 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             }
             catch (Exception ex)
             {
-                item.LastActionWasSuccessful = false;
-                await stream.UpdateItemAsync(item);
+                log($"Failed with exception: {ex.Message}");
+                await stream.Storage.UpdateItemAsync(item);
                 return HCDataRepeaterStreamItemActionResult.CreateError(ex);
             }
 
             // Update last success and message
-            item.LastActionWasSuccessful = result.Success;
             var statusMessage = result.Message;
             if (string.IsNullOrWhiteSpace(statusMessage))
             {
                 statusMessage = result.Success ? "Action was successful" : "Action failed.";
             }
-            item.Log.Add(statusMessage);
-            if (item.Log.Count > 10)
-            {
-                item.Log = item.Log.Skip(item.Log.Count - 10).Take(10).ToList();
-            }
+            log(statusMessage);
 
             // Apply AllowRetry and tag changes
             HCDataRepeaterUtils.ApplyChangesToItem(item, result);
 
             if (result.Delete)
             {
-                await stream.DeleteItemAsync(item.Id, item.ItemId);
+                await stream.Storage.DeleteItemAsync(item.Id);
             }
             else
             {
                 // Save changes
-                await stream.UpdateItemAsync(item);
+                await stream.Storage.UpdateItemAsync(item);
             }
 
             return result;

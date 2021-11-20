@@ -24,7 +24,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public bool Delete { get; set; }
 
         /// <summary></summary>
-        public static HCDataRepeaterRetryResult CreateSuccess() => new() { Success = true };
+        public static HCDataRepeaterRetryResult CreateSuccess(string message = null) => new() { Success = true, Message = message };
 
         /// <summary></summary>
         public static HCDataRepeaterRetryResult CreateError(string error) => new() { Message = error };
