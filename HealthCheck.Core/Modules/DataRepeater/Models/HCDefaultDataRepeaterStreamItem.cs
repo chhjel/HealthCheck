@@ -19,7 +19,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public Guid Id { get; set; }
 
         /// <inheritdoc />
-        public DateTimeOffset InsertedAt { get; set; }
+        public DateTimeOffset InsertedAt { get; set; } = DateTimeOffset.Now;
 
         /// <inheritdoc />
         public string ItemId { get; set; }

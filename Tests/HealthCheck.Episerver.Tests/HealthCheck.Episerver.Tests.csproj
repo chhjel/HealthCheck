@@ -24,6 +24,7 @@
     <ProjectReference Include="..\..\Episerver\HealthCheck.Episerver.DynamicCodeExecution\HealthCheck.Episerver.DynamicCodeExecution\HealthCheck.Episerver.DynamicCodeExecution.csproj" />
     <ProjectReference Include="..\..\Episerver\HealthCheck.Episerver.EndpointControl\HealthCheck.Episerver.EndpointControl.csproj" />
     <ProjectReference Include="..\..\Episerver\HealthCheck.Episerver\HealthCheck.Episerver.csproj" />
+    <ProjectReference Include="..\..\HealthCheck.WebUI\HealthCheck.WebUI.csproj" />
   </ItemGroup>
 
   <ItemGroup>
