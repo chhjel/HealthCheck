@@ -21,6 +21,7 @@
         <div v-if="item">
             <v-btn @click="$emit('close')" class="right">Close</v-btn>
             <h2>{{ stream.ItemIdName }}: {{ item.ItemId }}</h2>
+            <p v-if="item.Summary">{{ item.Summary }}</p>
             <p v-if="details && details.Description">{{ details.Description }}</p>
 
             <div v-if="item.InitialError">

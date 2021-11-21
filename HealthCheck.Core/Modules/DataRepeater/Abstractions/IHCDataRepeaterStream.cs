@@ -21,6 +21,11 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         string StreamDisplayName { get; }
 
         /// <summary>
+        /// What to call the items in this stream.
+        /// </summary>
+        string StreamItemsName { get; }
+
+        /// <summary>
         /// Name of the stream group if any.
         /// </summary>
         string StreamGroupName { get; }

@@ -59,7 +59,8 @@ namespace HealthCheck.Dev.Common.Tests
                     Amount = (888 + (i * 32.25m))
                 };
 
-                var item1 = TestOrderStreamItem.CreateFrom(order, order.OrderNumber);
+                var item1 = TestOrderStreamItem.CreateFrom(order, order.OrderNumber,
+                    $"{order.Amount}$ from \"Jimmy Smithy\"");
                 await stream1.StoreItemAsync(item1);
 
                 var item2 = TestXStreamItem.CreateFrom(new DummyX { Id = i.ToString(), Value = i + 123 }, i.ToString());

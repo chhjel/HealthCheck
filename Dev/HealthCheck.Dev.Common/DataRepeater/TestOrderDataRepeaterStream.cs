@@ -11,6 +11,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
     {
         public override string StreamDisplayName => "Order Captures";
         public override string StreamGroupName => "Orders";
+        public override string StreamItemsName => "Orders";
         public override string ItemIdDisplayName => "Order number";
         public override string RetryActionName => "Retry capture";
         public override string RetryDescription => "Attempts to perform the capture action again.";

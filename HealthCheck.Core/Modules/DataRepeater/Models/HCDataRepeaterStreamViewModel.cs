@@ -12,6 +12,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public string Name { get; set; }
 
         /// <summary></summary>
+        public string StreamItemsName { get; set; }
+
+        /// <summary></summary>
         public string ItemIdName { get; set; }
 
         /// <summary></summary>

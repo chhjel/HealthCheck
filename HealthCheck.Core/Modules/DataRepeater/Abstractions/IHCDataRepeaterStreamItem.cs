@@ -40,6 +40,11 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         string ItemId { get; set; }
 
         /// <summary>
+        /// Optional short summary of the serialized data, displayed in the list along <see cref="ItemId"/>.
+        /// </summary>
+        string Summary { get; set; }
+
+        /// <summary>
         /// If false, the item can't be retried processed from the interface.
         /// </summary>
         bool AllowRetry { get; set; }

@@ -9,7 +9,8 @@ namespace HealthCheck.Dev.Common.DataRepeater
     public class TestXDataRepeaterStream : HCDataRepeaterStreamBase<TestXStreamItem>
     {
         public override string StreamDisplayName => "Test Stream";
-        public override string StreamGroupName => "Items";
+        public override string StreamGroupName => "Test";
+        public override string StreamItemsName => "Items";
         public override string ItemIdDisplayName => "Id";
         public override string RetryActionName => "Retry";
         public override string RetryDescription => null;

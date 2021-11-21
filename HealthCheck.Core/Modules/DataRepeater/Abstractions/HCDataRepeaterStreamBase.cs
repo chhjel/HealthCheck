@@ -20,6 +20,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         public abstract string StreamDisplayName { get; }
 
         /// <inheritdoc />
+        public abstract string StreamItemsName { get; }
+
+        /// <inheritdoc />
         public abstract string StreamGroupName { get; }
 
         /// <inheritdoc />

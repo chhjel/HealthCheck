@@ -13,6 +13,7 @@ export interface HCDataRepeaterStreamItemViewModel
 	LastActionAt: Date;
 	LastActionWasSuccessful: boolean;
 	ItemId: string;
+	Summary: string;
 	AllowRetry: boolean;
 	Tags: string[];
 	InitialError: string;

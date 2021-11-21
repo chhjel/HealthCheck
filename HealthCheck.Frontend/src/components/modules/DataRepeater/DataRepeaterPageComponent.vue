@@ -27,6 +27,17 @@
                 <v-layout>
                     <v-flex>
                         <v-container>
+                            <div v-if="selectedStream && selectedItemId == null">
+                                <h2 v-if="selectedStream.StreamItemsName">{{ selectedStream.StreamItemsName }}</h2>
+                                <paging-component
+                                    :count="totalResultCount"
+                                    :pageSize="pageSize"
+                                    v-model="pageIndex"
+                                    :asIndex="true"
+                                    class="mb-2 mt-2"
+                                    />
+                            </div>
+
                             <!-- LOAD PROGRESS -->
                             <v-progress-linear 
                                 v-if="dataLoadStatus.inProgress"
@@ -38,22 +49,14 @@
                             </v-alert>
 
                             <div v-if="selectedStream && selectedItemId == null">
-                                <!-- ITEMS -->
-                                <h2>Items</h2>
-
-                                <paging-component
-                                    :count="totalResultCount"
-                                    :pageSize="pageSize"
-                                    v-model="pageIndex"
-                                    :asIndex="true"
-                                    class="mb-2 mt-2"
-                                    />
-
                                 <div v-for="(item, iIndex) in items"
                                     :key="`item-${iIndex}-${item.Id}`"
                                     @click="setActiveItemId(item.Id)">
                                     <b>{{ selectedStream.ItemIdName }}: {{ item.ItemId }}</b>
-                                    <code>{{ item.Tags.join(', ') }}</code>
+                                    <small v-if="item.Summary"> - {{ item.Summary }}</small>
+                                    <div style="display: inline-block">
+                                        <code>{{ item.Tags.join(', ') }}</code>
+                                    </div>
                                 </div>
                                 
                                 <paging-component
@@ -99,6 +102,7 @@ import DataRepeaterItemComponent from "./DataRepeaterItemComponent.vue";
 import PagingComponent from "../../Common/Basic/PagingComponent.vue";
 import HashUtils from "../../../util/HashUtils";
 import { HCDataRepeaterStreamItemsPagedViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemsPagedViewModel";
+import { Route } from "vue-router";
 
 @Component({
     components: {
@@ -142,6 +146,18 @@ export default class DataRepeaterPageComponent extends Vue {
 
         this.resetFilter();
         this.loadStreamDefinitions();
+
+        setTimeout(() => {
+            this.routeListener = this.$router.afterEach((t, f) => this.onRouteChanged(t, f));
+        }, 100);
+    }
+
+    routeListener: Function | null = null;
+    beforeDestroy(): void {
+        if (this.routeListener)
+        {
+            this.routeListener();
+        }
     }
 
     ////////////////
@@ -209,13 +225,18 @@ export default class DataRepeaterPageComponent extends Vue {
         }
     }
 
-    setActiveStream(stream: HCDataRepeaterStreamViewModel, updateUrl: boolean = true): void {
+    setActiveStream(stream: HCDataRepeaterStreamViewModel | null, updateUrl: boolean = true): void {
         if (this.dataLoadStatus.inProgress) {
             return;
         }
 
         this.selectedStream = stream;
         this.selectedItemId = null;
+        if (stream == null)
+        {
+            return;
+        }
+
         this.resetFilter();
         this.loadCurrentStreamItems();
 
@@ -279,6 +300,31 @@ export default class DataRepeaterPageComponent extends Vue {
     @Watch("pageIndex")
     onPageIndexChanged(): void {
         this.loadCurrentStreamItems();
+    }
+
+    onRouteChanged(to: Route, from: Route): void {
+        if (!this.streamDefinitions) return;
+
+        const currentStreamId = !!this.selectedStream ? this.hash(this.selectedStream.Id) : '';
+
+        const oldStreamIdFromHash = from.params.streamId || null;
+        const newStreamIdFromHash = to.params.streamId || null;
+        const streamChanged = oldStreamIdFromHash != newStreamIdFromHash;
+
+        const oldItemIdFromHash = from.params.itemId || null;
+        const newItemIdFromHash = to.params.itemId || null;
+        const itemChanged = oldItemIdFromHash != newItemIdFromHash;
+
+        if (streamChanged)
+        {
+            const matchingStream = this.streamDefinitions.Streams.filter(x => this.hash(x.Id) == newStreamIdFromHash)[0] || null;
+            this.setActiveStream(matchingStream, false);
+            this.setActiveItemId(null, false);
+        }
+        else if (itemChanged)
+        {
+            this.setActiveItemId(newItemIdFromHash, false);
+        }
     }
 }
 </script>

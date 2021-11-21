@@ -25,6 +25,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public string ItemId { get; set; }
 
         /// <inheritdoc />
+        public string Summary { get; set; }
+
+        /// <inheritdoc />
         public string SerializedData { get; set; }
 
         /// <inheritdoc />
@@ -94,7 +97,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// Create a new item from the given <typeparamref name="TData"/>.
         /// <typeparamref name="TData"/> must be serializable. Can be a string or complex object.
         /// </summary>
-        public static TSelf CreateFrom(TData data, string itemId,
+        public static TSelf CreateFrom(TData data, string itemId, string summary = null,
             string initialError = null, IEnumerable<string> tags = null, bool allowRetry = true)
         {
             string serializedData = null;
@@ -109,6 +112,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
             {
                 Id = Guid.NewGuid(),
                 ItemId = itemId,
+                Summary = summary,
                 Tags = new HashSet<string>(tags ?? Enumerable.Empty<string>()),
                 SerializedData = serializedData,
                 AllowRetry = allowRetry,

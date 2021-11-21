@@ -44,6 +44,11 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public string ItemId { get; set; }
 
         /// <summary>
+        /// Optional short summary of the serialized data, displayed in the list along <see cref="ItemId"/>.
+        /// </summary>
+        public string Summary { get; set; }
+
+        /// <summary>
         /// If false, the item can't be retried processed from the interface.
         /// </summary>
         public bool AllowRetry { get; set; }

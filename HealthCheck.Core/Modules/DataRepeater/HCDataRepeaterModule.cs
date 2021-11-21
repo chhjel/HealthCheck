@@ -74,6 +74,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
                 {
                     Id = stream.GetType().FullName,
                     Name = stream.StreamDisplayName,
+                    StreamItemsName = stream.StreamItemsName,
                     ItemIdName = stream.ItemIdDisplayName,
                     GroupName = stream.StreamGroupName,
                     RetryActionName = stream.RetryActionName,
@@ -181,6 +182,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
             {
                 Id = item.Id,
                 ItemId = item.ItemId,
+                Summary = item.Summary,
                 AllowRetry = item.AllowRetry,
                 InsertedAt = item.InsertedAt,
                 LastRetriedAt = item.LastRetriedAt,
