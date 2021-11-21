@@ -92,6 +92,13 @@ namespace HealthCheck.Dev.Common.DataRepeater
             return Task.FromResult(item);
         }
 
+        public Task<IHCDataRepeaterStreamItem> GetItemByItemIdAsync(string itemId)
+        {
+            var item = _items.Where(x => x.Key.StartsWith($"{_prefix}"))
+                .FirstOrDefault(x => x.Value.ItemId == itemId).Value;
+            return Task.FromResult(item);
+        }
+
         public Task<HCDataRepeaterStreamItemsPagedModel> GetItemsPagedAsync(HCGetDataRepeaterStreamItemsFilteredRequest model)
         {
             var relevant = _items.Where(x => x.Key.StartsWith($"{_prefix}_"));

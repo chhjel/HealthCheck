@@ -25,6 +25,11 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         Task<IHCDataRepeaterStreamItem> GetItemAsync(Guid id);
 
         /// <summary>
+        /// Get item matching the given <see cref="IHCDataRepeaterStreamItem.ItemId"/>.
+        /// </summary>
+        Task<IHCDataRepeaterStreamItem> GetItemByItemIdAsync(string itemId);
+
+        /// <summary>
         /// Delete item matching the given id.
         /// </summary>
         Task DeleteItemAsync(Guid id);

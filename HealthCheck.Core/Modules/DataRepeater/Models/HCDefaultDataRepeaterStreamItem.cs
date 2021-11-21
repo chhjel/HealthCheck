@@ -65,6 +65,16 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
                 if (typeof(TData) == typeof(string)) return serializedData as TData;
                 else return HCGlobalConfig.Serializer.Deserialize<TData>(serializedData);
             }
+            set
+            {
+                SerializedDataOverride = null;
+                if (value != null)
+                {
+                    SerializedDataOverride = typeof(TData) == typeof(string)
+                        ? value as string
+                        : HCGlobalConfig.Serializer.Serialize(value, pretty: true);
+                }
+            }
         }
 
         /// <summary>

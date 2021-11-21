@@ -25,12 +25,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
         }
 
         /// <inheritdoc />
-        public Task<IEnumerable<IHCDataRepeaterStream>> GetStreamsAsync() => Task.FromResult(_streams);
+        public IEnumerable<IHCDataRepeaterStream> GetStreams() => _streams;
 
         /// <inheritdoc />
         public virtual async Task<HCDataRepeaterRetryResult> RetryItemAsync(string streamId, IHCDataRepeaterStreamItem item)
         {
-            var stream = (await GetStreamsAsync()).FirstOrDefault(x => x.GetType().FullName == streamId);
+            var stream = GetStreams()?.FirstOrDefault(x => x.GetType().FullName == streamId);
             if (stream == null)
             {
                 return HCDataRepeaterRetryResult.CreateError("Stream or action not found.");
@@ -94,8 +94,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
         public virtual async Task<HCDataRepeaterStreamItemActionResult> PerformItemAction(string streamId, string actionId,
             IHCDataRepeaterStreamItem item, Dictionary<string, string> parameters)
         {
-            var stream = (await GetStreamsAsync())
-                .FirstOrDefault(x => x.GetType().FullName == streamId);
+            var stream = GetStreams()?.FirstOrDefault(x => x.GetType().FullName == streamId);
             if (stream == null)
             {
                 return HCDataRepeaterStreamItemActionResult.CreateError($"Stream '{streamId}' not found.");

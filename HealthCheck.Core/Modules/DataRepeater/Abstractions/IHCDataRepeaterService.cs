@@ -12,7 +12,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// <summary>
         /// Get all configured streams.
         /// </summary>
-        Task<IEnumerable<IHCDataRepeaterStream>> GetStreamsAsync();
+        IEnumerable<IHCDataRepeaterStream> GetStreams();
 
         /// <summary>
         /// Attempts to retry an item.

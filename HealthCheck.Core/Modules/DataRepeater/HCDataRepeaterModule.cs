@@ -63,10 +63,10 @@ namespace HealthCheck.Core.Modules.DataRepeater
         /// Get stream details.
         /// </summary>
         [HealthCheckModuleMethod]
-        public async Task<HCGetDataRepeaterStreamDefinitionsViewModel> GetStreamDefinitions()
+        public Task<HCGetDataRepeaterStreamDefinitionsViewModel> GetStreamDefinitions()
         {
             var model = new HCGetDataRepeaterStreamDefinitionsViewModel();
-            var streams = (await Options.Service?.GetStreamsAsync()) ?? Enumerable.Empty<IHCDataRepeaterStream>();
+            var streams = Options.Service?.GetStreams() ?? Enumerable.Empty<IHCDataRepeaterStream>();
             foreach (var stream in streams)
             {
                 var actions = stream.Actions ?? new List<IHCDataRepeaterStreamItemAction>();
@@ -93,7 +93,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
                     });
                 }
             }
-            return model;
+            return Task.FromResult(model);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
         [HealthCheckModuleMethod]
         public async Task<HCDataRepeaterStreamItemsPagedViewModel> GetStreamItemsPaged(HCGetDataRepeaterStreamItemsFilteredRequest model)
         {
-            var stream = await GetStreamAsync(model.StreamId);
+            var stream = GetStream(model.StreamId);
             var result = await stream.Storage.GetItemsPagedAsync(model);
             var items = result.Items.Select(x => Create(x)).Where(x => x != null).ToList();
             
@@ -119,7 +119,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
         [HealthCheckModuleMethod]
         public async Task<HCDataRepeaterStreamItemDetailsViewModel> GetItemDetails(HCGetDataRepeaterItemDetailsRequest model)
         {
-            var stream = await GetStreamAsync(model.StreamId);
+            var stream = GetStream(model.StreamId);
             var item = await stream.Storage.GetItemAsync(model.ItemId);
             var details = await stream.GetItemDetailsAsync(model.ItemId);
             return new HCDataRepeaterStreamItemDetailsViewModel
@@ -136,7 +136,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
         [HealthCheckModuleMethod(AccessOption.RetryItems)]
         public async Task<HCDataRepeaterResultWithLogMessage<HCDataRepeaterRetryResult>> RetryItem(HCDataRepeaterRetryItemRequest model)
         {
-            var stream = await GetStreamAsync(model.StreamId);
+            var stream = GetStream(model.StreamId);
             var item = await stream.Storage.GetItemAsync(model.ItemId);
             if (!item.AllowRetry)
             {
@@ -164,7 +164,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
         [HealthCheckModuleMethod(AccessOption.ExecuteItemActions)]
         public async Task<HCDataRepeaterResultWithLogMessage<HCDataRepeaterStreamItemActionResult>> PerformItemAction(HCDataRepeaterPerformItemActionRequest model)
         {
-            var stream = await GetStreamAsync(model.StreamId);
+            var stream = GetStream(model.StreamId);
             var item = await stream.Storage.GetItemAsync(model.ItemId);
             var data = await Options.Service.PerformItemAction(model.StreamId, model.ActionId, item, model.Parameters);
             return new HCDataRepeaterResultWithLogMessage<HCDataRepeaterStreamItemActionResult>
@@ -193,9 +193,9 @@ namespace HealthCheck.Core.Modules.DataRepeater
                 SerializedDataOverride = item.SerializedDataOverride ?? ""
             };
 
-        private async Task<IHCDataRepeaterStream> GetStreamAsync(string streamId)
+        private IHCDataRepeaterStream GetStream(string streamId)
         {
-            var streams = await Options.Service.GetStreamsAsync();
+            var streams = Options.Service?.GetStreams();
             return streams.FirstOrDefault(x => x.GetType().FullName == streamId);
         }
         #endregion
