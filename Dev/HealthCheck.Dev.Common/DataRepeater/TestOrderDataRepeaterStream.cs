@@ -33,8 +33,8 @@ namespace HealthCheck.Dev.Common.DataRepeater
                 Description = "Description here",
                 Links = new List<HCDataRepeaterStreamItemHyperLink>
                 {
-                    new HCDataRepeaterStreamItemHyperLink("Test link", "/etc"),
-                    new HCDataRepeaterStreamItemHyperLink("Details page", "/etc")
+                    new HCDataRepeaterStreamItemHyperLink("Test link", "/etc1"),
+                    new HCDataRepeaterStreamItemHyperLink("Details page", "/etc2")
                 }
             };
             return Task.FromResult(details);
