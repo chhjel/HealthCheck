@@ -29,6 +29,28 @@
                         <v-container>
                             <div v-if="selectedStream && selectedItemId == null">
                                 <h2 v-if="selectedStream.StreamItemsName">{{ selectedStream.StreamItemsName }}</h2>
+
+                                <div class="data-repeater-filters">
+                                    <v-text-field
+                                        v-model="filterItemId"
+                                        @blur="loadCurrentStreamItems"
+                                        @keyup.enter="loadCurrentStreamItems"
+                                        label="Filter"
+                                        clearable
+                                        class="filter-input"
+                                    ></v-text-field>
+                                    <v-combobox
+                                        v-model="filterTags"
+                                        @blur="loadCurrentStreamItems"
+                                        @keyup.enter="loadCurrentStreamItems"
+                                        :items="detectedTags"
+                                        label="Included tags"
+                                        multiple
+                                        chips
+                                        class="filter-input"
+                                        ></v-combobox>
+                                </div>
+
                                 <paging-component
                                     :count="totalResultCount"
                                     :pageSize="pageSize"
@@ -51,11 +73,14 @@
                             <div v-if="selectedStream && selectedItemId == null">
                                 <div v-for="(item, iIndex) in items"
                                     :key="`item-${iIndex}-${item.Id}`"
-                                    @click="setActiveItemId(item.Id)">
-                                    <b>{{ selectedStream.ItemIdName }}: {{ item.ItemId }}</b>
-                                    <small v-if="item.Summary"> - {{ item.Summary }}</small>
-                                    <div style="display: inline-block">
-                                        <code>{{ item.Tags.join(', ') }}</code>
+                                    @click="setActiveItemId(item.Id)"
+                                    @keyup.enter="setActiveItemId(item.Id)"
+                                    class="data-repeater-list-item"
+                                    tabindex="0">
+                                    <span class="data-repeater-list-item--title">{{ selectedStream.ItemIdName }}: {{ item.ItemId }}</span>
+                                    <span v-if="item.Summary" class="data-repeater-list-item--summary">{{ item.Summary }}</span>
+                                    <div class="data-repeater-list-item--tags" v-if="item.Tags && item.Tags.length > 0">
+                                        <div class="data-repeater-list-item--tag">{{ item.Tags.join(', ') }}</div>
                                     </div>
                                 </div>
                                 
@@ -179,6 +204,18 @@ export default class DataRepeaterPageComponent extends Vue {
         });
     }
 
+    get detectedTags(): Array<string>
+    {
+        if (!this.items) return [];
+        let tags: Set<string> = new Set<string>();
+        this.items.forEach(x => {
+            x.Tags.forEach(t => {
+                tags.add(t);
+            })
+        });
+        return Array.from(tags);
+    }
+
     ////////////////////
     //  Parent Menu  //
     //////////////////
@@ -253,7 +290,7 @@ export default class DataRepeaterPageComponent extends Vue {
 
         this.service.GetStreamItemsPaged({
             StreamId: this.selectedStream.Id,
-            ItemId: this.filterItemId,
+            Filter: this.filterItemId,
             PageIndex: this.pageIndex,
             PageSize: this.pageSize,
             Tags: this.filterTags
@@ -330,18 +367,66 @@ export default class DataRepeaterPageComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.filter-choice {
-    &.selected {
-        color: #fff;
-        font-weight: 600;
-    }
-}
 .menu {
     box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 @media (max-width: 960px) {
     .menu-items { 
         margin-top: 67px;
+    }
+}
+.data-repeater-filters {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    .v-text-field {
+        margin-right: 10px;
+    }
+}
+.data-repeater-list-item {
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 5px;
+    align-items: baseline;
+    &:not(:first-child)
+    {
+        border-top: 1px solid gray;
+    }
+    &:nth-child(even)
+    {
+        background-color: #eee;
+    }
+    &:hover {
+        background-color: #ddd;
+    }
+    &:focus, :active {
+        background-color: #d5d5d5;
+    }
+    &--title {
+        font-weight: 600;
+        margin-right: 10px;
+    }
+    &--summary {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        margin-right: 10px;
+        font-size: 12px;
+    }
+    &--tags {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    &--tag {
+        padding: 3px 6px;
+        background-color: #dcdcdc;
+        border-radius: 3px;
+        margin-right: 5px;
+        margin-top: 5px;
+        font-size: 12px;
     }
 }
 </style>

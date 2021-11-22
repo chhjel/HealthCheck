@@ -137,8 +137,10 @@ namespace HealthCheck.Episerver.Storage
         {
             var items = GetItems()
                 .Where(x => 
-                    (string.IsNullOrWhiteSpace(model.ItemId) || x.ItemId?.Contains(model.ItemId) == true)
-                    && (model.Tags?.Any() != true || x.Tags?.Any(t => model.Tags?.Contains(t) == true) == true))
+                    (string.IsNullOrWhiteSpace(model.Filter)
+                    || x.ItemId?.ToLower()?.Contains(model.Filter?.ToLower()) == true
+                    || x.Summary?.ToLower()?.Contains(model.Filter?.ToLower()) == true)
+                    && (model.Tags?.Any() != true || x.Tags?.Any(t => model.Tags?.Any(tt => tt?.ToLower() == t.ToLower()) == true) == true))
                 .OfType<IHCDataRepeaterStreamItem>()
                 .Skip(model.PageIndex * model.PageSize)
                 .Take(model.PageSize);

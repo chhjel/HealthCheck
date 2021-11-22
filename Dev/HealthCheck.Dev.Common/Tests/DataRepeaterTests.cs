@@ -55,7 +55,7 @@ namespace HealthCheck.Dev.Common.Tests
             {
                 var order = new DummyOrder
                 {
-                    OrderNumber = $"X{(88888 + i)}",
+                    OrderNumber = $"X{(80088888 + i)}",
                     Amount = (888 + (i * 32.25m))
                 };
 

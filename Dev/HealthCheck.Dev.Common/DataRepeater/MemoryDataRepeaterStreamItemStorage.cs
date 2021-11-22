@@ -104,7 +104,11 @@ namespace HealthCheck.Dev.Common.DataRepeater
             var relevant = _items.Where(x => x.Key.StartsWith($"{_prefix}_"));
             var items = relevant
                 .Select(x => x.Value)
-                .Where(x => x.ItemId.Contains(model.ItemId) || x.Tags.Any(t => model.Tags.Contains(t)))
+                .Where(x =>
+                    (string.IsNullOrWhiteSpace(model.Filter)
+                    || x.ItemId?.ToLower()?.Contains(model.Filter?.ToLower()) == true
+                    || x.Summary?.ToLower()?.Contains(model.Filter?.ToLower()) == true)
+                    && (model.Tags?.Any() != true || x.Tags?.Any(t => model.Tags?.Any(tt => tt?.ToLower() == t.ToLower()) == true) == true))
                 .Skip(model.PageIndex * model.PageSize)
                 .Take(model.PageSize);
             var result = new HCDataRepeaterStreamItemsPagedModel

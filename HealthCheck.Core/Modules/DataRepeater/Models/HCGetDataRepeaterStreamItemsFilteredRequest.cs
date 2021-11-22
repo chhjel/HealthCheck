@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace HealthCheck.Core.Modules.DataRepeater.Models
 {
     /// <summary>
-    /// Filter model sent to <see cref="IHCDataRepeaterStream.GetItemsPagedAsync"/>
+    /// Filter model sent to <see cref="IHCDataRepeaterStreamItemStorage.GetItemsPagedAsync"/>
     /// </summary>
     public class HCGetDataRepeaterStreamItemsFilteredRequest
     {
@@ -14,9 +14,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public string StreamId { get; set; }
 
         /// <summary>
-        /// Item id to search for.
+        /// Text to search for.
         /// </summary>
-        public string ItemId { get; set; }
+        public string Filter { get; set; }
 
         /// <summary>
         /// Page index to start at.
