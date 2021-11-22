@@ -51,9 +51,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         List<string> InitiallySelectedTags { get; }
 
         /// <summary>
-        /// List of tags that can be applied manually in the UI.
+        /// List of tags that can be filtered on in the UI.
         /// </summary>
-        List<string> ManuallyAllowedTags { get; }
+        List<string> FilterableTags { get; }
 
         /// <summary>
         /// Optional extra actions that can be executed on items.

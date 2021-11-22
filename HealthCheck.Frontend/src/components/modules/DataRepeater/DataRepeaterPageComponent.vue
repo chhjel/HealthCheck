@@ -43,7 +43,7 @@
                                         v-model="filterTags"
                                         @blur="loadCurrentStreamItems"
                                         @keyup.enter="loadCurrentStreamItems"
-                                        :items="detectedTags"
+                                        :items="tagPresets"
                                         label="Included tags"
                                         multiple
                                         chips
@@ -71,16 +71,20 @@
                             </v-alert>
 
                             <div v-if="selectedStream && selectedItemId == null">
+                                <p>{{ totalResultCount}} matches</p>
+
                                 <div v-for="(item, iIndex) in items"
                                     :key="`item-${iIndex}-${item.Id}`"
                                     @click="setActiveItemId(item.Id)"
                                     @keyup.enter="setActiveItemId(item.Id)"
                                     class="data-repeater-list-item"
                                     tabindex="0">
-                                    <span class="data-repeater-list-item--title">{{ selectedStream.ItemIdName }}: {{ item.ItemId }}</span>
+                                    <span class="data-repeater-list-item--title">{{ item.ItemId }}</span>
                                     <span v-if="item.Summary" class="data-repeater-list-item--summary">{{ item.Summary }}</span>
-                                    <div class="data-repeater-list-item--tags" v-if="item.Tags && item.Tags.length > 0">
-                                        <div class="data-repeater-list-item--tag">{{ item.Tags.join(', ') }}</div>
+                                    <div class="data-repeater-list-item--tags">
+                                        <div class="data-repeater-list-item--tag"
+                                            v-for="(tag, tIndex) in item.Tags"
+                                            :key="`item-${iIndex}-${item.Id}-tag-${tIndex}`">{{ tag }}</div>
                                     </div>
                                 </div>
                                 
@@ -154,6 +158,7 @@ export default class DataRepeaterPageComponent extends Vue {
     selectedItemId: string | null = null;
     actionParameters: any = {}; //Array<string> = [];
     items: Array<HCDataRepeaterStreamItemViewModel> = [];
+    tagPresets: Array<string> = [];
 
     // Filter/pagination
     pageIndex: number = 0;
@@ -204,18 +209,6 @@ export default class DataRepeaterPageComponent extends Vue {
         });
     }
 
-    get detectedTags(): Array<string>
-    {
-        if (!this.items) return [];
-        let tags: Set<string> = new Set<string>();
-        this.items.forEach(x => {
-            x.Tags.forEach(t => {
-                tags.add(t);
-            })
-        });
-        return Array.from(tags);
-    }
-
     ////////////////////
     //  Parent Menu  //
     //////////////////
@@ -234,6 +227,8 @@ export default class DataRepeaterPageComponent extends Vue {
     resetFilter(): void {
         this.pageIndex = 0;
         this.pageSize = 50;
+        this.tagPresets = this.selectedStream?.FilterableTags || [];
+        this.filterTags = this.selectedStream?.InitiallySelectedTags || [];
     }
 
     loadStreamDefinitions(): void {

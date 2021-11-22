@@ -61,6 +61,7 @@ namespace HealthCheck.Dev.Common.Tests
 
                 var item1 = TestOrderStreamItem.CreateFrom(order, order.OrderNumber,
                     $"{order.Amount}$ from \"Jimmy Smithy\"");
+                item1.Tags.Add("Failed");
                 await stream1.StoreItemAsync(item1);
 
                 var item2 = TestXStreamItem.CreateFrom(new DummyX { Id = i.ToString(), Value = i + 123 }, i.ToString());

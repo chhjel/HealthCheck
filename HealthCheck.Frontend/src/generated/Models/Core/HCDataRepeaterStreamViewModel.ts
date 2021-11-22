@@ -13,5 +13,7 @@ export interface HCDataRepeaterStreamViewModel
 	RetryActionName: string;
 	RetryDescription: string;
 	GroupName: string;
+	InitiallySelectedTags: string[];
+	FilterableTags: string[];
 	Actions: HCDataRepeaterStreamActionViewModel[];
 }

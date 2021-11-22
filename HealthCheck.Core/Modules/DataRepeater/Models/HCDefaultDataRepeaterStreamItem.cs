@@ -46,7 +46,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public DateTimeOffset? LastActionAt { get; set; }
 
         /// <inheritdoc />
-        public HashSet<string> Tags { get; set; }
+        public HashSet<string> Tags { get; set; } = new();
 
         /// <inheritdoc />
         public string InitialError { get; set; }

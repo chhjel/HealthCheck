@@ -35,10 +35,10 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         public abstract string RetryDescription { get; }
 
         /// <inheritdoc />
-        public virtual List<string> InitiallySelectedTags { get; }
+        public abstract List<string> InitiallySelectedTags { get; }
 
         /// <inheritdoc />
-        public virtual List<string> ManuallyAllowedTags { get; }
+        public abstract List<string> FilterableTags { get; }
 
         /// <inheritdoc />
         public abstract List<IHCDataRepeaterStreamItemAction> Actions { get; }

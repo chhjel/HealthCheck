@@ -15,7 +15,8 @@ namespace HealthCheck.Dev.Common.DataRepeater
         public override string ItemIdDisplayName => "Order number";
         public override string RetryActionName => "Retry capture";
         public override string RetryDescription => "Attempts to perform the capture action again.";
-        public override List<string> InitiallySelectedTags => new List<string> { "Retry allowed" };
+        public override List<string> InitiallySelectedTags => new List<string> { "Failed" };
+        public override List<string> FilterableTags => new List<string> { "Failed", "Something", "Retried" };
         public override List<IHCDataRepeaterStreamItemAction> Actions => new List<IHCDataRepeaterStreamItemAction>
         {
             new TestOrderDataRepeaterStreamItemActionToggleAllow(),

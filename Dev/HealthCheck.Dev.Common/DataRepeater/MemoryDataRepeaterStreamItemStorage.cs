@@ -19,14 +19,20 @@ namespace HealthCheck.Dev.Common.DataRepeater
 
         public Task StoreItemAsync(IHCDataRepeaterStreamItem item, object hint = null)
         {
-            _items[$"{_prefix}_{item.Id}"] = item;
-            return Task.CompletedTask;
+            lock(_items)
+            {
+                _items[$"{_prefix}_{item.Id}"] = item;
+                return Task.CompletedTask;
+            }
         }
 
         public Task UpdateItemAsync(IHCDataRepeaterStreamItem item)
         {
-            _items[$"{_prefix}_{item.Id}"] = item;
-            return Task.CompletedTask;
+            lock (_items)
+            {
+                _items[$"{_prefix}_{item.Id}"] = item;
+                return Task.CompletedTask;
+            }
         }
 
         public async Task AddItemTagAsync(Guid id, string tag)
@@ -82,41 +88,53 @@ namespace HealthCheck.Dev.Common.DataRepeater
 
         public Task DeleteItemAsync(Guid id)
         {
-            _items.Remove($"{_prefix}_{id}");
-            return Task.CompletedTask;
+            lock (_items)
+            {
+                _items.Remove($"{_prefix}_{id}");
+                return Task.CompletedTask;
+            }
         }
 
         public Task<IHCDataRepeaterStreamItem> GetItemAsync(Guid id)
         {
-            var item = _items.ContainsKey($"{_prefix}_{id}") ? _items[$"{_prefix}_{id}"] : null;
-            return Task.FromResult(item);
+            lock (_items)
+            {
+                var item = _items.ContainsKey($"{_prefix}_{id}") ? _items[$"{_prefix}_{id}"] : null;
+                return Task.FromResult(item);
+            }
         }
 
         public Task<IHCDataRepeaterStreamItem> GetItemByItemIdAsync(string itemId)
         {
-            var item = _items.Where(x => x.Key.StartsWith($"{_prefix}"))
-                .FirstOrDefault(x => x.Value.ItemId == itemId).Value;
-            return Task.FromResult(item);
+            lock (_items)
+            {
+                var item = _items.Where(x => x.Key.StartsWith($"{_prefix}"))
+                    .FirstOrDefault(x => x.Value.ItemId == itemId).Value;
+                return Task.FromResult(item);
+            }
         }
 
         public Task<HCDataRepeaterStreamItemsPagedModel> GetItemsPagedAsync(HCGetDataRepeaterStreamItemsFilteredRequest model)
         {
-            var relevant = _items.Where(x => x.Key.StartsWith($"{_prefix}_"));
-            var items = relevant
-                .Select(x => x.Value)
-                .Where(x =>
-                    (string.IsNullOrWhiteSpace(model.Filter)
-                    || x.ItemId?.ToLower()?.Contains(model.Filter?.ToLower()) == true
-                    || x.Summary?.ToLower()?.Contains(model.Filter?.ToLower()) == true)
-                    && (model.Tags?.Any() != true || x.Tags?.Any(t => model.Tags?.Any(tt => tt?.ToLower() == t.ToLower()) == true) == true))
-                .Skip(model.PageIndex * model.PageSize)
-                .Take(model.PageSize);
-            var result = new HCDataRepeaterStreamItemsPagedModel
+            lock (_items)
             {
-                TotalCount = relevant.Count(),
-                Items = items
-            };
-            return Task.FromResult(result);
+                var matches = _items.Where(x => x.Key.StartsWith($"{_prefix}_"))
+                    .Select(x => x.Value)
+                    .Where(x =>
+                        (string.IsNullOrWhiteSpace(model.Filter)
+                        || x.ItemId?.ToLower()?.Contains(model.Filter?.ToLower()) == true
+                        || x.Summary?.ToLower()?.Contains(model.Filter?.ToLower()) == true)
+                        && (model.Tags?.Any() != true || x.Tags?.Any(t => model.Tags?.Any(tt => tt?.ToLower() == t.ToLower()) == true) == true));
+                var items = matches
+                    .Skip(model.PageIndex * model.PageSize)
+                    .Take(model.PageSize);
+                var result = new HCDataRepeaterStreamItemsPagedModel
+                {
+                    TotalCount = matches.Count(),
+                    Items = items
+                };
+                return Task.FromResult(result);
+            }
         }
     }
 }

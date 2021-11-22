@@ -26,6 +26,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// <summary></summary>
         public string GroupName { get; set; }
 
+        /// <inheritdoc />
+        public virtual List<string> InitiallySelectedTags { get; set; } = new();
+
+        /// <inheritdoc />
+        public virtual List<string> FilterableTags { get; set; } = new();
+
         /// <summary></summary>
         public List<HCDataRepeaterStreamActionViewModel> Actions { get; set; } = new();
     }

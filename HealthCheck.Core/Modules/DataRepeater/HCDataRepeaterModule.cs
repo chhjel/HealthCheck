@@ -78,7 +78,9 @@ namespace HealthCheck.Core.Modules.DataRepeater
                     ItemIdName = stream.ItemIdDisplayName,
                     GroupName = stream.StreamGroupName,
                     RetryActionName = stream.RetryActionName,
-                    RetryDescription = stream.RetryDescription
+                    RetryDescription = stream.RetryDescription,
+                    FilterableTags = stream.FilterableTags ?? new(),
+                    InitiallySelectedTags = stream.InitiallySelectedTags ?? new()
                 };
                 model.Streams.Add(streamModel);
                 foreach (var action in actions)

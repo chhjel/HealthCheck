@@ -24,9 +24,14 @@
             <p v-if="item.Summary">{{ item.Summary }}</p>
             <p v-if="details && details.Description">{{ details.Description }}</p>
 
-            <div v-if="item.InitialError">
-                <h3 class="mt-2">Initial error</h3>
-                <code>{{ item.InitialError }}</code>
+            <div v-if="details && details.Links && details.Links.length > 0">
+                <h3 class="mt-2">Links</h3>
+                <ul>
+                    <li v-for="(link, lIndex) in details.Links"
+                        :key="`link-${item.Id}-${lIndex}`">
+                        <a :href="link.Url" target="_blank">{{ link.Text }}</a>
+                    </li>
+                </ul>
             </div>
 
             <div>
@@ -38,18 +43,12 @@
                     <li v-if="item.LastRetriedAt"><b>Last retried: </b>{{ item.LastRetriedAt }}</li>
                     <li v-if="item.LastRetryWasSuccessful != null"><b>Last retry was success: </b>{{ item.LastRetryWasSuccessful }}</li>
                     <li v-if="item.LastActionAt"><b>Last action: </b>{{ item.LastActionAt }}</li>
-                    <li v-if="item.LastActionWasSuccessful != null"><b>Last action was success: </b>{{ item.LastActionWasSuccessful }}</li>
                 </ul>
             </div>
 
-            <div v-if="details && details.Links && details.Links.length > 0">
-                <h3 class="mt-2">Links</h3>
-                <ul>
-                    <li v-for="(link, lIndex) in details.Links"
-                        :key="`link-${item.Id}-${lIndex}`">
-                        <a :href="link.Url" target="_blank">{{ link.Text }}</a>
-                    </li>
-                </ul>
+            <div v-if="item.InitialError">
+                <h3 class="mt-2">Initial error</h3>
+                <code>{{ item.InitialError }}</code>
             </div>
 
             <div v-if="item.Log && item.Log.length > 0">

@@ -34,11 +34,6 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public DateTimeOffset? LastActionAt { get; set; }
 
         /// <summary>
-        /// Was the last action successful?
-        /// </summary>
-        public bool LastActionWasSuccessful { get; set; }
-
-        /// <summary>
         /// Optional id of the serialized data.
         /// </summary>
         public string ItemId { get; set; }

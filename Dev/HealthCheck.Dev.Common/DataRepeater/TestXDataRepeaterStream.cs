@@ -15,6 +15,8 @@ namespace HealthCheck.Dev.Common.DataRepeater
         public override string RetryActionName => "Retry";
         public override string RetryDescription => null;
         public override List<string> InitiallySelectedTags => new List<string> { };
+        public override List<string> FilterableTags => new List<string> { };
+
         public override List<IHCDataRepeaterStreamItemAction> Actions => new List<IHCDataRepeaterStreamItemAction>
         {
             new TestOrderDataRepeaterStreamItemActionRemoveAllTags()

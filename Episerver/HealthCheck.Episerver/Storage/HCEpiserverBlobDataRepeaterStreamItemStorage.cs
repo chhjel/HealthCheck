@@ -135,18 +135,19 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public Task<HCDataRepeaterStreamItemsPagedModel> GetItemsPagedAsync(HCGetDataRepeaterStreamItemsFilteredRequest model)
         {
-            var items = GetItems()
-                .Where(x => 
+            var matches = GetItems()
+                .Where(x =>
                     (string.IsNullOrWhiteSpace(model.Filter)
                     || x.ItemId?.ToLower()?.Contains(model.Filter?.ToLower()) == true
                     || x.Summary?.ToLower()?.Contains(model.Filter?.ToLower()) == true)
                     && (model.Tags?.Any() != true || x.Tags?.Any(t => model.Tags?.Any(tt => tt?.ToLower() == t.ToLower()) == true) == true))
-                .OfType<IHCDataRepeaterStreamItem>()
+                .OfType<IHCDataRepeaterStreamItem>();
+            var items = matches
                 .Skip(model.PageIndex * model.PageSize)
                 .Take(model.PageSize);
             var result = new HCDataRepeaterStreamItemsPagedModel
             {
-                TotalCount = GetItems().Count(),
+                TotalCount = matches.Count(),
                 Items = items
             };
             return Task.FromResult(result);
