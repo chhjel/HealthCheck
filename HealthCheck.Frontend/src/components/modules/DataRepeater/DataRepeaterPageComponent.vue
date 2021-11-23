@@ -119,6 +119,7 @@
                                     :itemId="selectedItemId"
                                     :stream="selectedStream"
                                     :config="config"
+                                    :options="options"
                                     @change="onItemUpdated"
                                     @close="setActiveItemId(null)" />
                             </div>

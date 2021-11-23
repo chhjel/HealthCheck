@@ -84,7 +84,7 @@
                     v-model="item.SerializedDataOverride"
                     ref="editor" />
 
-                <div v-if="item.SerializedDataOverride && item.SerializedDataOverride != this.item.SerializedData">
+                <div v-if="item.SerializedDataOverride && item.SerializedDataOverride != this.item.SerializedData && hasAccessToRetry">
                     <a href="#" @click.prevent="restoreOriginalData" class="right">Restore original data</a>
                 </div>
 
@@ -97,7 +97,7 @@
             </div>
 
             <!-- ACTION PARAMETERS -->
-            <div v-if="stream.Actions && stream.Actions.length > 0">
+            <div v-if="stream.Actions && stream.Actions.length > 0 && hasAccessToExecuteItemActions">
                 <h2 class="mt-4">Actions</h2>
                 <div v-for="(action, aIndex) in stream.Actions"
                     :key="`action-${aIndex}-${action.Id}`"
@@ -128,6 +128,7 @@ import { HCDataRepeaterRetryResult } from "generated/Models/Core/HCDataRepeaterR
 import EditorComponent from "components/Common/EditorComponent.vue";
 import { HCDataRepeaterStreamItemDetailsViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemDetailsViewModel";
 import DateUtils from "util/DateUtils";
+import ModuleOptions from "models/Common/ModuleOptions";
 
 @Component({
     components: {
@@ -139,6 +140,9 @@ import DateUtils from "util/DateUtils";
 export default class DataRepeaterItemComponent extends Vue {
     @Prop({ required: true })
     config!: ModuleConfig;
+    
+    @Prop({ required: true })
+    options!: ModuleOptions<any>;
 
     @Prop({ required: true })
     stream!: HCDataRepeaterStreamViewModel;
@@ -180,7 +184,16 @@ export default class DataRepeaterItemComponent extends Vue {
     get retryAllowed(): boolean {
         return !this.dataLoadStatus.inProgress
             && !!this.item
-            && this.item.AllowRetry;
+            && this.item.AllowRetry
+            && this.hasAccessToRetry;
+    }
+
+    get hasAccessToRetry(): boolean {
+        return this.options.AccessOptions.indexOf("RetryItems") != -1;
+    }
+
+    get hasAccessToExecuteItemActions(): boolean {
+        return this.options.AccessOptions.indexOf("ExecuteItemActions") != -1;
     }
 
     ////////////////
