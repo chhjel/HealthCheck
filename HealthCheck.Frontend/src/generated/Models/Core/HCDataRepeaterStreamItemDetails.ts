@@ -6,6 +6,6 @@ import { HCDataRepeaterStreamItemHyperLink } from './HCDataRepeaterStreamItemHyp
 
 export interface HCDataRepeaterStreamItemDetails
 {
-	Description: string;
+	DescriptionHtml: string;
 	Links: HCDataRepeaterStreamItemHyperLink[];
 }

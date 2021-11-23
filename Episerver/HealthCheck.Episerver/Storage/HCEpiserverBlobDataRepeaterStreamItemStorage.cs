@@ -49,6 +49,7 @@ namespace HealthCheck.Episerver.Storage
             _blobHelper = new HCEpiserverBlobHelper<HCDataRepeaterBlobData>(blobFactory, () => ContainerId, () => ProviderName);
             BlobUpdateBufferDuration = TimeSpan.FromSeconds(30);
             SupportsMaxItemAge = true;
+            SupportsExpirationTime = true;
         }
 
         #region IHCDataRepeaterStreamItemStorage Implementation
@@ -133,6 +134,17 @@ namespace HealthCheck.Episerver.Storage
         }
 
         /// <inheritdoc />
+        public async Task SetItemExpirationTimeAsync(Guid id, DateTimeOffset? time)
+        {
+            var item = await GetItemAsync(id).ConfigureAwait(false);
+            if (item != null && item.ExpirationTime != time)
+            {
+                item.ExpirationTime = time;
+                await UpdateItemAsync(item).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc />
         public Task<HCDataRepeaterStreamItemsPagedModel> GetItemsPagedAsync(HCGetDataRepeaterStreamItemsFilteredRequest model)
         {
             var matches = GetItems()
@@ -157,6 +169,9 @@ namespace HealthCheck.Episerver.Storage
 
         /// <inheritdoc />
         protected override DateTimeOffset GetItemTimestamp(TItem item) => item.InsertedAt;
+
+        /// <inheritdoc />
+        protected override DateTimeOffset? GetExpirationTime(TItem item) => item.ExpirationTime;
 
         /// <inheritdoc />
         protected override HCDataRepeaterBlobData RetrieveBlobData() => _blobHelper.RetrieveBlobData();

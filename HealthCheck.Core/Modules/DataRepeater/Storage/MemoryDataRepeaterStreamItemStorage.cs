@@ -5,18 +5,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HealthCheck.Dev.Common.DataRepeater
+namespace HealthCheck.Core.Modules.DataRepeater.Storage
 {
+    /// <summary>
+    /// Stores datarepeater items in memory only.
+    /// <para>Mostly for dev usage.</para>
+    /// </summary>
     public class MemoryDataRepeaterStreamItemStorage : IHCDataRepeaterStreamItemStorage
     {
         private static Dictionary<string, IHCDataRepeaterStreamItem> _items = new Dictionary<string, IHCDataRepeaterStreamItem>();
         private readonly string _prefix;
 
+        /// <summary>
+        /// Stores datarepeater items in memory only.
+        /// <para>Mostly for dev usage.</para>
+        /// </summary>
+        /// <param name="prefix">Prefix to store items by, set to something unique per stream using this storage.</param>
         public MemoryDataRepeaterStreamItemStorage(string prefix)
         {
             _prefix = prefix;
         }
 
+        /// <inheritdoc />
         public Task StoreItemAsync(IHCDataRepeaterStreamItem item, object hint = null)
         {
             lock(_items)
@@ -26,6 +36,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
             }
         }
 
+        /// <inheritdoc />
         public Task UpdateItemAsync(IHCDataRepeaterStreamItem item)
         {
             lock (_items)
@@ -35,6 +46,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
             }
         }
 
+        /// <inheritdoc />
         public async Task AddItemTagAsync(Guid id, string tag)
         {
             var item = await GetItemAsync(id);
@@ -48,6 +60,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
             await UpdateItemAsync(item);
         }
 
+        /// <inheritdoc />
         public async Task RemoveItemTagAsync(Guid id, string tag)
         {
             var item = await GetItemAsync(id);
@@ -61,6 +74,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
             await UpdateItemAsync(item);
         }
 
+        /// <inheritdoc />
         public async Task RemoveAllItemTagsAsync(Guid id)
         {
             var item = await GetItemAsync(id);
@@ -74,6 +88,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
             await UpdateItemAsync(item);
         }
 
+        /// <inheritdoc />
         public async Task SetAllowItemRetryAsync(Guid id, bool allow)
         {
             var item = await GetItemAsync(id);
@@ -86,6 +101,20 @@ namespace HealthCheck.Dev.Common.DataRepeater
             await UpdateItemAsync(item);
         }
 
+        /// <inheritdoc />
+        public async Task SetItemExpirationTimeAsync(Guid id, DateTimeOffset? time)
+        {
+            var item = await GetItemAsync(id);
+            if (item == null || item.ExpirationTime == time)
+            {
+                return;
+            }
+
+            item.ExpirationTime = time;
+            await UpdateItemAsync(item);
+        }
+
+        /// <inheritdoc />
         public Task DeleteItemAsync(Guid id)
         {
             lock (_items)
@@ -95,6 +124,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
             }
         }
 
+        /// <inheritdoc />
         public Task<IHCDataRepeaterStreamItem> GetItemAsync(Guid id)
         {
             lock (_items)
@@ -104,6 +134,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
             }
         }
 
+        /// <inheritdoc />
         public Task<IHCDataRepeaterStreamItem> GetItemByItemIdAsync(string itemId)
         {
             lock (_items)
@@ -114,6 +145,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
             }
         }
 
+        /// <inheritdoc />
         public Task<HCDataRepeaterStreamItemsPagedModel> GetItemsPagedAsync(HCGetDataRepeaterStreamItemsFilteredRequest model)
         {
             lock (_items)

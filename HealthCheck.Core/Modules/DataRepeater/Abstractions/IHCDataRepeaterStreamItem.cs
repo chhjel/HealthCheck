@@ -35,6 +35,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         DateTimeOffset? LastActionAt { get; set; }
 
         /// <summary>
+        /// Optional time when this item should be deleted after.
+        /// <para>Only takes effect if a storage implementation with support for it is used.</para>
+        /// </summary>
+        DateTimeOffset? ExpirationTime { get; set; }
+
+        /// <summary>
         /// Optional id of the serialized data.
         /// </summary>
         string ItemId { get; set; }

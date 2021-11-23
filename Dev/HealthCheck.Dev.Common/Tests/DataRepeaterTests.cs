@@ -2,7 +2,6 @@
 using HealthCheck.Core.Modules.DataRepeater.Utils;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
-using HealthCheck.Core.Util;
 using HealthCheck.Dev.Common.DataRepeater;
 using HealthCheck.WebUI.Extensions;
 using System;
@@ -41,14 +40,14 @@ namespace HealthCheck.Dev.Common.Tests
             var stream1 = new TestOrderDataRepeaterStream();
             var stream2 = new TestXDataRepeaterStream();
 
-            string dummyError = null;
+            Exception dummyError = null;
             try
             {
                 int.Parse("asd");
             }
             catch (Exception ex)
             {
-                dummyError = ExceptionUtils.GetFullExceptionDetails(ex);
+                dummyError = ex;
             }
 
             for (int i = 0; i < count; i++)
@@ -64,8 +63,8 @@ namespace HealthCheck.Dev.Common.Tests
                 item1.Tags.Add("Failed");
                 await stream1.StoreItemAsync(item1);
 
-                var item2 = TestXStreamItem.CreateFrom(new DummyX { Id = i.ToString(), Value = i + 123 }, i.ToString());
-                item2.InitialError = dummyError;
+                var item2 = TestXStreamItem.CreateFrom(new DummyX { Id = i.ToString(), Value = i + 123 }, i.ToString())
+                    .SetInitialError("Hmm something happened.", dummyError);
                 await stream2.StoreItemAsync(item2);
             }
 

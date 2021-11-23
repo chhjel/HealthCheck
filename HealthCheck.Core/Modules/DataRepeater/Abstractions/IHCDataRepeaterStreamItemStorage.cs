@@ -55,6 +55,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         Task SetAllowItemRetryAsync(Guid id, bool allow);
 
         /// <summary>
+        /// Set a time when the item should be deleted after.
+        /// <para>Set to null to not expire.</para>
+        /// </summary>
+        Task SetItemExpirationTimeAsync(Guid id, DateTimeOffset? time);
+
+        /// <summary>
         /// Get stream items with filter and paging.
         /// </summary>
         Task<HCDataRepeaterStreamItemsPagedModel> GetItemsPagedAsync(HCGetDataRepeaterStreamItemsFilteredRequest model);

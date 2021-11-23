@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Config;
 using HealthCheck.Core.Modules.DataRepeater.Abstractions;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,6 +45,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
 
         /// <inheritdoc />
         public DateTimeOffset? LastActionAt { get; set; }
+
+        /// <inheritdoc />
+        public DateTimeOffset? ExpirationTime { get; set; }
 
         /// <inheritdoc />
         public HashSet<string> Tags { get; set; } = new();
@@ -98,7 +102,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// <typeparamref name="TData"/> must be serializable. Can be a string or complex object.
         /// </summary>
         public static TSelf CreateFrom(TData data, string itemId, string summary = null,
-            string initialError = null, IEnumerable<string> tags = null, bool allowRetry = true)
+            IEnumerable<string> tags = null, bool allowRetry = true, string initialError = null, Exception initialErrorException = null)
         {
             string serializedData = null;
             if (data != null)
@@ -106,6 +110,19 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
                 serializedData = typeof(TData) == typeof(string)
                     ? data as string
                     : HCGlobalConfig.Serializer.Serialize(data, pretty: true);
+            }
+
+            if (initialErrorException != null)
+            {
+                if (initialError != null)
+                {
+                    initialError += "\n\n";
+                }
+                else
+                {
+                    initialError = "";
+                }
+                initialError += ExceptionUtils.GetFullExceptionDetails(initialErrorException);
             }
 
             return new()
@@ -119,6 +136,30 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
                 InsertedAt = DateTimeOffset.Now,
                 InitialError = initialError
             };
+        }
+
+        /// <summary>
+        /// Sets <see cref="InitialError"/> to the given message and optionally include exception details.
+        /// </summary>
+        public TSelf SetInitialError(string error, Exception exception = null)
+        {
+            InitialError = error;
+            if (exception != null)
+            {
+                InitialError += $"\n\n{ExceptionUtils.GetFullExceptionDetails(exception)}";
+            }
+            return this as TSelf;
+        }
+
+        /// <summary>
+        /// Optional time when this item should be deleted after.
+        /// <para>Only takes effect if a storage implementation with support for it is used.</para>
+        /// <para>Set to null to not expire it.</para>
+        /// </summary>
+        public TSelf SetExpirationTime(DateTimeOffset? time)
+        {
+            ExpirationTime = time;
+            return this as TSelf;
         }
     }
 }

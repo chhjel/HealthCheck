@@ -75,7 +75,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         }
 
         /// <summary>
-        /// Store a new item. <see cref="AnalyzeItemAsync"/> has already been called on it, and any tags added.
+        /// Store a new item. Calls first <see cref="AnalyzeItemAsync"/> if <see cref="AnalyzeOnStoreNew"/> is enabled and applies any resulting changes.
         /// </summary>
         public virtual async Task StoreItemAsync(IHCDataRepeaterStreamItem item, object hint = null)
         {

@@ -73,6 +73,65 @@ namespace HealthCheck.Episerver.Tests.Storage
         }
 
         [Fact]
+        public async Task StoreItem_WithExpirationTimeBackInTime_RemovesItems()
+        {
+            var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
+            var storage = CreateStorage(() => blob)
+                .SetMaxItemAge(TimeSpan.FromDays(1))
+                as StorageImplementation;
+            storage.MaxBufferSize = 500;
+            storage.BlobUpdateBufferDuration = TimeSpan.FromDays(1);
+
+            var tasks = new List<Task>();
+            for (int i = 0; i < 100; i++)
+            {
+                var data = new StreamItemData { SomeId = i.ToString(), AnotherThing = i % 2 == 0, SomeValue = i * 25m };
+                var item = StreamItem.CreateFrom(data, data.SomeId);
+                if (i % 2 == 0)
+                {
+                    item.SetExpirationTime(DateTimeOffset.Now.AddMinutes(-5));
+                }
+                tasks.Add(storage.StoreItemAsync(item));
+            }
+            await Task.WhenAll(tasks);
+            storage.ForceBufferCallback();
+
+            var items = (await storage.GetItemsPagedAsync(new HCGetDataRepeaterStreamItemsFilteredRequest
+            { PageIndex = 0, PageSize = int.MaxValue })).Items.ToList();
+            Assert.All(items, x => Assert.NotNull(x));
+            Assert.Equal(50, items.Count);
+        }
+
+        [Fact]
+        public async Task StoreItem_WithExpirationTimeAheadInTime_KeepsItems()
+        {
+            var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
+            var storage = CreateStorage(() => blob)
+                .SetMaxItemAge(TimeSpan.FromDays(1))
+                as StorageImplementation;
+            storage.MaxBufferSize = 500;
+            storage.BlobUpdateBufferDuration = TimeSpan.FromDays(1);
+
+            var tasks = new List<Task>();
+            for (int i = 0; i < 100; i++)
+            {
+                var data = new StreamItemData { SomeId = i.ToString(), AnotherThing = i % 2 == 0, SomeValue = i * 25m };
+                var item = StreamItem.CreateFrom(data, data.SomeId);
+                if (i % 2 == 0)
+                {
+                    item.SetExpirationTime(DateTimeOffset.Now.AddMinutes(5));
+                }
+                tasks.Add(storage.StoreItemAsync(item));
+            }
+            await Task.WhenAll(tasks);
+            storage.ForceBufferCallback();
+
+            var items = (await storage.GetItemsPagedAsync(new HCGetDataRepeaterStreamItemsFilteredRequest
+            { PageIndex = 0, PageSize = int.MaxValue })).Items.ToList();
+            Assert.Equal(100, items.Count);
+        }
+
+        [Fact]
         public async Task AddItemTag_TwiceOnSameItem_UpdatesIt()
         {
             var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
