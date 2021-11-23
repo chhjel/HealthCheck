@@ -16,6 +16,8 @@ namespace HealthCheck.Dev.Common.DataRepeater
         public override string RetryDescription => null;
         public override List<string> InitiallySelectedTags => new List<string> { };
         public override List<string> FilterableTags => new List<string> { };
+        public override object AllowedAccessRoles => RuntimeTestAccessRole.SystemAdmins;
+        public override List<string> Categories => new List<string> { "TestX" };
 
         public override List<IHCDataRepeaterStreamItemAction> Actions => new List<IHCDataRepeaterStreamItemAction>
         {
@@ -30,7 +32,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
         {
             var details = new HCDataRepeaterStreamItemDetails
             {
-                Description = "Description here",
+                DescriptionHtml = "Description here",
                 Links = new List<HCDataRepeaterStreamItemHyperLink>
                 {
                     new HCDataRepeaterStreamItemHyperLink("Test link", "/etc"),

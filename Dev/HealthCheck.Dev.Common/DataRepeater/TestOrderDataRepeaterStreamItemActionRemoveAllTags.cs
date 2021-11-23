@@ -14,6 +14,10 @@ namespace HealthCheck.Dev.Common.DataRepeater
         public override string Description => "Removes all tags from the item.";
 
         public override string ExecuteButtonLabel => "Remove tags";
+        
+        public override object AllowedAccessRoles => RuntimeTestAccessRole.SystemAdmins;
+
+        public override List<string> Categories => new List<string> { "Secret actions" };
 
         protected override Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStreamItem item, Parameters parameters)
         {

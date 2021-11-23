@@ -11,7 +11,6 @@ export interface HCDataRepeaterStreamItemViewModel
 	LastRetriedAt: Date;
 	LastRetryWasSuccessful: boolean;
 	LastActionAt: Date;
-	LastActionWasSuccessful: boolean;
 	ItemId: string;
 	Summary: string;
 	AllowRetry: boolean;

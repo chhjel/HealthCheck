@@ -18,65 +18,78 @@
         
         <v-btn @click="$emit('close')" v-if="itemNotFound">Close</v-btn>
         
-        <div v-if="item">
+        <div v-if="item" class="data-repeater-item">
             <v-btn @click="$emit('close')" class="right">Close</v-btn>
-            <h2>{{ stream.ItemIdName }}: {{ item.ItemId }}</h2>
+            <h1>{{ stream.ItemIdName }}: {{ item.ItemId }}</h1>
             <p v-if="item.Summary">{{ item.Summary }}</p>
-            <p v-if="details && details.Description">{{ details.Description }}</p>
+            <p v-if="details && details.Description" v-html="details.Description"></p>
 
-            <div v-if="details && details.Links && details.Links.length > 0">
-                <h3 class="mt-2">Links</h3>
-                <ul>
-                    <li v-for="(link, lIndex) in details.Links"
-                        :key="`link-${item.Id}-${lIndex}`">
-                        <a :href="link.Url" target="_blank">{{ link.Text }}</a>
-                    </li>
-                </ul>
+            <div class="data-repeater-item--detail-blocks">
+                <div class="data-repeater-item--block">
+                    <div class="data-repeater-item--metadata">
+                        <h3 class="mt-0">Metadata</h3>
+                        <ul>
+                            <li><b>Inserted: </b>{{ formatDate(item.InsertedAt) }}</li>
+                            <li v-if="item.Tags && item.Tags.length > 0">
+                                <div class="data-repeater-item--tags">
+                                    <b>Tags: </b>
+                                    <div class="data-repeater-item--tag"
+                                        v-for="(tag, tIndex) in item.Tags"
+                                        :key="`item-d-${item.Id}-tag-${tIndex}`">{{ tag }}</div>
+                                </div>
+                            </li>
+                            <li><b>Retry allowed: </b>{{ item.AllowRetry }}</li>
+                            <li v-if="item.LastRetriedAt"><b>Last retried: </b>{{ formatDate(item.LastRetriedAt) }}</li>
+                            <li v-if="item.LastRetryWasSuccessful != null"><b>Last retry was success: </b>{{ item.LastRetryWasSuccessful }}</li>
+                            <li v-if="item.LastActionAt"><b>Last action: </b>{{ formatDate(item.LastActionAt) }}</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="data-repeater-item--block" v-if="details && details.Links && details.Links.length > 0">
+                    <div>
+                        <h3 class="mt-0">Relevant links</h3>
+                        <ul>
+                            <li v-for="(link, lIndex) in details.Links"
+                                :key="`link-${item.Id}-${lIndex}`">
+                                <a :href="link.Url" target="_blank">{{ link.Text }}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
 
-            <div>
-                <h3 class="mt-2">Metadata</h3>
-                <ul>
-                    <li><b>Inserted: </b>{{ item.InsertedAt }}</li>
-                    <li><b>Retry allowed: </b>{{ item.AllowRetry }}</li>
-                    <li v-if="item.Tags && item.Tags.length > 0"><b>Tags: </b>{{ item.Tags }}</li>
-                    <li v-if="item.LastRetriedAt"><b>Last retried: </b>{{ item.LastRetriedAt }}</li>
-                    <li v-if="item.LastRetryWasSuccessful != null"><b>Last retry was success: </b>{{ item.LastRetryWasSuccessful }}</li>
-                    <li v-if="item.LastActionAt"><b>Last action: </b>{{ item.LastActionAt }}</li>
-                </ul>
-            </div>
-
-            <div v-if="item.InitialError">
-                <h3 class="mt-2">Initial error</h3>
+            <div v-if="item.InitialError" class="data-repeater-item--block mt-2">
+                <h3 class="mt-0">Initial error</h3>
                 <code>{{ item.InitialError }}</code>
             </div>
 
-            <div v-if="item.Log && item.Log.length > 0">
-                <h3 class="mt-2">Log</h3>
+            <div v-if="item.Log && item.Log.length > 0" class="data-repeater-item--block mt-2">
+                <h3 class="mt-0">Log</h3>
                 <ul>
                     <li v-for="(logEntry, lIndex) in item.Log"
                         :key="`log-${item.Id}-${lIndex}`">
-                        <code>[{{ logEntry.Timestamp }}] {{ logEntry.Message }}</code>
+                        <div class="data-repeater-item--logentry"><b>{{ formatDate(logEntry.Timestamp) }}:</b> {{ logEntry.Message }}</div>
                     </li>
                 </ul>
             </div>
-
-            <editor-component
-                class="editor mt-2"
-                :language="'json'"
-                v-model="item.SerializedDataOverride"
-                ref="editor" />
-
-            <div v-if="item.SerializedDataOverride && item.SerializedDataOverride != this.item.SerializedData">
-                <a href="#" @click.prevent="restoreOriginalData" class="right">Restore original data</a>
-            </div>
             
             <!-- RETRY -->
-            <div>
+            <div class="data-repeater-item--block mt-2">
+                <h3 class="mt-0">Retry</h3>
                 <p v-if="stream.RetryDescription">{{ stream.RetryDescription }}</p>
 
+                <editor-component
+                    class="editor mt-2"
+                    :language="'json'"
+                    v-model="item.SerializedDataOverride"
+                    ref="editor" />
+
+                <div v-if="item.SerializedDataOverride && item.SerializedDataOverride != this.item.SerializedData">
+                    <a href="#" @click.prevent="restoreOriginalData" class="right">Restore original data</a>
+                </div>
+
                 <v-btn :disabled="!retryAllowed" :loading="dataLoadStatus.inProgress"
-                    @click="retry" class="mb-3">
+                    @click="retry" class="ml-0">
                     {{ (stream.RetryActionName || 'Retry') }}
                 </v-btn>
 
@@ -84,13 +97,18 @@
             </div>
 
             <!-- ACTION PARAMETERS -->
-            <div v-for="(action, aIndex) in stream.Actions"
-                :key="`action-${aIndex}-${action.Id}`">
-                <data-repeater-item-action-component 
-                    :item="item"
-                    :stream="stream"
-                    :config="config"
-                    :action="action" />
+            <div v-if="stream.Actions && stream.Actions.length > 0">
+                <h2 class="mt-4">Actions</h2>
+                <div v-for="(action, aIndex) in stream.Actions"
+                    :key="`action-${aIndex}-${action.Id}`"
+                    class="data-repeater-item--block mt-2">
+                    <data-repeater-item-action-component 
+                        :item="item"
+                        :stream="stream"
+                        :config="config"
+                        :action="action"
+                        @change="onItemUpdatedFromAction" />
+                </div>
             </div>
         </div>
     </div>
@@ -100,7 +118,7 @@
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
 import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import DataRepeaterService, { HCDataRepeaterResultWithLogMessage } from  '../../../services/DataRepeaterService';
+import DataRepeaterService, { HCDataRepeaterResultWithItem } from  '../../../services/DataRepeaterService';
 import { HCDataRepeaterStreamViewModel } from "generated/Models/Core/HCDataRepeaterStreamViewModel";
 import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 import { HCDataRepeaterStreamItemViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemViewModel";
@@ -109,6 +127,7 @@ import DataRepeaterItemActionComponent from "./DataRepeaterItemActionComponent.v
 import { HCDataRepeaterRetryResult } from "generated/Models/Core/HCDataRepeaterRetryResult";
 import EditorComponent from "components/Common/EditorComponent.vue";
 import { HCDataRepeaterStreamItemDetailsViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemDetailsViewModel";
+import DateUtils from "util/DateUtils";
 
 @Component({
     components: {
@@ -195,15 +214,15 @@ export default class DataRepeaterItemComponent extends Vue {
         });
     }
 
-    onRetryResult(data: HCDataRepeaterResultWithLogMessage<HCDataRepeaterRetryResult> | null): void {
+    onRetryResult(data: HCDataRepeaterResultWithItem<HCDataRepeaterRetryResult> | null): void {
         if (!this.item) return;
         this.retryResult = data?.Data || null;
-        if (data?.LogMessage)
+        
+        if (data?.Item)
         {
-            this.item.Log.push(data.LogMessage);
-            this.item.Log = this.item.Log.slice(Math.max(this.item.Log.length - 10, 0))
+            this.item = data.Item;
+            this.notifyItemUpdated(data.Item);
         }
-        this.service.ApplyChanges(this.item, data?.Data || null);
     }
     
     refreshEditorSize(): void {
@@ -218,6 +237,14 @@ export default class DataRepeaterItemComponent extends Vue {
         if (!this.item) return;
         this.item.SerializedDataOverride = this.item.SerializedData;
     }
+
+    notifyItemUpdated(item: HCDataRepeaterStreamItemViewModel): void {
+        this.$emit('change', item);
+    }
+
+    formatDate(date: Date): string {
+        return DateUtils.FormatDate(date, "dddd dd. MMMM yyyy HH:mm:ss");
+    }
     
     ///////////////////////
     //  EVENT HANDLERS  //
@@ -230,13 +257,54 @@ export default class DataRepeaterItemComponent extends Vue {
             this.item.SerializedDataOverride = this.item.SerializedData;
         }
     }
+
+    onItemUpdatedFromAction(item: HCDataRepeaterStreamItemViewModel): void {
+        this.item = item;
+        this.notifyItemUpdated(item);
+    }
 }
 </script>
 
 <style scoped lang="scss">
 .editor {
   width: 100%;
-  height: 200px;
+  height: 400px;
   border: 1px solid #949494;
+}
+.data-repeater-item {
+    &--metadata
+    {
+
+    }
+    &--tags {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+    }
+    &--tag {
+        padding: 3px 6px;
+        background-color: #dcdcdc;
+        border-radius: 3px;
+        margin-left: 5px;
+        font-size: 12px;
+    }
+    &--logentry {
+        font-size: 12px;
+    }
+    &--detail-blocks {
+        display: flex;
+        flex-wrap: wrap;
+        align-content: space-between;
+        margin: -10px;
+
+        .data-repeater-item--block {
+            margin: 10px;
+        }
+    }
+    &--block {
+        border: 2px solid #d6d6d6;
+        padding: 10px;
+        flex: 1;
+    }
 }
 </style>

@@ -38,7 +38,18 @@
                                         label="Filter"
                                         clearable
                                         class="filter-input"
+                                        :readonly="metadataLoadStatus.inProgress"
                                     ></v-text-field>
+                                </div>
+                                <div class="data-repeater-filters">
+                                    <v-checkbox
+                                        :value="filterRetryAllowedBinding"
+                                        :indeterminate="filterRetryAllowed == null" 
+                                        :label="filterRetryAllowedLabel"
+                                        :disabled="metadataLoadStatus.inProgress"
+                                        @click="setNextFilterRetryAllowedState"
+                                        color="secondary"
+                                    ></v-checkbox>
                                     <v-combobox
                                         v-model="filterTags"
                                         @blur="loadCurrentStreamItems"
@@ -48,6 +59,7 @@
                                         multiple
                                         chips
                                         class="filter-input"
+                                        :readonly="metadataLoadStatus.inProgress"
                                         ></v-combobox>
                                 </div>
 
@@ -79,8 +91,12 @@
                                     @keyup.enter="setActiveItemId(item.Id)"
                                     class="data-repeater-list-item"
                                     tabindex="0">
+                                    <span class="data-repeater-list-item--icon"
+                                        :class="{ 'retryable': item.AllowRetry }"
+                                        ><v-icon>{{ (item.AllowRetry ? 'replay' : 'circle') }}</v-icon></span>
                                     <span class="data-repeater-list-item--title">{{ item.ItemId }}</span>
                                     <span v-if="item.Summary" class="data-repeater-list-item--summary">{{ item.Summary }}</span>
+                                    <span class="data-repeater-list-item--timestamp">{{ formatDate(item.InsertedAt) }}</span>
                                     <div class="data-repeater-list-item--tags">
                                         <div class="data-repeater-list-item--tag"
                                             v-for="(tag, tIndex) in item.Tags"
@@ -103,6 +119,7 @@
                                     :itemId="selectedItemId"
                                     :stream="selectedStream"
                                     :config="config"
+                                    @change="onItemUpdated"
                                     @close="setActiveItemId(null)" />
                             </div>
 
@@ -132,6 +149,8 @@ import PagingComponent from "../../Common/Basic/PagingComponent.vue";
 import HashUtils from "../../../util/HashUtils";
 import { HCDataRepeaterStreamItemsPagedViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemsPagedViewModel";
 import { Route } from "vue-router";
+import UrlUtils from "util/UrlUtils";
+import DateUtils from "util/DateUtils";
 
 @Component({
     components: {
@@ -156,7 +175,7 @@ export default class DataRepeaterPageComponent extends Vue {
     streamDefinitions: HCGetDataRepeaterStreamDefinitionsViewModel | null = null;
     selectedStream: HCDataRepeaterStreamViewModel | null = null;
     selectedItemId: string | null = null;
-    actionParameters: any = {}; //Array<string> = [];
+    actionParameters: any = {};
     items: Array<HCDataRepeaterStreamItemViewModel> = [];
     tagPresets: Array<string> = [];
 
@@ -164,6 +183,8 @@ export default class DataRepeaterPageComponent extends Vue {
     pageIndex: number = 0;
     pageSize: number = 50;
     filterItemId: string = '';
+    filterRetryAllowed: boolean | null = null;
+    filterRetryAllowedBinding: boolean | null = null;
     filterTags: Array<string> = [];
     totalResultCount: number = 0;
 
@@ -207,6 +228,12 @@ export default class DataRepeaterPageComponent extends Vue {
                 data: x
             };
         });
+    }
+    
+    get filterRetryAllowedLabel(): string {
+        if (this.filterRetryAllowed == null) return 'Retryable & non-retryable';
+        else if (this.filterRetryAllowed == true) return 'Retryable only';
+        else return 'Non-retryable only';
     }
 
     ////////////////////
@@ -272,7 +299,7 @@ export default class DataRepeaterPageComponent extends Vue {
         this.resetFilter();
         this.loadCurrentStreamItems();
 
-        if (updateUrl)
+        if (updateUrl && this.$route.params.streamId != this.hash(stream.Id))
         {
             this.$router.push(`/dataRepeater/${this.hash(stream.Id)}`);
         }
@@ -288,7 +315,8 @@ export default class DataRepeaterPageComponent extends Vue {
             Filter: this.filterItemId,
             PageIndex: this.pageIndex,
             PageSize: this.pageSize,
-            Tags: this.filterTags
+            Tags: this.filterTags,
+            RetryAllowed: this.filterRetryAllowed == null ? undefined : this.filterRetryAllowed
         }, this.dataLoadStatus, {
             onSuccess: (data) => {
                 if (data != null)
@@ -321,11 +349,39 @@ export default class DataRepeaterPageComponent extends Vue {
             this.$router.push(`/dataRepeater/${this.hash(streamId)}${itemIdParam}`);
         }
     }
+
+    setNextFilterRetryAllowedState(): void {
+        if (this.dataLoadStatus.inProgress)
+        {
+            return;
+        }
+        
+        this.$nextTick(() => {
+            if (this.filterRetryAllowed == null) {
+                this.filterRetryAllowed = true;
+                this.filterRetryAllowedBinding = true;
+            } else if (this.filterRetryAllowed == true) {
+                this.filterRetryAllowed = false;
+                this.filterRetryAllowedBinding = false;
+            } else {
+                this.filterRetryAllowed = null
+                this.filterRetryAllowedBinding = false;
+            }
+            this.loadCurrentStreamItems();
+        });
+    }
+
+    formatDate(date: Date): string {
+        return DateUtils.FormatDate(date, "dd/MM/yy HH:mm:ss");
+    }
     
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
     onMenuItemClicked(item: FilterableListItem): void {
+        if (this.selectedItemId != null) {
+            this.setActiveItemId(null);
+        }
         this.setActiveStream(item.data);
     }
 
@@ -358,6 +414,10 @@ export default class DataRepeaterPageComponent extends Vue {
             this.setActiveItemId(newItemIdFromHash, false);
         }
     }
+
+    onItemUpdated(item: HCDataRepeaterStreamItemViewModel): void {
+        Vue.set(this.items, this.items.findIndex(x => x.Id == item.Id), item)
+    }
 }
 </script>
 
@@ -377,6 +437,11 @@ export default class DataRepeaterPageComponent extends Vue {
 
     .v-text-field {
         margin-right: 10px;
+    }
+    .v-input--checkbox {
+        width: 280px;
+        flex-grow: inherit;
+        flex-shrink: inherit;
     }
 }
 .data-repeater-list-item {
@@ -399,6 +464,21 @@ export default class DataRepeaterPageComponent extends Vue {
     }
     &:focus, :active {
         background-color: #d5d5d5;
+    }
+    &--icon {
+        margin-right: 5px;
+        i {
+            height: 22px;
+        }
+        &:not(.retryable) {
+            i {
+                color: rgba(0,0,0,0.20);
+            }
+        }
+    }
+    &--timestamp {
+        margin-right: 10px;
+        font-size: 12px;
     }
     &--title {
         font-weight: 600;

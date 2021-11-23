@@ -32,7 +32,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
         {
             var details = new HCDataRepeaterStreamItemDetails
             {
-                Description = "Description here",
+                DescriptionHtml = "<p>Description here and some more text etc etc with <a href=\"#etc\">some link here.</a></p>",
                 Links = new List<HCDataRepeaterStreamItemHyperLink>
                 {
                     new HCDataRepeaterStreamItemHyperLink("Test link", "/etc1"),

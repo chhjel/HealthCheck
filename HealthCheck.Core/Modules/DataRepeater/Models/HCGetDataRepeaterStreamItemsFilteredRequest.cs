@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Modules.DataRepeater.Abstractions;
+﻿using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Modules.DataRepeater.Abstractions;
 using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.DataRepeater.Models
@@ -9,14 +10,20 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
     public class HCGetDataRepeaterStreamItemsFilteredRequest
     {
         /// <summary>
+        /// Text to search for.
+        /// </summary>
+        public string Filter { get; set; }
+
+        /// <summary>
         /// Type of the stream.
         /// </summary>
         public string StreamId { get; set; }
 
         /// <summary>
-        /// Text to search for.
+        /// Filter by <see cref="IHCDataRepeaterStreamItem.AllowRetry"/>
         /// </summary>
-        public string Filter { get; set; }
+        [HCRtProperty(ForcedNullable = true)]
+        public bool? RetryAllowed { get; set; }
 
         /// <summary>
         /// Page index to start at.

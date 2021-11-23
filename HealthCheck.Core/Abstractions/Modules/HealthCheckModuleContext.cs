@@ -94,6 +94,25 @@ namespace HealthCheck.Core.Abstractions.Modules
         /// <summary>
         /// Default value if pageAccess is null, false if no roles were given.
         /// </summary>
+        public bool HasRoleAccessObj(object roles, bool defaultValue = true)
+        {
+            // Not an enum => default
+            if (roles is not Enum rolesEnum)
+            {
+                return default;
+            }
+            // Access is defined but no user roles => denied
+            else if ((CurrentRequestRoles == null || (int)CurrentRequestRoles == 0))
+            {
+                return false;
+            }
+
+            return EnumUtils.EnumFlagHasAnyFlagsSet(CurrentRequestRoles, rolesEnum);
+        }
+
+        /// <summary>
+        /// Default value if pageAccess is null, false if no roles were given.
+        /// </summary>
         public bool HasRoleAccess<TAccessRole>(Maybe<TAccessRole> roles, bool defaultValue = true)
         {
             // No access defined => default

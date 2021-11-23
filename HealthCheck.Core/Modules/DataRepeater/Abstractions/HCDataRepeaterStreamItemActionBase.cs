@@ -31,6 +31,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         public abstract List<string> AllowedOnItemsWithTags { get; }
 
         /// <inheritdoc />
+        public virtual object AllowedAccessRoles { get; set; }
+
+        /// <inheritdoc />
+        public virtual List<string> Categories { get; } = new();
+
+        /// <inheritdoc />
         public virtual async Task<HCDataRepeaterStreamItemActionResult> ExecuteActionAsync(IHCDataRepeaterStreamItem item, object parameters)
         {
             return await PerformActionAsync(item, parameters as TParameters);

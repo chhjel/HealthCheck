@@ -56,6 +56,18 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         List<string> FilterableTags { get; }
 
         /// <summary>
+        /// Optional access roles that can access this stream.
+        /// <para>Must be a flags enum of the same type as the one used on the healthcheck controller.</para>
+        /// </summary>
+        object AllowedAccessRoles { get; }
+
+        /// <summary>
+        /// Optional categories this stream belongs to.
+        /// <para>Can be used from the access tokens module for more granular access config.</para>
+        /// </summary>
+        List<string> Categories { get; }
+
+        /// <summary>
         /// Optional extra actions that can be executed on items.
         /// </summary>
         List<IHCDataRepeaterStreamItemAction> Actions { get; }

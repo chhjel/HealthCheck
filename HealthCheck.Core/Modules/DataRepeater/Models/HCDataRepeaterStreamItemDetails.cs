@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using HealthCheck.Core.Modules.Tests.Utils.HtmlPresets;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.DataRepeater.Models
 {
@@ -8,9 +9,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
     public class HCDataRepeaterStreamItemDetails
     {
         /// <summary>
-        /// Any relevant description.
+        /// Any relevant description. Supports HTML.
         /// </summary>
-        public string Description { get; set; }
+        public string DescriptionHtml { get; set; }
 
         /// <summary>
         /// Any relevant links.

@@ -41,6 +41,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         public abstract List<string> FilterableTags { get; }
 
         /// <inheritdoc />
+        public virtual object AllowedAccessRoles { get; set; }
+
+        /// <inheritdoc />
+        public virtual List<string> Categories { get; } = new();
+
+        /// <inheritdoc />
         public abstract List<IHCDataRepeaterStreamItemAction> Actions { get; }
 
         /// <inheritdoc />

@@ -17,7 +17,7 @@
 
         <v-btn :disabled="!allowExecute"
             :loading="dataLoadStatus.inProgress"
-            @click="executeAction" class="mb-3">
+            @click="showExecuteActionDialog" class="mb-3">
             {{ (action.ExecuteButtonLabel || 'Run') }}
         </v-btn>
         
@@ -27,6 +27,32 @@
         <v-alert :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
         {{ dataLoadStatus.errorMessage }}
         </v-alert>
+
+        <!-- DIALOGS -->
+        <v-dialog v-model="confirmExecuteDialogVisible"
+            @keydown.esc="confirmExecuteDialogVisible = false"
+            max-width="480"
+            content-class="confirm-dialog"
+            :persistent="dataLoadStatus.inProgress">
+            <v-card>
+                <v-card-title class="headline">Confirm execute '{{ action.Name }}'</v-card-title>
+                <v-card-text>
+                    Are you sure you want to execute the action '{{ action.Name }}'?
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary"
+                        :disabled="dataLoadStatus.inProgress"
+                        :loading="dataLoadStatus.inProgress"
+                        @click="confirmExecuteDialogVisible = false">Cancel</v-btn>
+                    <v-btn color="primary"
+                        :disabled="!allowExecute"
+                        :loading="dataLoadStatus.inProgress"
+                        @click="executeAction()">Execute</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -34,7 +60,7 @@
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
 import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import DataRepeaterService, { HCDataRepeaterResultWithLogMessage } from  '../../../services/DataRepeaterService';
+import DataRepeaterService, { HCDataRepeaterResultWithItem } from  '../../../services/DataRepeaterService';
 import { HCDataRepeaterStreamViewModel } from "generated/Models/Core/HCDataRepeaterStreamViewModel";
 import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 import { HCDataRepeaterStreamItemViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemViewModel";
@@ -68,6 +94,7 @@ export default class DataRepeaterItemActionComponent extends Vue {
     details: HCDataRepeaterStreamItemDetails | null = null;
     parameters: { [key:string]: string } = {};
     result: HCDataRepeaterStreamItemActionResult | null = null;
+    confirmExecuteDialogVisible: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -100,6 +127,10 @@ export default class DataRepeaterItemActionComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    showExecuteActionDialog(): void {
+        this.confirmExecuteDialogVisible = true;
+    }
+
     executeAction(): void {
         this.service.PerformItemAction({
             StreamId: this.stream.Id,
@@ -107,18 +138,23 @@ export default class DataRepeaterItemActionComponent extends Vue {
             ActionId: this.action.Id,
             Parameters: this.parameters
         }, this.dataLoadStatus, {
-            onSuccess: (data) => this.onActionExecutedResult(data)
+            onSuccess: (data) => this.onActionExecutedResult(data),
+            onDone: () => {
+                this.confirmExecuteDialogVisible = false;
+            }
         });
     }
 
-    onActionExecutedResult(data: HCDataRepeaterResultWithLogMessage<HCDataRepeaterStreamItemActionResult> | null): void {
+    onActionExecutedResult(data: HCDataRepeaterResultWithItem<HCDataRepeaterStreamItemActionResult> | null): void {
         this.result = data?.Data || null;
-        if (data?.LogMessage)
+        if (data?.Item)
         {
-            this.item.Log.push(data.LogMessage);
-            this.item.Log = this.item.Log.slice(Math.max(this.item.Log.length - 10, 0))
+            this.notifyItemUpdated(data.Item);
         }
-        this.service.ApplyChanges(this.item, data?.Data || null);
+    }
+
+    notifyItemUpdated(item: HCDataRepeaterStreamItemViewModel): void {
+        this.$emit('change', item);
     }
     
     ///////////////////////
