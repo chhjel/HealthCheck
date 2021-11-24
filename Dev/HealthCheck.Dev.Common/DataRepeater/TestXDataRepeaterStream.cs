@@ -15,6 +15,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
         public override string ItemIdDisplayName => "Id";
         public override string RetryActionName => "Retry";
         public override string RetryDescription => null;
+        public override bool ManualAnalyzeEnabled => false;
         public override List<string> InitiallySelectedTags => new List<string> { };
         public override List<string> FilterableTags => new List<string> { };
         public override object AllowedAccessRoles => RuntimeTestAccessRole.SystemAdmins;
@@ -29,7 +30,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
         {
         }
 
-        public override Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(Guid id)
+        protected override Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(TestXStreamItem item)
         {
             var details = new HCDataRepeaterStreamItemDetails
             {

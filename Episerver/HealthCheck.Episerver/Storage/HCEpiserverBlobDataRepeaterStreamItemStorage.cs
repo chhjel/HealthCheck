@@ -101,6 +101,21 @@ namespace HealthCheck.Episerver.Storage
         }
 
         /// <inheritdoc />
+        public async Task AddItemTagsAsync(Guid id, params string[] tags)
+        {
+            var item = await GetItemAsync(id).ConfigureAwait(false);
+            if (item != null && tags?.Any() == true && tags.Any(t => item.Tags?.Contains(t) != true))
+            {
+                item.Tags ??= new HashSet<string>();
+                foreach (var tag in tags)
+                {
+                    item.Tags.Add(tag);
+                }
+                await UpdateItemAsync(item).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc />
         public async Task RemoveItemTagAsync(Guid id, string tag)
         {
             var item = await GetItemAsync(id).ConfigureAwait(false);

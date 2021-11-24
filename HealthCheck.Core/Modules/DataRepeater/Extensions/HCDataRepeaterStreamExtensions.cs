@@ -60,6 +60,17 @@ namespace HealthCheck.Core.Modules.DataRepeater.Extensions
         }
 
         /// <summary>
+        /// Add a tag to the item matching the given item id.
+        /// </summary>
+        public static async Task<bool> AddItemTagsAsync(this IHCDataRepeaterStream stream, string itemId, params string[] tags)
+        {
+            var item = await stream.GetItemByItemIdAsync(itemId).ConfigureAwait(false);
+            if (item == null) return false;
+            await stream.Storage.AddItemTagsAsync(item.Id, tags).ConfigureAwait(false);
+            return true;
+        }
+        
+        /// <summary>
         /// Toggle allow retry on the item matching the given item id.
         /// </summary>
         public static async Task<bool> SetAllowItemRetryAsync(this IHCDataRepeaterStream stream, string itemId, bool allow)

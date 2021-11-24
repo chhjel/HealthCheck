@@ -101,7 +101,7 @@
                                         <div class="data-repeater-list-item--spacer"></div>
                                         <span class="data-repeater-list-item--timestamp">{{ formatDate(item.InsertedAt) }}</span>
                                         <div class="data-repeater-list-item--break"></div>
-                                        <span v-if="item.AllowRetry" class="data-repeater-list-item--icon retryable"><v-icon>replay</v-icon></span>
+                                        <span v-if="item.AllowRetry" class="data-repeater-list-item--icon"><v-icon>replay</v-icon></span>
                                         <div class="data-repeater-list-item--tags">
                                             <div class="data-repeater-list-item--tag"
                                                 v-for="(tag, tIndex) in item.Tags"
@@ -514,11 +514,8 @@ export default class DataRepeaterPageComponent extends Vue {
         margin-right: 5px;
         i {
             height: 22px;
-        }
-        &:not(.retryable) {
-            i {
-                color: rgba(0,0,0,0.20);
-            }
+            padding-top: 1px;
+            color: rgba(0,0,0,0.20);
         }
     }
     &--timestamp {

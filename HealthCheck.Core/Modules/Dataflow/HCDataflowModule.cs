@@ -71,8 +71,7 @@ namespace HealthCheck.Core.Modules.Dataflow
             if (stream != null)
             {
                 context.AddAuditEvent(action: "Dataflow stream fetched", subject: stream?.Name)
-                    .AddDetail("Stream id", stream?.Id)
-                    .AddDetail("Filter input", model.StreamFilter?.CreateAuditSummary());
+                    .AddDetail("Stream id", stream?.Id);
             }
 
             model.StreamFilter ??= new DataflowStreamFilter();

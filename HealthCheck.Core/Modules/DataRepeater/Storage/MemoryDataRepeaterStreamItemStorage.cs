@@ -61,6 +61,23 @@ namespace HealthCheck.Core.Modules.DataRepeater.Storage
         }
 
         /// <inheritdoc />
+        public async Task AddItemTagsAsync(Guid id, params string[] tags)
+        {
+            var item = await GetItemAsync(id);
+            if (item == null || tags?.Any() != true || tags.All(t => item.Tags?.Contains(t) == true))
+            {
+                return;
+            }
+
+            item.Tags ??= new HashSet<string>();
+            foreach(var tag in tags)
+            {
+                item.Tags.Add(tag);
+            }
+            await UpdateItemAsync(item);
+        }
+
+        /// <inheritdoc />
         public async Task RemoveItemTagAsync(Guid id, string tag)
         {
             var item = await GetItemAsync(id);

@@ -161,5 +161,29 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
             ExpirationTime = time;
             return this as TSelf;
         }
+
+        /// <summary>
+        /// Adds a tag to the item.
+        /// </summary>
+        public TSelf AddTag(string tag)
+        {
+            Tags.Add(tag);
+            return this as TSelf;
+        }
+
+        /// <summary>
+        /// Adds tags to the item.
+        /// </summary>
+        public TSelf AddTags(params string[] tags)
+        {
+            if (tags != null)
+            {
+                foreach (var tag in tags)
+                {
+                    Tags.Add(tag);
+                }
+            }
+            return this as TSelf;
+        }
     }
 }

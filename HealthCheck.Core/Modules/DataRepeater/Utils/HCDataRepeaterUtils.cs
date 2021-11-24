@@ -15,6 +15,45 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
     public static class HCDataRepeaterUtils
     {
         /// <summary>
+        /// Adds a new item to the first registered stream of the given type.
+        /// <para>If stream not found or analytics returns <see cref="HCDataRepeaterItemAnalysisResult.DontStore"/> null is returned.</para>
+        /// </summary>
+        public static void AddStreamItem<TStream>(IHCDataRepeaterStreamItem item, object hint = null, bool analyze = true)
+            => Task.Run(() => AddStreamItemAsync<TStream>(item, hint, analyze));
+
+        /// <summary>
+        /// Adds a new item to the first registered stream of the given type.
+        /// <para>If stream not found or analytics returns <see cref="HCDataRepeaterItemAnalysisResult.DontStore"/> null is returned.</para>
+        /// </summary>
+        public static async Task<IHCDataRepeaterStream> AddStreamItemAsync<TStream>(IHCDataRepeaterStreamItem item, object hint = null, bool analyze = true)
+        {
+            try
+            {
+                var service = HCGlobalConfig.GetDefaultInstanceResolver()?.Invoke(typeof(IHCDataRepeaterService)) as IHCDataRepeaterService;
+                var streams = service?.GetStreams();
+                var stream = streams?.FirstOrDefault(x => x.GetType() == typeof(TStream));
+                if (stream == null) return null;
+
+                if (analyze)
+                {
+                    var analyticResult = await stream.AnalyzeItemAsync(item);
+                    if (analyticResult.DontStore)
+                    {
+                        return null;
+                    }
+                    ApplyChangesToItem(item, analyticResult);
+                }
+
+                await stream.Storage.StoreItemAsync(item, hint);
+                return item;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Gets the first registered stream of the given type.
         /// <para>If not found returns null.</para>
         /// </summary>
@@ -115,6 +154,24 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
                 var stream = GetStream<TStream>();
                 if (stream == null) return false;
                 return await stream.AddItemTagAsync(itemId, tag).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Add tags to the item matching the given item id from the stream of the given type.
+        /// <para>Ignores any exception.</para>
+        /// </summary>
+        public static async Task<bool> AddItemTagsAsync<TStream>(string itemId, params string[] tags)
+        {
+            try
+            {
+                var stream = GetStream<TStream>();
+                if (stream == null) return false;
+                return await stream.AddItemTagsAsync(itemId, tags).ConfigureAwait(false);
             }
             catch (Exception)
             {

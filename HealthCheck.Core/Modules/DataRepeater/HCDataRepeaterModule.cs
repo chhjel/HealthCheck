@@ -84,6 +84,8 @@ namespace HealthCheck.Core.Modules.DataRepeater
                     GroupName = stream.StreamGroupName,
                     RetryActionName = stream.RetryActionName,
                     RetryDescription = stream.RetryDescription,
+                    ManualAnalyzeEnabled = stream.ManualAnalyzeEnabled,
+                    AnalyzeActionName = stream.AnalyzeActionName,
                     FilterableTags = stream.FilterableTags ?? new(),
                     InitiallySelectedTags = stream.InitiallySelectedTags ?? new()
                 };
@@ -132,7 +134,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
         {
             var stream = GetStream(context, model.StreamId);
             var item = await stream.Storage.GetItemAsync(model.ItemId);
-            var details = await stream.GetItemDetailsAsync(model.ItemId);
+            var details = await stream.GetItemDetailsAsync(item);
             return new HCDataRepeaterStreamItemDetailsViewModel
             {
                 Description = details?.DescriptionHtml ?? "",

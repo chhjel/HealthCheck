@@ -64,11 +64,29 @@ namespace HealthCheck.Dev.Common.Tests
                 await stream1.StoreItemAsync(item1);
 
                 var item2 = TestXStreamItem.CreateFrom(new DummyX { Id = i.ToString(), Value = i + 123 }, i.ToString())
+                    .AddTags("SomeTag", "Another tag")
                     .SetInitialError("Hmm something happened.", dummyError);
                 await stream2.StoreItemAsync(item2);
             }
 
             return TestResult.CreateSuccess($"Stored {count} x2 items!");
+        }
+
+        [RuntimeTest]
+        public TestResult AddItemThroughUtil(string orderNumber = "X8124124", decimal amount = 123m)
+        {
+            var order = new DummyOrder
+            {
+                OrderNumber = orderNumber,
+                Amount = 123m
+            };
+
+            var item = TestOrderStreamItem.CreateFrom(order, order.OrderNumber, $"{order.Amount}$ from \"Jimmy Smithy X\"")
+                .AddTags("Tag A", "Tag B")
+                .SetExpirationTime(DateTimeOffset.Now.AddDays(7));
+            HCDataRepeaterUtils.AddStreamItem<TestOrderDataRepeaterStream>(item);
+
+            return TestResult.CreateSuccess("Item was attempted added.");
         }
 
         [RuntimeTest]

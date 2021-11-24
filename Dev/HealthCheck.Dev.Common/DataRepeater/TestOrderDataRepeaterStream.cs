@@ -16,6 +16,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
         public override string ItemIdDisplayName => "Order number";
         public override string RetryActionName => "Retry capture";
         public override string RetryDescription => "Attempts to perform the capture action again.";
+        public override string AnalyzeActionName => "Check for errors";
         public override List<string> InitiallySelectedTags => new List<string> { "Failed" };
         public override List<string> FilterableTags => new List<string> { "Failed", "Something", "Retried" };
         public override List<IHCDataRepeaterStreamItemAction> Actions => new List<IHCDataRepeaterStreamItemAction>
@@ -29,7 +30,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
         {
         }
 
-        public override Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(Guid id)
+        protected override Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(TestOrderStreamItem item)
         {
             var details = new HCDataRepeaterStreamItemDetails
             {

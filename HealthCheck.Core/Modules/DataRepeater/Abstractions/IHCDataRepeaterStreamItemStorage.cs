@@ -40,6 +40,11 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         Task AddItemTagAsync(Guid id, string tag);
 
         /// <summary>
+        /// Apply tags to item matching the given id.
+        /// </summary>
+        Task AddItemTagsAsync(Guid id, params string[] tags);
+
+        /// <summary>
         /// Remove tag from item matching the given id.
         /// </summary>
         Task RemoveItemTagAsync(Guid id, string tag);

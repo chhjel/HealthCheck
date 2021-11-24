@@ -47,10 +47,16 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         public virtual List<string> Categories { get; } = new();
 
         /// <inheritdoc />
+        public virtual bool ManualAnalyzeEnabled { get; } = true;
+
+        /// <inheritdoc />
+        public virtual string AnalyzeActionName { get; } = "Analyze";
+
+        /// <inheritdoc />
         public abstract List<IHCDataRepeaterStreamItemAction> Actions { get; }
 
         /// <inheritdoc />
-        public abstract Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(Guid id);
+        public abstract Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(IHCDataRepeaterStreamItem item);
 
         /// <inheritdoc />
         public abstract Task<HCDataRepeaterRetryResult> RetryItemAsync(IHCDataRepeaterStreamItem item);
@@ -123,5 +129,14 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// Analyze item for potential issues and apply suitable tags.
         /// </summary>
         protected abstract Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(TData item);
+
+        /// <inheritdoc />
+        public override Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(IHCDataRepeaterStreamItem item)
+            => GetItemDetailsAsync(item as TData);
+
+        /// <summary>
+        /// Optional extra details about an item to display in the UI.
+        /// </summary>
+        protected abstract Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(TData item);
     }
 }

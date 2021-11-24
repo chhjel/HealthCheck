@@ -12,6 +12,8 @@ export interface HCDataRepeaterStreamViewModel
 	ItemIdName: string;
 	RetryActionName: string;
 	RetryDescription: string;
+	ManualAnalyzeEnabled: boolean;
+	AnalyzeActionName: string;
 	GroupName: string;
 	InitiallySelectedTags: string[];
 	FilterableTags: string[];

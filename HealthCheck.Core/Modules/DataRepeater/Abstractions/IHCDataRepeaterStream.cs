@@ -41,6 +41,16 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         string RetryActionName { get; }
 
         /// <summary>
+        /// Show the manual analyzation button if the request has access to it for this stream.
+        /// </summary>
+        bool ManualAnalyzeEnabled { get; }
+
+        /// <summary>
+        /// Label on the analyze-button.
+        /// </summary>
+        string AnalyzeActionName { get; }
+
+        /// <summary>
         /// Optional description of the retry action.
         /// </summary>
         string RetryDescription { get; }
@@ -85,6 +95,6 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// <summary>
         /// Optional extra details about an item to display in the UI.
         /// </summary>
-        Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(Guid id);
+        Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(IHCDataRepeaterStreamItem item);
     }
 }

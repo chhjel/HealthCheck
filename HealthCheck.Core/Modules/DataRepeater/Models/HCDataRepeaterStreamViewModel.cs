@@ -23,6 +23,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// <summary></summary>
         public string RetryDescription { get; set; }
 
+        /// <inheritdoc />
+        public bool ManualAnalyzeEnabled { get; set; }
+
+        /// <inheritdoc />
+        public string AnalyzeActionName { get; set; }
+
         /// <summary></summary>
         public string GroupName { get; set; }
 

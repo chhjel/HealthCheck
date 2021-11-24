@@ -19,6 +19,7 @@ Available modules:
 * Endpoint Control module to set request limits for decorated endpoints, as well as viewing some request statistics.
 * Overview module where registed events that can be shown in a status interface, e.g. showing the stability of integrations.
 * Audit module where actions from other modules are logged.
+* Datarepeater module that can store and retry sending/recieving data with modifications.
 * Dataflow module that can show filtered custom data. For e.g. previewing the latest imported/exported data.
 * Event notifications module for notifying through custom implementations when custom events occur.
 * Settings module for custom settings related to healthcheck.
@@ -747,6 +748,164 @@ UseModule(new HCDynamicCodeExecutionModule(new HCDynamicCodeExecutionModuleOptio
     // Snippets can be inserted by entering @@@.
 }));
 ```
+
+
+---------
+
+## Module: DataRepeater
+
+The module allows for storing e.g. incoming/outgoing api requests that failed. The data is listed with simple filtering, can be repaired and be retried processed again.
+
+A default implementation `HCDataRepeaterService` is provided that picks up any registered `IHCDataRepeaterStream` streams.
+
+### Setup
+
+```csharp
+// Register your streams and service
+services.AddSingleton<IHCDataRepeaterStream, MyStreamA>();
+services.AddSingleton<IHCDataRepeaterStream, MyStreamB>();
+services.AddSingleton<IHCDataRepeaterService, HCDataRepeaterService>();
+```
+
+```csharp
+// Use module in hc controller
+UseModule(new HCDataRepeaterModule(new HCDataRepeaterModuleOptions
+{
+    Service = IHCDataRepeaterService implementation
+}));
+```
+
+```csharp
+// Example usage
+var streamItem = TestOrderStreamItem.CreateFrom(myModel, myModel.ExternalId, "Some summary of the item here")
+    .AddTags("Error Category X", "Another tag")
+    .SetInitialError("Hmm something happened.", exception);
+await myStream.StoreItemAsync(streamItem);
+
+// Alternatively using the static util:
+var streamItem = TestOrderStreamItem.CreateFrom(myModel, myModel.ExternalId, "Some summary of the item here")
+    .AddTags("Error Category X", "Another tag")
+    .SetInitialError("Hmm something happened.", exception);
+HCDataRepeaterUtils.AddStreamItem<ExampleDataRepeaterStream>(item); // or AddStreamItemAsync<T>
+
+// HCDataRepeaterUtils contains various shortcuts for setting item properties by the custom id used. E.g. external id above.
+HCDataRepeaterUtils.SetAllowItemRetryAsync<TestOrderDaExampleDataRepeaterStreamtaRepeaterStream>(itemId, true);
+HCDataRepeaterUtils.AddItemTagAsync<TestOrderDaExampleDataRepeaterStreamtaRepeaterStream>(itemId, "Tag X");
+HCDataRepeaterUtils.SetExpirationTimeAsync<TestOrderDaExampleDataRepeaterStreamtaRepeaterStream>(itemId, DateTimeOffset.Now.AddDays(7));
+
+// Extension methods exist for streams with shortcuts to item modification methods with only item id and not the guid id. E.g:
+await myStream.AddItemTagAsync(itemId, "Tag X");
+```
+
+<details><summary>Example stream</summary>
+<p>
+
+```csharp
+public class MyModelFromEgApi
+{
+    public string ExternalId { get; set; }
+    public decimal Amount { get; set; }
+}
+public class MyStreamItem : HCDefaultDataRepeaterStreamItem<MyModelFromEgApi, MyStreamItem> { }
+public class ExampleDataRepeaterStream : HCDataRepeaterStreamBase<MyStreamItem>
+{
+    public override string StreamDisplayName => "Order Captures";
+    public override string StreamGroupName => "Orders";
+    public override string StreamItemsName => "Orders";
+    public override string ItemIdDisplayName => "Order number";
+    public override string RetryActionName => "Retry capture";
+    public override string RetryDescription => "Attempts to perform the capture action again.";
+    public override List<string> InitiallySelectedTags => new List<string> { "Failed" };
+    public override List<string> FilterableTags => new List<string> { "Failed", "Retried", "Success" };
+    public override List<IHCDataRepeaterStreamItemAction> Actions => new List<IHCDataRepeaterStreamItemAction>
+    {
+        new ExampleDataRepeaterStreamItemActionToggleAllow()
+    };
+
+    public TestOrderDataRepeaterStream() : base(/* IHCDataRepeaterStreamItemStorage implementation here */)
+    {
+    }
+
+    // Resolve optional extra details for the a given item.
+    protected override Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(MyStreamItem item)
+    {
+        var details = new HCDataRepeaterStreamItemDetails
+        {
+            DescriptionHtml = "<p>Description here with <a href=\"#etc\">some html.</a></p>",
+            Links = new List<HCDataRepeaterStreamItemHyperLink>
+            {
+                new HCDataRepeaterStreamItemHyperLink("Some link", "/etc1"),
+                new HCDataRepeaterStreamItemHyperLink("Details page", "/etc2")
+            }
+        };
+        return Task.FromResult(details);
+    }
+
+    // Analyze item on insertion and optionally manually from the interface.
+    // Use to categorize using tags, skip inserting if not needed etc.
+    protected override Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(MyStreamItem item)
+    {
+        var result = new HCDataRepeaterItemAnalysisResult();
+        // item.AllowRetry = false;
+        // result.TagsThatShouldExist.Add("etc");
+        // result.TagsThatShouldNotExist.Add("etc");
+        result.Message = $"Result from analysis here.";
+        return Task.FromResult(result);
+    }
+
+    protected override Task<HCDataRepeaterRetryResult> RetryItemAsync(MyStreamItem item)
+    {
+        var result = new HCDataRepeaterRetryResult
+        {
+            Success = true,
+            Message = $"Success! New {item.Data.ExternalId} amount is ${item.Data.Amount}",
+
+            AllowRetry = false,
+            Delete = false,
+            RemoveAllTags = true,
+            TagsThatShouldExist = new List<string> { "Processed" }
+        };
+        return Task.FromResult(result);
+    }
+}
+```
+
+</p>
+</details>
+
+<details><summary>Example stream item action</summary>
+<p>
+
+```csharp
+// Simple example action that forces AllowRetry on or off.
+public class ExampleDataRepeaterStreamItemActionToggleAllow : HCDataRepeaterStreamItemActionBase<ExampleDataRepeaterStreamItemActionToggleAllow.Parameters>
+{
+    public override List<string> AllowedOnItemsWithTags => new List<string> {};
+    public override string DisplayName => "Set allow retry";
+    public override string Description => "Forces AllowRetry property to the given value.";
+    public override string ExecuteButtonLabel => "Set";
+
+    protected override Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStreamItem item, Parameters parameters)
+    {
+        var result = new HCDataRepeaterStreamItemActionResult
+        {
+            Success = true,
+            AllowRetry = parameters.Allowed,
+            Message = $"AllowRetry was set to {parameters.Allowed}."
+        };
+        return Task.FromResult(result);
+    }
+
+    public class Parameters
+    {
+        [HCCustomProperty]
+        public bool Allowed { get; set; }
+    }
+}
+```
+
+</p>
+</details>
 
 ---------
 
@@ -1556,6 +1715,15 @@ Cache can optionally be set to null in constructor if not wanted, or the include
     context.Services.AddSingleton<IDataflowService<AccessRoles>, DefaultDataflowService<AccessRoles>>();
     // Site events (defaults to storing the last 1000 events/30 days)
     context.Services.AddSingleton<ISiteEventStorage, HCEpiserverBlobSiteEventStorage>();
+
+    // DataRepeater
+    // Example setup:
+    /// public class MyDataA {}
+    /// public class MyStreamItemA : HCDefaultDataRepeaterStreamItem<MyDataA, MyStreamItemA> {}
+    /// public class MyStreamA : HCEpiserverBlobDataRepeaterStreamItemStorage<MyStreamItemA> {}
+    /// public class MyStreamB : HCEpiserverBlobDataRepeaterStreamItemStorage<MyStreamItemB> {}
+    services.AddSingleton<IHCDataRepeaterStream, MyStreamA>();
+    services.AddSingleton<IHCDataRepeaterStream, MyStreamB>();
 ```
 
 </p>

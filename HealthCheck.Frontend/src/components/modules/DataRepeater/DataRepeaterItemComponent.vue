@@ -61,7 +61,7 @@
 
             <div v-if="item.InitialError" class="data-repeater-item--block mt-2">
                 <h3 class="mt-0">Initial error</h3>
-                <code>{{ item.InitialError }}</code>
+                <code class="pa-2">{{ item.InitialError }}</code>
             </div>
 
             <div v-if="item.Log && item.Log.length > 0" class="data-repeater-item--block mt-2">
@@ -92,15 +92,15 @@
                 <v-btn :disabled="!retryAllowed"
                     :loading="dataLoadStatus.inProgress"
                     v-if="hasAccessToRetry"
-                    @click="showRetryDialog" class="ml-0 mr-2">
+                    @click="showRetryDialog" class="ml-0 mr-2 mt-2">
                     {{ (stream.RetryActionName || 'Retry') }}
                 </v-btn>
 
                 <v-btn :disabled="!analyzeAllowed"
                     :loading="dataLoadStatus.inProgress"
-                    v-if="hasAccessToManualAnalysis"
-                    @click="showAnalyzeDialog" class="ml-0 mr-2">
-                    {{ 'Analyze' }}
+                    v-if="showManualAnalysis"
+                    @click="showAnalyzeDialog" class="ml-0 mr-2 mt-2">
+                    {{ ( stream.AnalyzeActionName || 'Analyze') }}
                 </v-btn>
 
                 <code v-if="quickStatus" class="quickstatus">{{ quickStatus }}</code>
@@ -257,6 +257,10 @@ export default class DataRepeaterItemComponent extends Vue {
         return !this.dataLoadStatus.inProgress
             && !!this.item
             && this.hasAccessToManualAnalysis;
+    }
+
+    get showManualAnalysis(): boolean {
+        return this.hasAccessToManualAnalysis && this.stream.ManualAnalyzeEnabled;
     }
 
     get hasAccessToRetry(): boolean {
