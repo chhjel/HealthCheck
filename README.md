@@ -159,7 +159,7 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
 
 ## Module: Tests
 
-Allows given backend methods to be executed in a UI to check the status of integrations, run utility methods and other things.
+Allows given backend methods to be executed in a UI to check the status of integrations, run utility methods and other things. Any exception thrown from a test will be included in full detail in the UI for easy debugging.
 
 ### Setup
 
@@ -789,9 +789,9 @@ var streamItem = TestOrderStreamItem.CreateFrom(myModel, myModel.ExternalId, "So
 HCDataRepeaterUtils.AddStreamItem<ExampleDataRepeaterStream>(item); // or AddStreamItemAsync<T>
 
 // HCDataRepeaterUtils contains various shortcuts for setting item properties by the custom id used. E.g. external id above.
-HCDataRepeaterUtils.SetAllowItemRetryAsync<TestOrderDaExampleDataRepeaterStreamtaRepeaterStream>(itemId, true);
-HCDataRepeaterUtils.AddItemTagAsync<TestOrderDaExampleDataRepeaterStreamtaRepeaterStream>(itemId, "Tag X");
-HCDataRepeaterUtils.SetExpirationTimeAsync<TestOrderDaExampleDataRepeaterStreamtaRepeaterStream>(itemId, DateTimeOffset.Now.AddDays(7));
+HCDataRepeaterUtils.SetAllowItemRetryAsync<ExampleDataRepeaterStream>(itemId, true);
+HCDataRepeaterUtils.AddItemTagAsync<ExampleDataRepeaterStream>(itemId, "Tag X");
+HCDataRepeaterUtils.SetExpirationTimeAsync<ExampleDataRepeaterStream>(itemId, DateTimeOffset.Now.AddDays(7));
 
 // Extension methods exist for streams with shortcuts to item modification methods with only item id and not the guid id. E.g:
 await myStream.AddItemTagAsync(itemId, "Tag X");
