@@ -19,4 +19,5 @@ export interface HCDataRepeaterStreamItemViewModel
 	Log: HCDataRepeaterSimpleLogEntry[];
 	SerializedData: string;
 	SerializedDataOverride: string;
+	ExpiresAt: Date;
 }

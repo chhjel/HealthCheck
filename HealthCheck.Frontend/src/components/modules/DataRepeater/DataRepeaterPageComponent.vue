@@ -86,25 +86,27 @@
 
                             <div v-if="selectedStream && selectedItemId == null">
                                 <p>{{ totalResultCount}} matches</p>
-
-                                <div v-for="(item, iIndex) in items"
-                                    :key="`item-${iIndex}-${item.Id}`"
-                                    @click="setActiveItemId(item.Id)"
-                                    @click.middle.stop.prevent="onItemClickedMiddle(item)"
-                                    @mousedown.middle.stop.prevent
-                                    @keyup.enter="setActiveItemId(item.Id)"
-                                    class="data-repeater-list-item"
-                                    tabindex="0">
-                                    <span class="data-repeater-list-item--icon"
-                                        :class="{ 'retryable': item.AllowRetry }"
-                                        ><v-icon>{{ (item.AllowRetry ? 'replay' : 'circle') }}</v-icon></span>
-                                    <span class="data-repeater-list-item--title">{{ item.ItemId }}</span>
-                                    <span v-if="item.Summary" class="data-repeater-list-item--summary">{{ item.Summary }}</span>
-                                    <span class="data-repeater-list-item--timestamp">{{ formatDate(item.InsertedAt) }}</span>
-                                    <div class="data-repeater-list-item--tags">
-                                        <div class="data-repeater-list-item--tag"
-                                            v-for="(tag, tIndex) in item.Tags"
-                                            :key="`item-${iIndex}-${item.Id}-tag-${tIndex}`">{{ tag }}</div>
+                                <div>
+                                    <div v-for="(item, iIndex) in items"
+                                        :key="`item-${iIndex}-${item.Id}`"
+                                        @click="setActiveItemId(item.Id)"
+                                        @click.middle.stop.prevent="onItemClickedMiddle(item)"
+                                        @mousedown.middle.stop.prevent
+                                        @keyup.enter="setActiveItemId(item.Id)"
+                                        class="data-repeater-list-item"
+                                        :class="itemRowClasses(item)"
+                                        tabindex="0">
+                                        <span class="data-repeater-list-item--title">{{ item.ItemId }}</span>
+                                        <span v-if="item.Summary" class="data-repeater-list-item--summary">{{ item.Summary }}</span>
+                                        <div class="data-repeater-list-item--spacer"></div>
+                                        <span class="data-repeater-list-item--timestamp">{{ formatDate(item.InsertedAt) }}</span>
+                                        <div class="data-repeater-list-item--break"></div>
+                                        <span v-if="item.AllowRetry" class="data-repeater-list-item--icon retryable"><v-icon>replay</v-icon></span>
+                                        <div class="data-repeater-list-item--tags">
+                                            <div class="data-repeater-list-item--tag"
+                                                v-for="(tag, tIndex) in item.Tags"
+                                                :key="`item-${iIndex}-${item.Id}-tag-${tIndex}`">{{ tag }}</div>
+                                        </div>
                                     </div>
                                 </div>
                                 
@@ -388,6 +390,13 @@ export default class DataRepeaterPageComponent extends Vue {
     formatDate(date: Date): string {
         return DateUtils.FormatDate(date, "dd/MM/yy HH:mm:ss");
     }
+
+    itemRowClasses(item: HCDataRepeaterStreamItemViewModel): any {
+        return {
+            'retry-success': item.LastRetryWasSuccessful,
+            'retry-failed': item.LastRetryWasSuccessful == false
+        };
+    }
     
     ///////////////////////
     //  EVENT HANDLERS  //
@@ -474,6 +483,15 @@ export default class DataRepeaterPageComponent extends Vue {
     flex-wrap: wrap;
     padding: 5px;
     align-items: baseline;
+    border-left: 4px solid #d5d5d5;
+
+    &.retry-success {
+        border-left: 4px solid #97e197;
+    }
+    &.retry-failed {
+        border-left: 4px solid #e19797;
+    }
+
     &:not(:first-child)
     {
         border-top: 1px solid gray;
@@ -484,6 +502,10 @@ export default class DataRepeaterPageComponent extends Vue {
     }
     &:hover {
         background-color: #ddd;
+        
+        .data-repeater-list-item--tag {
+            background-color: #c3c3c3;
+        }
     }
     &:focus, :active {
         background-color: #d5d5d5;
@@ -525,6 +547,13 @@ export default class DataRepeaterPageComponent extends Vue {
         margin-right: 5px;
         margin-top: 5px;
         font-size: 12px;
+    }
+    &--break {
+        flex-basis: 100%;
+        height: 0;
+    }
+    &--spacer {
+        flex: 1;
     }
 }
 </style>

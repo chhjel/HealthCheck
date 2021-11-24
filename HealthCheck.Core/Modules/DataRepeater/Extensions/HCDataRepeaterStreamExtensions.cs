@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Modules.DataRepeater.Abstractions;
+using System;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.DataRepeater.Extensions
@@ -66,6 +67,17 @@ namespace HealthCheck.Core.Modules.DataRepeater.Extensions
             var item = await stream.GetItemByItemIdAsync(itemId).ConfigureAwait(false);
             if (item == null) return false;
             await stream.Storage.SetAllowItemRetryAsync(item.Id, allow).ConfigureAwait(false);
+            return true;
+        }
+
+        /// <summary>
+        /// Sets optional expiration time on the given item.
+        /// </summary>
+        public static async Task<bool> SetExpirationTimeAsync(this IHCDataRepeaterStream stream, string itemId, DateTimeOffset? time)
+        {
+            var item = await stream.GetItemByItemIdAsync(itemId).ConfigureAwait(false);
+            if (item == null) return false;
+            await stream.Storage.SetItemExpirationTimeAsync(item.Id, time).ConfigureAwait(false);
             return true;
         }
     }

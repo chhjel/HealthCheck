@@ -72,5 +72,10 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// Override from frontend if any.
         /// </summary>
         public string SerializedDataOverride { get; set; }
+
+        /// <summary>
+        /// Optional time when this item will be deleted after.
+        /// </summary>
+        public DateTimeOffset? ExpiresAt { get; set; }
     }
 }

@@ -42,6 +42,7 @@
                             <li v-if="item.LastRetriedAt"><b>Last retried: </b>{{ formatDate(item.LastRetriedAt) }}</li>
                             <li v-if="item.LastRetryWasSuccessful != null"><b>Last retry was success: </b>{{ item.LastRetryWasSuccessful }}</li>
                             <li v-if="item.LastActionAt"><b>Last action: </b>{{ formatDate(item.LastActionAt) }}</li>
+                            <li v-if="item.ExpiresAt"><b>Expires at: </b>{{ formatDate(item.ExpiresAt) }}</li>
                         </ul>
                     </div>
                 </div>
@@ -102,7 +103,7 @@
                     {{ 'Analyze' }}
                 </v-btn>
 
-                <div v-if="quickStatus">{{ quickStatus }}</div>
+                <code v-if="quickStatus" class="quickstatus">{{ quickStatus }}</code>
             </div>
 
             <!-- ACTION PARAMETERS -->
@@ -429,6 +430,14 @@ export default class DataRepeaterItemComponent extends Vue {
         border: 2px solid #d6d6d6;
         padding: 10px;
         flex: 1;
+    }
+}
+.quickstatus {
+    display: block;
+    box-shadow: none;
+
+    &:not(.failed) {
+        color: #333;
     }
 }
 </style>

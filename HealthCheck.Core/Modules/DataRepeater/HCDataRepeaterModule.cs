@@ -234,6 +234,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
                 LastRetriedAt = item.LastRetriedAt,
                 LastRetryWasSuccessful = item.LastRetryWasSuccessful,
                 LastActionAt = item.LastActionAt,
+                ExpiresAt = item.ExpirationTime,
                 Tags = item.Tags?.ToList() ?? new List<string>(),
                 InitialError = item.InitialError,
                 Log = item.Log ?? new(),

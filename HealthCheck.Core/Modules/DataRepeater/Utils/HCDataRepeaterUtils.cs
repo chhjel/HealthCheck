@@ -141,6 +141,24 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         }
 
         /// <summary>
+        /// Toggle allow retry on the item matching the given item id from the stream of the given type.
+        /// <para>Ignores any exception.</para>
+        /// </summary>
+        public static async Task<bool> SetExpirationTimeAsync<TStream>(string itemId, DateTimeOffset? time)
+        {
+            try
+            {
+                var stream = GetStream<TStream>();
+                if (stream == null) return false;
+                return await stream.SetExpirationTimeAsync(itemId, time).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Applies changes to the given item.
         /// </summary>
         public static void ApplyChangesToItem(IHCDataRepeaterStreamItem item, HCDataItemChangeBase changes)
