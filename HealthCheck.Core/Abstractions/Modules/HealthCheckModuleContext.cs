@@ -99,7 +99,7 @@ namespace HealthCheck.Core.Abstractions.Modules
             // Not an enum => default
             if (roles is not Enum rolesEnum)
             {
-                return default;
+                return defaultValue;
             }
             // Access is defined but no user roles => denied
             else if ((CurrentRequestRoles == null || (int)CurrentRequestRoles == 0))

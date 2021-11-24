@@ -14,11 +14,13 @@
                     :items="menuItems"
                     :groupByKey="`GroupName`"
                     :sortByKey="`GroupName`"
+                    :hrefKey="`Href`"
                     :filterKeys="[ 'Name', 'Description' ]"
                     :loading="metadataLoadStatus.inProgress"
                     :disabled="dataLoadStatus.inProgress"
                     ref="filterableList"
                     v-on:itemClicked="onMenuItemClicked"
+                    @itemMiddleClicked="onMenuItemMiddleClicked"
                     />
             </v-navigation-drawer>
             
@@ -88,6 +90,8 @@
                                 <div v-for="(item, iIndex) in items"
                                     :key="`item-${iIndex}-${item.Id}`"
                                     @click="setActiveItemId(item.Id)"
+                                    @click.middle.stop.prevent="onItemClickedMiddle(item)"
+                                    @mousedown.middle.stop.prevent
                                     @keyup.enter="setActiveItemId(item.Id)"
                                     class="data-repeater-list-item"
                                     tabindex="0">
@@ -150,8 +154,8 @@ import PagingComponent from "../../Common/Basic/PagingComponent.vue";
 import HashUtils from "../../../util/HashUtils";
 import { HCDataRepeaterStreamItemsPagedViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemsPagedViewModel";
 import { Route } from "vue-router";
-import UrlUtils from "util/UrlUtils";
 import DateUtils from "util/DateUtils";
+import UrlUtils from "util/UrlUtils";
 
 @Component({
     components: {
@@ -223,11 +227,13 @@ export default class DataRepeaterPageComponent extends Vue {
     {
         if (!this.streamDefinitions) return [];
         return this.streamDefinitions.Streams.map(x => {
-            return {
+            let d = {
                 title: x.Name,
                 subtitle: '',
                 data: x
             };
+            (<any>d)['Href'] = "/woot";
+            return d;
         });
     }
     
@@ -257,6 +263,8 @@ export default class DataRepeaterPageComponent extends Vue {
         this.pageSize = 50;
         this.tagPresets = this.selectedStream?.FilterableTags || [];
         this.filterTags = this.selectedStream?.InitiallySelectedTags || [];
+        this.filterRetryAllowed = null;
+        this.filterRetryAllowedBinding = false;
     }
 
     loadStreamDefinitions(): void {
@@ -351,6 +359,11 @@ export default class DataRepeaterPageComponent extends Vue {
         }
     }
 
+    onItemClickedMiddle(item: HCDataRepeaterStreamItemViewModel): void {
+        const route = `#/dataRepeater/${this.hash(this.selectedStream?.Id||'')}/${item.Id}`;
+        UrlUtils.openRouteInNewTab(route);
+    }
+
     setNextFilterRetryAllowedState(): void {
         if (this.dataLoadStatus.inProgress)
         {
@@ -384,6 +397,15 @@ export default class DataRepeaterPageComponent extends Vue {
             this.setActiveItemId(null);
         }
         this.setActiveStream(item.data);
+    }
+
+    onMenuItemMiddleClicked(item: FilterableListItem): void {
+        if (item && item.data && item.data.Id)
+        {
+            const idHash = this.hash(item.data.Id);
+            const route = `#/dataRepeater/${idHash}`;
+            UrlUtils.openRouteInNewTab(route);
+        }
     }
 
     @Watch("pageIndex")

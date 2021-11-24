@@ -88,12 +88,21 @@
                     <a href="#" @click.prevent="restoreOriginalData" class="right">Restore original data</a>
                 </div>
 
-                <v-btn :disabled="!retryAllowed" :loading="dataLoadStatus.inProgress"
-                    @click="retry" class="ml-0">
+                <v-btn :disabled="!retryAllowed"
+                    :loading="dataLoadStatus.inProgress"
+                    v-if="hasAccessToRetry"
+                    @click="showRetryDialog" class="ml-0 mr-2">
                     {{ (stream.RetryActionName || 'Retry') }}
                 </v-btn>
 
-                <span v-if="retryResult && retryResult.Message">{{ retryResult.Message }}</span>
+                <v-btn :disabled="!analyzeAllowed"
+                    :loading="dataLoadStatus.inProgress"
+                    v-if="hasAccessToManualAnalysis"
+                    @click="showAnalyzeDialog" class="ml-0 mr-2">
+                    {{ 'Analyze' }}
+                </v-btn>
+
+                <div v-if="quickStatus">{{ quickStatus }}</div>
             </div>
 
             <!-- ACTION PARAMETERS -->
@@ -111,6 +120,56 @@
                 </div>
             </div>
         </div>
+
+        <!-- DIALOGS -->
+        <v-dialog v-model="confirmRetryDialogVisible"
+            @keydown.esc="confirmRetryDialogVisible = false"
+            max-width="480"
+            content-class="confirm-dialog"
+            :persistent="dataLoadStatus.inProgress">
+            <v-card>
+                <v-card-title class="headline">Confirm {{ (stream.RetryActionName || 'Retry') }}</v-card-title>
+                <v-card-text>
+                    Are you sure you want to {{ (stream.RetryActionName || 'Retry') }}?
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary"
+                        :disabled="dataLoadStatus.inProgress"
+                        :loading="dataLoadStatus.inProgress"
+                        @click="confirmRetryDialogVisible = false">Cancel</v-btn>
+                    <v-btn color="primary"
+                        :disabled="!retryAllowed"
+                        :loading="dataLoadStatus.inProgress"
+                        @click="retry()">{{ (stream.RetryActionName || 'Retry') }}</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog v-model="confirmRunAnalysisDialogVisible"
+            @keydown.esc="confirmRunAnalysisDialogVisible = false"
+            max-width="480"
+            content-class="confirm-dialog"
+            :persistent="dataLoadStatus.inProgress">
+            <v-card>
+                <v-card-title class="headline">Confirm run analysis</v-card-title>
+                <v-card-text>
+                    Are you sure you want to run analysis?
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary"
+                        :disabled="dataLoadStatus.inProgress"
+                        :loading="dataLoadStatus.inProgress"
+                        @click="confirmRunAnalysisDialogVisible = false">Cancel</v-btn>
+                    <v-btn color="primary"
+                        :disabled="!analyzeAllowed"
+                        :loading="dataLoadStatus.inProgress"
+                        @click="analyze()">Run analysis</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -129,6 +188,7 @@ import EditorComponent from "components/Common/EditorComponent.vue";
 import { HCDataRepeaterStreamItemDetailsViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemDetailsViewModel";
 import DateUtils from "util/DateUtils";
 import ModuleOptions from "models/Common/ModuleOptions";
+import { HCDataRepeaterItemAnalysisResult } from "generated/Models/Core/HCDataRepeaterItemAnalysisResult";
 
 @Component({
     components: {
@@ -157,7 +217,11 @@ export default class DataRepeaterItemComponent extends Vue {
     details: HCDataRepeaterStreamItemDetailsViewModel | null = null;
     item: HCDataRepeaterStreamItemViewModel | null = null;
     retryResult: HCDataRepeaterRetryResult | null = null;
+    analyzeResult: HCDataRepeaterItemAnalysisResult | null = null;
     itemNotFound: boolean = false;
+    confirmRunAnalysisDialogVisible: boolean = false;
+    confirmRetryDialogVisible: boolean = false;
+    quickStatus: string = '';
 
     //////////////////
     //  LIFECYCLE  //
@@ -188,8 +252,18 @@ export default class DataRepeaterItemComponent extends Vue {
             && this.hasAccessToRetry;
     }
 
+    get analyzeAllowed(): boolean {
+        return !this.dataLoadStatus.inProgress
+            && !!this.item
+            && this.hasAccessToManualAnalysis;
+    }
+
     get hasAccessToRetry(): boolean {
         return this.options.AccessOptions.indexOf("RetryItems") != -1;
+    }
+
+    get hasAccessToManualAnalysis(): boolean {
+        return this.options.AccessOptions.indexOf("ManualAnalysis") != -1;
     }
 
     get hasAccessToExecuteItemActions(): boolean {
@@ -216,6 +290,39 @@ export default class DataRepeaterItemComponent extends Vue {
         }
     }
 
+    showAnalyzeDialog(): void {
+        this.confirmRunAnalysisDialogVisible = true;
+    }
+
+    analyze(): void {
+        if (!this.item) return;
+        this.service.AnalyseItem({
+            StreamId: this.stream.Id,
+            ItemId: this.item.Id
+        }, this.dataLoadStatus, {
+            onSuccess: (data) => this.onAnalyzeResult(data),
+            onDone: () => {
+                this.confirmRunAnalysisDialogVisible = false;
+            }
+        });
+    }
+
+    onAnalyzeResult(data: HCDataRepeaterResultWithItem<HCDataRepeaterItemAnalysisResult> | null): void {
+        if (!this.item) return;
+        this.analyzeResult = data?.Data || null;
+        this.quickStatus = data?.Data?.Message || '';
+
+        if (data?.Item)
+        {
+            this.item = data.Item;
+            this.notifyItemUpdated(data.Item);
+        }
+    }
+
+    showRetryDialog(): void {
+        this.confirmRetryDialogVisible = true;
+    }
+
     retry(): void {
         if (!this.item) return;
         this.service.RetryItem({
@@ -223,13 +330,17 @@ export default class DataRepeaterItemComponent extends Vue {
             ItemId: this.item.Id,
             SerializedDataOverride: this.item.SerializedDataOverride
         }, this.dataLoadStatus, {
-            onSuccess: (data) => this.onRetryResult(data)
+            onSuccess: (data) => this.onRetryResult(data),
+            onDone: () => {
+                this.confirmRetryDialogVisible = false;
+            }
         });
     }
 
     onRetryResult(data: HCDataRepeaterResultWithItem<HCDataRepeaterRetryResult> | null): void {
         if (!this.item) return;
         this.retryResult = data?.Data || null;
+        this.quickStatus = data?.Data?.Message || '';
         
         if (data?.Item)
         {
@@ -285,10 +396,10 @@ export default class DataRepeaterItemComponent extends Vue {
   border: 1px solid #949494;
 }
 .data-repeater-item {
-    &--metadata
+    /* &--metadata
     {
 
-    }
+    } */
     &--tags {
         display: flex;
         flex-wrap: wrap;

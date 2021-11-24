@@ -35,6 +35,8 @@
                     class="testset-menu-item"
                     :class="{ 'active': itemIsSelected(item) }"
                     @click="onItemClicked(item)"
+                    @click.middle.stop.prevent="onItemClickedMiddle(item)"
+                    @mousedown.middle.stop.prevent
                     :href="getItemHref(item.data)"
                     :disabled="disabled">
                     <v-list-tile-title>
@@ -59,6 +61,9 @@
                 class="testset-menu-item"
                 :class="{ 'active': itemIsSelected(item) }"
                 @click="onItemClicked(item)"
+                @click.middle.stop.prevent="onItemClickedMiddle(item)"
+                @mousedown.middle.stop.prevent
+                :href="getItemHref(item.data)"
                 :disabled="disabled">
                 <v-list-tile-title v-text="item.title"></v-list-tile-title>
             </v-list-tile>
@@ -254,6 +259,11 @@ export default class FilterableListComponent extends Vue {
     {
         this.setSelectedItem(item.data);
         this.$emit('itemClicked', item);
+    }
+
+    onItemClickedMiddle(item: FilterableListItem): void
+    {
+        this.$emit('itemMiddleClicked', item);
     }
 }
 </script>

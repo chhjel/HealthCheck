@@ -15,6 +15,11 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         IEnumerable<IHCDataRepeaterStream> GetStreams();
 
         /// <summary>
+        /// Attempts to analyze an item.
+        /// </summary>
+        Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(string streamId, IHCDataRepeaterStreamItem item);
+
+        /// <summary>
         /// Attempts to retry an item.
         /// </summary>
         Task<HCDataRepeaterRetryResult> RetryItemAsync(string streamId, IHCDataRepeaterStreamItem item);

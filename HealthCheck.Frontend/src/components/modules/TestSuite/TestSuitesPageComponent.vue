@@ -41,7 +41,9 @@
                             :class="{ 'active': (activeSet == set) }"
                             v-for="(set) in filterTestSets(group.Sets)"
                             :key="`testset-menu-group-${group.Id}-set-${set.Id}`"
-                            @click="setActiveSet(set)">
+                            @click="setActiveSet(set)"
+                            @click.middle.stop.prevent="onMenuItemMiddleClicked(set)"
+                            @mousedown.middle.stop.prevent>
                             <v-icon
                                 class="mr-2"
                                 v-text="getTestSetIcon(set)" 
@@ -62,7 +64,9 @@
                         :class="{ 'active': (activeSet == set) }"
                         v-for="(set) in filterTestSets(testSetsWhenThereIsNoNamedGroups)"
                         :key="`testset-menu-${set.Id}`"
-                        @click="setActiveSet(set)">
+                        @click="setActiveSet(set)"
+                        @click.middle.stop.prevent="onMenuItemMiddleClicked(set)"
+                        @mousedown.middle.stop.prevent>
                         <v-icon
                             class="mr-2"
                             v-text="getTestSetIcon(set)"
@@ -371,6 +375,16 @@ export default class TestSuitesPageComponent extends Vue {
             {
                 this.$router.push({ name: this.config.Id, params: routeParams })
             }
+        }
+    }
+
+    onMenuItemMiddleClicked(set: TestSetViewModel): void {
+        if (set)
+        {
+            const groupPart = (set.GroupName == null) ? 'other' : UrlUtils.EncodeHashPart(set.GroupName);
+            const setPart = UrlUtils.EncodeHashPart(set.Name);
+            const route = `#/tests/${groupPart}/${setPart}`;
+            UrlUtils.openRouteInNewTab(route);
         }
     }
 

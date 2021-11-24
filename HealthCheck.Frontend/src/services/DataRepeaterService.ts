@@ -1,3 +1,4 @@
+import { HCDataRepeaterAnalyzeItemRequest } from './../generated/Models/Core/HCDataRepeaterAnalyzeItemRequest';
 import { HCDataRepeaterStreamItemDetailsViewModel } from './../generated/Models/Core/HCDataRepeaterStreamItemDetailsViewModel';
 import { HCDataItemChangeBase } from "generated/Models/Core/HCDataItemChangeBase";
 import { HCDataRepeaterPerformItemActionRequest } from "generated/Models/Core/HCDataRepeaterPerformItemActionRequest";
@@ -10,6 +11,7 @@ import { HCGetDataRepeaterItemDetailsRequest } from "generated/Models/Core/HCGet
 import { HCGetDataRepeaterStreamDefinitionsViewModel } from "generated/Models/Core/HCGetDataRepeaterStreamDefinitionsViewModel";
 import { HCGetDataRepeaterStreamItemsFilteredRequest } from "generated/Models/Core/HCGetDataRepeaterStreamItemsFilteredRequest";
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
+import { HCDataRepeaterItemAnalysisResult } from 'generated/Models/Core/HCDataRepeaterItemAnalysisResult';
 
 export interface HCDataRepeaterResultWithItem<TData>
 {
@@ -48,6 +50,14 @@ export default class DataRepeaterService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<HCDataRepeaterStreamItemDetailsViewModel | null> | null = null
     ): void {
         this.invokeModuleMethod(this.moduleId, "GetItemDetails", payload, statusObject, callbacks);
+    }
+    
+    public AnalyseItem(
+        payload: HCDataRepeaterAnalyzeItemRequest,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<HCDataRepeaterResultWithItem<HCDataRepeaterItemAnalysisResult> | null> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "AnalyseItem", payload, statusObject, callbacks);
     }
     
     public RetryItem(

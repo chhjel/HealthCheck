@@ -19,6 +19,7 @@
                     :disabled="dataLoadStatus.inProgress"
                     ref="filterableList"
                     v-on:itemClicked="onMenuItemClicked"
+                    @itemMiddleClicked="onMenuItemMiddleClicked"
                     />
             </v-navigation-drawer>
             
@@ -746,6 +747,17 @@ export default class DataflowPageComponent extends Vue {
     /////////////////////
     onMenuItemClicked(item: FilterableListItem): void {
         this.setActiveStream(item.data);
+    }
+
+    onMenuItemMiddleClicked(item: FilterableListItem): void {
+        if (item && item.data && item.data)
+        {
+            const stream = (<any>item.data);
+            const group = UrlUtils.EncodeHashPart(stream.GroupName);
+            const streamName = UrlUtils.EncodeHashPart(stream.Name);
+            const route = `#/dataflow/${group}/${streamName}`;
+            UrlUtils.openRouteInNewTab(route);
+        }
     }
 
     onDateRangeChanged(data: any): void {

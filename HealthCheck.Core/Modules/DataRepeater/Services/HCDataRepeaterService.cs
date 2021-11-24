@@ -14,6 +14,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
     /// </summary>
     public class HCDataRepeaterService : IHCDataRepeaterService
     {
+        /// <summary>
+        /// Max number of log entries to store per item.
+        /// <para>Defaults to 20.</para>
+        /// </summary>
+        public int MaxItemLogEntries { get; set; } = 20;
+
         private readonly IEnumerable<IHCDataRepeaterStream> _streams;
 
         /// <summary>
@@ -28,12 +34,66 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
         public IEnumerable<IHCDataRepeaterStream> GetStreams() => _streams;
 
         /// <inheritdoc />
+        public virtual async Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(string streamId, IHCDataRepeaterStreamItem item)
+        {
+            var stream = GetStreams()?.FirstOrDefault(x => x.GetType().FullName == streamId);
+            if (stream == null)
+            {
+                return HCDataRepeaterItemAnalysisResult.CreateError("Stream not found.");
+            }
+
+            item.Log ??= new();
+            void log(string message)
+            {
+                item.Log.Add(new HCDataRepeaterSimpleLogEntry
+                {
+                    Timestamp = DateTimeOffset.Now,
+                    Message = $"Analysis was attempted. Result: {message}"
+                });
+                if (item.Log.Count > MaxItemLogEntries)
+                {
+                    item.Log = item.Log.Skip(item.Log.Count - MaxItemLogEntries).Take(MaxItemLogEntries).ToList();
+                }
+            }
+
+            // Handle any exception
+            HCDataRepeaterItemAnalysisResult result = null;
+            try
+            {
+                result = await stream.AnalyzeItemAsync(item);
+            }
+            catch (Exception ex)
+            {
+                item.LastRetryWasSuccessful = false;
+                await stream.Storage.UpdateItemAsync(item);
+                log($"Failed with exception: {ex.Message}");
+                return HCDataRepeaterItemAnalysisResult.CreateError(ex);
+            }
+
+            // Update log
+            var statusMessage = result.Message;
+            if (string.IsNullOrWhiteSpace(statusMessage))
+            {
+                statusMessage = "Executed successfully.";
+            }
+            log(statusMessage);
+
+            // Apply AllowRetry and tag changes
+            HCDataRepeaterUtils.ApplyChangesToItem(item, result);
+
+            // Save changes
+            await stream.Storage.UpdateItemAsync(item);
+
+            return result;
+        }
+
+        /// <inheritdoc />
         public virtual async Task<HCDataRepeaterRetryResult> RetryItemAsync(string streamId, IHCDataRepeaterStreamItem item)
         {
             var stream = GetStreams()?.FirstOrDefault(x => x.GetType().FullName == streamId);
             if (stream == null)
             {
-                return HCDataRepeaterRetryResult.CreateError("Stream or action not found.");
+                return HCDataRepeaterRetryResult.CreateError("Stream not found.");
             }
 
             item.LastRetriedAt = DateTimeOffset.Now;
@@ -45,9 +105,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
                     Timestamp = DateTimeOffset.Now,
                     Message = $"Retry was attempted. Result: {message}"
                 });
-                if (item.Log.Count > 10)
+                if (item.Log.Count > MaxItemLogEntries)
                 {
-                    item.Log = item.Log.Skip(item.Log.Count - 10).Take(10).ToList();
+                    item.Log = item.Log.Skip(item.Log.Count - MaxItemLogEntries).Take(MaxItemLogEntries).ToList();
                 }
             }
 
@@ -122,9 +182,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
                     Timestamp = DateTimeOffset.Now,
                     Message = $"Action '{action.DisplayName}' was executed. Result: {message}"
                 });
-                if (item.Log.Count > 10)
+                if (item.Log.Count > MaxItemLogEntries)
                 {
-                    item.Log = item.Log.Skip(item.Log.Count - 10).Take(10).ToList();
+                    item.Log = item.Log.Skip(item.Log.Count - MaxItemLogEntries).Take(MaxItemLogEntries).ToList();
                 }
             }
 

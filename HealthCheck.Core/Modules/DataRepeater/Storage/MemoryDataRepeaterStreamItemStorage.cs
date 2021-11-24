@@ -13,7 +13,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Storage
     /// </summary>
     public class MemoryDataRepeaterStreamItemStorage : IHCDataRepeaterStreamItemStorage
     {
-        private static Dictionary<string, IHCDataRepeaterStreamItem> _items = new Dictionary<string, IHCDataRepeaterStreamItem>();
+        private static readonly Dictionary<string, IHCDataRepeaterStreamItem> _items = new();
         private readonly string _prefix;
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Storage
                 return;
             }
 
-            item.Tags = item.Tags ?? new HashSet<string>();
+            item.Tags ??= new HashSet<string>();
             item.Tags.Add(tag);
             await UpdateItemAsync(item);
         }
@@ -69,7 +69,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Storage
                 return;
             }
 
-            item.Tags = item.Tags ?? new HashSet<string>();
+            item.Tags ??= new HashSet<string>();
             item.Tags.Add(tag);
             await UpdateItemAsync(item);
         }
@@ -83,7 +83,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Storage
                 return;
             }
 
-            item.Tags = item.Tags ?? new HashSet<string>();
+            item.Tags ??= new HashSet<string>();
             item.Tags.Clear();
             await UpdateItemAsync(item);
         }

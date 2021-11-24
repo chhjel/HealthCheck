@@ -56,10 +56,12 @@ namespace HealthCheck.Core.Modules.DataRepeater
         {
             /// <summary>Does nothing.</summary>
             None = 0,
+            /// <summary>Allows executing analysis on items manually.</summary>
+            ManualAnalysis = 1,
             /// <summary>Allows retrying items.</summary>
-            RetryItems = 1,
+            RetryItems = 2,
             /// <summary>Allows executing custom actions on items.</summary>
-            ExecuteItemActions = 2
+            ExecuteItemActions = 4
         }
 
         #region Invokable methods
@@ -140,6 +142,26 @@ namespace HealthCheck.Core.Modules.DataRepeater
         }
 
         /// <summary>
+        /// Analyses an item.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.ManualAnalysis)]
+        public async Task<HCDataRepeaterResultWithItem<HCDataRepeaterItemAnalysisResult>> AnalyseItem(HealthCheckModuleContext context, HCDataRepeaterAnalyzeItemRequest model)
+        {
+            var stream = GetStream(context, model.StreamId);
+            var item = await stream.Storage.GetItemAsync(model.ItemId);
+            var data = await Options.Service.AnalyzeItemAsync(model.StreamId, item);
+            item = await stream.Storage.GetItemAsync(model.ItemId);
+
+            context.AddAuditEvent(action: "Manual analysis", subject: item?.ItemId ?? "<null>");
+
+            return new HCDataRepeaterResultWithItem<HCDataRepeaterItemAnalysisResult>
+            {
+                Item = Create(item),
+                Data = data
+            };
+        }
+
+        /// <summary>
         /// Retry an item.
         /// </summary>
         [HealthCheckModuleMethod(AccessOption.RetryItems)]
@@ -158,6 +180,10 @@ namespace HealthCheck.Core.Modules.DataRepeater
             item.SerializedDataOverride = model.SerializedDataOverride;
             var data = await Options.Service.RetryItemAsync(model.StreamId, item);
             item = await stream.Storage.GetItemAsync(model.ItemId);
+
+            context.AddAuditEvent(action: "Retry item", subject: item?.ItemId ?? "<null>")
+                .AddDetail("Success", data?.Success.ToString() ?? "<null>");
+
             return new HCDataRepeaterResultWithItem<HCDataRepeaterRetryResult>
             {
                 Item = Create(item),
@@ -183,6 +209,11 @@ namespace HealthCheck.Core.Modules.DataRepeater
             var item = await stream.Storage.GetItemAsync(model.ItemId);
             var data = await Options.Service.PerformItemAction(model.StreamId, model.ActionId, item, model.Parameters);
             item = await stream.Storage.GetItemAsync(model.ItemId);
+
+            context.AddAuditEvent(action: "Execute action", subject: item?.ItemId ?? "<null>")
+                .AddDetail("Action", model?.ActionId ?? "<null>")
+                .AddDetail("Success", data?.Success.ToString() ?? "<null>");
+
             return new HCDataRepeaterResultWithItem<HCDataRepeaterStreamItemActionResult>
             {
                 Item = Create(item),

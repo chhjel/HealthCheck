@@ -1,4 +1,7 @@
-﻿namespace HealthCheck.Core.Modules.DataRepeater.Models
+﻿using HealthCheck.Core.Util;
+using System;
+
+namespace HealthCheck.Core.Modules.DataRepeater.Models
 {
     /// <summary></summary>
     public class HCDataRepeaterItemAnalysisResult : HCDataItemChangeBase
@@ -13,5 +16,14 @@
         /// <para>Allows for optionally calling store on all items and exclude some during analysis.</para>
         /// </summary>
         public bool DontStore { get; set; }
+
+        /// <summary></summary>
+        public static HCDataRepeaterItemAnalysisResult CreateSuccess(string message = null) => new() { Message = message };
+
+        /// <summary></summary>
+        public static HCDataRepeaterItemAnalysisResult CreateError(string error) => new() { Message = error };
+
+        /// <summary></summary>
+        public static HCDataRepeaterItemAnalysisResult CreateError(Exception ex) => new() { Message = ExceptionUtils.GetFullExceptionDetails(ex) };
     }
 }
