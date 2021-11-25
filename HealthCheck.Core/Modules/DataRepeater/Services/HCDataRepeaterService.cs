@@ -34,6 +34,64 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
         public IEnumerable<IHCDataRepeaterStream> GetStreams() => _streams;
 
         /// <inheritdoc />
+        public virtual async Task AddStreamItemAsync<TStream>(IHCDataRepeaterStreamItem item, object hint = null, bool analyze = true, bool handleDuplicates = true)
+        {
+            if (item == null) return;
+            item.Log ??= new();
+
+            var stream = GetStreams()?.FirstOrDefault(x => x.GetType() == typeof(TStream));
+            if (stream == null) return;
+
+            // Analyze if enabled
+            if (analyze)
+            {
+                var analyticResult = await stream.AnalyzeItemAsync(item);
+                if (analyticResult != null)
+                {
+                    if (analyticResult.DontStore)
+                    {
+                        return;
+                    }
+                    HCDataRepeaterUtils.ApplyChangesToItem(item, analyticResult);
+                }
+            }
+
+            var existingItem = handleDuplicates
+                ? await stream.Storage.GetItemByItemIdAsync(item.ItemId)
+                : null;
+
+            // Nothing to merge, add and return
+            if (existingItem == null)
+            {
+                await stream.Storage.AddItemAsync(item, hint);
+                return;
+            }
+
+            // Handle merging
+            var mergeResult = await stream.HandleAddedDuplicateItemAsync(existingItem, item);
+
+            // Handle old item
+            if (mergeResult.OldItemAction == HCDataRepeaterItemMergeConflictResult.OldItemActionType.Delete)
+            {
+                await stream.Storage.DeleteItemAsync(existingItem.Id);
+            }
+            else if (mergeResult.OldItemAction == HCDataRepeaterItemMergeConflictResult.OldItemActionType.Update)
+            {
+                await stream.Storage.UpdateItemAsync(existingItem);
+            }
+
+            // Handle new item
+            if (mergeResult.NewItemAction == HCDataRepeaterItemMergeConflictResult.NewItemActionType.Insert)
+            {
+                await stream.Storage.AddItemAsync(item, hint);
+            }
+            else if (mergeResult.NewItemAction == HCDataRepeaterItemMergeConflictResult.NewItemActionType.Ignore)
+            {
+                /* Ignored */
+            }
+        }
+
+        /// <inheritdoc />
         public virtual async Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(string streamId, IHCDataRepeaterStreamItem item)
         {
             var stream = GetStreams()?.FirstOrDefault(x => x.GetType().FullName == streamId);
@@ -61,6 +119,10 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             try
             {
                 result = await stream.AnalyzeItemAsync(item);
+                if (result == null)
+                {
+                    return HCDataRepeaterItemAnalysisResult.CreateError("Analysis returned null.");
+                }
             }
             catch (Exception ex)
             {

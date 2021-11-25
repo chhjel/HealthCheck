@@ -1,7 +1,6 @@
 ﻿using HealthCheck.Core.Modules.DataRepeater.Abstractions;
 using HealthCheck.Core.Modules.DataRepeater.Models;
 using HealthCheck.Core.Modules.DataRepeater.Storage;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;

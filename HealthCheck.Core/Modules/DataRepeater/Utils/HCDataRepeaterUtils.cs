@@ -16,46 +16,34 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
     {
         /// <summary>
         /// Adds a new item to the first registered stream of the given type.
-        /// <para>If stream not found or analytics returns <see cref="HCDataRepeaterItemAnalysisResult.DontStore"/> null is returned.</para>
+        /// <para>If an existing item with the same item id is found, <see cref="IHCDataRepeaterStream.HandleAddedDuplicateItemAsync"/> will be called.</para>
+        /// <para>Ignores any exception.</para>
         /// </summary>
         public static void AddStreamItem<TStream>(IHCDataRepeaterStreamItem item, object hint = null, bool analyze = true)
             => Task.Run(() => AddStreamItemAsync<TStream>(item, hint, analyze));
 
         /// <summary>
         /// Adds a new item to the first registered stream of the given type.
-        /// <para>If stream not found or analytics returns <see cref="HCDataRepeaterItemAnalysisResult.DontStore"/> null is returned.</para>
+        /// <para>If an existing item with the same item id is found, <see cref="IHCDataRepeaterStream.HandleAddedDuplicateItemAsync"/> will be called.</para>
+        /// <para>Ignores any exception.</para>
         /// </summary>
-        public static async Task<IHCDataRepeaterStream> AddStreamItemAsync<TStream>(IHCDataRepeaterStreamItem item, object hint = null, bool analyze = true)
+        public static async Task AddStreamItemAsync<TStream>(IHCDataRepeaterStreamItem item, object hint = null, bool analyze = true, bool handleDuplicates = true)
         {
             try
             {
-                var service = HCGlobalConfig.GetDefaultInstanceResolver()?.Invoke(typeof(IHCDataRepeaterService)) as IHCDataRepeaterService;
-                var streams = service?.GetStreams();
-                var stream = streams?.FirstOrDefault(x => x.GetType() == typeof(TStream));
-                if (stream == null) return null;
-
-                if (analyze)
-                {
-                    var analyticResult = await stream.AnalyzeItemAsync(item);
-                    if (analyticResult.DontStore)
-                    {
-                        return null;
-                    }
-                    ApplyChangesToItem(item, analyticResult);
-                }
-
-                await stream.Storage.StoreItemAsync(item, hint);
-                return item;
+                if (HCGlobalConfig.GetDefaultInstanceResolver()?.Invoke(typeof(IHCDataRepeaterService)) is not IHCDataRepeaterService service) return;
+                await service.AddStreamItemAsync<TStream>(item, hint, analyze, handleDuplicates);
             }
             catch (Exception)
             {
-                return null;
+                /* Ignored */
             }
         }
 
         /// <summary>
         /// Gets the first registered stream of the given type.
         /// <para>If not found returns null.</para>
+        /// <para>Ignores any exception.</para>
         /// </summary>
         public static IHCDataRepeaterStream GetStream<TStream>()
         {
@@ -104,6 +92,30 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             catch (Exception)
             {
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Modifies an existing item from the given stream with the given id.
+        /// <para>Ignores any exception.</para>
+        /// </summary>
+        public static async Task<IHCDataRepeaterStreamItem> ModifyItemAsync<TStream>(string itemId, Action<IHCDataRepeaterStreamItem> modification)
+        {
+            try
+            {
+                var stream = GetStream<TStream>();
+                if (stream == null) return null;
+                var item = await stream.GetItemByItemIdAsync(itemId).ConfigureAwait(false);
+                if (item != null)
+                {
+                    modification?.Invoke(item);
+                    await stream.Storage.UpdateItemAsync(item);
+                }
+                return item;
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 

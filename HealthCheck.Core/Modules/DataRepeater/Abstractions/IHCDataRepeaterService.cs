@@ -15,6 +15,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         IEnumerable<IHCDataRepeaterStream> GetStreams();
 
         /// <summary>
+        /// Adds a new item to the first registered stream of the given type if any.
+        /// <para>If <paramref name="handleDuplicates"/> is true and an existing item with the same item id is found, <see cref="IHCDataRepeaterStream.HandleAddedDuplicateItemAsync"/> will be called.</para>
+        /// </summary>
+        Task AddStreamItemAsync<TStream>(IHCDataRepeaterStreamItem item, object hint = null, bool analyze = true, bool handleDuplicates = true);
+
+        /// <summary>
         /// Attempts to analyze an item.
         /// </summary>
         Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(string streamId, IHCDataRepeaterStreamItem item);

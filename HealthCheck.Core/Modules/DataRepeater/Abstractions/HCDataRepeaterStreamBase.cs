@@ -63,13 +63,37 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
 
         /// <inheritdoc />
         public abstract Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(IHCDataRepeaterStreamItem item);
-        #endregion
 
         /// <summary>
-        /// If true, <see cref="AnalyzeItemAsync"/> is called before storing a new item.
-        /// <para>Defaults to true</para>.
+        /// If <see cref="IHCDataRepeaterStreamItemStorage.AddItemAsync"/> is called when an item with the same <see cref="IHCDataRepeaterStreamItem.ItemId"/> already exists, this method is called to handle the conflict.
+        /// <para>Defaults to merging the new item into the old.</para>
         /// </summary>
-        public bool AnalyzeOnStoreNew { get; set; } = true;
+        public virtual Task<HCDataRepeaterItemMergeConflictResult> HandleAddedDuplicateItemAsync(IHCDataRepeaterStreamItem existingItem, IHCDataRepeaterStreamItem newItem)
+        {
+            foreach (var tag in newItem.Tags)
+            {
+                existingItem.Tags.Add(tag);
+            }
+            existingItem.AllowRetry = newItem.AllowRetry;
+            existingItem.ExpirationTime = newItem.ExpirationTime ?? existingItem.ExpirationTime;
+            existingItem.SerializedData = newItem.SerializedData;
+            existingItem.Summary = newItem.Summary;
+            existingItem.InitialError = newItem.InitialError;
+            existingItem.Log ??= new();
+            existingItem.Log.Add(new HCDataRepeaterSimpleLogEntry
+            {
+                Timestamp = DateTimeOffset.Now,
+                Message = "Merged with new details."
+            });
+
+            var result = new HCDataRepeaterItemMergeConflictResult
+            {
+                NewItemAction = HCDataRepeaterItemMergeConflictResult.NewItemActionType.Ignore,
+                OldItemAction = HCDataRepeaterItemMergeConflictResult.OldItemActionType.Update
+            };
+            return Task.FromResult(result);
+        }
+        #endregion
 
         /// <summary>
         /// A stream of data that supports being modified and reprocessed.
@@ -81,21 +105,27 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         }
 
         /// <summary>
-        /// Store a new item. Calls first <see cref="AnalyzeItemAsync"/> if <see cref="AnalyzeOnStoreNew"/> is enabled and applies any resulting changes.
+        /// Store a new item. If <paramref name="analyze"/> is enabled <see cref="AnalyzeItemAsync"/> is called first and any resulting changes applied.
         /// </summary>
-        public virtual async Task StoreItemAsync(IHCDataRepeaterStreamItem item, object hint = null)
+        public virtual async Task StoreItemAsync(IHCDataRepeaterStreamItem item, object hint = null, bool analyze = true)
         {
-            if (AnalyzeOnStoreNew)
+            if (item == null) return;
+            item.Log ??= new();
+
+            if (analyze)
             {
                 var analyticResult = await AnalyzeItemAsync(item);
-                if (analyticResult.DontStore)
+                if (analyticResult != null)
                 {
-                    return;
+                    if (analyticResult.DontStore)
+                    {
+                        return;
+                    }
+                    HCDataRepeaterUtils.ApplyChangesToItem(item, analyticResult);
                 }
-                HCDataRepeaterUtils.ApplyChangesToItem(item, analyticResult);
             }
 
-            await Storage.StoreItemAsync(item, hint);
+            await Storage.AddItemAsync(item, hint);
         }
     }
 

@@ -27,7 +27,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Storage
         }
 
         /// <inheritdoc />
-        public Task StoreItemAsync(IHCDataRepeaterStreamItem item, object hint = null)
+        public Task AddItemAsync(IHCDataRepeaterStreamItem item, object hint = null)
         {
             lock(_items)
             {

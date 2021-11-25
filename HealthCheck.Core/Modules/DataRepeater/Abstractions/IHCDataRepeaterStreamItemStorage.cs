@@ -12,7 +12,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// <summary>
         /// Store a new item.
         /// </summary>
-        Task StoreItemAsync(IHCDataRepeaterStreamItem item, object hint = null);
+        Task AddItemAsync(IHCDataRepeaterStreamItem item, object hint = null);
 
         /// <summary>
         /// Updates an existing item.

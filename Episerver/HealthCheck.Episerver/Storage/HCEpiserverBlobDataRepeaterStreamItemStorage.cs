@@ -54,7 +54,7 @@ namespace HealthCheck.Episerver.Storage
 
         #region IHCDataRepeaterStreamItemStorage Implementation
         /// <inheritdoc />
-        public Task StoreItemAsync(IHCDataRepeaterStreamItem item, object hint = null)
+        public Task AddItemAsync(IHCDataRepeaterStreamItem item, object hint = null)
         {
             InsertItemBuffered((TItem)item, item.Id);
             return Task.CompletedTask;

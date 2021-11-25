@@ -1,6 +1,7 @@
 using EPiServer.Framework.Blobs;
 using HealthCheck.Core.Modules.DataRepeater.Abstractions;
 using HealthCheck.Core.Modules.DataRepeater.Models;
+using HealthCheck.Core.Modules.DataRepeater.Services;
 using HealthCheck.Episerver.Storage;
 using HealthCheck.Episerver.Tests.Helpers;
 using System;
@@ -20,7 +21,44 @@ namespace HealthCheck.Episerver.Tests.Storage
         }
 
         [Fact]
-        public async Task StoreItem_WithMaxCount_RespectsIt()
+        public async Task AddItem_DuplicateWithMerge_MergesData()
+        {
+            var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
+            var storage = CreateStorage(() => blob);
+            storage.MaxBufferSize = 500;
+            storage.BlobUpdateBufferDuration = TimeSpan.FromDays(1);
+
+            var stream = new StreamImplementation(storage);
+            var service = new HCDataRepeaterService(new[] { stream });
+
+            var tasks = new List<Task>();
+            for (int i = -10; i < 110; i++)
+            {
+                StreamItemData data = createItem(i);
+                tasks.Add(service.AddStreamItemAsync<StreamImplementation>(StreamItem.CreateFrom(data, data.SomeId)));
+            }
+            await Task.WhenAll(tasks);
+            storage.ForceBufferCallback();
+
+            for (int i = 0; i < 100; i++)
+            {
+                StreamItemData data = createItem(i);
+                tasks.Add(service.AddStreamItemAsync<StreamImplementation>(StreamItem.CreateFrom(data, data.SomeId)));
+            }
+            await Task.WhenAll(tasks);
+            storage.ForceBufferCallback();
+
+            var items = (await storage.GetItemsPagedAsync(new HCGetDataRepeaterStreamItemsFilteredRequest
+                { PageIndex = 0, PageSize = int.MaxValue })).Items.ToList();
+            Assert.Equal(120, items.Count);
+            Assert.Equal(100, items.Count(x => x.Log.Any(l => l.Message == "Merged with new details.")));
+
+            StreamItemData createItem(int id)
+                => new StreamItemData { SomeId = id.ToString(), AnotherThing = id % 2 == 0, SomeValue = id * 25m };
+        }
+
+        [Fact]
+        public async Task AddItem_WithMaxCount_RespectsIt()
         {
             var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
             var storage = CreateStorage(() => blob)
@@ -33,7 +71,7 @@ namespace HealthCheck.Episerver.Tests.Storage
             for (int i = 0; i < 100; i++)
             {
                 var data = new StreamItemData { SomeId = i.ToString(), AnotherThing = i % 2 == 0, SomeValue = i * 25m };
-                tasks.Add(storage.StoreItemAsync(StreamItem.CreateFrom(data, data.SomeId)));
+                tasks.Add(storage.AddItemAsync(StreamItem.CreateFrom(data, data.SomeId)));
             }
             await Task.WhenAll(tasks);
             storage.ForceBufferCallback();
@@ -44,7 +82,7 @@ namespace HealthCheck.Episerver.Tests.Storage
         }
 
         [Fact]
-        public async Task StoreItem_WithMaxAge_RespectsIt()
+        public async Task AddItem_WithMaxAge_RespectsIt()
         {
             var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
             var storage = CreateStorage(() => blob)
@@ -62,7 +100,7 @@ namespace HealthCheck.Episerver.Tests.Storage
                 {
                     item.InsertedAt = item.InsertedAt.AddDays(-10);
                 }
-                tasks.Add(storage.StoreItemAsync(item));
+                tasks.Add(storage.AddItemAsync(item));
             }
             await Task.WhenAll(tasks);
             storage.ForceBufferCallback();
@@ -73,7 +111,7 @@ namespace HealthCheck.Episerver.Tests.Storage
         }
 
         [Fact]
-        public async Task StoreItem_WithExpirationTimeBackInTime_RemovesItems()
+        public async Task AddItem_WithExpirationTimeBackInTime_RemovesItems()
         {
             var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
             var storage = CreateStorage(() => blob)
@@ -91,7 +129,7 @@ namespace HealthCheck.Episerver.Tests.Storage
                 {
                     item.SetExpirationTime(DateTimeOffset.Now.AddMinutes(-5));
                 }
-                tasks.Add(storage.StoreItemAsync(item));
+                tasks.Add(storage.AddItemAsync(item));
             }
             await Task.WhenAll(tasks);
             storage.ForceBufferCallback();
@@ -103,7 +141,7 @@ namespace HealthCheck.Episerver.Tests.Storage
         }
 
         [Fact]
-        public async Task StoreItem_WithExpirationTimeAheadInTime_KeepsItems()
+        public async Task AddItem_WithExpirationTimeAheadInTime_KeepsItems()
         {
             var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
             var storage = CreateStorage(() => blob)
@@ -121,7 +159,7 @@ namespace HealthCheck.Episerver.Tests.Storage
                 {
                     item.SetExpirationTime(DateTimeOffset.Now.AddMinutes(5));
                 }
-                tasks.Add(storage.StoreItemAsync(item));
+                tasks.Add(storage.AddItemAsync(item));
             }
             await Task.WhenAll(tasks);
             storage.ForceBufferCallback();
@@ -153,7 +191,7 @@ namespace HealthCheck.Episerver.Tests.Storage
                 {
                     targetItem = item;
                 }
-                tasks.Add(storage.StoreItemAsync(item));
+                tasks.Add(storage.AddItemAsync(item));
             }
             await Task.WhenAll(tasks);
             storage.ForceBufferCallback();
@@ -194,7 +232,7 @@ namespace HealthCheck.Episerver.Tests.Storage
                 {
                     targetItem = item;
                 }
-                tasks.Add(storage.StoreItemAsync(item));
+                tasks.Add(storage.AddItemAsync(item));
             }
             await Task.WhenAll(tasks);
             storage.ForceBufferCallback();
@@ -235,7 +273,7 @@ namespace HealthCheck.Episerver.Tests.Storage
                 {
                     targetItem = item;
                 }
-                tasks.Add(storage.StoreItemAsync(item));
+                tasks.Add(storage.AddItemAsync(item));
             }
             await Task.WhenAll(tasks);
             storage.ForceBufferCallback();
@@ -276,7 +314,7 @@ namespace HealthCheck.Episerver.Tests.Storage
                 var item = StreamItem.CreateFrom(data, data.SomeId);
                 if (i == 6) targetItem1 = item;
                 else if (i == 8) targetItem2 = item;
-                tasks.Add(storage.StoreItemAsync(item));
+                tasks.Add(storage.AddItemAsync(item));
             }
             await Task.WhenAll(tasks);
 
@@ -295,7 +333,7 @@ namespace HealthCheck.Episerver.Tests.Storage
             Assert.True(items.Count(x => x.Id == targetItem2.Id) == 0);
         }
 
-        private StorageImplementation CreateStorage(Func<MockBlob> blobFactory = null, string blobJson = null)
+        private static StorageImplementation CreateStorage(Func<MockBlob> blobFactory = null, string blobJson = null)
         {
             var cache = EpiBlobTestHelpers.CreateMockCache();
             var factoryMock = EpiBlobTestHelpers.CreateBlobFactoryMock(blobFactory, blobJson);
@@ -314,6 +352,25 @@ namespace HealthCheck.Episerver.Tests.Storage
             protected override Guid ContainerId => Guid.Parse("c0254918-bb23-4ebb-9890-062ed6a11aaa");
 
             public StorageImplementation(IBlobFactory blobFactory, Core.Abstractions.IHCCache cache) : base(blobFactory, cache) {}
+        }
+        public class StreamImplementation : HCDataRepeaterStreamBase<StreamItem>
+        {
+            public override string StreamDisplayName => "StreamDisplayName";
+            public override string StreamGroupName => "StreamGroupName";
+            public override string StreamItemsName => "StreamItemsName";
+            public override string ItemIdDisplayName => "ItemIdDisplayName";
+            public override string RetryActionName => "RetryActionName";
+            public override string RetryDescription => "RetryDescription";
+            public override string AnalyzeActionName => "AnalyzeActionName";
+            public override List<string> InitiallySelectedTags => new List<string>();
+            public override List<string> FilterableTags => new List<string>();
+            public override List<IHCDataRepeaterStreamItemAction> Actions => new List<IHCDataRepeaterStreamItemAction>();
+
+            public StreamImplementation(IHCDataRepeaterStreamItemStorage storage) : base(storage) { }
+
+            protected override Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(StreamItem item) => Task.FromResult<HCDataRepeaterStreamItemDetails>(null);
+            protected override Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(StreamItem item) => Task.FromResult<HCDataRepeaterItemAnalysisResult>(null);
+            protected override Task<HCDataRepeaterRetryResult> RetryItemAsync(StreamItem item) => Task.FromResult<HCDataRepeaterRetryResult>(null);
         }
     }
 }

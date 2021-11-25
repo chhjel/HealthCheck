@@ -95,5 +95,10 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// Optional extra details about an item to display in the UI.
         /// </summary>
         Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(IHCDataRepeaterStreamItem item);
+
+        /// <summary>
+        /// If <see cref="IHCDataRepeaterStreamItemStorage.AddItemAsync"/> is called when an item with the same <see cref="IHCDataRepeaterStreamItem.ItemId"/> already exists, this method is called to handle the conflict.
+        /// </summary>
+        Task<HCDataRepeaterItemMergeConflictResult> HandleAddedDuplicateItemAsync(IHCDataRepeaterStreamItem existingItem, IHCDataRepeaterStreamItem newItem);
     }
 }
