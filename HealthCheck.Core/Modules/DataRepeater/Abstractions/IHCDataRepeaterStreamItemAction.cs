@@ -49,7 +49,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
 
         /// <summary>
         /// Optional categories this action belongs to.
-        /// <para>Can be used from the access tokens module for more granular access config.</para>
+        /// <para>Can be used for more granular access configuration.</para>
         /// </summary>
         List<string> Categories { get; }
 
