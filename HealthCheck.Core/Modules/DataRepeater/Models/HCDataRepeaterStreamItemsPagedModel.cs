@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace HealthCheck.Core.Modules.DataRepeater.Models
 {
     /// <summary>
-    /// Response from <see cref="IHCDataRepeaterStream.GetItemsPagedAsync"/>
+    /// Response from <see cref="IHCDataRepeaterStreamItemStorage.GetItemsPagedAsync"/>
     /// </summary>
     public class HCDataRepeaterStreamItemsPagedModel
     {
