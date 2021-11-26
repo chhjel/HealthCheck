@@ -102,7 +102,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// <typeparamref name="TData"/> must be serializable. Can be a string or complex object.
         /// </summary>
         public static TSelf CreateFrom(TData data, string itemId, string summary = null,
-            IEnumerable<string> tags = null, bool allowRetry = true, string initialError = null, Exception initialErrorException = null)
+            IEnumerable<string> tags = null, bool allowRetry = true,
+            DateTimeOffset? expirationTime = null,
+            string initialError = null, Exception initialErrorException = null)
         {
             string serializedData = null;
             if (data != null)
@@ -134,7 +136,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
                 SerializedData = serializedData,
                 AllowRetry = allowRetry,
                 InsertedAt = DateTimeOffset.Now,
-                InitialError = initialError
+                InitialError = initialError,
+                ExpirationTime = expirationTime,
+                Log = new()
             };
         }
 

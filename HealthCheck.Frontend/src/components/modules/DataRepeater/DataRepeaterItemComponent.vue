@@ -76,7 +76,7 @@
             
             <!-- RETRY -->
             <div class="data-repeater-item--block mt-2">
-                <h3 class="mt-0">Retry</h3>
+                <h3 class="mt-0">{{ (stream.RetryActionName || 'Retry') }}</h3>
                 <p v-if="stream.RetryDescription">{{ stream.RetryDescription }}</p>
 
                 <editor-component

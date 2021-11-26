@@ -392,9 +392,12 @@ export default class DataRepeaterPageComponent extends Vue {
     }
 
     itemRowClasses(item: HCDataRepeaterStreamItemViewModel): any {
+        const success = item.LastRetryWasSuccessful;
+        const failed = !success
+            && (item.LastRetryWasSuccessful == false || item.InitialError);
         return {
-            'retry-success': item.LastRetryWasSuccessful,
-            'retry-failed': item.LastRetryWasSuccessful == false
+            'retry-success': success,
+            'retry-failed': failed
         };
     }
     
