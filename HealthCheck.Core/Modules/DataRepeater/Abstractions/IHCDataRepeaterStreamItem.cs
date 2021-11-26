@@ -46,6 +46,11 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         string ItemId { get; set; }
 
         /// <summary>
+        /// Optional forced status to show in the UI.
+        /// </summary>
+        HCDataRepeaterStreamItemStatus? ForcedStatus { get; set; }
+
+        /// <summary>
         /// Optional short summary of the serialized data, displayed in the list along <see cref="ItemId"/>.
         /// </summary>
         string Summary { get; set; }

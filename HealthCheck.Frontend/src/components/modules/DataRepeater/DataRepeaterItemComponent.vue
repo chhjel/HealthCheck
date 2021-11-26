@@ -42,7 +42,7 @@
                             <li v-if="item.LastRetriedAt"><b>Last retried: </b>{{ formatDate(item.LastRetriedAt) }}</li>
                             <li v-if="item.LastRetryWasSuccessful != null"><b>Last retry was success: </b>{{ item.LastRetryWasSuccessful }}</li>
                             <li v-if="item.LastActionAt"><b>Last action: </b>{{ formatDate(item.LastActionAt) }}</li>
-                            <li v-if="item.ExpiresAt"><b>Expires at: </b>{{ formatDate(item.ExpiresAt) }}</li>
+                            <li v-if="item.ExpiresAt"><b>Expires after: </b>{{ formatDate(item.ExpiresAt) }}</li>
                         </ul>
                     </div>
                 </div>

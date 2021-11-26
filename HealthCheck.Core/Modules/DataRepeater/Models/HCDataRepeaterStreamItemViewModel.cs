@@ -77,5 +77,10 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// Optional time when this item will be deleted after.
         /// </summary>
         public DateTimeOffset? ExpiresAt { get; set; }
+
+        /// <summary>
+        /// Optional forced status to show in the UI.
+        /// </summary>
+        public HCDataRepeaterStreamItemStatus? ForcedStatus { get; set; }
     }
 }

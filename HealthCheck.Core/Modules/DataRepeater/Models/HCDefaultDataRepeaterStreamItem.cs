@@ -26,6 +26,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public string ItemId { get; set; }
 
         /// <inheritdoc />
+        public HCDataRepeaterStreamItemStatus? ForcedStatus { get; set; }
+
+        /// <inheritdoc />
         public string Summary { get; set; }
 
         /// <inheritdoc />

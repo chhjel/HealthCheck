@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Modules.DataRepeater.Models;
+﻿using HealthCheck.Core.Modules.DataRepeater.Extensions;
+using HealthCheck.Core.Modules.DataRepeater.Models;
 using HealthCheck.Core.Modules.DataRepeater.Utils;
 using System;
 using System.Collections.Generic;
@@ -77,14 +78,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
             existingItem.AllowRetry = newItem.AllowRetry;
             existingItem.ExpirationTime = newItem.ExpirationTime ?? existingItem.ExpirationTime;
             existingItem.SerializedData = newItem.SerializedData;
-            existingItem.Summary = newItem.Summary;
-            existingItem.InitialError = newItem.InitialError;
-            existingItem.Log ??= new();
-            existingItem.Log.Add(new HCDataRepeaterSimpleLogEntry
-            {
-                Timestamp = DateTimeOffset.Now,
-                Message = "Merged with new details."
-            });
+            existingItem.Summary = !string.IsNullOrWhiteSpace(newItem.Summary) ? newItem.Summary : existingItem.Summary;
+            existingItem.InitialError = !string.IsNullOrWhiteSpace(newItem.InitialError) ? newItem.InitialError : existingItem.InitialError;
+            existingItem.AddLogMessage("Merged with new details.");
 
             var result = new HCDataRepeaterItemMergeConflictResult
             {

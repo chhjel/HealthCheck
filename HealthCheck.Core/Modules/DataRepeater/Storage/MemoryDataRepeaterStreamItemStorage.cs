@@ -1,5 +1,7 @@
 ﻿using HealthCheck.Core.Modules.DataRepeater.Abstractions;
+using HealthCheck.Core.Modules.DataRepeater.Extensions;
 using HealthCheck.Core.Modules.DataRepeater.Models;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -92,6 +94,21 @@ namespace HealthCheck.Core.Modules.DataRepeater.Storage
         }
 
         /// <inheritdoc />
+        public async Task RemoveItemTagsAsync(Guid id, params string[] tags)
+        {
+            var item = await GetItemAsync(id);
+            if (item != null && tags?.Any() == true && tags.Any(t => item.Tags?.Contains(t) == true))
+            {
+                item.Tags ??= new HashSet<string>();
+                foreach (var tag in tags)
+                {
+                    item.Tags.Remove(tag);
+                }
+                await UpdateItemAsync(item);
+            }
+        }
+
+        /// <inheritdoc />
         public async Task RemoveAllItemTagsAsync(Guid id)
         {
             var item = await GetItemAsync(id);
@@ -128,6 +145,27 @@ namespace HealthCheck.Core.Modules.DataRepeater.Storage
             }
 
             item.ExpirationTime = time;
+            await UpdateItemAsync(item);
+        }
+
+        /// <inheritdoc />
+        public async Task SetForcedItemStatusAsync(Guid id, HCDataRepeaterStreamItemStatus? status, Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null)
+        {
+            var item = await GetItemAsync(id);
+            if (item == null)
+            {
+                return;
+            }
+
+            item.ForcedStatus = status;
+            if (expirationTime != null)
+            {
+                item.ExpirationTime = expirationTime.Value;
+            }
+            if (!string.IsNullOrWhiteSpace(logMessage))
+            {
+                item.AddLogMessage(logMessage);
+            }
             await UpdateItemAsync(item);
         }
 

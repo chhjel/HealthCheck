@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Modules.DataRepeater.Models;
+using HealthCheck.Core.Util;
 using System;
 using System.Threading.Tasks;
 
@@ -50,6 +51,11 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         Task RemoveItemTagAsync(Guid id, string tag);
 
         /// <summary>
+        /// Remove tags from item matching the given id.
+        /// </summary>
+        Task RemoveItemTagsAsync(Guid id, params string[] tags);
+
+        /// <summary>
         /// Remove all tags from item matching the given id.
         /// </summary>
         Task RemoveAllItemTagsAsync(Guid id);
@@ -64,6 +70,16 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// <para>Set to null to not expire.</para>
         /// </summary>
         Task SetItemExpirationTimeAsync(Guid id, DateTimeOffset? time);
+
+        /// <summary>
+        /// Set the given items forced status that is only used to override status colors in the UI by default.
+        /// <para>Optionally provide a log message and an expiration time.</para>
+        /// </summary>
+        /// <param name="id">Id of item to target.</param>
+        /// <param name="status">Status to enforce. Can be null to clear forced status.</param>
+        /// <param name="expirationTime">Optionally set expiration time. Null = no effect, Maybe{null} = clear.</param>
+        /// <param name="logMessage">Optional log message.</param>
+        Task SetForcedItemStatusAsync(Guid id, HCDataRepeaterStreamItemStatus? status, Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null);
 
         /// <summary>
         /// Get stream items with filter and paging.

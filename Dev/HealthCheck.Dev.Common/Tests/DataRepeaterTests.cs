@@ -1,10 +1,13 @@
 ﻿using HealthCheck.Core.Modules.DataRepeater.Extensions;
+using HealthCheck.Core.Modules.DataRepeater.Models;
 using HealthCheck.Core.Modules.DataRepeater.Utils;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
+using HealthCheck.Core.Util;
 using HealthCheck.Dev.Common.DataRepeater;
 using HealthCheck.WebUI.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Dev.Common.Tests
@@ -129,6 +132,40 @@ namespace HealthCheck.Dev.Common.Tests
             return item != null
                 ? TestResult.CreateSuccess("Item found!").AddSerializedData(item)
                 : TestResult.CreateWarning("Item not found.");
+        }
+
+        [RuntimeTest]
+        public TestResult Scenario1InitialError(string orderNumber = "X888888888")
+        {
+            var order = new DummyOrder
+            {
+                OrderNumber = orderNumber,
+                Amount = 1288.88m
+            };
+
+            var item = TestOrderStreamItem.CreateFrom(order, order.OrderNumber, "From \"John Smithery\"",
+                tags: new[] { "Capture failed" },
+                initialError: "Some error details here.");
+
+            HCDataRepeaterUtils.AddStreamItem<TestOrderDataRepeaterStream>(item);
+            return TestResult.CreateSuccess($"Stored item!");
+        }
+
+        [RuntimeTest]
+        public TestResult Scenario1FixedInLaterAttempt(string orderNumber = "X888888888")
+        {
+            HCDataRepeaterUtils.SetForcedItemStatus<TestOrderDataRepeaterStream>(orderNumber, HCDataRepeaterStreamItemStatus.Success,
+                new Maybe<DateTimeOffset?>(DateTimeOffset.Now.AddSeconds(30)), "Fixed!");
+            HCDataRepeaterUtils.SetTags<TestOrderDataRepeaterStream>(orderNumber, new Dictionary<string, bool>() { { "Capture failed", false }, { "Capture Fixed", true } });
+            return TestResult.CreateSuccess($"Marked as fixed!");
+        }
+
+        [RuntimeTest]
+        public TestResult Scenario1FailedInLaterAttempt(string orderNumber = "X888888888")
+        {
+            HCDataRepeaterUtils.SetForcedItemStatus<TestOrderDataRepeaterStream>(orderNumber, HCDataRepeaterStreamItemStatus.Error, new Maybe<DateTimeOffset?>(null), logMessage: "Failed again!");
+            HCDataRepeaterUtils.SetTags<TestOrderDataRepeaterStream>(orderNumber, new Dictionary<string, bool>() { { "Capture failed", true }, { "Capture Fixed", false } });
+            return TestResult.CreateSuccess($"Marked as failed!");
         }
     }
 }

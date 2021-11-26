@@ -1,5 +1,9 @@
 ﻿using HealthCheck.Core.Modules.DataRepeater.Abstractions;
+using HealthCheck.Core.Modules.DataRepeater.Models;
+using HealthCheck.Core.Util;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.DataRepeater.Extensions
@@ -60,7 +64,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Extensions
         }
 
         /// <summary>
-        /// Add a tag to the item matching the given item id.
+        /// Add tags to the item matching the given item id.
         /// </summary>
         public static async Task<bool> AddItemTagsAsync(this IHCDataRepeaterStream stream, string itemId, params string[] tags)
         {
@@ -69,7 +73,52 @@ namespace HealthCheck.Core.Modules.DataRepeater.Extensions
             await stream.Storage.AddItemTagsAsync(item.Id, tags).ConfigureAwait(false);
             return true;
         }
+
+        /// <summary>
+        /// Remove tags from the item matching the given item id.
+        /// </summary>
+        public static async Task<bool> RemoveItemTagsAsync(this IHCDataRepeaterStream stream, string itemId, params string[] tags)
+        {
+            var item = await stream.GetItemByItemIdAsync(itemId).ConfigureAwait(false);
+            if (item == null) return false;
+            await stream.Storage.RemoveItemTagsAsync(item.Id, tags).ConfigureAwait(false);
+            return true;
+        }
         
+        /// <summary>
+        /// Add/remove the given tags on the item matching the given item id, and optionally remove all others.
+        /// </summary>
+        /// <param name="stream">Target stream</param>
+        /// <param name="itemId">Target item</param>
+        /// <param name="tags">True to add a tag, false to remove a tag.</param>
+        /// <param name="removeOtherTags">True to remove all other tags if any.</param>
+        public static async Task<bool> SetTagsAsync(this IHCDataRepeaterStream stream, string itemId, Dictionary<string, bool> tags, bool removeOtherTags = false)
+        {
+            var item = await stream.GetItemByItemIdAsync(itemId).ConfigureAwait(false);
+            if (item == null) return false;
+
+            if (!removeOtherTags)
+            {
+                var toRemove = tags.Where(x => x.Value == false).Select(x => x.Key).ToArray();
+                if (toRemove.Any())
+                {
+                    await stream.Storage.RemoveItemTagsAsync(item.Id, toRemove).ConfigureAwait(false);
+                }
+            }
+            else if (item.Tags?.Any() == true)
+            {
+                await stream.Storage.RemoveAllItemTagsAsync(item.Id).ConfigureAwait(false);
+            }
+
+            var toAdd = tags.Where(x => x.Value == false).Select(x => x.Key).ToArray();
+            if (toAdd.Any())
+            {
+                await stream.Storage.AddItemTagsAsync(item.Id, toAdd).ConfigureAwait(false);
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Toggle allow retry on the item matching the given item id.
         /// </summary>
@@ -89,6 +138,23 @@ namespace HealthCheck.Core.Modules.DataRepeater.Extensions
             var item = await stream.GetItemByItemIdAsync(itemId).ConfigureAwait(false);
             if (item == null) return false;
             await stream.Storage.SetItemExpirationTimeAsync(item.Id, time).ConfigureAwait(false);
+            return true;
+        }
+
+        /// <summary>
+        /// Set the given items forced status that is only used to override status colors in the UI by default.
+        /// <para>Optionally provide a log message and an expiration time.</para>
+        /// </summary>
+        /// <param name="stream">Stream to target.</param>
+        /// <param name="itemId">Id of item to target.</param>
+        /// <param name="status">Status to enforce. Can be null to clear forced status.</param>
+        /// <param name="expirationTime">Optionally set expiration time. Null = no effect, Maybe{null} = clear.</param>
+        /// <param name="logMessage">Optional log message.</param>
+        public static async Task<bool> SetForcedItemStatusAsync(this IHCDataRepeaterStream stream, string itemId, HCDataRepeaterStreamItemStatus? status, Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null)
+        {
+            var item = await stream.GetItemByItemIdAsync(itemId).ConfigureAwait(false);
+            if (item == null) return false;
+            await stream.Storage.SetForcedItemStatusAsync(item.Id, status, expirationTime, logMessage).ConfigureAwait(false);
             return true;
         }
     }

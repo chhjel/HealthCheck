@@ -231,6 +231,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
                 Id = item.Id,
                 ItemId = item.ItemId,
                 Summary = item.Summary,
+                ForcedStatus = item.ForcedStatus,
                 AllowRetry = item.AllowRetry,
                 InsertedAt = item.InsertedAt,
                 LastRetriedAt = item.LastRetriedAt,

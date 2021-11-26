@@ -1,7 +1,9 @@
 ﻿using EPiServer.Framework.Blobs;
 using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Modules.DataRepeater.Abstractions;
+using HealthCheck.Core.Modules.DataRepeater.Extensions;
 using HealthCheck.Core.Modules.DataRepeater.Models;
+using HealthCheck.Core.Util;
 using HealthCheck.Core.Util.Storage;
 using HealthCheck.Episerver.Utils;
 using System;
@@ -127,6 +129,21 @@ namespace HealthCheck.Episerver.Storage
         }
 
         /// <inheritdoc />
+        public async Task RemoveItemTagsAsync(Guid id, params string[] tags)
+        {
+            var item = await GetItemAsync(id).ConfigureAwait(false);
+            if (item != null && tags?.Any() == true && tags.Any(t => item.Tags?.Contains(t) == true))
+            {
+                item.Tags ??= new HashSet<string>();
+                foreach (var tag in tags)
+                {
+                    item.Tags.Remove(tag);
+                }
+                await UpdateItemAsync(item).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc />
         public async Task RemoveAllItemTagsAsync(Guid id)
         {
             var item = await GetItemAsync(id).ConfigureAwait(false);
@@ -155,6 +172,25 @@ namespace HealthCheck.Episerver.Storage
             if (item != null && item.ExpirationTime != time)
             {
                 item.ExpirationTime = time;
+                await UpdateItemAsync(item).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task SetForcedItemStatusAsync(Guid id, HCDataRepeaterStreamItemStatus? status, Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null)
+        {
+            var item = await GetItemAsync(id).ConfigureAwait(false);
+            if (item != null)
+            {
+                item.ForcedStatus = status;
+                if (expirationTime != null)
+                {
+                    item.ExpirationTime = expirationTime.Value;
+                }
+                if (!string.IsNullOrWhiteSpace(logMessage))
+                {
+                    item.AddLogMessage(logMessage);
+                }
                 await UpdateItemAsync(item).ConfigureAwait(false);
             }
         }

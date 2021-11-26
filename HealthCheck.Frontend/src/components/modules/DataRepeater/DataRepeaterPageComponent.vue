@@ -158,6 +158,7 @@ import { HCDataRepeaterStreamItemsPagedViewModel } from "generated/Models/Core/H
 import { Route } from "vue-router";
 import DateUtils from "util/DateUtils";
 import UrlUtils from "util/UrlUtils";
+import { HCDataRepeaterStreamItemStatus } from "generated/Enums/Core/HCDataRepeaterStreamItemStatus";
 
 @Component({
     components: {
@@ -392,9 +393,13 @@ export default class DataRepeaterPageComponent extends Vue {
     }
 
     itemRowClasses(item: HCDataRepeaterStreamItemViewModel): any {
-        const success = item.LastRetryWasSuccessful;
-        const failed = !success
-            && (item.LastRetryWasSuccessful == false || item.InitialError);
+        let success = item.LastRetryWasSuccessful;
+        let failed = !success && (item.LastRetryWasSuccessful == false || item.InitialError);
+        if (item.ForcedStatus)
+        {
+            success = item.ForcedStatus == HCDataRepeaterStreamItemStatus.Success;
+            failed = item.ForcedStatus == HCDataRepeaterStreamItemStatus.Error;
+        }
         return {
             'retry-success': success,
             'retry-failed': failed
