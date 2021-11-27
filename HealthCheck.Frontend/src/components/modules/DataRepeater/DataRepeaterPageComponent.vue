@@ -107,7 +107,19 @@
                                         <div class="data-repeater-list-item--spacer"></div>
                                         <span class="data-repeater-list-item--timestamp">{{ formatDate(item.InsertedAt) }}</span>
                                         <div class="data-repeater-list-item--break"></div>
-                                        <span v-if="item.AllowRetry" class="data-repeater-list-item--icon"><v-icon>replay</v-icon></span>
+                                        <v-tooltip v-if="item.AllowRetry" bottom>
+                                            <template v-slot:activator="{ on }">
+                                                <span class="data-repeater-list-item--icon" style="cursor: help;" v-on="on"><v-icon>replay</v-icon></span>
+                                            </template>
+                                            <span>Can be attempted retried</span>
+                                        </v-tooltip>
+                                        <v-tooltip v-if="item.ExpiresAt && expiresSoon(item.ExpiresAt)" bottom>
+                                            <template v-slot:activator="{ on }">
+                                                <span class="data-repeater-list-item--icon" style="cursor: help;" v-on="on"><v-icon>timer</v-icon></span>
+                                            </template>
+                                            <span>Expires soon</span>
+                                        </v-tooltip>
+
                                         <div class="data-repeater-list-item--tags">
                                             <div class="data-repeater-list-item--tag"
                                                 v-for="(tag, tIndex) in item.Tags"
@@ -515,6 +527,17 @@ export default class DataRepeaterPageComponent extends Vue {
             'retry-success': success,
             'retry-failed': failed
         };
+    }
+
+    expiresSoon(dateStr: string): boolean {
+        const d = new Date(dateStr);
+        const diff = d.getTime() - new Date().getTime();
+        const threshold = 60 * 60 * 1000; // 60 minutes
+        if (diff < threshold)
+        {
+            return true;
+        }
+        return false;
     }
     
     ///////////////////////
