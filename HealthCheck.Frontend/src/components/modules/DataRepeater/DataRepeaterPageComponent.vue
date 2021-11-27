@@ -16,7 +16,7 @@
                     :sortByKey="`GroupName`"
                     :hrefKey="`Href`"
                     :filterKeys="[ 'Name', 'Description' ]"
-                    :loading="isLoading"
+                    :loading="metadataLoadStatus.inProgress"
                     :disabled="isLoading"
                     ref="filterableList"
                     v-on:itemClicked="onMenuItemClicked"
@@ -35,8 +35,8 @@
                                 <div class="data-repeater-filters">
                                     <v-text-field
                                         v-model="filterItemId"
-                                        @blur="loadCurrentStreamItems"
-                                        @keyup.enter="loadCurrentStreamItems"
+                                        @blur="onFilterChanged"
+                                        @keyup.enter="onFilterChanged"
                                         label="Filter"
                                         clearable
                                         class="filter-input"
@@ -54,8 +54,8 @@
                                     ></v-checkbox>
                                     <v-combobox
                                         v-model="filterTags"
-                                        @blur="loadCurrentStreamItems"
-                                        @keyup.enter="loadCurrentStreamItems"
+                                        @blur="onFilterChanged"
+                                        @keyup.enter="onFilterChanged"
                                         :items="tagPresets"
                                         label="Included tags"
                                         multiple
@@ -199,6 +199,7 @@ export default class DataRepeaterPageComponent extends Vue {
     filterRetryAllowedBinding: boolean | null = null;
     filterTags: Array<string> = [];
     totalResultCount: number = 0;
+    filterCache: any = {};
 
     //////////////////
     //  LIFECYCLE  //
@@ -272,10 +273,11 @@ export default class DataRepeaterPageComponent extends Vue {
     resetFilter(): void {
         this.pageIndex = 0;
         this.pageSize = 50;
-        this.tagPresets = this.selectedStream?.FilterableTags || [];
-        this.filterTags = this.selectedStream?.InitiallySelectedTags || [];
+        this.filterItemId = '';
         this.filterRetryAllowed = null;
         this.filterRetryAllowedBinding = false;
+        this.tagPresets = this.selectedStream?.FilterableTags || [];
+        this.filterTags = this.selectedStream?.InitiallySelectedTags || [];
     }
 
     loadStreamDefinitions(): void {
@@ -309,14 +311,28 @@ export default class DataRepeaterPageComponent extends Vue {
             return;
         }
 
+        const prevStreamid = this.selectedStream?.Id;
+
         this.selectedStream = stream;
         this.selectedItemId = null;
+        (this.$refs.filterableList as FilterableListComponent).setSelectedItem(stream);
         if (stream == null)
         {
             return;
         }
 
+        if (prevStreamid != null)
+        {
+            this.cacheFilter(prevStreamid);
+        }
+
         this.resetFilter();
+        if (this.applyFilterFromCache(stream.Id))
+        {
+            this.$nextTick(() => this.updateUrlFromFilter());
+        } else {
+            this.applyFilterFromUrl();
+        }
         this.loadCurrentStreamItems();
 
         if (updateUrl && this.$route.params.streamId != this.hash(stream.Id))
@@ -353,6 +369,91 @@ export default class DataRepeaterPageComponent extends Vue {
         
         const idFromHash = this.$route.params.itemId;
         this.setActiveItemId(idFromHash, false);
+    }
+
+    onFilterChanged(): void {
+        this.updateUrlFromFilter();
+        this.loadCurrentStreamItems();
+    }
+
+    updateUrlFromFilter(): void {
+        let query: any = {};
+
+        if (this.filterItemId != '')
+        {
+            query.q = this.filterItemId;
+        }
+        if (this.filterRetryAllowed != null)
+        {
+            query.r = this.filterRetryAllowed;
+        }
+
+        const defaultTags = this.selectedStream?.InitiallySelectedTags || [];
+        if (this.filterTags.length != defaultTags.length || !this.filterTags.every(x => defaultTags.includes(x)))
+        {
+            query.t = (this.filterTags.length == 0) ? ['_'] : this.filterTags;
+        }
+
+        this.$router.replace({ query: query });
+    }
+
+    private hasAppliedFromUrl: boolean = false;
+    applyFilterFromUrl(): void {
+        if (this.hasAppliedFromUrl) {
+            return;
+        }
+        this.hasAppliedFromUrl = true;
+
+        if (this.$route.query.q)
+        {
+            this.filterItemId = this.$route.query.q as string || '';
+        }
+
+        const retryAllowed = this.$route.query.r as string | boolean;
+        if (retryAllowed != null)
+        {
+            this.$nextTick(() => {
+                this.filterRetryAllowed = retryAllowed == 'true' || retryAllowed == true;
+                this.filterRetryAllowedBinding = this.filterRetryAllowed;
+            });
+        }
+
+        const tags = this.$route.query.t;
+        if (tags != null)
+        {
+            if (typeof tags == 'string')
+            {
+                this.filterTags = [tags];
+            }
+            else if (Array.isArray(tags))
+            {
+                this.filterTags = <string[]>tags;
+            }
+        }
+    }
+
+    cacheFilter(streamId: string): void {
+        this.filterCache[streamId] = {
+            q: this.filterItemId,
+            r: this.filterRetryAllowed,
+            t: this.filterTags
+        };
+    }
+
+    applyFilterFromCache(streamId: string): boolean {
+        const cache = this.filterCache[streamId];
+        if (cache == null) return false;
+        
+        this.filterItemId = this.filterCache[streamId].q || '';
+
+        if (this.filterCache[streamId].r != null)
+        {
+            this.filterRetryAllowed = this.filterCache[streamId].r == 'true' || this.filterCache[streamId].r == true;
+            this.filterRetryAllowedBinding = this.filterRetryAllowed;
+        }
+        this.filterTags = this.filterCache[streamId].t || [];
+
+        return true;
     }
 
     setActiveItemId(itemId: string | null, updateUrl: boolean = true): void {
@@ -392,7 +493,7 @@ export default class DataRepeaterPageComponent extends Vue {
                 this.filterRetryAllowed = null
                 this.filterRetryAllowedBinding = false;
             }
-            this.loadCurrentStreamItems();
+            this.onFilterChanged();
         });
     }
 
