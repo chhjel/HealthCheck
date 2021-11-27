@@ -63,7 +63,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         public abstract Task<HCDataRepeaterRetryResult> RetryItemAsync(IHCDataRepeaterStreamItem item);
 
         /// <inheritdoc />
-        public abstract Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(IHCDataRepeaterStreamItem item);
+        public abstract Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(IHCDataRepeaterStreamItem item, bool isManualAnalysis = false);
 
         /// <summary>
         /// If <see cref="IHCDataRepeaterStreamItemStorage.AddItemAsync"/> is called when an item with the same <see cref="IHCDataRepeaterStreamItem.ItemId"/> already exists, this method is called to handle the conflict.
@@ -102,6 +102,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
 
         /// <summary>
         /// Store a new item. If <paramref name="analyze"/> is enabled <see cref="AnalyzeItemAsync"/> is called first and any resulting changes applied.
+        /// <para>Does not handle duplicates unless storage implementation does it, <see cref="IHCDataRepeaterService.AddStreamItemAsync{TStream}"/> can be used to insert with duplicate handling.</para>
         /// </summary>
         public virtual async Task StoreItemAsync(IHCDataRepeaterStreamItem item, object hint = null, bool analyze = true)
         {
@@ -110,7 +111,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
 
             if (analyze)
             {
-                var analyticResult = await AnalyzeItemAsync(item);
+                var analyticResult = await AnalyzeItemAsync(item, isManualAnalysis: false);
                 if (analyticResult != null)
                 {
                     if (analyticResult.DontStore)
@@ -148,13 +149,13 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         protected abstract Task<HCDataRepeaterRetryResult> RetryItemAsync(TData item);
 
         /// <inheritdoc />
-        public override Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(IHCDataRepeaterStreamItem item)
-            => AnalyzeItemAsync(item as TData);
+        public override Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(IHCDataRepeaterStreamItem item, bool isManualAnalysis = false)
+            => AnalyzeItemAsync(item as TData, isManualAnalysis);
 
         /// <summary>
         /// Analyze item for potential issues and apply suitable tags.
         /// </summary>
-        protected abstract Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(TData item);
+        protected abstract Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(TData item, bool isManualAnalysis = false);
 
         /// <inheritdoc />
         public override Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(IHCDataRepeaterStreamItem item)

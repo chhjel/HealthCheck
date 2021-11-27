@@ -44,7 +44,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
             return Task.FromResult(details);
         }
 
-        protected override Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(TestXStreamItem item)
+        protected override Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(TestXStreamItem item, bool isManualAnalysis = false)
         {
             var result = new HCDataRepeaterItemAnalysisResult();
 

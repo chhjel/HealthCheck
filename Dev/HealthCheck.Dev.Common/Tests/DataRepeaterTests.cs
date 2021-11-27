@@ -61,8 +61,7 @@ namespace HealthCheck.Dev.Common.Tests
                     Amount = (888 + (i * 32.25m))
                 };
 
-                var item1 = TestOrderStreamItem.CreateFrom(order, order.OrderNumber, $"{order.Amount}$ from \"Jimmy Smithy\"")
-                    .AddTags("Failed");
+                var item1 = TestOrderStreamItem.CreateFrom(order, order.OrderNumber, $"{order.Amount}$ from \"Jimmy Smithy\"");
                 if (i % 2 == 0)
                 {
                     item1.SetInitialError("Capture failed", dummyError);

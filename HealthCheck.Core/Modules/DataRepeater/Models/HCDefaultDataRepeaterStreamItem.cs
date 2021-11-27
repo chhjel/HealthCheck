@@ -192,5 +192,45 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
             }
             return this as TSelf;
         }
+
+        /// <summary>
+        /// Removes a tag from the item.
+        /// </summary>
+        public TSelf RemoveTag(string tag)
+        {
+            Tags.Remove(tag);
+            return this as TSelf;
+        }
+
+        /// <summary>
+        /// Removes tags from the item.
+        /// </summary>
+        public TSelf RemoveTags(params string[] tags)
+        {
+            if (tags != null)
+            {
+                foreach (var tag in tags)
+                {
+                    Tags.Remove(tag);
+                }
+            }
+            return this as TSelf;
+        }
+
+        /// <summary>
+        /// Adds/removes a tag from the item depending on the given boolean value.
+        /// </summary>
+        public TSelf SetTag(string tag, bool included)
+        {
+            if (included)
+            {
+                AddTag(tag);
+            }
+            else
+            {
+                RemoveTag(tag);
+            }
+            return this as TSelf;
+        }
     }
 }

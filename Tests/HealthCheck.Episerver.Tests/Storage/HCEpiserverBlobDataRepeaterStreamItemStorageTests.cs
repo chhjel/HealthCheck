@@ -369,7 +369,7 @@ namespace HealthCheck.Episerver.Tests.Storage
             public StreamImplementation(IHCDataRepeaterStreamItemStorage storage) : base(storage) { }
 
             protected override Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(StreamItem item) => Task.FromResult<HCDataRepeaterStreamItemDetails>(null);
-            protected override Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(StreamItem item) => Task.FromResult<HCDataRepeaterItemAnalysisResult>(null);
+            protected override Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(StreamItem item, bool isManualAnalysis = false) => Task.FromResult<HCDataRepeaterItemAnalysisResult>(null);
             protected override Task<HCDataRepeaterRetryResult> RetryItemAsync(StreamItem item) => Task.FromResult<HCDataRepeaterRetryResult>(null);
         }
     }

@@ -60,6 +60,7 @@
                                         label="Included tags"
                                         multiple
                                         chips
+                                        clearable
                                         class="filter-input"
                                         :readonly="isLoading"
                                         ></v-combobox>
@@ -90,6 +91,7 @@
 
                             <div v-if="selectedStream && selectedItemId == null">
                                 <p>{{ totalResultCount}} matches</p>
+                                <div style="clear: both"></div>
                                 <div>
                                     <div v-for="(item, iIndex) in items"
                                         :key="`item-${iIndex}-${item.Id}`"
@@ -423,11 +425,11 @@ export default class DataRepeaterPageComponent extends Vue {
         {
             if (typeof tags == 'string')
             {
-                this.filterTags = [tags];
+                this.filterTags = tags == '_' ? [] : [tags];
             }
             else if (Array.isArray(tags))
             {
-                this.filterTags = <string[]>tags;
+                this.filterTags = (<string[]>tags).filter(x => x != '_');
             }
         }
     }

@@ -17,7 +17,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
         public override string RetryDescription => "Attempts to perform the capture action again.";
         public override string AnalyzeActionName => "Check for errors";
         public override List<string> InitiallySelectedTags => new List<string> { "Failed" };
-        public override List<string> FilterableTags => new List<string> { "Failed", "Something", "Retried" };
+        public override List<string> FilterableTags => new List<string> { "Failed", "Retried", "Processed" };
         public override List<IHCDataRepeaterStreamItemAction> Actions => new List<IHCDataRepeaterStreamItemAction>
         {
             new TestOrderDataRepeaterStreamItemActionToggleAllow(),
@@ -43,30 +43,19 @@ namespace HealthCheck.Dev.Common.DataRepeater
             return Task.FromResult(details);
         }
 
-        protected override Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(TestOrderStreamItem item)
+        protected override Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(TestOrderStreamItem item, bool isManualAnalysis = false)
         {
             var result = new HCDataRepeaterItemAnalysisResult();
 
-            if (item.ItemId.StartsWith("T"))
+            if (!string.IsNullOrWhiteSpace(item.InitialError) && item.LastRetryWasSuccessful != true)
             {
-                item.AllowRetry = false;
-            }
-
-            if (item.ItemId.StartsWith("NoStore"))
-            {
-                result.DontStore = true;
-            }
-
-            if (!item.AllowRetry)
-            {
-                result.TagsThatShouldExist.Add("No retry allowed");
-                result.TagsThatShouldNotExist.Add("Retry allowed");
+                item.AllowRetry = true;
             }
             else
             {
-                result.TagsThatShouldNotExist.Add("No retry allowed");
-                result.TagsThatShouldExist.Add("Retry allowed");
+                item.AllowRetry = false;
             }
+            item.SetTag("Failed", item.AllowRetry);
 
             result.Message = $"Analysis complete! Allow retry was decided {item.AllowRetry}";
             return Task.FromResult(result);
@@ -84,7 +73,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
                 AllowRetry = false,
                 Delete = false,
                 RemoveAllTags = true,
-                TagsThatShouldExist = new List<string> { "Processed" }
+                TagsThatShouldExist = new List<string> { "Retried", "Processed" }
             };
             return Task.FromResult(result);
         }

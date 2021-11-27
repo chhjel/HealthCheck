@@ -89,7 +89,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// <summary>
         /// Analyze item for potential issues and apply suitable tags.
         /// </summary>
-        Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(IHCDataRepeaterStreamItem item);
+        Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(IHCDataRepeaterStreamItem item, bool isManualAnalysis = false);
 
         /// <summary>
         /// Optional extra details about an item to display in the UI.

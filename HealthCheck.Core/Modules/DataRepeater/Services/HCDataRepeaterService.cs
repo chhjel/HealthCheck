@@ -46,7 +46,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             // Analyze if enabled
             if (analyze)
             {
-                var analyticResult = await stream.AnalyzeItemAsync(item);
+                var analyticResult = await stream.AnalyzeItemAsync(item, isManualAnalysis: false);
                 if (analyticResult != null)
                 {
                     if (analyticResult.DontStore)
@@ -107,7 +107,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             HCDataRepeaterItemAnalysisResult result = null;
             try
             {
-                result = await stream.AnalyzeItemAsync(item);
+                result = await stream.AnalyzeItemAsync(item, isManualAnalysis: true);
                 if (result == null)
                 {
                     return HCDataRepeaterItemAnalysisResult.CreateError("Analysis returned null.");

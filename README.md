@@ -843,7 +843,7 @@ public class ExampleDataRepeaterStream : HCDataRepeaterStreamBase<MyStreamItem>
 
     // Analyze item on insertion and optionally manually from the interface.
     // Use to categorize using tags, skip inserting if not needed etc.
-    protected override Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(MyStreamItem item)
+    protected override Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(MyStreamItem item, bool isManualAnalysis = false)
     {
         var result = new HCDataRepeaterItemAnalysisResult();
         // item.AllowRetry = false;
