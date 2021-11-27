@@ -205,7 +205,9 @@ namespace HealthCheck.Episerver.Storage
                     || x.Summary?.ToLower()?.Contains(model.Filter?.ToLower()) == true)
                     && (model.Tags?.Any() != true || x.Tags?.Any(t => model.Tags?.Any(tt => tt?.ToLower() == t.ToLower()) == true) == true)
                     && (model.RetryAllowed == null || x.AllowRetry == model.RetryAllowed))
-                .OfType<IHCDataRepeaterStreamItem>();
+                .OrderByDescending(x => x.InsertedAt)
+                .OfType<IHCDataRepeaterStreamItem>()
+                .ToArray();
             var items = matches
                 .Skip(model.PageIndex * model.PageSize)
                 .Take(model.PageSize);

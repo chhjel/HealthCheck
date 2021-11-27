@@ -16,8 +16,8 @@
                     :sortByKey="`GroupName`"
                     :hrefKey="`Href`"
                     :filterKeys="[ 'Name', 'Description' ]"
-                    :loading="metadataLoadStatus.inProgress"
-                    :disabled="dataLoadStatus.inProgress"
+                    :loading="isLoading"
+                    :disabled="isLoading"
                     ref="filterableList"
                     v-on:itemClicked="onMenuItemClicked"
                     @itemMiddleClicked="onMenuItemMiddleClicked"
@@ -40,7 +40,7 @@
                                         label="Filter"
                                         clearable
                                         class="filter-input"
-                                        :readonly="metadataLoadStatus.inProgress"
+                                        :readonly="isLoading"
                                     ></v-text-field>
                                 </div>
                                 <div class="data-repeater-filters">
@@ -48,7 +48,7 @@
                                         :value="filterRetryAllowedBinding"
                                         :indeterminate="filterRetryAllowed == null" 
                                         :label="filterRetryAllowedLabel"
-                                        :disabled="metadataLoadStatus.inProgress"
+                                        :disabled="isLoading"
                                         @click="setNextFilterRetryAllowedState"
                                         color="secondary"
                                     ></v-checkbox>
@@ -61,9 +61,13 @@
                                         multiple
                                         chips
                                         class="filter-input"
-                                        :readonly="metadataLoadStatus.inProgress"
+                                        :readonly="isLoading"
                                         ></v-combobox>
                                 </div>
+
+                                <v-btn @click="loadCurrentStreamItems" :disabled="isLoading" class="right">
+                                    <v-icon size="20px" class="mr-2">refresh</v-icon>Refresh
+                                </v-btn>
 
                                 <paging-component
                                     :count="totalResultCount"
@@ -76,7 +80,7 @@
 
                             <!-- LOAD PROGRESS -->
                             <v-progress-linear 
-                                v-if="dataLoadStatus.inProgress"
+                                v-if="isLoading"
                                 indeterminate color="green"></v-progress-linear>
 
                             <!-- DATA LOAD ERROR -->
@@ -226,6 +230,10 @@ export default class DataRepeaterPageComponent extends Vue {
         return this.$store.state.globalOptions;
     }
     
+    get isLoading(): boolean {
+        return this.metadataLoadStatus.inProgress || this.dataLoadStatus.inProgress;
+    }
+    
     get menuItems(): Array<FilterableListItem>
     {
         if (!this.streamDefinitions) return [];
@@ -297,7 +305,7 @@ export default class DataRepeaterPageComponent extends Vue {
     }
 
     setActiveStream(stream: HCDataRepeaterStreamViewModel | null, updateUrl: boolean = true): void {
-        if (this.dataLoadStatus.inProgress) {
+        if (this.isLoading) {
             return;
         }
 
@@ -368,7 +376,7 @@ export default class DataRepeaterPageComponent extends Vue {
     }
 
     setNextFilterRetryAllowedState(): void {
-        if (this.dataLoadStatus.inProgress)
+        if (this.isLoading)
         {
             return;
         }
@@ -432,8 +440,6 @@ export default class DataRepeaterPageComponent extends Vue {
 
     onRouteChanged(to: Route, from: Route): void {
         if (!this.streamDefinitions) return;
-
-        const currentStreamId = !!this.selectedStream ? this.hash(this.selectedStream.Id) : '';
 
         const oldStreamIdFromHash = from.params.streamId || null;
         const newStreamIdFromHash = to.params.streamId || null;

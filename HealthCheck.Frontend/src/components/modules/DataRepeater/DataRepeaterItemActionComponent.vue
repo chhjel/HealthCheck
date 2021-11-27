@@ -15,13 +15,15 @@
         
         <div v-if="disabledReason"><b>{{ disabledReason }}</b></div>
 
-        <v-btn :disabled="!allowExecute"
-            :loading="dataLoadStatus.inProgress"
-            @click="showExecuteActionDialog" class="mb-3">
-            {{ (action.ExecuteButtonLabel || 'Run') }}
-        </v-btn>
-        
-        <span v-if="result && result.Message">{{ result.Message }}</span>
+        <div style="display: flex; align-items: baseline;">
+            <v-btn :disabled="!allowExecute"
+                :loading="dataLoadStatus.inProgress"
+                @click="showExecuteActionDialog" class="mb-3">
+                {{ (action.ExecuteButtonLabel || 'Run') }}
+            </v-btn>
+            
+            <span v-if="result && result.Message">{{ result.Message }}</span>
+        </div>
 
         <!-- DATA LOAD ERROR -->
         <v-alert :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">

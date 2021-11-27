@@ -212,7 +212,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Storage
                         || x.ItemId?.ToLower()?.Contains(model.Filter?.ToLower()) == true
                         || x.Summary?.ToLower()?.Contains(model.Filter?.ToLower()) == true)
                         && (model.Tags?.Any() != true || x.Tags?.Any(t => model.Tags?.Any(tt => tt?.ToLower() == t.ToLower()) == true) == true)
-                        && (model.RetryAllowed == null || x.AllowRetry == model.RetryAllowed));
+                        && (model.RetryAllowed == null || x.AllowRetry == model.RetryAllowed))
+                    .OrderByDescending(x => x.InsertedAt)
+                    .ToArray();
                 var items = matches
                     .Skip(model.PageIndex * model.PageSize)
                     .Take(model.PageSize);

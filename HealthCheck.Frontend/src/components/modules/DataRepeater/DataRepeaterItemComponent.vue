@@ -20,6 +20,10 @@
         
         <div v-if="item" class="data-repeater-item">
             <v-btn @click="$emit('close')" class="right">Close</v-btn>
+            <v-btn @click="loadData" class="right">
+                <v-icon size="20px" class="mr-2">refresh</v-icon>Refresh
+            </v-btn>
+
             <h1>{{ stream.ItemIdName }}: {{ item.ItemId }}</h1>
             <p v-if="item.Summary">{{ item.Summary }}</p>
             <p v-if="details && details.Description" v-html="details.Description"></p>
@@ -293,6 +297,7 @@ export default class DataRepeaterItemComponent extends Vue {
         if (this.item == null) {
             this.itemNotFound = true;
         }
+        this.onItemChanged();
     }
 
     showAnalyzeDialog(): void {
