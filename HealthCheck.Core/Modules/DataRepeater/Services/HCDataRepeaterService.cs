@@ -16,6 +16,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
     public class HCDataRepeaterService : IHCDataRepeaterService
     {
         /// <summary>
+        /// If disabled the service will ignore any attempts to store new data.
+        /// <para>Enabled by default. Null value/exception = false.</para>
+        /// </summary>
+        public Func<bool> IsEnabled { get; set; } = () => true;
+
+        /// <summary>
         /// Max number of log entries to store per item.
         /// <para>Defaults to 20.</para>
         /// </summary>
@@ -37,6 +43,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
         /// <inheritdoc />
         public virtual async Task AddStreamItemAsync<TStream>(IHCDataRepeaterStreamItem item, object hint = null, bool analyze = true, bool handleDuplicates = true)
         {
+            if (!IsEnabledInternal()) return;
             if (item == null) return;
             item.Log ??= new();
 
@@ -250,6 +257,20 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             }
 
             return result;
+        }
+
+        internal bool IsEnabledInternal()
+        {
+            try
+            {
+                if (IsEnabled?.Invoke() != true)
+                {
+                    return false;
+                }
+            }
+            catch (Exception) { return false; }
+
+            return true;
         }
     }
 }

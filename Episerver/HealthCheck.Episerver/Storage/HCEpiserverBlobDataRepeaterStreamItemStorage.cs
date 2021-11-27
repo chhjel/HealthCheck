@@ -28,6 +28,12 @@ namespace HealthCheck.Episerver.Storage
         where TItem : IHCDataRepeaterStreamItem
     {
         /// <summary>
+        /// If disabled the service will ignore any attempts to add/update data.
+        /// <para>Enabled by default. Null value/exception = false.</para>
+        /// </summary>
+        public Func<bool> IsEnabled { get; set; } = () => true;
+
+        /// <summary>
         /// Defaults to the default provider if null.
         /// </summary>
         public string ProviderName { get; set; }
@@ -58,6 +64,7 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public Task AddItemAsync(IHCDataRepeaterStreamItem item, object hint = null)
         {
+            if (!IsEnabledInternal()) return Task.CompletedTask;
             InsertItemBuffered((TItem)item, item.Id);
             return Task.CompletedTask;
         }
@@ -65,6 +72,7 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public Task UpdateItemAsync(IHCDataRepeaterStreamItem item)
         {
+            if (!IsEnabledInternal()) return Task.CompletedTask;
             InsertItemBuffered((TItem)item, item.Id, isUpdate: true);
             return Task.CompletedTask;
         }
@@ -231,6 +239,20 @@ namespace HealthCheck.Episerver.Storage
 
         /// <inheritdoc />
         protected override void StoreBlobData(HCDataRepeaterBlobData data) => _blobHelper.StoreBlobData(data);
+
+        internal bool IsEnabledInternal()
+        {
+            try
+            {
+                if (IsEnabled?.Invoke() != true)
+                {
+                    return false;
+                }
+            }
+            catch (Exception) { return false; }
+
+            return true;
+        }
 
         /// <summary>
         /// Model stored in blob storage.

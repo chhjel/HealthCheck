@@ -110,7 +110,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Extensions
                 await stream.Storage.RemoveAllItemTagsAsync(item.Id).ConfigureAwait(false);
             }
 
-            var toAdd = tags.Where(x => x.Value == false).Select(x => x.Key).ToArray();
+            var toAdd = tags.Where(x => x.Value == true).Select(x => x.Key).ToArray();
             if (toAdd.Any())
             {
                 await stream.Storage.AddItemTagsAsync(item.Id, toAdd).ConfigureAwait(false);

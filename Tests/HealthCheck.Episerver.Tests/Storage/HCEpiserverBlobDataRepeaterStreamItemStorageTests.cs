@@ -2,6 +2,7 @@ using EPiServer.Framework.Blobs;
 using HealthCheck.Core.Modules.DataRepeater.Abstractions;
 using HealthCheck.Core.Modules.DataRepeater.Models;
 using HealthCheck.Core.Modules.DataRepeater.Services;
+using HealthCheck.Core.Modules.DataRepeater.Extensions;
 using HealthCheck.Episerver.Storage;
 using HealthCheck.Episerver.Tests.Helpers;
 using System;
@@ -167,6 +168,80 @@ namespace HealthCheck.Episerver.Tests.Storage
             var items = (await storage.GetItemsPagedAsync(new HCGetDataRepeaterStreamItemsFilteredRequest
             { PageIndex = 0, PageSize = int.MaxValue })).Items.ToList();
             Assert.Equal(100, items.Count);
+        }
+
+        [Fact]
+        public async Task SetItemTags_Alt1_WorksAsExpected()
+        {
+            var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
+            var storage = CreateStorage(() => blob);
+            storage.MaxBufferSize = 500;
+            storage.BlobUpdateBufferDuration = TimeSpan.FromDays(1);
+            var stream = new StreamImplementation(storage);
+
+            async Task<List<IHCDataRepeaterStreamItem>> getItemsAsync()
+                => (await storage.GetItemsPagedAsync(new HCGetDataRepeaterStreamItemsFilteredRequest
+                { PageIndex = 0, PageSize = int.MaxValue })).Items.ToList();
+
+            var tasks = new List<Task>();
+
+            var item = createItem(0).AddTag("Removed");
+            tasks.Add(storage.AddItemAsync(item));
+
+            await Task.WhenAll(tasks);
+            storage.ForceBufferCallback();
+
+            await stream.SetTagsAsync(item.ItemId, new Dictionary<string, bool> { { "Added", true }, { "Removed", false } }, removeOtherTags: false);
+
+            var items = (await getItemsAsync());
+            Assert.Single(items);
+
+            item = items.First() as StreamItem;
+            Assert.Contains("Added", item.Tags);
+            Assert.DoesNotContain("Removed", item.Tags);
+
+            StreamItem createItem(int i)
+            {
+                var data = new StreamItemData { SomeId = i.ToString(), AnotherThing = i % 2 == 0, SomeValue = i * 25m };
+                return StreamItem.CreateFrom(data, data.SomeId);
+            }
+        }
+
+        [Fact]
+        public async Task SetItemTags_Alt2_WorksAsExpected()
+        {
+            var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
+            var storage = CreateStorage(() => blob);
+            storage.MaxBufferSize = 500;
+            storage.BlobUpdateBufferDuration = TimeSpan.FromDays(1);
+            var stream = new StreamImplementation(storage);
+
+            async Task<List<IHCDataRepeaterStreamItem>> getItemsAsync()
+                => (await storage.GetItemsPagedAsync(new HCGetDataRepeaterStreamItemsFilteredRequest
+                { PageIndex = 0, PageSize = int.MaxValue })).Items.ToList();
+
+            var tasks = new List<Task>();
+
+            var item = createItem(0).AddTag("Removed");
+            tasks.Add(storage.AddItemAsync(item));
+
+            await Task.WhenAll(tasks);
+            storage.ForceBufferCallback();
+
+            await stream.SetTagsAsync(item.ItemId, new Dictionary<string, bool> { { "Added", true } }, removeOtherTags: true);
+
+            var items = (await getItemsAsync());
+            Assert.Single(items);
+
+            item = items.First() as StreamItem;
+            Assert.Contains("Added", item.Tags);
+            Assert.DoesNotContain("Removed", item.Tags);
+
+            StreamItem createItem(int i)
+            {
+                var data = new StreamItemData { SomeId = i.ToString(), AnotherThing = i % 2 == 0, SomeValue = i * 25m };
+                return StreamItem.CreateFrom(data, data.SomeId);
+            }
         }
 
         [Fact]
