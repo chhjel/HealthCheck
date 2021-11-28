@@ -4,7 +4,9 @@
 
 export interface HCGetDataRepeaterStreamItemsFilteredRequest
 {
-	ItemId: string;
+	Filter: string;
+	StreamId: string;
+	RetryAllowed?: boolean;
 	PageIndex: number;
 	PageSize: number;
 	Tags: string[];

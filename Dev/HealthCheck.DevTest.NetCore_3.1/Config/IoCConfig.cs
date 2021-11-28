@@ -5,6 +5,8 @@ using HealthCheck.Core.Modules.AuditLog.Services;
 using HealthCheck.Core.Modules.Dataflow.Abstractions;
 using HealthCheck.Core.Modules.Dataflow.Models;
 using HealthCheck.Core.Modules.Dataflow.Services;
+using HealthCheck.Core.Modules.DataRepeater.Abstractions;
+using HealthCheck.Core.Modules.DataRepeater.Services;
 using HealthCheck.Core.Modules.EventNotifications.Abstractions;
 using HealthCheck.Core.Modules.EventNotifications.Notifiers;
 using HealthCheck.Core.Modules.EventNotifications.Services;
@@ -19,6 +21,7 @@ using HealthCheck.Core.Modules.SiteEvents.Abstractions;
 using HealthCheck.Core.Modules.SiteEvents.Services;
 using HealthCheck.Dev.Common;
 using HealthCheck.Dev.Common.Dataflow;
+using HealthCheck.Dev.Common.DataRepeater;
 using HealthCheck.Dev.Common.EventNotifier;
 using HealthCheck.Dev.Common.Settings;
 using HealthCheck.Module.EndpointControl.Abstractions;
@@ -45,6 +48,9 @@ namespace HealthCheck.DevTest.NetCore_3._1.Config
             services.AddSingleton<IEndpointControlRequestHistoryStorage>((x) => new FlatFileEndpointControlRequestHistoryStorage(GetFilePath(@"App_Data\ec_history.json", env)));
             services.AddSingleton<IEndpointControlService, DefaultEndpointControlService>();
 
+            services.AddSingleton<IHCDataRepeaterStream, TestOrderDataRepeaterStream>();
+            services.AddSingleton<IHCDataRepeaterStream, TestXDataRepeaterStream>();
+            services.AddSingleton<IHCDataRepeaterService, HCDataRepeaterService>();
             services.AddSingleton(x => CreateSettingsService());
             services.AddSingleton(x => CreateSiteEventService(env));
             services.AddSingleton(x => CreateAuditEventService(env));

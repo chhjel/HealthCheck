@@ -2,9 +2,10 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface HCDataRepeaterItemAnalysisResult
+import { HCDataItemChangeBase } from './HCDataItemChangeBase';
+
+export interface HCDataRepeaterItemAnalysisResult extends HCDataItemChangeBase
 {
-	Result: string;
-	AllowRetry: boolean;
-	TagsThatShouldBeApplied: string[];
+	Message: string;
+	DontStore: boolean;
 }

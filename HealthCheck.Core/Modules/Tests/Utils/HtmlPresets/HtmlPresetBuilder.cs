@@ -15,6 +15,20 @@ namespace HealthCheck.Core.Modules.Tests.Utils.HtmlPresets
         protected StringBuilder HtmlBuilder { get; set; } = new StringBuilder();
 
         /// <summary>
+        /// Builds html from <see cref="IHtmlPreset"/>.
+        /// </summary>
+        public HtmlPresetBuilder() { }
+
+        /// <summary>
+        /// Builds html from <see cref="IHtmlPreset"/>.
+        /// <para>This overload inserts a raw html item. Similar to <c>builder.AddItem(new HtmlPresetRaw(html))</c></para>
+        /// </summary>
+        public HtmlPresetBuilder(string html)
+        {
+            AddItem(new HtmlPresetRaw(html));
+        }
+
+        /// <summary>
         /// Add some raw html.
         /// </summary>
         public HtmlPresetBuilder AddRawHtml(string html)

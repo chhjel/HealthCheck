@@ -1,5 +1,10 @@
 export default class UrlUtils
 {
+    static openRouteInNewTab(route: string): void {
+        const url = window.location.href.replace(window.location.hash, route);
+        window.open(url, '_blank');
+    }
+
     static EncodeHashPart(value: string): string {
         return value.replace(/ /g, '-').replace('/', '-');
     }

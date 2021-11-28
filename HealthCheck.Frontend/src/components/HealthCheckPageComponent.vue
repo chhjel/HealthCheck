@@ -150,6 +150,7 @@ export default class HealthCheckPageComponent extends Vue {
         document.addEventListener('keyup', this.onDocumentKeyDownOrDown);
         document.addEventListener('keydown', this.onDocumentKeyDownOrDown);
     }
+    
     onDocumentKeyDownOrDown(e: KeyboardEvent): void {
         if (this.$store.state.input.ctrlIsHeldDown != e.ctrlKey)
         {

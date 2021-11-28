@@ -8,6 +8,8 @@ using HealthCheck.Core.Modules.AuditLog;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.Dataflow.Abstractions;
+using HealthCheck.Core.Modules.DataRepeater;
+using HealthCheck.Core.Modules.DataRepeater.Abstractions;
 using HealthCheck.Core.Modules.Documentation;
 using HealthCheck.Core.Modules.Documentation.Services;
 using HealthCheck.Core.Modules.EventNotifications;
@@ -63,6 +65,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
         private readonly IEventDataSink _eventDataSink;
         private readonly ISiteEventService _siteEventService;
         private readonly IHCSettingsService _settingsService;
+        private readonly IHCDataRepeaterService _dataRepeaterService;
         private const string EndpointBase = "/";
         private static bool ForceLogout { get; set; }
         #endregion
@@ -80,7 +83,8 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             IAuditEventStorage auditEventStorage,
             ISiteEventService siteEventService,
             IHCSettingsService settingsService,
-            IHCMetricsStorage metricsStorage
+            IHCMetricsStorage metricsStorage,
+            IHCDataRepeaterService dataRepeaterService
         )
             : base()
         {
@@ -88,6 +92,11 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             _eventDataSink = eventDataSink;
             _siteEventService = siteEventService;
             _settingsService = settingsService;
+            _dataRepeaterService = dataRepeaterService;
+            UseModule(new HCDataRepeaterModule(new HCDataRepeaterModuleOptions
+            {
+                Service = _dataRepeaterService
+            }));
             UseModule(new HCEndpointControlModule(new HCEndpointControlModuleOptions()
             {
                 EndpointControlService = endpointControlService,
@@ -126,6 +135,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                     .ConfigureGroup(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)
                     .ConfigureGroup(RuntimeTestConstants.Group.AlmostBottomGroup, uiOrder: -20)
                     .ConfigureGroup(RuntimeTestConstants.Group.BottomGroup, uiOrder: -50)
+                    .ConfigureGroup(RuntimeTestConstants.Group.DataRepeater, uiOrder: -60)
                 );
             UseModule(new HCEventNotificationsModule(new HCEventNotificationsModuleOptions() { EventSink = eventDataSink }));
             UseModule(new HCLogViewerModule(new HCLogViewerModuleOptions() { LogSearcherService = logSearcherService }));
@@ -212,6 +222,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
 
             config.GiveRolesAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestModuleB.TestModuleBAccessOption.NumberOne);
 
+            config.GiveRolesAccessToModuleWithFullAccess<HCDataRepeaterModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSettingsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSiteEventsModule>(RuntimeTestAccessRole.WebAdmins);

@@ -47,6 +47,11 @@ namespace HealthCheck.Core.Util.Storage
         protected bool SupportsMaxItemAge { get; set; }
 
         /// <summary>
+        /// True if GetExpirationTime is implemented.
+        /// </summary>
+        protected bool SupportsExpirationTime { get; set; }
+
+        /// <summary>
         /// Wrapper type for buffered items.
         /// </summary>
         protected struct BufferQueueItem
@@ -105,6 +110,11 @@ namespace HealthCheck.Core.Util.Storage
         /// Get the timestamp of an item.
         /// </summary>
         protected virtual DateTimeOffset GetItemTimestamp(TItem item) => default;
+
+        /// <summary>
+        /// Get the expiration time of an item.
+        /// </summary>
+        protected virtual DateTimeOffset? GetExpirationTime(TItem item) => default;
 
         /// <summary>
         /// Queues up items and calls <see cref="OnBufferCallback"/> after a delay or when max count is reached.
@@ -191,7 +201,16 @@ namespace HealthCheck.Core.Util.Storage
             if (SupportsMaxItemAge && MaxItemAge != null)
             {
                 var toRemove = data.Items.Where(x => (DateTimeOffset.Now - GetItemTimestamp(x.Value)) > MaxItemAge).ToArray();
-                foreach(var item in toRemove)
+                foreach (var item in toRemove)
+                {
+                    data.Items.Remove(item.Key);
+                }
+            }
+
+            if (SupportsExpirationTime)
+            {
+                var toRemove = data.Items.Where(x => GetExpirationTime(x.Value) != null && GetExpirationTime(x.Value) <= DateTimeOffset.Now).ToArray();
+                foreach (var item in toRemove)
                 {
                     data.Items.Remove(item.Key);
                 }
