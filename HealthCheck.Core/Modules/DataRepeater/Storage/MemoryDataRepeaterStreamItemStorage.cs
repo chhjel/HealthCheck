@@ -170,6 +170,22 @@ namespace HealthCheck.Core.Modules.DataRepeater.Storage
         }
 
         /// <inheritdoc />
+        public async Task AddItemLogMessageAsync(Guid id, string logMessage)
+        {
+            var item = await GetItemAsync(id);
+            if (item == null)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(logMessage))
+            {
+                item.AddLogMessage(logMessage);
+                await UpdateItemAsync(item);
+            }
+        }
+
+        /// <inheritdoc />
         public Task DeleteItemAsync(Guid id)
         {
             lock (_items)

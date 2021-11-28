@@ -377,9 +377,28 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         }
 
         /// <summary>
-        /// Applies changes to the given item.
+        /// Adds a log message to the given item.
         /// </summary>
-        public static void ApplyChangesToItem(IHCDataRepeaterStreamItem item, HCDataItemChangeBase changes)
+        /// <param name="itemId">Id of item to target.</param>
+        /// <param name="logMessage">Message to log.</param>
+        public static async Task<bool> AddItemLogMessageAsync<TStream>(string itemId, string logMessage = null)
+        {
+            try
+            {
+                var stream = GetStream<TStream>();
+                if (stream == null) return false;
+                return await stream.AddItemLogMessageAsync(itemId, logMessage).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Applies the given changes to the given item.
+        /// </summary>
+        internal static void ApplyChangesToItem(IHCDataRepeaterStreamItem item, HCDataItemChangeBase changes)
         {
             if (changes == null || item == null) return;
 

@@ -154,7 +154,8 @@ namespace HealthCheck.Core.Modules.DataRepeater
             var data = await Options.Service.AnalyzeItemAsync(model.StreamId, item);
             item = await stream.Storage.GetItemAsync(model.ItemId);
 
-            context.AddAuditEvent(action: "Manual analysis", subject: item?.ItemId ?? "<null>");
+            context.AddAuditEvent(action: "Manual analysis", subject: item?.ItemId ?? "<null>")
+                .AddDetail("Stream", stream?.GetType()?.Name ?? "<null>");
 
             return new HCDataRepeaterResultWithItem<HCDataRepeaterItemAnalysisResult>
             {
@@ -184,6 +185,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
             item = await stream.Storage.GetItemAsync(model.ItemId);
 
             context.AddAuditEvent(action: "Retry item", subject: item?.ItemId ?? "<null>")
+                .AddDetail("Stream", stream?.GetType()?.Name ?? "<null>")
                 .AddDetail("Success", data?.Success.ToString() ?? "<null>");
 
             return new HCDataRepeaterResultWithItem<HCDataRepeaterRetryResult>
@@ -213,6 +215,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
             item = await stream.Storage.GetItemAsync(model.ItemId);
 
             context.AddAuditEvent(action: "Execute action", subject: item?.ItemId ?? "<null>")
+                .AddDetail("Stream", stream?.GetType()?.Name ?? "<null>")
                 .AddDetail("Action", model?.ActionId ?? "<null>")
                 .AddDetail("Success", data?.Success.ToString() ?? "<null>");
 

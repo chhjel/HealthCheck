@@ -31,7 +31,7 @@ namespace HealthCheck.Dev.Common.Tests
             };
 
             var item = TestOrderStreamItem.CreateFrom(order, order.OrderNumber);
-            await stream.StoreItemAsync(item);
+            await stream.AddItemAsync(item);
             return TestResult.CreateSuccess($"Stored item!")
                 .AddSerializedData(order)
                 .AddSerializedData(item);
@@ -66,12 +66,12 @@ namespace HealthCheck.Dev.Common.Tests
                 {
                     item1.SetInitialError("Capture failed", dummyError);
                 }
-                await stream1.StoreItemAsync(item1);
+                await stream1.AddItemAsync(item1);
 
                 var item2 = TestXStreamItem.CreateFrom(new DummyX { Id = i.ToString(), Value = i + 123 }, i.ToString())
                     .AddTags("SomeTag", "Another tag")
                     .SetInitialError("Hmm something happened.", dummyError);
-                await stream2.StoreItemAsync(item2);
+                await stream2.AddItemAsync(item2);
             }
 
             return TestResult.CreateSuccess($"Stored {count} x2 items!");

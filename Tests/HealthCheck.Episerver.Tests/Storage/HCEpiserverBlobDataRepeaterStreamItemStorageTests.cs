@@ -1,8 +1,8 @@
 using EPiServer.Framework.Blobs;
 using HealthCheck.Core.Modules.DataRepeater.Abstractions;
+using HealthCheck.Core.Modules.DataRepeater.Extensions;
 using HealthCheck.Core.Modules.DataRepeater.Models;
 using HealthCheck.Core.Modules.DataRepeater.Services;
-using HealthCheck.Core.Modules.DataRepeater.Extensions;
 using HealthCheck.Episerver.Storage;
 using HealthCheck.Episerver.Tests.Helpers;
 using System;
@@ -406,6 +406,54 @@ namespace HealthCheck.Episerver.Tests.Storage
             items = (await getItemsAsync());
             Assert.Equal(8, items.Count);
             Assert.True(items.Count(x => x.Id == targetItem2.Id) == 0);
+        }
+
+        [Fact]
+        public async Task ChainedModifications_Buffered_AppliesAllChanges()
+        {
+            var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
+            var storage = CreateStorage(() => blob)
+                .SetMaxItemCount(50)
+                as StorageImplementation;
+            storage.MaxBufferSize = 500;
+            storage.BlobUpdateBufferDuration = TimeSpan.FromDays(1);
+
+            var tasks = new List<Task>();
+            
+            var data = createItem(0);
+            await storage.AddItemAsync(StreamItem.CreateFrom(data, data.SomeId));
+
+            var item = (await getItemsAsync()).First();
+            await storage.AddItemLogMessageAsync(item.Id, "Message");
+            var expDate = DateTimeOffset.Now.AddDays(7);
+            await storage.SetItemExpirationTimeAsync(item.Id, DateTimeOffset.Now);
+            await storage.SetItemExpirationTimeAsync(item.Id, expDate);
+            await storage.AddItemTagAsync(item.Id, "Tag1");
+
+            // Check buffered data
+            var items = await getItemsAsync();
+            Assert.Single(items);
+            item = items.First();
+            Assert.Equal(expDate, item.ExpirationTime);
+            Assert.Contains("Message", item.Log.Select(x => x.Message));
+            Assert.Contains("Tag1", item.Tags);
+
+            storage.ForceBufferCallback();
+
+            // Check stored data
+            items = await getItemsAsync();
+            Assert.Single(items);
+            item = items.First();
+            Assert.Equal(expDate, item.ExpirationTime);
+            Assert.Contains("Message", item.Log.Select(x => x.Message));
+            Assert.Contains("Tag1", item.Tags);
+
+            async Task<List<IHCDataRepeaterStreamItem>> getItemsAsync()
+                => (await storage.GetItemsPagedAsync(new HCGetDataRepeaterStreamItemsFilteredRequest
+                { PageIndex = 0, PageSize = int.MaxValue })).Items.ToList();
+
+            StreamItemData createItem(int id)
+                => new StreamItemData { SomeId = id.ToString(), AnotherThing = id % 2 == 0, SomeValue = id * 25m };
         }
 
         private static StorageImplementation CreateStorage(Func<MockBlob> blobFactory = null, string blobJson = null)

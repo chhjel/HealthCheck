@@ -204,6 +204,22 @@ namespace HealthCheck.Episerver.Storage
         }
 
         /// <inheritdoc />
+        public async Task AddItemLogMessageAsync(Guid id, string logMessage)
+        {
+            var item = await GetItemAsync(id).ConfigureAwait(false);
+            if (item == null)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(logMessage))
+            {
+                item.AddLogMessage(logMessage);
+                await UpdateItemAsync(item).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc />
         public Task<HCDataRepeaterStreamItemsPagedModel> GetItemsPagedAsync(HCGetDataRepeaterStreamItemsFilteredRequest model)
         {
             var matches = GetItems()

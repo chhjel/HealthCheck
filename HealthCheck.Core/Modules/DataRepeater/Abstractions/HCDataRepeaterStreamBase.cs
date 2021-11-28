@@ -104,7 +104,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// Store a new item. If <paramref name="analyze"/> is enabled <see cref="AnalyzeItemAsync"/> is called first and any resulting changes applied.
         /// <para>Does not handle duplicates unless storage implementation does it, <see cref="IHCDataRepeaterService.AddStreamItemAsync{TStream}"/> can be used to insert with duplicate handling.</para>
         /// </summary>
-        public virtual async Task StoreItemAsync(IHCDataRepeaterStreamItem item, object hint = null, bool analyze = true)
+        public virtual async Task AddItemAsync(IHCDataRepeaterStreamItem item, object hint = null, bool analyze = true)
         {
             if (item == null) return;
             item.Log ??= new();

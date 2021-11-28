@@ -157,5 +157,19 @@ namespace HealthCheck.Core.Modules.DataRepeater.Extensions
             await stream.Storage.SetForcedItemStatusAsync(item.Id, status, expirationTime, logMessage).ConfigureAwait(false);
             return true;
         }
+
+        /// <summary>
+        /// Adds a log message to the given item.
+        /// </summary>
+        /// <param name="stream">Stream to target.</param>
+        /// <param name="itemId">Id of item to target.</param>
+        /// <param name="logMessage">Message to log.</param>
+        public static async Task<bool> AddItemLogMessageAsync(this IHCDataRepeaterStream stream, string itemId, string logMessage)
+        {
+            var item = await stream.GetItemByItemIdAsync(itemId).ConfigureAwait(false);
+            if (item == null) return false;
+            await stream.Storage.AddItemLogMessageAsync(item.Id, logMessage).ConfigureAwait(false);
+            return true;
+        }
     }
 }

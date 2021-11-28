@@ -776,22 +776,26 @@ UseModule(new HCDataRepeaterModule(new HCDataRepeaterModuleOptions
 ```
 
 ```csharp
-// Example usage
-var streamItem = TestOrderStreamItem.CreateFrom(myModel, myModel.ExternalId, "Some summary of the item here")
-    .AddTags("Error Category X", "Another tag")
-    .SetInitialError("Hmm something happened.", exception);
-await myStream.StoreItemAsync(streamItem);
+// Example usage, store data when something fails:
+var streamItem = TestOrderStreamItem.CreateFrom(myModel, myModel.ExternalId, "From \"Jimmy Smithy\" - 1234$")
+    .AddTags("Capture failed")
+    .SetInitialError("Capture failed because of server downtime.", exception);
+await myStream.AddItemAsync(streamItem);
 
 // Alternatively using the static util:
-var streamItem = TestOrderStreamItem.CreateFrom(myModel, myModel.ExternalId, "Some summary of the item here")
-    .AddTags("Error Category X", "Another tag")
-    .SetInitialError("Hmm something happened.", exception);
+var streamItem = TestOrderStreamItem.CreateFrom(myModel, myModel.ExternalId, "From \"Jimmy Smithy\" - 1234$")
+    .AddTags("Capture failed")
+    .SetInitialError("Capture failed because of server downtime.", exception);
 HCDataRepeaterUtils.AddStreamItem<ExampleDataRepeaterStream>(item); // or AddStreamItemAsync<T>
 
 // HCDataRepeaterUtils contains various shortcuts for setting item properties by the custom id used. E.g. external id above.
+// Modify stored items when their statuses changes, e.g. something that failed now works again.
 HCDataRepeaterUtils.SetAllowItemRetryAsync<ExampleDataRepeaterStream>(itemId, true);
 HCDataRepeaterUtils.AddItemTagAsync<ExampleDataRepeaterStream>(itemId, "Tag X");
 HCDataRepeaterUtils.SetExpirationTimeAsync<ExampleDataRepeaterStream>(itemId, DateTimeOffset.Now.AddDays(7));
+HCDataRepeaterUtils.SetForcedItemStatus<TestOrderDataRepeaterStream>(itemId, HCDataRepeaterStreamItemStatus.Success,
+    new Maybe<DateTimeOffset?>(DateTimeOffset.Now.AddSeconds(30)), "Fixed!");
+HCDataRepeaterUtils.SetTags<TestOrderDataRepeaterStream>(itemId, new Dictionary<string, bool>() { { "Capture failed", false }, { "Capture Fixed", true } });
 
 // Extension methods exist for streams with shortcuts to item modification methods with only item id and not the guid id. E.g:
 await myStream.AddItemTagAsync(itemId, "Tag X");
@@ -816,7 +820,7 @@ public class ExampleDataRepeaterStream : HCDataRepeaterStreamBase<MyStreamItem>
     public override string RetryActionName => "Retry capture";
     public override string RetryDescription => "Attempts to perform the capture action again.";
     public override List<string> InitiallySelectedTags => new List<string> { "Failed" };
-    public override List<string> FilterableTags => new List<string> { "Failed", "Retried", "Success" };
+    public override List<string> FilterableTags => new List<string> { "Failed", "Retried", "Fixed" };
     public override List<IHCDataRepeaterStreamItemAction> Actions => new List<IHCDataRepeaterStreamItemAction>
     {
         new ExampleDataRepeaterStreamItemActionToggleAllow()
@@ -831,7 +835,7 @@ public class ExampleDataRepeaterStream : HCDataRepeaterStreamBase<MyStreamItem>
     {
         var details = new HCDataRepeaterStreamItemDetails
         {
-            DescriptionHtml = "<p>Description here with <a href=\"#etc\">some html.</a></p>",
+            DescriptionHtml = "<p>Description here with support for <a href=\"#etc\">html.</a></p>",
             Links = new List<HCDataRepeaterStreamItemHyperLink>
             {
                 new HCDataRepeaterStreamItemHyperLink("Some link", "/etc1"),
@@ -841,7 +845,7 @@ public class ExampleDataRepeaterStream : HCDataRepeaterStreamBase<MyStreamItem>
         return Task.FromResult(details);
     }
 
-    // Analyze item on insertion and optionally manually from the interface.
+    // Analyze is called when adding items through the default service and base stream, and optionally manually from the interface.
     // Use to categorize using tags, skip inserting if not needed etc.
     protected override Task<HCDataRepeaterItemAnalysisResult> AnalyzeItemAsync(MyStreamItem item, bool isManualAnalysis = false)
     {
@@ -855,6 +859,10 @@ public class ExampleDataRepeaterStream : HCDataRepeaterStreamBase<MyStreamItem>
 
     protected override Task<HCDataRepeaterRetryResult> RetryItemAsync(MyStreamItem item)
     {
+        // Retry whatever failed initially here.
+        // ...
+
+        // And return the result of the attempted retry.
         var result = new HCDataRepeaterRetryResult
         {
             Success = true,
@@ -1718,12 +1726,19 @@ Cache can optionally be set to null in constructor if not wanted, or the include
 
     // DataRepeater
     // Example setup:
-    /// public class MyDataA {}
-    /// public class MyStreamItemA : HCDefaultDataRepeaterStreamItem<MyDataA, MyStreamItemA> {}
-    /// public class MyStreamA : HCEpiserverBlobDataRepeaterStreamItemStorage<MyStreamItemA> {}
-    /// public class MyStreamB : HCEpiserverBlobDataRepeaterStreamItemStorage<MyStreamItemB> {}
-    services.AddSingleton<IHCDataRepeaterStream, MyStreamA>();
-    services.AddSingleton<IHCDataRepeaterStream, MyStreamB>();
+    /// public class SomeExistingModel {}
+    /// public class MyStreamItemA : HCDefaultDataRepeaterStreamItem<SomeExistingModel, MyStreamItemA> {}
+    /// public class MyStreamStorageA : HCEpiserverBlobDataRepeaterStreamItemStorage<MyStreamItemA>, IMyStreamStorageA
+    // {
+    //     protected override Guid ContainerId => Guid.Parse("c0254918-1234-1234-1234-062ed6a11aaa"); // <-- set a unique guid per stream
+    //     public MyStreamStorageA(IBlobFactory blobFactory, Core.Abstractions.IHCCache cache) : base(blobFactory, cache) {}
+    // }
+    // public class MyStreamA : HCDataRepeaterStreamBase<MyStreamItemA> {
+    //     public MyStreamA(MyStreamStorageA storage) : base(storage) { }
+    // }
+    context.Services.AddSingleton<MyStreamStorageA>();
+    context.Services.AddSingleton<IHCDataRepeaterStream, MyStreamA>();
+    // services.AddSingleton<IHCDataRepeaterStream, MyStreamB>(); etc
 ```
 
 </p>

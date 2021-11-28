@@ -82,6 +82,13 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         Task SetForcedItemStatusAsync(Guid id, HCDataRepeaterStreamItemStatus? status, Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null);
 
         /// <summary>
+        /// Adds a log message to the given item.
+        /// </summary>
+        /// <param name="id">Id of item to target.</param>
+        /// <param name="logMessage">Message to log.</param>
+        Task AddItemLogMessageAsync(Guid id, string logMessage);
+
+        /// <summary>
         /// Get stream items with filter and paging.
         /// </summary>
         Task<HCDataRepeaterStreamItemsPagedModel> GetItemsPagedAsync(HCGetDataRepeaterStreamItemsFilteredRequest model);
