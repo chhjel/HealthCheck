@@ -419,7 +419,7 @@ namespace HealthCheck.Episerver.Tests.Storage
             storage.BlobUpdateBufferDuration = TimeSpan.FromDays(1);
 
             var tasks = new List<Task>();
-            
+
             var data = createItem(0);
             await storage.AddItemAsync(StreamItem.CreateFrom(data, data.SomeId));
 
@@ -447,6 +447,44 @@ namespace HealthCheck.Episerver.Tests.Storage
             Assert.Equal(expDate, item.ExpirationTime);
             Assert.Contains("Message", item.Log.Select(x => x.Message));
             Assert.Contains("Tag1", item.Tags);
+
+            async Task<List<IHCDataRepeaterStreamItem>> getItemsAsync()
+                => (await storage.GetItemsPagedAsync(new HCGetDataRepeaterStreamItemsFilteredRequest
+                { PageIndex = 0, PageSize = int.MaxValue })).Items.ToList();
+
+            StreamItemData createItem(int id)
+                => new StreamItemData { SomeId = id.ToString(), AnotherThing = id % 2 == 0, SomeValue = id * 25m };
+        }
+
+        [Fact]
+        public async Task SetError_Twice_DoesntUpdateFirstError()
+        {
+            var blob = new MockBlob(new Uri("https://mock.blob"), "{}");
+            var storage = CreateStorage(() => blob)
+                .SetMaxItemCount(50)
+                as StorageImplementation;
+            storage.MaxBufferSize = 500;
+            storage.BlobUpdateBufferDuration = TimeSpan.FromDays(1);
+
+            var tasks = new List<Task>();
+
+            var data = createItem(0);
+            await storage.AddItemAsync(StreamItem.CreateFrom(data, data.SomeId));
+
+            var item = (await getItemsAsync()).First();
+            await storage.SetItemErrorAsync(item.Id, "Error 1");
+            storage.ForceBufferCallback();
+
+            await storage.SetItemErrorAsync(item.Id, "Error 2");
+            storage.ForceBufferCallback();
+
+            var items = await getItemsAsync();
+            Assert.Single(items);
+            item = items.First();
+            Assert.Equal("Error 1", item.FirstError);
+            Assert.Equal("Error 2", item.Error);
+            Assert.NotNull(item.FirstErrorAt);
+            Assert.NotNull(item.LastErrorAt);
 
             async Task<List<IHCDataRepeaterStreamItem>> getItemsAsync()
                 => (await storage.GetItemsPagedAsync(new HCGetDataRepeaterStreamItemsFilteredRequest

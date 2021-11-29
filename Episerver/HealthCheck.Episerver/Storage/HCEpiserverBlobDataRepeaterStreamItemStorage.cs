@@ -244,11 +244,13 @@ namespace HealthCheck.Episerver.Storage
             {
                 save = true;
                 item.Error = error;
+                item.LastErrorAt = DateTimeOffset.Now;
             }
             if (!string.IsNullOrWhiteSpace(error) && string.IsNullOrWhiteSpace(item.FirstError))
             {
                 save = true;
                 item.FirstError = error;
+                item.FirstErrorAt = DateTimeOffset.Now;
             }
 
             if (save)
