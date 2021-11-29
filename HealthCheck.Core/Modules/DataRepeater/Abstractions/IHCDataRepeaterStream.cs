@@ -20,6 +20,11 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         string StreamDisplayName { get; }
 
         /// <summary>
+        /// Optional description of the stream. Supports HTML.
+        /// </summary>
+        string StreamDescription { get; }
+
+        /// <summary>
         /// What to call the items in this stream.
         /// </summary>
         string StreamItemsName { get; }

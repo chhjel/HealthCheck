@@ -31,6 +31,7 @@
                         <v-container>
                             <div v-if="selectedStream && selectedItemId == null">
                                 <h2 v-if="selectedStream.StreamItemsName">{{ selectedStream.StreamItemsName }}</h2>
+                                <p v-if="selectedStream.Description" v-html="selectedStream.Description"></p>
 
                                 <div class="data-repeater-filters">
                                     <v-text-field

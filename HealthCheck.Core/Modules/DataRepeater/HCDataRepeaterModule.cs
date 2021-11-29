@@ -79,6 +79,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
                 {
                     Id = stream.GetType().FullName,
                     Name = stream.StreamDisplayName,
+                    Description = stream.StreamDescription,
                     StreamItemsName = stream.StreamItemsName,
                     ItemIdName = stream.ItemIdDisplayName,
                     GroupName = stream.StreamGroupName,

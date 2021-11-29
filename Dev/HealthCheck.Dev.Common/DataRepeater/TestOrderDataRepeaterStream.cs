@@ -10,6 +10,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
     public class TestOrderDataRepeaterStream : HCDataRepeaterStreamBase<TestOrderStreamItem>
     {
         public override string StreamDisplayName => "Order Captures";
+        public override string StreamDescription => "Some description <a href=\"/some/link\">here</a>.";
         public override string StreamGroupName => "Orders";
         public override string StreamItemsName => "Orders";
         public override string ItemIdDisplayName => "Order number";

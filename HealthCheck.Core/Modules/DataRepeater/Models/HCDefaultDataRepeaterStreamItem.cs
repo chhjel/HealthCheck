@@ -256,5 +256,21 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
             }
             return this as TSelf;
         }
+
+        /// <summary>
+        /// Sets forced item status to display in the UI.
+        /// </summary>
+        public TSelf SetForcedStatus(HCDataRepeaterStreamItemStatus? forcedStatus)
+        {
+            ForcedStatus = forcedStatus;
+            return this as TSelf;
+        }
+
+        /// <summary>
+        /// Clears forced item status to display in the UI.
+        /// <para>Same as SetForcedStatus(null)</para>
+        /// </summary>
+        public TSelf ClearForcedStatus()
+            => SetForcedStatus(null);
     }
 }

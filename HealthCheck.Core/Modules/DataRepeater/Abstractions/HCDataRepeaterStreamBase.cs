@@ -21,6 +21,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         public abstract string StreamDisplayName { get; }
 
         /// <inheritdoc />
+        public virtual string StreamDescription { get; }
+
+        /// <inheritdoc />
         public abstract string StreamItemsName { get; }
 
         /// <inheritdoc />
@@ -81,6 +84,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
             existingItem.ExpirationTime = newItem.ExpirationTime ?? existingItem.ExpirationTime;
             existingItem.SerializedData = newItem.SerializedData;
             existingItem.Summary = !string.IsNullOrWhiteSpace(newItem.Summary) ? newItem.Summary : existingItem.Summary;
+            existingItem.ForcedStatus = newItem.ForcedStatus != null ? newItem.ForcedStatus : existingItem.ForcedStatus;
 
             // First error
             var firstError = existingItem.FirstError;
