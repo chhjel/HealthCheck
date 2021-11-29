@@ -64,13 +64,13 @@ namespace HealthCheck.Dev.Common.Tests
                 var item1 = TestOrderStreamItem.CreateFrom(order, order.OrderNumber, $"{order.Amount}$ from \"Jimmy Smithy\"");
                 if (i % 2 == 0)
                 {
-                    item1.SetInitialError("Capture failed", dummyError);
+                    item1.SetError("Capture failed", dummyError);
                 }
                 await stream1.AddItemAsync(item1);
 
                 var item2 = TestXStreamItem.CreateFrom(new DummyX { Id = i.ToString(), Value = i + 123 }, i.ToString())
                     .AddTags("SomeTag", "Another tag")
-                    .SetInitialError("Hmm something happened.", dummyError);
+                    .SetError("Hmm something happened.", dummyError);
                 await stream2.AddItemAsync(item2);
             }
 
@@ -134,7 +134,7 @@ namespace HealthCheck.Dev.Common.Tests
         }
 
         [RuntimeTest]
-        public TestResult Scenario1InitialError(string orderNumber = "X888888888")
+        public TestResult Scenario1Error(string orderNumber = "X888888888", string error = "Some error here")
         {
             var order = new DummyOrder
             {
@@ -144,7 +144,7 @@ namespace HealthCheck.Dev.Common.Tests
 
             var item = TestOrderStreamItem.CreateFrom(order, order.OrderNumber, "From \"John Smithery\"",
                 tags: new[] { "Capture failed" },
-                initialError: "Some error details here.");
+                error: error);
 
             HCDataRepeaterUtils.AddStreamItem<TestOrderDataRepeaterStream>(item);
             return TestResult.CreateSuccess($"Stored item!");

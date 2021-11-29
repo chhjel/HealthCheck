@@ -12,9 +12,22 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
 {
     /// <summary>
     /// Utilities related to the data repeater module.
+    /// <para>Any exceptions ignored by the methods can be logged by subscribing to <see cref="OnExceptionEvent"/>.</para>
     /// </summary>
     public static class HCDataRepeaterUtils
     {
+        /// <summary>
+        /// Called whenever one of the methods in <see cref="HCDataRepeaterUtils"/> that ignores exceptions catches an exception.
+        /// </summary>
+        public static OnException OnExceptionEvent;
+
+        /// <summary>
+        /// Signature for <see cref="OnExceptionEvent"/>.
+        /// </summary>
+        /// <param name="method">Name of method that threw the exception</param>
+        /// <param name="exception">Exception being thrown.</param>
+        public delegate void OnException(string method, Exception exception);
+
         /// <summary>
         /// Adds a new item to the first registered stream of the given type.
         /// <para>If an existing item with the same item id is found, <see cref="IHCDataRepeaterStream.HandleAddedDuplicateItemAsync"/> will be called.</para>
@@ -35,9 +48,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
                 if (HCGlobalConfig.GetDefaultInstanceResolver()?.Invoke(typeof(IHCDataRepeaterService)) is not IHCDataRepeaterService service) return;
                 await service.AddStreamItemAsync<TStream>(item, hint, analyze, handleDuplicates);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                /* Ignored */
+                OnExceptionEvent?.Invoke(nameof(AddStreamItemAsync), ex);
             }
         }
 
@@ -54,8 +67,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
                 var streams = service?.GetStreams();
                 return streams?.FirstOrDefault(x => x.GetType() == typeof(TStream));
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                OnExceptionEvent?.Invoke(nameof(GetStream), ex);
                 return null;
             }
         }
@@ -79,8 +93,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
                 if (stream == null) return null;
                 return await stream.GetItemByItemIdAsync(itemId).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                OnExceptionEvent?.Invoke(nameof(GetItemByItemIdAsync), ex);
                 return null;
             }
         }
@@ -104,8 +119,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
                 if (stream == null) return false;
                 return await stream.DeleteItemAsync(itemId).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                OnExceptionEvent?.Invoke(nameof(DeleteItemAsync), ex);
                 return false;
             }
         }
@@ -135,8 +151,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
                 }
                 return item;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                OnExceptionEvent?.Invoke(nameof(ModifyItemAsync), ex);
                 return null;
             }
         }
@@ -160,8 +177,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
                 if (stream == null) return false;
                 return await stream.RemoveAllItemTagsAsync(itemId).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                OnExceptionEvent?.Invoke(nameof(RemoveAllItemTagsAsync), ex);
                 return false;
             }
         }
@@ -185,8 +203,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
                 if (stream == null) return false;
                 return await stream.RemoveItemTagAsync(itemId, tag).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                OnExceptionEvent?.Invoke(nameof(RemoveItemTagAsync), ex);
                 return false;
             }
         }
@@ -208,8 +227,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
                 if (stream == null) return false;
                 return await stream.RemoveItemTagsAsync(itemId, tags).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                OnExceptionEvent?.Invoke(nameof(RemoveItemTagsAsync), ex);
                 return false;
             }
         }
@@ -237,8 +257,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
                 if (stream == null) return false;
                 return await stream.SetTagsAsync(itemId, tags, removeOtherTags).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                OnExceptionEvent?.Invoke(nameof(SetTagsAsync), ex);
                 return false;
             }
         }
@@ -262,8 +283,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
                 if (stream == null) return false;
                 return await stream.AddItemTagAsync(itemId, tag).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                OnExceptionEvent?.Invoke(nameof(AddItemTagAsync), ex);
                 return false;
             }
         }
@@ -287,8 +309,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
                 if (stream == null) return false;
                 return await stream.AddItemTagsAsync(itemId, tags).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                OnExceptionEvent?.Invoke(nameof(AddItemTagsAsync), ex);
                 return false;
             }
         }
@@ -312,8 +335,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
                 if (stream == null) return false;
                 return await stream.SetAllowItemRetryAsync(itemId, allow).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                OnExceptionEvent?.Invoke(nameof(SetAllowItemRetryAsync), ex);
                 return false;
             }
         }
@@ -337,8 +361,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
                 if (stream == null) return false;
                 return await stream.SetExpirationTimeAsync(itemId, time).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                OnExceptionEvent?.Invoke(nameof(SetExpirationTimeAsync), ex);
                 return false;
             }
         }
@@ -351,8 +376,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         /// <param name="status">Status to enforce. Can be null to clear forced status.</param>
         /// <param name="expirationTime">Optionally set expiration time. Null = no effect, Maybe{null} = clear.</param>
         /// <param name="logMessage">Optional log message.</param>
-        public static bool SetForcedItemStatus<TStream>(string itemId, HCDataRepeaterStreamItemStatus? status, Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null)
-            => AsyncUtils.RunSync(() => SetForcedItemStatusAsync<TStream>(itemId, status, expirationTime, logMessage));
+        /// <param name="error">Optional error.</param>
+        /// <param name="exception">Optional exception.</param>
+        public static bool SetForcedItemStatus<TStream>(string itemId, HCDataRepeaterStreamItemStatus? status,
+            Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null,
+            string error = null, Exception exception = null)
+            => AsyncUtils.RunSync(() => SetForcedItemStatusAsync<TStream>(itemId, status, expirationTime, logMessage, error, exception));
 
         /// <summary>
         /// Set the given items forced status that is only used to override status colors in the UI by default.
@@ -362,16 +391,21 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         /// <param name="status">Status to enforce. Can be null to clear forced status.</param>
         /// <param name="expirationTime">Optionally set expiration time. Null = no effect, Maybe{null} = clear.</param>
         /// <param name="logMessage">Optional log message.</param>
-        public static async Task<bool> SetForcedItemStatusAsync<TStream>(string itemId, HCDataRepeaterStreamItemStatus? status, Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null)
+        /// <param name="error">Optional error.</param>
+        /// <param name="exception">Optional exception.</param>
+        public static async Task<bool> SetForcedItemStatusAsync<TStream>(string itemId, HCDataRepeaterStreamItemStatus? status,
+            Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null,
+            string error = null, Exception exception = null)
         {
             try
             {
                 var stream = GetStream<TStream>();
                 if (stream == null) return false;
-                return await stream.SetForcedItemStatusAsync(itemId, status, expirationTime, logMessage).ConfigureAwait(false);
+                return await stream.SetForcedItemStatusAsync(itemId, status, expirationTime, logMessage, error, exception).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                OnExceptionEvent?.Invoke(nameof(SetForcedItemStatusAsync), ex);
                 return false;
             }
         }
@@ -381,7 +415,15 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         /// </summary>
         /// <param name="itemId">Id of item to target.</param>
         /// <param name="logMessage">Message to log.</param>
-        public static async Task<bool> AddItemLogMessageAsync<TStream>(string itemId, string logMessage = null)
+        public static bool AddItemLogMessage<TStream>(string itemId, string logMessage)
+            => AsyncUtils.RunSync(() => AddItemLogMessageAsync<TStream>(itemId, logMessage));
+
+        /// <summary>
+        /// Adds a log message to the given item.
+        /// </summary>
+        /// <param name="itemId">Id of item to target.</param>
+        /// <param name="logMessage">Message to log.</param>
+        public static async Task<bool> AddItemLogMessageAsync<TStream>(string itemId, string logMessage)
         {
             try
             {
@@ -389,8 +431,41 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
                 if (stream == null) return false;
                 return await stream.AddItemLogMessageAsync(itemId, logMessage).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                OnExceptionEvent?.Invoke(nameof(AddItemLogMessageAsync), ex);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Sets Error to the given message and optionally include exception details.
+        /// <para>If FirstError is empty it will be updated as well.</para>
+        /// </summary>
+        /// <param name="itemId">Id of item to target.</param>
+        /// <param name="error">Error to set.</param>
+        /// <param name="exception">Exception to include details from if any.</param>
+        public static bool SetItemError<TStream>(string itemId, string error, Exception exception = null)
+            => AsyncUtils.RunSync(() => SetItemErrorAsync<TStream>(itemId, error, exception));
+
+        /// <summary>
+        /// Sets Error to the given message and optionally include exception details.
+        /// <para>If FirstError is empty it will be updated as well.</para>
+        /// </summary>
+        /// <param name="itemId">Id of item to target.</param>
+        /// <param name="error">Error to set.</param>
+        /// <param name="exception">Exception to include details from if any.</param>
+        public static async Task<bool> SetItemErrorAsync<TStream>(string itemId, string error, Exception exception = null)
+        {
+            try
+            {
+                var stream = GetStream<TStream>();
+                if (stream == null) return false;
+                return await stream.SetItemErrorAsync<TStream>(itemId, error, exception).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                OnExceptionEvent?.Invoke(nameof(AddItemLogMessageAsync), ex);
                 return false;
             }
         }

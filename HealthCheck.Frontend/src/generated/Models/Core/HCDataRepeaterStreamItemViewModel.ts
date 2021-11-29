@@ -9,17 +9,21 @@ export interface HCDataRepeaterStreamItemViewModel
 {
 	Id: string;
 	InsertedAt: Date;
-	LastRetriedAt: Date;
-	LastRetryWasSuccessful: boolean;
-	LastActionAt: Date;
+	LastRetriedAt?: Date;
+	LastUpdatedAt?: Date;
+	LastRetryWasSuccessful?: boolean;
+	LastActionAt?: Date;
 	ItemId: string;
 	Summary: string;
 	AllowRetry: boolean;
 	Tags: string[];
-	InitialError: string;
+	FirstErrorAt?: Date;
+	LastErrorAt?: Date;
+	FirstError: string;
+	Error: string;
 	Log: HCDataRepeaterSimpleLogEntry[];
 	SerializedData: string;
 	SerializedDataOverride: string;
-	ExpiresAt: Date;
-	ForcedStatus: HCDataRepeaterStreamItemStatus;
+	ExpiresAt?: Date;
+	ForcedStatus?: HCDataRepeaterStreamItemStatus;
 }

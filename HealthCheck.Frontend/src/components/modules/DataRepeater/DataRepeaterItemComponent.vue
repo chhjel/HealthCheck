@@ -31,9 +31,8 @@
             <div class="data-repeater-item--detail-blocks">
                 <div class="data-repeater-item--block">
                     <div class="data-repeater-item--metadata">
-                        <h3 class="mt-0">Metadata</h3>
+                        <h3 class="mt-0">Summary</h3>
                         <ul>
-                            <li><b>Inserted: </b>{{ formatDate(item.InsertedAt) }}</li>
                             <li v-if="item.Tags && item.Tags.length > 0">
                                 <div class="data-repeater-item--tags">
                                     <b>Tags: </b>
@@ -42,8 +41,10 @@
                                         :key="`item-d-${item.Id}-tag-${tIndex}`">{{ tag }}</div>
                                 </div>
                             </li>
+                            <li><b>Inserted: </b>{{ formatDate(item.InsertedAt) }}</li>
+                            <li  v-if="item.LastUpdatedAt"><b>Updated: </b>{{ formatDate(item.LastUpdatedAt) }}</li>
                             <li><b>Retry allowed: </b>{{ item.AllowRetry }}</li>
-                            <li v-if="item.LastRetriedAt"><b>Last retried: </b>{{ formatDate(item.LastRetriedAt) }}</li>
+                            <li v-if="item.LastRetriedAt"><b>Last manually retried: </b>{{ formatDate(item.LastRetriedAt) }}</li>
                             <li v-if="item.LastRetryWasSuccessful != null"><b>Last retry was success: </b>{{ item.LastRetryWasSuccessful }}</li>
                             <li v-if="item.LastActionAt"><b>Last action: </b>{{ formatDate(item.LastActionAt) }}</li>
                             <li v-if="item.ExpiresAt"><b>Expires after: </b>{{ formatDate(item.ExpiresAt) }}</li>
@@ -63,9 +64,16 @@
                 </div>
             </div>
 
-            <div v-if="item.InitialError" class="data-repeater-item--block mt-2">
-                <h3 class="mt-0">Initial error</h3>
-                <code class="pa-2">{{ item.InitialError }}</code>
+            <div v-if="item.FirstError" class="data-repeater-item--block mt-2">
+                <small class="right" v-if="item.FirstErrorAt">{{ formatDate(item.FirstErrorAt) }}</small>
+                <h3 class="mt-0">First error</h3>
+                <code class="pa-2">{{ item.FirstError }}</code>
+            </div>
+
+            <div v-if="item.Error && item.Error != item.FirstError" class="data-repeater-item--block mt-2">
+                <small class="right" v-if="item.LastErrorAt">{{ formatDate(item.LastErrorAt) }}</small>
+                <h3 class="mt-0">Latest error</h3>
+                <code class="pa-2">{{ item.Error }}</code>
             </div>
 
             <div v-if="item.Log && item.Log.length > 0" class="data-repeater-item--block mt-2">
@@ -448,5 +456,9 @@ export default class DataRepeaterItemComponent extends Vue {
     &:not(.failed) {
         color: #333;
     }
+}
+code {
+    width: 100%;
+    overflow-x: auto;
 }
 </style>

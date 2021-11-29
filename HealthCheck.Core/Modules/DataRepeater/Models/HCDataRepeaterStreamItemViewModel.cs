@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Attributes;
+using System;
 using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.DataRepeater.Models
@@ -21,16 +22,25 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// <summary>
         /// When this item was last retried.
         /// </summary>
+        [HCRtProperty(ForcedNullable = true)]
         public DateTimeOffset? LastRetriedAt { get; set; }
+
+        /// <summary>
+        /// When this item was stored.
+        /// </summary>
+        [HCRtProperty(ForcedNullable = true)]
+        public DateTimeOffset? LastUpdatedAt { get; set; }
 
         /// <summary>
         /// Was the last retry successful?
         /// </summary>
+        [HCRtProperty(ForcedNullable = true)]
         public bool? LastRetryWasSuccessful { get; set; }
 
         /// <summary>
         /// When this item was last performed an action on.
         /// </summary>
+        [HCRtProperty(ForcedNullable = true)]
         public DateTimeOffset? LastActionAt { get; set; }
 
         /// <summary>
@@ -54,9 +64,27 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public List<string> Tags { get; set; }
 
         /// <summary>
-        /// Optional initial error.
+        /// When the first error was stored.
         /// </summary>
-        public string InitialError { get; set; }
+        [HCRtProperty(ForcedNullable = true)]
+        public DateTimeOffset? FirstErrorAt { get; set; }
+
+        /// <summary>
+        /// When the latest error was stored.
+        /// </summary>
+        [HCRtProperty(ForcedNullable = true)]
+        public DateTimeOffset? LastErrorAt { get; set; }
+
+        /// <summary>
+        /// First registered error if any.
+        /// <para>Is automatically set from <see cref="Error"/></para>
+        /// </summary>
+        public string FirstError { get; set; }
+
+        /// <summary>
+        /// Latest error if any.
+        /// </summary>
+        public string Error { get; set; }
 
         /// <summary>
         /// Last retry/action results.
@@ -76,11 +104,13 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// <summary>
         /// Optional time when this item will be deleted after.
         /// </summary>
+        [HCRtProperty(ForcedNullable = true)]
         public DateTimeOffset? ExpiresAt { get; set; }
 
         /// <summary>
         /// Optional forced status to show in the UI.
         /// </summary>
+        [HCRtProperty(ForcedNullable = true)]
         public HCDataRepeaterStreamItemStatus? ForcedStatus { get; set; }
     }
 }

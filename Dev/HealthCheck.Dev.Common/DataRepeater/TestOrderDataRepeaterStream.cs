@@ -47,7 +47,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
         {
             var result = new HCDataRepeaterItemAnalysisResult();
 
-            if (!string.IsNullOrWhiteSpace(item.InitialError) && item.LastRetryWasSuccessful != true)
+            if (!string.IsNullOrWhiteSpace(item.Error) && item.LastRetryWasSuccessful != true)
             {
                 item.AllowRetry = true;
             }

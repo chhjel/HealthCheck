@@ -150,11 +150,22 @@ namespace HealthCheck.Core.Modules.DataRepeater.Extensions
         /// <param name="status">Status to enforce. Can be null to clear forced status.</param>
         /// <param name="expirationTime">Optionally set expiration time. Null = no effect, Maybe{null} = clear.</param>
         /// <param name="logMessage">Optional log message.</param>
-        public static async Task<bool> SetForcedItemStatusAsync(this IHCDataRepeaterStream stream, string itemId, HCDataRepeaterStreamItemStatus? status, Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null)
+        /// <param name="error">Optional error.</param>
+        /// <param name="exception">Optional exception.</param>
+        public static async Task<bool> SetForcedItemStatusAsync(this IHCDataRepeaterStream stream, string itemId, HCDataRepeaterStreamItemStatus? status,
+            Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null,
+            string error = null, Exception exception = null)
         {
             var item = await stream.GetItemByItemIdAsync(itemId).ConfigureAwait(false);
             if (item == null) return false;
-            await stream.Storage.SetForcedItemStatusAsync(item.Id, status, expirationTime, logMessage).ConfigureAwait(false);
+
+            error ??= "";
+            if (exception != null)
+            {
+                error += $"\n\n{ExceptionUtils.GetFullExceptionDetails(exception)}";
+            }
+
+            await stream.Storage.SetForcedItemStatusAsync(item.Id, status, expirationTime, logMessage, error).ConfigureAwait(false);
             return true;
         }
 
@@ -169,6 +180,29 @@ namespace HealthCheck.Core.Modules.DataRepeater.Extensions
             var item = await stream.GetItemByItemIdAsync(itemId).ConfigureAwait(false);
             if (item == null) return false;
             await stream.Storage.AddItemLogMessageAsync(item.Id, logMessage).ConfigureAwait(false);
+            return true;
+        }
+
+        /// <summary>
+        /// Sets Error to the given message and optionally include exception details.
+        /// <para>If FirstError is empty it will be updated as well.</para>
+        /// </summary>
+        /// <param name="stream">Stream to target.</param>
+        /// <param name="itemId">Id of item to target.</param>
+        /// <param name="error">Error to set.</param>
+        /// <param name="exception">Exception to include details from if any.</param>
+        public static async Task<bool> SetItemErrorAsync<TStream>(this IHCDataRepeaterStream stream, string itemId, string error, Exception exception = null)
+        {
+            var item = await stream.GetItemByItemIdAsync(itemId).ConfigureAwait(false);
+            if (item == null) return false;
+
+            error ??= "";
+            if (exception != null)
+            {
+                error += $"\n\n{ExceptionUtils.GetFullExceptionDetails(exception)}";
+            }
+
+            await stream.Storage.SetItemErrorAsync(item.Id, error).ConfigureAwait(false);
             return true;
         }
     }

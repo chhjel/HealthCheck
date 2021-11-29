@@ -67,7 +67,8 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
 
         /// <summary>
         /// If <see cref="IHCDataRepeaterStreamItemStorage.AddItemAsync"/> is called when an item with the same <see cref="IHCDataRepeaterStreamItem.ItemId"/> already exists, this method is called to handle the conflict.
-        /// <para>Defaults to merging the new item into the old.</para>
+        /// <para>Modify the items passed as parameters and return weather to update or discard them.</para>
+        /// <para>Defaults to merging the new item into the old with some extra logic.</para>
         /// </summary>
         public virtual Task<HCDataRepeaterItemMergeConflictResult> HandleAddedDuplicateItemAsync(IHCDataRepeaterStreamItem existingItem, IHCDataRepeaterStreamItem newItem)
         {
@@ -75,11 +76,31 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
             {
                 existingItem.Tags.Add(tag);
             }
+
             existingItem.AllowRetry = newItem.AllowRetry;
             existingItem.ExpirationTime = newItem.ExpirationTime ?? existingItem.ExpirationTime;
             existingItem.SerializedData = newItem.SerializedData;
             existingItem.Summary = !string.IsNullOrWhiteSpace(newItem.Summary) ? newItem.Summary : existingItem.Summary;
-            existingItem.InitialError = !string.IsNullOrWhiteSpace(newItem.InitialError) ? newItem.InitialError : existingItem.InitialError;
+
+            // First error
+            var firstError = existingItem.FirstError;
+            if (string.IsNullOrWhiteSpace(firstError) && !string.IsNullOrWhiteSpace(newItem.Error))
+            {
+                firstError = newItem.Error;
+            }
+            if (string.IsNullOrWhiteSpace(existingItem.FirstError) && !string.IsNullOrWhiteSpace(firstError))
+            {
+                existingItem.FirstErrorAt = DateTimeOffset.Now;
+            }
+            existingItem.FirstError = string.IsNullOrWhiteSpace(existingItem.FirstError) ? newItem.FirstError : existingItem.FirstError;
+
+            // Latest error
+            existingItem.Error = !string.IsNullOrWhiteSpace(newItem.Error) ? newItem.Error : existingItem.Error;
+            if (!string.IsNullOrWhiteSpace(existingItem.Error))
+            {
+                existingItem.LastErrorAt = DateTimeOffset.Now;
+            }
+
             existingItem.AddLogMessage("Merged with new details.");
 
             var result = new HCDataRepeaterItemMergeConflictResult
