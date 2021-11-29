@@ -779,23 +779,19 @@ UseModule(new HCDataRepeaterModule(new HCDataRepeaterModuleOptions
 // Example usage, store data when something fails:
 var streamItem = TestOrderStreamItem.CreateFrom(myModel, myModel.ExternalId, "From \"Jimmy Smithy\" - 1234$")
     .AddTags("Capture failed")
-    .SetInitialError("Capture failed because of server downtime.", exception);
+    .SetError("Capture failed because of server downtime.", exception);
 await myStream.AddItemAsync(streamItem);
 
 // Alternatively using the static util:
 var streamItem = TestOrderStreamItem.CreateFrom(myModel, myModel.ExternalId, "From \"Jimmy Smithy\" - 1234$")
     .AddTags("Capture failed")
-    .SetInitialError("Capture failed because of server downtime.", exception);
+    .SetError("Capture failed because of server downtime.", exception);
 HCDataRepeaterUtils.AddStreamItem<ExampleDataRepeaterStream>(item); // or AddStreamItemAsync<T>
 
-// HCDataRepeaterUtils contains various shortcuts for setting item properties by the custom id used. E.g. external id above.
+// HCDataRepeaterUtils contains various other shortcuts for setting item properties by the custom id used. E.g. external id above.
 // Modify stored items when their statuses changes, e.g. something that failed now works again.
 HCDataRepeaterUtils.SetAllowItemRetryAsync<ExampleDataRepeaterStream>(itemId, true);
 HCDataRepeaterUtils.AddItemTagAsync<ExampleDataRepeaterStream>(itemId, "Tag X");
-HCDataRepeaterUtils.SetExpirationTimeAsync<ExampleDataRepeaterStream>(itemId, DateTimeOffset.Now.AddDays(7));
-HCDataRepeaterUtils.SetForcedItemStatus<TestOrderDataRepeaterStream>(itemId, HCDataRepeaterStreamItemStatus.Success,
-    new Maybe<DateTimeOffset?>(DateTimeOffset.Now.AddSeconds(30)), "Fixed!");
-HCDataRepeaterUtils.SetTags<TestOrderDataRepeaterStream>(itemId, new Dictionary<string, bool>() { { "Capture failed", false }, { "Capture Fixed", true } });
 
 // Extension methods exist for streams with shortcuts to item modification methods with only item id and not the guid id. E.g:
 await myStream.AddItemTagAsync(itemId, "Tag X");

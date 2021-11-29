@@ -79,7 +79,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// <param name="status">Status to enforce. Can be null to clear forced status.</param>
         /// <param name="expirationTime">Optionally set expiration time. Null = no effect, Maybe{null} = clear.</param>
         /// <param name="logMessage">Optional log message.</param>
-        Task SetForcedItemStatusAsync(Guid id, HCDataRepeaterStreamItemStatus? status, Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null);
+        /// <param name="error">Optional error.</param>
+        Task SetForcedItemStatusAsync(Guid id, HCDataRepeaterStreamItemStatus? status,
+            Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null, string error = null);
 
         /// <summary>
         /// Adds a log message to the given item.
@@ -87,6 +89,14 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// <param name="id">Id of item to target.</param>
         /// <param name="logMessage">Message to log.</param>
         Task AddItemLogMessageAsync(Guid id, string logMessage);
+
+        /// <summary>
+        /// Sets Error to the given message and optionally include exception details.
+        /// <para>If FirstError is empty it will be updated as well.</para>
+        /// </summary>
+        /// <param name="id">Id of item to target.</param>
+        /// <param name="error">Error to set.</param>
+        Task SetItemErrorAsync(Guid id, string error);
 
         /// <summary>
         /// Get stream items with filter and paging.

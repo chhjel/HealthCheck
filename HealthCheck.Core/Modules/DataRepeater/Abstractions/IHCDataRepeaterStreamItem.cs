@@ -20,6 +20,11 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         DateTimeOffset InsertedAt { get; set; }
 
         /// <summary>
+        /// When this item was stored.
+        /// </summary>
+        DateTimeOffset? LastUpdatedAt { get; set; }
+
+        /// <summary>
         /// When this item was last retried.
         /// </summary>
         DateTimeOffset? LastRetriedAt { get; set; }
@@ -66,9 +71,25 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         HashSet<string> Tags { get; set; }
 
         /// <summary>
-        /// Optional initial error.
+        /// When the first error was stored.
         /// </summary>
-        string InitialError { get; set; }
+        DateTimeOffset? FirstErrorAt { get; set; }
+
+        /// <summary>
+        /// When the latest error was stored.
+        /// </summary>
+        DateTimeOffset? LastErrorAt { get; set; }
+
+        /// <summary>
+        /// First registered error if any.
+        /// <para>Is automatically set from <see cref="Error"/></para>
+        /// </summary>
+        string FirstError { get; set; }
+
+        /// <summary>
+        /// Latest error if any.
+        /// </summary>
+        string Error { get; set; }
 
         /// <summary>
         /// Last retry/action results.

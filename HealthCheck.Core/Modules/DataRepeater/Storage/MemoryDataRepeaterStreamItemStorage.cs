@@ -43,6 +43,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Storage
         {
             lock (_items)
             {
+                item.LastUpdatedAt = DateTimeOffset.Now;
                 _items[$"{_prefix}_{item.Id}"] = item;
                 return Task.CompletedTask;
             }
@@ -149,7 +150,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Storage
         }
 
         /// <inheritdoc />
-        public async Task SetForcedItemStatusAsync(Guid id, HCDataRepeaterStreamItemStatus? status, Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null)
+        public async Task SetForcedItemStatusAsync(Guid id, HCDataRepeaterStreamItemStatus? status, Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null, string error = null)
         {
             var item = await GetItemAsync(id);
             if (item == null)
@@ -166,6 +167,17 @@ namespace HealthCheck.Core.Modules.DataRepeater.Storage
             {
                 item.AddLogMessage(logMessage);
             }
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                item.Error = error;
+                item.LastErrorAt = DateTimeOffset.Now;
+                if (string.IsNullOrWhiteSpace(item.FirstError))
+                {
+                    item.FirstError = error;
+                    item.FirstErrorAt = DateTimeOffset.Now;
+                }
+            }
+
             await UpdateItemAsync(item);
         }
 
@@ -181,6 +193,35 @@ namespace HealthCheck.Core.Modules.DataRepeater.Storage
             if (!string.IsNullOrWhiteSpace(logMessage))
             {
                 item.AddLogMessage(logMessage);
+                await UpdateItemAsync(item);
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task SetItemErrorAsync(Guid id, string error)
+        {
+            var item = await GetItemAsync(id);
+            if (item == null)
+            {
+                return;
+            }
+
+            var save = false;
+            if (error != item.Error)
+            {
+                save = true;
+                item.Error = error;
+                item.LastErrorAt = DateTimeOffset.Now;
+            }
+            if (!string.IsNullOrWhiteSpace(error) && string.IsNullOrWhiteSpace(item.FirstError))
+            {
+                save = true;
+                item.FirstError = error;
+                item.FirstErrorAt = DateTimeOffset.Now;
+            }
+
+            if (save)
+            {
                 await UpdateItemAsync(item);
             }
         }

@@ -73,6 +73,7 @@ namespace HealthCheck.Episerver.Storage
         public Task UpdateItemAsync(IHCDataRepeaterStreamItem item)
         {
             if (!IsEnabledInternal()) return Task.CompletedTask;
+            item.LastUpdatedAt = DateTimeOffset.Now;
             InsertItemBuffered((TItem)item, item.Id, isUpdate: true);
             return Task.CompletedTask;
         }
@@ -185,7 +186,7 @@ namespace HealthCheck.Episerver.Storage
         }
 
         /// <inheritdoc />
-        public async Task SetForcedItemStatusAsync(Guid id, HCDataRepeaterStreamItemStatus? status, Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null)
+        public async Task SetForcedItemStatusAsync(Guid id, HCDataRepeaterStreamItemStatus? status, Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null, string error = null)
         {
             var item = await GetItemAsync(id).ConfigureAwait(false);
             if (item != null)
@@ -198,6 +199,16 @@ namespace HealthCheck.Episerver.Storage
                 if (!string.IsNullOrWhiteSpace(logMessage))
                 {
                     item.AddLogMessage(logMessage);
+                }
+                if (!string.IsNullOrWhiteSpace(error))
+                {
+                    item.Error = error;
+                    item.LastErrorAt = DateTimeOffset.Now;
+                    if (string.IsNullOrWhiteSpace(item.FirstError))
+                    {
+                        item.FirstError = error;
+                        item.FirstErrorAt = DateTimeOffset.Now;
+                    }
                 }
                 await UpdateItemAsync(item).ConfigureAwait(false);
             }
@@ -220,6 +231,33 @@ namespace HealthCheck.Episerver.Storage
         }
 
         /// <inheritdoc />
+        public async Task SetItemErrorAsync(Guid id, string error)
+        {
+            var item = await GetItemAsync(id).ConfigureAwait(false);
+            if (item == null)
+            {
+                return;
+            }
+
+            var save = false;
+            if (error != item.Error)
+            {
+                save = true;
+                item.Error = error;
+            }
+            if (!string.IsNullOrWhiteSpace(error) && string.IsNullOrWhiteSpace(item.FirstError))
+            {
+                save = true;
+                item.FirstError = error;
+            }
+
+            if (save)
+            {
+                await UpdateItemAsync(item).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc />
         public Task<HCDataRepeaterStreamItemsPagedModel> GetItemsPagedAsync(HCGetDataRepeaterStreamItemsFilteredRequest model)
         {
             var matches = GetItems()
@@ -237,7 +275,7 @@ namespace HealthCheck.Episerver.Storage
                 .Take(model.PageSize);
             var result = new HCDataRepeaterStreamItemsPagedModel
             {
-                TotalCount = matches.Count(),
+                TotalCount = matches.Length,
                 Items = items
             };
             return Task.FromResult(result);

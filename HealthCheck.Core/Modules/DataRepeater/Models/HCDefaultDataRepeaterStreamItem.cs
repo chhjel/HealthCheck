@@ -23,6 +23,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public DateTimeOffset InsertedAt { get; set; } = DateTimeOffset.Now;
 
         /// <inheritdoc />
+        public DateTimeOffset? LastUpdatedAt { get; set; }
+
+        /// <inheritdoc />
         public string ItemId { get; set; }
 
         /// <inheritdoc />
@@ -56,7 +59,16 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public HashSet<string> Tags { get; set; } = new();
 
         /// <inheritdoc />
-        public string InitialError { get; set; }
+        public DateTimeOffset? FirstErrorAt { get; set; }
+
+        /// <inheritdoc />
+        public DateTimeOffset? LastErrorAt { get; set; }
+
+        /// <inheritdoc />
+        public string FirstError { get; set; }
+
+        /// <inheritdoc />
+        public string Error { get; set; }
 
         /// <inheritdoc />
         public List<HCDataRepeaterSimpleLogEntry> Log { get; set; }
@@ -107,7 +119,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public static TSelf CreateFrom(TData data, string itemId, string summary = null,
             IEnumerable<string> tags = null, bool allowRetry = true,
             DateTimeOffset? expirationTime = null,
-            string initialError = null, Exception initialErrorException = null)
+            string error = null, Exception exception = null)
         {
             string serializedData = null;
             if (data != null)
@@ -117,17 +129,17 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
                     : HCGlobalConfig.Serializer.Serialize(data, pretty: true);
             }
 
-            if (initialErrorException != null)
+            if (exception != null)
             {
-                if (initialError != null)
+                if (error != null)
                 {
-                    initialError += "\n\n";
+                    error += "\n\n";
                 }
                 else
                 {
-                    initialError = "";
+                    error = "";
                 }
-                initialError += ExceptionUtils.GetFullExceptionDetails(initialErrorException);
+                error += ExceptionUtils.GetFullExceptionDetails(exception);
             }
 
             return new()
@@ -139,22 +151,34 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
                 SerializedData = serializedData,
                 AllowRetry = allowRetry,
                 InsertedAt = DateTimeOffset.Now,
-                InitialError = initialError,
+                FirstError = error,
+                Error = error,
+                FirstErrorAt = string.IsNullOrWhiteSpace(error) ? null : DateTimeOffset.Now,
+                LastErrorAt = string.IsNullOrWhiteSpace(error) ? null : DateTimeOffset.Now,
                 ExpirationTime = expirationTime,
                 Log = new()
             };
         }
 
         /// <summary>
-        /// Sets <see cref="InitialError"/> to the given message and optionally include exception details.
+        /// Sets <see cref="Error"/> to the given message and optionally include exception details.
+        /// <para>If <see cref="FirstError"/> is empty it will be updated as well.</para>
         /// </summary>
-        public TSelf SetInitialError(string error, Exception exception = null)
+        public TSelf SetError(string error, Exception exception = null)
         {
-            InitialError = error;
+            Error = error;
             if (exception != null)
             {
-                InitialError += $"\n\n{ExceptionUtils.GetFullExceptionDetails(exception)}";
+                Error += $"\n\n{ExceptionUtils.GetFullExceptionDetails(exception)}";
             }
+            LastErrorAt = DateTimeOffset.Now;
+
+            if (string.IsNullOrWhiteSpace(FirstError))
+            {
+                FirstError = Error;
+                FirstErrorAt = DateTimeOffset.Now;
+            }
+
             return this as TSelf;
         }
 
