@@ -21,12 +21,6 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
         /// </summary>
         public Func<bool> IsEnabled { get; set; } = () => true;
 
-        /// <summary>
-        /// Max number of log entries to store per item.
-        /// <para>Defaults to 20.</para>
-        /// </summary>
-        private int MaxItemLogEntries { get; set; } = 20;
-
         private readonly IEnumerable<IHCDataRepeaterStream> _streams;
 
         /// <summary>
@@ -123,7 +117,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             catch (Exception ex)
             {
                 item.LastRetryWasSuccessful = false;
-                item.AddLogMessage($"Analysis was attempted. Failed with exception: {ex.Message}", MaxItemLogEntries);
+                item.AddLogMessage($"Analysis was attempted. Failed with exception: {ex.Message}");
                 await stream.Storage.UpdateItemAsync(item);
                 return new HCDataRepeaterItemAnalysisResult
                 {
@@ -137,7 +131,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             {
                 statusMessage = "Executed successfully.";
             }
-            item.AddLogMessage($"Analysis was attempted. Result: {statusMessage}", MaxItemLogEntries);
+            item.AddLogMessage($"Analysis was attempted. Result: {statusMessage}");
 
             // Apply AllowRetry and tag changes
             HCDataRepeaterUtils.ApplyChangesToItem(item, result);
@@ -169,7 +163,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             catch(Exception ex)
             {
                 item.LastRetryWasSuccessful = false;
-                item.AddLogMessage($"Retry was attempted. Failed with exception: {ex.Message}", MaxItemLogEntries);
+                item.AddLogMessage($"Retry was attempted. Failed with exception: {ex.Message}");
                 await stream.Storage.UpdateItemAsync(item);
                 return HCDataRepeaterRetryResult.CreateError(ex);
             }
@@ -181,7 +175,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             {
                 statusMessage = result.Success ? "Retry was successful" : "Retry failed.";
             }
-            item.AddLogMessage($"Retry was attempted. Result: {statusMessage}", MaxItemLogEntries);
+            item.AddLogMessage($"Retry was attempted. Result: {statusMessage}");
 
             // Apply AllowRetry and tag changes
             HCDataRepeaterUtils.ApplyChangesToItem(item, result);
@@ -236,7 +230,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             }
             catch (Exception ex)
             {
-                item.AddLogMessage($"Action '{action.DisplayName}' was executed. Failed with exception: {ex.Message}", MaxItemLogEntries);
+                item.AddLogMessage($"Action '{action.DisplayName}' was executed. Failed with exception: {ex.Message}");
                 await stream.Storage.UpdateItemAsync(item);
                 return HCDataRepeaterStreamItemActionResult.CreateError(ex);
             }
@@ -247,7 +241,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             {
                 statusMessage = result.Success ? "Action was successful" : "Action failed.";
             }
-            item.AddLogMessage($"Action '{action.DisplayName}' was executed. Result: {statusMessage}", MaxItemLogEntries);
+            item.AddLogMessage($"Action '{action.DisplayName}' was executed. Result: {statusMessage}");
 
             // Apply AllowRetry and tag changes
             HCDataRepeaterUtils.ApplyChangesToItem(item, result);
