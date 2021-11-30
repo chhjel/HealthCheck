@@ -8,8 +8,6 @@ namespace HealthCheck.Dev.Common.DataRepeater
 {
     public class TestOrderDataRepeaterStreamItemActionToggleAllow : HCDataRepeaterStreamItemActionBase<TestOrderDataRepeaterStreamItemActionToggleAllow.Parameters>
     {
-        public override List<string> AllowedOnItemsWithTags => new List<string> { };
-
         public override string DisplayName => "Set allow retry";
 
         public override string Description => "Sets AllowRetry property";

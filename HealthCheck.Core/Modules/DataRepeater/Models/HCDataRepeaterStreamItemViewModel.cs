@@ -112,5 +112,10 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// </summary>
         [HCRtProperty(ForcedNullable = true)]
         public HCDataRepeaterStreamItemStatus? ForcedStatus { get; set; }
+
+        /// <summary>
+        /// What actions can be executed or not.
+        /// </summary>
+        public List<HCDataRepeaterStreamItemActionAllowedViewModel> ActionValidationResults { get; set; } = new();
     }
 }

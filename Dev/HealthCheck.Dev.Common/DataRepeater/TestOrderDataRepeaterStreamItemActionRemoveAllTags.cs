@@ -7,8 +7,6 @@ namespace HealthCheck.Dev.Common.DataRepeater
 {
     public class TestOrderDataRepeaterStreamItemActionRemoveAllTags : HCDataRepeaterStreamItemActionBase<TestOrderDataRepeaterStreamItemActionRemoveAllTags.Parameters>
     {
-        public override List<string> AllowedOnItemsWithTags => new List<string> { };
-
         public override string DisplayName => "Remove all tags";
 
         public override string Description => "Removes all tags from the item.";

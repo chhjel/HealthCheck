@@ -4,6 +4,7 @@
 
 import { HCDataRepeaterSimpleLogEntry } from './HCDataRepeaterSimpleLogEntry';
 import { HCDataRepeaterStreamItemStatus } from '../../Enums/Core/HCDataRepeaterStreamItemStatus';
+import { HCDataRepeaterStreamItemActionAllowedViewModel } from './HCDataRepeaterStreamItemActionAllowedViewModel';
 
 export interface HCDataRepeaterStreamItemViewModel
 {
@@ -26,4 +27,5 @@ export interface HCDataRepeaterStreamItemViewModel
 	SerializedDataOverride: string;
 	ExpiresAt?: Date;
 	ForcedStatus?: HCDataRepeaterStreamItemStatus;
+	ActionValidationResults: HCDataRepeaterStreamItemActionAllowedViewModel[];
 }

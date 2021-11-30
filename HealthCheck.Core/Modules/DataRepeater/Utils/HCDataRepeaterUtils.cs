@@ -17,6 +17,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
     public static class HCDataRepeaterUtils
     {
         /// <summary>
+        /// Default max number of log entries to store per item when using utility and extension methods.
+        /// <para>Defaults to 20.</para>
+        /// </summary>
+        public static int DefaultMaxItemLogEntries { get; set; } = 20;
+
+        /// <summary>
         /// Called whenever one of the methods in <see cref="HCDataRepeaterUtils"/> that ignores exceptions catches an exception.
         /// </summary>
         public static OnException OnExceptionEvent;

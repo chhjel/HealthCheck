@@ -21,12 +21,6 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
         /// </summary>
         public Func<bool> IsEnabled { get; set; } = () => true;
 
-        /// <summary>
-        /// Max number of log entries to store per item.
-        /// <para>Defaults to 20.</para>
-        /// </summary>
-        private int MaxItemLogEntries { get; set; } = 20;
-
         private readonly IEnumerable<IHCDataRepeaterStream> _streams;
 
         /// <summary>
@@ -105,7 +99,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             var stream = GetStreams()?.FirstOrDefault(x => x.GetType().FullName == streamId);
             if (stream == null)
             {
-                return HCDataRepeaterItemAnalysisResult.CreateError("Stream not found.");
+                return new HCDataRepeaterItemAnalysisResult { Message = "Stream not found." };
             }
 
             item.Log ??= new();
@@ -117,15 +111,18 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
                 result = await stream.AnalyzeItemAsync(item, isManualAnalysis: true);
                 if (result == null)
                 {
-                    return HCDataRepeaterItemAnalysisResult.CreateError("Analysis returned null.");
+                    return new HCDataRepeaterItemAnalysisResult { Message = "Analysis returned null." };
                 }
             }
             catch (Exception ex)
             {
                 item.LastRetryWasSuccessful = false;
-                item.AddLogMessage($"Analysis was attempted. Failed with exception: {ex.Message}", MaxItemLogEntries);
+                item.AddLogMessage($"Analysis was attempted. Failed with exception: {ex.Message}");
                 await stream.Storage.UpdateItemAsync(item);
-                return HCDataRepeaterItemAnalysisResult.CreateError(ex);
+                return new HCDataRepeaterItemAnalysisResult
+                {
+                    Message = ExceptionUtils.GetFullExceptionDetails(ex)
+                };
             }
 
             // Update log
@@ -134,7 +131,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             {
                 statusMessage = "Executed successfully.";
             }
-            item.AddLogMessage($"Analysis was attempted. Result: {statusMessage}", MaxItemLogEntries);
+            item.AddLogMessage($"Analysis was attempted. Result: {statusMessage}");
 
             // Apply AllowRetry and tag changes
             HCDataRepeaterUtils.ApplyChangesToItem(item, result);
@@ -166,7 +163,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             catch(Exception ex)
             {
                 item.LastRetryWasSuccessful = false;
-                item.AddLogMessage($"Retry was attempted. Failed with exception: {ex.Message}", MaxItemLogEntries);
+                item.AddLogMessage($"Retry was attempted. Failed with exception: {ex.Message}");
                 await stream.Storage.UpdateItemAsync(item);
                 return HCDataRepeaterRetryResult.CreateError(ex);
             }
@@ -178,7 +175,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             {
                 statusMessage = result.Success ? "Retry was successful" : "Retry failed.";
             }
-            item.AddLogMessage($"Retry was attempted. Result: {statusMessage}", MaxItemLogEntries);
+            item.AddLogMessage($"Retry was attempted. Result: {statusMessage}");
 
             // Apply AllowRetry and tag changes
             HCDataRepeaterUtils.ApplyChangesToItem(item, result);
@@ -211,10 +208,13 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             {
                 return HCDataRepeaterStreamItemActionResult.CreateError($"Action '{actionId}' not found.");
             }
-            else if (action.AllowedOnItemsWithTags?.Any() == true
-                && action.AllowedOnItemsWithTags.Any(t => item.Tags?.Contains(t) == true) == false)
+
+            var allowedResult = await action.ActionIsAllowedForAsync(item);
+            if (allowedResult?.Allowed != true)
             {
-                return HCDataRepeaterStreamItemActionResult.CreateError($"Item '{item.ItemId}' does not allow for the action to be executed. Item is missing required tags.");
+                return HCDataRepeaterStreamItemActionResult.CreateError(string.IsNullOrWhiteSpace(allowedResult.Reason) 
+                    ? $"Item '{item.ItemId}' does not allow for the action to be executed."
+                    : allowedResult.Reason);
             }
 
             object parametersObject = action.ParametersType == null ? null : HCValueConversionUtils.ConvertInputModel(action.ParametersType, parameters);
@@ -230,7 +230,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             }
             catch (Exception ex)
             {
-                item.AddLogMessage($"Action '{action.DisplayName}' was executed. Failed with exception: {ex.Message}", MaxItemLogEntries);
+                item.AddLogMessage($"Action '{action.DisplayName}' was executed. Failed with exception: {ex.Message}");
                 await stream.Storage.UpdateItemAsync(item);
                 return HCDataRepeaterStreamItemActionResult.CreateError(ex);
             }
@@ -241,7 +241,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             {
                 statusMessage = result.Success ? "Action was successful" : "Action failed.";
             }
-            item.AddLogMessage($"Action '{action.DisplayName}' was executed. Result: {statusMessage}", MaxItemLogEntries);
+            item.AddLogMessage($"Action '{action.DisplayName}' was executed. Result: {statusMessage}");
 
             // Apply AllowRetry and tag changes
             HCDataRepeaterUtils.ApplyChangesToItem(item, result);
