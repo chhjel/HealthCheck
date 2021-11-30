@@ -2,6 +2,7 @@
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Modules.DataRepeater.Abstractions;
 using HealthCheck.Core.Modules.DataRepeater.Models;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -102,7 +103,6 @@ namespace HealthCheck.Core.Modules.DataRepeater
                         Name = !string.IsNullOrWhiteSpace(action.DisplayName) ? action.DisplayName : action.GetType().Name,
                         Description = action.Description ?? "",
                         ExecuteButtonLabel = action.ExecuteButtonLabel,
-                        AllowedOnItemsWithTags = action.AllowedOnItemsWithTags,
                         ParameterDefinitions = HCCustomPropertyAttribute.CreateInputConfigs(action.ParametersType)
                     });
                 }
@@ -118,7 +118,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
         {
             var stream = GetStream(context, model.StreamId);
             var result = await stream.Storage.GetItemsPagedAsync(model);
-            var items = result.Items.Select(x => Create(x)).Where(x => x != null).ToList();
+            var items = result.Items.Select(x => Create(x, stream, checkActions: false)).Where(x => x != null).ToList();
             
             return new HCDataRepeaterStreamItemsPagedViewModel
             {
@@ -140,7 +140,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
             {
                 Description = details?.DescriptionHtml ?? "",
                 Links = details?.Links ?? new(),
-                Item = Create(item)
+                Item = Create(item, stream, checkActions: true)
             };
         }
 
@@ -160,7 +160,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
 
             return new HCDataRepeaterResultWithItem<HCDataRepeaterItemAnalysisResult>
             {
-                Item = Create(item),
+                Item = Create(item, stream, checkActions: true),
                 Data = data
             };
         }
@@ -177,7 +177,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
             {
                 return new HCDataRepeaterResultWithItem<HCDataRepeaterRetryResult>
                 {
-                    Item = Create(item),
+                    Item = Create(item, stream, checkActions: true),
                     Data = HCDataRepeaterRetryResult.CreateError("Item does not allow retry.")
                 };
             }
@@ -191,7 +191,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
 
             return new HCDataRepeaterResultWithItem<HCDataRepeaterRetryResult>
             {
-                Item = Create(item),
+                Item = Create(item, stream, checkActions: true),
                 Data = data
             };
         }
@@ -222,15 +222,17 @@ namespace HealthCheck.Core.Modules.DataRepeater
 
             return new HCDataRepeaterResultWithItem<HCDataRepeaterStreamItemActionResult>
             {
-                Item = Create(item),
+                Item = Create(item, stream, checkActions: true),
                 Data = data,
             };
         }
         #endregion
 
         #region Helpers
-        private HCDataRepeaterStreamItemViewModel Create(IHCDataRepeaterStreamItem item)
-            => item == null ? null : new()
+        private HCDataRepeaterStreamItemViewModel Create(IHCDataRepeaterStreamItem item, IHCDataRepeaterStream stream, bool checkActions)
+        {
+            if (item == null) return null;
+            var model = new HCDataRepeaterStreamItemViewModel()
             {
                 Id = item.Id,
                 ItemId = item.ItemId,
@@ -252,6 +254,23 @@ namespace HealthCheck.Core.Modules.DataRepeater
                 SerializedData = item.SerializedData ?? "",
                 SerializedDataOverride = item.SerializedDataOverride ?? ""
             };
+
+            if (checkActions && stream?.Actions?.Any() == true)
+            {
+                foreach (var action in stream.Actions)
+                {
+                    var result = AsyncUtils.RunSync(() => action.ActionIsAllowedForAsync(item));
+                    model.ActionValidationResults.Add(new HCDataRepeaterStreamItemActionAllowedViewModel
+                    {
+                        ActionId = action?.GetType()?.FullName ?? "-null-",
+                        Allowed = result.Allowed,
+                        Reason = result.Reason
+                    });
+                }
+            }
+
+            return model;
+        }
 
         private bool RequestCanAccessAction(HealthCheckModuleContext context, string streamId, string actionId)
         {

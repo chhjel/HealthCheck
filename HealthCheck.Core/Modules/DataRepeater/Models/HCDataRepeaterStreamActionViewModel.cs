@@ -20,8 +20,5 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
 
         /// <summary></summary>
         public List<HCBackendInputConfig> ParameterDefinitions { get; set; } = new();
-
-        /// <summary></summary>
-        public List<string> AllowedOnItemsWithTags { get; set; } = new();
     }
 }

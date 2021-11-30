@@ -884,10 +884,12 @@ public class ExampleDataRepeaterStream : HCDataRepeaterStreamBase<MyStreamItem>
 // Simple example action that forces AllowRetry on or off.
 public class ExampleDataRepeaterStreamItemActionToggleAllow : HCDataRepeaterStreamItemActionBase<ExampleDataRepeaterStreamItemActionToggleAllow.Parameters>
 {
-    public override List<string> AllowedOnItemsWithTags => new List<string> {};
     public override string DisplayName => "Set allow retry";
     public override string Description => "Forces AllowRetry property to the given value.";
     public override string ExecuteButtonLabel => "Set";
+
+    // Optionally override to disable disallowed actions
+    // public override Task<HCDataRepeaterStreamItemActionAllowedResult> ActionIsAllowedForAsync(IHCDataRepeaterStreamItem item)
 
     protected override Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStreamItem item, Parameters parameters)
     {

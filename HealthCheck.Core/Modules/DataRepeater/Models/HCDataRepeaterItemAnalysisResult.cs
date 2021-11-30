@@ -16,14 +16,5 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// <para>Allows for optionally calling store on all items and exclude some during analysis.</para>
         /// </summary>
         public bool DontStore { get; set; }
-
-        /// <summary></summary>
-        public static HCDataRepeaterItemAnalysisResult CreateSuccess(string message = null) => new() { Message = message };
-
-        /// <summary></summary>
-        public static HCDataRepeaterItemAnalysisResult CreateError(string error) => new() { Message = error };
-
-        /// <summary></summary>
-        public static HCDataRepeaterItemAnalysisResult CreateError(Exception ex) => new() { Message = ExceptionUtils.GetFullExceptionDetails(ex) };
     }
 }

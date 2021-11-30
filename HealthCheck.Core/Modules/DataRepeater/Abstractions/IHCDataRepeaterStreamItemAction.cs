@@ -37,11 +37,6 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         string ExecuteButtonLabel { get; }
 
         /// <summary>
-        /// If any tags are set here, then only items with those tags will have this action available.
-        /// </summary>
-        List<string> AllowedOnItemsWithTags { get; }
-
-        /// <summary>
         /// Optional access roles that can execute this action.
         /// <para>Must be a flags enum of the same type as the one used on the healthcheck controller.</para>
         /// </summary>
@@ -52,6 +47,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// <para>Can be used for more granular access configuration.</para>
         /// </summary>
         List<string> Categories { get; }
+
+        /// <summary>
+        /// Checks if the action is allowed to run on the given item.
+        /// <para>Will be executed and checked before <see cref="ExecuteActionAsync"/> is run.</para>
+        /// </summary>
+        Task<HCDataRepeaterStreamItemActionAllowedResult> ActionIsAllowedForAsync(IHCDataRepeaterStreamItem item);
 
         /// <summary>
         /// Perform the action on the given item with the given parameters.

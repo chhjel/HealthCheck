@@ -70,6 +70,7 @@ import { HCDataRepeaterStreamItemDetails } from "generated/Models/Core/HCDataRep
 import ModuleConfig from "models/Common/ModuleConfig";
 import { HCDataRepeaterStreamActionViewModel } from "generated/Models/Core/HCDataRepeaterStreamActionViewModel";
 import { HCDataRepeaterStreamItemActionResult } from "generated/Models/Core/HCDataRepeaterStreamItemActionResult";
+import { HCDataRepeaterStreamItemActionAllowedViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemActionAllowedViewModel";
 
 @Component({
     components: {
@@ -113,17 +114,25 @@ export default class DataRepeaterItemActionComponent extends Vue {
     }
 
     get allowExecute(): boolean {
-        return !this.dataLoadStatus.inProgress
-            && (this.action.AllowedOnItemsWithTags.length == 0 || this.action.AllowedOnItemsWithTags.some(t => this.item.Tags.includes(t)));
+        return !this.dataLoadStatus.inProgress && this.actionValidationResult.Allowed;
     }
 
     get disabledReason(): string | null {
-        if (this.action.AllowedOnItemsWithTags.length > 0 && !this.action.AllowedOnItemsWithTags.some(t => this.item.Tags.includes(t)))
+        if (!this.actionValidationResult.Allowed)
         {
-            const tags = this.action.AllowedOnItemsWithTags.joinForSentence(', ', ' and ');
-            return `Requires any of the following tags: ${tags}`;
+            return this.actionValidationResult.Reason || 'Not allowed to be executed for this item in its current state.';
         }
         return null;
+    }
+
+    get actionValidationResult(): HCDataRepeaterStreamItemActionAllowedViewModel
+    {
+        const fallback: HCDataRepeaterStreamItemActionAllowedViewModel = {
+            ActionId: this.action.Id,
+            Allowed: true,
+            Reason: ''
+        };
+        return this.item.ActionValidationResults.filter(x => x.ActionId == this.action.Id)[0] || fallback;
     }
 
     ////////////////

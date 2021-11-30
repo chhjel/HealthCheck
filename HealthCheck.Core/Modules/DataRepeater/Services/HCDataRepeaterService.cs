@@ -105,7 +105,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             var stream = GetStreams()?.FirstOrDefault(x => x.GetType().FullName == streamId);
             if (stream == null)
             {
-                return HCDataRepeaterItemAnalysisResult.CreateError("Stream not found.");
+                return new HCDataRepeaterItemAnalysisResult { Message = "Stream not found." };
             }
 
             item.Log ??= new();
@@ -117,7 +117,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
                 result = await stream.AnalyzeItemAsync(item, isManualAnalysis: true);
                 if (result == null)
                 {
-                    return HCDataRepeaterItemAnalysisResult.CreateError("Analysis returned null.");
+                    return new HCDataRepeaterItemAnalysisResult { Message = "Analysis returned null." };
                 }
             }
             catch (Exception ex)
@@ -125,7 +125,10 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
                 item.LastRetryWasSuccessful = false;
                 item.AddLogMessage($"Analysis was attempted. Failed with exception: {ex.Message}", MaxItemLogEntries);
                 await stream.Storage.UpdateItemAsync(item);
-                return HCDataRepeaterItemAnalysisResult.CreateError(ex);
+                return new HCDataRepeaterItemAnalysisResult
+                {
+                    Message = ExceptionUtils.GetFullExceptionDetails(ex)
+                };
             }
 
             // Update log
@@ -211,10 +214,13 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             {
                 return HCDataRepeaterStreamItemActionResult.CreateError($"Action '{actionId}' not found.");
             }
-            else if (action.AllowedOnItemsWithTags?.Any() == true
-                && action.AllowedOnItemsWithTags.Any(t => item.Tags?.Contains(t) == true) == false)
+
+            var allowedResult = await action.ActionIsAllowedForAsync(item);
+            if (allowedResult?.Allowed != true)
             {
-                return HCDataRepeaterStreamItemActionResult.CreateError($"Item '{item.ItemId}' does not allow for the action to be executed. Item is missing required tags.");
+                return HCDataRepeaterStreamItemActionResult.CreateError(string.IsNullOrWhiteSpace(allowedResult.Reason) 
+                    ? $"Item '{item.ItemId}' does not allow for the action to be executed."
+                    : allowedResult.Reason);
             }
 
             object parametersObject = action.ParametersType == null ? null : HCValueConversionUtils.ConvertInputModel(action.ParametersType, parameters);

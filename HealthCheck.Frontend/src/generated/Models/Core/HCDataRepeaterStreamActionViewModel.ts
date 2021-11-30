@@ -11,5 +11,4 @@ export interface HCDataRepeaterStreamActionViewModel
 	Description: string;
 	ExecuteButtonLabel: string;
 	ParameterDefinitions: HCBackendInputConfig[];
-	AllowedOnItemsWithTags: string[];
 }
