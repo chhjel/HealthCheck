@@ -11,11 +11,6 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
     public interface IHCDataRepeaterStreamItemAction
     {
         /// <summary>
-        /// Id of the stream this item belongs to.
-        /// </summary>
-        string StreamId { get; }
-
-        /// <summary>
         /// Type of the parameters object passed to <see cref="ExecuteActionAsync"/>.
         /// <para>Can be null if no parameters are used.</para>
         /// </summary>
