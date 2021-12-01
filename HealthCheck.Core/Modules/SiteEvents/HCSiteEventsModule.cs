@@ -88,7 +88,7 @@ namespace HealthCheck.Core.Modules.SiteEvents
         public async Task<bool> ClearSiteEvents(HealthCheckModuleContext context)
         {
             await Options.SiteEventService.DeleteAllEvents();
-            context.AddAuditEvent(action: "Cleared all events");
+            context.AddAuditEvent(action: "Cleared all site events");
             return true;
         }
 
@@ -99,7 +99,7 @@ namespace HealthCheck.Core.Modules.SiteEvents
         public async Task<bool> DeleteSiteEvent(HealthCheckModuleContext context, DeleteSiteEventRequestModel model)
         {
             await Options.SiteEventService.DeleteEvent(model.Id);
-            context.AddAuditEvent(action: "Delete event", subject: model.Id.ToString())
+            context.AddAuditEvent(action: "Delete site event", subject: model.Id.ToString())
                 .AddDetail("Event id", model.Id.ToString());
             return true;
         }
