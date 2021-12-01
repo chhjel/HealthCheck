@@ -115,6 +115,17 @@ namespace HealthCheck.Core.Util.Collections
         }
 
         /// <summary>
+        /// Removes all items.
+        /// </summary>
+        public void Clear()
+        {
+            lock (BufferQueue)
+            {
+                BufferQueue.Clear();
+            }
+        }
+
+        /// <summary>
         /// True if the queue contains a matching item.
         /// </summary>
         public bool Contains(Func<T, bool> predicate)

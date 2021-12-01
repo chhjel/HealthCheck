@@ -157,6 +157,19 @@ namespace HealthCheck.Core.Util.Storage
             => BufferQueue.Remove(id);
 
         /// <summary>
+        /// Clears bufferqueue and stored data.
+        /// <para>Saves at once.</para>
+        /// </summary>
+        protected void RemoveAllItems()
+        {
+            BufferQueue.Clear();
+
+            var data = GetBlobData();
+            data.Items.Clear();
+            SaveBlobData(data);
+        }
+
+        /// <summary>
         /// Get all buffered new items not yet stored.
         /// </summary>
         protected IEnumerable<TItem> GetBufferedItems()

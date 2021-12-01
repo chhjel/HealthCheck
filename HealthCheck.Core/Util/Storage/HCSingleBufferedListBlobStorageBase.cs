@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Abstractions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HealthCheck.Core.Util.Storage
 {
@@ -108,6 +109,21 @@ namespace HealthCheck.Core.Util.Storage
                 {
                     yield return item;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Removes an item from both buffer and storage. Instantly saves if data was stored.
+        /// </summary>
+        public void RemoveMatching(Func<TItem, bool> condition)
+        {
+            RemoveFromBufferQueue(x => condition(x.Item));
+
+            var data = GetBlobData();
+            if (data.Items.Any(x => condition(x)))
+            {
+                data.Items.RemoveAll(x => condition(x));
+                SaveBlobData(data);
             }
         }
 
