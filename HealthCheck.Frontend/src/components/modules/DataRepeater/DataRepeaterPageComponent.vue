@@ -108,18 +108,14 @@
                                         <div class="data-repeater-list-item--spacer"></div>
                                         <span class="data-repeater-list-item--timestamp">{{ formatDate(item.InsertedAt) }}</span>
                                         <div class="data-repeater-list-item--break"></div>
-                                        <v-tooltip v-if="item.AllowRetry" bottom>
-                                            <template v-slot:activator="{ on }">
-                                                <span class="data-repeater-list-item--icon" style="cursor: help;" v-on="on"><v-icon>replay</v-icon></span>
-                                            </template>
-                                            <span>Can be attempted retried</span>
-                                        </v-tooltip>
-                                        <v-tooltip v-if="item.ExpiresAt && expiresSoon(item.ExpiresAt)" bottom>
-                                            <template v-slot:activator="{ on }">
-                                                <span class="data-repeater-list-item--icon" style="cursor: help;" v-on="on"><v-icon>timer</v-icon></span>
-                                            </template>
-                                            <span>Expires soon</span>
-                                        </v-tooltip>
+                                        <span class="data-repeater-list-item--icon"
+                                            title="Can be attempted retried"
+                                            style="cursor: help;" v-if="item.AllowRetry">
+                                            <v-icon>replay</v-icon></span>
+                                        <span class="data-repeater-list-item--icon"
+                                            title="Expires soon"
+                                            style="cursor: help;" v-if="item.ExpiresAt && expiresSoon(item.ExpiresAt)">
+                                            <v-icon>timer</v-icon></span>
 
                                         <div class="data-repeater-list-item--tags">
                                             <div class="data-repeater-list-item--tag"
