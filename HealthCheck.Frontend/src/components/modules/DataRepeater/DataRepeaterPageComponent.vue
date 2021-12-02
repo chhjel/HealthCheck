@@ -108,18 +108,14 @@
                                         <div class="data-repeater-list-item--spacer"></div>
                                         <span class="data-repeater-list-item--timestamp">{{ formatDate(item.InsertedAt) }}</span>
                                         <div class="data-repeater-list-item--break"></div>
-                                        <v-tooltip v-if="item.AllowRetry" bottom>
-                                            <template v-slot:activator="{ on }">
-                                                <span class="data-repeater-list-item--icon" style="cursor: help;" v-on="on"><v-icon>replay</v-icon></span>
-                                            </template>
-                                            <span>Can be attempted retried</span>
-                                        </v-tooltip>
-                                        <v-tooltip v-if="item.ExpiresAt && expiresSoon(item.ExpiresAt)" bottom>
-                                            <template v-slot:activator="{ on }">
-                                                <span class="data-repeater-list-item--icon" style="cursor: help;" v-on="on"><v-icon>timer</v-icon></span>
-                                            </template>
-                                            <span>Expires soon</span>
-                                        </v-tooltip>
+                                        <span class="data-repeater-list-item--icon"
+                                            title="Can be attempted retried"
+                                            style="cursor: help;" v-if="item.AllowRetry">
+                                            <v-icon>replay</v-icon></span>
+                                        <span class="data-repeater-list-item--icon"
+                                            title="Expires soon"
+                                            style="cursor: help;" v-if="item.ExpiresAt && expiresSoon(item.ExpiresAt)">
+                                            <v-icon>timer</v-icon></span>
 
                                         <div class="data-repeater-list-item--tags">
                                             <div class="data-repeater-list-item--tag"
@@ -406,10 +402,13 @@ export default class DataRepeaterPageComponent extends Vue {
         const defaultTags = this.selectedStream?.InitiallySelectedTags || [];
         if (this.filterTags.length != defaultTags.length || !this.filterTags.every(x => defaultTags.includes(x)))
         {
-            query.t = (this.filterTags.length == 0) ? ['_'] : this.filterTags;
+            query.t = (this.filterTags.length == 0) ? '_' : this.filterTags;
         }
 
-        this.$router.replace({ query: query });
+        if (JSON.stringify(query) != JSON.stringify(this.$route.query))
+        {
+            this.$router.replace({ query: query });
+        }
     }
 
     private hasAppliedFromUrl: boolean = false;

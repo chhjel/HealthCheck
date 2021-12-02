@@ -94,11 +94,16 @@
                 <editor-component
                     class="editor mt-2"
                     :language="'json'"
-                    v-model="item.SerializedDataOverride"
+                    v-model="item.SerializedData"
                     ref="editor" />
 
-                <div v-if="item.SerializedDataOverride && item.SerializedDataOverride != this.item.SerializedData && hasAccessToRetry">
-                    <a href="#" @click.prevent="restoreOriginalData" class="right">Restore original data</a>
+                <div v-if="item.SerializedData && item.SerializedData != this.item.FirstSerializedData && hasAccessToRetry">
+                    <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                            <a href="#" @click.prevent="restoreOriginalData" class="right" style="cursor: help;" v-on="on">Revert to original data</a>
+                        </template>
+                        <span>Reverts the content above to the first data that was stored on {{ formatDate(item.InsertedAt) }}.</span>
+                    </v-tooltip>
                 </div>
 
                 <v-btn :disabled="!retryAllowed"
@@ -346,7 +351,7 @@ export default class DataRepeaterItemComponent extends Vue {
         this.service.RetryItem({
             StreamId: this.stream.Id,
             ItemId: this.item.Id,
-            SerializedDataOverride: this.item.SerializedDataOverride
+            SerializedDataOverride: this.item.SerializedData
         }, this.dataLoadStatus, {
             onSuccess: (data) => this.onRetryResult(data),
             onDone: () => {
@@ -377,7 +382,7 @@ export default class DataRepeaterItemComponent extends Vue {
 
     restoreOriginalData(): void {
         if (!this.item) return;
-        this.item.SerializedDataOverride = this.item.SerializedData;
+        this.item.SerializedData = this.item.FirstSerializedData;
     }
 
     notifyItemUpdated(item: HCDataRepeaterStreamItemViewModel): void {
@@ -394,10 +399,6 @@ export default class DataRepeaterItemComponent extends Vue {
     @Watch("item")
     onItemChanged(): void {
         if (!this.item) return;
-        if (!this.item.SerializedDataOverride)
-        {
-            this.item.SerializedDataOverride = this.item.SerializedData;
-        }
     }
 
     onItemUpdatedFromAction(item: HCDataRepeaterStreamItemViewModel): void {
