@@ -17,7 +17,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
 
         public override List<string> Categories => new List<string> { "Secret actions" };
 
-        protected override Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStreamItem item, Parameters parameters)
+        protected override Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStream stream, IHCDataRepeaterStreamItem item, Parameters parameters)
         {
             var result = new HCDataRepeaterStreamItemActionResult
             {

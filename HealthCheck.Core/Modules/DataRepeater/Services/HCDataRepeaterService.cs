@@ -226,7 +226,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             HCDataRepeaterStreamItemActionResult result = null;
             try
             {
-                result = await action.ExecuteActionAsync(item, parametersObject);
+                result = await action.ExecuteActionAsync(stream, item, parametersObject);
             }
             catch (Exception ex)
             {

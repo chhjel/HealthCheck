@@ -1,7 +1,6 @@
 ﻿using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Modules.DataRepeater.Abstractions;
 using HealthCheck.Core.Modules.DataRepeater.Models;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Dev.Common.DataRepeater
@@ -14,7 +13,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
 
         public override string ExecuteButtonLabel => "Set";
 
-        protected override Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStreamItem item, Parameters parameters)
+        protected override Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStream stream, IHCDataRepeaterStreamItem item, Parameters parameters)
         {
             var result = new HCDataRepeaterStreamItemActionResult
             {

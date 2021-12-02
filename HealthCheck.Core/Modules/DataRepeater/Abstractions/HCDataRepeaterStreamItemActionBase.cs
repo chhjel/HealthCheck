@@ -35,14 +35,14 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
             => Task.FromResult(HCDataRepeaterStreamItemActionAllowedResult.CreateAllowed());
 
         /// <inheritdoc />
-        public virtual async Task<HCDataRepeaterStreamItemActionResult> ExecuteActionAsync(IHCDataRepeaterStreamItem item, object parameters)
+        public virtual async Task<HCDataRepeaterStreamItemActionResult> ExecuteActionAsync(IHCDataRepeaterStream stream, IHCDataRepeaterStreamItem item, object parameters)
         {
-            return await PerformActionAsync(item, parameters as TParameters);
+            return await PerformActionAsync(stream, item, parameters as TParameters);
         }
 
         /// <summary>
         /// Perform the action on the given item with the given parameters.
         /// </summary>
-        protected abstract Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStreamItem item, TParameters parameters);
+        protected abstract Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStream stream, IHCDataRepeaterStreamItem item, TParameters parameters);
     }
 }

@@ -891,8 +891,11 @@ public class ExampleDataRepeaterStreamItemActionToggleAllow : HCDataRepeaterStre
     // Optionally override to disable disallowed actions
     // public override Task<HCDataRepeaterStreamItemActionAllowedResult> ActionIsAllowedForAsync(IHCDataRepeaterStreamItem item)
 
-    protected override Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStreamItem item, Parameters parameters)
+    protected override Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStream stream, IHCDataRepeaterStreamItem item, Parameters parameters)
     {
+        // Access related storage through stream.Storage if needed. E.g:
+        // stream.Storage.SetItemExpirationTimeAsync(item.Id, null);
+
         var result = new HCDataRepeaterStreamItemActionResult
         {
             Success = true,

@@ -52,6 +52,6 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// <summary>
         /// Perform the action on the given item with the given parameters.
         /// </summary>
-        Task<HCDataRepeaterStreamItemActionResult> ExecuteActionAsync(IHCDataRepeaterStreamItem item, object parameters);
+        Task<HCDataRepeaterStreamItemActionResult> ExecuteActionAsync(IHCDataRepeaterStream stream, IHCDataRepeaterStreamItem item, object parameters);
     }
 }

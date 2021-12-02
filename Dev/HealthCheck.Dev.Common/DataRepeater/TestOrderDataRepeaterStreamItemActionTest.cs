@@ -24,7 +24,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
             return Task.FromResult(HCDataRepeaterStreamItemActionAllowedResult.CreateAllowed());
         }
 
-        protected override Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStreamItem item, Parameters parameters)
+        protected override Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStream stream, IHCDataRepeaterStreamItem item, Parameters parameters)
         {
             var result = new HCDataRepeaterStreamItemActionResult
             {
