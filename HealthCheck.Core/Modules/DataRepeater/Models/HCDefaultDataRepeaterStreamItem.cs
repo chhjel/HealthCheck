@@ -38,7 +38,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public string SerializedData { get; set; }
 
         /// <inheritdoc />
-        public string SerializedDataOverride { get; set; }
+        public string FirstSerializedData { get; set; }
 
         /// <inheritdoc />
         public bool AllowRetry { get; set; }
@@ -75,24 +75,23 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         #endregion
 
         /// <summary>
-        /// Deserialize <see cref="SerializedData"/> into <typeparamref name="TData"/>.
-        /// <para>If <see cref="SerializedDataOverride"/> from frontend is not empty it will be used instead.</para>
+        /// Deserialize <see cref="SerializedData"/> into <typeparamref name="TData"/> on get and updates <see cref="SerializedData"/> when set.
         /// If <typeparamref name="TData"/> is of type string it will be returned.
         /// </summary>
         public TData Data
         {
             get
             {
-                var serializedData = string.IsNullOrWhiteSpace(SerializedDataOverride) ? SerializedData : SerializedDataOverride;
+                var serializedData = SerializedData;
                 if (typeof(TData) == typeof(string)) return serializedData as TData;
                 else return HCGlobalConfig.Serializer.Deserialize<TData>(serializedData);
             }
             set
             {
-                SerializedDataOverride = null;
+                SerializedData = null;
                 if (value != null)
                 {
-                    SerializedDataOverride = typeof(TData) == typeof(string)
+                    SerializedData = typeof(TData) == typeof(string)
                         ? value as string
                         : HCGlobalConfig.Serializer.Serialize(value, pretty: true);
                 }
@@ -100,15 +99,15 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         }
 
         /// <summary>
-        /// Deserialize <see cref="SerializedData"/> into <typeparamref name="TData"/>.
+        /// Deserialize <see cref="FirstSerializedData"/> into <typeparamref name="TData"/>.
         /// If <typeparamref name="TData"/> is of type string it will be returned.
         /// </summary>
         public TData OriginalData
         {
             get
             {
-                if (typeof(TData) == typeof(string)) return SerializedData as TData;
-                else return HCGlobalConfig.Serializer.Deserialize<TData>(SerializedData);
+                if (typeof(TData) == typeof(string)) return FirstSerializedData as TData;
+                else return HCGlobalConfig.Serializer.Deserialize<TData>(FirstSerializedData);
             }
         }
 
@@ -149,6 +148,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
                 Summary = summary,
                 Tags = new HashSet<string>(tags ?? Enumerable.Empty<string>()),
                 SerializedData = serializedData,
+                FirstSerializedData = serializedData,
                 AllowRetry = allowRetry,
                 InsertedAt = DateTimeOffset.Now,
                 FirstError = error,

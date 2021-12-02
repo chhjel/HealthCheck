@@ -181,7 +181,10 @@ namespace HealthCheck.Core.Modules.DataRepeater
                     Data = HCDataRepeaterRetryResult.CreateError("Item does not allow retry.")
                 };
             }
-            item.SerializedDataOverride = model.SerializedDataOverride;
+
+            // Update serialized data from frontend
+            item.SerializedData = model.SerializedDataOverride;
+
             var data = await Options.Service.RetryItemAsync(model.StreamId, item);
             item = await stream.Storage.GetItemAsync(model.ItemId);
 
@@ -252,7 +255,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
                 LastErrorAt = item.LastErrorAt,
                 Log = item.Log ?? new(),
                 SerializedData = item.SerializedData ?? "",
-                SerializedDataOverride = item.SerializedDataOverride ?? ""
+                FirstSerializedData = item.FirstSerializedData ?? ""
             };
 
             if (checkActions && stream?.Actions?.Any() == true)

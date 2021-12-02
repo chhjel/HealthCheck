@@ -24,7 +24,7 @@ export interface HCDataRepeaterStreamItemViewModel
 	Error: string;
 	Log: HCDataRepeaterSimpleLogEntry[];
 	SerializedData: string;
-	SerializedDataOverride: string;
+	FirstSerializedData: string;
 	ExpiresAt?: Date;
 	ForcedStatus?: HCDataRepeaterStreamItemStatus;
 	ActionValidationResults: HCDataRepeaterStreamItemActionAllowedViewModel[];

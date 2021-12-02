@@ -102,8 +102,8 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         string SerializedData { get; set; }
 
         /// <summary>
-        /// Custom override of serialized data.
+        /// First version of the serialized data that was stored.
         /// </summary>
-        string SerializedDataOverride { get; set; }
+        string FirstSerializedData { get; set; }
     }
 }

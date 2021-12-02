@@ -97,9 +97,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public string SerializedData { get; set; }
 
         /// <summary>
-        /// Override from frontend if any.
+        /// First version of serialized data stored.
         /// </summary>
-        public string SerializedDataOverride { get; set; }
+        public string FirstSerializedData { get; set; }
 
         /// <summary>
         /// Optional time when this item will be deleted after.
