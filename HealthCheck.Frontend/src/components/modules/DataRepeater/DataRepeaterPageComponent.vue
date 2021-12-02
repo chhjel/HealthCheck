@@ -406,10 +406,13 @@ export default class DataRepeaterPageComponent extends Vue {
         const defaultTags = this.selectedStream?.InitiallySelectedTags || [];
         if (this.filterTags.length != defaultTags.length || !this.filterTags.every(x => defaultTags.includes(x)))
         {
-            query.t = (this.filterTags.length == 0) ? ['_'] : this.filterTags;
+            query.t = (this.filterTags.length == 0) ? '_' : this.filterTags;
         }
 
-        this.$router.replace({ query: query });
+        if (JSON.stringify(query) != JSON.stringify(this.$route.query))
+        {
+            this.$router.replace({ query: query });
+        }
     }
 
     private hasAppliedFromUrl: boolean = false;
