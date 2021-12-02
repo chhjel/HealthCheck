@@ -98,11 +98,11 @@
                     ref="editor" />
 
                 <div v-if="item.SerializedData && item.SerializedData != this.item.FirstSerializedData && hasAccessToRetry">
-                    <v-tooltip v-if="item.AllowRetry" bottom>
+                    <v-tooltip bottom>
                         <template v-slot:activator="{ on }">
                             <a href="#" @click.prevent="restoreOriginalData" class="right" style="cursor: help;" v-on="on">Revert to original data</a>
                         </template>
-                        <span>Restores the first data that was stored.</span>
+                        <span>Reverts the content above to the first data that was stored on {{ formatDate(item.InsertedAt) }}.</span>
                     </v-tooltip>
                 </div>
 
