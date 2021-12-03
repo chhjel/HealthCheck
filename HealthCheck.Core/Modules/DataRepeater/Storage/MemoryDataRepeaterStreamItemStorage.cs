@@ -268,7 +268,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Storage
                         (string.IsNullOrWhiteSpace(model.Filter)
                         || x.ItemId?.ToLower()?.Contains(model.Filter?.ToLower()) == true
                         || x.Summary?.ToLower()?.Contains(model.Filter?.ToLower()) == true)
-                        && (model.Tags?.Any() != true || x.Tags?.Any(t => model.Tags?.Any(tt => tt?.ToLower() == t.ToLower()) == true) == true)
+                        && (model.Tags?.Any() != true || model.Tags.All(t => x.Tags?.Any(tt => tt?.ToLower() == t.ToLower()) == true) == true)
                         && (model.RetryAllowed == null || x.AllowRetry == model.RetryAllowed))
                     .OrderByDescending(x => x.InsertedAt)
                     .ToArray();

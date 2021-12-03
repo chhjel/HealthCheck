@@ -58,7 +58,7 @@
                                         @blur="onFilterChanged"
                                         @keyup.enter="onFilterChanged"
                                         :items="tagPresets"
-                                        label="Included tags"
+                                        label="Tags"
                                         multiple
                                         chips
                                         clearable
