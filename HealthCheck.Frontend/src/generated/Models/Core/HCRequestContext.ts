@@ -4,6 +4,7 @@
 
 export interface HCRequestContext
 {
+	HasRequestContext: boolean;
 	Url: string;
 	Headers: { [key:string]: string };
 	Cookies: { [key:string]: string };

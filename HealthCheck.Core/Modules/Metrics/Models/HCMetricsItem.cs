@@ -68,6 +68,11 @@ namespace HealthCheck.Core.Modules.Metrics.Models
         public bool AddTimingToGlobals { get; private set; }
 
         /// <summary>
+        /// Include note if any to globally tracked notes.
+        /// </summary>
+        public bool AddNoteToGlobals { get; private set; }
+
+        /// <summary>
         /// Type of item.
         /// </summary>
         public enum MetricItemType
@@ -83,6 +88,12 @@ namespace HealthCheck.Core.Modules.Metrics.Models
         }
 
         #region Factory
+        /// <summary>
+        /// Create a new note to be added globally with the given id.
+        /// </summary>
+        public static HCMetricsItem CreateGlobalNote(string id, string note)
+            => new(MetricItemType.Note, id, note, null) { AddNoteToGlobals = true };
+
         /// <summary>
         /// Create a new note.
         /// </summary>

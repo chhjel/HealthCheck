@@ -74,6 +74,19 @@ namespace HealthCheck.Core.Config
         /// </summary>
         public static Func<string> GetCurrentSessionId { get; set; }
 
+        /// <summary>
+        /// Called whenever util methods that ignores exceptions catches an exception.
+        /// </summary>
+        public static OnException OnExceptionEvent;
+
+        /// <summary>
+        /// Signature for <see cref="OnExceptionEvent"/>.
+        /// </summary>
+        /// <param name="source">Type that threw the exception.</param>
+        /// <param name="method">Name of method that threw the exception</param>
+        /// <param name="exception">Exception being thrown.</param>
+        public delegate void OnException(Type source, string method, Exception exception);
+
         internal static IJsonSerializer Serializer { get; set; }
 
         internal static T GetService<T>()

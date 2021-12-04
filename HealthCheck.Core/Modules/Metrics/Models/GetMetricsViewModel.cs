@@ -12,5 +12,8 @@ namespace HealthCheck.Core.Modules.Metrics.Models
 
         /// <summary></summary>
         public Dictionary<string, CompiledMetricsValueData> GlobalValues { get; set; } = new();
+
+        /// <summary></summary>
+        public Dictionary<string, CompiledMetricsNoteData> GlobalNotes { get; set; } = new();
     }
 }

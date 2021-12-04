@@ -5,17 +5,17 @@ namespace HealthCheck.Core.Modules.Metrics.Models
     /// <summary>
     /// Metrics data prepared for frontend consumption.
     /// </summary>
-    public class CompiledMetricsCounterData
+    public class CompiledMetricsNoteData
     {
         /// <summary>
-        /// Id of this value type.
+        /// Id of this note.
         /// </summary>
         public string Id { get; set; }
 
         /// <summary>
-        /// Total value.
+        /// Note contents.
         /// </summary>
-        public long Value { get; set; }
+        public string Note { get; set; }
 
         /// <summary>
         /// When the latest change was reported.
@@ -23,6 +23,6 @@ namespace HealthCheck.Core.Modules.Metrics.Models
         public DateTimeOffset LastChanged { get; set; }
 
         /// <summary></summary>
-        public override string ToString() => $"{Id}: {Value}";
+        public override string ToString() => $"{Id}: {Note}";
     }
 }

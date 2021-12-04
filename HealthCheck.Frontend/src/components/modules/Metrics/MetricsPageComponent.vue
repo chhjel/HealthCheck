@@ -51,6 +51,20 @@
                             </li>
                         </ul>
                     </div>
+
+                    <div v-if="globalNotes.length > 0" class="mt-4">
+                        <h2>Global notes</h2>
+                        <ul>
+                            <li v-for="(item, itemIndex) in globalNotes"
+                                :key="`gnote-${itemIndex}`">
+                                <div style="display: flex; align-items: baseline;">
+                                    <b class="mr-1">{{ item.id }}</b>
+                                    <small class="ml-1"> ({{ formatDate(item.note.LastChanged) }}):</small>
+                                </div>
+                                <div><code>{{ item.note.Note }}</code></div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
             </v-container>
@@ -110,7 +124,9 @@ export default class MetricsPageComponent extends Vue {
     }
 
     get hasData(): boolean {
-        return this.globalCounters.length > 0 || this.globalValues.length > 0;
+        return this.globalCounters.length > 0 
+            || this.globalValues.length > 0
+            || this.globalNotes.length > 0;
     }
 
     get globalCounters(): Array<any> {
@@ -141,6 +157,21 @@ export default class MetricsPageComponent extends Vue {
                 };
             })
             .sort((a, b) => LinqUtils.SortBy(a, b, x => x.key));
+    }
+
+    get globalNotes(): Array<any> {
+        if (!this.data || !this.data.GlobalNotes) {
+            return [];
+        }
+        
+        return Object.keys(this.data.GlobalNotes)
+            .map(x => {
+                return {
+                    id: x,
+                    note: this.data!.GlobalNotes[x]
+                };
+            })
+            .sort((a, b) => LinqUtils.SortBy(a, b, x => x.id));
     }
 
     ////////////////

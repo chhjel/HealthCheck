@@ -25,6 +25,7 @@ namespace HealthCheck.WebUI.Util
             var context = HttpContext.Current;
             var request = context?.Request;
 
+            model.HasRequestContext = request != null;
             model.RequestExecutionStartTime = context?.Timestamp ?? DateTimeOffset.Now;
             model.Method = request?.HttpMethod;
             model.Url = request?.Url?.ToString();
@@ -35,7 +36,8 @@ namespace HealthCheck.WebUI.Util
 #if NETCORE
             var context = IoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext;
             var request = context?.Request;
-
+            
+            model.HasRequestContext = request != null;
             model.RequestExecutionStartTime = DateTimeOffset.Now; // todo
             model.Method = request?.Method;
             model.Url = request?.GetDisplayUrl();

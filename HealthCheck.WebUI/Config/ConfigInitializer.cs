@@ -1,17 +1,17 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Config;
 using HealthCheck.Core.Modules.Metrics.Context;
+using HealthCheck.Core.Util.Collections;
 using HealthCheck.WebUI.Serializers;
 using HealthCheck.WebUI.Util;
+using System;
 
 #if NETFRAMEWORK
-using System;
 using System.Web;
 using System.Web.Mvc;
 #endif
 
 #if NETCORE
-using System;
 using HealthCheck.Core.Util;
 using Microsoft.AspNetCore.Http;
 #endif
@@ -65,6 +65,7 @@ namespace HealthCheck.WebUI.Config
         private const string _hcMetricsItemsContextKey = "___hc_metrics_context";
         private const string _hcMetricsItemsAllowedKey = "___hc_metrics_context_allowed";
 #endif
+        private static readonly DelayedAutoDisposer<HCMetricsContext> _staticMetricsContext = new(TimeSpan.FromSeconds(5));
         private static HCMetricsContext DefaultHCMetricsContextFactory()
         {
 #if NETFRAMEWORK
@@ -122,6 +123,14 @@ namespace HealthCheck.WebUI.Config
                 return items[_hcMetricsItemsContextKey] as HCMetricsContext;
             }
 #endif
+
+            // Request.Items is null at this point, so fallback to a static context that is disposed a few seconds after each usage.
+            var requestContext = HCGlobalConfig.RequestContextFactory?.Invoke();
+            if (HCMetricsUtil.AllowTrackRequestMetrics?.Invoke(requestContext) == true)
+            {
+                return _staticMetricsContext?.Value;
+            }
+
             return null;
         }
 

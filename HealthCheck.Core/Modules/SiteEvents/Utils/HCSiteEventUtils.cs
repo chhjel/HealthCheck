@@ -39,7 +39,10 @@ namespace HealthCheck.Core.Modules.SiteEvents.Utils
                 config?.Invoke(siteEvent);
                 Task.Run(async () => await service?.StoreEvent(siteEvent));
             }
-            catch (Exception) { /* Ignore error here */ }
+            catch (Exception ex)
+            {
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCSiteEventUtils), nameof(TryRegisterNewEvent), ex);
+            }
         }
 
         /// <summary>
@@ -52,7 +55,10 @@ namespace HealthCheck.Core.Modules.SiteEvents.Utils
                 var service = HCGlobalConfig.GetService<ISiteEventService>();
                 Task.Run(async () => await service?.MarkLatestEventAsResolved(eventTypeId, resolvedMessage, config));
             }
-            catch (Exception) { /* Ignore error here */ }
+            catch (Exception ex)
+            {
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCSiteEventUtils), nameof(TryMarkLatestEventAsResolved), ex);
+            }
         }
 
         /// <summary>
@@ -65,7 +71,10 @@ namespace HealthCheck.Core.Modules.SiteEvents.Utils
                 var service = HCGlobalConfig.GetService<ISiteEventService>();
                 Task.Run(async () => await service?.MarkAllEventsAsResolved(eventTypeId, resolvedMessage, config));
             }
-            catch (Exception) { /* Ignore error here */ }
+            catch (Exception ex)
+            {
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCSiteEventUtils), nameof(TryMarkAllEventsAsResolved), ex);
+            }
         }
 
         /// <summary>
@@ -78,7 +87,10 @@ namespace HealthCheck.Core.Modules.SiteEvents.Utils
                 var service = HCGlobalConfig.GetService<ISiteEventService>();
                 Task.Run(async () => await service?.MarkEventAsResolved(id, resolvedMessage, config));
             }
-            catch (Exception) { /* Ignore error here */ }
+            catch (Exception ex)
+            {
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCSiteEventUtils), nameof(TryMarkEventAsResolved), ex);
+            }
         }
 
         /// <summary>
@@ -96,8 +108,9 @@ namespace HealthCheck.Core.Modules.SiteEvents.Utils
                 var events = AsyncUtils.RunSync(() => service.GetUnresolvedEvents());
                 return events;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCSiteEventUtils), nameof(TryGetAllUnresolvedEvents), ex);
                 return new List<SiteEvent>();
             }
         }
