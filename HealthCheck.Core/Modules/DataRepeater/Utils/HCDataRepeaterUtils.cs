@@ -23,18 +23,6 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         public static int DefaultMaxItemLogEntries { get; set; } = 20;
 
         /// <summary>
-        /// Called whenever one of the methods in <see cref="HCDataRepeaterUtils"/> that ignores exceptions catches an exception.
-        /// </summary>
-        public static OnException OnExceptionEvent;
-
-        /// <summary>
-        /// Signature for <see cref="OnExceptionEvent"/>.
-        /// </summary>
-        /// <param name="method">Name of method that threw the exception</param>
-        /// <param name="exception">Exception being thrown.</param>
-        public delegate void OnException(string method, Exception exception);
-
-        /// <summary>
         /// Adds a new item to the first registered stream of the given type.
         /// <para>If an existing item with the same item id is found, <see cref="IHCDataRepeaterStream.HandleAddedDuplicateItemAsync"/> will be called.</para>
         /// <para>Ignores any exception.</para>
@@ -56,7 +44,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             }
             catch (Exception ex)
             {
-                OnExceptionEvent?.Invoke(nameof(AddStreamItemAsync), ex);
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(AddStreamItemAsync), ex);
             }
         }
 
@@ -75,7 +63,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             }
             catch(Exception ex)
             {
-                OnExceptionEvent?.Invoke(nameof(GetStream), ex);
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(GetStream), ex);
                 return null;
             }
         }
@@ -101,7 +89,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             }
             catch (Exception ex)
             {
-                OnExceptionEvent?.Invoke(nameof(GetItemByItemIdAsync), ex);
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(GetItemByItemIdAsync), ex);
                 return null;
             }
         }
@@ -127,7 +115,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             }
             catch (Exception ex)
             {
-                OnExceptionEvent?.Invoke(nameof(DeleteItemAsync), ex);
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(DeleteItemAsync), ex);
                 return false;
             }
         }
@@ -159,7 +147,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             }
             catch (Exception ex)
             {
-                OnExceptionEvent?.Invoke(nameof(ModifyItemAsync), ex);
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(ModifyItemAsync), ex);
                 return null;
             }
         }
@@ -185,7 +173,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             }
             catch (Exception ex)
             {
-                OnExceptionEvent?.Invoke(nameof(RemoveAllItemTagsAsync), ex);
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(RemoveAllItemTagsAsync), ex);
                 return false;
             }
         }
@@ -211,7 +199,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             }
             catch (Exception ex)
             {
-                OnExceptionEvent?.Invoke(nameof(RemoveItemTagAsync), ex);
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(RemoveItemTagAsync), ex);
                 return false;
             }
         }
@@ -235,7 +223,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             }
             catch (Exception ex)
             {
-                OnExceptionEvent?.Invoke(nameof(RemoveItemTagsAsync), ex);
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(RemoveItemTagsAsync), ex);
                 return false;
             }
         }
@@ -265,7 +253,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             }
             catch (Exception ex)
             {
-                OnExceptionEvent?.Invoke(nameof(SetTagsAsync), ex);
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(SetTagsAsync), ex);
                 return false;
             }
         }
@@ -291,7 +279,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             }
             catch (Exception ex)
             {
-                OnExceptionEvent?.Invoke(nameof(AddItemTagAsync), ex);
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(AddItemTagAsync), ex);
                 return false;
             }
         }
@@ -317,7 +305,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             }
             catch (Exception ex)
             {
-                OnExceptionEvent?.Invoke(nameof(AddItemTagsAsync), ex);
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(AddItemTagsAsync), ex);
                 return false;
             }
         }
@@ -343,7 +331,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             }
             catch (Exception ex)
             {
-                OnExceptionEvent?.Invoke(nameof(SetAllowItemRetryAsync), ex);
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(SetAllowItemRetryAsync), ex);
                 return false;
             }
         }
@@ -369,7 +357,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             }
             catch (Exception ex)
             {
-                OnExceptionEvent?.Invoke(nameof(SetExpirationTimeAsync), ex);
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(SetExpirationTimeAsync), ex);
                 return false;
             }
         }
@@ -411,7 +399,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             }
             catch (Exception ex)
             {
-                OnExceptionEvent?.Invoke(nameof(SetForcedItemStatusAsync), ex);
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(SetForcedItemStatusAsync), ex);
                 return false;
             }
         }
@@ -439,7 +427,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             }
             catch (Exception ex)
             {
-                OnExceptionEvent?.Invoke(nameof(AddItemLogMessageAsync), ex);
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(AddItemLogMessageAsync), ex);
                 return false;
             }
         }
@@ -471,7 +459,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
             }
             catch (Exception ex)
             {
-                OnExceptionEvent?.Invoke(nameof(AddItemLogMessageAsync), ex);
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCDataRepeaterUtils), nameof(AddItemLogMessageAsync), ex);
                 return false;
             }
         }

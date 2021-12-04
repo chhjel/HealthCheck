@@ -1,4 +1,6 @@
 using HealthCheck.Core.Config;
+using HealthCheck.Core.Modules.Metrics.Context;
+using HealthCheck.Core.Util;
 using HealthCheck.DevTest.NetCore_3._1.Config;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -45,6 +47,10 @@ namespace HealthCheck.DevTest.NetCore_3._1
             });
 
             HCGlobalConfig.DefaultInstanceResolver = (type) => app.ApplicationServices.GetService(type);
+            HCGlobalConfig.OnExceptionEvent += (t, m, e) =>
+            {
+                HCMetricsContext.AddGlobalNote($"{t.Name}.{m}()", ExceptionUtils.GetFullExceptionDetails(e));
+            };
         }
     }
 }
