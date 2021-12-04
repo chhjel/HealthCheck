@@ -35,7 +35,35 @@ namespace HealthCheck.Core.Modules.Metrics.Services
         {
             StoreCounterData(data);
             StoreValueData(data);
+            StoreNotes(data);
             return Task.CompletedTask;
+        }
+
+        private void StoreNotes(HCMetricsContext data)
+        {
+            lock (_data.GlobalNotes)
+            {
+                var notes = data.Items.Where(x => 
+                    x.Type == HCMetricsItem.MetricItemType.Note
+                    && x.AddNoteToGlobals
+                    && !string.IsNullOrWhiteSpace(x.Id)
+                    && !string.IsNullOrWhiteSpace(x.Description));
+                foreach (var item in notes)
+                {
+                    var hasKey = _data.GlobalNotes.ContainsKey(item.Id);
+                    if (_data.GlobalNotes.Count >= MaxDictionaryKeys && !hasKey)
+                    {
+                        return;
+                    }
+
+                    _data.GlobalNotes[item.Id] = new CompiledMetricsNoteData
+                    {
+                        Id = item.Id,
+                        Note = item.Description,
+                        LastChanged = DateTimeOffset.Now
+                    };
+                }
+            }
         }
 
         private void StoreCounterData(HCMetricsContext data)

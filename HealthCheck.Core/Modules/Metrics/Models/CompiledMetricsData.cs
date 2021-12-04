@@ -16,6 +16,11 @@ namespace HealthCheck.Core.Modules.Metrics.Models
         /// Min/max/avg values by value type id.
         /// </summary>
         public Dictionary<string, CompiledMetricsValueData> GlobalValues { get; set; } = new();
+
+        /// <summary>
+        /// Notes.
+        /// </summary>
+        public Dictionary<string, CompiledMetricsNoteData> GlobalNotes { get; set; } = new();
     }
 
 }

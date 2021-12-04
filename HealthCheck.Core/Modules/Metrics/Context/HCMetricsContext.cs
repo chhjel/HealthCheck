@@ -156,6 +156,19 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         }
 
         /// <summary>
+        /// Add a note with a given key to store globally. Overwrites any existing note with the same key.
+        /// </summary>
+        public static void AddGlobalNote(string id, string description)
+            => WithCurrentContext((c) => c.AddGlobalNoteInternal(id, description));
+        internal void AddGlobalNoteInternal(string id, string description)
+        {
+            lock (_itemsLock)
+            {
+                Items.Add(HCMetricsItem.CreateGlobalNote(id, description));
+            }
+        }
+
+        /// <summary>
         /// Add a note of what just happened without any duration data.
         /// <para>Stores no data. Only used to display in current request using <see cref="HCMetricsUtil.CreateContextSummaryHtml"/>.</para>
         /// </summary>

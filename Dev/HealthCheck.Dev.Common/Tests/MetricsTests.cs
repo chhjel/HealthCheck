@@ -34,6 +34,7 @@ namespace HealthCheck.Dev.Common.Tests
             HCMetricsContext.AddTiming("glob_timing", "Some global timing", globalTiming, addToGlobals: true);
             HCMetricsContext.AddNote("A note without value");
             HCMetricsContext.AddNote("A note with a value", noteValue);
+            HCMetricsContext.AddGlobalNote("note1", $"Some global note 1 @ {DateTime.Now}");
             HCMetricsContext.IncrementGlobalCounter("glob_counter", 1);
 
             Task.Run(async () =>
@@ -45,6 +46,7 @@ namespace HealthCheck.Dev.Common.Tests
                 HCMetricsContext.AddTiming("static_glob_timing", "Some global timing", globalTiming, addToGlobals: true);
                 HCMetricsContext.AddNote("A static note without value");
                 HCMetricsContext.AddNote("A static note with a value", noteValue);
+                HCMetricsContext.AddGlobalNote("note2", $"Some static global note 2 @ {DateTime.Now}");
                 HCMetricsContext.IncrementGlobalCounter("static_glob_counter", 1);
             });
 

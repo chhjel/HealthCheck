@@ -62,7 +62,8 @@ namespace HealthCheck.Core.Modules.Metrics
             return new GetMetricsViewModel
             {
                 GlobalCounters = data?.GlobalCounters ?? new Dictionary<string, CompiledMetricsCounterData>(),
-                GlobalValues = data?.GlobalValues ?? new Dictionary<string, CompiledMetricsValueData>()
+                GlobalValues = data?.GlobalValues ?? new Dictionary<string, CompiledMetricsValueData>(),
+                GlobalNotes = data?.GlobalNotes ?? new Dictionary<string, CompiledMetricsNoteData>()
             };
         }
         #endregion

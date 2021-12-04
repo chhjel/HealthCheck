@@ -18,4 +18,5 @@ export interface HCMetricsItem
 	DurationMilliseconds: number;
 	EndMilliseconds: number;
 	AddTimingToGlobals: boolean;
+	AddNoteToGlobals: boolean;
 }
