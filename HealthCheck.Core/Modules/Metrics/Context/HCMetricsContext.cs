@@ -54,6 +54,11 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         }
 
         /// <summary>
+        /// Contains the currently tracked metrics for this context.
+        /// </summary>
+        public HCMetricsContext() {}
+
+        /// <summary>
         /// Finalizer for <see cref="HCMetricsContext"/>.
         /// </summary>
         ~HCMetricsContext()
@@ -112,7 +117,10 @@ namespace HealthCheck.Core.Modules.Metrics.Context
                 {
                     GlobalCounters[id] = 0;
                 }
-                GlobalCounters[id] += amount;
+                if (GlobalCounters[id] < long.MaxValue)
+                {
+                    GlobalCounters[id] += amount;
+                }
             }
         }
 
@@ -135,6 +143,7 @@ namespace HealthCheck.Core.Modules.Metrics.Context
 
         /// <summary>
         /// Add an error.
+        /// <para>Stores no data. Only used to display in current request using <see cref="HCMetricsUtil.CreateContextSummaryHtml"/>.</para>
         /// </summary>
         public static void AddError(string errorMessage, Exception exception = null)
             => WithCurrentContext((c) => c.AddErrorInternal(errorMessage, exception));
@@ -148,6 +157,7 @@ namespace HealthCheck.Core.Modules.Metrics.Context
 
         /// <summary>
         /// Add a note of what just happened without any duration data.
+        /// <para>Stores no data. Only used to display in current request using <see cref="HCMetricsUtil.CreateContextSummaryHtml"/>.</para>
         /// </summary>
         public static void AddNote(string description)
             => WithCurrentContext((c) => c.AddNoteInternal(description));
@@ -161,12 +171,14 @@ namespace HealthCheck.Core.Modules.Metrics.Context
 
         /// <summary>
         /// Add a note of what just happened without along with a value.
+        /// <para>Stores no data. Only used to display in current request using <see cref="HCMetricsUtil.CreateContextSummaryHtml"/>.</para>
         /// </summary>
         public static void AddNote(string id, string description, int value)
             => WithCurrentContext((c) => c.AddNoteInternal(id, description, value));
 
         /// <summary>
         /// Add a note of what just happened without along with a value.
+        /// <para>Stores no data. Only used to display in current request using <see cref="HCMetricsUtil.CreateContextSummaryHtml"/>.</para>
         /// </summary>
         public static void AddNote(string description, int value)
             => WithCurrentContext((c) => c.AddNoteInternal(null, description, value));
@@ -212,6 +224,7 @@ namespace HealthCheck.Core.Modules.Metrics.Context
 
         /// <summary>
         /// Start timing data.
+        /// <para>Stores no data. Only used to display in current request using <see cref="HCMetricsUtil.CreateContextSummaryHtml"/>.</para>
         /// </summary>
         public static void StartTiming(string description)
             => WithCurrentContext((c) => c.StartTimingInternal(description));

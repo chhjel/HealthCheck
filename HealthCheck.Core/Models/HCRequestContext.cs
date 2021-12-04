@@ -9,6 +9,11 @@ namespace HealthCheck.Core.Models
     public class HCRequestContext
     {
         /// <summary>
+        /// True as long as we're in a request context. When e.g. created from a scheduled job this will most likely be false.
+        /// </summary>
+        public bool HasRequestContext { get; set; }
+
+        /// <summary>
         /// Is set automatically to the full url of the request.
         /// </summary>
         public string Url { get; set; }

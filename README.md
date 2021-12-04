@@ -1382,11 +1382,14 @@ var downloadDefinitionStorage = new FlatFileSecureFileDownloadDefinitionStorage(
 ## Module: Metrics
 
 Very simple module that outputs some metrics you can track manually through `HCMetricsContext` statically, to e.g. verify that some methods are not called too often, or to include extra details on every page (timings, errors, notes, etc).
-Currently only functions while in a request context, if attempted used outside one nothing will happen.
 
 ### Setup
 
-`HCMetricsUtil.AllowTrackRequestMetrics` must be configured to select what requests to allow tracking. By default `false` is returned and no context will be created, causing any attempt to track metrics to be ignored.
+`HCMetricsUtil.AllowTrackRequestMetrics` must be configured on startup to select what when tracking is allowed. By default `false` is returned and no context will be created, causing any attempt to track metrics to be ignored.
+
+```csharp
+HCMetricsUtil.AllowTrackRequestMetrics = (r) =>  r.Url?.Contains("some=key") || !r.HasRequestContext;
+```
 
 To enable the module to view globally tracked metrics register `<IHCMetricsStorage, HCMemoryMetricsStorage>` as a singleton to store data in memory and enable the module:
 

@@ -15,7 +15,7 @@ namespace HealthCheck.Dev.Common.Tests
     [RuntimeTestClass(
         Name = "Data Repeater",
         DefaultRolesWithAccess = RuntimeTestAccessRole.WebAdmins,
-        GroupName = RuntimeTestConstants.Group.DataRepeater,
+        GroupName = RuntimeTestConstants.Group.Modules,
         UIOrder = 30
     )]
     public class DataRepeaterTests
