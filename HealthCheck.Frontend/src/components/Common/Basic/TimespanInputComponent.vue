@@ -41,9 +41,10 @@
             <v-btn 
                 v-if="allowClear"
                 class="clear-button"
-                @click:clear="onClearClicked()"
+                @click="onClearClicked"
                 :disabled="disabled"
-                flat icon small>
+                flat icon small
+                style="align-self: flex-start;">
                 <v-icon color="#757575">cancel</v-icon>
             </v-btn>
         </div>
@@ -129,7 +130,7 @@ export default class TimespanInputComponent extends Vue
 
         if (parts.length < 3) {
             this.currentValue = '0:0:0';
-            this.hourValue = this.minuteValue = this.secondValue;
+            this.hourValue = this.minuteValue = this.secondValue = '0';
             return;
         }
 
@@ -158,6 +159,7 @@ export default class TimespanInputComponent extends Vue
     onClearClicked(): void {
         if (this.disabled) return;
         this.$emit('input', '');
+        this.$emit('change', '');
     }
 }
 </script>
