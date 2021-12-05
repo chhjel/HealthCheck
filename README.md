@@ -228,6 +228,7 @@ Supported parameter types:
 * `decimal`, `decimal?`
 * `bool`, `bool?`
 * `DateTime`, `DateTime?`, `DateTimeOffset`, `DateTimeOffset?`
+* `TimeSpan`, `TimeSpan?`
 * `Enum` (-> select)
 * `Enum` with `[Flags]` (-> multiselect)
 * `Guid`, `Guid?`

@@ -48,7 +48,9 @@ export default class TestParametersComponent extends Vue {
     {
       const largerParameters = [
         'Guid',
-        'Nullable<Guid>'
+        'Nullable<Guid>',
+        'TimeSpan',
+        'Nullable<TimeSpan>'
       ];
       return !parameter.FullWidth
         && !largerParameters.some(x => parameter.Type == x)

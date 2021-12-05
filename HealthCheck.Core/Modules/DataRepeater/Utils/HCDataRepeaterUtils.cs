@@ -12,7 +12,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
 {
     /// <summary>
     /// Utilities related to the data repeater module.
-    /// <para>Any exceptions ignored by the methods can be logged by subscribing to <see cref="OnExceptionEvent"/>.</para>
+    /// <para>Any exceptions ignored by the methods can be logged by subscribing to <see cref="HCGlobalConfig.OnExceptionEvent"/>.</para>
     /// </summary>
     public static class HCDataRepeaterUtils
     {
