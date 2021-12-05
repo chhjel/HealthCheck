@@ -15,11 +15,9 @@ namespace HealthCheck.Dev.Common.Tests
     public class MetricsTests
     {
         [RuntimeTest]
-        public TestResult TrackSomeMetrics(int globalValue = 88, int noteValue = 1234)
+        [RuntimeTestParameter(target: "timing", "Timing", null, DefaultValueFactoryMethod = nameof(TimingDefault))]
+        public TestResult TrackSomeMetrics(TimeSpan timing, TimeSpan? globalTiming = null, int globalValue = 88, int noteValue = 1234)
         {
-            TimeSpan timing = TimeSpan.FromSeconds(1.2);
-            TimeSpan globalTiming = TimeSpan.FromSeconds(0.88);
-            // todo: auto-include metrics if not already done.
             try
             {
                 int.Parse("asd");
@@ -31,7 +29,7 @@ namespace HealthCheck.Dev.Common.Tests
 
             HCMetricsContext.AddGlobalValue("num_retries", globalValue);
             HCMetricsContext.AddTiming("timing", "Some timing", timing, addToGlobals: false);
-            HCMetricsContext.AddTiming("glob_timing", "Some global timing", globalTiming, addToGlobals: true);
+            HCMetricsContext.AddTiming("glob_timing", "Some global timing", globalTiming ?? TimeSpan.Zero, addToGlobals: true);
             HCMetricsContext.AddNote("A note without value");
             HCMetricsContext.AddNote("A note with a value", noteValue);
             HCMetricsContext.AddGlobalNote("note1", $"Some global note 1 @ {DateTime.Now}");
@@ -43,7 +41,7 @@ namespace HealthCheck.Dev.Common.Tests
 
                 HCMetricsContext.AddGlobalValue("static_num_retries", globalValue);
                 HCMetricsContext.AddTiming("static_timing", "Some timing", timing, addToGlobals: false);
-                HCMetricsContext.AddTiming("static_glob_timing", "Some global timing", globalTiming, addToGlobals: true);
+                HCMetricsContext.AddTiming("static_glob_timing", "Some global timing", globalTiming ?? TimeSpan.Zero, addToGlobals: true);
                 HCMetricsContext.AddNote("A static note without value");
                 HCMetricsContext.AddNote("A static note with a value", noteValue);
                 HCMetricsContext.AddGlobalNote("note2", $"Some static global note 2 @ {DateTime.Now}");
@@ -52,5 +50,7 @@ namespace HealthCheck.Dev.Common.Tests
 
             return TestResult.CreateSuccess("Some metrics should be tracked now.");
         }
+
+        public static TimeSpan TimingDefault() => TimeSpan.FromSeconds(1.2);
     }
 }

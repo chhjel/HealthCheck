@@ -10,30 +10,54 @@
 
         <div v-show="showDescription" class="input-component--description" v-html="description"></div>
         
-        <div class="input-component--inputs">
-            <div class="input-component--input-prefix" v-if="minimal">H:</div>
+        <div class="input-component--inputs" :style="style">
+            <div class="input-component--input-prefix" v-if="minimal">
+                <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                        <span v-on="on">H:</span>
+                    </template>
+                    <span>Number of hours</span>
+                </v-tooltip>
+            </div>
             <v-text-field
                 v-model="hourValue"
                 @input="onInput()"
                 :disabled="disabled"
+                :placeholder="isNull ? 'null' : ''"
                 type="number">
             </v-text-field>
             <div class="input-component--input-prefix" v-if="!minimal">hours, </div>
             
-            <div class="input-component--input-prefix" v-if="minimal">M:</div>
+            <div class="input-component--input-prefix" v-if="minimal">
+                <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                        <span v-on="on">M:</span>
+                    </template>
+                    <span>Number of minutes</span>
+                </v-tooltip>
+            </div>
             <v-text-field
                 v-model="minuteValue"
                 @input="onInput()"
                 :disabled="disabled"
+                :placeholder="isNull ? 'null' : ''"
                 type="number">
             </v-text-field>
             <div class="input-component--input-prefix" v-if="!minimal">minutes, </div>
 
-            <div class="input-component--input-prefix" v-if="minimal">S:</div>
+            <div class="input-component--input-prefix" v-if="minimal">
+                <v-tooltip bottom>
+                    <template v-slot:activator="{ on }">
+                        <span v-on="on">S:</span>
+                    </template>
+                    <span>Number of seconds</span>
+                </v-tooltip>
+            </div>
             <v-text-field
                 v-model="secondValue"
                 @input="onInput()"
                 :disabled="disabled"
+                :placeholder="isNull ? 'null' : ''"
                 type="number">
             </v-text-field>
             <div class="input-component--input-prefix" v-if="!minimal">seconds.</div>
@@ -41,9 +65,10 @@
             <v-btn 
                 v-if="allowClear"
                 class="clear-button"
-                @click:clear="onClearClicked()"
+                @click="onClearClicked"
                 :disabled="disabled"
-                flat icon small>
+                flat icon small
+                style="align-self: flex-start;">
                 <v-icon color="#757575">cancel</v-icon>
             </v-btn>
         </div>
@@ -83,6 +108,12 @@ export default class TimespanInputComponent extends Vue
     
     @Prop({ required: false, default: false })
     minimal!: boolean;
+    
+    @Prop({ required: false, default: false })
+    fill!: boolean;
+    
+    @Prop({ required: false, default: 23 })
+    maxHour!: number | null;
 
     showDescription: boolean = false;
     currentValue: string = '0:0:0';
@@ -105,12 +136,26 @@ export default class TimespanInputComponent extends Vue
     ////////////////
     //  GETTERS  //
     //////////////
+    get isNull(): boolean {
+        return this.value == null || this.value == undefined;
+    }
+
     get showHeader(): boolean {
         return this.name != null && this.name.length > 0;
     }
 
     get hasDescription(): boolean {
         return this.description != null && this.description.length > 0;
+    }
+
+    get style(): any {
+        if (this.fill)
+        {
+            return {
+                'justify-content': 'space-between'
+            }
+        }
+        return {};
     }
 
     ////////////////
@@ -125,11 +170,11 @@ export default class TimespanInputComponent extends Vue
     /////////////////////
     @Watch('value')
     onValueChanged(): void {
-        const parts = this.value.split(':');
+        const parts = (this.value || '').split(':');
 
         if (parts.length < 3) {
             this.currentValue = '0:0:0';
-            this.hourValue = this.minuteValue = this.secondValue;
+            this.hourValue = this.minuteValue = this.secondValue = (this.value == null ? '' : '0');
             return;
         }
 
@@ -140,8 +185,8 @@ export default class TimespanInputComponent extends Vue
     }
 
     onInput(): void {
-        if (Number(this.hourValue) > 23) {
-            this.hourValue = '23';
+        if (this.maxHour != null && this.maxHour != undefined && Number(this.hourValue) > this.maxHour) {
+            this.hourValue = `${this.maxHour}`;
         }
         if (Number(this.minuteValue) > 59) {
             this.minuteValue = '59';
@@ -158,6 +203,7 @@ export default class TimespanInputComponent extends Vue
     onClearClicked(): void {
         if (this.disabled) return;
         this.$emit('input', '');
+        this.$emit('change', '');
     }
 }
 </script>

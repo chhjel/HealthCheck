@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -184,6 +185,13 @@ namespace HealthCheck.Core.Util
                 return ParseOrThrow<T>((i) => DateTime.Parse(i), input);
             else if (inputType == typeof(DateTimeOffset))
                 return ParseOrThrow<T>((i) => DateTimeOffset.Parse(i), input);
+            else if (inputType == typeof(TimeSpan))
+                return ParseOrThrow<T>((i) =>
+                {
+                    var parts = i.Split(':').Select(x => double.Parse(x)).ToArray();
+                    var ms = (parts[2] - (int)parts[2]) * 1000;
+                    return new TimeSpan(0, (int)parts[0], (int)parts[1], (int)parts[2], (int)ms);
+                }, input);
             else if (inputType == typeof(Decimal))
                 return ParseOrThrow<T>((i) => Decimal.Parse(i), input);
             else if (inputType == typeof(Double))

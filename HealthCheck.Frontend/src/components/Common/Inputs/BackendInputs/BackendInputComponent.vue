@@ -50,6 +50,7 @@ import ParameterInputTypeDateTimeOffsetComponent from './Types/ParameterInputTyp
 import ParameterInputTypeEnumComponent from './Types/ParameterInputTypeEnumComponent.vue';
 import ParameterInputTypeFlaggedEnumComponent from './Types/ParameterInputTypeFlaggedEnumComponent.vue';
 import ParameterInputTypeGenericListComponent from './Types/ParameterInputTypeGenericListComponent.vue';
+import ParameterInputTypeTimeSpanComponent from "./Types/ParameterInputTypeTimeSpanComponent.vue";
 import ParameterInputTypeHttpPostedFileBaseComponent from './Types/ParameterInputTypeHttpPostedFileBaseComponent.vue';
 import ParameterInputPickReferenceComponent from './Types/ParameterInputPickReferenceComponent.vue';
 import ParameterInputTypeGuidComponent from "./Types/ParameterInputTypeGuidComponent.vue";
@@ -73,6 +74,7 @@ import { ReferenceValueFactoryConfigViewModel } from "generated/Models/Core/Refe
       ParameterInputTypeDateTimeOffsetComponent,
       ParameterInputTypeEnumComponent,
       ParameterInputTypeFlaggedEnumComponent,
+      ParameterInputTypeTimeSpanComponent,
       ParameterInputTypeGenericListComponent,
       ParameterInputTypeHttpPostedFileBaseComponent,
       ParameterInputPickReferenceComponent,
