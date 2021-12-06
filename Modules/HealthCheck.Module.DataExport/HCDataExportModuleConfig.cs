@@ -9,7 +9,7 @@ namespace HealthCheck.Module.DataExport
         public string ComponentName => "DataExportPageComponent";
         public string DefaultRootRouteSegment => "dataExport";
         public string InitialRoute => "/{0}";
-        public string RoutePath => "/{0}/:streamId?/:itemId?";
+        public string RoutePath => "/{0}/:streamId?";
         public List<HealthCheckLinkTagModel> LinkTags => new();
         public List<HealthCheckScriptTagModel> ScriptTags => new();
         public string RawHtml { get; }

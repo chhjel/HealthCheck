@@ -64,7 +64,7 @@ namespace HealthCheck.Module.DataExport
         /// Get stream details.
         /// </summary>
         [HealthCheckModuleMethod]
-        public Task<List<HCDataExportStreamViewModel>> GetStreamDefinitions(HealthCheckModuleContext context)
+        public Task<HCGetDataExportStreamDefinitionsViewModel> GetStreamDefinitions(HealthCheckModuleContext context)
         {
             var list = new List<HCDataExportStreamViewModel>();
             var streams = GetStreamsRequestCanAccess(context);
@@ -79,7 +79,10 @@ namespace HealthCheck.Module.DataExport
                 };
                 list.Add(streamModel);
             }
-            return Task.FromResult(list);
+
+            return Task.FromResult(new HCGetDataExportStreamDefinitionsViewModel { 
+                Streams = list
+            });
         }
 
         /// <summary>

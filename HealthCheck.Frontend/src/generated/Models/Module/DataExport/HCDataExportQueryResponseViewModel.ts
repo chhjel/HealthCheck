@@ -4,6 +4,9 @@
 
 export interface HCDataExportQueryResponseViewModel
 {
+	Success: boolean;
+	ErrorMessage: string;
+	ErrorDetails: string;
 	TotalCount: number;
 	Items: any[];
 }

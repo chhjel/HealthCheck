@@ -1,6 +1,6 @@
 import { HCDataExportQueryRequest } from "generated/Models/Module/DataExport/HCDataExportQueryRequest";
 import { HCDataExportQueryResponseViewModel } from "generated/Models/Module/DataExport/HCDataExportQueryResponseViewModel";
-import { HCDataExportStreamViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamViewModel";
+import { HCGetDataExportStreamDefinitionsViewModel } from "generated/Models/Module/DataExport/HCGetDataExportStreamDefinitionsViewModel";
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
 
 export default class DataExportService extends HCServiceBase
@@ -15,7 +15,7 @@ export default class DataExportService extends HCServiceBase
     
     public GetStreamDefinitions(
         statusObject: FetchStatus | null = null,
-        callbacks: ServiceFetchCallbacks<Array<HCDataExportStreamViewModel> | null> | null = null
+        callbacks: ServiceFetchCallbacks<HCGetDataExportStreamDefinitionsViewModel | null> | null = null
     ): void {
         this.invokeModuleMethod(this.moduleId, "GetStreamDefinitions", null, statusObject, callbacks);
     }
