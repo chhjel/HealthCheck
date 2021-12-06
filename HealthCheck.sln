@@ -65,6 +65,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.WebUI.MFA.WebAu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Episerver.Tests", "Tests\HealthCheck.Episerver.Tests\HealthCheck.Episerver.Tests.csproj", "{4AA61542-531D-4216-8B4D-DBEE43DE29C7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.Module.DataExport", "Modules\HealthCheck.Module.DataExport\HealthCheck.Module.DataExport.csproj", "{261CA139-D847-4086-9D2E-6E416B9A1337}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -150,6 +152,10 @@ Global
 		{4AA61542-531D-4216-8B4D-DBEE43DE29C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4AA61542-531D-4216-8B4D-DBEE43DE29C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4AA61542-531D-4216-8B4D-DBEE43DE29C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{261CA139-D847-4086-9D2E-6E416B9A1337}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{261CA139-D847-4086-9D2E-6E416B9A1337}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{261CA139-D847-4086-9D2E-6E416B9A1337}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{261CA139-D847-4086-9D2E-6E416B9A1337}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -170,6 +176,7 @@ Global
 		{20376DC6-4F30-4D20-BC35-90B677C145CB} = {DFA1DC1E-CEA9-4C53-9677-A203B2B045E4}
 		{57E360B0-A55C-4D2D-9B04-73F15DEA5325} = {DFA1DC1E-CEA9-4C53-9677-A203B2B045E4}
 		{4AA61542-531D-4216-8B4D-DBEE43DE29C7} = {23FF7575-64C7-43DC-9FDB-1FE4BF5A1D3F}
+		{261CA139-D847-4086-9D2E-6E416B9A1337} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F29D958F-997A-4DDE-B100-586ADFF9A3D3}
