@@ -2,6 +2,7 @@
 using HealthCheck.Core.Config;
 using HealthCheck.Core.Modules.DataRepeater.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Context;
+using HealthCheck.Module.DataExport;
 using HealthCheck.Module.DynamicCodeExecution.Module;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Module;
@@ -55,6 +56,7 @@ namespace HealthCheck.FrontendModelGenerator
             IncludeAssembly(builder, typeof(HCPageOptions).Assembly);
             IncludeAssembly(builder, typeof(HCEndpointControlModule).Assembly);
             IncludeAssembly(builder, typeof(HCDynamicCodeExecutionModule).Assembly);
+            IncludeAssembly(builder, typeof(HCDataExportModule).Assembly);
         }
 
         private static void IncludeAssembly(ConfigurationBuilder builder, Assembly assembly)
