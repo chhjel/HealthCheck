@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
+using HealthCheck.Core.Util;
 using System;
 using System.Threading.Tasks;
 
@@ -25,6 +26,7 @@ namespace HealthCheck.Dev.Common.Tests
             catch (Exception ex)
             {
                 HCMetricsContext.AddError("Some error", ex);
+                HCMetricsContext.AddGlobalNote("err_1", ExceptionUtils.GetFullExceptionDetails(ex));
             }
 
             HCMetricsContext.AddGlobalValue("num_retries", globalValue);

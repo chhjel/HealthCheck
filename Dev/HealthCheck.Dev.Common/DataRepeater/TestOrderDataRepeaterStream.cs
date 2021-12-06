@@ -1,6 +1,6 @@
 ﻿using HealthCheck.Core.Modules.DataRepeater.Abstractions;
 using HealthCheck.Core.Modules.DataRepeater.Models;
-using HealthCheck.Core.Modules.DataRepeater.Storage;
+using HealthCheck.WebUI.Services;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -26,7 +26,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
             new TestOrderDataRepeaterStreamItemActionTest()
         };
 
-        public TestOrderDataRepeaterStream() : base(new MemoryDataRepeaterStreamItemStorage("ordertest"))
+        public TestOrderDataRepeaterStream() : base(new HCFlatFileDataRepeaterStreamItemStorage<TestOrderStreamItem>(@"C:\temp\HealthCheck\DataRepeater_OrderCaps.json"))
         {
         }
 

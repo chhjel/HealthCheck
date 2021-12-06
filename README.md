@@ -823,7 +823,8 @@ public class ExampleDataRepeaterStream : HCDataRepeaterStreamBase<MyStreamItem>
         new ExampleDataRepeaterStreamItemActionToggleAllow()
     };
 
-    public TestOrderDataRepeaterStream() : base(/* IHCDataRepeaterStreamItemStorage implementation here */)
+    public TestOrderDataRepeaterStream()
+        : base(/* IHCDataRepeaterStreamItemStorage implementation here, HCFlatFileDataRepeaterStreamItemStorage<TItem> exists for flatfile or check below for epi */)
     {
     }
 
