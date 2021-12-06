@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Modules.DataExport.Models;
+using HealthCheck.Core.Util;
 using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Models;
 using System;
@@ -87,17 +88,29 @@ namespace HealthCheck.Module.DataExport
         [HealthCheckModuleMethod]
         public async Task<HCDataExportQueryResponseViewModel> QueryStreamPaged(HealthCheckModuleContext context, HCDataExportQueryRequest model)
         {
-            var stream = GetStream(context, model.StreamId);
-            if (stream == null) return null;
-
-            model.PageSize = Math.Min(model.PageSize, Options.MaxPageSize);
-            var result = await Options.Service.QueryAsync(model);
-
-            return new HCDataExportQueryResponseViewModel
+            try
             {
-                TotalCount = result.TotalCount,
-                Items = result.Items
-            };
+                var stream = GetStream(context, model.StreamId);
+                if (stream == null) return new HCDataExportQueryResponseViewModel { ErrorMessage = "Stream not found." };
+
+                model.PageSize = Math.Min(model.PageSize, Options.MaxPageSize);
+                var result = await Options.Service.QueryAsync(model);
+
+                return new HCDataExportQueryResponseViewModel
+                {
+                    Success = true,
+                    TotalCount = result.TotalCount,
+                    Items = result.Items
+                };
+            }
+            catch (Exception ex)
+            {
+                return new HCDataExportQueryResponseViewModel
+                {
+                    ErrorMessage = ex.Message,
+                    ErrorDetails = ExceptionUtils.GetFullExceptionDetails(ex)
+                };
+            }
         }
         #endregion
 

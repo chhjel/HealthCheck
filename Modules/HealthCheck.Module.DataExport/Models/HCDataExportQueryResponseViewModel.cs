@@ -9,6 +9,21 @@ namespace HealthCheck.Module.DataExport.Models
     public class HCDataExportQueryResponseViewModel
     {
         /// <summary>
+        /// True if nothing failed.
+        /// </summary>
+        public bool Success { get; set; }
+
+        /// <summary>
+        /// Error if any.
+        /// </summary>
+        public string ErrorMessage { get; set; }
+
+        /// <summary>
+        /// Error details if any.
+        /// </summary>
+        public string ErrorDetails { get; set; }
+
+        /// <summary>
         /// Total count.
         /// </summary>
         public int TotalCount { get; set; }
