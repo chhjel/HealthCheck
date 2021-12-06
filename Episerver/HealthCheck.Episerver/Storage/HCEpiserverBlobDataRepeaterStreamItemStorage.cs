@@ -28,10 +28,16 @@ namespace HealthCheck.Episerver.Storage
         where TItem : IHCDataRepeaterStreamItem
     {
         /// <summary>
-        /// If disabled the service will ignore any attempts to add/update data.
+        /// If disabled the service will ignore any attempts to add new data.
         /// <para>Enabled by default. Null value/exception = false.</para>
         /// </summary>
-        public Func<bool> IsEnabled { get; set; } = () => true;
+        public Func<bool> AllowInsertNew { get; set; } = () => true;
+
+        /// <summary>
+        /// If disabled the service will ignore any attempts to update data.
+        /// <para>Enabled by default. Null value/exception = false.</para>
+        /// </summary>
+        public Func<bool> AllowUpdateExisting { get; set; } = () => true;
 
         /// <summary>
         /// Defaults to the default provider if null.
@@ -64,7 +70,7 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public Task AddItemAsync(IHCDataRepeaterStreamItem item, object hint = null)
         {
-            if (!IsEnabledInternal()) return Task.CompletedTask;
+            if (!AllowInsertNewInternal()) return Task.CompletedTask;
             InsertItemBuffered((TItem)item, item.Id);
             return Task.CompletedTask;
         }
@@ -72,7 +78,7 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         public Task UpdateItemAsync(IHCDataRepeaterStreamItem item)
         {
-            if (!IsEnabledInternal()) return Task.CompletedTask;
+            if (!AllowUpdateExisting()) return Task.CompletedTask;
             item.LastUpdatedAt = DateTimeOffset.Now;
             InsertItemBuffered((TItem)item, item.Id, isUpdate: true);
             return Task.CompletedTask;
@@ -296,11 +302,25 @@ namespace HealthCheck.Episerver.Storage
         /// <inheritdoc />
         protected override void StoreBlobData(HCDataRepeaterBlobData data) => _blobHelper.StoreBlobData(data);
 
-        internal bool IsEnabledInternal()
+        internal bool AllowInsertNewInternal()
         {
             try
             {
-                if (IsEnabled?.Invoke() != true)
+                if (AllowInsertNew?.Invoke() != true)
+                {
+                    return false;
+                }
+            }
+            catch (Exception) { return false; }
+
+            return true;
+        }
+
+        internal bool AllowUpdateExistingInternal()
+        {
+            try
+            {
+                if (AllowUpdateExisting?.Invoke() != true)
                 {
                     return false;
                 }

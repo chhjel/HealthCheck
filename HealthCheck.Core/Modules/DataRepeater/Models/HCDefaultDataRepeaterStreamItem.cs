@@ -4,6 +4,7 @@ using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace HealthCheck.Core.Modules.DataRepeater.Models
 {
@@ -78,6 +79,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// Deserialize <see cref="SerializedData"/> into <typeparamref name="TData"/> on get and updates <see cref="SerializedData"/> when set.
         /// If <typeparamref name="TData"/> is of type string it will be returned.
         /// </summary>
+        [IgnoreDataMember]
         public TData Data
         {
             get
@@ -102,6 +104,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// Deserialize <see cref="FirstSerializedData"/> into <typeparamref name="TData"/>.
         /// If <typeparamref name="TData"/> is of type string it will be returned.
         /// </summary>
+        [IgnoreDataMember]
         public TData OriginalData
         {
             get
