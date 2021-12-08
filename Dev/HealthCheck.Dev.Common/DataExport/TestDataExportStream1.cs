@@ -17,7 +17,7 @@ namespace HealthCheck.Dev.Common.DataExport
 
         protected override Task<IQueryable<TestExportItem>> GetQueryableItemsAsync()
         {
-            var items = Enumerable.Range(0, 1000)
+            var items = Enumerable.Range(0, 10000)
                 .Select(x => new TestExportItem
                 {
                     Id = $"#{x}",
