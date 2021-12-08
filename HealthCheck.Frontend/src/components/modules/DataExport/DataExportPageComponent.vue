@@ -18,6 +18,8 @@
                     :filterKeys="[ 'Name', 'Description' ]"
                     :loading="metadataLoadStatus.inProgress"
                     :disabled="isLoading"
+                    :showFilter="false"
+                    :groupIfSingleGroup="false"
                     ref="filterableList"
                     v-on:itemClicked="onMenuItemClicked"
                     @itemMiddleClicked="onMenuItemMiddleClicked"
@@ -34,14 +36,13 @@
                                 <p v-if="selectedStream.Description" v-html="selectedStream.Description"></p>
 
                                 <div class="data-export-filters">
-                                    <v-text-field
+                                    <b>Query</b>
+                                    <editor-component
+                                        class="editor mb-2"
+                                        :language="'csharp'"
                                         v-model="queryInput"
-                                        @keyup.enter="onFilterChanged(true, true)"
-                                        label="Query"
-                                        clearable
-                                        class="filter-input"
-                                        :readonly="isLoading"
-                                    ></v-text-field>
+                                        :read-only="isLoading"
+                                        ref="editor" />
                                 </div>
 
                                 <code v-if="queryError"
@@ -52,15 +53,15 @@
                                     class="mb-2">{{ queryErrorDetails }}</code>
                                 
                                 <div class="data-export-filters">
-                                    <v-select
+                                    <v-autocomplete
                                         v-model="includedProperties"
+                                        :disabled="isLoading"
                                         :items="availableProperties"
-                                        :label="includedProperties.length == 0 ? 'Included properties - All' : 'Included properties'"
-                                        multiple
                                         chips
                                         clearable
-                                        :readonly="isLoading"
-                                        ></v-select>
+                                        :label="includedProperties.length == 0 ? 'Included properties - All' : 'Included properties'"
+                                        multiple
+                                        ></v-autocomplete>
                                 </div>
                             
                                 <v-btn @click="loadCurrentStreamItems(true)" :disabled="isLoading" class="right">
@@ -135,11 +136,13 @@ import UrlUtils from "util/UrlUtils";
 import { HCGetDataExportStreamDefinitionsViewModel } from "generated/Models/Module/DataExport/HCGetDataExportStreamDefinitionsViewModel";
 import { HCDataExportQueryResponseViewModel } from "generated/Models/Module/DataExport/HCDataExportQueryResponseViewModel";
 import { HCDataExportStreamItemDefinitionViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamItemDefinitionViewModel";
+import EditorComponent from "components/Common/EditorComponent.vue";
 
 @Component({
     components: {
         FilterableListComponent,
-        PagingComponent
+        PagingComponent,
+        EditorComponent
     }
 })
 export default class DataRepeaterPageComponent extends Vue {
@@ -184,6 +187,12 @@ export default class DataRepeaterPageComponent extends Vue {
 
         setTimeout(() => {
             this.routeListener = this.$router.afterEach((t, f) => this.onRouteChanged(t, f));
+        }, 100);
+
+        this.refreshEditorSize();
+        this.$nextTick(() => this.refreshEditorSize());
+        setTimeout(() => {
+            this.refreshEditorSize();
         }, 100);
     }
 
@@ -235,6 +244,14 @@ export default class DataRepeaterPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    refreshEditorSize(): void {
+        const editor: EditorComponent = <EditorComponent>this.$refs.editor;
+        if (editor)
+        {
+            editor.refreshSize();
+        }
+    }
+
     resetFilter(): void {
         this.pageIndex = 0;
         this.pageSize = 50;
@@ -441,5 +458,10 @@ export default class DataRepeaterPageComponent extends Vue {
 }
 .data-export-list-item {
 
+}
+.editor {
+  width: 100%;
+  height: 88px;
+  border: 1px solid #949494;
 }
 </style>

@@ -11,7 +11,7 @@ namespace HealthCheck.Dev.Common.DataExport
     {
         public override string StreamDisplayName => "Test stream 1";
         public override string StreamDescription => "A test for use during dev.";
-        public override string StreamGroupName => "Dev streams";
+        public override string StreamGroupName => null;
         public override object AllowedAccessRoles => RuntimeTestAccessRole.WebAdmins;
         public override List<string> Categories => null;
 

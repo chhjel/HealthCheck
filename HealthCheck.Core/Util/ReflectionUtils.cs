@@ -235,7 +235,7 @@ namespace HealthCheck.Core.Util
 		}
 
 		/// <summary>
-		/// Get a property by its path.
+		/// Get a property by its dotted path.
 		/// <para>Returns null if not found.</para>
 		/// </summary>
 		public static object GetValue(object rootInstance, string path)

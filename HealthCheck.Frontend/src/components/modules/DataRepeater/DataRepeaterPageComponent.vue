@@ -18,6 +18,8 @@
                     :filterKeys="[ 'Name', 'Description' ]"
                     :loading="metadataLoadStatus.inProgress"
                     :disabled="isLoading"
+                    :showFilter="false"
+                    :groupIfSingleGroup="false"
                     ref="filterableList"
                     v-on:itemClicked="onMenuItemClicked"
                     @itemMiddleClicked="onMenuItemMiddleClicked"

@@ -175,6 +175,12 @@ export default class SimplePagingComponent extends Vue
         }
     }
 
+    refreshSizeDelayed(): void {
+        setTimeout(() => {
+            this.refreshSize();
+        }, 10);
+    }
+
     navigateToPage(num: number): void  {
         if (this.asIndex) {
             num--;
@@ -212,11 +218,12 @@ export default class SimplePagingComponent extends Vue
     @Watch("value")
     onValueChanged(): void {
         this.currentValue = this.value;
+        this.refreshSizeDelayed();
     }
 
     @Watch("pageCount")
     onPageCountChanged(): void {
-        this.refreshSize();
+        this.refreshSizeDelayed();
     }
 
     onWindowResize(): void {
