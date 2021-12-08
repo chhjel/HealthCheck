@@ -36,7 +36,7 @@
                                 <div class="data-export-filters">
                                     <v-text-field
                                         v-model="queryInput"
-                                        @keyup.enter="onFilterChanged"
+                                        @keyup.enter="onFilterChanged(true, true)"
                                         label="Query"
                                         clearable
                                         class="filter-input"
@@ -55,7 +55,7 @@
                                     <v-select
                                         v-model="includedProperties"
                                         :items="availableProperties"
-                                        label="Included properties"
+                                        :label="includedProperties.length == 0 ? 'Included properties - All' : 'Included properties'"
                                         multiple
                                         chips
                                         clearable
@@ -63,7 +63,7 @@
                                         ></v-select>
                                 </div>
                             
-                                <v-btn @click="loadCurrentStreamItems" :disabled="isLoading" class="right">
+                                <v-btn @click="loadCurrentStreamItems(true)" :disabled="isLoading" class="right">
                                     <v-icon size="20px" class="mr-2">refresh</v-icon>Query
                                 </v-btn>
 
@@ -71,6 +71,7 @@
                                     :count="totalResultCount"
                                     :pageSize="pageSize"
                                     v-model="pageIndex"
+                                    @change="onPageIndexChanged"
                                     :asIndex="true"
                                     class="mb-2 mt-2"
                                     />
@@ -102,6 +103,7 @@
                                     :count="totalResultCount"
                                     :pageSize="pageSize"
                                     v-model="pageIndex"
+                                    @change="onPageIndexChanged"
                                     :asIndex="true"
                                     class="mb-2 mt-2"
                                     />
@@ -236,6 +238,7 @@ export default class DataRepeaterPageComponent extends Vue {
         this.pageIndex = 0;
         this.pageSize = 50;
         this.queryInput = '';
+        this.includedProperties = [];
     }
 
     loadStreamDefinitions(): void {
@@ -289,7 +292,7 @@ export default class DataRepeaterPageComponent extends Vue {
         } else {
             this.applyFilterFromUrl();
         }
-        this.loadCurrentStreamItems();
+        // this.loadCurrentStreamItems();
 
         if (updateUrl && this.$route.params.streamId != this.hash(stream.Id))
         {
@@ -299,8 +302,14 @@ export default class DataRepeaterPageComponent extends Vue {
 
     hash(input: string) { return HashUtils.md5(input); }
 
-    loadCurrentStreamItems(): void {
+    loadCurrentStreamItems(resetPageIndex: boolean): void {
         if (!this.selectedStream) return;
+
+        this.updateUrlFromFilter();
+        if (resetPageIndex)
+        {
+            this.pageIndex = 0;
+        }
 
         this.service.QueryStreamPaged({
             StreamId: this.selectedStream.Id,
@@ -326,9 +335,13 @@ export default class DataRepeaterPageComponent extends Vue {
         this.queryErrorDetails = data.ErrorDetails;
     }
 
-    onFilterChanged(): void {
+    onFilterChanged(loadData: boolean, resetPageIndex: boolean): void {
         this.updateUrlFromFilter();
-        this.loadCurrentStreamItems();
+
+        if (loadData)
+        {
+            this.loadCurrentStreamItems(resetPageIndex);
+        }
     }
 
     updateUrlFromFilter(): void {
@@ -389,9 +402,9 @@ export default class DataRepeaterPageComponent extends Vue {
         }
     }
 
-    @Watch("pageIndex")
+    // @Watch("pageIndex")
     onPageIndexChanged(): void {
-        this.loadCurrentStreamItems();
+        this.loadCurrentStreamItems(false);
     }
 
     onRouteChanged(to: Route, from: Route): void {

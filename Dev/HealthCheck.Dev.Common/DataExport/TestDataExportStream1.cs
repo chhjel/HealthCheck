@@ -33,7 +33,7 @@ namespace HealthCheck.Dev.Common.DataExport
             public string Name { get; set; }
             public int Value { get; set; }
             public DateTimeOffset DateTimeOffset { get; set; } = DateTimeOffset.Now;
-            public DateTime DateTime { get; set; } = DateTime.Now;
+            public DateTime Timestamp { get; set; } = DateTime.Now;
             public TestExportItemAddress BillingAddress { get; set; } = new TestExportItemAddress();
             public TestExportItemAddress ShippingAddress { get; set; } = new TestExportItemAddress();
             public TestExportItemContact Contact { get; set; } = new TestExportItemContact();

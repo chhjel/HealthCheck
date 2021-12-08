@@ -73,6 +73,7 @@ export default class SimplePagingComponent extends Vue
             num--;
         }
         this.$emit('input', num);
+        this.$emit('change', num);
         this.currentValue = num;
     }
 
