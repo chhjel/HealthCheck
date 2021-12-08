@@ -2,11 +2,8 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface HCDataExportQueryRequest
+export interface HCDataExportStreamItemDefinitionMember
 {
-	StreamId: string;
-	PageIndex: number;
-	PageSize: number;
-	Query: string;
-	IncludedProperties: string[];
+	Name: string;
+	Type: any;
 }

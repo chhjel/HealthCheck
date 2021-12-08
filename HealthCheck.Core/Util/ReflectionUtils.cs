@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace HealthCheck.Core.Util
 {
-    /// <summary>Utils to simplify life from HealthCheck tests and DCE.</summary>
-    public static class ReflectionUtils
+	/// <summary>Utils to simplify life from HealthCheck tests and DCE.</summary>
+	public static class ReflectionUtils
 	{
 		/// <summary>
 		/// Attempt to invoke a method on the given type.
@@ -144,6 +146,138 @@ namespace HealthCheck.Core.Util
 			{
 				return null;
 			}
+		}
+
+		/// <summary>
+		/// Name and type of a member.
+		/// </summary>
+		public class TypeMemberData
+		{
+			/// <summary>
+			/// Name of the member or its path.
+			/// </summary>
+			public string Name { get; set; }
+
+			/// <summary>
+			/// Type of the member.
+			/// </summary>
+			public Type Type { get; set; }
+		}
+
+		/// <summary>
+		/// Get a list of members recursively.
+		/// <para><see cref="TypeMemberData.Name" /> will be the dotted path to the member.</para>
+		/// </summary>
+		public static List<TypeMemberData> GetTypeMembersRecursive(Type type, string path = null, int currentLevel = 0, int maxLevels = 10,
+			List<TypeMemberData> worklist = null, HashSet<Type> ignoredTypes = null)
+		{
+			if (type == null) return new();
+
+			var paths = worklist ?? new List<TypeMemberData>();
+			if (currentLevel >= maxLevels) return paths;
+
+			ignoredTypes ??= new();
+			//ignoredTypes.Add(type);
+
+			bool allowRecurseType(Type type)
+			{
+				return !ignoredTypes.Contains(type)
+					&& !type.IsSpecialName
+					&& !type.IsValueType
+					&& !type.IsPrimitive
+					&& !type.IsArray
+					&& type.Namespace?.StartsWith("System.") != true
+					&& type.Namespace != "System"
+					&& type.Module.ScopeName != "CommonLanguageRuntimeLibrary"
+					&& !(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+					&& !(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+					&& !(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ICollection<>));
+			}
+
+			var bindingFlags = BindingFlags.Public | BindingFlags.Instance;
+			var props = type.GetProperties(bindingFlags);
+			foreach (var prop in props)
+			{
+				paths.Add(new TypeMemberData
+				{
+					Name = $"{(path == null ? "" : $"{path}.")}{prop.Name}",
+					Type = prop.PropertyType
+				});
+
+				if (!prop.IsSpecialName
+					&& prop.GetMethod != null
+					&& prop.CanRead
+					&& allowRecurseType(prop.PropertyType)
+					&& prop.GetCustomAttribute<CompilerGeneratedAttribute>() == null)
+				{
+					GetTypeMembersRecursive(prop.PropertyType, $"{(string.IsNullOrWhiteSpace(path) ? "" : $"{path}.")}{prop.Name}", currentLevel + 1, maxLevels, paths, ignoredTypes);
+				}
+			}
+
+			var fields = type.GetFields();
+			foreach (var field in fields)
+			{
+				paths.Add(new TypeMemberData
+				{
+					Name = $"{(path == null ? "" : $"{path}.")}{field.Name}",
+					Type = field.FieldType
+				});
+
+				if (!field.IsSpecialName
+					&& allowRecurseType(field.FieldType)
+					&& field.GetCustomAttribute<CompilerGeneratedAttribute>() == null)
+				{
+					GetTypeMembersRecursive(field.FieldType, $"{(string.IsNullOrWhiteSpace(path) ? "" : $"{path}.")}{field.Name}", currentLevel + 1, maxLevels, paths, ignoredTypes);
+				}
+			}
+
+			return paths;
+		}
+
+		/// <summary>
+		/// Get a property by its path.
+		/// <para>Returns null if not found.</para>
+		/// </summary>
+		public static object GetValue(object rootInstance, string path)
+		{
+			var instance = rootInstance;
+			if (instance == null) return null;
+
+			object getValue(string membName, out bool found)
+			{
+				found = false;
+				if (instance == null) return null;
+
+				var prop = instance.GetType().GetProperty(membName);
+				if (prop != null)
+				{
+					found = true;
+					return prop.GetValue(instance);
+				}
+
+				var field = instance.GetType().GetField(membName);
+				if (field != null)
+				{
+					found = true;
+					return field.GetValue(instance);
+				}
+
+				return null;
+			}
+
+			while (path.Contains("."))
+			{
+				var memberName = path.Substring(0, path.IndexOf("."));
+				path = path.Substring(memberName.Length + 1);
+
+				instance = getValue(memberName, out var wasFound);
+				if (!wasFound || instance == null)
+				{
+					return null;
+				}
+			}
+
+            return getValue(path, out _);
 		}
 
 		private static object TryGetMemberValue(Type type, object instance, string memberName)

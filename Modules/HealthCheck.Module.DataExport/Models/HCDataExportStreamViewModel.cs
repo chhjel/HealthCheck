@@ -1,4 +1,4 @@
-﻿namespace HealthCheck.Core.Modules.DataExport.Models
+﻿namespace HealthCheck.Module.DataExport.Models
 {
     /// <summary></summary>
     public class HCDataExportStreamViewModel
@@ -14,5 +14,8 @@
 
         /// <summary></summary>
         public string GroupName { get; set; }
+
+        /// <summary></summary>
+        public HCDataExportStreamItemDefinitionViewModel ItemDefinition { get; set; }
     }
 }

@@ -2,10 +2,13 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import { HCDataExportStreamItemDefinitionViewModel } from './HCDataExportStreamItemDefinitionViewModel';
+
 export interface HCDataExportStreamViewModel
 {
 	Id: string;
 	Name: string;
 	Description: string;
 	GroupName: string;
+	ItemDefinition: HCDataExportStreamItemDefinitionViewModel;
 }

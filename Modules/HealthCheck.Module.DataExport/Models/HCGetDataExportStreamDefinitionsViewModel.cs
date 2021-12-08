@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace HealthCheck.Core.Modules.DataExport.Models
+namespace HealthCheck.Module.DataExport.Models
 {
     /// <summary></summary>
     public class HCGetDataExportStreamDefinitionsViewModel

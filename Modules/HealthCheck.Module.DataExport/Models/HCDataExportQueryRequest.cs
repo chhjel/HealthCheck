@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Module.DataExport.Abstractions;
+using System.Collections.Generic;
 
 namespace HealthCheck.Module.DataExport.Models
 {
@@ -26,5 +27,10 @@ namespace HealthCheck.Module.DataExport.Models
         /// Linq query.
         /// </summary>
         public string Query { get; set; }
+
+        /// <summary>
+        /// What properties to include.
+        /// </summary>
+        public List<string> IncludedProperties { get; set; }
     }
 }

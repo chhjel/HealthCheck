@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Module.DataExport.Abstractions
@@ -37,8 +37,14 @@ namespace HealthCheck.Module.DataExport.Abstractions
         List<string> Categories { get; }
 
         /// <summary>
-        /// Get items to be filtered and exported.
+        /// Type of items returned from <see cref="GetQueryableAsync"/>
         /// </summary>
-        Task<IQueryable<object>> GetQueryableAsync();
+        Type ItemType { get; }
+
+        /// <summary>
+        /// Get items to be filtered and exported.
+        /// <para>Must return an IQueryable{T} </para>
+        /// </summary>
+        Task<object> GetQueryableAsync();
     }
 }

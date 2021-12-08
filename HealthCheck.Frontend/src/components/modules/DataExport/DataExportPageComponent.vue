@@ -36,7 +36,6 @@
                                 <div class="data-export-filters">
                                     <v-text-field
                                         v-model="queryInput"
-                                        @blur="onFilterChanged"
                                         @keyup.enter="onFilterChanged"
                                         label="Query"
                                         clearable
@@ -45,8 +44,27 @@
                                     ></v-text-field>
                                 </div>
 
+                                <code v-if="queryError"
+                                    @click="showQueryErrorDetails = !showQueryErrorDetails"
+                                    class="mb-2"
+                                    style="cursor: pointer">{{ queryError }}</code>
+                                <code v-if="queryErrorDetails && showQueryErrorDetails"
+                                    class="mb-2">{{ queryErrorDetails }}</code>
+                                
+                                <div class="data-export-filters">
+                                    <v-select
+                                        v-model="includedProperties"
+                                        :items="availableProperties"
+                                        label="Included properties"
+                                        multiple
+                                        chips
+                                        clearable
+                                        :readonly="isLoading"
+                                        ></v-select>
+                                </div>
+                            
                                 <v-btn @click="loadCurrentStreamItems" :disabled="isLoading" class="right">
-                                    <v-icon size="20px" class="mr-2">refresh</v-icon>Refresh
+                                    <v-icon size="20px" class="mr-2">refresh</v-icon>Query
                                 </v-btn>
 
                                 <paging-component
@@ -106,8 +124,6 @@ import ModuleConfig from  '../../../models/Common/ModuleConfig';
 import ModuleOptions from  '../../../models/Common/ModuleOptions';
 import DataExportService from  '../../../services/DataExportService';
 import { HCDataExportStreamViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamViewModel";
-import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import DataRepeaterItemComponent from "./DataRepeaterItemComponent.vue";
 import PagingComponent from "../../Common/Basic/PagingComponent.vue";
 import HashUtils from "../../../util/HashUtils";
 import { Route } from "vue-router";
@@ -115,12 +131,11 @@ import DateUtils from "util/DateUtils";
 import UrlUtils from "util/UrlUtils";
 import { HCGetDataExportStreamDefinitionsViewModel } from "generated/Models/Module/DataExport/HCGetDataExportStreamDefinitionsViewModel";
 import { HCDataExportQueryResponseViewModel } from "generated/Models/Module/DataExport/HCDataExportQueryResponseViewModel";
+import { HCDataExportStreamItemDefinitionViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamItemDefinitionViewModel";
 
 @Component({
     components: {
         FilterableListComponent,
-        BackendInputComponent,
-        DataRepeaterItemComponent,
         PagingComponent
     }
 })
@@ -140,6 +155,12 @@ export default class DataRepeaterPageComponent extends Vue {
     selectedStream: HCDataExportStreamViewModel | null = null;
     selectedItemId: string | null = null;
     items: Array<any> = [];
+    queryError: string | null = null;
+    queryErrorDetails: string | null = null;
+    showQueryErrorDetails: boolean = false;
+    includedProperties: Array<string> = [];
+    availableProperties: Array<string> = [];
+    itemDefinition: HCDataExportStreamItemDefinitionViewModel = { StreamId: '', Name: '', Members: [] };
 
     // Filter/pagination
     pageIndex: number = 0;
@@ -252,6 +273,9 @@ export default class DataRepeaterPageComponent extends Vue {
         {
             return;
         }
+        
+        this.availableProperties = stream.ItemDefinition.Members.map(x => x.Name);
+        this.itemDefinition = stream.ItemDefinition;
 
         if (prevStreamid != null)
         {
@@ -282,7 +306,8 @@ export default class DataRepeaterPageComponent extends Vue {
             StreamId: this.selectedStream.Id,
             PageIndex: this.pageIndex,
             PageSize: this.pageSize,
-            Query: this.queryInput
+            Query: this.queryInput,
+            IncludedProperties: this.includedProperties
         }, this.dataLoadStatus, {
             onSuccess: (data) => {
                 if (data != null)
@@ -296,6 +321,9 @@ export default class DataRepeaterPageComponent extends Vue {
     onStreamItemsLoaded(data: HCDataExportQueryResponseViewModel): void {
         this.totalResultCount = data.TotalCount;
         this.items = data.Items;
+
+        this.queryError = data.ErrorMessage;
+        this.queryErrorDetails = data.ErrorDetails;
     }
 
     onFilterChanged(): void {
@@ -395,6 +423,7 @@ export default class DataRepeaterPageComponent extends Vue {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    align-items: baseline;
 }
 .data-export-list-item {
 

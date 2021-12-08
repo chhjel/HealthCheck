@@ -35,6 +35,8 @@ using HealthCheck.Dev.Common;
 using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.Settings;
 using HealthCheck.Dev.Common.Tests;
+using HealthCheck.Module.DataExport;
+using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DevModule;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Module;
@@ -84,7 +86,8 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             ISiteEventService siteEventService,
             IHCSettingsService settingsService,
             IHCMetricsStorage metricsStorage,
-            IHCDataRepeaterService dataRepeaterService
+            IHCDataRepeaterService dataRepeaterService,
+            IHCDataExportService dataExportService
         )
             : base()
         {
@@ -93,6 +96,11 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             _siteEventService = siteEventService;
             _settingsService = settingsService;
             _dataRepeaterService = dataRepeaterService;
+
+            UseModule(new HCDataExportModule(new HCDataExportModuleOptions
+            {
+                Service = dataExportService
+            }));
             UseModule(new HCDataRepeaterModule(new HCDataRepeaterModuleOptions
             {
                 Service = _dataRepeaterService
@@ -223,6 +231,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             config.GiveRolesAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestModuleB.TestModuleBAccessOption.NumberOne);
 
             config.GiveRolesAccessToModuleWithFullAccess<HCDataRepeaterModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCDataExportModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSettingsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSiteEventsModule>(RuntimeTestAccessRole.WebAdmins);

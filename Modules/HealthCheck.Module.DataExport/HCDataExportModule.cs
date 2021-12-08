@@ -1,5 +1,4 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
-using HealthCheck.Core.Modules.DataExport.Models;
 using HealthCheck.Core.Util;
 using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Models;
@@ -70,12 +69,14 @@ namespace HealthCheck.Module.DataExport
             var streams = GetStreamsRequestCanAccess(context);
             foreach (var stream in streams)
             {
+                var itemDef = Options.Service.GetStreamItemDefinition(stream.GetType().FullName, stream.ItemType);
                 var streamModel = new HCDataExportStreamViewModel
                 {
                     Id = stream.GetType().FullName,
                     Name = stream.StreamDisplayName,
                     Description = stream.StreamDescription,
-                    GroupName = stream.StreamGroupName
+                    GroupName = stream.StreamGroupName,
+                    ItemDefinition = Create(itemDef)
                 };
                 list.Add(streamModel);
             }
@@ -131,6 +132,25 @@ namespace HealthCheck.Module.DataExport
         {
             var streams = GetStreamsRequestCanAccess(context);
             return streams.FirstOrDefault(x => x.GetType().FullName == streamId);
+        }
+
+        private static HCDataExportStreamItemDefinitionViewModel Create(HCDataExportStreamItemDefinition model)
+        {
+            return new HCDataExportStreamItemDefinitionViewModel
+            {
+                Name = model.Name,
+                StreamId = model.StreamId,
+                Members = model.Members?.Select(x => Create(x))?.ToList() ?? new()
+            };
+        }
+
+        private static HCDataExportStreamItemDefinitionMemberViewModel Create(HCDataExportStreamItemDefinitionMember model)
+        {
+            return new HCDataExportStreamItemDefinitionMemberViewModel
+            {
+                Name = model.Name,
+                TypeName = model.Type.Name
+            };
         }
         #endregion
     }
