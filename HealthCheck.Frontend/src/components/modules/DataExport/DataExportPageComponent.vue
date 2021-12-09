@@ -95,23 +95,30 @@
                                 <div class="table-overflow-wrapper" v-if="items.length > 0">
                                     <table class="v-table theme--light">
                                         <thead>
-                                            <tr>
-                                                <th v-for="(member, mIndex) in resolvedProperties"
-                                                    :key="`header-${mIndex}`"
-                                                    class="column text-xs-left"
-                                                    >{{ member.Name }}</th>
-                                            </tr>
+                                            <draggable
+                                                v-model="headers"
+                                                group="grp"
+                                                style="min-height: 10px"
+                                                tag="tr"
+                                                @end="onHeaderDragEnded">
+                                                <template v-for="header in headers">
+                                                    <th class="column text-xs-left draggable-header"
+                                                        :key="`header-${header}`"
+                                                        >{{ header }}</th>
+                                                </template>
+                                            </draggable>
                                         </thead>
                                         <tbody>
                                             <tr v-for="(item, iIndex) in items"
                                                 :key="`item-row-${iIndex}`">
-                                                <td v-for="(member, mIndex) in resolvedProperties"
-                                                    :key="`item-row-${iIndex}-column-${mIndex}`"
-                                                    >{{ item[member.Name] }}</td>
+                                                <td v-for="header in headers"
+                                                    :key="`item-row-${iIndex}-column-${header}`"
+                                                    >{{ item[header] }}</td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
+                                <code style="display:none">{{ resolvedProperties }}</code>
                                 
                                 <paging-component
                                     :count="totalResultCount"
@@ -133,6 +140,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import draggable from 'vuedraggable'
 import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
 import FilterableListComponent, { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
 import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
@@ -153,6 +161,7 @@ import { HCDataExportStreamItemDefinitionMemberViewModel } from "generated/Model
 
 @Component({
     components: {
+        draggable,
         FilterableListComponent,
         PagingComponent,
         EditorComponent
@@ -180,6 +189,7 @@ export default class DataRepeaterPageComponent extends Vue {
     includedProperties: Array<string> = [];
     availableProperties: Array<string> = [];
     lastQueriedProperties: Array<string> = [];
+    headers: Array<string> = [];
     itemDefinition: HCDataExportStreamItemDefinitionViewModel = { StreamId: '', Name: '', Members: [] };
 
     // Filter/pagination
@@ -247,7 +257,12 @@ export default class DataRepeaterPageComponent extends Vue {
     {
         const allMembers = this.itemDefinition.Members;
         // todo: sort
-        return allMembers.filter(x => this.lastQueriedProperties.includes(x.Name));
+        let resolved = allMembers.filter(x => this.lastQueriedProperties.includes(x.Name));
+
+        resolved.filter(x => !this.headers.includes(x.Name)).forEach(x => this.headers.push(x.Name));
+        this.headers = this.headers.filter(x => resolved.some(r => r.Name == x));
+
+        return resolved;
     }
 
     ////////////////////
@@ -466,6 +481,10 @@ export default class DataRepeaterPageComponent extends Vue {
             this.setActiveStream(matchingStream, false);
         }
     }
+
+    onHeaderDragEnded(): void {
+
+    }
 }
 </script>
 
@@ -489,6 +508,9 @@ export default class DataRepeaterPageComponent extends Vue {
 }
 .table-overflow-wrapper {
     overflow-x: auto;
+}
+.draggable-header {
+    cursor: grab;
 }
 .editor {
   width: 100%;
