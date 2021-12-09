@@ -90,15 +90,27 @@
                             </v-alert>
 
                             <div v-if="selectedStream && selectedItemId == null">
-                                <p>{{ totalResultCount}} matches</p>
+                                <p>Showing {{ items.length }} of {{ totalResultCount}} total matches</p>
                                 <div style="clear: both"></div>
-                                <div>
-                                    <div v-for="(item, iIndex) in items"
-                                        :key="`item-${iIndex}`"
-                                        class="data-export-list-item"
-                                        tabindex="0">
-                                        {{ item }}
-                                    </div>
+                                <div class="table-overflow-wrapper" v-if="items.length > 0">
+                                    <table class="v-table theme--light">
+                                        <thead>
+                                            <tr>
+                                                <th v-for="(member, mIndex) in resolvedProperties"
+                                                    :key="`header-${mIndex}`"
+                                                    class="column text-xs-left"
+                                                    >{{ member.Name }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(item, iIndex) in items"
+                                                :key="`item-row-${iIndex}`">
+                                                <td v-for="(member, mIndex) in resolvedProperties"
+                                                    :key="`item-row-${iIndex}-column-${mIndex}`"
+                                                    >{{ item[member.Name] }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                                 
                                 <paging-component
@@ -137,6 +149,7 @@ import { HCGetDataExportStreamDefinitionsViewModel } from "generated/Models/Modu
 import { HCDataExportQueryResponseViewModel } from "generated/Models/Module/DataExport/HCDataExportQueryResponseViewModel";
 import { HCDataExportStreamItemDefinitionViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamItemDefinitionViewModel";
 import EditorComponent from "components/Common/EditorComponent.vue";
+import { HCDataExportStreamItemDefinitionMemberViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamItemDefinitionMemberViewModel";
 
 @Component({
     components: {
@@ -166,6 +179,7 @@ export default class DataRepeaterPageComponent extends Vue {
     showQueryErrorDetails: boolean = false;
     includedProperties: Array<string> = [];
     availableProperties: Array<string> = [];
+    lastQueriedProperties: Array<string> = [];
     itemDefinition: HCDataExportStreamItemDefinitionViewModel = { StreamId: '', Name: '', Members: [] };
 
     // Filter/pagination
@@ -227,6 +241,13 @@ export default class DataRepeaterPageComponent extends Vue {
             (<any>d)['Href'] = "/woot";
             return d;
         });
+    }
+
+    get resolvedProperties(): Array<HCDataExportStreamItemDefinitionMemberViewModel>
+    {
+        const allMembers = this.itemDefinition.Members;
+        // todo: sort
+        return allMembers.filter(x => this.lastQueriedProperties.includes(x.Name));
     }
 
     ////////////////////
@@ -328,6 +349,13 @@ export default class DataRepeaterPageComponent extends Vue {
         {
             this.pageIndex = 0;
         }
+
+        if (this.includedProperties.length == 0)
+        {
+            this.includedProperties = this.availableProperties.filter(x => !this.availableProperties.some(a => a.startsWith(`${x}.`)));
+        }
+        
+        this.lastQueriedProperties = this.includedProperties;
 
         this.service.QueryStreamPaged({
             StreamId: this.selectedStream.Id,
@@ -458,6 +486,9 @@ export default class DataRepeaterPageComponent extends Vue {
 }
 .data-export-list-item {
 
+}
+.table-overflow-wrapper {
+    overflow-x: auto;
 }
 .editor {
   width: 100%;
