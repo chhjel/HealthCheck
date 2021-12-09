@@ -151,7 +151,7 @@ export default class SimplePagingComponent extends Vue
     }
 
     get showDialogButton(): boolean {
-        return this.pageCount > this.maxButtonCount;
+        return this.pageCount > this.maxButtonCount + 1;
     }
 
     ////////////////
