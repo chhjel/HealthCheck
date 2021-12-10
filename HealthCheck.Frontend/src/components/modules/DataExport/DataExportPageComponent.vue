@@ -41,7 +41,7 @@
                                         class="editor mb-2"
                                         :language="'csharp'"
                                         v-model="queryInput"
-                                        :read-only="isLoading"
+                                        :read-only="isLoading || !hasAccessToQueryCustom"
                                         ref="editor" />
                                 </div>
 
@@ -52,7 +52,7 @@
                                 <code v-if="queryErrorDetails && showQueryErrorDetails"
                                     class="mb-2">{{ queryErrorDetails }}</code>
                                 
-                                <div class="data-export-filters">
+                                <div class="data-export-filters" v-if="hasAccessToQueryCustom">
                                     <v-autocomplete
                                         v-model="includedProperties"
                                         :disabled="isLoading"
@@ -64,9 +64,20 @@
                                         ></v-autocomplete>
                                 </div>
                             
-                                <v-btn @click="loadCurrentStreamItems(true)" :disabled="isLoading" class="right">
-                                    <v-icon size="20px" class="mr-2">refresh</v-icon>Query
-                                </v-btn>
+                                <div class="data-export-actions">
+                                    <v-btn :disabled="isLoading" @click="loadCurrentStreamItems(true)">
+                                        <v-icon size="20px" class="mr-2">search</v-icon>Execute query
+                                    </v-btn>
+                                    <v-btn :disabled="isLoading" v-if="hasAccessToQueryPreset" @click="onLoadPresetsClicked">
+                                        <v-icon size="20px" class="mr-2">file_upload</v-icon>Load preset..
+                                    </v-btn>
+                                    <v-btn :disabled="isLoading" v-if="hasAccessToSavePreset" @click="onSavePresetClicked">
+                                        <v-icon size="20px" class="mr-2">save_alt</v-icon>Save preset..
+                                    </v-btn>
+                                    <v-btn :disabled="isLoading" v-if="hasAccessToExport">
+                                        <v-icon size="20px" class="mr-2">file_download</v-icon>Export
+                                    </v-btn>
+                                </div>
 
                                 <paging-component
                                     :count="totalResultCount"
@@ -76,7 +87,6 @@
                                     :asIndex="true"
                                     class="mb-2 mt-2"
                                     />
-                                    
                             </div>
 
                             <!-- LOAD PROGRESS -->
@@ -104,7 +114,7 @@
                                                 <template v-for="header in headers">
                                                     <th class="column text-xs-left draggable-header"
                                                         :key="`header-${header}`"
-                                                        >{{ header }}</th>
+                                                        >{{ getHeaderName(header) }}</th>
                                                 </template>
                                             </draggable>
                                         </thead>
@@ -135,6 +145,73 @@
             </v-container>
           <!-- CONTENT END -->
         </v-content>
+
+        <!-- DIALOGS -->
+        <v-dialog v-model="loadPresetDialogVisible"
+            @keydown.esc="loadPresetDialogVisible = false"
+            max-width="480"
+            content-class="confirm-dialog"
+            :persistent="dataLoadStatus.inProgress">
+            <v-card>
+                <v-card-title class="headline">Select a query preset to load</v-card-title>
+                <v-card-text>
+                    <v-progress-linear 
+                        v-if="isLoading"
+                        indeterminate color="green"></v-progress-linear>
+                    <!-- NO PRESETS YET -->
+                    <div v-if="!presets || presets.length == 0 && !dataLoadStatus.inProgress">
+                        <b>No presets created yet.</b>
+                    </div>
+                    <!-- HAS PRESETS -->
+                    <div v-if="presets && presets.length > 0">
+                        {{ presets }}
+                    </div>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary"
+                        :disabled="dataLoadStatus.inProgress"
+                        :loading="dataLoadStatus.inProgress"
+                        @click="loadPresetDialogVisible = false">Cancel</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog v-model="savePresetDialogVisible"
+            @keydown.esc="savePresetDialogVisible = false"
+            max-width="480"
+            content-class="confirm-dialog"
+            :persistent="true">
+            <v-card>
+                <v-card-title class="headline">Save preset</v-card-title>
+                <v-card-text>
+                    <h3>Save current query as a preset?</h3>
+                    
+                    <v-text-field
+                        v-model="newPresetName"
+                        placeholder="Preset name"
+                        :disabled="dataLoadStatus.inProgress" />
+
+                    <h4>Query</h4>
+                    <code>{{ queryInput }}</code>
+
+                    <h4 class="mt-2">Included properties</h4>
+                    <code>{{ includedProperties }}</code>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary"
+                        :disabled="dataLoadStatus.inProgress"
+                        :loading="dataLoadStatus.inProgress"
+                        @click="savePresetDialogVisible = false">Cancel</v-btn>
+                    <v-btn color="primary"
+                        :disabled="dataLoadStatus.inProgress"
+                        :loading="dataLoadStatus.inProgress"
+                        @click="onSavePresetConfirmClicked()">Save</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -158,6 +235,7 @@ import { HCDataExportQueryResponseViewModel } from "generated/Models/Module/Data
 import { HCDataExportStreamItemDefinitionViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamItemDefinitionViewModel";
 import EditorComponent from "components/Common/EditorComponent.vue";
 import { HCDataExportStreamItemDefinitionMemberViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamItemDefinitionMemberViewModel";
+import { HCDataExportStreamQueryPresetViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamQueryPresetViewModel";
 
 @Component({
     components: {
@@ -183,6 +261,7 @@ export default class DataRepeaterPageComponent extends Vue {
     selectedStream: HCDataExportStreamViewModel | null = null;
     selectedItemId: string | null = null;
     items: Array<any> = [];
+    selectedPresetId: string | null = null;
     queryError: string | null = null;
     queryErrorDetails: string | null = null;
     showQueryErrorDetails: boolean = false;
@@ -190,7 +269,13 @@ export default class DataRepeaterPageComponent extends Vue {
     availableProperties: Array<string> = [];
     lastQueriedProperties: Array<string> = [];
     headers: Array<string> = [];
+    headerNameOverrides: { [key:string]: string } = {};
     itemDefinition: HCDataExportStreamItemDefinitionViewModel = { StreamId: '', Name: '', Members: [] };
+    
+    newPresetName: string = '';
+    loadPresetDialogVisible: boolean = false;
+    savePresetDialogVisible: boolean = false;
+    presets: Array<HCDataExportStreamQueryPresetViewModel> = [];
 
     // Filter/pagination
     pageIndex: number = 0;
@@ -233,6 +318,30 @@ export default class DataRepeaterPageComponent extends Vue {
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
         return this.$store.state.globalOptions;
+    }
+
+    get hasAccessToQueryCustom(): boolean {
+        return this.hasAccess('QueryCustom');
+    }
+
+    get hasAccessToQueryPreset(): boolean {
+        return this.hasAccess('QueryPreset') && this.streamDefinitions?.SupportsStorage == true;
+    }
+
+    get hasAccessToSavePreset(): boolean {
+        return this.hasAccess('SavePreset') && this.streamDefinitions?.SupportsStorage == true;
+    }
+
+    get hasAccessToLoadPreset(): boolean {
+        return this.hasAccess('LoadPreset') && this.streamDefinitions?.SupportsStorage == true;
+    }
+
+    get hasAccessToDeletePreset(): boolean {
+        return this.hasAccess('DeletePreset') && this.streamDefinitions?.SupportsStorage == true;
+    }
+
+    get hasAccessToExport(): boolean {
+        return this.hasAccess('Export');
     }
     
     get isLoading(): boolean {
@@ -280,6 +389,10 @@ export default class DataRepeaterPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    hasAccess(option: string): boolean {
+        return this.options.AccessOptions.indexOf(option) != -1;
+    }
+
     refreshEditorSize(): void {
         const editor: EditorComponent = <EditorComponent>this.$refs.editor;
         if (editor)
@@ -354,7 +467,61 @@ export default class DataRepeaterPageComponent extends Vue {
         }
     }
 
+    getHeaderName(name: string): string {
+        return this.headerNameOverrides[name] || name;
+    }
+
     hash(input: string) { return HashUtils.md5(input); }
+
+    loadPresets(): void {
+        this.service.GetStreamQueryPresets(this.selectedStream?.Id || '', this.dataLoadStatus, {
+            onSuccess: (data) => {
+                if (data)
+                {
+                    this.presets = data;
+                }
+            }
+        });
+    }
+
+    applyPreset(preset: HCDataExportStreamQueryPresetViewModel): void {
+        this.selectedPresetId = preset.Id;
+        this.newPresetName = preset.Name;
+        this.queryInput = preset.Query;
+        this.includedProperties = preset.IncludedProperties;
+        this.headerNameOverrides = preset.HeaderNameOverrides;
+    }
+
+    deletePreset(id: string): void {
+        this.service.DeleteStreamQueryPreset({
+            StreamId: this.selectedStream?.Id || '',
+            Id: id
+        }, this.dataLoadStatus,
+        {
+            onSuccess: () => {
+                this.presets = this.presets.filter(x => x.Id != id);
+            }
+        });
+    }
+
+    savePreset(name: string, existingPreset: HCDataExportStreamQueryPresetViewModel | null = null): void {
+        this.service.SaveStreamQueryPreset({
+            StreamId: this.selectedStream?.Id || '',
+            Preset: {
+                Id: existingPreset?.Id || '00000000-0000-0000-0000-000000000000',
+                Name: name,
+                Description: '',
+                Query: this.queryInput,
+                IncludedProperties: this.includedProperties,
+                HeaderNameOverrides: this.headerNameOverrides
+            }
+        }, this.dataLoadStatus,
+        {
+            onSuccess: (d) => {
+                this.savePresetDialogVisible = false;
+            }
+        });
+    }
 
     loadCurrentStreamItems(resetPageIndex: boolean): void {
         if (!this.selectedStream) return;
@@ -377,7 +544,9 @@ export default class DataRepeaterPageComponent extends Vue {
             PageIndex: this.pageIndex,
             PageSize: this.pageSize,
             Query: this.queryInput,
-            IncludedProperties: this.includedProperties
+            IncludedProperties: this.includedProperties,
+            PresetId: this.hasAccessToQueryCustom ? undefined : (this.selectedPresetId || undefined),
+            HeaderNameOverrides: this.headerNameOverrides
         }, this.dataLoadStatus, {
             onSuccess: (data) => {
                 if (data != null)
@@ -485,6 +654,19 @@ export default class DataRepeaterPageComponent extends Vue {
     onHeaderDragEnded(): void {
 
     }
+
+    onLoadPresetsClicked(): void {
+        this.loadPresetDialogVisible = true;
+        this.loadPresets();
+    }
+    
+    onSavePresetClicked(): void {
+        this.savePresetDialogVisible = true;
+    }
+
+    onSavePresetConfirmClicked(): void {
+        this.savePreset(this.newPresetName, null);
+    }
 }
 </script>
 
@@ -502,9 +684,6 @@ export default class DataRepeaterPageComponent extends Vue {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: baseline;
-}
-.data-export-list-item {
-
 }
 .table-overflow-wrapper {
     overflow-x: auto;

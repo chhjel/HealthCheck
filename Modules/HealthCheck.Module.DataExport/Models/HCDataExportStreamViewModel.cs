@@ -1,4 +1,6 @@
-﻿namespace HealthCheck.Module.DataExport.Models
+﻿using System.Collections.Generic;
+
+namespace HealthCheck.Module.DataExport.Models
 {
     /// <summary></summary>
     public class HCDataExportStreamViewModel

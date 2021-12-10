@@ -32,5 +32,13 @@ namespace HealthCheck.Module.DataExport.Models
         /// Items on the current page.
         /// </summary>
         public IEnumerable<object> Items { get; set; } = Enumerable.Empty<object>();
+
+        /// <summary>
+        /// Creates a new error.
+        /// </summary>
+        public static HCDataExportQueryResponseViewModel CreateError(string message) => new()
+        {
+            ErrorMessage = message
+        };
     }
 }

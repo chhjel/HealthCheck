@@ -6,5 +6,6 @@ import { HCDataExportStreamViewModel } from './HCDataExportStreamViewModel';
 
 export interface HCGetDataExportStreamDefinitionsViewModel
 {
+	SupportsStorage: boolean;
 	Streams: HCDataExportStreamViewModel[];
 }

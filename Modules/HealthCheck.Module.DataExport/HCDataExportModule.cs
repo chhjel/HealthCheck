@@ -56,6 +56,24 @@ namespace HealthCheck.Module.DataExport
         {
             /// <summary>Does nothing.</summary>
             None = 0,
+
+            /// <summary>Execute any custom queries.</summary>
+            QueryCustom,
+
+            /// <summary>Execute a preset query.</summary>
+            QueryPreset,
+
+            /// <summary>Save a new or overwrite an existing preset.</summary>
+            SavePreset,
+
+            /// <summary>Load existing presets.</summary>
+            LoadPreset,
+
+            /// <summary>Delete existing presets.</summary>
+            DeletePreset,
+
+            /// <summary>Export data.</summary>
+            Export
         }
 
         #region Invokable methods
@@ -81,7 +99,9 @@ namespace HealthCheck.Module.DataExport
                 list.Add(streamModel);
             }
 
-            return Task.FromResult(new HCGetDataExportStreamDefinitionsViewModel { 
+            return Task.FromResult(new HCGetDataExportStreamDefinitionsViewModel
+            {
+                SupportsStorage = Options.PresetStorage != null,
                 Streams = list
             });
         }
@@ -95,11 +115,17 @@ namespace HealthCheck.Module.DataExport
             try
             {
                 var stream = GetStream(context, model.StreamId);
-                if (stream == null) return new HCDataExportQueryResponseViewModel { ErrorMessage = "Stream not found." };
+                if (stream == null) return HCDataExportQueryResponseViewModel.CreateError("Stream not found.");
+
+                var error = await PrepareQueryAsync(context, model, isExport: false);
+                if (!string.IsNullOrWhiteSpace(error))
+                {
+                    return HCDataExportQueryResponseViewModel.CreateError(error);
+                }
 
                 model.PageSize = Math.Min(model.PageSize, Options.MaxPageSize);
-                var result = await Options.Service.QueryAsync(model);
 
+                var result = await Options.Service.QueryAsync(model);
                 return new HCDataExportQueryResponseViewModel
                 {
                     Success = true,
@@ -116,9 +142,86 @@ namespace HealthCheck.Module.DataExport
                 };
             }
         }
+
+        /// <summary>
+        /// Get stream query presets.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.LoadPreset)]
+        public async Task<List<HCDataExportStreamQueryPresetViewModel>> GetStreamQueryPresets(HealthCheckModuleContext context, string streamId)
+        {
+            if (Options.PresetStorage == null || GetStream(context, streamId) == null) return new List<HCDataExportStreamQueryPresetViewModel>();
+
+            var presets = await Options.PresetStorage.GetStreamQueryPresetsAsync(streamId);
+            return presets.Select(x => Create(x)).ToList();
+        }
+
+        /// <summary>
+        /// Delete a single query preset.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.DeletePreset)]
+        public async Task DeleteStreamQueryPresets(HealthCheckModuleContext context, HCDataExportDeleteStreamQueryPresetsRequest request)
+        {
+            if (Options.PresetStorage == null || GetStream(context, request.StreamId) == null) return;
+
+            var preset = await Options.PresetStorage.GetStreamQueryPresetAsync(request.Id);
+            if (preset.StreamId != request.StreamId) return;
+
+            await Options.PresetStorage.DeleteStreamQueryPresetAsync(request.Id);
+        }
+
+        /// <summary>
+        /// Save stream query preset.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.SavePreset)]
+        public async Task<HCDataExportStreamQueryPresetViewModel> SaveStreamQueryPreset(HealthCheckModuleContext context, HCDataExportSaveStreamQueryPresetRequest presetData)
+        {
+            if (Options.PresetStorage == null || GetStream(context, presetData.StreamId) == null) return null;
+
+            var existingPresets = await Options.PresetStorage.GetStreamQueryPresetsAsync(presetData.StreamId);
+            var existingPreset = existingPresets.FirstOrDefault(x => x.Name == presetData.Preset.Name);
+            if (existingPreset != null)
+            {
+                presetData.Preset.Id = existingPreset.Id;
+            }
+
+            var preset = await Options.PresetStorage.SaveStreamQueryPresetAsync(Create(presetData.Preset, presetData.StreamId));
+            return Create(preset);
+        }
         #endregion
 
         #region Helpers
+        private async Task<string> PrepareQueryAsync(HealthCheckModuleContext context, HCDataExportQueryRequest model, bool isExport)
+        {
+            if (isExport && !context.HasAccess(AccessOption.Export))
+            {
+                return "You do not have access to export data.";
+            }
+
+            // Apply preset if specified and has access
+            var usingPreset = false;
+            if (model.PresetId != null
+                && Options.PresetStorage != null
+                && context.HasAccess(AccessOption.QueryPreset))
+            {
+                var preset = await Options.PresetStorage.GetStreamQueryPresetAsync(model.PresetId.Value);
+                if (preset != null)
+                {
+                    usingPreset = true;
+                    model.Query = preset.Query;
+                    model.IncludedProperties = preset.IncludedProperties;
+                    model.HeaderNameOverrides = preset.HeaderNameOverrides;
+                }
+            }
+
+            // Verify query access
+            if (!usingPreset && !context.HasAccess(AccessOption.QueryCustom))
+            {
+                return "You do not have access to execute custom queries.";
+            }
+
+            return null;
+        }
+
         private IEnumerable<IHCDataExportStream> GetStreamsRequestCanAccess(HealthCheckModuleContext context)
         {
             var streams = Options.Service?.GetStreams() ?? Enumerable.Empty<IHCDataExportStream>();
@@ -150,6 +253,34 @@ namespace HealthCheck.Module.DataExport
             {
                 Name = model.Name,
                 TypeName = model.Type.Name
+            };
+        }
+
+        private static HCDataExportStreamQueryPresetViewModel Create(HCDataExportStreamQueryPreset model)
+        {
+            if (model == null) return null;
+            return new HCDataExportStreamQueryPresetViewModel
+            {
+                Name = model.Name,
+                Description = model.Description,
+                IncludedProperties = model.IncludedProperties,
+                Query = model.Query,
+                HeaderNameOverrides = model.HeaderNameOverrides
+            };
+        }
+
+        private static HCDataExportStreamQueryPreset Create(HCDataExportStreamQueryPresetViewModel model, string streamId)
+        {
+            if (model == null) return null;
+            return new HCDataExportStreamQueryPreset
+            {
+                Id = model.Id ?? Guid.Empty,
+                StreamId = streamId,
+                Name = model.Name,
+                Description = model.Description,
+                IncludedProperties = model.IncludedProperties,
+                Query = model.Query,
+                HeaderNameOverrides = model.HeaderNameOverrides
             };
         }
         #endregion

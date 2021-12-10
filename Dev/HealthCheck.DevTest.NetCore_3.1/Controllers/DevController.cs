@@ -87,7 +87,8 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             IHCSettingsService settingsService,
             IHCMetricsStorage metricsStorage,
             IHCDataRepeaterService dataRepeaterService,
-            IHCDataExportService dataExportService
+            IHCDataExportService dataExportService,
+            IHCDataExportPresetStorage dataExportPresetStorage
         )
             : base()
         {
@@ -99,7 +100,8 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
 
             UseModule(new HCDataExportModule(new HCDataExportModuleOptions
             {
-                Service = dataExportService
+                Service = dataExportService,
+                PresetStorage = dataExportPresetStorage
             }));
             UseModule(new HCDataRepeaterModule(new HCDataRepeaterModuleOptions
             {

@@ -16,5 +16,10 @@ namespace HealthCheck.Module.DataExport
         /// Service that handles the data.
         /// </summary>
         public IHCDataExportService Service { get; set; }
+
+        /// <summary>
+        /// Service that handles preset storage.
+        /// </summary>
+        public IHCDataExportPresetStorage PresetStorage { get; set; }
     }
 }

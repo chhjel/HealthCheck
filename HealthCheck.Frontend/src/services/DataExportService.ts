@@ -1,5 +1,8 @@
+import { HCDataExportDeleteStreamQueryPresetsRequest } from './../generated/Models/Module/DataExport/HCDataExportDeleteStreamQueryPresetsRequest';
+import { HCDataExportStreamQueryPresetViewModel } from './../generated/Models/Module/DataExport/HCDataExportStreamQueryPresetViewModel';
 import { HCDataExportQueryRequest } from "generated/Models/Module/DataExport/HCDataExportQueryRequest";
 import { HCDataExportQueryResponseViewModel } from "generated/Models/Module/DataExport/HCDataExportQueryResponseViewModel";
+import { HCDataExportSaveStreamQueryPresetRequest } from "generated/Models/Module/DataExport/HCDataExportSaveStreamQueryPresetRequest";
 import { HCGetDataExportStreamDefinitionsViewModel } from "generated/Models/Module/DataExport/HCGetDataExportStreamDefinitionsViewModel";
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
 
@@ -26,5 +29,29 @@ export default class DataExportService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<HCDataExportQueryResponseViewModel | null> | null = null
     ): void {
         this.invokeModuleMethod(this.moduleId, "QueryStreamPaged", payload, statusObject, callbacks);
+    }
+    
+    public GetStreamQueryPresets(
+        streamId: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<Array<HCDataExportStreamQueryPresetViewModel> | null> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "GetStreamQueryPresets", streamId, statusObject, callbacks);
+    }
+    
+    public SaveStreamQueryPreset(
+        payload: HCDataExportSaveStreamQueryPresetRequest,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<HCDataExportStreamQueryPresetViewModel | null> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "SaveStreamQueryPreset", payload, statusObject, callbacks);
+    }
+    
+    public DeleteStreamQueryPreset(
+        payload: HCDataExportDeleteStreamQueryPresetsRequest,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<null> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "DeleteStreamQueryPresets", payload, statusObject, callbacks);
     }
 }

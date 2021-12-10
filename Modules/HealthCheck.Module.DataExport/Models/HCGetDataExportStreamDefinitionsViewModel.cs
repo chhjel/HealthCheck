@@ -6,6 +6,9 @@ namespace HealthCheck.Module.DataExport.Models
     public class HCGetDataExportStreamDefinitionsViewModel
     {
         /// <summary></summary>
+        public bool SupportsStorage { get; set; }
+
+        /// <summary></summary>
         public List<HCDataExportStreamViewModel> Streams { get; set; } = new();
     }
 }

@@ -27,6 +27,7 @@ using HealthCheck.Dev.Common.EventNotifier;
 using HealthCheck.Dev.Common.Settings;
 using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Services;
+using HealthCheck.Module.DataExport.Storage;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Services;
 using HealthCheck.Module.EndpointControl.Storage;
@@ -59,6 +60,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Config
             services.AddSingleton<IHCDataExportStream, TestDataExportStream1>();
             services.AddSingleton<IHCDataExportStream, TestDataExportStream2>();
             services.AddSingleton<IHCDataExportService, HCDataExportService>();
+            services.AddSingleton<IHCDataExportPresetStorage>(x => new HCFlatFileDataExportPresetStorage(@"C:\temp\DataExportPreset.json"));
 
             services.AddSingleton(x => CreateSettingsService());
             services.AddSingleton(x => CreateSiteEventService(env));

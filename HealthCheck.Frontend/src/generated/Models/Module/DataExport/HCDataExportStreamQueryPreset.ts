@@ -2,13 +2,13 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface HCDataExportQueryRequest
+export interface HCDataExportStreamQueryPreset
 {
+	Id: string;
 	StreamId: string;
-	PageIndex: number;
-	PageSize: number;
+	Name: string;
+	Description: string;
 	Query: string;
-	PresetId?: string;
 	IncludedProperties: string[];
 	HeaderNameOverrides: { [key:string]: string };
 }
