@@ -31,6 +31,14 @@ export default class DataExportService extends HCServiceBase
         this.invokeModuleMethod(this.moduleId, "QueryStreamPaged", payload, statusObject, callbacks);
     }
     
+    public PrepareExport(
+        payload: HCDataExportQueryRequest,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<string | null> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "PrepareExport", payload, statusObject, callbacks);
+    }
+    
     public GetStreamQueryPresets(
         streamId: string,
         statusObject: FetchStatus | null = null,
@@ -53,5 +61,9 @@ export default class DataExportService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<null> | null = null
     ): void {
         this.invokeModuleMethod(this.moduleId, "DeleteStreamQueryPresets", payload, statusObject, callbacks);
+    }
+
+    public CreateExportDownloadUrl(endpointBase: string, key: string): string {
+        return `${endpointBase}/DEExport/${key}`;
     }
 }

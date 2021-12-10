@@ -14,6 +14,7 @@ namespace HealthCheck.Dev.Common.DataExport
         public override string StreamGroupName => null;
         public override object AllowedAccessRoles => RuntimeTestAccessRole.WebAdmins;
         public override List<string> Categories => null;
+        public override int ExportBatchSize => 500;
 
         protected override Task<IQueryable<TestExportItem>> GetQueryableItemsAsync()
         {

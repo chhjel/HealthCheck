@@ -35,8 +35,8 @@
                                 <h2 v-if="selectedStream.Name">{{ selectedStream.Name }}</h2>
                                 <p v-if="selectedStream.Description" v-html="selectedStream.Description"></p>
 
-                                <div class="data-export-filters">
-                                    <b>Query</b>
+                                <div class="data-export-filters" v-if="showQuery">
+                                    <b>{{ queryTitle }}</b>
                                     <editor-component
                                         class="editor mb-2"
                                         :language="'csharp'"
@@ -65,7 +65,7 @@
                                 </div>
                             
                                 <div class="data-export-actions">
-                                    <v-btn :disabled="isLoading" @click="loadCurrentStreamItems(true)">
+                                    <v-btn :disabled="isLoading" @click="loadCurrentStreamItems(true)" v-if="showExecuteQuery">
                                         <v-icon size="20px" class="mr-2">search</v-icon>Execute query
                                     </v-btn>
                                     <v-btn :disabled="isLoading" v-if="hasAccessToQueryPreset" @click="onLoadPresetsClicked">
@@ -74,7 +74,8 @@
                                     <v-btn :disabled="isLoading" v-if="hasAccessToSavePreset" @click="onSavePresetClicked">
                                         <v-icon size="20px" class="mr-2">save_alt</v-icon>Save preset..
                                     </v-btn>
-                                    <v-btn :disabled="isLoading" v-if="hasAccessToExport">
+                                    <v-btn :disabled="isLoading" v-if="showExport" @click="onExportClicked"
+                                        :loading="exportLoadStatus.inProgress">
                                         <v-icon size="20px" class="mr-2">file_download</v-icon>Export
                                     </v-btn>
                                 </div>
@@ -128,7 +129,6 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <code style="display:none">{{ resolvedProperties }}</code>
                                 
                                 <paging-component
                                     :count="totalResultCount"
@@ -164,7 +164,13 @@
                     </div>
                     <!-- HAS PRESETS -->
                     <div v-if="presets && presets.length > 0">
-                        {{ presets }}
+                        <ul>
+                            <li v-for="(preset, pIndex) in presets"
+                                :key="`item-d-${preset.Id}-preset-${pIndex}`">
+                                <a href="#" @click="applyPreset(preset)">{{ preset.Name }}</a>
+                            </li>
+                            
+                        </ul>
                     </div>
                 </v-card-text>
                 <v-divider></v-divider>
@@ -236,6 +242,7 @@ import { HCDataExportStreamItemDefinitionViewModel } from "generated/Models/Modu
 import EditorComponent from "components/Common/EditorComponent.vue";
 import { HCDataExportStreamItemDefinitionMemberViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamItemDefinitionMemberViewModel";
 import { HCDataExportStreamQueryPresetViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamQueryPresetViewModel";
+import { HCDataExportQueryRequest } from "generated/Models/Module/DataExport/HCDataExportQueryRequest";
 
 @Component({
     components: {
@@ -256,6 +263,7 @@ export default class DataRepeaterPageComponent extends Vue {
     service: DataExportService = new DataExportService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     dataLoadStatus: FetchStatus = new FetchStatus();
     metadataLoadStatus: FetchStatus = new FetchStatus();
+    exportLoadStatus: FetchStatus = new FetchStatus();
 
     streamDefinitions: HCGetDataExportStreamDefinitionsViewModel | null = null;
     selectedStream: HCDataExportStreamViewModel | null = null;
@@ -343,6 +351,27 @@ export default class DataRepeaterPageComponent extends Vue {
     get hasAccessToExport(): boolean {
         return this.hasAccess('Export');
     }
+
+    get showExecuteQuery(): boolean {
+        return this.hasAccessToQueryCustom || this.selectedPresetId != null;
+    }
+
+    get showExport(): boolean {
+        return this.hasAccessToExport 
+            && (this.selectedPresetId != null || this.hasAccessToQueryCustom);
+    }
+
+    get showQuery(): boolean {
+        return this.hasAccessToQueryCustom || this.selectedPresetId != null;
+    }
+
+    get queryTitle(): string {
+        if (this.hasAccessToQueryCustom) return 'Query';
+        else if (!this.selectedPresetId) return 'Query';
+        const preset = this.presets.filter(x => x.Id == this.selectedPresetId)[0];
+        if (!preset) return 'Query';
+        return preset.Name || 'Query';
+    }
     
     get isLoading(): boolean {
         return this.metadataLoadStatus.inProgress || this.dataLoadStatus.inProgress;
@@ -360,18 +389,6 @@ export default class DataRepeaterPageComponent extends Vue {
             (<any>d)['Href'] = "/woot";
             return d;
         });
-    }
-
-    get resolvedProperties(): Array<HCDataExportStreamItemDefinitionMemberViewModel>
-    {
-        const allMembers = this.itemDefinition.Members;
-        // todo: sort
-        let resolved = allMembers.filter(x => this.lastQueriedProperties.includes(x.Name));
-
-        resolved.filter(x => !this.headers.includes(x.Name)).forEach(x => this.headers.push(x.Name));
-        this.headers = this.headers.filter(x => resolved.some(r => r.Name == x));
-
-        return resolved;
     }
 
     ////////////////////
@@ -453,6 +470,8 @@ export default class DataRepeaterPageComponent extends Vue {
         }
 
         this.resetFilter();
+        this.items = [];
+        this.totalResultCount = 0;
         if (this.applyFilterFromCache(stream.Id))
         {
             this.$nextTick(() => this.updateUrlFromFilter());
@@ -485,11 +504,15 @@ export default class DataRepeaterPageComponent extends Vue {
     }
 
     applyPreset(preset: HCDataExportStreamQueryPresetViewModel): void {
+        this.items = [];
+        this.totalResultCount = 0;
         this.selectedPresetId = preset.Id;
         this.newPresetName = preset.Name;
         this.queryInput = preset.Query;
-        this.includedProperties = preset.IncludedProperties;
-        this.headerNameOverrides = preset.HeaderNameOverrides;
+        this.includedProperties = [...preset.IncludedProperties];
+        this.headers = [...preset.IncludedProperties];
+        this.headerNameOverrides = JSON.parse(JSON.stringify(preset.HeaderNameOverrides));
+        this.loadPresetDialogVisible = false;
     }
 
     deletePreset(id: string): void {
@@ -505,6 +528,16 @@ export default class DataRepeaterPageComponent extends Vue {
     }
 
     savePreset(name: string, existingPreset: HCDataExportStreamQueryPresetViewModel | null = null): void {
+        let props = this.includedProperties;
+        this.headers.forEach(x => {
+            if (props.includes(x))
+            {
+                props = props.filter(p => p != x);
+                props.unshift(x);
+            }
+        });
+        props = props.reverse();
+
         this.service.SaveStreamQueryPreset({
             StreamId: this.selectedStream?.Id || '',
             Preset: {
@@ -512,7 +545,7 @@ export default class DataRepeaterPageComponent extends Vue {
                 Name: name,
                 Description: '',
                 Query: this.queryInput,
-                IncludedProperties: this.includedProperties,
+                IncludedProperties: props,
                 HeaderNameOverrides: this.headerNameOverrides
             }
         }, this.dataLoadStatus,
@@ -539,15 +572,7 @@ export default class DataRepeaterPageComponent extends Vue {
         
         this.lastQueriedProperties = this.includedProperties;
 
-        this.service.QueryStreamPaged({
-            StreamId: this.selectedStream.Id,
-            PageIndex: this.pageIndex,
-            PageSize: this.pageSize,
-            Query: this.queryInput,
-            IncludedProperties: this.includedProperties,
-            PresetId: this.hasAccessToQueryCustom ? undefined : (this.selectedPresetId || undefined),
-            HeaderNameOverrides: this.headerNameOverrides
-        }, this.dataLoadStatus, {
+        this.service.QueryStreamPaged(this.createQueryPayload(), this.dataLoadStatus, {
             onSuccess: (data) => {
                 if (data != null)
                 {
@@ -557,12 +582,32 @@ export default class DataRepeaterPageComponent extends Vue {
         })
     }
 
+    createQueryPayload(): HCDataExportQueryRequest {
+        return {
+            StreamId: this.selectedStream?.Id || '',
+            PageIndex: this.pageIndex,
+            PageSize: this.pageSize,
+            Query: this.hasAccessToQueryCustom ? this.queryInput : '',
+            IncludedProperties: this.hasAccessToQueryCustom ? this.includedProperties : [],
+            PresetId: this.hasAccessToQueryCustom ? undefined : (this.selectedPresetId || undefined),
+            HeaderNameOverrides: this.hasAccessToQueryCustom ? this.headerNameOverrides : {}
+        };
+    }
+
     onStreamItemsLoaded(data: HCDataExportQueryResponseViewModel): void {
         this.totalResultCount = data.TotalCount;
         this.items = data.Items;
 
         this.queryError = data.ErrorMessage;
         this.queryErrorDetails = data.ErrorDetails;
+
+        this.includedProperties.forEach(x => {
+            if (!this.headers.includes(x))
+            {
+                this.headers.push(x);
+            }
+        });
+        this.headers = this.headers.filter(x => this.includedProperties.includes(x));
     }
 
     onFilterChanged(loadData: boolean, resetPageIndex: boolean): void {
@@ -603,7 +648,10 @@ export default class DataRepeaterPageComponent extends Vue {
 
     cacheFilter(streamId: string): void {
         this.filterCache[streamId] = {
-            q: this.queryInput
+            q: this.queryInput,
+            pId: this.selectedPresetId,
+            incProp: this.includedProperties,
+            headers: this.headers
         };
     }
 
@@ -612,6 +660,9 @@ export default class DataRepeaterPageComponent extends Vue {
         if (cache == null) return false;
         
         this.queryInput = this.filterCache[streamId].q || '';
+        this.selectedPresetId =  this.filterCache[streamId].pId || null;
+        this.includedProperties =  this.filterCache[streamId].incProp || [];
+        this.headers =  this.filterCache[streamId].headers || [];
 
         return true;
     }
@@ -666,6 +717,19 @@ export default class DataRepeaterPageComponent extends Vue {
 
     onSavePresetConfirmClicked(): void {
         this.savePreset(this.newPresetName, null);
+    }
+
+    onExportClicked(): void {
+        this.service.PrepareExport(this.createQueryPayload(), this.exportLoadStatus,
+        {
+            onSuccess: (key) => {
+                if (key)
+                {
+                    const url = this.service.CreateExportDownloadUrl(this.globalOptions.EndpointBase, key);
+                    window.open(url, '_blank');
+                }
+            }
+        });
     }
 }
 </script>

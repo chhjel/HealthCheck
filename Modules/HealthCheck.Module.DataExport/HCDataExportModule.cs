@@ -1,10 +1,14 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
+using HealthCheck.Core.Config;
 using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Modules;
 using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Module.DataExport
@@ -14,11 +18,17 @@ namespace HealthCheck.Module.DataExport
     /// </summary>
     public class HCDataExportModule : HealthCheckModuleBase<HCDataExportModule.AccessOption>
     {
-        ///// <inheritdoc />
-        //public override List<string> AllCategories
-        //    => Options?.Service?.GetStreams()?.SelectMany(x => x.Categories)?.ToList() ?? new List<string>();
+        /// <inheritdoc />
+        public override List<string> AllCategories
+            => Options?.Service?.GetStreams()?.SelectMany(x => x.Categories)?.ToList() ?? new List<string>();
 
         private HCDataExportModuleOptions Options { get; }
+        private static readonly SimpleMemoryCache _allowedExports = new() { MaxCount = 1000 };
+        private class AllowedExportData
+        {
+            public Guid Key { get; set; }
+            public HCDataExportQueryRequest Query { get; set; }
+        }
 
         /// <summary>
         /// Module for exporting data.
@@ -34,7 +44,7 @@ namespace HealthCheck.Module.DataExport
         public override IEnumerable<string> Validate()
         {
             var issues = new List<string>();
-            //if (Options.Service == null) issues.Add("Options.Service must be set.");
+            if (Options.Service == null) issues.Add("Options.Service must be set.");
             return issues;
         }
 
@@ -126,6 +136,7 @@ namespace HealthCheck.Module.DataExport
                 model.PageSize = Math.Min(model.PageSize, Options.MaxPageSize);
 
                 var result = await Options.Service.QueryAsync(model);
+                context?.AddAuditEvent($"Queried data export", subject: stream.StreamDisplayName);
                 return new HCDataExportQueryResponseViewModel
                 {
                     Success = true,
@@ -141,6 +152,30 @@ namespace HealthCheck.Module.DataExport
                     ErrorDetails = ExceptionUtils.GetFullExceptionDetails(ex)
                 };
             }
+        }
+
+        /// <summary>
+        /// Prepare export.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.Export)]
+        public async Task<Guid?> PrepareExport(HealthCheckModuleContext context, HCDataExportQueryRequest model)
+        {
+            var stream = GetStream(context, model.StreamId);
+            if (stream == null) return null;
+
+            var error = await PrepareQueryAsync(context, model, isExport: true);
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                return null;
+            }
+
+            var data = new AllowedExportData
+            {
+                Key = Guid.NewGuid(),
+                Query = model
+            };
+            _allowedExports.Set(data.Key.ToString(), data, TimeSpan.FromMinutes(1));
+            return data.Key;
         }
 
         /// <summary>
@@ -166,6 +201,7 @@ namespace HealthCheck.Module.DataExport
             var preset = await Options.PresetStorage.GetStreamQueryPresetAsync(request.Id);
             if (preset.StreamId != request.StreamId) return;
 
+            context?.AddAuditEvent($"Deleted data export query preset", subject: preset.Name);
             await Options.PresetStorage.DeleteStreamQueryPresetAsync(request.Id);
         }
 
@@ -185,11 +221,124 @@ namespace HealthCheck.Module.DataExport
             }
 
             var preset = await Options.PresetStorage.SaveStreamQueryPresetAsync(Create(presetData.Preset, presetData.StreamId));
+            context?.AddAuditEvent($"Saved data export query preset", subject: presetData.Preset.Name);
             return Create(preset);
         }
         #endregion
 
+        #region Actions
+        private static readonly Regex DownloadExportFileUrlRegex
+            = new(@"^/DEExport/(?<key>[\w-]+)/?", RegexOptions.IgnoreCase);
+
+        /// <summary>
+        /// Export some data into a file.
+        /// </summary>
+        [HealthCheckModuleAction(AccessOption.Export)]
+        public object DEExport(HealthCheckModuleContext context, string url)
+        {
+            var match = DownloadExportFileUrlRegex.Match(url);
+            if (!match.Success)
+            {
+                return null;
+            }
+
+            // Parse url
+            var keyFromUrl = match.Groups["key"].Value.Trim().ToLower();
+            var data = _allowedExports.GetValue<AllowedExportData>(keyFromUrl, null);
+            if (data == null)
+            {
+                return CreateExportErrorHtml("Data to export not found.");
+            }
+            _allowedExports.ClearKey(keyFromUrl);
+
+            // Validate
+            var stream = GetStream(context, data.Query.StreamId);
+            if (stream == null) return CreateExportErrorHtml("Export data stream not found.");
+
+            // Bake file
+            string content = null;
+            try
+            {
+                content = AsyncUtils.RunSync(() => CreateExportContentAsync(context, data, stream.ExportBatchSize));
+            }
+            catch (Exception ex)
+            {
+                return CreateExportErrorHtml(ex.Message);
+            }
+
+            // Store audit data
+            var streamName = data.Query.StreamId;
+            if (streamName.Contains("."))
+            {
+                streamName = streamName.Substring(streamName.LastIndexOf(".") + 1);
+            }
+
+            // Create filename
+            var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+            var fileExtension = ".txt";
+            var fileName = $"{IOUtils.SanitizeFilename(stream.StreamDisplayName)}_{timestamp}.{fileExtension}";
+
+            context.AddAuditEvent("Data exported", streamName)
+                .AddClientConnectionDetails(context)
+                .AddDetail("File Name", fileName);
+                //.AddDetail("Query", );
+
+            return HealthCheckFileDownloadResult.CreateFromString(fileName, content);
+        }
+        #endregion
+
         #region Helpers
+        private async Task<string> CreateExportContentAsync(HealthCheckModuleContext context, AllowedExportData data, int exportBatchSize)
+        {
+            var model = data.Query;
+            model.PageIndex = 0;
+            model.PageSize = exportBatchSize;
+
+            var builder = new StringBuilder();
+            var taken = 0;
+            var totalCount = 1;
+            while (taken < totalCount)
+            {
+                var result = await Options.Service.QueryAsync(model);
+                totalCount = result.TotalCount;
+                model.PageIndex++;
+
+                foreach (var item in result.Items)
+                {
+                    taken++;
+
+                    var line = HCGlobalConfig.Serializer.Serialize(item, pretty: false);
+                    builder.AppendLine(line);
+                }
+            }
+
+            // todo: create custom headers as well
+
+            return builder.ToString();
+        }
+
+        private string CreateExportErrorHtml(string error)
+        {
+            var Q = "\"";
+            var noIndexMeta = $"<meta name={Q}robots{Q} content={Q}noindex{Q}>";
+
+            return $@"
+<!doctype html>
+<html>
+<head>
+    <title>Export failed</title>
+    {noIndexMeta}
+    <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
+</head>
+
+<body>
+    <div>
+        <p>{error}</p>
+    </div>
+</body>
+</html>";
+        }
+
         private async Task<string> PrepareQueryAsync(HealthCheckModuleContext context, HCDataExportQueryRequest model, bool isExport)
         {
             if (isExport && !context.HasAccess(AccessOption.Export))
@@ -261,6 +410,7 @@ namespace HealthCheck.Module.DataExport
             if (model == null) return null;
             return new HCDataExportStreamQueryPresetViewModel
             {
+                Id = model.Id,
                 Name = model.Name,
                 Description = model.Description,
                 IncludedProperties = model.IncludedProperties,

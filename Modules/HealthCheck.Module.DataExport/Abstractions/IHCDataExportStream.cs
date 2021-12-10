@@ -46,5 +46,10 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// <para>Must return an IQueryable{T} </para>
         /// </summary>
         Task<object> GetQueryableAsync();
+
+        /// <summary>
+        /// Number of items to fetch per batch when exporting.
+        /// </summary>
+        int ExportBatchSize { get; }
     }
 }
