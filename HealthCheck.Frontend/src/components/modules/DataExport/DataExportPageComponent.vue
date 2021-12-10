@@ -101,7 +101,7 @@
                             </v-alert>
 
                             <div v-if="selectedStream && selectedItemId == null">
-                                <p>Showing {{ items.length }} of {{ totalResultCount}} total matches</p>
+                                <p>{{ resultCountText }}</p>
                                 <div style="clear: both"></div>
                                 <div class="table-overflow-wrapper" v-if="items.length > 0">
                                     <table class="v-table theme--light">
@@ -391,6 +391,13 @@ export default class DataRepeaterPageComponent extends Vue {
         });
     }
 
+    get resultCountText(): string {
+        let from = (this.pageIndex * this.pageSize)+1;
+        from = Math.min(from, this.totalResultCount);
+        let to = (this.pageIndex * this.pageSize) + this.items.length;
+        return `Showing ${from}-${to} of ${this.totalResultCount} total matches`;
+    }
+
     ////////////////////
     //  Parent Menu  //
     //////////////////
@@ -588,7 +595,7 @@ export default class DataRepeaterPageComponent extends Vue {
             PageIndex: this.pageIndex,
             PageSize: this.pageSize,
             Query: this.hasAccessToQueryCustom ? this.queryInput : '',
-            IncludedProperties: this.hasAccessToQueryCustom ? this.includedProperties : [],
+            IncludedProperties: this.hasAccessToQueryCustom ? this.headers : [],
             PresetId: this.hasAccessToQueryCustom ? undefined : (this.selectedPresetId || undefined),
             HeaderNameOverrides: this.hasAccessToQueryCustom ? this.headerNameOverrides : {}
         };

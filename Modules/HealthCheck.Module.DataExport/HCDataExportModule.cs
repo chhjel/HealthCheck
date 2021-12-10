@@ -1,5 +1,4 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
-using HealthCheck.Core.Config;
 using HealthCheck.Core.Util;
 using HealthCheck.Core.Util.Modules;
 using HealthCheck.Module.DataExport.Abstractions;
@@ -259,7 +258,7 @@ namespace HealthCheck.Module.DataExport
             string content = null;
             try
             {
-                content = AsyncUtils.RunSync(() => CreateExportContentAsync(context, data, stream.ExportBatchSize));
+                content = AsyncUtils.RunSync(() => CreateExportContentAsync(data, stream.ExportBatchSize));
             }
             catch (Exception ex)
             {
@@ -280,7 +279,8 @@ namespace HealthCheck.Module.DataExport
 
             context.AddAuditEvent("Data exported", streamName)
                 .AddClientConnectionDetails(context)
-                .AddDetail("File Name", fileName);
+                .AddDetail("File Name", fileName)
+                .AddDetail("Filesize", $"{Encoding.Default.GetBytes(content)} bytes");
                 //.AddDetail("Query", );
 
             return HealthCheckFileDownloadResult.CreateFromString(fileName, content);
@@ -288,13 +288,25 @@ namespace HealthCheck.Module.DataExport
         #endregion
 
         #region Helpers
-        private async Task<string> CreateExportContentAsync(HealthCheckModuleContext context, AllowedExportData data, int exportBatchSize)
+        private async Task<string> CreateExportContentAsync(AllowedExportData data, int exportBatchSize)
         {
             var model = data.Query;
             model.PageIndex = 0;
             model.PageSize = exportBatchSize;
 
-            var builder = new StringBuilder();
+            // todo: specify from frontend what exporter type to use
+            HCDataExportExporter exporter = new HCDataExportExporterCSV();
+
+            var headers = data.Query.IncludedProperties;
+            var headerNameOverrides = data.Query.HeaderNameOverrides ?? new();
+            var resolvedHeaders = new List<string>();
+            foreach (var header in headers)
+            {
+                var name = headerNameOverrides.ContainsKey(header) ? headerNameOverrides[header] : header;
+                resolvedHeaders.Add(name);
+            }
+            exporter.SetHeaders(resolvedHeaders);
+
             var taken = 0;
             var totalCount = 1;
             while (taken < totalCount)
@@ -303,18 +315,95 @@ namespace HealthCheck.Module.DataExport
                 totalCount = result.TotalCount;
                 model.PageIndex++;
 
-                foreach (var item in result.Items)
+                foreach (var item in result.Items.OfType<Dictionary<string, object>>())
                 {
                     taken++;
-
-                    var line = HCGlobalConfig.Serializer.Serialize(item, pretty: false);
-                    builder.AppendLine(line);
+                    exporter.AppendItem(item, headers);
                 }
             }
 
-            // todo: create custom headers as well
+            return exporter.GetContents();
+        }
 
-            return builder.ToString();
+        /// <summary>
+        /// Outputs CSV.
+        /// </summary>
+        public class HCDataExportExporterCSV : HCDataExportExporter
+        {
+            /// <inheritdoc />
+            public string DisplayName => "CSV";
+
+            /// <inheritdoc />
+            public string FileExtension => ".txt";
+
+            /// <summary>
+            /// Delimiter to separate values with.
+            /// </summary>
+            public string Delimiter { get; set; } = ";";
+
+            private readonly StringBuilder _builder = new();
+
+            /// <inheritdoc />
+            public void SetHeaders(List<string> headers)
+            {
+                _builder.AppendLine(CreateLine(headers));
+            }
+
+            /// <inheritdoc />
+            public void AppendItem(Dictionary<string, object> item, List<string> order)
+            {
+                var parts = order.Select(x => item[x]?.ToString());
+                var line = CreateLine(parts);
+                _builder.AppendLine(line);
+            }
+
+            /// <inheritdoc />
+            public string GetContents() => _builder.ToString();
+
+            private string CreateLine(IEnumerable<string> parts)
+                => string.Join(Delimiter, parts.Select(x => PrepareValue(x)));
+
+            private string PrepareValue(string value)
+            {
+                if (value == null) return "";
+                if (value.Contains(Delimiter))
+                {
+                    var escaped = value.Replace("\"", "\"\"");
+                    return $"\"{escaped}\"";
+                }
+                return value;
+            }
+        }
+
+        /// <summary>
+        /// Type of output data to be exported.
+        /// </summary>
+        public interface HCDataExportExporter
+        {
+            /// <summary>
+            /// Name shown in the UI.
+            /// </summary>
+            string DisplayName { get; }
+
+            /// <summary>
+            /// Extension used for filename.
+            /// </summary>
+            string FileExtension { get; }
+
+            /// <summary>
+            /// Sets the headers for this data.
+            /// </summary>
+            void SetHeaders(List<string> headers);
+
+            /// <summary>
+            /// Append a new item to be exported.
+            /// </summary>
+            void AppendItem(Dictionary<string, object> item, List<string> order);
+
+            /// <summary>
+            /// Get current contents.
+            /// </summary>
+            string GetContents();
         }
 
         private string CreateExportErrorHtml(string error)
