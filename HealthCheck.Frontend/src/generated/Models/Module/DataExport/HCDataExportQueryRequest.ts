@@ -11,4 +11,5 @@ export interface HCDataExportQueryRequest
 	PresetId?: string;
 	IncludedProperties: string[];
 	HeaderNameOverrides: { [key:string]: string };
+	ExporterId: string;
 }

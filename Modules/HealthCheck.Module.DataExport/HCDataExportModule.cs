@@ -44,6 +44,7 @@ namespace HealthCheck.Module.DataExport
         {
             var issues = new List<string>();
             if (Options.Service == null) issues.Add("Options.Service must be set.");
+            if (Options.Exporters?.Any() != true) issues.Add("Options.Exporters must contain at least 1 exporter.");
             return issues;
         }
 
@@ -108,10 +109,17 @@ namespace HealthCheck.Module.DataExport
                 list.Add(streamModel);
             }
 
+            var exporters = Options.Exporters?.Select(x => new HCDataExportExporterViewModel
+            {
+                Id = x?.GetType()?.FullName ?? "null",
+                Name = x.DisplayName
+            })?.ToList() ?? new List<HCDataExportExporterViewModel>();
+
             return Task.FromResult(new HCGetDataExportStreamDefinitionsViewModel
             {
                 SupportsStorage = Options.PresetStorage != null,
-                Streams = list
+                Streams = list,
+                Exporters = exporters
             });
         }
 
@@ -253,12 +261,14 @@ namespace HealthCheck.Module.DataExport
             // Validate
             var stream = GetStream(context, data.Query.StreamId);
             if (stream == null) return CreateExportErrorHtml("Export data stream not found.");
+            var exporter = Options.Exporters?.FirstOrDefault(x => x.GetType().FullName == data.Query.ExporterId);
+            if (exporter == null) return CreateExportErrorHtml("Export method not found.");
 
             // Bake file
             string content = null;
             try
             {
-                content = AsyncUtils.RunSync(() => CreateExportContentAsync(data, stream.ExportBatchSize));
+                content = AsyncUtils.RunSync(() => CreateExportContentAsync(data, exporter, stream.ExportBatchSize));
             }
             catch (Exception ex)
             {
@@ -288,14 +298,11 @@ namespace HealthCheck.Module.DataExport
         #endregion
 
         #region Helpers
-        private async Task<string> CreateExportContentAsync(AllowedExportData data, int exportBatchSize)
+        private async Task<string> CreateExportContentAsync(AllowedExportData data, HCDataExportExporter exporter, int exportBatchSize)
         {
             var model = data.Query;
             model.PageIndex = 0;
             model.PageSize = exportBatchSize;
-
-            // todo: specify from frontend what exporter type to use
-            HCDataExportExporter exporter = new HCDataExportExporterCSV();
 
             var headers = data.Query.IncludedProperties;
             var headerNameOverrides = data.Query.HeaderNameOverrides ?? new();

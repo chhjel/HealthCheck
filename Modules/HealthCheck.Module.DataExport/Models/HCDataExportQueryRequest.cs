@@ -46,5 +46,10 @@ namespace HealthCheck.Module.DataExport.Models
         /// <para>Only used for export.</para>
         /// </summary>
         public Dictionary<string, string> HeaderNameOverrides { get; set; }
+
+        /// <summary>
+        /// Id of exporter to use.
+        /// </summary>
+        public string ExporterId { get; set; }
     }
 }

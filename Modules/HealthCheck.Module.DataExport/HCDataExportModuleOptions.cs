@@ -1,4 +1,6 @@
 ﻿using HealthCheck.Module.DataExport.Abstractions;
+using System.Collections.Generic;
+using static HealthCheck.Module.DataExport.HCDataExportModule;
 
 namespace HealthCheck.Module.DataExport
 {
@@ -21,5 +23,14 @@ namespace HealthCheck.Module.DataExport
         /// Service that handles preset storage.
         /// </summary>
         public IHCDataExportPresetStorage PresetStorage { get; set; }
+
+        /// <summary>
+        /// Available exporters.
+        /// <para>Defaults to <see cref="HCDataExportExporterCSV"/> only.</para>
+        /// </summary>
+        public IEnumerable<HCDataExportExporter> Exporters { get; set; } = new[]
+        {
+            new HCDataExportExporterCSV()
+        };
     }
 }

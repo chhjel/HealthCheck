@@ -3,9 +3,11 @@
 //     the code is regenerated.
 
 import { HCDataExportStreamViewModel } from './HCDataExportStreamViewModel';
+import { HCDataExportExporterViewModel } from './HCDataExportExporterViewModel';
 
 export interface HCGetDataExportStreamDefinitionsViewModel
 {
 	SupportsStorage: boolean;
 	Streams: HCDataExportStreamViewModel[];
+	Exporters: HCDataExportExporterViewModel[];
 }

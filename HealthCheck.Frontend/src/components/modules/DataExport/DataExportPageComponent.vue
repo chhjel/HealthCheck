@@ -65,18 +65,22 @@
                                 </div>
                             
                                 <div class="data-export-actions">
-                                    <v-btn :disabled="isLoading" @click="loadCurrentStreamItems(true)" v-if="showExecuteQuery">
-                                        <v-icon size="20px" class="mr-2">search</v-icon>Execute query
-                                    </v-btn>
                                     <v-btn :disabled="isLoading" v-if="hasAccessToQueryPreset" @click="onLoadPresetsClicked">
                                         <v-icon size="20px" class="mr-2">file_upload</v-icon>Load preset..
                                     </v-btn>
                                     <v-btn :disabled="isLoading" v-if="hasAccessToSavePreset" @click="onSavePresetClicked">
                                         <v-icon size="20px" class="mr-2">save_alt</v-icon>Save preset..
                                     </v-btn>
-                                    <v-btn :disabled="isLoading" v-if="showExport" @click="onExportClicked"
+                                    <v-btn :disabled="isLoading" v-if="showExport" @click="onShowColumnTitlesClicked"
                                         :loading="exportLoadStatus.inProgress">
-                                        <v-icon size="20px" class="mr-2">file_download</v-icon>Export
+                                        <v-icon size="20px" class="mr-2">title</v-icon>Column titles..
+                                    </v-btn>
+                                    <v-btn :disabled="isLoading" v-if="showExport" @click="onShowExportDialogClicked"
+                                        :loading="exportLoadStatus.inProgress">
+                                        <v-icon size="20px" class="mr-2">file_download</v-icon>Export..
+                                    </v-btn>
+                                    <v-btn :disabled="isLoading" @click="loadCurrentStreamItems(true)" v-if="showExecuteQuery">
+                                        <v-icon size="20px" class="mr-2">search</v-icon>Execute query
                                     </v-btn>
                                 </div>
 
@@ -203,6 +207,14 @@
 
                     <h4 class="mt-2">Included properties</h4>
                     <code>{{ includedProperties }}</code>
+                    
+                    <div v-if="headerNameOverrides && Object.keys(headerNameOverrides).length > 0">
+                        <h4 class="mt-2">Column title overrides</h4>
+                        <div v-for="(headerOverride, hIndex) in Object.keys(headerNameOverrides)"
+                            :key="`header-override-preview-${hIndex}`">
+                            <code>{{ headerOverride }}</code> =&gt; <code>{{ headerNameOverrides[headerOverride] }}</code>
+                        </div>
+                    </div>
                 </v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions>
@@ -215,6 +227,70 @@
                         :disabled="dataLoadStatus.inProgress"
                         :loading="dataLoadStatus.inProgress"
                         @click="onSavePresetConfirmClicked()">Save</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog v-model="exportDialogVisible"
+            @keydown.esc="exportDialogVisible = false"
+            max-width="320"
+            content-class="confirm-dialog"
+            :persistent="exportLoadStatus.inProgress">
+            <v-card>
+                <v-card-title class="headline">Select export format</v-card-title>
+                <v-card-text>
+                    <div>
+                        <ul>
+                            <div v-for="(exporter, eIndex) in exporters"
+                                :key="`item-d-${exporter.Id}-export-${eIndex}`">
+                                <v-btn color="primary"
+                                    :disabled="isLoading"
+                                    :loading="exportLoadStatus.inProgress"
+                                    @click="onExportClicked(exporter.Id)">
+                                    <v-icon size="20px" class="mr-2">file_download</v-icon>{{ exporter.Name }}
+                                </v-btn>
+                            </div>
+                        </ul>
+                    </div>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary"
+                        :disabled="exportLoadStatus.inProgress"
+                        :loading="exportLoadStatus.inProgress"
+                        @click="exportDialogVisible = false">Cancel</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog v-model="columnTitlesDialogVisible"
+            @keydown.esc="columnTitlesDialogVisible = false"
+            max-width="460"
+            content-class="confirm-dialog">
+            <v-card>
+                <v-card-title class="headline">Customize column titles</v-card-title>
+                <v-card-text>
+                    <div>
+                        <div v-if="!headers || Object.keys(headers).length == 0">
+                            <b>No columns yet, perform a query first.</b>
+                        </div>
+                        <ul>
+                            <div v-for="(header, hIndex) in headers"
+                                :key="`item-header-override-${hIndex}`">
+                                <code>{{ header }}</code>
+                                <v-text-field
+                                    v-model="headerNameOverrides[header]"
+                                    :placeholder="header" />
+                            </div>
+                        </ul>
+                    </div>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary"
+                        :disabled="dataLoadStatus.inProgress"
+                        :loading="dataLoadStatus.inProgress"
+                        @click="columnTitlesDialogVisible = false">Close</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -243,6 +319,7 @@ import EditorComponent from "components/Common/EditorComponent.vue";
 import { HCDataExportStreamItemDefinitionMemberViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamItemDefinitionMemberViewModel";
 import { HCDataExportStreamQueryPresetViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamQueryPresetViewModel";
 import { HCDataExportQueryRequest } from "generated/Models/Module/DataExport/HCDataExportQueryRequest";
+import { HCDataExportExporterViewModel } from "generated/Models/Module/DataExport/HCDataExportExporterViewModel";
 
 @Component({
     components: {
@@ -266,6 +343,7 @@ export default class DataRepeaterPageComponent extends Vue {
     exportLoadStatus: FetchStatus = new FetchStatus();
 
     streamDefinitions: HCGetDataExportStreamDefinitionsViewModel | null = null;
+    exporters: Array<HCDataExportExporterViewModel> = [];
     selectedStream: HCDataExportStreamViewModel | null = null;
     selectedItemId: string | null = null;
     items: Array<any> = [];
@@ -284,6 +362,8 @@ export default class DataRepeaterPageComponent extends Vue {
     loadPresetDialogVisible: boolean = false;
     savePresetDialogVisible: boolean = false;
     presets: Array<HCDataExportStreamQueryPresetViewModel> = [];
+    exportDialogVisible: boolean = false;
+    columnTitlesDialogVisible: boolean = false;
 
     // Filter/pagination
     pageIndex: number = 0;
@@ -333,7 +413,9 @@ export default class DataRepeaterPageComponent extends Vue {
     }
 
     get hasAccessToQueryPreset(): boolean {
-        return this.hasAccess('QueryPreset') && this.streamDefinitions?.SupportsStorage == true;
+        return this.hasAccess('QueryPreset') 
+            && this.streamDefinitions?.SupportsStorage == true
+            && this.hasAccessToLoadPreset;
     }
 
     get hasAccessToSavePreset(): boolean {
@@ -358,7 +440,8 @@ export default class DataRepeaterPageComponent extends Vue {
 
     get showExport(): boolean {
         return this.hasAccessToExport 
-            && (this.selectedPresetId != null || this.hasAccessToQueryCustom);
+            && (this.selectedPresetId != null || this.hasAccessToQueryCustom)
+            && this.exporters.length > 0;
     }
 
     get showQuery(): boolean {
@@ -430,6 +513,9 @@ export default class DataRepeaterPageComponent extends Vue {
         this.pageSize = 50;
         this.queryInput = '';
         this.includedProperties = [];
+        this.selectedPresetId = null;
+        this.headers = [];
+        this.headerNameOverrides = {};
     }
 
     loadStreamDefinitions(): void {
@@ -444,6 +530,7 @@ export default class DataRepeaterPageComponent extends Vue {
         const idFromHash = this.$route.params.streamId;
         if (this.streamDefinitions)
         {
+            this.exporters = this.streamDefinitions.Exporters;
             const matchingStream = this.streamDefinitions.Streams.filter(x => this.hash(x.Id) == idFromHash)[0];
             if (matchingStream) {
                 this.setActiveStream(matchingStream, false);
@@ -491,6 +578,13 @@ export default class DataRepeaterPageComponent extends Vue {
         {
             this.$router.push(`/dataExport/${this.hash(stream.Id)}`);
         }
+
+        this.$nextTick(() => {
+            if (!this.hasAccessToQueryCustom && this.hasAccessToQueryPreset && !this.loadPresetDialogVisible)
+            {
+                this.onLoadPresetsClicked();
+            }
+        });
     }
 
     getHeaderName(name: string): string {
@@ -572,11 +666,6 @@ export default class DataRepeaterPageComponent extends Vue {
             this.pageIndex = 0;
         }
 
-        if (this.includedProperties.length == 0)
-        {
-            this.includedProperties = this.availableProperties.filter(x => !this.availableProperties.some(a => a.startsWith(`${x}.`)));
-        }
-        
         this.lastQueriedProperties = this.includedProperties;
 
         this.service.QueryStreamPaged(this.createQueryPayload(), this.dataLoadStatus, {
@@ -589,7 +678,20 @@ export default class DataRepeaterPageComponent extends Vue {
         })
     }
 
-    createQueryPayload(): HCDataExportQueryRequest {
+    createQueryPayload(exporterId: string | null = null): HCDataExportQueryRequest {
+        if (this.includedProperties.length == 0)
+        {
+            this.includedProperties = this.availableProperties.filter(x => !this.availableProperties.some(a => a.startsWith(`${x}.`)));
+        }
+
+        this.includedProperties.forEach(x => {
+            if (!this.headers.includes(x))
+            {
+                this.headers.push(x);
+            }
+        });
+        this.headers = this.headers.filter(x => this.includedProperties.includes(x));
+
         return {
             StreamId: this.selectedStream?.Id || '',
             PageIndex: this.pageIndex,
@@ -597,7 +699,8 @@ export default class DataRepeaterPageComponent extends Vue {
             Query: this.hasAccessToQueryCustom ? this.queryInput : '',
             IncludedProperties: this.hasAccessToQueryCustom ? this.headers : [],
             PresetId: this.hasAccessToQueryCustom ? undefined : (this.selectedPresetId || undefined),
-            HeaderNameOverrides: this.hasAccessToQueryCustom ? this.headerNameOverrides : {}
+            HeaderNameOverrides: this.hasAccessToQueryCustom ? this.headerNameOverrides : {},
+            ExporterId: exporterId || ''
         };
     }
 
@@ -607,14 +710,6 @@ export default class DataRepeaterPageComponent extends Vue {
 
         this.queryError = data.ErrorMessage;
         this.queryErrorDetails = data.ErrorDetails;
-
-        this.includedProperties.forEach(x => {
-            if (!this.headers.includes(x))
-            {
-                this.headers.push(x);
-            }
-        });
-        this.headers = this.headers.filter(x => this.includedProperties.includes(x));
     }
 
     onFilterChanged(loadData: boolean, resetPageIndex: boolean): void {
@@ -658,7 +753,8 @@ export default class DataRepeaterPageComponent extends Vue {
             q: this.queryInput,
             pId: this.selectedPresetId,
             incProp: this.includedProperties,
-            headers: this.headers
+            headers: this.headers,
+            headerOverrides: this.headerNameOverrides
         };
     }
 
@@ -670,6 +766,7 @@ export default class DataRepeaterPageComponent extends Vue {
         this.selectedPresetId =  this.filterCache[streamId].pId || null;
         this.includedProperties =  this.filterCache[streamId].incProp || [];
         this.headers =  this.filterCache[streamId].headers || [];
+        this.headerNameOverrides =  this.filterCache[streamId].headerOverrides || {};
 
         return true;
     }
@@ -726,17 +823,26 @@ export default class DataRepeaterPageComponent extends Vue {
         this.savePreset(this.newPresetName, null);
     }
 
-    onExportClicked(): void {
-        this.service.PrepareExport(this.createQueryPayload(), this.exportLoadStatus,
+    onShowExportDialogClicked(): void {
+        this.exportDialogVisible = true;
+    }
+
+    onExportClicked(exporterId: string): void {
+        this.service.PrepareExport(this.createQueryPayload(exporterId), this.exportLoadStatus,
         {
             onSuccess: (key) => {
                 if (key)
                 {
                     const url = this.service.CreateExportDownloadUrl(this.globalOptions.EndpointBase, key);
                     window.open(url, '_blank');
+                    this.exportDialogVisible = false;
                 }
             }
         });
+    }
+
+    onShowColumnTitlesClicked(): void {
+        this.columnTitlesDialogVisible = true;
     }
 }
 </script>
