@@ -19,8 +19,9 @@ Available modules:
 * Endpoint Control module to set request limits for decorated endpoints, as well as viewing some request statistics.
 * Overview module where registed events that can be shown in a status interface, e.g. showing the stability of integrations.
 * Audit module where actions from other modules are logged.
-* Datarepeater module that can store and retry sending/recieving data with modifications.
-* Dataflow module that can show filtered custom data. For e.g. previewing the latest imported/exported data.
+* Data repeater module that can store and retry sending/recieving data with modifications.
+* Data flow module that can show filtered custom data. For e.g. previewing the latest imported/exported data.
+* Data exporter module that can filter and export data.
 * Event notifications module for notifying through custom implementations when custom events occur.
 * Settings module for custom settings related to healthcheck.
 * IDE where C# scripts can be stored and executed in the context of the web application.
@@ -918,6 +919,65 @@ public class ExampleDataRepeaterStreamItemActionToggleAllow : HCDataRepeaterStre
 </p>
 </details>
 
+
+---------
+
+## Module: DataExport
+
+The module allows for filtering and exporting data from given IQueryables.
+
+A default implementation `HCDataExportService` is provided that picks up any registered `IHCDataExportStream` streams.
+
+### Setup
+
+```csharp
+// Register your streams and service
+services.AddSingleton<IHCDataExportStream, MyDataExportStreamA>();
+services.AddSingleton<IHCDataExportStream, MyDataExportStreamB>();
+services.AddSingleton<IHCDataExportService, HCDataExportService>();
+// Optionally register a preset storage if you want preset save/load functionality enabled
+services.AddSingleton<IHCDataExportPresetStorage>(x => new HCFlatFileDataExportPresetStorage(@"your\location\HCDataExportPresets.json"));
+```
+
+```csharp
+// Use module in hc controller
+UseModule(new HCDataExportModule(new HCDataExportModuleOptions
+{
+    Service = dataExportService,
+    // Optionally provide preset storage if needed
+    PresetStorage = dataExportPresetStorage
+    // Optionally configure exporters, by default a CSV exporter is configured
+    // Exporters = ..
+}));
+```
+
+<details><summary>Example stream</summary>
+<p>
+
+```csharp
+public class MyDataExportStreamA : HCDataExportStreamBase<MyModel>
+{
+    public override string StreamDisplayName => "My stream";
+    public override string StreamDescription => "Some optional description of the stream.";
+    // Number of items to export fetch per batch during export
+    public override int ExportBatchSize => 500;
+    
+    // Optional stream group name
+    // public override string StreamGroupName => null;
+    // Optional stream access
+    // public override object AllowedAccessRoles => RuntimeTestAccessRole.WebAdmins;
+    // Optional stream categories
+    // public override List<string> Categories => null;
+
+    // Get queryable
+    protected override Task<IQueryable<MyModel>> GetQueryableItemsAsync()
+        => await _someService.GetItems().AsQueryable();
+}
+```
+
+</p>
+</details>
+
 ---------
 
 ## Module: Dataflow
@@ -1729,6 +1789,9 @@ Cache can optionally be set to null in constructor if not wanted, or the include
     context.Services.AddSingleton<IDataflowService<AccessRoles>, DefaultDataflowService<AccessRoles>>();
     // Site events (defaults to storing the last 1000 events/30 days)
     context.Services.AddSingleton<ISiteEventStorage, HCEpiserverBlobSiteEventStorage>();
+
+    // DataExport
+    context.Services.AddSingleton<IHCDataExportPresetStorage, HCEpiserverBlobDataExportPresetStorage>();
 
     // DataRepeater
     // Example setup:

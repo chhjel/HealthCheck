@@ -21,13 +21,13 @@ namespace HealthCheck.Module.DataExport.Abstractions
         public abstract string StreamDescription { get; }
 
         /// <inheritdoc />
-        public abstract string StreamGroupName { get; }
+        public virtual string StreamGroupName { get; }
 
         /// <inheritdoc />
-        public abstract object AllowedAccessRoles { get; }
+        public virtual object AllowedAccessRoles { get; }
 
         /// <inheritdoc />
-        public abstract List<string> Categories { get; }
+        public virtual List<string> Categories { get; }
 
         /// <inheritdoc />
         public abstract int ExportBatchSize { get; }
