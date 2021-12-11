@@ -36,7 +36,13 @@
                                 <p v-if="selectedStream.Description" v-html="selectedStream.Description"></p>
 
                                 <div class="data-export-filters" v-if="showQuery">
-                                    <b>{{ queryTitle }}</b>
+                                    <div style="display: flex; width: 100%">
+                                        <b>{{ queryTitle }}</b>
+                                        <v-spacer></v-spacer>
+                                        <a href="#" v-if="hasAccessToQueryCustom" style="font-size: 13px;"
+                                            @click.prevent="onQueryHelpClicked">Query help</a>
+                                    </div>
+
                                     <editor-component
                                         class="editor mb-2"
                                         :language="'csharp'"
@@ -295,6 +301,43 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+        <v-dialog v-model="queryHelpDialogVisible"
+            @keydown.esc="queryHelpDialogVisible = false"
+            max-width="720"
+            content-class="confirm-dialog">
+            <v-card>
+                <v-card-title class="headline">Query help</v-card-title>
+                <v-card-text>
+                    <div>
+                        <p>
+                            The query is using LINQ with a few shortcuts.
+                            E.g. instead of <code>&amp;&amp;</code> or <code>||</code> you can use <code>and</code> or <code>or</code>.
+                        </p>
+
+                        <h4>Simple predicates</h4>
+                        <code>Name == \"Jimmy\" &amp;&amp; Age > 50</code><br />
+                        <code>(Name == \"Jimmy\" and Age > 50) or Name == "Smithy"</code>
+
+                        <h4 class="mt-2">Methods</h4>
+                        <p class="mb-0">The usual LINQ methods can be used, e.g. ToString(), StartsWith() etc.</p>
+                        <code>SomeNumber.ToString().StartsWith("8")</code>
+
+                        <h4 class="mt-2">Dates</h4>
+                        <p class="mb-0">If there's a date property available it can be compared to DateTime.Now to e.g. get the last weeks data:</p>
+                        <code>Created &gt; DateTime.Now.AddDays(-7)</code>
+
+                        <h4 class="mt-2">Null Propagation</h4>
+                        <p class="mb-0">To filter on properties that can be null, use <code>np()</code> instead of <code>?.</code></p>
+                        <code>np(Address.City) == \"DevTown\"</code>
+                    </div>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary" @click="queryHelpDialogVisible = false">Close</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -365,6 +408,7 @@ export default class DataRepeaterPageComponent extends Vue {
     presets: Array<HCDataExportStreamQueryPresetViewModel> = [];
     exportDialogVisible: boolean = false;
     columnTitlesDialogVisible: boolean = false;
+    queryHelpDialogVisible: boolean = false;
 
     // Filter/pagination
     pageIndex: number = 0;
@@ -848,6 +892,10 @@ export default class DataRepeaterPageComponent extends Vue {
 
     onShowColumnTitlesClicked(): void {
         this.columnTitlesDialogVisible = true;
+    }
+
+    onQueryHelpClicked(): void {
+        this.queryHelpDialogVisible = true;
     }
 }
 </script>
