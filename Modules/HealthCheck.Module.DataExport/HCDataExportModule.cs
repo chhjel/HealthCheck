@@ -277,7 +277,7 @@ namespace HealthCheck.Module.DataExport
 
             // Store audit data
             var streamName = data.Query.StreamId;
-            if (streamName.Contains("."))
+            if (streamName.Contains('.'))
             {
                 streamName = streamName.Substring(streamName.LastIndexOf(".") + 1);
             }
@@ -298,7 +298,7 @@ namespace HealthCheck.Module.DataExport
         #endregion
 
         #region Helpers
-        private async Task<string> CreateExportContentAsync(AllowedExportData data, HCDataExportExporter exporter, int exportBatchSize)
+        private async Task<string> CreateExportContentAsync(AllowedExportData data, IHCDataExportExporter exporter, int exportBatchSize)
         {
             var model = data.Query;
             model.PageIndex = 0;
@@ -332,88 +332,7 @@ namespace HealthCheck.Module.DataExport
             return exporter.GetContents();
         }
 
-        /// <summary>
-        /// Outputs CSV.
-        /// </summary>
-        public class HCDataExportExporterCSV : HCDataExportExporter
-        {
-            /// <inheritdoc />
-            public string DisplayName => "CSV";
-
-            /// <inheritdoc />
-            public string FileExtension => ".txt";
-
-            /// <summary>
-            /// Delimiter to separate values with.
-            /// </summary>
-            public string Delimiter { get; set; } = ";";
-
-            private readonly StringBuilder _builder = new();
-
-            /// <inheritdoc />
-            public void SetHeaders(List<string> headers)
-            {
-                _builder.AppendLine(CreateLine(headers));
-            }
-
-            /// <inheritdoc />
-            public void AppendItem(Dictionary<string, object> item, List<string> order)
-            {
-                var parts = order.Select(x => item[x]?.ToString());
-                var line = CreateLine(parts);
-                _builder.AppendLine(line);
-            }
-
-            /// <inheritdoc />
-            public string GetContents() => _builder.ToString();
-
-            private string CreateLine(IEnumerable<string> parts)
-                => string.Join(Delimiter, parts.Select(x => PrepareValue(x)));
-
-            private string PrepareValue(string value)
-            {
-                if (value == null) return "";
-                if (value.Contains(Delimiter))
-                {
-                    var escaped = value.Replace("\"", "\"\"");
-                    return $"\"{escaped}\"";
-                }
-                return value;
-            }
-        }
-
-        /// <summary>
-        /// Type of output data to be exported.
-        /// </summary>
-        public interface HCDataExportExporter
-        {
-            /// <summary>
-            /// Name shown in the UI.
-            /// </summary>
-            string DisplayName { get; }
-
-            /// <summary>
-            /// Extension used for filename.
-            /// </summary>
-            string FileExtension { get; }
-
-            /// <summary>
-            /// Sets the headers for this data.
-            /// </summary>
-            void SetHeaders(List<string> headers);
-
-            /// <summary>
-            /// Append a new item to be exported.
-            /// </summary>
-            void AppendItem(Dictionary<string, object> item, List<string> order);
-
-            /// <summary>
-            /// Get current contents.
-            /// </summary>
-            string GetContents();
-        }
-
-        private string CreateExportErrorHtml(string error)
+        private static string CreateExportErrorHtml(string error)
         {
             var Q = "\"";
             var noIndexMeta = $"<meta name={Q}robots{Q} content={Q}noindex{Q}>";

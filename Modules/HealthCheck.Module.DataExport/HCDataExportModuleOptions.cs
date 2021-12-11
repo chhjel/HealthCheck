@@ -1,6 +1,6 @@
 ﻿using HealthCheck.Module.DataExport.Abstractions;
+using HealthCheck.Module.DataExport.Exporters;
 using System.Collections.Generic;
-using static HealthCheck.Module.DataExport.HCDataExportModule;
 
 namespace HealthCheck.Module.DataExport
 {
@@ -28,7 +28,7 @@ namespace HealthCheck.Module.DataExport
         /// Available exporters.
         /// <para>Defaults to <see cref="HCDataExportExporterCSV"/> only.</para>
         /// </summary>
-        public IEnumerable<HCDataExportExporter> Exporters { get; set; } = new[]
+        public IEnumerable<IHCDataExportExporter> Exporters { get; set; } = new[]
         {
             new HCDataExportExporterCSV()
         };

@@ -79,7 +79,8 @@
                                         :loading="exportLoadStatus.inProgress">
                                         <v-icon size="20px" class="mr-2">file_download</v-icon>Export..
                                     </v-btn>
-                                    <v-btn :disabled="isLoading" @click="loadCurrentStreamItems(true)" v-if="showExecuteQuery">
+                                    <v-btn :disabled="isLoading" @click="loadCurrentStreamItems(true)" v-if="showExecuteQuery"
+                                        color="primary">
                                         <v-icon size="20px" class="mr-2">search</v-icon>Execute query
                                     </v-btn>
                                 </div>
