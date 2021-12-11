@@ -580,8 +580,12 @@ export default class DataRepeaterPageComponent extends Vue {
             this.$router.push(`/dataExport/${this.hash(stream.Id)}`);
         }
 
+        // Show preset selection dialog if no preset selected and no access to custom query
         this.$nextTick(() => {
-            if (!this.hasAccessToQueryCustom && this.hasAccessToQueryPreset && !this.loadPresetDialogVisible)
+            if (!this.hasAccessToQueryCustom
+                && this.hasAccessToQueryPreset
+                && !this.loadPresetDialogVisible
+                && this.selectedPresetId == null)
             {
                 this.onLoadPresetsClicked();
             }
