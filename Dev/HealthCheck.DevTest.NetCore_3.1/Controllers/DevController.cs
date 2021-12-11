@@ -419,6 +419,12 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                     developerDetails: "Hmm this is probably why.",
                     config: x => x.AddRelatedLink("Status page", "https://status.otherapi.com"));
             }
+            if (request.Query.ContainsKey("siteEvent3"))
+            {
+                HCSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Error, "api_AB_error", "Oh no! API AB is broken!", "How could this happen to us!?",
+                    developerDetails: "Hmm this is probably why.",
+                    config: x => x.AddRelatedLink("Status page", "https://status.otherapi.com").SetMinimumDurationRequiredToDisplay(2));
+            }
             if (request.Query.ContainsKey("siteEvent2"))
             {
                 var now = DateTime.Now;

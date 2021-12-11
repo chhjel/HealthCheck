@@ -68,7 +68,7 @@ namespace HealthCheck.Module.DataExport.Services
                 return new HCDataExportQueryResponse();
             }
 
-            var queryable = await stream.GetQueryableAsync() as IQueryable;
+            var queryable = await stream.GetQueryableAsync();
             var matches = queryable
                 .Where(request.Query)
                 .Cast<object>()

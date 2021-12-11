@@ -96,6 +96,12 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
                 existingEvent.Description = newEvent.Description;
             }
 
+            // Update min duration
+            if (newEvent.MinimumDurationRequiredToDisplay != null)
+            {
+                existingEvent.MinimumDurationRequiredToDisplay = newEvent.MinimumDurationRequiredToDisplay;
+            }
+
             // Add any new related links
             if (newEvent.RelatedLinks != null && newEvent.RelatedLinks.Count > 0)
             {

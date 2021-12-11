@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Module.DataExport.Abstractions
@@ -43,9 +44,8 @@ namespace HealthCheck.Module.DataExport.Abstractions
 
         /// <summary>
         /// Get items to be filtered and exported.
-        /// <para>Must return an IQueryable{T} </para>
         /// </summary>
-        Task<object> GetQueryableAsync();
+        Task<IQueryable> GetQueryableAsync();
 
         /// <summary>
         /// Number of items to fetch per batch when exporting.

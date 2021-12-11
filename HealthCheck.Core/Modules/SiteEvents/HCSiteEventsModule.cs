@@ -66,7 +66,7 @@ namespace HealthCheck.Core.Modules.SiteEvents
 
         #region Invokable methods
         /// <summary>
-        /// Get all available tests for the current request.
+        /// Get all events within the given period.
         /// </summary>
         [HealthCheckModuleMethod]
         public async Task<List<SiteEventViewModel>> GetSiteEvents(HealthCheckModuleContext context, GetSiteEventsRequestModel model)
@@ -75,7 +75,9 @@ namespace HealthCheck.Core.Modules.SiteEvents
             model.From ??= DateTimeOffset.Now.AddDays(-30);
             model.To ??= DateTimeOffset.Now;
 
-            var viewModel = (await Options.SiteEventService.GetEvents(model.From.Value, model.To.Value))
+            var events = await Options.SiteEventService.GetEvents(model.From.Value, model.To.Value);
+            var viewModel = events
+                .Where(x => x.MinimumDurationRequiredToDisplay == null || x.Duration >= x.MinimumDurationRequiredToDisplay)
                 .Select(x => SiteEventViewModelsFactory.CreateViewModel(x, includeDeveloperDetails))
                 .ToList();
             return viewModel;

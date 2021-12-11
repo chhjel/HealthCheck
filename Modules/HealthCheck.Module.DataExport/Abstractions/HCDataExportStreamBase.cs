@@ -33,11 +33,8 @@ namespace HealthCheck.Module.DataExport.Abstractions
         public abstract int ExportBatchSize { get; }
 
         /// <inheritdoc />
-        public virtual async Task<object> GetQueryableAsync()
-        {
-            var queryable = await GetQueryableItemsAsync();
-            return queryable;
-        }
+        public virtual async Task<IQueryable> GetQueryableAsync()
+            => await GetQueryableItemsAsync();
 
         /// <summary>
         /// Get items to be filtered and exported.

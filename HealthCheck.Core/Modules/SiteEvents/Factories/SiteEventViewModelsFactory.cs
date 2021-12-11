@@ -22,6 +22,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Factories
                 Title = siteEvent.Title,
                 Description = siteEvent.Description,
                 Duration = siteEvent.Duration,
+                MinimumDurationRequiredToDisplay = siteEvent.MinimumDurationRequiredToDisplay,
                 EventTypeId = siteEvent.EventTypeId,
                 Timestamp = siteEvent.Timestamp,
                 EndTime = siteEvent.Timestamp.AddMinutes(siteEvent.Duration),

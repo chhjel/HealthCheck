@@ -77,5 +77,10 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
         /// Resolved at timestamp.
         /// </summary>
         public DateTimeOffset? ResolvedAt { get; set; }
+
+        /// <summary>
+        /// Optional minimum duration required for the item to be displayed in the UI.
+        /// </summary>
+        public int? MinimumDurationRequiredToDisplay { get; set; }
     }
 }

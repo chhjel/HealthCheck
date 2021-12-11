@@ -47,6 +47,11 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
         public int Duration { get; set; }
 
         /// <summary>
+        /// Optional minimum duration required for the item to be displayed in the UI.
+        /// </summary>
+        public int? MinimumDurationRequiredToDisplay { get; set; }
+
+        /// <summary>
         /// Any urls to related things.
         /// </summary>
         public List<HyperLink> RelatedLinks { get; set; } = new List<HyperLink>();
@@ -137,6 +142,16 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
         }
 
         /// <summary>
+        /// Optional minimum duration required for the item to be displayed in the UI.
+        /// <para>Duration is in minutes.</para>
+        /// </summary>
+        public SiteEvent SetMinimumDurationRequiredToDisplay(int? duration)
+        {
+            MinimumDurationRequiredToDisplay = duration;
+            return this;
+        }
+
+        /// <summary>
         /// Updates the last event with the matching <see cref="EventTypeId"/> if any to resolved with the given message.
         /// </summary>
         public void SetResolved(string message)
@@ -162,6 +177,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Models
             Duration = other.Duration;
             AllowMerge = other.AllowMerge;
             RelatedLinks = other.RelatedLinks;
+            MinimumDurationRequiredToDisplay = other.MinimumDurationRequiredToDisplay;
         }
 
         /// <summary>
