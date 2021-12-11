@@ -18,6 +18,8 @@
                     :filterKeys="[ 'Name', 'Description' ]"
                     :loading="metadataLoadStatus.inProgress"
                     :disabled="isLoading"
+                    :showFilter="false"
+                    :groupIfSingleGroup="false"
                     ref="filterableList"
                     v-on:itemClicked="onMenuItemClicked"
                     @itemMiddleClicked="onMenuItemMiddleClicked"
@@ -67,7 +69,7 @@
                                         ></v-combobox>
                                 </div>
 
-                                <v-btn @click="loadCurrentStreamItems" :disabled="isLoading" class="right">
+                                <v-btn @click="loadCurrentStreamItems(true)" :disabled="isLoading" class="right">
                                     <v-icon size="20px" class="mr-2">refresh</v-icon>Refresh
                                 </v-btn>
 
@@ -75,6 +77,7 @@
                                     :count="totalResultCount"
                                     :pageSize="pageSize"
                                     v-model="pageIndex"
+                                    @change="onPageIndexChanged"
                                     :asIndex="true"
                                     class="mb-2 mt-2"
                                     />
@@ -129,6 +132,7 @@
                                     :count="totalResultCount"
                                     :pageSize="pageSize"
                                     v-model="pageIndex"
+                                    @change="onPageIndexChanged"
                                     :asIndex="true"
                                     class="mb-2 mt-2"
                                     />
@@ -344,7 +348,7 @@ export default class DataRepeaterPageComponent extends Vue {
         } else {
             this.applyFilterFromUrl();
         }
-        this.loadCurrentStreamItems();
+        this.loadCurrentStreamItems(true);
 
         if (updateUrl && this.$route.params.streamId != this.hash(stream.Id))
         {
@@ -354,8 +358,14 @@ export default class DataRepeaterPageComponent extends Vue {
 
     hash(input: string) { return HashUtils.md5(input); }
 
-    loadCurrentStreamItems(): void {
+    loadCurrentStreamItems(resetPageIndex: boolean): void {
         if (!this.selectedStream) return;
+
+        this.updateUrlFromFilter();
+        if (resetPageIndex)
+        {
+            this.pageIndex = 0;
+        }
 
         this.service.GetStreamItemsPaged({
             StreamId: this.selectedStream.Id,
@@ -384,7 +394,7 @@ export default class DataRepeaterPageComponent extends Vue {
 
     onFilterChanged(): void {
         this.updateUrlFromFilter();
-        this.loadCurrentStreamItems();
+        this.loadCurrentStreamItems(true);
     }
 
     updateUrlFromFilter(): void {
@@ -559,9 +569,9 @@ export default class DataRepeaterPageComponent extends Vue {
         }
     }
 
-    @Watch("pageIndex")
+    // @Watch("pageIndex")
     onPageIndexChanged(): void {
-        this.loadCurrentStreamItems();
+        this.loadCurrentStreamItems(false);
     }
 
     onRouteChanged(to: Route, from: Route): void {

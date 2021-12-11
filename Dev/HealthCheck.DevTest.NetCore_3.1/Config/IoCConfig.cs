@@ -20,10 +20,14 @@ using HealthCheck.Core.Modules.Settings.Services;
 using HealthCheck.Core.Modules.SiteEvents.Abstractions;
 using HealthCheck.Core.Modules.SiteEvents.Services;
 using HealthCheck.Dev.Common;
+using HealthCheck.Dev.Common.DataExport;
 using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.DataRepeater;
 using HealthCheck.Dev.Common.EventNotifier;
 using HealthCheck.Dev.Common.Settings;
+using HealthCheck.Module.DataExport.Abstractions;
+using HealthCheck.Module.DataExport.Services;
+using HealthCheck.Module.DataExport.Storage;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Services;
 using HealthCheck.Module.EndpointControl.Storage;
@@ -48,9 +52,16 @@ namespace HealthCheck.DevTest.NetCore_3._1.Config
             services.AddSingleton<IEndpointControlRequestHistoryStorage>((x) => new FlatFileEndpointControlRequestHistoryStorage(GetFilePath(@"App_Data\ec_history.json", env)));
             services.AddSingleton<IEndpointControlService, DefaultEndpointControlService>();
 
+            // Data Repeater
             services.AddSingleton<IHCDataRepeaterStream, TestOrderDataRepeaterStream>();
             services.AddSingleton<IHCDataRepeaterStream, TestXDataRepeaterStream>();
             services.AddSingleton<IHCDataRepeaterService, HCDataRepeaterService>();
+            // Data Export
+            services.AddSingleton<IHCDataExportStream, TestDataExportStream1>();
+            services.AddSingleton<IHCDataExportStream, TestDataExportStream2>();
+            services.AddSingleton<IHCDataExportService, HCDataExportService>();
+            services.AddSingleton<IHCDataExportPresetStorage>(x => new HCFlatFileDataExportPresetStorage(@"C:\temp\DataExportPreset.json"));
+
             services.AddSingleton(x => CreateSettingsService());
             services.AddSingleton(x => CreateSiteEventService(env));
             services.AddSingleton(x => CreateAuditEventService(env));

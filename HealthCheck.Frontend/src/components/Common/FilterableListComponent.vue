@@ -167,7 +167,7 @@ export default class FilterableListComponent extends Vue {
         let groupList: Array<FilterableListGroup> = [];
         if (this.groupByKey.length == 0) return groupList;
 
-        LinqUtils.GroupByInto(this.items, (x: any) => x.data[this.groupByKey], 
+        LinqUtils.GroupByInto(this.items, (x: any) => x.data[this.groupByKey] || 'Other', 
             (key, items) => groupList.push({
                 title: key,
                 items: items

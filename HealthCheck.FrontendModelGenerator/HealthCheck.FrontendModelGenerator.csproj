@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HealthCheck.WebUI\HealthCheck.WebUI.csproj" />
+    <ProjectReference Include="..\Modules\HealthCheck.Module.DataExport\HealthCheck.Module.DataExport.csproj" />
     <ProjectReference Include="..\Modules\HealthCheck.Module.DynamicCodeExecution\HealthCheck.Module.DynamicCodeExecution.csproj" />
     <ProjectReference Include="..\Modules\HealthCheck.Module.EndpointControl\HealthCheck.Module.EndpointControl.csproj" />
   </ItemGroup>
