@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Module.DataExport.Abstractions
@@ -32,13 +33,56 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// <inheritdoc />
         public abstract int ExportBatchSize { get; }
 
+        /// <summary>
+        /// Defines what method to use for querying.
+        /// <para><see cref="IHCDataExportStream.QueryMethod.Queryable"/> uses <see cref="GetQueryableItemsAsync"/></para>
+        /// <para><see cref="IHCDataExportStream.QueryMethod.Enumerable"/> uses <see cref="GetEnumerableItemsAsync"/></para>
+        /// </summary>
+        public abstract IHCDataExportStream.QueryMethod Method { get; }
+
         /// <inheritdoc />
         public virtual async Task<IQueryable> GetQueryableAsync()
             => await GetQueryableItemsAsync();
 
+        /// <inheritdoc />
+        public virtual async Task<IHCDataExportStream.EnumerableResult> GetEnumerableAsync(int pageIndex, int pageSize, string query)
+        {
+            var expression = DynamicExpressionParser.ParseLambda<TItem, bool>(new ParsingConfig(), true, query);
+            var predicate = expression.Compile();
+            var result = await GetEnumerableItemsAsync(pageIndex, pageSize, predicate);
+            return new IHCDataExportStream.EnumerableResult
+            {
+                TotalCount = result.TotalCount,
+                PageItems = result.PageItems
+            };
+        }
+
+        /// <summary>
+        /// Result from <see cref="GetEnumerableItemsAsync"/>
+        /// </summary>
+        public class TypedEnumerableResult
+        {
+            /// <summary>
+            /// Matching items for the given page.
+            /// </summary>
+            public IEnumerable<TItem> PageItems { get; set; } = Enumerable.Empty<TItem>();
+
+            /// <summary>
+            /// Total match count.
+            /// </summary>
+            public int TotalCount { get; set; }
+        }
+
         /// <summary>
         /// Get items to be filtered and exported.
+        /// <para>Only used when <see cref="Method"/> is <see cref="IHCDataExportStream.QueryMethod.Queryable"/></para>
         /// </summary>
-        protected abstract Task<IQueryable<TItem>> GetQueryableItemsAsync();
+        protected virtual Task<IQueryable<TItem>> GetQueryableItemsAsync() => Task.FromResult(Enumerable.Empty<TItem>().AsQueryable());
+
+        /// <summary>
+        /// Get items to be filtered and exported.
+        /// <para>Only used when <see cref="Method"/> is <see cref="IHCDataExportStream.QueryMethod.Enumerable"/></para>
+        /// </summary>
+        protected virtual Task<TypedEnumerableResult> GetEnumerableItemsAsync(int pageIndex, int pageSize, Func<TItem, bool> predicate) => Task.FromResult(new TypedEnumerableResult());
     }
 }

@@ -68,18 +68,32 @@ namespace HealthCheck.Module.DataExport.Services
                 return new HCDataExportQueryResponse();
             }
 
-            var queryable = await stream.GetQueryableAsync();
-            var matches = queryable
-                .Where(request.Query)
-                .Cast<object>()
-                .ToArray();
-            var items = matches
-                .Skip(request.PageIndex * request.PageSize)
-                .Take(request.PageSize)
-                .Cast<object>()
-                .ToArray();
+            var totalCount = 0;
+            object[] pageItems = Array.Empty<object>();
 
-            var resultItems = items
+            if (stream.Method == IHCDataExportStream.QueryMethod.Queryable)
+            {
+                var queryable = await stream.GetQueryableAsync();
+                var matches = queryable
+                    .Where(request.Query)
+                    .Cast<object>()
+                    .ToArray();
+                totalCount = matches.Length;
+
+                pageItems = matches
+                    .Skip(request.PageIndex * request.PageSize)
+                    .Take(request.PageSize)
+                    .Cast<object>()
+                    .ToArray();
+            }
+            else if (stream.Method == IHCDataExportStream.QueryMethod.Enumerable)
+            {
+                var enumerableResult = await stream.GetEnumerableAsync(request.PageIndex, request.PageSize, request.Query);
+                pageItems = enumerableResult?.PageItems?.Cast<object>()?.ToArray() ?? Array.Empty<object>();
+                totalCount = enumerableResult?.TotalCount ?? 0;
+            }
+
+            var resultItems = pageItems
                 .Where(x => x != null)
                 .Select(x => CreateResultItem(x, stream.GetType().FullName, request.IncludedProperties))
                 .ToArray();
@@ -87,7 +101,7 @@ namespace HealthCheck.Module.DataExport.Services
             var result = new HCDataExportQueryResponse
             {
                 Items = resultItems,
-                TotalCount = matches.Length
+                TotalCount = totalCount
             };
             return result;
         }
