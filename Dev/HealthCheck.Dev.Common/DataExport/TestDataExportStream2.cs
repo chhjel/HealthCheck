@@ -23,7 +23,7 @@ namespace HealthCheck.Dev.Common.DataExport
                 .Select(x => new TestExportItem
                 {
                     Id = $"#{x}",
-                    Name = $"Item {x * 100}",
+                    Name = $"Item {x * 100}\nWith some newlines.\r\nAnd\tanother\n\rone\retc.",
                     Value = x
                 })
                 .Where(predicate);
