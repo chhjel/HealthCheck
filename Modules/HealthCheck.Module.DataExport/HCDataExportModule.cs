@@ -19,7 +19,7 @@ namespace HealthCheck.Module.DataExport
     {
         /// <inheritdoc />
         public override List<string> AllCategories
-            => Options?.Service?.GetStreams()?.SelectMany(x => x.Categories)?.ToList() ?? new List<string>();
+            => Options?.Service?.GetStreams()?.SelectMany(x => x.Categories ?? new())?.ToList() ?? new List<string>();
 
         private HCDataExportModuleOptions Options { get; }
         private static readonly SimpleMemoryCache _allowedExports = new() { MaxCount = 1000 };
@@ -68,22 +68,22 @@ namespace HealthCheck.Module.DataExport
             None = 0,
 
             /// <summary>Execute any custom queries.</summary>
-            QueryCustom,
+            QueryCustom = 1 << 1,
 
             /// <summary>Execute a preset query.</summary>
-            QueryPreset,
+            QueryPreset = 2 << 1,
 
             /// <summary>Save a new or overwrite an existing preset.</summary>
-            SavePreset,
+            SavePreset = 3 << 1,
 
             /// <summary>Load existing presets.</summary>
-            LoadPreset,
+            LoadPreset = 4 << 1,
 
             /// <summary>Delete existing presets.</summary>
-            DeletePreset,
+            DeletePreset = 5 << 1,
 
             /// <summary>Export data.</summary>
-            Export
+            Export = 6 << 1
         }
 
         #region Invokable methods
