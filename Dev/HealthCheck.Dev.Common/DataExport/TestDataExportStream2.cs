@@ -14,7 +14,7 @@ namespace HealthCheck.Dev.Common.DataExport
         //public override string StreamGroupName => null;
         //public override object AllowedAccessRoles => null;
         public override List<string> Categories => new List<string> { "Test category here" };
-        public override int ExportBatchSize => 500;
+        public override int ExportBatchSize => 50000;
         public override IHCDataExportStream.QueryMethod Method => IHCDataExportStream.QueryMethod.Enumerable;
 
         protected override Task<TypedEnumerableResult> GetEnumerableItemsAsync(int pageIndex, int pageSize, Func<TestExportItem, bool> predicate)

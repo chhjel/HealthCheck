@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -47,8 +48,15 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// <inheritdoc />
         public virtual async Task<IHCDataExportStream.EnumerableResult> GetEnumerableAsync(int pageIndex, int pageSize, string query)
         {
-            var expression = DynamicExpressionParser.ParseLambda<TItem, bool>(new ParsingConfig(), true, query);
-            var predicate = expression.Compile();
+            // Cache for a bit since it takes some time on every page when exporting
+            var predicate = _predicateCache.GetValue<Func<TItem, bool>>(query, null);
+            if (predicate == null)
+            {
+                var expression = DynamicExpressionParser.ParseLambda<TItem, bool>(new ParsingConfig(), true, query);
+                predicate = expression.Compile();
+                _predicateCache.SetValue(query, predicate, TimeSpan.FromMinutes(1));
+            }
+
             var result = await GetEnumerableItemsAsync(pageIndex, pageSize, predicate);
             return new IHCDataExportStream.EnumerableResult
             {
@@ -56,6 +64,7 @@ namespace HealthCheck.Module.DataExport.Abstractions
                 PageItems = result.PageItems
             };
         }
+        private static SimpleMemoryCache _predicateCache = new();
 
         /// <summary>
         /// Result from <see cref="GetEnumerableItemsAsync"/>
