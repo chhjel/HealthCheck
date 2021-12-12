@@ -61,22 +61,22 @@ namespace HealthCheck.Module.EndpointControl.Module
             /// <summary>
             /// Allows for deleting/clearing endpoint definitions.
             /// </summary>
-            EditEndpointDefinitions = 1 << 1,
+            EditEndpointDefinitions = 1,
 
             /// <summary>
             /// Allows for viewing latest incoming request details.
             /// </summary>
-            ViewLatestRequestData = 2 << 1,
+            ViewLatestRequestData = 2,
 
             /// <summary>
             /// Allows for viewing latest incoming request charts.
             /// </summary>
-            ViewRequestCharts = 3 << 1,
+            ViewRequestCharts = 4,
 
             /// <summary>
             /// Allows for disabling/enabling/editing/deleting rules.
             /// </summary>
-            EditRules = 4 << 1
+            EditRules = 8
         }
 
         #region Invokable

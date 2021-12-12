@@ -68,22 +68,22 @@ namespace HealthCheck.Module.DataExport
             None = 0,
 
             /// <summary>Execute any custom queries.</summary>
-            QueryCustom = 1 << 1,
+            QueryCustom = 1,
 
             /// <summary>Execute a preset query.</summary>
-            QueryPreset = 2 << 1,
+            QueryPreset = 2,
 
             /// <summary>Save a new or overwrite an existing preset.</summary>
-            SavePreset = 3 << 1,
+            SavePreset = 4,
 
             /// <summary>Load existing presets.</summary>
-            LoadPreset = 4 << 1,
+            LoadPreset = 8,
 
             /// <summary>Delete existing presets.</summary>
-            DeletePreset = 5 << 1,
+            DeletePreset = 16,
 
             /// <summary>Export data.</summary>
-            Export = 6 << 1
+            Export = 32
         }
 
         #region Invokable methods
