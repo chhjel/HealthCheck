@@ -178,9 +178,11 @@
                         <ul>
                             <li v-for="(preset, pIndex) in presets"
                                 :key="`item-d-${preset.Id}-preset-${pIndex}`">
-                                <a href="#" @click="applyPreset(preset)">{{ preset.Name }}</a>
+                                <a href="#" @click.prevent="onDeletePresetClicked(preset)"
+                                    class="error--text right"
+                                    v-if="hasAccessToDeletePreset">[delete]</a>
+                                <a href="#" @click.prevent="applyPreset(preset)">{{ preset.Name }}</a>
                             </li>
-                            
                         </ul>
                     </div>
                 </v-card-text>
@@ -338,6 +340,30 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+        <v-dialog v-model="deletePresetDialogVisible"
+            @keydown.esc="deletePresetDialogVisible = false"
+            max-width="480"
+            content-class="confirm-dialog"
+            :persistent="deleteLoadStatus.inProgress">
+            <v-card>
+                <v-card-title class="headline">Delete preset?</v-card-title>
+                <v-card-text>
+                    Delete preset <code v-if="presetToDelete">{{ presetToDelete.Name }}</code>?
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary"
+                        :disabled="deleteLoadStatus.inProgress"
+                        :loading="deleteLoadStatus.inProgress"
+                        @click="deletePresetDialogVisible = false">Cancel</v-btn>
+                    <v-btn color="error"
+                        :disabled="deleteLoadStatus.inProgress"
+                        :loading="deleteLoadStatus.inProgress"
+                        @click="onDeletePresetConfirmed()">Delete</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -385,6 +411,7 @@ export default class DataRepeaterPageComponent extends Vue {
     dataLoadStatus: FetchStatus = new FetchStatus();
     metadataLoadStatus: FetchStatus = new FetchStatus();
     exportLoadStatus: FetchStatus = new FetchStatus();
+    deleteLoadStatus: FetchStatus = new FetchStatus();
 
     streamDefinitions: HCGetDataExportStreamDefinitionsViewModel | null = null;
     exporters: Array<HCDataExportExporterViewModel> = [];
@@ -406,9 +433,11 @@ export default class DataRepeaterPageComponent extends Vue {
     loadPresetDialogVisible: boolean = false;
     savePresetDialogVisible: boolean = false;
     presets: Array<HCDataExportStreamQueryPresetViewModel> = [];
+    presetToDelete: HCDataExportStreamQueryPresetViewModel | null = null;
     exportDialogVisible: boolean = false;
     columnTitlesDialogVisible: boolean = false;
     queryHelpDialogVisible: boolean = false;
+    deletePresetDialogVisible: boolean = false;
 
     // Filter/pagination
     pageIndex: number = 0;
@@ -896,6 +925,28 @@ export default class DataRepeaterPageComponent extends Vue {
 
     onQueryHelpClicked(): void {
         this.queryHelpDialogVisible = true;
+    }
+
+    onDeletePresetClicked(target: HCDataExportStreamQueryPresetViewModel): void {
+        this.presetToDelete = target;
+        this.deletePresetDialogVisible = true;
+    }
+
+    onDeletePresetConfirmed(): void {
+        if (!this.presetToDelete)
+        {
+            return;
+        }
+        this.service.DeleteStreamQueryPreset({
+            StreamId: this.selectedStream?.Id || '',
+            Id: this.presetToDelete.Id
+        }, this.deleteLoadStatus, {
+            onSuccess: () => {
+                this.deletePresetDialogVisible = false;
+                this.presets = this.presets.filter(x => x.Id != this.presetToDelete?.Id);
+                this.presetToDelete = null;
+            }
+        });
     }
 }
 </script>

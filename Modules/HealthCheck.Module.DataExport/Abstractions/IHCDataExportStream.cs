@@ -43,13 +43,55 @@ namespace HealthCheck.Module.DataExport.Abstractions
         Type ItemType { get; }
 
         /// <summary>
-        /// Get items to be filtered and exported.
+        /// Number of items to fetch per batch when exporting.
+        /// </summary>
+        int ExportBatchSize { get; }
+
+        /// <summary>
+        /// Defines what method to use for querying.
+        /// </summary>
+        public QueryMethod Method { get; }
+
+        /// <summary>
+        /// Get items to be filtered and exported. Invoked when <see cref="Method"/> is <see cref="QueryMethod.Queryable"/>.
         /// </summary>
         Task<IQueryable> GetQueryableAsync();
 
         /// <summary>
-        /// Number of items to fetch per batch when exporting.
+        /// Get items to be filtered and exported. Invoked when <see cref="Method"/> is <see cref="QueryMethod.Enumerable"/>.
         /// </summary>
-        int ExportBatchSize { get; }
+        Task<EnumerableResult> GetEnumerableAsync(int pageIndex, int pageSize, string query);
+
+        /// <summary>
+        /// Result from <see cref="GetEnumerableAsync"/>
+        /// </summary>
+        public class EnumerableResult
+        {
+            /// <summary>
+            /// Matching items for the given page.
+            /// </summary>
+            public System.Collections.IEnumerable PageItems { get; set; }
+
+            /// <summary>
+            /// Total match count.
+            /// </summary>
+            public int TotalCount { get; set; }
+        }
+
+        /// <summary>
+        /// What method to use for querying.
+        /// </summary>
+        public enum QueryMethod
+        {
+            /// <summary>
+            /// Use the get queryable method without any parameters.
+            /// </summary>
+            Queryable,
+
+            /// <summary>
+            /// Use the get enumerable method with query parameter.
+            /// </summary>
+            Enumerable
+        }
     }
 }

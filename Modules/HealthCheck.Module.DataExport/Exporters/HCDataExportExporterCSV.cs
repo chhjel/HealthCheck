@@ -14,12 +14,17 @@ namespace HealthCheck.Module.DataExport.Exporters
         public string DisplayName => "CSV";
 
         /// <inheritdoc />
-        public string FileExtension => ".txt";
+        public string FileExtension => ".csv";
 
         /// <summary>
         /// Delimiter to separate values with.
         /// </summary>
         public string Delimiter { get; set; } = ";";
+
+        /// <summary>
+        /// Replaces newlines with spaces.
+        /// </summary>
+        public bool RemoveNewLines { get; set; } = true;
 
         private readonly StringBuilder _builder = new();
 
@@ -40,17 +45,36 @@ namespace HealthCheck.Module.DataExport.Exporters
         /// <inheritdoc />
         public string GetContents() => _builder.ToString();
 
-        private string CreateLine(IEnumerable<string> parts)
+        /// <summary>
+        /// Create a CSV line from the given raw parts.
+        /// </summary>
+        protected virtual string CreateLine(IEnumerable<string> parts)
             => string.Join(Delimiter, parts.Select(x => PrepareValue(x)));
 
-        private string PrepareValue(string value)
+        /// <summary>
+        /// Called on each raw column value to encode it for csv.
+        /// <para>Replaces newlines with spaces if <see cref="RemoveNewLines"/> is true.</para>
+        /// <para>Quotes value if value contains any <see cref="Delimiter"/></para>
+        /// </summary>
+        protected virtual string PrepareValue(string value)
         {
             if (value == null) return "";
+
+            if (RemoveNewLines)
+            {
+                value = value
+                    .Replace("\r\n", " ")
+                    .Replace("\n\r", " ")
+                    .Replace("\r", " ")
+                    .Replace("\n", " ");
+            }
+
             if (value.Contains(Delimiter))
             {
                 var escaped = value.Replace("\"", "\"\"");
-                return $"\"{escaped}\"";
+                value = $"\"{escaped}\"";
             }
+
             return value;
         }
     }

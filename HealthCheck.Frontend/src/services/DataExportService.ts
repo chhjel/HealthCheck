@@ -60,7 +60,7 @@ export default class DataExportService extends HCServiceBase
         statusObject: FetchStatus | null = null,
         callbacks: ServiceFetchCallbacks<null> | null = null
     ): void {
-        this.invokeModuleMethod(this.moduleId, "DeleteStreamQueryPresets", payload, statusObject, callbacks);
+        this.invokeModuleMethod(this.moduleId, "DeleteStreamQueryPresets", payload, statusObject, callbacks, false);
     }
 
     public CreateExportDownloadUrl(endpointBase: string, key: string): string {

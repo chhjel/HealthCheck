@@ -17,7 +17,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
     {
         /// <inheritdoc />
         public override List<string> AllCategories
-            => Options?.Service?.GetStreams()?.SelectMany(x => x.Categories)?.ToList() ?? new List<string>();
+            => Options?.Service?.GetStreams()?.SelectMany(x => x.Categories ?? new())?.ToList() ?? new List<string>();
 
         private HCDataRepeaterModuleOptions Options { get; }
 
