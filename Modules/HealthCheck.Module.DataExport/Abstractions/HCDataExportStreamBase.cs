@@ -64,7 +64,7 @@ namespace HealthCheck.Module.DataExport.Abstractions
                 PageItems = result.PageItems
             };
         }
-        private static SimpleMemoryCache _predicateCache = new();
+        private static readonly SimpleMemoryCache _predicateCache = new();
 
         /// <summary>
         /// Result from <see cref="GetEnumerableItemsAsync"/>
