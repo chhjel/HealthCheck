@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -34,6 +35,20 @@ namespace HealthCheck.Core.Util
         }
 
         /// <summary>
+        /// Get a prettified file size from the given byte size.
+        /// </summary>
+        public static string PrettifyFileSize(long byteCount)
+        {
+            string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB
+            if (byteCount == 0)
+                return "0" + suf[0];
+            long bytes = Math.Abs(byteCount);
+            int place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
+            double num = Math.Round(bytes / Math.Pow(1024, place), 1);
+            return (Math.Sign(byteCount) * num).ToString() + suf[place];
+        }
+
+        /// <summary>
         /// Strip illegal chars and reserved words from a given filename (not full path, only filename).
         /// </summary>
         public static string SanitizeFilename(string filename)
@@ -57,5 +72,5 @@ namespace HealthCheck.Core.Util
             "COM5", "COM6", "COM7", "COM8", "COM9", "LPT0", "LPT1", "LPT2", "LPT3", "LPT4",
             "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"
         };
-}
+    }
 }

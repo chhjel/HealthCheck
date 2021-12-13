@@ -290,8 +290,7 @@ namespace HealthCheck.Module.DataExport
             context.AddAuditEvent("Data exported", streamName)
                 .AddClientConnectionDetails(context)
                 .AddDetail("File Name", fileName)
-                .AddDetail("Filesize", $"{Encoding.Default.GetBytes(content)} bytes");
-                //.AddDetail("Query", );
+                .AddDetail("Filesize", $"{IOUtils.PrettifyFileSize(Encoding.Default.GetBytes(content).Length)}");
 
             return HealthCheckFileDownloadResult.CreateFromString(fileName, content);
         }
