@@ -415,6 +415,7 @@ namespace HealthCheck.WebUI.Abstractions
             CurrentRequestInformation.ClientIP = GetRequestIP(requestContext);
             CurrentRequestInformation.Headers = request?.Headers?.AllKeys?.ToDictionaryIgnoreDuplicates(t => t, t => request.Headers[t])
                 ?? new Dictionary<string, string>();
+            CurrentRequestInformation.InputStream = request?.InputStream;
 
             var requestInfoOverridden = Helper.ApplyTokenAccessIfDetected(CurrentRequestInformation);
             CurrentRequestAccessRoles = CurrentRequestInformation?.AccessRole;

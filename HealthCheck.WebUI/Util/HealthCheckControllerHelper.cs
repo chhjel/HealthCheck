@@ -356,7 +356,8 @@ namespace HealthCheck.WebUI.Util
                 Method = requestInfo.Method,
                 Headers = requestInfo.Headers,
                 RelativeUrl = requestInfo.Url,
-                ClientIP = requestInfo.ClientIP
+                ClientIP = requestInfo.ClientIP,
+                InputStream = requestInfo.InputStream
             };
 
             var pageOptions = _pageOptionsGetter?.Invoke();

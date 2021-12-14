@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace HealthCheck.Core.Models
 {
@@ -58,6 +59,8 @@ namespace HealthCheck.Core.Models
         /// Client ip address.
         /// </summary>
         public string ClientIP { get; set; }
+
+        internal Stream InputStream { get; set; }
 
         /// <summary>
         /// Create a new <see cref="RequestInformation{TAccessRole}"/> object.

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace HealthCheck.Core.Abstractions.Modules
 {
@@ -41,5 +42,7 @@ namespace HealthCheck.Core.Abstractions.Modules
         /// The clients IP address if any.
         /// </summary>
         public string ClientIP { get; set; }
+
+        internal Stream InputStream { get; set; }
     }
 }
