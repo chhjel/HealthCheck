@@ -961,6 +961,10 @@ public class MyDataExportStreamA : HCDataExportStreamBase<MyModel>
     public override string StreamDescription => "Some optional description of the stream.";
     // Number of items to export fetch per batch during export
     public override int ExportBatchSize => 500;
+    // The Method parameter decides what method will be used to retrieve data.
+    // - Queryable uses GetQueryableItemsAsync()
+    // - Enumerable uses GetEnumerableItemsAsync(int pageIndex, int pageSize, Func<MyModel, bool> predicate)
+    public override IHCDataExportStream.QueryMethod Method => IHCDataExportStream.QueryMethod.Queryable;
     
     // Optional stream group name
     // public override string StreamGroupName => null;

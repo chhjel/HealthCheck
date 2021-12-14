@@ -284,8 +284,8 @@ namespace HealthCheck.Module.DataExport
 
             // Create filename
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
-            var fileExtension = ".txt";
-            var fileName = $"{IOUtils.SanitizeFilename(stream.StreamDisplayName)}_{timestamp}.{fileExtension}";
+            var fileExtension = exporter.FileExtension ?? ".txt";
+            var fileName = $"{IOUtils.SanitizeFilename(stream.StreamDisplayName)}_{timestamp}{fileExtension}";
 
             context.AddAuditEvent("Data exported", streamName)
                 .AddClientConnectionDetails(context)
