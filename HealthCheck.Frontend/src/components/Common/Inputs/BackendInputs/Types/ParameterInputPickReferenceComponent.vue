@@ -312,10 +312,17 @@ export default class ParameterInputPickReferenceComponent extends Vue {
         display: flex;
         align-items: flex-start;
     }
+    .select-reference-item__name {
+        max-width: 524px;
+        text-align: left;
+    }
     .select-reference-item__desc {
         color: #e7e7e7;
         font-size: 13px;
         text-transform: none;
+        white-space: pre-wrap;
+        max-width: 524px;
+        text-align: left;
     }
 }
 </style>
