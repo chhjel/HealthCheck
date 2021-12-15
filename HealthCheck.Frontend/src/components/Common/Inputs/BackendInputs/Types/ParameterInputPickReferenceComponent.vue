@@ -61,12 +61,13 @@
                         v-for="(choice, cindex) in choices"
                         :key="`${config.parameterIndex}-choices-${cindex}`"
                         class="mb-2">
-                        <v-btn
+                        <v-btn class="select-reference-item"
                             @click="selectChoice(choice)"
                             :color="choiceColor(choice)"
                             :disabled="readonly"
                             >
-                            {{ choice.Name }}
+                            <div class="select-reference-item__name">{{ choice.Name }}</div>
+                            <div class="select-reference-item__desc" v-if="choice.Description">{{ choice.Description }}</div>
                         </v-btn>
                     </div>
                     <v-progress-linear
@@ -155,7 +156,8 @@ export default class ParameterInputPickReferenceComponent extends Vue {
         let values = Array<TestParameterReferenceChoiceViewModel>();
         values.push({
             Id: '',
-            Name: '[null]'
+            Name: '[null]',
+            Description: ''
         });
 
         if (this.loadedChoices != null)
@@ -222,6 +224,7 @@ export default class ParameterInputPickReferenceComponent extends Vue {
 
     selectChoice(choice: TestParameterReferenceChoiceViewModel): void
     {
+        if (this.readonly) return;
         this.selectedChoice = choice;
         this.localValue = choice.Id;
         this.choicesDialogVisible = false;
@@ -281,7 +284,7 @@ export default class ParameterInputPickReferenceComponent extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .pick-ref-button-wrapper {
     max-width: 100%;
     overflow: hidden;
@@ -294,5 +297,25 @@ export default class ParameterInputPickReferenceComponent extends Vue {
     overflow: hidden;
     justify-content: flex-start;
     flex: 1;
+}
+</style>
+
+<style lang="scss">
+.select-reference-item {
+    height: inherit;
+    padding: 10px 10px;
+    min-width: inherit;
+    
+    .v-btn__content {
+        white-space: normal;
+        flex-direction: column;
+        display: flex;
+        align-items: flex-start;
+    }
+    .select-reference-item__desc {
+        color: #e7e7e7;
+        font-size: 13px;
+        text-transform: none;
+    }
 }
 </style>

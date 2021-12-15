@@ -19,4 +19,5 @@ export default interface TestParameterViewModel {
 export interface TestParameterReferenceChoiceViewModel {
     Id: string;
     Name: string;
+    Description: string;
 }

@@ -20,4 +20,5 @@ export interface SiteEventViewModel
 	Resolved: boolean;
 	ResolvedMessage: string;
 	ResolvedAt: Date;
+	MinimumDurationRequiredToDisplay: number;
 }

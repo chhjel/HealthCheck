@@ -61,7 +61,7 @@ namespace HealthCheck.Dev.Common.Tests
                 .AddParameterTypeConfig<SomeParameterType>(
                     choicesFactory: (filter) => getUserChoices()
                         .Where(x => x.Name.Contains(filter))
-                        .Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Name)),
+                        .Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Name, "Some description here.")),
                     getInstanceByIdFactory: (id) => getUserChoices().FirstOrDefault(x => x.Id.ToString() == id)
                 )
                 .AddParameterTypeConfig<SomeOtherParameterType>(

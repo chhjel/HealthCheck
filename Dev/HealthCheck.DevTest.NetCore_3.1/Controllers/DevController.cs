@@ -192,7 +192,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                     typeof(CustomReferenceType),
                     (filter) => getUserChoices()
                         .Where(x => string.IsNullOrWhiteSpace(filter) || x.Title.Contains(filter) || x.Id.ToString().Contains(filter))
-                        .Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Title)),
+                        .Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Title, x.Id % 3 == 0 ? $"Id: {x.Id}" : null)),
                     (id) => getUserChoices().FirstOrDefault(x => x.Id.ToString() == id)
                 )
             };
