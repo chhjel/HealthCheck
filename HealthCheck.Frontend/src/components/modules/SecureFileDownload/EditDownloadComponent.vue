@@ -44,8 +44,9 @@
             
             <select-component
                 v-if="hasFileIdOptions"
+                v-model="selectedFileName"
+                @change="onFileSelectorChanged"
                 class="mt-2"
-                v-model="internalDownload.FileId"
                 :error="validateFileId"
                 :items="fileIdOptions"
                 :disabled="!allowChanges"
@@ -209,6 +210,8 @@ export default class EditDownloadComponent extends Vue {
     saveError: string = '';
     showSaveError: boolean = false;
     fileIdOptions: Array<string> = [];
+    fileIdOptionIds: Array<string> = [];
+    selectedFileName: string = '';
     fileIdOptionsLoadStatus: FetchStatus = new FetchStatus();
 
     //////////////////
@@ -336,7 +339,10 @@ export default class EditDownloadComponent extends Vue {
 
     updateFileIdChoices(): void {
         this.service.GetStorageFileIdOptions(this.internalDownload.StorageId, this.fileIdOptionsLoadStatus, {
-            onSuccess: (items) => this.fileIdOptions = items
+            onSuccess: (items) => {
+                this.fileIdOptions = items.map(x => x.Name);
+                this.fileIdOptionIds = items.map(x => x.Id);
+            }
         });
     }
 
@@ -389,6 +395,12 @@ export default class EditDownloadComponent extends Vue {
     /////////////////////
     onStorageChanged(): void {
         this.updateFileIdChoices();
+    }
+
+    onFileSelectorChanged(): void {
+        const index = this.fileIdOptions.indexOf(this.selectedFileName);
+        const fileId = this.fileIdOptionIds[index] || '';
+        this.internalDownload.FileId = fileId;
     }
 }
 </script>

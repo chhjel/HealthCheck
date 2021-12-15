@@ -99,7 +99,10 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
             DeleteDefinition = 4,
 
             /// <summary>View all created definitions.</summary>
-            ViewDefinitions = 8
+            ViewDefinitions = 8,
+
+            /// <summary>Upload new files.</summary>
+            UploadFile = 16
         }
 
         #region Invokable methods
@@ -121,10 +124,10 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         /// Get fileId options for a given storage.
         /// </summary>
         [HealthCheckModuleMethod(requiresAccessTo: AccessOption.CreateDefinition)]
-        public List<string> GetStorageFileIdOptions(string storageId)
+        public List<HCSecureFileDownloadFileDetails> GetStorageFileIdOptions(string storageId)
         {
             var storage = Options.FileStorages.FirstOrDefault(x => x.StorageId == storageId);
-            return storage?.GetFileIdOptions()?.ToList() ?? new List<string>();
+            return storage?.GetFileIdOptions()?.ToList() ?? new List<HCSecureFileDownloadFileDetails>();
         }
 
         /// <summary>
@@ -217,7 +220,6 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
 
         /// <summary>
         /// Show download page for a file.
-        /// <para>Also handles POST request with password.</para>
         /// </summary>
         [HealthCheckModuleAction]
         public object Download(HealthCheckModuleContext context, string url)
@@ -396,6 +398,58 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
                 .AddDetail("Storage Id", definition.StorageId);
 
             return HealthCheckFileDownloadResult.CreateFromStream(definition.FileName, fileStream);
+        }
+
+        /// <summary>
+        /// POST. Upload a new file to be stored.
+        /// </summary>
+        [HealthCheckModuleAction(AccessOption.UploadFile)]
+        public async Task<string> SFDUploadFile(HealthCheckModuleContext context)
+        {
+            if (context?.Request?.IsPOST != true || context?.Request?.InputStream == null)
+            {
+                return null;
+            }
+
+            if (!context.Request.Headers.ContainsKey("X-Id"))
+            {
+                return null;
+            }
+
+            var idFromRequest = context.Request.Headers["X-Id"];
+
+            // Get definition
+            var definition = Options.DefinitionStorage.GetDefinitionByUrlSegmentText(idFromRequest);
+            if (definition == null)
+            {
+                return null;
+            }
+
+            // todo: delete old? what if storage id was switched, how to know old?
+            // on save if switched storage, delete file? Store a flag on def if file was uploaded and autodelete along with def?
+
+            // Find matching storage
+            var storage = Options.FileStorages.FirstOrDefault(x => x.StorageId == definition.StorageId);
+            if (storage?.SupportsUpload != true)
+            {
+                return null;
+            }
+
+            // Upload file
+            var stream = context?.Request?.InputStream;
+            var uploadResult = await storage.UploadFileAsync(stream);
+
+            return createResult(uploadResult.Success, uploadResult.ErrorMessage, uploadResult.FileId);
+
+            string createResult(bool success, string message, string fileId)
+            {
+                return
+                    "{\n" +
+                    $"  {Q}success{Q}: {success.ToString().ToLower()},\n" +
+                    $"  {Q}message{Q}: {EscapeJsString(message)},\n" +
+                    $"  {Q}fileId{Q}: {EscapeJsString(fileId)}\n" +
+                    "}";
+            }
         }
         #endregion
 

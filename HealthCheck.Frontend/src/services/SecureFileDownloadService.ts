@@ -1,3 +1,4 @@
+import { HCSecureFileDownloadFileDetails } from './../generated/Models/Core/HCSecureFileDownloadFileDetails';
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
 import { SecureFileDownloadsViewModel, SecureFileDownloadDefinition, SecureFileDownloadSaveViewModel } from "../models/modules/SecureFileDownload/Models";
 
@@ -21,7 +22,7 @@ export default class SecureFileDownloadService extends HCServiceBase
     public GetStorageFileIdOptions(
         storageId: string,
         statusObject: FetchStatus | null = null,
-        callbacks: ServiceFetchCallbacks<Array<string>> | null = null
+        callbacks: ServiceFetchCallbacks<Array<HCSecureFileDownloadFileDetails>> | null = null
     ): void {
         this.invokeModuleMethod(this.moduleId, 'GetStorageFileIdOptions', storageId, statusObject, callbacks);
     }
