@@ -243,7 +243,7 @@ namespace HealthCheck.DevTest.Controllers
                     typeof(CustomReferenceType),
                     (filter) => getUserChoices()
                         .Where(x => string.IsNullOrWhiteSpace(filter) || x.Title.Contains(filter) || x.Id.ToString().Contains(filter))
-                        .Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Title)),
+                        .Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Title, $"Id: {x.Id}")),
                     (id) => getUserChoices().FirstOrDefault(x => x.Id.ToString() == id),
                     title: "Custom title here",
                     description: "Custom description here",

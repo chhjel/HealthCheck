@@ -1,6 +1,4 @@
-﻿using static HealthCheck.Core.Modules.Tests.Models.ProxyRuntimeTestConfig;
-
-namespace HealthCheck.Core.Modules.Tests.Models
+﻿namespace HealthCheck.Core.Modules.Tests.Models
 {
     /// <summary>
     /// A possible choice to select from in class proxy tests.
@@ -18,12 +16,18 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public string Name { get; set; }
 
         /// <summary>
+        /// Optional description that will be visible in frontend.
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
         /// A possible choice to select from in class proxy tests.
         /// </summary>
-        public RuntimeTestReferenceParameterChoice(string id, string name)
+        public RuntimeTestReferenceParameterChoice(string id, string name, string description = null)
         {
             Id = id;
             Name = name;
+            Description = description;
         }
     }
 }

@@ -14,6 +14,7 @@ export interface SiteEvent
 	Title: string;
 	Description: string;
 	Duration: number;
+	MinimumDurationRequiredToDisplay: number;
 	RelatedLinks: HyperLink[];
 	DeveloperDetails: string;
 	Resolved: boolean;
