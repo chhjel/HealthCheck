@@ -12,4 +12,5 @@ export interface HCDataExportQueryRequest
 	IncludedProperties: string[];
 	HeaderNameOverrides: { [key:string]: string };
 	ExporterId: string;
+	CustomParameters: { [key:string]: string };
 }

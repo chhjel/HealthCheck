@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using HealthCheck.Core.Util.Models;
+using System.Collections.Generic;
 
 namespace HealthCheck.Module.DataExport.Models
 {
@@ -18,6 +19,12 @@ namespace HealthCheck.Module.DataExport.Models
         public string GroupName { get; set; }
 
         /// <summary></summary>
+        public bool ShowQueryInput { get; set; }
+
+        /// <summary></summary>
         public HCDataExportStreamItemDefinitionViewModel ItemDefinition { get; set; }
+
+        /// <summary></summary>
+        public List<HCBackendInputConfig> CustomParameterDefinitions { get; set; }
     }
 }

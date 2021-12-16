@@ -63,7 +63,9 @@ namespace HealthCheck.Module.DataExport.Services
         public async Task<HCDataExportQueryResponse> QueryAsync(HCDataExportQueryRequest request)
         {
             var stream = GetStreamById(request);
-            if (stream == null || string.IsNullOrWhiteSpace(request.Query))
+
+            if (stream == null
+                || (stream.SupportsQuery && string.IsNullOrWhiteSpace(request.Query)))
             {
                 return new HCDataExportQueryResponse();
             }
@@ -95,6 +97,13 @@ namespace HealthCheck.Module.DataExport.Services
             else if (stream.Method == IHCDataExportStream.QueryMethod.Enumerable)
             {
                 var enumerableResult = await stream.GetEnumerableAsync(request.PageIndex, request.PageSize, request.Query);
+                pageItems = enumerableResult?.PageItems?.Cast<object>()?.ToArray() ?? Array.Empty<object>();
+                totalCount = enumerableResult?.TotalCount ?? 0;
+            }
+            else if (stream.Method == IHCDataExportStream.QueryMethod.EnumerableWithCustomFilter)
+            {
+                object parametersObject = stream.CustomParametersType == null ? null : HCValueConversionUtils.ConvertInputModel(stream.CustomParametersType, request.CustomParameters);
+                var enumerableResult = await stream.GetEnumerableWithCustomFilterAsync(request.PageIndex, request.PageSize, parametersObject);
                 pageItems = enumerableResult?.PageItems?.Cast<object>()?.ToArray() ?? Array.Empty<object>();
                 totalCount = enumerableResult?.TotalCount ?? 0;
             }

@@ -51,5 +51,10 @@ namespace HealthCheck.Module.DataExport.Models
         /// Id of exporter to use.
         /// </summary>
         public string ExporterId { get; set; }
+
+        /// <summary>
+        /// Any custom parameters.
+        /// </summary>
+        public Dictionary<string, string> CustomParameters { get; set; }
     }
 }

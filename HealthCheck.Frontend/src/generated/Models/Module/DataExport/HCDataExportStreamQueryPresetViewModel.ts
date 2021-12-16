@@ -10,4 +10,5 @@ export interface HCDataExportStreamQueryPresetViewModel
 	Query: string;
 	IncludedProperties: string[];
 	HeaderNameOverrides: { [key:string]: string };
+	CustomParameters: { [key:string]: string };
 }

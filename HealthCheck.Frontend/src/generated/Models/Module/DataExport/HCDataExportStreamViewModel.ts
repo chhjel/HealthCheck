@@ -3,6 +3,7 @@
 //     the code is regenerated.
 
 import { HCDataExportStreamItemDefinitionViewModel } from './HCDataExportStreamItemDefinitionViewModel';
+import { HCBackendInputConfig } from '../../Core/HCBackendInputConfig';
 
 export interface HCDataExportStreamViewModel
 {
@@ -10,5 +11,7 @@ export interface HCDataExportStreamViewModel
 	Name: string;
 	Description: string;
 	GroupName: string;
+	ShowQueryInput: boolean;
 	ItemDefinition: HCDataExportStreamItemDefinitionViewModel;
+	CustomParameterDefinitions: HCBackendInputConfig[];
 }

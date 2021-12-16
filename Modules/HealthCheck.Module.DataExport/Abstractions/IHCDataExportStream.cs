@@ -43,6 +43,11 @@ namespace HealthCheck.Module.DataExport.Abstractions
         Type ItemType { get; }
 
         /// <summary>
+        /// Type of custom parameters object if any.
+        /// </summary>
+        Type CustomParametersType { get; }
+
+        /// <summary>
         /// Number of items to fetch per batch when exporting.
         /// </summary>
         int ExportBatchSize { get; }
@@ -51,6 +56,11 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// Defines what method to use for querying.
         /// </summary>
         public QueryMethod Method { get; }
+
+        /// <summary>
+        /// True to show query input.
+        /// </summary>
+        public bool SupportsQuery { get; }
 
         /// <summary>
         /// Get items to be filtered and exported. Invoked when <see cref="Method"/> is <see cref="QueryMethod.Queryable"/>.
@@ -71,6 +81,14 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// <param name="pageSize">Size of the page to fetch.</param>
         /// <param name="query">The raw query input from frontend.</param>
         Task<EnumerableResult> GetEnumerableAsync(int pageIndex, int pageSize, string query);
+
+        /// <summary>
+        /// Get items to be filtered and exported. Invoked when <see cref="Method"/> is <see cref="QueryMethod.EnumerableWithCustomFilter"/>.
+        /// </summary>
+        /// <param name="pageIndex">Index of the page to fetch.</param>
+        /// <param name="pageSize">Size of the page to fetch.</param>
+        /// <param name="parameters">Custom parameter input if <see cref="CustomParametersType"/> is set. Is an instance of the type <see cref="CustomParametersType"/>.</param>
+        Task<EnumerableResult> GetEnumerableWithCustomFilterAsync(int pageIndex, int pageSize, object parameters);
 
         /// <summary>
         /// Result from <see cref="GetEnumerableAsync"/>
@@ -122,7 +140,12 @@ namespace HealthCheck.Module.DataExport.Abstractions
             /// <summary>
             /// Use the get enumerable method with query parameter.
             /// </summary>
-            Enumerable
+            Enumerable,
+
+            /// <summary>
+            /// Use the get enumerable method with custom filter.
+            /// </summary>
+            EnumerableWithCustomFilter
         }
     }
 }
