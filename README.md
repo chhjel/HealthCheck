@@ -963,6 +963,7 @@ public class MyDataExportStreamA : HCDataExportStreamBase<MyModel>
     public override int ExportBatchSize => 500;
     // The Method parameter decides what method will be used to retrieve data.
     // - Queryable uses GetQueryableItemsAsync()
+    // - QueryableManuallyPaged uses GetQueryableItemsManuallyPagedAsync(int pageIndex, int pageSize)
     // - Enumerable uses GetEnumerableItemsAsync(int pageIndex, int pageSize, Func<MyModel, bool> predicate)
     public override IHCDataExportStream.QueryMethod Method => IHCDataExportStream.QueryMethod.Queryable;
     

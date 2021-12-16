@@ -38,7 +38,7 @@ namespace HealthCheck.Module.DataExport.Abstractions
         List<string> Categories { get; }
 
         /// <summary>
-        /// Type of items returned from <see cref="GetQueryableAsync"/>
+        /// Type of items returned.
         /// </summary>
         Type ItemType { get; }
 
@@ -54,12 +54,22 @@ namespace HealthCheck.Module.DataExport.Abstractions
 
         /// <summary>
         /// Get items to be filtered and exported. Invoked when <see cref="Method"/> is <see cref="QueryMethod.Queryable"/>.
+        /// <para>For use when you have an IQueryable source.</para>
         /// </summary>
         Task<IQueryable> GetQueryableAsync();
 
         /// <summary>
+        /// Get items to be filtered and exported. Invoked when <see cref="Method"/> is <see cref="QueryMethod.QueryableManuallyPaged"/>.
+        /// <para>For use when you have an IQueryable but need to handle pagination manually.</para>
+        /// </summary>
+        Task<QueryableResult> GetQueryableManuallyPagedAsync(int pageIndex, int pageSize);
+
+        /// <summary>
         /// Get items to be filtered and exported. Invoked when <see cref="Method"/> is <see cref="QueryMethod.Enumerable"/>.
         /// </summary>
+        /// <param name="pageIndex">Index of the page to fetch.</param>
+        /// <param name="pageSize">Size of the page to fetch.</param>
+        /// <param name="query">The raw query input from frontend.</param>
         Task<EnumerableResult> GetEnumerableAsync(int pageIndex, int pageSize, string query);
 
         /// <summary>
@@ -79,6 +89,22 @@ namespace HealthCheck.Module.DataExport.Abstractions
         }
 
         /// <summary>
+        /// Result from <see cref="GetQueryableManuallyPagedAsync"/>
+        /// </summary>
+        public class QueryableResult
+        {
+            /// <summary>
+            /// Matching items for the given page.
+            /// </summary>
+            public System.Linq.IQueryable PageItems { get; set; }
+
+            /// <summary>
+            /// Total match count.
+            /// </summary>
+            public int TotalCount { get; set; }
+        }
+
+        /// <summary>
         /// What method to use for querying.
         /// </summary>
         public enum QueryMethod
@@ -87,6 +113,11 @@ namespace HealthCheck.Module.DataExport.Abstractions
             /// Use the get queryable method without any parameters.
             /// </summary>
             Queryable,
+
+            /// <summary>
+            /// Use the get queryable method with manual paging.
+            /// </summary>
+            QueryableManuallyPaged,
 
             /// <summary>
             /// Use the get enumerable method with query parameter.

@@ -86,6 +86,12 @@ namespace HealthCheck.Module.DataExport.Services
                     .Cast<object>()
                     .ToArray();
             }
+            else if (stream.Method == IHCDataExportStream.QueryMethod.QueryableManuallyPaged)
+            {
+                var queryableResult = await stream.GetQueryableManuallyPagedAsync(request.PageIndex, request.PageSize);
+                pageItems = queryableResult?.PageItems?.Cast<object>()?.ToArray() ?? Array.Empty<object>();
+                totalCount = queryableResult?.TotalCount ?? 0;
+            }
             else if (stream.Method == IHCDataExportStream.QueryMethod.Enumerable)
             {
                 var enumerableResult = await stream.GetEnumerableAsync(request.PageIndex, request.PageSize, request.Query);
