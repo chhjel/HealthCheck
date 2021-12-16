@@ -3,13 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static HealthCheck.Dev.Common.DataExport.TestDataExportStream1;
+using static HealthCheck.Dev.Common.DataExport.TestDataExportStreamQueryable;
 
 namespace HealthCheck.Dev.Common.DataExport
 {
-    public class TestDataExportStream1 : HCDataExportStreamBase<TestExportItem>
+    public class TestDataExportStreamQueryable : HCDataExportStreamBase<TestExportItem>
     {
-        public override string StreamDisplayName => "Test stream 1";
+        public override string StreamDisplayName => "Queryable stream";
         public override string StreamDescription => "A test for use during dev.";
         public override string StreamGroupName => null;
         public override object AllowedAccessRoles => RuntimeTestAccessRole.WebAdmins;

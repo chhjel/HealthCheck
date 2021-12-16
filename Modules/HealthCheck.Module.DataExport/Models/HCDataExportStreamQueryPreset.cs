@@ -36,5 +36,10 @@ namespace HealthCheck.Module.DataExport.Models
         /// Any header renames.
         /// </summary>
         public Dictionary<string, string> HeaderNameOverrides { get; set; }
+
+        /// <summary>
+        /// Any custom parameters.
+        /// </summary>
+        public Dictionary<string, string> CustomParameters { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
+using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Util;
 using HealthCheck.Core.Util.Modules;
 using HealthCheck.Module.DataExport.Abstractions;
@@ -98,13 +99,16 @@ namespace HealthCheck.Module.DataExport
             foreach (var stream in streams)
             {
                 var itemDef = Options.Service.GetStreamItemDefinition(stream.GetType().FullName, stream.ItemType);
+                var showQueryInput = stream.SupportsQuery;
                 var streamModel = new HCDataExportStreamViewModel
                 {
                     Id = stream.GetType().FullName,
                     Name = stream.StreamDisplayName,
                     Description = stream.StreamDescription,
                     GroupName = stream.StreamGroupName,
-                    ItemDefinition = Create(itemDef)
+                    ItemDefinition = Create(itemDef),
+                    ShowQueryInput = showQueryInput,
+                    CustomParameterDefinitions = HCCustomPropertyAttribute.CreateInputConfigs(stream.CustomParametersType)
                 };
                 list.Add(streamModel);
             }
@@ -373,6 +377,7 @@ namespace HealthCheck.Module.DataExport
                     model.Query = preset.Query;
                     model.IncludedProperties = preset.IncludedProperties;
                     model.HeaderNameOverrides = preset.HeaderNameOverrides;
+                    model.CustomParameters = preset.CustomParameters;
                 }
             }
 
@@ -429,7 +434,8 @@ namespace HealthCheck.Module.DataExport
                 Description = model.Description,
                 IncludedProperties = model.IncludedProperties,
                 Query = model.Query,
-                HeaderNameOverrides = model.HeaderNameOverrides
+                HeaderNameOverrides = model.HeaderNameOverrides,
+                CustomParameters = model.CustomParameters
             };
         }
 
@@ -444,7 +450,8 @@ namespace HealthCheck.Module.DataExport
                 Description = model.Description,
                 IncludedProperties = model.IncludedProperties,
                 Query = model.Query,
-                HeaderNameOverrides = model.HeaderNameOverrides
+                HeaderNameOverrides = model.HeaderNameOverrides,
+                CustomParameters = model.CustomParameters
             };
         }
         #endregion

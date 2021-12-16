@@ -924,7 +924,10 @@ public class ExampleDataRepeaterStreamItemActionToggleAllow : HCDataRepeaterStre
 
 ## Module: DataExport
 
-The module allows for filtering and exporting data from given IQueryables.
+The module allows for filtering and exporting data. The type of data source you have available determines how to filter it.
+
+* IQueryable: Lets the user enter a linq query to filter on.
+* IEnumerable&lt;T&gt;: Lets the user filter the data either using an entered linq query or custom parametet inputs depending on your stream implementation.
 
 A default implementation `HCDataExportService` is provided that picks up any registered `IHCDataExportStream` streams.
 
@@ -957,12 +960,13 @@ UseModule(new HCDataExportModule(new HCDataExportModuleOptions
 ```csharp
 public class MyDataExportStreamA : HCDataExportStreamBase<MyModel>
 {
-    public override string StreamDisplayName => "My stream";
+    public override string StreamDisplayName => "My stream A";
     public override string StreamDescription => "Some optional description of the stream.";
     // Number of items to export fetch per batch during export
     public override int ExportBatchSize => 500;
     // The Method parameter decides what method will be used to retrieve data.
     // - Queryable uses GetQueryableItemsAsync()
+    // - QueryableManuallyPaged uses GetQueryableItemsManuallyPagedAsync(int pageIndex, int pageSize)
     // - Enumerable uses GetEnumerableItemsAsync(int pageIndex, int pageSize, Func<MyModel, bool> predicate)
     public override IHCDataExportStream.QueryMethod Method => IHCDataExportStream.QueryMethod.Queryable;
     
@@ -976,6 +980,46 @@ public class MyDataExportStreamA : HCDataExportStreamBase<MyModel>
     // Get queryable
     protected override Task<IQueryable<MyModel>> GetQueryableItemsAsync()
         => await _someService.GetItems().AsQueryable();
+}
+```
+
+</p>
+</details>
+
+<details><summary>Example stream with custom parameters</summary>
+<p>
+
+```csharp
+public class MyDataExportStreamB : HCDataExportStreamBase<MyModel, MyDataExportStreamB.Parameters>
+{
+    public override string StreamDisplayName => "My stream B";
+    public override string StreamDescription => "Some optional description of the stream.";
+    public override int ExportBatchSize => 500;
+    
+    protected override async Task<TypedEnumerableResult> GetEnumerableItemsWithCustomFilterAsync(int pageIndex, int pageSize, Parameters parameters)
+    {
+        var matches = await _something.GetDataAsync(parameters.StringParameter, parameters.SomeValue, parameters.AnotherValue);
+
+        var pageItems = matches
+            .Skip(pageIndex * pageSize)
+            .Take(pageSize);
+
+        return new TypedEnumerableResult
+        {
+            PageItems = pageItems,
+            TotalCount = matches.Count()
+        };
+    }
+}
+    // Add any properties to filter on here.
+    public class Parameters
+    {
+        public string StringParameter { get; set; }
+        public int? SomeValue { get; set; }
+        // Optionally configure inputs using the HCCustomProperty attribute.
+        [HCCustomProperty]
+        public DateTime AnotherValue { get; set; }
+    }
 }
 ```
 

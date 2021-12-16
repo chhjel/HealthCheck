@@ -35,6 +35,7 @@
                                 <h2 v-if="selectedStream.Name">{{ selectedStream.Name }}</h2>
                                 <p v-if="selectedStream.Description" v-html="selectedStream.Description"></p>
 
+                                <!-- QUERY INPUT -->
                                 <div class="data-export-filters" v-if="showQuery">
                                     <div style="display: flex; width: 100%">
                                         <b>{{ queryTitle }}</b>
@@ -49,6 +50,23 @@
                                         v-model="queryInput"
                                         :read-only="isLoading || !hasAccessToQueryCustom"
                                         ref="editor" />
+                                </div>
+                                <!-- CUSTOM PARAMETERS -->
+                                <div v-if="showCustomInputs">
+                                    <div style="display: flex; width: 100%" class="mb-2">
+                                        <b>{{ queryTitle }}</b>
+                                    </div>
+
+                                    <div class="export-parameter-items">
+                                        <backend-input-component
+                                            v-for="(parameterDef, pIndex) in selectedStream.CustomParameterDefinitions"
+                                            :key="`export-parameter-item-${selectedStream.Id}-${pIndex}`"
+                                            class="export-parameter-item"
+                                            v-model="customParameters[parameterDef.Id]"
+                                            :config="parameterDef"
+                                            :readonly="isLoading || !hasAccessToQueryCustom"
+                                            />
+                                    </div>
                                 </div>
 
                                 <code v-if="queryError"
@@ -211,8 +229,16 @@
                         placeholder="Preset name"
                         :disabled="dataLoadStatus.inProgress" />
 
-                    <h4>Query</h4>
-                    <code>{{ queryInput }}</code>
+                    <h4 v-if="showQuery">Query</h4>
+                    <code v-if="showQuery">{{ queryInput }}</code>
+
+                    <div v-if="showCustomInputs && Object.keys(customParameters).length > 0">
+                        <h4 class="mt-2">Filter</h4>
+                        <div v-for="(key, hIndex) in Object.keys(customParameters)"
+                            :key="`custom-input-preview-${hIndex}`">
+                            <span>{{ key }}</span>: <code>{{ customParameters[key] }}</code>
+                        </div>
+                    </div>
 
                     <h4 class="mt-2">Included properties</h4>
                     <code>{{ includedProperties }}</code>
@@ -386,7 +412,7 @@ import { HCGetDataExportStreamDefinitionsViewModel } from "generated/Models/Modu
 import { HCDataExportQueryResponseViewModel } from "generated/Models/Module/DataExport/HCDataExportQueryResponseViewModel";
 import { HCDataExportStreamItemDefinitionViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamItemDefinitionViewModel";
 import EditorComponent from "components/Common/EditorComponent.vue";
-import { HCDataExportStreamItemDefinitionMemberViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamItemDefinitionMemberViewModel";
+import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 import { HCDataExportStreamQueryPresetViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamQueryPresetViewModel";
 import { HCDataExportQueryRequest } from "generated/Models/Module/DataExport/HCDataExportQueryRequest";
 import { HCDataExportExporterViewModel } from "generated/Models/Module/DataExport/HCDataExportExporterViewModel";
@@ -396,7 +422,8 @@ import { HCDataExportExporterViewModel } from "generated/Models/Module/DataExpor
         draggable,
         FilterableListComponent,
         PagingComponent,
-        EditorComponent
+        EditorComponent,
+        BackendInputComponent
     }
 })
 export default class DataRepeaterPageComponent extends Vue {
@@ -427,6 +454,7 @@ export default class DataRepeaterPageComponent extends Vue {
     lastQueriedProperties: Array<string> = [];
     headers: Array<string> = [];
     headerNameOverrides: { [key:string]: string } = {};
+    customParameters: { [key:string]: string } = {};
     itemDefinition: HCDataExportStreamItemDefinitionViewModel = { StreamId: '', Name: '', Members: [] };
     
     newPresetName: string = '';
@@ -519,15 +547,25 @@ export default class DataRepeaterPageComponent extends Vue {
     }
 
     get showQuery(): boolean {
+        if (!this.selectedStream || !this.selectedStream.ShowQueryInput) return false;
         return this.hasAccessToQueryCustom || this.selectedPresetId != null;
     }
 
+    get showCustomInputs(): boolean {
+        return !!this.selectedStream
+            && this.selectedStream.CustomParameterDefinitions
+            && this.selectedStream.CustomParameterDefinitions.length > 0;
+    }
+
     get queryTitle(): string {
-        if (this.hasAccessToQueryCustom) return 'Query';
-        else if (!this.selectedPresetId) return 'Query';
+        const def = this.showQuery ? 'Query' : 'Filter';
+
+        if (this.hasAccessToQueryCustom) return def;
+        else if (!this.selectedPresetId) return def;
+
         const preset = this.presets.filter(x => x.Id == this.selectedPresetId)[0];
-        if (!preset) return 'Query';
-        return preset.Name || 'Query';
+        if (!preset) return def;
+        return preset.Name || def;
     }
     
     get isLoading(): boolean {
@@ -590,6 +628,7 @@ export default class DataRepeaterPageComponent extends Vue {
         this.selectedPresetId = null;
         this.headers = [];
         this.headerNameOverrides = {};
+        this.customParameters = {};
     }
 
     loadStreamDefinitions(): void {
@@ -691,6 +730,7 @@ export default class DataRepeaterPageComponent extends Vue {
         this.includedProperties = [...preset.IncludedProperties];
         this.headers = [...preset.IncludedProperties];
         this.headerNameOverrides = JSON.parse(JSON.stringify(preset.HeaderNameOverrides));
+        this.customParameters = preset.CustomParameters || {};
         this.loadPresetDialogVisible = false;
     }
 
@@ -725,7 +765,8 @@ export default class DataRepeaterPageComponent extends Vue {
                 Description: '',
                 Query: this.queryInput,
                 IncludedProperties: props,
-                HeaderNameOverrides: this.headerNameOverrides
+                HeaderNameOverrides: this.headerNameOverrides,
+                CustomParameters: this.customParameters
             }
         }, this.dataLoadStatus,
         {
@@ -778,7 +819,8 @@ export default class DataRepeaterPageComponent extends Vue {
             IncludedProperties: this.hasAccessToQueryCustom ? this.headers : [],
             PresetId: this.hasAccessToQueryCustom ? undefined : (this.selectedPresetId || undefined),
             HeaderNameOverrides: this.hasAccessToQueryCustom ? this.headerNameOverrides : {},
-            ExporterId: exporterId || ''
+            ExporterId: exporterId || '',
+            CustomParameters: this.customParameters
         };
     }
 
@@ -832,7 +874,8 @@ export default class DataRepeaterPageComponent extends Vue {
             pId: this.selectedPresetId,
             incProp: this.includedProperties,
             headers: this.headers,
-            headerOverrides: this.headerNameOverrides
+            headerOverrides: this.headerNameOverrides,
+            customParameters: this.customParameters
         };
     }
 
@@ -845,6 +888,7 @@ export default class DataRepeaterPageComponent extends Vue {
         this.includedProperties =  this.filterCache[streamId].incProp || [];
         this.headers =  this.filterCache[streamId].headers || [];
         this.headerNameOverrides =  this.filterCache[streamId].headerOverrides || {};
+        this.customParameters =  this.filterCache[streamId].customParameters || {};
 
         return true;
     }
@@ -976,5 +1020,13 @@ export default class DataRepeaterPageComponent extends Vue {
   width: 100%;
   height: 88px;
   border: 1px solid #949494;
+}
+.export-parameter-items {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    .export-parameter-item {
+        min-width: 48%;
+    }
 }
 </style>
