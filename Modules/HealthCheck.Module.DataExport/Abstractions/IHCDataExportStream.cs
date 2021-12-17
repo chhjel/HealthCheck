@@ -55,12 +55,17 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// <summary>
         /// Defines what method to use for querying.
         /// </summary>
-        public QueryMethod Method { get; }
+        QueryMethod Method { get; }
 
         /// <summary>
         /// True to show query input.
         /// </summary>
-        public bool SupportsQuery { get; }
+        bool SupportsQuery { get; }
+
+        /// <summary>
+        /// Formatters that can be selected per column.
+        /// </summary>
+        IEnumerable<IHCDataExportValueFormatter> ValueFormatters { get; }
 
         /// <summary>
         /// Get items to be filtered and exported. Invoked when <see cref="Method"/> is <see cref="QueryMethod.Queryable"/>.
@@ -89,6 +94,14 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// <param name="pageSize">Size of the page to fetch.</param>
         /// <param name="parameters">Custom parameter input if <see cref="CustomParametersType"/> is set. Is an instance of the type <see cref="CustomParametersType"/>.</param>
         Task<EnumerableResult> GetEnumerableWithCustomFilterAsync(int pageIndex, int pageSize, object parameters);
+
+        /// <summary>
+        /// Optionally format the value.
+        /// </summary>
+        /// <param name="propertyName">Dotted path to the member.</param>
+        /// <param name="propertyType">Type of the property.</param>
+        /// <param name="value">Value of the property.</param>
+        object DefaultFormatValue(string propertyName, Type propertyType, object value);
 
         /// <summary>
         /// Result from <see cref="GetEnumerableAsync"/>

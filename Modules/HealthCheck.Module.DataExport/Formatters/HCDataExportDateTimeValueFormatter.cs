@@ -1,0 +1,40 @@
+﻿using HealthCheck.Core.Attributes;
+using HealthCheck.Module.DataExport.Abstractions;
+using System;
+using static HealthCheck.Module.DataExport.Formatters.HCDataExportDateTimeValueFormatter;
+
+namespace HealthCheck.Module.DataExport.Formatters
+{
+    /// <summary>
+    /// Formats <see cref="DateTime"/>s and <see cref="DateTimeOffset"/>s.
+    /// </summary>
+    public class HCDataExportDateTimeValueFormatter : HCDataExportValueFormatterBase<Parameters>
+    {
+        /// <inheritdoc />
+        public override string Name => "Date formatter";
+
+        /// <inheritdoc />
+        public override string Description => "Formats dates with a custom format string.";
+
+        /// <inheritdoc />
+        public override Type[] SupportedTypes => new Type[] { typeof(DateTime), typeof(DateTimeOffset) };
+
+        /// <inheritdoc />
+        protected override object FormatValueTyped(string propertyName, Type propertyType, object value, Parameters parameters)
+        {
+            if (value is DateTime dateTime) return dateTime.ToString(parameters.Format);
+            else if (value is DateTimeOffset dateTimeOffset) return dateTimeOffset.ToString(parameters.Format);
+            else return value;
+        }
+
+        /// <summary>
+        /// Parameters model.
+        /// </summary>
+        public class Parameters
+        {
+            /// <summary></summary>
+            [HCCustomProperty(UIHints = Core.Models.HCUIHint.NotNull)]
+            public string Format { get; set; } = "dd/MM/yyyy HH:mm:ss";
+        }
+    }
+}

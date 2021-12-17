@@ -2,14 +2,13 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface HCDataExportStreamQueryPreset
+import { HCBackendInputConfig } from '../../Core/HCBackendInputConfig';
+
+export interface HCDataExportValueFormatterViewModel
 {
 	Id: string;
-	StreamId: string;
 	Name: string;
 	Description: string;
-	Query: string;
-	IncludedProperties: string[];
-	HeaderNameOverrides: { [key:string]: string };
-	CustomParameters: { [key:string]: string };
+	SupportedTypes: string[];
+	CustomParameterDefinitions: HCBackendInputConfig[];
 }

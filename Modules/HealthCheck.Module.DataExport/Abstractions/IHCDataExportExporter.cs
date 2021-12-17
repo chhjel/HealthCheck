@@ -25,11 +25,11 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// <summary>
         /// Append a new item to be exported.
         /// </summary>
-        void AppendItem(Dictionary<string, object> item, List<string> order);
+        void AppendItem(Dictionary<string, object> items, Dictionary<string, string> itemsStringified, List<string> order);
 
         /// <summary>
         /// Get current contents.
         /// </summary>
-        string GetContents();
+        byte[] GetContents();
     }
 }

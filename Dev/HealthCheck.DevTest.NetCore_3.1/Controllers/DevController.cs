@@ -37,6 +37,8 @@ using HealthCheck.Dev.Common.Settings;
 using HealthCheck.Dev.Common.Tests;
 using HealthCheck.Module.DataExport;
 using HealthCheck.Module.DataExport.Abstractions;
+using HealthCheck.Module.DataExport.Exporter.Excel;
+using HealthCheck.Module.DataExport.Exporters;
 using HealthCheck.Module.DevModule;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Module;
@@ -101,7 +103,12 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             UseModule(new HCDataExportModule(new HCDataExportModuleOptions
             {
                 Service = dataExportService,
-                PresetStorage = dataExportPresetStorage
+                PresetStorage = dataExportPresetStorage,
+                Exporters = new IHCDataExportExporter[]
+                {
+                    new HCDataExportExporterCSV(),
+                    new HCDataExportExporterXlsx()
+                }
             }));
             UseModule(new HCDataRepeaterModule(new HCDataRepeaterModuleOptions
             {
