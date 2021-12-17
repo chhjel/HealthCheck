@@ -2,14 +2,10 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface HCDataExportStreamQueryPreset
+export interface HCDataExportValueFormatterConfig
 {
-	Id: string;
-	StreamId: string;
-	Name: string;
-	Description: string;
-	Query: string;
-	IncludedProperties: string[];
-	HeaderNameOverrides: { [key:string]: string };
+	FormatterId: string;
+	PropertyName: string;
 	CustomParameters: { [key:string]: string };
+	Parameters: any;
 }

@@ -924,6 +924,8 @@ public class ExampleDataRepeaterStreamItemActionToggleAllow : HCDataRepeaterStre
 
 ## Module: DataExport
 
+Requires an additional nuget package installed [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.DataExport?label=HealthCheck.Module.DataExport&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.DataExport).
+
 The module allows for filtering and exporting data. The type of data source you have available determines how to filter it.
 
 * IQueryable: Lets the user enter a linq query to filter on.
@@ -949,8 +951,12 @@ UseModule(new HCDataExportModule(new HCDataExportModuleOptions
     Service = dataExportService,
     // Optionally provide preset storage if needed
     PresetStorage = dataExportPresetStorage
-    // Optionally configure exporters, by default a CSV exporter is configured
-    // Exporters = ..
+    // Optionally configure exporters, by default a CSV exporter is configured.
+    // Exporters = new IHCDataExportExporter[]
+    // {
+    //     new HCDataExportExporterCSV(),
+    //     new HCDataExportExporterXlsx() // Excel exporter can be found in the nuget package HealthCheck.Module.DataExport.Exporter.Excel
+    // }
 }));
 ```
 
@@ -969,6 +975,8 @@ public class MyDataExportStreamA : HCDataExportStreamBase<MyModel>
     // - QueryableManuallyPaged uses GetQueryableItemsManuallyPagedAsync(int pageIndex, int pageSize)
     // - Enumerable uses GetEnumerableItemsAsync(int pageIndex, int pageSize, Func<MyModel, bool> predicate)
     public override IHCDataExportStream.QueryMethod Method => IHCDataExportStream.QueryMethod.Queryable;
+    // Optionally set any allowed column formatters. Any built-in ones can be found below the HealthCheck.Module.DataExport.Formatters namespace.
+    public override IEnumerable<IHCDataExportValueFormatter> ValueFormatters => new[] { new HCDataExportDateTimeValueFormatter() };
     
     // Optional stream group name
     // public override string StreamGroupName => null;

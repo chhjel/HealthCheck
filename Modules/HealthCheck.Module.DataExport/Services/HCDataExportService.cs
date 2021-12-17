@@ -108,9 +108,10 @@ namespace HealthCheck.Module.DataExport.Services
                 totalCount = enumerableResult?.TotalCount ?? 0;
             }
 
+            var formatters = stream.ValueFormatters?.ToDictionaryIgnoreDuplicates(x => x.GetType().FullName, x => x);
             var resultItems = pageItems
                 .Where(x => x != null)
-                .Select(x => CreateResultItem(x, stream.GetType().FullName, request.IncludedProperties))
+                .Select(x => CreateResultItem(x, stream, request.IncludedProperties, request.ValueFormatterConfigs, formatters))
                 .ToArray();
 
             var result = new HCDataExportQueryResponse
@@ -121,8 +122,10 @@ namespace HealthCheck.Module.DataExport.Services
             return result;
         }
 
-        private Dictionary<string, object> CreateResultItem(object item, string streamId, List<string> includedProperties)
+        private Dictionary<string, object> CreateResultItem(object item, IHCDataExportStream stream,
+            List<string> includedProperties, Dictionary<string, HCDataExportValueFormatterConfig> valueFormatterConfigs, Dictionary<string, IHCDataExportValueFormatter> formatters)
         {
+            var streamId = stream.GetType().FullName;
             var itemType = item.GetType();
             var itemDef = GetStreamItemDefinition(streamId, itemType);
 
@@ -130,7 +133,31 @@ namespace HealthCheck.Module.DataExport.Services
             var allowedIncludedProperties = itemDef.Members.Where(x => includedProperties.Count == 0 || includedProperties.Any(m => m == x.Name));
             foreach (var prop in allowedIncludedProperties)
             {
-                dict[prop.Name] = prop.GetValue(item);
+                var value = prop.GetValue(item);
+
+                var customFormatterConfig = valueFormatterConfigs?.ContainsKey(prop.Name) == true ? valueFormatterConfigs[prop.Name] : null;
+                var customFormatter = (customFormatterConfig?.FormatterId != null && formatters.ContainsKey(customFormatterConfig.FormatterId))
+                    ? formatters[customFormatterConfig.FormatterId] : null;
+
+                // Custom format
+                if (customFormatter != null)
+                {
+                    // Only build parameter object once
+                    if (customFormatterConfig.Parameters == null)
+                    {
+                        customFormatterConfig.Parameters = HCValueConversionUtils.ConvertInputModel(customFormatter.CustomParametersType, customFormatterConfig.CustomParameters)
+                            ?? Activator.CreateInstance(customFormatter.CustomParametersType);
+                    }
+
+                    value = customFormatter.FormatValue(prop.Name, prop.Type, value, customFormatterConfig.Parameters);
+                }
+                // Default format
+                else
+                {
+                    value = stream.DefaultFormatValue(prop.Name, prop.Type, value);
+                }
+
+                dict[prop.Name] = value;
             }
 
             return dict;

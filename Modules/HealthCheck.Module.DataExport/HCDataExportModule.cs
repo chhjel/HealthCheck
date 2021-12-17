@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Config;
 using HealthCheck.Core.Util;
 using HealthCheck.Core.Util.Modules;
 using HealthCheck.Module.DataExport.Abstractions;
@@ -7,7 +8,6 @@ using HealthCheck.Module.DataExport.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -108,7 +108,8 @@ namespace HealthCheck.Module.DataExport
                     GroupName = stream.StreamGroupName,
                     ItemDefinition = Create(itemDef),
                     ShowQueryInput = showQueryInput,
-                    CustomParameterDefinitions = HCCustomPropertyAttribute.CreateInputConfigs(stream.CustomParametersType)
+                    CustomParameterDefinitions = HCCustomPropertyAttribute.CreateInputConfigs(stream.CustomParametersType),
+                    ValueFormatters = (stream.ValueFormatters ?? Array.Empty<IHCDataExportValueFormatter>()).Select(x => Create(x)).ToList()
                 };
                 list.Add(streamModel);
             }
@@ -269,7 +270,7 @@ namespace HealthCheck.Module.DataExport
             if (exporter == null) return CreateExportErrorHtml("Export method not found.");
 
             // Bake file
-            string content = null;
+            byte[] content = null;
             try
             {
                 content = AsyncUtils.RunSync(() => CreateExportContentAsync(data, exporter, stream.ExportBatchSize));
@@ -294,14 +295,14 @@ namespace HealthCheck.Module.DataExport
             context.AddAuditEvent("Data exported", streamName)
                 .AddClientConnectionDetails(context)
                 .AddDetail("File Name", fileName)
-                .AddDetail("Filesize", $"{IOUtils.PrettifyFileSize(Encoding.Default.GetBytes(content).Length)}");
+                .AddDetail("Filesize", $"{IOUtils.PrettifyFileSize(content.Length)}");
 
-            return HealthCheckFileDownloadResult.CreateFromString(fileName, content);
+            return HealthCheckFileDownloadResult.CreateFromBytes(fileName, content);
         }
         #endregion
 
         #region Helpers
-        private async Task<string> CreateExportContentAsync(AllowedExportData data, IHCDataExportExporter exporter, int exportBatchSize)
+        private async Task<byte[]> CreateExportContentAsync(AllowedExportData data, IHCDataExportExporter exporter, int exportBatchSize)
         {
             var model = data.Query;
             model.PageIndex = 0;
@@ -317,6 +318,17 @@ namespace HealthCheck.Module.DataExport
             }
             exporter.SetHeaders(resolvedHeaders);
 
+            var serializeStringifiyCache = new Dictionary<Type, bool>();
+            bool serializeStringifiy(object val)
+            {
+                var type = val?.GetType();
+                if (type == null) return false;
+                else if (serializeStringifiyCache.ContainsKey(type)) return serializeStringifiyCache[type];
+
+                var toStringMethod = type.GetMethods()?.FirstOrDefault(x => x.Name == nameof(object.ToString));
+                return toStringMethod?.DeclaringType == typeof(object);
+            }
+
             var taken = 0;
             var totalCount = 1;
             while (taken < totalCount)
@@ -328,7 +340,13 @@ namespace HealthCheck.Module.DataExport
                 foreach (var item in result.Items.OfType<Dictionary<string, object>>())
                 {
                     taken++;
-                    exporter.AppendItem(item, headers);
+                    var stringified = new Dictionary<string, string>();
+                    foreach (var kvp in item)
+                    {
+                        var val = item[kvp.Key];
+                        stringified[kvp.Key] = serializeStringifiy(val) ? HCGlobalConfig.Serializer.Serialize(val, pretty: false) : val?.ToString();
+                    }
+                    exporter.AppendItem(item, stringified, headers);
                 }
             }
 
@@ -378,6 +396,7 @@ namespace HealthCheck.Module.DataExport
                     model.IncludedProperties = preset.IncludedProperties;
                     model.HeaderNameOverrides = preset.HeaderNameOverrides;
                     model.CustomParameters = preset.CustomParameters;
+                    model.ValueFormatterConfigs = preset.ValueFormatterConfigs;
                 }
             }
 
@@ -435,7 +454,8 @@ namespace HealthCheck.Module.DataExport
                 IncludedProperties = model.IncludedProperties,
                 Query = model.Query,
                 HeaderNameOverrides = model.HeaderNameOverrides,
-                CustomParameters = model.CustomParameters
+                CustomParameters = model.CustomParameters,
+                ValueFormatterConfigs = model.ValueFormatterConfigs
             };
         }
 
@@ -451,7 +471,20 @@ namespace HealthCheck.Module.DataExport
                 IncludedProperties = model.IncludedProperties,
                 Query = model.Query,
                 HeaderNameOverrides = model.HeaderNameOverrides,
-                CustomParameters = model.CustomParameters
+                CustomParameters = model.CustomParameters,
+                ValueFormatterConfigs = model.ValueFormatterConfigs
+            };
+        }
+
+        private static HCDataExportValueFormatterViewModel Create(IHCDataExportValueFormatter formatter)
+        {
+            return new HCDataExportValueFormatterViewModel
+            {
+                Id = formatter.GetType().FullName,
+                Name = formatter.Name,
+                Description = formatter.Description,
+                SupportedTypes = (formatter.SupportedTypes?.Select(x => x.Name) ?? Enumerable.Empty<string>()).ToList(),
+                CustomParameterDefinitions = HCCustomPropertyAttribute.CreateInputConfigs(formatter.CustomParametersType)
             };
         }
         #endregion

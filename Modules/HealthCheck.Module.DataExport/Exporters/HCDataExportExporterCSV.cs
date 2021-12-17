@@ -35,15 +35,15 @@ namespace HealthCheck.Module.DataExport.Exporters
         }
 
         /// <inheritdoc />
-        public void AppendItem(Dictionary<string, object> item, List<string> order)
+        public void AppendItem(Dictionary<string, object> items, Dictionary<string, string> itemsStringified, List<string> order)
         {
-            var parts = order.Select(x => item[x]?.ToString());
+            var parts = order.Select(x => itemsStringified[x] ?? string.Empty);
             var line = CreateLine(parts);
             _builder.AppendLine(line);
         }
 
         /// <inheritdoc />
-        public string GetContents() => _builder.ToString();
+        public byte[] GetContents() => Encoding.UTF8.GetBytes(_builder.ToString());
 
         /// <summary>
         /// Create a CSV line from the given raw parts.

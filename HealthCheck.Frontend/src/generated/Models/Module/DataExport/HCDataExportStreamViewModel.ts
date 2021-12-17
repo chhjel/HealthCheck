@@ -4,6 +4,7 @@
 
 import { HCDataExportStreamItemDefinitionViewModel } from './HCDataExportStreamItemDefinitionViewModel';
 import { HCBackendInputConfig } from '../../Core/HCBackendInputConfig';
+import { HCDataExportValueFormatterViewModel } from './HCDataExportValueFormatterViewModel';
 
 export interface HCDataExportStreamViewModel
 {
@@ -14,4 +15,5 @@ export interface HCDataExportStreamViewModel
 	ShowQueryInput: boolean;
 	ItemDefinition: HCDataExportStreamItemDefinitionViewModel;
 	CustomParameterDefinitions: HCBackendInputConfig[];
+	ValueFormatters: HCDataExportValueFormatterViewModel[];
 }

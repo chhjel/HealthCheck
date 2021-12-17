@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Module.DataExport.Abstractions;
+using HealthCheck.Module.DataExport.Formatters;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace HealthCheck.Dev.Common.DataExport
         //public override object AllowedAccessRoles => null;
         public override List<string> Categories => new List<string> { "Test category here" };
         public override int ExportBatchSize => 50000;
+        public override IEnumerable<IHCDataExportValueFormatter> ValueFormatters => new[] { new HCDataExportDateTimeValueFormatter() };
 
         protected override Task<TypedEnumerableResult> GetEnumerableItemsWithCustomFilterAsync(int pageIndex, int pageSize, Parameters parameters)
         {

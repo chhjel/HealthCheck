@@ -97,7 +97,7 @@
                                     </v-btn>
                                     <v-btn :disabled="isLoading" v-if="showExport" @click="onShowColumnTitlesClicked"
                                         :loading="exportLoadStatus.inProgress">
-                                        <v-icon size="20px" class="mr-2">title</v-icon>Column titles..
+                                        <v-icon size="20px" class="mr-2">title</v-icon>Column config..
                                     </v-btn>
                                     <v-btn :disabled="isLoading" v-if="showExport" @click="onShowExportDialogClicked"
                                         :loading="exportLoadStatus.inProgress">
@@ -302,7 +302,7 @@
             max-width="460"
             content-class="confirm-dialog">
             <v-card>
-                <v-card-title class="headline">Customize column titles</v-card-title>
+                <v-card-title class="headline">Customize columns</v-card-title>
                 <v-card-text>
                     <div>
                         <div v-if="!headers || Object.keys(headers).length == 0">
@@ -312,9 +312,14 @@
                             <div v-for="(header, hIndex) in headers"
                                 :key="`item-header-override-${hIndex}`">
                                 <code>{{ header }}</code>
-                                <v-text-field
-                                    v-model="headerNameOverrides[header]"
-                                    :placeholder="header" />
+                                <div class="item-header-override-inputs">
+                                    <v-text-field
+                                        v-model="headerNameOverrides[header]"
+                                        :placeholder="header" />
+                                    <v-btn flat
+                                        v-if="hasFormatterForHeader(header)"
+                                        @click="onValueFormatButtonClicked(header)">Format</v-btn>
+                                </div>
                             </div>
                         </ul>
                     </div>
@@ -343,8 +348,8 @@
                         </p>
 
                         <h4>Simple predicates</h4>
-                        <code>Name == \"Jimmy\" &amp;&amp; Age > 50</code><br />
-                        <code>(Name == \"Jimmy\" and Age > 50) or Name == "Smithy"</code>
+                        <code>Name == "Jimmy" &amp;&amp; Age > 50</code><br />
+                        <code>(Name == "Jimmy" and Age > 50) or Name == "Smithy"</code>
 
                         <h4 class="mt-2">Methods</h4>
                         <p class="mb-0">The usual LINQ methods can be used, e.g. ToString(), StartsWith() etc.</p>
@@ -356,7 +361,7 @@
 
                         <h4 class="mt-2">Null Propagation</h4>
                         <p class="mb-0">To filter on properties that can be null, use <code>np()</code> instead of <code>?.</code></p>
-                        <code>np(Address.City) == \"DevTown\"</code>
+                        <code>np(Address.City) == "DevTown"</code>
                     </div>
                 </v-card-text>
                 <v-divider></v-divider>
@@ -390,6 +395,57 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+        <v-dialog v-model="formatDialogVisible"
+            @keydown.esc="formatDialogVisible = false"
+            max-width="460"
+            content-class="confirm-dialog">
+            <v-card>
+                <v-card-title class="headline">Format column</v-card-title>
+                <v-card-text>
+                    <div>
+                        <div v-if="!formattersInDialog || formattersInDialog.length == 0">
+                            <b>No formatters for this column type found.</b>
+                        </div>
+                        <div v-else>
+                            <v-select
+                                label="Selected formatter"
+                                v-model="selectedFormatterId"
+                                :items="formattersInDialogChoices"
+                                item-text="Name" item-value="Id" color="secondary"
+                                :disabled="dataLoadStatus.inProgress"
+                                v-on:change="onFormatterChanged"
+                                >
+                            </v-select>
+                            
+                            <div v-if="selectedFormatter">
+                                <h3>{{ selectedFormatter.Name }}</h3>
+                                <p v-if="selectedFormatter.Description">{{ selectedFormatter.Description }}</p>
+
+                                <div class="format-parameter-items"
+                                    v-if="valueFormatterConfigs[selectedFormatHeader].CustomParameters">
+                                    <backend-input-component
+                                        v-for="(parameterDef, pIndex) in selectedFormatter.CustomParameterDefinitions"
+                                        :key="`format-parameter-item-${selectedFormatter.Id}-${pIndex}-${parameterDef.Id}`"
+                                        class="format-parameter-item"
+                                        v-model="valueFormatterConfigs[selectedFormatHeader].CustomParameters[parameterDef.Id]"
+                                        :config="parameterDef"
+                                        :readonly="isLoading"
+                                        />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary"
+                        :disabled="dataLoadStatus.inProgress"
+                        :loading="dataLoadStatus.inProgress"
+                        @click="formatDialogVisible = false">Close</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -416,6 +472,8 @@ import BackendInputComponent from "components/Common/Inputs/BackendInputs/Backen
 import { HCDataExportStreamQueryPresetViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamQueryPresetViewModel";
 import { HCDataExportQueryRequest } from "generated/Models/Module/DataExport/HCDataExportQueryRequest";
 import { HCDataExportExporterViewModel } from "generated/Models/Module/DataExport/HCDataExportExporterViewModel";
+import { HCDataExportValueFormatterConfig } from "generated/Models/Module/DataExport/HCDataExportValueFormatterConfig";
+import { HCDataExportValueFormatterViewModel } from "generated/Models/Module/DataExport/HCDataExportValueFormatterViewModel";
 
 @Component({
     components: {
@@ -455,6 +513,7 @@ export default class DataRepeaterPageComponent extends Vue {
     headers: Array<string> = [];
     headerNameOverrides: { [key:string]: string } = {};
     customParameters: { [key:string]: string } = {};
+	valueFormatterConfigs: { [key:string]: HCDataExportValueFormatterConfig } = {};
     itemDefinition: HCDataExportStreamItemDefinitionViewModel = { StreamId: '', Name: '', Members: [] };
     
     newPresetName: string = '';
@@ -466,6 +525,10 @@ export default class DataRepeaterPageComponent extends Vue {
     columnTitlesDialogVisible: boolean = false;
     queryHelpDialogVisible: boolean = false;
     deletePresetDialogVisible: boolean = false;
+    selectedFormatterId: string | null = null;
+    selectedFormatHeader: string | null = null;
+    formattersInDialog: Array<HCDataExportValueFormatterViewModel> = [];
+    formatDialogVisible: boolean = false;
 
     // Filter/pagination
     pageIndex: number = 0;
@@ -593,6 +656,26 @@ export default class DataRepeaterPageComponent extends Vue {
         return `Showing ${from}-${to} of ${this.totalResultCount} total matches`;
     }
 
+    get selectedFormatter(): HCDataExportValueFormatterViewModel | null {
+        if (!this.selectedFormatterId || !this.selectedStream) return null;
+        return this.selectedStream.ValueFormatters.filter(x => x.Id == this.selectedFormatterId)[0];
+    }
+
+    get formattersInDialogChoices(): Array<HCDataExportValueFormatterViewModel>
+    {
+        let items: Array<HCDataExportValueFormatterViewModel> = [
+            {
+                Id: <any>null,
+                Name: 'No formatting',
+                Description: '',
+                SupportedTypes: [],
+                CustomParameterDefinitions: []
+            },
+            ...this.formattersInDialog
+        ];
+        return items;
+    }
+
     ////////////////////
     //  Parent Menu  //
     //////////////////
@@ -629,6 +712,7 @@ export default class DataRepeaterPageComponent extends Vue {
         this.headers = [];
         this.headerNameOverrides = {};
         this.customParameters = {};
+        this.valueFormatterConfigs = {};
     }
 
     loadStreamDefinitions(): void {
@@ -731,6 +815,7 @@ export default class DataRepeaterPageComponent extends Vue {
         this.headers = [...preset.IncludedProperties];
         this.headerNameOverrides = JSON.parse(JSON.stringify(preset.HeaderNameOverrides));
         this.customParameters = preset.CustomParameters || {};
+        this.valueFormatterConfigs = preset.ValueFormatterConfigs || {};
         this.loadPresetDialogVisible = false;
     }
 
@@ -766,7 +851,8 @@ export default class DataRepeaterPageComponent extends Vue {
                 Query: this.queryInput,
                 IncludedProperties: props,
                 HeaderNameOverrides: this.headerNameOverrides,
-                CustomParameters: this.customParameters
+                CustomParameters: this.customParameters,
+                ValueFormatterConfigs: this.valueFormatterConfigs
             }
         }, this.dataLoadStatus,
         {
@@ -774,6 +860,22 @@ export default class DataRepeaterPageComponent extends Vue {
                 this.savePresetDialogVisible = false;
             }
         });
+    }
+
+    hasFormatterForHeader(header: string): boolean {
+        return this.getFormattersForHeader(header).length > 0;
+    }
+
+    getFormattersForHeader(header: string): Array<HCDataExportValueFormatterViewModel> {
+        if (!this.itemDefinition) return [];
+        const member = this.itemDefinition.Members.filter(x => x.Name == header)[0];
+        if (!member) return [];
+        return this.getFormattersForType(member.TypeName);
+    }
+
+    getFormattersForType(type: string): Array<HCDataExportValueFormatterViewModel> {
+        if (!this.selectedStream || !this.selectedStream.ValueFormatters) return [];
+        return this.selectedStream.ValueFormatters.filter(x => x.SupportedTypes && x.SupportedTypes.includes(type));
     }
 
     loadCurrentStreamItems(resetPageIndex: boolean): void {
@@ -820,7 +922,8 @@ export default class DataRepeaterPageComponent extends Vue {
             PresetId: this.hasAccessToQueryCustom ? undefined : (this.selectedPresetId || undefined),
             HeaderNameOverrides: this.hasAccessToQueryCustom ? this.headerNameOverrides : {},
             ExporterId: exporterId || '',
-            CustomParameters: this.customParameters
+            CustomParameters: this.customParameters,
+            ValueFormatterConfigs: this.valueFormatterConfigs
         };
     }
 
@@ -875,7 +978,8 @@ export default class DataRepeaterPageComponent extends Vue {
             incProp: this.includedProperties,
             headers: this.headers,
             headerOverrides: this.headerNameOverrides,
-            customParameters: this.customParameters
+            customParameters: this.customParameters,
+            valueFormatterConfigs: this.valueFormatterConfigs
         };
     }
 
@@ -884,11 +988,12 @@ export default class DataRepeaterPageComponent extends Vue {
         if (cache == null) return false;
         
         this.queryInput = this.filterCache[streamId].q || '';
-        this.selectedPresetId =  this.filterCache[streamId].pId || null;
-        this.includedProperties =  this.filterCache[streamId].incProp || [];
-        this.headers =  this.filterCache[streamId].headers || [];
-        this.headerNameOverrides =  this.filterCache[streamId].headerOverrides || {};
-        this.customParameters =  this.filterCache[streamId].customParameters || {};
+        this.selectedPresetId = this.filterCache[streamId].pId || null;
+        this.includedProperties = this.filterCache[streamId].incProp || [];
+        this.headers = this.filterCache[streamId].headers || [];
+        this.headerNameOverrides = this.filterCache[streamId].headerOverrides || {};
+        this.customParameters = this.filterCache[streamId].customParameters || {};
+        this.valueFormatterConfigs = this.filterCache[streamId].valueFormatterConfigs || {};
 
         return true;
     }
@@ -992,6 +1097,47 @@ export default class DataRepeaterPageComponent extends Vue {
             }
         });
     }
+
+    onValueFormatButtonClicked(header: string): void {
+        this.formattersInDialog = this.getFormattersForHeader(header);
+
+        this.selectedFormatHeader = header;
+        this.selectedFormatterId = null;
+        const config = this.valueFormatterConfigs[header];
+        if (config)
+        {
+            this.selectedFormatterId = this.formattersInDialog.filter(x => x.Id == config.FormatterId)[0]?.Id
+                || null;
+        }
+
+        this.formatDialogVisible = true;
+    }
+
+    onFormatterChanged(): void {
+        const header = this.selectedFormatHeader;
+        if (header)
+        {
+            if (this.selectedFormatter && this.selectedFormatterId)
+            {
+                let customParameters: { [key:string]: string } = {};
+                this.selectedFormatter?.CustomParameterDefinitions.forEach(x => {
+                    customParameters[x.Id] = x.DefaultValue
+                });
+
+                this.valueFormatterConfigs[header] = {
+                    FormatterId: this.selectedFormatterId,
+                    PropertyName: header,
+                    CustomParameters: customParameters,
+                    Parameters: {}
+                };
+            }
+            // Selected no formatting
+            else if (this.selectedFormatterId == null)
+            {
+                delete this.valueFormatterConfigs[header];
+            }
+        }
+    }
 }
 </script>
 
@@ -1028,5 +1174,9 @@ export default class DataRepeaterPageComponent extends Vue {
     .export-parameter-item {
         min-width: 48%;
     }
+}
+.item-header-override-inputs {
+    display: flex;
+    align-items: baseline;
 }
 </style>

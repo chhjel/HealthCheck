@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Module.DataExport.Abstractions
@@ -40,6 +41,9 @@ namespace HealthCheck.Module.DataExport.Abstractions
 
         /// <inheritdoc />
         public bool SupportsQuery => Method != IHCDataExportStream.QueryMethod.EnumerableWithCustomFilter;
+
+        /// <inheritdoc />
+        public virtual IEnumerable<IHCDataExportValueFormatter> ValueFormatters { get; } = new List<IHCDataExportValueFormatter>();
 
         /// <summary>
         /// Defines what method to use for querying.
@@ -88,6 +92,30 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// <inheritdoc />
         public virtual Task<IHCDataExportStream.EnumerableResult> GetEnumerableWithCustomFilterAsync(int pageIndex, int pageSize, object parameters)
             => throw new HCException($"To use {nameof(IHCDataExportStream.QueryMethod.EnumerableWithCustomFilter)} you must either override {nameof(GetEnumerableWithCustomFilterAsync)} or use the {nameof(HCDataExportStreamBase<object, object>)} base class.");
+
+        /// <inheritdoc />
+        public virtual object DefaultFormatValue(string propertyName, Type propertyType, object value)
+        {
+            lock(_formatValueMethodCache)
+            {
+                if (!_formatValueMethodCache.ContainsKey(propertyType))
+                {
+                    _formatValueMethodCache[propertyType] = GetType()
+                        .GetMethod(nameof(DefaultFormatValue), BindingFlags.NonPublic | BindingFlags.Instance)
+                        .MakeGenericMethod(propertyType);
+                }
+                var method = _formatValueMethodCache[propertyType];
+                return method.Invoke(this, new object[] { propertyName, value });
+            }
+        }
+        private static readonly Dictionary<Type, MethodInfo> _formatValueMethodCache = new();
+
+        /// <summary>
+        /// Strongly typed version of <see cref="DefaultFormatValue(string, Type, object)"/>.
+        /// </summary>
+        /// <param name="propertyName">Dotted path to the member.</param>
+        /// <param name="value">Value of the property.</param>
+        protected virtual object DefaultFormatValue<T>(string propertyName, T value) => value;
 
         /// <summary>
         /// Result from <see cref="GetEnumerableItemsAsync"/>

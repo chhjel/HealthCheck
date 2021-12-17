@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Module.DataExport.Abstractions;
+using HealthCheck.Module.DataExport.Formatters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace HealthCheck.Dev.Common.DataExport
         public override List<string> Categories => null;
         public override int ExportBatchSize => 500;
         public override IHCDataExportStream.QueryMethod Method => IHCDataExportStream.QueryMethod.Queryable;
+        public override IEnumerable<IHCDataExportValueFormatter> ValueFormatters => new[] { new HCDataExportDateTimeValueFormatter() };
 
         protected override Task<IQueryable<TestExportItem>> GetQueryableItemsAsync()
         {
@@ -27,6 +29,19 @@ namespace HealthCheck.Dev.Common.DataExport
                     Value = x
                 });
             return Task.FromResult(items.AsQueryable());
+        }
+
+        protected override object DefaultFormatValue<T>(string propertyName, T value)
+        {
+            if (value is DateTimeOffset date)
+            {
+                return date.ToString("dd/MM/yyyy");
+            }
+            else if (value is DateTime dateTime)
+            {
+                return dateTime.ToString("HH:mm:ss");
+            }
+            return value;
         }
 
         public class TestExportItem

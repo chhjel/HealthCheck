@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace HealthCheck.Module.DataExport.Models
 {
     /// <summary></summary>
-    public class HCDataExportStreamViewModel
+    public class HCDataExportValueFormatterViewModel
     {
         /// <summary></summary>
         public string Id { get; set; }
@@ -16,18 +16,9 @@ namespace HealthCheck.Module.DataExport.Models
         public string Description { get; set; }
 
         /// <summary></summary>
-        public string GroupName { get; set; }
-
-        /// <summary></summary>
-        public bool ShowQueryInput { get; set; }
-
-        /// <summary></summary>
-        public HCDataExportStreamItemDefinitionViewModel ItemDefinition { get; set; }
+        public List<string> SupportedTypes { get; set; }
 
         /// <summary></summary>
         public List<HCBackendInputConfig> CustomParameterDefinitions { get; set; }
-
-        /// <summary></summary>
-        public List<HCDataExportValueFormatterViewModel> ValueFormatters { get; set; }
     }
 }

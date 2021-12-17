@@ -69,6 +69,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Module.DataExpo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.Episerver.DataExport", "Episerver\HealthCheck.Episerver.DataExport\HealthCheck.Episerver.DataExport.csproj", "{523519C4-83BC-4456-BBBD-E23A0B679E05}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.Module.DataExport.Exporter.Excel", "Modules\HealthCheck.Module.DataExport.Exporter.Excel\HealthCheck.Module.DataExport.Exporter.Excel.csproj", "{F2BDA820-2936-4625-A883-9112D7CCCA26}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -162,6 +164,10 @@ Global
 		{523519C4-83BC-4456-BBBD-E23A0B679E05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{523519C4-83BC-4456-BBBD-E23A0B679E05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{523519C4-83BC-4456-BBBD-E23A0B679E05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2BDA820-2936-4625-A883-9112D7CCCA26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2BDA820-2936-4625-A883-9112D7CCCA26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2BDA820-2936-4625-A883-9112D7CCCA26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2BDA820-2936-4625-A883-9112D7CCCA26}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -184,6 +190,7 @@ Global
 		{4AA61542-531D-4216-8B4D-DBEE43DE29C7} = {23FF7575-64C7-43DC-9FDB-1FE4BF5A1D3F}
 		{261CA139-D847-4086-9D2E-6E416B9A1337} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
 		{523519C4-83BC-4456-BBBD-E23A0B679E05} = {DFA1DC1E-CEA9-4C53-9677-A203B2B045E4}
+		{F2BDA820-2936-4625-A883-9112D7CCCA26} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F29D958F-997A-4DDE-B100-586ADFF9A3D3}
