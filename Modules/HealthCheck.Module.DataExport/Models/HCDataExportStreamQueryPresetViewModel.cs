@@ -45,5 +45,10 @@ namespace HealthCheck.Module.DataExport.Models
         /// Config for any selected formatters.
         /// </summary>
         public Dictionary<string, HCDataExportValueFormatterConfig> ValueFormatterConfigs { get; set; }
+
+        /// <summary>
+        /// Any custom columns.
+        /// </summary>
+        public Dictionary<string, string> CustomColumns { get; set; }
     }
 }

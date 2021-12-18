@@ -1,10 +1,11 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Attributes;
-using HealthCheck.Core.Config;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Util;
 using HealthCheck.Core.Util.Modules;
 using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Models;
+using HealthCheck.Module.DataExport.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -319,15 +320,6 @@ namespace HealthCheck.Module.DataExport
             exporter.SetHeaders(resolvedHeaders);
 
             var serializeStringifiyCache = new Dictionary<Type, bool>();
-            bool serializeStringifiy(object val)
-            {
-                var type = val?.GetType();
-                if (type == null) return false;
-                else if (serializeStringifiyCache.ContainsKey(type)) return serializeStringifiyCache[type];
-
-                var toStringMethod = type.GetMethods()?.FirstOrDefault(x => x.Name == nameof(object.ToString));
-                return toStringMethod?.DeclaringType == typeof(object);
-            }
 
             var taken = 0;
             var totalCount = 1;
@@ -344,7 +336,7 @@ namespace HealthCheck.Module.DataExport
                     foreach (var kvp in item)
                     {
                         var val = item[kvp.Key];
-                        stringified[kvp.Key] = serializeStringifiy(val) ? HCGlobalConfig.Serializer.Serialize(val, pretty: false) : val?.ToString();
+                        stringified[kvp.Key] = HCDataExportService.SerializeOrStringifyValue(val, serializeStringifiyCache);
                     }
                     exporter.AppendItem(item, stringified, headers);
                 }
@@ -397,6 +389,7 @@ namespace HealthCheck.Module.DataExport
                     model.HeaderNameOverrides = preset.HeaderNameOverrides;
                     model.CustomParameters = preset.CustomParameters;
                     model.ValueFormatterConfigs = preset.ValueFormatterConfigs;
+                    model.CustomColumns = preset.CustomColumns;
                 }
             }
 
@@ -439,7 +432,7 @@ namespace HealthCheck.Module.DataExport
             return new HCDataExportStreamItemDefinitionMemberViewModel
             {
                 Name = model.Name,
-                TypeName = model.Type.Name
+                TypeName = model.Type.GetFriendlyTypeName()
             };
         }
 
@@ -455,7 +448,8 @@ namespace HealthCheck.Module.DataExport
                 Query = model.Query,
                 HeaderNameOverrides = model.HeaderNameOverrides,
                 CustomParameters = model.CustomParameters,
-                ValueFormatterConfigs = model.ValueFormatterConfigs
+                ValueFormatterConfigs = model.ValueFormatterConfigs,
+                CustomColumns = model.CustomColumns
             };
         }
 
@@ -472,7 +466,8 @@ namespace HealthCheck.Module.DataExport
                 Query = model.Query,
                 HeaderNameOverrides = model.HeaderNameOverrides,
                 CustomParameters = model.CustomParameters,
-                ValueFormatterConfigs = model.ValueFormatterConfigs
+                ValueFormatterConfigs = model.ValueFormatterConfigs,
+                CustomColumns = model.CustomColumns
             };
         }
 

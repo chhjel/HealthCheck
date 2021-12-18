@@ -14,4 +14,5 @@ export interface HCDataExportStreamQueryPresetViewModel
 	HeaderNameOverrides: { [key:string]: string };
 	CustomParameters: { [key:string]: string };
 	ValueFormatterConfigs: { [key:string]: HCDataExportValueFormatterConfig };
+	CustomColumns: { [key:string]: string };
 }
