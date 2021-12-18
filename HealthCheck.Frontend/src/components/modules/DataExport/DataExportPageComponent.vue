@@ -95,7 +95,7 @@
                                     <v-btn :disabled="isLoading" v-if="hasAccessToSavePreset" @click="onSavePresetClicked">
                                         <v-icon size="20px" class="mr-2">save_alt</v-icon>Save preset..
                                     </v-btn>
-                                    <v-btn :disabled="isLoading" v-if="showExport" @click="onShowColumnTitlesClicked"
+                                    <v-btn :disabled="isLoading" v-if="hasAccessToQueryCustom" @click="onShowColumnTitlesClicked"
                                         :loading="exportLoadStatus.inProgress">
                                         <v-icon size="20px" class="mr-2">title</v-icon>Column config..
                                     </v-btn>
@@ -256,9 +256,9 @@
                         </div>
                     </div>
                     
-                    <div v-if="headerNameOverrides && Object.keys(headerNameOverrides).length > 0">
+                    <div v-if="hasAnyHeaderOverrides">
                         <h4 class="mt-2">Column name overrides</h4>
-                        <div v-for="(headerOverride, hIndex) in Object.keys(headerNameOverrides)"
+                        <div v-for="(headerOverride, hIndex) in Object.keys(visibleHeaderNameOverrides)"
                             :key="`header-override-preview-${hIndex}`">
                             <code>{{ headerOverride }}</code> =&gt; <code>{{ headerNameOverrides[headerOverride] }}</code>
                         </div>
@@ -736,6 +736,25 @@ export default class DataRepeaterPageComponent extends Vue {
             ...this.formattersInDialog
         ];
         return items;
+    }
+
+    get hasAnyHeaderOverrides(): boolean {
+        return this.headerNameOverrides
+            && Object.keys(this.headerNameOverrides).filter(k => this.headerNameOverrides[k] && this.headerNameOverrides[k].length > 0).length > 0;
+    }
+
+    get visibleHeaderNameOverrides(): any {
+        let obj: any = {};
+        if (this.headerNameOverrides)
+        {
+            Object.keys(this.headerNameOverrides).forEach(x => {
+                if (this.headerNameOverrides[x] && this.headerNameOverrides[x].length > 0)
+                {
+                    obj[x] = this.headerNameOverrides[x];
+                }
+            });
+        }
+        return obj;
     }
 
     ////////////////////
