@@ -16,4 +16,5 @@ export interface HCDataExportQueryRequest
 	ExporterId: string;
 	CustomParameters: { [key:string]: string };
 	ValueFormatterConfigs: { [key:string]: HCDataExportValueFormatterConfig };
+	CustomColumns: { [key:string]: string };
 }

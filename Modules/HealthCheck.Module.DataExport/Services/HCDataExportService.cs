@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Extensions;
+﻿using HealthCheck.Core.Config;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Util;
 using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Models;
@@ -109,9 +110,10 @@ namespace HealthCheck.Module.DataExport.Services
             }
 
             var formatters = stream.ValueFormatters?.ToDictionaryIgnoreDuplicates(x => x.GetType().FullName, x => x);
+            var serializeStringifiyCache = new Dictionary<Type, bool>();
             var resultItems = pageItems
                 .Where(x => x != null)
-                .Select(x => CreateResultItem(x, stream, request.IncludedProperties, request.ValueFormatterConfigs, formatters))
+                .Select(x => CreateResultItem(x, stream, request.IncludedProperties, request.CustomColumns, request.ValueFormatterConfigs, formatters, serializeStringifiyCache))
                 .ToArray();
 
             var result = new HCDataExportQueryResponse
@@ -123,7 +125,7 @@ namespace HealthCheck.Module.DataExport.Services
         }
 
         private Dictionary<string, object> CreateResultItem(object item, IHCDataExportStream stream,
-            List<string> includedProperties, Dictionary<string, HCDataExportValueFormatterConfig> valueFormatterConfigs, Dictionary<string, IHCDataExportValueFormatter> formatters)
+            List<string> includedProperties, Dictionary<string, string> customColumns, Dictionary<string, HCDataExportValueFormatterConfig> valueFormatterConfigs, Dictionary<string, IHCDataExportValueFormatter> formatters, Dictionary<Type, bool> serializeStringifiyCache)
         {
             var streamId = stream.GetType().FullName;
             var itemType = item.GetType();
@@ -160,7 +162,42 @@ namespace HealthCheck.Module.DataExport.Services
                 dict[prop.Name] = value;
             }
 
+            // Custom columns
+            foreach(var kvp in customColumns)
+            {
+                var key = kvp.Key;
+                var value = kvp.Value;
+                foreach (var member in itemDef.Members)
+                {
+                    var placeholder = $"{{{member.Name}}}";
+                    if (value.Contains(placeholder))
+                    {
+                        var memberValue = member.GetValue(item);
+                        memberValue = stream.DefaultFormatValue(member.Name, member.Type, memberValue);
+                        value = value.Replace(placeholder, SerializeOrStringifyValue(memberValue, serializeStringifiyCache));
+                    }
+                }
+
+                dict[key] = value;
+            }
+
             return dict;
+        }
+
+        internal static string SerializeOrStringifyValue(object val, Dictionary<Type, bool> cache = null)
+        {
+            var shouldSerialize = ShouldSerializeValue(val, cache);
+            return shouldSerialize ? HCGlobalConfig.Serializer.Serialize(val, pretty: false) : val?.ToString();
+        }
+
+        internal static bool ShouldSerializeValue(object val, Dictionary<Type, bool> cache = null)
+        {
+            var type = val?.GetType();
+            if (type == null) return false;
+            else if (cache?.ContainsKey(type) == true) return cache[type];
+
+            var toStringMethod = type.GetMethods()?.FirstOrDefault(x => x.Name == nameof(object.ToString));
+            return toStringMethod?.DeclaringType == typeof(object);
         }
 
         private IHCDataExportStream GetStreamById(HCDataExportQueryRequest request)

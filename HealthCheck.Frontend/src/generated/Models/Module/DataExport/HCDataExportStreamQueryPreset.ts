@@ -2,6 +2,8 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import { HCDataExportValueFormatterConfig } from './HCDataExportValueFormatterConfig';
+
 export interface HCDataExportStreamQueryPreset
 {
 	Id: string;
@@ -12,4 +14,6 @@ export interface HCDataExportStreamQueryPreset
 	IncludedProperties: string[];
 	HeaderNameOverrides: { [key:string]: string };
 	CustomParameters: { [key:string]: string };
+	ValueFormatterConfigs: { [key:string]: HCDataExportValueFormatterConfig };
+	CustomColumns: { [key:string]: string };
 }
