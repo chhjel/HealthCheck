@@ -194,6 +194,7 @@ export default class SimplePagingComponent extends Vue
         this.$emit('input', num);
         this.$emit('change', num);
         this.currentValue = num;
+        this.dialogVisible = false;
     }
 
     ///////////////////////
@@ -207,7 +208,12 @@ export default class SimplePagingComponent extends Vue
         else if (btn.isDialogButton)
         {
             this.dialogVisible = true;
-            this.$nextTick(() => (<HTMLInputElement>this.$refs.dialogNumberInput).focus())
+            this.$nextTick(() => {
+                (<HTMLInputElement>this.$refs.dialogNumberInput).focus();
+                const el = (<Vue>this.$refs.dialogNumberInput).$el;
+                const input = el.getElementsByTagName('input')[0];
+                input.select();
+            });
         }
     }
 
