@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Config;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Util;
 using HealthCheck.Core.Util.Modules;
 using HealthCheck.Module.DataExport.Abstractions;
@@ -439,7 +440,7 @@ namespace HealthCheck.Module.DataExport
             return new HCDataExportStreamItemDefinitionMemberViewModel
             {
                 Name = model.Name,
-                TypeName = model.Type.Name
+                TypeName = model.Type.GetFriendlyTypeName()
             };
         }
 

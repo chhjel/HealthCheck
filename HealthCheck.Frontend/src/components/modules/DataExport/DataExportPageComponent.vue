@@ -875,7 +875,15 @@ export default class DataRepeaterPageComponent extends Vue {
 
     getFormattersForType(type: string): Array<HCDataExportValueFormatterViewModel> {
         if (!this.selectedStream || !this.selectedStream.ValueFormatters) return [];
-        return this.selectedStream.ValueFormatters.filter(x => x.SupportedTypes && x.SupportedTypes.includes(type));
+        let cleanType = type;
+        if (cleanType.startsWith('Nullable<'))
+        {
+            cleanType = cleanType.substring('Nullable<'.length);
+            cleanType = cleanType.substring(0, cleanType.length - 1);
+        }
+        return this.selectedStream.ValueFormatters
+            .filter(x => x.SupportedTypes
+                    && (x.SupportedTypes.includes(type) || x.SupportedTypes.includes(cleanType)));
     }
 
     loadCurrentStreamItems(resetPageIndex: boolean): void {
