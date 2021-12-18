@@ -241,10 +241,23 @@
                     </div>
 
                     <h4 class="mt-2">Included properties</h4>
-                    <code>{{ includedProperties }}</code>
+                    <ul>
+                        <li v-for="(prop, hIndex) in includedProperties"
+                            :key="`included-prop-preview-${hIndex}`">
+                            {{ prop }}
+                        </li>
+                    </ul>
+
+                    <div v-if="Object.keys(customColumns).length > 0">
+                        <h4 class="mt-2">Custom columns</h4>
+                        <div v-for="(key, hIndex) in Object.keys(customColumns)"
+                            :key="`custom-col-preview-${hIndex}`">
+                            <span>{{ key }}</span>: <code>{{ customColumns[key] }}</code>
+                        </div>
+                    </div>
                     
                     <div v-if="headerNameOverrides && Object.keys(headerNameOverrides).length > 0">
-                        <h4 class="mt-2">Column title overrides</h4>
+                        <h4 class="mt-2">Column name overrides</h4>
                         <div v-for="(headerOverride, hIndex) in Object.keys(headerNameOverrides)"
                             :key="`header-override-preview-${hIndex}`">
                             <code>{{ headerOverride }}</code> =&gt; <code>{{ headerNameOverrides[headerOverride] }}</code>
@@ -310,23 +323,28 @@
                         </div>
                         <ul>
                             <div v-for="(header, hIndex) in headers"
-                                :key="`item-header-override-${hIndex}`">
-                                <code>{{ header }}</code>
-                                <div class="item-header-override-inputs">
+                                :key="`item-header-override-${hIndex}`"
+                                class="item-header-override-config">
+                                <h4>{{ header }}</h4>
+                                <div class="item-header-override-config__row">
                                     <v-text-field
-                                        label="Name"
+                                        label="Name override"
                                         v-model="headerNameOverrides[header]"
                                         :placeholder="header" />
-                                    <v-text-field
-                                        label="Custom value"
-                                        v-if="isCustomHeader(header)"
-                                        v-model="customColumns[header]"/>
                                     <v-btn flat
                                         v-if="hasFormatterForHeader(header)"
                                         @click="onValueFormatButtonClicked(header)">Format</v-btn>
                                     <v-btn flat color="error"
                                         v-if="isCustomHeader(header)"
                                         @click="onRemoveCustomHeaderButtonClicked(header)">Remove</v-btn>
+                                </div>
+                                <div class="item-header-override-config__row">
+                                    <v-text-field
+                                        label="Custom value"
+                                        v-if="isCustomHeader(header)"
+                                        v-model="customColumns[header]"
+                                        append-outer-icon="insert_link"
+                                        @click:append-outer="onShowPlaceholdersClicked(header)" />
                                 </div>
                             </div>
                         </ul>
@@ -458,6 +476,36 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+        <v-dialog v-model="placeholdersDialogVisible"
+            @keydown.esc="placeholdersDialogVisible = false"
+            scrollable
+            content-class="possible-placeholders-dialog">
+            <v-card>
+                <v-card-title class="headline">Select placeholder to add</v-card-title>
+                <v-divider></v-divider>
+                <v-card-text style="max-height: 500px;">
+                    <v-list class="possible-placeholders-list">
+                        <v-list-tile v-for="(placeholder, placeholderIndex) in availableProperties"
+                            :key="`possible-placeholder-${placeholderIndex}`"
+                            @click="onAddPlaceholderClicked(placeholder)"
+                            class="possible-placeholder-list-item">
+                            <v-list-tile-action>
+                                <v-icon>add</v-icon>
+                            </v-list-tile-action>
+
+                            <v-list-tile-content>
+                                <v-list-tile-title class="possible-placeholder-item-title">{{ `\{${placeholder}\}` }}</v-list-tile-title>
+                            </v-list-tile-content>
+                        </v-list-tile>
+                    </v-list>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary" flat @click="placeholdersDialogVisible = false">Close</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -541,6 +589,8 @@ export default class DataRepeaterPageComponent extends Vue {
     selectedFormatHeader: string | null = null;
     formattersInDialog: Array<HCDataExportValueFormatterViewModel> = [];
     formatDialogVisible: boolean = false;
+    placeholdersDialogVisible: boolean = false;
+    currentPlaceholderDialogTarget: string | null = null;
 
     // Filter/pagination
     pageIndex: number = 0;
@@ -725,6 +775,7 @@ export default class DataRepeaterPageComponent extends Vue {
         this.headerNameOverrides = {};
         this.customParameters = {};
         this.valueFormatterConfigs = {};
+        this.customColumns = {};
     }
 
     loadStreamDefinitions(): void {
@@ -1174,6 +1225,40 @@ export default class DataRepeaterPageComponent extends Vue {
             }
         }
     }
+
+    onAddCustomHeaderButtonClicked(): void {
+        for(let i=1;i<=1000;i++)
+        {
+            const key = `#Custom_${i}`;
+            if (this.customColumns[key] == undefined)
+            {
+                this.customColumns[key] = '';
+                this.headers.push(key);
+                return;
+            }
+        }
+
+        alert('Rly? You have over 1000 columns? More than that I didn\t expect was needed and isn\'t supported yet.');
+    }
+
+    onRemoveCustomHeaderButtonClicked(header: string): void {
+        delete this.customColumns[header];
+        this.headers = this.headers.filter(x => x != header);
+    }
+
+    onShowPlaceholdersClicked(header: string): void {
+        this.placeholdersDialogVisible = true;
+        this.currentPlaceholderDialogTarget = header;
+    }
+
+    onAddPlaceholderClicked(placeholder: string): void {
+        if (!this.currentPlaceholderDialogTarget)
+        {
+            return;
+        }
+        this.customColumns[this.currentPlaceholderDialogTarget] += `{${placeholder}}`;
+        this.placeholdersDialogVisible = false;
+    }
 }
 </script>
 
@@ -1211,8 +1296,26 @@ export default class DataRepeaterPageComponent extends Vue {
         min-width: 48%;
     }
 }
-.item-header-override-inputs {
-    display: flex;
-    align-items: baseline;
+.item-header-override-config {
+    border-left: 4px solid #e7e7e7;
+    margin-bottom: 10px;
+    padding-left: 10px;
+
+    &__row {
+        display: flex;
+        align-items: baseline;
+    }
+
+    .v-text-field__details {
+        display: none
+    }
+}
+</style>
+
+<style lang="scss">
+.item-header-override-config {
+    .v-text-field__details {
+        display: none
+    }
 }
 </style>
