@@ -168,7 +168,7 @@ namespace HealthCheck.Core.Util
 		/// Get a list of members recursively.
 		/// <para><see cref="TypeMemberData.Name" /> will be the dotted path to the member.</para>
 		/// </summary>
-		public static List<TypeMemberData> GetTypeMembersRecursive(Type type, string path = null, int currentLevel = 0, int maxLevels = 10,
+		public static List<TypeMemberData> GetTypeMembersRecursive(Type type, string path = null, int currentLevel = 0, int maxLevels = 4,
 			List<TypeMemberData> worklist = null, HashSet<Type> ignoredTypes = null)
 		{
 			if (type == null) return new();

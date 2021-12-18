@@ -47,7 +47,13 @@ namespace HealthCheck.Module.DataExport.Services
                     Name = itemType.Name.SpacifySentence()
                 };
 
-                model.Members = ReflectionUtils.GetTypeMembersRecursive(itemType)
+                var stream = GetStreamById(streamId);
+                int maxDepth = stream.MaxMemberDiscoveryDepth ?? 4;
+                var ignoredTypes = new HashSet<Type>(stream.IgnoredMemberTypes ?? Enumerable.Empty<Type>());
+                var ignoredPrefixes = stream.IgnoredMemberPathPrefixes?.ToArray() ?? Array.Empty<string>();
+
+                model.Members = ReflectionUtils.GetTypeMembersRecursive(itemType, maxLevels: maxDepth, ignoredTypes: ignoredTypes)
+                    .Where(x => !ignoredPrefixes.Any(p => x.Name.StartsWith(p)))
                     .Select(x => new HCDataExportStreamItemDefinitionMember
                     {
                         Name = x.Name,
@@ -63,8 +69,7 @@ namespace HealthCheck.Module.DataExport.Services
         /// <inheritdoc />
         public async Task<HCDataExportQueryResponse> QueryAsync(HCDataExportQueryRequest request)
         {
-            var stream = GetStreamById(request);
-
+            var stream = GetStreamById(request.StreamId);
             if (stream == null
                 || (stream.SupportsQuery && string.IsNullOrWhiteSpace(request.Query)))
             {
@@ -200,7 +205,7 @@ namespace HealthCheck.Module.DataExport.Services
             return toStringMethod?.DeclaringType == typeof(object);
         }
 
-        private IHCDataExportStream GetStreamById(HCDataExportQueryRequest request)
-            => _streams.FirstOrDefault(x => x.GetType().FullName == request.StreamId);
+        private IHCDataExportStream GetStreamById(string streamId)
+            => _streams.FirstOrDefault(x => x.GetType().FullName == streamId);
     }
 }
