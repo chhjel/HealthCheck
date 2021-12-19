@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Exceptions;
 using HealthCheck.Core.Util;
+using HealthCheck.Module.DataExport.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,8 +55,11 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// <inheritdoc />
         public bool SupportsQuery => Method != IHCDataExportStream.QueryMethod.EnumerableWithCustomFilter;
 
-        /// <inheritdoc />
-        public virtual IEnumerable<IHCDataExportValueFormatter> ValueFormatters { get; } = new List<IHCDataExportValueFormatter>();
+        /// <summary>
+        /// Formatters that can be selected per column.
+        /// <para>Defaults to creating from <see cref="HCDataExportService.DefaultValueFormatters"/></para>
+        /// </summary>
+        public virtual IEnumerable<IHCDataExportValueFormatter> ValueFormatters => HCDataExportService.DefaultValueFormatters;
 
         /// <summary>
         /// Defines what method to use for querying.

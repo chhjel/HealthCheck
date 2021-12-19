@@ -2,6 +2,7 @@
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Util;
 using HealthCheck.Module.DataExport.Abstractions;
+using HealthCheck.Module.DataExport.Formatters;
 using HealthCheck.Module.DataExport.Models;
 using System;
 using System.Collections.Generic;
@@ -27,11 +28,20 @@ namespace HealthCheck.Module.DataExport.Services
             _streams = streams;
         }
 
+        /// <summary>
+        /// Includes built in DateTime and Enumerable value formatters.
+        /// </summary>
+        public static IEnumerable<IHCDataExportValueFormatter> DefaultValueFormatters
+            => new IHCDataExportValueFormatter[] {
+                new HCDataExportDateTimeValueFormatter(),
+                new HCDataExportEnumerableValueFormatter()
+            };
+
         /// <inheritdoc />
         public IEnumerable<IHCDataExportStream> GetStreams() => _streams;
 
         /// <inheritdoc />
-        public HCDataExportStreamItemDefinition GetStreamItemDefinition(string streamId, Type itemType)
+        public HCDataExportStreamItemDefinition GetStreamItemDefinition(string streamId, Type itemType, IEnumerable<IHCDataExportValueFormatter> valueFormatters)
         {
             lock (_streamItemTypeDefCache)
             {
@@ -57,7 +67,11 @@ namespace HealthCheck.Module.DataExport.Services
                     .Select(x => new HCDataExportStreamItemDefinitionMember
                     {
                         Name = x.Name,
-                        Type = x.Type
+                        Type = x.Type,
+                        FormatterIds = valueFormatters
+                            .Where(f => f.SupportedTypes?.Any(t => t.IsAssignableFromIncludingNullable(x.Type)) == true
+                                && f.NotSupportedTypes?.Contains(x.Type) != true)
+                            .Select(x => x.GetType().FullName)
                     })
                     .ToList();
 
@@ -115,10 +129,9 @@ namespace HealthCheck.Module.DataExport.Services
             }
 
             var formatters = stream.ValueFormatters?.ToDictionaryIgnoreDuplicates(x => x.GetType().FullName, x => x);
-            var serializeStringifiyCache = new Dictionary<Type, bool>();
             var resultItems = pageItems
                 .Where(x => x != null)
-                .Select(x => CreateResultItem(x, stream, request.IncludedProperties, request.CustomColumns, request.ValueFormatterConfigs, formatters, serializeStringifiyCache))
+                .Select(x => CreateResultItem(x, stream, request.IncludedProperties, request.CustomColumns, request.ValueFormatterConfigs, formatters))
                 .ToArray();
 
             var result = new HCDataExportQueryResponse
@@ -130,11 +143,12 @@ namespace HealthCheck.Module.DataExport.Services
         }
 
         private Dictionary<string, object> CreateResultItem(object item, IHCDataExportStream stream,
-            List<string> includedProperties, Dictionary<string, string> customColumns, Dictionary<string, HCDataExportValueFormatterConfig> valueFormatterConfigs, Dictionary<string, IHCDataExportValueFormatter> formatters, Dictionary<Type, bool> serializeStringifiyCache)
+            List<string> includedProperties, Dictionary<string, string> customColumns, Dictionary<string, HCDataExportValueFormatterConfig> valueFormatterConfigs, Dictionary<string, IHCDataExportValueFormatter> formatters)
         {
             var streamId = stream.GetType().FullName;
             var itemType = item.GetType();
-            var itemDef = GetStreamItemDefinition(streamId, itemType);
+            var valueFormatters = (stream.ValueFormatters ?? Array.Empty<IHCDataExportValueFormatter>());
+            var itemDef = GetStreamItemDefinition(streamId, itemType, valueFormatters);
 
             var dict = new Dictionary<string, object>();
             var allowedIncludedProperties = itemDef.Members.Where(x => includedProperties.Count == 0 || includedProperties.Any(m => m == x.Name));
@@ -179,7 +193,7 @@ namespace HealthCheck.Module.DataExport.Services
                     {
                         var memberValue = member.GetValue(item);
                         memberValue = stream.DefaultFormatValue(member.Name, member.Type, memberValue);
-                        value = value.Replace(placeholder, SerializeOrStringifyValue(memberValue, serializeStringifiyCache));
+                        value = value.Replace(placeholder, SerializeOrStringifyValue(memberValue));
                     }
                 }
 
@@ -195,8 +209,11 @@ namespace HealthCheck.Module.DataExport.Services
             return shouldSerialize ? HCGlobalConfig.Serializer.Serialize(val, pretty: false) : val?.ToString();
         }
 
+        internal static Dictionary<Type, bool> _serializeStringifiyCache = new();
         internal static bool ShouldSerializeValue(object val, Dictionary<Type, bool> cache = null)
         {
+            cache ??= _serializeStringifiyCache;
+
             var type = val?.GetType();
             if (type == null) return false;
             else if (cache?.ContainsKey(type) == true) return cache[type];

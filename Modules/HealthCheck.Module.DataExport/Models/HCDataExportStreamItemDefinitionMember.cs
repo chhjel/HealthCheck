@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Util;
 using System;
+using System.Collections.Generic;
 
 namespace HealthCheck.Module.DataExport.Models
 {
@@ -17,6 +18,11 @@ namespace HealthCheck.Module.DataExport.Models
         /// Type of the member.
         /// </summary>
         public Type Type { get; set; }
+
+        /// <summary>
+        /// Supported formatters.
+        /// </summary>
+        public IEnumerable<string> FormatterIds { get; set; }
 
         /// <summary>
         /// Get the value of this member.

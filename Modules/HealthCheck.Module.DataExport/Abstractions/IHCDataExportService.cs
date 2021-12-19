@@ -13,7 +13,7 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// <summary>
         /// Create item definition for the given stream item type.
         /// </summary>
-        HCDataExportStreamItemDefinition GetStreamItemDefinition(string streamId, Type itemType);
+        HCDataExportStreamItemDefinition GetStreamItemDefinition(string streamId, Type itemType, IEnumerable<IHCDataExportValueFormatter> valueFormatters);
 
         /// <summary>
         /// Get available streams.

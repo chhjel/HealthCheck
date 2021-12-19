@@ -6,4 +6,5 @@ export interface HCDataExportStreamItemDefinitionMemberViewModel
 {
 	Name: string;
 	TypeName: string;
+	FormatterIds: string[];
 }

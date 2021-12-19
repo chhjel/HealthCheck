@@ -1,4 +1,6 @@
-﻿namespace HealthCheck.Module.DataExport.Models
+﻿using System.Collections.Generic;
+
+namespace HealthCheck.Module.DataExport.Models
 {
     /// <summary>
     /// Viewmodel for <see cref="HCDataExportStreamItemDefinitionMember"/>,
@@ -14,5 +16,10 @@
         /// Type of the member.
         /// </summary>
         public string TypeName { get; set; }
+
+        /// <summary>
+        /// Supported formatters.
+        /// </summary>
+        public IEnumerable<string> FormatterIds { get; set; }
     }
 }
