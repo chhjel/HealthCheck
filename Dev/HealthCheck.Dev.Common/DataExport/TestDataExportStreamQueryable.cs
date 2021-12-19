@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Formatters;
+using HealthCheck.Module.DataExport.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,6 @@ namespace HealthCheck.Dev.Common.DataExport
         public override List<string> Categories => null;
         public override int ExportBatchSize => 500;
         public override IHCDataExportStream.QueryMethod Method => IHCDataExportStream.QueryMethod.Queryable;
-        public override IEnumerable<IHCDataExportValueFormatter> ValueFormatters => new[] { new HCDataExportDateTimeValueFormatter() };
 
         protected override Task<IQueryable<TestExportItem>> GetQueryableItemsAsync()
         {
@@ -56,6 +56,14 @@ namespace HealthCheck.Dev.Common.DataExport
             public TestExportItemAddress BillingAddress { get; set; } = new TestExportItemAddress();
             public TestExportItemAddress ShippingAddress { get; set; } = new TestExportItemAddress();
             public TestExportItemContact Contact { get; set; } = new TestExportItemContact();
+            public List<TestExportItemContact> ComplexList { get; set; } = new List<TestExportItemContact>()
+            {
+                new TestExportItemContact(),
+                new TestExportItemContact(),
+                new TestExportItemContact()
+            };
+            public string[] SimpleArray { get; set; } = new[] { "A", "B", "C" };
+
         }
 
         public class TestExportItemAddress

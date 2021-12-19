@@ -64,6 +64,22 @@ namespace HealthCheck.Core.Extensions
             return ResolveInputTypeAlias(resolvedName, aliases);
         }
 
+        /// <summary>
+        /// Determines whether an instance of a specified type can be assigned to an instance of the current type.
+        /// <para>If the other type is a nullable its underlying type will also be checked.</para>
+        /// </summary>
+        public static bool IsAssignableFromIncludingNullable(this Type type, Type other)
+        {
+            if (type.IsAssignableFrom(other)) return true;
+            else if (other.IsGenericType
+                && other.GetGenericTypeDefinition() == typeof(Nullable<>)
+                && type.IsAssignableFrom(Nullable.GetUnderlyingType(other)))
+            {
+                return true;
+            }
+            else return false;
+        }
+
         private static string ResolveInputTypeAlias(string name, Dictionary<string, string> aliases = null)
         {
             if (aliases?.Any() != true)

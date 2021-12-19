@@ -182,6 +182,7 @@ namespace HealthCheck.Core.Util
 			bool allowRecurseType(Type type)
 			{
 				return !ignoredTypes.Contains(type)
+					&& !ignoredTypes.Any(t => t.IsAssignableFrom(type))
 					&& !type.IsSpecialName
 					&& !type.IsValueType
 					&& !type.IsPrimitive

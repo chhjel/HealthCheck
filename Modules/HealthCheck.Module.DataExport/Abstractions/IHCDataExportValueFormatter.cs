@@ -18,9 +18,14 @@ namespace HealthCheck.Module.DataExport.Abstractions
         string Description { get; }
 
         /// <summary>
-        /// Property types this formatter is supported for.
+        /// Property types this formatter is supported for, including derived types.
         /// </summary>
         Type[] SupportedTypes { get; }
+
+        /// <summary>
+        /// Property types this formatter is not supported for.
+        /// </summary>
+        Type[] NotSupportedTypes { get; }
 
         /// <summary>
         /// Type of custom parameters object if any.

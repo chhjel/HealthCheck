@@ -955,10 +955,14 @@ export default class DataRepeaterPageComponent extends Vue {
     }
 
     getFormattersForHeader(header: string): Array<HCDataExportValueFormatterViewModel> {
-        if (!this.itemDefinition) return [];
+        if (!this.itemDefinition || !this.selectedStream || !this.selectedStream.ValueFormatters) return [];
         const member = this.itemDefinition.Members.filter(x => x.Name == header)[0];
         if (!member) return [];
-        return this.getFormattersForType(member.TypeName);
+
+        return member.FormatterIds
+            .map(x => this.selectedStream?.ValueFormatters.filter(f => f.Id == x)[0] || null)
+            .filter(x => x != null) as Array<HCDataExportValueFormatterViewModel>;
+        // return this.getFormattersForType(member.TypeName);
     }
 
     getFormattersForType(type: string): Array<HCDataExportValueFormatterViewModel> {

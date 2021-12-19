@@ -99,7 +99,8 @@ namespace HealthCheck.Module.DataExport
             var streams = GetStreamsRequestCanAccess(context);
             foreach (var stream in streams)
             {
-                var itemDef = Options.Service.GetStreamItemDefinition(stream.GetType().FullName, stream.ItemType);
+                var valueFormatters = (stream.ValueFormatters ?? Array.Empty<IHCDataExportValueFormatter>());
+                var itemDef = Options.Service.GetStreamItemDefinition(stream.GetType().FullName, stream.ItemType, valueFormatters);
                 var showQueryInput = stream.SupportsQuery;
                 var streamModel = new HCDataExportStreamViewModel
                 {
@@ -110,7 +111,7 @@ namespace HealthCheck.Module.DataExport
                     ItemDefinition = Create(itemDef),
                     ShowQueryInput = showQueryInput,
                     CustomParameterDefinitions = HCCustomPropertyAttribute.CreateInputConfigs(stream.CustomParametersType),
-                    ValueFormatters = (stream.ValueFormatters ?? Array.Empty<IHCDataExportValueFormatter>()).Select(x => Create(x)).ToList()
+                    ValueFormatters = valueFormatters.Select(x => Create(x)).ToList()
                 };
                 list.Add(streamModel);
             }
@@ -319,8 +320,6 @@ namespace HealthCheck.Module.DataExport
             }
             exporter.SetHeaders(resolvedHeaders);
 
-            var serializeStringifiyCache = new Dictionary<Type, bool>();
-
             var taken = 0;
             var totalCount = 1;
             while (taken < totalCount)
@@ -336,7 +335,7 @@ namespace HealthCheck.Module.DataExport
                     foreach (var kvp in item)
                     {
                         var val = item[kvp.Key];
-                        stringified[kvp.Key] = HCDataExportService.SerializeOrStringifyValue(val, serializeStringifiyCache);
+                        stringified[kvp.Key] = HCDataExportService.SerializeOrStringifyValue(val);
                     }
                     exporter.AppendItem(item, stringified, headers);
                 }
@@ -432,7 +431,8 @@ namespace HealthCheck.Module.DataExport
             return new HCDataExportStreamItemDefinitionMemberViewModel
             {
                 Name = model.Name,
-                TypeName = model.Type.GetFriendlyTypeName()
+                TypeName = model.Type.GetFriendlyTypeName(),
+                FormatterIds = model.FormatterIds
             };
         }
 

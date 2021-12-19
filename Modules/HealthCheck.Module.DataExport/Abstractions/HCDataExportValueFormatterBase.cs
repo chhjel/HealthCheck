@@ -18,6 +18,9 @@ namespace HealthCheck.Module.DataExport.Abstractions
         public abstract Type[] SupportedTypes { get; }
 
         /// <inheritdoc />
+        public virtual Type[] NotSupportedTypes { get; }
+
+        /// <inheritdoc />
         public Type CustomParametersType => typeof(TParameters);
 
         /// <inheritdoc />
