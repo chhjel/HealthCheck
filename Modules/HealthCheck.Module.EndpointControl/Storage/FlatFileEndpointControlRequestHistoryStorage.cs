@@ -186,7 +186,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
 				{
 					File.WriteAllText(FilePath, json);
 				}
-				HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}().SaveData()", 1);
+				HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}().SaveData()");
 			}
 			catch(Exception) { /* Ignored */ }
 		}
@@ -249,7 +249,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
             using var streamReader = new StreamReader(fileReader);
             using var jsonReader = new JsonTextReader(streamReader);
             _data = _serializer.Deserialize<LatestEndpointRequestsHistory>(jsonReader);
-			HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}().LoadData()", 1);
+			HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}().LoadData()");
 		}
 
 		private void AddRequestToCollections(EndpointControlEndpointRequestData request)
