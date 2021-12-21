@@ -565,10 +565,13 @@ export default class EndpointControlPageComponent extends Vue {
     get storeMenuState(): boolean {
         return this.$store.state.ui.menuExpanded;
     }
-
     @Watch("storeMenuState")
     onStoreMenuStateChanged(): void {
         this.drawerState = this.storeMenuState;
+    }
+    @Watch("drawerState")
+    onDrawerStateChanged(): void {
+        this.$store.commit('setMenuExpanded', this.drawerState);
     }
 }
 </script>

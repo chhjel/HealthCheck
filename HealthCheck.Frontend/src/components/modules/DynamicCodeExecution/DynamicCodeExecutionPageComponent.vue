@@ -559,6 +559,10 @@ namespace CodeTesting
     onStoreMenuStateChanged(): void {
         this.drawerState = this.storeMenuState;
     }
+    @Watch("drawerState")
+    onDrawerStateChanged(): void {
+        this.$store.commit('setMenuExpanded', this.drawerState);
+    }
 
     ////////////////
     //  METHODS  //
