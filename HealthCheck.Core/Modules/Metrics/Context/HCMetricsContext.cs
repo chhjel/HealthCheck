@@ -105,9 +105,9 @@ namespace HealthCheck.Core.Modules.Metrics.Context
 
         #region Statics
         /// <summary>
-        /// Increments a global counter
+        /// Increments a global counter by the given value.
         /// </summary>
-        public static void IncrementGlobalCounter(string id, int amount)
+        public static void IncrementGlobalCounter(string id, int amount = 1)
             => WithCurrentContext((c) => c.IncrementGlobalValueCounterInternal(id, amount));
         internal void IncrementGlobalValueCounterInternal(string id, int amount)
         {

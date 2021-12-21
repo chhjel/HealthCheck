@@ -42,7 +42,7 @@ namespace HealthCheck.Core.Util
             var id = Guid.NewGuid();
             var path = GetBlobFilePath(id);
             File.WriteAllText(path, data ?? "");
-            HCMetricsContext.IncrementGlobalCounter($"SimpleBlob({Path.GetFileNameWithoutExtension(path)}).SaveData()", 1);
+            HCMetricsContext.IncrementGlobalCounter($"SimpleBlob({Path.GetFileNameWithoutExtension(path)}).SaveData()");
             return id;
         }
 
@@ -52,7 +52,7 @@ namespace HealthCheck.Core.Util
         public string GetBlob(Guid id)
         {
             var path = GetBlobFilePath(id);
-            HCMetricsContext.IncrementGlobalCounter($"SimpleBlob({Path.GetFileNameWithoutExtension(path)}).LoadData()", 1);
+            HCMetricsContext.IncrementGlobalCounter($"SimpleBlob({Path.GetFileNameWithoutExtension(path)}).LoadData()");
             return File.ReadAllText(path);
         }
 

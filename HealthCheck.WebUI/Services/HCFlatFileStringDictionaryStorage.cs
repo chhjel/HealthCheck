@@ -42,7 +42,7 @@ namespace HealthCheck.WebUI.Services
             lock (_fileLock)
             {
                 File.WriteAllText(FilePath, json);
-                HCMetricsContext.IncrementGlobalCounter($"StringDictionaryStorage({Path.GetFileNameWithoutExtension(FilePath)}).SaveData()", 1);
+                HCMetricsContext.IncrementGlobalCounter($"StringDictionaryStorage({Path.GetFileNameWithoutExtension(FilePath)}).SaveData()");
             }
         }
 
@@ -78,7 +78,7 @@ namespace HealthCheck.WebUI.Services
                     {
                         contents = IOUtils.ReadFile(FilePath);
                     }
-                    HCMetricsContext.IncrementGlobalCounter($"StringDictionaryStorage({Path.GetFileNameWithoutExtension(FilePath)}).LoadData()", 1);
+                    HCMetricsContext.IncrementGlobalCounter($"StringDictionaryStorage({Path.GetFileNameWithoutExtension(FilePath)}).LoadData()");
                     return JsonConvert.DeserializeObject<Dictionary<string, string>>(contents)
                         ?? new Dictionary<string, string>();
                 }

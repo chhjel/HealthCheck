@@ -193,6 +193,7 @@ export default class MetricsPageComponent extends Vue {
 
 <style scoped lang="scss">
 .metrics {
-
+    overflow-x: auto;
+    padding-bottom: 20px;
 }
 </style>

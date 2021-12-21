@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Metrics.Context;
 using System;
 using System.Collections.Generic;
@@ -155,7 +156,7 @@ namespace HealthCheck.Core.Util
 						Directory.CreateDirectory(folder);
                     }
 					File.WriteAllText(FilePath, json);
-					HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}<{typeof(TData).Name}>.SaveData()", 1);
+					HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.SaveData()");
 				}
 			}
 			catch (Exception) {/* Ignored */ }
@@ -194,7 +195,7 @@ namespace HealthCheck.Core.Util
 			var contents = IOUtils.ReadFile(FilePath);
 			_container = _serializer.Deserialize<SimpleCachedDataContainer>(contents)
 				?? new SimpleCachedDataContainer();
-			HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}<{typeof(TData).Name}>.LoadData()", 1);
+			HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.LoadData()");
 		}
 
 		private void AddItemInternal(TData data)

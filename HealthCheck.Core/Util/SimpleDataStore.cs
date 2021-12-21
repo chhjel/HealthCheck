@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Metrics.Context;
 using System;
 using System.Collections.Generic;
@@ -125,8 +126,8 @@ namespace HealthCheck.Core.Util
                 File.Delete(FilePath);
                 File.Move(tempFile, FilePath);
                 OnFileWrittenEvent?.Invoke();
-                HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}<{typeof(TItem).Name}>.LoadData()", 1);
-                HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}<{typeof(TItem).Name}>.SaveData()", 1);
+                HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.LoadData()");
+                HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.SaveData()");
             }
         }
 
@@ -194,8 +195,8 @@ namespace HealthCheck.Core.Util
                 File.Delete(FilePath);
                 File.Move(tempFile, FilePath);
                 OnFileWrittenEvent?.Invoke();
-                HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}<{typeof(TItem).Name}>.LoadData()", 1);
-                HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}<{typeof(TItem).Name}>.SaveData()", 1);
+                HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.LoadData()");
+                HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.SaveData()");
             }
 
             return matchCount;
@@ -263,7 +264,7 @@ namespace HealthCheck.Core.Util
 
                 lock (_fileLock)
                 {
-                    HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}<{typeof(TItem).Name}>.LoadData()", 1);
+                    HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.LoadData()");
                     var fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     using ReverseStreamReader streamReader = new(fileStream);
                     string row;
@@ -284,7 +285,7 @@ namespace HealthCheck.Core.Util
             {
                 lock (_fileLock)
                 {
-                    HCMetricsContext.IncrementGlobalCounter($"{GetType().Name}<{typeof(TItem).Name}>.LoadData()", 1);
+                    HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.LoadData()");
                     var fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     var bufferedStream = new BufferedStream(fileStream);
                     using StreamReader streamReader = new(bufferedStream);
