@@ -6,8 +6,8 @@ using System.Runtime.CompilerServices;
 
 namespace HealthCheck.Core.Util
 {
-	/// <summary>Utils to simplify life from HealthCheck tests and DCE.</summary>
-	public static class ReflectionUtils
+    /// <summary>Utils to simplify life from HealthCheck tests and DCE.</summary>
+    public static class ReflectionUtils
 	{
 		/// <summary>
 		/// Attempt to invoke a method on the given type.
@@ -167,6 +167,7 @@ namespace HealthCheck.Core.Util
 		/// <summary>
 		/// Get a list of members recursively.
 		/// <para><see cref="TypeMemberData.Name" /> will be the dotted path to the member.</para>
+		/// <para>Ignores members that can't be read and also indexers.</para>
 		/// </summary>
 		public static List<TypeMemberData> GetTypeMembersRecursive(Type type, string path = null, int currentLevel = 0, int maxLevels = 4,
 			List<TypeMemberData> worklist = null, HashSet<Type> ignoredTypes = null)
@@ -209,7 +210,8 @@ namespace HealthCheck.Core.Util
 					&& prop.GetMethod != null
 					&& prop.CanRead
 					&& allowRecurseType(prop.PropertyType)
-					&& prop.GetCustomAttribute<CompilerGeneratedAttribute>() == null)
+					&& prop.GetCustomAttribute<CompilerGeneratedAttribute>() == null
+					&& prop.GetIndexParameters()?.Any() != true)
 				{
 					GetTypeMembersRecursive(prop.PropertyType, $"{(string.IsNullOrWhiteSpace(path) ? "" : $"{path}.")}{prop.Name}", currentLevel + 1, maxLevels, paths, ignoredTypes);
 				}
@@ -250,7 +252,7 @@ namespace HealthCheck.Core.Util
 				if (instance == null) return null;
 
 				var prop = instance.GetType().GetProperty(membName);
-				if (prop != null)
+				if (prop != null && prop.CanRead && prop.GetIndexParameters()?.Any() != true)
 				{
 					found = true;
 					return prop.GetValue(instance);
