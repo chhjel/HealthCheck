@@ -19,19 +19,89 @@ namespace HealthCheck.Core.Util
         public Dictionary<string, string> Details { get; private set; } = new();
 
         /// <summary>
+        /// True if there's any details.
+        /// </summary>
+        public bool HasDetails => Details.Any();
+
+        /// <summary>
         /// Any custom counters added through <see cref="IncrementCounter"/>
         /// </summary>
         public Dictionary<string, long> Counters { get; private set; } = new();
 
         /// <summary>
-        /// Any errors added through <see cref="AddError"/>
+        /// True if there's any counters.
+        /// </summary>
+        public bool HasCounters => Counters.Any();
+
+        /// <summary>
+        /// Any errors added through <see cref="AddError(string, string)"/> or <see cref="AddError(string, Exception)"/>.
         /// </summary>
         public List<HCRequestDataErrorDetails> Errors { get; private set; } = new();
+
+        /// <summary>
+        /// True if there's any errors.
+        /// </summary>
+        public bool HasErrors => Errors.Any();
 
         /// <summary>
         /// True if any data has been added to the object.
         /// </summary>
         public bool ContainsData => Details.Any() || Counters.Any() || Errors.Any();
+
+        /// <summary>
+        /// Retrieves the details as a single string with the given header if there's any details.
+        /// </summary>
+        public string GetDetails(string header = null, string prefix = "* ", Func<string, bool> keyCondition = null)
+        {
+            var builder = new StringBuilder();
+            var details = Details.Where(x => keyCondition?.Invoke(x.Key) != false).ToArray();
+            if (details.Any())
+            {
+                if (!string.IsNullOrWhiteSpace(header))
+                {
+                    builder.AppendLine(header);
+                }
+                builder.AppendLine(string.Join(Environment.NewLine, details.Select(x => $"{prefix}{x.Key}: {x.Value}")));
+            }
+            return builder.ToString().Trim();
+        }
+
+        /// <summary>
+        /// Retrieves the counters as a single string with the given header if there's any details.
+        /// </summary>
+        public string GetCounters(string header = null, string prefix = "* ")
+        {
+            var builder = new StringBuilder();
+            if (Details.Any())
+            {
+                if (!string.IsNullOrWhiteSpace(header))
+                {
+                    builder.AppendLine(header);
+                }
+                builder.AppendLine(string.Join(Environment.NewLine, Counters.Select(x => $"{prefix}{x.Key}: {x.Value}")));
+            }
+            return builder.ToString().Trim();
+        }
+
+        /// <summary>
+        /// Retrieves the errors as a single string with the given header if there's any details.
+        /// </summary>
+        public string GetErrors(string header = null, string prefix = "* ")
+        {
+            var builder = new StringBuilder();
+            if (Details.Any())
+            {
+                if (!string.IsNullOrWhiteSpace(header))
+                {
+                    builder.AppendLine(header);
+                }
+                builder.AppendLine(string.Join(Environment.NewLine, Errors.Select(x =>
+                {
+                    return string.IsNullOrWhiteSpace(x.Details) ? $"{prefix}{x.Error}" : $"{prefix}{x.Error}\n\n{x.Details}";
+                })));
+            }
+            return builder.ToString().Trim();
+        }
 
         /// <summary>
         /// Creates a summary of the data if any.
@@ -46,23 +116,20 @@ namespace HealthCheck.Core.Util
             var builder = new StringBuilder();
             if (Details.Any())
             {
-                builder.AppendLine("Details:");
-                builder.AppendLine(string.Join(Environment.NewLine, Details.Select(x => $" * {x.Key}: {x.Value}")));
+                builder.AppendLine();
+                builder.AppendLine(GetDetails("Details:"));
             }
 
             if (Counters.Any())
             {
-                builder.AppendLine("Counters:");
-                builder.AppendLine(string.Join(Environment.NewLine, Counters.Select(x => $" * {x.Key}: {x.Value}")));
+                builder.AppendLine();
+                builder.AppendLine(GetCounters("Counters:"));
             }
 
             if (Errors.Any())
             {
-                builder.AppendLine("Errors:");
-                builder.AppendLine(string.Join(Environment.NewLine, Errors.Select(x =>
-                {
-                    return string.IsNullOrWhiteSpace(x.Details) ? $" * {x.Error}" : $" * {x.Error}\n\n{x.Details}";
-                })));
+                builder.AppendLine();
+                builder.AppendLine(GetErrors("Errors:"));
             }
 
             return builder.ToString().Trim();
@@ -91,7 +158,7 @@ namespace HealthCheck.Core.Util
                 }
                 x.Counters[key] += amount;
             });
-        
+
         /// <summary>
         /// Adds new error details.
         /// </summary>
@@ -102,6 +169,19 @@ namespace HealthCheck.Core.Util
                 {
                     Error = error,
                     Details = ExceptionUtils.GetFullExceptionDetails(ex, returnNullIfNull: true)
+                });
+            });
+
+        /// <summary>
+        /// Adds new error details.
+        /// </summary>
+        public static void AddError(string error, string details)
+            => UpdateCurrentRequestData(x =>
+            {
+                x.Errors.Add(new HCRequestDataErrorDetails
+                {
+                    Error = error,
+                    Details = details
                 });
             });
 

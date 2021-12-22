@@ -233,6 +233,9 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
         {
             HCRequestData.IncrementCounter("ConfigureAccessCallCount");
             HCRequestData.SetDetail("Url", request.GetDisplayUrl());
+            HCRequestData.AddError("Oh no something failed!");
+            HCRequestData.AddError("Oh no another error!", new Exception("Some message here"));
+            HCRequestData.AddError("Oh no something failed!", "This one with some manual details.");
 
             /// MODULES //
             config.GiveRolesAccessToModule(

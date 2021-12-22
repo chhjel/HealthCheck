@@ -19,7 +19,10 @@ namespace HealthCheck.Dev.Common.Tests
             var data = HCRequestData.GetCurrentRequestData();
             return TestResult.CreateSuccess($"Fetched request data!")
                 .AddSerializedData(data)
-                .AddCodeData(data.ToString());
+                .AddCodeData(data.ToString(), "ToString()")
+                .AddCodeData(data.GetDetails(), "GetDetails()")
+                .AddCodeData(data.GetCounters(), "GetCounters()")
+                .AddCodeData(data.GetErrors(), "GetErrors()");
         }
     }
 }
