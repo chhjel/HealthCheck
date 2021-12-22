@@ -120,6 +120,7 @@ namespace HealthCheck.Dev.Common.Tests
                                 )
                 );
         }
+
         [RuntimeTest]
         public TestResult TestCleanMode()
         {

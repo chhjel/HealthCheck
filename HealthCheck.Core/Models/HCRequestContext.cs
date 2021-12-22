@@ -36,6 +36,45 @@ namespace HealthCheck.Core.Models
         /// <summary>
         /// When the request started.
         /// </summary>
-        public DateTimeOffset RequestExecutionStartTime { get; internal set; }
+        public DateTimeOffset RequestExecutionStartTime { get; set; }
+
+        /// <summary>
+        /// Logic for getting request item by key.
+        /// </summary>
+        internal static Func<string, object> RequestItemGetter { get; set; }
+
+        /// <summary>
+        /// Logic for setting request item by key.
+        /// </summary>
+        internal static Action<string, object> RequestItemSetter { get; set; }
+
+        /// <summary>
+        /// Get a request item by key.
+        /// </summary>
+        public static T GetRequestItem<T>(string key, T fallback)
+            where T : class
+        {
+            try
+            {
+                return (RequestItemGetter?.Invoke(key) ?? fallback) as T;
+            }
+            catch(Exception)
+            {
+                return fallback;
+            }
+        }
+
+        /// <summary>
+        /// Set a request item by key.
+        /// </summary>
+        public static void SetRequestItem<T>(string key, T value)
+            where T : class
+        {
+            try
+            {
+                RequestItemSetter?.Invoke(key, value);
+            }
+            catch (Exception) { /* Ignored */ }
+        }
     }
 }

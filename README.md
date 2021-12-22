@@ -1873,18 +1873,18 @@ Cache can optionally be set to null in constructor if not wanted, or the include
 
 ## Utils
 
-A few utility classes are included below `HealthCheck.Core.Util`:
+Various utility classes can be found below the `HealthCheck.Core.Util` namespace.
 
 * `HCSensitiveDataUtils` - Util methods for stripping numbers of given lengths, emails etc from texts.
+* `IPAddressUtils` - Parse strings to IP address models.
 * `ExceptionUtils` - Get a summary of exceptions to include in test results.
 * `ConnectivityUtils` - Ping or send webrequests to check if a host is alive and return `TestResult` objects.
 * `TimeUtils` - Prettify durations.
 * `IoCUtils` -  Get instances of types with partial IoC etc.
-* `ReflectionUtils` - Invoke private members etc.
 * `AsyncUtils` - Invoke async through reflection, run async synchronous.
-* `DelayedBufferQueue<T>` - Stack up inserts up until a given delay or max count.
-* Memory loggers for any interface can be created at runtime by using `HCLogTypeBuilder.CreateMemoryLoggerFor<TInterface>` included the nuget package `HealthCheck.Utility.Reflection`.
-* `HealthCheck.Core.Config.HCGlobalConfig` contains a few global static options:
-  * Dependency resolver override.
+* `HCRequestData` - Quickly get/set some data in request items.
+* Memory loggers for any interface can be created at runtime by using `HCLogTypeBuilder.CreateMemoryLoggerFor<TInterface>` included in the nuget package `HealthCheck.Utility.Reflection`.
+* `HealthCheck.Core.Config.HCGlobalConfig` contains some global static options that can be configured at startup:
+  * Dependency resolver override (must be configured for .NET Core).
   * Types and namespaces ignored in data serialization.
   * Current request IP resolver logic override.
