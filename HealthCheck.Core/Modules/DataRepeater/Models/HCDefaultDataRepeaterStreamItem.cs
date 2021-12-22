@@ -126,12 +126,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// <param name="expirationTime">When the item will expire after.</param>
         /// <param name="error">Any error message to include to ease debugging.</param>
         /// <param name="exception">A full summary of the excception is appended to error if given.</param>
-        /// <param name="includeHCRequestData">If true, any data in the current <see cref="HCRequestData"/> will be included in summary and error.</param>
+        /// <param name="includeHCRequestErrors">If true, any errors in the current <see cref="HCRequestData"/> will be included in error.</param>
         public static TSelf CreateFrom(TData data, string itemId, string summary = null,
             IEnumerable<string> tags = null, bool allowRetry = true,
             DateTimeOffset? expirationTime = null,
             string error = null, Exception exception = null,
-            bool includeHCRequestData = false)
+            bool includeHCRequestErrors = false)
         {
             string serializedData = null;
             if (data != null)
@@ -141,11 +141,12 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
                     : HCGlobalConfig.Serializer.Serialize(data, pretty: true);
             }
 
-            void appendError(string details)
+            void appendError(string details, string header = null)
             {
+                if (string.IsNullOrEmpty(details)) return;
                 if (error != null)
                 {
-                    error += "\n\n";
+                    error += $"\n\n{header}";
                 }
                 else
                 {
@@ -153,35 +154,18 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
                 }
                 error += details;
             }
-            void appendSummary(string details)
-            {
-                if (summary != null)
-                {
-                    summary += "\n\n";
-                }
-                else
-                {
-                    summary = "";
-                }
-                summary += details;
-            }
 
             if (exception != null)
             {
                 appendError(ExceptionUtils.GetFullExceptionDetails(exception));
             }
 
-            if (includeHCRequestData)
+            if (includeHCRequestErrors)
             {
                 var requestData = HCRequestData.GetCurrentRequestData();
                 if (requestData.HasErrors)
                 {
-                    appendError(requestData.GetErrors());
-                }
-
-                if (requestData.HasDetails)
-                {
-                    appendSummary(requestData.GetDetails());
+                    appendError(requestData.GetErrors(), "Additional errors during request:\n");
                 }
             }
 
