@@ -430,6 +430,7 @@ export default class DataRepeaterItemComponent extends Vue {
         border-radius: 3px;
         margin-left: 5px;
         font-size: 12px;
+        margin-bottom: 1px;
     }
     &--logentry {
         font-size: 12px;
