@@ -64,8 +64,8 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// <summary>
         /// Defines what method to use for querying.
         /// <para><see cref="IHCDataExportStream.QueryMethod.Queryable"/> uses <see cref="GetQueryableItemsAsync()"/></para>
-        /// <para><see cref="IHCDataExportStream.QueryMethod.QueryableManuallyPaged"/> uses <see cref="GetQueryableItemsManuallyPagedAsync"/></para>
         /// <para><see cref="IHCDataExportStream.QueryMethod.Enumerable"/> uses <see cref="GetEnumerableItemsAsync"/></para>
+        /// <para><see cref="IHCDataExportStream.QueryMethod.EnumerableWithCustomFilter"/> uses <see cref="GetEnumerableWithCustomFilterAsync"/></para>
         /// </summary>
         public abstract IHCDataExportStream.QueryMethod Method { get; }
 
@@ -74,25 +74,21 @@ namespace HealthCheck.Module.DataExport.Abstractions
             => await GetQueryableItemsAsync();
 
         /// <inheritdoc />
-        public async Task<IHCDataExportStream.QueryableResult> GetQueryableManuallyPagedAsync(int pageIndex, int pageSize)
-        {
-            var result = await GetQueryableItemsManuallyPagedAsync(pageIndex, pageSize);
-            return new IHCDataExportStream.QueryableResult
-            {
-                TotalCount = result.TotalCount,
-                PageItems = result.PageItems
-            };
-        }
-
-        /// <inheritdoc />
         public virtual async Task<IHCDataExportStream.EnumerableResult> GetEnumerableAsync(int pageIndex, int pageSize, string query)
         {
             // Cache for a bit since it takes some time on every page when exporting
             var predicate = _predicateCache.GetValue<Func<TItem, bool>>(query, null);
             if (predicate == null)
             {
-                var expression = DynamicExpressionParser.ParseLambda<TItem, bool>(new ParsingConfig(), true, query);
-                predicate = expression.Compile();
+                if (string.IsNullOrWhiteSpace(query))
+                {
+                    predicate = x => true;
+                }
+                else
+                {
+                    var expression = DynamicExpressionParser.ParseLambda<TItem, bool>(new ParsingConfig(), true, query);
+                    predicate = expression.Compile();
+                }
                 _predicateCache.SetValue(query, predicate, TimeSpan.FromMinutes(1));
             }
 
@@ -150,32 +146,10 @@ namespace HealthCheck.Module.DataExport.Abstractions
         }
 
         /// <summary>
-        /// Result from <see cref="GetQueryableItemsManuallyPagedAsync(int, int)"/>
-        /// </summary>
-        public class TypedQueryableResult
-        {
-            /// <summary>
-            /// Matching items for the given page.
-            /// </summary>
-            public IQueryable<TItem> PageItems { get; set; } = Enumerable.Empty<TItem>().AsQueryable();
-
-            /// <summary>
-            /// Total match count.
-            /// </summary>
-            public int TotalCount { get; set; }
-        }
-
-        /// <summary>
         /// Get items to be filtered and exported.
         /// <para>Only used when <see cref="Method"/> is <see cref="IHCDataExportStream.QueryMethod.Queryable"/></para>
         /// </summary>
         protected virtual Task<IQueryable<TItem>> GetQueryableItemsAsync() => Task.FromResult(Enumerable.Empty<TItem>().AsQueryable());
-
-        /// <summary>
-        /// Get items to be filtered and exported.
-        /// <para>Only used when <see cref="Method"/> is <see cref="IHCDataExportStream.QueryMethod.QueryableManuallyPaged"/></para>
-        /// </summary>
-        protected virtual Task<TypedQueryableResult> GetQueryableItemsManuallyPagedAsync(int pageIndex, int pageSize) => Task.FromResult(new TypedQueryableResult());
 
         /// <summary>
         /// Get items to be filtered and exported.

@@ -67,13 +67,13 @@
             <div v-if="item.FirstError" class="data-repeater-item--block mt-2">
                 <small class="right" v-if="item.FirstErrorAt">{{ formatDate(item.FirstErrorAt) }}</small>
                 <h3 class="mt-0">First error</h3>
-                <code class="pa-2">{{ item.FirstError }}</code>
+                <code class="pa-2 repeater-error">{{ item.FirstError }}</code>
             </div>
 
             <div v-if="item.Error && item.Error != item.FirstError" class="data-repeater-item--block mt-2">
                 <small class="right" v-if="item.LastErrorAt">{{ formatDate(item.LastErrorAt) }}</small>
                 <h3 class="mt-0">Latest error</h3>
-                <code class="pa-2">{{ item.Error }}</code>
+                <code class="pa-2 repeater-error">{{ item.Error }}</code>
             </div>
 
             <div v-if="item.Log && item.Log.length > 0" class="data-repeater-item--block mt-2">
@@ -430,6 +430,7 @@ export default class DataRepeaterItemComponent extends Vue {
         border-radius: 3px;
         margin-left: 5px;
         font-size: 12px;
+        margin-bottom: 1px;
     }
     &--logentry {
         font-size: 12px;
@@ -461,5 +462,8 @@ export default class DataRepeaterItemComponent extends Vue {
 code {
     width: 100%;
     overflow-x: auto;
+}
+.repeater-error:before {
+    content: "";
 }
 </style>

@@ -61,10 +61,15 @@ namespace HealthCheck.Dev.Common.Tests
                     Amount = (888 + (i * 32.25m))
                 };
 
-                var item1 = TestOrderStreamItem.CreateFrom(order, order.OrderNumber, $"{order.Amount}$ from \"Jimmy Smithy\"");
+                TestOrderStreamItem item1;
                 if (i % 2 == 0)
                 {
-                    item1.SetError("Capture failed", dummyError);
+                    item1 = TestOrderStreamItem.CreateFrom(order, order.OrderNumber, $"{order.Amount}$ from \"Jimmy Smithy\"", error: "Capture failed", exception: dummyError,
+                        includeHCRequestErrors: (i % 3 == 0));
+                }
+                else
+                {
+                    item1 = TestOrderStreamItem.CreateFrom(order, order.OrderNumber, $"{order.Amount}$ from \"Jimmy Smithy\"");
                 }
                 await stream1.AddItemAsync(item1);
 

@@ -118,10 +118,20 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// Create a new item from the given <typeparamref name="TData"/>.
         /// <typeparamref name="TData"/> must be serializable. Can be a string or complex object.
         /// </summary>
+        /// <param name="data">The data to store.</param>
+        /// <param name="itemId">Your id of the item.</param>
+        /// <param name="summary">Optional summary to show for the item in the list and its detail page.</param>
+        /// <param name="tags">Any tags to set on the item.</param>
+        /// <param name="allowRetry">If true, the item is allowed to be attempted retried in the UI.</param>
+        /// <param name="expirationTime">When the item will expire after.</param>
+        /// <param name="error">Any error message to include to ease debugging.</param>
+        /// <param name="exception">A full summary of the excception is appended to error if given.</param>
+        /// <param name="includeHCRequestErrors">If true, any errors in the current <see cref="HCRequestData"/> will be included in error.</param>
         public static TSelf CreateFrom(TData data, string itemId, string summary = null,
             IEnumerable<string> tags = null, bool allowRetry = true,
             DateTimeOffset? expirationTime = null,
-            string error = null, Exception exception = null)
+            string error = null, Exception exception = null,
+            bool includeHCRequestErrors = false)
         {
             string serializedData = null;
             if (data != null)
@@ -131,17 +141,32 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
                     : HCGlobalConfig.Serializer.Serialize(data, pretty: true);
             }
 
-            if (exception != null)
+            void appendError(string details, string header = null)
             {
+                if (string.IsNullOrEmpty(details)) return;
                 if (error != null)
                 {
-                    error += "\n\n";
+                    error += $"\n\n{header}";
                 }
                 else
                 {
                     error = "";
                 }
-                error += ExceptionUtils.GetFullExceptionDetails(exception);
+                error += details;
+            }
+
+            if (exception != null)
+            {
+                appendError(ExceptionUtils.GetFullExceptionDetails(exception));
+            }
+
+            if (includeHCRequestErrors)
+            {
+                var requestData = HCRequestData.GetCurrentRequestData();
+                if (requestData.HasErrors)
+                {
+                    appendError(requestData.GetErrors(), "Additional errors during request:\n");
+                }
             }
 
             return new()

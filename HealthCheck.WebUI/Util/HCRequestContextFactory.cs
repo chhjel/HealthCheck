@@ -31,6 +31,15 @@ namespace HealthCheck.WebUI.Util
             model.Url = request?.Url?.ToString();
             model.Headers = request?.Headers?.AllKeys?.ToDictionaryIgnoreDuplicates(t => t, t => request.Headers[t]) ?? new Dictionary<string, string>();
             model.Cookies = request?.Cookies?.AllKeys?.ToDictionaryIgnoreDuplicates(t => t, t => request.Cookies[t].Value) ?? new Dictionary<string, string>();
+            HCRequestContext.RequestItemGetter = (key) => HttpContext.Current?.Request?.RequestContext?.HttpContext?.Items?[key];
+            HCRequestContext.RequestItemSetter = (key, val) =>
+            {
+                var req = HttpContext.Current?.Request;
+                if (req?.RequestContext?.HttpContext?.Items != null)
+                {
+                    req.RequestContext.HttpContext.Items[key] = val;
+                }
+            };
 #endif
 
 #if NETCORE
@@ -43,6 +52,15 @@ namespace HealthCheck.WebUI.Util
             model.Url = request?.GetDisplayUrl();
             model.Headers = request?.Headers.Keys?.ToDictionaryIgnoreDuplicates(t => t, t => request.Headers[t].ToString()) ?? new Dictionary<string, string>();
             model.Cookies = request?.Cookies.Keys?.ToDictionaryIgnoreDuplicates(t => t, t => request.Cookies[t]) ?? new Dictionary<string, string>();
+            HCRequestContext.RequestItemGetter = (key) => IoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext?.Request?.HttpContext?.Items?[key];
+            HCRequestContext.RequestItemSetter = (key, val) =>
+            {
+                var req = IoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext?.Request;
+                if (req?.HttpContext?.Items != null)
+                {
+                    req.HttpContext.Items[key] = val;
+                }
+            };
 #endif
 
             return model;

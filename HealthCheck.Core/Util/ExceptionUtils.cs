@@ -13,11 +13,11 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Gets a full summary of the exception. Including inner exception message, stack trace and potentially other usefull data.
         /// </summary>
-        public static string GetFullExceptionDetails(Exception exception)
+        public static string GetFullExceptionDetails(Exception exception, bool returnNullIfNull = false)
         {
             if (exception == null)
             {
-                return $"Exception is null.";
+                return returnNullIfNull ? null : "Exception is null.";
             }
 
             var summary = GetExceptionSummary(exception);

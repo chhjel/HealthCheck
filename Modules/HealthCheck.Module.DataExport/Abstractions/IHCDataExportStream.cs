@@ -91,12 +91,6 @@ namespace HealthCheck.Module.DataExport.Abstractions
         Task<IQueryable> GetQueryableAsync();
 
         /// <summary>
-        /// Get items to be filtered and exported. Invoked when <see cref="Method"/> is <see cref="QueryMethod.QueryableManuallyPaged"/>.
-        /// <para>For use when you have an IQueryable but need to handle pagination manually.</para>
-        /// </summary>
-        Task<QueryableResult> GetQueryableManuallyPagedAsync(int pageIndex, int pageSize);
-
-        /// <summary>
         /// Get items to be filtered and exported. Invoked when <see cref="Method"/> is <see cref="QueryMethod.Enumerable"/>.
         /// </summary>
         /// <param name="pageIndex">Index of the page to fetch.</param>
@@ -137,22 +131,6 @@ namespace HealthCheck.Module.DataExport.Abstractions
         }
 
         /// <summary>
-        /// Result from <see cref="GetQueryableManuallyPagedAsync"/>
-        /// </summary>
-        public class QueryableResult
-        {
-            /// <summary>
-            /// Matching items for the given page.
-            /// </summary>
-            public System.Linq.IQueryable PageItems { get; set; }
-
-            /// <summary>
-            /// Total match count.
-            /// </summary>
-            public int TotalCount { get; set; }
-        }
-
-        /// <summary>
         /// What method to use for querying.
         /// </summary>
         public enum QueryMethod
@@ -161,11 +139,6 @@ namespace HealthCheck.Module.DataExport.Abstractions
             /// Use the get queryable method without any parameters.
             /// </summary>
             Queryable,
-
-            /// <summary>
-            /// Use the get queryable method with manual paging.
-            /// </summary>
-            QueryableManuallyPaged,
 
             /// <summary>
             /// Use the get enumerable method with query parameter.

@@ -231,6 +231,12 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
 
         protected override void ConfigureAccess(HttpRequest request, AccessConfig<RuntimeTestAccessRole> config)
         {
+            HCRequestData.IncrementCounter("ConfigureAccessCallCount");
+            HCRequestData.SetDetail("Url", request.GetDisplayUrl());
+            HCRequestData.AddError("Oh no something failed!");
+            HCRequestData.AddError("Oh no another error!", new Exception("Some message here"));
+            HCRequestData.AddError("Oh no something failed!", "This one with some manual details.");
+
             /// MODULES //
             config.GiveRolesAccessToModule(
                 RuntimeTestAccessRole.Guest | RuntimeTestAccessRole.WebAdmins,
@@ -395,6 +401,9 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
         private static readonly DateTime _eventTime = DateTime.Now;
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequest request)
         {
+            HCRequestData.IncrementCounter("GetRequestInformationCallCount");
+            HCRequestData.SetDetail("Url", request.GetDisplayUrl());
+            HCRequestData.SetDetail("Path", Request?.Path);
             _eventDataSink.RegisterEvent("GetRequestInfo", new
             {
                 Type = this.GetType().Name,
