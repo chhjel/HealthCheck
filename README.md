@@ -972,8 +972,8 @@ public class MyDataExportStreamA : HCDataExportStreamBase<MyModel>
     public override int ExportBatchSize => 500;
     // The Method parameter decides what method will be used to retrieve data.
     // - Queryable uses GetQueryableItemsAsync()
-    // - QueryableManuallyPaged uses GetQueryableItemsManuallyPagedAsync(int pageIndex, int pageSize)
     // - Enumerable uses GetEnumerableItemsAsync(int pageIndex, int pageSize, Func<MyModel, bool> predicate)
+    // - EnumerableWithCustomFilter GetEnumerableWithCustomFilterAsync(..)
     public override IHCDataExportStream.QueryMethod Method => IHCDataExportStream.QueryMethod.Queryable;
     // Optionally set any allowed column formatters. Any built-in ones can be found below the HealthCheck.Module.DataExport.Formatters namespace.
     public override IEnumerable<IHCDataExportValueFormatter> ValueFormatters => new[] { new HCDataExportDateTimeValueFormatter() };
