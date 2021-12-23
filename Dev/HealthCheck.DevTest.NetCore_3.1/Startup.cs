@@ -51,6 +51,9 @@ namespace HealthCheck.DevTest.NetCore_3._1
             {
                 HCMetricsContext.AddGlobalNote($"{t.Name}.{m}()", ExceptionUtils.GetFullExceptionDetails(e));
             };
+
+            HCVersionUtils.ExecuteIfNewlyDeployedVersion("hcDevCore", GetType().Assembly.GetName().Version.ToString(),
+                (v) => System.Diagnostics.Debug.WriteLine($"New version deployed: {v}"));
         }
     }
 }
