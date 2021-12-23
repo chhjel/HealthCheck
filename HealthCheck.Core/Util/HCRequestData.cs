@@ -72,7 +72,7 @@ namespace HealthCheck.Core.Util
         public string GetCounters(string header = null, string prefix = "* ")
         {
             var builder = new StringBuilder();
-            if (Details.Any())
+            if (Counters.Any())
             {
                 if (!string.IsNullOrWhiteSpace(header))
                 {
@@ -89,7 +89,7 @@ namespace HealthCheck.Core.Util
         public string GetErrors(string header = null, string prefix = "* ")
         {
             var builder = new StringBuilder();
-            if (Details.Any())
+            if (Errors.Any())
             {
                 if (!string.IsNullOrWhiteSpace(header))
                 {
