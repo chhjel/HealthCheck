@@ -497,6 +497,11 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
                     item.Tags.Add(tag);
                 }
             }
+
+            if (changes?.StreamItemModification != null)
+            {
+                changes.StreamItemModification.Invoke(item);
+            }
         }
     }
 }

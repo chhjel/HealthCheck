@@ -21,6 +21,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
         public override List<string> FilterableTags => new List<string> { "Failed", "Retried", "Processed" };
         public override List<IHCDataRepeaterStreamItemAction> Actions => new List<IHCDataRepeaterStreamItemAction>
         {
+            new TestOrderDataRepeaterStreamItemActionModifyData(),
             new TestOrderDataRepeaterStreamItemActionToggleAllow(),
             new TestOrderDataRepeaterStreamItemActionRemoveAllTags(),
             new TestOrderDataRepeaterStreamItemActionTest()

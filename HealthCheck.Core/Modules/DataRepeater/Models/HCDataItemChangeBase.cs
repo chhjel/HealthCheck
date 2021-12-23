@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using HealthCheck.Core.Modules.DataRepeater.Abstractions;
+using System;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.DataRepeater.Models
 {
@@ -25,5 +27,27 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         /// Tags that will be removed if present.
         /// </summary>
         public List<string> TagsThatShouldNotExist { get; set; } = new();
+
+        /// <summary>
+        /// Any modifications to the stream item.
+        /// </summary>
+        internal Action<object> StreamItemModification { get; set; }
+
+        /// <summary>
+        /// Perform any modifications to the stream item.
+        /// </summary>
+        public HCDataItemChangeBase SetStreamItemModification<TStreamItem>(Action<TStreamItem> modification)
+            where TStreamItem : class, IHCDataRepeaterStreamItem
+        {
+            if (modification == null)
+            {
+                StreamItemModification = null;
+            }
+            else
+            {
+                StreamItemModification = x => modification?.Invoke(x as TStreamItem);
+            }
+            return this;
+        }
     }
 }

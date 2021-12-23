@@ -896,9 +896,6 @@ public class ExampleDataRepeaterStreamItemActionToggleAllow : HCDataRepeaterStre
 
     protected override Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStream stream, IHCDataRepeaterStreamItem item, Parameters parameters)
     {
-        // Access related storage through stream.Storage if needed. E.g:
-        // stream.Storage.SetItemExpirationTimeAsync(item.Id, null);
-
         var result = new HCDataRepeaterStreamItemActionResult
         {
             Success = true,
@@ -919,6 +916,39 @@ public class ExampleDataRepeaterStreamItemActionToggleAllow : HCDataRepeaterStre
 </p>
 </details>
 
+<details><summary>Example stream item action that modifies data</summary>
+<p>
+
+```csharp
+// Simple example action that modifies stream item data
+public class ExampleDataRepeaterStreamItemActionModify : HCDataRepeaterStreamItemActionBase<ExampleDataRepeaterStreamItemActionModify.Parameters>
+{
+    public override string DisplayName => "Modify data example";
+    public override string Description => "Example that modifies item data";
+    public override string ExecuteButtonLabel => "Update";
+
+    protected override Task<HCDataRepeaterStreamItemActionResult> PerformActionAsync(IHCDataRepeaterStream stream, IHCDataRepeaterStreamItem item, Parameters parameters)
+    {
+        var result = HCDataRepeaterStreamItemActionResult.CreateSuccess("Data updated.");
+
+        // To perform item modifications from an action, use the SetStreamItemModification<TStreamItem>:
+        result.SetStreamItemModification<MyStreamItem>(streamItem =>
+        {
+            streamItem.ForcedStatus = HCDataRepeaterStreamItemStatus.Error;
+
+            // To update the Data property use ModifyData:
+            streamItem.ModifyData(d => d.Something = "Updated");
+        });
+
+        return Task.FromResult(result);
+    }
+
+    public class Parameters { }
+}
+```
+
+</p>
+</details>
 
 ---------
 
