@@ -115,6 +115,16 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         }
 
         /// <summary>
+        /// Perform any changes to <see cref="Data"/>.
+        /// </summary>
+        public void ModifyData(Action<TData> modification)
+        {
+            var data = Data;
+            modification(data);
+            Data = data;
+        }
+
+        /// <summary>
         /// Create a new item from the given <typeparamref name="TData"/>.
         /// <typeparamref name="TData"/> must be serializable. Can be a string or complex object.
         /// </summary>
