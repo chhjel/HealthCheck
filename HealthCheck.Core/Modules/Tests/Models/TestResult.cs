@@ -82,13 +82,13 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// </summary>
         /// <param name="status">Test status.</param>
         /// <param name="message">Message text. If null exception message will be used if any.</param>
-        /// <param name="exception">Exception if any to get stack trace from.</param>
+        /// <param name="exception">Exception if any to get stack trace and any other details from.</param>
         public static TestResult Create(TestResultStatus status, string message, Exception exception = null)
             => new()
             {
                 Status = status,
                 Message = message ?? exception?.Message,
-                StackTrace = exception?.ToString()
+                StackTrace = ExceptionUtils.GetFullExceptionDetails(exception, returnNullIfNull: true)
             };
 
         /// <summary>
