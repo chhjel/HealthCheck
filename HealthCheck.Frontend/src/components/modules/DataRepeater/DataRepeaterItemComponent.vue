@@ -95,6 +95,7 @@
                     class="editor mt-2"
                     :language="'json'"
                     v-model="item.SerializedData"
+                    :allowFullscreen="true"
                     ref="editor" />
 
                 <div v-if="item.SerializedData && item.SerializedData != this.item.FirstSerializedData && hasAccessToRetry">
