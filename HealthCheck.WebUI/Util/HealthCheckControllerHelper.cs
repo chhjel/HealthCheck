@@ -332,7 +332,8 @@ namespace HealthCheck.WebUI.Util
                     {
                         ModuleId = accessModuleId,
                         AccessOptions = new List<string>(),
-                        AccessCategories = new List<string>()
+                        AccessCategories = new List<string>(),
+                        AccessIds = new List<string>()
                     };
                     moduleAccess.Add(item);
                 }
@@ -343,6 +344,9 @@ namespace HealthCheck.WebUI.Util
                 item.AccessCategories = access.FullAccess
                     ? new List<string>()
                     : access.Categories?.ToList() ?? new List<string>();
+                item.AccessIds = access.FullAccess
+                    ? new List<string>()
+                    : access.Ids?.ToList() ?? new List<string>();
             }
 
             var request = new HealthCheckModuleRequestData()
@@ -372,6 +376,7 @@ namespace HealthCheck.WebUI.Util
                 CurrentRequestModulesAccess = moduleAccess,
                 CurrentModuleAccess = currentModuleAccess,
                 CurrentModuleCategoryAccess = currentModuleAccess?.AccessCategories ?? new List<string>(),
+                CurrentModuleIdAccess = currentModuleAccess?.AccessIds ?? new List<string>(),
                 LoadedModules = LoadedModules.AsReadOnly(),
 
                 Request = request,
@@ -523,7 +528,8 @@ namespace HealthCheck.WebUI.Util
                 }
                 var moduleOptions = Enum.ToObject(moduleOptionsType, moduleOptionsValue);
 
-                AccessConfig.GiveRolesAccessToModule(moduleOptionsType, currentRequestInformation.AccessRole.Value, moduleOptions, moduleData.Categories?.ToArray());
+                AccessConfig.GiveRolesAccessToModule(moduleOptionsType, currentRequestInformation.AccessRole.Value, moduleOptions,
+                    moduleData.Categories?.ToArray(), moduleData.Ids?.ToArray());
             }
         }
 

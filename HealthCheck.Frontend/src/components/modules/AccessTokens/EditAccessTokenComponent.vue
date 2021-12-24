@@ -86,6 +86,23 @@
                             @change="(v) => onModuleAccessCategoryToggled(module.ModuleId, cat.Id, v)" />
                     </div>
                 </div>
+
+                <div class="access-grid--row--options"
+                    v-if="hasAccessToModule(module.ModuleId) && module.AccessIds.length > 0">
+                    <div class="access-grid--row--options--header">Limit to:</div>
+                    <v-autocomplete
+                        :items="module.AccessIds"
+                        item-value="Id"
+                        item-text="Name"
+                        multiple
+                        chips
+                        clearable
+                        class="filter-input"
+                        :readonly="readonly"
+                        :input="getModuleAccessIds(module.ModuleId)"
+                        @change="(v) => onModuleAccessIdChanged(module.ModuleId, v)"
+                        ></v-autocomplete>
+                </div>
             </div>
         </div>
     </div>
@@ -93,7 +110,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { AccessData, CreatedAccessData } from  '../../../services/AccessTokensService';
+import { AccessData, CreatedAccessData, ModuleAccessData } from  '../../../services/AccessTokensService';
 import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
 
 @Component({
@@ -131,7 +148,7 @@ export default class EditAccessTokenComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
-    get filteredModuleOptions(): any {
+    get filteredModuleOptions(): Array<ModuleAccessData> {
         return this.accessData.ModuleOptions.filter(x => this.hasAccessToModule(x.ModuleId));
     }
 
@@ -162,6 +179,12 @@ export default class EditAccessTokenComponent extends Vue {
         const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
         if (module == null) return false;
         return module.Categories.some(x => x == category);
+    }
+
+    getModuleAccessIds(moduleId: string): Array<string> {
+        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
+        if (module == null) return [];
+        return module.Ids;
     }
 
     roleIsEnabled(roleId: string): boolean {
@@ -200,6 +223,7 @@ export default class EditAccessTokenComponent extends Vue {
                 ModuleId: moduleId,
                 Options: [],
                 Categories: [],
+                Ids: []
             });
         }
         else if (!enabled && this.hasAccessToModule(moduleId))
@@ -246,6 +270,12 @@ export default class EditAccessTokenComponent extends Vue {
             Vue.delete(module.Categories, index);
         }
         this.notifyChange();
+    }
+
+    onModuleAccessIdChanged(moduleId: string, ids: Array<string>): void {
+        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
+        if (module == null) return;
+        module.Ids = ids;
     }
 }
 </script>

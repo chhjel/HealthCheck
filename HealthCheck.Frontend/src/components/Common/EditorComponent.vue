@@ -16,7 +16,8 @@
 
         <v-btn absolute dark fab flat small top right
             color="green"
-            style="top: 5px; right: 21px"
+            class="editor-fullscreen-button"
+            title="Fullscreen"
             v-if="allowFullscreen"
             @click.stop="isFullscreen = true">
             <v-icon>fullscreen</v-icon>
@@ -447,6 +448,15 @@ export default class EditorComponent extends Vue {
             height: calc(100% - 64px);
             z-index: 205;
         }
+    }
+}
+.editor-fullscreen-button {
+    top: 5px !important;
+    right: 21px !important;
+    overflow: hidden;
+
+    .v-icon {
+        margin-top: 20px;
     }
 }
 </style>

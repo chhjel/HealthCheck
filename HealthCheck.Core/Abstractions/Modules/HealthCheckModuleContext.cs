@@ -66,6 +66,11 @@ namespace HealthCheck.Core.Abstractions.Modules
         public List<string> CurrentModuleCategoryAccess { get; set; }
 
         /// <summary>
+        /// Access ids for the current module.
+        /// </summary>
+        public List<string> CurrentModuleIdAccess { get; set; }
+
+        /// <summary>
         /// Url to the javascripts for the UI.
         /// </summary>
         public List<string> JavaScriptUrls { get; set; }
@@ -233,6 +238,12 @@ namespace HealthCheck.Core.Abstractions.Modules
             /// <para>Null/empty = all.</para>
             /// </summary>
             public List<string> AccessCategories { get; set; }
+
+            /// <summary>
+            /// Ids that the request has access to.
+            /// <para>Null/empty = all.</para>
+            /// </summary>
+            public List<string> AccessIds { get; set; }
         }
     }
 }

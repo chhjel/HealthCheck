@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
+using HealthCheck.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,5 +75,10 @@ namespace HealthCheck.Core.Util.Modules
 		/// All available module categories if any.
 		/// </summary>
 		public List<string> AllModuleCategories => Module?.AllCategories;
+
+		/// <summary>
+		/// All available module ids if any.
+		/// </summary>
+		public List<HCModuleIdData> AllModuleIds => Module?.AllIds;
 	}
 }
