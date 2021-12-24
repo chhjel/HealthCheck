@@ -107,6 +107,10 @@
                     </v-tooltip>
                 </div>
 
+                <div v-if="!hasAccessToRetry" class="not-allowed-text">
+                    You do not have access to retry this data.
+                </div>
+
                 <v-btn :disabled="!retryAllowed"
                     :loading="dataLoadStatus.inProgress"
                     v-if="hasAccessToRetry"
@@ -466,5 +470,10 @@ code {
 }
 .repeater-error:before {
     content: "";
+}
+.not-allowed-text {
+    font-size: 12px;
+    font-weight: bold;
+    padding: 5px;
 }
 </style>
