@@ -8,4 +8,5 @@ export interface HCDataItemChangeBase
 	RemoveAllTags: boolean;
 	TagsThatShouldExist: string[];
 	TagsThatShouldNotExist: string[];
+	StreamItemModification: (arg: any) => void;
 }

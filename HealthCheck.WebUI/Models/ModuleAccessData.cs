@@ -12,6 +12,7 @@ namespace HealthCheck.WebUI.Models
         public object AccessOptions { get; set; }
         public bool FullAccess { get; set; }
         public string[] Categories { get; set; }
+        public string[] Ids { get; set; }
 
         public List<object> GetAllSelectedAccessOptions()
         {

@@ -1,3 +1,4 @@
+import { HCModuleIdData } from "generated/Models/Core/HCModuleIdData";
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
 
 export default class AccessTokensService extends HCServiceBase
@@ -80,6 +81,7 @@ export interface CreatedModuleAccessData
     ModuleId: string;
     Options: Array<string>;
     Categories: Array<string>;
+    Ids: Array<string>;
 }
 
 export interface AccessData {
@@ -92,6 +94,7 @@ export interface ModuleAccessData {
     ModuleId: string;
     AccessOptions: Array<ModuleAccessOption>;
     AccessCategories: Array<ModuleAccessOption>;
+    AccessIds: Array<HCModuleIdData>;
 }
 
 export interface ModuleAccessOption {

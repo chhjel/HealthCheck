@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using HealthCheck.Core.Models;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Abstractions.Modules
 {
@@ -11,5 +12,10 @@ namespace HealthCheck.Core.Abstractions.Modules
         /// All categories defined for the module if any.
         /// </summary>
         List<string> AllCategories { get; }
+
+        /// <summary>
+        /// All ids of things that can be given access to individually.
+        /// </summary>
+        List<HCModuleIdData> AllIds { get; }
     }
 }

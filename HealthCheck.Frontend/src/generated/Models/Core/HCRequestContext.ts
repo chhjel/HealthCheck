@@ -10,4 +10,6 @@ export interface HCRequestContext
 	Cookies: { [key:string]: string };
 	Method: string;
 	RequestExecutionStartTime: Date;
+	RequestItemGetter: (arg: string) => any;
+	RequestItemSetter: (arg: string, arg1: any) => void;
 }

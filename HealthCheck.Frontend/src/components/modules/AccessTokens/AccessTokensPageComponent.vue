@@ -128,6 +128,18 @@
                                         <span v-else-if="module.Categories.length >= 2 && catIndex < module.Categories.length - 2">,</span>
                                     </span>
                                 </span>
+
+                                <span v-if="module.Ids && module.Ids.length > 0">
+                                    <br />
+                                    * Access limited to the following:
+                                    <span class="token-item--modules--item--option"
+                                        v-for="(id, idIndex) in module.Ids"
+                                        :key="`token-${tokenIndex}-module-${moduleIndex}-id-${idIndex}`">
+                                        <code>{{ id }}</code>
+                                        <span v-if="module.Ids.length >= 2 && idIndex == module.Ids.length - 2">and</span>
+                                        <span v-else-if="module.Ids.length >= 2 && idIndex < module.Ids.length - 2">,</span>
+                                    </span>
+                                </span>
                             </span>
                             <span v-if="token.Modules.length == 0">
                                 None

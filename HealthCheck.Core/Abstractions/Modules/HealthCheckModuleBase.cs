@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,6 +14,9 @@ namespace HealthCheck.Core.Abstractions.Modules
     {
         /// <inheritdoc />
         public virtual List<string> AllCategories => null;
+
+        /// <inheritdoc />
+        public virtual List<HCModuleIdData> AllIds => null;
 
         /// <summary>
         /// Optional object that will be serialized and used as the options model in frontend for the module pages.

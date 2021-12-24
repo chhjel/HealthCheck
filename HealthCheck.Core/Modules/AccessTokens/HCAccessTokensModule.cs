@@ -123,49 +123,51 @@ namespace HealthCheck.Core.Modules.AccessTokens
         [HealthCheckModuleMethod(AccessOption.ViewToken)]
         public object GetTokens()
         {
-            return Options.TokenStorage?.GetTokens()?.Select(x =>
-            {
-                string expirationSummary = null;
-                if (x.ExpiresAt != null)
+            return Options.TokenStorage?.GetTokens()
+                ?.OrderByDescending(x => x.CreatedAt)
+                ?.Select(x =>
                 {
-                    var timeUntil = (long)(x.ExpiresAt.Value - DateTimeOffset.Now).TotalMilliseconds;
-                    expirationSummary = (timeUntil < 0)
-                        ? "Expired"
-                        : $"Expires in {TimeUtils.PrettifyDuration(timeUntil)}";
-                }
+                    string expirationSummary = null;
+                    if (x.ExpiresAt != null)
+                    {
+                        var timeUntil = (long)(x.ExpiresAt.Value - DateTimeOffset.Now).TotalMilliseconds;
+                        expirationSummary = (timeUntil < 0)
+                            ? "Expired"
+                            : $"Expires in {TimeUtils.PrettifyDuration(timeUntil)}";
+                    }
 
-                string lastUsedSummary = null;
-                if (x.LastUsedAt != null)
-                {
-                    lastUsedSummary = $"Last used {TimeUtils.PrettifyDurationSince(x.LastUsedAt, TimeSpan.FromMinutes(1), "less than a minute")} ago";
-                }
-                else
-                {
-                    lastUsedSummary = "Not used yet";
-                }
+                    string lastUsedSummary = null;
+                    if (x.LastUsedAt != null)
+                    {
+                        lastUsedSummary = $"Last used {TimeUtils.PrettifyDurationSince(x.LastUsedAt, TimeSpan.FromMinutes(1), "less than a minute")} ago";
+                    }
+                    else
+                    {
+                        lastUsedSummary = "Not used yet";
+                    }
 
-                string createdSummary = $"Created {TimeUtils.PrettifyDurationSince(x.CreatedAt, TimeSpan.FromMinutes(1), "less than a minute")} ago";
+                    string createdSummary = $"Created {TimeUtils.PrettifyDurationSince(x.CreatedAt, TimeSpan.FromMinutes(1), "less than a minute")} ago";
 
-                foreach(var module in x.Modules)
-                {
-                    module.Categories ??= new List<string>();
-                }
+                    foreach(var module in x.Modules)
+                    {
+                        module.Categories ??= new List<string>();
+                    }
 
-                return new
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    CreatedAt = x.CreatedAt,
-                    CreatedAtSummary = createdSummary,
-                    LastUsedAt = x.LastUsedAt,
-                    LastUsedAtSummary = lastUsedSummary,
-                    ExpiresAt = x.ExpiresAt,
-                    ExpiresAtSummary = expirationSummary,
-                    IsExpired = (x.ExpiresAt != null && x.ExpiresAt.Value < DateTimeOffset.Now),
-                    Roles = x.Roles,
-                    Modules = x.Modules
-                };
-            });
+                    return new
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        CreatedAt = x.CreatedAt,
+                        CreatedAtSummary = createdSummary,
+                        LastUsedAt = x.LastUsedAt,
+                        LastUsedAtSummary = lastUsedSummary,
+                        ExpiresAt = x.ExpiresAt,
+                        ExpiresAtSummary = expirationSummary,
+                        IsExpired = (x.ExpiresAt != null && x.ExpiresAt.Value < DateTimeOffset.Now),
+                        Roles = x.Roles,
+                        Modules = x.Modules
+                    };
+                });
         }
 
         /// <summary>
@@ -207,7 +209,8 @@ namespace HealthCheck.Core.Modules.AccessTokens
                     {
                         ModuleId = x.ModuleId,
                         Options = x.Options.Where(o => moduleAccess.AccessOptions.Contains(o)).ToList(),
-                        Categories = x.Categories.Where(o => moduleAccess.AccessCategories?.Any() != true || moduleAccess.AccessCategories.Contains(o)).ToList()
+                        Categories = x.Categories.Where(o => moduleAccess.AccessCategories?.Any() != true || moduleAccess.AccessCategories.Contains(o)).ToList(),
+                        Ids = x.Ids.Where(o => moduleAccess.AccessIds?.Any() != true || moduleAccess.AccessIds.Contains(o)).ToList()
                     };
                 }).ToList();
 
@@ -262,6 +265,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
                         .FirstOrDefault(m => m.ModuleId == x.Module.GetType().Name);
                     var requestModuleOptions = moduleAccess.AccessOptions;
                     var requestModuleCategories = moduleAccess.AccessCategories;
+                    var requestModuleIds = new HashSet<string>(moduleAccess.AccessIds);
 
                     List<string> categories;
                     if (requestModuleCategories?.Any() == true)
@@ -271,6 +275,16 @@ namespace HealthCheck.Core.Modules.AccessTokens
                     else
                     {
                         categories = x.AllModuleCategories ?? new List<string>();
+                    }
+
+                    List<HCModuleIdData> ids;
+                    if (requestModuleIds?.Any() == true)
+                    {
+                        ids = x.AllModuleIds?.Where(mid => requestModuleIds?.Contains(mid.Id) == true)?.ToList() ?? new List<HCModuleIdData>();
+                    }
+                    else
+                    {
+                        ids = x.AllModuleIds ?? new List<HCModuleIdData>();
                     }
 
                     return new ModuleAccessData()
@@ -290,6 +304,9 @@ namespace HealthCheck.Core.Modules.AccessTokens
                                     Name = x.ToString().SpacifySentence()
                                 })
                                 .OrderBy(x => x.Id)
+                                .ToList(),
+                        AccessIds = ids
+                                .OrderBy(x => x.Name)
                                 .ToList()
                     };
                 })
@@ -314,7 +331,12 @@ namespace HealthCheck.Core.Modules.AccessTokens
                 {
                     categoryPart = $":[{string.Join(",", x.Categories)}]";
                 }
-                return $"({x.ModuleId}:{string.Join(",", x.Options)}{categoryPart})";
+                var idsPart = "";
+                if (x.Ids?.Any() == true)
+                {
+                    idsPart = $":[{string.Join(",", x.Ids)}]";
+                }
+                return $"({x.ModuleId}:{string.Join(",", x.Options)}{categoryPart}{idsPart})";
             }));
             var expirationString = (expiresAt == null) ? "no-expiration" : expiresAt.Value.Ticks.ToString();
             return $"{rawToken}|{rolesString}|{modulesString}|{expirationString}";
@@ -336,6 +358,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
             /// <summary></summary>
             public List<CreatedNewTokenRequestModuleData> Modules { get; set; }
         }
+
         /// <summary>
         /// Sub-model sent to endpoint to create a new token.
         /// </summary>
@@ -347,6 +370,8 @@ namespace HealthCheck.Core.Modules.AccessTokens
             public List<string> Options { get; set; }
             /// <summary></summary>
             public List<string> Categories { get; set; }
+            /// <summary></summary>
+            public List<string> Ids { get; set; }
         }
 
         private class ModuleAccessData
@@ -355,6 +380,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
             public string ModuleId { get; set; }
             public List<ModuleAccessOption> AccessOptions { get; set; }
             public List<ModuleAccessOption> AccessCategories { get; set; }
+            public List<HCModuleIdData> AccessIds { get; set; }
         }
         private class ModuleAccessOption
         {

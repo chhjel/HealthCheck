@@ -2,10 +2,8 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface HCAccessTokenModuleData
+export interface HCModuleIdData
 {
-	ModuleId: string;
-	Options: string[];
-	Categories: string[];
-	Ids: string[];
+	Id: string;
+	Name: string;
 }

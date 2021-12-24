@@ -81,7 +81,8 @@ namespace HealthCheck.Core.Modules.Tests.Services
             object userRolesEnum = null,
             Func<TestDefinition, bool> testFilter = null,
             object defaultTestAccessLevel = null,
-            List<string> userCategoryAccess = null)
+            List<string> userCategoryAccess = null,
+            List<string> userIdAccess = null)
         {
             var assemblies = AssembliesContainingTests;
             if (assemblies == null || !assemblies.Any())
@@ -112,7 +113,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                     {
                         var testDef = new TestDefinition(testMethod, testAttribute, classDef, ReferenceParameterFactories);
 
-                        bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef, defaultTestAccessLevel, userCategoryAccess);
+                        bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef, defaultTestAccessLevel, userCategoryAccess, userIdAccess);
                         if (includeTest && testFilter?.Invoke(testDef) != false)
                         {
                             classDef.Tests.Add(testDef);
@@ -141,7 +142,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                         foreach (var proxyMethod in proxyMethods)
                         {
                             var testDef = new TestDefinition(proxyMethod, proxyTestAttribute, config, classDef, ReferenceParameterFactories);
-                            bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef, defaultTestAccessLevel, userCategoryAccess);
+                            bool includeTest = ShouldIncludeTest(includeInvalidTests, onlyTestsAllowedToBeManuallyExecuted, userRolesEnum, testDef, defaultTestAccessLevel, userCategoryAccess, userIdAccess);
                             if (includeTest && testFilter?.Invoke(testDef) != false)
                             {
                                 classDef.Tests.Add(testDef);
@@ -183,7 +184,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
         }
 
         private bool ShouldIncludeTest(bool includeInvalidTests, bool onlyTestsAllowedToBeManuallyExecuted,
-            object userRolesEnum, TestDefinition testDef, object defaultTestAccessLevel, List<string> userCategoryAccess)
+            object userRolesEnum, TestDefinition testDef, object defaultTestAccessLevel, List<string> userCategoryAccess, List<string> userIdAccess)
         {
             // Check for invalid tests
             if (!includeInvalidTests && !testDef.Validate().IsValid)
@@ -202,6 +203,11 @@ namespace HealthCheck.Core.Modules.Tests.Services
             }
             // Exclude tests that are outside the given category access if any
             else if (!IsTestIncludedForCategories(testDef, userCategoryAccess))
+            {
+                return false;
+            }
+            // Exclude tests that are outside the given id access if any
+            else if (userIdAccess?.Any() == true && !userIdAccess.Contains(testDef.Id))
             {
                 return false;
             }
