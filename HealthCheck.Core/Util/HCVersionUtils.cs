@@ -53,7 +53,7 @@ namespace HealthCheck.Core.Util
         /// </summary>
         /// <param name="key">Will be used as part of the filename. Should be unique per solution.</param>
         /// <param name="currentVersion">Current version to check against. Only used if <paramref name="method"/> is <see cref="NewlyDeployedVersionCheckMethod.FileContent"/></param>
-        /// <param name="actionOnNewVersion">Action to execute if a new version was found.</param>
+        /// <param name="actionOnNewVersion">Action to execute if a new version was found. Parameter is the value of <paramref name="currentVersion"/>.</param>
         /// <param name="method">Logic to use to check for new version.</param>
         public static void ExecuteIfNewlyDeployedVersion(string key, string currentVersion, Action<string> actionOnNewVersion, NewlyDeployedVersionCheckMethod method = NewlyDeployedVersionCheckMethod.FileContent)
         {
