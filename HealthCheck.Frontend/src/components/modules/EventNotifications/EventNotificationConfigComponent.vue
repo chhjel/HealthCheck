@@ -129,10 +129,15 @@
 
                 <div style="display: flex; align-items: baseline; flex-direction: row; flex-wrap: nowrap;">
                     <h3 class="notifier-title">{{ notifierConfig.Notifier.Name }}</h3>
-                    <v-btn color="error" right flat small
+                    <v-btn color="error" right flat small class="ml-3"
                         @click="removeValidNotifierConfig(ncindex)"
                         :disabled="!allowChanges">
                         Remove
+                    </v-btn>
+                    <v-btn color="secondary" right flat small class="ml-1"
+                        @click="testNotifier(ncindex)"
+                        :disabled="!allowChanges">
+                        Test
                     </v-btn>
                 </div>
                 
@@ -348,6 +353,7 @@ import InputComponent from  '../../Common/Basic/InputComponent.vue';
 import TimespanInputComponent from  '../../Common/Basic/TimespanInputComponent.vue';
 import EventNotificationService from  '../../../services/EventNotificationService';
 import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { NewItemActionType } from "generated/Enums/Core/NewItemActionType";
 
 @Component({
     components: {
@@ -495,6 +501,37 @@ export default class EventNotificationConfigComponent extends Vue {
                 return;
             }
         }
+    }
+
+    testNotifier(visibleIndex: number): void {
+        const notifier = this.getVisibleNotifierByIndex(visibleIndex);
+        if (!notifier) return;
+
+        this.service.TestNotifier(notifier, null, {
+            onSuccess: (data) => {
+                this.setServerInteractionInProgress(false);
+                alert(data);
+            },
+            onError: (message) => this.setServerInteractionInProgress(false, message)
+        });
+    }
+
+    getVisibleNotifierByIndex(visibleIndex: number): NotifierConfig | null {
+        let index = -1;
+        for(let i=0;i<this.internalConfig.NotifierConfigs.length;i++)
+        {
+            if (this.internalConfig.NotifierConfigs[i].Notifier == null)
+            {
+                continue;
+            }
+            index++;
+
+            if (index == visibleIndex)
+            {
+                return this.internalConfig.NotifierConfigs[i];
+            }
+        }
+        return null;
     }
 
     getValidNotifierConfigs(): Array<NotifierConfig> {

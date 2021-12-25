@@ -1,5 +1,5 @@
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
-import { GetEventNotificationConfigsViewModel, EventSinkNotificationConfig } from "../models/modules/EventNotifications/EventNotificationModels";
+import { GetEventNotificationConfigsViewModel, EventSinkNotificationConfig, NotifierConfig } from "../models/modules/EventNotifications/EventNotificationModels";
 
 export default class EventNotificationService extends HCServiceBase
 {
@@ -60,5 +60,13 @@ export default class EventNotificationService extends HCServiceBase
     ): void
     {
         this.invokeModuleMethod(this.moduleId, 'DeleteEventDefinitions', null, statusObject, callbacks);
+    }
+
+    public TestNotifier(notifier: NotifierConfig,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<string> | null = null
+    ): void
+    {
+        this.invokeModuleMethod(this.moduleId, 'TestNotifier', notifier, statusObject, callbacks);
     }
 }

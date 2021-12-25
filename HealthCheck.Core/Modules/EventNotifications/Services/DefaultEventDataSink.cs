@@ -433,7 +433,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Services
             return result;
         }
 
-        private object CreateOptionsObject(IEventNotifier notifier, NotifierConfig notifierConfig, Dictionary<string, string> placeholders)
+        internal static object CreateOptionsObject(IEventNotifier notifier, NotifierConfig notifierConfig, Dictionary<string, string> placeholders)
         {
             var type = notifier.OptionsModelType;
             if (type == null)

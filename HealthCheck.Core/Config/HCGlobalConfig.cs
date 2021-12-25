@@ -87,6 +87,19 @@ namespace HealthCheck.Core.Config
         /// <param name="exception">Exception being thrown.</param>
         public delegate void OnException(Type source, string method, Exception exception);
 
+        /// <summary>
+        /// Called whenever some methods that needed extra debugging ignores exceptions catches an exception.
+        /// </summary>
+        public static OnDebugException OnDebugExceptionEvent;
+
+        /// <summary>
+        /// Signature for <see cref="OnDebugException"/>.
+        /// </summary>
+        /// <param name="source">Type that threw the exception.</param>
+        /// <param name="method">Name of method that threw the exception</param>
+        /// <param name="exception">Exception being thrown.</param>
+        public delegate void OnDebugException(Type source, string method, Exception exception);
+
         internal static IJsonSerializer Serializer { get; set; }
 
         internal static T GetService<T>()
