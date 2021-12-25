@@ -1,6 +1,6 @@
 ﻿using EPiServer.Framework.Blobs;
+using HealthCheck.Core.Config;
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 namespace HealthCheck.Episerver.Extensions
@@ -52,8 +52,9 @@ namespace HealthCheck.Episerver.Extensions
                 }
                 return blob.ReadAllBytes();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                HCGlobalConfig.OnDebugExceptionEvent?.Invoke(typeof(BlobExtensions), nameof(TryReadAllBytes), ex);
                 return null;
             }
         }

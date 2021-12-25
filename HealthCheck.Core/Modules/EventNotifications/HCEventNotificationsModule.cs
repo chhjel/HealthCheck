@@ -1,8 +1,11 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Modules.EventNotifications.Models;
+using HealthCheck.Core.Modules.EventNotifications.Services;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.EventNotifications
 {
@@ -51,7 +54,10 @@ namespace HealthCheck.Core.Modules.EventNotifications
             None = 0,
 
             /// <summary>Allows editing event definitions.</summary>
-            EditEventDefinitions = 1
+            EditEventDefinitions = 1,
+
+            /// <summary>Allows testing notification configs.</summary>
+            TestNotifications = 2
         }
 
         #region Invokable 
@@ -154,6 +160,34 @@ namespace HealthCheck.Core.Modules.EventNotifications
             Options.EventSink?.DeleteDefinitions();
             context.AddAuditEvent(action: "Delete all event definitions");
             return true;
+        }
+
+        /// <summary>
+        /// Test notification configs.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.TestNotifications)]
+        public async Task<string> TestNotifier(HealthCheckModuleContext context, NotifierConfig model)
+        {
+            try
+            {
+                var notifier = Options.EventSink?.GetNotifiers()?.FirstOrDefault(x => x.Id == model.NotifierId);
+
+                var payloadValues = new Dictionary<string, string>();
+                var placeholders = new Dictionary<string, string>();
+                var options = DefaultEventDataSink.CreateOptionsObject(notifier, model, placeholders);
+                var result = await notifier.NotifyEvent(model, "manual_test", payloadValues, options);
+                if (string.IsNullOrWhiteSpace(result))
+                {
+                    result = "Notifier seems to work.";
+                }
+
+                context.AddAuditEvent(action: $"Notifier '{model.NotifierId}' tested.");
+                return result;
+            }
+            catch(Exception ex)
+            {
+                return ExceptionUtils.GetFullExceptionDetails(ex);
+            }
         }
         #endregion
     }
