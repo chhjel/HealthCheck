@@ -135,9 +135,9 @@
                         Remove
                     </v-btn>
                     <v-btn color="secondary" right flat small class="ml-1"
-                        @click="testNotifier(ncindex)"
+                        @click="showNotifierTest(ncindex)"
                         :disabled="!allowChanges">
-                        Test
+                        Test..
                     </v-btn>
                 </div>
                 
@@ -305,7 +305,6 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-
         <v-dialog v-model="placeholderDialogVisible"
             @keydown.esc="placeholderDialogVisible = false"
             scrollable
@@ -333,6 +332,35 @@
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="secondary" flat @click="hidePlaceholderDialog()">Cancel</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-dialog v-model="testDialogVisible"
+            @keydown.esc="testDialogVisible = false"
+            scrollable
+            content-class="possible-placeholders-dialog">
+            <v-card v-if="notifierToTest">
+                <v-card-title class="headline">Test notifier '{{ notifierToTest.Notifier.Name }}'</v-card-title>
+                <v-divider></v-divider>
+                <v-card-text>
+                    <div>
+                        <p>No placeholders will be resolved, this is just to test the notifier itself.</p>
+                        <v-btn color="primary"
+                            @click="testNotifier"
+                            :disabled="!allowChanges">
+                            Execute notifier
+                        </v-btn>
+                    </div>
+
+                    <div v-if="testResponse" class="ml-2 mt-3 mb-3">
+                        <h4>Result:</h4>
+                        <code class="notif-test-result">{{ testResponse }}</code>
+                    </div>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary" flat @click="testDialogVisible = false">Close</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -399,6 +427,9 @@ export default class EventNotificationConfigComponent extends Vue {
     isDeleting: boolean = false;
     serverInteractionError: string | null = null;
     serverInteractionInProgress: boolean = false;
+    testDialogVisible: boolean = false;
+    notifierToTest: NotifierConfig | null = null;
+    testResponse: string = '';
 
     //////////////////
     //  LIFECYCLE  //
@@ -503,16 +534,28 @@ export default class EventNotificationConfigComponent extends Vue {
         }
     }
 
-    testNotifier(visibleIndex: number): void {
+    showNotifierTest(visibleIndex: number): void {
         const notifier = this.getVisibleNotifierByIndex(visibleIndex);
         if (!notifier) return;
 
-        this.service.TestNotifier(notifier, null, {
+        this.notifierToTest = notifier;
+        this.testDialogVisible = true;
+        this.testResponse = '';
+    }
+
+    testNotifier(): void {
+        if (!this.notifierToTest) return;
+        
+        this.setServerInteractionInProgress(true);
+        this.service.TestNotifier(this.notifierToTest, null, {
             onSuccess: (data) => {
                 this.setServerInteractionInProgress(false);
-                alert(data);
+                this.testResponse = data;
             },
-            onError: (message) => this.setServerInteractionInProgress(false, message)
+            onError: (message) => {
+                this.setServerInteractionInProgress(false, message);
+                this.testResponse = message;
+            }
         });
     }
 
@@ -840,6 +883,16 @@ export default class EventNotificationConfigComponent extends Vue {
 
     .possible-placeholder-list-item {
         margin-bottom: 10px;
+    }
+}
+.notif-test-result {
+    width: 100%;
+    overflow: auto;
+    color: #333;
+    padding: 10px;
+
+    &::before {
+        content: '';
     }
 }
 </style>
