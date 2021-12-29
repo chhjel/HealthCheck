@@ -236,7 +236,11 @@ export default class HealthCheckPageComponent extends Vue {
     }
 
     onRouteChanged(to: Route, from: Route): void {
-        UrlUtils.SetQueryStringParameter('h', window.location.hash)
+        this.$nextTick(() => {
+            this.$nextTick(() => {
+                UrlUtils.updatePerstentQueryStringKey();
+            })
+        });
     }
 }
 </script>

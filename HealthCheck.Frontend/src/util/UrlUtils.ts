@@ -9,6 +9,10 @@ export default class UrlUtils
         return value.replace(/ /g, '-').replace('/', '-');
     }
 
+    static updatePerstentQueryStringKey(): void {
+        UrlUtils.SetQueryStringParameter('h', window.location.hash);
+    }
+
     static SetQueryStringParameter(key: string, value: string): void {
         const params = new URLSearchParams(location.search);
         params.set(key, value);

@@ -143,6 +143,8 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
         config.ShowFailedModuleLoadStackTrace = new Maybe<AccessRole>(AccessRoles.WebAdmins);
         config.PingAccess = new Maybe<AccessRole>(AccessRoles.WebAdmins);
         config.RedirectTargetOnNoAccess = "/no-access";
+        // To redirect after login and persist state something like this can be used:
+        config.RedirectTargetOnNoAccessUsingRequest = (r, q) => $"/login?returnUrl={HttpUtility.UrlEncode($"/healthcheck?{q}")}";
         //..
 
         // Properties CurrentRequestAccessRoles and CurrentRequestInformation
