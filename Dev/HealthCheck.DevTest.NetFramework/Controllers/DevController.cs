@@ -305,7 +305,8 @@ namespace HealthCheck.DevTest.Controllers
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
             config.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
-            config.RedirectTargetOnNoAccess = "/no-access";
+            //config.RedirectTargetOnNoAccess = "/no-access";
+            config.RedirectTargetOnNoAccessUsingRequest = (r, q) => $"/DummyLoginRedirect?r={HttpUtility.UrlEncode($"/?{q}")}";
             config.IntegratedLoginConfig = new HCIntegratedLoginConfig
             {
                 IntegratedLoginEndpoint = "/hclogin/login",

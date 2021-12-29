@@ -9,6 +9,12 @@ export default class UrlUtils
         return value.replace(/ /g, '-').replace('/', '-');
     }
 
+    static SetQueryStringParameter(key: string, value: string): void {
+        const params = new URLSearchParams(location.search);
+        params.set(key, value);
+        window.history.replaceState({}, '', `${location.pathname}?${params.toString()}${location.hash}`);
+    }
+
     static GetQueryStringParameter(key: string, fallbackValue: string | null = null): string | null
     {
         let params = new URLSearchParams(location.search);
