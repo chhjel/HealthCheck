@@ -54,19 +54,23 @@ namespace HealthCheck.WebUI.Models
 #if NETFULL
         /// <summary>
         /// Redirect url if the request does not have access to any of the content.
+        /// <para>Input string parameter is the url encoded querystring part that can be used to redirect back to the current state.</para>
+        /// <para>Example: <c>(r, q) =&gt; "/login?return={HttpUtility.UrlEncode($"/healthcheck?{q}")}"</c></para>
         /// <para>If not set a 404 will be returned.</para>
         /// <para>Takes priority over <see cref="RedirectTargetOnNoAccess"/>.</para>
         /// </summary>
-        public Func<HttpRequestBase, string> RedirectTargetOnNoAccessUsingRequest { get; set; }
+        public Func<HttpRequestBase, string, string> RedirectTargetOnNoAccessUsingRequest { get; set; }
 #endif
 
 #if NETCORE
         /// <summary>
         /// Redirect url if the request does not have access to any of the content.
+        /// <para>Input string parameter is the url encoded querystring part that can be used to redirect back to the current state.</para>
+        /// <para>Example: <c>(r, q) =&gt; "/login?return={HttpUtility.UrlEncode($"/healthcheck?{q}")}"</c></para>
         /// <para>If not set a 404 will be returned.</para>
         /// <para>Takes priority over <see cref="RedirectTargetOnNoAccess"/>.</para>
         /// </summary>
-        public Func<HttpRequest, string> RedirectTargetOnNoAccessUsingRequest { get; set; }
+        public Func<HttpRequest, string, string> RedirectTargetOnNoAccessUsingRequest { get; set; }
 #endif
 
         internal List<ModuleAccessData<TAccessRole>> RoleModuleAccessLevels { get; set; }

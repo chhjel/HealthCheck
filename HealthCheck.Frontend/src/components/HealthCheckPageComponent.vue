@@ -61,6 +61,8 @@ import ModuleConfig from "../models/Common/ModuleConfig";
 import BackendInputComponent from "./Common/Inputs/BackendInputs/BackendInputComponent.vue";
 import HealthCheckProfileDialogComponent from 'components/profile/HealthCheckProfileDialogComponent.vue';
 import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
+import { Route } from "vue-router";
+import UrlUtils from "util/UrlUtils";
 
 @Component({
     components: {
@@ -84,6 +86,7 @@ export default class HealthCheckPageComponent extends Vue {
     {
         this.setInitialPage();
         this.bindRootEvents();
+        this.$router.afterEach((t, f) => this.onRouteChanged(t, f));
     }
 
     ////////////////
@@ -207,6 +210,12 @@ export default class HealthCheckPageComponent extends Vue {
     setInitialPage(): void
     {
         // X:ToDo: set based on prioritized order if nothing active.
+        let queryState = UrlUtils.GetQueryStringParameter('h');
+        if (queryState)
+        {
+            queryState = queryState.replace('#', '');
+            this.$router.push(queryState);
+        }
         
         let anyRouteActive = this.$route.matched.length > 0;
         if (!anyRouteActive && this.validModuleConfigs.length > 0)
@@ -224,6 +233,10 @@ export default class HealthCheckPageComponent extends Vue {
     /////////////////////
     onSideMenuToggleButtonClicked(): void {
         this.$store.commit('toggleMenuExpanded');
+    }
+
+    onRouteChanged(to: Route, from: Route): void {
+        UrlUtils.SetQueryStringParameter('h', window.location.hash)
     }
 }
 </script>

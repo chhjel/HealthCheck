@@ -108,8 +108,9 @@ namespace HealthCheck.WebUI.Abstractions
                 {
                     return CreateIntegratedLoginViewResult();
                 }
-
-                var redirectTarget = Helper.AccessConfig.RedirectTargetOnNoAccessUsingRequest?.Invoke(Request);
+                
+                var queryStringState = "h=" + System.Web.HttpUtility.UrlEncode($"{Request.QueryString?["h"] ?? ""}");
+                var redirectTarget = Helper.AccessConfig.RedirectTargetOnNoAccessUsingRequest?.Invoke(Request, queryStringState);
                 if (!string.IsNullOrWhiteSpace(redirectTarget))
                 {
                     return Redirect(redirectTarget);
