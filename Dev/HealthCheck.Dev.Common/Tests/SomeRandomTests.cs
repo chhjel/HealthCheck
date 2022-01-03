@@ -222,6 +222,7 @@ namespace HealthCheck.Dev.Common.Tests
 
             HCTestContext.StartTiming("First part with some extra text here and a bit more.");
             await Task.Delay(TimeSpan.FromSeconds(0.15f), cancellationToken);
+            HCTestContext.WithCurrentResult(x => x.AddTextData("Text added through ModifyCurrentResult"));
             HCTestContext.EndTiming();
 
             HCTestContext.Log("Middle of test");

@@ -13,7 +13,8 @@ namespace HealthCheck.Core.Modules.Tests.Models
     public class HCTestContext
     {
         internal DateTimeOffset TestExecutionStartTime { get; set; }
-        internal List<HCTestTiming> Timings { get; private set; } = new List<HCTestTiming>();
+        internal List<HCTestTiming> Timings { get; private set; } = new();
+        internal List<Action<TestResult>> TestResultActions { get; private set; } = new();
 
         private readonly object _timingsLock = new();
         private readonly object _logBuilderLock = new();
@@ -37,6 +38,12 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 }
             }
         }
+
+        /// <summary>
+        /// Modifies the result of the currently running test in the request if any.
+        /// </summary>
+        public static void WithCurrentResult(Action<TestResult> action)
+            => WithCurrentContext(c => c.TestResultActions.Add(action));
 
         /// <summary>
         /// Log the given text along with the test result output.

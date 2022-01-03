@@ -492,6 +492,7 @@ When a test is executed a context object is created for the current request that
 
 * `HCTestContext.Log("Start of test")` Add some log data to the result.
 * `HCTestContext.StartTiming("Parsing data")` Start timing with the given description. Can be stopped with `HCTestContext.EndTiming` or continues until the end of the test method is reached.
+* `HCTestContext.WithCurrentResult(x => x.AddTextData("Something")); Access the `TestResult` object for the running test if any.
 
 ---------
 
