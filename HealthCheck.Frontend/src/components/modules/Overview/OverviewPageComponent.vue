@@ -27,13 +27,30 @@
                 <v-flex sm12 v-if="showContent" class="mb-4" >
                     <div style="display: flex">
                         <h1 class="mb-2" style="flex: 1">Current status</h1>
+
+                        <v-btn @click="toggleAutoRefresh"
+                            :loading="deleteStatus.inProgress"
+                            :disabled="deleteStatus.inProgress"
+                            color="secondary"
+                            flat class="mr-0">
+                            <v-icon class="mr-2" v-if="!autoRefreshEnabled">update_disabled</v-icon>
+                            <v-progress-circular
+                                v-if="autoRefreshEnabled"
+                                :size="20"
+                                :width="3"
+                                :value="autoRefreshValue"
+                                color="primary"
+                                style="margin-right: 10px;"
+                                ></v-progress-circular>
+                            Auto-refresh
+                        </v-btn>
             
                         <div v-if="canDeleteEvents">
                             <v-btn @click="deleteAllDialogVisible = true"
                                 :loading="deleteStatus.inProgress"
                                 :disabled="deleteStatus.inProgress || !siteEvents || siteEvents.length == 0"
                                 flat color="error" class="mr-0">
-                                <v-icon size="20px" class="mr-2">clear</v-icon>
+                                <v-icon class="mr-2">clear</v-icon>
                                 Delete all
                             </v-btn>
                         </div>
@@ -152,6 +169,7 @@ import { SiteEvent } from "generated/Models/Core/SiteEvent";
 interface OverviewPageOptions
 {
     CurrentEventBufferMinutes: number;
+    FrontendAutoRefreshSecondsInterval: number;
 }
 
 @Component({
@@ -186,12 +204,22 @@ export default class OverviewPageComponent extends Vue {
     deleteStatus: FetchStatus = new FetchStatus();
 
     siteEvents: Array<SiteEventViewModel> = [];
+    autoRefreshEnabled: boolean = false;
+    autoRefreshRef: number = 0;
+    autoRefreshValue: number = 30;
+    nextAutoRefresh: Date | null = null;
 
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     mounted(): void
     {
+        if (this.options.Options.FrontendAutoRefreshSecondsInterval < 5)
+        {
+            this.options.Options.FrontendAutoRefreshSecondsInterval = 5;
+        }
+        setInterval(() => { this.autoRefreshValueCalc(); }, 1000);
+
         this.loadData();
     }
 
@@ -385,6 +413,37 @@ export default class OverviewPageComponent extends Vue {
     showEventDetailsDialog(event: SiteEventViewModel): void {
         this.selectedEventForDetails = event;
         this.eventDetailsDialogState = true;
+    }
+
+    toggleAutoRefresh(): void {
+        this.autoRefreshEnabled = !this.autoRefreshEnabled;
+
+        if (this.autoRefreshEnabled)
+        {
+            this.setNextAutoRefreshDate();
+            this.autoRefreshRef = setInterval(() => {
+                this.setNextAutoRefreshDate();
+                this.autoRefreshValue = 100;
+                this.loadData();
+            }, this.options.Options.FrontendAutoRefreshSecondsInterval * 1000);
+        }
+        else
+        {
+            clearInterval(this.autoRefreshRef);
+        }
+    }
+
+    setNextAutoRefreshDate(): void {
+        this.nextAutoRefresh = new Date();
+        this.nextAutoRefresh.setSeconds(this.nextAutoRefresh.getSeconds() + this.options.Options.FrontendAutoRefreshSecondsInterval);
+    }
+
+    autoRefreshValueCalc(): void {
+        if (!this.nextAutoRefresh) return;
+        const secondsLeft = (this.nextAutoRefresh.getTime() - new Date().getTime()) / 1000;        
+        const percentage = secondsLeft / this.options.Options.FrontendAutoRefreshSecondsInterval;
+        const value = Math.floor(percentage * 100);
+        this.autoRefreshValue = Math.min(Math.max(value, 0), 100);
     }
 }
 </script>
