@@ -211,7 +211,7 @@ export default class HealthCheckPageComponent extends Vue {
     {
         // X:ToDo: set based on prioritized order if nothing active.
         let queryState = UrlUtils.GetQueryStringParameter('h');
-        if (queryState)
+        if (queryState && queryState != window.location.hash)
         {
             queryState = queryState.replace('#', '');
             this.$router.push(queryState);
