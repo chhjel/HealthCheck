@@ -17,5 +17,11 @@ namespace HealthCheck.Core.Modules.SiteEvents
         /// <para>Defaults to 30 minutes.</para>
         /// </summary>
         public int CurrentEventBufferMinutes { get; set; } = 30;
+
+        /// <summary>
+        /// Number of seconds to configure the frontend timer with for the optional page auto-refreshes.
+        /// <para>Defaults to 30 seconds.</para>
+        /// </summary>
+        public int FrontendAutoRefreshSecondsInterval { get; set; } = 30;
     }
 }

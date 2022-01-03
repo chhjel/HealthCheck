@@ -320,6 +320,13 @@ namespace HealthCheck.Core.Modules.Tests.Services
                 {
                     result.AddCodeData(testContext.GetLog(), "Log");
                 }
+                if (testContext?.TestResultActions?.Any() == true)
+                {
+                    foreach(var action in testContext.TestResultActions)
+                    {
+                        action?.Invoke(result);
+                    }
+                }
 
                 // Post-process result
                 result.Test = test;
