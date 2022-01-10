@@ -58,7 +58,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace HealthCheck.DevTest.NetCore_3._1.Controllers
 {
@@ -247,10 +246,11 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             config.GiveRolesAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestModuleB.TestModuleBAccessOption.NumberOne);
 
             config.GiveRolesAccessToModuleWithFullAccess<HCDataRepeaterModule>(RuntimeTestAccessRole.WebAdmins);
-            config.GiveRolesAccessToModuleWithFullAccess<HCDataExportModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCDataExportModule>(RuntimeTestAccessRole.QuerystringTest);
             config.GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSettingsModule>(RuntimeTestAccessRole.WebAdmins);
-            config.GiveRolesAccessToModuleWithFullAccess<HCSiteEventsModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModule(RuntimeTestAccessRole.WebAdmins, HCSiteEventsModule.AccessOption.DeveloperDetails);
+            config.GiveRolesAccessToModuleWithFullAccess<HCDataExportModule>(RuntimeTestAccessRole.QuerystringTest);
             //config.GiveRolesAccessToModule(RuntimeTestAccessRole.WebAdmins, HCSiteEventsModule.AccessOption.None);
             config.GiveRolesAccessToModuleWithFullAccess<HCAuditLogModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCDataflowModule<RuntimeTestAccessRole>>(RuntimeTestAccessRole.WebAdmins);
@@ -420,6 +420,10 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
             }
 
             var roles = RuntimeTestAccessRole.Guest;
+            if (request.Query.ContainsKey("qstest"))
+            {
+                roles |= RuntimeTestAccessRole.QuerystringTest;
+            }
 
             if (request.Query.ContainsKey("siteEvents"))
             {
@@ -491,7 +495,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 roles = RuntimeTestAccessRole.None;
                 return new RequestInformation<RuntimeTestAccessRole>(roles, "no_access_test", "No user");
             }
-
+            
             if (ForceLogout)
             {
                 return new RequestInformation<RuntimeTestAccessRole>(roles, "force_logout_test", "No user");

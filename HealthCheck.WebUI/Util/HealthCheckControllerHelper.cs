@@ -6,7 +6,6 @@ using HealthCheck.Core.Modules.AccessTokens;
 using HealthCheck.Core.Modules.AccessTokens.Models;
 using HealthCheck.Core.Modules.AuditLog;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
-using HealthCheck.Core.Modules.AuditLog.Models;
 using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Util;
@@ -320,7 +319,9 @@ namespace HealthCheck.WebUI.Util
             HCAuditLogModuleOptions.StripSensitiveDataDelegate sensitiveDataStripper)
         {
             var moduleAccess = new List<HealthCheckModuleContext.ModuleAccess>();
-            foreach (var access in RoleModuleAccessLevels)
+            var visibleModules = GetModulesRequestHasAccessTo(accessRoles);
+            var allowedRoleModuleAccessLevels = RoleModuleAccessLevels.Where(x => visibleModules.Any(m => m.AccessOptionsType == x.AccessOptionsType));
+            foreach (var access in allowedRoleModuleAccessLevels)
             {
                 var accessModuleId = GetModuleTypeFromAccessOptionsType(access.AccessOptionsType)?.Name;
                 if (accessModuleId == null) continue;
