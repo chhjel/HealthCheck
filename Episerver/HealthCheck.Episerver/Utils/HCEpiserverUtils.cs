@@ -1,6 +1,8 @@
 ﻿using EPiServer.Data.Dynamic;
 using HealthCheck.Core.Config;
+using HealthCheck.Core.Util;
 using HealthCheck.Episerver.Models;
+using HealthCheck.Episerver.Storage;
 using System;
 using System.Linq;
 
@@ -42,6 +44,26 @@ namespace HealthCheck.Episerver.Utils
             catch (Exception ex)
             {
                 HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCEpiserverUtils), nameof(ExecuteIfNewlyDeployedVersion), ex);
+            }
+        }
+
+        /// <summary>
+        /// Shortcut to <see cref="HCSelfUptimeChecker.EnsureIntervalCheckStarted"/> using a storage implementation using epi DDS.
+        /// <para>Storage implementation used: <see cref="HCEpiserverDDSSelfUptimeCheckerStorage"/>.</para>
+        /// </summary>
+		/// <param name="checkInterval">How often to store a timestamp into storage</param>
+		/// <param name="failIfNoCheckForDuration">If the duration between the last stored and the current time is greater than this, <paramref name="onDowntimeDetected"/> will be invoked.</param>
+		/// <param name="onDowntimeDetected">Callback for when downtime was detected. Will be invoked after the site is back up.</param>
+        public static void StartSelfUptimeChecker(TimeSpan checkInterval, TimeSpan failIfNoCheckForDuration, HCSelfUptimeChecker.OnBackUpAfterDowntime onDowntimeDetected)
+        {
+            try
+            {
+                var storage = new HCEpiserverDDSSelfUptimeCheckerStorage();
+                HCSelfUptimeChecker.EnsureIntervalCheckStarted(storage, checkInterval, failIfNoCheckForDuration, onDowntimeDetected);
+            }
+            catch (Exception ex)
+            {
+                HCGlobalConfig.OnExceptionEvent?.Invoke(typeof(HCEpiserverUtils), nameof(StartSelfUptimeChecker), ex);
             }
         }
     }
