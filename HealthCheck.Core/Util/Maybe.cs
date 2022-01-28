@@ -28,5 +28,5 @@
             HasValue = true;
             Value = value;
         }
-    }
+	}
 }
