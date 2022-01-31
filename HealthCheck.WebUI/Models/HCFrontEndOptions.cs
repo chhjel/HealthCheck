@@ -82,6 +82,9 @@ namespace HealthCheck.WebUI.Models
         internal HCIntegratedProfileConfig IntegratedProfileConfig { get; set; }
 
         [JsonProperty]
+        internal bool AllowAccessTokenKillswitch { get; set; }
+
+        [JsonProperty]
         internal List<string> UserRoles { get; set; }
 
         [JsonProperty]

@@ -137,6 +137,7 @@ namespace HealthCheck.WebUI.Abstractions
                     frontEndOptions.UserModuleCategories = Helper.GetUserModuleCategories(CurrentRequestAccessRoles);
                 }
             }
+            frontEndOptions.AllowAccessTokenKillswitch = CurrentRequestInformation.AllowAccessTokenKillswitch;
 
             var pageOptions = GetPageOptions();
             var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions);

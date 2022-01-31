@@ -12,17 +12,23 @@
                     <span v-else>{{ globalOptions.ApplicationTitle }}</span>
                 </v-toolbar-title>
                 <v-spacer></v-spacer>
-                <v-toolbar-items v-if="showPagesMenu">
+                <v-toolbar-items>
                     <v-btn flat
-                        v-for="(mconf, mindex) in this.validModuleConfigs"
+                        v-for="(mconf, mindex) in this.moduleConfigsToShowInTopMenu"
                         :key="`module-menu-${mindex}`"
                         :href="`#${mconf.InitialRoute}`"
                         :class="{ 'active-tab': isModuleShowing(mconf) }"
                         @click.left.prevent="showModule(mconf)">{{ mconf.Name }}</v-btn>
                     <v-btn flat 
+                        v-if="showTokenKillswitch"
+                        @click.left.prevent="tokenKillswitchDialogVisible = true">
+                        <v-icon class="toolbar-icon mr-1">remove_circle</v-icon>
+                        Token killswitch
+                        </v-btn>
+                    <v-btn flat 
                         v-if="showIntegratedProfile"
                         @click.left.prevent="integratedProfileDialogVisible = true">
-                        <v-icon class="toolbar-icon">person</v-icon>
+                        <v-icon class="toolbar-icon mr-1">person</v-icon>
                         Profile
                         </v-btn>
                     <v-btn flat 
@@ -46,6 +52,7 @@
                 v-show="noModuleAccess" />
             
             <health-check-profile-dialog-component v-if="showIntegratedProfile" v-model="integratedProfileDialogVisible" />
+            <access-token-killswitch-dialog v-if="showTokenKillswitch" v-model="tokenKillswitchDialogVisible" />
         </v-app>
         
         <integrated-login-page-component v-if="showIntegratedLogin" />
@@ -60,6 +67,7 @@ import IntegratedLoginPageComponent from './modules/IntegratedLogin/IntegratedLo
 import ModuleConfig from "../models/Common/ModuleConfig";
 import BackendInputComponent from "./Common/Inputs/BackendInputs/BackendInputComponent.vue";
 import HealthCheckProfileDialogComponent from 'components/profile/HealthCheckProfileDialogComponent.vue';
+import AccessTokenKillswitchDialog from 'components/modules/AccessTokens/AccessTokenKillswitchDialog.vue';
 import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
 import { Route } from "vue-router";
 import UrlUtils from "util/UrlUtils";
@@ -70,7 +78,8 @@ import UrlUtils from "util/UrlUtils";
         InvalidModuleConfigsComponent,
         IntegratedLoginPageComponent,
         BackendInputComponent,
-        HealthCheckProfileDialogComponent
+        HealthCheckProfileDialogComponent,
+        AccessTokenKillswitchDialog
     }
 })
 export default class HealthCheckPageComponent extends Vue {
@@ -78,6 +87,7 @@ export default class HealthCheckPageComponent extends Vue {
     moduleConfig!: Array<ModuleConfig>;
 
     integratedProfileDialogVisible: boolean = false;
+    tokenKillswitchDialogVisible: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -92,6 +102,10 @@ export default class HealthCheckPageComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get showTokenKillswitch(): boolean {
+        return this.globalOptions.AllowAccessTokenKillswitch;
+    }
+
     get showIntegratedProfile(): boolean {
         return this.globalOptions.IntegratedProfileConfig
             && !this.globalOptions.IntegratedProfileConfig.Hide;
@@ -107,6 +121,11 @@ export default class HealthCheckPageComponent extends Vue {
 
     get validModuleConfigs(): Array<ModuleConfig> {
         return this.moduleConfig.filter(x => x.LoadedSuccessfully);
+    }
+
+    get moduleConfigsToShowInTopMenu(): Array<ModuleConfig> {
+        const configs = this.validModuleConfigs;
+        return configs.length > 1 ? configs : [];
     }
 
     get globalOptions(): HCFrontEndOptions {

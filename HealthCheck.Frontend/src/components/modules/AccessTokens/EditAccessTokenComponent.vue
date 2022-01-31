@@ -13,6 +13,13 @@
             name="Expiration date"
             />
 
+        <input-header-component name="Allow killswitch" description="If killswitch is allowed, the user of the token can choose to delete it at any time." />
+        <v-checkbox 
+            class="mt-2"
+            :label="(data.AllowKillswitch ? 'Allowed' : 'Not allowed')"
+            v-model="data.AllowKillswitch"
+            :disabled="readonly" />
+
         <h3>Roles</h3>
         <p class="mb-0">Give token access to the following roles:</p>
         <v-layout row wrap>
@@ -112,10 +119,12 @@
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import { AccessData, CreatedAccessData, ModuleAccessData } from  '../../../services/AccessTokensService';
 import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
+import InputHeaderComponent from  '../../Common/Basic/InputHeaderComponent.vue';
 
 @Component({
     components: {
-        SimpleDateTimeComponent
+        SimpleDateTimeComponent,
+        InputHeaderComponent
     }
 })
 export default class EditAccessTokenComponent extends Vue {
@@ -135,7 +144,8 @@ export default class EditAccessTokenComponent extends Vue {
         Name: 'New Token',
         Roles: [],
         Modules: [],
-        ExpiresAt: null
+        ExpiresAt: null,
+        AllowKillswitch: true
     };
 
     //////////////////

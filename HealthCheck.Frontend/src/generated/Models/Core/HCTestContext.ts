@@ -3,9 +3,11 @@
 //     the code is regenerated.
 
 import { HCTestTiming } from './HCTestTiming';
+import { TestResult } from './TestResult';
 
 export interface HCTestContext
 {
 	TestExecutionStartTime: Date;
 	Timings: HCTestTiming[];
+	TestResultActions: (arg: TestResult) => void[];
 }

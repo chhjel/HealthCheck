@@ -198,7 +198,6 @@
                 <v-divider></v-divider>
                 
                 <v-card-text>
-
                     <edit-access-token-component
                         :access-data="accessData"
                         :read-only="loadStatus.inProgress"
@@ -379,7 +378,8 @@ export default class AccessTokensPageComponent extends Vue {
             Name: 'New Token',
             Roles: [],
             Modules: [],
-            ExpiresAt: null
+            ExpiresAt: null,
+            AllowKillswitch: true
         };
     }
 

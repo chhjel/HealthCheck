@@ -11,6 +11,22 @@ export default class AccessTokensService extends HCServiceBase
         this.moduleId = moduleId;
     }
     
+    public KillswitchToken(
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<any> | null = null
+    ) : void
+    {
+        const url = AccessTokensService.getKillswitchUrl();
+        this.fetchExt<any>(url, 'POST', null, statusObject, callbacks, true);
+    }
+
+    private static getKillswitchUrl(): string {
+        let path = window.location.pathname;
+        if (path == '/') path = '';
+        else if (path.endsWith('/')) path = path.substr(0, path.length - 1);
+        return `${window.location.origin.trim()}${path}/ATTokenKillswitch/kill`;
+    }
+    
     public DeleteToken(
         id: string,
         statusObject: FetchStatus | null = null,
@@ -74,6 +90,7 @@ export interface CreatedAccessData
     Roles: Array<string>;
     Modules: Array<CreatedModuleAccessData>;
     ExpiresAt: Date | null;
+    AllowKillswitch: boolean;
 }
 
 export interface CreatedModuleAccessData
