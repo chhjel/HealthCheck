@@ -8,6 +8,7 @@ export interface HCAccessToken
 {
 	Id: string;
 	Name: string;
+	AllowKillswitch: boolean;
 	HashedToken: string;
 	TokenSalt: string;
 	CreatedAt: Date;

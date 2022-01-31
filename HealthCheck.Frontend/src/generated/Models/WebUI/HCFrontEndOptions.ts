@@ -29,4 +29,5 @@ export interface HCFrontEndOptions
 	IntegratedProfileConfig: HCIntegratedProfileConfig;
 	UserRoles: string[];
 	UserModuleCategories: HCUserModuleCategories[];
+	AllowAccessTokenKillswitch: boolean;
 }

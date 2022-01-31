@@ -36,6 +36,21 @@ namespace HealthCheck.Core.Abstractions.Modules
         public string UserName { get; set; }
 
         /// <summary>
+        /// Is set to the current tokens id when using an access token.
+        /// </summary>
+        public Guid? CurrentTokenId { get; set; }
+
+        /// <summary>
+        /// True if a token is being used that allows killswitching.
+        /// </summary>
+        public bool AllowAccessTokenKillswitch { get; set; }
+
+        /// <summary>
+        /// True when using an access token.
+        /// </summary>
+        public bool IsUsingAccessToken => CurrentTokenId != null;
+
+        /// <summary>
         /// Any access roles of the current request.
         /// </summary>
         public object CurrentRequestRoles { get; set; }

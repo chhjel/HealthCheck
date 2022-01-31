@@ -367,6 +367,8 @@ namespace HealthCheck.WebUI.Util
                 UserName = requestInfo.UserName,
                 ModuleName = moduleName,
                 ModuleId = moduleId,
+                CurrentTokenId = requestInfo.CurrentTokenId,
+                AllowAccessTokenKillswitch = requestInfo.AllowAccessTokenKillswitch,
 
                 JavaScriptUrls = pageOptions?.JavaScriptUrls ?? new List<string>(),
                 CssUrls = pageOptions?.CssUrls ?? new List<string>(),
@@ -495,6 +497,8 @@ namespace HealthCheck.WebUI.Util
         {
             currentRequestInformation.UserId = token.Id.ToString();
             currentRequestInformation.UserName = $"Token '{token.Name}'";
+            currentRequestInformation.CurrentTokenId = token.Id;
+            currentRequestInformation.AllowAccessTokenKillswitch = token.AllowKillswitch;
 
             var roleValue = 0;
             foreach (var role in token.Roles)

@@ -165,7 +165,8 @@ namespace HealthCheck.Core.Modules.AccessTokens
                         ExpiresAtSummary = expirationSummary,
                         IsExpired = (x.ExpiresAt != null && x.ExpiresAt.Value < DateTimeOffset.Now),
                         Roles = x.Roles,
-                        Modules = x.Modules
+                        Modules = x.Modules,
+                        AllowKillswitch = x.AllowKillswitch
                     };
                 });
         }
@@ -228,7 +229,8 @@ namespace HealthCheck.Core.Modules.AccessTokens
                 HashedToken = tokenHash,
                 TokenSalt = salt,
                 Roles = data.Roles,
-                Modules = modules
+                Modules = modules,
+                AllowKillswitch = data.AllowKillswitch
             };
 
             token = Options.TokenStorage.SaveNewToken(token);
@@ -320,6 +322,59 @@ namespace HealthCheck.Core.Modules.AccessTokens
         }
         #endregion
 
+        #region Actions
+        private const string Q = "\"";
+        private static readonly Regex TokenKillswitchUrlRegex
+            = new(@"^/ATTokenKillswitch/kill", RegexOptions.IgnoreCase);
+
+        /// <summary>
+        /// Killswitch for the currently used token.
+        /// </summary>
+        [HealthCheckModuleAction]
+        public object ATTokenKillswitch(HealthCheckModuleContext context, string url)
+        {
+            if (context?.Request?.IsPOST != true)
+            {
+                return null;
+            }
+            var match = TokenKillswitchUrlRegex.Match(url);
+            if (!match.Success)
+            {
+                return null;
+            }
+            else if (context?.IsUsingAccessToken != true)
+            {
+                return null;
+            }
+
+            // Get current token
+            var token = Options.TokenStorage.GetToken(context.CurrentTokenId.Value);
+            if (token == null)
+            {
+                return null;
+            }
+            else if (!token.AllowKillswitch)
+            {
+                return createResult(false);
+            }
+
+            // Audit log and delete
+            context.AddAuditEvent(action: "Access token killswitched", subject: token.Name)
+                .AddDetail("Token id", token.Id.ToString());
+            Options.TokenStorage.DeleteToken(token.Id);
+
+            return createResult(true);
+
+            static string createResult(bool success)
+            {
+                return
+                    "{\n" +
+                    $"  {Q}success{Q}: {success.ToString().ToLower()}\n" +
+                    "}";
+            }
+        }
+        #endregion
+
         #region Private helpers
         private string CreateBaseForHash(string rawToken, List<string> roles, List<HCAccessTokenModuleData> modules, DateTimeOffset? expiresAt)
         {
@@ -357,6 +412,8 @@ namespace HealthCheck.Core.Modules.AccessTokens
             public List<string> Roles { get; set; }
             /// <summary></summary>
             public List<CreatedNewTokenRequestModuleData> Modules { get; set; }
+            /// <summary></summary>
+            public bool AllowKillswitch { get; set; }
         }
 
         /// <summary>

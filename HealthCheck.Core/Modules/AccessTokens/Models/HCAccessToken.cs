@@ -19,6 +19,11 @@ namespace HealthCheck.Core.Modules.AccessTokens.Models
         public string Name { get; set; }
 
         /// <summary>
+        /// When true, the token can be destroyed from the profile dialog if enabled when used.
+        /// </summary>
+        public bool AllowKillswitch { get; set; }
+
+        /// <summary>
         /// Hash of the token value.
         /// </summary>
         public string HashedToken { get; set; }
@@ -53,33 +58,5 @@ namespace HealthCheck.Core.Modules.AccessTokens.Models
         /// Modules the token has access to.
         /// </summary>
         public List<HCAccessTokenModuleData> Modules { get; set; }
-    }
-
-    /// <summary>
-    /// Describes what module access options a token has access to.
-    /// </summary>
-    public class HCAccessTokenModuleData
-    {
-        /// <summary>
-        /// Target module.
-        /// </summary>
-        public string ModuleId { get; set; }
-
-        /// <summary>
-        /// Access options for the module.
-        /// </summary>
-        public List<string> Options { get; set; }
-
-        /// <summary>
-        /// Categories within the module if any that the token will be limited to.
-        /// <para>If null or empty all categories will be available including things without categories.</para>
-        /// </summary>
-        public List<string> Categories { get; set; }
-
-        /// <summary>
-        /// Ids within the module if any that the token will be limited to.
-        /// <para>If null or empty all ids will be available.</para>
-        /// </summary>
-        public List<string> Ids { get; set; }
     }
 }

@@ -1921,7 +1921,9 @@ Various utility classes can be found below the `HealthCheck.Core.Util` namespace
   * Dependency resolver override (must be configured for .NET Core).
   * Types and namespaces ignored in data serialization.
   * Current request IP resolver logic override.
+* `HCSelfUptimeChecker` - Can be used to trigger actions when the site is back up after a certain amount of downtime.
+* `HCEpiserverUtils` - Some utils using epi implementations, e.g. uptime checking using dds storage.
 
-## Troubleshootiung errors
+## Troubleshooting errors
 
 If something doesn't work as expected it might be a silenced internal exception. To handle such exceptions subscribe to `HCGlobalConfig.OnExceptionEvent` and handle as needed.
