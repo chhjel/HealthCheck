@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>HealthCheck.DevTest.NetCore_6._0</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fido2.Models" Version="2.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\HealthCheck.Core\HealthCheck.Core.csproj" />
+    <ProjectReference Include="..\..\HealthCheck.WebUI.MFA.TOTP\HealthCheck.WebUI.MFA.TOTP.csproj" />
+    <ProjectReference Include="..\..\HealthCheck.WebUI.MFA.WebAuthn\HealthCheck.WebUI.MFA.WebAuthn.csproj" />
+    <ProjectReference Include="..\..\HealthCheck.WebUI\HealthCheck.WebUI.csproj" />
+    <ProjectReference Include="..\..\Modules\HealthCheck.Module.DataExport.Exporter.Excel\HealthCheck.Module.DataExport.Exporter.Excel.csproj" />
+    <ProjectReference Include="..\..\Modules\HealthCheck.Module.DataExport\HealthCheck.Module.DataExport.csproj" />
+    <ProjectReference Include="..\..\Modules\HealthCheck.Module.EndpointControl\HealthCheck.Module.EndpointControl.csproj" />
+    <ProjectReference Include="..\HealthCheck.Dev.Common\HealthCheck.Dev.Common.csproj" />
+    <ProjectReference Include="..\HealthCheck.Module.DevModule\HealthCheck.Module.DevModule.csproj" />
+  </ItemGroup>
+
+</Project>
