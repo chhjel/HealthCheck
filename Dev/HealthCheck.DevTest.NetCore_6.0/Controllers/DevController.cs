@@ -47,10 +47,17 @@ using HealthCheck.WebUI.MFA.TOTP;
 using HealthCheck.WebUI.MFA.WebAuthn;
 using HealthCheck.WebUI.MFA.WebAuthn.Storage;
 using HealthCheck.WebUI.Models;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HealthCheck.DevTest.NetCore_6._0.Controllers
 {
@@ -401,7 +408,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             HCRequestData.SetDetail("Path", Request?.Path);
             _eventDataSink.RegisterEvent("GetRequestInfo", new
             {
-                Type = this.GetType().Name,
+                Type = GetType().Name,
                 Path = Request?.Path
             });
             HCMetricsContext.AddNote("Random value", new Random().Next());
