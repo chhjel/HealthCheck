@@ -32,16 +32,15 @@ export default class MetricsBlockComponent extends Vue {
     ////////////
     get styleBlockComponent() : any {
         return {
-            "border-radius": "25px",
-            "background-color": "#fff",
-            "box-shadow": "#d5d7d5 4px 4px 6px 0px",
-            'padding': '20px'
+            "border": "8px solid rgb(225 225 225)",
+            "background-color": "rgb(255, 255, 255)",
+            'padding': '20px 10px'
         }
     }
     get styleBlockComponentHeader() : any {
         return {
             "display": "flex",
-            "padding-left": "24px",
+            "padding-left": "20px",
             "border-radius": "0 25px 0 25px"
         }
     }
