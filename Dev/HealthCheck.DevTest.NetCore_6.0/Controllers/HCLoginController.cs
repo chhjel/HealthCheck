@@ -6,6 +6,7 @@ using HealthCheck.WebUI.MFA.WebAuthn;
 using HealthCheck.WebUI.MFA.WebAuthn.Storage;
 using HealthCheck.WebUI.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Linq;
 
 namespace HealthCheck.DevTest.NetCore_6._0.Controllers.LoginTestControllers
 {

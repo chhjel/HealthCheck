@@ -2,6 +2,8 @@ using HealthCheck.Core.Config;
 using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Core.Util;
 using HealthCheck.DevTest.NetCore_6._0.Config;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 

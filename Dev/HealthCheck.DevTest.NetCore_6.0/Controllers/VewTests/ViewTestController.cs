@@ -1,6 +1,8 @@
 ﻿using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Dev.Common.Metrics;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 namespace HealthCheck.DevTest.NetCore_6._0.Controllers.ViewTests
 {
