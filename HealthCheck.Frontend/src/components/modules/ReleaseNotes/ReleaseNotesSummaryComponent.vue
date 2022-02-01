@@ -2,7 +2,8 @@
 <template>
     <div>
         <shadow-root>
-            <div @click="toggleVisibility" :style="styleToggleMetrics" :class="{ 'pulsating-circle': hasNewChanges }">{{ toggleButtonContent }}</div>
+            <div @click="toggleVisibility" :style="styleToggleMetrics" :class="{ 'pulsating-circle': hasNewChanges }"
+              title="Latest changes">{{ toggleButtonContent }}</div>
 
             <div :style="styleRoot" v-if="visible">
                 <h3 v-if="config.Title" style="margin-top: 0;">{{ config.Title }} ({{ config.Version }})</h3>
@@ -77,7 +78,6 @@ export default class ReleaseNotesSummaryComponent extends Vue {
         const base: any = {
             "height": "1cm",
             "width": "1cm",
-            "border-radius": "35%",
 
             "position": "fixed",
             "left": "10px",
@@ -108,9 +108,15 @@ export default class ReleaseNotesSummaryComponent extends Vue {
             'margin-left': '1.5cm',
             'padding': '20px',
             'font-family': 'sans-serif',
+            "background-color": "rgb(255, 255, 255)",
             'color': '#333',
-            'border': '2px solid #ddd',
-            'box-shadow': '#d5d7d5 4px 4px 6px 0px'
+            "border": "8px solid rgb(225 225 225)",
+            "position": "fixed",
+            "bottom": "0",
+            "left": "0",
+            "max-height": "75%",
+            "max-width": "65%",
+            "overflow-x": "auto"
         };
     }
 

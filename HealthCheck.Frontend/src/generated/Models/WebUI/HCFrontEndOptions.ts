@@ -27,7 +27,7 @@ export interface HCFrontEndOptions
 	IntegratedLoginWebAuthnMode: HCLoginWebAuthnMode;
 	IntegratedLoginTwoFactorCodeInputMode: HCLoginTwoFactorCodeInputMode;
 	IntegratedProfileConfig: HCIntegratedProfileConfig;
+	AllowAccessTokenKillswitch: boolean;
 	UserRoles: string[];
 	UserModuleCategories: HCUserModuleCategories[];
-	AllowAccessTokenKillswitch: boolean;
 }

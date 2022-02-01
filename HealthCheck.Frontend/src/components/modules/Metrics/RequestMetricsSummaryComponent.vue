@@ -3,7 +3,8 @@
     <div>
         <shadow-root>
 
-            <div @click="toggleVisibility" :style="styleToggleMetrics">{{ toggleButtonContent }}</div>
+            <div @click="toggleVisibility" :style="styleToggleMetrics"
+                title="Debug metrics">{{ toggleButtonContent }}</div>
 
             <div :style="styleRoot" v-if="visible">
                 <metrics-block-component title="Timeline" v-if="items.length > 0">
@@ -23,7 +24,8 @@
                                         >{{ item.DurationText }}</span>
                                     <span v-if="item.Type == 'Error'" style="font-size: 10px">❌</span>
                                 </div>
-                                <div :style="getInnerBarStyle(item, itemIndex)"></div>
+                                <div :style="getInnerBarStyle(item, itemIndex)"
+                                     :title="item.Description || item.Id"></div>
                             </div>
                         </div>
                     </div>
@@ -192,7 +194,6 @@ export default class RequestMetricsSummaryComponent extends Vue {
         const base: any = {
             "height": "1cm",
             "width": "1cm",
-            "border-radius": "35%",
 
             "position": "fixed",
             "left": "10px",
@@ -224,7 +225,9 @@ export default class RequestMetricsSummaryComponent extends Vue {
     get styleRoot(): any {
         return {
             'margin': '20px',
+            'margin-left': '1.5cm',
             'padding': '20px',
+            'padding-left': '0',
             'font-family': 'sans-serif',
             'color': '#333'
         };
