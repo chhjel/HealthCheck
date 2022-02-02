@@ -40,7 +40,6 @@ namespace HealthCheck.Module.EndpointControl.Utils
                     new FlatFileEndpointControlRuleStorage(createPath(@"EndpointControl_Rules.json")) } }
             };
             HCExtModuleInitializerUtil.TryExternalLazyFactoryInit(HCModuleType.EndpointControl, factory);
-            /* Otherwise to nothing */
         }
     }
 }

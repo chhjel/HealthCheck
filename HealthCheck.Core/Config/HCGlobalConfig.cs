@@ -112,6 +112,7 @@ namespace HealthCheck.Core.Config
             var typeNames = new []
             {
                 "HealthCheck.WebUI.Config.ConfigInitializer, HealthCheck.WebUI",
+                "HealthCheck.WebUI.Assets.ConfigInitializer, HealthCheck.WebUI.Assets",
                 "HealthCheck.Module.EndpointControl.Utils.ConfigInitializer, HealthCheck.Module.EndpointControl",
                 "HealthCheck.Module.DynamicCodeExecution.Util.ConfigInitializer, HealthCheck.Module.DynamicCodeExecution",
                 "HealthCheck.Module.RequestLog.Util.ConfigInitializer, HealthCheck.Module.RequestLog"

@@ -96,7 +96,7 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
         {
             PageTitle = "My Title",
             // In order to not use a cdn for the main scripts
-            // you can override them using the 'JavaScriptUrls' property:
+            // you can override them using the 'JavaScriptUrls' property, or use the HealthCheck.WebUI.Assets nuget package.
             JavaScriptUrls = new List<string> {
                 "/scripts/healthcheck.js",
                 "/scripts/healthcheck.vendor.js"
@@ -161,6 +161,23 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
 
 ---------
 
+### How to not use CDN for js
+
+If it's not desired to use cdn for the frontend, just add the `HealthCheck.WebUI.Assets` nuget package. The package contains the frontend, will load it into memory and serve it.
+
+Optionally configure `JavaScriptUrls`, `EditorWorkerUrl` and `JsonWorkerUrl` urls manually.
+
+#### Summary scripts
+
+If metrics or release notes summary is used, they will have to be configured manually:
+
+```csharp
+var hcController = "/url_to_your_hc_controller";
+HCAssetGlobalConfig.DefaultMetricsSummaryJavascriptUrl = $"{hcController}/GetAsset?n=metrics.js";
+HCAssetGlobalConfig.DefaultReleaseNotesSummaryJavascriptUrl = $"{hcController}/GetAsset?n=releaseNotesSummary.js";
+```
+
+---------
 # Modules
 
 ## Module: Tests

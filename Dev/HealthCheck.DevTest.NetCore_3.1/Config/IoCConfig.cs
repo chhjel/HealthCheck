@@ -20,6 +20,7 @@ using HealthCheck.Core.Modules.Settings.Services;
 using HealthCheck.Core.Modules.SiteEvents.Abstractions;
 using HealthCheck.Core.Modules.SiteEvents.Services;
 using HealthCheck.Dev.Common;
+using HealthCheck.Dev.Common.Config;
 using HealthCheck.Dev.Common.DataExport;
 using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.DataRepeater;
@@ -75,6 +76,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Config
             services.AddSingleton<IHCMetricsStorage, HCMemoryMetricsStorage>();
 
             HCMetricsUtil.AllowTrackRequestMetrics = (r) => true;
+            DevConfig.ConfigureLocalAssetUrls();
         }
 
         private static string GetFilePath(string relativePath, IWebHostEnvironment env)

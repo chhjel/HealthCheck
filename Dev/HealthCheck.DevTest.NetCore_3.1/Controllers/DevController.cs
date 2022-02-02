@@ -214,19 +214,13 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 {
                     //EditorWorkerUrl = "blob:https://unpkg.com/christianh-healthcheck@3.0.5/editor.worker.js",
                     //JsonWorkerUrl = "blob:https://unpkg.com/christianh-healthcheck@3.0.5/json.worker.js"
-                    EditorWorkerUrl = $"{EndpointBase.TrimEnd('/')}/getscript?name=editor.worker.js",
-                    JsonWorkerUrl = $"{EndpointBase.TrimEnd('/')}/getscript?name=json.worker.js"
                 }
             };
 
         protected override HCPageOptions GetPageOptions()
             => new HCPageOptions()
             {
-                PageTitle = "HealthCheck",
-                JavaScriptUrls = new List<string> {
-                    $"{EndpointBase.TrimEnd('/')}/GetVendorScript",
-                    $"{EndpointBase.TrimEnd('/')}/GetMainScript",
-                }
+                PageTitle = "HealthCheck"
             };
 
         protected override void ConfigureAccess(HttpRequest request, AccessConfig<RuntimeTestAccessRole> config)

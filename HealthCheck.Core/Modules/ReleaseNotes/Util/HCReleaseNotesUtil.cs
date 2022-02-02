@@ -1,6 +1,5 @@
 ﻿using HealthCheck.Core.Config;
 using HealthCheck.Core.Modules.ReleaseNotes.Abstractions;
-using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Util;
 using System.Linq;
 using System.Web;
@@ -16,7 +15,7 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Util
         /// Url to the javascript included in <see cref="CreateReleaseNotesSummaryHtml"/>.
         /// <para>Defaults to matching version bundle from unpkg.com CDN.</para>
         /// </summary>
-        public static string SummaryHtmlJavascriptUrl { get; set; } = "https://unpkg.com/christianh-healthcheck@2/releaseNotesSummary.js";
+        public static string SummaryHtmlJavascriptUrl { get; set; }
 
         /// <summary>
         /// Create a summary of the current release notes as html, or null if no notes was found.
@@ -35,9 +34,10 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Util
             var json = HCGlobalConfig.Serializer?.Serialize(model, pretty: false);
             if (json == null) { return "<!-- Serializer not set. -->"; }
 
+            var jsUrl = SummaryHtmlJavascriptUrl ?? HCAssetGlobalConfig.DefaultReleaseNotesSummaryJavascriptUrl;
             return $@"
                 <div id=""rn_00bfcf84-3633-411e-acd2-b9398d252da7"" data-ctx-data=""{HttpUtility.HtmlAttributeEncode(json)}""></div>
-                <script src=""{SummaryHtmlJavascriptUrl}""></script>
+                <script src=""{jsUrl}""></script>
 ";
         }
     }

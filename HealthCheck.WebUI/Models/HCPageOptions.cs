@@ -1,4 +1,5 @@
-﻿using HealthCheck.WebUI.Exceptions;
+﻿using HealthCheck.Core.Config;
+using HealthCheck.WebUI.Exceptions;
 using System.Collections.Generic;
 
 namespace HealthCheck.WebUI.Models
@@ -12,20 +13,15 @@ namespace HealthCheck.WebUI.Models
         /// Url to the javascripts for the UI.
         /// <para>Defaults to matching versions bundle from unpkg.com CDN.</para>
         /// <para>If changed, also update <see cref="HCFrontEndOptions.EditorConfig"/> urls.</para>
+        /// <para>[base] can be used as a replacement for <c>EndpointBase</c></para>
         /// </summary>
-        public List<string> JavaScriptUrls { get; set; } = new List<string>()
-        {
-            "https://unpkg.com/christianh-healthcheck@2/healthcheck.js"
-        };
+        public List<string> JavaScriptUrls { get; set; } = new List<string>();
 
         /// <summary>
         /// Url to the assets for the UI.
         /// <para>Defaults to CDN url for monaco styles.</para>
         /// </summary>
-        public List<string> CssUrls { get; set; } = new List<string>()
-        {
-            "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.19.2/min/vs/editor/editor.main.min.css"
-        };
+        public List<string> CssUrls { get; set; } = new List<string>();
 
         /// <summary>
         /// Title of the page.
@@ -59,8 +55,9 @@ namespace HealthCheck.WebUI.Models
         /// </summary>
         public void Validate()
         {
-            if (JavaScriptUrls == null || JavaScriptUrls.Count == 0)
-                throw new ConfigValidationException($"{nameof(JavaScriptUrls)} is empty.");
+            if ((JavaScriptUrls == null || JavaScriptUrls.Count == 0) 
+                && (HCAssetGlobalConfig.DefaultJavaScriptUrls == null || HCAssetGlobalConfig.DefaultJavaScriptUrls.Count == 0))
+                throw new ConfigValidationException($"Both {nameof(JavaScriptUrls)} and HCAssetGlobalConfig.DefaultJavaScriptUrls is empty.");
         }
     }
 }

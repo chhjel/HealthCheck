@@ -5,7 +5,7 @@ using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Core.Modules.Metrics.Services;
 using HealthCheck.Core.Modules.ReleaseNotes.Abstractions;
 using HealthCheck.Core.Modules.ReleaseNotes.Providers;
-using HealthCheck.Core.Modules.ReleaseNotes.Util;
+using HealthCheck.Dev.Common.Config;
 using HealthCheck.DevTest._TestImplementation.EndpointControl;
 using HealthCheck.DevTest.Controllers;
 using HealthCheck.Module.EndpointControl.Abstractions;
@@ -49,8 +49,7 @@ namespace HealthCheck.DevTest
 
             RequestLogUtil.EnsureDefinitionsFromTypes(RequestLogServiceAccessor.Current, new[] { typeof(DevController).Assembly });
             HCMetricsUtil.AllowTrackRequestMetrics = (r) => true;
-            HCMetricsUtil.SummaryHtmlJavascriptUrl = "/dev/GetMetricsScript";
-            HCReleaseNotesUtil.SummaryHtmlJavascriptUrl = "/dev/GetReleaseNotesScript";
+            DevConfig.ConfigureLocalAssetUrls("/dev");
             SetupDummyIoC();
         }
 
