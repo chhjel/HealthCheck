@@ -98,6 +98,7 @@ jobs:
       parameterReplaceText: 'https://unpkg.com/christianh-healthcheck@$(BuildParameters.AssemblyVersion)/'
       parameterTypeOfSearch: 'filesList'
       parameterFilesList: |
+        /HealthCheck.Core/Config/HCAssetGlobalConfig.cs
         /HealthCheck.WebUI/Models/HCPageOptions.cs
         /HealthCheck.WebUI/Models/HCFrontEndOptions.cs
         /HealthCheck.Core/Modules/Metrics/Context/HCMetricsUtil.cs
@@ -120,6 +121,23 @@ jobs:
     displayName: 'Yarn install'
   - script: cd HealthCheck.Frontend/ && yarn build
     displayName: 'Yarn build'
+  
+  - task: ArchiveFiles@2
+    displayName: Pack down frontend files for use in HealthCheck.WebUI.Assets
+    inputs:
+      rootFolderOrFile: 'HealthCheck.Frontend/dist' 
+      includeRootFolder: false 
+      archiveType: 'zip'
+      archiveFile: 'HealthCheck.WebUI.Assets/assets.zip' 
+      replaceExistingArchive: true
+
+  - task: VSBuild@1
+    displayName: Build HealthCheck.WebUI.Assets to pack down frontend
+    inputs:
+      solution: 'HealthCheck.WebUI.Assets/HealthCheck.WebUI.Assets.csproj'
+      msbuildArgs: /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactstagingdirectory)\\" /p:Version=$(BuildParameters.AssemblyVersion)
+      platform: $(BuildParameters.BuildPlatform)
+      configuration: $(BuildParameters.BuildConfiguration)
   
   ##########
   ## TEST ##

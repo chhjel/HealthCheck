@@ -33,7 +33,7 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         /// Url to the javascript included in <see cref="CreateContextSummaryHtml"/>.
         /// <para>Defaults to matching version bundle from unpkg.com CDN.</para>
         /// </summary>
-        public static string SummaryHtmlJavascriptUrl { get; set; } = "https://unpkg.com/christianh-healthcheck@2/metrics.js";
+        public static string SummaryHtmlJavascriptUrl { get; set; }
 
         /// <summary>
         /// Delegate used by <see cref="OnRequestMetricsReadyEvent"/>.
@@ -71,9 +71,10 @@ namespace HealthCheck.Core.Modules.Metrics.Context
                 return null;
             }
 
+            var jsUrl = SummaryHtmlJavascriptUrl ?? HCAssetGlobalConfig.DefaultMetricsSummaryJavascriptUrl;
             return $@"
                 <div id=""ctx_02aecea7_e695_4749_bb2a_35e060975968"" data-ctx-data=""{HttpUtility.HtmlAttributeEncode(json)}""></div>
-                <script src=""{SummaryHtmlJavascriptUrl}""></script>
+                <script src=""{jsUrl}""></script>
 ";
         }
 

@@ -1,6 +1,7 @@
 ﻿#if NETCORE
 using HealthCheck.Core.Abstractions.Modules;
 using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Config;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.Tests.Attributes;
@@ -128,6 +129,7 @@ namespace HealthCheck.WebUI.Abstractions
             }
 
             var frontEndOptions = GetFrontEndOptions();
+            frontEndOptions.EditorConfig.SetDefaults(frontEndOptions.EndpointBase);
             frontEndOptions.IntegratedProfileConfig = Helper?.AccessConfig?.IntegratedProfileConfig ?? new HCIntegratedProfileConfig();
             if (frontEndOptions?.IntegratedProfileConfig?.Hide == false)
             {
@@ -152,6 +154,7 @@ namespace HealthCheck.WebUI.Abstractions
         private ActionResult CreateIntegratedLoginViewResult()
         {
             var frontEndOptions = GetFrontEndOptions();
+            frontEndOptions.EditorConfig.SetDefaults(frontEndOptions.EndpointBase);
             frontEndOptions.ShowIntegratedLogin = true;
             frontEndOptions.IntegratedLoginEndpoint = Helper?.AccessConfig?.IntegratedLoginConfig?.IntegratedLoginEndpoint;
             frontEndOptions.IntegratedLoginSend2FACodeEndpoint = Helper?.AccessConfig?.IntegratedLoginConfig?.Send2FACodeEndpoint ?? "";
@@ -252,7 +255,24 @@ namespace HealthCheck.WebUI.Abstractions
             return Content("OK");
         }
 
-#region MFA
+        #region Resources
+        /// <summary>
+        /// Loads assets from memory if <c>HealthCheck.WebUI.Assets</c> is used.
+        /// </summary>
+        [HideFromRequestLog]
+        [Route("GetAsset")]
+        public virtual ActionResult GetAsset(string n)
+        {
+            if (!HCAssetGlobalConfig.AssetCache.TryGetValue(n, out var content))
+            {
+                return NotFound();
+            }
+            var contentType = "text/javascript";
+            return Content(content, contentType);
+        }
+        #endregion
+
+        #region MFA
         /// <summary>
         /// Attempts to elevate access using a TOTP code if enabled.
         /// </summary>

@@ -494,8 +494,6 @@ namespace HealthCheck.DevTest.Controllers
                 {
                     //EditorWorkerUrl = "blob:https://unpkg.com/christianh-healthcheck@3.0.5/editor.worker.js",
                     //JsonWorkerUrl = "blob:https://unpkg.com/christianh-healthcheck@3.0.5/json.worker.js"
-                    EditorWorkerUrl = $"{EndpointBase}/getscript?name=editor.worker.js",
-                    JsonWorkerUrl = $"{EndpointBase}/getscript?name=json.worker.js"
                 },
                 LogoutLinkUrl = $"{EndpointBase}/logout"
             };
@@ -503,11 +501,7 @@ namespace HealthCheck.DevTest.Controllers
         protected override HCPageOptions GetPageOptions()
             => new()
             {
-                PageTitle = "HealthCheck",
-                JavaScriptUrls = new List<string> {
-                    $"{EndpointBase}/GetVendorScript",
-                    $"{EndpointBase}/GetMainScript",
-                }
+                PageTitle = "HealthCheck"
             };
 
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequestBase request)

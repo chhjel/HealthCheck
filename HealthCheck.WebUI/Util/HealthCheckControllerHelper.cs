@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
+using HealthCheck.Core.Config;
 using HealthCheck.Core.Exceptions;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
@@ -361,6 +362,12 @@ namespace HealthCheck.WebUI.Util
             var pageOptions = _pageOptionsGetter?.Invoke();
 
             var currentModuleAccess = moduleAccess.FirstOrDefault(x => x.ModuleId == moduleId);
+
+            var jsUrls = pageOptions?.JavaScriptUrls ?? new List<string>();
+            if (jsUrls.Count == 0) jsUrls = HCAssetGlobalConfig.DefaultJavaScriptUrls ?? new List<string>();
+            var cssUrls = pageOptions?.CssUrls ?? new List<string>();
+            if (cssUrls.Count == 0) cssUrls = HCAssetGlobalConfig.DefaultCssUrls ?? new List<string>();
+
             return new HealthCheckModuleContext()
             {
                 UserId = requestInfo.UserId,
@@ -370,8 +377,8 @@ namespace HealthCheck.WebUI.Util
                 CurrentTokenId = requestInfo.CurrentTokenId,
                 AllowAccessTokenKillswitch = requestInfo.AllowAccessTokenKillswitch,
 
-                JavaScriptUrls = pageOptions?.JavaScriptUrls ?? new List<string>(),
-                CssUrls = pageOptions?.CssUrls ?? new List<string>(),
+                JavaScriptUrls = jsUrls,
+                CssUrls = cssUrls,
 
                 CurrentRequestRoles = accessRoles.Value,
                 CurrentRequestModuleAccessOptions = GetCurrentRequestModuleAccessOptions(accessRoles, module?.GetType()),
@@ -609,9 +616,12 @@ namespace HealthCheck.WebUI.Util
                 InitialRoute = x?.Config?.InitialRoute == null ? null : string.Format(x.Config.InitialRoute, x.Config.DefaultRootRouteSegment),
                 RoutePath = x?.Config?.RoutePath == null ? null : string.Format(x.Config.RoutePath, x.Config.DefaultRootRouteSegment)
             });
+
+            var cssUrls = pageOptions?.CssUrls ?? new List<string>();
+            if (cssUrls.Count == 0) cssUrls = HCAssetGlobalConfig.DefaultCssUrls ?? new List<string>();
             var moduleStyleAssets = moduleConfigs.Select(x => x.Config)
                 .Where(x => x?.LinkTags != null).SelectMany(x => x.LinkTags.Select(t => t.ToString()))
-                .Concat(pageOptions.CssUrls.Select(x => $"<link rel=\"stylesheet\" href=\"{x}\" crossorigin=\"anonymous\" />"));
+                .Concat(cssUrls.Select(x => $"<link rel=\"stylesheet\" href=\"{x.Replace("[base]", frontEndOptions.EndpointBase.TrimEnd('/'))}\" crossorigin=\"anonymous\" />"));
             var moduleScriptAssets = moduleConfigs.Select(x => x.Config)
                 .Where(x => x?.ScriptTags != null).SelectMany(x => x.ScriptTags.Select(t => t.ToString()));
             var styleAssetsHtml = string.Join("\n", moduleStyleAssets);
@@ -620,8 +630,10 @@ namespace HealthCheck.WebUI.Util
             var moduleOptions = GetModuleFrontendOptions(accessRoles);
             var serializer = new NewtonsoftJsonSerializer();
 
-            var javascriptUrlTags = pageOptions.JavaScriptUrls
-                .Select(url => $"<script src=\"{url}\"></script>")
+            var jsUrls = pageOptions?.JavaScriptUrls ?? new List<string>();
+            if (jsUrls.Count == 0) jsUrls = HCAssetGlobalConfig.DefaultJavaScriptUrls ?? new List<string>();
+            var javascriptUrlTags = jsUrls
+                .Select(url => $"<script src=\"{url.Replace("[base]", frontEndOptions.EndpointBase.TrimEnd('/'))}\"></script>")
                 .ToList();
             var javascriptUrlTagsHtml = string.Join("\n    ", javascriptUrlTags);
 

@@ -1,11 +1,6 @@
 # HealthCheck
 
 [![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI?label=HealthCheck.WebUI&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI)
-[![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI.MFA.TOTP?label=HealthCheck.WebUI.MFA.TOTP&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI.MFA.TOTP)
-[![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.DynamicCodeExecution?label=HealthCheck.Module.DynamicCodeExecution&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.DynamicCodeExecution)
-[![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.EndpointControl?label=HealthCheck.Module.EndpointControl&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.EndpointControl)
-[![Nuget](https://img.shields.io/nuget/v/HealthCheck.Module.RequestLog?label=HealthCheck.Module.RequestLog&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Module.RequestLog)
-[![Nuget](https://img.shields.io/nuget/v/HealthCheck.Episerver?label=HealthCheck.Episerver&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Episerver)
 [![npm](https://img.shields.io/npm/v/christianh-healthcheck?label=christianh-healthcheck&logo=npm)](https://www.npmjs.com/package/christianh-healthcheck)
 
 ## What is it
@@ -78,25 +73,22 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
     protected override HCFrontEndOptions GetFrontEndOptions()
         => new HCFrontEndOptions("/HealthCheck")
         {
-            ApplicationTitle = "My Title",
-            //...
-            // In order to not use a cdn for the monaco-editor
-            // web-worker scripts you can override them using
-            // properties on the 'EditorConfig' property:
+            ApplicationTitle = "HealthCheck",
+            // See own section below on how to avoid using cdn for js assets if needed.
             EditorConfig = new HCFrontEndOptions.EditorWorkerConfig
             {
                 EditorWorkerUrl = "/scripts/editor.worker.js",
                 JsonWorkerUrl = "/scripts/json.worker.js"
             }
+            //...
         };
 
     // Set any options for the view here.
     protected override HCPageOptions GetPageOptions()
         => new HCPageOptions()
         {
-            PageTitle = "My Title",
-            // In order to not use a cdn for the main scripts
-            // you can override them using the 'JavaScriptUrls' property:
+            PageTitle = "HealthCheck",
+            // See own section below on how to avoid using cdn for js assets if needed.
             JavaScriptUrls = new List<string> {
                 "/scripts/healthcheck.js",
                 "/scripts/healthcheck.vendor.js"
@@ -154,6 +146,33 @@ public class MyController : HealthCheckControllerBase<AccessRoles>
         // are available to use here as well if needed.
     }
 }
+```
+
+</p>
+</details>
+
+<details><summary>(Optional) How to bundle frontend instead of using CDN</summary>
+<p>
+
+By default frontend scripts with versions matching the nuget package version are fetched from unpkg.com. Alternatively use one of the following methods to bundle the frontend with the project:
+
+#### Using the HealthCheck.WebUI.Assets nuget package
+
+The fastest and easiest way is to add the `HealthCheck.WebUI.Assets` nuget package. The package contains the most important frontend assets and will load them into memory and configure the ui to use them. Requires a few extra mb of memory but makes it easy to update. Does not include the summary scripts for metrics and release notes (see below).
+
+#### Manual configuration
+
+Optionally manually download the frontend files from https://www.npmjs.com/package/christianh-healthcheck and include in project. Then configure `JavaScriptUrls` to include healthecheck.js, and `EditorWorkerUrl` + `JsonWorkerUrl` to include their scripts in the frontend and page option models. Requires the files to be manually updated when updating to a new version of the nuget package.
+
+#### NB: Summary scripts
+
+If metrics or release notes summary is to be bundled with the project, they will have to be configured manually. See example below.
+
+```csharp
+// Example using HealthCheck.WebUI.Assets nuget package that enables the GetAsset endpoint.
+var hcController = "/url_to_your_hc_controller";
+HCAssetGlobalConfig.DefaultMetricsSummaryJavascriptUrl = $"{hcController}/GetAsset?n=metrics.js";
+HCAssetGlobalConfig.DefaultReleaseNotesSummaryJavascriptUrl = $"{hcController}/GetAsset?n=releaseNotesSummary.js";
 ```
 
 </p>

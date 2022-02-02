@@ -16,13 +16,13 @@ using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Core.Modules.Metrics.Services;
 using HealthCheck.Core.Modules.ReleaseNotes.Abstractions;
 using HealthCheck.Core.Modules.ReleaseNotes.Providers;
-using HealthCheck.Core.Modules.ReleaseNotes.Util;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.Settings.Abstractions;
 using HealthCheck.Core.Modules.Settings.Services;
 using HealthCheck.Core.Modules.SiteEvents.Abstractions;
 using HealthCheck.Core.Modules.SiteEvents.Services;
 using HealthCheck.Dev.Common;
+using HealthCheck.Dev.Common.Config;
 using HealthCheck.Dev.Common.DataExport;
 using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.DataRepeater;
@@ -90,9 +90,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
                 //CommitShaUrlFactory = (sha) => $"{"https://"}github.com/chhjel/HealthCheck/commit/{sha}"
             });
 
-        HCMetricsUtil.AllowTrackRequestMetrics = (r) => true;
-            HCMetricsUtil.SummaryHtmlJavascriptUrl = "/GetMetricsScript";
-            HCReleaseNotesUtil.SummaryHtmlJavascriptUrl = "/GetReleaseNotesScript";
+            HCMetricsUtil.AllowTrackRequestMetrics = (r) => true;
+            DevConfig.ConfigureLocalAssetUrls();
         }
 
         private static string GetFilePath(string relativePath, IWebHostEnvironment env)

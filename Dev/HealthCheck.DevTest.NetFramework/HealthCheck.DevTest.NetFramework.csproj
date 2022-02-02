@@ -184,6 +184,10 @@
       <Project>{df551db9-32a9-4519-b19c-2f306a486448}</Project>
       <Name>HealthCheck.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\HealthCheck.WebUI.Assets\HealthCheck.WebUI.Assets.csproj">
+      <Project>{25b55f67-7413-4e01-879c-e7fca75c9b30}</Project>
+      <Name>HealthCheck.WebUI.Assets</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\HealthCheck.WebUI.MFA.TOTP\HealthCheck.WebUI.MFA.TOTP.csproj">
       <Project>{883a169f-a2f1-4001-ad95-1807951f9b7e}</Project>
       <Name>HealthCheck.WebUI.MFA.TOTP</Name>

@@ -1,4 +1,5 @@
-﻿using HealthCheck.WebUI.Exceptions;
+﻿using HealthCheck.Core.Config;
+using HealthCheck.WebUI.Exceptions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -117,14 +118,25 @@ namespace HealthCheck.WebUI.Models
             /// <summary>
             /// Url to the editor worker script.
             /// <para>Can be prefixed with "blob:" to proxy it through a generated blob url.</para>
+            /// <para>[base] can be used as a replacement for <c>EndpointBase</c></para>
             /// </summary>
-            public string EditorWorkerUrl { get; set; } = "blob:https://unpkg.com/christianh-healthcheck@2/editor.worker.js";
+            public string EditorWorkerUrl { get; set; }
 
             /// <summary>
             /// Url to the json worker script.
             /// <para>Can be prefixed with "blob:" to proxy it through a generated blob url.</para>
+            /// <para>[base] can be used as a replacement for <c>EndpointBase</c></para>
             /// </summary>
-            public string JsonWorkerUrl { get; set; } = "blob:https://unpkg.com/christianh-healthcheck@2/json.worker.js";
+            public string JsonWorkerUrl { get; set; }
+
+            internal void SetDefaults(string endpointBase)
+            {
+                EditorWorkerUrl ??= HCAssetGlobalConfig.DefaultEditorWorkerUrl ?? "";
+                JsonWorkerUrl ??= HCAssetGlobalConfig.DefaultJsonWorkerUrl ?? "";
+
+                EditorWorkerUrl = EditorWorkerUrl.Replace("[base]", endpointBase.TrimEnd('/'));
+                JsonWorkerUrl = JsonWorkerUrl.Replace("[base]", endpointBase.TrimEnd('/'));
+            }
         }
 
         internal class HCUserModuleCategories
