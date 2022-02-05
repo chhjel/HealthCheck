@@ -10,7 +10,7 @@ namespace HealthCheck.Dev.Common.Config
             HCAssetGlobalConfig.EnableInitializer = false;
 
             HCAssetGlobalConfig.DefaultJavaScriptUrls = new List<string> {
-                "[base]/GetMainScript?x=woot"
+                "[base]/GetMainScript"
             };
             HCAssetGlobalConfig.DefaultMetricsSummaryJavascriptUrl = $"{endpointBase}/GetMetricsScript";
             HCAssetGlobalConfig.DefaultReleaseNotesSummaryJavascriptUrl = $"{endpointBase}/GetReleaseNotesScript";

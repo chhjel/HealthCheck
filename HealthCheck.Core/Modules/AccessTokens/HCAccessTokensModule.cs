@@ -360,6 +360,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
 
             // Audit log and delete
             context.AddAuditEvent(action: "Access token killswitched", subject: token.Name)
+                .AddClientConnectionDetails(context)
                 .AddDetail("Token id", token.Id.ToString());
             Options.TokenStorage.DeleteToken(token.Id);
 
