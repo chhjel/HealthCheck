@@ -209,6 +209,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 Parameters[i] = new TestParameter()
                 {
                     Index = i,
+                    Id = parameter.Name,
                     Name = parameterAttribute?.Name ?? parameter.Name.SpacifySentence(),
                     Description = parameterAttribute?.Description.EnsureDotAtEndIfNotNull(),
                     DefaultValue = GetDefaultValue(parameter, parameterAttribute),

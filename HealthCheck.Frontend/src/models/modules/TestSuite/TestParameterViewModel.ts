@@ -14,6 +14,7 @@ export default interface TestParameterViewModel {
     IsCustomReferenceType: boolean;
     IsUnsupportedJson: boolean;
     Hidden: boolean;
+    Feedback?: string | null;
 }
 
 export interface TestParameterReferenceChoiceViewModel {

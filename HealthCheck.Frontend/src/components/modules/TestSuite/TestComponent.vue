@@ -292,6 +292,24 @@ export default class TestComponent extends Vue {
           if (this.test.TestResult.Message == 'Test is already running and must be cancelled before it can run again.') {
             this.showCancellationButtonUntilNextRun = true;
           }
+
+          this.test.Parameters.forEach(p => p.Feedback = '');
+          if (result.ParameterFeedback && Object.keys(result.ParameterFeedback).length > 0)
+          {
+            const feedbackKeys = Object.keys(result.ParameterFeedback);
+            feedbackKeys.forEach(f => {
+              const index = parseInt(f);
+              const parameter = this.test.Parameters.filter(x => x.Index == index)[0];
+              if (parameter) {
+                parameter.Feedback = result.ParameterFeedback[index];
+              }
+            });
+          }
+
+          // Force update
+          this.$nextTick(() => {
+            this.test.Parameters.forEach(p => p.Name = p.Name.endsWith(' ') ? p.Name.trim() : p.Name.trim() + ' ');
+          });
         },
         onError: (e) => {
           this.test.TestResult = null;

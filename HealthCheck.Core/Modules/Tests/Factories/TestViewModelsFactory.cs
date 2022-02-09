@@ -245,6 +245,24 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         public TestResultViewModel CreateViewModel(TestResult testResult)
         {
             var dumps = testResult.Data.Select(x => CreateViewModel(x)).ToList();
+            var parameterFeedback = new Dictionary<int, string>();
+            if (testResult.FeedbackPerParameter != null)
+            {
+                foreach (var parameter in testResult.Test.Parameters)
+                {
+                    var feedback = testResult.FeedbackPerParameter(parameter.Id);
+                    if (!string.IsNullOrWhiteSpace(feedback))
+                    {
+                        var index = testResult.Test.Parameters.FirstOrDefault(x => x.Id == parameter.Id)?.Index ?? -1;
+                        parameterFeedback[index] = feedback;
+                    }
+                }
+            }
+            foreach (var kvp in testResult.ParameterFeedback)
+            {
+                var index = testResult.Test.Parameters.FirstOrDefault(x => x.Id == kvp.Key)?.Index ?? -1;
+                parameterFeedback[index] = kvp.Value;
+            }
 
             var vm = new TestResultViewModel()
             {
@@ -256,6 +274,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 StackTrace = testResult.StackTrace,
                 AllowExpandData = testResult.AllowExpandData,
                 DisplayClean = testResult.DisplayClean,
+                ParameterFeedback = parameterFeedback,
                 ExpandDataByDefault = testResult.ExpandDataByDefault || !testResult.AllowExpandData,
                 DurationInMilliseconds = testResult.DurationInMilliseconds,
                 Data = dumps

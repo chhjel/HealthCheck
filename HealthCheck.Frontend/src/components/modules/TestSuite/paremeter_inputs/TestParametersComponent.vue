@@ -18,7 +18,8 @@
                       :config="createConfig(parameter, index)"
                       :parameterDetailContext="test.Id"
                       :referenceValueFactoryConfig="parameter.ReferenceValueFactoryConfig"
-                      @isAnyJson="onIsAnyJson(parameter)" />
+                      @isAnyJson="onIsAnyJson(parameter)"
+                      :feedback="parameter.Feedback" />
               </v-flex>
           </v-layout>
         </v-container>

@@ -15,6 +15,7 @@ export interface TestResult
 	ExpandDataByDefault: boolean;
 	AllowExpandData: boolean;
 	DisplayClean: boolean;
+	ParameterFeedback: { [key:string]: string };
 	Test: TestDefinition;
 	Data: TestResultDataDump[];
 	SiteEvent: SiteEvent;

@@ -14,6 +14,11 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public int Index { get; set; }
 
         /// <summary>
+        /// Name of the parameter from code.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
         /// Name of the parameter or custom name if provided.
         /// </summary>
         public string Name { get; set; }

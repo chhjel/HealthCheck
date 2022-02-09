@@ -45,6 +45,16 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public bool DisplayClean { get; set; }
 
         /// <summary>
+        /// Feedback per parameters.
+        /// </summary>
+        public Dictionary<string, string> ParameterFeedback { get; private set; } = new();
+
+        /// <summary>
+        /// Feedback per parameter.
+        /// </summary>
+        public Func<string, string> FeedbackPerParameter { get; set; }
+
+        /// <summary>
         /// The test that was executed.
         /// </summary>
         public TestDefinition Test { get; set; }
@@ -133,6 +143,27 @@ namespace HealthCheck.Core.Modules.Tests.Models
             => Create(TestResultStatus.Success, testResultMessage).SetResolvedSiteEvent(eventTypeId, resolvedMessage);
 
         #region Method-chaining
+        /// <summary>
+        /// Sets parameter feedback for a single parameter, for e.g. validation of fields.
+        /// </summary>
+        public TestResult SetParameterFeedback(string parameterName, string feedback, Func<bool> condition = null)
+        {
+            if (condition?.Invoke() != false)
+            {
+                ParameterFeedback[parameterName ?? string.Empty] = feedback;
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Sets parameter feedback conditionally for all parameters, for e.g. validation of fields.
+        /// </summary>
+        public TestResult SetParametersFeedback(Func<string, string> feedbackPerParameter)
+        {
+            FeedbackPerParameter = feedbackPerParameter;
+            return this;
+        }
+
         /// <summary>
         /// Expand data in frontend by default.
         /// </summary>

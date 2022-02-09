@@ -54,6 +54,11 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public bool DisplayClean { get; set; }
 
         /// <summary>
+        /// Feedback per parameters.
+        /// </summary>
+        public Dictionary<int, string> ParameterFeedback { get; set; }
+
+        /// <summary>
         /// Any extra data.
         /// </summary>
         public List<TestResultDataDumpViewModel> Data { get; set; } = new List<TestResultDataDumpViewModel>();
