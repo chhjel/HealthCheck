@@ -214,7 +214,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                 {
                     //EditorWorkerUrl = "blob:https://unpkg.com/christianh-healthcheck@3.0.5/editor.worker.js",
                     //JsonWorkerUrl = "blob:https://unpkg.com/christianh-healthcheck@3.0.5/json.worker.js"
-                }
+                },
+                LogoutLinkUrl = "/Logout"
             };
 
         protected override HCPageOptions GetPageOptions()
@@ -262,14 +263,11 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             config.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
             config.RedirectTargetOnNoAccess = "/no-access";
             //config.RedirectTargetOnNoAccessUsingRequest = (r, q) => $"/DummyLoginRedirect?r={HttpUtility.UrlEncode($"/?{q}")}";
-            config.IntegratedLoginConfig = new HCIntegratedLoginConfig
-            {
-                IntegratedLoginEndpoint = "/HCLogin/login",
-                Current2FACodeExpirationTime = HCMfaTotpUtil.GetCurrentTotpCodeExpirationTime(),
-                Send2FACodeEndpoint = "/hclogin/Request2FACode",
-                TwoFactorCodeInputMode = HCIntegratedLoginConfig.HCLoginTwoFactorCodeInputMode.Optional,
-                WebAuthnMode = HCIntegratedLoginConfig.HCLoginWebAuthnMode.Optional
-            };
+            config.IntegratedLoginConfig = new HCIntegratedLoginConfig("/HCLogin/login")
+                //.EnableOneTimePasswordWithCodeRequest("/hclogin/Request2FACode", "Code pls", required: false)
+                .EnableTOTP(required: false)
+                .EnableWebAuthn(required: false)
+                ;
 
             var totpKey = "_dev_totp_secret";
             var webAuthnKey = "_dev_webAuthn_secret";
@@ -390,7 +388,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                     Request.HttpContext.Session.Remove(webAuthnKey);
                     Request.HttpContext.Session.Remove("_dev_webAuthn_validated");
                     return HCGenericResult.CreateSuccess();
-                },
+                }
             };
         }
 

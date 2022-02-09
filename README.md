@@ -1692,16 +1692,11 @@ An integrated login dialog is included, but custom authentication logic must be 
     ```csharp
     protected override void ConfigureAccess(HttpRequestBase request,AccessConfig<RuntimeTestAccessRole> config) {
         ...
-        config.IntegratedLoginConfig = new HCIntegratedLoginConfig
-        {
-            IntegratedLoginEndpoint = "/hclogin/login",
-            // Optionally require 2FA input
-            TwoFactorCodeInputMode = HCIntegratedLoginConfig.HCLoginTwoFactorCodeInputMode.Required,
-            // Optionally show how much time left of TOTP codes
-            Current2FACodeExpirationTime = HCMfaTotpUtil.GetCurrentCodeExpirationTime(),
-            // Optionally allow sending codes to the user
-            Send2FACodeEndpoint = "/hclogin/Request2FACode"
-        };
+        config.IntegratedLoginConfig = new HCIntegratedLoginConfig("/hclogin/login")
+            // Optionally require 2FA input using OTP, TOTP or WebAuthn
+            .EnableOneTimePasswordWithCodeRequest("/hclogin/Request2FACode")
+            .EnableTOTP() // <-- requires separate nuget package below
+            .EnableWebAuthn();
     }
     ```
 
@@ -1713,6 +1708,7 @@ To add TOTP MFA you can add the [![Nuget](https://img.shields.io/nuget/v/HealthC
 
 * For it to work you need to store a 2FA secret per user to validate the codes against. The secret must be a base32 string and can be generated using e.g. `HCMfaTotpUtil.GenerateOTPSecret()`.
 * Validate codes using the `HCMfaTotpUtil.ValidateTotpCode(userSecret, code)` method.
+* Enable on IntegratedLoginConfig easily by using the extension method `.EnableTOTP()`
 * Bitwarden and most authenticator apps supports TOTP and can be used to generate codes from the generated secret.
 
 ### MFA: WebAuthn/FIDO2
@@ -1720,6 +1716,8 @@ To add TOTP MFA you can add the [![Nuget](https://img.shields.io/nuget/v/HealthC
 To add WebAuthn MFA you can add the [![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI.MFA.WebAuthn?label=HealthCheck.WebUI.MFA.WebAuthn&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI.MFA.WebAuthn) package.
 
 You can use the included `HCWebAuthnHelper` to register FIDO2 keys and create data secrets to store on your user objects.
+
+* Enable on IntegratedLoginConfig easily by using the method `.EnableWebAuthn()`
 
 <details><summary>Example setup</summary>
 <p>

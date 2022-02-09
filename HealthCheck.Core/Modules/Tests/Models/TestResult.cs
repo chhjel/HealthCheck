@@ -158,6 +158,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Sets parameter feedback conditionally for all parameters, for e.g. validation of fields.
         /// </summary>
+        /// <param name="feedbackPerParameter">Input: parameter name. Output: feedback.</param>
         public TestResult SetParametersFeedback(Func<string, string> feedbackPerParameter)
         {
             FeedbackPerParameter = feedbackPerParameter;

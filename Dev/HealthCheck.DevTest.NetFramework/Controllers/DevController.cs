@@ -307,13 +307,11 @@ namespace HealthCheck.DevTest.Controllers
             config.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
             //config.RedirectTargetOnNoAccess = "/no-access";
             config.RedirectTargetOnNoAccessUsingRequest = (r, q) => $"/DummyLoginRedirect?r={HttpUtility.UrlEncode($"/?{q}")}";
-            config.IntegratedLoginConfig = new HCIntegratedLoginConfig
-            {
-                IntegratedLoginEndpoint = "/hclogin/login",
-                Current2FACodeExpirationTime = HCMfaTotpUtil.GetCurrentTotpCodeExpirationTime(),
-                Send2FACodeEndpoint = "/hclogin/Request2FACode",
-                TwoFactorCodeInputMode = HCIntegratedLoginConfig.HCLoginTwoFactorCodeInputMode.Optional
-            };
+            config.IntegratedLoginConfig = new HCIntegratedLoginConfig("/HCLogin/login")
+                //.EnableOneTimePasswordWithCodeRequest("/hclogin/Request2FACode", "Code pls", required: false)
+                .EnableTOTP(required: false)
+                .EnableWebAuthn(required: false);
+
             config.IntegratedProfileConfig = new HCIntegratedProfileConfig
             {
                 Username = CurrentRequestInformation.UserName,

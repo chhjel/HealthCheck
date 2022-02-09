@@ -2,16 +2,12 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-import { HCLoginWebAuthnMode } from '../../Enums/WebUI/HCLoginWebAuthnMode';
-import { HCLoginTwoFactorCodeInputMode } from '../../Enums/WebUI/HCLoginTwoFactorCodeInputMode';
+import { HCLoginTwoFactorCodeConfig } from './HCLoginTwoFactorCodeConfig';
+import { HCLoginWebAuthnConfig } from './HCLoginWebAuthnConfig';
 
 export interface HCIntegratedLoginConfig
 {
 	IntegratedLoginEndpoint: string;
-	Send2FACodeEndpoint: string;
-	Send2FACodeButtonText: string;
-	Current2FACodeExpirationTime: Date;
-	TwoFactorCodeLifetime: number;
-	WebAuthnMode: HCLoginWebAuthnMode;
-	TwoFactorCodeInputMode: HCLoginTwoFactorCodeInputMode;
+	TwoFactorCodeConfig: HCLoginTwoFactorCodeConfig;
+	WebAuthnConfig: HCLoginWebAuthnConfig;
 }
