@@ -36,7 +36,7 @@ app.UseEndpoints(x => {
 HCGlobalConfig.DefaultInstanceResolver = (type) => app.Services.GetService(type);
 HCGlobalConfig.OnExceptionEvent += (t, m, e) =>
 {
-    HCMetricsContext.AddGlobalNote($"{t.Name}.{m}()", ExceptionUtils.GetFullExceptionDetails(e));
+    HCMetricsContext.AddGlobalNote($"{t.Name}.{m}()", HCExceptionUtils.GetFullExceptionDetails(e));
 };
 
 HCVersionUtils.ExecuteIfNewlyDeployedVersion("hcDevCore", typeof(IoCConfig).Assembly?.GetName()?.Version?.ToString(),

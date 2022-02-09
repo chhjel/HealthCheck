@@ -37,7 +37,7 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Providers
 
         /// <summary>
         /// If set, issue links will use this icon.
-        /// <para>Value should be a constant from <see cref="MaterialIcons"/>.</para>
+        /// <para>Value should be a constant from <see cref="HCMaterialIcons"/>.</para>
         /// </summary>
         public string IssueLinkIcon { get; set; }
 
@@ -67,7 +67,7 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Providers
 
         /// <summary>
         /// If set, pull-request links will use this icon.
-        /// <para>Value should be a constant from <see cref="MaterialIcons"/>.</para>
+        /// <para>Value should be a constant from <see cref="HCMaterialIcons"/>.</para>
         /// </summary>
         public string PullRequestLinkIcon { get; set; }
 
@@ -110,7 +110,7 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Providers
 
             try
             {
-                var json = IOUtils.ReadFile(FilePath);
+                var json = HCIOUtils.ReadFile(FilePath);
                 var model = BuildViewModel(json);
                 _cachedModel = model;
                 return _cachedModel;

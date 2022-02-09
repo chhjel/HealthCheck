@@ -10,7 +10,7 @@ namespace HealthCheck.Core.Modules.AuditLog.Services
     /// </summary>
     public class FlatFileAuditBlobStorage : IAuditBlobStorage
     {
-        private SimpleBlobStore Store { get; set; }
+        private HCSimpleBlobStore Store { get; set; }
 
         /// <summary>
         /// Create a new <see cref="FlatFileAuditBlobStorage"/> with the given file path.
@@ -22,12 +22,12 @@ namespace HealthCheck.Core.Modules.AuditLog.Services
             TimeSpan? maxEventAge = null,
             bool delayFirstCleanup = true)
         {
-            Store = new SimpleBlobStore(blobFolder);
+            Store = new HCSimpleBlobStore(blobFolder);
 
             if (maxEventAge != null)
             {
                 var minimumCleanupInterval = TimeSpan.FromHours(4);
-                Store.RetentionOptions = new SimpleBlobStoreRetentionOptions(
+                Store.RetentionOptions = new HCSimpleBlobStoreRetentionOptions(
                     maxAge: maxEventAge.Value,
                     minimumCleanupInterval: (maxEventAge.Value < minimumCleanupInterval) ? maxEventAge.Value : minimumCleanupInterval,
                     delayFirstCleanup: delayFirstCleanup

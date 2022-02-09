@@ -13,7 +13,7 @@ namespace HealthCheck.WebUI.Services
     /// </summary>
     public class FlatFileSecureFileDownloadDefinitionStorage : ISecureFileDownloadDefinitionStorage
     {
-        private SimpleDataStoreWithId<SecureFileDownloadDefinition, Guid> Store { get; set; }
+        private HCSimpleDataStoreWithId<SecureFileDownloadDefinition, Guid> Store { get; set; }
 
         /// <summary>
         /// Create a new <see cref="FlatFileEventSinkKnownEventDefinitionsStorage"/> with the given file path.
@@ -21,7 +21,7 @@ namespace HealthCheck.WebUI.Services
         /// <param name="filepath">Filepath to where the data will be stored.</param>
         public FlatFileSecureFileDownloadDefinitionStorage(string filepath)
         {
-            Store = new SimpleDataStoreWithId<SecureFileDownloadDefinition, Guid>(
+            Store = new HCSimpleDataStoreWithId<SecureFileDownloadDefinition, Guid>(
                 filepath,
                 serializer: new Func<SecureFileDownloadDefinition, string>((e) => JsonConvert.SerializeObject(e)),
                 deserializer: new Func<string, SecureFileDownloadDefinition>((row) => JsonConvert.DeserializeObject<SecureFileDownloadDefinition>(row)),

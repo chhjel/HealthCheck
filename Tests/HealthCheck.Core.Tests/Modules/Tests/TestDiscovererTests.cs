@@ -122,7 +122,7 @@ namespace HealthCheck.Core.Tests.Modules.Tests
         {
             var discoverer = CreateTestDiscoveryService();
             var userRoles = WrongEnumA.Something;
-            Assert.Throws<InvalidAccessRolesDefinitionException>(() =>
+            Assert.Throws<HCInvalidAccessRolesDefinitionException>(() =>
             {
                 try
                 {

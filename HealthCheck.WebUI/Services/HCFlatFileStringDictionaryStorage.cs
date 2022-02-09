@@ -76,7 +76,7 @@ namespace HealthCheck.WebUI.Services
                 {
                     lock (_fileLock)
                     {
-                        contents = IOUtils.ReadFile(FilePath);
+                        contents = HCIOUtils.ReadFile(FilePath);
                     }
                     HCMetricsContext.IncrementGlobalCounter($"StringDictionaryStorage({Path.GetFileNameWithoutExtension(FilePath)}).LoadData()");
                     return JsonConvert.DeserializeObject<Dictionary<string, string>>(contents)

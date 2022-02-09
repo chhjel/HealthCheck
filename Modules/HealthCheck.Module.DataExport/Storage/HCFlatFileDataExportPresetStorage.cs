@@ -13,7 +13,7 @@ namespace HealthCheck.Module.DataExport.Storage
     /// <summary></summary>
     public class HCFlatFileDataExportPresetStorage : IHCDataExportPresetStorage
     {
-        private SimpleDataStoreWithId<HCDataExportStreamQueryPreset, Guid> Store { get; set; }
+        private HCSimpleDataStoreWithId<HCDataExportStreamQueryPreset, Guid> Store { get; set; }
 
         /// <summary>
         /// Create a new <see cref="HCFlatFileDataExportPresetStorage"/> with the given file path.
@@ -21,7 +21,7 @@ namespace HealthCheck.Module.DataExport.Storage
         /// <param name="filepath">Filepath to where the data will be stored.</param>
         public HCFlatFileDataExportPresetStorage(string filepath)
         {
-            Store = new SimpleDataStoreWithId<HCDataExportStreamQueryPreset, Guid>(
+            Store = new HCSimpleDataStoreWithId<HCDataExportStreamQueryPreset, Guid>(
                 filepath,
                 serializer: new Func<HCDataExportStreamQueryPreset, string>(
                     (e) => HCGlobalConfig.Serializer.Serialize(e, pretty: false)),

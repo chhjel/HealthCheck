@@ -107,7 +107,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         /// </summary>
         public TestParameterViewModel CreateViewModel(TestParameter testParameter, HCTestsModuleOptions options)
         {
-            var stringConverter = new StringConverter();
+            var stringConverter = new HCStringConverter();
             var paramType = testParameter.ParameterType;
             string type = CreateParameterTypeName(paramType);
 

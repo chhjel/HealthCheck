@@ -43,7 +43,7 @@ namespace HealthCheck.WebUI.Util
 #endif
 
 #if NETCORE
-            var context = IoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext;
+            var context = HCIoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext;
             var request = context?.Request;
             
             model.HasRequestContext = request != null;
@@ -52,10 +52,10 @@ namespace HealthCheck.WebUI.Util
             model.Url = request?.GetDisplayUrl();
             model.Headers = request?.Headers.Keys?.ToDictionaryIgnoreDuplicates(t => t, t => request.Headers[t].ToString()) ?? new Dictionary<string, string>();
             model.Cookies = request?.Cookies.Keys?.ToDictionaryIgnoreDuplicates(t => t, t => request.Cookies[t]) ?? new Dictionary<string, string>();
-            HCRequestContext.RequestItemGetter = (key) => IoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext?.Request?.HttpContext?.Items?[key];
+            HCRequestContext.RequestItemGetter = (key) => HCIoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext?.Request?.HttpContext?.Items?[key];
             HCRequestContext.RequestItemSetter = (key, val) =>
             {
-                var req = IoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext?.Request;
+                var req = HCIoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext?.Request;
                 if (req?.HttpContext?.Items != null)
                 {
                     req.HttpContext.Items[key] = val;

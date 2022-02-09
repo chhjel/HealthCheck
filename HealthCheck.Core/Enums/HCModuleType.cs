@@ -36,6 +36,11 @@ namespace HealthCheck.Core.Enums
         /// <summary></summary>
         Code = 1 << 12,
         /// <summary></summary>
-        RequestLog = 1 << 13
+        RequestLog = 1 << 13,
+
+        /// <summary></summary>
+        DataRepeater = 1 << 14,
+        /// <summary></summary>
+        DataExport = 1 << 15
     }
 }

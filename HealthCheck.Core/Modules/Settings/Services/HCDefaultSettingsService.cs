@@ -110,7 +110,7 @@ namespace HealthCheck.Core.Modules.Settings.Services
                 var key = type.FullName;
                 var definitions = EnsureDefinitionCache(type, key);
 
-                var converter = new StringConverter();
+                var converter = new HCStringConverter();
                 var values = definitions.ToDictionary(x => x.Id, x => converter.ConvertToString(x.PropertyInfo.GetValue(model)));
                 _storage.SaveValues(values);
 

@@ -14,7 +14,7 @@ namespace HealthCheck.WebUI.Services
     /// </summary>
     public class FlatFileEventSinkNotificationConfigStorage : IEventSinkNotificationConfigStorage
     {
-        private SimpleDataStoreWithId<EventSinkNotificationConfig, Guid> Store { get; set; }
+        private HCSimpleDataStoreWithId<EventSinkNotificationConfig, Guid> Store { get; set; }
 
         private static readonly object _cacheUpdateLock = new();
         private static Dictionary<string, IEnumerable<EventSinkNotificationConfig>> ConfigCache { get; set; } = new Dictionary<string, IEnumerable<EventSinkNotificationConfig>>();
@@ -29,7 +29,7 @@ namespace HealthCheck.WebUI.Services
         /// <param name="filepath">Filepath to where the data will be stored.</param>
         public FlatFileEventSinkNotificationConfigStorage(string filepath)
         {
-            Store = new SimpleDataStoreWithId<EventSinkNotificationConfig, Guid>(
+            Store = new HCSimpleDataStoreWithId<EventSinkNotificationConfig, Guid>(
                 filepath,
                 serializer: new Func<EventSinkNotificationConfig, string>((e) => JsonConvert.SerializeObject(e)),
                 deserializer: new Func<string, EventSinkNotificationConfig>((row) => JsonConvert.DeserializeObject<EventSinkNotificationConfig>(row)),

@@ -8,7 +8,7 @@ namespace HealthCheck.Core.Util
     /// </summary>
     public class HCSensitiveDataUtils
     {
-        private static readonly CachedRegexContainer _regexCache = new();
+        private static readonly HCCachedRegexContainer _regexCache = new();
 
         /// <summary>
         /// Masks all numbers with length 11.

@@ -14,7 +14,7 @@ namespace HealthCheck.WebUI.Services
     /// </summary>
     public class FlatFileEventSinkKnownEventDefinitionsStorage : IEventSinkKnownEventDefinitionsStorage
     {
-        private SimpleDataStoreWithId<KnownEventDefinition, string> Store { get; set; }
+        private HCSimpleDataStoreWithId<KnownEventDefinition, string> Store { get; set; }
 
         /// <summary>
         /// Create a new <see cref="FlatFileEventSinkKnownEventDefinitionsStorage"/> with the given file path.
@@ -22,7 +22,7 @@ namespace HealthCheck.WebUI.Services
         /// <param name="filepath">Filepath to where the data will be stored.</param>
         public FlatFileEventSinkKnownEventDefinitionsStorage(string filepath)
         {
-            Store = new SimpleDataStoreWithId<KnownEventDefinition, string>(
+            Store = new HCSimpleDataStoreWithId<KnownEventDefinition, string>(
                 filepath,
                 serializer: new Func<KnownEventDefinition, string>((e) => JsonConvert.SerializeObject(e)),
                 deserializer: new Func<string, KnownEventDefinition>((row) => JsonConvert.DeserializeObject<KnownEventDefinition>(row)),

@@ -23,7 +23,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <summary>
         /// Convert the parameter values as the given types using the given string converter.
         /// </summary>
-        public object[] GetParametersWithConvertedTypes(Type[] types, StringConverter stringConverter, TestDefinition test)
+        public object[] GetParametersWithConvertedTypes(Type[] types, HCStringConverter stringConverter, TestDefinition test)
         {
             var objects = new object[types.Length];
             for (int i = 0; i < objects.Length; i++)

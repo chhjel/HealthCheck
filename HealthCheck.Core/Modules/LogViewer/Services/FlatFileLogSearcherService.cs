@@ -133,7 +133,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Services
             }
             catch (Exception ex)
             {
-                error = ExceptionUtils.GetFullExceptionDetails(ex);
+                error = HCExceptionUtils.GetFullExceptionDetails(ex);
             }
 
             return new LogEntrySearchResult

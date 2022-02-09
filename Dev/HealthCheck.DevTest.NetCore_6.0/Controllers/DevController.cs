@@ -346,7 +346,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                     var webauthn = CreateWebAuthnHelper();
                     var jsonOptions = HttpContext.Session.GetString("WebAuthn.assertionOptionsDev");
                     var options = AssertionOptions.FromJson(jsonOptions);
-                    var webAuthnResult = AsyncUtils.RunSync(() => webauthn.VerifyAssertion(options, d));
+                    var webAuthnResult = HCAsyncUtils.RunSync(() => webauthn.VerifyAssertion(options, d));
                     if (!webAuthnResult.Success)
                     {
                         return HCGenericResult<HCResultPageAction>.CreateError(webAuthnResult.Error);
@@ -373,7 +373,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                     var jsonOptions = HttpContext.Session.GetString("WebAuthn.attestationOptions");
                     var options = CredentialCreateOptions.FromJson(jsonOptions);
 
-                    AsyncUtils.RunSync(() => webauthn.RegisterCredentials(options, attestation));
+                    HCAsyncUtils.RunSync(() => webauthn.RegisterCredentials(options, attestation));
                     Request.HttpContext.Session.SetString(webAuthnKey, "added");
                     return HCGenericResult.CreateSuccess();
                 },

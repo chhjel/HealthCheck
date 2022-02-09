@@ -22,10 +22,10 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Util
         /// </summary>
         public static string CreateReleaseNotesSummaryHtml(bool includeDevDetails = false)
         {
-            var provider = IoCUtils.GetInstance<IHCReleaseNotesProvider>();
+            var provider = HCIoCUtils.GetInstance<IHCReleaseNotesProvider>();
             if (provider == null) { return "<!-- Release notes provider not found. -->"; }
 
-            var data = AsyncUtils.RunSync(() => provider.GetViewModelAsync());
+            var data = HCAsyncUtils.RunSync(() => provider.GetViewModelAsync());
             if (data == null) { return "<!-- No release notes data found. -->"; }
 
             var model = includeDevDetails ? data?.WithDevDetails : data?.WithoutDevDetails;

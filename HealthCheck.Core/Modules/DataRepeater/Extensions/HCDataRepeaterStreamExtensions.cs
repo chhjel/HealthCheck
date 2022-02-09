@@ -162,7 +162,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Extensions
             error ??= "";
             if (exception != null)
             {
-                error += $"\n\n{ExceptionUtils.GetFullExceptionDetails(exception)}";
+                error += $"\n\n{HCExceptionUtils.GetFullExceptionDetails(exception)}";
             }
 
             await stream.Storage.SetForcedItemStatusAsync(item.Id, status, expirationTime, logMessage, error).ConfigureAwait(false);
@@ -199,7 +199,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Extensions
             error ??= "";
             if (exception != null)
             {
-                error += $"\n\n{ExceptionUtils.GetFullExceptionDetails(exception)}";
+                error += $"\n\n{HCExceptionUtils.GetFullExceptionDetails(exception)}";
             }
 
             await stream.Storage.SetItemErrorAsync(item.Id, error).ConfigureAwait(false);

@@ -262,7 +262,7 @@ namespace HealthCheck.Core.Modules.DataRepeater
             {
                 foreach (var action in stream.Actions)
                 {
-                    var result = AsyncUtils.RunSync(() => action.ActionIsAllowedForAsync(item));
+                    var result = HCAsyncUtils.RunSync(() => action.ActionIsAllowedForAsync(item));
                     model.ActionValidationResults.Add(new HCDataRepeaterStreamItemActionAllowedViewModel
                     {
                         ActionId = action?.GetType()?.FullName ?? "-null-",

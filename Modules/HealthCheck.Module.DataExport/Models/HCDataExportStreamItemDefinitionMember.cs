@@ -27,6 +27,6 @@ namespace HealthCheck.Module.DataExport.Models
         /// <summary>
         /// Get the value of this member.
         /// </summary>
-        public object GetValue(object rootInstance) => ReflectionUtils.GetValue(rootInstance, Name);
+        public object GetValue(object rootInstance) => HCReflectionUtils.GetValue(rootInstance, Name);
     }
 }

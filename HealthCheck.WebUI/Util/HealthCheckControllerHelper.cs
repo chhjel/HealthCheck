@@ -705,7 +705,7 @@ namespace HealthCheck.WebUI.Util
 #endregion
 
 #region Init module extras
-        private static void InitStringConverter(StringConverter converter)
+        private static void InitStringConverter(HCStringConverter converter)
         {
             converter.RegisterConverter<byte[]>(
                 (input) => ConvertFileInputToBytes(input),

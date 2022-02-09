@@ -21,7 +21,7 @@ namespace HealthCheck.Core.Modules.ReleaseNotes.Models
 
         /// <summary>
         /// Optional icon of the change.
-        /// <para>Value should be a constant from <see cref="MaterialIcons"/>.</para>
+        /// <para>Value should be a constant from <see cref="HCMaterialIcons"/>.</para>
         /// <para>Defaults to no icon.</para>
         /// </summary>
         public string Icon { get; set; }

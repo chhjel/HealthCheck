@@ -26,7 +26,7 @@ namespace HealthCheck.Dev.Common.Tests
             catch (Exception ex)
             {
                 HCMetricsContext.AddError("Some error", ex);
-                HCMetricsContext.AddGlobalNote("err_1", ExceptionUtils.GetFullExceptionDetails(ex));
+                HCMetricsContext.AddGlobalNote("err_1", HCExceptionUtils.GetFullExceptionDetails(ex));
             }
 
             HCMetricsContext.AddGlobalValue("num_retries", globalValue);

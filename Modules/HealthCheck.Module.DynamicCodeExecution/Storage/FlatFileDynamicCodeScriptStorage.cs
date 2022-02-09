@@ -15,7 +15,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Storage
     /// </summary>
     public class FlatFileDynamicCodeScriptStorage : IDynamicCodeScriptStorage
     {
-        private SimpleDataStoreWithId<DynamicCodeScript, Guid> Store { get; set; }
+        private HCSimpleDataStoreWithId<DynamicCodeScript, Guid> Store { get; set; }
 
         /// <summary>
         /// Create a new <see cref="FlatFileDynamicCodeScriptStorage"/> with the given file path.
@@ -23,7 +23,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Storage
         /// <param name="filepath">Filepath to where the data will be stored.</param>
         public FlatFileDynamicCodeScriptStorage(string filepath)
         {
-            Store = new SimpleDataStoreWithId<DynamicCodeScript, Guid>(
+            Store = new HCSimpleDataStoreWithId<DynamicCodeScript, Guid>(
                 filepath,
                 serializer: new Func<DynamicCodeScript, string>((e) => JsonConvert.SerializeObject(e)),
                 deserializer: new Func<string, DynamicCodeScript>((row) => JsonConvert.DeserializeObject<DynamicCodeScript>(row)),

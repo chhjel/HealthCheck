@@ -186,7 +186,7 @@ namespace HealthCheck.Core.Modules.EventNotifications
             }
             catch(Exception ex)
             {
-                return ExceptionUtils.GetFullExceptionDetails(ex);
+                return HCExceptionUtils.GetFullExceptionDetails(ex);
             }
         }
         #endregion

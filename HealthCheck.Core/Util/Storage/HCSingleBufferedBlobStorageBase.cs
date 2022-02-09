@@ -27,7 +27,7 @@ namespace HealthCheck.Core.Util.Storage
         /// <summary>
         /// The buffered queue of items to add.
         /// </summary>
-        protected readonly DelayedBufferQueue<BufferQueueItem> BufferQueue;
+        protected readonly HCDelayedBufferQueue<BufferQueueItem> BufferQueue;
 
         /// <summary>
         /// Wrapper type for buffered items.
@@ -62,7 +62,7 @@ namespace HealthCheck.Core.Util.Storage
         protected HCSingleBufferedBlobStorageBase(IHCCache cache)
             : base(cache)
         {
-            BufferQueue = new DelayedBufferQueue<BufferQueueItem>(OnBufferCallback, TimeSpan.FromSeconds(10), 100);
+            BufferQueue = new HCDelayedBufferQueue<BufferQueueItem>(OnBufferCallback, TimeSpan.FromSeconds(10), 100);
         }
 
         /// <summary>

@@ -121,7 +121,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
                 await stream.Storage.UpdateItemAsync(item);
                 return new HCDataRepeaterItemAnalysisResult
                 {
-                    Message = ExceptionUtils.GetFullExceptionDetails(ex)
+                    Message = HCExceptionUtils.GetFullExceptionDetails(ex)
                 };
             }
 

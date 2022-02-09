@@ -238,11 +238,11 @@ namespace HealthCheck.Core.Modules.Tests.Services
             // Check for invalid setup
             if (!EnumUtils.IsEnumFlagOfType(rolesToCheckAgainst, new[] { typeof(int), typeof(byte) }))
             {
-                throw new InvalidAccessRolesDefinitionException($"Access role set on test '{test.Name}' is either missing a [Flags] attribute or does not have the underlying type int or byte.");
+                throw new HCInvalidAccessRolesDefinitionException($"Access role set on test '{test.Name}' is either missing a [Flags] attribute or does not have the underlying type int or byte.");
             }
             else if(roles.GetType() != rolesToCheckAgainst.GetType())
             {
-                throw new InvalidAccessRolesDefinitionException($"Different access role types used on '{test.Name}' and in the discover tests call. " +
+                throw new HCInvalidAccessRolesDefinitionException($"Different access role types used on '{test.Name}' and in the discover tests call. " +
                     $"({rolesToCheckAgainst.GetType().Name} and {roles.GetType().Name})");
             }
 

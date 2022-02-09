@@ -12,7 +12,7 @@ namespace HealthCheck.Episerver.Tests.Helpers
         public static List<MockBlob> CreatedBlobs { get; set; } = new List<MockBlob>();
 
         public static IHCCache CreateMockCache()
-            => new SimpleMemoryCache();
+            => new HCSimpleMemoryCache();
 
         public static Mock<IBlobFactory> CreateBlobFactoryMock(Func<MockBlob> blobFactory = null, string blobJson = null)
         {

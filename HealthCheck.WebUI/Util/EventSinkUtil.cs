@@ -21,7 +21,7 @@ namespace HealthCheck.WebUI.Util
         {
             try
             {
-                IoCUtils.GetInstance<IEventDataSink>()?.RegisterEvent(eventId, payload);
+                HCIoCUtils.GetInstance<IEventDataSink>()?.RegisterEvent(eventId, payload);
             }
             catch (Exception ex)
             {
@@ -40,7 +40,7 @@ namespace HealthCheck.WebUI.Util
         {
             try
             {
-                IoCUtils.GetInstance<IEventDataSink>()?.RegisterEvent(eventId, payload?.Invoke());
+                HCIoCUtils.GetInstance<IEventDataSink>()?.RegisterEvent(eventId, payload?.Invoke());
             }
             catch (Exception ex)
             {

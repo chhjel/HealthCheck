@@ -62,7 +62,7 @@ namespace HealthCheck.Module.DataExport.Services
                 var ignoredTypes = new HashSet<Type>(stream.IgnoredMemberTypes ?? Enumerable.Empty<Type>());
                 var ignoredPrefixes = stream.IgnoredMemberPathPrefixes?.ToArray() ?? Array.Empty<string>();
 
-                model.Members = ReflectionUtils.GetTypeMembersRecursive(itemType, maxLevels: maxDepth, ignoredTypes: ignoredTypes)
+                model.Members = HCReflectionUtils.GetTypeMembersRecursive(itemType, maxLevels: maxDepth, ignoredTypes: ignoredTypes)
                     .Where(x => !ignoredPrefixes.Any(p => x.Name.StartsWith(p)))
                     .Select(x => new HCDataExportStreamItemDefinitionMember
                     {

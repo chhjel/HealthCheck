@@ -49,7 +49,7 @@ namespace HealthCheck.DevTest.NetCore_3._1
             HCGlobalConfig.DefaultInstanceResolver = (type) => app.ApplicationServices.GetService(type);
             HCGlobalConfig.OnExceptionEvent += (t, m, e) =>
             {
-                HCMetricsContext.AddGlobalNote($"{t.Name}.{m}()", ExceptionUtils.GetFullExceptionDetails(e));
+                HCMetricsContext.AddGlobalNote($"{t.Name}.{m}()", HCExceptionUtils.GetFullExceptionDetails(e));
             };
 
             HCVersionUtils.ExecuteIfNewlyDeployedVersion("hcDevCore", GetType().Assembly.GetName().Version.ToString(),

@@ -104,17 +104,17 @@ namespace CodeTesting
 
         // Utils for quickly instancing and invoking:
         // GetInstance retrieves from IoC or instantiate new, with recursive parameter override by type.
-        // * T IoCUtils.GetInstance<T>(params object[] forcedParameterValues)
-        // * TResult ReflectionUtils.TryInvokeMethod<TClass, TResult>(string methodName, params object[] parameters)
-        // * object ReflectionUtils.TryInvokeMethod<TClass>(string methodName, params object[] parameters)
+        // * T HCIoCUtils.GetInstance<T>(params object[] forcedParameterValues)
+        // * TResult HCReflectionUtils.TryInvokeMethod<TClass, TResult>(string methodName, params object[] parameters)
+        // * object HCReflectionUtils.TryInvokeMethod<TClass>(string methodName, params object[] parameters)
         
         // Async utils:
-        // * TResult AsyncUtils.RunSync<TResult>(Func<Task<TResult>> func)
-        // * void AsyncUtils.RunSync(Func<Task> func)
-        // * async Task<T> AsyncUtils.InvokeAsync<T>(MethodInfo method, object obj, params object[] parameters)
-        // * async Task<object> AsyncUtils.InvokeAsync(MethodInfo method, object obj, params object[] parameters)
-        // * T AsyncUtils.InvokeAsyncSync<T>(MethodInfo method, object obj, params object[] parameters)
-        // * object AsyncUtils.InvokeAsyncSync(MethodInfo method, object obj, params object[] parameters)
+        // * TResult HCAsyncUtils.RunSync<TResult>(Func<Task<TResult>> func)
+        // * void HCAsyncUtils.RunSync(Func<Task> func)
+        // * async Task<T> HCAsyncUtils.InvokeAsync<T>(MethodInfo method, object obj, params object[] parameters)
+        // * async Task<object> HCAsyncUtils.InvokeAsync(MethodInfo method, object obj, params object[] parameters)
+        // * T HCAsyncUtils.InvokeAsyncSync<T>(MethodInfo method, object obj, params object[] parameters)
+        // * object HCAsyncUtils.InvokeAsyncSync(MethodInfo method, object obj, params object[] parameters)
         #endregion
     }
 }";

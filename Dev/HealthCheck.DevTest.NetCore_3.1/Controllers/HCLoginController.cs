@@ -40,7 +40,7 @@ namespace HealthCheck.DevTest.NetCore_3._1.Controllers
                 var webauthn = CreateWebAuthnHelper();
                 var jsonOptions = GetWebAuthnAssertionOptionsJsonForSession();
                 var options = AssertionOptions.FromJson(jsonOptions);
-                var webAuthnResult = AsyncUtils.RunSync(() => webauthn.VerifyAssertion(options, request.WebAuthnPayload));
+                var webAuthnResult = HCAsyncUtils.RunSync(() => webauthn.VerifyAssertion(options, request.WebAuthnPayload));
                 if (!webAuthnResult.Success)
                 {
                     return HCIntegratedLoginResult.CreateError(webAuthnResult.Error);

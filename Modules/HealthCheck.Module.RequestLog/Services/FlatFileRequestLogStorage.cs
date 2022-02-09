@@ -15,7 +15,7 @@ namespace HealthCheck.RequestLog.Services
     /// </summary>
     public class FlatFileRequestLogStorage : IRequestLogStorage
     {
-        private SimpleDataStoreWithId<LoggedEndpointDefinition, Guid> Store { get; }
+        private HCSimpleDataStoreWithId<LoggedEndpointDefinition, Guid> Store { get; }
 
         /// <summary>
         /// Create a new <see cref="FlatFileRequestLogStorage"/> with the given file path.
@@ -23,7 +23,7 @@ namespace HealthCheck.RequestLog.Services
         /// <param name="filepath">Filepath to where the data will be stored.</param>
         public FlatFileRequestLogStorage(string filepath)
         {
-            Store = new SimpleDataStoreWithId<LoggedEndpointDefinition, Guid>(
+            Store = new HCSimpleDataStoreWithId<LoggedEndpointDefinition, Guid>(
                 filepath,
                 serializer: new Func<LoggedEndpointDefinition, string>((e) => JsonConvert.SerializeObject(e)),
                 deserializer: new Func<string, LoggedEndpointDefinition>((row) => JsonConvert.DeserializeObject<LoggedEndpointDefinition>(row)),

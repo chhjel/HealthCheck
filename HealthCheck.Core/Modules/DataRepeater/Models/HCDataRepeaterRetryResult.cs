@@ -30,6 +30,6 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public static HCDataRepeaterRetryResult CreateError(string error) => new() { Message = error };
 
         /// <summary></summary>
-        public static HCDataRepeaterRetryResult CreateError(Exception ex) => new() { Message = ExceptionUtils.GetFullExceptionDetails(ex) };
+        public static HCDataRepeaterRetryResult CreateError(Exception ex) => new() { Message = HCExceptionUtils.GetFullExceptionDetails(ex) };
     }
 }

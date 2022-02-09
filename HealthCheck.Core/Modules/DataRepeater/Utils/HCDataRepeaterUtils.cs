@@ -73,7 +73,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         /// <para>Ignores any exception.</para>
         /// </summary>
         public static IHCDataRepeaterStreamItem GetItemByItemId<TStream>(string itemId)
-            => AsyncUtils.RunSync(() => GetItemByItemIdAsync<TStream>(itemId));
+            => HCAsyncUtils.RunSync(() => GetItemByItemIdAsync<TStream>(itemId));
 
         /// <summary>
         /// Get item matching the given item id from the stream of the given type.
@@ -99,7 +99,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         /// <para>Ignores any exception.</para>
         /// </summary>
         public static bool DeleteItem<TStream>(string itemId)
-            => AsyncUtils.RunSync(() => DeleteItemAsync<TStream>(itemId));
+            => HCAsyncUtils.RunSync(() => DeleteItemAsync<TStream>(itemId));
 
         /// <summary>
         /// Delete item matching the given item id from the stream of the given type.
@@ -125,7 +125,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         /// <para>Ignores any exception.</para>
         /// </summary>
         public static IHCDataRepeaterStreamItem ModifyItem<TStream>(string itemId, Action<IHCDataRepeaterStreamItem> modification)
-            => AsyncUtils.RunSync(() => ModifyItemAsync<TStream>(itemId, modification));
+            => HCAsyncUtils.RunSync(() => ModifyItemAsync<TStream>(itemId, modification));
 
         /// <summary>
         /// Modifies an existing item from the given stream with the given id.
@@ -157,7 +157,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         /// <para>Ignores any exception.</para>
         /// </summary>
         public static bool RemoveAllItemTags<TStream>(string itemId)
-            => AsyncUtils.RunSync(() => RemoveAllItemTagsAsync<TStream>(itemId));
+            => HCAsyncUtils.RunSync(() => RemoveAllItemTagsAsync<TStream>(itemId));
 
         /// <summary>
         /// Remove all tags from the item matching the given item id from the stream of the given type.
@@ -183,7 +183,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         /// <para>Ignores any exception.</para>
         /// </summary>
         public static bool RemoveItemTag<TStream>(string itemId, string tag)
-            => AsyncUtils.RunSync(() => RemoveItemTagAsync<TStream>(itemId, tag));
+            => HCAsyncUtils.RunSync(() => RemoveItemTagAsync<TStream>(itemId, tag));
 
         /// <summary>
         /// Remove a single tag from the item matching the given item id from the stream of the given type.
@@ -208,7 +208,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         /// Remove tags from item matching the given id.
         /// </summary>
         public static bool RemoveItemTags<TStream>(string itemId, params string[] tags)
-            => AsyncUtils.RunSync(() => RemoveItemTagsAsync<TStream>(itemId, tags));
+            => HCAsyncUtils.RunSync(() => RemoveItemTagsAsync<TStream>(itemId, tags));
 
         /// <summary>
         /// Remove tags from item matching the given id.
@@ -235,7 +235,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         /// <param name="tags">True to add a tag, false to remove a tag.</param>
         /// <param name="removeOtherTags">True to remove all other tags if any.</param>
         public static bool SetTags<TStream>(string itemId, Dictionary<string, bool> tags, bool removeOtherTags = false)
-            => AsyncUtils.RunSync(() => SetTagsAsync<TStream>(itemId, tags, removeOtherTags));
+            => HCAsyncUtils.RunSync(() => SetTagsAsync<TStream>(itemId, tags, removeOtherTags));
 
         /// <summary>
         /// Add/remove the given tags on the item matching the given item id, and optionally remove all others.
@@ -263,7 +263,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         /// <para>Ignores any exception.</para>
         /// </summary>
         public static bool AddItemTag<TStream>(string itemId, string tag)
-            => AsyncUtils.RunSync(() => AddItemTagAsync<TStream>(itemId, tag));
+            => HCAsyncUtils.RunSync(() => AddItemTagAsync<TStream>(itemId, tag));
 
         /// <summary>
         /// Add a tag to the item matching the given item id from the stream of the given type.
@@ -289,7 +289,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         /// <para>Ignores any exception.</para>
         /// </summary>
         public static bool AddItemTags<TStream>(string itemId, params string[] tags)
-            => AsyncUtils.RunSync(() => AddItemTagsAsync<TStream>(itemId, tags));
+            => HCAsyncUtils.RunSync(() => AddItemTagsAsync<TStream>(itemId, tags));
 
         /// <summary>
         /// Add tags to the item matching the given item id from the stream of the given type.
@@ -315,7 +315,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         /// <para>Ignores any exception.</para>
         /// </summary>
         public static bool SetAllowItemRetry<TStream>(string itemId, bool allow)
-            => AsyncUtils.RunSync(() => SetAllowItemRetryAsync<TStream>(itemId, allow));
+            => HCAsyncUtils.RunSync(() => SetAllowItemRetryAsync<TStream>(itemId, allow));
 
         /// <summary>
         /// Set if the item matching the given item id from the stream of the given type is allowed to be retried.
@@ -341,7 +341,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         /// <para>Ignores any exception.</para>
         /// </summary>
         public static bool SetExpirationTime<TStream>(string itemId, DateTimeOffset? time)
-            => AsyncUtils.RunSync(() => SetExpirationTimeAsync<TStream>(itemId, time));
+            => HCAsyncUtils.RunSync(() => SetExpirationTimeAsync<TStream>(itemId, time));
 
         /// <summary>
         /// Toggle allow retry on the item matching the given item id from the stream of the given type.
@@ -375,7 +375,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         public static bool SetForcedItemStatus<TStream>(string itemId, HCDataRepeaterStreamItemStatus? status,
             Maybe<DateTimeOffset?> expirationTime = null, string logMessage = null,
             string error = null, Exception exception = null)
-            => AsyncUtils.RunSync(() => SetForcedItemStatusAsync<TStream>(itemId, status, expirationTime, logMessage, error, exception));
+            => HCAsyncUtils.RunSync(() => SetForcedItemStatusAsync<TStream>(itemId, status, expirationTime, logMessage, error, exception));
 
         /// <summary>
         /// Set the given items forced status that is only used to override status colors in the UI by default.
@@ -410,7 +410,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         /// <param name="itemId">Id of item to target.</param>
         /// <param name="logMessage">Message to log.</param>
         public static bool AddItemLogMessage<TStream>(string itemId, string logMessage)
-            => AsyncUtils.RunSync(() => AddItemLogMessageAsync<TStream>(itemId, logMessage));
+            => HCAsyncUtils.RunSync(() => AddItemLogMessageAsync<TStream>(itemId, logMessage));
 
         /// <summary>
         /// Adds a log message to the given item.
@@ -440,7 +440,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Utils
         /// <param name="error">Error to set.</param>
         /// <param name="exception">Exception to include details from if any.</param>
         public static bool SetItemError<TStream>(string itemId, string error, Exception exception = null)
-            => AsyncUtils.RunSync(() => SetItemErrorAsync<TStream>(itemId, error, exception));
+            => HCAsyncUtils.RunSync(() => SetItemErrorAsync<TStream>(itemId, error, exception));
 
         /// <summary>
         /// Sets Error to the given message and optionally include exception details.

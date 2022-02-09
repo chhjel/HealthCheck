@@ -139,7 +139,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
         }
 
         /// <summary>
-        /// Show the property as icon. Property value should be a constant from <see cref="MaterialIcons"/>.
+        /// Show the property as icon. Property value should be a constant from <see cref="HCMaterialIcons"/>.
         /// </summary>
         public DataFlowPropertyDisplayInfo SetSVGIcon()
         {
@@ -213,8 +213,8 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
             HTML,
 
             /// <summary>
-            /// Display as a <see cref="MaterialIcons"/> SVG icon.
-            /// <para>Value should be a constant from <see cref="MaterialIcons"/>.</para>
+            /// Display as a <see cref="HCMaterialIcons"/> SVG icon.
+            /// <para>Value should be a constant from <see cref="HCMaterialIcons"/>.</para>
             /// </summary>
             Icon
         }

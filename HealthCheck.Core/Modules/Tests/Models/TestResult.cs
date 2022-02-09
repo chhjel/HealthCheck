@@ -88,7 +88,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
             {
                 Status = status,
                 Message = message ?? exception?.Message,
-                StackTrace = ExceptionUtils.GetFullExceptionDetails(exception, returnNullIfNull: true)
+                StackTrace = HCExceptionUtils.GetFullExceptionDetails(exception, returnNullIfNull: true)
             };
 
         /// <summary>
@@ -221,7 +221,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// <param name="onlyIfNotNullOrEmpty">Only include the result if the data is not null or empty.</param>
         public TestResult AddExceptionData(Exception exception, string title = null, bool onlyIfNotNullOrEmpty = true)
             => AddTextData(
-                (exception != null) ? ExceptionUtils.GetFullExceptionDetails(exception) : null, 
+                (exception != null) ? HCExceptionUtils.GetFullExceptionDetails(exception) : null, 
                 title ?? exception?.GetType()?.Name,
                 onlyIfNotNullOrEmpty);
 
@@ -392,17 +392,17 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 var isLast = i == stepList.Count - 1;
                 var step = stepList[i];
 
-                var linksJson = "[" + string.Join(", ", step.Links.Select(x => $"[{DumpHelper.EncodeForJson(x.Url)}, {DumpHelper.EncodeForJson(x.Text)}]")) + "]";
+                var linksJson = "[" + string.Join(", ", step.Links.Select(x => $"[{HCDumpHelper.EncodeForJson(x.Url)}, {HCDumpHelper.EncodeForJson(x.Text)}]")) + "]";
                 jsonBuilder.AppendLine($@"
 {{
-    ""Title"": {DumpHelper.EncodeForJson(step.Title)},
-    ""Description"": {DumpHelper.EncodeForJson(step.Description)},
+    ""Title"": {HCDumpHelper.EncodeForJson(step.Title)},
+    ""Description"": {HCDumpHelper.EncodeForJson(step.Description)},
     ""Links"": {linksJson},
-    ""Error"": {DumpHelper.EncodeForJson(step.Error)},
-    ""Timestamp"": {DumpHelper.EncodeForJson(step.Timestamp)},
-    ""Icon"": {DumpHelper.EncodeForJson(step.Icon)},
-    ""HideTimeInTimestamp"": {DumpHelper.EncodeForJson(step.HideTimeInTimestamp)},
-    ""IsCompleted"": {DumpHelper.EncodeForJson(step.IsCompleted)},
+    ""Error"": {HCDumpHelper.EncodeForJson(step.Error)},
+    ""Timestamp"": {HCDumpHelper.EncodeForJson(step.Timestamp)},
+    ""Icon"": {HCDumpHelper.EncodeForJson(step.Icon)},
+    ""HideTimeInTimestamp"": {HCDumpHelper.EncodeForJson(step.HideTimeInTimestamp)},
+    ""IsCompleted"": {HCDumpHelper.EncodeForJson(step.IsCompleted)},
     ""Index"": {i}
 }}
 ");
@@ -432,10 +432,10 @@ namespace HealthCheck.Core.Modules.Tests.Models
         {
             var data = $@"
 {{
-    ""Id"": {DumpHelper.EncodeForJson(id)},
-    ""Type"": {DumpHelper.EncodeForJson(type)},
-    ""Name"": {DumpHelper.EncodeForJson(name)},
-    ""Description"": {DumpHelper.EncodeForJson(description)}
+    ""Id"": {HCDumpHelper.EncodeForJson(id)},
+    ""Type"": {HCDumpHelper.EncodeForJson(type)},
+    ""Name"": {HCDumpHelper.EncodeForJson(name)},
+    ""Description"": {HCDumpHelper.EncodeForJson(description)}
 }}";
 
             HCTestsModule.AllowFileDownloadForSession(type, id);
@@ -544,7 +544,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 return customName;
             }
 
-            var name = IOUtils.SanitizeFilename(title ?? $"{type}Data");
+            var name = HCIOUtils.SanitizeFilename(title ?? $"{type}Data");
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
 
             var extension = ".txt";

@@ -17,5 +17,7 @@ export enum HCModuleType {
 	SiteEvents = "SiteEvents", 
 	EndpointControl = "EndpointControl", 
 	Code = "Code", 
-	RequestLog = "RequestLog"
+	RequestLog = "RequestLog", 
+	DataRepeater = "DataRepeater", 
+	DataExport = "DataExport"
 }

@@ -27,7 +27,7 @@ namespace HealthCheck.WebUI.Services
         private static IDataStoreWithEntryId<TEntry> CreateDataStore(
             string filepath, Func<TEntry, TEntryId> idSelector, Action<TEntry, TEntryId> idSetter, TimeSpan? maxEntryAge)
         {
-            var store = new SimpleDataStoreWithId<TEntry, TEntryId>(
+            var store = new HCSimpleDataStoreWithId<TEntry, TEntryId>(
                 filepath,
                 serializer: new Func<TEntry, string>((e) => JsonConvert.SerializeObject(e)),
                 deserializer: new Func<string, TEntry>((row) => JsonConvert.DeserializeObject<TEntry>(row)),
@@ -39,7 +39,7 @@ namespace HealthCheck.WebUI.Services
             if (maxEntryAge != null)
             {
                 var minimumCleanupInterval = TimeSpan.FromMinutes(30);
-                store.RetentionOptions = new StorageRetentionOptions<TEntry>(
+                store.RetentionOptions = new HCStorageRetentionOptions<TEntry>(
                     (e) => e.InsertionTime ?? DateTimeOffset.MinValue,
                     maxAge: maxEntryAge.Value,
                     minimumCleanupInterval: (maxEntryAge.Value < minimumCleanupInterval) ? maxEntryAge.Value : minimumCleanupInterval,

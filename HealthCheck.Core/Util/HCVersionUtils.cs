@@ -22,7 +22,7 @@ namespace HealthCheck.Core.Util
         {
             try
             {
-                var filePath = Path.Combine(Path.GetTempPath(), IOUtils.SanitizeFilename($"_hc_deployed_version_{key}") + ".txt");
+                var filePath = Path.Combine(Path.GetTempPath(), HCIOUtils.SanitizeFilename($"_hc_deployed_version_{key}") + ".txt");
                 if (method == NewlyDeployedVersionCheckMethod.FileExistence)
                 {
                     var result = !File.Exists(filePath);

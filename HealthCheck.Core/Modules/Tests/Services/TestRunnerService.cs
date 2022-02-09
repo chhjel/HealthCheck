@@ -161,7 +161,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
             var results = new ConcurrentBag<TestResult>();
             foreach (var testClass in testClasses)
             {
-                var classInstance = IoCUtils.GetInstanceExt(testClass.ClassType, maxDepth: MaxIoCRecursiveDepth);
+                var classInstance = HCIoCUtils.GetInstanceExt(testClass.ClassType, maxDepth: MaxIoCRecursiveDepth);
                 var includedTests = testClass.Tests.Where(x => testFilter?.Invoke(x) != false).ToList();
 
                 var defaultAllowsParallel = testClass.DefaultAllowParallelExecution;
@@ -239,7 +239,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
                     instance = testClassInstance;
                     if (instance == null)
                     {
-                        var instanceResult = IoCUtils.GetInstanceExtWithDetails(test.ParentClass.ClassType, maxDepth: MaxIoCRecursiveDepth);
+                        var instanceResult = HCIoCUtils.GetInstanceExtWithDetails(test.ParentClass.ClassType, maxDepth: MaxIoCRecursiveDepth);
                         instance = instanceResult.Instance;
                         instanceError = instanceResult.ErrorDetails;
                     }
@@ -275,7 +275,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
 
                     if (instance == null)
                     {
-                        var instanceResult = IoCUtils.GetInstanceExtWithDetails(test.ClassProxyConfig.TargetClassType, maxDepth: MaxIoCRecursiveDepth);
+                        var instanceResult = HCIoCUtils.GetInstanceExtWithDetails(test.ClassProxyConfig.TargetClassType, maxDepth: MaxIoCRecursiveDepth);
                         instance = instanceResult.Instance;
                         instanceError = instanceResult.ErrorDetails;
                     }
@@ -350,7 +350,7 @@ namespace HealthCheck.Core.Modules.Tests.Services
             }
             catch (Exception ex)
             {
-                var extraDetails = ExceptionUtils.GetExceptionDetails(ex);
+                var extraDetails = HCExceptionUtils.GetExceptionDetails(ex);
                 return new TestResult()
                 {
                     Test = test,

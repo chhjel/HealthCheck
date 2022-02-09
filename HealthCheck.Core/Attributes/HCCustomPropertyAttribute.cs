@@ -28,7 +28,7 @@ namespace HealthCheck.Core.Attributes
         /// </summary>
         public HCUIHint UIHints { get; set; }
 
-        private static readonly StringConverter _stringConverter = new();
+        private static readonly HCStringConverter _stringConverter = new();
 
         /// <summary>
         /// Create flags options for frontend consumption.
@@ -67,7 +67,7 @@ namespace HealthCheck.Core.Attributes
                 return new List<HCBackendInputConfig>();
             }
 
-            var instance = ReflectionUtils.TryActivate(type);
+            var instance = HCReflectionUtils.TryActivate(type);
             return type.GetProperties()
                 .Select(x => CreateInputConfig(x, instance, modifier))
                 .ToList();

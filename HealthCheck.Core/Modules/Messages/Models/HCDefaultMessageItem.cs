@@ -130,7 +130,7 @@ namespace HealthCheck.Core.Modules.Messages.Models
         /// </summary>
         public HCDefaultMessageItem SetError(Exception exception)
         {
-            ErrorMessage = (exception == null) ? null : ExceptionUtils.GetFullExceptionDetails(exception);
+            ErrorMessage = (exception == null) ? null : HCExceptionUtils.GetFullExceptionDetails(exception);
             return this;
         }
     }

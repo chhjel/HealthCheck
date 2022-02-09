@@ -28,7 +28,7 @@ namespace HealthCheck.Core.Modules.Tests
         /// <summary>
         /// Handles conversion from stringified test input to parameter types.
         /// </summary>
-        public StringConverter ParameterConverter { get; } = new StringConverter();
+        public HCStringConverter ParameterConverter { get; } = new HCStringConverter();
 
         private TestRunnerService TestRunner { get; } = new TestRunnerService();
         private TestDiscoveryService TestDiscoverer { get; }
@@ -311,7 +311,7 @@ namespace HealthCheck.Core.Modules.Tests
         /// <summary>
         /// Stores the last 100 allowed download type/ids.
         /// </summary>
-        protected static readonly SimpleMemoryCache<List<string[]>> AllowedDownloadsCache = new()
+        protected static readonly HCSimpleMemoryCache<List<string[]>> AllowedDownloadsCache = new()
         {
             MaxCount = 100,
             DefaultDuration = TimeSpan.FromMinutes(10)

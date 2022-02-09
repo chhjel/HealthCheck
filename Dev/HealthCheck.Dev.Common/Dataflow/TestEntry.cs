@@ -10,10 +10,10 @@ namespace HealthCheck.Dev.Common.Dataflow
         public DateTimeOffset? InsertionTime { get; set; }
 
         public string Icon =>
-            (InsertionTime == null) ? MaterialIcons.AllIcons.Error :
+            (InsertionTime == null) ? HCMaterialIcons.AllIcons.Error :
                 (InsertionTime.Value.Ticks % 2 == 0)
-                ? MaterialIcons.Grouped.Navigation.Check
-                : MaterialIcons.Grouped.Navigation.Close;
+                ? HCMaterialIcons.Grouped.Navigation.Check
+                : HCMaterialIcons.Grouped.Navigation.Close;
         public string Code { get; set; }
         public string Name { get; set; }
         public string PreformattedTest => "\tSomething\n\t\there!";

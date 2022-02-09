@@ -1931,12 +1931,12 @@ Cache can optionally be set to null in constructor if not wanted, or the include
 Various utility classes can be found below the `HealthCheck.Core.Util` namespace.
 
 * `HCSensitiveDataUtils` - Util methods for stripping numbers of given lengths, emails etc from texts.
-* `IPAddressUtils` - Parse strings to IP address models.
-* `ExceptionUtils` - Get a summary of exceptions to include in test results.
-* `ConnectivityUtils` - Ping or send webrequests to check if a host is alive and return `TestResult` objects.
-* `TimeUtils` - Prettify durations.
-* `IoCUtils` -  Get instances of types with partial IoC etc.
-* `AsyncUtils` - Invoke async through reflection, run async synchronous.
+* `HCIPAddressUtils` - Parse strings to IP address models.
+* `HCExceptionUtils` - Get a summary of exceptions to include in test results.
+* `HCConnectivityUtils` - Ping or send webrequests to check if a host is alive and return `TestResult` objects.
+* `HCTimeUtils` - Prettify durations.
+* `HCIoCUtils` -  Get instances of types with partial IoC etc.
+* `HCAsyncUtils` - Invoke async through reflection, run async synchronous.
 * `HCRequestData` - Quickly get/set some data in request items.
 * Memory loggers for any interface can be created at runtime by using `HCLogTypeBuilder.CreateMemoryLoggerFor<TInterface>` included in the nuget package `HealthCheck.Utility.Reflection`.
 * `HealthCheck.Core.Config.HCGlobalConfig` contains some global static options that can be configured at startup:

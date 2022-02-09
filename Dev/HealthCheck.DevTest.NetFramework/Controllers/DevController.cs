@@ -146,10 +146,10 @@ namespace HealthCheck.DevTest.Controllers
                 );
             UseModule(new HCMetricsModule(new HCMetricsModuleOptions()
             {
-                Storage = IoCUtils.GetInstance<IHCMetricsStorage>()
+                Storage = HCIoCUtils.GetInstance<IHCMetricsStorage>()
             }));
             UseModule(new HCReleaseNotesModule(new HCReleaseNotesModuleOptions {
-                ReleaseNotesProvider = IoCUtils.GetInstance<IHCReleaseNotesProvider>()
+                ReleaseNotesProvider = HCIoCUtils.GetInstance<IHCReleaseNotesProvider>()
             }));
             UseModule(new HCMessagesModule(new HCMessagesModuleOptions() { MessageStorage = _memoryMessageStore }
                 .DefineInbox("mail", "Mail", "All sent email ends up here.")

@@ -14,7 +14,7 @@ namespace HealthCheck.WebUI.Services
     /// </summary>
     public class FlatFileSiteEventStorage : ISiteEventStorage
     {
-        private SimpleDataStoreWithId<SiteEvent, Guid> Store { get; set; }
+        private HCSimpleDataStoreWithId<SiteEvent, Guid> Store { get; set; }
 
         /// <summary>
         /// Create a new <see cref="FlatFileSiteEventStorage"/> with the given file path.
@@ -26,7 +26,7 @@ namespace HealthCheck.WebUI.Services
             TimeSpan? maxEventAge = null,
             bool delayFirstCleanup = true)
         {
-            Store = new SimpleDataStoreWithId<SiteEvent, Guid>(
+            Store = new HCSimpleDataStoreWithId<SiteEvent, Guid>(
                 filepath,
                 serializer: new Func<SiteEvent, string>((e) => JsonConvert.SerializeObject(e)),
                 deserializer: new Func<string, SiteEvent>((row) => JsonConvert.DeserializeObject<SiteEvent>(row)),
@@ -38,7 +38,7 @@ namespace HealthCheck.WebUI.Services
             if (maxEventAge != null)
             {
                 var minimumCleanupInterval = TimeSpan.FromHours(4);
-                Store.RetentionOptions = new StorageRetentionOptions<SiteEvent>(
+                Store.RetentionOptions = new HCStorageRetentionOptions<SiteEvent>(
                     (item) => item.Timestamp,
                     maxAge: maxEventAge.Value,
                     minimumCleanupInterval: (maxEventAge.Value < minimumCleanupInterval) ? maxEventAge.Value : minimumCleanupInterval,

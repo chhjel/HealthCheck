@@ -167,7 +167,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
 
             if (exception != null)
             {
-                appendError(ExceptionUtils.GetFullExceptionDetails(exception));
+                appendError(HCExceptionUtils.GetFullExceptionDetails(exception));
             }
 
             if (includeHCRequestErrors)
@@ -207,7 +207,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
             Error = error;
             if (exception != null)
             {
-                Error += $"\n\n{ExceptionUtils.GetFullExceptionDetails(exception)}";
+                Error += $"\n\n{HCExceptionUtils.GetFullExceptionDetails(exception)}";
             }
             LastErrorAt = DateTimeOffset.Now;
 

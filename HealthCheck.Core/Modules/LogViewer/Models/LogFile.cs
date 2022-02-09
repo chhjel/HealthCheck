@@ -16,7 +16,7 @@ namespace HealthCheck.Core.Modules.LogViewer.Models
             {
                 if (_firstEntryTimeCache == null)
                 {
-                    var firstLine = IOUtils.ReadLines(FilePath).FirstOrDefault(x => !string.IsNullOrWhiteSpace(x));
+                    var firstLine = HCIOUtils.ReadLines(FilePath).FirstOrDefault(x => !string.IsNullOrWhiteSpace(x));
                     _firstEntryTimeCache = _entryParser.ParseEntryDate(firstLine) ?? DateTimeOffset.MaxValue;
                 }
                 return _firstEntryTimeCache.Value;
