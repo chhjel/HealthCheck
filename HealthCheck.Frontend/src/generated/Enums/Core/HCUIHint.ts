@@ -7,5 +7,6 @@ export enum HCUIHint {
 	NotNull = "NotNull", 
 	TextArea = "TextArea", 
 	ReadOnlyList = "ReadOnlyList", 
-	FullWidth = "FullWidth"
+	FullWidth = "FullWidth", 
+	CodeArea = "CodeArea"
 }

@@ -46,7 +46,7 @@ namespace HealthCheck.WebUI.Config
 #if NETFRAMEWORK
                 HCGlobalConfig.GetCurrentSessionId = () => HttpContext.Current?.Session?.SessionID;
 #elif NETCORE
-                HCGlobalConfig.GetCurrentSessionId = () => { try { return IoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext?.Session?.Id; } catch (Exception) { return null; } };
+                HCGlobalConfig.GetCurrentSessionId = () => { try { return HCIoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext?.Session?.Id; } catch (Exception) { return null; } };
 #endif
             }
         }
@@ -65,7 +65,7 @@ namespace HealthCheck.WebUI.Config
         private const string _hcMetricsItemsContextKey = "___hc_metrics_context";
         private const string _hcMetricsItemsAllowedKey = "___hc_metrics_context_allowed";
 #endif
-        private static readonly DelayedAutoDisposer<HCMetricsContext> _staticMetricsContext = new(TimeSpan.FromSeconds(5));
+        private static readonly HCDelayedAutoDisposer<HCMetricsContext> _staticMetricsContext = new(TimeSpan.FromSeconds(5));
         private static HCMetricsContext DefaultHCMetricsContextFactory()
         {
 #if NETFRAMEWORK
@@ -96,7 +96,7 @@ namespace HealthCheck.WebUI.Config
                 return items[_hcMetricsItemsContextKey] as HCMetricsContext;
             }
 #elif NETCORE
-            var context = IoCUtils.GetInstance<IHttpContextAccessor>();
+            var context = HCIoCUtils.GetInstance<IHttpContextAccessor>();
             var items = context?.HttpContext?.Items;
             if (items != null)
             {

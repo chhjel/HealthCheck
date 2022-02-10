@@ -21,7 +21,7 @@ namespace HealthCheck.WebUI.Util
 #if NETFULL
                 return HttpContext.Current?.Items?[key] is bool value && value;
 #elif NETCORE
-                var httpContext = IoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext;
+                var httpContext = HCIoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext;
                 return httpContext?.Items?[key] is bool value && value;
 #else
                 _ = key;
@@ -38,7 +38,7 @@ namespace HealthCheck.WebUI.Util
                     items[key] = value;
                 }
 #elif NETCORE
-                var httpContext = IoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext;
+                var httpContext = HCIoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext;
                 var items = httpContext?.Items;
                 if (items != null)
                 {
@@ -68,7 +68,7 @@ namespace HealthCheck.WebUI.Util
                 }
             }
 #elif NETCORE
-            var httpContext = IoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext;
+            var httpContext = HCIoCUtils.GetInstance<IHttpContextAccessor>()?.HttpContext;
             var items = httpContext?.Items;
             if (items != null)
             {

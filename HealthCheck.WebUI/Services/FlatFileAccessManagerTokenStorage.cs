@@ -12,7 +12,7 @@ namespace HealthCheck.WebUI.Services
     /// </summary>
     public class FlatFileAccessManagerTokenStorage : IAccessManagerTokenStorage
     {
-        private SimpleDataStoreWithId<HCAccessToken, Guid> Store { get; set; }
+        private HCSimpleDataStoreWithId<HCAccessToken, Guid> Store { get; set; }
 
         /// <summary>
         /// Create a new <see cref="FlatFileAccessManagerTokenStorage"/> with the given file path.
@@ -20,7 +20,7 @@ namespace HealthCheck.WebUI.Services
         /// <param name="filepath">Filepath to where the data will be stored.</param>
         public FlatFileAccessManagerTokenStorage(string filepath)
         {
-            Store = new SimpleDataStoreWithId<HCAccessToken, Guid>(
+            Store = new HCSimpleDataStoreWithId<HCAccessToken, Guid>(
                 filepath,
                 serializer: new Func<HCAccessToken, string>((e) => JsonConvert.SerializeObject(e)),
                 deserializer: new Func<string, HCAccessToken>((row) => JsonConvert.DeserializeObject<HCAccessToken>(row)),

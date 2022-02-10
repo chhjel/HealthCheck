@@ -33,7 +33,7 @@ namespace HealthCheck.WebUI.Services
         public TimeSpan MaxMessageAge { get; set; } = TimeSpan.FromDays(7);
 
         private readonly object _storeLock = new();
-        private readonly Dictionary<string, SimpleCachedDataStore<HCDefaultMessageItem>> _inboxStores
+        private readonly Dictionary<string, HCSimpleCachedDataStore<HCDefaultMessageItem>> _inboxStores
             = new();
         private readonly string _baseFilepath;
         private readonly IJsonSerializer _jsonSerializer = new NewtonsoftJsonSerializer();
@@ -65,7 +65,7 @@ namespace HealthCheck.WebUI.Services
             }
         }
 
-        private SimpleCachedDataStore<HCDefaultMessageItem> GetOrCreateStoreFor(string inboxId)
+        private HCSimpleCachedDataStore<HCDefaultMessageItem> GetOrCreateStoreFor(string inboxId)
         {
             lock (_storeLock)
             {
@@ -74,8 +74,8 @@ namespace HealthCheck.WebUI.Services
                     return _inboxStores[inboxId];
                 }
 
-                var filepath = Path.Combine(_baseFilepath, IOUtils.SanitizeFilename($"hc_messages_{inboxId}.json"));
-                var store = new SimpleCachedDataStore<HCDefaultMessageItem>(_jsonSerializer, filepath)
+                var filepath = Path.Combine(_baseFilepath, HCIOUtils.SanitizeFilename($"hc_messages_{inboxId}.json"));
+                var store = new HCSimpleCachedDataStore<HCDefaultMessageItem>(_jsonSerializer, filepath)
                 {
                     MaxMemoryItemCount = MaxMessagesStoredPerInbox,
                     MaxStoredItemCount = MaxMessagesStoredPerInbox,

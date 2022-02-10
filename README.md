@@ -1692,16 +1692,11 @@ An integrated login dialog is included, but custom authentication logic must be 
     ```csharp
     protected override void ConfigureAccess(HttpRequestBase request,AccessConfig<RuntimeTestAccessRole> config) {
         ...
-        config.IntegratedLoginConfig = new HCIntegratedLoginConfig
-        {
-            IntegratedLoginEndpoint = "/hclogin/login",
-            // Optionally require 2FA input
-            TwoFactorCodeInputMode = HCIntegratedLoginConfig.HCLoginTwoFactorCodeInputMode.Required,
-            // Optionally show how much time left of TOTP codes
-            Current2FACodeExpirationTime = HCMfaTotpUtil.GetCurrentCodeExpirationTime(),
-            // Optionally allow sending codes to the user
-            Send2FACodeEndpoint = "/hclogin/Request2FACode"
-        };
+        config.IntegratedLoginConfig = new HCIntegratedLoginConfig("/hclogin/login")
+            // Optionally require 2FA input using OTP, TOTP or WebAuthn
+            .EnableOneTimePasswordWithCodeRequest("/hclogin/Request2FACode")
+            .EnableTOTP() // <-- requires separate nuget package below
+            .EnableWebAuthn();
     }
     ```
 
@@ -1713,6 +1708,7 @@ To add TOTP MFA you can add the [![Nuget](https://img.shields.io/nuget/v/HealthC
 
 * For it to work you need to store a 2FA secret per user to validate the codes against. The secret must be a base32 string and can be generated using e.g. `HCMfaTotpUtil.GenerateOTPSecret()`.
 * Validate codes using the `HCMfaTotpUtil.ValidateTotpCode(userSecret, code)` method.
+* Enable on IntegratedLoginConfig easily by using the extension method `.EnableTOTP()`
 * Bitwarden and most authenticator apps supports TOTP and can be used to generate codes from the generated secret.
 
 ### MFA: WebAuthn/FIDO2
@@ -1720,6 +1716,8 @@ To add TOTP MFA you can add the [![Nuget](https://img.shields.io/nuget/v/HealthC
 To add WebAuthn MFA you can add the [![Nuget](https://img.shields.io/nuget/v/HealthCheck.WebUI.MFA.WebAuthn?label=HealthCheck.WebUI.MFA.WebAuthn&logo=nuget)](https://www.nuget.org/packages/HealthCheck.WebUI.MFA.WebAuthn) package.
 
 You can use the included `HCWebAuthnHelper` to register FIDO2 keys and create data secrets to store on your user objects.
+
+* Enable on IntegratedLoginConfig easily by using the method `.EnableWebAuthn()`
 
 <details><summary>Example setup</summary>
 <p>
@@ -1931,12 +1929,12 @@ Cache can optionally be set to null in constructor if not wanted, or the include
 Various utility classes can be found below the `HealthCheck.Core.Util` namespace.
 
 * `HCSensitiveDataUtils` - Util methods for stripping numbers of given lengths, emails etc from texts.
-* `IPAddressUtils` - Parse strings to IP address models.
-* `ExceptionUtils` - Get a summary of exceptions to include in test results.
-* `ConnectivityUtils` - Ping or send webrequests to check if a host is alive and return `TestResult` objects.
-* `TimeUtils` - Prettify durations.
-* `IoCUtils` -  Get instances of types with partial IoC etc.
-* `AsyncUtils` - Invoke async through reflection, run async synchronous.
+* `HCIPAddressUtils` - Parse strings to IP address models.
+* `HCExceptionUtils` - Get a summary of exceptions to include in test results.
+* `HCConnectivityUtils` - Ping or send webrequests to check if a host is alive and return `TestResult` objects.
+* `HCTimeUtils` - Prettify durations.
+* `HCIoCUtils` -  Get instances of types with partial IoC etc.
+* `HCAsyncUtils` - Invoke async through reflection, run async synchronous.
 * `HCRequestData` - Quickly get/set some data in request items.
 * Memory loggers for any interface can be created at runtime by using `HCLogTypeBuilder.CreateMemoryLoggerFor<TInterface>` included in the nuget package `HealthCheck.Utility.Reflection`.
 * `HealthCheck.Core.Config.HCGlobalConfig` contains some global static options that can be configured at startup:

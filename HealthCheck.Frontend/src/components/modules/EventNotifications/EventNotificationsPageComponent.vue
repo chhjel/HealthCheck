@@ -20,18 +20,22 @@
                 {{ loadStatus.errorMessage }}
                 </v-alert>
 
-                <v-btn :disabled="!allowConfigChanges"
-                    @click="onAddNewConfigClicked"
-                    class="mb-3">
-                    <v-icon size="20px" class="mr-2">add</v-icon>
-                    Add new
-                </v-btn>
+                <div class="top-actions">
+                    <v-btn :disabled="!allowConfigChanges"
+                        @click="onAddNewConfigClicked"
+                        class="mb-3 mr-2">
+                        <v-icon size="20px" class="mr-2">add</v-icon>
+                        Add new
+                    </v-btn>
 
-                <v-btn v-if="HasAccessToEditEventDefinitions"
-                    @click="editDefinitionsDialogVisible = true"
-                    class="mb-3 ml-2 right">
-                    Edit payload definitions
-                </v-btn>
+                    <v-spacer />
+
+                    <v-btn v-if="HasAccessToEditEventDefinitions"
+                        @click="editDefinitionsDialogVisible = true"
+                        class="mb-3">
+                        Edit payload definitions
+                    </v-btn>
+                </div>
 
                 <block-component
                     v-for="(config, cindex) in configs"
@@ -39,67 +43,73 @@
                     class="config-list-item"
                     >
                     <div class="config-list-item--inner">
-                        <v-tooltip bottom>
-                            <template v-slot:activator="{ on }">
-                            <v-switch v-on="on"
-                                v-model="config.Enabled"
-                                color="secondary"
-                                style="flex: 0"
-                                @click="setConfigEnabled(config, !config.Enabled)"
-                                ></v-switch>
-                                <!-- :disabled="!allowConfigChanges" -->
-                            </template>
-                            <span>Enable or disable this configuration</span>
-                        </v-tooltip>
-                        
-                        <div class="config-list-item--rule"
-                            @click="showConfig(config)"
-                            >
-                            <span class="config-list-item--operator">IF</span>
-                            <span v-for="(condition, condIndex) in describeConditions(config)"
-                                :key="`condition-${condIndex}`">
-                                <span class="config-list-item--condition">
-                                    {{ condition.description }}
+                        <div class="config-list-item--switch-and-summary">
+                            <v-tooltip bottom>
+                                <template v-slot:activator="{ on }">
+                                <v-switch v-on="on"
+                                    v-model="config.Enabled"
+                                    color="secondary"
+                                    style="flex: 0"
+                                    @click="setConfigEnabled(config, !config.Enabled)"
+                                    ></v-switch>
+                                    <!-- :disabled="!allowConfigChanges" -->
+                                </template>
+                                <span>Enable or disable this configuration</span>
+                            </v-tooltip>
+                            
+                            <div class="config-list-item--rule"
+                                @click="showConfig(config)"
+                                >
+                                <span class="config-list-item--operator">IF</span>
+                                <span v-for="(condition, condIndex) in describeConditions(config)"
+                                    :key="`condition-${condIndex}`">
+                                    <span class="config-list-item--condition">
+                                        {{ condition.description }}
+                                    </span>
+                                    <span v-if="condIndex == describeConditions(config).length - 2"> and </span>
+                                    <span v-else-if="condIndex < describeConditions(config).length - 1">, </span>
                                 </span>
-                                <span v-if="condIndex == describeConditions(config).length - 2"> and </span>
-                                <span v-else-if="condIndex < describeConditions(config).length - 1">, </span>
-                            </span>
 
-                            <br />
-                            <span class="config-list-item--operator">THEN</span>
-                            <span v-if="describeActions(config).length == 0">&lt;do nothing&gt;</span>
-                            <span v-else>notify using</span>
-                            <span v-for="(action, actIndex) in describeActions(config)"
-                                :key="`action-${actIndex}`">
-                                <span class="config-list-item--action">
-                                    {{ action.description }}
+                                <br />
+                                <span class="config-list-item--operator">THEN</span>
+                                <span v-if="describeActions(config).length == 0">&lt;do nothing&gt;</span>
+                                <span v-else>notify using</span>
+                                <span v-for="(action, actIndex) in describeActions(config)"
+                                    :key="`action-${actIndex}`">
+                                    <span class="config-list-item--action">
+                                        {{ action.description }}
+                                    </span>
+                                    <span v-if="actIndex == describeActions(config).length - 2"> and </span>
+                                    <span v-else-if="actIndex < describeActions(config).length - 1">, </span>
                                 </span>
-                                <span v-if="actIndex == describeActions(config).length - 2"> and </span>
-                                <span v-else-if="actIndex < describeActions(config).length - 1">, </span>
-                            </span>
+                            </div>
                         </div>
                         
-                        <v-tooltip bottom v-if="getConfigWarning(config) != null">
-                            <template v-slot:activator="{ on }">
-                                <v-icon style="cursor: help;" color="warning" v-on="on">warning</v-icon>
-                            </template>
-                            <span>{{getConfigWarning(config)}}</span>
-                        </v-tooltip>
+                        <v-spacer />
 
-                        <v-tooltip bottom v-if="configIsOutsideLimit(config)">
-                            <template v-slot:activator="{ on }">
-                                <v-icon v-on="on" style="cursor: help;">timer_off</v-icon>
-                            </template>
-                            <span>This configs' limits has been reached</span>
-                        </v-tooltip>
+                        <div class="config-list-item--metadata">
+                            <v-tooltip bottom v-if="getConfigWarning(config) != null">
+                                <template v-slot:activator="{ on }">
+                                    <v-icon style="cursor: help;" color="warning" v-on="on">warning</v-icon>
+                                </template>
+                                <span>{{getConfigWarning(config)}}</span>
+                            </v-tooltip>
 
-                        <v-tooltip bottom>
-                            <template v-slot:activator="{ on }">
-                                <v-icon style="cursor: help;" v-on="on">person</v-icon>
-                                <code style="color: var(--v-primary-base); cursor: help;" v-on="on">{{ config.LastChangedBy }}</code>
-                            </template>
-                            <span>Last modified by '{{ config.LastChangedBy }}'</span>
-                        </v-tooltip>
+                            <v-tooltip bottom v-if="configIsOutsideLimit(config)">
+                                <template v-slot:activator="{ on }">
+                                    <v-icon v-on="on" style="cursor: help;">timer_off</v-icon>
+                                </template>
+                                <span>This configs' limits has been reached</span>
+                            </v-tooltip>
+
+                            <v-tooltip bottom>
+                                <template v-slot:activator="{ on }">
+                                    <v-icon style="cursor: help;" v-on="on">person</v-icon>
+                                    <code style="color: var(--v-primary-base); cursor: help;" v-on="on">{{ config.LastChangedBy }}</code>
+                                </template>
+                                <span>Last modified by '{{ config.LastChangedBy }}'</span>
+                            </v-tooltip>
+                        </div>
                     </div>
                 </block-component>
 
@@ -587,7 +597,15 @@ export default class EventNotificationsPageComponent extends Vue {
     }
 }
 </script>
-
+<style lang="scss">
+.config-list-item {
+    .block-component--content {
+        @media (max-width: 960px) {
+            padding-right: 12px !important;
+        }
+    }
+}
+</style>
 <style scoped lang="scss">
 .current-config-dialog__title {
     font-size: 34px;
@@ -598,9 +616,19 @@ export default class EventNotificationsPageComponent extends Vue {
     
     .config-list-item--inner {
         display: flex;
-        align-items: center;
-        flex-direction: row;
         flex-wrap: nowrap;
+        flex-direction: column;
+        @media (min-width: 960px) {
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .config-list-item--switch-and-summary {
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+            flex-wrap: nowrap;
+        }
 
         .config-list-item--rule {
             flex: 1;
@@ -618,11 +646,22 @@ export default class EventNotificationsPageComponent extends Vue {
             .config-list-item--action {
                 color: var(--v-secondary-base);
             }
-            /* .config-list-item--condition,
-            .config-list-item--action {
-                font-weight: 600;
-            } */
+        }
+
+        .config-list-item--metadata {
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+            flex-wrap: nowrap;
+
+            @media (max-width: 960px) {
+                margin-top: 12px;
+            }
         }
     }
+}
+.top-actions {
+    display: flex;
+    flex-wrap: wrap;
 }
 </style>

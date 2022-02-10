@@ -30,6 +30,10 @@
             @isAnyJson="notifyIsAnyJson()"
             v-on:disableInputHeader="disableInputHeader">
         </component>
+
+        <div class="parameter-footer" v-if="hasFeedback">
+            <div class="parameter-feedback">{{ feedback }}</div>
+        </div>
     </div>
 </template>
 
@@ -119,6 +123,9 @@ export default class BackendInputComponent extends Vue {
     @Prop({ required: false, default: null })
     referenceValueFactoryConfig!: ReferenceValueFactoryConfigViewModel | null;
 
+    @Prop({ required: false, default: null })
+    feedback!: string | null;
+
     showInputHeader: boolean = true;
     showDescription: boolean = false;
     localValue: string = "";
@@ -171,6 +178,10 @@ export default class BackendInputComponent extends Vue {
             return this.config.Name;
         }
         return this.forceName;
+    }
+
+    get hasFeedback(): boolean {
+        return this.feedback != null && this.feedback.length > 0;
     }
 
     get resolvedType(): string {
@@ -302,6 +313,11 @@ export default class BackendInputComponent extends Vue {
 }
 .parameter-action-icon:hover {
     color: #1976d2;
+}
+.parameter-feedback {
+    font-size: small;
+    font-weight: 600;
+    color: var(--v-error-darken1);
 }
 </style>
 

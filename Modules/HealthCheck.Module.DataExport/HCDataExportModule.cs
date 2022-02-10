@@ -24,7 +24,7 @@ namespace HealthCheck.Module.DataExport
             => Options?.Service?.GetStreams()?.SelectMany(x => x.Categories ?? new())?.ToList() ?? new List<string>();
 
         private HCDataExportModuleOptions Options { get; }
-        private static readonly SimpleMemoryCache _allowedExports = new() { MaxCount = 1000 };
+        private static readonly HCSimpleMemoryCache _allowedExports = new() { MaxCount = 1000 };
         private class AllowedExportData
         {
             public Guid Key { get; set; }
@@ -163,7 +163,7 @@ namespace HealthCheck.Module.DataExport
                 return new HCDataExportQueryResponseViewModel
                 {
                     ErrorMessage = ex.Message,
-                    ErrorDetails = ExceptionUtils.GetFullExceptionDetails(ex)
+                    ErrorDetails = HCExceptionUtils.GetFullExceptionDetails(ex)
                 };
             }
         }
@@ -275,7 +275,7 @@ namespace HealthCheck.Module.DataExport
             byte[] content = null;
             try
             {
-                content = AsyncUtils.RunSync(() => CreateExportContentAsync(data, exporter, stream.ExportBatchSize));
+                content = HCAsyncUtils.RunSync(() => CreateExportContentAsync(data, exporter, stream.ExportBatchSize));
             }
             catch (Exception ex)
             {
@@ -292,12 +292,12 @@ namespace HealthCheck.Module.DataExport
             // Create filename
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
             var fileExtension = exporter.FileExtension ?? ".txt";
-            var fileName = $"{IOUtils.SanitizeFilename(stream.StreamDisplayName)}_{timestamp}{fileExtension}";
+            var fileName = $"{HCIOUtils.SanitizeFilename(stream.StreamDisplayName)}_{timestamp}{fileExtension}";
 
             context.AddAuditEvent("Data exported", streamName)
                 .AddClientConnectionDetails(context)
                 .AddDetail("File Name", fileName)
-                .AddDetail("Filesize", $"{IOUtils.PrettifyFileSize(content.Length)}");
+                .AddDetail("Filesize", $"{HCIOUtils.PrettifyFileSize(content.Length)}");
 
             return HealthCheckFileDownloadResult.CreateFromBytes(fileName, content);
         }

@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Config;
+﻿using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Config;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Modules.Tests.Services;
@@ -107,9 +108,9 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         /// </summary>
         public TestParameterViewModel CreateViewModel(TestParameter testParameter, HCTestsModuleOptions options)
         {
-            var stringConverter = new StringConverter();
+            var stringConverter = new HCStringConverter();
             var paramType = testParameter.ParameterType;
-            string type = CreateParameterTypeName(paramType);
+            string type = HCCustomPropertyAttribute.CreateParameterTypeName(paramType);
 
             var hidden = testParameter.IsOut
                 || testParameter.ParameterType.IsGenericParameter
@@ -153,27 +154,6 @@ namespace HealthCheck.Core.Modules.Tests.Factories
             };
         }
 
-        private static readonly Dictionary<string, string> _inputTypeAliases = new()
-        {
-            { "IFormFile", "HttpPostedFileBase" },
-            { "Byte[]", "HttpPostedFileBase" }
-        };
-        private string CreateParameterTypeName(Type type)
-        {
-            var typeName = type.GetFriendlyTypeName(_inputTypeAliases);
-            if (type.IsEnum)
-            {
-                typeName = EnumUtils.IsTypeEnumFlag(type) ? "FlaggedEnum" : "Enum";
-            }
-            else if (type.IsGenericType
-                && type.GetGenericTypeDefinition() == typeof(List<>)
-                && type.GetGenericArguments()[0].IsEnum)
-            {
-                var innerType = EnumUtils.IsTypeEnumFlag(type.GetGenericArguments()[0]) ? "FlaggedEnum" : "Enum";
-                typeName = $"List<{innerType}>";
-            }
-            return typeName;
-        }
 
         /// <summary>
         /// Create template values for any unsupported types.
@@ -233,7 +213,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
 
                 return new TestParameterTemplateViewModel
                 {
-                    Type = CreateParameterTypeName(x.ParameterType),
+                    Type = HCCustomPropertyAttribute.CreateParameterTypeName(x.ParameterType),
                     Template = template ?? "{\n}"
                 };
             }).ToList();
@@ -245,6 +225,24 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         public TestResultViewModel CreateViewModel(TestResult testResult)
         {
             var dumps = testResult.Data.Select(x => CreateViewModel(x)).ToList();
+            var parameterFeedback = new Dictionary<int, string>();
+            if (testResult.FeedbackPerParameter != null)
+            {
+                foreach (var parameter in testResult.Test.Parameters)
+                {
+                    var feedback = testResult.FeedbackPerParameter(parameter.Id);
+                    if (!string.IsNullOrWhiteSpace(feedback))
+                    {
+                        var index = testResult.Test.Parameters.FirstOrDefault(x => x.Id == parameter.Id)?.Index ?? -1;
+                        parameterFeedback[index] = feedback;
+                    }
+                }
+            }
+            foreach (var kvp in testResult.ParameterFeedback)
+            {
+                var index = testResult.Test.Parameters.FirstOrDefault(x => x.Id == kvp.Key)?.Index ?? -1;
+                parameterFeedback[index] = kvp.Value;
+            }
 
             var vm = new TestResultViewModel()
             {
@@ -256,6 +254,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 StackTrace = testResult.StackTrace,
                 AllowExpandData = testResult.AllowExpandData,
                 DisplayClean = testResult.DisplayClean,
+                ParameterFeedback = parameterFeedback,
                 ExpandDataByDefault = testResult.ExpandDataByDefault || !testResult.AllowExpandData,
                 DurationInMilliseconds = testResult.DurationInMilliseconds,
                 Data = dumps

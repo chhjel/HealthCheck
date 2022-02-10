@@ -168,7 +168,7 @@ namespace HealthCheck.Module.DynamicCodeExecution
 
                 // Invoke custom main method
                 type = compilerResult.CompiledAssembly.GetType("CodeTesting.EntryClass");
-                instance = IoCUtils.GetInstanceExt(type);
+                instance = HCIoCUtils.GetInstanceExt(type);
                 method = type.GetMethod("Main");
             }
             catch (Exception ex)
@@ -196,7 +196,7 @@ namespace HealthCheck.Module.DynamicCodeExecution
                 if (returnType == typeof(Task)
                     || (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>)))
                 {
-                    rawResult = AsyncUtils.InvokeAsyncSync(method, instance, null);
+                    rawResult = HCAsyncUtils.InvokeAsyncSync(method, instance, null);
                     if (returnType == typeof(Task))
                     {
                         rawResult = null;

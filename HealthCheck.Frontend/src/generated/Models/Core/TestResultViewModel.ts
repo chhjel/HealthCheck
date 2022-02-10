@@ -16,6 +16,7 @@ export interface TestResultViewModel
 	ExpandDataByDefault: boolean;
 	AllowExpandData: boolean;
 	DisplayClean: boolean;
+	ParameterFeedback: { [key:number]: string };
 	Data: TestResultDataDumpViewModel[];
 	DurationInMilliseconds: number;
 }

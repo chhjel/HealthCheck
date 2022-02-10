@@ -3,7 +3,7 @@ using System;
 
 namespace HealthCheck.Core.Tests.Storage.Implementations
 {
-    public class TestCache : SimpleMemoryCache
+    public class TestCache : HCSimpleMemoryCache
 	{
 		public int CreateEntryCounter { get; set; }
 		public int RemoveEntryCounter { get; set; }

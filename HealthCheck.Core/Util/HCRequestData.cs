@@ -168,7 +168,7 @@ namespace HealthCheck.Core.Util
                 x.Errors.Add(new HCRequestDataErrorDetails
                 {
                     Error = error,
-                    Details = ExceptionUtils.GetFullExceptionDetails(ex, returnNullIfNull: true)
+                    Details = HCExceptionUtils.GetFullExceptionDetails(ex, returnNullIfNull: true)
                 });
             });
 

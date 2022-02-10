@@ -41,7 +41,7 @@ namespace HealthCheck.Episerver.Storage
         protected override string CacheKey => $"__hc_{ContainerIdWithFallback}";
 
         private readonly HCEpiserverBlobHelper<HCAccessTokenBlobData> _blobHelper;
-        private readonly DelayedBufferQueue<AuditTimestampBufferQueueItem> _timestampBufferQueue;
+        private readonly HCDelayedBufferQueue<AuditTimestampBufferQueueItem> _timestampBufferQueue;
 
         /// <summary>
         /// Stores data in blob storage.
@@ -50,7 +50,7 @@ namespace HealthCheck.Episerver.Storage
             : base(cache)
         {
             _blobHelper = new HCEpiserverBlobHelper<HCAccessTokenBlobData>(blobFactory, () => ContainerIdWithFallback, () => ProviderName);
-            _timestampBufferQueue = new DelayedBufferQueue<AuditTimestampBufferQueueItem>(OnTimestampBufferQueueCallback, TimeSpan.FromSeconds(10));
+            _timestampBufferQueue = new HCDelayedBufferQueue<AuditTimestampBufferQueueItem>(OnTimestampBufferQueueCallback, TimeSpan.FromSeconds(10));
         }
 
         /// <inheritdoc />

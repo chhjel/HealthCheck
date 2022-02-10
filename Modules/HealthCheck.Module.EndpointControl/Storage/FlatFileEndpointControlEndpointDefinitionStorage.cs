@@ -14,7 +14,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
     /// </summary>
     public class FlatFileEndpointControlEndpointDefinitionStorage : IEndpointControlEndpointDefinitionStorage
     {
-        private SimpleDataStoreWithId<EndpointControlEndpointDefinition, string> Store { get; }
+        private HCSimpleDataStoreWithId<EndpointControlEndpointDefinition, string> Store { get; }
         private List<EndpointControlEndpointDefinition> _memoryCache = null;
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
         /// <param name="filepath">Filepath to where the data will be stored.</param>
         public FlatFileEndpointControlEndpointDefinitionStorage(string filepath)
         {
-            Store = new SimpleDataStoreWithId<EndpointControlEndpointDefinition, string>(
+            Store = new HCSimpleDataStoreWithId<EndpointControlEndpointDefinition, string>(
                 filepath,
                 serializer: new Func<EndpointControlEndpointDefinition, string>((e) => JsonConvert.SerializeObject(e)),
                 deserializer: new Func<string, EndpointControlEndpointDefinition>((row) => JsonConvert.DeserializeObject<EndpointControlEndpointDefinition>(row)),

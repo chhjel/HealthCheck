@@ -22,7 +22,7 @@ namespace HealthCheck.Core.Extensions
                 return text;
             }
 
-            return IPAddressUtils.StripAnyPortNumber(text);
+            return HCIPAddressUtils.StripAnyPortNumber(text);
         }
 
         /// <summary>

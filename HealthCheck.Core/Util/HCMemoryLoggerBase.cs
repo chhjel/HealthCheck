@@ -69,7 +69,7 @@ namespace HealthCheck.Core.Util
 			var exceptions = parameters.OfType<Exception>();
 			foreach (var exception in exceptions)
             {
-				_builder.AppendLine(ExceptionUtils.GetFullExceptionDetails(exception));
+				_builder.AppendLine(HCExceptionUtils.GetFullExceptionDetails(exception));
             }
 		}
 	}

@@ -30,7 +30,7 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
         /// </summary>
         public bool CaseSensitive { get; set; }
 
-        private static readonly CachedRegexContainer _regexCache = new();
+        private static readonly HCCachedRegexContainer _regexCache = new();
 
         /// <summary>
         /// Returns true if defined filters match the input.

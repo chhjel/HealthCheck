@@ -214,7 +214,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                 {
                     //EditorWorkerUrl = "blob:https://unpkg.com/christianh-healthcheck@3.0.5/editor.worker.js",
                     //JsonWorkerUrl = "blob:https://unpkg.com/christianh-healthcheck@3.0.5/json.worker.js"
-                }
+                },
+                LogoutLinkUrl = "/Logout"
             };
 
         protected override HCPageOptions GetPageOptions()
@@ -262,14 +263,11 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             config.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
             config.RedirectTargetOnNoAccess = "/no-access";
             //config.RedirectTargetOnNoAccessUsingRequest = (r, q) => $"/DummyLoginRedirect?r={HttpUtility.UrlEncode($"/?{q}")}";
-            config.IntegratedLoginConfig = new HCIntegratedLoginConfig
-            {
-                IntegratedLoginEndpoint = "/HCLogin/login",
-                Current2FACodeExpirationTime = HCMfaTotpUtil.GetCurrentTotpCodeExpirationTime(),
-                Send2FACodeEndpoint = "/hclogin/Request2FACode",
-                TwoFactorCodeInputMode = HCIntegratedLoginConfig.HCLoginTwoFactorCodeInputMode.Optional,
-                WebAuthnMode = HCIntegratedLoginConfig.HCLoginWebAuthnMode.Optional
-            };
+            config.IntegratedLoginConfig = new HCIntegratedLoginConfig("/HCLogin/login")
+                //.EnableOneTimePasswordWithCodeRequest("/hclogin/Request2FACode", "Code pls", required: false)
+                .EnableTOTP("Optional for higher access level", required: false)
+                .EnableWebAuthn("Optional to access more things", required: false)
+                ;
 
             var totpKey = "_dev_totp_secret";
             var webAuthnKey = "_dev_webAuthn_secret";
@@ -346,7 +344,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                     var webauthn = CreateWebAuthnHelper();
                     var jsonOptions = HttpContext.Session.GetString("WebAuthn.assertionOptionsDev");
                     var options = AssertionOptions.FromJson(jsonOptions);
-                    var webAuthnResult = AsyncUtils.RunSync(() => webauthn.VerifyAssertion(options, d));
+                    var webAuthnResult = HCAsyncUtils.RunSync(() => webauthn.VerifyAssertion(options, d));
                     if (!webAuthnResult.Success)
                     {
                         return HCGenericResult<HCResultPageAction>.CreateError(webAuthnResult.Error);
@@ -373,7 +371,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                     var jsonOptions = HttpContext.Session.GetString("WebAuthn.attestationOptions");
                     var options = CredentialCreateOptions.FromJson(jsonOptions);
 
-                    AsyncUtils.RunSync(() => webauthn.RegisterCredentials(options, attestation));
+                    HCAsyncUtils.RunSync(() => webauthn.RegisterCredentials(options, attestation));
                     Request.HttpContext.Session.SetString(webAuthnKey, "added");
                     return HCGenericResult.CreateSuccess();
                 },
@@ -390,7 +388,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                     Request.HttpContext.Session.Remove(webAuthnKey);
                     Request.HttpContext.Session.Remove("_dev_webAuthn_validated");
                     return HCGenericResult.CreateSuccess();
-                },
+                }
             };
         }
 

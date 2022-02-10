@@ -55,6 +55,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         [HideFromRequestLog]
         [HttpPost]
+        [Route("Request2FACode")]
         public virtual async Task<ActionResult> Request2FACode([FromBody] HCIntegratedLoginRequest2FACodeRequest model)
         {
             if (!Enabled) return NotFound();

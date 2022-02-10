@@ -50,7 +50,7 @@ namespace HealthCheck.Dev.Common.Tests
         [RuntimeTest]
         public async Task<TestResult> SendAFailingWebRequestToGoogle()
         {
-            var result = await ConnectivityUtils.PerformWebRequestCheck("https://www.google.com/nonexistentpagehopefully");
+            var result = await HCConnectivityUtils.PerformWebRequestCheck("https://www.google.com/nonexistentpagehopefully");
             return result.ToTestResult();
         }
 
@@ -64,14 +64,14 @@ namespace HealthCheck.Dev.Common.Tests
         [RuntimeTest]
         public async Task<TestResult> SendAWebRequestToGoogle()
         {
-            var result = await ConnectivityUtils.PerformWebRequestCheck("https://www.google.com");
+            var result = await HCConnectivityUtils.PerformWebRequestCheck("https://www.google.com");
             return result.ToTestResult();
         }
 
         [RuntimeTest]
         public async Task<TestResult> PingGoogle()
         {
-            var result = await ConnectivityUtils.PingHost("google.com");
+            var result = await HCConnectivityUtils.PingHost("google.com");
             return result.ToTestResult();
         }
     }

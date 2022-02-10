@@ -146,10 +146,10 @@ namespace HealthCheck.DevTest.Controllers
                 );
             UseModule(new HCMetricsModule(new HCMetricsModuleOptions()
             {
-                Storage = IoCUtils.GetInstance<IHCMetricsStorage>()
+                Storage = HCIoCUtils.GetInstance<IHCMetricsStorage>()
             }));
             UseModule(new HCReleaseNotesModule(new HCReleaseNotesModuleOptions {
-                ReleaseNotesProvider = IoCUtils.GetInstance<IHCReleaseNotesProvider>()
+                ReleaseNotesProvider = HCIoCUtils.GetInstance<IHCReleaseNotesProvider>()
             }));
             UseModule(new HCMessagesModule(new HCMessagesModuleOptions() { MessageStorage = _memoryMessageStore }
                 .DefineInbox("mail", "Mail", "All sent email ends up here.")
@@ -307,13 +307,11 @@ namespace HealthCheck.DevTest.Controllers
             config.PingAccess = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.API);
             //config.RedirectTargetOnNoAccess = "/no-access";
             config.RedirectTargetOnNoAccessUsingRequest = (r, q) => $"/DummyLoginRedirect?r={HttpUtility.UrlEncode($"/?{q}")}";
-            config.IntegratedLoginConfig = new HCIntegratedLoginConfig
-            {
-                IntegratedLoginEndpoint = "/hclogin/login",
-                Current2FACodeExpirationTime = HCMfaTotpUtil.GetCurrentTotpCodeExpirationTime(),
-                Send2FACodeEndpoint = "/hclogin/Request2FACode",
-                TwoFactorCodeInputMode = HCIntegratedLoginConfig.HCLoginTwoFactorCodeInputMode.Optional
-            };
+            config.IntegratedLoginConfig = new HCIntegratedLoginConfig("/HCLogin/login")
+                //.EnableOneTimePasswordWithCodeRequest("/hclogin/Request2FACode", "Code pls", required: false)
+                .EnableTOTP(required: false)
+                .EnableWebAuthn(required: false);
+
             config.IntegratedProfileConfig = new HCIntegratedProfileConfig
             {
                 Username = CurrentRequestInformation.UserName,

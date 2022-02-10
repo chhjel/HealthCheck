@@ -71,7 +71,13 @@ namespace HealthCheck.WebUI.Models
         internal string IntegratedLoginSend2FACodeEndpoint { get; set; }
 
         [JsonProperty]
+        internal string IntegratedLogin2FANote { get; set; }
+
+        [JsonProperty]
         internal string IntegratedLoginSend2FACodeButtonText { get; set; }
+
+        [JsonProperty]
+        internal string IntegratedLoginWebAuthnNote { get; set; }
 
         [JsonProperty]
         internal HCLoginWebAuthnMode IntegratedLoginWebAuthnMode { get; set; }

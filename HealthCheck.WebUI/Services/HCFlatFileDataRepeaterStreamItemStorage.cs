@@ -31,14 +31,14 @@ namespace HealthCheck.WebUI.Services
         /// <summary>
         /// Flatfile storage helper.
         /// </summary>
-        protected SimpleDataStoreWithId<TItem, Guid> Store { get; }
+        protected HCSimpleDataStoreWithId<TItem, Guid> Store { get; }
 
         /// <summary>
         /// Storage for stream items.
         /// </summary>
         public HCFlatFileDataRepeaterStreamItemStorage(string filepath)
         {
-            Store = new SimpleDataStoreWithId<TItem, Guid>(
+            Store = new HCSimpleDataStoreWithId<TItem, Guid>(
                 filepath,
                 serializer: new Func<TItem, string>((e) => JsonConvert.SerializeObject(e)),
                 deserializer: new Func<string, TItem>((row) => JsonConvert.DeserializeObject<TItem>(row)),

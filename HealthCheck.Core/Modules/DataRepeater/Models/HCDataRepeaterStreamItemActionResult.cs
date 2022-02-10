@@ -33,6 +33,6 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
         public static HCDataRepeaterStreamItemActionResult CreateError(string error) => new() { Message = error };
 
         /// <summary></summary>
-        public static HCDataRepeaterStreamItemActionResult CreateError(Exception ex) => new() { Message = ExceptionUtils.GetFullExceptionDetails(ex) };
+        public static HCDataRepeaterStreamItemActionResult CreateError(Exception ex) => new() { Message = HCExceptionUtils.GetFullExceptionDetails(ex) };
     }
 }

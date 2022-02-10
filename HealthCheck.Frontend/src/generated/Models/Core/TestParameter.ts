@@ -7,6 +7,7 @@ import { RuntimeTestReferenceParameterFactory } from './RuntimeTestReferencePara
 export interface TestParameter
 {
 	Index: number;
+	Id: string;
 	Name: string;
 	Description: string;
 	ParameterType: any;

@@ -13,12 +13,12 @@ namespace HealthCheck.Core.Util
     /// </summary>
     public static class HCValueConversionUtils
     {
-        internal static StringConverter DefaultStringConverter { get; set; } = new StringConverter();
+        internal static HCStringConverter DefaultStringConverter { get; set; } = new HCStringConverter();
 
         /// <summary>
         /// Convert the given raw input to the given model.
         /// </summary>
-        public static T ConvertInputModel<T>(Dictionary<string, string> rawInput, StringConverter stringConverter = null,
+        public static T ConvertInputModel<T>(Dictionary<string, string> rawInput, HCStringConverter stringConverter = null,
             Dictionary<string, string> placeholders = null, Func<string, HCCustomPropertyAttribute, Func<string, string>> placeholderTransformerFactory = null)
             where T: class, new()
             => ConvertInputModel(typeof(T), rawInput, stringConverter, placeholders, placeholderTransformerFactory) as T;
@@ -26,7 +26,7 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Convert the given raw input to the given model.
         /// </summary>
-        public static T ConvertInputModel<T>(Func<string, string> rawInputGetter, StringConverter stringConverter = null,
+        public static T ConvertInputModel<T>(Func<string, string> rawInputGetter, HCStringConverter stringConverter = null,
             Dictionary<string, string> placeholders = null, Func<string, HCCustomPropertyAttribute, Func<string, string>> placeholderTransformerFactory = null)
             where T : class, new()
             => ConvertInputModel(typeof(T), rawInputGetter, stringConverter, placeholders, placeholderTransformerFactory) as T;
@@ -34,7 +34,7 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Convert the given raw input to the given model.
         /// </summary>
-        public static object ConvertInputModel(Type type, Dictionary<string, string> rawInput, StringConverter stringConverter = null,
+        public static object ConvertInputModel(Type type, Dictionary<string, string> rawInput, HCStringConverter stringConverter = null,
             Dictionary<string, string> placeholders = null, Func<string, HCCustomPropertyAttribute, Func<string, string>> placeholderTransformerFactory = null)
             => ConvertInputModel(type, 
                 (rawInput == null) ? null : (propName) => rawInput?.FirstOrDefault(x => x.Key == propName).Value,
@@ -43,7 +43,7 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Convert the given raw input to the given model.
         /// </summary>
-        public static object ConvertInputModel(Type type, Func<string, string> rawInputGetter, StringConverter stringConverter = null,
+        public static object ConvertInputModel(Type type, Func<string, string> rawInputGetter, HCStringConverter stringConverter = null,
             Dictionary<string, string> placeholders = null, Func<string, HCCustomPropertyAttribute, Func<string, string>> placeholderTransformerFactory = null)
         {
             stringConverter ??= DefaultStringConverter;
@@ -99,7 +99,7 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Attempt to convert the given input to an instance of the given type.
         /// </summary>
-        public static object ConvertInput(HCValueInput input, StringConverter stringConverter = null)
+        public static object ConvertInput(HCValueInput input, HCStringConverter stringConverter = null)
         {
             object convertedObject = null;
             var isList = input.Type.IsGenericType && input.Type.GetGenericTypeDefinition() == typeof(List<>);

@@ -99,7 +99,7 @@ namespace HealthCheck.Module.DataExport.Abstractions
                 PageItems = result.PageItems
             };
         }
-        private static readonly SimpleMemoryCache _predicateCache = new();
+        private static readonly HCSimpleMemoryCache _predicateCache = new();
 
         /// <inheritdoc />
         public virtual Task<IHCDataExportStream.EnumerableResult> GetEnumerableWithCustomFilterAsync(int pageIndex, int pageSize, object parameters)

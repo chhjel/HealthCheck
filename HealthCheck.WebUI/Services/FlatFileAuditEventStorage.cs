@@ -14,7 +14,7 @@ namespace HealthCheck.WebUI.Services
     /// </summary>
     public class FlatFileAuditEventStorage : IAuditEventStorage
     {
-        private SimpleDataStore<AuditEvent> Store { get; set; }
+        private HCSimpleDataStore<AuditEvent> Store { get; set; }
         private readonly IAuditBlobStorage _blobStorage;
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace HealthCheck.WebUI.Services
             bool delayFirstCleanup = true,
             IAuditBlobStorage blobStorage = null)
         {
-            Store = new SimpleDataStore<AuditEvent>(
+            Store = new HCSimpleDataStore<AuditEvent>(
                 filepath,
                 serializer: new Func<AuditEvent, string>((e) => JsonConvert.SerializeObject(e)),
                 deserializer: new Func<string, AuditEvent>((row) => JsonConvert.DeserializeObject<AuditEvent>(row))
@@ -38,7 +38,7 @@ namespace HealthCheck.WebUI.Services
             if (maxEventAge != null)
             {
                 var minimumCleanupInterval = TimeSpan.FromHours(4);
-                Store.RetentionOptions = new StorageRetentionOptions<AuditEvent>(
+                Store.RetentionOptions = new HCStorageRetentionOptions<AuditEvent>(
                     (item) => item.Timestamp,
                     maxAge: maxEventAge.Value,
                     minimumCleanupInterval: (maxEventAge.Value < minimumCleanupInterval) ? maxEventAge.Value : minimumCleanupInterval,

@@ -95,7 +95,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
                 else if (tokenFromStore.ExpiresAt != null && tokenFromStore.ExpiresAt < DateTimeOffset.Now) return null;
 
                 var tokenHashBase = CreateBaseForHash(rawToken, tokenFromStore.Roles, tokenFromStore.Modules, tokenFromStore.ExpiresAt);
-                var isValid = HashUtils.ValidateHash(tokenHashBase, tokenFromStore.HashedToken, tokenFromStore.TokenSalt);
+                var isValid = HCHashUtils.ValidateHash(tokenHashBase, tokenFromStore.HashedToken, tokenFromStore.TokenSalt);
                 if (!isValid) return null;
 
                 if (tokenFromStore.LastUsedAt == null || (DateTimeOffset.Now - tokenFromStore.LastUsedAt.Value).TotalMinutes >= 1)
@@ -133,20 +133,20 @@ namespace HealthCheck.Core.Modules.AccessTokens
                         var timeUntil = (long)(x.ExpiresAt.Value - DateTimeOffset.Now).TotalMilliseconds;
                         expirationSummary = (timeUntil < 0)
                             ? "Expired"
-                            : $"Expires in {TimeUtils.PrettifyDuration(timeUntil)}";
+                            : $"Expires in {HCTimeUtils.PrettifyDuration(timeUntil)}";
                     }
 
                     string lastUsedSummary = null;
                     if (x.LastUsedAt != null)
                     {
-                        lastUsedSummary = $"Last used {TimeUtils.PrettifyDurationSince(x.LastUsedAt, TimeSpan.FromMinutes(1), "less than a minute")} ago";
+                        lastUsedSummary = $"Last used {HCTimeUtils.PrettifyDurationSince(x.LastUsedAt, TimeSpan.FromMinutes(1), "less than a minute")} ago";
                     }
                     else
                     {
                         lastUsedSummary = "Not used yet";
                     }
 
-                    string createdSummary = $"Created {TimeUtils.PrettifyDurationSince(x.CreatedAt, TimeSpan.FromMinutes(1), "less than a minute")} ago";
+                    string createdSummary = $"Created {HCTimeUtils.PrettifyDurationSince(x.CreatedAt, TimeSpan.FromMinutes(1), "less than a minute")} ago";
 
                     foreach(var module in x.Modules)
                     {
@@ -218,7 +218,7 @@ namespace HealthCheck.Core.Modules.AccessTokens
             var id = Guid.NewGuid();
             var tokenValue = $"KEY-{id}-{Guid.NewGuid()}";
             var tokenHashBase = CreateBaseForHash(tokenValue, data.Roles, modules, data.ExpiresAt);
-            var tokenHash = HashUtils.GenerateHash(tokenHashBase, out string salt);
+            var tokenHash = HCHashUtils.GenerateHash(tokenHashBase, out string salt);
 
             var token = new HCAccessToken
             {

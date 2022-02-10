@@ -157,12 +157,14 @@ namespace HealthCheck.WebUI.Abstractions
             frontEndOptions.EditorConfig.SetDefaults(frontEndOptions.EndpointBase);
             frontEndOptions.ShowIntegratedLogin = true;
             frontEndOptions.IntegratedLoginEndpoint = Helper?.AccessConfig?.IntegratedLoginConfig?.IntegratedLoginEndpoint;
-            frontEndOptions.IntegratedLoginSend2FACodeEndpoint = Helper?.AccessConfig?.IntegratedLoginConfig?.Send2FACodeEndpoint ?? "";
-            frontEndOptions.IntegratedLoginSend2FACodeButtonText = Helper?.AccessConfig?.IntegratedLoginConfig?.Send2FACodeButtonText ?? "";
-            frontEndOptions.IntegratedLoginCurrent2FACodeExpirationTime = Helper?.AccessConfig?.IntegratedLoginConfig?.Current2FACodeExpirationTime;
-            frontEndOptions.IntegratedLogin2FACodeLifetime = Helper?.AccessConfig?.IntegratedLoginConfig?.TwoFactorCodeLifetime ?? 30;
-            frontEndOptions.IntegratedLoginTwoFactorCodeInputMode = Helper?.AccessConfig?.IntegratedLoginConfig?.TwoFactorCodeInputMode ?? HCIntegratedLoginConfig.HCLoginTwoFactorCodeInputMode.Off;
-            frontEndOptions.IntegratedLoginWebAuthnMode = Helper?.AccessConfig?.IntegratedLoginConfig?.WebAuthnMode ?? HCIntegratedLoginConfig.HCLoginWebAuthnMode.Off;
+            frontEndOptions.IntegratedLoginSend2FACodeEndpoint = Helper?.AccessConfig?.IntegratedLoginConfig?.TwoFactorCodeConfig?.Send2FACodeEndpoint ?? "";
+            frontEndOptions.IntegratedLoginSend2FACodeButtonText = Helper?.AccessConfig?.IntegratedLoginConfig?.TwoFactorCodeConfig?.Send2FACodeButtonText ?? "";
+            frontEndOptions.IntegratedLoginCurrent2FACodeExpirationTime = Helper?.AccessConfig?.IntegratedLoginConfig?.TwoFactorCodeConfig?.Current2FACodeExpirationTime;
+            frontEndOptions.IntegratedLogin2FACodeLifetime = Helper?.AccessConfig?.IntegratedLoginConfig?.TwoFactorCodeConfig?.TwoFactorCodeLifetime ?? 30;
+            frontEndOptions.IntegratedLoginTwoFactorCodeInputMode = Helper?.AccessConfig?.IntegratedLoginConfig?.TwoFactorCodeConfig?.TwoFactorCodeInputMode ?? HCIntegratedLoginConfig.HCLoginTwoFactorCodeInputMode.Off;
+            frontEndOptions.IntegratedLoginWebAuthnMode = Helper?.AccessConfig?.IntegratedLoginConfig?.WebAuthnConfig?.WebAuthnMode ?? HCIntegratedLoginConfig.HCLoginWebAuthnMode.Off;
+            frontEndOptions.IntegratedLogin2FANote = Helper?.AccessConfig?.IntegratedLoginConfig?.TwoFactorCodeConfig?.Note;
+            frontEndOptions.IntegratedLoginWebAuthnNote= Helper?.AccessConfig?.IntegratedLoginConfig?.WebAuthnConfig?.Note;
 
             var pageOptions = GetPageOptions();
             var html = Helper.CreateViewHtml(CurrentRequestAccessRoles, frontEndOptions, pageOptions);

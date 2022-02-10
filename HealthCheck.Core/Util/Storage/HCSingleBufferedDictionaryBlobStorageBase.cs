@@ -28,7 +28,7 @@ namespace HealthCheck.Core.Util.Storage
         /// <summary>
         /// The buffered queue of items to add.
         /// </summary>
-        protected readonly DelayedBufferDictionary<TId, BufferQueueItem> BufferQueue;
+        protected readonly HCDelayedBufferDictionary<TId, BufferQueueItem> BufferQueue;
 
         /// <summary>
         /// Optionally limit the max number of items to store.
@@ -84,7 +84,7 @@ namespace HealthCheck.Core.Util.Storage
         protected HCSingleBufferedDictionaryBlobStorageBase(IHCCache cache)
             : base(cache)
         {
-            BufferQueue = new DelayedBufferDictionary<TId, BufferQueueItem>(x => x.Id, OnBufferCallback, TimeSpan.FromSeconds(10), 100);
+            BufferQueue = new HCDelayedBufferDictionary<TId, BufferQueueItem>(x => x.Id, OnBufferCallback, TimeSpan.FromSeconds(10), 100);
         }
 
         /// <summary>

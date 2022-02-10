@@ -7,6 +7,7 @@ export default interface TestResultViewModel {
     Message: string;
     StackTrace: string;
     AllowExpandData: boolean;
+	ParameterFeedback: { [key:number]: string };
     DisplayClean: boolean;
     ExpandDataByDefault: boolean;
     DurationInMilliseconds: number;

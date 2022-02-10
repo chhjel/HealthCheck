@@ -31,11 +31,11 @@ namespace HealthCheck.Core.Models
         /// <summary>
         /// Make the input field full width in size where possible.
         /// </summary>
-        FullWidth = 8
+        FullWidth = 8,
 
-        ///// <summary>
-        ///// Make the input field a full width vscode editor.
-        ///// </summary>
-        //CodeArea = 16
+        /// <summary>
+        /// Make the input field a full width vscode editor.
+        /// </summary>
+        CodeArea = 16
     }
 }

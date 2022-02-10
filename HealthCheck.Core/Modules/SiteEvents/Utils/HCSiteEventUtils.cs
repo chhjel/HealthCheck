@@ -105,7 +105,7 @@ namespace HealthCheck.Core.Modules.SiteEvents.Utils
                 {
                     return new List<SiteEvent>();
                 }
-                var events = AsyncUtils.RunSync(() => service.GetUnresolvedEvents());
+                var events = HCAsyncUtils.RunSync(() => service.GetUnresolvedEvents());
                 return events;
             }
             catch (Exception ex)
