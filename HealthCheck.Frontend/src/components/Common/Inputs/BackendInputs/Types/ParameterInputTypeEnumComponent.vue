@@ -58,7 +58,9 @@ export default class ParameterInputTypeEnumComponent extends Vue {
                 this.localValue = [];
             }
         } else {
-            this.localValue = this.config.DefaultValue || this.config.PossibleValues[0];
+            if (this.localValue == null || this.localValue.length == 0) {
+                this.localValue = this.config.DefaultValue || this.config.PossibleValues[0];
+            }
         }
         this.onChanged();
     }

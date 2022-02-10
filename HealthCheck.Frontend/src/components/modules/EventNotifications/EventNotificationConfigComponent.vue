@@ -660,9 +660,6 @@ export default class EventNotificationConfigComponent extends Vue {
         value = `${value}\{${placeholder.toUpperCase()}\}`;
         this.internalConfig.DistinctNotificationKey = value;
 
-        // Vue.set(this.currentPlaceholderDialogTargetConfig.Options, this.currentPlaceholderDialogTargetOptionKey, value);
-        // this.currentPlaceholderDialogTargetConfig.Options[this.currentPlaceholderDialogTargetOptionKey] = value;
-
         this.hidePayloadPlaceholderDialog();
     }
 
@@ -755,11 +752,19 @@ export default class EventNotificationConfigComponent extends Vue {
     /////////////////////
     onAddNotifierClicked(notifier: IEventNotifier): void {
         this.notifierDialogVisible = false;
-        this.internalConfig.NotifierConfigs.push({
+        let conf: NotifierConfig = {
             NotifierId: notifier.Id,
             Notifier: notifier,
             Options: this.createOptionsObjectFor(notifier)
+        };
+        Object.keys(conf.Options || {}).forEach(x => {
+            const inputConfig = notifier.Options.filter(n => n.Id == x)[0];
+            if (inputConfig)
+            {
+                conf.Options[x] = inputConfig.DefaultValue;
+            }
         });
+        this.internalConfig.NotifierConfigs.push(conf);
     }
 
     onSuggestedPayloadFilterClicked(propName: string): void {

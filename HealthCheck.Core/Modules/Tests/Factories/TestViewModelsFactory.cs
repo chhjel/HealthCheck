@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Config;
+﻿using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Config;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Modules.Tests.Services;
@@ -109,7 +110,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
         {
             var stringConverter = new HCStringConverter();
             var paramType = testParameter.ParameterType;
-            string type = CreateParameterTypeName(paramType);
+            string type = HCCustomPropertyAttribute.CreateParameterTypeName(paramType);
 
             var hidden = testParameter.IsOut
                 || testParameter.ParameterType.IsGenericParameter
@@ -153,27 +154,6 @@ namespace HealthCheck.Core.Modules.Tests.Factories
             };
         }
 
-        private static readonly Dictionary<string, string> _inputTypeAliases = new()
-        {
-            { "IFormFile", "HttpPostedFileBase" },
-            { "Byte[]", "HttpPostedFileBase" }
-        };
-        private string CreateParameterTypeName(Type type)
-        {
-            var typeName = type.GetFriendlyTypeName(_inputTypeAliases);
-            if (type.IsEnum)
-            {
-                typeName = EnumUtils.IsTypeEnumFlag(type) ? "FlaggedEnum" : "Enum";
-            }
-            else if (type.IsGenericType
-                && type.GetGenericTypeDefinition() == typeof(List<>)
-                && type.GetGenericArguments()[0].IsEnum)
-            {
-                var innerType = EnumUtils.IsTypeEnumFlag(type.GetGenericArguments()[0]) ? "FlaggedEnum" : "Enum";
-                typeName = $"List<{innerType}>";
-            }
-            return typeName;
-        }
 
         /// <summary>
         /// Create template values for any unsupported types.
@@ -233,7 +213,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
 
                 return new TestParameterTemplateViewModel
                 {
-                    Type = CreateParameterTypeName(x.ParameterType),
+                    Type = HCCustomPropertyAttribute.CreateParameterTypeName(x.ParameterType),
                     Template = template ?? "{\n}"
                 };
             }).ToList();

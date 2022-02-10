@@ -45,10 +45,10 @@ namespace HealthCheck.Core.Attributes
             {
                 flags.Add("TextArea");
             }
-            //if (UIHints.HasFlag(HCUIHint.CodeArea))
-            //{
-            //    flags.Add("CodeArea");
-            //}
+            if (UIHints.HasFlag(HCUIHint.CodeArea))
+            {
+                flags.Add("CodeArea");
+            }
 
             return flags;
         }
@@ -79,7 +79,6 @@ namespace HealthCheck.Core.Attributes
         public static HCBackendInputConfig CreateInputConfig(PropertyInfo property, object instanceForDefaults = null,
             Action<HCBackendInputConfig, PropertyInfo, HCCustomPropertyAttribute> modifier = null)
         {
-            var possibleValues = new List<string>();
             var defaultValue = "";
             if (instanceForDefaults != null)
             {
@@ -90,6 +89,7 @@ namespace HealthCheck.Core.Attributes
                 catch (Exception) { /* ignored */ }
             }
 
+
             var attr = GetFirst(property);
             var type = property.PropertyType;
             var isNullable = type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
@@ -98,11 +98,14 @@ namespace HealthCheck.Core.Attributes
                 type = Nullable.GetUnderlyingType(type);
             }
 
+            var stringConverter = new HCStringConverter();
+            var possibleValues = GetPossibleValues(type)?.Select(x => stringConverter.ConvertToString(x))?.ToList();
+
             var config = new HCBackendInputConfig
             {
                 Id = property.Name,
                 Name = attr?.Name ?? property.Name.SpacifySentence(),
-                Type = type.Name,
+                Type = CreateParameterTypeName(type),
                 Description = attr?.Description ?? "",
                 Nullable = isNullable,
                 NotNull = attr?.UIHints.HasFlag(HCUIHint.NotNull) == true,
@@ -116,6 +119,62 @@ namespace HealthCheck.Core.Attributes
             };
             modifier?.Invoke(config, property, GetFirst(property));
             return config;
+        }
+
+        /// <summary>
+        /// Get possible values for the given type.
+        /// </summary>
+        public static List<object> GetPossibleValues(Type parameterType)
+        {
+            // Enums
+            if (parameterType.IsEnum)
+            {
+                var isFlags = EnumUtils.IsTypeEnumFlag(parameterType);
+                var list = new List<object>();
+                foreach (var value in Enum.GetValues(parameterType))
+                {
+                    if (isFlags && (int)value == 0) continue;
+                    list.Add(value);
+                }
+                return list;
+            }
+            // List of enums
+            else if (parameterType.IsGenericType
+                && parameterType.GetGenericTypeDefinition() == typeof(List<>)
+                && parameterType.GetGenericArguments()[0].IsEnum)
+            {
+                return GetPossibleValues(parameterType.GetGenericArguments()[0]);
+            }
+            // Not supported
+            else
+            {
+                return new List<object>();
+            }
+        }
+
+        private static readonly Dictionary<string, string> _inputTypeAliases = new()
+        {
+            { "IFormFile", "HttpPostedFileBase" },
+            { "Byte[]", "HttpPostedFileBase" }
+        };
+        /// <summary>
+        /// Create parameter type name for the given type.
+        /// </summary>
+        public static string CreateParameterTypeName(Type type)
+        {
+            var typeName = type.GetFriendlyTypeName(_inputTypeAliases);
+            if (type.IsEnum)
+            {
+                typeName = EnumUtils.IsTypeEnumFlag(type) ? "FlaggedEnum" : "Enum";
+            }
+            else if (type.IsGenericType
+                && type.GetGenericTypeDefinition() == typeof(List<>)
+                && type.GetGenericArguments()[0].IsEnum)
+            {
+                var innerType = EnumUtils.IsTypeEnumFlag(type.GetGenericArguments()[0]) ? "FlaggedEnum" : "Enum";
+                typeName = $"List<{innerType}>";
+            }
+            return typeName;
         }
 
         /// <summary>

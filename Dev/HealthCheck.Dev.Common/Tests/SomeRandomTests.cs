@@ -62,7 +62,7 @@ namespace HealthCheck.Dev.Common.Tests
         )
         {
             return TestResult
-                .CreateSuccess($"Ok - Code:{codeArea}|date:{date}|nullableDate:{nullableDate}|dateOffset:{dateOffset}|nullableDateOffset:{nullableDateOffset}|")
+                .CreateSuccess($"Ok - enm:{enm}|Code:{codeArea}|date:{date}|nullableDate:{nullableDate}|dateOffset:{dateOffset}|nullableDateOffset:{nullableDateOffset}|")
                 .SetParametersFeedback(x => text == "all" ? "Some error here" : null)
                 .SetParameterFeedback(nameof(text), "Should not be empty pls", () => string.IsNullOrWhiteSpace(text));
         }

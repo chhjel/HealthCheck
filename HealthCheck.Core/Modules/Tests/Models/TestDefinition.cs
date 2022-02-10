@@ -1,7 +1,7 @@
-﻿using HealthCheck.Core.Extensions;
+﻿using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Services;
-using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -219,7 +219,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
                     ShowTextArea = parameterAttribute?.UIHints.HasFlag(UIHint.TextArea) == true,
                     ShowCodeArea = isCodeArea,
                     FullWidth = fullWidth,
-                    PossibleValues = GetPossibleValues(parameter.ParameterType),
+                    PossibleValues = HCCustomPropertyAttribute.GetPossibleValues(parameter.ParameterType),
                     IsCustomReferenceType = isCustomReferenceType,
                     ReferenceFactory = referenceFactory,
                     IsOut = isOut,
@@ -268,34 +268,6 @@ namespace HealthCheck.Core.Modules.Tests.Models
 
             // Finally check global testmodule config factories
             return _referenceParameterFactories?.FirstOrDefault(x => x.CanFactorizeFor(type));
-        }
-
-        private List<object> GetPossibleValues(Type parameterType)
-        {
-            // Enums
-            if (parameterType.IsEnum)
-            {
-                var isFlags = EnumUtils.IsTypeEnumFlag(parameterType);
-                var list = new List<object>();
-                foreach (var value in Enum.GetValues(parameterType))
-                {
-                    if (isFlags && (int)value == 0) continue;
-                    list.Add(value);
-                }
-                return list;
-            }
-            // List of enums
-            else if(parameterType.IsGenericType
-                && parameterType.GetGenericTypeDefinition() == typeof(List<>)
-                && parameterType.GetGenericArguments()[0].IsEnum)
-            {
-                return GetPossibleValues(parameterType.GetGenericArguments()[0]);
-            }
-            // Not supported
-            else
-            {
-                return new List<object>();
-            }
         }
 
         private object GetDefaultValue(ParameterInfo parameter, RuntimeTestParameterAttribute parameterAttribute)
