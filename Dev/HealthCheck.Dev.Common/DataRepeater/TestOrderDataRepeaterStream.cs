@@ -24,7 +24,8 @@ namespace HealthCheck.Dev.Common.DataRepeater
             new TestOrderDataRepeaterStreamItemActionModifyData(),
             new TestOrderDataRepeaterStreamItemActionToggleAllow(),
             new TestOrderDataRepeaterStreamItemActionRemoveAllTags(),
-            new TestOrderDataRepeaterStreamItemActionTest()
+            new TestOrderDataRepeaterStreamItemActionTest(),
+            new TestOrderDataRepeaterStreamItemActionToggleSuccess()
         };
 
         public TestOrderDataRepeaterStream() : base(new HCFlatFileDataRepeaterStreamItemStorage<TestOrderStreamItem>(@"C:\temp\HealthCheck\DataRepeater_OrderCaps.json"))
