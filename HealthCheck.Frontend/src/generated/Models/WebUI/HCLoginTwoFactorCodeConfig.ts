@@ -8,6 +8,7 @@ export interface HCLoginTwoFactorCodeConfig
 {
 	Send2FACodeEndpoint: string;
 	Send2FACodeButtonText: string;
+	Note: string;
 	Current2FACodeExpirationTime: Date;
 	TwoFactorCodeLifetime: number;
 	TwoFactorCodeInputMode: HCLoginTwoFactorCodeInputMode;

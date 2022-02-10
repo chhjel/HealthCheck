@@ -37,12 +37,15 @@ namespace HealthCheck.WebUI.Models
 
         /// <summary>
         /// Enable WebAuthn.
+        /// <param name="note">Optional note below the the verify webauthn button.</param>
+        /// <param name="required">If false, the input won't be required in the frontend.</param>
         /// </summary>
-        public HCIntegratedLoginConfig EnableWebAuthn(bool required = true)
+        public HCIntegratedLoginConfig EnableWebAuthn(string note = null, bool required = true)
         {
             WebAuthnConfig = new HCLoginWebAuthnConfig
             {
                 WebAuthnMode = required ? HCLoginWebAuthnMode.Required : HCLoginWebAuthnMode.Optional,
+                Note = note
             };
             return this;
         }
@@ -52,14 +55,16 @@ namespace HealthCheck.WebUI.Models
         /// </summary>
         /// <param name="current2FACodeExpirationTime">Optionally set to show a progressbar for when codes expire.</param>
         /// <param name="twoFactorCodeLifetime">Used when current2FACodeExpirationTime is also set to display when the codes expire.</param>
+        /// <param name="note">Optional note below the input field.</param>
         /// <param name="required">If false, the input won't be required in the frontend.</param>
-        public HCIntegratedLoginConfig EnableTimeBasedOneTimePassword(DateTimeOffset? current2FACodeExpirationTime = null, int twoFactorCodeLifetime = 30, bool required = true)
+        public HCIntegratedLoginConfig EnableTimeBasedOneTimePassword(DateTimeOffset? current2FACodeExpirationTime = null, int twoFactorCodeLifetime = 30, string note = null, bool required = true)
         {
             TwoFactorCodeConfig = new HCLoginTwoFactorCodeConfig
             {
                 TwoFactorCodeInputMode = required ? HCLoginTwoFactorCodeInputMode.Required : HCLoginTwoFactorCodeInputMode.Optional,
                 Current2FACodeExpirationTime = current2FACodeExpirationTime,
-                TwoFactorCodeLifetime = twoFactorCodeLifetime
+                TwoFactorCodeLifetime = twoFactorCodeLifetime,
+                Note = note
             };
             return this;
         }
@@ -72,14 +77,16 @@ namespace HealthCheck.WebUI.Models
         /// <para>Should point to the <c>Request2FACode</c> action on a controller inheriting from <c>HealthCheckLoginControllerBase</c> where you can define the logic.</para>
         /// </param>
         /// <param name="requestCodeButtonText">Text on button used to get code.</param>
+        /// <param name="note">Optional note below the input field.</param>
         /// <param name="required">If false, the input won't be required in the frontend.</param>
-        public HCIntegratedLoginConfig EnableOneTimePasswordWithCodeRequest(string requestCodeEndpoint, string requestCodeButtonText = "Send code", bool required = true)
+        public HCIntegratedLoginConfig EnableOneTimePasswordWithCodeRequest(string requestCodeEndpoint, string requestCodeButtonText = "Send code", string note = null, bool required = true)
         {
             TwoFactorCodeConfig = new HCLoginTwoFactorCodeConfig
             {
                 TwoFactorCodeInputMode = required ? HCLoginTwoFactorCodeInputMode.Required : HCLoginTwoFactorCodeInputMode.Optional,
                 Send2FACodeEndpoint = requestCodeEndpoint,
-                Send2FACodeButtonText = requestCodeButtonText
+                Send2FACodeButtonText = requestCodeButtonText,
+                Note = note
             };
             return this;
         }
@@ -93,6 +100,11 @@ namespace HealthCheck.WebUI.Models
             /// How to display WebAuthn input.
             /// </summary>
             public HCLoginWebAuthnMode WebAuthnMode { get; set; }
+
+            /// <summary>
+            /// Optional note below the verify webauthn button.
+            /// </summary>
+            public string Note { get; set; }
         }
 
         /// <summary>
@@ -112,6 +124,11 @@ namespace HealthCheck.WebUI.Models
             /// <para>Defaults to 'Send code'</para>
             /// </summary>
             public string Send2FACodeButtonText { get; set; } = "Send code";
+
+            /// <summary>
+            /// Optional note below the input field.
+            /// </summary>
+            public string Note { get; set; }
 
             /// <summary>
             /// Optionally set to show a progressbar for when codes expire.

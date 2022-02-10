@@ -265,8 +265,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             //config.RedirectTargetOnNoAccessUsingRequest = (r, q) => $"/DummyLoginRedirect?r={HttpUtility.UrlEncode($"/?{q}")}";
             config.IntegratedLoginConfig = new HCIntegratedLoginConfig("/HCLogin/login")
                 //.EnableOneTimePasswordWithCodeRequest("/hclogin/Request2FACode", "Code pls", required: false)
-                .EnableTOTP(required: false)
-                .EnableWebAuthn(required: false)
+                .EnableTOTP("Optional for higher access level", required: false)
+                .EnableWebAuthn("Optional to access more things", required: false)
                 ;
 
             var totpKey = "_dev_totp_secret";

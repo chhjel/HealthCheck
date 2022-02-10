@@ -7,4 +7,5 @@ import { HCLoginWebAuthnMode } from '../../Enums/WebUI/HCLoginWebAuthnMode';
 export interface HCLoginWebAuthnConfig
 {
 	WebAuthnMode: HCLoginWebAuthnMode;
+	Note: string;
 }

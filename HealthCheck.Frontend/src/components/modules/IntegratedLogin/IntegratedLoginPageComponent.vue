@@ -37,34 +37,37 @@
                                 @click:append="showPassword = !showPassword"
                                 class="pt-0 mt-2" />
 
-                            <v-layout row class="mt-4 mb-4" v-if="showTwoFactorCodeInput">
-                                <v-flex :xs6="show2FASendCodeButton" :xs12="!show2FASendCodeButton">
-                                    <v-text-field
-                                        v-model="twoFactorCode"
-                                        :disabled="loadStatus.inProgress"
-                                        v-on:keyup.enter="onLoginClicked"
-                                        label="Two factor code"
-                                        placeholder=" "
-                                        type="text"
-                                        class="pt-0 mt-0"
-                                        :loading="show2FACodeExpirationTime">
-                                        <template v-slot:progress>
-                                            <v-progress-linear
-                                            :value="twoFactorInputProgress"
-                                            :color="twoFactorInputColor"
-                                            height="7"
-                                            ></v-progress-linear>
-                                        </template>
-                                    </v-text-field>
-                                </v-flex>
-                                <v-flex xs6 v-if="show2FASendCodeButton">
-                                    <v-btn round color="secondary" class="mt-0"
-                                        @click.prevent="onSendCodeClicked"
-                                        :disabled="loadStatus.inProgress">
-                                        <span style="white-space: normal;">{{ send2FASCodeButtonText }}</span>
-                                    </v-btn>
-                                </v-flex>
-                            </v-layout>
+                            <div v-if="showTwoFactorCodeInput" class="mb-4 mt-b">
+                                <v-layout row class="">
+                                    <v-flex :xs6="show2FASendCodeButton" :xs12="!show2FASendCodeButton">
+                                        <v-text-field
+                                            v-model="twoFactorCode"
+                                            :disabled="loadStatus.inProgress"
+                                            v-on:keyup.enter="onLoginClicked"
+                                            label="Two factor code"
+                                            placeholder=" "
+                                            type="text"
+                                            class="pt-0 mt-0"
+                                            :loading="show2FACodeExpirationTime">
+                                            <template v-slot:progress>
+                                                <v-progress-linear
+                                                :value="twoFactorInputProgress"
+                                                :color="twoFactorInputColor"
+                                                height="7"
+                                                ></v-progress-linear>
+                                            </template>
+                                        </v-text-field>
+                                    </v-flex>
+                                    <v-flex xs6 v-if="show2FASendCodeButton">
+                                        <v-btn round color="secondary" class="mt-0"
+                                            @click.prevent="onSendCodeClicked"
+                                            :disabled="loadStatus.inProgress">
+                                            <span style="white-space: normal;">{{ send2FASCodeButtonText }}</span>
+                                        </v-btn>
+                                    </v-flex>
+                                </v-layout>
+                                <div v-if="note2FA" class="mfa-note tfa">{{note2FA}}</div>
+                            </div>
                         </div>
 
                         <div v-if="showWebAuthnInput">
@@ -74,6 +77,7 @@
                                 :disabled="loadStatus.inProgress">
                                 <span style="white-space: normal;">Verify WebAuthn</span>
                             </v-btn>
+                            <div v-if="noteWebAuthn" class="mfa-note mt-1">{{noteWebAuthn}}</div>
                         </div>
 
                         <v-btn round color="primary" large class="mt-4 login-button"
@@ -187,6 +191,14 @@ export default class IntegratedLoginPageComponent extends Vue {
 
     get send2FASCodeButtonText(): string {
         return this.globalOptions.IntegratedLoginSend2FACodeButtonText;
+    }
+
+    get note2FA(): string {
+        return this.globalOptions.IntegratedLogin2FANote;
+    }
+
+    get noteWebAuthn(): string {
+        return this.globalOptions.IntegratedLoginWebAuthnNote;
     }
 
     get show2FACodeExpirationTime(): boolean {
@@ -447,6 +459,14 @@ export default class IntegratedLoginPageComponent extends Vue {
 
     .login-title {
         text-align: left;
+    }
+
+    .mfa-note {
+        font-size: small;
+
+        &.tfa { 
+            margin-top: -8px;
+        }
     }
 }
 </style>

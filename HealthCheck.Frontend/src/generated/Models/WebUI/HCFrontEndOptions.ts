@@ -23,7 +23,9 @@ export interface HCFrontEndOptions
 	IntegratedLoginCurrent2FACodeExpirationTime: Date;
 	IntegratedLogin2FACodeLifetime: number;
 	IntegratedLoginSend2FACodeEndpoint: string;
+	IntegratedLogin2FANote: string;
 	IntegratedLoginSend2FACodeButtonText: string;
+	IntegratedLoginWebAuthnNote: string;
 	IntegratedLoginWebAuthnMode: HCLoginWebAuthnMode;
 	IntegratedLoginTwoFactorCodeInputMode: HCLoginTwoFactorCodeInputMode;
 	IntegratedProfileConfig: HCIntegratedProfileConfig;
