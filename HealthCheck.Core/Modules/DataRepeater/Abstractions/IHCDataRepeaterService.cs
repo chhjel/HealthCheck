@@ -34,5 +34,10 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// Performs an action on an item.
         /// </summary>
         Task<HCDataRepeaterStreamItemActionResult> PerformItemAction(string streamId, string actionId, IHCDataRepeaterStreamItem item, Dictionary<string, string> parameters);
+
+        /// <summary>
+        /// Performs a batch action on all the items in this stream.
+        /// </summary>
+        Task<HCDataRepeaterStreamBatchActionResult> PerformItemBatchAction(string streamId, string actionId, Dictionary<string, string> parameters);
     }
 }

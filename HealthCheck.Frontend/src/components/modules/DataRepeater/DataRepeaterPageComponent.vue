@@ -69,18 +69,23 @@
                                         ></v-combobox>
                                 </div>
 
-                                <v-btn @click="loadCurrentStreamItems(true)" :disabled="isLoading" class="right">
-                                    <v-icon size="20px" class="mr-2">refresh</v-icon>Refresh
-                                </v-btn>
-
-                                <paging-component
-                                    :count="totalResultCount"
-                                    :pageSize="pageSize"
-                                    v-model="pageIndex"
-                                    @change="onPageIndexChanged"
-                                    :asIndex="true"
-                                    class="mb-2 mt-2"
-                                    />
+                                <div class="pagination-and-actions">
+                                    <v-btn @click="loadCurrentStreamItems(true)" :disabled="isLoading" class="right">
+                                        <v-icon size="20px" class="mr-2">refresh</v-icon>Refresh
+                                    </v-btn>
+                                    <v-btn @click="batchActionsDialogVisible = true" :disabled="isLoading" v-if="hasBatchActions" class="right">
+                                        <v-icon size="20px" class="mr-2">checklist</v-icon>Batch actions
+                                    </v-btn>
+                                    <paging-component
+                                        :count="totalResultCount"
+                                        :pageSize="pageSize"
+                                        v-model="pageIndex"
+                                        @change="onPageIndexChanged"
+                                        :asIndex="true"
+                                        class="mb-2 mt-2"
+                                        style="padding-top: 6px"
+                                        />
+                                </div>
                             </div>
 
                             <!-- LOAD PROGRESS -->
@@ -154,6 +159,37 @@
                 </v-layout>
             </v-container>
           <!-- CONTENT END -->
+
+          <!-- DIALOGS -->
+            <v-dialog v-model="batchActionsDialogVisible"
+                @keydown.esc="batchActionsDialogVisible = false"
+                max-width="800"
+                content-class="confirm-dialog"
+                :persistent="dataLoadStatus.inProgress">
+                <v-card>
+                    <v-card-title class="headline">Batch actions</v-card-title>
+                    <v-card-text>
+                        <div v-if="selectedStream && hasBatchActions">
+                            <data-repeater-batch-action-component
+                                v-for="(batchAction, baIndex) in selectedStream.BatchActions"
+                                :key="`batch-action-${baIndex}-${batchAction.Id}`"
+                                :config="config"
+                                :stream="selectedStream"
+                                :action="batchAction"
+                                />
+                        </div>
+                    </v-card-text>
+                    <v-divider></v-divider>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="secondary"
+                            :disabled="dataLoadStatus.inProgress"
+                            :loading="dataLoadStatus.inProgress"
+                            @click="batchActionsDialogVisible = false">Cancel</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+          <!-- DIALOGS END -->
         </v-content>
     </div>
 </template>
@@ -171,6 +207,7 @@ import { HCDataRepeaterStreamViewModel } from "generated/Models/Core/HCDataRepea
 import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 import { HCDataRepeaterStreamItemViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemViewModel";
 import DataRepeaterItemComponent from "./DataRepeaterItemComponent.vue";
+import DataRepeaterBatchActionComponent from "./DataRepeaterBatchActionComponent.vue";
 import PagingComponent from "../../Common/Basic/PagingComponent.vue";
 import HashUtils from "../../../util/HashUtils";
 import { HCDataRepeaterStreamItemsPagedViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemsPagedViewModel";
@@ -184,7 +221,8 @@ import { HCDataRepeaterStreamItemStatus } from "generated/Enums/Core/HCDataRepea
         FilterableListComponent,
         BackendInputComponent,
         DataRepeaterItemComponent,
-        PagingComponent
+        PagingComponent,
+        DataRepeaterBatchActionComponent
     }
 })
 export default class DataRepeaterPageComponent extends Vue {
@@ -215,6 +253,8 @@ export default class DataRepeaterPageComponent extends Vue {
     filterTags: Array<string> = [];
     totalResultCount: number = 0;
     filterCache: any = {};
+
+    batchActionsDialogVisible: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -248,6 +288,17 @@ export default class DataRepeaterPageComponent extends Vue {
     
     get isLoading(): boolean {
         return this.metadataLoadStatus.inProgress || this.dataLoadStatus.inProgress;
+    }
+
+    get hasBatchActions(): boolean {
+        return this.hasAccessToExecuteBatchActions
+            && this.selectedStream != null
+            && this.selectedStream.BatchActions != null
+            && this.selectedStream.BatchActions.length > 0;
+    }
+
+    get hasAccessToExecuteBatchActions(): boolean {
+        return this.options.AccessOptions.indexOf("ExecuteBatchActions") != -1;
     }
     
     get menuItems(): Array<FilterableListItem>
@@ -616,6 +667,8 @@ export default class DataRepeaterPageComponent extends Vue {
         margin-top: 67px;
     }
 }
+.pagination-and-actions {
+}
 .data-repeater-filters {
     display: flex;
     flex-direction: row;
@@ -706,5 +759,9 @@ export default class DataRepeaterPageComponent extends Vue {
     &--spacer {
         flex: 1;
     }
+}
+.data-repeater-batch-action {
+    border: 2px solid #d6d6d6;
+    margin-bottom: 20px;
 }
 </style>

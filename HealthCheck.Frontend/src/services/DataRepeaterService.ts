@@ -12,6 +12,8 @@ import { HCGetDataRepeaterStreamDefinitionsViewModel } from "generated/Models/Co
 import { HCGetDataRepeaterStreamItemsFilteredRequest } from "generated/Models/Core/HCGetDataRepeaterStreamItemsFilteredRequest";
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
 import { HCDataRepeaterItemAnalysisResult } from 'generated/Models/Core/HCDataRepeaterItemAnalysisResult';
+import { HCDataRepeaterPerformBatchActionRequest } from 'generated/Models/Core/HCDataRepeaterPerformBatchActionRequest';
+import { HCDataRepeaterStreamBatchActionResult } from 'generated/Models/Core/HCDataRepeaterStreamBatchActionResult';
 
 export interface HCDataRepeaterResultWithItem<TData>
 {
@@ -74,5 +76,13 @@ export default class DataRepeaterService extends HCServiceBase
         callbacks: ServiceFetchCallbacks<HCDataRepeaterResultWithItem<HCDataRepeaterStreamItemActionResult> | null> | null = null
     ): void {
         this.invokeModuleMethod(this.moduleId, "PerformItemAction", payload, statusObject, callbacks);
+    }
+    
+    public PerformBatchAction(
+        payload: HCDataRepeaterPerformBatchActionRequest,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<HCDataRepeaterStreamBatchActionResult> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, "PerformBatchAction", payload, statusObject, callbacks);
     }
 }

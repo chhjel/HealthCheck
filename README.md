@@ -848,6 +848,11 @@ public class ExampleDataRepeaterStream : HCDataRepeaterStreamBase<MyStreamItem>
     {
         new ExampleDataRepeaterStreamItemActionToggleAllow()
     };
+    public override List<IHCDataRepeaterStreamItemBatchAction> BatchActions => new List<IHCDataRepeaterStreamItemBatchAction>()
+    {
+        new ExampleDataRepeaterStreamBatchActionRenameTag()
+    };
+    // override AllowedAccessRoles or Categories for more granular access control.
 
     public TestOrderDataRepeaterStream()
         : base(/* IHCDataRepeaterStreamItemStorage implementation here, HCFlatFileDataRepeaterStreamItemStorage<TItem> exists for flatfile or check below for epi */)
@@ -915,6 +920,7 @@ public class ExampleDataRepeaterStreamItemActionToggleAllow : HCDataRepeaterStre
     public override string DisplayName => "Set allow retry";
     public override string Description => "Forces AllowRetry property to the given value.";
     public override string ExecuteButtonLabel => "Set";
+    // override AllowedAccessRoles or Categories for more granular access control.
 
     // Optionally override to disable disallowed actions
     // public override Task<HCDataRepeaterStreamItemActionAllowedResult> ActionIsAllowedForAsync(IHCDataRepeaterStreamItem item)
@@ -969,6 +975,48 @@ public class ExampleDataRepeaterStreamItemActionModify : HCDataRepeaterStreamIte
     }
 
     public class Parameters { }
+}
+```
+
+</p>
+</details>
+
+<details><summary>Example stream batch action</summary>
+<p>
+
+```csharp
+// Example action that renames tags.
+public class ExampleDataRepeaterStreamBatchActionRenameTag : HCDataRepeaterStreamItemBatchActionBase<ExampleDataRepeaterStreamBatchActionRenameTag.Parameters>
+{
+    public override string DisplayName => "Rename tag";
+    public override string Description => "Renames a tag on all items.";
+    public override string ExecuteButtonLabel => "Rename";
+
+    protected override Task<HCDataRepeaterStreamItemBatchActionResult> PerformBatchActionAsync(IHCDataRepeaterStreamItem item, Parameters parameters, HCDataRepeaterStreamBatchActionResult batchResult)
+    {
+        if (!item.Tags.Contains(parameters.TagToRename))
+        {
+            return Task.FromResult(HCDataRepeaterStreamItemBatchActionResult.CreateNotAttemptedUpdated());
+        }
+
+        item.Tags.Remove(parameters.TagToRename);
+        item.Tags.Add(parameters.NewTagName);
+
+        var shouldStopJob = batchResult.AttemptedUpdatedCount + 1 >= parameters.MaxItemsToUpdate;
+        return Task.FromResult(HCDataRepeaterStreamItemBatchActionResult.CreateSuccess(shouldStopJob));
+    }
+
+    public class Parameters
+    {
+        [HCCustomProperty(UIHints = HCUIHint.NotNull)]
+        public string TagToRename { get; set; }
+
+        [HCCustomProperty(UIHints = HCUIHint.NotNull)]
+        public string NewTagName { get; set; }
+
+        [HCCustomProperty(UIHints = HCUIHint.NotNull)]
+        public int MaxItemsToUpdate { get; set; }
+    }
 }
 ```
 
@@ -1861,7 +1909,7 @@ The built in flatfile storage classes should work fine for most use cases when a
 
 For Episerver projects blob storage implementations can optionally be used from [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Episerver?label=HealthCheck.Episerver&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Episerver) and the other episerver packages for specific modules. If used they should be registered as singletons for optimal performance.
 
-Cache can optionally be set to null in constructor if not wanted, or the included memory cache `SimpleMemoryCache` can be used as a singleton.
+Cache can optionally be set to null in constructor if not wanted, or the included memory cache `HCSimpleMemoryCache` can be used as a singleton.
 
 
 <details><summary>Example IoC setup</summary>
@@ -1869,7 +1917,7 @@ Cache can optionally be set to null in constructor if not wanted, or the include
 
 ```csharp
     // Cache required by most of the epi blob implementations below
-    context.Services.AddSingleton<IHCCache, SimpleMemoryCache>();
+    context.Services.AddSingleton<IHCCache, HCSimpleMemoryCache>();
 
     // Audit log (defaults to storing the last 10000 events/30 days)
     context.Services.AddSingleton<IAuditEventStorage, HCEpiserverBlobAuditEventStorage>();

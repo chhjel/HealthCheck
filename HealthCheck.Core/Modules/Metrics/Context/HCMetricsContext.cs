@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Modules.Metrics.Models;
+using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -278,6 +279,32 @@ namespace HealthCheck.Core.Modules.Metrics.Context
                     item.EndTimer();
                 }
             }
+        }
+
+        /// <summary>
+        /// Callback from <see cref="ExecuteIfTimingIsSlowerThan"/>.
+        /// </summary>
+        /// <param name="actualDuration">Actual duration the timing used.</param>
+        /// <param name="actualDurationText">Actual duration the timing used in prettified string format.</param>
+        public delegate void TimingSlowAction(TimeSpan actualDuration, string actualDurationText);
+
+        /// <summary>
+        /// Executes the given action if a timing with the given id has a longer duration than the given duration.
+        /// </summary>
+        /// <param name="id">Id of action to check. If null, the last timing will be used.</param>
+        /// <param name="duration">Duration threshold.</param>
+        /// <param name="action">Callback to invoke if duration threshold was breached.</param>
+        public static void ExecuteIfTimingIsSlowerThan(string id, TimeSpan duration, TimingSlowAction action)
+        {
+            WithCurrentContext(c =>
+            {
+                var timing = c.Items.LastOrDefault(x => x.Type == HCMetricsItem.MetricItemType.Timing && (x.Id == id || id == null));
+                var timingDuration = timing.Duration ?? (DateTimeOffset.Now - (timing.Timestamp ?? DateTimeOffset.Now));
+                if (timingDuration > duration)
+                {
+                    action(timingDuration, HCTimeUtils.PrettifyDuration(timingDuration));
+                }
+            });
         }
         #endregion
 

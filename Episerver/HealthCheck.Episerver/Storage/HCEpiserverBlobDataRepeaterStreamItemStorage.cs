@@ -288,6 +288,10 @@ namespace HealthCheck.Episerver.Storage
             };
             return Task.FromResult(result);
         }
+
+        /// <inheritdoc />
+        public Task<IEnumerable<IHCDataRepeaterStreamItem>> GetAllItemsAsync()
+            => Task.FromResult(GetItems().Cast<IHCDataRepeaterStreamItem>());
         #endregion
 
         /// <inheritdoc />

@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Modules.DataRepeater.Abstractions;
+﻿using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.DataRepeater.Abstractions;
 using HealthCheck.Core.Modules.DataRepeater.Extensions;
 using HealthCheck.Core.Modules.DataRepeater.Models;
 using HealthCheck.Core.Modules.DataRepeater.Utils;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static HealthCheck.Core.Modules.DataRepeater.Models.HCDataRepeaterStreamItemBatchActionResult;
 
 namespace HealthCheck.Core.Modules.DataRepeater.Services
 {
@@ -235,7 +237,7 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
                 return HCDataRepeaterStreamItemActionResult.CreateError(ex);
             }
 
-            // Update last success and message
+            // Log message
             var statusMessage = result.Message;
             if (string.IsNullOrWhiteSpace(statusMessage))
             {
@@ -257,6 +259,69 @@ namespace HealthCheck.Core.Modules.DataRepeater.Services
             }
 
             return result;
+        }
+
+        /// <inheritdoc />
+        public virtual async Task<HCDataRepeaterStreamBatchActionResult> PerformItemBatchAction(string streamId, string actionId, Dictionary<string, string> parameters)
+        {
+            var stream = GetStreams()?.FirstOrDefault(x => x.GetType().FullName == streamId);
+            if (stream == null)
+            {
+                return HCDataRepeaterStreamBatchActionResult.CreateError($"Stream '{streamId}' not found.");
+            }
+
+            var action = stream.BatchActions?.FirstOrDefault(x => x?.GetType()?.FullName == actionId);
+            if (action == null)
+            {
+                return HCDataRepeaterStreamBatchActionResult.CreateError($"Action '{actionId}' not found.");
+            }
+
+            object parametersObject = action.ParametersType == null ? null : HCValueConversionUtils.ConvertInputModel(action.ParametersType, parameters);
+
+            var batchResult = new HCDataRepeaterStreamBatchActionResult();
+            var items = (await stream.Storage.GetAllItemsAsync()).ToArray();
+            foreach (var item in items)
+            {
+                item.LastActionAt = DateTimeOffset.Now;
+                item.Log ??= new();
+
+                // Handle any exception
+                try
+                {
+                    var itemResult = await action.ExecuteBatchActionAsync(item, parametersObject, batchResult);
+                    if (itemResult == null || itemResult.Status == ItemActionResultStatus.NotAttemptedUpdated)
+                    {
+                        batchResult.NotAttemptedUpdatedCount++;
+                        continue;
+                    }
+
+                    // Log message
+                    item.AddLogMessage($"Batch action '{action.DisplayName}' was executed. Result: {itemResult.Status.ToString().SpacifySentence()}");
+                    await stream.Storage.UpdateItemAsync(item);
+
+                    if (itemResult.Status == ItemActionResultStatus.UpdatedSuccessfully)
+                    {
+                        batchResult.UpdatedSuccessfullyCount++;
+                    }
+                    else if (itemResult.Status == ItemActionResultStatus.UpdateFailed)
+                    {
+                        batchResult.UpdateFailedCount++;
+                    }
+
+                    if (itemResult.StopBatchJob)
+                    {
+                        break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    batchResult.UpdateFailedCount++;
+                    item.AddLogMessage($"Batch action '{action.DisplayName}' was executed. Failed on this item with exception: {ex.Message}");
+                    await stream.Storage.UpdateItemAsync(item);
+                }
+            }
+
+            return batchResult;
         }
 
         internal bool IsEnabledInternal()

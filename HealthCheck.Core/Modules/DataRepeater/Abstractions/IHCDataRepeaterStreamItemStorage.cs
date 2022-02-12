@@ -1,6 +1,7 @@
 ﻿using HealthCheck.Core.Modules.DataRepeater.Models;
 using HealthCheck.Core.Util;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
@@ -102,5 +103,11 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         /// Get stream items with filter and paging.
         /// </summary>
         Task<HCDataRepeaterStreamItemsPagedModel> GetItemsPagedAsync(HCGetDataRepeaterStreamItemsFilteredRequest model);
+
+        /// <summary>
+        /// Get all stored items.
+        /// <para>Only used for custom batch actions if any.</para>
+        /// </summary>
+        Task<IEnumerable<IHCDataRepeaterStreamItem>> GetAllItemsAsync();
     }
 }

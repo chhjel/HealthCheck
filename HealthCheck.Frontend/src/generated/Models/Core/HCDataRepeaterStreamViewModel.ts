@@ -3,6 +3,7 @@
 //     the code is regenerated.
 
 import { HCDataRepeaterStreamActionViewModel } from './HCDataRepeaterStreamActionViewModel';
+import { HCDataRepeaterStreamBatchActionViewModel } from './HCDataRepeaterStreamBatchActionViewModel';
 
 export interface HCDataRepeaterStreamViewModel
 {
@@ -19,4 +20,5 @@ export interface HCDataRepeaterStreamViewModel
 	InitiallySelectedTags: string[];
 	FilterableTags: string[];
 	Actions: HCDataRepeaterStreamActionViewModel[];
+	BatchActions: HCDataRepeaterStreamBatchActionViewModel[];
 }

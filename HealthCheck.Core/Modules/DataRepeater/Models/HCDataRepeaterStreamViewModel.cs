@@ -43,5 +43,8 @@ namespace HealthCheck.Core.Modules.DataRepeater.Models
 
         /// <summary></summary>
         public List<HCDataRepeaterStreamActionViewModel> Actions { get; set; } = new();
+
+        /// <summary></summary>
+        public List<HCDataRepeaterStreamBatchActionViewModel> BatchActions { get; set; } = new();
     }
 }

@@ -406,7 +406,7 @@ namespace HealthCheck.Module.DataExport
             var streams = Options.Service?.GetStreams() ?? Enumerable.Empty<IHCDataExportStream>();
             return streams.Where(x =>
                 (x.AllowedAccessRoles == null) || context.HasRoleAccessObj(x.AllowedAccessRoles)
-                && (x.Categories?.Any() != true || context.CurrentModuleCategoryAccess?.Any() != true || context.CurrentModuleCategoryAccess.Any(c => x.Categories.Contains(c)))
+                && (context.CurrentModuleCategoryAccess?.Any() != true || context.CurrentModuleCategoryAccess.Any(c => x.Categories.Contains(c)))
             );
         }
 

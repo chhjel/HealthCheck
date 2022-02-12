@@ -82,9 +82,14 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         List<string> Categories { get; }
 
         /// <summary>
-        /// Optional extra actions that can be executed on items.
+        /// Optional extra actions that can be executed on single items.
         /// </summary>
         List<IHCDataRepeaterStreamItemAction> Actions { get; }
+
+        /// <summary>
+        /// Optional extra actions that can be executed on all items.
+        /// </summary>
+        List<IHCDataRepeaterStreamItemBatchAction> BatchActions { get; }
 
         /// <summary>
         /// Retry the given item.

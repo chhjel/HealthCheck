@@ -27,6 +27,13 @@ namespace HealthCheck.Dev.Common.DataRepeater
             new TestOrderDataRepeaterStreamItemActionTest(),
             new TestOrderDataRepeaterStreamItemActionToggleSuccess()
         };
+        public override List<IHCDataRepeaterStreamItemBatchAction> BatchActions => new List<IHCDataRepeaterStreamItemBatchAction>()
+        {
+            new TestOrderDataRepeaterStreamBatchActionRenameTag(),
+            new TestOrderDataRepeaterStreamBatchActionTest1(),
+            new TestOrderDataRepeaterStreamBatchActionTest2(),
+            new TestOrderDataRepeaterStreamBatchActionTestAdmin()
+        };
 
         public TestOrderDataRepeaterStream() : base(new HCFlatFileDataRepeaterStreamItemStorage<TestOrderStreamItem>(@"C:\temp\HealthCheck\DataRepeater_OrderCaps.json"))
         {
