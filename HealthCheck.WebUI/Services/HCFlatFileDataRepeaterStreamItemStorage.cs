@@ -157,6 +157,10 @@ namespace HealthCheck.WebUI.Services
         }
 
         /// <inheritdoc />
+        public Task<IEnumerable<IHCDataRepeaterStreamItem>> GetAllItemsAsync()
+            => Task.FromResult(Store.GetEnumerable().Cast<IHCDataRepeaterStreamItem>());
+
+        /// <inheritdoc />
         public async Task RemoveAllItemTagsAsync(Guid id)
         {
             var item = await GetItemAsync(id).ConfigureAwait(false);

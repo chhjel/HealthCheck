@@ -60,6 +60,9 @@ namespace HealthCheck.Core.Modules.DataRepeater.Abstractions
         public abstract List<IHCDataRepeaterStreamItemAction> Actions { get; }
 
         /// <inheritdoc />
+        public abstract List<IHCDataRepeaterStreamItemBatchAction> BatchActions { get; }
+
+        /// <inheritdoc />
         public abstract Task<HCDataRepeaterStreamItemDetails> GetItemDetailsAsync(IHCDataRepeaterStreamItem item);
 
         /// <inheritdoc />

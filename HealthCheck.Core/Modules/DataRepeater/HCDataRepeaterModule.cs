@@ -17,7 +17,34 @@ namespace HealthCheck.Core.Modules.DataRepeater
     {
         /// <inheritdoc />
         public override List<string> AllCategories
-            => Options?.Service?.GetStreams()?.SelectMany(x => x.Categories ?? new())?.ToList() ?? new List<string>();
+        {
+            get
+            {
+                var cats = new HashSet<string>();
+                foreach(var stream in Options?.Service?.GetStreams() ?? Enumerable.Empty<IHCDataRepeaterStream>())
+                {
+                    if (stream.Categories?.Any() == true)
+                    {
+                        stream.Categories.ForEach(x => cats.Add(x));
+                    }
+                    if (stream.Actions?.Any() == true)
+                    {
+                        foreach (var actionCat in stream.Actions.SelectMany(x => x.Categories))
+                        {
+                            cats.Add(actionCat);
+                        }
+                    }
+                    if (stream.BatchActions?.Any() == true)
+                    {
+                        foreach (var actionCat in stream.BatchActions.SelectMany(x => x.Categories))
+                        {
+                            cats.Add(actionCat);
+                        }
+                    }
+                }
+                return cats.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+            }
+        }
 
         private HCDataRepeaterModuleOptions Options { get; }
 
@@ -62,7 +89,9 @@ namespace HealthCheck.Core.Modules.DataRepeater
             /// <summary>Allows retrying items.</summary>
             RetryItems = 2,
             /// <summary>Allows executing custom actions on items.</summary>
-            ExecuteItemActions = 4
+            ExecuteItemActions = 4,
+            /// <summary>Allows executing custom batch actions on items.</summary>
+            ExecuteBatchActions = 8
         }
 
         #region Invokable methods
@@ -98,6 +127,20 @@ namespace HealthCheck.Core.Modules.DataRepeater
                 foreach (var action in actions)
                 {
                     streamModel.Actions.Add(new HCDataRepeaterStreamActionViewModel
+                    {
+                        Id = action.GetType().FullName,
+                        Name = !string.IsNullOrWhiteSpace(action.DisplayName) ? action.DisplayName : action.GetType().Name,
+                        Description = action.Description ?? "",
+                        ExecuteButtonLabel = action.ExecuteButtonLabel,
+                        ParameterDefinitions = HCCustomPropertyAttribute.CreateInputConfigs(action.ParametersType)
+                    });
+                }
+
+                var batchActions = (stream.BatchActions ?? new List<IHCDataRepeaterStreamItemBatchAction>())
+                    .Where(x => RequestCanAccessBatchAction(context, x));
+                foreach (var action in batchActions)
+                {
+                    streamModel.BatchActions.Add(new HCDataRepeaterStreamBatchActionViewModel
                     {
                         Id = action.GetType().FullName,
                         Name = !string.IsNullOrWhiteSpace(action.DisplayName) ? action.DisplayName : action.GetType().Name,
@@ -229,6 +272,28 @@ namespace HealthCheck.Core.Modules.DataRepeater
                 Data = data,
             };
         }
+
+        /// <summary>
+        /// Perform a batch action on all the items in the given stream.
+        /// </summary>
+        [HealthCheckModuleMethod(AccessOption.ExecuteBatchActions)]
+        public async Task<HCDataRepeaterStreamBatchActionResult> PerformBatchAction(HealthCheckModuleContext context, HCDataRepeaterPerformBatchActionRequest model)
+        {
+            if (!RequestCanAccessBatchAction(context, model.StreamId, model.ActionId))
+            {
+                return HCDataRepeaterStreamBatchActionResult.CreateError("Request does not have access to the given batch action.");
+            }
+
+            var stream = GetStream(context, model.StreamId);
+            var result = await Options.Service.PerformItemBatchAction(model.StreamId, model.ActionId, model.Parameters);
+
+            context.AddAuditEvent(action: "Execute batch action", subject: model.ActionId ?? "<null>")
+                .AddDetail("Stream", stream?.GetType()?.Name ?? "<null>")
+                .AddDetail("Batch action", model?.ActionId ?? "<null>")
+                .AddDetail("Result", result.ToString() ?? "<null>");
+
+            return result;
+        }
         #endregion
 
         #region Helpers
@@ -285,9 +350,24 @@ namespace HealthCheck.Core.Modules.DataRepeater
         private bool RequestCanAccessAction(HealthCheckModuleContext context, IHCDataRepeaterStreamItemAction action)
         {
             return action != null
-                && context.HasAccess(AccessOption.RetryItems)
+                && context.HasAccess(AccessOption.ExecuteItemActions)
                 && (action.AllowedAccessRoles == null || context.HasRoleAccessObj(action.AllowedAccessRoles))
-                && (action.Categories?.Any() != true || context.CurrentModuleCategoryAccess?.Any() != true || context.CurrentModuleCategoryAccess.Any(c => action.Categories.Contains(c)));
+                && (context.CurrentModuleCategoryAccess?.Any() != true || context.CurrentModuleCategoryAccess.Any(c => action.Categories.Contains(c)));
+        }
+
+        private bool RequestCanAccessBatchAction(HealthCheckModuleContext context, string streamId, string actionId)
+        {
+            var stream = GetStreamsRequestCanAccess(context).FirstOrDefault(x => x.GetType().FullName == streamId);
+            var action = stream.BatchActions?.FirstOrDefault(x => x?.GetType()?.FullName == actionId);
+            return RequestCanAccessBatchAction(context, action);
+        }
+
+        private bool RequestCanAccessBatchAction(HealthCheckModuleContext context, IHCDataRepeaterStreamItemBatchAction batchAction)
+        {
+            return batchAction != null
+                && context.HasAccess(AccessOption.ExecuteBatchActions)
+                && (batchAction.AllowedAccessRoles == null || context.HasRoleAccessObj(batchAction.AllowedAccessRoles))
+                && (context.CurrentModuleCategoryAccess?.Any() != true || context.CurrentModuleCategoryAccess.Any(c => batchAction.Categories.Contains(c)));
         }
 
         private IEnumerable<IHCDataRepeaterStream> GetStreamsRequestCanAccess(HealthCheckModuleContext context)

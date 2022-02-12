@@ -25,6 +25,7 @@ namespace HealthCheck.Dev.Common.DataRepeater
         {
             new TestOrderDataRepeaterStreamItemActionRemoveAllTags()
         };
+        public override List<IHCDataRepeaterStreamItemBatchAction> BatchActions => new List<IHCDataRepeaterStreamItemBatchAction>();
 
         public TestXDataRepeaterStream() : base(new MemoryDataRepeaterStreamItemStorage("testX"))
         {

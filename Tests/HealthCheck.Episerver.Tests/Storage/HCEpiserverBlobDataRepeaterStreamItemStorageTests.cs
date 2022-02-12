@@ -526,6 +526,7 @@ namespace HealthCheck.Episerver.Tests.Storage
             public override List<string> InitiallySelectedTags => new List<string>();
             public override List<string> FilterableTags => new List<string>();
             public override List<IHCDataRepeaterStreamItemAction> Actions => new List<IHCDataRepeaterStreamItemAction>();
+            public override List<IHCDataRepeaterStreamItemBatchAction> BatchActions => new List<IHCDataRepeaterStreamItemBatchAction>();
 
             public StreamImplementation(IHCDataRepeaterStreamItemStorage storage) : base(storage) { }
 

@@ -1,7 +1,8 @@
 export default class UrlUtils
 {
     static openRouteInNewTab(route: string): void {
-        const url = window.location.href.replace(window.location.hash, route);
+        let url = window.location.href.replace(window.location.hash, route);
+        url = UrlUtils.RemoveQueryStringParameter(url, 'h');
         window.open(url, '_blank');
     }
 
@@ -17,6 +18,12 @@ export default class UrlUtils
         const params = new URLSearchParams(location.search);
         params.set(key, value);
         window.history.replaceState({}, '', `${location.pathname}?${params.toString()}${location.hash}`);
+    }
+
+    static RemoveQueryStringParameter(url: string, key: string): string {
+        const urlObj = new URL(url);
+        urlObj.searchParams.delete('h');
+        return urlObj.toString();
     }
 
     static GetQueryStringParameter(key: string, fallbackValue: string | null = null): string | null

@@ -283,5 +283,14 @@ namespace HealthCheck.Core.Modules.DataRepeater.Storage
                 return Task.FromResult(result);
             }
         }
+
+        /// <inheritdoc />
+        public Task<IEnumerable<IHCDataRepeaterStreamItem>> GetAllItemsAsync()
+        {
+            lock (_items)
+            {
+                return Task.FromResult(_items.Select(x => x.Value));
+            }
+        }
     }
 }

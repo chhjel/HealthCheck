@@ -26,11 +26,18 @@ namespace HealthCheck.Core.Util
                 }
                 else
                 {
-                    summary = PrettifyDuration((long)timeSince.TotalMilliseconds, zero);
+                    summary = PrettifyDuration(timeSince, zero);
                 }
             }
             return summary;
         }
+
+        /// <summary>
+        /// Translates the given duration into text.
+        /// <para>E.g: "2 seconds" or "9 minutes, 15 seconds"</para>
+        /// </summary>
+        public static string PrettifyDuration(TimeSpan duration, string zero = "0 milliseconds")
+            => PrettifyDuration((long)duration.TotalMilliseconds, zero);
 
         /// <summary>
         /// Translates the given number of milliseconds into text.
