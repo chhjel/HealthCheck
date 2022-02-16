@@ -7,4 +7,5 @@ import { ItemActionResultStatus } from '../../Enums/Core/ItemActionResultStatus'
 export interface HCDataRepeaterStreamItemBatchActionResult
 {
 	Status: ItemActionResultStatus;
+	StopBatchJob: boolean;
 }

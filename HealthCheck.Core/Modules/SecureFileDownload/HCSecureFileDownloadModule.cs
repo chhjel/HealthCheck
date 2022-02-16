@@ -69,7 +69,8 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
                     StorageId = storage.StorageId,
                     StorageName = storage.StorageName,
                     FileIdInfo = storage.FileIdInfo,
-                    FileIdLabel = storage.FileIdLabel
+                    FileIdLabel = storage.FileIdLabel,
+                    SupportsUpload = storage.SupportsUpload
                 });
             }
             return model;
@@ -411,15 +412,25 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
                 return null;
             }
 
-            if (!context.Request.Headers.ContainsKey("X-Id"))
+            if (!context.Request.Headers.ContainsKey("x-id"))
             {
                 return null;
             }
 
-            var idFromRequest = context.Request.Headers["X-Id"];
+            var idFromRequestRaw = context.Request.Headers["x-id"];
+            if (!Guid.TryParse(idFromRequestRaw, out var idFromRequest))
+            {
+                return null;
+            }
+
+            var streamGetter = context?.Request?.FormFiles?.FirstOrDefault()?.GetStream;
+            if (streamGetter == null)
+            {
+                return null;
+            }
 
             // Get definition
-            var definition = Options.DefinitionStorage.GetDefinitionByUrlSegmentText(idFromRequest);
+            var definition = Options.DefinitionStorage.GetDefinition(idFromRequest);
             if (definition == null)
             {
                 return null;
@@ -436,8 +447,14 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
             }
 
             // Upload file
-            var stream = context?.Request?.InputStream;
+            var stream = streamGetter();
             var uploadResult = await storage.UploadFileAsync(stream);
+
+            if (uploadResult.Success)
+            {
+                definition.FileId = uploadResult.FileId;
+                // todo: set definition.HasUploadedFile, and if so hide frontend selection
+            }
 
             return createResult(uploadResult.Success, uploadResult.ErrorMessage, uploadResult.FileId);
 

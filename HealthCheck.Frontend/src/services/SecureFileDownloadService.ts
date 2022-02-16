@@ -1,6 +1,7 @@
 import { HCSecureFileDownloadFileDetails } from './../generated/Models/Core/HCSecureFileDownloadFileDetails';
-import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
-import { SecureFileDownloadsViewModel, SecureFileDownloadDefinition, SecureFileDownloadSaveViewModel } from "../models/modules/SecureFileDownload/Models";
+import HCServiceBase, { FetchStatus, FetchStatusWithProgress, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
+import { SecureFileDownloadsViewModel, SecureFileDownloadDefinition, SecureFileDownloadSaveViewModel, SecureFileDownloadStorageUploadFileResult } from "../models/modules/SecureFileDownload/Models";
+import UrlUtils from 'util/UrlUtils';
 
 export default class SecureFileDownloadService extends HCServiceBase
 {
@@ -40,4 +41,55 @@ export default class SecureFileDownloadService extends HCServiceBase
     ): void {
         this.invokeModuleMethod(this.moduleId, 'DeleteDefinition', definitionId, statusObject, callbacks);
     }
+    
+    public UploadFile(file: File, fileDefId: string, statusObject: FetchStatusWithProgress | null = null)
+        : Promise<SecureFileDownloadStorageUploadFileResult> {
+
+        return new Promise((resolve, reject) => {
+            if (statusObject) statusObject.inProgress = true;
+
+            try {
+                const req = new XMLHttpRequest();
+            
+                req.upload.addEventListener('progress', (event: ProgressEvent) => {
+                    if (event.lengthComputable) {
+                        if (statusObject) statusObject.progress = event.loaded / event.total * 100;
+                    }
+                });
+                req.upload.addEventListener('load', (event: Event) => {
+                    if (statusObject) statusObject.progress = 100;
+                });
+                req.upload.addEventListener('error', (event: ProgressEvent<XMLHttpRequestEventTarget>) => {
+                    if (statusObject) {
+                        statusObject.progress = 0;
+                        statusObject.errorMessage = `Failed to upload.`;
+                    }
+                    const result: SecureFileDownloadStorageUploadFileResult = {
+                        success: false,
+                        fileId: '',
+                        message: 'Failed to upload.'
+                    };
+                    resolve(result);
+                });
+                req.onload  = function() {
+                   var jsonResponse = req.response;
+                   const result: SecureFileDownloadStorageUploadFileResult = JSON.parse(jsonResponse);
+                   resolve(result);
+                };
+            
+                const formData = new FormData();
+                formData.append('file', file, file.name);
+            
+                let url = UrlUtils.getRelativeToCurrent(`./SFDUploadFile`);
+                req.open('POST', `${url}`);
+                req.setRequestHeader('x-id', fileDefId);
+                req.send(formData);
+            }
+            catch(e) {
+                if (statusObject) statusObject.errorMessage = `Failed to upload. ${e}`;
+            }
+            
+            if (statusObject) statusObject.inProgress = false;
+        });
+      }
 }

@@ -8,6 +8,14 @@ export class FetchStatus
     public errorMessage: string | null = null;
 }
 
+export class FetchStatusWithProgress
+{
+    public inProgress: boolean = false;
+    public progress: number = 0;
+    public failed: boolean = false;
+    public errorMessage: string | null = null;
+}
+
 export interface ServiceFetchCallbacks<T>
 {
     onSuccess?: ((data: T) => void ) | null;

@@ -39,4 +39,12 @@ export interface SecureFileDownloadStorageInfo
     StorageName: string;
     FileIdInfo: string;
     FileIdLabel: string;
+    SupportsUpload: boolean;
+}
+
+export interface SecureFileDownloadStorageUploadFileResult
+{
+    success: boolean;
+    message: string;
+    fileId: string;
 }

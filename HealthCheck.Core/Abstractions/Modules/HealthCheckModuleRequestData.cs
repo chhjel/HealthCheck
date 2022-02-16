@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using HealthCheck.Core.Models;
+using System.Collections.Generic;
 using System.IO;
 
 namespace HealthCheck.Core.Abstractions.Modules
@@ -44,5 +45,6 @@ namespace HealthCheck.Core.Abstractions.Modules
         public string ClientIP { get; set; }
 
         internal Stream InputStream { get; set; }
+        internal List<RequestFormFile> FormFiles { get; set; }
     }
 }

@@ -29,7 +29,6 @@ using System.Web;
 #if NETCORE
 using System.IO;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 #endif
 
 namespace HealthCheck.WebUI.Util
@@ -68,6 +67,8 @@ namespace HealthCheck.WebUI.Util
 
         internal bool HasAccessToAnyContent(Maybe<TAccessRole> currentRequestAccessRoles)
             => GetModulesRequestHasAccessTo(currentRequestAccessRoles).Count > 0;
+
+        internal bool ShouldEnableRequestBuffering(string url) => false;
 
         #region Modules
         private List<HealthCheckLoadedModule> LoadedModules { get; set; } = new List<HealthCheckLoadedModule>();
@@ -357,7 +358,8 @@ namespace HealthCheck.WebUI.Util
                 Headers = requestInfo.Headers,
                 RelativeUrl = requestInfo.Url,
                 ClientIP = requestInfo.ClientIP,
-                InputStream = requestInfo.InputStream
+                InputStream = requestInfo.InputStream,
+                FormFiles = requestInfo.FormFiles,
             };
 
             var pageOptions = _pageOptionsGetter?.Invoke();

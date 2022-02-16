@@ -21,7 +21,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.Abstractions
         string StorageName { get; }
 
         /// <summary>
-        /// Label to show in the management ui above file id field.
+        /// Label to show in the management ui above file id/upload field.
         /// </summary>
         string FileIdLabel { get; }
 

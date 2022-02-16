@@ -6,7 +6,9 @@ export interface HCDataRepeaterStreamBatchActionResult
 {
 	Success: boolean;
 	ErrorMessage: string;
+	Message: string;
 	UpdatedSuccessfullyCount: number;
 	NotAttemptedUpdatedCount: number;
 	UpdateFailedCount: number;
+	AttemptedUpdatedCount: number;
 }

@@ -68,6 +68,7 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
 
     localValue: string | null = '';
     id: string = IdUtils.generateId();
+    selectedFile: File | null = null;
     
     mounted(): void {
         this.updateLocalValue();
@@ -93,6 +94,7 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
 
     setValueToNull(): void {
         this.localValue = null;
+        this.selectedFile = null;
 
         let input: HTMLInputElement = (<HTMLInputElement>this.$refs.fileinput);
         input.value = "";
@@ -142,6 +144,7 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
     onLocalValueChanged(): void
     {
         this.$emit('input', this.localValue);
+        this.$emit('onFileChanged', this.selectedFile);
     }
 
     onFileChanged(): void {
@@ -154,6 +157,7 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
         }
         
         let file = files[0];
+        this.selectedFile = file;
         var reader = new FileReader();
         reader.onload = ((theFile: File) => {
             return (e: any) => {

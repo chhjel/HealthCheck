@@ -68,6 +68,16 @@
                 type="text"
                 />
             
+            <div v-if="selectedStorageSupportsUploads">
+                upload pls
+                <parameter-input-type-http-posted-file-base-component :value="null" :config="emptyObj"
+                    @onFileChanged="onFileChanged" 
+                    :readonly="!allowChanges || !isEditing" />
+                <b v-if="!isEditing">Save first to upload files.</b>
+                {{ uploadLoadStatus }}
+                {{ uploadResult }}
+            </div>
+            
             <input-component
                 class="mt-2"
                 v-model="internalDownload.Note"
@@ -173,17 +183,19 @@ import IdUtils from  '../../../util/IdUtils';
 import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
 import InputComponent from  '../../Common/Basic/InputComponent.vue';
 import SelectComponent from  '../../Common/Basic/SelectComponent.vue';
-import { SecureFileDownloadDefinition, SecureFileDownloadSaveViewModel, SecureFileDownloadStorageInfo } from "../../../models/modules/SecureFileDownload/Models";
+import { SecureFileDownloadDefinition, SecureFileDownloadSaveViewModel, SecureFileDownloadStorageInfo, SecureFileDownloadStorageUploadFileResult } from "../../../models/modules/SecureFileDownload/Models";
 import SecureFileDownloadUtils from "../../../util/SecureFileDownload/SecureFileDownloadUtils";
 import SecureFileDownloadService from "../../../services/SecureFileDownloadService";
-import { FetchStatus } from "../../../services/abstractions/HCServiceBase";
+import { FetchStatus, FetchStatusWithProgress } from "../../../services/abstractions/HCServiceBase";
+import ParameterInputTypeHttpPostedFileBaseComponent from "components/Common/Inputs/BackendInputs/Types/ParameterInputTypeHttpPostedFileBaseComponent.vue";
 
 @Component({
     components: {
         SimpleDateTimeComponent,
         BlockComponent,
         InputComponent,
-        SelectComponent
+        SelectComponent,
+        ParameterInputTypeHttpPostedFileBaseComponent
     }
 })
 export default class EditDownloadComponent extends Vue {
@@ -213,6 +225,9 @@ export default class EditDownloadComponent extends Vue {
     fileIdOptionIds: Array<string> = [];
     selectedFileName: string = '';
     fileIdOptionsLoadStatus: FetchStatus = new FetchStatus();
+    uploadLoadStatus: FetchStatusWithProgress = new FetchStatusWithProgress();
+    uploadResult: SecureFileDownloadStorageUploadFileResult | null = null;
+    emptyObj: any = {};
 
     //////////////////
     //  LIFECYCLE  //
@@ -242,6 +257,15 @@ export default class EditDownloadComponent extends Vue {
     get hasFileIdOptions(): boolean {
         return this.fileIdOptions.length > 0;
     }
+
+    get isEditing(): boolean {
+        return this.hasDefinitionId;
+    }
+
+    get hasDefinitionId(): boolean {
+        return this.internalDownload.Id != null
+            && this.internalDownload.Id != '00000000-0000-0000-0000-000000000000';
+    }
     
     get allowChanges(): boolean {
         return !this.readonly && !this.serverInteractionInProgress;
@@ -249,6 +273,10 @@ export default class EditDownloadComponent extends Vue {
 
     get absoluteDownloadUrl(): string {
         return SecureFileDownloadUtils.getAbsoluteDownloadUrl(this.internalDownload.UrlSegmentText);
+    }
+
+    get selectedStorageSupportsUploads(): boolean {
+        return this.storageInfos.some(x => x.StorageId == this.internalDownload.StorageId && x.SupportsUpload);
     }
 
     get storageOptions(): any {
@@ -401,6 +429,16 @@ export default class EditDownloadComponent extends Vue {
         const index = this.fileIdOptions.indexOf(this.selectedFileName);
         const fileId = this.fileIdOptionIds[index] || '';
         this.internalDownload.FileId = fileId;
+    }
+
+    async onFileChanged(file: File | null) {
+        if (file == null || !this.allowChanges || !this.hasDefinitionId) return;
+        const result = await this.service.UploadFile(file, this.internalDownload.Id, this.uploadLoadStatus);;
+        this.uploadResult = result
+        if (result.success)
+        {
+            this.internalDownload.FileId = result.fileId;
+        }
     }
 }
 </script>

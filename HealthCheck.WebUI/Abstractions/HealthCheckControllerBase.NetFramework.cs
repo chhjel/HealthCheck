@@ -11,6 +11,7 @@ using HealthCheck.WebUI.Models;
 using HealthCheck.WebUI.Util;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -408,14 +409,30 @@ namespace HealthCheck.WebUI.Abstractions
         protected override IAsyncResult BeginExecute(RequestContext requestContext, AsyncCallback callback, object state)
         {
             var request = requestContext?.HttpContext?.Request;
+            var url = request?.Url?.ToString();
 
             CurrentRequestInformation = GetRequestInformation(request);
             CurrentRequestInformation.Method = request?.HttpMethod;
-            CurrentRequestInformation.Url = request?.Url?.ToString();
+            CurrentRequestInformation.Url = url;
             CurrentRequestInformation.ClientIP = GetRequestIP(requestContext);
             CurrentRequestInformation.Headers = request?.Headers?.AllKeys?.ToDictionaryIgnoreDuplicates(t => t, t => request.Headers[t])
                 ?? new Dictionary<string, string>();
-            CurrentRequestInformation.InputStream = request?.InputStream;
+            CurrentRequestInformation.InputStream = Helper.ShouldEnableRequestBuffering(url)
+                ? request?.GetBufferedInputStream()
+                : request.InputStream;
+            if (request?.Files?.AllKeys?.Any() == true)
+            {
+                foreach (var fileKey in request.Files.AllKeys)
+                {
+                    var file = request.Files[fileKey];
+                    CurrentRequestInformation.FormFiles.Add(new RequestFormFile
+                    {
+                        FileName = file.FileName,
+                        Length = file.ContentLength,
+                        GetStream = () => file.InputStream
+                    });
+                }
+            }
 
             var requestInfoOverridden = Helper.ApplyTokenAccessIfDetected(CurrentRequestInformation);
             CurrentRequestAccessRoles = CurrentRequestInformation?.AccessRole;

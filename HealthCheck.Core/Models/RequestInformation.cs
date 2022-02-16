@@ -61,6 +61,7 @@ namespace HealthCheck.Core.Models
         public string ClientIP { get; set; }
 
         internal Stream InputStream { get; set; }
+        internal List<RequestFormFile> FormFiles { get; set; } = new List<RequestFormFile>();
 
         /// <summary>
         /// Create a new <see cref="RequestInformation{TAccessRole}"/> object.
