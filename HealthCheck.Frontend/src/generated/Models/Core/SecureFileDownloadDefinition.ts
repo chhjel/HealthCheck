@@ -14,6 +14,7 @@ export interface SecureFileDownloadDefinition
 	FileName: string;
 	StorageId: string;
 	FileId: string;
+	OriginalFileName: string;
 	HasUploadedFile: boolean;
 	UrlSegmentText: string;
 	Password: string;
