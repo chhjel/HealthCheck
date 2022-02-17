@@ -1576,7 +1576,7 @@ Built in custom types:
 
 ## Module: Downloads
 
-The downloads module allow files to be made available for download, optionally protected by password, expiration date and download count limit. Downloads are tracked in the audit log. Built-in implementations: `FlatFileSecureFileDownloadDefinitionStorage` for download definition storage, and two file storage implementations: `FolderFileStorage` and `UrlFileStorage`.
+The downloads module allow files to be made available for download, optionally protected by password, expiration date and download count limit. Downloads are tracked in the audit log. Built-in implementations: `FlatFileSecureFileDownloadDefinitionStorage` for download definition storage, and 3 file storage implementations: `FolderFileStorage`, `UrlFileStorage` and `HCEpiserverBlobFileStorage` (in epi package).
 
 ### Setup
 
@@ -1908,9 +1908,9 @@ Set `IntegratedProfileConfig` to show a profile button that displays the usernam
 
 The built in flatfile storage classes should work fine for most use cases when a persistent folder is available. If used make sure they are registered as singletons, they are thread safe but only within their own instances. If multiple servers are used these are not optimal obviously.
 
-### Episerver
+### Episerver / Optimizely
 
-For Episerver projects blob storage implementations can optionally be used from [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Episerver?label=HealthCheck.Episerver&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Episerver) and the other episerver packages for specific modules. If used they should be registered as singletons for optimal performance.
+For Episerver/Optimizely projects storage implementations can optionally be used from [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Episerver?label=HealthCheck.Episerver&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Episerver) and the other episerver packages for specific modules. If used they should be registered as singletons for optimal performance.
 
 Cache can optionally be set to null in constructor if not wanted, or the included memory cache `HCSimpleMemoryCache` can be used as a singleton.
 
@@ -1968,6 +1968,9 @@ Cache can optionally be set to null in constructor if not wanted, or the include
     context.Services.AddSingleton<MyStreamStorageA>();
     context.Services.AddSingleton<IHCDataRepeaterStream, MyStreamA>();
     // services.AddSingleton<IHCDataRepeaterStream, MyStreamB>(); etc
+
+    // File download
+    context.Services.AddSingleton<ISecureFileDownloadFileStorage, HCEpiserverBlobFileStorage>();
 ```
 
 </p>
