@@ -37,45 +37,70 @@
                 class="mt-2"
                 v-model="internalDownload.StorageId"
                 :items="storageOptions"
-                :disabled="!allowChanges"
+                :disabled="!allowChanges || internalDownload.HasUploadedFile"
                 name="Where to get file from"
                 @input="onStorageChanged()"
                 />
             
-            <select-component
-                v-if="hasFileIdOptions"
-                v-model="selectedFileName"
-                @change="onFileSelectorChanged"
-                class="mt-2"
-                :error="validateFileId"
-                :items="fileIdOptions"
-                :disabled="!allowChanges"
-                :loading="fileIdOptionsLoadStatus.inProgress"
-                :name="getStorageFileIdLabel(internalDownload.StorageId)"
-                :description="getStorageFileIdInfo(internalDownload.StorageId)"
-                show-description-on-start="true"
-                />
-            
-            <input-component
-                v-if="!hasFileIdOptions"
-                class="mt-2"
-                v-model="internalDownload.FileId"
-                :error="validateFileId"
-                :disabled="!allowChanges"
-                :name="getStorageFileIdLabel(internalDownload.StorageId)"
-                :description="getStorageFileIdInfo(internalDownload.StorageId)"
-                show-description-on-start="true"
-                type="text"
-                />
-            
-            <div v-if="selectedStorageSupportsUploads">
-                upload pls
+            <div class="file-selection-method" v-if="showFileIdSelect || showFileIdInput">
+                <select-component
+                    v-if="showFileIdSelect"
+                    v-model="selectedFileName"
+                    @change="onFileSelectorChanged"
+                    class="mt-2"
+                    :error="validateFileId"
+                    :items="fileIdOptions"
+                    :disabled="!allowChanges"
+                    :loading="fileIdOptionsLoadStatus.inProgress"
+                    :name="getStorageFileIdLabel(internalDownload.StorageId)"
+                    :description="getStorageFileIdInfo(internalDownload.StorageId)"
+                    show-description-on-start="true"
+                    />
+                
+                <input-component
+                    v-if="showFileIdInput"
+                    class="mt-2"
+                    v-model="internalDownload.FileId"
+                    :error="validateFileId"
+                    :disabled="!allowChanges"
+                    :name="getStorageFileIdLabel(internalDownload.StorageId)"
+                    :description="getStorageFileIdInfo(internalDownload.StorageId)"
+                    show-description-on-start="true"
+                    type="text"
+                    />
+            </div>
+
+            <h3 v-if="(showFileIdSelect || showFileIdInput) && selectedStorageSupportsUploads">Or</h3>
+
+            <div v-if="selectedStorageSupportsUploads" class="file-selection-method">
+                <div class="input-label-d">Upload a file</div>
+                <br />
+
                 <parameter-input-type-http-posted-file-base-component :value="null" :config="emptyObj"
+                    class="upload-file-component"
+                    ref="filepicker"
                     @onFileChanged="onFileChanged" 
-                    :readonly="!allowChanges || !isEditing" />
+                    :readonly="!allowChanges || !isEditing"
+                    :allowClear="false" />
+                <br />
+
+                <div v-if="selectedFile != null">
+                    <v-btn small color="primary"
+                        @click="uploadSelectedFile"
+                        :loading="uploadResult && uploadResult.inProgress"
+                        :disabled="!allowChanges">Upload selected file</v-btn>
+                    <span v-if="uploadResult && !uploadResult.success">{{ uploadResult.message }}</span>
+                    <span v-if="uploadResult && uploadResult.success">File uploaded successfully.</span>
+                    <fetch-status-progress-component :status="uploadLoadStatus" class="ml-2 mr-2" style="margin-top: -4px; width: 178px;" />
+                </div>
+                
+                <v-btn small class="error"
+                    v-if="internalDownload.HasUploadedFile"
+                    @click="removeUploadedFile"
+                    :disabled="!allowChanges">Delete uploaded file '{{ internalDownload.OriginalFileName }}'</v-btn>
                 <b v-if="!isEditing">Save first to upload files.</b>
-                {{ uploadLoadStatus }}
-                {{ uploadResult }}
+                <span v-if="deleteFileStatus && !deleteFileStatus.success">{{ deleteFileStatus.message }}</span>
+                <span v-if="deleteFileStatus && deleteFileStatus.success">File deleted successfully.</span>
             </div>
             
             <input-component
@@ -188,6 +213,7 @@ import SecureFileDownloadUtils from "../../../util/SecureFileDownload/SecureFile
 import SecureFileDownloadService from "../../../services/SecureFileDownloadService";
 import { FetchStatus, FetchStatusWithProgress } from "../../../services/abstractions/HCServiceBase";
 import ParameterInputTypeHttpPostedFileBaseComponent from "components/Common/Inputs/BackendInputs/Types/ParameterInputTypeHttpPostedFileBaseComponent.vue";
+import FetchStatusProgressComponent from "components/Common/Basic/FetchStatusProgressComponent.vue";
 
 @Component({
     components: {
@@ -195,7 +221,8 @@ import ParameterInputTypeHttpPostedFileBaseComponent from "components/Common/Inp
         BlockComponent,
         InputComponent,
         SelectComponent,
-        ParameterInputTypeHttpPostedFileBaseComponent
+        ParameterInputTypeHttpPostedFileBaseComponent,
+        FetchStatusProgressComponent
     }
 })
 export default class EditDownloadComponent extends Vue {
@@ -225,9 +252,11 @@ export default class EditDownloadComponent extends Vue {
     fileIdOptionIds: Array<string> = [];
     selectedFileName: string = '';
     fileIdOptionsLoadStatus: FetchStatus = new FetchStatus();
+    deleteFileStatus: FetchStatus = new FetchStatus();
     uploadLoadStatus: FetchStatusWithProgress = new FetchStatusWithProgress();
     uploadResult: SecureFileDownloadStorageUploadFileResult | null = null;
     emptyObj: any = {};
+    selectedFile: File | null = null;
 
     //////////////////
     //  LIFECYCLE  //
@@ -252,6 +281,14 @@ export default class EditDownloadComponent extends Vue {
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
         return this.$store.state.globalOptions;
+    }
+
+    get showFileIdInput(): boolean {
+        return this.selectedStorageSupportsSelectingFile &&!this.hasFileIdOptions && !this.internalDownload.HasUploadedFile && this.selectedFile == null;
+    }
+
+    get showFileIdSelect(): boolean {
+        return this.selectedStorageSupportsSelectingFile && this.hasFileIdOptions && !this.internalDownload.HasUploadedFile && this.selectedFile == null;
     }
 
     get hasFileIdOptions(): boolean {
@@ -279,6 +316,10 @@ export default class EditDownloadComponent extends Vue {
         return this.storageInfos.some(x => x.StorageId == this.internalDownload.StorageId && x.SupportsUpload);
     }
 
+    get selectedStorageSupportsSelectingFile(): boolean {
+        return this.storageInfos.some(x => x.StorageId == this.internalDownload.StorageId && x.SupportsSelectingFile);
+    }
+
     get storageOptions(): any {
         return this.storageInfos.map(x => {
                 return { text: x.StorageName, value: x.StorageId }
@@ -286,7 +327,7 @@ export default class EditDownloadComponent extends Vue {
     }
     
     get validateFileId(): string | null {
-        if (this.internalDownload.FileId == null || this.internalDownload.FileId.length == 0)
+        if ((this.internalDownload.FileId == null || this.internalDownload.FileId.length == 0) && !this.selectedStorageSupportsUploads)
         {
             const label = this.getStorageFileIdLabel(this.internalDownload.StorageId);
             return `${label} is required.`;
@@ -357,6 +398,7 @@ export default class EditDownloadComponent extends Vue {
         if (result.Success)
         {
             this.$emit('downloadSaved', result.Definition);
+            this.internalDownload = result.Definition;
         }
         else
         {
@@ -432,13 +474,57 @@ export default class EditDownloadComponent extends Vue {
     }
 
     async onFileChanged(file: File | null) {
-        if (file == null || !this.allowChanges || !this.hasDefinitionId) return;
-        const result = await this.service.UploadFile(file, this.internalDownload.Id, this.uploadLoadStatus);;
+        this.selectedFile = file;
+        if (!this.allowChanges || !this.hasDefinitionId) return;
+    }
+
+    async uploadSelectedFile() {
+        this.uploadResult = null;
+        if (this.selectedFile != null)
+        {
+            await this.uploadFile(this.selectedFile);
+        }
+    }
+
+    async uploadFile(file: File): Promise<SecureFileDownloadStorageUploadFileResult> {
+        this.setServerInteractionInProgress(true);
+        const result = await this.service.UploadFile(file, this.internalDownload.Id, this.internalDownload.StorageId, this.uploadLoadStatus);
         this.uploadResult = result
         if (result.success)
         {
+            this.internalDownload.Id = result.defId;
+            this.internalDownload.HasUploadedFile = true;
             this.internalDownload.FileId = result.fileId;
+            this.internalDownload.OriginalFileName = file.name;
         }
+        this.setServerInteractionInProgress(false);
+        return result;
+    }
+
+    removeUploadedFile(): void {
+        this.setServerInteractionInProgress(true);
+        this.service.DeleteUploadedFile(this.internalDownload.Id, this.deleteFileStatus, {
+            onSuccess: (success) => {
+                if (success)
+                {
+                    this.selectedFile = null;
+                    this.internalDownload.HasUploadedFile = false;
+                    this.internalDownload.FileId = '';
+                    this.internalDownload.OriginalFileName = '';
+                    const filepicker = this.$refs.filepicker as ParameterInputTypeHttpPostedFileBaseComponent;
+                    if (filepicker != null)
+                    {
+                        filepicker.setValueToNull();
+                    }
+                }
+                else {
+                    this.deleteFileStatus.failed = true;
+                    this.deleteFileStatus.errorMessage = "Failed to delete file.";
+                }
+            },
+            onError: (message) => this.setServerInteractionInProgress(false, message),
+            onDone: () => this.setServerInteractionInProgress(false)
+        });
     }
 }
 </script>
@@ -476,6 +562,19 @@ export default class EditDownloadComponent extends Vue {
     font-size: 18px;
     margin-bottom: 10px;
     margin-right: 10px;
+}
+.file-selection-method {
+    border: 4px solid #f4f4f4;
+    padding: 10px;
+}
+.input-label-d {
+    display: inline-block;
+    font-size: 16px;
+    color: var(--v-secondary-base);
+    font-weight: 600;
+}
+.upload-file-component {
+    display: inline-block;
 }
 </style>
 

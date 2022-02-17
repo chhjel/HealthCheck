@@ -130,7 +130,9 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                 DefinitionStorage = secureFileDownloadDefinitionStorage,
                 FileStorages = new ISecureFileDownloadFileStorage[]
                 {
-                    new FolderFileStorage("files_test", "Disk storage", @"C:\temp\fileStorageTest"),
+                    new FolderFileStorage("files_testU", "Disk storage (upload only)", @"C:\temp\fileStorageTest") { SupportsSelectingFile = false, SupportsUpload = true },
+                    new FolderFileStorage("files_testD", "Disk storage (download only)", @"C:\temp\fileStorageTest") { SupportsSelectingFile = true, SupportsUpload = false },
+                    new FolderFileStorage("files_testUD", "Disk storage (upload and download)", @"C:\temp\fileStorageTest") { SupportsSelectingFile = true, SupportsUpload = true },
                     new UrlFileStorage("urls_test", "External url")
                 }
             }));

@@ -39,6 +39,11 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.FileStorage
         protected string Folder { get; private set; }
 
         /// <summary>
+        /// Can be set to true to pick files from the selected folder.
+        /// </summary>
+        public bool SupportsSelectingFile { get; set; } = false;
+
+        /// <summary>
         /// Can be set to false to disable upload.
         /// </summary>
         public bool SupportsUpload { get; set; } = true;
@@ -96,14 +101,14 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.FileStorage
         /// <para>Returns null if allowed.</para>
         /// </summary>
         public virtual string ValidateFileIdBeforeSave(string fileId)
-            => HasFile(fileId) ? null : $"File was not found at '{GetFilePath(fileId)}.'";
+            => (SupportsUpload || HasFile(fileId)) ? null : $"File was not found at '{GetFilePath(fileId)}.'";
 
         /// <summary>
         /// Returns a list of all the files below the folder.
         /// </summary>
         public virtual IEnumerable<HCSecureFileDownloadFileDetails> GetFileIdOptions()
             => Directory.GetFiles(Folder, "*.*", SearchOption.AllDirectories)
-                //.Where(x => !x.EndsWith(".HCUpload"))
+                .Where(x => !x.EndsWith(".HCUpload"))
                 .Select(x => new HCSecureFileDownloadFileDetails
                 {
                     Id = x.Substring(Folder.Length + 1),
@@ -132,6 +137,23 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.FileStorage
                 Success = true,
                 FileId = filename
             };
+        }
+
+        /// <inheritdoc />
+        public Task<bool> DeleteUploadedFileAsync(string fileId)
+        {
+            if (!HasFile(fileId)) return Task.FromResult(true);
+
+            try
+            {
+                var path = GetFilePath(fileId);
+                File.Delete(path);
+            }
+            catch (Exception)
+            {
+                Task.FromResult(false);
+            }
+            return Task.FromResult(true);
         }
 
         private string GetFilePath(string filename)

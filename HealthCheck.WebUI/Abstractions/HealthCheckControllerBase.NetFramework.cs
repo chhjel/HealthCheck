@@ -56,7 +56,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         protected HealthCheckControllerBase()
         {
-            Helper = new HealthCheckControllerHelper<TAccessRole>(() => GetPageOptions());
+            Helper = new HealthCheckControllerHelper<TAccessRole>(() => GetPageOptions(), () => GetFrontEndOptions());
         }
 
 #region Abstract
@@ -417,7 +417,7 @@ namespace HealthCheck.WebUI.Abstractions
             CurrentRequestInformation.ClientIP = GetRequestIP(requestContext);
             CurrentRequestInformation.Headers = request?.Headers?.AllKeys?.ToDictionaryIgnoreDuplicates(t => t, t => request.Headers[t])
                 ?? new Dictionary<string, string>();
-            CurrentRequestInformation.InputStream = Helper.ShouldEnableRequestBuffering(url)
+            CurrentRequestInformation.InputStream = HealthCheckControllerHelper<TAccessRole>.ShouldEnableRequestBuffering(url)
                 ? request?.GetBufferedInputStream()
                 : request.InputStream;
             if (request?.Files?.AllKeys?.Any() == true)

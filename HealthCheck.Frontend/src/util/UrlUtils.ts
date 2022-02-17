@@ -67,7 +67,7 @@ export default class UrlUtils
         if (includeHash) suffix += (window.location.hash == '#' ? '' : window.location.hash);
 
         let stack = base.split("/"), parts = relative.split("/");
-        stack.pop()
+        stack.pop();
 
         for (var i=0; i<parts.length; i++) {
             if (parts[i] == ".")

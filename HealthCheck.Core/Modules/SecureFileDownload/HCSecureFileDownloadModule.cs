@@ -70,7 +70,8 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
                     StorageName = storage.StorageName,
                     FileIdInfo = storage.FileIdInfo,
                     FileIdLabel = storage.FileIdLabel,
-                    SupportsUpload = storage.SupportsUpload
+                    SupportsUpload = storage.SupportsUpload,
+                    SupportsSelectingFile = storage.SupportsSelectingFile
                 });
             }
             return model;
@@ -128,6 +129,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         public List<HCSecureFileDownloadFileDetails> GetStorageFileIdOptions(string storageId)
         {
             var storage = Options.FileStorages.FirstOrDefault(x => x.StorageId == storageId);
+            if (storage?.SupportsSelectingFile != true) return new List<HCSecureFileDownloadFileDetails>();
             return storage?.GetFileIdOptions()?.ToList() ?? new List<HCSecureFileDownloadFileDetails>();
         }
 
@@ -196,7 +198,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
         /// Update a stored definition.
         /// </summary>
         [HealthCheckModuleMethod(requiresAccessTo: AccessOption.DeleteDefinition)]
-        public bool DeleteDefinition(HealthCheckModuleContext context, Guid id)
+        public async Task<bool> DeleteDefinition(HealthCheckModuleContext context, Guid id)
         {
             var definition = Options.DefinitionStorage.GetDefinition(id);
             if (definition == null)
@@ -208,7 +210,54 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
                 .AddDetail("File Name", definition.FileName)
                 .AddDetail("File Id", definition.FileId)
                 .AddDetail("Storage Id", definition.StorageId);
+
             Options.DefinitionStorage.DeleteDefinition(id);
+
+            if (definition.HasUploadedFile && !string.IsNullOrWhiteSpace(definition.FileId))
+            {
+                var storageId = definition.StorageId;
+                var storage = Options.FileStorages.FirstOrDefault(x => x.StorageId == storageId);
+                if (storage != null)
+                {
+                    await storage.DeleteUploadedFileAsync(definition.FileId);
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Deletes uploaded file for definition.
+        /// </summary>
+        [HealthCheckModuleMethod(requiresAccessTo: AccessOption.EditDefinition)]
+        public async Task<bool> DeleteUploadedFile(HealthCheckModuleContext context, Guid id)
+        {
+            var definition = Options.DefinitionStorage.GetDefinition(id);
+            if (definition == null)
+            {
+                return false;
+            }
+
+            var storageId = definition.StorageId;
+            var storage = Options.FileStorages.FirstOrDefault(x => x.StorageId == storageId);
+            if (storage == null)
+            {
+                return false;
+            }
+
+            var isRemoved = await storage.DeleteUploadedFileAsync(definition.FileId);
+            if (!isRemoved) return false;
+
+            context.AddAuditEvent("Deleted uploaded file", definition.FileName)
+                .AddDetail("File Name", definition.FileName)
+                .AddDetail("Deleted file name", definition.OriginalFileName)
+                .AddDetail("Storage Id", definition.StorageId);
+
+            definition.FileId = "";
+            definition.OriginalFileName = "";
+            definition.HasUploadedFile = false;
+            definition = Options.DefinitionStorage.UpdateDefinition(definition);
+
             return true;
         }
         #endregion
@@ -268,14 +317,14 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
             // lazy brute force delay
             await Task.Delay(3000).ConfigureAwait(false);
 
-            if (!context.Request.Headers.ContainsKey("X-Id")
-                || !context.Request.Headers.ContainsKey("X-Pwd"))
+            if (!context.Request.Headers.ContainsKey("x-id")
+                || !context.Request.Headers.ContainsKey("x-pwd"))
             {
                 return null;
             }
 
-            var idFromRequest = context.Request.Headers["X-Id"];
-            var passwordFromRequest = context.Request.Headers["X-Pwd"];
+            var idFromRequest = context.Request.Headers["x-id"];
+            var passwordFromRequest = context.Request.Headers["x-pwd"];
 
             // Get definition
             var definition = Options.DefinitionStorage.GetDefinitionByUrlSegmentText(idFromRequest);
@@ -423,7 +472,14 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
                 return null;
             }
 
-            var streamGetter = context?.Request?.FormFiles?.FirstOrDefault()?.GetStream;
+            var storageId = context.Request.Headers["x-storage-id"];
+            if (string.IsNullOrWhiteSpace(storageId))
+            {
+                return null;
+            }
+
+            var file = context?.Request?.FormFiles?.FirstOrDefault();
+            var streamGetter = file?.GetStream;
             if (streamGetter == null)
             {
                 return null;
@@ -436,14 +492,25 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
                 return null;
             }
 
-            // todo: delete old? what if storage id was switched, how to know old?
-            // on save if switched storage, delete file? Store a flag on def if file was uploaded and autodelete along with def?
-
             // Find matching storage
-            var storage = Options.FileStorages.FirstOrDefault(x => x.StorageId == definition.StorageId);
+            var storage = Options.FileStorages.FirstOrDefault(x => x.StorageId == storageId);
             if (storage?.SupportsUpload != true)
             {
                 return null;
+            }
+
+            // If any existing file, delete it
+            if (!string.IsNullOrWhiteSpace(definition.FileId) && definition.HasUploadedFile)
+            {
+                var isRemoved = await storage.DeleteUploadedFileAsync(definition.FileId);
+                if (!isRemoved)
+                {
+                    return createResult(false, "Failed to delete existing file.", "");
+                }
+                definition.FileId = "";
+                definition.OriginalFileName = "";
+                definition.HasUploadedFile = false;
+                definition = Options.DefinitionStorage.UpdateDefinition(definition);
             }
 
             // Upload file
@@ -453,7 +520,16 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
             if (uploadResult.Success)
             {
                 definition.FileId = uploadResult.FileId;
-                // todo: set definition.HasUploadedFile, and if so hide frontend selection
+                definition.OriginalFileName = file?.FileName ?? "UnnamedFile";
+                definition.HasUploadedFile = true;
+                definition.StorageId = storageId;
+                definition = Options.DefinitionStorage.UpdateDefinition(definition);
+
+                context.AddAuditEvent("Uploaded file", definition.FileName)
+                    .AddDetail("File Name", definition.FileName)
+                    .AddDetail("Original file Name", definition.OriginalFileName)
+                    .AddDetail("File Id", definition.FileId)
+                    .AddDetail("Storage Id", definition.StorageId);
             }
 
             return createResult(uploadResult.Success, uploadResult.ErrorMessage, uploadResult.FileId);
@@ -464,7 +540,8 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
                     "{\n" +
                     $"  {Q}success{Q}: {success.ToString().ToLower()},\n" +
                     $"  {Q}message{Q}: {EscapeJsString(message)},\n" +
-                    $"  {Q}fileId{Q}: {EscapeJsString(fileId)}\n" +
+                    $"  {Q}fileId{Q}: {EscapeJsString(fileId)},\n" +
+                    $"  {Q}defId{Q}: {EscapeJsString(definition.Id.ToString())}\n" +
                     "}";
             }
         }

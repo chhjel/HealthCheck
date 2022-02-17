@@ -314,7 +314,11 @@ export default class SecureFileDownloadPageComponent extends Vue {
             Vue.set(this.data, position, download);
         }
 
-        this.hideCurrentDownload();
+        if (download.FileId)
+        {
+            console.log(JSON.stringify(download));
+            this.hideCurrentDownload();
+        }
     }
 
     onDownloadDeleted(download: SecureFileDownloadDefinition): void {
@@ -390,7 +394,9 @@ export default class SecureFileDownloadPageComponent extends Vue {
             DownloadCountLimit: null,
             ExpiresAt: null,
             Note: null,
-            IsExpired: false
+            IsExpired: false,
+            HasUploadedFile: false,
+            OriginalFileName: ''
         };
     }
 

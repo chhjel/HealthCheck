@@ -39,6 +39,11 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.Models
         public string FileIdLabel { get; set; }
 
         /// <summary>
+        /// If selecting existing files is supported or not.
+        /// </summary>
+        public bool SupportsSelectingFile { get; set; }
+
+        /// <summary>
         /// If upload of new files is supported or not.
         /// </summary>
         public bool SupportsUpload { get; set; }

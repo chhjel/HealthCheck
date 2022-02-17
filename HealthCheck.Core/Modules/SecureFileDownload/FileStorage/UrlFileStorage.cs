@@ -34,6 +34,9 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.FileStorage
         /// </summary>
         public string FileIdLabel => "Absolute URL";
 
+        /// <inheritdoc />
+        public bool SupportsSelectingFile => true;
+
         /// <summary>
         /// Not supported for this implementation.
         /// </summary>
@@ -113,5 +116,8 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.FileStorage
             FileId = null,
             ErrorMessage = "File upload not supported for this file storage."
         });
+
+        /// <inheritdoc />
+        public Task<bool> DeleteUploadedFileAsync(string fileId) => Task.FromResult(true);
     }
 }

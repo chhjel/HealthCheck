@@ -21,14 +21,14 @@
                         <label :for="`file-parameter-${id}`"
                             v-on="on"
                             class="v-btn v-btn--small theme--light upload-label"
-                            :class="{ 'disabled': readonly }">
+                            :class="{ 'disabled': readonly, 'v-btn--disabled': readonly }">
                             <div>{{ label }}</div>
                         </label>
                     </template>
                     <span>{{ tooltip }}</span>
                 </v-tooltip>
             </div>
-            <v-tooltip bottom>
+            <v-tooltip bottom v-if="allowClear">
                 <template v-slot:activator="{ on }">
                     <span v-on="on">
                         <v-btn flat icon color="primary" class="ma-0 pa-0"
@@ -65,6 +65,9 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
 
     @Prop({ required: false, default: false })
     readonly!: boolean;
+
+    @Prop({ required: false, default: true })
+    allowClear!: boolean;
 
     localValue: string | null = '';
     id: string = IdUtils.generateId();

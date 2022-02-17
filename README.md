@@ -1586,8 +1586,11 @@ UseModule(new HCSecureFileDownloadModule(new HCSecureFileDownloadModuleOptions()
     DefinitionStorage = ISecureFileDownloadDefinitionStorage implementation,
     FileStorages = new ISecureFileDownloadFileStorage[]
     {
-        new FolderFileStorage("disk_a", "Disk location A", @"e:\files\Folder A"),
-        new FolderFileStorage("disk_b", "Disk location B", @"e:\files\Folder B"),
+        // By default FolderFileStorage only allows uploading new files.
+        // Optionally configure it to allow selecting existing files etc. Uploaded files can't manually be selected later.
+        new FolderFileStorage("files_testA", "Disk storage (upload only)", @"e:\files\folderA") { SupportsSelectingFile = false, SupportsUpload = true },
+        new FolderFileStorage("files_testB", "Disk storage (download only)", @"e:\files\folderB") { SupportsSelectingFile = true, SupportsUpload = false },
+        new FolderFileStorage("files_testC", "Disk storage (upload and download)", @"e:\files\folderC") { SupportsSelectingFile = true, SupportsUpload = true },
         new UrlFileStorage("url", "External url")
     }
 }));

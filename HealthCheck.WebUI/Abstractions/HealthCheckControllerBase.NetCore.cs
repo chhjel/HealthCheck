@@ -56,7 +56,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         protected HealthCheckControllerBase()
         {
-            Helper = new HealthCheckControllerHelper<TAccessRole>(() => GetPageOptions());
+            Helper = new HealthCheckControllerHelper<TAccessRole>(() => GetPageOptions(), () => GetFrontEndOptions());
         }
 
 #region Abstract
@@ -429,7 +429,7 @@ namespace HealthCheck.WebUI.Abstractions
         {
             var request = context?.HttpContext?.Request;
             var url = request?.GetDisplayUrl();
-            if (Helper.ShouldEnableRequestBuffering(url))
+            if (HealthCheckControllerHelper<TAccessRole>.ShouldEnableRequestBuffering(url))
             {
                 request?.EnableBuffering();
             }
@@ -447,7 +447,7 @@ namespace HealthCheck.WebUI.Abstractions
                 {
                     CurrentRequestInformation.FormFiles.Add(new RequestFormFile
                     {
-                        FileName = file.Name,
+                        FileName = file.FileName,
                         Length = file.Length,
                         GetStream = () => file.OpenReadStream()
                     });

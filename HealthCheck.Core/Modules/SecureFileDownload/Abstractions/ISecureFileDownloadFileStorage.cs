@@ -36,6 +36,11 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.Abstractions
         bool SupportsUpload { get; }
 
         /// <summary>
+        /// If true, files will be allowed selected from <see cref="GetFileIdOptions"/>.
+        /// </summary>
+        bool SupportsSelectingFile { get; }
+
+        /// <summary>
         /// Returns true if the file is present and can be retrieved through <see cref="GetFileStream(string)"/>.
         /// </summary>
         bool HasFile(string fileId);
@@ -44,6 +49,12 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.Abstractions
         /// Called when the user uploads a file if supported.
         /// </summary>
         Task<HCSecureFileDownloadUploadResult> UploadFileAsync(Stream stream);
+
+        /// <summary>
+        /// Deletes an uploaded file if supported.
+        /// <para>Should return true if the file is no longer present.</para>
+        /// </summary>
+        Task<bool> DeleteUploadedFileAsync(string fileId);
 
         /// <summary>
         /// Get the stream to a file by its id, or null if it does not exist.

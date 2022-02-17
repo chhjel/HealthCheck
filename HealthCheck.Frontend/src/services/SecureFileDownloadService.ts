@@ -42,7 +42,14 @@ export default class SecureFileDownloadService extends HCServiceBase
         this.invokeModuleMethod(this.moduleId, 'DeleteDefinition', definitionId, statusObject, callbacks);
     }
     
-    public UploadFile(file: File, fileDefId: string, statusObject: FetchStatusWithProgress | null = null)
+    public DeleteUploadedFile(definitionId: string,
+        statusObject: FetchStatus | null = null,
+        callbacks: ServiceFetchCallbacks<boolean> | null = null
+    ): void {
+        this.invokeModuleMethod(this.moduleId, 'DeleteUploadedFile', definitionId, statusObject, callbacks);
+    }
+
+    public UploadFile(file: File, fileDefId: string, storageId: string, statusObject: FetchStatusWithProgress | null = null)
         : Promise<SecureFileDownloadStorageUploadFileResult> {
 
         return new Promise((resolve, reject) => {
@@ -67,7 +74,8 @@ export default class SecureFileDownloadService extends HCServiceBase
                     const result: SecureFileDownloadStorageUploadFileResult = {
                         success: false,
                         fileId: '',
-                        message: 'Failed to upload.'
+                        message: 'Failed to upload.',
+                        defId: ''
                     };
                     resolve(result);
                 });
@@ -83,6 +91,7 @@ export default class SecureFileDownloadService extends HCServiceBase
                 let url = UrlUtils.getRelativeToCurrent(`./SFDUploadFile`);
                 req.open('POST', `${url}`);
                 req.setRequestHeader('x-id', fileDefId);
+                req.setRequestHeader('x-storage-id', storageId);
                 req.send(formData);
             }
             catch(e) {

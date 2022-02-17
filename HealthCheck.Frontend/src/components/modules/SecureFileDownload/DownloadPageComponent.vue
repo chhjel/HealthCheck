@@ -158,7 +158,7 @@ export default class DownloadPageComponent extends Vue {
     {
         this.loadData();
 
-        if (!this.data.download.protected && this.data.download.downloadsRemaining == null)
+        if (!this.data.download.protected && this.data.download.downloadsRemaining == null && !this.data.definitionValidationError)
         {
             this.startDownloadingCurrentFile();
         }
@@ -276,7 +276,7 @@ export default class DownloadPageComponent extends Vue {
             return;
         }
 
-        let url = UrlUtils.makeAbsolute(document.baseURI, `../SFDValidatePassword`);
+        let url = UrlUtils.getRelativeToCurrent(`../SFDValidatePassword`);
         let payload = {};
 
         let service = new HCServiceBase('', false);
@@ -292,14 +292,14 @@ export default class DownloadPageComponent extends Vue {
             },
             true,
             {
-                'X-Id': this.data.download.name,
-                'X-Pwd': password
+                'x-id': this.data.download.name,
+                'x-pwd': password
             });
     }
 
     startDownloadingCurrentFile(token: string = ''): void {
         let relativeUrl = this.data.download.downloadLink;
-        let url = UrlUtils.makeAbsolute(document.baseURI, `../${relativeUrl}`);
+        let url = UrlUtils.getRelativeToCurrent(`../${relativeUrl}`);
 
         // Not protected => download at once
         if (!this.data.download.protected)
