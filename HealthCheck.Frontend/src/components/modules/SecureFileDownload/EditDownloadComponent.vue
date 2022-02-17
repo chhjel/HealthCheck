@@ -28,7 +28,7 @@
                 v-model="internalDownload.UrlSegmentText"
                 :disabled="!allowChanges"
                 name="Url segment text"
-                description="Text in the url after '/downloads/'."
+                description="Text in the url after '/download/'."
                 type="text"
                 :error="validateUrlSegmentText"
                 />
@@ -309,7 +309,7 @@ export default class EditDownloadComponent extends Vue {
     }
 
     get absoluteDownloadUrl(): string {
-        return SecureFileDownloadUtils.getAbsoluteDownloadUrl(this.internalDownload.UrlSegmentText);
+        return SecureFileDownloadUtils.getAbsoluteDownloadUrl(this.globalOptions.EndpointBase, this.internalDownload.UrlSegmentText);
     }
 
     get selectedStorageSupportsUploads(): boolean {
@@ -488,7 +488,7 @@ export default class EditDownloadComponent extends Vue {
 
     async uploadFile(file: File): Promise<SecureFileDownloadStorageUploadFileResult> {
         this.setServerInteractionInProgress(true);
-        const result = await this.service.UploadFile(file, this.internalDownload.Id, this.internalDownload.StorageId, this.uploadLoadStatus);
+        const result = await this.service.UploadFile(file, this.internalDownload.Id, this.internalDownload.StorageId, this.globalOptions.EndpointBase, this.uploadLoadStatus);
         this.uploadResult = result
         if (result.success)
         {

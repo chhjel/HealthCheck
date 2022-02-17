@@ -502,7 +502,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
             // If any existing file, delete it
             if (!string.IsNullOrWhiteSpace(definition.FileId) && definition.HasUploadedFile)
             {
-                var isRemoved = await storage.DeleteUploadedFileAsync(definition.FileId);
+                var isRemoved = await storage.DeleteUploadedFileAsync(definition.FileId).ConfigureAwait(false);
                 if (!isRemoved)
                 {
                     return createResult(false, "Failed to delete existing file.", "");
@@ -515,7 +515,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
 
             // Upload file
             var stream = streamGetter();
-            var uploadResult = await storage.UploadFileAsync(stream);
+            var uploadResult = await storage.UploadFileAsync(stream).ConfigureAwait(false);
 
             if (uploadResult.Success)
             {

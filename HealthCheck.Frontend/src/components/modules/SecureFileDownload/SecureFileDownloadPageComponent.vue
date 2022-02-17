@@ -274,7 +274,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
     }
 
     getAbsoluteDownloadUrl(download: SecureFileDownloadDefinition): string {
-        return SecureFileDownloadUtils.getAbsoluteDownloadUrl(download.UrlSegmentText);
+        return SecureFileDownloadUtils.getAbsoluteDownloadUrl(this.globalOptions.EndpointBase, download.UrlSegmentText);
     }
 
     loadData(): void {

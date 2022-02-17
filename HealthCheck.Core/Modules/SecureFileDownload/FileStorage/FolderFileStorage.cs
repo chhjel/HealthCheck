@@ -129,7 +129,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.FileStorage
             using (var fileStream = File.Create(filepath))
             {
                 stream.Seek(0, SeekOrigin.Begin);
-                await stream.CopyToAsync(fileStream);
+                await stream.CopyToAsync(fileStream).ConfigureAwait(false);
             }
 
             return new HCSecureFileDownloadUploadResult
