@@ -27,7 +27,8 @@
     <DefineConstants>NETSTANDARD</DefineConstants>
   </PropertyGroup>
   <!-- References -->
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
   </ItemGroup>
   <!-- ####################################### -->
 
@@ -41,6 +42,7 @@
   </PropertyGroup>
   <!-- References -->
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net472' ">
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
   </ItemGroup>
   <!-- ####################################### -->
 
@@ -51,6 +53,7 @@
   </PropertyGroup>
   <!-- References -->
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' or '$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.1" />
   </ItemGroup>
   <!-- ####################################### -->
 

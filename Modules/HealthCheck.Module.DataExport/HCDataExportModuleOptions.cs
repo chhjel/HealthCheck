@@ -28,9 +28,22 @@ namespace HealthCheck.Module.DataExport
         /// Available exporters.
         /// <para>Defaults to <see cref="HCDataExportExporterCSV"/> only.</para>
         /// </summary>
-        public IEnumerable<IHCDataExportExporter> Exporters { get; set; } = new[]
+        public List<IHCDataExportExporter> Exporters { get; set; } = new List<IHCDataExportExporter>
         {
-            new HCDataExportExporterCSV()
+            new HCDataExportExporterCSV(),
+            new HCDataExportExporterTSV(),
+            new HCDataExportExporterXml(),
+            new HCDataExportExporterJsonArray(),
+            new HCDataExportExporterJsonHash()
         };
+
+        /// <summary>
+        /// Adds the given exporter.
+        /// </summary>
+        public HCDataExportModuleOptions AddExporter(IHCDataExportExporter exporter)
+        {
+            Exporters.Add(exporter);
+            return this;
+        }
     }
 }

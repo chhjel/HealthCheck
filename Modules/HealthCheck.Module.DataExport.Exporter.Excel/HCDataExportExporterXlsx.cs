@@ -36,9 +36,9 @@ namespace HealthCheck.Module.DataExport.Exporter.Excel
             _worksheet = _workbook.Worksheets.Add("Data");
 
             _currentRow = 1;
-            for (int i=0; i<_headers.Count;i++)
+            for (int i=0; i < _headers.Count; i++)
             {
-                _worksheet.Cell(_currentRow, i+1).Value = _headers[i];
+                _worksheet.Cell(_currentRow, i + 1).Value = _headers[i];
                 _worksheet.Cell(_currentRow, i + 1).Style.Font.Bold = true;
                 _worksheet.Cell(_currentRow, i + 1).Style.Font.Bold = true;
             }
