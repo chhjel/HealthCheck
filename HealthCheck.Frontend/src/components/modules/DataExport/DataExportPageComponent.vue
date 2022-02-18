@@ -280,7 +280,7 @@
         </v-dialog>
         <v-dialog v-model="exportDialogVisible"
             @keydown.esc="exportDialogVisible = false"
-            max-width="320"
+            max-width="480"
             content-class="confirm-dialog"
             :persistent="exportLoadStatus.inProgress">
             <v-card>

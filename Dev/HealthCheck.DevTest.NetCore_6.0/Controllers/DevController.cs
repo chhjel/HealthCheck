@@ -101,15 +101,12 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             _dataRepeaterService = dataRepeaterService;
 
             UseModule(new HCDataExportModule(new HCDataExportModuleOptions
-            {
-                Service = dataExportService,
-                PresetStorage = dataExportPresetStorage,
-                Exporters = new IHCDataExportExporter[]
                 {
-                    new HCDataExportExporterCSV(),
-                    new HCDataExportExporterXlsx()
+                    Service = dataExportService,
+                    PresetStorage = dataExportPresetStorage
                 }
-            }));
+                .AddExporter(new HCDataExportExporterXlsx())
+            ));
             UseModule(new HCDataRepeaterModule(new HCDataRepeaterModuleOptions
             {
                 Service = _dataRepeaterService
@@ -243,7 +240,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             config.GiveRolesAccessToModule(RuntimeTestAccessRole.SystemAdmins, TestModuleB.TestModuleBAccessOption.NumberOne);
 
             config.GiveRolesAccessToModuleWithFullAccess<HCDataRepeaterModule>(RuntimeTestAccessRole.WebAdmins);
-            config.GiveRolesAccessToModuleWithFullAccess<HCDataExportModule>(RuntimeTestAccessRole.QuerystringTest);
+            config.GiveRolesAccessToModuleWithFullAccess<HCDataExportModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSettingsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModule(RuntimeTestAccessRole.WebAdmins, HCSiteEventsModule.AccessOption.DeveloperDetails);

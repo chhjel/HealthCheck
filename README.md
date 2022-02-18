@@ -1050,17 +1050,16 @@ services.AddSingleton<IHCDataExportPresetStorage>(x => new HCFlatFileDataExportP
 ```csharp
 // Use module in hc controller
 UseModule(new HCDataExportModule(new HCDataExportModuleOptions
-{
-    Service = dataExportService,
-    // Optionally provide preset storage if needed
-    PresetStorage = dataExportPresetStorage
-    // Optionally configure exporters, by default a CSV exporter is configured.
-    // Exporters = new IHCDataExportExporter[]
-    // {
-    //     new HCDataExportExporterCSV(),
-    //     new HCDataExportExporterXlsx() // Excel exporter can be found in the nuget package HealthCheck.Module.DataExport.Exporter.Excel
-    // }
-}));
+    {
+        Service = dataExportService,
+        // Optionally provide preset storage if needed
+        PresetStorage = dataExportPresetStorage
+        // Exporters = ..
+    })
+    // By default CSV, TSV, XML and JSON exporters are configured.
+    // Excel exporter can be found in the nuget package HealthCheck.Module.DataExport.Exporter.Excel
+    .AddExporter(new HCDataExportExporterXlsx())
+);
 ```
 
 <details><summary>Example stream</summary>
