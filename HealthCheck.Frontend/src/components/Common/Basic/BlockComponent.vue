@@ -1,6 +1,6 @@
 <!-- src/components/Common/Basic/BlockComponent.vue -->
 <template>
-    <div class="block-component pa-4">
+    <div class="block-component">
         <!-- HEADER -->
         <div class="block-component--header" :class="{'no-details': headerOnly}">
 
@@ -85,11 +85,21 @@ export default class BlockComponent extends Vue
     border-radius: 25px;
     background-color: #fff;
     box-shadow: #d5d7d5 4px 4px 6px 0px;
+    padding: 24px;
+    @media (max-width: 960px) {
+        padding-left: 0;
+        padding-right: 0;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
 
     .block-component--header {
         display: flex;
         padding-left: 24px;
         border-radius: 0 25px 0 0;
+        @media (max-width: 960px) {
+            padding-left: 12px;
+        }
 
         &.no-details {
            border-radius: 0 25px 0 25px;
@@ -144,6 +154,9 @@ export default class BlockComponent extends Vue
 
     .block-component--content {
         padding: 0px 48px 24px 24px;
+        @media (max-width: 960px) {
+            padding: 0px 12px 24px 12px;
+        }
 
         &.no-header {
             padding-bottom: 0;
