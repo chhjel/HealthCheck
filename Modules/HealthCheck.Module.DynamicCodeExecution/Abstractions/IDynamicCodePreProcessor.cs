@@ -1,4 +1,4 @@
-﻿#if NETFULL
+﻿#if NETFULL || NETCORE
 using System.CodeDom.Compiler;
 #endif
 
@@ -29,7 +29,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Abstractions
         /// </summary>
         bool CanBeDisabled { get; set; }
 
-        #if NETFULL
+        #if NETFULL || NETCORE
         /// <summary>
         /// Processes source code before it is executed.
         /// </summary>

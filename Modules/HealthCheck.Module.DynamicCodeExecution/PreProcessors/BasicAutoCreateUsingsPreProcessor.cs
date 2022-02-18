@@ -1,4 +1,4 @@
-﻿#if NETFULL
+﻿#if NETFULL || NETCORE
 using HealthCheck.Module.DynamicCodeExecution.Abstractions;
 using HealthCheck.Module.DynamicCodeExecution.Util;
 using System;
@@ -278,7 +278,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.PreProcessors
                 .ToList();
         }
 
-        private List<Assembly> GetReferencedAssemblies(Assembly assembly, bool applyPolicy = false)
+        private static List<Assembly> GetReferencedAssemblies(Assembly assembly, bool applyPolicy = false)
         {
             var list = new HashSet<Assembly>();
 
@@ -293,7 +293,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.PreProcessors
             return list.ToList();
         }
 
-        private Assembly GetAssemblyWithPolicy(string assemblyName)
+        private static Assembly GetAssemblyWithPolicy(string assemblyName)
         {
             var newName = AppDomain.CurrentDomain?.ApplyPolicy(assemblyName);
             return Assembly.Load(newName);

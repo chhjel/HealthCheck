@@ -80,7 +80,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Util
             return list;
         }
 
-        private List<string> GetGroupMatches(string pattern, string text, int groupNumber = 2)
+        private static List<string> GetGroupMatches(string pattern, string text, int groupNumber = 2)
         {
             var regex = new Regex(pattern);
             return regex.Matches(text)
@@ -90,7 +90,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Util
                 .ToList();
         }
 
-        private List<GroupMatchExt> GetGroupMatchesExt(string pattern, string text, int groupNumber = 2)
+        private static List<GroupMatchExt> GetGroupMatchesExt(string pattern, string text, int groupNumber = 2)
         {
             var regex = new Regex(pattern);
             var groups = regex.Matches(text)
@@ -113,7 +113,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Util
             public bool IsIgnoredLine { get; set; }
         }
 
-        private string GetWordBefore(Group group, string text)
+        private static string GetWordBefore(Group group, string text)
         {
             text = text.Substring(0, group.Index);
             var pattern = @"(\w+)[ ]+$";
@@ -122,7 +122,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Util
             return (prefix.Length == 0) ? null : prefix;
         }
 
-        private bool IsIgnoredLine(Group group, string text)
+        private static bool IsIgnoredLine(Group group, string text)
         {
             text = text.Substring(0, group.Index);
             var lines = text.Replace("\r", "").Split('\n');

@@ -1,7 +1,8 @@
-#if NETFULL
+#if !NETSTANDARD
 using HealthCheck.Core.Util;
 using HealthCheck.Module.DynamicCodeExecution.Exceptions;
 using HealthCheck.Module.DynamicCodeExecution.Models;
+using Microsoft.CSharp;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
@@ -97,12 +98,12 @@ namespace HealthCheck.Module.DynamicCodeExecution
             if (exec != null)
             {
                 list.Add(exec.Location);
-                list.AddRange(exec.GetReferencedAssemblies().Select(x => ReflectionOnlyLoadWithPolicy(x.FullName).Location));
+                list.AddRange(exec.GetReferencedAssemblies().Select(x => ReflectionOnlyLoadWithPolicy(x.FullName)?.Location).Where(x => x != null));
             }
             if (TargetAssembly != null)
             {
                 list.Add(TargetAssembly.Location);
-                list.AddRange(TargetAssembly.GetReferencedAssemblies().Select(x => ReflectionOnlyLoadWithPolicy(x.FullName).Location));
+                list.AddRange(TargetAssembly.GetReferencedAssemblies().Select(x => ReflectionOnlyLoadWithPolicy(x.FullName)?.Location).Where(x => x != null));
             }
             return list.GroupBy(x => x).Select(x => x.First());
         }
@@ -132,7 +133,8 @@ namespace HealthCheck.Module.DynamicCodeExecution
 
         private CodeExecutionResult ExecuteCode(string source, CompilerParameters options, List<string> appliedPreProcessorIds)
         {
-            var provider = CodeDomProvider.CreateProvider("C#");
+            //var provider = CodeDomProvider.CreateProvider("C#");
+            var provider = new CSharpCodeProvider();
 
             var result = new CodeExecutionResult()
             {
@@ -228,20 +230,27 @@ namespace HealthCheck.Module.DynamicCodeExecution
 
             foreach(var refAssemblyName in currentAssembly.GetReferencedAssemblies())
             {
-                AddAssemblyWithPolicy(refAssemblyName.FullName, options);
+                RuntimeCodeTester.AddAssemblyWithPolicy(refAssemblyName.FullName, options);
             }
         }
 
-        private void AddAssemblyWithPolicy(string assemblyName, CompilerParameters options)
+        private static void AddAssemblyWithPolicy(string assemblyName, CompilerParameters options)
         {
             var refAssembly = ReflectionOnlyLoadWithPolicy(assemblyName);
-            options.ReferencedAssemblies.Add(refAssembly.Location);
+            if (refAssembly != null)
+            {
+                options.ReferencedAssemblies.Add(refAssembly.Location);
+            }
         }
 
-        private Assembly ReflectionOnlyLoadWithPolicy(string assemblyName)
+        private static Assembly ReflectionOnlyLoadWithPolicy(string assemblyName)
         {
             var newName = AppDomain.CurrentDomain?.ApplyPolicy(assemblyName);
+#if NETFULL
             return Assembly.ReflectionOnlyLoad(newName);
+#elif NETCORE
+            return null;
+#endif
         }
 
         private List<CodeError> ExceptionToCodeError(Exception ex)

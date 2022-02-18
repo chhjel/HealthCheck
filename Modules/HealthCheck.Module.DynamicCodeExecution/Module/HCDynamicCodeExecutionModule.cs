@@ -100,7 +100,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
                 context.AddAuditEvent("ExecuteCode", $"Executed code.")
                     .AddClientConnectionDetails(context)
                     .AddBlob("Code", source.Code, onlyIfThisIsTrue: Options.StoreCopyOfExecutedScriptsAsAuditBlobs);
-#if NETFULL
+#if NETFULL || NETCORE
                 var executor = CreateExecutor();
 
                 result.Success = true;
@@ -109,7 +109,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
                 result.Code = result.CodeExecutionResult.Code;
                 return result;
 #else
-                result.Message = "Can't execute code in .net standard mode. Need to reference the .net framework.";
+                result.Message = "Can't execute code in .net standard mode. Need to reference .NET 6/framework/core.";
                 return result;
 #endif
             }
@@ -202,7 +202,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
         {
             if (this.Options.AutoCompleter == null || request == null) return null;
             
-#if NETFULL
+#if NETFULL || NETCORE
             var assemblyLocations = CreateExecutor().GetAssemblyLocations();
             return await Options.AutoCompleter.GetAutoCompleteSuggestionsAsync(request.Code, assemblyLocations?.ToArray(), request.Position);
 #else
@@ -257,7 +257,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Module
             return DynamicCodeValidationResult.Allow();
         }
 
-        #if NETFULL
+        #if NETFULL || NETCORE
         private RuntimeCodeTester CreateExecutor()
         {
             var executor = new RuntimeCodeTester(new RuntimeCodeTesterConfig()

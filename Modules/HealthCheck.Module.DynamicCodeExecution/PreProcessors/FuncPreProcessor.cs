@@ -1,4 +1,4 @@
-﻿#if NETFULL
+﻿#if NETFULL || NETCORE
 using HealthCheck.Module.DynamicCodeExecution.Abstractions;
 using System;
 using System.CodeDom.Compiler;

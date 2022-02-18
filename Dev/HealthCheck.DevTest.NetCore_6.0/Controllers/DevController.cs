@@ -40,6 +40,12 @@ using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Exporter.Excel;
 using HealthCheck.Module.DataExport.Exporters;
 using HealthCheck.Module.DevModule;
+using HealthCheck.Module.DynamicCodeExecution.Abstractions;
+using HealthCheck.Module.DynamicCodeExecution.Models;
+using HealthCheck.Module.DynamicCodeExecution.Module;
+using HealthCheck.Module.DynamicCodeExecution.PreProcessors;
+using HealthCheck.Module.DynamicCodeExecution.Storage;
+using HealthCheck.Module.DynamicCodeExecution.Validators;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Module;
 using HealthCheck.WebUI.Abstractions;
@@ -182,6 +188,34 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             }));
             UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = siteEventService }));
             UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { Service = settingsService, ModelType = typeof(TestSettings) }));
+            UseModule(new HCDynamicCodeExecutionModule(new HCDynamicCodeExecutionModuleOptions()
+            {
+                StoreCopyOfExecutedScriptsAsAuditBlobs = true,
+                TargetAssembly = typeof(DevController).Assembly,
+                ScriptStorage = new FlatFileDynamicCodeScriptStorage(@"C:\temp\DCE_Scripts.json"),
+                PreProcessors = new IDynamicCodePreProcessor[]
+                {
+                    new BasicAutoCreateUsingsPreProcessor(typeof(DevController).Assembly){
+                        IncludeReferencedAssemblies = true
+                    },
+                    new WrapUsingsInRegionPreProcessor(),
+                    new FuncPreProcessor("'test' replacer", (p, code) => code.Replace("test", "TEST"), "Replaces any instances of 'test' with 'TEST'"),
+                    new FuncPreProcessor("Bad words be gone", (p, code) => code.Replace(" bad ", "***"), canBeDisabled: false)
+                },
+                Validators = new IDynamicCodeValidator[]
+                {
+                    new FuncCodeValidator((code) =>
+                        code.Contains("format c:")
+                            ? DynamicCodeValidationResult.Deny("No format pls")
+                            : DynamicCodeValidationResult.Allow()
+                    )
+                },
+                AutoCompleter = null,// new DCEMCAAutoCompleter(),
+                StaticSnippets = new List<CodeSuggestion>
+                {
+                    new CodeSuggestion("GetService<T>(id)", "Get a registered service", "GetService<${1:T}>(${2:x})")
+                }
+            }));
 
             if (!_hasInited)
             {
@@ -249,6 +283,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             config.GiveRolesAccessToModule(RuntimeTestAccessRole.WebAdmins, HCSiteEventsModule.AccessOption.DeveloperDetails);
             config.GiveRolesAccessToModuleWithFullAccess<HCDataExportModule>(RuntimeTestAccessRole.QuerystringTest);
             //config.GiveRolesAccessToModule(RuntimeTestAccessRole.WebAdmins, HCSiteEventsModule.AccessOption.None);
+            config.GiveRolesAccessToModuleWithFullAccess<HCDynamicCodeExecutionModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCAuditLogModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCDataflowModule<RuntimeTestAccessRole>>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCDocumentationModule>(RuntimeTestAccessRole.WebAdmins);

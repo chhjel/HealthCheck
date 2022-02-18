@@ -1,4 +1,4 @@
-﻿#if NETFULL
+﻿#if !NETSTANDARD
 using HealthCheck.Module.DynamicCodeExecution.Models;
 using HealthCheck.Core.Extensions;
 using System;
@@ -16,7 +16,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Util
     /// </summary>
     public static class DumpHelper
     {
-        #region Diff
+#region Diff
         /// <summary>
         /// Creates a dump of the two objects ready for diff consumption in the front-end.
         /// </summary>
@@ -45,7 +45,7 @@ namespace HealthCheck.Module.DynamicCodeExecution.Util
             });
             return left;
         }
-        #endregion
+#endregion
 
         /// <summary>
         /// Dump the value of an object to the given list.
