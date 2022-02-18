@@ -369,7 +369,7 @@ namespace HealthCheck.WebUI.Util
 
             var pageOptions = _pageOptionsGetter?.Invoke();
             var currentModuleAccess = moduleAccess.FirstOrDefault(x => x.ModuleId == moduleId);
-            var endpointBase = HCAssetGlobalConfig.EndpointBase;
+            var endpointBase = HCAssetGlobalConfig.EndpointBase ?? "";
 
             var jsUrls = pageOptions?.JavaScriptUrls ?? new List<string>();
             if (jsUrls.Count == 0) jsUrls = HCAssetGlobalConfig.DefaultJavaScriptUrls ?? new List<string>();
