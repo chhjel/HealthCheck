@@ -8,4 +8,6 @@ export interface SecureFileDownloadStorageInfo
 	StorageName: string;
 	FileIdInfo: string;
 	FileIdLabel: string;
+	SupportsSelectingFile: boolean;
+	SupportsUpload: boolean;
 }

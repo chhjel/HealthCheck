@@ -29,7 +29,6 @@ using System.Web;
 #if NETCORE
 using System.IO;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 #endif
 
 namespace HealthCheck.WebUI.Util
@@ -55,7 +54,7 @@ namespace HealthCheck.WebUI.Util
         /// <summary>
         /// Initialize a new HealthCheck helper with the given services.
         /// </summary>
-        public HealthCheckControllerHelper(Func<HCPageOptions> pageOptionsGetter)
+        public HealthCheckControllerHelper(Func<HCPageOptions> pageOptionsGetter, Func<HCFrontEndOptions> frontendOptionsGetter)
         {
             _pageOptionsGetter = pageOptionsGetter;
             AccessConfig.RoleModuleAccessLevels = RoleModuleAccessLevels;
@@ -64,10 +63,17 @@ namespace HealthCheck.WebUI.Util
             TestRunnerService.GetCurrentTestContext = HealthCheckTestContextHelper.GetCurrentTestContext;
             TestRunnerService.CurrentRequestIsTest = () => HealthCheckTestContextHelper.CurrentRequestIsTest;
             TestRunnerService.SetCurrentRequestIsTest = () => HealthCheckTestContextHelper.CurrentRequestIsTest = true;
+
+            if (HCAssetGlobalConfig.EndpointBase == null)
+            {
+                HCAssetGlobalConfig.EndpointBase = frontendOptionsGetter?.Invoke()?.EndpointBase;
+            }
         }
 
         internal bool HasAccessToAnyContent(Maybe<TAccessRole> currentRequestAccessRoles)
             => GetModulesRequestHasAccessTo(currentRequestAccessRoles).Count > 0;
+
+        internal static bool ShouldEnableRequestBuffering(string url) => false;
 
         #region Modules
         private List<HealthCheckLoadedModule> LoadedModules { get; set; } = new List<HealthCheckLoadedModule>();
@@ -356,17 +362,22 @@ namespace HealthCheck.WebUI.Util
                 Method = requestInfo.Method,
                 Headers = requestInfo.Headers,
                 RelativeUrl = requestInfo.Url,
-                ClientIP = requestInfo.ClientIP
+                ClientIP = requestInfo.ClientIP,
+                InputStream = requestInfo.InputStream,
+                FormFiles = requestInfo.FormFiles,
             };
 
             var pageOptions = _pageOptionsGetter?.Invoke();
-
             var currentModuleAccess = moduleAccess.FirstOrDefault(x => x.ModuleId == moduleId);
+            var endpointBase = HCAssetGlobalConfig.EndpointBase ?? "";
 
             var jsUrls = pageOptions?.JavaScriptUrls ?? new List<string>();
             if (jsUrls.Count == 0) jsUrls = HCAssetGlobalConfig.DefaultJavaScriptUrls ?? new List<string>();
+            jsUrls = jsUrls.Select(x => x.Replace("[base]", endpointBase.TrimEnd('/'))).ToList();
+            
             var cssUrls = pageOptions?.CssUrls ?? new List<string>();
             if (cssUrls.Count == 0) cssUrls = HCAssetGlobalConfig.DefaultCssUrls ?? new List<string>();
+            cssUrls = cssUrls.Select(x => x.Replace("[base]", endpointBase.TrimEnd('/'))).ToList();
 
             return new HealthCheckModuleContext()
             {

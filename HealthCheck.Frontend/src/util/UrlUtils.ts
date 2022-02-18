@@ -58,4 +58,31 @@ export default class UrlUtils
         }
         return stack.join("/");
     }
+    
+    static getRelativeToCurrent(relative: string, includeQuery: boolean = true, includeHash: boolean = true): string
+    {
+        const base = window.location.origin + window.location.pathname;
+        let suffix = '';
+        if (includeQuery) suffix += window.location.search;
+        if (includeHash) suffix += (window.location.hash == '#' ? '' : window.location.hash);
+
+        let stack = base.split("/"), parts = relative.split("/");
+        stack.pop();
+
+        for (var i=0; i<parts.length; i++) {
+            if (parts[i] == ".")
+            {
+                continue;
+            }
+            if (parts[i] == "..")
+            {
+                stack.pop();
+            }
+            else
+            {
+                stack.push(parts[i]);
+            }
+        }
+        return stack.join("/") + suffix;
+    }
 }

@@ -1,9 +1,11 @@
 ﻿using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
+using HealthCheck.Core.Modules.SecureFileDownload.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.SecureFileDownload.FileStorage
 {
@@ -31,6 +33,14 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.FileStorage
         /// Label to show in the management ui above file id field.
         /// </summary>
         public string FileIdLabel => "Absolute URL";
+
+        /// <inheritdoc />
+        public bool SupportsSelectingFile => true;
+
+        /// <summary>
+        /// Not supported for this implementation.
+        /// </summary>
+        public bool SupportsUpload => false;
 
         /// <summary>
         /// Gets files from remote urls.
@@ -95,6 +105,19 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.FileStorage
         /// <summary>
         /// Returns null.
         /// </summary>
-        public IEnumerable<string> GetFileIdOptions() => Enumerable.Empty<string>();
+        public IEnumerable<HCSecureFileDownloadFileDetails> GetFileIdOptions() => Enumerable.Empty<HCSecureFileDownloadFileDetails>();
+
+        /// <summary>
+        /// Not supported for this implementation.
+        /// </summary>
+        public Task<HCSecureFileDownloadUploadResult> UploadFileAsync(Stream stream) => Task.FromResult(new HCSecureFileDownloadUploadResult
+        {
+            Success = false,
+            FileId = null,
+            ErrorMessage = "File upload not supported for this file storage."
+        });
+
+        /// <inheritdoc />
+        public Task<bool> DeleteUploadedFileAsync(string fileId) => Task.FromResult(true);
     }
 }

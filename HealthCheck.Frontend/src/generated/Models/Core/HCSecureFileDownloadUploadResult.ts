@@ -2,13 +2,9 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
-export interface HCDataRepeaterStreamBatchActionResult
+export interface HCSecureFileDownloadUploadResult
 {
 	Success: boolean;
 	ErrorMessage: string;
-	Message: string;
-	UpdatedSuccessfullyCount: number;
-	NotAttemptedUpdatedCount: number;
-	UpdateFailedCount: number;
-	AttemptedUpdatedCount: number;
+	FileId: string;
 }

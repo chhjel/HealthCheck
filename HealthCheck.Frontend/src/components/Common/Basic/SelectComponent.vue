@@ -99,6 +99,7 @@ export default class SelectComponent extends Vue
 
     onInput(newValue: string): void {
         this.$emit('input', newValue);
+        this.$emit('change', newValue);
     }
 }
 </script>

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Config
 {
@@ -48,5 +49,7 @@ namespace HealthCheck.Core.Config
 
         /// <summary></summary>
         public static string DefaultReleaseNotesSummaryJavascriptUrl { get; set; } = "https://unpkg.com/christianh-healthcheck@2/releaseNotesSummary.js";
+
+        internal static string EndpointBase { get; set; }
     }
 }

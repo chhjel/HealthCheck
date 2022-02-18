@@ -1,7 +1,10 @@
 ﻿using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
+using HealthCheck.Core.Modules.SecureFileDownload.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace HealthCheck.Core.Modules.SecureFileDownload.FileStorage
 {
@@ -36,16 +39,28 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.FileStorage
         protected string Folder { get; private set; }
 
         /// <summary>
+        /// Can be set to true to pick files from the selected folder.
+        /// </summary>
+        public bool SupportsSelectingFile { get; set; } = false;
+
+        /// <summary>
+        /// Can be set to false to disable upload.
+        /// </summary>
+        public bool SupportsUpload { get; set; } = true;
+
+        /// <summary>
         /// Gets files from a folder.
         /// </summary>
         /// <param name="storageId">Id of this storage.</param>
         /// <param name="storageName">Name of this storage.</param>
         /// <param name="folder">Root folder that files can be retrieved from. Should be a dedicated folder for file storage only.</param>
-        public FolderFileStorage(string storageId, string storageName, string folder)
+        /// <param name="allowUpload">Allows uploading file to the given folder as well.</param>
+        public FolderFileStorage(string storageId, string storageName, string folder, bool allowUpload = true)
         {
             StorageId = storageId;
             StorageName = storageName;
             Folder = Path.GetFullPath(folder).TrimEnd('/', '\\').Trim();
+            SupportsUpload = allowUpload;
         }
 
         /// <summary>
@@ -86,18 +101,66 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.FileStorage
         /// <para>Returns null if allowed.</para>
         /// </summary>
         public virtual string ValidateFileIdBeforeSave(string fileId)
-            => HasFile(fileId) ? null : $"File was not found at '{GetFilePath(fileId)}.'";
+            => (SupportsUpload || HasFile(fileId)) ? null : $"File was not found at '{GetFilePath(fileId)}.'";
 
         /// <summary>
         /// Returns a list of all the files below the folder.
         /// </summary>
-        public virtual IEnumerable<string> GetFileIdOptions()
+        public virtual IEnumerable<HCSecureFileDownloadFileDetails> GetFileIdOptions()
             => Directory.GetFiles(Folder, "*.*", SearchOption.AllDirectories)
-                .Select(x => x.Substring(Folder.Length + 1));
+                .Where(x => !x.EndsWith(".HCUpload"))
+                .Select(x => new HCSecureFileDownloadFileDetails
+                {
+                    Id = x.Substring(Folder.Length + 1),
+                    Name = x.Substring(Folder.Length + 1)
+                });
 
-        private string GetFilePath(string fileId)
+        /// <inheritdoc />
+        public async Task<HCSecureFileDownloadUploadResult> UploadFileAsync(Stream stream)
         {
-            var path = Path.Combine(Folder, fileId);
+            var filename = $"{Guid.NewGuid()}.HCUpload";
+            var filepath = GetFilePath(filename);
+
+            if (HasFile(filename))
+            {
+                return new HCSecureFileDownloadUploadResult { ErrorMessage = "A file with this name already exists." };
+            }
+
+            using (var fileStream = File.Create(filepath))
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+                await stream.CopyToAsync(fileStream).ConfigureAwait(false);
+            }
+
+            return new HCSecureFileDownloadUploadResult
+            {
+                Success = true,
+                FileId = filename
+            };
+        }
+
+        /// <inheritdoc />
+        public Task<bool> DeleteUploadedFileAsync(string fileId)
+        {
+            if (!HasFile(fileId)) return Task.FromResult(true);
+
+            try
+            {
+                var path = GetFilePath(fileId);
+                File.Delete(path);
+            }
+            catch (Exception)
+            {
+                Task.FromResult(false);
+            }
+            return Task.FromResult(true);
+        }
+
+        private string GetFilePath(string filename)
+        {
+            if (string.IsNullOrEmpty(filename)) return null;
+
+            var path = Path.Combine(Folder, filename);
             path = Path.GetFullPath(path);
             if (!path.ToLower().Trim().StartsWith($"{Folder.ToLower()}\\"))
             {

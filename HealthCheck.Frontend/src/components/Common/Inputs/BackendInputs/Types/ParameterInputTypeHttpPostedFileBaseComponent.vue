@@ -21,14 +21,14 @@
                         <label :for="`file-parameter-${id}`"
                             v-on="on"
                             class="v-btn v-btn--small theme--light upload-label"
-                            :class="{ 'disabled': readonly }">
+                            :class="{ 'disabled': readonly, 'v-btn--disabled': readonly }">
                             <div>{{ label }}</div>
                         </label>
                     </template>
                     <span>{{ tooltip }}</span>
                 </v-tooltip>
             </div>
-            <v-tooltip bottom>
+            <v-tooltip bottom v-if="allowClear">
                 <template v-slot:activator="{ on }">
                     <span v-on="on">
                         <v-btn flat icon color="primary" class="ma-0 pa-0"
@@ -66,8 +66,12 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
     @Prop({ required: false, default: false })
     readonly!: boolean;
 
+    @Prop({ required: false, default: true })
+    allowClear!: boolean;
+
     localValue: string | null = '';
     id: string = IdUtils.generateId();
+    selectedFile: File | null = null;
     
     mounted(): void {
         this.updateLocalValue();
@@ -93,6 +97,7 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
 
     setValueToNull(): void {
         this.localValue = null;
+        this.selectedFile = null;
 
         let input: HTMLInputElement = (<HTMLInputElement>this.$refs.fileinput);
         input.value = "";
@@ -142,6 +147,7 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
     onLocalValueChanged(): void
     {
         this.$emit('input', this.localValue);
+        this.$emit('onFileChanged', this.selectedFile);
     }
 
     onFileChanged(): void {
@@ -154,6 +160,7 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
         }
         
         let file = files[0];
+        this.selectedFile = file;
         var reader = new FileReader();
         reader.onload = ((theFile: File) => {
             return (e: any) => {

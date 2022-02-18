@@ -9,6 +9,8 @@ export interface SecureFileDownloadDefinition {
     FileName: string;
     StorageId: string;
     FileId: string;
+    HasUploadedFile: boolean;
+    OriginalFileName: string;
     UrlSegmentText: string;
     Password: string | null;
     DownloadCount: number;
@@ -39,4 +41,14 @@ export interface SecureFileDownloadStorageInfo
     StorageName: string;
     FileIdInfo: string;
     FileIdLabel: string;
+    SupportsUpload: boolean;
+    SupportsSelectingFile: boolean;
+}
+
+export interface SecureFileDownloadStorageUploadFileResult
+{
+    success: boolean;
+    message: string;
+    fileId: string;
+    defId: string;
 }

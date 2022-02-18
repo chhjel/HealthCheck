@@ -56,7 +56,7 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         protected HealthCheckControllerBase()
         {
-            Helper = new HealthCheckControllerHelper<TAccessRole>(() => GetPageOptions());
+            Helper = new HealthCheckControllerHelper<TAccessRole>(() => GetPageOptions(), () => GetFrontEndOptions());
         }
 
 #region Abstract
@@ -428,13 +428,31 @@ namespace HealthCheck.WebUI.Abstractions
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var request = context?.HttpContext?.Request;
+            var url = request?.GetDisplayUrl();
+            if (HealthCheckControllerHelper<TAccessRole>.ShouldEnableRequestBuffering(url))
+            {
+                request?.EnableBuffering();
+            }
 
             CurrentRequestInformation = GetRequestInformation(request);
             CurrentRequestInformation.Method = request?.Method;
-            CurrentRequestInformation.Url = request?.GetDisplayUrl();
+            CurrentRequestInformation.Url = url;
             CurrentRequestInformation.ClientIP = GetRequestIP(context);
             CurrentRequestInformation.Headers = request?.Headers.Keys?.ToDictionaryIgnoreDuplicates(t => t, t => request.Headers[t].ToString())
                 ?? new Dictionary<string, string>();
+            CurrentRequestInformation.InputStream = request.Body;
+            if (request.HasFormContentType && request?.Form?.Files?.Any() == true)
+            {
+                foreach(var file in request.Form.Files)
+                {
+                    CurrentRequestInformation.FormFiles.Add(new RequestFormFile
+                    {
+                        FileName = file.FileName,
+                        Length = file.Length,
+                        GetStream = () => file.OpenReadStream()
+                    });
+                }
+            }
             
             var requestInfoOverridden = Helper.ApplyTokenAccessIfDetected(CurrentRequestInformation);
             CurrentRequestAccessRoles = CurrentRequestInformation?.AccessRole;

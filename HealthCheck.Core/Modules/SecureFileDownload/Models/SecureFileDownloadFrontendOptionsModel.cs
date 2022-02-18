@@ -37,5 +37,15 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.Models
         /// Label to show in the management ui above file id field.
         /// </summary>
         public string FileIdLabel { get; set; }
+
+        /// <summary>
+        /// If selecting existing files is supported or not.
+        /// </summary>
+        public bool SupportsSelectingFile { get; set; }
+
+        /// <summary>
+        /// If upload of new files is supported or not.
+        /// </summary>
+        public bool SupportsUpload { get; set; }
     }
 }

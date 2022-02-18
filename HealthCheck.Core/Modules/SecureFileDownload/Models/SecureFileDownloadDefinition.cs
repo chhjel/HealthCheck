@@ -59,6 +59,16 @@ namespace HealthCheck.Core.Modules.SecureFileDownload.Models
         public string FileId { get; set; }
 
         /// <summary>
+        /// Name of the original file if any.
+        /// </summary>
+        public string OriginalFileName { get; set; }
+
+        /// <summary>
+        /// True if a file was uploaded from frontend for this definition.
+        /// </summary>
+        public bool HasUploadedFile { get; set; }
+
+        /// <summary>
         /// Text in the url for this download.
         /// </summary>
         public string UrlSegmentText { get; set; }
