@@ -21,7 +21,10 @@ namespace HealthCheck.Module.DataExport
     {
         /// <inheritdoc />
         public override List<string> AllCategories
-            => Options?.Service?.GetStreams()?.SelectMany(x => x.Categories ?? new())?.ToList() ?? new List<string>();
+            => Options?.Service?.GetStreams()
+                ?.SelectMany(x => x.Categories ?? new())
+                ?.Distinct()
+                ?.ToList() ?? new List<string>();
 
         private HCDataExportModuleOptions Options { get; }
         private static readonly HCSimpleMemoryCache _allowedExports = new() { MaxCount = 1000 };
