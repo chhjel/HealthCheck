@@ -208,8 +208,27 @@ namespace HealthCheck.WebUI.Abstractions
                 {
                     CreateContentResult(contentStr).ExecuteResult(this.ControllerContext);
                 }
+                else if (result is HealthCheckStatusCodeOnlyResult statusCodeResult)
+                {
+                    Response.StatusCode = (int)statusCodeResult.Code;
+                    CreateContentResult("");
+                }
                 else if (result is HealthCheckFileDownloadResult file)
                 {
+                    // Cookies
+                    foreach (var cookie in file.CookiesToDelete ?? Enumerable.Empty<string>())
+                    {
+                        if (Request.Cookies[cookie] != null)
+                        {
+                            Response.Cookies[cookie].Expires = DateTime.Now.AddDays(-1);
+                        }
+                    }
+                    foreach (var cookie in file.CookiesToSet ?? new())
+                    {
+                        Response.Cookies.Set(new HttpCookie(cookie.Key, cookie.Value));
+                    }
+
+                    // Contents
                     if (file.Stream != null)
                     {
                         File(file.Stream, file.ContentType, file.FileName).ExecuteResult(this.ControllerContext);
