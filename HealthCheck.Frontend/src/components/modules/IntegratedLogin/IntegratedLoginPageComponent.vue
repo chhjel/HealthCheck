@@ -363,7 +363,7 @@ export default class IntegratedLoginPageComponent extends Vue {
         let service = new IntegratedLoginService(true);
         service.CreateWebAuthnAssertionOptions(this.username, this.loadStatus, {
             onSuccess: (options) => {
-                console.log(options);
+                // console.log(options);
                 this.onWebAuthnAssertionOptionsCreated(options);
             },
             onError: (e) => console.error(e),

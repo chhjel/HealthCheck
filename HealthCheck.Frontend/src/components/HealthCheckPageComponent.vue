@@ -18,7 +18,8 @@
                         :key="`module-menu-${mindex}`"
                         :href="`#${mconf.InitialRoute}`"
                         :class="{ 'active-tab': isModuleShowing(mconf) }"
-                        @click.left.prevent="showModule(mconf)">{{ mconf.Name }}</v-btn>
+                        @click.left.prevent="showModule(mconf)"
+                        @click.middle.stop.prevent="onModuleMiddleClicked(mconf)">{{ mconf.Name }}</v-btn>
                     <v-btn flat 
                         v-if="showTokenKillswitch"
                         @click.left.prevent="tokenKillswitchDialogVisible = true">
@@ -260,6 +261,11 @@ export default class HealthCheckPageComponent extends Vue {
                 UrlUtils.updatePerstentQueryStringKey();
             })
         });
+    }
+
+    onModuleMiddleClicked(mconf: ModuleConfig): void {
+        let route = `#${mconf.InitialRoute}`;
+        UrlUtils.openRouteInNewTab(route);
     }
 }
 </script>
