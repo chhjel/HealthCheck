@@ -20,12 +20,12 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// <summary>
         /// Sets the headers for this data.
         /// </summary>
-        void SetHeaders(List<string> headers);
+        void SetHeaders(Dictionary<string, string> headers, List<string> headerOrder);
 
         /// <summary>
         /// Append a new item to be exported.
         /// </summary>
-        void AppendItem(Dictionary<string, object> items, Dictionary<string, string> itemsStringified, List<string> order);
+        void AppendItem(Dictionary<string, object> items, Dictionary<string, string> headers, List<string> headerOrder);
 
         /// <summary>
         /// Get current contents.

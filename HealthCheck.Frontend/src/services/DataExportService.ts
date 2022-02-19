@@ -1,3 +1,4 @@
+import UrlUtils from 'util/UrlUtils';
 import { HCDataExportDeleteStreamQueryPresetsRequest } from './../generated/Models/Module/DataExport/HCDataExportDeleteStreamQueryPresetsRequest';
 import { HCDataExportStreamQueryPresetViewModel } from './../generated/Models/Module/DataExport/HCDataExportStreamQueryPresetViewModel';
 import { HCDataExportQueryRequest } from "generated/Models/Module/DataExport/HCDataExportQueryRequest";
@@ -64,6 +65,12 @@ export default class DataExportService extends HCServiceBase
     }
 
     public CreateExportDownloadUrl(endpointBase: string, key: string): string {
-        return `${endpointBase}/DEExport/${key}`;
+        let url = `${endpointBase}/DEExport/${key}`;
+        const token = UrlUtils.GetQueryStringParameter('x-token');
+        if (token != null)
+        {
+            url += `?x-token=${token}`;
+        }
+        return url;
     }
 }

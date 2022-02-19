@@ -198,6 +198,14 @@ namespace HealthCheck.WebUI.Abstractions
         /// Used for any dynamic actions from registered modules.
         /// </summary>
         [HideFromRequestLog]
+        [HttpHead]
+        [Route("{actionName}/{subAction?}")]
+        public IActionResult HandleUnknownAction_HEAD([FromRoute] string actionName) => HandleUnknownAction_GET(actionName);
+
+        /// <summary>
+        /// Used for any dynamic actions from registered modules.
+        /// </summary>
+        [HideFromRequestLog]
         [HttpPost]
         [Route("{actionName}/{subAction?}")]
         public IActionResult HandleUnknownAction_POST([FromRoute] string actionName) => HandleUnknownAction_GET(actionName);
@@ -223,8 +231,23 @@ namespace HealthCheck.WebUI.Abstractions
                 {
                     return CreateContentResult(contentStr);
                 }
+                else if (result is HealthCheckStatusCodeOnlyResult statusCodeResult)
+                {
+                    return StatusCode((int)statusCodeResult.Code);
+                }
                 else if (result is HealthCheckFileDownloadResult file)
                 {
+                    // Cookies
+                    foreach (var cookie in file.CookiesToDelete ?? Enumerable.Empty<string>())
+                    {
+                        Response.Cookies.Delete(cookie);
+                    }
+                    foreach (var cookie in file.CookiesToSet ?? new())
+                    {
+                        Response.Cookies.Append(cookie.Key, cookie.Value);
+                    }
+
+                    // Contents
                     if (file.Stream != null)
                     {
                         return File(file.Stream, file.ContentType, file.FileName);

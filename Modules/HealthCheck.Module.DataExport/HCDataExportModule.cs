@@ -5,10 +5,10 @@ using HealthCheck.Core.Util;
 using HealthCheck.Core.Util.Modules;
 using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Models;
-using HealthCheck.Module.DataExport.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -17,14 +17,19 @@ namespace HealthCheck.Module.DataExport
     /// <summary>
     /// Module for exporting data.
     /// </summary>
-    public class HCDataExportModule : HealthCheckModuleBase<HCDataExportModule.AccessOption>
+    public partial class HCDataExportModule : HealthCheckModuleBase<HCDataExportModule.AccessOption>
     {
         /// <inheritdoc />
         public override List<string> AllCategories
-            => Options?.Service?.GetStreams()?.SelectMany(x => x.Categories ?? new())?.ToList() ?? new List<string>();
+            => Options?.Service?.GetStreams()
+                ?.SelectMany(x => x.Categories ?? new())
+                ?.Distinct()
+                ?.ToList() ?? new List<string>();
 
         private HCDataExportModuleOptions Options { get; }
         private static readonly HCSimpleMemoryCache _allowedExports = new() { MaxCount = 1000 };
+        private static readonly HCSimpleMemoryCache _exportStatuses = new() { MaxCount = 1000 };
+
         private class AllowedExportData
         {
             public Guid Key { get; set; }
@@ -189,6 +194,7 @@ namespace HealthCheck.Module.DataExport
                 Query = model
             };
             _allowedExports.Set(data.Key.ToString(), data, TimeSpan.FromMinutes(1));
+            _exportStatuses.Set(data.Key.ToString(), HttpStatusCode.Found, TimeSpan.FromMinutes(10));
             return data.Key;
         }
 
@@ -258,11 +264,29 @@ namespace HealthCheck.Module.DataExport
 
             // Parse url
             var keyFromUrl = match.Groups["key"].Value.Trim().ToLower();
+            var isHeadStatusRequest = url?.EndsWith("?status=1") == true && context.Request.Method == "HEAD";
+            if (isHeadStatusRequest)
+            {
+                var status = _exportStatuses.GetValue(keyFromUrl, HttpStatusCode.NotFound);
+                return new HealthCheckStatusCodeOnlyResult(status);
+            }
+
+            // Validate
             var data = _allowedExports.GetValue<AllowedExportData>(keyFromUrl, null);
             if (data == null)
             {
                 return CreateExportErrorHtml("Data to export not found.");
             }
+
+            // Show loading page first that redirects to this action again without loader
+            var showLoadingDownloadPage = url?.EndsWith("?dl=1") == false;
+            if (showLoadingDownloadPage)
+            {
+                url += url.Contains('?') ? "&dl=1" : "?dl=1";
+                return CreateExportLoadingDownloadHtml($"{url}?dl=1");
+            }
+
+            // Invalidate key
             _allowedExports.ClearKey(keyFromUrl);
 
             // Validate
@@ -299,6 +323,7 @@ namespace HealthCheck.Module.DataExport
                 .AddDetail("File Name", fileName)
                 .AddDetail("Filesize", $"{HCIOUtils.PrettifyFileSize(content.Length)}");
 
+            _exportStatuses.Remove(data.Key.ToString());
             return HealthCheckFileDownloadResult.CreateFromBytes(fileName, content);
         }
         #endregion
@@ -310,15 +335,15 @@ namespace HealthCheck.Module.DataExport
             model.PageIndex = 0;
             model.PageSize = exportBatchSize;
 
-            var headers = data.Query.IncludedProperties;
+            var headerOrder = data.Query.IncludedProperties;
             var headerNameOverrides = data.Query.HeaderNameOverrides ?? new();
-            var resolvedHeaders = new List<string>();
-            foreach (var header in headers)
+            var resolvedHeaders = new Dictionary<string, string>();
+            foreach (var header in headerOrder)
             {
                 var name = headerNameOverrides.ContainsKey(header) ? headerNameOverrides[header] : header;
-                resolvedHeaders.Add(name);
+                resolvedHeaders[header] = name;
             }
-            exporter.SetHeaders(resolvedHeaders);
+            exporter.SetHeaders(resolvedHeaders, headerOrder);
 
             var taken = 0;
             var totalCount = 1;
@@ -331,39 +356,11 @@ namespace HealthCheck.Module.DataExport
                 foreach (var item in result.Items.OfType<Dictionary<string, object>>())
                 {
                     taken++;
-                    var stringified = new Dictionary<string, string>();
-                    foreach (var kvp in item)
-                    {
-                        var val = item[kvp.Key];
-                        stringified[kvp.Key] = HCDataExportService.SerializeOrStringifyValue(val);
-                    }
-                    exporter.AppendItem(item, stringified, headers);
+                    exporter.AppendItem(item, resolvedHeaders, headerOrder);
                 }
             }
 
             return exporter.GetContents();
-        }
-
-        private static string CreateExportErrorHtml(string error)
-        {
-            var Q = "\"";
-            var noIndexMeta = $"<meta name={Q}robots{Q} content={Q}noindex{Q}>";
-
-            return $@"
-<!doctype html>
-<html>
-<head>
-    <title>Export failed</title>
-    {noIndexMeta}
-    <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
-</head>
-
-<body>
-    <div>
-        <p>{error}</p>
-    </div>
-</body>
-</html>";
         }
 
         private async Task<string> PrepareQueryAsync(HealthCheckModuleContext context, HCDataExportQueryRequest model, bool isExport)

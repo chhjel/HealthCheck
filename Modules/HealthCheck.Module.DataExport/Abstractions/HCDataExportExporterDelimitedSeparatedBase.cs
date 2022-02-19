@@ -7,14 +7,8 @@ namespace HealthCheck.Module.DataExport.Abstractions
     /// <summary>
     /// Outputs delimited separated files.
     /// </summary>
-    public abstract class HCDataExportExporterDelimitedSeparatedBase : IHCDataExportExporter
+    public abstract class HCDataExportExporterDelimitedSeparatedBase : HCDataExportExporterStringifiedBase
     {
-        /// <inheritdoc />
-        public abstract string DisplayName { get; set; }
-
-        /// <inheritdoc />
-        public abstract string FileExtension { get; set; }
-
         /// <summary>
         /// Delimiter to separate values with.
         /// </summary>
@@ -28,21 +22,21 @@ namespace HealthCheck.Module.DataExport.Abstractions
         private readonly StringBuilder _builder = new();
 
         /// <inheritdoc />
-        public void SetHeaders(List<string> headers)
+        public override void SetHeaders(Dictionary<string, string> headers, List<string> headerOrder)
         {
-            _builder.AppendLine(CreateLine(headers));
+            _builder.AppendLine(CreateLine(headerOrder.Select(x => headers[x])));
         }
 
         /// <inheritdoc />
-        public void AppendItem(Dictionary<string, object> items, Dictionary<string, string> itemsStringified, List<string> order)
+        public override void AppendStringifiedItem(Dictionary<string, object> items, Dictionary<string, string> stringifiedItems, Dictionary<string, string> headers, List<string> headerOrder)
         {
-            var parts = order.Select(x => itemsStringified[x] ?? string.Empty);
+            var parts = headerOrder.Select(x => stringifiedItems[x] ?? string.Empty);
             var line = CreateLine(parts);
             _builder.AppendLine(line);
         }
 
         /// <inheritdoc />
-        public byte[] GetContents() => Encoding.UTF8.GetBytes(_builder.ToString());
+        public override byte[] GetContents() => Encoding.UTF8.GetBytes(_builder.ToString());
 
         /// <summary>
         /// Create a CSV line from the given raw parts.

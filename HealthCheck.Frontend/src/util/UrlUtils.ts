@@ -20,6 +20,12 @@ export default class UrlUtils
         window.history.replaceState({}, '', `${location.pathname}?${params.toString()}${location.hash}`);
     }
 
+    static ClearQueryStringParameter(key: string): void {
+        const params = new URLSearchParams(location.search);
+        params.delete(key);
+        window.history.replaceState({}, '', `${location.pathname}?${params.toString()}${location.hash}`);
+    }
+
     static RemoveQueryStringParameter(url: string, key: string): string {
         const urlObj = new URL(url);
         urlObj.searchParams.delete('h');

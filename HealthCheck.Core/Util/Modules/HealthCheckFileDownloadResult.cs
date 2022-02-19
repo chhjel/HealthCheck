@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace HealthCheck.Core.Util.Modules
@@ -37,6 +38,16 @@ namespace HealthCheck.Core.Util.Modules
 		/// Encoding to use.
 		/// </summary>
 		public Encoding Encoding { get; set; }
+
+		/// <summary>
+		/// Optionally cookies to set.
+		/// </summary>
+		public Dictionary<string, string> CookiesToSet { get; set; } = new();
+
+		/// <summary>
+		/// Optionally cookies to delete.
+		/// </summary>
+		public List<string> CookiesToDelete { get; set; } = new();
 
 		/// <summary>
 		/// Create a new file result from a stream.

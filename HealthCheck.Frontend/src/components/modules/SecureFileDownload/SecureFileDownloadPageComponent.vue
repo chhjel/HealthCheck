@@ -316,7 +316,6 @@ export default class SecureFileDownloadPageComponent extends Vue {
 
         if (download.FileId)
         {
-            console.log(JSON.stringify(download));
             this.hideCurrentDownload();
         }
     }
