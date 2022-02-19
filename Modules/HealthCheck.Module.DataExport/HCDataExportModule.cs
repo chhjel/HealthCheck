@@ -5,7 +5,6 @@ using HealthCheck.Core.Util;
 using HealthCheck.Core.Util.Modules;
 using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Models;
-using HealthCheck.Module.DataExport.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -280,6 +279,7 @@ namespace HealthCheck.Module.DataExport
             var showLoadingDownloadPage = url?.EndsWith("?dl=1") == false;
             if (showLoadingDownloadPage)
             {
+                url += url.Contains('?') ? "&dl=1" : "?dl=1";
                 return CreateExportLoadingDownloadHtml($"{url}?dl=1");
             }
 
@@ -332,15 +332,15 @@ namespace HealthCheck.Module.DataExport
             model.PageIndex = 0;
             model.PageSize = exportBatchSize;
 
-            var headers = data.Query.IncludedProperties;
+            var headerOrder = data.Query.IncludedProperties;
             var headerNameOverrides = data.Query.HeaderNameOverrides ?? new();
-            var resolvedHeaders = new List<string>();
-            foreach (var header in headers)
+            var resolvedHeaders = new Dictionary<string, string>();
+            foreach (var header in headerOrder)
             {
                 var name = headerNameOverrides.ContainsKey(header) ? headerNameOverrides[header] : header;
-                resolvedHeaders.Add(name);
+                resolvedHeaders[header] = name;
             }
-            exporter.SetHeaders(resolvedHeaders);
+            exporter.SetHeaders(resolvedHeaders, headerOrder);
 
             var taken = 0;
             var totalCount = 1;
@@ -353,13 +353,7 @@ namespace HealthCheck.Module.DataExport
                 foreach (var item in result.Items.OfType<Dictionary<string, object>>())
                 {
                     taken++;
-                    var stringified = new Dictionary<string, string>();
-                    foreach (var kvp in item)
-                    {
-                        var val = item[kvp.Key];
-                        stringified[kvp.Key] = HCDataExportService.SerializeOrStringifyValue(val);
-                    }
-                    exporter.AppendItem(item, stringified, headers);
+                    exporter.AppendItem(item, resolvedHeaders, headerOrder);
                 }
             }
 

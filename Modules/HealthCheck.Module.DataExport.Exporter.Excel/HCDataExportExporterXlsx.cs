@@ -8,13 +8,13 @@ namespace HealthCheck.Module.DataExport.Exporter.Excel
     /// <summary>
     /// Outputs XLSX files.
     /// </summary>
-    public class HCDataExportExporterXlsx : IHCDataExportExporter
+    public class HCDataExportExporterXlsx : HCDataExportExporterStringifiedBase
     {
         /// <inheritdoc />
-        public string DisplayName => "Excel (XLSX)";
+        public override string DisplayName { get; set; } = "Excel (XLSX)";
 
         /// <inheritdoc />
-        public string FileExtension => ".xlsx";
+        public override string FileExtension { get; set; } = ".xlsx";
 
         /// <summary>
         /// Adjust column sizes to content with some min/max values.
@@ -22,43 +22,40 @@ namespace HealthCheck.Module.DataExport.Exporter.Excel
         /// </summary>
         public bool AdjustToContents { get; set; } = true;
 
-        private List<string> _headers;
         private XLWorkbook _workbook;
         private IXLWorksheet _worksheet;
         private int _currentRow;
 
         /// <inheritdoc />
-        public void SetHeaders(List<string> headers)
+        public override void SetHeaders(Dictionary<string, string> headers, List<string> headerOrder)
         {
-            _headers = headers;
-
             _workbook = new XLWorkbook();
             _worksheet = _workbook.Worksheets.Add("Data");
 
             _currentRow = 1;
-            for (int i=0; i < _headers.Count; i++)
+            for (int i=0; i < headerOrder.Count; i++)
             {
-                _worksheet.Cell(_currentRow, i + 1).Value = _headers[i];
+                _worksheet.Cell(_currentRow, i + 1).Value = headers[headerOrder[i]];
                 _worksheet.Cell(_currentRow, i + 1).Style.Font.Bold = true;
                 _worksheet.Cell(_currentRow, i + 1).Style.Font.Bold = true;
             }
         }
 
         /// <inheritdoc />
-        public void AppendItem(Dictionary<string, object> items, Dictionary<string, string> itemsStringified, List<string> order)
+        public override void AppendStringifiedItem(Dictionary<string, object> items, Dictionary<string, string> stringifiedItems, Dictionary<string, string> headers, List<string> headerOrder)
         {
             _currentRow++;
 
             var colNumber = 0;
-            foreach (var key in order)
+            foreach (var header in headerOrder)
             {
                 colNumber++;
-                _worksheet.Cell(_currentRow, colNumber).Value = itemsStringified[key] ?? string.Empty;
+                _worksheet.Cell(_currentRow, colNumber).Value = stringifiedItems[header] ?? string.Empty;
             }
         }
 
         /// <inheritdoc />
-        public byte[] GetContents()
+        public override byte[] GetContents()
         {
             if (AdjustToContents)
             {

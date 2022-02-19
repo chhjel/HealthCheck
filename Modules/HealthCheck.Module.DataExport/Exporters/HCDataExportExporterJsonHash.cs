@@ -1,4 +1,5 @@
-﻿using HealthCheck.Module.DataExport.Abstractions;
+﻿using HealthCheck.Core.Extensions;
+using HealthCheck.Module.DataExport.Abstractions;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,20 +27,24 @@ namespace HealthCheck.Module.DataExport.Exporters
 		private readonly Dictionary<string, object> _builder = new();
 
 		/// <inheritdoc />
-		public void SetHeaders(List<string> headers) { }
+		public void SetHeaders(Dictionary<string, string> headers, List<string> headerOrder) { }
 
 		/// <inheritdoc />
-		public void AppendItem(Dictionary<string, object> items, Dictionary<string, string> itemsStringified, List<string> order)
+		public void AppendItem(Dictionary<string, object> items, Dictionary<string, string> headers, List<string> headerOrder)
 		{
-			var keyKey = order?.FirstOrDefault();
-			if (keyKey != null && itemsStringified.TryGetValue(keyKey, out var key))
+			var headerToUseAsKey = headerOrder.FirstOrDefault();
+			if (headerToUseAsKey != null)
 			{
-				var values = items.Where(x => x.Key != keyKey).ToDictionary(x => x.Key, x => x.Value);
+				var values = items
+					.Where(x => x.Key != headerToUseAsKey)
+					.ToDictionaryIgnoreDuplicates(x => headers[x.Key], x => x.Value);
+				var key = items[headerToUseAsKey]?.ToString();
+				if (string.IsNullOrEmpty(key)) key = "_";
 				_builder[key] = values;
 			}
 		}
 
 		/// <inheritdoc />
 		public byte[] GetContents() => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(_builder, Prettify ? Formatting.Indented : Formatting.None));
-	}
+    }
 }

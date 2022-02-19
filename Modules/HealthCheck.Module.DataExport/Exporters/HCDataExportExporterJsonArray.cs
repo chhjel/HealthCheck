@@ -1,4 +1,5 @@
-﻿using HealthCheck.Module.DataExport.Abstractions;
+﻿using HealthCheck.Core.Extensions;
+using HealthCheck.Module.DataExport.Abstractions;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Text;
@@ -25,11 +26,16 @@ namespace HealthCheck.Module.DataExport.Exporters
 		private readonly List<Dictionary<string, object>> _builder = new();
 
 		/// <inheritdoc />
-		public void SetHeaders(List<string> headers) { }
+		public void SetHeaders(Dictionary<string, string> headers, List<string> headerOrder) { }
 
 		/// <inheritdoc />
-		public void AppendItem(Dictionary<string, object> items, Dictionary<string, string> itemsStringified, List<string> order)
-			=> _builder.Add(items);
+		public void AppendItem(Dictionary<string, object> items, Dictionary<string, string> headers, List<string> headerOrder)
+		{
+			var itemsRenamed = headerOrder
+				.ToDictionaryIgnoreDuplicates(x => headers[x], x => items[x]);
+
+			_builder.Add(itemsRenamed);
+		}
 
 		/// <inheritdoc />
 		public byte[] GetContents() => Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(_builder, Prettify ? Formatting.Indented : Formatting.None));

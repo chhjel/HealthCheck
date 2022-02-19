@@ -1,4 +1,5 @@
-﻿using HealthCheck.Module.DataExport.Abstractions;
+﻿using HealthCheck.Core.Extensions;
+using HealthCheck.Module.DataExport.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,16 +11,16 @@ using System.Xml.Serialization;
 
 namespace HealthCheck.Module.DataExport.Exporters
 {
-    /// <summary>
-    /// Outputs xml files.
-    /// </summary>
-    public class HCDataExportExporterXml : IHCDataExportExporter
+	/// <summary>
+	/// Outputs xml files.
+	/// </summary>
+	public class HCDataExportExporterXml : HCDataExportExporterStringifiedBase
 	{
 		/// <inheritdoc />
-		public string DisplayName { get; set; } = "XML";
+		public override string DisplayName { get; set; } = "XML";
 
 		/// <inheritdoc />
-		public string FileExtension { get; set; } = ".xml";
+		public override string FileExtension { get; set; } = ".xml";
 
 		/// <summary>
 		/// When true xml output will be prettified.
@@ -30,27 +31,25 @@ namespace HealthCheck.Module.DataExport.Exporters
 		private readonly SerializableObjectDictionaryList _builder = new();
 
 		/// <inheritdoc />
-		public void SetHeaders(List<string> headers) { }
+		public override void AppendStringifiedItem(Dictionary<string, object> items, Dictionary<string, string> stringifiedItems, Dictionary<string, string> headers, List<string> headerOrder)
+		{
+			var itemsRenamed = headerOrder
+				.ToDictionaryIgnoreDuplicates(x => headers[x], x => stringifiedItems[x]);
+
+			_builder.ObjectList.Add(itemsRenamed);
+		}
 
 		/// <inheritdoc />
-		public void AppendItem(Dictionary<string, object> items, Dictionary<string, string> itemsStringified, List<string> order)
-			=> _builder.ObjectList.Add(itemsStringified);
-
-		/// <inheritdoc />
-		public byte[] GetContents()
+		public override byte[] GetContents()
 		{
 			var serializer = new DataContractSerializer(typeof(SerializableObjectDictionaryList));
-			using (var memoryStream = new MemoryStream())
-			{
-				using (var xmlWriter = new XmlTextWriter(memoryStream, Encoding.UTF8))
-				{
-					xmlWriter.Formatting = Prettify ? System.Xml.Formatting.Indented : System.Xml.Formatting.None;
-					serializer.WriteObject(xmlWriter, _builder);
-					xmlWriter.Flush();
-					return memoryStream.ToArray();
-				}
-			}
-		}
+            using var memoryStream = new MemoryStream();
+            using var xmlWriter = new XmlTextWriter(memoryStream, Encoding.UTF8);
+            xmlWriter.Formatting = Prettify ? Formatting.Indented : Formatting.None;
+            serializer.WriteObject(xmlWriter, _builder);
+            xmlWriter.Flush();
+            return memoryStream.ToArray();
+        }
 
 		[Serializable]
 		[XmlRoot(ElementName = "ExportedData")]
@@ -69,10 +68,19 @@ namespace HealthCheck.Module.DataExport.Exporters
 					writer.WriteStartElement("Item");
 					foreach (var kvp in dict)
 					{
-						writer.WriteElementString(kvp.Key, kvp.Value?.ToString());
+						writer.WriteElementString(SantizeXmlElementName(kvp.Key), kvp.Value?.ToString());
 					}
 					writer.WriteEndElement();
 				}
+			}
+
+			private static string SantizeXmlElementName(string name)
+			{
+				name = (name ?? "_")
+					.Replace(" ", "_")
+					.Replace("\t", "_")
+					.Trim();
+				return XmlConvert.EncodeLocalName(name);
 			}
 		}
 	}

@@ -25,7 +25,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>Export failed</title>
+    <title>Exporting data..</title>
     {noIndexMeta}
     <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
     <meta name={Q}robots{Q} content={Q}noindex{Q}>
@@ -162,7 +162,16 @@
 
         var clear = setInterval(checkStatus, 2000);
         function checkStatus() {{
-            fetch('?status=1', {{ method: 'HEAD' }})
+            var statusUrl = '?';
+
+            var urlParams = new URLSearchParams(window.location.search);
+            var token = urlParams.get('x-token');
+            if (token != null) statusUrl += 'x-token=' + token;
+
+            if (statusUrl.length > 1) statusUrl += '&';
+            statusUrl += 'status=1';
+
+            fetch(statusUrl, {{ method: 'HEAD' }})
                 .then(response => handleStatusCode(response.status))
         }}
 
@@ -177,6 +186,11 @@
                 document.getElementById('icon').classList.remove('loading');
                 document.getElementById('loader').classList.remove('loading');
                 document.getElementById('loader').classList.add('fadeout');
+
+                document.title = 'Downloading exported data..';
+            }}
+            else if (code != 302) {{
+                clearInterval(clear);
             }}
         }}
 
