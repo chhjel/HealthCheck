@@ -169,6 +169,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
 		{
             try
 			{
+				var timer = new HCMetricsTimer($"{GetType().GetFriendlyTypeName()}().SaveData()");
 				LatestEndpointRequestsHistory dataCopy = null;
 
 				lock (_data.LatestRequestIdentities)
@@ -186,7 +187,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
 				{
 					File.WriteAllText(FilePath, json);
 				}
-				HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}().SaveData()");
+				HCMetricsContext.AddGlobalTimingValue(timer);
 			}
 			catch(Exception) { /* Ignored */ }
 		}
@@ -245,11 +246,12 @@ namespace HealthCheck.Module.EndpointControl.Storage
 				return;
             }
 
+			var timer = new HCMetricsTimer($"{GetType().GetFriendlyTypeName()}().LoadData()");
 			var fileReader = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using var streamReader = new StreamReader(fileReader);
             using var jsonReader = new JsonTextReader(streamReader);
             _data = _serializer.Deserialize<LatestEndpointRequestsHistory>(jsonReader);
-			HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}().LoadData()");
+			HCMetricsContext.AddGlobalTimingValue(timer);
 		}
 
 		private void AddRequestToCollections(EndpointControlEndpointRequestData request)

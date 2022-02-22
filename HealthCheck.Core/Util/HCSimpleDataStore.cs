@@ -117,17 +117,21 @@ namespace HealthCheck.Core.Util
             EnsureFileExists();
             lock (_fileLock)
             {
-                var tempFile = Path.GetTempFileName();
-
+                // Load
+                var loadTimer = new HCMetricsTimer($"{GetType().GetFriendlyTypeName()}.LoadData()");
                 var linesToKeep = File.ReadLines(FilePath)
                     .Where(x => CheckCondition(x, (item) => !condition(item), false));
+                HCMetricsContext.AddGlobalTimingValue(loadTimer);
+
+                // Save
+                var saveTimer = new HCMetricsTimer($"{GetType().GetFriendlyTypeName()}.SaveData()");
+                var tempFile = Path.GetTempFileName();
                 File.WriteAllLines(tempFile, linesToKeep);
 
                 File.Delete(FilePath);
                 File.Move(tempFile, FilePath);
                 OnFileWrittenEvent?.Invoke();
-                HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.LoadData()");
-                HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.SaveData()");
+                HCMetricsContext.AddGlobalTimingValue(saveTimer);
             }
         }
 
@@ -176,8 +180,8 @@ namespace HealthCheck.Core.Util
             EnsureFileExists();
             lock (_fileLock)
             {
-                var tempFile = Path.GetTempFileName();
-
+                // Load
+                var loadTimer = new HCMetricsTimer($"{GetType().GetFriendlyTypeName()}.LoadData()");
                 var updatedLines = File.ReadLines(FilePath)
                     .Select(row => new { row, item = mustContainCheck(row) ? new Maybe<TItem>(DeserializeRow(row)) : null })
                     .Select(x =>
@@ -189,14 +193,17 @@ namespace HealthCheck.Core.Util
                         }
                         return x.row;
                     });
+                HCMetricsContext.AddGlobalTimingValue(loadTimer);
 
+                // Save
+                var tempFile = Path.GetTempFileName();
+                var saveTimer = new HCMetricsTimer($"{GetType().GetFriendlyTypeName()}.SaveData()");
                 File.WriteAllLines(tempFile, updatedLines);
 
                 File.Delete(FilePath);
                 File.Move(tempFile, FilePath);
                 OnFileWrittenEvent?.Invoke();
-                HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.LoadData()");
-                HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.SaveData()");
+                HCMetricsContext.AddGlobalTimingValue(saveTimer);
             }
 
             return matchCount;
@@ -264,20 +271,27 @@ namespace HealthCheck.Core.Util
 
                 lock (_fileLock)
                 {
-                    HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.LoadData()");
-                    var fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                    using HCReverseStreamReader streamReader = new(fileStream);
-                    string row;
-                    while ((row = streamReader.ReadLine()) != null)
+                    var timer = new HCMetricsTimer($"{GetType().GetFriendlyTypeName()}.LoadData()");
+                    try
                     {
-                        if (string.IsNullOrWhiteSpace(row))
-                            continue;
-
-                        var item = DeserializeRow(row);
-                        if (item != null)
+                        var fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                        using HCReverseStreamReader streamReader = new(fileStream);
+                        string row;
+                        while ((row = streamReader.ReadLine()) != null)
                         {
-                            yield return item;
+                            if (string.IsNullOrWhiteSpace(row))
+                                continue;
+
+                            var item = DeserializeRow(row);
+                            if (item != null)
+                            {
+                                yield return item;
+                            }
                         }
+                    }
+                    finally
+                    {
+                        HCMetricsContext.AddGlobalTimingValue(timer);
                     }
                 }
             }
@@ -285,21 +299,28 @@ namespace HealthCheck.Core.Util
             {
                 lock (_fileLock)
                 {
-                    HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.LoadData()");
-                    var fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                    var bufferedStream = new BufferedStream(fileStream);
-                    using StreamReader streamReader = new(bufferedStream);
-                    string row;
-                    while ((row = streamReader.ReadLine()) != null)
+                    var timer = new HCMetricsTimer($"{GetType().GetFriendlyTypeName()}.LoadData()");
+                    try
                     {
-                        if (string.IsNullOrWhiteSpace(row))
-                            continue;
-
-                        var item = DeserializeRow(row);
-                        if (item != null)
+                        var fileStream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                        var bufferedStream = new BufferedStream(fileStream);
+                        using StreamReader streamReader = new(bufferedStream);
+                        string row;
+                        while ((row = streamReader.ReadLine()) != null)
                         {
-                            yield return item;
+                            if (string.IsNullOrWhiteSpace(row))
+                                continue;
+
+                            var item = DeserializeRow(row);
+                            if (item != null)
+                            {
+                                yield return item;
+                            }
                         }
+                    }
+                    finally
+                    {
+                        HCMetricsContext.AddGlobalTimingValue(timer);
                     }
                 }
 
