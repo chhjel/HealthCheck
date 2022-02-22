@@ -1,9 +1,14 @@
 export default class UrlUtils
 {
     static openRouteInNewTab(route: string): void {
+        const url = UrlUtils.getOpenRouteInNewTabUrl(route);
+        window.open(url, '_blank');
+    }
+
+    static getOpenRouteInNewTabUrl(route: string): string {
         let url = window.location.href.replace(window.location.hash, route);
         url = UrlUtils.RemoveQueryStringParameter(url, 'h');
-        window.open(url, '_blank');
+        return url;
     }
 
     static EncodeHashPart(value: string): string {

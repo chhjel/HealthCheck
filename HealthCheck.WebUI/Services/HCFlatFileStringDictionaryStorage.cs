@@ -33,6 +33,8 @@ namespace HealthCheck.WebUI.Services
         /// <inheritdoc/>
         public void SaveValues(Dictionary<string, string> values)
         {
+            var timer = new HCMetricsTimer($"StringDictionaryStorage({Path.GetFileNameWithoutExtension(FilePath)}).SaveData()");
+
             lock (_valueCacheLock)
             {
                 _valueCache = values ?? new Dictionary<string, string>();
@@ -42,8 +44,9 @@ namespace HealthCheck.WebUI.Services
             lock (_fileLock)
             {
                 File.WriteAllText(FilePath, json);
-                HCMetricsContext.IncrementGlobalCounter($"StringDictionaryStorage({Path.GetFileNameWithoutExtension(FilePath)}).SaveData()");
             }
+
+            HCMetricsContext.AddGlobalTimingValue(timer);
         }
 
         /// <inheritdoc/>
@@ -69,6 +72,7 @@ namespace HealthCheck.WebUI.Services
 
         private Dictionary<string, string> GetValuesInternal()
         {
+            var timer = new HCMetricsTimer($"StringDictionaryStorage({Path.GetFileNameWithoutExtension(FilePath)}).LoadData()");
             string contents;
             try
             {
@@ -78,7 +82,6 @@ namespace HealthCheck.WebUI.Services
                     {
                         contents = HCIOUtils.ReadFile(FilePath);
                     }
-                    HCMetricsContext.IncrementGlobalCounter($"StringDictionaryStorage({Path.GetFileNameWithoutExtension(FilePath)}).LoadData()");
                     return JsonConvert.DeserializeObject<Dictionary<string, string>>(contents)
                         ?? new Dictionary<string, string>();
                 }
@@ -90,6 +93,10 @@ namespace HealthCheck.WebUI.Services
             catch (Exception)
             {
                 return new Dictionary<string, string>();
+            }
+            finally
+            {
+                HCMetricsContext.AddGlobalTimingValue(timer);
             }
         }
     }

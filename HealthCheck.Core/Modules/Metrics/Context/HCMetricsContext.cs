@@ -2,6 +2,7 @@
 using HealthCheck.Core.Util;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace HealthCheck.Core.Modules.Metrics.Context
@@ -57,7 +58,7 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         /// <summary>
         /// Contains the currently tracked metrics for this context.
         /// </summary>
-        public HCMetricsContext() {}
+        public HCMetricsContext() { }
 
         /// <summary>
         /// Finalizer for <see cref="HCMetricsContext"/>.
@@ -130,7 +131,14 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         /// </summary>
         public static void AddGlobalValue(string id, int value)
             => WithCurrentContext((c) => c.AddGlobalValueInternal(id, value));
-        internal void AddGlobalValueInternal(string id, int value)
+
+        /// <summary>
+        /// Add a global value that will be min/max/avgeraged.
+        /// </summary>
+        public static void AddGlobalValue(string id, long value)
+            => WithCurrentContext((c) => c.AddGlobalValueInternal(id, value));
+
+        internal void AddGlobalValueInternal(string id, long value)
         {
             lock (_globalValuesLock)
             {
@@ -140,6 +148,63 @@ namespace HealthCheck.Core.Modules.Metrics.Context
                 }
                 GlobalValues[id].Add(value);
             }
+        }
+        
+        /// <summary>
+        /// Add a timer to global timing values.
+        /// </summary>
+        public static void AddGlobalTimingValue(HCMetricsTimer timer)
+        {
+            if (timer == null) return;
+            WithCurrentContext((c) => c.AddGlobalTimingValueInternal(timer));
+        }
+        internal void AddGlobalTimingValueInternal(HCMetricsTimer timer)
+            => AddGlobalValueInternal(timer.Id, timer.Stopwatch.ElapsedMilliseconds);
+
+        /// <summary>
+        /// Time an action and add to global values.
+        /// </summary>
+        public static void AddGlobalTimingValue(string id, Action actionToTime)
+            => WithCurrentContext((c) => c.AddGlobalTimingValueInternal(id, actionToTime));
+        internal void AddGlobalTimingValueInternal(string id, Action actionToTime)
+        {
+            var watch = new Stopwatch();
+            watch.Start();
+
+            actionToTime?.Invoke();
+
+            var duration = watch.ElapsedMilliseconds;
+            AddGlobalValueInternal(id, duration);
+        }
+
+        /// <summary>
+        /// Time an action and add to global values.
+        /// </summary>
+        public static T AddGlobalTimingValue<T>(string id, Func<T> actionToTime)
+            => WithCurrentContext((c) =>
+            {
+                if (c != null)
+                {
+                    return c.AddGlobalTimingValueInternal(id, actionToTime);
+                }
+                else if (actionToTime != null)
+                {
+                    return actionToTime();
+                }
+                return default;
+            });
+
+        internal T AddGlobalTimingValueInternal<T>(string id, Func<T> actionToTime)
+        {
+            var watch = new Stopwatch();
+            watch.Start();
+            
+            var value = actionToTime();
+
+            var duration = watch.ElapsedMilliseconds;
+            AddGlobalValueInternal(id, duration);
+
+            return value;
         }
 
         /// <summary>
@@ -326,6 +391,20 @@ namespace HealthCheck.Core.Modules.Metrics.Context
             {
                 /* ignored */
             }
+        }
+
+        internal static T WithCurrentContext<T>(Func<HCMetricsContext, T> action)
+        {
+            try
+            {
+                var context = HCMetricsUtil.CurrentContextFactory?.Invoke();
+                return action(context);
+            }
+            catch (Exception)
+            {
+                /* ignored */
+            }
+            return default;
         }
     }
 }

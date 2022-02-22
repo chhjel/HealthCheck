@@ -86,11 +86,12 @@ namespace HealthCheck.Core.Util.Storage
 
             try
             {
+                var timer = new HCMetricsTimer($"{GetType().GetFriendlyTypeName()}.RetrieveBlobData()");
                 var data = RetrieveBlobData() ?? new TData();
 
                 Cache?.Set(CacheKey, data, CacheDuration);
-                HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.RetrieveBlobData()");
                 if (LoadCounter < long.MaxValue) LoadCounter++;
+                HCMetricsContext.AddGlobalTimingValue(timer);
                 return data;
             }
             catch(Exception)
@@ -104,10 +105,11 @@ namespace HealthCheck.Core.Util.Storage
         /// </summary>
         protected virtual void SaveBlobData(TData data)
         {
+            var timer = new HCMetricsTimer($"{GetType().GetFriendlyTypeName()}.SaveBlobData()");
             Cache?.Set(CacheKey, data, CacheDuration);
             StoreBlobData(data);
-            HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.SaveBlobData()");
             if (SaveCounter < long.MaxValue) SaveCounter++;
+            HCMetricsContext.AddGlobalTimingValue(timer);
         }
 
         /// <summary>

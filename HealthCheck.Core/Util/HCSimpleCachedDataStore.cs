@@ -150,13 +150,14 @@ namespace HealthCheck.Core.Util
 				var json = _serializer.Serialize(dataCopy);
 				lock (_fileLock)
 				{
+					var timer = new HCMetricsTimer($"{GetType().GetFriendlyTypeName()}.SaveData()");
 					var folder = Directory.GetParent(FilePath).FullName;
 					if (!Directory.Exists(folder))
                     {
 						Directory.CreateDirectory(folder);
                     }
 					File.WriteAllText(FilePath, json);
-					HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.SaveData()");
+					HCMetricsContext.AddGlobalTimingValue(timer);
 				}
 			}
 			catch (Exception) {/* Ignored */ }
@@ -192,10 +193,11 @@ namespace HealthCheck.Core.Util
 				return;
 			}
 
+			var timer = new HCMetricsTimer($"{GetType().GetFriendlyTypeName()}.LoadData()");
 			var contents = HCIOUtils.ReadFile(FilePath);
 			_container = _serializer.Deserialize<SimpleCachedDataContainer>(contents)
 				?? new SimpleCachedDataContainer();
-			HCMetricsContext.IncrementGlobalCounter($"{GetType().GetFriendlyTypeName()}.LoadData()");
+			HCMetricsContext.AddGlobalTimingValue(timer);
 		}
 
 		private void AddItemInternal(TData data)
