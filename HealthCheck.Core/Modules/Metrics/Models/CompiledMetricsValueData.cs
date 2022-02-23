@@ -37,8 +37,12 @@ namespace HealthCheck.Core.Modules.Metrics.Models
         /// </summary>
         public DateTimeOffset LastChanged { get; set; }
 
+        /// <summary>
+        /// When the first data with this id was stored.
+        /// </summary>
+        public DateTimeOffset FirstStored { get; set; }
+
         /// <summary></summary>
         public override string ToString() => $"{Id}: {Average}";
     }
-
 }

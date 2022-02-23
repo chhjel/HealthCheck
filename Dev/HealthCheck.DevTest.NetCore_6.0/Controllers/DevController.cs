@@ -404,6 +404,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             });
             HCMetricsContext.AddNote("Random value", new Random().Next());
             HCMetricsContext.AddGlobalValue("Rng", new Random().Next());
+            HCMetricsContext.IncrementGlobalCounter("TestCounter");
+            HCMetricsContext.AddGlobalNote("GlobalNoteTest", $"rng is {new Random().Next()}");
 
             if (ForcedRole != null)
             {

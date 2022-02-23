@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Modules.Metrics.Abstractions;
+﻿using HealthCheck.Core.Extensions;
+using HealthCheck.Core.Modules.Metrics.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Core.Modules.Metrics.Models;
 using System;
@@ -56,6 +57,11 @@ namespace HealthCheck.Core.Modules.Metrics.Services
                         return;
                     }
 
+                    if (!hasKey)
+                    {
+                        _data.GlobalNotes[item.Id] = new() { Id = item.Id, FirstStored = DateTimeOffset.Now };
+                    }
+
                     _data.GlobalNotes[item.Id] = new CompiledMetricsNoteData
                     {
                         Id = item.Id,
@@ -80,9 +86,17 @@ namespace HealthCheck.Core.Modules.Metrics.Services
 
                     if (!hasKey)
                     {
-                        _data.GlobalCounters[kvp.Key] = new() { Id = kvp.Key };
+                        _data.GlobalCounters[kvp.Key] = new() { Id = kvp.Key, FirstStored = DateTimeOffset.Now };
                     }
-                    _data.GlobalCounters[kvp.Key].Value += kvp.Value;
+
+                    var oldValue = _data.GlobalCounters[kvp.Key].Value;
+                    var newValue = _data.GlobalCounters[kvp.Key].Value + kvp.Value;
+                    if (newValue < oldValue && kvp.Value > 0)
+                    {
+                        newValue = long.MaxValue;
+                    }
+                    _data.GlobalCounters[kvp.Key].Value = newValue;
+
                     _data.GlobalCounters[kvp.Key].LastChanged = DateTimeOffset.Now;
                 }
             }
@@ -119,7 +133,7 @@ namespace HealthCheck.Core.Modules.Metrics.Services
 
             if (!hasKey)
             {
-                _data.GlobalValues[id] = new() { Id = id };
+                _data.GlobalValues[id] = new() { Id = id, FirstStored = DateTimeOffset.Now };
             }
 
             var item = _data.GlobalValues[id];
@@ -133,7 +147,7 @@ namespace HealthCheck.Core.Modules.Metrics.Services
             {
                 item.Min = min;
                 item.Max = max;
-                item.Average = (long)values.Average();
+                item.Average = values.AverageWithOverflowProtection();
             }
             // Not first value
             else
@@ -147,7 +161,7 @@ namespace HealthCheck.Core.Modules.Metrics.Services
                     item.Max = max;
                 }
 
-                item.Average = ((item.Average * item.ValueCount) + ((long)values.Average() * values.Count)) / (item.ValueCount + values.Count);
+                item.Average = values.AddToAverageWithOverflowProtection(item.Average, item.ValueCount);
             }
             item.ValueCount += values.Count;
         }

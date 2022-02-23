@@ -11,6 +11,35 @@ namespace HealthCheck.Core.Extensions
     public static class CollectionExtensions
     {
         /// <summary>
+        /// Adds the values to the given existing average values, handling arithmetic overflows.
+        /// </summary>
+        public static long AddToAverageWithOverflowProtection(this IEnumerable<long> newValues, long currentAverage, long currentCount)
+        {
+            double newValueCount = newValues.Count();
+            double a = (((double)currentAverage * (double)currentCount) + ((double)newValues.AverageWithOverflowProtection() * newValueCount));
+            double b = ((double)currentCount + newValueCount);
+            var avg = Math.Round(a / b);
+
+            if (avg >= long.MaxValue) return long.MaxValue;
+            else if (avg <= long.MinValue) return long.MinValue;
+            else return (long)avg;
+        }
+
+        /// <summary>
+        /// Averages the given long values, handling arithmetic overflows.
+        /// </summary>
+        public static long AverageWithOverflowProtection(this IEnumerable<long> values)
+        {
+            if (values?.Any() != true) return 0;
+            var avg = values.Select(x => (double)x).Average();
+            avg = Math.Round(avg);
+
+            if (avg >= long.MaxValue) return long.MaxValue;
+            else if (avg <= long.MinValue) return long.MinValue;
+            else return (long)avg;
+        }
+
+        /// <summary>
         /// Create a dictionary, keeping the last of any duplicates.
         /// </summary>
         public static Dictionary<TKey, TElement> ToDictionaryIgnoreDuplicates<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector)
