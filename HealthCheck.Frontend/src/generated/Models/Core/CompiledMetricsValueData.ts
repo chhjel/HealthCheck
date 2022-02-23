@@ -10,4 +10,5 @@ export interface CompiledMetricsValueData
 	Max: number;
 	ValueCount: number;
 	LastChanged: Date;
+	FirstStored: Date;
 }

@@ -35,7 +35,9 @@
                         <ul>
                             <li v-for="(item, itemIndex) in globalCounters"
                                 :key="`gcounter-${itemIndex}`">
-                                <b class="mr-1">{{ item.key }}:</b> <code>{{ item.value.Value }}</code> <small class="ml-1">({{ formatDate(item.value.LastChanged) }})</small>
+                                <b class="mr-1">{{ item.key }}:</b> <code>{{ item.value.Value }}</code>
+                                <br />
+                                <small class="ml-1">Between {{ formatDate(item.value.FirstStored) }} and  {{ formatDate(item.value.LastChanged) }}</small>
                             </li>
                         </ul>
                     </div>
@@ -48,6 +50,8 @@
                                 <b class="mr-1">{{ item.key }}:</b> 
                                 <code>{{ item.values.Min }}</code> to <code>{{ item.values.Max }}</code>, average <code>{{ item.values.Average }}</code>. 
                                 n=<code>{{ item.values.ValueCount }}</code>
+                                <br />
+                                <small class="ml-1">Between {{ formatDate(item.values.FirstStored) }} and {{ formatDate(item.values.LastChanged) }}</small>
                             </li>
                         </ul>
                     </div>
