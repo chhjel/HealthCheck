@@ -373,8 +373,7 @@
                 <v-card-text>
                     <div>
                         <p>
-                            The query is using LINQ with a few shortcuts.
-                            E.g. instead of <code>&amp;&amp;</code> or <code>||</code> you can use <code>and</code> or <code>or</code>.
+                            The query is using LINQ with a few additions. Instead of <code>&amp;&amp;</code> or <code>||</code> you can use <code>and</code> or <code>or</code>.
                         </p>
 
                         <h4>Simple predicates</h4>
@@ -382,7 +381,7 @@
                         <code>(Name == "Jimmy" and Age > 50) or Name == "Smithy"</code>
 
                         <h4 class="mt-2">Methods</h4>
-                        <p class="mb-0">The usual LINQ methods can be used, e.g. ToString(), StartsWith() etc.</p>
+                        <p class="mb-0">The usual methods can be used, e.g. ToString(), StartsWith(), Contains() etc.</p>
                         <code>SomeNumber.ToString().StartsWith("8")</code>
 
                         <h4 class="mt-2">Dates</h4>
@@ -390,8 +389,9 @@
                         <code>Created &gt; DateTime.Now.AddDays(-7)</code>
 
                         <h4 class="mt-2">Null Propagation</h4>
-                        <p class="mb-0">To filter on properties that can be null, use <code>np()</code> instead of <code>?.</code></p>
-                        <code>np(Address.City) == "DevTown"</code>
+                        <p class="mb-0">To filter on properties that can be null, use <code>np()</code> instead of <code>?.</code> Or just nullcheck it first.</p>
+                        <code>np(Address.City) == "DevTown"</code><br />
+                        <code>Address != null &amp;&amp; Address.City == "DevTown"</code>
                     </div>
                 </v-card-text>
                 <v-divider></v-divider>
