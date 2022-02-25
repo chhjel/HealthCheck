@@ -106,7 +106,7 @@ namespace HealthCheck.Core.Util.Storage
         protected virtual void SaveBlobData(TData data)
         {
             var timer = new HCMetricsTimer($"{GetType().GetFriendlyTypeName()}.SaveBlobData()");
-            Cache?.Set(CacheKey, data, CacheDuration);
+            Cache?.Set(CacheKey, data, CacheDuration, allowDistribute: true);
             StoreBlobData(data);
             if (SaveCounter < long.MaxValue) SaveCounter++;
             HCMetricsContext.AddGlobalTimingValue(timer);

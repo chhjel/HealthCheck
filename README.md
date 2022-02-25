@@ -1905,13 +1905,17 @@ Set `IntegratedProfileConfig` to show a profile button that displays the usernam
 
 ### Flatfile storage implementations
 
-The built in flatfile storage classes should work fine for most use cases when a persistent folder is available. If used make sure they are registered as singletons, they are thread safe but only within their own instances. If multiple servers are used these are not optimal obviously.
+The built in flatfile storage classes should work fine for most use cases when a persistent folder is available. If used make sure they are registered as singletons, they are thread safe but only within their own instances.
 
 ### Episerver / Optimizely
 
 For Episerver/Optimizely projects storage implementations can optionally be used from [![Nuget](https://img.shields.io/nuget/v/HealthCheck.Episerver?label=HealthCheck.Episerver&logo=nuget)](https://www.nuget.org/packages/HealthCheck.Episerver) and the other episerver packages for specific modules. If used they should be registered as singletons for optimal performance.
 
-Cache can optionally be set to null in constructor if not wanted, or the included memory cache `HCSimpleMemoryCache` can be used as a singleton.
+Cache can optionally be set to null in constructor if not wanted, or the included memory cache `HCSimpleMemoryCache` can be used as a singleton.  For load balanced environments `HCSimpleMemoryCacheForEpiLoadBalanced` can optionally be used (not much tested yet).
+
+#### Load balanced environments
+
+The storage implementations are not optimized for load balanced environments, if desired the `HCSimpleMemoryCacheForEpiLoadBalanced` cache can be used.
 
 
 <details><summary>Example IoC setup</summary>
@@ -1920,6 +1924,7 @@ Cache can optionally be set to null in constructor if not wanted, or the include
 ```csharp
     // Cache required by most of the epi blob implementations below
     context.Services.AddSingleton<IHCCache, HCSimpleMemoryCache>();
+    // Alternative (not much tested yet): context.Services.AddSingleton<IHCCache, HCSimpleMemoryCacheForEpiLoadBalanced>();
 
     // Audit log (defaults to storing the last 10000 events/30 days)
     context.Services.AddSingleton<IAuditEventStorage, HCEpiserverBlobAuditEventStorage>();

@@ -1,3 +1,5 @@
+using EPiServer.Events.Clients;
+using EPiServer.Events.Providers.Internal;
 using EPiServer.Framework.Blobs;
 using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Util;
@@ -20,6 +22,22 @@ namespace HealthCheck.Episerver.Tests.Helpers
             factory
                 .Setup(x => x.GetBlob(It.IsAny<Uri>()))
                 .Returns<Uri>(id => blobFactory?.Invoke() ?? CreateBlob(id, blobJson));
+            return factory;
+        }
+
+        public static Mock<IEventRegistry> CreateEventRegistryMock()
+        {
+            var brokerMock = CreateEventBrokerMock().Object;
+            var factory = new Mock<IEventRegistry>();
+            factory
+                .Setup(x => x.Get(It.IsAny<Guid>()))
+                .Returns<Guid>(id => new Event(id, brokerMock, () => true));
+            return factory;
+        }
+
+        public static Mock<IEventBroker> CreateEventBrokerMock()
+        {
+            var factory = new Mock<IEventBroker>();
             return factory;
         }
 

@@ -10,7 +10,7 @@ namespace HealthCheck.Core.Tests.Storage.Implementations
 		public int CacheUsedCounter { get; set; }
 		public int CacheNotUsedCounter { get; set; }
 
-        public override T Set<T>(string key, T value, TimeSpan absoluteExpirationRelativeToNow)
+        public override T Set<T>(string key, T value, TimeSpan absoluteExpirationRelativeToNow, bool allowDistribute = false)
         {
 			CreateEntryCounter++;
 			return base.Set(key, value, absoluteExpirationRelativeToNow);
@@ -30,7 +30,7 @@ namespace HealthCheck.Core.Tests.Storage.Implementations
 			return found;
         }
 
-        public override void Remove(string key)
+        public override void Remove(string key, bool allowDistribute = false)
         {
 			RemoveEntryCounter++;
 			base.Remove(key);
