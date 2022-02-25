@@ -181,4 +181,18 @@ jobs:
       verbose: true
       publishEndpoint: 'npmjs - ChristianH'
 
+  - task: GitHubRelease@1
+    displayName: Create GitHub release
+    condition: and(succeeded(), eq(variables['BuildParameters.Publish'], 'true'))
+    inputs:
+      gitHubConnection: 'github.com_chhjel'
+      repositoryName: 'chhjel/HealthCheck'
+      action: 'create'
+      target: '$(Build.SourceVersion)'
+      tagSource: 'userSpecifiedTag'
+      tag: '$(BuildParameters.AssemblyVersion)'
+      releaseNotesSource: 'inline'
+      changeLogCompareToRelease: 'lastFullRelease'
+      changeLogType: 'commitBased'
+
 ...
