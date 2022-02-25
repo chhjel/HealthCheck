@@ -98,13 +98,13 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Set a cached value of the given type.
         /// </summary>
-        public virtual T SetValue<T>(string key, T value, TimeSpan expiresIn)
-            => SetValue(key, value, DateTime.Now + expiresIn);
+        public virtual T SetValue<T>(string key, T value, TimeSpan expiresIn, bool allowDistribute = false)
+            => SetValue(key, value, DateTime.Now + expiresIn, allowDistribute);
 
         /// <summary>
         /// Set a cached value of the given type.
         /// </summary>
-        public virtual T SetValue<T>(string key, T value, DateTime expiresAt)
+        public virtual T SetValue<T>(string key, T value, DateTime expiresAt, bool allowDistribute = false)
         {
             lock (_items)
             {
@@ -128,7 +128,7 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Clear the given cached entry.
         /// </summary>
-        public virtual void ClearKey(string key)
+        public virtual void ClearKey(string key, bool allowDistribute = false)
         {
             lock (_items)
             {
@@ -142,7 +142,7 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Clear the whole cache.
         /// </summary>
-        public virtual void ClearAll()
+        public virtual void ClearAll(bool allowDistribute = false)
         {
             lock (_items)
             {
@@ -181,8 +181,8 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Adds or updates cache.
         /// </summary>
-        public virtual T Set<T>(string key, T value, TimeSpan absoluteExpirationRelativeToNow)
-            => SetValue(key, value, DateTime.Now + absoluteExpirationRelativeToNow);
+        public virtual T Set<T>(string key, T value, TimeSpan absoluteExpirationRelativeToNow, bool allowDistribute = false)
+            => SetValue(key, value, DateTime.Now + absoluteExpirationRelativeToNow, allowDistribute);
 
         /// <summary>
         /// Attempts to get a cached value.
@@ -201,6 +201,6 @@ namespace HealthCheck.Core.Util
         /// <summary>
         /// Clear the given cached entry.
         /// </summary>
-        public virtual void Remove(string key) => ClearKey(key);
+        public virtual void Remove(string key, bool allowDistribute = false) => ClearKey(key, allowDistribute);
     }
 }

@@ -287,7 +287,7 @@ namespace HealthCheck.Module.DataExport
             }
 
             // Invalidate key
-            _allowedExports.ClearKey(keyFromUrl);
+            _allowedExports.ClearKey(keyFromUrl, allowDistribute: false);
 
             // Validate
             var stream = GetStream(context, data.Query.StreamId);

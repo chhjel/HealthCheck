@@ -10,7 +10,7 @@ namespace HealthCheck.Core.Tests.Storage.Implementations
 		public int CacheUsedCounter { get; set; }
 		public int CacheNotUsedCounter { get; set; }
 
-        public override T Set<T>(string key, T value, TimeSpan absoluteExpirationRelativeToNow)
+        public override T Set<T>(string key, T value, TimeSpan absoluteExpirationRelativeToNow, bool allowDistribute = false)
         {
 			CreateEntryCounter++;
 			return base.Set(key, value, absoluteExpirationRelativeToNow);

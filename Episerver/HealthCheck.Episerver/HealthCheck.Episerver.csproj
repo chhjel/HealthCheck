@@ -23,4 +23,10 @@
     <ProjectReference Include="..\..\HealthCheck.Core\HealthCheck.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>HealthCheck.Episerver.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
 </Project>

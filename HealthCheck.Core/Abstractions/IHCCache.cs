@@ -10,7 +10,7 @@ namespace HealthCheck.Core.Abstractions
         /// <summary>
         /// Add or replace a cached value.
         /// </summary>
-        TItem Set<TItem>(string key, TItem value, TimeSpan absoluteExpirationRelativeToNow);
+        TItem Set<TItem>(string key, TItem value, TimeSpan absoluteExpirationRelativeToNow, bool allowDistribute = false);
 
         /// <summary>
         /// Try to get a cached item.
@@ -20,6 +20,6 @@ namespace HealthCheck.Core.Abstractions
         /// <summary>
         /// Remove a cached item.
         /// </summary>
-        void Remove(string key);
+        void Remove(string key, bool allowDistribute = false);
     }
 }
