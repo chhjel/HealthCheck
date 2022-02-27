@@ -286,14 +286,20 @@ namespace HealthCheck.WebUI.Abstractions
         /// </summary>
         [HideFromRequestLog]
         [Route("GetAsset")]
-        public virtual ActionResult GetAsset(string n)
+        public virtual ActionResult GetAsset(string n, string v = null)
         {
-            if (!HCAssetGlobalConfig.AssetCache.TryGetValue(n, out var content))
+            Response.Headers["Cache-Control"] = "private, max-age=3600";
+            if (HCAssetGlobalConfig.AssetCache.TryGetValue(n, out var content))
             {
-                return NotFound();
+                var contentType = Helper.GetAssetContentType(n);
+                return Content(content, contentType);
             }
-            var contentType = "text/javascript";
-            return Content(content, contentType);
+            else if (HCAssetGlobalConfig.BinaryAssetCache.TryGetValue(n, out var contentBytes))
+            {
+                var contentType = Helper.GetAssetContentType(n);
+                return File(contentBytes, contentType);
+            }
+            return NotFound();
         }
         #endregion
 

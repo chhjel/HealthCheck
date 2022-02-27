@@ -158,7 +158,7 @@ By default frontend scripts with versions matching the nuget package version are
 
 #### Using the HealthCheck.WebUI.Assets nuget package
 
-The fastest and easiest way is to add the `HealthCheck.WebUI.Assets` nuget package. The package contains the most important frontend assets and will load them into memory and configure the ui to use them. Requires a few extra mb of memory but makes it easy to update. Does not include the summary scripts for metrics and release notes (see below).
+The fastest and easiest way is to add the `HealthCheck.WebUI.Assets` nuget package. The package contains all frontend assets, will load them into memory and configure the ui to use them. Requires a few extra mb of memory but makes it easy to update. Does not include the summary scripts for metrics and release notes (see below).
 
 #### Manual configuration
 
@@ -171,8 +171,9 @@ If metrics or release notes summary is to be bundled with the project, they will
 ```csharp
 // Example using HealthCheck.WebUI.Assets nuget package that enables the GetAsset endpoint.
 var hcController = "/url_to_your_hc_controller";
-HCAssetGlobalConfig.DefaultMetricsSummaryJavascriptUrl = $"{hcController}/GetAsset?n=metrics.js";
-HCAssetGlobalConfig.DefaultReleaseNotesSummaryJavascriptUrl = $"{hcController}/GetAsset?n=releaseNotesSummary.js";
+var assemblyVersion = "your_version";
+HCAssetGlobalConfig.DefaultMetricsSummaryJavascriptUrl = $"{hcController}/GetAsset?n=metrics.js&v={assemblyVersion}";
+HCAssetGlobalConfig.DefaultReleaseNotesSummaryJavascriptUrl = $"{hcController}/GetAsset?n=releaseNotesSummary.js&v={assemblyVersion}";
 ```
 
 </p>

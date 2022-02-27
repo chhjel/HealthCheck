@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Abstractions.Modules;
+using HealthCheck.Core.Config;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload.Models;
 using HealthCheck.Core.Util.Collections;
@@ -623,19 +624,6 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
             HealthCheckModuleContext context, SecureFileDownloadDefinition definition,
             string definitionValidationError)
         {
-            var javascriptUrlTags = context.JavaScriptUrls
-                .Select(url => $"<script src=\"{url}\"></script>")
-                .ToList();
-            var javascriptUrlTagsHtml = string.Join("\n    ", javascriptUrlTags);
-
-            var defaultAssets = $@"
-    <link href={Q}https://cdn.jsdelivr.net/npm/vuetify@1.5.6/dist/vuetify.min.css{Q} rel={Q}stylesheet{Q} />
-    <link href={Q}https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons{Q} rel={Q}stylesheet{Q} />
-    <link href={Q}https://fonts.googleapis.com/css?family=Montserrat{Q} rel={Q}stylesheet{Q}>
-    <link href={Q}https://use.fontawesome.com/releases/v5.7.2/css/all.css{Q} rel={Q}stylesheet{Q} integrity={Q}sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr{Q} crossorigin={Q}anonymous{Q}>";
-
-            var noIndexMeta = $"<meta name={Q}robots{Q} content={Q}noindex{Q}>";
-
             var expiresAt = "";
             if (definition.ExpiresAt != null)
             {
@@ -654,14 +642,18 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
             var title = Options.DownloadPageTitle ?? "";
             title = title.Replace("[FILENAME]", definition.FileName ?? "unknown");
 
+            var cssTagsHtml = HCAssetGlobalConfig.CreateCssTags(context.CssUrls);
+            var jsTagsHtml = HCAssetGlobalConfig.CreateJavaScriptTags(context.JavaScriptUrls);
+
             return $@"
 <!doctype html>
 <html>
 <head>
     <title>{title}</title>
-    {noIndexMeta}
+    <meta charset={Q}utf-8{Q}>
+    <meta name={Q}robots{Q} content={Q}noindex{Q}>
     <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
-    {defaultAssets}
+    {cssTagsHtml}
 </head>
 
 <body>
@@ -681,7 +673,7 @@ namespace HealthCheck.Core.Modules.SecureFileDownload
             }}
         }};
     </script>
-    {javascriptUrlTagsHtml}
+    {jsTagsHtml}
 </body>
 </html>";
         }
