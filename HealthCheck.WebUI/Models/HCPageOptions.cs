@@ -19,7 +19,7 @@ namespace HealthCheck.WebUI.Models
 
         /// <summary>
         /// Url to the assets for the UI.
-        /// <para>Defaults to CDN url for monaco styles.</para>
+        /// <para>Defaults to CDN url.</para>
         /// </summary>
         public List<string> CssUrls { get; set; } = new List<string>();
 
@@ -37,12 +37,6 @@ namespace HealthCheck.WebUI.Models
         /// Any custom body section html.
         /// </summary>
         public string CustomBodyHtml { get; set; }
-
-        /// <summary>
-        /// Include default fonts and css from CDN.
-        /// <para>Defaults to true.</para>
-        /// </summary>
-        public bool IncludeDefaultAssetLinks { get; set; } = true;
 
         /// <summary>
         /// Include meta name="robots" content="noindex"

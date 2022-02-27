@@ -27,14 +27,12 @@
     <DefineConstants>NETSTANDARD</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="assets.tgz" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\HealthCheck.Core\HealthCheck.Core.csproj" />
     <ProjectReference Include="..\HealthCheck.WebUI\HealthCheck.WebUI.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="assets.zip" />
+    <EmbeddedResource Include="assets_ext.zip" />
   </ItemGroup>
   <!-- ####################################### -->
 

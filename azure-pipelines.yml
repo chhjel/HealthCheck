@@ -92,7 +92,7 @@ jobs:
   ## BUILD ##
   ###########
   - task: ReplaceInFilesTextByText@1
-    displayName: Replace version in code
+    displayName: Replace version in code 1
     inputs:
       parameterSearchText: 'https://unpkg.com/christianh-healthcheck@2/'
       parameterReplaceText: 'https://unpkg.com/christianh-healthcheck@$(BuildParameters.AssemblyVersion)/'
@@ -103,6 +103,15 @@ jobs:
         /HealthCheck.WebUI/Models/HCFrontEndOptions.cs
         /HealthCheck.Core/Modules/Metrics/Context/HCMetricsUtil.cs
         /HealthCheck.Core/Modules/ReleaseNotes/Util/HCReleaseNotesUtil.cs
+
+  - task: ReplaceInFilesTextByText@1
+    displayName: Replace version in code 2
+    inputs:
+      parameterSearchText: '[HCVERSION]'
+      parameterReplaceText: '$(BuildParameters.AssemblyVersion)'
+      parameterTypeOfSearch: 'filesList'
+      parameterFilesList: |
+        /HealthCheck.WebUI.Assets/ConfigInitializer.cs
 
   - task: VSBuild@1
     displayName: Build solution

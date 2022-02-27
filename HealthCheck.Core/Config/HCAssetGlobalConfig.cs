@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace HealthCheck.Core.Config
 {
@@ -19,6 +19,11 @@ namespace HealthCheck.Core.Config
         public static Dictionary<string, string> AssetCache { get; set; }
 
         /// <summary>
+        /// Is set from <c>HealthCheck.WebUI.Assets</c> to load assets from memory instead of CDN.
+        /// </summary>
+        public static Dictionary<string, byte[]> BinaryAssetCache { get; set; }
+
+        /// <summary>
         /// Sets global default value for <c>HCPageOptions.JavaScriptUrls</c>.
         /// </summary>
         public static List<string> DefaultJavaScriptUrls { get; set; } = new()
@@ -31,7 +36,10 @@ namespace HealthCheck.Core.Config
         /// </summary>
         public static List<string> DefaultCssUrls { get; set; } = new()
         {
-            "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.19.2/min/vs/editor/editor.main.min.css"
+            "https://cdn.jsdelivr.net/npm/vuetify@1.5.6/dist/vuetify.min.css",
+            "https://fonts.googleapis.com/css?family=Montserrat|Material+Icons",
+            "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.19.2/min/vs/editor/editor.main.min.css",
+            "https://use.fontawesome.com/releases/v5.7.2/css/all.css"
         };
 
         /// <summary>
@@ -51,5 +59,51 @@ namespace HealthCheck.Core.Config
         public static string DefaultReleaseNotesSummaryJavascriptUrl { get; set; } = "https://unpkg.com/christianh-healthcheck@2/releaseNotesSummary.js";
 
         internal static string EndpointBase { get; set; }
+
+        /// <summary>
+        /// Creates html of the default css urls, or <paramref name="configured"/> if provided.
+        /// </summary>
+        public static string CreateCssTags(string endpointBase, List<string> configured, IEnumerable<string> additionalUrls = null)
+        {
+            var urls = configured ?? new List<string>();
+            if (urls.Count == 0) urls = DefaultCssUrls ?? new List<string>();
+            urls = urls
+                .Concat(additionalUrls ?? Enumerable.Empty<string>())
+                .Where(x => x != null)
+                .Select(x => x.Replace("[base]", endpointBase?.TrimEnd('/') ?? ""))
+                .ToList();
+            return CreateCssTags(urls);
+        }
+
+        /// <summary>
+        /// Creates css tags from the given urls.
+        /// </summary>
+        public static string CreateCssTags(List<string> urls)
+            => string.Join("\n", (urls ?? Enumerable.Empty<string>())
+                .Where(x => x != null)
+                .Select(x => $"<link rel=\"stylesheet\" href=\"{x}\" crossorigin=\"anonymous\" />"));
+
+        /// <summary>
+        /// Creates html of the default JavaScript urls, or <paramref name="configured"/> if provided.
+        /// </summary>
+        public static string CreateJavaScriptTags(string endpointBase, List<string> configured, IEnumerable<string> additionalUrls = null)
+        {
+            var urls = configured ?? new List<string>();
+            if (urls.Count == 0) urls = DefaultJavaScriptUrls ?? new List<string>();
+            urls = urls
+                .Concat(additionalUrls ?? Enumerable.Empty<string>())
+                .Where(x => x != null)
+                .Select(x => x.Replace("[base]", endpointBase?.TrimEnd('/') ?? ""))
+                .ToList();
+            return CreateJavaScriptTags(urls);
+        }
+
+        /// <summary>
+        /// Creates js tags from the given urls.
+        /// </summary>
+        public static string CreateJavaScriptTags(List<string> urls)
+            => string.Join("\n", (urls ?? Enumerable.Empty<string>())
+                .Where(x => x != null)
+                .Select(x => $"\t<script src=\"{x}\"></script>"));
     }
 }

@@ -271,14 +271,20 @@ namespace HealthCheck.WebUI.Abstractions
         /// Loads assets from memory if <c>HealthCheck.WebUI.Assets</c> is used.
         /// </summary>
         [HideFromRequestLog]
-        public virtual ActionResult GetAsset(string n)
+        [OutputCache(VaryByParam = "*", Location = System.Web.UI.OutputCacheLocation.Client, Duration = 3600)]
+        public virtual ActionResult GetAsset(string n, string v = null)
         {
-            if (!HCAssetGlobalConfig.AssetCache.TryGetValue(n, out var content))
+            if (HCAssetGlobalConfig.AssetCache.TryGetValue(n, out var content))
             {
-                return HttpNotFound();
+                var contentType = Helper.GetAssetContentType(n);
+                return Content(content, contentType);
             }
-            var contentType = "text/javascript";
-            return Content(content, contentType);
+            else if (HCAssetGlobalConfig.BinaryAssetCache.TryGetValue(n, out var contentBytes))
+            {
+                var contentType = Helper.GetAssetContentType(n);
+                return File(contentBytes, contentType);
+            }
+            return HttpNotFound();
         }
 #endregion
 

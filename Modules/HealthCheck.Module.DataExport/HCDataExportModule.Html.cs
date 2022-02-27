@@ -1,14 +1,15 @@
-﻿namespace HealthCheck.Module.DataExport
+﻿using HealthCheck.Core.Abstractions.Modules;
+using HealthCheck.Core.Config;
+
+namespace HealthCheck.Module.DataExport
 {
     public partial class HCDataExportModule
     {
         static readonly string[] _flyingTexts = new[] { "data", "more data", "bits", "bytes", "secrets", "0x90" };
 
-        private static string CreateExportLoadingDownloadHtml(string downloadUrl)
+        private static string CreateExportLoadingDownloadHtml(HealthCheckModuleContext context, string downloadUrl)
         {
             var Q = "\"";
-            var noIndexMeta = $"<meta name={Q}robots{Q} content={Q}noindex{Q}>";
-
             int flyingTextIndex = 0;
             string createFlyingTextDiv(string text = null)
             {
@@ -21,16 +22,16 @@
                 return $"<span class=\"flying-text\">{text}</span>"; ;
             }
 
+            var cssTagsHtml = HCAssetGlobalConfig.CreateCssTags(context.CssUrls);
             return $@"
 <!doctype html>
 <html>
 <head>
     <title>Exporting data..</title>
-    {noIndexMeta}
-    <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
+    <meta charset={Q}utf-8{Q}>
     <meta name={Q}robots{Q} content={Q}noindex{Q}>
-    <link href={Q}https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons{Q} rel={Q}stylesheet{Q} />
-    <link href={Q}https://fonts.googleapis.com/css?family=Montserrat{Q} rel={Q}stylesheet{Q}>
+    <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
+    {cssTagsHtml}
     <style>
         html, body {{ height: 100%; }}
         body {{
@@ -200,21 +201,19 @@
 </html>";
         }
 
-        private static string CreateExportErrorHtml(string error)
+        private static string CreateExportErrorHtml(HealthCheckModuleContext context, string error)
         {
+            var cssTagsHtml = HCAssetGlobalConfig.CreateCssTags(context.CssUrls);
             var Q = "\"";
-            var noIndexMeta = $"<meta name={Q}robots{Q} content={Q}noindex{Q}>";
-
             return $@"
 <!doctype html>
 <html>
 <head>
     <title>Export failed</title>
-    {noIndexMeta}
-    <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
+    <meta charset={Q}utf-8{Q}>
     <meta name={Q}robots{Q} content={Q}noindex{Q}>
-    <link href={Q}https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons{Q} rel={Q}stylesheet{Q} />
-    <link href={Q}https://fonts.googleapis.com/css?family=Montserrat{Q} rel={Q}stylesheet{Q}>
+    <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
+    {cssTagsHtml}
     <style>
         body {{
             background-color: #333;

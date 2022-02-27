@@ -275,7 +275,7 @@ namespace HealthCheck.Module.DataExport
             var data = _allowedExports.GetValue<AllowedExportData>(keyFromUrl, null);
             if (data == null)
             {
-                return CreateExportErrorHtml("Data to export not found.");
+                return CreateExportErrorHtml(context, "Data to export not found.");
             }
 
             // Show loading page first that redirects to this action again without loader
@@ -283,7 +283,7 @@ namespace HealthCheck.Module.DataExport
             if (showLoadingDownloadPage)
             {
                 url += url.Contains('?') ? "&dl=1" : "?dl=1";
-                return CreateExportLoadingDownloadHtml($"{url}?dl=1");
+                return CreateExportLoadingDownloadHtml(context, $"{url}?dl=1");
             }
 
             // Invalidate key
@@ -291,9 +291,9 @@ namespace HealthCheck.Module.DataExport
 
             // Validate
             var stream = GetStream(context, data.Query.StreamId);
-            if (stream == null) return CreateExportErrorHtml("Export data stream not found.");
+            if (stream == null) return CreateExportErrorHtml(context, "Export data stream not found.");
             var exporter = Options.Exporters?.FirstOrDefault(x => x.GetType().FullName == data.Query.ExporterId);
-            if (exporter == null) return CreateExportErrorHtml("Export method not found.");
+            if (exporter == null) return CreateExportErrorHtml(context, "Export method not found.");
 
             // Bake file
             byte[] content = null;
@@ -303,7 +303,7 @@ namespace HealthCheck.Module.DataExport
             }
             catch (Exception ex)
             {
-                return CreateExportErrorHtml(ex.Message);
+                return CreateExportErrorHtml(context, ex.Message);
             }
 
             // Store audit data

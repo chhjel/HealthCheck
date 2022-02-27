@@ -320,6 +320,14 @@ namespace HealthCheck.WebUI.Util
             }
         }
 
+        internal string GetAssetContentType(string n)
+        {
+            if (n?.EndsWith(".js") == true) return "text/javascript";
+            else if (n?.EndsWith(".css") == true) return "text/css";
+            else if (n?.EndsWith(".woff2") == true) return "font/woff2";
+            else return "text/plain";
+        }
+
         private HealthCheckModuleContext CreateModuleContext(RequestInformation<TAccessRole> requestInfo, Maybe<TAccessRole> accessRoles,
             string moduleName, string moduleId,
             IHealthCheckModule module,
@@ -628,31 +636,18 @@ namespace HealthCheck.WebUI.Util
                 RoutePath = x?.Config?.RoutePath == null ? null : string.Format(x.Config.RoutePath, x.Config.DefaultRootRouteSegment)
             });
 
-            var cssUrls = pageOptions?.CssUrls ?? new List<string>();
-            if (cssUrls.Count == 0) cssUrls = HCAssetGlobalConfig.DefaultCssUrls ?? new List<string>();
-            var moduleStyleAssets = moduleConfigs.Select(x => x.Config)
-                .Where(x => x?.LinkTags != null).SelectMany(x => x.LinkTags.Select(t => t.ToString()))
-                .Concat(cssUrls.Select(x => $"<link rel=\"stylesheet\" href=\"{x.Replace("[base]", frontEndOptions.EndpointBase.TrimEnd('/'))}\" crossorigin=\"anonymous\" />"));
-            var moduleScriptAssets = moduleConfigs.Select(x => x.Config)
+            var cssTagsHtml = HCAssetGlobalConfig.CreateCssTags(frontEndOptions.EndpointBase, pageOptions?.CssUrls);
+            var moduleCssUrls = moduleConfigs.Select(x => x.Config)
+                .Where(x => x?.LinkTags != null).SelectMany(x => x.LinkTags.Select(t => t.ToString()));
+            cssTagsHtml += string.Join("\n", moduleCssUrls);
+
+            var jsTagsHtml = HCAssetGlobalConfig.CreateJavaScriptTags(frontEndOptions.EndpointBase, pageOptions?.JavaScriptUrls);
+            var moduleJsUrls = moduleConfigs.Select(x => x.Config)
                 .Where(x => x?.ScriptTags != null).SelectMany(x => x.ScriptTags.Select(t => t.ToString()));
-            var styleAssetsHtml = string.Join("\n", moduleStyleAssets);
-            var scriptAssetsHtml = string.Join("\n", moduleScriptAssets);
+            jsTagsHtml += string.Join("\n", moduleJsUrls);
 
             var moduleOptions = GetModuleFrontendOptions(accessRoles);
             var serializer = new NewtonsoftJsonSerializer();
-
-            var jsUrls = pageOptions?.JavaScriptUrls ?? new List<string>();
-            if (jsUrls.Count == 0) jsUrls = HCAssetGlobalConfig.DefaultJavaScriptUrls ?? new List<string>();
-            var javascriptUrlTags = jsUrls
-                .Select(url => $"<script src=\"{url.Replace("[base]", frontEndOptions.EndpointBase.TrimEnd('/'))}\"></script>")
-                .ToList();
-            var javascriptUrlTagsHtml = string.Join("\n    ", javascriptUrlTags);
-
-            var defaultAssets = !pageOptions.IncludeDefaultAssetLinks ? "" : $@"
-    <link href={Q}https://cdn.jsdelivr.net/npm/vuetify@1.5.6/dist/vuetify.min.css{Q} rel={Q}stylesheet{Q} />
-    <link href={Q}https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons{Q} rel={Q}stylesheet{Q} />
-    <link href={Q}https://fonts.googleapis.com/css?family=Montserrat{Q} rel={Q}stylesheet{Q}>
-    <link href={Q}https://use.fontawesome.com/releases/v5.7.2/css/all.css{Q} rel={Q}stylesheet{Q} integrity={Q}sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr{Q} crossorigin={Q}anonymous{Q}>";
 
             var noIndexMeta = pageOptions.IncludeNoIndex ? $"<meta name={Q}robots{Q} content={Q}noindex{Q}>" : "";
 
@@ -661,10 +656,10 @@ namespace HealthCheck.WebUI.Util
 <html>
 <head>
     <title>{pageOptions.PageTitle}</title>
+    <meta charset={Q}utf-8{Q}>
     {noIndexMeta}
     <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
-    {styleAssetsHtml}
-    {defaultAssets}
+    {cssTagsHtml}
     {pageOptions.CustomHeadHtml}
 </head>
 
@@ -676,8 +671,7 @@ namespace HealthCheck.WebUI.Util
         window.healthCheckModuleOptions = {serializer.Serialize(moduleOptions) ?? "{}"};
         window.healthCheckModuleConfigs = {serializer.Serialize(moduleConfigData) ?? "{}"};
     </script>
-    {scriptAssetsHtml}
-    {javascriptUrlTagsHtml}
+    {jsTagsHtml}
     {pageOptions.CustomBodyHtml}
 </body>
 </html>";
