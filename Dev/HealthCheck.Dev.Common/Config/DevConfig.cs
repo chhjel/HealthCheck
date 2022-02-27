@@ -7,7 +7,7 @@ namespace HealthCheck.Dev.Common.Config
     {
         public static void ConfigureLocalAssetUrls(string endpointBase = "")
         {
-            //HCAssetGlobalConfig.EnableInitializer = false;
+            HCAssetGlobalConfig.EnableInitializer = false;
 
             HCAssetGlobalConfig.DefaultJavaScriptUrls = new List<string> {
                 "[base]/GetMainScript"
