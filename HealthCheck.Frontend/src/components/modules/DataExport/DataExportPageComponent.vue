@@ -88,7 +88,7 @@
                                         ></v-autocomplete>
                                 </div>
                             
-                                <div class="data-export-actions">
+                                <div class="data-export-actions" v-if="!isSimpleExportMode">
                                     <v-btn :disabled="isLoading" v-if="hasAccessToQueryPreset || hasAccessToExport" @click="onLoadPresetsClicked">
                                         <v-icon size="20px" class="mr-2">file_upload</v-icon>Load preset..
                                     </v-btn>
@@ -107,6 +107,54 @@
                                         color="primary">
                                         <v-icon size="20px" class="mr-2">search</v-icon>Execute query
                                     </v-btn>
+                                </div>
+
+                                <div v-if="isSimpleExportMode">
+                                    <!-- SIMPLE MODE -->
+                                    <v-progress-linear v-if="isLoading" indeterminate color="green"></v-progress-linear>
+
+                                    <!-- NO PRESETS YET -->
+                                    <div v-if="!isLoading && (!presets || presets.length == 0)">
+                                        <b>No export presets available, someone with access must create them first.</b>
+                                    </div>
+
+                                    <!-- HAS PRESETS -->
+                                    <div v-if="!isLoading && presets && presets.length > 0">
+                                        <div>
+                                            <h3>1. Select preset to export:</h3>
+                                            <div class="simple-export-buttons">
+                                                <v-btn v-for="(preset, pIndex) in presets"
+                                                    :key="`item-d-${preset.Id}-preset-${pIndex}`"
+                                                    :class="{ 'selected': (selectedPresetId == preset.Id) }"
+                                                    @click.prevent="applyPreset(preset)"
+                                                    depressed :color="(selectedPresetId == preset.Id) ? 'primary' : '#ddd'">
+                                                    {{ preset.Name }}
+                                                </v-btn>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h3>2. Select export format:</h3>
+                                            <div class="simple-export-buttons">
+                                                <div v-for="(exporter, eIndex) in exporters"
+                                                    :key="`item-d-${exporter.Id}-export-${eIndex}`">
+                                                    <v-btn color="primary"
+                                                        :disabled="isLoading || selectedPresetId == null"
+                                                        :loading="exportLoadStatus.inProgress"
+                                                        @click="onExportClicked(exporter.Id)"
+                                                        class="exporter-button">
+                                                        <div class="exporter-button-content">
+                                                            <v-icon size="20px" class="exporter-button-icon mr-2">file_download</v-icon>
+                                                            <div class="exporter-button-texts">
+                                                                <div class="exporter-button-title">{{ exporter.Name }}</div>
+                                                                <div v-if="exporter.Description" class="exporter-description">{{ exporter.Description }}</div>
+                                                            </div>
+                                                        </div>
+                                                    </v-btn>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- END OF SIMPLE MODE -->
                                 </div>
 
                                 <paging-component
@@ -673,8 +721,14 @@ export default class DataExportPageComponent extends Vue {
         return this.hasAccess('Export');
     }
 
+    get isSimpleExportMode(): boolean {
+        return this.options.AccessOptions.length == 2
+            && this.hasAccessToLoadPreset
+            && this.hasAccessToExport;
+    }
+
     get showExecuteQuery(): boolean {
-        return this.hasAccessToQueryCustom 
+        return this.hasAccessToQueryCustom
             || (this.selectedPresetId != null && this.hasAccessToQueryPreset);
     }
 
@@ -685,11 +739,13 @@ export default class DataExportPageComponent extends Vue {
     }
 
     get showQuery(): boolean {
+        if (this.isSimpleExportMode) return false;
         if (!this.selectedStream || !this.selectedStream.ShowQueryInput) return false;
         return this.hasAccessToQueryCustom || this.selectedPresetId != null;
     }
 
     get showCustomInputs(): boolean {
+        if (this.isSimpleExportMode) return false;
         return !!this.selectedStream
             && this.selectedStream.CustomParameterDefinitions
             && this.selectedStream.CustomParameterDefinitions.length > 0
@@ -802,6 +858,10 @@ export default class DataExportPageComponent extends Vue {
         }
     }
 
+    initializeSimpleMode() {
+        this.loadPresets();
+    }
+
     resetFilter(): void {
         this.pageIndex = 0;
         this.pageSize = 50;
@@ -834,6 +894,11 @@ export default class DataExportPageComponent extends Vue {
             } else if (this.streamDefinitions.Streams.length > 0) {
                 this.setActiveStream(this.streamDefinitions.Streams[0]);   
             }
+        }
+
+        if (this.isSimpleExportMode)
+        {
+            this.initializeSimpleMode();
         }
     }
 
@@ -1371,6 +1436,12 @@ export default class DataExportPageComponent extends Vue {
             }
         }
     }
+}
+.simple-export-buttons {
+    display: flex;
+    flex-direction: column;
+    align-content: flex-start;
+    align-items: flex-start;
 }
 </style>
 
