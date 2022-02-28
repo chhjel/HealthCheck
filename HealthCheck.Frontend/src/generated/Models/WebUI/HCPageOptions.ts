@@ -9,6 +9,5 @@ export interface HCPageOptions
 	PageTitle: string;
 	CustomHeadHtml: string;
 	CustomBodyHtml: string;
-	IncludeDefaultAssetLinks: boolean;
 	IncludeNoIndex: boolean;
 }

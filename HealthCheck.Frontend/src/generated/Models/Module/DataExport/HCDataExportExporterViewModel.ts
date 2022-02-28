@@ -6,4 +6,5 @@ export interface HCDataExportExporterViewModel
 {
 	Id: string;
 	Name: string;
+	Description: string;
 }

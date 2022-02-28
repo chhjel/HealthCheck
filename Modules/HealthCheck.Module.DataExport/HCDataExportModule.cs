@@ -124,7 +124,8 @@ namespace HealthCheck.Module.DataExport
             var exporters = Options.Exporters?.Select(x => new HCDataExportExporterViewModel
             {
                 Id = x?.GetType()?.FullName ?? "null",
-                Name = x.DisplayName
+                Name = x.DisplayName,
+                Description = x.Description
             })?.ToList() ?? new List<HCDataExportExporterViewModel>();
 
             return Task.FromResult(new HCGetDataExportStreamDefinitionsViewModel
@@ -257,19 +258,19 @@ namespace HealthCheck.Module.DataExport
         public object DEExport(HealthCheckModuleContext context, string url)
         {
             var match = DownloadExportFileUrlRegex.Match(url);
-            if (!match.Success)
-            {
-                return null;
-            }
+            if (!match.Success) return null;
 
             // Parse url
             var keyFromUrl = match.Groups["key"].Value.Trim().ToLower();
-            var isHeadStatusRequest = url?.EndsWith("?status=1") == true && context.Request.Method == "HEAD";
+            var isHeadStatusRequest = context.Request.Method == "HEAD"
+                && (url?.EndsWith("?status=1") == true || url?.EndsWith("&status=1") == true);
             if (isHeadStatusRequest)
             {
                 var status = _exportStatuses.GetValue(keyFromUrl, HttpStatusCode.NotFound);
                 return new HealthCheckStatusCodeOnlyResult(status);
             }
+            // No other head requests used
+            else if (context.Request.Method == "HEAD") return null;
 
             // Validate
             var data = _allowedExports.GetValue<AllowedExportData>(keyFromUrl, null);
@@ -374,7 +375,7 @@ namespace HealthCheck.Module.DataExport
             var usingPreset = false;
             if (model.PresetId != null
                 && Options.PresetStorage != null
-                && context.HasAccess(AccessOption.QueryPreset))
+                && (isExport || context.HasAccess(AccessOption.QueryPreset)))
             {
                 var preset = await Options.PresetStorage.GetStreamQueryPresetAsync(model.PresetId.Value);
                 if (preset != null)

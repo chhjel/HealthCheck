@@ -88,8 +88,8 @@
                                         ></v-autocomplete>
                                 </div>
                             
-                                <div class="data-export-actions">
-                                    <v-btn :disabled="isLoading" v-if="hasAccessToQueryPreset" @click="onLoadPresetsClicked">
+                                <div class="data-export-actions" v-if="!isSimpleExportMode">
+                                    <v-btn :disabled="isLoading" v-if="hasAccessToQueryPreset || hasAccessToExport" @click="onLoadPresetsClicked">
                                         <v-icon size="20px" class="mr-2">file_upload</v-icon>Load preset..
                                     </v-btn>
                                     <v-btn :disabled="isLoading" v-if="hasAccessToSavePreset" @click="onSavePresetClicked">
@@ -107,6 +107,54 @@
                                         color="primary">
                                         <v-icon size="20px" class="mr-2">search</v-icon>Execute query
                                     </v-btn>
+                                </div>
+
+                                <div v-if="isSimpleExportMode">
+                                    <!-- SIMPLE MODE -->
+                                    <v-progress-linear v-if="isLoading" indeterminate color="green"></v-progress-linear>
+
+                                    <!-- NO PRESETS YET -->
+                                    <div v-if="!isLoading && (!presets || presets.length == 0)">
+                                        <b>No export presets available, someone with access must create them first.</b>
+                                    </div>
+
+                                    <!-- HAS PRESETS -->
+                                    <div v-if="!isLoading && presets && presets.length > 0">
+                                        <div>
+                                            <h3>1. Select preset to export:</h3>
+                                            <div class="simple-export-buttons">
+                                                <v-btn v-for="(preset, pIndex) in presets"
+                                                    :key="`item-d-${preset.Id}-preset-${pIndex}`"
+                                                    :class="{ 'selected': (selectedPresetId == preset.Id) }"
+                                                    @click.prevent="applyPreset(preset)"
+                                                    depressed :color="(selectedPresetId == preset.Id) ? 'primary' : '#ddd'">
+                                                    {{ preset.Name }}
+                                                </v-btn>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h3>2. Select export format:</h3>
+                                            <div class="simple-export-buttons">
+                                                <div v-for="(exporter, eIndex) in exporters"
+                                                    :key="`item-d-${exporter.Id}-export-${eIndex}`">
+                                                    <v-btn color="primary"
+                                                        :disabled="isLoading || selectedPresetId == null"
+                                                        :loading="exportLoadStatus.inProgress"
+                                                        @click="onExportClicked(exporter.Id)"
+                                                        class="exporter-button">
+                                                        <div class="exporter-button-content">
+                                                            <v-icon size="20px" class="exporter-button-icon mr-2">file_download</v-icon>
+                                                            <div class="exporter-button-texts">
+                                                                <div class="exporter-button-title">{{ exporter.Name }}</div>
+                                                                <div v-if="exporter.Description" class="exporter-description">{{ exporter.Description }}</div>
+                                                            </div>
+                                                        </div>
+                                                    </v-btn>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- END OF SIMPLE MODE -->
                                 </div>
 
                                 <paging-component
@@ -130,7 +178,7 @@
                             </v-alert>
 
                             <div v-if="selectedStream && selectedItemId == null">
-                                <p>{{ resultCountText }}</p>
+                                <p v-if="hasQueriedAtLeastOnce">{{ resultCountText }}</p>
                                 <div style="clear: both"></div>
                                 <div class="table-overflow-wrapper" v-if="items.length > 0">
                                     <table class="v-table theme--light">
@@ -293,8 +341,15 @@
                                 <v-btn color="primary"
                                     :disabled="isLoading"
                                     :loading="exportLoadStatus.inProgress"
-                                    @click="onExportClicked(exporter.Id)">
-                                    <v-icon size="20px" class="mr-2">file_download</v-icon>{{ exporter.Name }}
+                                    @click="onExportClicked(exporter.Id)"
+                                    class="exporter-button">
+                                    <div class="exporter-button-content">
+                                        <v-icon size="20px" class="exporter-button-icon mr-2">file_download</v-icon>
+                                        <div class="exporter-button-texts">
+                                            <div class="exporter-button-title">{{ exporter.Name }}</div>
+                                            <div v-if="exporter.Description" class="exporter-description">{{ exporter.Description }}</div>
+                                        </div>
+                                    </div>
                                 </v-btn>
                             </div>
                         </ul>
@@ -544,7 +599,7 @@ import { HCDataExportValueFormatterViewModel } from "generated/Models/Module/Dat
         BackendInputComponent
     }
 })
-export default class DataRepeaterPageComponent extends Vue {
+export default class DataExportPageComponent extends Vue {
     @Prop({ required: true })
     config!: ModuleConfig;
     
@@ -590,6 +645,7 @@ export default class DataRepeaterPageComponent extends Vue {
     formattersInDialog: Array<HCDataExportValueFormatterViewModel> = [];
     formatDialogVisible: boolean = false;
     placeholdersDialogVisible: boolean = false;
+    hasQueriedAtLeastOnce: boolean = false;
     currentPlaceholderDialogTarget: string | null = null;
 
     // Filter/pagination
@@ -635,6 +691,10 @@ export default class DataRepeaterPageComponent extends Vue {
         return this.$store.state.globalOptions;
     }
 
+    get hasAccessToQuery(): boolean {
+        return this.hasAccessToQueryCustom || this.hasAccessToQueryPreset;
+    }
+
     get hasAccessToQueryCustom(): boolean {
         return this.hasAccess('QueryCustom');
     }
@@ -661,8 +721,15 @@ export default class DataRepeaterPageComponent extends Vue {
         return this.hasAccess('Export');
     }
 
+    get isSimpleExportMode(): boolean {
+        return this.options.AccessOptions.length == 2
+            && this.hasAccessToLoadPreset
+            && this.hasAccessToExport;
+    }
+
     get showExecuteQuery(): boolean {
-        return this.hasAccessToQueryCustom || this.selectedPresetId != null;
+        return this.hasAccessToQueryCustom
+            || (this.selectedPresetId != null && this.hasAccessToQueryPreset);
     }
 
     get showExport(): boolean {
@@ -672,14 +739,17 @@ export default class DataRepeaterPageComponent extends Vue {
     }
 
     get showQuery(): boolean {
+        if (this.isSimpleExportMode) return false;
         if (!this.selectedStream || !this.selectedStream.ShowQueryInput) return false;
         return this.hasAccessToQueryCustom || this.selectedPresetId != null;
     }
 
     get showCustomInputs(): boolean {
+        if (this.isSimpleExportMode) return false;
         return !!this.selectedStream
             && this.selectedStream.CustomParameterDefinitions
-            && this.selectedStream.CustomParameterDefinitions.length > 0;
+            && this.selectedStream.CustomParameterDefinitions.length > 0
+            && (this.hasAccessToQueryCustom || this.selectedPresetId != null);
     }
 
     get queryTitle(): string {
@@ -788,6 +858,10 @@ export default class DataRepeaterPageComponent extends Vue {
         }
     }
 
+    initializeSimpleMode() {
+        this.loadPresets();
+    }
+
     resetFilter(): void {
         this.pageIndex = 0;
         this.pageSize = 50;
@@ -820,6 +894,11 @@ export default class DataRepeaterPageComponent extends Vue {
             } else if (this.streamDefinitions.Streams.length > 0) {
                 this.setActiveStream(this.streamDefinitions.Streams[0]);   
             }
+        }
+
+        if (this.isSimpleExportMode)
+        {
+            this.initializeSimpleMode();
         }
     }
 
@@ -919,15 +998,14 @@ export default class DataRepeaterPageComponent extends Vue {
     }
 
     savePreset(name: string, existingPreset: HCDataExportStreamQueryPresetViewModel | null = null): void {
-        let props = this.includedProperties;
         this.headers.forEach(x => {
-            if (props.includes(x))
+            if (this.includedProperties.includes(x))
             {
-                props = props.filter(p => p != x);
-                props.unshift(x);
+                this.includedProperties = this.includedProperties.filter(p => p != x);
+                this.includedProperties.unshift(x);
             }
         });
-        props = props.reverse();
+        this.includedProperties = this.includedProperties.reverse();
 
         this.service.SaveStreamQueryPreset({
             StreamId: this.selectedStream?.Id || '',
@@ -936,7 +1014,7 @@ export default class DataRepeaterPageComponent extends Vue {
                 Name: name,
                 Description: '',
                 Query: this.queryInput,
-                IncludedProperties: props,
+                IncludedProperties: this.headers,
                 HeaderNameOverrides: this.headerNameOverrides,
                 CustomParameters: this.customParameters,
                 ValueFormatterConfigs: this.valueFormatterConfigs,
@@ -1040,6 +1118,7 @@ export default class DataRepeaterPageComponent extends Vue {
     }
 
     onStreamItemsLoaded(data: HCDataExportQueryResponseViewModel): void {
+        this.hasQueriedAtLeastOnce = true;
         this.totalResultCount = data.TotalCount;
         this.items = data.Items;
 
@@ -1337,12 +1416,44 @@ export default class DataRepeaterPageComponent extends Vue {
         display: none
     }
 }
+.exporter-button {
+    height: auto;
+    .exporter-button-content {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        .exporter-button-icon {
+            align-self: center;
+        }
+        .exporter-button-texts {
+            text-align: left;
+            padding: 5px;
+
+            .exporter-description {
+                text-transform: none;
+                font-size: 12px;
+                white-space: break-spaces;
+            }
+        }
+    }
+}
+.simple-export-buttons {
+    display: flex;
+    flex-direction: column;
+    align-content: flex-start;
+    align-items: flex-start;
+}
 </style>
 
 <style lang="scss">
 .item-header-override-config {
     .v-text-field__details {
         display: none
+    }
+}
+.exporter-button {
+    .v-btn__content {
+        max-width: 100%;
     }
 }
 </style>

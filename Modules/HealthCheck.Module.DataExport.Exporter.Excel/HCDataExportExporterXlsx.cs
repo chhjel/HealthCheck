@@ -14,6 +14,9 @@ namespace HealthCheck.Module.DataExport.Exporter.Excel
         public override string DisplayName { get; set; } = "Excel (XLSX)";
 
         /// <inheritdoc />
+        public override string Description { get; set; } = "Creates an excel file from the data.";
+
+        /// <inheritdoc />
         public override string FileExtension { get; set; } = ".xlsx";
 
         /// <summary>

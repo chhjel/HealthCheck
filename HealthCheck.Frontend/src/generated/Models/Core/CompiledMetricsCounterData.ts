@@ -7,4 +7,5 @@ export interface CompiledMetricsCounterData
 	Id: string;
 	Value: number;
 	LastChanged: Date;
+	FirstStored: Date;
 }

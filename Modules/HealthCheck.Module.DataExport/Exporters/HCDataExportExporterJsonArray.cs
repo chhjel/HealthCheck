@@ -15,6 +15,9 @@ namespace HealthCheck.Module.DataExport.Exporters
 		public string DisplayName { get; set; } = "JSON Array";
 
 		/// <inheritdoc />
+		public string Description { get; set; } = "Creates a json array of object with columns as values.";
+
+		/// <inheritdoc />
 		public string FileExtension { get; set; } = ".json";
 
 		/// <summary>

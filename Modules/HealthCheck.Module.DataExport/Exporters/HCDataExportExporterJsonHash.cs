@@ -16,6 +16,9 @@ namespace HealthCheck.Module.DataExport.Exporters
 		public string DisplayName { get; set; } = "JSON Hash";
 
 		/// <inheritdoc />
+		public string Description { get; set; } = "Uses the first column as keys in a json hash, with the remaining columns as values.";
+
+		/// <inheritdoc />
 		public string FileExtension { get; set; } = ".json";
 
 		/// <summary>

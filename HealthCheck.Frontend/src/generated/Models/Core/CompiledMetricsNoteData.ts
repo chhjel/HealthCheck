@@ -7,4 +7,5 @@ export interface CompiledMetricsNoteData
 	Id: string;
 	Note: string;
 	LastChanged: Date;
+	FirstStored: Date;
 }
