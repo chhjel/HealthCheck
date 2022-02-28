@@ -258,19 +258,19 @@ namespace HealthCheck.Module.DataExport
         public object DEExport(HealthCheckModuleContext context, string url)
         {
             var match = DownloadExportFileUrlRegex.Match(url);
-            if (!match.Success)
-            {
-                return null;
-            }
+            if (!match.Success) return null;
 
             // Parse url
             var keyFromUrl = match.Groups["key"].Value.Trim().ToLower();
-            var isHeadStatusRequest = url?.EndsWith("?status=1") == true && context.Request.Method == "HEAD";
+            var isHeadStatusRequest = context.Request.Method == "HEAD"
+                && (url?.EndsWith("?status=1") == true || url?.EndsWith("&status=1") == true);
             if (isHeadStatusRequest)
             {
                 var status = _exportStatuses.GetValue(keyFromUrl, HttpStatusCode.NotFound);
                 return new HealthCheckStatusCodeOnlyResult(status);
             }
+            // No other head requests used
+            else if (context.Request.Method == "HEAD") return null;
 
             // Validate
             var data = _allowedExports.GetValue<AllowedExportData>(keyFromUrl, null);
