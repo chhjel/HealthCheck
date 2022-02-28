@@ -89,7 +89,7 @@
                                 </div>
                             
                                 <div class="data-export-actions">
-                                    <v-btn :disabled="isLoading" v-if="hasAccessToQueryPreset" @click="onLoadPresetsClicked">
+                                    <v-btn :disabled="isLoading" v-if="hasAccessToQueryPreset || hasAccessToExport" @click="onLoadPresetsClicked">
                                         <v-icon size="20px" class="mr-2">file_upload</v-icon>Load preset..
                                     </v-btn>
                                     <v-btn :disabled="isLoading" v-if="hasAccessToSavePreset" @click="onSavePresetClicked">
@@ -130,7 +130,7 @@
                             </v-alert>
 
                             <div v-if="selectedStream && selectedItemId == null">
-                                <p>{{ resultCountText }}</p>
+                                <p v-if="hasQueriedAtLeastOnce">{{ resultCountText }}</p>
                                 <div style="clear: both"></div>
                                 <div class="table-overflow-wrapper" v-if="items.length > 0">
                                     <table class="v-table theme--light">
@@ -551,7 +551,7 @@ import { HCDataExportValueFormatterViewModel } from "generated/Models/Module/Dat
         BackendInputComponent
     }
 })
-export default class DataRepeaterPageComponent extends Vue {
+export default class DataExportPageComponent extends Vue {
     @Prop({ required: true })
     config!: ModuleConfig;
     
@@ -597,6 +597,7 @@ export default class DataRepeaterPageComponent extends Vue {
     formattersInDialog: Array<HCDataExportValueFormatterViewModel> = [];
     formatDialogVisible: boolean = false;
     placeholdersDialogVisible: boolean = false;
+    hasQueriedAtLeastOnce: boolean = false;
     currentPlaceholderDialogTarget: string | null = null;
 
     // Filter/pagination
@@ -691,7 +692,8 @@ export default class DataRepeaterPageComponent extends Vue {
     get showCustomInputs(): boolean {
         return !!this.selectedStream
             && this.selectedStream.CustomParameterDefinitions
-            && this.selectedStream.CustomParameterDefinitions.length > 0;
+            && this.selectedStream.CustomParameterDefinitions.length > 0
+            && (this.hasAccessToQueryCustom || this.selectedPresetId != null);
     }
 
     get queryTitle(): string {
@@ -931,15 +933,14 @@ export default class DataRepeaterPageComponent extends Vue {
     }
 
     savePreset(name: string, existingPreset: HCDataExportStreamQueryPresetViewModel | null = null): void {
-        let props = this.includedProperties;
         this.headers.forEach(x => {
-            if (props.includes(x))
+            if (this.includedProperties.includes(x))
             {
-                props = props.filter(p => p != x);
-                props.unshift(x);
+                this.includedProperties = this.includedProperties.filter(p => p != x);
+                this.includedProperties.unshift(x);
             }
         });
-        props = props.reverse();
+        this.includedProperties = this.includedProperties.reverse();
 
         this.service.SaveStreamQueryPreset({
             StreamId: this.selectedStream?.Id || '',
@@ -948,7 +949,7 @@ export default class DataRepeaterPageComponent extends Vue {
                 Name: name,
                 Description: '',
                 Query: this.queryInput,
-                IncludedProperties: props,
+                IncludedProperties: this.headers,
                 HeaderNameOverrides: this.headerNameOverrides,
                 CustomParameters: this.customParameters,
                 ValueFormatterConfigs: this.valueFormatterConfigs,
@@ -1052,6 +1053,7 @@ export default class DataRepeaterPageComponent extends Vue {
     }
 
     onStreamItemsLoaded(data: HCDataExportQueryResponseViewModel): void {
+        this.hasQueriedAtLeastOnce = true;
         this.totalResultCount = data.TotalCount;
         this.items = data.Items;
 
