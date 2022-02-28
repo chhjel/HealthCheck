@@ -13,6 +13,11 @@ namespace HealthCheck.Core.Modules.Metrics.Models
         public string Id { get; set; }
 
         /// <summary>
+        /// Optional suffix for this value to show in frontend.
+        /// </summary>
+        public string Suffix { get; set; }
+
+        /// <summary>
         /// Average value.
         /// </summary>
         public long Average { get; set; }

@@ -43,6 +43,11 @@ namespace HealthCheck.Core.Modules.Metrics.Models
         public string ExceptionDetails { get; set; }
 
         /// <summary>
+        /// Optional value suffix to show in frontend.
+        /// </summary>
+        public string ValueSuffix { get; set; }
+
+        /// <summary>
         /// Value of something.
         /// </summary>
         public int Value { get; set; }
@@ -115,20 +120,20 @@ namespace HealthCheck.Core.Modules.Metrics.Models
         /// <summary>
         /// Create a new value.
         /// </summary>
-        public static HCMetricsItem CreateValue(string id, string description, int value, TimeSpan? offset)
-            => new(MetricItemType.Value, id, description, offset) { Value = value };
+        public static HCMetricsItem CreateValue(string id, string description, int value, TimeSpan? offset, string suffix = null)
+            => new(MetricItemType.Value, id, description, offset) { Value = value, ValueSuffix = suffix };
 
         /// <summary>
         /// Create a new timing.
         /// </summary>
-        public static HCMetricsItem CreateTimingStart(string id, string description, TimeSpan? offset, bool addToGlobals = false)
-            => new(MetricItemType.Timing, id, description, offset) { AddTimingToGlobals = addToGlobals };
+        public static HCMetricsItem CreateTimingStart(string id, string description, TimeSpan? offset, bool addToGlobals = false, string suffix = null)
+            => new(MetricItemType.Timing, id, description, offset) { AddTimingToGlobals = addToGlobals, ValueSuffix = suffix };
 
         /// <summary>
         /// Create a new timing.
         /// </summary>
-        public static HCMetricsItem CreateTiming(string id, string description, TimeSpan? offset, TimeSpan duration, bool addToGlobals = false)
-            => new(MetricItemType.Timing, id, description, offset) { Duration = duration, AddTimingToGlobals = addToGlobals };
+        public static HCMetricsItem CreateTiming(string id, string description, TimeSpan? offset, TimeSpan duration, bool addToGlobals = false, string suffix = null)
+            => new(MetricItemType.Timing, id, description, offset) { Duration = duration, AddTimingToGlobals = addToGlobals, ValueSuffix = suffix };
         #endregion
 
         internal HCMetricsItem(MetricItemType type, string id, string description, TimeSpan? offset)

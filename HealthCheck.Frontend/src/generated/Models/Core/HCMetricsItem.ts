@@ -13,6 +13,7 @@ export interface HCMetricsItem
 	Offset: any;
 	Description: string;
 	ExceptionDetails: string;
+	ValueSuffix: string;
 	Value: number;
 	OffsetMilliseconds: number;
 	DurationMilliseconds: number;

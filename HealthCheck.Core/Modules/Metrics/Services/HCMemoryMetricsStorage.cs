@@ -108,17 +108,18 @@ namespace HealthCheck.Core.Modules.Metrics.Services
             {
                 foreach (var kvp in data.GlobalValues)
                 {
-                    StoreGlobalValues(kvp.Key, kvp.Value);
+                    var suffix = data.GlobalValueSuffixes.ContainsKey(kvp.Key) ? data.GlobalValueSuffixes[kvp.Key] : null;
+                    StoreGlobalValues(kvp.Key, kvp.Value, suffix);
                 }
 
                 foreach (var item in data.Items.Where(x => x.Type == HCMetricsItem.MetricItemType.Timing && x.AddTimingToGlobals))
                 {
-                    StoreGlobalValues(item.Id, new List<long> { item.DurationMilliseconds });
+                    StoreGlobalValues(item.Id, new List<long> { item.DurationMilliseconds }, item.ValueSuffix);
                 }
             }
         }
 
-        private void StoreGlobalValues(string id, IList<long> values)
+        private void StoreGlobalValues(string id, IList<long> values, string suffix)
         {
             if (!values?.Any() == true)
             {
@@ -138,6 +139,7 @@ namespace HealthCheck.Core.Modules.Metrics.Services
 
             var item = _data.GlobalValues[id];
             item.LastChanged = DateTimeOffset.Now;
+            item.Suffix = suffix ?? item.Suffix;
 
             var min = values.Min();
             var max = values.Max();
