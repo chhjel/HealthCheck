@@ -26,10 +26,11 @@ namespace HealthCheck.Module.DataExport
 
         /// <summary>
         /// Available exporters.
-        /// <para>Defaults to <see cref="HCDataExportExporterCSV"/> only.</para>
+        /// <para>Defaults to all built in exporter types.</para>
         /// </summary>
         public List<IHCDataExportExporter> Exporters { get; set; } = new List<IHCDataExportExporter>
         {
+            new HCDataExportExporterSCSV(),
             new HCDataExportExporterCSV(),
             new HCDataExportExporterTSV(),
             new HCDataExportExporterXml(),
@@ -38,11 +39,18 @@ namespace HealthCheck.Module.DataExport
         };
 
         /// <summary>
-        /// Adds the given exporter.
+        /// Adds the given exporter, by default at the top of the list.
         /// </summary>
-        public HCDataExportModuleOptions AddExporter(IHCDataExportExporter exporter)
+        public HCDataExportModuleOptions AddExporter(IHCDataExportExporter exporter, bool insertFirst = true)
         {
-            Exporters.Add(exporter);
+            if (insertFirst)
+            {
+                Exporters.Insert(0, exporter);
+            }
+            else
+            {
+               Exporters.Add(exporter);
+            }
             return this;
         }
     }

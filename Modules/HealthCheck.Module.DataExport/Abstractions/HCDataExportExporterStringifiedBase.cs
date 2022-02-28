@@ -12,6 +12,9 @@ namespace HealthCheck.Module.DataExport.Abstractions
         public abstract string DisplayName { get; set; }
 
         /// <inheritdoc />
+        public abstract string Description { get; set; }
+
+        /// <inheritdoc />
         public abstract string FileExtension { get; set; }
 
         /// <inheritdoc />

@@ -124,7 +124,8 @@ namespace HealthCheck.Module.DataExport
             var exporters = Options.Exporters?.Select(x => new HCDataExportExporterViewModel
             {
                 Id = x?.GetType()?.FullName ?? "null",
-                Name = x.DisplayName
+                Name = x.DisplayName,
+                Description = x.Description
             })?.ToList() ?? new List<HCDataExportExporterViewModel>();
 
             return Task.FromResult(new HCGetDataExportStreamDefinitionsViewModel
@@ -374,7 +375,7 @@ namespace HealthCheck.Module.DataExport
             var usingPreset = false;
             if (model.PresetId != null
                 && Options.PresetStorage != null
-                && context.HasAccess(AccessOption.QueryPreset))
+                && (isExport || context.HasAccess(AccessOption.QueryPreset)))
             {
                 var preset = await Options.PresetStorage.GetStreamQueryPresetAsync(model.PresetId.Value);
                 if (preset != null)

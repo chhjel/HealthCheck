@@ -1057,7 +1057,7 @@ UseModule(new HCDataExportModule(new HCDataExportModuleOptions
         PresetStorage = dataExportPresetStorage
         // Exporters = ..
     })
-    // By default CSV, TSV, XML and JSON exporters are configured.
+    // By default CSV (semicolon + comma), TSV, XML and JSON exporters are configured.
     // Excel exporter can be found in the nuget package HealthCheck.Module.DataExport.Exporter.Excel
     .AddExporter(new HCDataExportExporterXlsx())
 );

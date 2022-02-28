@@ -20,6 +20,9 @@ namespace HealthCheck.Module.DataExport.Exporters
 		public override string DisplayName { get; set; } = "XML";
 
 		/// <inheritdoc />
+		public override string Description { get; set; } = "Transforms rows into xml elements.";
+
+		/// <inheritdoc />
 		public override string FileExtension { get; set; } = ".xml";
 
 		/// <summary>

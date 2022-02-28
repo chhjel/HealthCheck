@@ -11,6 +11,9 @@ namespace HealthCheck.Module.DataExport.Exporters
         public override string DisplayName { get; set; } = "Tab-separated values (TSV)";
 
         /// <inheritdoc />
+        public override string Description { get; set; } = "Separates values using tabs as delimiter.";
+
+        /// <inheritdoc />
         public override string FileExtension { get; set; } = ".tsv";
 
         /// <summary>

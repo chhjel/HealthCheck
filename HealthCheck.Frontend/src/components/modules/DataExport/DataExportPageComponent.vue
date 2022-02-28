@@ -293,8 +293,15 @@
                                 <v-btn color="primary"
                                     :disabled="isLoading"
                                     :loading="exportLoadStatus.inProgress"
-                                    @click="onExportClicked(exporter.Id)">
-                                    <v-icon size="20px" class="mr-2">file_download</v-icon>{{ exporter.Name }}
+                                    @click="onExportClicked(exporter.Id)"
+                                    class="exporter-button">
+                                    <div class="exporter-button-content">
+                                        <v-icon size="20px" class="exporter-button-icon mr-2">file_download</v-icon>
+                                        <div class="exporter-button-texts">
+                                            <div class="exporter-button-title">{{ exporter.Name }}</div>
+                                            <div v-if="exporter.Description" class="exporter-description">{{ exporter.Description }}</div>
+                                        </div>
+                                    </div>
                                 </v-btn>
                             </div>
                         </ul>
@@ -635,6 +642,10 @@ export default class DataRepeaterPageComponent extends Vue {
         return this.$store.state.globalOptions;
     }
 
+    get hasAccessToQuery(): boolean {
+        return this.hasAccessToQueryCustom || this.hasAccessToQueryPreset;
+    }
+
     get hasAccessToQueryCustom(): boolean {
         return this.hasAccess('QueryCustom');
     }
@@ -662,7 +673,8 @@ export default class DataRepeaterPageComponent extends Vue {
     }
 
     get showExecuteQuery(): boolean {
-        return this.hasAccessToQueryCustom || this.selectedPresetId != null;
+        return this.hasAccessToQueryCustom 
+            || (this.selectedPresetId != null && this.hasAccessToQueryPreset);
     }
 
     get showExport(): boolean {
@@ -1337,12 +1349,38 @@ export default class DataRepeaterPageComponent extends Vue {
         display: none
     }
 }
+.exporter-button {
+    height: auto;
+    .exporter-button-content {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        .exporter-button-icon {
+            align-self: center;
+        }
+        .exporter-button-texts {
+            text-align: left;
+            padding: 5px;
+
+            .exporter-description {
+                text-transform: none;
+                font-size: 12px;
+                white-space: break-spaces;
+            }
+        }
+    }
+}
 </style>
 
 <style lang="scss">
 .item-header-override-config {
     .v-text-field__details {
         display: none
+    }
+}
+.exporter-button {
+    .v-btn__content {
+        max-width: 100%;
     }
 }
 </style>

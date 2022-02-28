@@ -13,6 +13,11 @@ namespace HealthCheck.Module.DataExport.Abstractions
         string DisplayName { get; }
 
         /// <summary>
+        /// Description shown in the UI.
+        /// </summary>
+        string Description { get; }
+
+        /// <summary>
         /// Extension used for filename.
         /// </summary>
         string FileExtension { get; }
