@@ -48,10 +48,20 @@
                             <li v-for="(item, itemIndex) in globalValues"
                                 :key="`gvalue-${itemIndex}`">
                                 <b class="mr-1">{{ item.key }}:</b> 
-                                <code>{{ item.values.Min }}</code> to <code>{{ item.values.Max }}</code>, average <code>{{ item.values.Average }}</code>. 
+                                <span v-if="item.values.ValueCount == 1">
+                                    <code>{{ item.values.Average }}{{ item.values.Suffix }}</code>. 
+                                </span>
+                                <span v-if="item.values.ValueCount > 1">
+                                    <code>{{ item.values.Min }}{{ item.values.Suffix }}</code> to <code>{{ item.values.Max }}{{ item.values.Suffix }}</code>, average <code>{{ item.values.Average }}{{ item.values.Suffix }}</code>. 
+                                </span>
                                 n=<code>{{ item.values.ValueCount }}</code>
                                 <br />
-                                <small class="ml-1">Between {{ formatDate(item.values.FirstStored) }} and {{ formatDate(item.values.LastChanged) }}</small>
+                                <span v-if="item.values.ValueCount == 1">
+                                    <small class="ml-1">{{ formatDate(item.values.LastChanged) }}</small>
+                                </span>
+                                <span v-if="item.values.ValueCount > 1">
+                                    <small class="ml-1">Between {{ formatDate(item.values.FirstStored) }} and {{ formatDate(item.values.LastChanged) }}</small>
+                                </span>
                             </li>
                         </ul>
                     </div>

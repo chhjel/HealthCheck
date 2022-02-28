@@ -38,6 +38,11 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         public Dictionary<string, List<long>> GlobalValues { get; set; } = new();
 
         /// <summary>
+        /// Optional suffixes for global values.
+        /// </summary>
+        public Dictionary<string, string> GlobalValueSuffixes { get; set; } = new();
+
+        /// <summary>
         /// True if there's any data to display.
         /// </summary>
         public bool ContainsData => Items.Any() || GlobalCounters.Any() || GlobalValues.Any();
@@ -129,16 +134,16 @@ namespace HealthCheck.Core.Modules.Metrics.Context
         /// <summary>
         /// Add a global value that will be min/max/avgeraged.
         /// </summary>
-        public static void AddGlobalValue(string id, int value)
-            => WithCurrentContext((c) => c.AddGlobalValueInternal(id, value));
+        public static void AddGlobalValue(string id, int value, string suffix = null)
+            => WithCurrentContext((c) => c.AddGlobalValueInternal(id, value, suffix));
 
         /// <summary>
         /// Add a global value that will be min/max/avgeraged.
         /// </summary>
-        public static void AddGlobalValue(string id, long value)
-            => WithCurrentContext((c) => c.AddGlobalValueInternal(id, value));
+        public static void AddGlobalValue(string id, long value, string suffix = null)
+            => WithCurrentContext((c) => c.AddGlobalValueInternal(id, value, suffix));
 
-        internal void AddGlobalValueInternal(string id, long value)
+        internal void AddGlobalValueInternal(string id, long value, string suffix = null)
         {
             lock (_globalValuesLock)
             {
@@ -147,6 +152,11 @@ namespace HealthCheck.Core.Modules.Metrics.Context
                     GlobalValues[id] = new();
                 }
                 GlobalValues[id].Add(value);
+
+                if (!string.IsNullOrWhiteSpace(suffix))
+                {
+                    GlobalValueSuffixes[id] = suffix;
+                }
             }
         }
         
@@ -159,7 +169,7 @@ namespace HealthCheck.Core.Modules.Metrics.Context
             WithCurrentContext((c) => c.AddGlobalTimingValueInternal(timer));
         }
         internal void AddGlobalTimingValueInternal(HCMetricsTimer timer)
-            => AddGlobalValueInternal(timer.Id, timer.Stopwatch.ElapsedMilliseconds);
+            => AddGlobalValueInternal(timer.Id, timer.Stopwatch.ElapsedMilliseconds, _timingValueSuffix);
 
         /// <summary>
         /// Time an action and add to global values.
@@ -174,8 +184,9 @@ namespace HealthCheck.Core.Modules.Metrics.Context
             actionToTime?.Invoke();
 
             var duration = watch.ElapsedMilliseconds;
-            AddGlobalValueInternal(id, duration);
+            AddGlobalValueInternal(id, duration, _timingValueSuffix);
         }
+        private const string _timingValueSuffix = " ms";
 
         /// <summary>
         /// Time an action and add to global values.

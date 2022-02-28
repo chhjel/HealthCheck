@@ -5,6 +5,7 @@
 export interface CompiledMetricsValueData
 {
 	Id: string;
+	Suffix: string;
 	Average: number;
 	Min: number;
 	Max: number;
