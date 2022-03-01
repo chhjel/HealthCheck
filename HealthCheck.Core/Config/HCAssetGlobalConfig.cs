@@ -39,7 +39,7 @@ namespace HealthCheck.Core.Config
             "https://cdn.jsdelivr.net/npm/vuetify@1.5.6/dist/vuetify.min.css",
             "https://fonts.googleapis.com/css?family=Montserrat|Material+Icons",
             "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.19.2/min/vs/editor/editor.main.min.css",
-            "https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+            "https://use.fontawesome.com/releases/v5.15.4/css/all.css"
         };
 
         /// <summary>
