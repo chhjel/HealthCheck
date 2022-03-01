@@ -488,6 +488,13 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                 roles = RuntimeTestAccessRole.None;
                 return new RequestInformation<RuntimeTestAccessRole>(roles, "no_access_test", "No user");
             }
+
+            if (request.Query.ContainsKey("dataflowABC"))
+            {
+                Config.IoCConfig.TestStreamA.InsertEntries(Enumerable.Range(1, 5000).Select(i => new TestEntry { Code = $"100{i}-A", Name = $"Entry A{i} [{DateTimeOffset.Now}]" }));
+                Config.IoCConfig.TestStreamB.InsertEntries(Enumerable.Range(1, 5000).Select(i => new TestEntry { Code = $"200{i}-B", Name = $"Entry B{i} [{DateTimeOffset.Now}]" }));
+                Config.IoCConfig.TestStreamC.InsertEntries(Enumerable.Range(1, 5000).Select(i => new TestEntry { Code = $"300{i}-C", Name = $"Entry C{i} [{DateTimeOffset.Now}]" }));
+            }
             
             if (ForceLogout)
             {

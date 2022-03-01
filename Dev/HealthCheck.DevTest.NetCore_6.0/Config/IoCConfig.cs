@@ -118,8 +118,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
         }
 
         public static readonly TestStreamA TestStreamA = new();
-        private static readonly TestStreamB _testStreamB = new();
-        private static readonly TestStreamC _testStreamC = new();
+        public static readonly TestStreamB TestStreamB = new();
+        public static readonly TestStreamC TestStreamC = new();
         private static readonly SimpleStream _simpleStream = new("Simple A");
         private static readonly TestMemoryStream _memoryStream = new("Memory");
         private static readonly TestMemoryStream _otherStream1 = new(null);
@@ -131,8 +131,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
                 Streams = new IDataflowStream<RuntimeTestAccessRole>[]
                 {
                     TestStreamA,
-                    _testStreamB,
-                    _testStreamC,
+                    TestStreamB,
+                    TestStreamC,
                     _simpleStream,
                     _memoryStream,
                     _otherStream1,
