@@ -196,6 +196,14 @@
       <Project>{2a641f75-5d28-4bf1-9019-8286fcbd6ac5}</Project>
       <Name>HealthCheck.WebUI</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Modules\HealthCheck.Module.DataExport.Exporter.Excel\HealthCheck.Module.DataExport.Exporter.Excel.csproj">
+      <Project>{F2BDA820-2936-4625-A883-9112D7CCCA26}</Project>
+      <Name>HealthCheck.Module.DataExport.Exporter.Excel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Modules\HealthCheck.Module.DataExport\HealthCheck.Module.DataExport.csproj">
+      <Project>{261CA139-D847-4086-9D2E-6E416B9A1337}</Project>
+      <Name>HealthCheck.Module.DataExport</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Modules\HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA\HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA.csproj">
       <Project>{de9ea2db-5d18-4cf8-a3b7-b32d0bf48d96}</Project>
       <Name>HealthCheck.Module.DynamicCodeExecution.AutoComplete.MCA</Name>

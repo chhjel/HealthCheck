@@ -283,6 +283,7 @@ namespace HealthCheck.Module.DataExport
             var showLoadingDownloadPage = url?.EndsWith("?dl=1") == false;
             if (showLoadingDownloadPage)
             {
+                url = url.Substring("/DEExport/".Length);
                 url += url.Contains('?') ? "&dl=1" : "?dl=1";
                 return CreateExportLoadingDownloadHtml(context, $"{url}?dl=1");
             }
