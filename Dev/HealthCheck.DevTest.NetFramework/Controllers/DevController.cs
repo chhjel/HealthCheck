@@ -50,6 +50,9 @@ using HealthCheck.Dev.Common.Metrics;
 using HealthCheck.Dev.Common.Settings;
 using HealthCheck.Dev.Common.Tests;
 using HealthCheck.DevTest._TestImplementation.Modules;
+using HealthCheck.Module.DataExport;
+using HealthCheck.Module.DataExport.Abstractions;
+using HealthCheck.Module.DataExport.Exporter.Excel;
 using HealthCheck.Module.DevModule;
 using HealthCheck.Module.DynamicCodeExecution.Abstractions;
 using HealthCheck.Module.DynamicCodeExecution.Models;
@@ -116,6 +119,13 @@ namespace HealthCheck.DevTest.Controllers
                 typeof(RuntimeTestConstants).Assembly
             };
 
+            UseModule(new HCDataExportModule(new HCDataExportModuleOptions
+            {
+                Service = HCIoCUtils.GetInstance<IHCDataExportService>(),
+                PresetStorage = HCIoCUtils.GetInstance<IHCDataExportPresetStorage>()
+            }
+                .AddExporter(new HCDataExportExporterXlsx())
+            ));
             UseModule(new HCTestsModuleExt(new HCTestsModuleOptions()
             {
                 AssembliesContainingTests = assemblies,
@@ -287,6 +297,8 @@ namespace HealthCheck.DevTest.Controllers
             {
                 config.GiveRolesAccessToModuleWithFullAccess<HCTestsModule>(RuntimeTestAccessRole.WebAdmins);
             }
+            
+            config.GiveRolesAccessToModuleWithFullAccess<HCDataExportModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSettingsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCRequestLogModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCSiteEventsModule>(RuntimeTestAccessRole.WebAdmins);

@@ -6,8 +6,12 @@ using HealthCheck.Core.Modules.Metrics.Services;
 using HealthCheck.Core.Modules.ReleaseNotes.Abstractions;
 using HealthCheck.Core.Modules.ReleaseNotes.Providers;
 using HealthCheck.Dev.Common.Config;
+using HealthCheck.Dev.Common.DataExport;
 using HealthCheck.DevTest._TestImplementation.EndpointControl;
 using HealthCheck.DevTest.Controllers;
+using HealthCheck.Module.DataExport.Abstractions;
+using HealthCheck.Module.DataExport.Services;
+using HealthCheck.Module.DataExport.Storage;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Models;
 using HealthCheck.Module.EndpointControl.Results;
@@ -67,14 +71,22 @@ namespace HealthCheck.DevTest
         private static readonly IHCStringDictionaryStorage _settingsService = new HCFlatFileStringDictionaryStorage(@"C:\temp\settings.json");
         private static readonly HCMemoryMetricsStorage _memoryMetricsService = new();
         private static readonly IHCReleaseNotesProvider _releaseNotesProvider = new HCJsonFileReleaseNotesProvider(HostingEnvironment.MapPath(@"~\App_Data\ReleaseNotes.json"))
-            {
-                IssueUrlFactory = (id) => $"{"https://"}www.google.com/?q=Issue+{id}",
-                IssueLinkTitleFactory = (id) => $"Jira {id}",
-                PullRequestUrlFactory = (number) => $"{"https://"}www.google.com/?q=PR+{number}",
-                //CommitShaUrlFactory = (sha) => $"{"https://"}github.com/chhjel/HealthCheck/commit/{sha}"
-            };
+        {
+            IssueUrlFactory = (id) => $"{"https://"}www.google.com/?q=Issue+{id}",
+            IssueLinkTitleFactory = (id) => $"Jira {id}",
+            PullRequestUrlFactory = (number) => $"{"https://"}www.google.com/?q=PR+{number}",
+            //CommitShaUrlFactory = (sha) => $"{"https://"}github.com/chhjel/HealthCheck/commit/{sha}"
+        };
 
-    private void SetupDummyIoC()
+        private static readonly IHCDataExportService _dataExportService = new HCDataExportService(new IHCDataExportStream[]
+        {
+            new TestDataExportStreamQueryable(),
+            new TestDataExportStreamEnumerable(),
+            new TestDataExportStreamEnumerableWithCustomParameters()
+        });
+        private static readonly IHCDataExportPresetStorage _dataExportPresetStorage = new HCFlatFileDataExportPresetStorage(@"C:\temp\DataExportPreset.json");
+
+        private void SetupDummyIoC()
         {
             if (!_endpointControlRuleStorage.GetRules().Any())
             {
@@ -124,6 +136,14 @@ namespace HealthCheck.DevTest
                 else if (type == typeof(IHCReleaseNotesProvider))
                 {
                     return _releaseNotesProvider;
+                }
+                else if (type == typeof(IHCDataExportService))
+                {
+                    return _dataExportService;
+                }
+                else if (type == typeof(IHCDataExportPresetStorage))
+                {
+                    return _dataExportPresetStorage;
                 }
                 return null;
             };
