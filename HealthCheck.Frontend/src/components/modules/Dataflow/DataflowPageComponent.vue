@@ -15,7 +15,7 @@
                     :groupByKey="`GroupName`"
                     :sortByKey="`GroupName`"
                     :filterKeys="[ 'Name', 'Description' ]"
-                    :loading="metadataLoadStatus.inProgress"
+                    :loading="metadataLoadStatus.inProgress || searchMetadataLoadStatus.inProgress"
                     :disabled="dataLoadStatus.inProgress"
                     ref="filterableList"
                     v-on:itemClicked="onMenuItemClicked"
@@ -30,7 +30,7 @@
                         <v-container>
                             <!-- LOAD PROGRESS -->
                             <v-progress-linear 
-                                v-if="dataLoadStatus.inProgress"
+                                v-if="selectedSearch == null && dataLoadStatus.inProgress"
                                 indeterminate color="green"></v-progress-linear>
 
                             <!-- DATA LOAD ERROR -->
@@ -45,12 +45,12 @@
                             </v-layout>
                             
                             <!-- NO DATAFLOW SELECTED INFO -->
-                            <v-layout v-if="selectedStream == null && streamMetadatas.length > 0" style="flex-direction: column;">
+                            <v-layout v-if="selectedStream == null && selectedSearch == null && (streamMetadatas.length > 0 || searchMetadatas.length > 0)" style="flex-direction: column;">
                                 <h3>No dataflow selected</h3>
                                 <p>← Select one over there.</p>
                             </v-layout>
 
-                            <!-- FILTERS -->
+                            <!-- STREAM: FILTERS -->
                             <div v-show="selectedStream != null">
                                 <v-layout>
                                     <v-flex xs12 sm12 md8 style="position:relative"
@@ -135,6 +135,7 @@
                                 </v-layout>
                             </div>
 
+                            <!-- STREAM: CONTENTS -->
                             <div v-if="selectedStream != null">
                                 <!-- Results info -->
                                 <v-layout style="flex-direction: column;">
@@ -169,25 +170,88 @@
                                 <!-- TABLE END -->
                             </div>
 
+                            <!-- SEARCH -->
+                            <div v-if="selectedSearch != null" class="unified-search">
+                                <div class="unified-search-header" v-if="selectedSearch.Name || selectedSearch.Description">
+                                    <h1 v-if="selectedSearch.Name">{{ selectedSearch.Name }}</h1>
+                                    <p v-if="selectedSearch.Description">{{ selectedSearch.Description }}</p>
+                                </div>
+
+                                <div class="unified-search-query-wrapper">
+                                    <v-text-field
+                                        class="unified-search-query"
+                                        v-model="searchQuery"
+                                        :disabled="dataLoadStatus.inProgress"
+                                        :loading="dataLoadStatus.inProgress"
+                                        solo
+                                        @keyup.enter="performSearch"
+                                        :placeholder="selectedSearch.QueryPlaceholder">
+                                    </v-text-field>
+                                    <v-btn flat color="primary" class="unified-search-query-button"
+                                        :disabled="dataLoadStatus.inProgress"
+                                        @click="performSearch">
+                                        <v-icon>search</v-icon>
+                                        Search
+                                    </v-btn>
+                                </div>
+
+                                <div v-if="searchStatus" class="unified-search-status">{{ searchStatus }}</div>
+
+                                <div v-if="searchResult" class="unified-search-results">
+                                    <div v-for="streamResult in searchResultStreams"
+                                        :key="`stream-search-results-${streamResult.StreamId}`"
+                                        class="unified-search-result-stream">
+                                        <div class="unified-search-result-stream--header">{{ streamResult.StreamName }}</div>
+                                        
+                                        <div v-for="(entry, eIndex) in streamResult.Entries"
+                                            :key="`stream-search-result-entry-${streamResult.StreamId}-${eIndex}`"
+                                            class="unified-search-result-entry"
+                                            :class="{ 'clickable': !!entry.PopupBody }"
+                                            @click="onSearchResultClicked(entry)">
+                                            <div class="unified-search-result-entry--title" v-if="entry.Title">{{ entry.Title }}</div>
+                                            <div class="unified-search-result-entry--body" v-if="entry.Body" v-html="entry.Body"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </v-container>
                     </v-flex>
                 </v-layout>
             </v-container>
           <!-- CONTENT END -->
         </v-content>
+
+        <!-- DIALOGS -->
+        <v-dialog v-model="searchResultDialogVisible"
+            v-if="selectedSearchResult"
+            @keydown.esc="searchResultDialogVisible = false"
+            max-width="800"
+            content-class="search-result-dialog"
+            :persistent="dataLoadStatus.inProgress">
+            <v-card>
+                <v-card-title class="headline">{{ selectedSearchResult.Title }}</v-card-title>
+                <v-card-text class="pt-0">
+                    <div v-if="selectedSearchResult.Body" v-html="selectedSearchResult.Body" class="mb-2"></div>
+                    <div v-html="selectedSearchResult.PopupBody"></div>
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary"
+                        :disabled="dataLoadStatus.inProgress"
+                        :loading="dataLoadStatus.inProgress"
+                        @click="searchResultDialogVisible = false">Close</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import LoggedEndpointDefinitionViewModel from  '../../../models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
-import LoggedEndpointRequestViewModel from  '../../../models/modules/RequestLog/LoggedEndpointRequestViewModel';
-import { EntryState } from  '../../../models/modules/RequestLog/EntryState';
 import DateUtils from  '../../../util/DateUtils';
 import LinqUtils from  '../../../util/LinqUtils';
-import KeyArray from  '../../../util/models/KeyArray';
-import KeyValuePair from  '../../../models/Common/KeyValuePair';
 import DataflowStreamMetadata from  '../../../models/modules/Dataflow/DataflowStreamMetadata';
 import DataflowEntry from  '../../../models/modules/Dataflow/DataflowEntry';
 import GetDataflowEntriesRequestModel from  '../../../models/modules/Dataflow/GetDataflowEntriesRequestModel';
@@ -204,6 +268,11 @@ import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
 import ModuleConfig from  '../../../models/Common/ModuleConfig';
 import ModuleOptions from  '../../../models/Common/ModuleOptions';
 import UrlUtils from  '../../../util/UrlUtils';
+import DataflowUnifiedSearchMetadata from "models/modules/Dataflow/DataflowUnifiedSearchMetadata";
+import { HCDataflowUnifiedSearchResult } from "generated/Models/Core/HCDataflowUnifiedSearchResult";
+import { HCDataFlowUnifiedSearchRequest } from "generated/Models/Core/HCDataFlowUnifiedSearchRequest";
+import { HCDataflowUnifiedSearchResultItem } from "generated/Models/Core/HCDataflowUnifiedSearchResultItem";
+import { HCDataflowUnifiedSearchStreamResult } from "generated/Models/Core/HCDataflowUnifiedSearchStreamResult";
 
 interface PropFilter
 {
@@ -259,10 +328,13 @@ export default class DataflowPageComponent extends Vue {
     service: DataflowService = new DataflowService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     dataLoadStatus: FetchStatus = new FetchStatus();
     metadataLoadStatus: FetchStatus = new FetchStatus();
+    searchMetadataLoadStatus: FetchStatus = new FetchStatus();
 
     streamGroups: Array<StreamGroup> = [];
     streamMetadatas: Array<DataflowStreamMetadata> = [];
+    searchMetadatas: Array<DataflowUnifiedSearchMetadata> = [];
     selectedStream: DataflowStreamMetadata | null = null;
+    selectedSearch: DataflowUnifiedSearchMetadata | null = null;
 
     resultCache: ResultCachePerStream = {};
     streamEntryGroups: Array<DataTableGroup> = [];
@@ -278,6 +350,14 @@ export default class DataflowPageComponent extends Vue {
     filterFromDate: Date = new Date();
     filterToDate: Date = new Date();
     filterTake: number = 50;
+
+    searchQuery: string = '888';
+    searchTake: number = 50;
+    searchPageIndex: number = 0;
+    searchResult: HCDataflowUnifiedSearchResult | null = null;
+    searchStatus: string = '';
+    selectedSearchResult: HCDataflowUnifiedSearchResultItem | null = null;
+    searchResultDialogVisible: boolean = false;
 
     // Table
     tableRowsPerPageItems: Array<any> 
@@ -306,13 +386,21 @@ export default class DataflowPageComponent extends Vue {
     
     get menuItems(): Array<FilterableListItem>
     {
-        return this.streamMetadatas.map(x => {
+        const streams = this.streamMetadatas.map(x => {
             return {
                 title: x.Name,
-                subtitle: 'woot',
+                subtitle: '',
                 data: x
             };
         });
+        const searches = this.searchMetadatas.map(x => {
+            return {
+                title: x.Name,
+                subtitle: '',
+                data: x
+            };
+        });
+        return [...searches, ...streams];
     }
 
     get resultCount(): number {
@@ -367,6 +455,11 @@ export default class DataflowPageComponent extends Vue {
         return this.streamsFilterText.length > 0;
     }
 
+    get searchResultStreams(): Array<HCDataflowUnifiedSearchStreamResult> {
+        if (!this.searchResult) return [];
+        return this.searchResult.StreamResults.filter(x => x.Entries.length > 0);
+    }
+
     ////////////////////
     //  Parent Menu  //
     //////////////////
@@ -397,6 +490,13 @@ export default class DataflowPageComponent extends Vue {
             routeParams['streamName'] = streamName;
             routeParams['group'] = group;
         }
+        else if (this.selectedSearch != null)
+        {
+            streamName = UrlUtils.EncodeHashPart(this.selectedSearch.Name);
+            group = UrlUtils.EncodeHashPart(this.selectedSearch.GroupName);
+            routeParams['streamName'] = streamName;
+            routeParams['group'] = group;
+        }
         
         const streamNameInUrl = this.$route.params.streamName;
         const groupInUrl = this.$route.params.group;
@@ -409,22 +509,33 @@ export default class DataflowPageComponent extends Vue {
     updateSelectionFromUrl(): void {
         const selectedItemGroup = this.$route.params.group;
         const selectedItem = this.$route.params.streamName;
-
-        let didSelectStream = false;
+        let didSelectSomething = false;
         if (selectedItem !== undefined && selectedItem.length > 0) {
             let stream = this.streamMetadatas
                 .filter(x => UrlUtils.EncodeHashPart(x.Name) == selectedItem
                     && UrlUtils.EncodeHashPart(x.GroupName) == selectedItemGroup)[0];
+            let search = this.searchMetadatas
+                .filter(x => UrlUtils.EncodeHashPart(x.Name) == selectedItem
+                    && UrlUtils.EncodeHashPart(x.GroupName) == selectedItemGroup)[0];
             if (stream != null)
             {
-                didSelectStream = true;
+                didSelectSomething = true;
                 this.setActiveStream(stream, false);
+            }
+            else if (search != null)
+            {
+                didSelectSomething = true;
+                this.setActiveSearch(search, false);
             }
         }
 
-        if (!didSelectStream && this.streamMetadatas.length > 0)
+        if (!didSelectSomething && this.streamMetadatas.length > 0)
         {
             this.setActiveStream(this.streamMetadatas[0], false);
+        }
+        else if (!didSelectSomething && this.searchMetadatas.length > 0)
+        {
+            this.setActiveSearch(this.searchMetadatas[0], false);
         }
     }
 
@@ -458,17 +569,72 @@ export default class DataflowPageComponent extends Vue {
 
     loadData(): void {
         this.service.GetStreamMetadata(this.metadataLoadStatus, {
-            onSuccess: (data) => this.onDataFlowMetaDataRetrieved(data)
+            onSuccess: (streamData) => {
+                streamData = streamData.map(x => {
+                    (<any>x)['__menuItemType'] = 'stream';
+                    return x;
+                });
+                this.service.GetUnifiedSearchMetadata(this.searchMetadataLoadStatus, {
+                    onSuccess: (searchData) => {
+                        searchData = searchData.map(x => {
+                            (<any>x)['__menuItemType'] = 'search';
+                            return x;
+                        });
+                        this.onDataRetrieved(streamData, searchData);
+                    }
+                });
+            }
         });
     }
 
-    onDataFlowMetaDataRetrieved(data: Array<DataflowStreamMetadata>): void {
-        this.streamMetadatas = data.map(x => {
+    onDataRetrieved(streamData: Array<DataflowStreamMetadata>, searchData: Array<DataflowUnifiedSearchMetadata>): void {
+        this.streamMetadatas = streamData.map(x => {
+            x.GroupName = x.GroupName || 'Other';
+            return x;
+        });
+
+        this.searchMetadatas = searchData.map(x => {
             x.GroupName = x.GroupName || 'Other';
             return x;
         });
 
         this.updateSelectionFromUrl();
+    }
+
+    performSearch(): void {
+        const payload: HCDataFlowUnifiedSearchRequest = {
+            SearchId: this.selectedSearch?.Id || '',
+            Query: this.searchQuery,
+            PageIndex: this.searchPageIndex,
+            PageSize: this.searchTake
+        };
+        this.service.UnifiedSearch(payload, this.dataLoadStatus, {
+            onSuccess: (data) => this.onSearchResultRetrieved(data)
+        });
+    }
+
+    onSearchResultRetrieved(data: HCDataflowUnifiedSearchResult): void {
+        this.searchResult = data;
+
+        const totalResultCount = data.StreamResults.map(x => x.Entries).reduce((sum, current) => sum + current.length, 0);
+        this.searchStatus = `${totalResultCount} ${(totalResultCount == 1 ? 'result' : 'results')}.`;
+        if (data.StreamResults.some(x => x.Entries.length >= this.searchTake))
+        {
+            this.searchStatus += ' Max result count reached, there might be even more results not shown.';
+        }
+    }
+
+    getStreamName(streamId: string): string {
+        const stream = this.streamMetadatas.filter(x => x.Id == streamId)[0];
+        if (stream != null) return stream.Name;
+        if (!streamId.includes('.')) return streamId;
+        return streamId.substring(streamId.lastIndexOf('.') + 1);
+    }
+
+    onSearchResultClicked(entry: HCDataflowUnifiedSearchResultItem): void {
+        if (!entry.PopupBody) return;
+        this.selectedSearchResult = entry;
+        this.searchResultDialogVisible = true;
     }
 
     loadStreamEntries(): void {
@@ -643,22 +809,42 @@ export default class DataflowPageComponent extends Vue {
     }
 
     setActiveStream(stream: DataflowStreamMetadata, updateUrl: boolean = true): void {
+        this.setActiveItem(stream, updateUrl);
+    }
+
+    setActiveSearch(search: DataflowUnifiedSearchMetadata, updateUrl: boolean = true): void {
+        this.setActiveItem(search, updateUrl);
+    }
+
+    setActiveItem(item: DataflowStreamMetadata | DataflowUnifiedSearchMetadata, updateUrl: boolean = true): void {
         if (this.dataLoadStatus.inProgress) {
             return;
         }
 
+        this.searchResult = null;
         if (this.selectedStream != null)
         {
             this.filtersPerStream[this.selectedStream.Id] = this.filters;
             this.resultCache[this.selectedStream.Id] = this.streamEntryGroups;
         }
 
-        this.selectedStream = stream;
-        (<FilterableListComponent>this.$refs.filterableList).setSelectedItem(stream);
-        
-        this.filters = this.filtersPerStream[this.selectedStream.Id] || [];
-        this.streamEntryGroups = this.resultCache[this.selectedStream.Id] || [];
+        const type = (<any>item).__menuItemType;
+        if (type == 'stream') {
+            this.selectedSearch = null;
 
+            const stream = <DataflowStreamMetadata>item;
+            this.selectedStream = stream;
+            this.filters = this.filtersPerStream[this.selectedStream.Id] || [];
+            this.streamEntryGroups = this.resultCache[this.selectedStream.Id] || [];
+        }
+        else if (type == 'search') {
+            this.selectedStream = null;
+
+            const search = <DataflowUnifiedSearchMetadata>item;
+            this.selectedSearch = search;
+        }
+        
+        (<FilterableListComponent>this.$refs.filterableList).setSelectedItem(item);
         if (updateUrl)
         {
             this.updateUrl();
@@ -750,7 +936,7 @@ export default class DataflowPageComponent extends Vue {
     //  EVENT HANDLERS  //
     /////////////////////
     onMenuItemClicked(item: FilterableListItem): void {
-        this.setActiveStream(item.data);
+        this.setActiveItem(item.data);
     }
 
     onMenuItemMiddleClicked(item: FilterableListItem): void {
@@ -813,5 +999,66 @@ export default class DataflowPageComponent extends Vue {
     .menu-items { 
         margin-top: 67px;
     }
+}
+// .unified-search-header { }
+.unified-search-query-wrapper {
+    padding-bottom: 5px !important;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    .unified-search-query {
+        font-size: 24px;
+    }
+    .unified-search-query-button {
+        height: 72px;
+        margin: 0;
+        margin-top: 2px;
+    }
+}
+.unified-search-status {
+    @media (max-width: 960px) {
+        padding: 5px 0;
+    }
+}
+.unified-search-results {
+    padding: 20px 0;
+    @media (max-width: 960px) {
+        padding: 5px 0;
+    }
+    .unified-search-result-stream {
+        margin-bottom: 20px;
+        border: 2px solid #d6d6d6;
+        padding: 10px;
+        .unified-search-result-stream--header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .unified-search-result-entry {
+            border-left: 2px solid #d6d6d6;
+            background-color: #efefef;
+            margin-bottom: 10px;
+            margin-left: 10px;
+            padding: 5px;
+            .unified-search-result-entry--title {
+                font-weight: 600;
+            }
+            &.clickable {
+                cursor: pointer;
+                transition: 0.1s;
+                &:hover {
+                    background-color: #ddd;
+                }
+            }
+        }
+    }
+}
+</style>
+
+<style lang="scss">
+.unified-search-query {
+    .v-text-field__details { display: none; }
+    .v-text-field__slot { padding: 20px; }
+    .v-input__slot { margin: 0; }
 }
 </style>

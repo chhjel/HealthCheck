@@ -24,6 +24,11 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
         public string Description { get; set; }
 
         /// <summary>
+        /// Placeholder for the search input field.
+        /// </summary>
+        public string QueryPlaceholder { get; set; }
+
+        /// <summary>
         /// Optionally group the stream within the given group name.
         /// </summary>
         public string GroupName { get; set; }

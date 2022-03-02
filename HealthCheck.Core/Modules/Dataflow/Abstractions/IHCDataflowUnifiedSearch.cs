@@ -27,6 +27,11 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         string Description { get; }
 
         /// <summary>
+        /// Placeholder for the search input field.
+        /// </summary>
+        string QueryPlaceholder { get; }
+
+        /// <summary>
         /// Optionally group the search within the given group name.
         /// </summary>
         string GroupName { get; }
@@ -51,10 +56,4 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         /// </summary>
         HCDataflowUnifiedSearchResultItem CreateResultItem(IDataflowEntry entry);
     }
-
-    /*
-     * take n first items filtered.
-     * show in stream order under headers.
-     * service.UnifiedSearchAsync(searchId, 
-     */
 }

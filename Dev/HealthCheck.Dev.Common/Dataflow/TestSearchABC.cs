@@ -11,6 +11,7 @@ namespace HealthCheck.Dev.Common.Dataflow
         public Maybe<RuntimeTestAccessRole> RolesWithAccess => null;
         public string Name => "ABC Search";
         public string Description => "Searches A, B and C test streams.";
+        public string QueryPlaceholder => "Search..";
         public string GroupName => "Searches";
         public Func<bool> IsVisible { get; } = () => true;
         public IEnumerable<Type> StreamTypesToSearch { get; } = new[] { typeof(TestStreamA), typeof(TestStreamB), typeof(TestStreamC) };
@@ -27,11 +28,13 @@ namespace HealthCheck.Dev.Common.Dataflow
         public HCDataflowUnifiedSearchResultItem CreateResultItem(IDataflowEntry entry)
         {
             var item = entry as TestEntry;
-            return new HCDataflowUnifiedSearchResultItem
+            var result = new HCDataflowUnifiedSearchResultItem
             {
                 Title = item.Name,
-                Body = $"{item.Code}: {item.PreformattedTest}"
+                Body = item.HtmlTest
             };
+            if (!item.Name.Contains("A4888")) result.TryCreatePopupBodyFrom(item);
+            return result;
         }
     }
 }

@@ -56,6 +56,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Services
                     Id = x.GetType().FullName,
                     Name = x.Name,
                     Description = x.Description,
+                    QueryPlaceholder = x.QueryPlaceholder,
                     GroupName = x.GroupName,
                     RolesWithAccess = x.RolesWithAccess
                 })
@@ -103,6 +104,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Services
                 var streamResult = new HCDataflowUnifiedSearchStreamResult
                 {
                     StreamId = stream.GetType().FullName,
+                    StreamName = stream.Name,
                     Entries = resultEntries,
                 };
                 result.StreamResults.Add(streamResult);

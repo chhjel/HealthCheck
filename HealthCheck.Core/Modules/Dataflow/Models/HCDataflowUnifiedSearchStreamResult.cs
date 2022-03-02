@@ -13,6 +13,11 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
         public string StreamId { get; set; }
 
         /// <summary>
+        /// Name of the stream the results are from.
+        /// </summary>
+        public string StreamName { get; set; }
+
+        /// <summary>
         /// Results.
         /// </summary>
         public List<HCDataflowUnifiedSearchResultItem> Entries { get; set; } = new();
