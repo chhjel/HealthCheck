@@ -1,0 +1,60 @@
+﻿using HealthCheck.Core.Modules.Dataflow.Models;
+using HealthCheck.Core.Util;
+using System;
+using System.Collections.Generic;
+
+namespace HealthCheck.Core.Modules.Dataflow.Abstractions
+{
+    /// <summary>
+    /// A search across multiple streams.
+    /// </summary>
+    public interface IHCDataflowUnifiedSearch<TAccessRole>
+    {
+        /// <summary>
+        /// Optionally set roles that have access to this stream.
+        /// <para>Defaults to null, giving anyone with access to the dataflow page access.</para>
+        /// </summary>
+        public Maybe<TAccessRole> RolesWithAccess { get; }
+
+        /// <summary>
+        /// Name of the search to show in the UI.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
+        /// Description of the search to show in the UI.
+        /// </summary>
+        string Description { get; }
+
+        /// <summary>
+        /// Optionally group the search within the given group name.
+        /// </summary>
+        string GroupName { get; }
+
+        /// <summary>
+        /// True if the search should be visible.
+        /// </summary>
+        Func<bool> IsVisible { get; }
+
+        /// <summary>
+        /// Streams to include in the search.
+        /// </summary>
+        IEnumerable<Type> StreamTypesToSearch { get; }
+
+        /// <summary>
+        /// Create property filter for the given stream and query.
+        /// </summary>
+        Dictionary<string, string> CreateStreamPropertyFilter(IDataflowStream<TAccessRole> stream, string query);
+
+        /// <summary>
+        /// Creates the result data to show for the given entry.
+        /// </summary>
+        HCDataflowUnifiedSearchResultItem CreateResultItem(IDataflowEntry entry);
+    }
+
+    /*
+     * take n first items filtered.
+     * show in stream order under headers.
+     * service.UnifiedSearchAsync(searchId, 
+     */
+}

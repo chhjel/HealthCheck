@@ -62,5 +62,4 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         /// </summary>
         IEnumerable<DataFlowPropertyDisplayInfo> GetEntryPropertiesInfo();
     }
-
 }
