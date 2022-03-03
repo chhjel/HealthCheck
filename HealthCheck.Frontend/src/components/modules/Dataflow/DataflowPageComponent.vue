@@ -288,6 +288,12 @@ interface StreamPropFilters {
 interface ResultCachePerStream {
    [key: string]: Array<DataTableGroup>;
 }
+interface SearchResultCachePerSearch {
+   [key: string]: HCDataflowUnifiedSearchResult;
+}
+interface SearchQueryCachePerSearch {
+   [key: string]: string;
+}
 interface FirstEntryPerStream {
    [key: string]: DataflowEntry;
 }
@@ -357,9 +363,10 @@ export default class DataflowPageComponent extends Vue {
     searchTake: number = 50;
     searchPageIndex: number = 0;
     searchResult: HCDataflowUnifiedSearchResult | null = null;
-    searchStatus: string = '';
     selectedSearchResult: HCDataflowUnifiedSearchResultItem | null = null;
     searchResultDialogVisible: boolean = false;
+    searchResultCache: SearchResultCachePerSearch = {};
+    searchQueryCache: SearchQueryCachePerSearch = {};
 
     // Table
     tableRowsPerPageItems: Array<any> 
@@ -617,13 +624,17 @@ export default class DataflowPageComponent extends Vue {
 
     onSearchResultRetrieved(data: HCDataflowUnifiedSearchResult): void {
         this.searchResult = data;
+    }
 
-        const totalResultCount = data.StreamResults.map(x => x.Entries).reduce((sum, current) => sum + current.length, 0);
-        this.searchStatus = `${totalResultCount} ${(totalResultCount == 1 ? 'result' : 'results')}.`;
-        if (data.StreamResults.some(x => x.Entries.length >= this.searchTake))
+    get searchStatus(): string {
+        if (!this.searchResult) return '';
+        const totalResultCount = this.searchResult.StreamResults.map(x => x.Entries).reduce((sum, current) => sum + current.length, 0);
+        let status = `${totalResultCount} ${(totalResultCount == 1 ? 'result' : 'results')}.`;
+        if (this.searchResult.StreamResults.some(x => x.Entries.length >= this.searchTake))
         {
-            this.searchStatus += ' Max result count reached, there might be even more results not shown.';
+            status += ' Max result count reached, there might be even more results not shown.';
         }
+        return status;
     }
 
     getStreamName(streamId: string): string {
@@ -834,7 +845,13 @@ export default class DataflowPageComponent extends Vue {
             return;
         }
 
+        if (this.selectedSearch != null && this.searchResult != null)
+        {
+            this.searchResultCache[this.selectedSearch.Id] = this.searchResult;
+            this.searchQueryCache[this.selectedSearch.Id] = this.searchQuery;
+        }
         this.searchResult = null;
+        
         if (this.selectedStream != null)
         {
             this.filtersPerStream[this.selectedStream.Id] = this.filters;
@@ -855,6 +872,8 @@ export default class DataflowPageComponent extends Vue {
 
             const search = <DataflowUnifiedSearchMetadata>item;
             this.selectedSearch = search;
+            this.searchResult = this.searchResultCache[this.selectedSearch.Id] || null;
+            this.searchQuery = this.searchQueryCache[this.selectedSearch.Id] || '';
         }
         
         (<FilterableListComponent>this.$refs.filterableList).setSelectedItem(item);
