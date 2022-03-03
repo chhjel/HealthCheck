@@ -13,5 +13,10 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
         /// Streams that returns data to display.
         /// </summary>
         public IEnumerable<IDataflowStream<TAccessRole>> Streams { get; set; }
+
+        /// <summary>
+        /// Optional searches across streams.
+        /// </summary>
+        public IEnumerable<IHCDataflowUnifiedSearch<TAccessRole>> UnifiedSearches { get; set; }
     }
 }

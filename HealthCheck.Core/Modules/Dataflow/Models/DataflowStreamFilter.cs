@@ -81,5 +81,4 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
             return SimpleStringifier.Stringify(this);
         }
     }
-
 }

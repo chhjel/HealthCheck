@@ -15,9 +15,18 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         List<DataflowStreamMetadata<TAccessRole>> GetStreamMetadata();
 
         /// <summary>
+        /// Get metadata for all the available searches.
+        /// </summary>
+        List<DataflowUnifiedSearchMetadata<TAccessRole>> GetUnifiedSearchesMetadata();
+
+        /// <summary>
         /// Get filtered entries from the given stream.
         /// </summary>
         Task<IEnumerable<IDataflowEntry>> GetEntries(string streamId, DataflowStreamFilter filter);
-    }
 
+        /// <summary>
+        /// Simple search across streams.
+        /// </summary>
+        Task<HCDataflowUnifiedSearchResult> UnifiedSearchAsync(string searchId, string query, int pageIndex, int pageSize);
+    }
 }

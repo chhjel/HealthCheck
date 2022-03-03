@@ -206,7 +206,7 @@ export default class OverviewPageComponent extends Vue {
     siteEvents: Array<SiteEventViewModel> = [];
     autoRefreshEnabled: boolean = false;
     autoRefreshRef: number = 0;
-    autoRefreshValue: number = 30;
+    autoRefreshValue: number = 100;
     nextAutoRefresh: Date | null = null;
 
     //////////////////
@@ -420,6 +420,7 @@ export default class OverviewPageComponent extends Vue {
 
         if (this.autoRefreshEnabled)
         {
+            this.autoRefreshValue = 100;
             this.setNextAutoRefreshDate();
             this.autoRefreshRef = setInterval(() => {
                 this.setNextAutoRefreshDate();
