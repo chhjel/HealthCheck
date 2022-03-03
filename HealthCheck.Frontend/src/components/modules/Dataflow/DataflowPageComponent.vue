@@ -359,7 +359,7 @@ export default class DataflowPageComponent extends Vue {
     filterToDate: Date = new Date();
     filterTake: number = 50;
 
-    searchQuery: string = '888';
+    searchQuery: string = '';
     searchTake: number = 50;
     searchPageIndex: number = 0;
     searchResult: HCDataflowUnifiedSearchResult | null = null;

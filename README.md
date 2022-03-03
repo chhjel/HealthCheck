@@ -1157,7 +1157,8 @@ UseModule(new HCDataflowModule<RuntimeTestAccessRole>(new HCDataflowModuleOption
 ```csharp
 // Built in implementation example
 var options = new DefaultDataflowServiceOptions() {
-    Streams = <your streams>
+    Streams = ..your streams,
+    // UnifiedSearches = ..any searches if needed
 };
 IDataflowService service = new DefaultDataflowService(options);
 ```
@@ -1239,6 +1240,51 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
             entries = filter.FilterContains(entries, nameof(YourDataModel.Code), x => x.Code);
 
             return Task.FromResult(entries);
+        }
+    }
+```
+
+</p>
+</details>
+
+
+<details><summary>Example search across streams</summary>
+<p>
+
+```csharp
+    public class ExampleSearch : IHCDataflowUnifiedSearch<YourAccessRolesEnum>
+    {
+        public Maybe<YourAccessRolesEnum> RolesWithAccess => null;
+        public string Name => "Example Search";
+        public string Description => "Searches some streams.";
+        public string QueryPlaceholder => "Search..";
+        public string GroupName => "Searches";
+        public Func<bool> IsVisible { get; } = () => true;
+        public IEnumerable<Type> StreamTypesToSearch { get; } = new[] { typeof(MyStreamA), typeof(MyStreamB), typeof(MyStreamC) };
+
+        public Dictionary<string, string> CreateStreamPropertyFilter(IDataflowStream<YourAccessRolesEnum> stream, string query)
+        {
+            var filter = new Dictionary<string, string>();
+            
+            // Create property filter per stream
+            if (stream.GetType() == typeof(TestStreamA)) filter[nameof(MyStreamItemA.Title)] = query;
+            else if (stream.GetType() == typeof(TestStreamB)) filter[nameof(MyStreamItemB.Text)] = query;
+            else if (stream.GetType() == typeof(TestStreamC)) filter[nameof(MyStreamItemC.Name)] = query;
+
+            return filter;
+        }
+
+        public HCDataflowUnifiedSearchResultItem CreateResultItem(IDataflowEntry entry)
+        {
+            var item = entry as MyStreamItem;
+            var result = new HCDataflowUnifiedSearchResultItem
+            {
+                Title = item.Title,
+                Body = item.Text
+            };
+            // Optionally try to include all item data
+            result.TryCreatePopupBodyFrom(item);
+            return result;
         }
     }
 ```
