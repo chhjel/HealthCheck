@@ -201,7 +201,9 @@
                                     <div v-for="streamResult in searchResultStreams"
                                         :key="`stream-search-results-${streamResult.StreamId}`"
                                         class="unified-search-result-stream">
-                                        <div class="unified-search-result-stream--header">{{ streamResult.StreamName }}</div>
+                                        <div class="unified-search-result-stream--header"
+                                            :class="{ 'clickable': hasStreamWithName(streamResult.StreamName) }"
+                                            @click="setActiveStreamByName(streamResult.StreamName)">{{ streamResult.StreamName }}</div>
                                         
                                         <div v-for="(entry, eIndex) in streamResult.Entries"
                                             :key="`stream-search-result-entry-${streamResult.StreamId}-${eIndex}`"
@@ -808,6 +810,17 @@ export default class DataflowPageComponent extends Vue {
         }
     }
 
+    hasStreamWithName(name: string): boolean {
+        return this.streamMetadatas.some(x => x.Name == name);
+    }
+
+    setActiveStreamByName(name: string): void
+    {
+        const stream = this.streamMetadatas.filter(x => x.Name == name)[0];
+        if (stream == null) return;
+        this.setActiveStream(stream, true);
+    }
+
     setActiveStream(stream: DataflowStreamMetadata, updateUrl: boolean = true): void {
         this.setActiveItem(stream, updateUrl);
     }
@@ -1033,6 +1046,9 @@ export default class DataflowPageComponent extends Vue {
             font-size: 20px;
             font-weight: 600;
             margin-bottom: 10px;
+            &.clickable {
+                cursor: pointer;
+            }
         }
         .unified-search-result-entry {
             border-left: 2px solid #d6d6d6;
