@@ -1259,6 +1259,9 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
         public string Description => "Searches some streams.";
         public string QueryPlaceholder => "Search..";
         public string GroupName => "Searches";
+        public string GroupByLabel { get; }
+        public Dictionary<Type, string> StreamNamesOverrides { get; }
+        public Dictionary<Type, string> GroupByStreamNamesOverrides { get; }
         public Func<bool> IsVisible { get; } = () => true;
         public IEnumerable<Type> StreamTypesToSearch { get; } = new[] { typeof(MyStreamA), typeof(MyStreamB), typeof(MyStreamC) };
 
@@ -1274,7 +1277,7 @@ A default abstract stream `FlatFileStoredDataflowStream<TEntry, TEntryId>` is pr
             return filter;
         }
 
-        public HCDataflowUnifiedSearchResultItem CreateResultItem(IDataflowEntry entry)
+        public HCDataflowUnifiedSearchResultItem CreateResultItem(Type streamType, IDataflowEntry entry)
         {
             var item = entry as MyStreamItem;
             var result = new HCDataflowUnifiedSearchResultItem
