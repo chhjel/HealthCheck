@@ -125,6 +125,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
         private static readonly TestMemoryStream _otherStream1 = new(null);
         private static readonly TestMemoryStream _otherStream2 = new(null);
         private static readonly TestSearchABC _testSearchABC = new();
+        private static readonly TestSearchABCGrouped _testSearchABCGrouped = new();
         private static IDataflowService<RuntimeTestAccessRole> CreateDataflowService()
         {
             return new DefaultDataflowService<RuntimeTestAccessRole>(new DefaultDataflowServiceOptions<RuntimeTestAccessRole>()
@@ -141,7 +142,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
                 },
                 UnifiedSearches = new IHCDataflowUnifiedSearch<RuntimeTestAccessRole>[]
                 {
-                    _testSearchABC
+                    _testSearchABC,
+                    _testSearchABCGrouped
                 }
             });
         }

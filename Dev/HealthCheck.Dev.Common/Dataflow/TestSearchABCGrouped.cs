@@ -6,16 +6,20 @@ using System.Collections.Generic;
 
 namespace HealthCheck.Dev.Common.Dataflow
 {
-    public class TestSearchABC : IHCDataflowUnifiedSearch<RuntimeTestAccessRole>
+    public class TestSearchABCGrouped : IHCDataflowUnifiedSearch<RuntimeTestAccessRole>
     {
         public Maybe<RuntimeTestAccessRole> RolesWithAccess => null;
-        public string Name { get; } = "ABC Search";
+        public string Name { get; } = "ABC Search Grouped";
         public string Description { get; } = "Searches A, B and C test streams.";
         public string QueryPlaceholder { get; } = "Search..";
         public string GroupName { get; } = "Searches";
-        public string GroupByLabel { get; }
+        public string GroupByLabel { get; } = "Item #[KEY]";
         public Dictionary<Type, string> StreamNamesOverrides { get; }
-        public Dictionary<Type, string> GroupByStreamNamesOverrides { get; }
+        public Dictionary<Type, string> GroupByStreamNamesOverrides { get; } = new Dictionary<Type, string>() {
+            { typeof(TestStreamA), "Product" },
+            { typeof(TestStreamB), "Inventory" },
+            { typeof(TestStreamC), "Price" }
+        };
         public Func<bool> IsVisible { get; } = () => true;
         public IEnumerable<Type> StreamTypesToSearch { get; } = new[] { typeof(TestStreamA), typeof(TestStreamB), typeof(TestStreamC) };
 
@@ -34,7 +38,8 @@ namespace HealthCheck.Dev.Common.Dataflow
             var result = new HCDataflowUnifiedSearchResultItem
             {
                 Title = item.Name,
-                Body = item.HtmlTest
+                Body = item.HtmlTest,
+                GroupByKey = item.Code.Substring(1, item.Code.IndexOf("-") - 1)
             };
             if (!item.Name.Contains("A4888")) result.TryCreatePopupBodyFrom(item);
             return result;

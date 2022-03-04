@@ -3,4 +3,7 @@ export default interface DataflowUnifiedSearchMetadata {
     Name: string;
     Description: string | null;
     GroupName: string;
+    GroupByLabel: string | null;
+    StreamNamesOverrides: { [key: string]: string } | null;
+    GroupByStreamNamesOverrides: { [key: string]: string } | null;
 }

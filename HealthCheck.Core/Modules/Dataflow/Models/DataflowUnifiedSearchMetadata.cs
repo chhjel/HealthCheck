@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Modules.Dataflow.Abstractions;
 using HealthCheck.Core.Util;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.Dataflow.Models
 {
@@ -37,5 +38,17 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
         /// Optionally set roles that have access to this stream.
         /// </summary>
         public Maybe<TAccessRole> RolesWithAccess { get; set; }
+
+        /// <summary></summary>
+        public Dictionary<string, string> GroupByStreamNamesOverrides { get; set; }
+
+        /// <summary></summary>
+        public Dictionary<string, string> StreamNamesOverrides { get; set; }
+
+        /// <summary>
+        /// Optionally label each grouped item.
+        /// <para>[KEY] can be used as a placeholder for the grouped key value.</para>
+        /// </summary>
+        public string GroupByLabel { get; set; }
     }
 }

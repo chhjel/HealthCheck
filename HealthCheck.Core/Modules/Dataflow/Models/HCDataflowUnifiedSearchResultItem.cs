@@ -25,6 +25,11 @@ namespace HealthCheck.Core.Modules.Dataflow.Models
         public string PopupBody { get; set; }
 
         /// <summary>
+        /// Optional value to group by. Can be used to group results from multiple streams together.
+        /// </summary>
+        public string GroupByKey { get; set; }
+
+        /// <summary>
         /// Attempts to create reasonable html from the given objects properties.
         /// <para>Shortcut to <c>PopupBody = HCObjectUtils.TryCreateHtmlSummaryFromProperties(..)</c></para>
 		/// <para>To ignore properties apply <see cref="HCExcludeFromHtmlSummaryAttribute"/> to them.</para>
