@@ -7,4 +7,5 @@ export interface HCDataflowUnifiedSearchResultItem
 	Title: string;
 	Body: string;
 	PopupBody: string;
+	GroupByKey: string;
 }

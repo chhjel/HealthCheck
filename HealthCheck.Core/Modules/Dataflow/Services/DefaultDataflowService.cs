@@ -55,10 +55,13 @@ namespace HealthCheck.Core.Modules.Dataflow.Services
                 {
                     Id = x.GetType().FullName,
                     Name = x.Name,
+                    RolesWithAccess = x.RolesWithAccess,
                     Description = x.Description,
                     QueryPlaceholder = x.QueryPlaceholder,
                     GroupName = x.GroupName,
-                    RolesWithAccess = x.RolesWithAccess
+                    GroupByLabel = x.GroupByLabel,
+                    StreamNamesOverrides = (x.StreamNamesOverrides ?? new Dictionary<System.Type, string>()).ToDictionary(x => x.Key.FullName, x => x.Value),
+                    GroupByStreamNamesOverrides = (x.GroupByStreamNamesOverrides ?? new Dictionary<System.Type, string>()).ToDictionary(x => x.Key.FullName, x => x.Value)
                 })
                 .ToList();
         }
@@ -90,6 +93,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Services
 
             foreach (var stream in streamsToSearch)
             {
+                var streamType = stream.GetType();
                 var propertyFilter = search.CreateStreamPropertyFilter(stream, query);
                 var filter = new DataflowStreamFilter
                 {
@@ -99,7 +103,7 @@ namespace HealthCheck.Core.Modules.Dataflow.Services
                 };
 
                 var entries = await stream.GetLatestStreamEntriesAsync(filter);
-                var resultEntries = entries.Select(e => search.CreateResultItem(e)).ToList();
+                var resultEntries = entries.Select(e => search.CreateResultItem(streamType, e)).ToList();
 
                 var streamResult = new HCDataflowUnifiedSearchStreamResult
                 {

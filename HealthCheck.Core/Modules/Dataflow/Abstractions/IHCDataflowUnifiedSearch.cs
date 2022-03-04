@@ -32,9 +32,25 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         string QueryPlaceholder { get; }
 
         /// <summary>
+        /// Optionally override names of streams per stream type.
+        /// </summary>
+        Dictionary<Type, string> StreamNamesOverrides { get; }
+
+        /// <summary>
         /// Optionally group the search within the given group name.
         /// </summary>
         string GroupName { get; }
+
+        /// <summary>
+        /// Optionally label each grouped item.
+        /// <para>[KEY] can be used as a placeholder for the grouped key value.</para>
+        /// </summary>
+        string GroupByLabel { get; }
+
+        /// <summary>
+        /// Optionally override names of streams per stream type within grouped items.
+        /// </summary>
+        Dictionary<Type, string> GroupByStreamNamesOverrides { get; }
 
         /// <summary>
         /// True if the search should be visible.
@@ -54,6 +70,6 @@ namespace HealthCheck.Core.Modules.Dataflow.Abstractions
         /// <summary>
         /// Creates the result data to show for the given entry.
         /// </summary>
-        HCDataflowUnifiedSearchResultItem CreateResultItem(IDataflowEntry entry);
+        HCDataflowUnifiedSearchResultItem CreateResultItem(Type streamType, IDataflowEntry entry);
     }
 }

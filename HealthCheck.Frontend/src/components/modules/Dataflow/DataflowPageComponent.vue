@@ -198,14 +198,38 @@
                                 <div v-if="searchStatus" class="unified-search-status">{{ searchStatus }}</div>
 
                                 <div v-if="searchResult" class="unified-search-results">
-                                    <div v-for="streamResult in searchResultStreams"
+                                    <div v-if="groupedEntryGroups.length > 0">                                        
+                                        <div v-for="(group, gIndex) in groupedEntryGroups"
+                                            :key="`stream-search-result-group-${gIndex}`"
+                                            class="unified-search-result-entry-group">
+                                            <div class="unified-search-result-entry-group--title" v-if="selectedSearch.GroupByLabel">{{ getGroupLabel(group) }}</div>
+                                            <div class="unified-search-result-entry--group-wrapper"
+                                                v-for="(entry, eIndex) in group.Value"
+                                                :key="`stream-search-result-grouped-entry-${eIndex}`">
+                                                <div class="unified-search-result-entry-group--stream"
+                                                    v-if="itemIsFirstOfTypeInGroup(entry, group)"
+                                                    :class="{ 'clickable': hasStreamWithId(entry.StreamId) }"
+                                                    title="Source stream"
+                                                    @click="setActiveStreamById(entry.StreamId)">{{ getSearchStreamName(entry.StreamId, true) }}</div>
+                                                <div class="unified-search-result-entry"
+                                                    :class="{ 'clickable': !!entry.PopupBody }"
+                                                    @click="onSearchResultClicked(entry)">
+                                                    <div class="unified-search-result-entry--title" v-if="entry.Title">{{ entry.Title }}</div>
+                                                    <div class="unified-search-result-entry--body" v-if="entry.Body" v-html="entry.Body"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div v-for="streamResult in searchUngroupedResultStreams"
                                         :key="`stream-search-results-${streamResult.StreamId}`"
                                         class="unified-search-result-stream">
                                         <div class="unified-search-result-stream--header"
                                             :class="{ 'clickable': hasStreamWithName(streamResult.StreamName) }"
-                                            @click="setActiveStreamByName(streamResult.StreamName)">{{ streamResult.StreamName }}</div>
+                                            title="Source stream"
+                                            @click="setActiveStreamByName(streamResult.StreamName)">{{ getSearchStreamName(streamResult.StreamId, false) }}</div>
                                         
-                                        <div v-for="(entry, eIndex) in streamResult.Entries"
+                                        <div v-for="(entry, eIndex) in getUngroupedEntriesFor(streamResult)"
                                             :key="`stream-search-result-entry-${streamResult.StreamId}-${eIndex}`"
                                             class="unified-search-result-entry"
                                             :class="{ 'clickable': !!entry.PopupBody }"
@@ -275,6 +299,7 @@ import { HCDataflowUnifiedSearchResult } from "generated/Models/Core/HCDataflowU
 import { HCDataFlowUnifiedSearchRequest } from "generated/Models/Core/HCDataFlowUnifiedSearchRequest";
 import { HCDataflowUnifiedSearchResultItem } from "generated/Models/Core/HCDataflowUnifiedSearchResultItem";
 import { HCDataflowUnifiedSearchStreamResult } from "generated/Models/Core/HCDataflowUnifiedSearchStreamResult";
+import KeyValuePair from "models/Common/KeyValuePair";
 
 interface PropFilter
 {
@@ -464,9 +489,10 @@ export default class DataflowPageComponent extends Vue {
         return this.streamsFilterText.length > 0;
     }
 
-    get searchResultStreams(): Array<HCDataflowUnifiedSearchStreamResult> {
+    get searchUngroupedResultStreams(): Array<HCDataflowUnifiedSearchStreamResult> {
         if (!this.searchResult) return [];
-        return this.searchResult.StreamResults.filter(x => x.Entries.length > 0);
+        return this.searchResult.StreamResults
+            .filter(x => x.Entries.some(e => !e.GroupByKey));
     }
 
     ////////////////////
@@ -637,7 +663,26 @@ export default class DataflowPageComponent extends Vue {
         return status;
     }
 
-    getStreamName(streamId: string): string {
+    getGroupLabel(group: any): string {
+        if (!this.selectedSearch) return '';
+        let label = this.selectedSearch.GroupByLabel || '';
+        return label.replace(/\[KEY\]/g, group.Key);
+    }
+
+    getSearchStreamName(streamId: string, isGrouped: boolean): string {
+        let override: string | null = null;
+        if (this.selectedSearch) {
+            if (isGrouped && this.selectedSearch.GroupByStreamNamesOverrides != null)
+            {
+                override = this.selectedSearch.GroupByStreamNamesOverrides[streamId];
+            }
+            else if (!isGrouped && this.selectedSearch.StreamNamesOverrides != null)
+            {
+                override = this.selectedSearch.StreamNamesOverrides[streamId];
+            }
+        }
+        if (override != null && override.length > 0) return override;
+
         const stream = this.streamMetadatas.filter(x => x.Id == streamId)[0];
         if (stream != null) return stream.Name;
         if (!streamId.includes('.')) return streamId;
@@ -824,7 +869,53 @@ export default class DataflowPageComponent extends Vue {
     hasStreamWithName(name: string): boolean {
         return this.streamMetadatas.some(x => x.Name == name);
     }
+    hasStreamWithId(id: string): boolean {
+        return this.streamMetadatas.some(x => x.Id == id);
+    }
 
+    itemIsFirstOfTypeInGroup(entry: HCDataflowUnifiedSearchResultItem, group: KeyValuePair<string, Array<HCDataflowUnifiedSearchResultItem>>): boolean
+    {
+        const type = (<any>entry).StreamId;
+        const first = group.Value.filter(x => (<any>x).StreamId == type)[0];
+        return entry === first;
+    }
+
+    getUngroupedEntriesFor(streamResult: HCDataflowUnifiedSearchStreamResult): Array<HCDataflowUnifiedSearchResultItem> {
+        return streamResult.Entries.filter(x => !x.GroupByKey);
+    }
+
+    get groupedEntries(): Array<HCDataflowUnifiedSearchResultItem> {
+        if (!this.searchResult) return [];
+
+        let results: Array<HCDataflowUnifiedSearchResultItem> = [];
+        this.searchResult.StreamResults.forEach(s => {
+            s.Entries
+                .filter(x => !!x.GroupByKey)
+                .forEach(e => {
+                    const entry = e;
+                    (<any>entry).StreamId = s.StreamId;
+                    results.push(entry)
+                });
+        });
+        return results;
+    }
+
+    get groupedEntryGroups(): Array<KeyValuePair<string, Array<HCDataflowUnifiedSearchResultItem>>> {
+        const entries = this.groupedEntries;
+        let groups = LinqUtils.GroupByIntoKVP(entries, x => x.GroupByKey)
+            .map(x => {
+                const group = x;
+                (<any>group).StreamId = (<any>x.Value[0]).StreamId;
+                return group;
+            })
+        return groups;
+    }
+
+    setActiveStreamById(id: string): void
+    {
+        const stream = this.streamMetadatas.filter(x => x.Id == id)[0];
+        if (stream) this.setActiveStreamByName(stream.Name);
+    }
     setActiveStreamByName(name: string): void
     {
         const stream = this.streamMetadatas.filter(x => x.Name == name)[0];
@@ -1065,6 +1156,43 @@ export default class DataflowPageComponent extends Vue {
             font-size: 20px;
             font-weight: 600;
             margin-bottom: 10px;
+            &.clickable {
+                cursor: pointer;
+            }
+        }
+        .unified-search-result-entry {
+            border-left: 2px solid #d6d6d6;
+            background-color: #efefef;
+            margin-bottom: 10px;
+            margin-left: 10px;
+            padding: 5px;
+            .unified-search-result-entry--title {
+                font-weight: 600;
+            }
+            &.clickable {
+                cursor: pointer;
+                transition: 0.1s;
+                &:hover {
+                    background-color: #ddd;
+                }
+            }
+        }
+    }
+    .unified-search-result-entry-group {
+        border: 2px solid #d6d6d6;
+        padding: 10px;
+        margin-bottom: 10px;
+        .unified-search-result-entry-group--title {
+            font-weight: 600;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        .unified-search-result-entry--group-wrapper {
+            margin-left: 10px;
+        }
+        .unified-search-result-entry-group--stream {
+            font-weight: 600;
+            display: inline-block;
             &.clickable {
                 cursor: pointer;
             }

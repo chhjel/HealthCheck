@@ -7,5 +7,6 @@ import { HCDataflowUnifiedSearchResultItem } from './HCDataflowUnifiedSearchResu
 export interface HCDataflowUnifiedSearchStreamResult
 {
 	StreamId: string;
+	StreamName: string;
 	Entries: HCDataflowUnifiedSearchResultItem[];
 }
