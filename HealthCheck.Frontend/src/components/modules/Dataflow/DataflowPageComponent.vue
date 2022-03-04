@@ -492,7 +492,7 @@ export default class DataflowPageComponent extends Vue {
     get searchUngroupedResultStreams(): Array<HCDataflowUnifiedSearchStreamResult> {
         if (!this.searchResult) return [];
         return this.searchResult.StreamResults
-            .filter(x => x.Entries.some(e => !e.GroupByKey)));
+            .filter(x => x.Entries.some(e => !e.GroupByKey));
     }
 
     ////////////////////
