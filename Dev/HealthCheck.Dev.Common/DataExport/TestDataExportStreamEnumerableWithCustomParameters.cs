@@ -1,5 +1,4 @@
 ﻿using HealthCheck.Module.DataExport.Abstractions;
-using HealthCheck.Module.DataExport.Formatters;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -52,6 +51,15 @@ namespace HealthCheck.Dev.Common.DataExport
             public string StringFilter { get; set; }
             public int? MinValue { get; set; }
             public int? MaxValue { get; set; }
+            public TestEnum SomeEnum { get; set; }
+            public TestEnum? SomeNullableEnum { get; set; }
+            public List<TestEnum> SomeEnumList { get; set; }
+            public float SomeFloat { get; set; }
+            public float? SomeNullableFloat { get; set; }
+        }
+        public enum TestEnum
+        {
+            ValueA, ValueB, ValueC
         }
     }
 }

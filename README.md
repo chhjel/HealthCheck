@@ -255,7 +255,7 @@ Supported parameter types:
 * `bool`, `bool?`
 * `DateTime`, `DateTime?`, `DateTimeOffset`, `DateTimeOffset?`
 * `TimeSpan`, `TimeSpan?`
-* `Enum` (-> select)
+* `Enum`, `Enum?` (-> select)
 * `Enum` with `[Flags]` (-> multiselect)
 * `Guid`, `Guid?`
 * `byte[]`, `HttpPostedFileBase` (.NET Framework), `IFormFile` (.NET Core) (-> file upload)

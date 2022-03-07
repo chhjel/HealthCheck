@@ -280,7 +280,13 @@ namespace HealthCheck.Core.Modules.Tests.Models
             else if (parameter.DefaultValue == null || (parameter.DefaultValue is DBNull))
             {
                 return null;
-            } else
+            }
+            // Nullable<Enum> types have integers as default value..
+            else if (parameter.ParameterType.IsNullable() && parameter.ParameterType.GenericTypeArguments[0].IsEnum)
+            {
+                return Enum.ToObject(parameter.ParameterType.GenericTypeArguments[0], parameter.DefaultValue);
+            }
+            else
             {
                 return parameter.DefaultValue;
             }

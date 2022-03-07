@@ -65,6 +65,12 @@ namespace HealthCheck.Core.Extensions
         }
 
         /// <summary>
+        /// True if the generic type definition is Nullable.
+        /// </summary>
+        public static bool IsNullable(this Type type)
+            => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+
+        /// <summary>
         /// Determines whether an instance of a specified type can be assigned to an instance of the current type.
         /// <para>If the other type is a nullable its underlying type will also be checked.</para>
         /// </summary>

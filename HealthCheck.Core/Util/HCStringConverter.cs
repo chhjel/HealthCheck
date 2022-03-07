@@ -94,6 +94,11 @@ namespace HealthCheck.Core.Util
                 }
 
                 var valueType = type.GetGenericArguments()[0];
+                if (valueType.IsEnum && input == "[null]")
+                {
+                    return null;
+                }
+
                 var convertedValue = ConvertStringTo(valueType, input);
                 var nullableType = typeof(Nullable<>).MakeGenericType(valueType);
                 var resultNullable = Activator.CreateInstance(nullableType, convertedValue);
@@ -123,7 +128,6 @@ namespace HealthCheck.Core.Util
                 {
                     return default;
                 }
-
                 return (T)Enum.Parse(inputType, input);
             }
             else if (inputType.IsGenericType

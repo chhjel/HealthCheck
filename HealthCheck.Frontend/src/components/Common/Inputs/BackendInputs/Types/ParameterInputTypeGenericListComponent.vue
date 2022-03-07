@@ -209,6 +209,9 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
 .handle-icon {
     cursor: grab;
 }
+.parameter-list-input {
+    background: none;
+}
 </style>
 
 <style>

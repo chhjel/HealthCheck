@@ -126,12 +126,22 @@ namespace HealthCheck.Core.Attributes
         /// </summary>
         public static List<object> GetPossibleValues(Type parameterType)
         {
-            // Enums
+            Type enumType = null;
             if (parameterType.IsEnum)
             {
-                var isFlags = EnumUtils.IsTypeEnumFlag(parameterType);
+                enumType = parameterType;
+            }
+            else if(parameterType.IsNullable() && parameterType.GenericTypeArguments[0].IsEnum)
+            {
+                enumType = parameterType.GenericTypeArguments[0];
+            }
+
+            // Enums
+            if (enumType != null)
+            {
+                var isFlags = EnumUtils.IsTypeEnumFlag(enumType);
                 var list = new List<object>();
-                foreach (var value in Enum.GetValues(parameterType))
+                foreach (var value in Enum.GetValues(enumType))
                 {
                     if (isFlags && (int)value == 0) continue;
                     list.Add(value);
@@ -166,6 +176,11 @@ namespace HealthCheck.Core.Attributes
             if (type.IsEnum)
             {
                 typeName = EnumUtils.IsTypeEnumFlag(type) ? "FlaggedEnum" : "Enum";
+            }
+            else if (type.IsNullable() && type.GenericTypeArguments[0].IsEnum)
+            {
+                var enumType = type.GenericTypeArguments[0];
+                typeName = EnumUtils.IsTypeEnumFlag(enumType) ? "Nullable<FlaggedEnum>" : "Nullable<Enum>";
             }
             else if (type.IsGenericType
                 && type.GetGenericTypeDefinition() == typeof(List<>)

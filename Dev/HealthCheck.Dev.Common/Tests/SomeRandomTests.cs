@@ -56,13 +56,15 @@ namespace HealthCheck.Dev.Common.Tests
             decimal dec = 11.22m, decimal? nullableDec = null,
             double dbl = 22.33, double? nullableDbl = null,
             EnumTestType enm = EnumTestType.SecondValue,
+            EnumTestType? nullableEnm = EnumTestType.ThirdValue,
+            EnumTestType? nullableEnmDefNull = null,
             EnumFlagsTestType enumFlags = EnumFlagsTestType.A | EnumFlagsTestType.B | EnumFlagsTestType.C,
             byte[] byteArray = null, List<byte[]> listOfByteArray = null,
             string codeArea = "{ a: true }"
         )
         {
             return TestResult
-                .CreateSuccess($"Ok - enm:{enm}|Code:{codeArea}|date:{date}|nullableDate:{nullableDate}|dateOffset:{dateOffset}|nullableDateOffset:{nullableDateOffset}|")
+                .CreateSuccess($"Ok - enm:{enm}|nullableEnm:{nullableEnm}|nullableEnmDefNull:{nullableEnmDefNull}|Code:{codeArea}|date:{date}|nullableDate:{nullableDate}|dateOffset:{dateOffset}|nullableDateOffset:{nullableDateOffset}|")
                 .SetParametersFeedback(x => text == "all" ? "Some error here" : null)
                 .SetParameterFeedback(nameof(text), "Should not be empty pls", () => string.IsNullOrWhiteSpace(text));
         }
