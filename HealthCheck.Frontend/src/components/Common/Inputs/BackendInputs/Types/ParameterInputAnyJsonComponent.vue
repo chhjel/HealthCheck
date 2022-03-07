@@ -140,10 +140,14 @@ export default class ParameterInputAnyJsonComponent extends Vue {
         }
     }
 
+    get nullName(): string {
+        return this.config.NullName || 'NULL';
+    }
+
     get buttonText(): string {
         if (this.isNull)
         {
-            return `NULL`;
+            return this.nullName;
         }
         else
         {

@@ -28,6 +28,11 @@ namespace HealthCheck.Core.Attributes
         /// </summary>
         public HCUIHint UIHints { get; set; }
 
+        /// <summary>
+        /// Use to override the label/placeholder/name displayed for any null-value.
+        /// </summary>)
+        public string NullName { get; set; }
+
         private static readonly HCStringConverter _stringConverter = new();
 
         /// <summary>
@@ -109,6 +114,7 @@ namespace HealthCheck.Core.Attributes
                 Description = attr?.Description ?? "",
                 Nullable = isNullable,
                 NotNull = attr?.UIHints.HasFlag(HCUIHint.NotNull) == true,
+                NullName = attr?.NullName,
                 FullWidth = attr?.UIHints.HasFlag(HCUIHint.FullWidth) == true,
                 DefaultValue = defaultValue,
                 Flags = attr?.CreateFlags() ?? new List<string>(),

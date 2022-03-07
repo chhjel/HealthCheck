@@ -43,6 +43,11 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public bool NotNull { get; set; }
 
         /// <summary>
+        /// Use to override the label/placeholder/name displayed for any null-value.
+        /// </summary>)
+        public string NullName { get; set; }
+
+        /// <summary>
         /// Only affects generic lists. Does not allow new entries to be added, or existing entries to be changed.
         /// </summary>
         public bool ReadOnlyList { get; set; }

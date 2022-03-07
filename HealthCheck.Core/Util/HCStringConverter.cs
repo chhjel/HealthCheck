@@ -94,7 +94,7 @@ namespace HealthCheck.Core.Util
                 }
 
                 var valueType = type.GetGenericArguments()[0];
-                if (valueType.IsEnum && input == "[null]")
+                if (valueType.IsEnum && !Enum.GetValues(valueType).Cast<Enum>().Any(x => x.ToString() == input))
                 {
                     return null;
                 }

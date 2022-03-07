@@ -31,6 +31,9 @@ namespace HealthCheck.Core.Util.Models
         /// <summary></summary>)
         public string DefaultValue { get; set; }
 
+        /// <summary></summary>)
+        public string NullName { get; set; }
+
         /// <summary></summary>
         public List<string> Flags { get; set; }
 

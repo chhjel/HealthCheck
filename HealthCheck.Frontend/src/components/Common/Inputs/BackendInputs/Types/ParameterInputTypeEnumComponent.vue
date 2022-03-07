@@ -61,7 +61,7 @@ export default class ParameterInputTypeEnumComponent extends Vue {
             if (this.localValue == null || this.localValue.length == 0) {
                 if (this.isNullable && this.config.DefaultValue == null)
                 {
-                    this.localValue = this.config.DefaultValue || "[null]";
+                    this.localValue = this.config.DefaultValue || this.nullName;
                 }
                 else
                 {
@@ -75,13 +75,17 @@ export default class ParameterInputTypeEnumComponent extends Vue {
     get items(): Array<string> {
         if (this.isNullable)
         {
-            return ['[null]', ...this.config.PossibleValues];
+            return [this.nullName, ...this.config.PossibleValues];
         }
         return this.config.PossibleValues;
     }
 
     get isNullable(): boolean {
         return this.config.Nullable;
+    }
+
+    get nullName(): string {
+        return this.config.NullName || '[null]';
     }
 
     onChanged(): void {
