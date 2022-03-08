@@ -67,7 +67,11 @@ export default class ParameterInputTypeDateTimeComponent extends Vue {
     }
     
     get placeholderText(): string {
-        return (this.isNullable && this.localValue == null) ? "null" : "";
+        return (this.isNullable && this.localValue == null) ? this.nullName : "";
+    }
+
+    get nullName(): string {
+        return this.config.NullName || 'null';
     }
 
     /////////////////

@@ -1,6 +1,5 @@
 ﻿using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Config;
-using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Modules.Tests.Utils;
@@ -125,6 +124,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 PossibleValues = testParameter?.PossibleValues?.Select(x => stringConverter.ConvertToString(x))?.ToList(),
                 Type = type,
                 NotNull = testParameter.NotNull,
+                NullName = testParameter.NullName,
                 ReadOnlyList = testParameter.ReadOnlyList,
                 ShowTextArea = testParameter.ShowTextArea,
                 ShowCodeArea = testParameter.ShowCodeArea,

@@ -77,10 +77,14 @@ export default class ParameterInputTypeGuidComponent extends Vue {
     get placeholderText(): string {
         if (this.isNullable)
         {
-            return this.localValue == null || this.localValue.length == 0 ? "null" : "";
+            return this.localValue == null || this.localValue.length == 0 ? this.nullName : "";
         }
         return (this.localValue == null || this.localValue.length == 0)
             ? "00000000-0000-0000-0000-000000000000" : "";
+    }
+
+    get nullName(): string {
+        return this.config.NullName || 'null';
     }
     
     /////////////////

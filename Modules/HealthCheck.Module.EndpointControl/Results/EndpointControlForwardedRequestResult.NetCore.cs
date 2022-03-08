@@ -1,9 +1,13 @@
-﻿#if NETFULL
+﻿/* Todo
+#if NETCORE
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Extensions;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Models;
 using HealthCheck.Module.EndpointControl.Utils;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,9 +16,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web;
-using System.Web.Http.Controllers;
-using System.Web.Mvc;
 
 namespace HealthCheck.Module.EndpointControl.Results
 {
@@ -42,7 +43,7 @@ namespace HealthCheck.Module.EndpointControl.Results
         public virtual EndpointControlRequestResultMvc CreateMvcResult(ActionExecutingContext filterContext, object customProperties)
         {
             var properties = customProperties as EndpointControlForwardedRequestResultProperties;
-            Task.Run(() => ForwardMvcRequestAsync(filterContext.RequestContext.HttpContext.Request, properties));
+            Task.Run(() => ForwardMvcRequestAsync(filterContext.HttpContext.Request, properties));
 
             var result = new EndpointControlRequestResultMvc { UseBuiltInBlock = false };
             if (properties?.ReplaceOriginalResponse == true)
@@ -51,22 +52,8 @@ namespace HealthCheck.Module.EndpointControl.Results
                 {
                     Content = "",
                     ContentType = "text/plain",
-                    ContentEncoding = Encoding.UTF8
+                    //ContentEncoding = Encoding.UTF8
                 };
-            }
-            return result;
-        }
-
-        /// <inheritdoc />
-        public virtual EndpointControlRequestResultWebApi CreateWebApiResult(HttpActionContext actionContext, object customProperties)
-        {
-            var properties = customProperties as EndpointControlForwardedRequestResultProperties;
-            Task.Run(() => ForwardWebApiRequestAsync(actionContext.Request, properties));
-
-            var result = new EndpointControlRequestResultWebApi { UseBuiltInBlock = false };
-            if (properties?.ReplaceOriginalResponse == true)
-            {
-                result.Result = actionContext.Request.CreateResponse(HttpStatusCode.OK);
             }
             return result;
         }
@@ -104,7 +91,7 @@ namespace HealthCheck.Module.EndpointControl.Results
         /// <summary>
         /// Performs the forwarding.
         /// </summary>
-        protected virtual async Task ForwardWebApiRequestAsync(HttpRequestMessage request, EndpointControlForwardedRequestResultProperties options)
+        protected virtual async Task ForwardMvcRequestAsync(HttpRequest request, EndpointControlForwardedRequestResultProperties options)
         {
             if (request == null || options == null)
             {
@@ -115,44 +102,8 @@ namespace HealthCheck.Module.EndpointControl.Results
             {
                 var rawUrl = RequestUtils.GetUrl(request);
                 var url = CreateForwardUrl(rawUrl, options);
-                byte[] data = null;
-                if (request.Method.Method != "GET")
-                {
-                    using var stream = new MemoryStream();
-                    var context = (HttpContextBase)request.Properties["MS_HttpContext"];
-                    context.Request.InputStream.Seek(0, SeekOrigin.Begin);
-                    context.Request.InputStream.CopyTo(stream);
-                    data = stream.ToArray();
-                }
-                await ForwardRequest(request.Method.Method, null, request, options, url, data);
-            }
-            catch (Exception ex)
-            {
-                OnForwardWebApiRequestFailed(request, options, ex);
-            }
-        }
-
-        /// <summary>
-        /// If an exception is thrown during <see cref="ForwardWebApiRequestAsync"/> this is called.
-        /// </summary>
-        protected virtual void OnForwardWebApiRequestFailed(HttpRequestMessage request, EndpointControlForwardedRequestResultProperties options, Exception ex) {}
-
-        /// <summary>
-        /// Performs the forwarding.
-        /// </summary>
-        protected virtual async Task ForwardMvcRequestAsync(HttpRequestBase request, EndpointControlForwardedRequestResultProperties options)
-        {
-            if (request == null || options == null)
-            {
-                return;
-            }
-
-            try
-            {
-                var rawUrl = RequestUtils.GetUrl(request);
-                var url = CreateForwardUrl(rawUrl, options);
-                var data = (request.HttpMethod != "GET") ? RequestUtils.ReadRequestBody(request.InputStream) : null;
-                await ForwardRequest(request.HttpMethod, request, null, options, url, data);
+                var data = (request.Method != "GET") ? RequestUtils.ReadRequestBody(request.Body) : null;
+                await ForwardRequest(request.Method, request, options, url, data);
             }
             catch (Exception ex)
             {
@@ -163,14 +114,14 @@ namespace HealthCheck.Module.EndpointControl.Results
         /// <summary>
         /// If an exception is thrown during <see cref="ForwardMvcRequestAsync"/> this is called.
         /// </summary>
-        protected virtual void OnForwardMvcRequestAsyncFailed(HttpRequestBase request, EndpointControlForwardedRequestResultProperties options, Exception ex) { }
+        protected virtual void OnForwardMvcRequestAsyncFailed(HttpRequest request, EndpointControlForwardedRequestResultProperties options, Exception ex) { }
 
         private async Task ForwardRequest(string method,
-            HttpRequestBase mvcRequest, HttpRequestMessage apiRequest,
+            HttpRequest mvcRequest,
             EndpointControlForwardedRequestResultProperties options, string url, byte[] data)
         {
             var client = new WebClient();
-            ConfigureWebClientInternal(client, mvcRequest, apiRequest, options);
+            ConfigureWebClientInternal(client, mvcRequest, options);
 
             if (method == "GET")
             {
@@ -206,8 +157,7 @@ namespace HealthCheck.Module.EndpointControl.Results
         }
 
         private void ConfigureWebClientInternal(WebClient client,
-            HttpRequestBase mvcRequest,
-            HttpRequestMessage apiRequest,
+            HttpRequest mvcRequest,
             EndpointControlForwardedRequestResultProperties options)
         {
             var requestDetails = new RequestDetails();
@@ -215,14 +165,8 @@ namespace HealthCheck.Module.EndpointControl.Results
             if (mvcRequest != null)
             {
                 requestDetails.RawUrl = RequestUtils.GetUrl(mvcRequest);
-                requestDetails.Headers = mvcRequest.Headers.AllKeys.ToDictionaryIgnoreDuplicates(x => x, x => mvcRequest.Headers[x]);
+                requestDetails.Headers = mvcRequest.Headers.Keys.ToDictionaryIgnoreDuplicates(x => x, x => mvcRequest.Headers[x].FirstOrDefault());
                 ConfigureMvcWebClient(client, mvcRequest, options);
-            }
-            else if (apiRequest != null)
-            {
-                requestDetails.RawUrl = RequestUtils.GetUrl(apiRequest);
-                requestDetails.Headers = apiRequest.Headers.ToDictionaryIgnoreDuplicates(x => x.Key, x => apiRequest.Headers.GetValues(x.Key).FirstOrDefault());
-                ConfigureWebApiWebClient(client, apiRequest, options);
             }
 
             ConfigureWebClient(client, requestDetails, options);
@@ -231,12 +175,7 @@ namespace HealthCheck.Module.EndpointControl.Results
         /// <summary>
         /// Perform any custom configuration on the webclient that forwards MVC requests here.
         /// </summary>
-        protected virtual void ConfigureMvcWebClient(WebClient client, HttpRequestBase request, EndpointControlForwardedRequestResultProperties options) { }
-
-        /// <summary>
-        /// Perform any custom configuration on the webclient that forwards WebApi requests here.
-        /// </summary>
-        protected virtual void ConfigureWebApiWebClient(WebClient client, HttpRequestMessage request, EndpointControlForwardedRequestResultProperties options) { }
+        protected virtual void ConfigureMvcWebClient(WebClient client, HttpRequest request, EndpointControlForwardedRequestResultProperties options) { }
 
         /// <summary>
         /// Perform any custom configuration on the webclient for both Mvc and WebApi here.
@@ -280,3 +219,4 @@ namespace HealthCheck.Module.EndpointControl.Results
     }
 }
 #endif
+*/

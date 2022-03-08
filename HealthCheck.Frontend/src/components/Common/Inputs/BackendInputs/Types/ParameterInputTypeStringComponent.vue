@@ -89,7 +89,11 @@ export default class ParameterInputTypeStringComponent extends Vue {
     }
 
     get placeholderText(): string {
-        return this.localValue == null ? "null" : "";
+        return this.localValue == null ? this.nullName : "";
+    }
+
+    get nullName(): string {
+        return this.config.NullName || 'null';
     }
 
     get isTextArea(): boolean {

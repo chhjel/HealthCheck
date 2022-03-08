@@ -36,18 +36,25 @@ namespace HealthCheck.Core.Modules.Tests.Attributes
         public UIHint UIHints { get; set; }
 
         /// <summary>
+        /// Use to override the label/placeholder/name displayed for any null-value.
+        /// </summary>)
+        public string NullName { get; set; }
+
+        /// <summary>
         /// Sets parameters options.
         /// </summary>
         /// <param name="target">Target parameter name.</param>
         /// <param name="name">New name of the property.</param>
         /// <param name="description">Description text that will be visible as a help text.</param>
         /// <param name="uiHints">Optional hints for display options.</param>
-        public RuntimeTestParameterAttribute(string target, string name, string description, UIHint uiHints = UIHint.None)
+        /// <param name="nullName">Use to override the label/placeholder/name displayed for any null-value.</param>
+        public RuntimeTestParameterAttribute(string target, string name, string description, UIHint uiHints = UIHint.None, string nullName = null)
         {
             Target = target;
             Name = name;
             Description = description;
             UIHints = uiHints;
+            NullName = nullName;
         }
 
         /// <summary>
@@ -57,11 +64,13 @@ namespace HealthCheck.Core.Modules.Tests.Attributes
         /// <param name="name">New name of the property.</param>
         /// <param name="description">Description text that will be visible as a help text.</param>
         /// <param name="uIHints">Optional hints for display options.</param>
-        public RuntimeTestParameterAttribute(string name = null, string description = null, UIHint uIHints = UIHint.None)
+        /// <param name="nullName">Use to override the label/placeholder/name displayed for any null-value.</param>
+        public RuntimeTestParameterAttribute(string name = null, string description = null, UIHint uIHints = UIHint.None, string nullName = null)
         {
             Name = name;
             Description = description;
             UIHints = uIHints;
+            NullName = nullName;
         }
 
         /// <summary>

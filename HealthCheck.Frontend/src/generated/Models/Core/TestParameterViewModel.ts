@@ -13,6 +13,7 @@ export interface TestParameterViewModel
 	DefaultValue: string;
 	PossibleValues: string[];
 	NotNull: boolean;
+	NullName: string;
 	ReadOnlyList: boolean;
 	ShowTextArea: boolean;
 	ShowCodeArea: boolean;

@@ -43,6 +43,12 @@ Vue.use(shadow);
 
 let moduleConfig = ((window as any).healthCheckModuleConfigs) as Array<ModuleConfig>;
 
+const loaderElement = document.getElementById('app-loader');
+if (loaderElement)
+{
+	loaderElement.parentNode?.removeChild(loaderElement);
+}
+
 if (document.getElementById("app") !== null)
 {
 	const router = createRouter(moduleConfig);

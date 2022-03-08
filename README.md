@@ -255,7 +255,7 @@ Supported parameter types:
 * `bool`, `bool?`
 * `DateTime`, `DateTime?`, `DateTimeOffset`, `DateTimeOffset?`
 * `TimeSpan`, `TimeSpan?`
-* `Enum` (-> select)
+* `Enum`, `Enum?` (-> select)
 * `Enum` with `[Flags]` (-> multiselect)
 * `Guid`, `Guid?`
 * `byte[]`, `HttpPostedFileBase` (.NET Framework), `IFormFile` (.NET Core) (-> file upload)
@@ -463,6 +463,7 @@ Can be applied to either the method itself using the `Target` property or the pa
 |Name|Name of the property. Defaults to a prettified name.|
 |Description|Description of the property. Shown as a help text and can contain html.|
 |UIHint|Options for parameter display can be set here. Read only lists, prevent null-values, text areas etc.|
+|NullName|Override "null"-placeholder values for nullable types if desired.|
 |DefaultValueFactoryMethod|For property types that cannot have default values (e.g. lists), use this to specify the name of a public static method in the same class as the method. The method should have the same return type as this parameter, and have zero parameters.|
 
 #### [ProxyRuntimeTests]

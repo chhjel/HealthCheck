@@ -93,9 +93,13 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
     get label(): string {
         if (this.isNullable && this.localValue == null)
         {
-            return "null";
+            return this.nullName;
         }
         return this.isTrue ? "Yes" : "No";
+    }
+
+    get nullName(): string {
+        return this.config.NullName || 'null';
     }
 
     get isNullable(): boolean {

@@ -16,6 +16,7 @@ export interface TestParameter
 	IsOut: boolean;
 	IsRef: boolean;
 	NotNull: boolean;
+	NullName: string;
 	ReadOnlyList: boolean;
 	ShowTextArea: boolean;
 	ShowCodeArea: boolean;

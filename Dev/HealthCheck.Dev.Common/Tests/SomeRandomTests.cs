@@ -44,25 +44,28 @@ namespace HealthCheck.Dev.Common.Tests
         [RuntimeTest]
         [RuntimeTestParameter(target: "textArea", "Text Area", "Testing a text area here", RuntimeTestParameterAttribute.UIHint.TextArea | RuntimeTestParameterAttribute.UIHint.FullWidth)]
         [RuntimeTestParameter(target: "codeArea", "Code Area", "Testing a code area here", RuntimeTestParameterAttribute.UIHint.CodeArea)]
+        [RuntimeTestParameter(target: "nullableEnm", "Nullable Enum", "Some description", nullName: "<any>")]
         public TestResult TestParameterTypes(
-            DateTime date, DateTime? nullableDate = null,
-            DateTimeOffset dateOffset = default, DateTimeOffset? nullableDateOffset = null,
+            DateTime date, [RuntimeTestParameter(nullName: "<no date>")] DateTime? nullableDate = null,
+            DateTimeOffset dateOffset = default, [RuntimeTestParameter(nullName: "<no datetimeoffset>")] DateTimeOffset? nullableDateOffset = null,
             string text = "abc",
             string textArea = "abc\ndef",
-            int number = 123, int? nullableNumber = 321,
-            long largeNumber = 214124112412123L, long? nullableLargeNumber = 214124112412123L,
-            bool boolean = true, bool? nullableBool = null,
-            float flooot = 12.34f, float? nullableFlooot = null,
-            decimal dec = 11.22m, decimal? nullableDec = null,
-            double dbl = 22.33, double? nullableDbl = null,
+            int number = 123, [RuntimeTestParameter(nullName: "<no number pls>")] int? nullableNumber = 321,
+            long largeNumber = 214124112412123L, [RuntimeTestParameter(nullName: "No long thank you")] long? nullableLargeNumber = 214124112412123L,
+            bool boolean = true, [RuntimeTestParameter(nullName: "Maybe?")] bool? nullableBool = null,
+            float flooot = 12.34f, [RuntimeTestParameter(nullName: "FLOAT!")] float? nullableFlooot = null,
+            decimal dec = 11.22m, [RuntimeTestParameter(nullName: "default")] decimal? nullableDec = null,
+            double dbl = 22.33, [RuntimeTestParameter(nullName: "(nope)")] double? nullableDbl = null,
             EnumTestType enm = EnumTestType.SecondValue,
+            [RuntimeTestParameter(nullName: "What's this?")] EnumTestType? nullableEnm = EnumTestType.ThirdValue,
+            [RuntimeTestParameter(nullName: "No null pls")] EnumTestType? nullableEnmDefNull = null,
             EnumFlagsTestType enumFlags = EnumFlagsTestType.A | EnumFlagsTestType.B | EnumFlagsTestType.C,
             byte[] byteArray = null, List<byte[]> listOfByteArray = null,
             string codeArea = "{ a: true }"
         )
         {
             return TestResult
-                .CreateSuccess($"Ok - enm:{enm}|Code:{codeArea}|date:{date}|nullableDate:{nullableDate}|dateOffset:{dateOffset}|nullableDateOffset:{nullableDateOffset}|")
+                .CreateSuccess($"Ok - enm:{enm}|nullableEnm:{nullableEnm}|nullableEnmDefNull:{nullableEnmDefNull}|Code:{codeArea}|date:{date}|nullableDate:{nullableDate}|dateOffset:{dateOffset}|nullableDateOffset:{nullableDateOffset}|")
                 .SetParametersFeedback(x => text == "all" ? "Some error here" : null)
                 .SetParameterFeedback(nameof(text), "Should not be empty pls", () => string.IsNullOrWhiteSpace(text));
         }

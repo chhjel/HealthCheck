@@ -146,8 +146,12 @@ export default class ParameterInputPickReferenceComponent extends Vue {
         else return this.selectedChoice.Name;
     }
 
+    get nullName(): string {
+        return this.config.NullName || '[null]';
+    }
+
     get selectedChoiceLabel(): string {
-        if (this.selectedChoice == null) return '[null]';
+        if (this.selectedChoice == null) return this.nullName;
         else return this.selectedChoice.Name;
     }
 
@@ -156,7 +160,7 @@ export default class ParameterInputPickReferenceComponent extends Vue {
         let values = Array<TestParameterReferenceChoiceViewModel>();
         values.push({
             Id: '',
-            Name: '[null]',
+            Name: this.nullName,
             Description: ''
         });
 
