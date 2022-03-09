@@ -59,11 +59,11 @@ namespace HealthCheck.Module.DataExport.Services
 
                 var stream = GetStreamById(streamId);
                 int maxDepth = stream.MaxMemberDiscoveryDepth ?? 4;
-                var ignoredTypes = new HashSet<Type>(stream.IgnoredMemberTypes ?? Enumerable.Empty<Type>());
-                var ignoredPrefixes = stream.IgnoredMemberPathPrefixes?.ToArray() ?? Array.Empty<string>();
+                var memberFilter = stream.IncludedMemberFilter ?? new HCMemberFilterRecursive();
+                memberFilter.PropertyFilter ??= new HCPropertyFilter();
+                memberFilter.TypeFilter ??= new HCTypeFilter();
 
-                model.Members = HCReflectionUtils.GetTypeMembersRecursive(itemType, maxLevels: maxDepth, ignoredTypes: ignoredTypes)
-                    .Where(x => !ignoredPrefixes.Any(p => x.Name.StartsWith(p)))
+                model.Members = HCReflectionUtils.GetTypeMembersRecursive(itemType, maxDepth, stream.IncludedMemberFilter)
                     .Select(x => new HCDataExportStreamItemDefinitionMember
                     {
                         Name = x.Name,

@@ -40,17 +40,14 @@ namespace HealthCheck.Module.DataExport.Abstractions
         /// <inheritdoc />
         public virtual Type CustomParametersType { get; }
 
-        /// <inheritdoc />
-        public virtual IEnumerable<string> IgnoredMemberPathPrefixes { get; }
-
-        /// <inheritdoc />
-        public virtual IEnumerable<Type> IgnoredMemberTypes { get; }
-
         /// <summary>
         /// Max depth to search for members recursively.
         /// <para>Defaults to 4.</para>
         /// </summary>
         public virtual int? MaxMemberDiscoveryDepth { get; } = 4;
+
+        /// <inheritdoc />
+        public virtual HCMemberFilterRecursive IncludedMemberFilter { get; } = new();
 
         /// <inheritdoc />
         public bool SupportsQuery => Method != IHCDataExportStream.QueryMethod.EnumerableWithCustomFilter;

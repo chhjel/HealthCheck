@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -53,21 +54,15 @@ namespace HealthCheck.Module.DataExport.Abstractions
         int ExportBatchSize { get; }
 
         /// <summary>
-        /// Optional list of member path prefixes to ignore.
-        /// <para>E.g. <c>Name</c> or <c>Contact.FullName</c>.</para>
-        /// </summary>
-        IEnumerable<string> IgnoredMemberPathPrefixes { get; }
-
-        /// <summary>
-        /// Optional list of member types ignore.
-        /// </summary>
-        IEnumerable<Type> IgnoredMemberTypes { get; }
-
-        /// <summary>
         /// Max depth to search for members recursively.
         /// <para>Defaults to 4 if not specified.</para>
         /// </summary>
-        int? MaxMemberDiscoveryDepth { get; }
+        int? MaxMemberDiscoveryDepth { get;  }
+
+        /// <summary>
+        /// Optional filter what members to include.
+        /// </summary>
+        HCMemberFilterRecursive IncludedMemberFilter { get; }
 
         /// <summary>
         /// Defines what method to use for querying.

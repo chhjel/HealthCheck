@@ -162,47 +162,52 @@ namespace HealthCheck.Core.Util
 			/// Type of the member.
 			/// </summary>
 			public Type Type { get; set; }
-		}
+
+			/// <summary></summary>
+			public override string ToString() => $"{Name} [{Type.Name}]";
+        }
 
 		/// <summary>
 		/// Get a list of members recursively.
 		/// <para><see cref="TypeMemberData.Name" /> will be the dotted path to the member.</para>
 		/// <para>Ignores members that can't be read and also indexers.</para>
 		/// </summary>
-		public static List<TypeMemberData> GetTypeMembersRecursive(Type type, string path = null, int currentLevel = 0, int maxLevels = 4,
-			List<TypeMemberData> worklist = null, HashSet<Type> ignoredTypes = null)
+		public static List<TypeMemberData> GetTypeMembersRecursive(Type type, int maxDepth, HCMemberFilterRecursive filter = null)
+			=> GetTypeMembersRecursive(type, null, 0, maxDepth, null, filter);
+
+		private static List<TypeMemberData> GetTypeMembersRecursive(Type type, string path = null, int currentDepth = 0, int maxDepth = 4,
+			List<TypeMemberData> worklist = null, HCMemberFilterRecursive filter = null)
 		{
 			if (type == null) return new();
 
 			var paths = worklist ?? new List<TypeMemberData>();
-			if (currentLevel >= maxLevels) return paths;
+			if (currentDepth >= maxDepth) return paths;
 
-			ignoredTypes ??= new();
-			//ignoredTypes.Add(type);
-
-			bool allowRecurseType(Type type)
+            static bool allowRecurseType(Type type)
 			{
-				return !ignoredTypes.Contains(type)
-					&& !ignoredTypes.Any(t => t.IsAssignableFrom(type))
-					&& !type.IsSpecialName
+				var genericTypeDef = type.IsGenericType ? type.GetGenericTypeDefinition() : null;
+				return !type.IsSpecialName
 					&& !type.IsValueType
 					&& !type.IsPrimitive
 					&& !type.IsArray
 					&& type.Namespace?.StartsWith("System.") != true
 					&& type.Namespace != "System"
-					&& type.Module.ScopeName != "CommonLanguageRuntimeLibrary"
-					&& !(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
-					&& !(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-					&& !(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ICollection<>));
+					&& type.Module.ScopeName != "CommonLanguageRuntimeLibrary";
 			}
 
 			var bindingFlags = BindingFlags.Public | BindingFlags.Instance;
 			var props = type.GetProperties(bindingFlags);
 			foreach (var prop in props)
 			{
-				paths.Add(new TypeMemberData
+				var name = $"{(path == null ? "" : $"{path}.")}{prop.Name}";
+				if (filter?.AllowMember(prop, name) == false)
+                {
+                    continue;
+                }
+
+                paths.Add(new TypeMemberData
 				{
-					Name = $"{(path == null ? "" : $"{path}.")}{prop.Name}",
+					Name = name,
 					Type = prop.PropertyType
 				});
 
@@ -213,16 +218,22 @@ namespace HealthCheck.Core.Util
 					&& prop.GetCustomAttribute<CompilerGeneratedAttribute>() == null
 					&& prop.GetIndexParameters()?.Any() != true)
 				{
-					GetTypeMembersRecursive(prop.PropertyType, $"{(string.IsNullOrWhiteSpace(path) ? "" : $"{path}.")}{prop.Name}", currentLevel + 1, maxLevels, paths, ignoredTypes);
+					GetTypeMembersRecursive(prop.PropertyType, $"{(string.IsNullOrWhiteSpace(path) ? "" : $"{path}.")}{prop.Name}", currentDepth + 1, maxDepth, paths, filter);
 				}
 			}
 
 			var fields = type.GetFields();
 			foreach (var field in fields)
 			{
-				paths.Add(new TypeMemberData
+				var name = $"{(path == null ? "" : $"{path}.")}{field.Name}";
+				if (filter?.AllowMember(field, name) == false)
 				{
-					Name = $"{(path == null ? "" : $"{path}.")}{field.Name}",
+                    continue;
+                }
+
+                paths.Add(new TypeMemberData
+				{
+					Name = name,
 					Type = field.FieldType
 				});
 
@@ -230,7 +241,7 @@ namespace HealthCheck.Core.Util
 					&& allowRecurseType(field.FieldType)
 					&& field.GetCustomAttribute<CompilerGeneratedAttribute>() == null)
 				{
-					GetTypeMembersRecursive(field.FieldType, $"{(string.IsNullOrWhiteSpace(path) ? "" : $"{path}.")}{field.Name}", currentLevel + 1, maxLevels, paths, ignoredTypes);
+					GetTypeMembersRecursive(field.FieldType, $"{(string.IsNullOrWhiteSpace(path) ? "" : $"{path}.")}{field.Name}", currentDepth + 1, maxDepth, paths, filter);
 				}
 			}
 
