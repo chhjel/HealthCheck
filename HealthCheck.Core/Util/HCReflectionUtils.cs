@@ -262,14 +262,14 @@ namespace HealthCheck.Core.Util
 				found = false;
 				if (instance == null) return null;
 
-				var prop = instance.GetType().GetProperty(membName);
+				var prop = GetLowestProperty(instance.GetType(), membName);
 				if (prop != null && prop.CanRead && prop.GetIndexParameters()?.Any() != true)
 				{
 					found = true;
 					return prop.GetValue(instance);
 				}
 
-				var field = instance.GetType().GetField(membName);
+				var field = GetLowestField(instance.GetType(), membName);
 				if (field != null)
 				{
 					found = true;
@@ -292,6 +292,41 @@ namespace HealthCheck.Core.Util
 			}
 
             return getValue(path, out _);
+		}
+
+
+		/// <summary>
+		/// Get the lowest defined property on the given type with the given name.
+		/// </summary>
+		public static PropertyInfo GetLowestProperty(Type type, string name)
+		{
+			while (type != null)
+			{
+				var property = type.GetProperty(name, BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance);
+				if (property != null)
+				{
+					return property;
+				}
+				type = type.BaseType;
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// Get the lowest defined field on the given type with the given name.
+		/// </summary>
+		public static FieldInfo GetLowestField(Type type, string name)
+		{
+			while (type != null)
+			{
+				var field = type.GetField(name, BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance);
+				if (field != null)
+				{
+					return field;
+				}
+				type = type.BaseType;
+			}
+			return null;
 		}
 
 		private static object TryGetMemberValue(Type type, object instance, string memberName)
