@@ -1088,6 +1088,8 @@ public class MyDataExportStreamA : HCDataExportStreamBase<MyModel>
     // public override object AllowedAccessRoles => RuntimeTestAccessRole.WebAdmins;
     // Optional stream categories
     // public override List<string> Categories => null;
+    // Optionally ignore members on model:
+    // public override HCMemberFilterRecursive IncludedMemberFilter { get; } = new HCMemberFilterRecursive { ... }
 
     // Get queryable
     protected override Task<IQueryable<MyModel>> GetQueryableItemsAsync()
