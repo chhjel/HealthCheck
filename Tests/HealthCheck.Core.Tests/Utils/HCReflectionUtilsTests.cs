@@ -56,10 +56,11 @@ namespace HealthCheck.Core.Tests.Extensions
         {
             var filter = new HCMemberFilterRecursive()
             {
-                IgnoreMembersDeclaredInTypes = new[] { typeof(TestSubjectLevel3) }
+                IgnoreMembersDeclaredInTypes = new[] { typeof(TestSubjectRootBase) }
             };
             var members = HCReflectionUtils.GetTypeMembersRecursive(typeof(TestSubjectRoot), 4, filter);
-            Assert.DoesNotContain(members.Select(x => x.Name), x => x.StartsWith($".{nameof(TestSubjectLevel3)}."));
+            Assert.DoesNotContain("PropRoot1", members.Select(x => x.Name));
+            Assert.DoesNotContain("PropRoot2", members.Select(x => x.Name));
         }
 
         [Fact]
