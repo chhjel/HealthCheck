@@ -302,7 +302,7 @@ namespace HealthCheck.Core.Util
 		{
 			while (type != null)
 			{
-				var property = type.GetProperty(name, BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance);
+				var property = type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(x => x.Name == name);
 				if (property != null)
 				{
 					return property;
@@ -319,7 +319,7 @@ namespace HealthCheck.Core.Util
 		{
 			while (type != null)
 			{
-				var field = type.GetField(name, BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance);
+				var field = type.GetFields(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(x => x.Name == name);
 				if (field != null)
 				{
 					return field;
