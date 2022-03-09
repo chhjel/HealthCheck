@@ -873,6 +873,7 @@ export default class DataExportPageComponent extends Vue {
         this.customParameters = {};
         this.valueFormatterConfigs = {};
         this.customColumns = {};
+        this.selectedFormatHeader = null;
     }
 
     loadStreamDefinitions(): void {
