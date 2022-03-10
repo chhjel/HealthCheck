@@ -28,7 +28,8 @@
             :parameterDetailContext="parameterDetailContext"
             :referenceValueFactoryConfig="referenceValueFactoryConfig"
             @isAnyJson="notifyIsAnyJson()"
-            v-on:disableInputHeader="disableInputHeader">
+            v-on:disableInputHeader="disableInputHeader"
+            ref="inputComp">
         </component>
 
         <div class="parameter-footer" v-if="hasFeedback">
@@ -133,6 +134,20 @@ export default class BackendInputComponent extends Vue {
 
     mounted(): void {
         this.updateLocalValue();
+        if (this.config && this.config.DefaultValue)
+        {
+            let def = this.config.DefaultValue;
+            // Any of the subcomponents may have a method with the signature: public formatDefaultValue(val: string): string | null 
+            const formatterMethod = (<any>this.inputComponent).formatDefaultValue;
+            if (formatterMethod)
+            {
+                def = formatterMethod(def);
+            }
+            if (def != null)
+            {
+                this.localValue = def;
+            }
+        }
         this.emitLocalValue();
 
         if (this.isListItem)
@@ -156,6 +171,9 @@ export default class BackendInputComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get inputComponent(): Vue {
+        return this.$refs.inputComp as Vue;
+    }
     get testsOptions(): TestModuleOptions {
         return this.$store.state.tests.options;
     }

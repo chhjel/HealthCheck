@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Attributes;
 using HealthCheck.Module.DataExport.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -49,15 +50,22 @@ namespace HealthCheck.Dev.Common.DataExport
 
         public class Parameters
         {
+            public DateTimeOffset DateTimeOffsetTest { get; set; }
+            public DateTime DateTimeTest { get; set; }
+            public DateTimeOffset DateTimeOffsetTestWDef { get; set; } = DateTimeOffset.Now.AddDays(-60);
+            public DateTime DateTimeTestWDef { get; set; } = DateTime.Now.AddDays(-30);
+            public DateTimeOffset DateTimeOffsetTestNow { get; set; } = DateTimeOffset.Now;
+            public DateTime DateTimeTestMin { get; set; } = DateTime.MinValue;
             public string StringFilter { get; set; }
+            public string StringFilterWDef { get; set; } = "Default stringPls";
             public int? MinValue { get; set; }
             [HCCustomProperty(NullName = "<9001>")]
-            public int? MaxValue { get; set; }
-            public TestEnum SomeEnum { get; set; }
+            public int? MaxValue { get; set; } = 900001;
+            public TestEnum SomeEnum { get; set; } = TestEnum.ValueA;
             [HCCustomProperty(NullName = "<Any>")]
-            public TestEnum? SomeNullableEnum { get; set; }
+            public TestEnum? SomeNullableEnum { get; set; } = TestEnum.ValueB;
             public List<TestEnum> SomeEnumList { get; set; }
-            public float SomeFloat { get; set; }
+            public float SomeFloat { get; set; } = 12.34f;
             public float? SomeNullableFloat { get; set; }
         }
         public enum TestEnum
