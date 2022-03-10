@@ -21,6 +21,8 @@ export interface HCIntegratedProfileConfig
 	TotpElevationLogic: ElevateTotpDelegate;
 	ShowTotpElevation: boolean;
 	TotpElevationEnabled: boolean;
+	CurrentTotpCodeExpirationTime: Date;
+	TotpCodeLifetime: number;
 	AddTotpLogic: AddTotpDelegate;
 	ShowAddTotp: boolean;
 	AddTotpEnabled: boolean;

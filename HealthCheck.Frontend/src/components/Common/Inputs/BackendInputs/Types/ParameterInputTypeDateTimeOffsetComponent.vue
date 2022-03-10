@@ -41,6 +41,10 @@ export default class ParameterInputTypeDateTimeOffsetComponent extends Vue {
         this.updateLocalValue();
     }
 
+    public formatDefaultValue(val: string): string | null {
+        return DateUtils.FormatDate(new Date(val), 'yyyy-MM-ddThh:mm:ss');;
+    }
+
     validateValue(): void {
         if (this.localValue == null || this.localValue === '') {
             if (this.isNullable)
@@ -93,5 +97,5 @@ export default class ParameterInputTypeDateTimeOffsetComponent extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 </style>
