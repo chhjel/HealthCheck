@@ -1,5 +1,6 @@
 ﻿using HealthCheck.Core.Models;
 using Newtonsoft.Json;
+using System;
 using System.Threading.Tasks;
 
 namespace HealthCheck.WebUI.Models
@@ -50,6 +51,17 @@ namespace HealthCheck.WebUI.Models
         /// </summary>
         public bool ShowTotpElevation { get; set; } = true;
         [JsonProperty] internal bool TotpElevationEnabled => ShowTotpElevation && TotpElevationLogic != null;
+
+        /// <summary>
+        /// Optionally set to show a progressbar for when elevation totp codes expire.
+        /// </summary>
+        public DateTimeOffset? CurrentTotpCodeExpirationTime { get; set; }
+
+        /// <summary>
+        /// Optionally configure lifetime of totp codes for progress bar.
+        /// <para>Defaults to 30 seconds.</para>
+        /// </summary>
+        public int TotpCodeLifetime { get; set; } = 30;
 
         /// <summary>
         /// If set, allows registering the users TOTP binding from the profile page.

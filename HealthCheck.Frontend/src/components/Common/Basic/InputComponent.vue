@@ -1,6 +1,6 @@
 <!-- src/components/Common/Basic/InputComponent.vue -->
 <template>
-    <div class="input-component">
+    <div class="input-component" :class="{ 'loading': loading }">
         <div class="input-component--header" v-if="showHeader">
             <div class="input-component--header-name">{{ name }}</div>
             <v-icon small v-if="hasDescription"
@@ -19,7 +19,6 @@
             :disabled="disabled"
             :type="type"
             :clearable="clearable">
-
             <v-tooltip slot="append-outer" bottom v-if="showActionIcon">
                 <v-icon slot="activator" @click="onActionIconClicked">{{ actionIcon }}</v-icon>
                 Insert placeholder
@@ -39,6 +38,13 @@
                 Insert placeholder
             </v-tooltip>
         </v-textarea>
+        
+        <v-progress-linear v-if="loading"
+            class="mt-0"
+            :value="loadingProgress"
+            :color="loadingColor"
+            :height="loadingHeight"
+        ></v-progress-linear>
 
         <div class="input-component--error" v-if="error != null && error.length > 0">{{ error }}</div>
     </div>
@@ -81,6 +87,18 @@ export default class InputComponent extends Vue
     
     @Prop({ required: false, default: false })
     showDescriptionOnStart!: boolean;
+    
+    @Prop({ required: false, default: false })
+    loading!: boolean;
+    
+    @Prop({ required: false, default: 0 })
+    loadingProgress!: number;
+    
+    @Prop({ required: false, default: 'success' })
+    loadingColor!: string;
+    
+    @Prop({ required: false, default: 4 })
+    loadingHeight!: number;
 
     showDescription: boolean = false;
     currentValue: string = '';
@@ -192,6 +210,11 @@ export default class InputComponent extends Vue
         margin-left: 2px;
         font-weight: 600;
         color: var(--v-error-base) !important;
+    }
+
+    &.loading {
+        .v-text-field__details { display: none; }
+        .v-input__slot { margin-bottom: 0; }
     }
 }
 </style>

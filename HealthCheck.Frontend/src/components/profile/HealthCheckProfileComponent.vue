@@ -268,6 +268,9 @@
                         v-model="totpElevateCode"
                         :disabled="disableTotpElevate"
                         :clearable="true"
+                        :loading="show2FACodeExpirationTime"
+                        :loadingProgress="twoFactorInputProgress"
+                        :loadingColor="twoFactorInputColor"
                     ></input-component>
 
                     <v-btn
@@ -315,7 +318,7 @@
                 <v-card-text>
                     <p>Scan the QR code with an authenticator app</p>
                     <canvas ref="qrCodeCanvas"></canvas>
-                    <p>Or optionally enter this secret manually in your app of choice: <code>{{ registerTotpSecret }}</code></p>
+                    <p v-if="registerTotpSecret">Or optionally enter this secret manually in your app of choice: <code>{{ registerTotpSecret }}</code></p>
 
                     <input-component
                         name="Code from authenticator"
@@ -446,6 +449,8 @@ export default class HealthCheckProfileComponent extends Vue
     totpElevateSuccessMessage: string = '';
     totpElevateCode: string = '';
     hasElevatedTotp: boolean | null = null;
+    current2FACodeProgress: number = 0;
+    twoFactorIntervalId: number = 0;
 
     totpAddLoadStatus: FetchStatus = new FetchStatus();
     addTotpDialogVisible: boolean = false;
@@ -488,6 +493,11 @@ export default class HealthCheckProfileComponent extends Vue
     mounted(): void
     {
         this.generateQrCode();
+        this.twoFactorIntervalId = setInterval(this.update2FAProgress, 1000);
+    }
+
+    beforeDestroy(): void {
+        clearInterval(this.twoFactorIntervalId);
     }
 
     ////////////////
@@ -543,6 +553,28 @@ export default class HealthCheckProfileComponent extends Vue
         return '';
     }
 
+    get show2FACodeExpirationTime(): boolean {
+        return this.profileOptions && !!this.profileOptions.CurrentTotpCodeExpirationTime;
+    }
+
+    get twoFactorInputProgress(): number {
+        return this.current2FACodeProgress;
+    }
+
+    get twoFactorInputColor(): string {
+        if (this.twoFactorInputProgress < 20)
+        {
+            return 'error';
+        }
+        else if (this.twoFactorInputProgress < 35)
+        {
+            return 'warning'
+        }
+        else {
+            return 'success';
+        }
+    }
+
     get disableWebAuthnAdd(): boolean {
         return this.hasRegisteredWebAuthn === true || this.webAuthnAddLoadStatus.inProgress;
     }
@@ -568,6 +600,27 @@ export default class HealthCheckProfileComponent extends Vue
     ////////////////
     //  METHODS  //
     //////////////
+    update2FAProgress(): void {
+        if (!this.show2FACodeExpirationTime)
+        {
+            return;
+        }
+
+        const expirationTime = this.profileOptions.CurrentTotpCodeExpirationTime;
+        const initialDate = new Date(expirationTime || '');
+        const lifetime = this.profileOptions.TotpCodeLifetime;
+        let mod = (((new Date().getTime() - initialDate.getTime()) / 1000) % lifetime);
+        if (mod < 0)
+        {
+            mod = mod + lifetime;
+        }
+
+        const timeLeft = lifetime - mod;
+        const percentage = timeLeft / lifetime;
+        this.current2FACodeProgress = percentage * 100;
+    }
+
+
     elevateTotp(): void {
         this.totpElevateSuccessMessage = '';
         this.service.ElevateTotp(this.totpElevateCode, this.totpElevateLoadStatus,

@@ -38,7 +38,6 @@ using HealthCheck.Dev.Common.Tests;
 using HealthCheck.Module.DataExport;
 using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Exporter.Excel;
-using HealthCheck.Module.DataExport.Exporters;
 using HealthCheck.Module.DevModule;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Module;
@@ -277,6 +276,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                 // TOTP: Elevate
                 ShowTotpElevation = !string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString(totpKey))
                     && string.IsNullOrWhiteSpace(Request.HttpContext.Session.GetString("_dev_2fa_validated")),
+                CurrentTotpCodeExpirationTime = HCMfaTotpUtil.GetCurrentTotpCodeExpirationTime(),
                 TotpElevationLogic = async (c) =>
                 {
                     await Task.Delay(100);
