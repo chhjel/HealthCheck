@@ -26,7 +26,7 @@ namespace HealthCheck.Core.Util
 			}
 			else
 			{
-				return IgnoredMemberPathPrefixes?.Any(p => recursiveMemberPath.StartsWith(p)) != false;
+				return IgnoredMemberPathPrefixes?.Any(p => recursiveMemberPath?.ToLower()?.StartsWith(p?.ToLower() ?? string.Empty) == true) != false;
 			}
 		}
 	}

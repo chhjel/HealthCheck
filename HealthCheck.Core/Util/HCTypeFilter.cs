@@ -65,7 +65,7 @@ namespace HealthCheck.Core.Util
 			{
 				return false;
 			}
-			else if (IgnoredMemberTypeNamespacePrefixes?.Any(p => type.Namespace.StartsWith(p)) == true)
+			else if (IgnoredMemberTypeNamespacePrefixes?.Any(p => type.Namespace?.ToLower()?.StartsWith(p?.ToLower() ?? string.Empty) == true) == true)
 			{
 				return false;
 			}
