@@ -6,6 +6,17 @@ import Vuetify from "vuetify";
 import ModuleConfig from "../models/Common/ModuleConfig";
 import shadow from 'vue-shadow-dom';
 
+// Disable all vuetify ripple effects
+// let overrideRipple = {
+// 	directives:{
+// 	  ripple:{
+// 		inserted: ()=> {
+// 		}
+// 	  }
+// 	}
+//    }
+//    Vue.mixin(overrideRipple);
+
 // Store
 import store from './index_store';
 

@@ -157,13 +157,13 @@ namespace HealthCheck.Core.Tests.Extensions
         }
 
         [Fact]
-        public void GetTypeMembersRecursive_IncludeGenericEnumerableMemberTypes_IgnoresTargets()
+        public void GetTypeMembersRecursive_IgnoreGenericEnumerableMemberTypes_IgnoresTargets()
         {
             var filter = new HCMemberFilterRecursive()
             {
                 TypeFilter = new HCTypeFilter
                 {
-                    IncludeGenericEnumerableMemberTypes = false
+                    IgnoreGenericEnumerableMemberTypes = true
                 }
             };
             var members = HCReflectionUtils.GetTypeMembersRecursive(typeof(TestSubjectRoot), 4, filter);

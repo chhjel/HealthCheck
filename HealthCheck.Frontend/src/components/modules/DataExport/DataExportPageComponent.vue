@@ -867,13 +867,14 @@ export default class DataExportPageComponent extends Vue {
         this.pageSize = 50;
         this.queryInput = '';
         this.includedProperties = [];
-        this.selectedPresetId = null;
         this.headers = [];
         this.headerNameOverrides = {};
         this.customParameters = {};
         this.valueFormatterConfigs = {};
         this.customColumns = {};
+        this.selectedPresetId = null;
         this.selectedFormatHeader = null;
+        this.selectedFormatterId = null;
     }
 
     loadStreamDefinitions(): void {
@@ -1070,7 +1071,8 @@ export default class DataExportPageComponent extends Vue {
             this.pageIndex = 0;
         }
 
-        this.service.QueryStreamPaged(this.createQueryPayload(), this.dataLoadStatus, {
+        const payload = this.createQueryPayload();
+        this.service.QueryStreamPaged(payload, this.dataLoadStatus, {
             onSuccess: (data) => {
                 if (data != null)
                 {

@@ -4,10 +4,10 @@ using System.Linq;
 
 namespace HealthCheck.Core.Util
 {
-    /// <summary>
-    /// Used to filter types.
-    /// </summary>
-    public class HCTypeFilter
+	/// <summary>
+	/// Used to filter types.
+	/// </summary>
+	public class HCTypeFilter
 	{
 		/// <summary>
 		/// Optional custom filter logic for members to include.
@@ -42,14 +42,14 @@ namespace HealthCheck.Core.Util
 		/// <summary>
 		/// If true, all generic members that inherit from IEnumerable will be ignored.
 		/// </summary>
-		public bool IncludeGenericEnumerableMemberTypes { get; set; }
+		public bool IgnoreGenericEnumerableMemberTypes { get; set; }
 
 		/// <summary>
 		/// Checks if a given property passes the filter.
 		/// </summary>
 		public virtual bool AllowType(Type type)
 		{
-			if (!IncludeGenericEnumerableMemberTypes && type.IsGenericType && typeof(System.Collections.IEnumerable).IsAssignableFrom(type))
+			if (IgnoreGenericEnumerableMemberTypes && type.IsGenericType && typeof(System.Collections.IEnumerable).IsAssignableFrom(type))
 			{
 				return false;
 			}

@@ -24,7 +24,9 @@ namespace HealthCheck.Dev.Common.DataExport
                 {
                     Id = $"#{x}",
                     Name = $"Item {x * 100}\nWith some newlines.\r\nAnd\tanother\n\rone\retc.",
-                    Value = x
+                    Value = x,
+                    ListOfStrings = Enumerable.Range(1, 5).Select(s => $"SubItem{s}").ToList(),
+                    ArrayOfInt = Enumerable.Range(55, 3).ToArray()
                 })
                 .Where(predicate);
 
@@ -44,6 +46,8 @@ namespace HealthCheck.Dev.Common.DataExport
             public string Id { get; set; }
             public string Name { get; set; }
             public int Value { get; set; }
+            public List<string> ListOfStrings { get; set; }
+            public int[] ArrayOfInt { get; set; }
         }
     }
 }
