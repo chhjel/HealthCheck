@@ -123,8 +123,8 @@
                                         <div>
                                             <h3>1. Select preset to export:</h3>
                                             <div class="simple-export-buttons">
-                                                <v-btn v-for="(preset, pIndex) in presets"
-                                                    :key="`item-d-${preset.Id}-preset-${pIndex}`"
+                                                <v-btn v-for="preset in presets"
+                                                    :key="`item-d-${preset.Id}-preset`"
                                                     :class="{ 'selected': (selectedPresetId == preset.Id) }"
                                                     @click.prevent="applyPreset(preset)"
                                                     depressed :color="(selectedPresetId == preset.Id) ? 'primary' : '#ddd'">
@@ -858,10 +858,6 @@ export default class DataExportPageComponent extends Vue {
         }
     }
 
-    initializeSimpleMode() {
-        this.loadPresets();
-    }
-
     resetFilter(): void {
         this.pageIndex = 0;
         this.pageSize = 50;
@@ -896,11 +892,6 @@ export default class DataExportPageComponent extends Vue {
             } else if (this.streamDefinitions.Streams.length > 0) {
                 this.setActiveStream(this.streamDefinitions.Streams[0]);   
             }
-        }
-
-        if (this.isSimpleExportMode)
-        {
-            this.initializeSimpleMode();
         }
     }
 
@@ -951,6 +942,10 @@ export default class DataExportPageComponent extends Vue {
                 && this.selectedPresetId == null)
             {
                 this.onLoadPresetsClicked();
+            }
+            else if (this.isSimpleExportMode)
+            {
+                this.loadPresets();
             }
         });
     }
