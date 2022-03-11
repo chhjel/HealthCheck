@@ -10,11 +10,12 @@
         "experimentalDecorators": true,
         "baseUrl": "./",
         "paths": {
-            "generated/*": ["src/generated/*"],
-            "components/*": ["src/components/*"],
-            "models/*": ["src/models/*"],
-            "services/*": ["src/services/*"],
-            "util/*": ["src/util/*"]
+			"@generated/*": ["src/generated/*"],
+            "@models/*": ["src/models/*"],
+			"@components/*": ["src/components/*"],
+			"@services/*": ["src/services/*"],
+			"@util/*": ["src/util/*"],
+			"src/*": ["src/*"]
         }
     },
     "include": [

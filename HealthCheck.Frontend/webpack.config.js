@@ -1,6 +1,6 @@
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+const { VueLoaderPlugin } = require("vue-loader");
   
 var path = require('path')
 var webpack = require('webpack')
@@ -80,11 +80,12 @@ module.exports = {
     extensions: ['.ts', '.js', '.vue', '.json'],
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
-      generated: path.join(__dirname, "src/generated"),
-      components: path.join(__dirname, "src/components"),
-      models: path.join(__dirname, "src/models"),
-      services: path.join(__dirname, "src/services"),
-      util: path.join(__dirname, "src/util")
+      "@generated": path.resolve(__dirname, "./src/generated"),
+      "@components": path.resolve(__dirname, "./src/components"),
+      "@models": path.resolve(__dirname, "./src/models"),
+      "@services": path.resolve(__dirname, "./src/services"),
+      "@util": path.resolve(__dirname, "./src/util"),
+      "src": path.resolve(__dirname, "./src")
     }
   },
   devServer: {
@@ -94,7 +95,7 @@ module.exports = {
   performance: {
     hints: false
   },
-  devtool: '#eval-source-map'
+  devtool: 'source-map'
 }
 
 const isProd = process.env.NODE_ENV === 'production';
