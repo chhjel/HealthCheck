@@ -259,7 +259,6 @@ import DateUtils from '@util/DateUtils';
 import LinqUtils from '@util/LinqUtils';
 import KeyArray from '@util/models/KeyArray';
 import KeyValuePair from '@models/Common/KeyValuePair';
-import { GetEventNotificationConfigsViewModel, IEventNotifier, EventSinkNotificationConfig, FilterMatchType, NotifierConfig, Dictionary, NotifierConfigOptionsItem, EventSinkNotificationConfigFilter, KnownEventDefinition } from '@generated/Models/Core/GetEventNotificationConfigsViewModel';
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
@@ -276,6 +275,7 @@ import { FetchStatus } from '@services/abstractions/HCServiceBase';
 import EventNotificationService from '@services/EventNotificationService';
 import ModuleConfig from '@models/Common/ModuleConfig';
 import ModuleOptions from '@models/Common/ModuleOptions';
+import { EventSinkNotificationConfig, FilterMatchType, GetEventNotificationConfigsViewModel, IEventNotifier, KnownEventDefinition } from "@models/modules/EventNotifications/EventNotificationModels";
 
 @Options({
     components: {
@@ -302,7 +302,7 @@ export default class EventNotificationsPageComponent extends Vue {
     deleteDefinitionDialogText: string = "";
     eventDefinitionIdToDelete: string | null = null;
 
-    data: GetEventNotificationConfigsViewModel | null = null;
+    datax: GetEventNotificationConfigsViewModel | null = null;
     currentConfig: EventSinkNotificationConfig | null = null;
 
     //////////////////
@@ -348,22 +348,22 @@ export default class EventNotificationsPageComponent extends Vue {
 
     get notifiers(): Array<IEventNotifier>
     {
-        return (this.data == null) ? [] : this.data.Notifiers;
+        return (this.datax == null) ? [] : this.datax.Notifiers;
     };
 
     get eventDefinitions(): Array<KnownEventDefinition>
     {
-        return (this.data == null) ? [] : this.data.KnownEventDefinitions;
+        return (this.datax == null) ? [] : this.datax.KnownEventDefinitions;
     };
 
     get placeholders(): Array<string>
     {
-        return (this.data == null) ? [] : this.data.Placeholders;
+        return (this.datax == null) ? [] : this.datax.Placeholders;
     };
 
     get configs(): Array<EventSinkNotificationConfig>
     {
-        let configs = (this.data == null) ? [] : this.data.Configs;
+        let configs = (this.datax == null) ? [] : this.datax.Configs;
         return configs;
     };
 
@@ -397,14 +397,14 @@ export default class EventNotificationsPageComponent extends Vue {
     }
 
     onDataRetrieved(data: GetEventNotificationConfigsViewModel): void {
-        this.data = data;
-        this.data.Configs.forEach(config => {
+        this.datax = data;
+        this.datax.Configs.forEach(config => {
             EventSinkNotificationConfigUtils.postProcessConfig(config, this.notifiers);
         });
 
         this.updateSelectionFromUrl();
         
-        this.data.Configs = this.data.Configs.sort(
+        this.datax.Configs = this.datax.Configs.sort(
             (a, b) => LinqUtils.SortByThenBy(a, b,
                 x => x.Enabled ? 1 : 0,
                 x => (x.LastChangedAt == null) ? 32503676400000 : x.LastChangedAt.getTime(),
@@ -431,22 +431,22 @@ export default class EventNotificationsPageComponent extends Vue {
     }
 
     onConfigSaved(config: EventSinkNotificationConfig): void {
-        if (this.data == null)
+        if (this.datax == null)
         {
             return;
         }
         EventSinkNotificationConfigUtils.postProcessConfig(config, this.notifiers);
 
-        const position = this.data.Configs.findIndex(x => x.Id == config.Id);
-        //this.data.Configs = this.data.Configs.filter(x => x.Id != config.Id);
+        const position = this.datax.Configs.findIndex(x => x.Id == config.Id);
+        //this.datax.Configs = this.datax.Configs.filter(x => x.Id != config.Id);
 
         if (position == -1)
         {
-            this.data.Configs.push(config);
+            this.datax.Configs.push(config);
         }
         else {
-            Vue.set(this.data.Configs, position, config);
-            // this.data.Configs.unshift(config);
+            Vue.set(this.datax.Configs, position, config);
+            // this.datax.Configs.unshift(config);
         }
         // this.$forceUpdate();
 
@@ -454,12 +454,12 @@ export default class EventNotificationsPageComponent extends Vue {
     }
 
     onConfigDeleted(config: EventSinkNotificationConfig): void {
-        if (this.data == null)
+        if (this.datax == null)
         {
             return;
         }
 
-        this.data.Configs = this.data.Configs.filter(x => x.Id != config.Id);
+        this.datax.Configs = this.datax.Configs.filter(x => x.Id != config.Id);
         this.hideCurrentConfig();
     }
 
@@ -541,9 +541,9 @@ export default class EventNotificationsPageComponent extends Vue {
         {
             this.service.DeleteDefintion(this.eventDefinitionIdToDelete, this.loadStatus, {
                 onSuccess: (r) => {
-                    if (this.data != null)
+                    if (this.datax != null)
                     {
-                        this.data.KnownEventDefinitions = this.data.KnownEventDefinitions
+                        this.datax.KnownEventDefinitions = this.datax.KnownEventDefinitions
                             .filter(x => x.EventId != this.eventDefinitionIdToDelete);
                     }
                 }
@@ -553,9 +553,9 @@ export default class EventNotificationsPageComponent extends Vue {
         {
             this.service.DeleteDefintions(this.loadStatus, {
                 onSuccess: (r) => {
-                    if (this.data != null)
+                    if (this.datax != null)
                     {
-                        this.data.KnownEventDefinitions = [];
+                        this.datax.KnownEventDefinitions = [];
                     }
                 }
             });
@@ -566,7 +566,7 @@ export default class EventNotificationsPageComponent extends Vue {
     //  EVENT HANDLERS  //
     /////////////////////    
     onAddNewConfigClicked(): void {
-        if (this.data == null)
+        if (this.datax == null)
         {
             return;
         }

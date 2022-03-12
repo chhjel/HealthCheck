@@ -31,7 +31,7 @@ interface FileDownloadData
 })
 export default class TestResultFileDownloadDataComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    resultData!: TestResultDataDumpViewModel;
     @Prop({ required: true })
     fullscreen!: boolean;
 
@@ -41,7 +41,7 @@ export default class TestResultFileDownloadDataComponent extends Vue {
       this.$emit('hideCopyButton');
       this.$emit('hideFullscreenButton');
 
-      this.fileData = JSON.parse(this.data.Data) as FileDownloadData;
+      this.fileData = JSON.parse(this.resultData.Data) as FileDownloadData;
     }
     
     get globalOptions(): FrontEndOptionsViewModel {

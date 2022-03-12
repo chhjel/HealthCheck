@@ -2,9 +2,9 @@
 <template>
     <div>
         <shadow-root v-if="useShadowDom">
-            <div v-html="data.Data"></div>
+            <div v-html="resultData.Data"></div>
         </shadow-root>
-        <div v-if="!useShadowDom" v-html="data.Data"></div>
+        <div v-if="!useShadowDom" v-html="resultData.Data"></div>
     </div>
 </template>
 
@@ -19,14 +19,14 @@ import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDa
 })
 export default class TestResultHtmlDataComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    resultData!: TestResultDataDumpViewModel;
     @Prop({ required: true })
     fullscreen!: boolean;
 
     useShadowDom: boolean = false;
 
     mounted(): void {
-        this.useShadowDom = this.data && this.data.Flags && this.data.Flags.includes("ShadowDom");
+        this.useShadowDom = this.resultData && this.resultData.Flags && this.resultData.Flags.includes("ShadowDom");
     }
 }
 </script>

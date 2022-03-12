@@ -7,7 +7,7 @@
         icon="priority_high"
         outline
         >
-            Unknown data type '{{data.Type}}'. No data component created for this type yet.
+            Unknown data type '{{datax.Type}}'. No data component created for this type yet.
         </v-alert>
     </div>
 </template>
@@ -23,7 +23,7 @@ import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDa
 })
 export default class UnknownDataTypeComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    datax!: TestResultDataDumpViewModel;
 
     mounted(): void {
     }

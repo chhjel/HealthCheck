@@ -16,7 +16,7 @@
           v-for="(url,index) in urls"
           :key="`result-data-item-${index}-${url}`"
           :src="url"
-          @click.native="showControls = !showControls"
+          @click="showControls = !showControls"
           v-on:load="onImageLoaded"
         >
           <div class="details" v-if="showControls">
@@ -41,7 +41,7 @@ import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDa
 })
 export default class TestResultImageUrlsDataComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    resultData!: TestResultDataDumpViewModel;
     @Prop({ required: true })
     fullscreen!: boolean;
 
@@ -53,7 +53,7 @@ export default class TestResultImageUrlsDataComponent extends Vue {
     }
 
     get urls(): Array<string> {
-      return this.data.Data.split(/\r\n|\r|\n/)
+      return this.resultData.Data.split(/\r\n|\r|\n/)
         .filter(x => x.trim().length > 0);
     }
 

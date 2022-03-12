@@ -34,7 +34,7 @@
 import IdUtils from "@util/IdUtils";
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
-import TestResultDataDumpViewModel from  'models/modules/TestSuite/TestResultDataDumpViewModel';
+import TestResultDataDumpViewModel from '@models/modules/TestSuite/TestResultDataDumpViewModel';
 import DateUtils from "@util/DateUtils";
 
 interface Timing {
@@ -54,7 +54,7 @@ interface TimingExt extends Timing {
 })
 export default class TestResultTimingsDataComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    resultData!: TestResultDataDumpViewModel;
     @Prop({ required: true })
     fullscreen!: boolean;
     
@@ -68,7 +68,7 @@ export default class TestResultTimingsDataComponent extends Vue {
     ];
 
     mounted(): void {
-      let rawTimings: Array<Timing> = JSON.parse(this.data.Data);
+      let rawTimings: Array<Timing> = JSON.parse(this.resultData.Data);
       let maxValue = Math.max(...rawTimings.map(x => x.EndMilliseconds));
 
       this.items = rawTimings.map(x => {

@@ -3,12 +3,12 @@
     <div>
         <v-text-field type="text"
             label="Name"
-            v-model="data.name"
+            v-model="datax.name"
             :disabled="readonly"
         ></v-text-field>
 
         <simple-date-time-component
-            v-model="data.ExpiresAt"
+            v-model="datax.ExpiresAt"
             :readonly="readonly"
             name="Expiration date"
             />
@@ -16,8 +16,8 @@
         <input-header-component name="Allow killswitch" description="If killswitch is allowed, the user of the token can choose to delete it at any time." />
         <v-checkbox 
             class="mt-2"
-            :label="(data.AllowKillswitch ? 'Allowed' : 'Not allowed')"
-            v-model="data.AllowKillswitch"
+            :label="(datax.AllowKillswitch ? 'Allowed' : 'Not allowed')"
+            v-model="datax.AllowKillswitch"
             :disabled="readonly" />
 
         <h3>Roles</h3>
@@ -141,7 +141,7 @@ export default class EditAccessTokenComponent extends Vue {
     }})
     value!: CreatedAccessData;
 
-    data: CreatedAccessData = {
+    datax: CreatedAccessData = {
         Name: 'New Token',
         Roles: [],
         Modules: [],
@@ -177,29 +177,29 @@ export default class EditAccessTokenComponent extends Vue {
     //  METHODS  //
     //////////////
     hasAccessToModule(moduleId: string): boolean {
-        return this.data.Modules.some(x => x.ModuleId == moduleId);
+        return this.datax.Modules.some(x => x.ModuleId == moduleId);
     }
     
     moduleOptionIsEnabled(moduleId: string, option: string): boolean {
-        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
+        const module = this.datax.Modules.filter(x => x.ModuleId == moduleId)[0];
         if (module == null) return false;
         return module.Options.some(x => x == option);
     }
     
     moduleCategoryIsEnabled(moduleId: string, category: string): boolean {
-        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
+        const module = this.datax.Modules.filter(x => x.ModuleId == moduleId)[0];
         if (module == null) return false;
         return module.Categories.some(x => x == category);
     }
 
     getModuleAccessIds(moduleId: string): Array<string> {
-        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
+        const module = this.datax.Modules.filter(x => x.ModuleId == moduleId)[0];
         if (module == null) return [];
         return module.Ids;
     }
 
     roleIsEnabled(roleId: string): boolean {
-        return this.data.Roles.some(x => x == roleId);
+        return this.datax.Roles.some(x => x == roleId);
     }
 
     notifyChange(): void {
@@ -211,18 +211,18 @@ export default class EditAccessTokenComponent extends Vue {
     /////////////////////
     @Watch('value')
     onValueChanged(): void {
-        this.data = this.value;
+        this.datax = this.value;
     }
 
     onRoleToggled(roleId: string, enabled: boolean): void {
         if (enabled && !this.roleIsEnabled(roleId))
         {
-            this.data.Roles.push(roleId);
+            this.datax.Roles.push(roleId);
         }
         else if (!enabled && this.roleIsEnabled(roleId))
         {
-            const index = this.data.Roles.findIndex(x => x == roleId);
-            Vue.delete(this.data.Roles, index);
+            const index = this.datax.Roles.findIndex(x => x == roleId);
+            Vue.delete(this.datax.Roles, index);
         }
         this.notifyChange();
     }
@@ -230,7 +230,7 @@ export default class EditAccessTokenComponent extends Vue {
     onModuleAccessToggled(moduleId: string, enabled: boolean): void {
         if (enabled && !this.hasAccessToModule(moduleId))
         {
-            this.data.Modules.push({
+            this.datax.Modules.push({
                 ModuleId: moduleId,
                 Options: [],
                 Categories: [],
@@ -239,8 +239,8 @@ export default class EditAccessTokenComponent extends Vue {
         }
         else if (!enabled && this.hasAccessToModule(moduleId))
         {
-            const index = this.data.Modules.findIndex(x => x.ModuleId == moduleId);
-            Vue.delete(this.data.Modules, index);
+            const index = this.datax.Modules.findIndex(x => x.ModuleId == moduleId);
+            Vue.delete(this.datax.Modules, index);
         }
         this.notifyChange();
     }
@@ -251,7 +251,7 @@ export default class EditAccessTokenComponent extends Vue {
             this.onModuleAccessToggled(moduleId, true);
         }
 
-        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
+        const module = this.datax.Modules.filter(x => x.ModuleId == moduleId)[0];
         if (enabled && !this.moduleOptionIsEnabled(moduleId, option))
         {
             module.Options.push(option);
@@ -270,7 +270,7 @@ export default class EditAccessTokenComponent extends Vue {
             this.onModuleAccessToggled(moduleId, true);
         }
 
-        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
+        const module = this.datax.Modules.filter(x => x.ModuleId == moduleId)[0];
         if (enabled && !this.moduleCategoryIsEnabled(moduleId, category))
         {
             module.Categories.push(category);
@@ -284,7 +284,7 @@ export default class EditAccessTokenComponent extends Vue {
     }
 
     onModuleAccessIdChanged(moduleId: string, ids: Array<string>): void {
-        const module = this.data.Modules.filter(x => x.ModuleId == moduleId)[0];
+        const module = this.datax.Modules.filter(x => x.ModuleId == moduleId)[0];
         if (module == null) return;
         module.Ids = ids;
     }

@@ -153,7 +153,7 @@ import { FetchStatus } from '@services/abstractions/HCServiceBase';
 import ModuleConfig from '@models/Common/ModuleConfig';
 import ModuleOptions from '@models/Common/ModuleOptions';
 import SecureFileDownloadService from '@services/SecureFileDownloadService';
-import { SecureFileDownloadsViewModel, SecureFileDownloadDefinition, SecureFileDownloadFrontendOptionsModel } from '@generated/Models/Core/SecureFileDownloadsViewModel';
+import { SecureFileDownloadsViewModel, SecureFileDownloadDefinition, SecureFileDownloadFrontendOptionsModel } from "@models/modules/SecureFileDownload/Models";
 
 @Options({
     components: {
@@ -175,7 +175,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
     loadStatus: FetchStatus = new FetchStatus();
     serverInteractionInProgress: boolean = false;
 
-    data: Array<SecureFileDownloadDefinition> = [];
+    datax: Array<SecureFileDownloadDefinition> = [];
     currentDownload: SecureFileDownloadDefinition | null = null;
 
     //////////////////
@@ -245,7 +245,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
 
     get downloads(): Array<SecureFileDownloadDefinition>
     {
-        let downloads = (this.data == null) ? [] : this.data;
+        let downloads = (this.datax == null) ? [] : this.datax;
         return downloads;
     };
 
@@ -286,7 +286,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
     }
 
     onDataRetrieved(data: SecureFileDownloadsViewModel): void {
-        this.data = data.Definitions.map(x => {
+        this.datax = data.Definitions.map(x => {
             SecureFileDownloadUtils.postProcessDownload(x);
             return x;
         });
@@ -299,17 +299,17 @@ export default class SecureFileDownloadPageComponent extends Vue {
     }
 
     onDownloadSaved(download: SecureFileDownloadDefinition): void {
-        if (this.data == null)
+        if (this.datax == null)
         {
             return;
         }
         SecureFileDownloadUtils.postProcessDownload(download);
 
-        const position = this.data.findIndex(x => x.Id == download.Id);
+        const position = this.datax.findIndex(x => x.Id == download.Id);
 
         if (position == -1)
         {
-            this.data.push(download);
+            this.datax.push(download);
         }
         else {
             Vue.set(this.data, position, download);
@@ -322,12 +322,12 @@ export default class SecureFileDownloadPageComponent extends Vue {
     }
 
     onDownloadDeleted(download: SecureFileDownloadDefinition): void {
-        if (this.data == null)
+        if (this.datax == null)
         {
             return;
         }
 
-        this.data = this.data.filter(x => x.Id != download.Id);
+        this.datax = this.datax.filter(x => x.Id != download.Id);
         this.hideCurrentDownload();
     }
 
@@ -404,7 +404,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
     //  EVENT HANDLERS  //
     /////////////////////    
     onAddNewDownloadClicked(): void {
-        if (this.data == null)
+        if (this.datax == null)
         {
             return;
         }

@@ -24,10 +24,10 @@
             <v-card v-if="dataExpandedState == 0">
               <v-card-text>
                 <test-result-data-component 
-                  v-for="(data, index) in testResult.Data"
+                  v-for="(resultData, index) in testResult.Data"
                   :key="`test-${testResult.TestId}-result-data`+index"
-                  :data="data"
-                  :clean="data.DisplayClean || testResult.DisplayClean" />
+                  :resultData="resultData"
+                  :clean="resultData.DisplayClean || testResult.DisplayClean" />
               </v-card-text>
             </v-card>
           </v-expansion-panel-content>

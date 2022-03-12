@@ -22,7 +22,7 @@ import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDa
 })
 export default class TestResultPlainTextDataComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    resultData!: TestResultDataDumpViewModel;
     @Prop({ required: true })
     fullscreen!: boolean;
 
@@ -32,11 +32,11 @@ export default class TestResultPlainTextDataComponent extends Vue {
     }
 
     get text(): string {
-      return this.data.Data + this.extraText;
+      return this.resultData.Data + this.extraText;
     }
 
     get rowCount(): number {
-      let lineCount = this.data.Data.split(/\r\n|\r|\n/).length;
+      let lineCount = this.resultData.Data.split(/\r\n|\r|\n/).length;
       return Math.min(10, lineCount);
     }
 

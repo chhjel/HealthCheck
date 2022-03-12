@@ -118,7 +118,7 @@ export default class MetricsPageComponent extends Vue {
     options!: ModuleOptions<ModuleFrontendOptions>;
 
     service: MetricsService = new MetricsService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
-    data: GetMetricsViewModel | null = null;
+    datax: GetMetricsViewModel | null = null;
 
     // UI STATE
     loadStatus: FetchStatus = new FetchStatus();
@@ -145,45 +145,45 @@ export default class MetricsPageComponent extends Vue {
     }
 
     get globalCounters(): Array<any> {
-        if (!this.data || !this.data.GlobalCounters) {
+        if (!this.datax || !this.datax.GlobalCounters) {
             return [];
         }
 
-        return Object.keys(this.data.GlobalCounters)
+        return Object.keys(this.datax.GlobalCounters)
             .map(x => {
                 return {
                     key: x,
-                    value: this.data!.GlobalCounters[x]
+                    value: this.datax!.GlobalCounters[x]
                 };
             })
             .sort((a, b) => LinqUtils.SortBy(a, b, x => x.key));
     }
 
     get globalValues(): Array<any> {
-        if (!this.data || !this.data.GlobalValues) {
+        if (!this.datax || !this.datax.GlobalValues) {
             return [];
         }
         
-        return Object.keys(this.data.GlobalValues)
+        return Object.keys(this.datax.GlobalValues)
             .map(x => {
                 return {
                     key: x,
-                    values: this.data!.GlobalValues[x]
+                    values: this.datax!.GlobalValues[x]
                 };
             })
             .sort((a, b) => LinqUtils.SortBy(a, b, x => x.key));
     }
 
     get globalNotes(): Array<any> {
-        if (!this.data || !this.data.GlobalNotes) {
+        if (!this.datax || !this.datax.GlobalNotes) {
             return [];
         }
         
-        return Object.keys(this.data.GlobalNotes)
+        return Object.keys(this.datax.GlobalNotes)
             .map(x => {
                 return {
                     id: x,
-                    note: this.data!.GlobalNotes[x]
+                    note: this.datax!.GlobalNotes[x]
                 };
             })
             .sort((a, b) => LinqUtils.SortBy(a, b, x => x.id));
@@ -197,7 +197,7 @@ export default class MetricsPageComponent extends Vue {
     }
 
     onDataRetrieved(data: GetMetricsViewModel | null): void {
-        this.data = data;
+        this.datax = data;
     }
 
     formatDate(date: Date): string {

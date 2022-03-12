@@ -117,7 +117,7 @@
                             :rule="currentRule"
                             :endpointDefinitions="EndpointDefinitions"
                             :readonly="!allowRuleChanges"
-                            :customResultDefinitions="data.CustomResultDefinitions"
+                            :customResultDefinitions="datax.CustomResultDefinitions"
                             v-on:ruleDeleted="onRuleDeleted"
                             v-on:ruleSaved="onRuleSaved"
                             v-on:serverInteractionInProgress="setServerInteractionInProgress"
@@ -312,7 +312,7 @@ export default class EndpointControlPageComponent extends Vue {
     deleteDefinitionDialogText: string = "";
     endpointDefinitionIdToDelete: string | null = null;
 
-    data: EndpointControlDataViewModel | null = null;
+    datax: EndpointControlDataViewModel | null = null;
     currentRule: EndpointControlRule | null = null;
 
     //////////////////
@@ -370,17 +370,17 @@ export default class EndpointControlPageComponent extends Vue {
 
     get EndpointDefinitions(): Array<EndpointControlEndpointDefinition>
     {
-        return (this.data == null) ? [] : this.data.EndpointDefinitions;
+        return (this.datax == null) ? [] : this.datax.EndpointDefinitions;
     };
 
     get CustomResultDefinitions(): Array<EndpointControlCustomResultDefinitionViewModel>
     {
-        return (this.data == null) ? [] : this.data.CustomResultDefinitions;
+        return (this.datax == null) ? [] : this.datax.CustomResultDefinitions;
     }
 
     get rules(): Array<EndpointControlRule>
     {
-        let rules = (this.data == null) ? [] : this.data.Rules;
+        let rules = (this.datax == null) ? [] : this.datax.Rules;
         return rules;
     };
 
@@ -388,9 +388,9 @@ export default class EndpointControlPageComponent extends Vue {
     //  METHODS  //
     //////////////
     getEndpointDisplayName(endpointId: string) : string {
-        if (this.data == null) return endpointId;
+        if (this.datax == null) return endpointId;
 
-        return EndpointControlUtils.getEndpointDisplayName(endpointId, this.data.EndpointDefinitions);
+        return EndpointControlUtils.getEndpointDisplayName(endpointId, this.datax.EndpointDefinitions);
     }
 
     updateUrl(): void {
@@ -428,14 +428,14 @@ export default class EndpointControlPageComponent extends Vue {
     }
 
     onDataRetrieved(data: EndpointControlDataViewModel): void {
-        this.data = data;
-        this.data.Rules.forEach(rule => {
+        this.datax = data;
+        this.datax.Rules.forEach(rule => {
             EndpointControlUtils.postProcessRule(rule);
         });
 
         this.updateSelectionFromUrl();
         
-        this.data.Rules = this.data.Rules.sort(
+        this.datax.Rules = this.datax.Rules.sort(
             (a, b) => LinqUtils.SortByThenBy(a, b,
                 x => x.Enabled ? 1 : 0,
                 x => (x.LastChangedAt == null) ? 32503676400000 : x.LastChangedAt.getTime(),
@@ -462,22 +462,22 @@ export default class EndpointControlPageComponent extends Vue {
     }
 
     onRuleSaved(rule: EndpointControlRule): void {
-        if (this.data == null)
+        if (this.datax == null)
         {
             return;
         }
         EndpointControlUtils.postProcessRule(rule);
 
-        const position = this.data.Rules.findIndex(x => x.Id == rule.Id);
-        //this.data.Rules = this.data.Rules.filter(x => x.Id != rule.Id);
+        const position = this.datax.Rules.findIndex(x => x.Id == rule.Id);
+        //this.datax.Rules = this.datax.Rules.filter(x => x.Id != rule.Id);
 
         if (position == -1)
         {
-            this.data.Rules.push(rule);
+            this.datax.Rules.push(rule);
         }
         else {
-            Vue.set(this.data.Rules, position, rule);
-            // this.data.Rules.unshift(rule);
+            Vue.set(this.datax.Rules, position, rule);
+            // this.datax.Rules.unshift(rule);
         }
         // this.$forceUpdate();
 
@@ -485,12 +485,12 @@ export default class EndpointControlPageComponent extends Vue {
     }
 
     onRuleDeleted(rule: EndpointControlRule): void {
-        if (this.data == null)
+        if (this.datax == null)
         {
             return;
         }
 
-        this.data.Rules = this.data.Rules.filter(x => x.Id != rule.Id);
+        this.datax.Rules = this.datax.Rules.filter(x => x.Id != rule.Id);
         this.hideCurrentRule();
     }
 
@@ -568,9 +568,9 @@ export default class EndpointControlPageComponent extends Vue {
         {
             this.service.DeleteEndpointDefinition(this.endpointDefinitionIdToDelete, this.loadStatus, {
                 onSuccess: (r) => {
-                    if (this.data != null)
+                    if (this.datax != null)
                     {
-                        this.data.EndpointDefinitions = this.data.EndpointDefinitions
+                        this.datax.EndpointDefinitions = this.datax.EndpointDefinitions
                             .filter(x => x.EndpointId != this.endpointDefinitionIdToDelete);
                     }
                 }
@@ -580,9 +580,9 @@ export default class EndpointControlPageComponent extends Vue {
         {
             this.service.DeleteAllEndpointDefinitions(this.loadStatus, {
                 onSuccess: (r) => {
-                    if (this.data != null)
+                    if (this.datax != null)
                     {
-                        this.data.EndpointDefinitions = [];
+                        this.datax.EndpointDefinitions = [];
                     }
                 }
             });
@@ -593,7 +593,7 @@ export default class EndpointControlPageComponent extends Vue {
     //  EVENT HANDLERS  //
     /////////////////////    
     onAddNewRuleClicked(): void {
-        if (this.data == null)
+        if (this.datax == null)
         {
             return;
         }

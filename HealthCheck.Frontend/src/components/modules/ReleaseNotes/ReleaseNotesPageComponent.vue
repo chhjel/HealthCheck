@@ -17,24 +17,24 @@
                 {{ loadStatus.errorMessage }}
                 </v-alert>
 
-                <div v-if="!data && !loadStatus.inProgress">
+                <div v-if="!datax && !loadStatus.inProgress">
                     No release notes data was found.
                 </div>
-                <v-alert :value="data && data.ErrorMessage" v-if="data && data.ErrorMessage" type="error">
-                    {{ data.ErrorMessage }}
+                <v-alert :value="datax && datax.ErrorMessage" v-if="datax && datax.ErrorMessage" type="error">
+                    {{ datax.ErrorMessage }}
                 </v-alert>
 
-                <div v-if="data" class="release-notes">
-                    <h1 v-if="data.Title" class="release-notes__title">{{ data.Title }} (Version {{ data.Version }})</h1>
-                    <p v-if="data.Description" class="release-notes__description">{{ data.Description }}</p>
+                <div v-if="datax" class="release-notes">
+                    <h1 v-if="datax.Title" class="release-notes__title">{{ data.Title }} (Version {{ data.Version }})</h1>
+                    <p v-if="datax.Description" class="release-notes__description">{{ data.Description }}</p>
 
-                    <v-chip v-if="data.BuiltAt" class="release-notes__metadata">Built at {{ formatDate(data.BuiltAt) }}</v-chip>
-                    <v-chip v-if="data.BuiltCommitHash" class="release-notes__metadata">Built hash: {{ data.BuiltCommitHash }}</v-chip>
-                    <v-chip v-if="data.DeployedAt" class="release-notes__metadata">Deployed at {{ formatDate(data.DeployedAt) }}</v-chip>
+                    <v-chip v-if="datax.BuiltAt" class="release-notes__metadata">Built at {{ formatDate(datax.BuiltAt) }}</v-chip>
+                    <v-chip v-if="datax.BuiltCommitHash" class="release-notes__metadata">Built hash: {{ data.BuiltCommitHash }}</v-chip>
+                    <v-chip v-if="datax.DeployedAt" class="release-notes__metadata">Deployed at {{ formatDate(datax.DeployedAt) }}</v-chip>
 
-                    <div class="release-notes__changes" v-if="data.Changes">
+                    <div class="release-notes__changes" v-if="datax.Changes">
                         <h2 class="release-notes-changes__title">{{ changesTitle }}</h2>
-                        <div v-for="(change, cindex) in data.Changes"
+                        <div v-for="(change, cindex) in datax.Changes"
                             :key="`change-${cindex}`"
                             class="release-notes-change"
                             :class="{ 'has-link': !!change.MainLink, 'has-pr': change.HasPullRequestLink, 'has-issue': change.HasIssueLink }"
@@ -112,7 +112,7 @@ export default class ReleaseNotesPageComponent extends Vue {
     options!: ModuleOptions<ModuleFrontendOptions>;
 
     service: ReleaseNotesService = new ReleaseNotesService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
-    data: HCReleaseNotesViewModel | null = null;
+    datax: HCReleaseNotesViewModel | null = null;
     forcedWithoutDevDetails: boolean = false;
 
     // UI STATE
@@ -136,11 +136,11 @@ export default class ReleaseNotesPageComponent extends Vue {
         return this.options.AccessOptions.indexOf("DeveloperDetails") != -1;
     }
     get changesTitle(): string {
-        if (!this.data || !this.data.Changes)
+        if (!this.datax || !this.datax.Changes)
         {
             return 'Changes';
         }
-        const changeCount = this.data.Changes.length;
+        const changeCount = this.datax.Changes.length;
         const suffix = (changeCount === 1) ? '' : 's';
         return `${changeCount} change${suffix}`;
     }
@@ -158,7 +158,7 @@ export default class ReleaseNotesPageComponent extends Vue {
     }
 
     onDataRetrieved(data: HCReleaseNotesViewModel | null): void {
-        this.data = data;
+        this.datax = data;
     }
 
     formatDate(date: Date): string {

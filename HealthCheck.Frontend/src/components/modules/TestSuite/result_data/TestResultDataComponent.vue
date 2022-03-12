@@ -1,13 +1,13 @@
 <!-- src/components/modules/TestSuite/result_data/TestResultDataComponent.vue -->
 <template>
     <div class="data-dump-wrapper">
-        <div v-if="data.Title && data.Title.length > 0"
-          class="data-dump-title">{{data.Title}}</div>
+        <div v-if="resultData.Title && data.Title.length > 0"
+          class="data-dump-title">{{resultData.Title}}</div>
         <component
-            :class="`data-dump data-dump-${data.Type.toLowerCase()}`"
-            :data="data"
+            :class="`data-dump data-dump-${resultData.Type.toLowerCase()}`"
+            :resultData="resultData"
             :fullscreen="false"
-            :is="getDataComponentNameFromType(data.Type)"
+            :is="getDataComponentNameFromType(resultData.Type)"
             @hideCopyButton="showCopyButton = false"
             @hideFullscreenButton="showFullscreenButton = false">
         </component>
@@ -31,7 +31,7 @@
                 <v-btn icon dark @click="showFullscreen = false">
                   <v-icon>close</v-icon>
                 </v-btn>
-                <v-toolbar-title>{{data.Title}}</v-toolbar-title>
+                <v-toolbar-title>{{resultData.Title}}</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-toolbar-items>
                   <v-btn dark flat @click="putDataOnClipboard">Put data on clipboard</v-btn>
@@ -42,20 +42,20 @@
               </v-toolbar>
               <!-- DIALOG CONTENTS -->
               <component
-                  :class="`data-dump data-dump-${data.Type.toLowerCase()}`"
-                  :data="data"
+                  :class="`data-dump data-dump-${resultData.Type.toLowerCase()}`"
+                  :resultData="resultData"
                   :fullscreen="showFullscreen"
-                  :is="getDataComponentNameFromType(data.Type)">
+                  :is="getDataComponentNameFromType(resultData.Type)">
               </component>
             </v-card>
           </v-dialog>
         
           <v-btn outline small color="secondary-darken2" class="data-dump-action-button mt-2"
             @click="downloadData" 
-            v-if="showDownloadButton">Download '{{ data.DownloadFileName }}'</v-btn>
+            v-if="showDownloadButton">Download '{{ resultData.DownloadFileName }}'</v-btn>
         </v-card-actions>
         
-        <textarea style="display:none;" ref="copyValue" :value="data.Data" />
+        <textarea style="display:none;" ref="copyValue" :value="resultData.Data" />
         <v-snackbar
           v-model="showCopyAlert"
           :timeout="5000"
@@ -108,7 +108,7 @@ import DownloadUtil from '@util/DownloadUtil';
 })
 export default class TestResultDataComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    resultData!: TestResultDataDumpViewModel;
     @Prop()
     clean!: boolean;
 
@@ -132,16 +132,16 @@ export default class TestResultDataComponent extends Vue {
     }
 
     get hasTitle(): boolean {
-      return this.data.Title != null && this.data.Title.length > 0;
+      return this.resultData.Title != null && this.resultData.Title.length > 0;
     }
 
     get rowCount(): number {
-      let lineCount = this.data.Data.split(/\r\n|\r|\n/).length;
+      let lineCount = this.resultData.Data.split(/\r\n|\r|\n/).length;
       return Math.min(10, lineCount);
     }
 
     get showDownloadButton(): boolean {
-      return !!this.data.DownloadFileName;
+      return !!this.resultData.DownloadFileName;
     }
     
     putDataOnClipboard(): void {
@@ -175,8 +175,8 @@ export default class TestResultDataComponent extends Vue {
     }
 
     downloadData(): void {
-      const filename = this.data.DownloadFileName || 'data.txt';
-      DownloadUtil.downloadText(filename, this.data.Data || '');
+      const filename = this.resultData.DownloadFileName || 'data.txt';
+      DownloadUtil.downloadText(filename, this.resultData.Data || '');
     }
 }
 </script>

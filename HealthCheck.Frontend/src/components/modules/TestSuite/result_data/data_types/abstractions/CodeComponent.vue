@@ -4,7 +4,7 @@
         <editor-component
             class="editor"
             :class="`${(fullscreen ? 'fullscreen' : '')}`"
-            v-model="data.Data"
+            v-model="datax.Data"
             :read-only="true"
             :language="language"
             ref="editor"/>
@@ -24,7 +24,7 @@ import EditorComponent from '@components/Common/EditorComponent.vue';
 })
 export default class CodeComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    datax!: TestResultDataDumpViewModel;
     @Prop({ required: true })
     fullscreen!: boolean;
     @Prop({ required: true })

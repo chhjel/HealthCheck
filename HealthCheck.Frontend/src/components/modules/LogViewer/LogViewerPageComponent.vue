@@ -351,16 +351,16 @@ import LogEntryTableComponent from '@components/modules/LogViewer/LogEntryTableC
 import ItemPerDateChartComponent from '@components/modules/LogViewer/ItemPerDateChartComponent.vue';
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
-import { LogSearchFilter } from '@generated/Models/Core/LogSearchFilter';
-import { LogSearchResult } from '@generated/Models/Core/LogSearchResult';
 import { FilterDelimiterMode } from '@models/modules/LogViewer/FilterDelimiterMode';
 import { ChartEntry } from '@components/Common/Charts/DataOverTimeChartComponent.vue';
 import * as XRegExp from 'xregexp';
-import { ParsedQuery } from '@generated/Models/Core/ParsedQuery';
 import LogService from '@services/LogService';
 import { FetchStatus } from '@services/abstractions/HCServiceBase';
 import ModuleConfig from '@models/Common/ModuleConfig';
 import ModuleOptions from '@models/Common/ModuleOptions';
+import LogSearchResult from "@models/modules/LogViewer/LogSearchResult";
+import ParsedQuery from "@models/modules/LogViewer/ParsedQuery";
+import LogSearchFilter from "@models/modules/LogViewer/LogSearchFilter";
 
 interface DatePickerPreset {
     name: string;
@@ -508,7 +508,8 @@ export default class LogViewerPageComponent extends Vue {
             return {
                 date: x.Timestamp,
                 severity: x.Severity,
-                label: `${x.Timestamp.toLocaleString()}`
+                label: `${x.Timestamp.toLocaleString()}`,
+                group: ''
             };
         });
     }
@@ -716,7 +717,7 @@ export default class LogViewerPageComponent extends Vue {
         try {
             XRegExp(pattern);
             return null;
-        } catch(e) {
+        } catch(e: any) {
             return e.message || e; 
         }
     }

@@ -3,10 +3,9 @@
     <div>
       <v-stepper alt-labels non-linear>
         <v-stepper-header>
-          <template v-for="(step, index) in steps">
+          <template v-for="(step, index) in steps" :key="`${id}-step-${index}`">
             <v-stepper-step :rules="[() => step.Error == null]" :step="step.Index + 1"
               class="stepper-step"
-              :key="`${id}-step-${index}`"
               @click="onStepClicked(step)"
               :complete-icon="step.Icon || undefined"
               :edit-icon="step.Icon || undefined"
@@ -74,7 +73,7 @@ import DateUtils from '@util/DateUtils';
 })
 export default class TestResultTimelineDataComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    resultData!: TestResultDataDumpViewModel;
     @Prop({ required: true })
     fullscreen!: boolean;
 
@@ -87,7 +86,7 @@ export default class TestResultTimelineDataComponent extends Vue {
     }
 
     get steps(): Array<TimelineStepViewModel> {
-      let items = JSON.parse(this.data.Data) as Array<TimelineStepViewModel>;
+      let items = JSON.parse(this.resultData.Data) as Array<TimelineStepViewModel>;
       
       items.forEach((item) => {
         let dateStr = (<any>item.Timestamp) as string;

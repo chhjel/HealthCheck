@@ -22,7 +22,7 @@ import HyperLinkViewModel from '@models/Common/HyperLinkViewModel';
 })
 export default class TestResultUrlsDataComponent extends Vue {
     @Prop({ required: true })
-    data!: TestResultDataDumpViewModel;
+    resultData!: TestResultDataDumpViewModel;
     @Prop({ required: true })
     fullscreen!: boolean;
 
@@ -34,7 +34,7 @@ export default class TestResultUrlsDataComponent extends Vue {
     }
 
     get links(): Array<HyperLinkViewModel> {
-      let lines = this.data.Data.split(/\r\n|\r|\n/)
+      let lines = this.resultData.Data.split(/\r\n|\r|\n/)
         .filter(x => x.trim().length > 0);
       
       return lines.map(x => {

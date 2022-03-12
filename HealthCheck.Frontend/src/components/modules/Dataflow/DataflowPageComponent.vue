@@ -282,7 +282,7 @@ import LinqUtils from '@util/LinqUtils';
 import DataflowStreamMetadata from '@models/modules/Dataflow/DataflowStreamMetadata';
 import DataflowEntry from '@models/modules/Dataflow/DataflowEntry';
 import GetDataflowEntriesRequestModel from '@models/modules/Dataflow/GetDataflowEntriesRequestModel';
-import { DataFlowPropertyUIHint, DataFlowPropertyUIVisibilityOption } from '@generated/Enums/Core/DataFlowPropertyUIHint';
+import { DataFlowPropertyUIHint } from '@generated/Enums/Core/DataFlowPropertyUIHint';
 import DataflowEntryPropertyValueComponent from '@components/modules/Dataflow/EntryProperties/DataflowEntryPropertyValueComponent.vue';
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
@@ -301,6 +301,7 @@ import { HCDataFlowUnifiedSearchRequest } from "@generated/Models/Core/HCDataFlo
 import { HCDataflowUnifiedSearchResultItem } from "@generated/Models/Core/HCDataflowUnifiedSearchResultItem";
 import { HCDataflowUnifiedSearchStreamResult } from "@generated/Models/Core/HCDataflowUnifiedSearchStreamResult";
 import KeyValuePair from "@models/Common/KeyValuePair";
+import { DataFlowPropertyUIVisibilityOption } from "@generated/Enums/Core/DataFlowPropertyUIVisibilityOption";
 
 interface PropFilter
 {
