@@ -51,7 +51,7 @@
 
         <div v-if="log && logEntries.length > 0">
             <h3>Latest {{ logEntries.length }} logged requests</h3>
-            <simple-paging-component
+            <paging-component
                 :items="logEntries"
                 :pageSize="logEntriesPageSize"
                 v-model="logEntriesPage"
@@ -76,22 +76,23 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import IdUtils from  '../../../util/IdUtils';
-import EndpointControlUtils from  '../../../util/EndpointControl/EndpointControlUtils';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import EndpointControlService from "../../../services/EndpointControlService";
-import { EndpointControlCountOverDuration, EndpointControlEndpointDefinition, EndpointControlPropertyFilter, EndpointControlRule, EndpointRequestDetails, EndpointRequestSimpleDetails } from "../../../models/modules/EndpointControl/EndpointControlModels";
-import DataOverTimeChartComponent, { ChartEntry, ChartSet } from '../../Common/Charts/DataOverTimeChartComponent.vue';
-import BarChartComponent, { BarChartBar, BarChartSet } from '../../Common/Charts/BarChartComponent.vue';
-import SimplePagingComponent from '../../Common/Basic/SimplePagingComponent.vue';
-import SelectComponent from '../../Common/Basic/SelectComponent.vue';
-import { FetchStatus } from "../../../services/abstractions/HCServiceBase";
-import { ModuleFrontendOptions } from "./EndpointControlPageComponent.vue";
-import LinqUtils from "../../../util/LinqUtils";
-import { Dictionary } from "../../../models/modules/EventNotifications/EventNotificationModels";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import IdUtils from '@util/IdUtils';
+import EndpointControlUtils from '@util/EndpointControl/EndpointControlUtils';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import EndpointControlService from '@services/EndpointControlService';
+import { EndpointControlCountOverDuration, EndpointControlEndpointDefinition, EndpointControlPropertyFilter, EndpointControlRule, EndpointRequestDetails, EndpointRequestSimpleDetails } from '@models/modules/EndpointControl/EndpointControlModels';
+import DataOverTimeChartComponent, { ChartEntry, ChartSet } from '@components/Common/Charts/DataOverTimeChartComponent.vue';
+import BarChartComponent, { BarChartBar, BarChartSet } from '@components/Common/Charts/BarChartComponent.vue';
+import PagingComponent from '@components/Common/Basic/PagingComponent.vue';
+import SelectComponent from '@components/Common/Basic/SelectComponent.vue';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue';
+import LinqUtils from '@util/LinqUtils';
+import { Dictionary } from '@models/modules/EventNotifications/EventNotificationModels';
 
 interface BarChartSortOption {
     text: string;
@@ -103,11 +104,11 @@ enum BarChartSortMode {
     BlockedPercentage
 }
 
-@Component({
+@Options({
     components: {
         BlockComponent,
         DataOverTimeChartComponent,
-        SimplePagingComponent,
+        PagingComponent,
         BarChartComponent,
         SelectComponent
     }

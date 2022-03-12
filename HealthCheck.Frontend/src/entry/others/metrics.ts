@@ -6,7 +6,7 @@ import shadow from 'vue-shadow-dom';
 import "es6-promise/auto";
 import 'whatwg-fetch';
 
-import RequestMetricsSummaryComponent from 'components/modules/Metrics/RequestMetricsSummaryComponent.vue';
+import RequestMetricsSummaryComponent from '@components/modules/Metrics/RequestMetricsSummaryComponent.vue';
 
 // Init libs
 Vue.use(shadow);

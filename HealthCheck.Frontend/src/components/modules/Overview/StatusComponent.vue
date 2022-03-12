@@ -7,10 +7,11 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import SiteEventViewModel from  '../../../models/modules/SiteEvents/SiteEventViewModel';
-import LinqUtils from  '../../../util/LinqUtils';
-import { SiteEventSeverity } from  '../../../models/modules/SiteEvents/SiteEventSeverity';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { SiteEventViewModel } from '@generated/Models/Core/SiteEventViewModel';
+import LinqUtils from '@util/LinqUtils';
+import { SiteEventSeverity } from '@generated/Enums/Core/SiteEventSeverity';
 
 const TYPE_SUCCESS: string = "success";
 const TYPE_INFO: string = "info";
@@ -18,7 +19,7 @@ const TYPE_WARNING: string = "warning";
 const TYPE_ERROR: string = "error";
 const TYPE_FATAL: string = "fatal";
 
-@Component({
+@Options({
     components: {}
 })
 export default class StatusComponent extends Vue {

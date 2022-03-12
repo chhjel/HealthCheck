@@ -151,21 +151,22 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import AuditEventViewModel from  '../../../models/modules/AuditLog/AuditEventViewModel';
-import AuditEventFilterInputData from  '../../../models/modules/AuditLog/AuditEventFilterInputData';
-import DateUtils from  '../../../util/DateUtils';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import { AuditEventViewModel } from '@generated/Models/Core/AuditEventViewModel';
+import { AuditEventFilterInputData } from '@generated/Models/Core/AuditEventFilterInputData';
+import DateUtils from '@util/DateUtils';
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
-import AuditLogService from  '../../../services/AuditLogService';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import KeyValuePair from "../../../models/Common/KeyValuePair";
+import AuditLogService from '@services/AuditLogService';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import KeyValuePair from '@models/Common/KeyValuePair';
 
-@Component({
+@Options({
     components: {
         DateTimePicker
     }

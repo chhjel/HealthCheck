@@ -62,12 +62,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import TestResultDataDumpViewModel from  '../../../../../models/modules/TestSuite/TestResultDataDumpViewModel';
-import TimelineStepViewModel from  '../../../../../models/modules/TestSuite/TimelineStepViewModel';
-import DateUtils from  '../../../../../util/DateUtils';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDataDumpViewModel';
+import TimelineStepViewModel from '@models/modules/TestSuite/TimelineStepViewModel';
+import DateUtils from '@util/DateUtils';
 
-@Component({
+@Options({
     components: {
     }
 })

@@ -59,18 +59,19 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import LoggedEndpointDefinitionViewModel from  '../../../models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
-import LoggedEndpointRequestViewModel from  '../../../models/modules/RequestLog/LoggedEndpointRequestViewModel';
-import { EntryState } from  '../../../models/modules/RequestLog/EntryState';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import LoggedEndpointDefinitionViewModel from '@models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
+import LoggedEndpointRequestViewModel from '@models/modules/RequestLog/LoggedEndpointRequestViewModel';
+import { EntryState } from '@models/modules/RequestLog/EntryState';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
 
-@Component({
+@Options({
     components: {
     }
 })
-export default class ActionLogEntryComponent extends Vue {
+export default class RequestEndpointComponent extends Vue {
     @Prop({ required: true })
     entry!: LoggedEndpointDefinitionViewModel;
     

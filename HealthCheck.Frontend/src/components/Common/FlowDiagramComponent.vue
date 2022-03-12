@@ -7,11 +7,12 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 import * as joint from "jointjs";
 import 'jointjs/dist/joint.min.css'
 import * as dagre from 'dagre/index';
-import IdUtils from "../../util/IdUtils";
+import IdUtils from '@util/IdUtils';
 
 export interface FlowDiagramStep<T> {
     title: string;
@@ -30,7 +31,7 @@ export interface FlowDiagramConnection {
 	label: string | null;
 }
 
-@Component({
+@Options({
 	components: {}
 })
 export default class FlowDiagramComponent<T> extends Vue

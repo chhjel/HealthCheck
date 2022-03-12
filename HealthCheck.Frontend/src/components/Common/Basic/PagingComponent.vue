@@ -42,9 +42,10 @@
 </template>
 
 <script lang="ts">
-import IdUtils from "util/IdUtils";
-import LinqUtils from "util/LinqUtils";
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import IdUtils from "@util/IdUtils";
+import LinqUtils from "@util/LinqUtils";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 
 interface PageinationButton {
     number: number;
@@ -52,10 +53,10 @@ interface PageinationButton {
     isDialogButton: boolean;
 }
 
-@Component({
+@Options({
     components: {}
 })
-export default class SimplePagingComponent extends Vue
+export default class PagingComponent extends Vue
 {
     @Prop({ required: true })
     value!: number;

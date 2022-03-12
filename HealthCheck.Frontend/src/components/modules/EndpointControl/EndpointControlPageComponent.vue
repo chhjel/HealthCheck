@@ -251,40 +251,41 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch, Provide } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import LoggedEndpointDefinitionViewModel from  '../../../models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
-import LoggedEndpointRequestViewModel from  '../../../models/modules/RequestLog/LoggedEndpointRequestViewModel';
-import { EntryState } from  '../../../models/modules/RequestLog/EntryState';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import KeyArray from  '../../../util/models/KeyArray';
-import KeyValuePair from  '../../../models/Common/KeyValuePair';
+import { Vue, Prop, Watch, Provide } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import LoggedEndpointDefinitionViewModel from '@models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
+import LoggedEndpointRequestViewModel from '@models/modules/RequestLog/LoggedEndpointRequestViewModel';
+import { EntryState } from '@models/modules/RequestLog/EntryState';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import KeyArray from '@util/models/KeyArray';
+import KeyValuePair from '@models/Common/KeyValuePair';
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
-import FilterInputComponent from  '../../Common/FilterInputComponent.vue';
-import DataTableComponent, { DataTableGroup } from  '../../Common/DataTableComponent.vue';
-import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
-import RuleDescriptionComponent from  './RuleDescriptionComponent.vue';
-import FilterableListComponent, { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
-import RuleComponent from './RuleComponent.vue';
-import IdUtils from  '../../../util/IdUtils';
-import EndpointControlUtils from  '../../../util/EndpointControl/EndpointControlUtils';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import EndpointControlService from  '../../../services/EndpointControlService';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import ModuleConfig from "../../../models/Common/ModuleConfig";
-import { EndpointControlCustomResultDefinitionViewModel, EndpointControlDataViewModel, EndpointControlEndpointDefinition, EndpointControlFilterMode, EndpointControlPropertyFilter, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
-import LatestRequestsComponent from './LatestRequestsComponent.vue';
+import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
+import DataTableComponent, { DataTableGroup } from '@components/Common/DataTableComponent.vue';
+import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
+import RuleDescriptionComponent from '@components/modules/EndpointControl/RuleDescriptionComponent.vue';
+import FilterableListComponent, { FilterableListItem } from '@components/Common/FilterableListComponent.vue';
+import RuleComponent from '@components/modules/EndpointControl/RuleComponent.vue';
+import IdUtils from '@util/IdUtils';
+import EndpointControlUtils from '@util/EndpointControl/EndpointControlUtils';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import EndpointControlService from '@services/EndpointControlService';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import { EndpointControlCustomResultDefinitionViewModel, EndpointControlDataViewModel, EndpointControlEndpointDefinition, EndpointControlFilterMode, EndpointControlPropertyFilter, EndpointControlRule } from '@models/modules/EndpointControl/EndpointControlModels';
+import LatestRequestsComponent from '@components/modules/EndpointControl/LatestRequestsComponent.vue';
 
 export interface ModuleFrontendOptions {
     MaxLatestRequestsToShow: number;
     MaxLatestSimpleRequestDataToShow: number;
 }
 
-@Component({
+@Options({
     components: {
         SimpleDateTimeComponent,
         BlockComponent,

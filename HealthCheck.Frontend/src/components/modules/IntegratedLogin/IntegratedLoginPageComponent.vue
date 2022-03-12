@@ -119,19 +119,20 @@
 </template>
 
 <script lang="ts">
-import { HCLoginTwoFactorCodeInputMode } from "generated/Enums/WebUI/HCLoginTwoFactorCodeInputMode";
-import { HCLoginWebAuthnMode } from "generated/Enums/WebUI/HCLoginWebAuthnMode";
-import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
-import { HCIntegratedLoginRequest } from "generated/Models/WebUI/HCIntegratedLoginRequest";
-import { Vue, Component } from "vue-property-decorator";
-import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
-import IntegratedLoginService, { HCIntegratedLoginRequest2FACodeRequest, HCIntegratedLoginResult } from '../../../services/IntegratedLoginService';
-import BlockComponent from '../../Common/Basic/BlockComponent.vue';
-import FloatingSquaresEffectComponent from '../../Common/Effects/FloatingSquaresEffectComponent.vue';
-import WebAuthnUtil from 'util/WebAuthnUtil';
-import { HCVerifyWebAuthnAssertionModel } from "generated/Models/WebUI/HCVerifyWebAuthnAssertionModel";
+import { HCLoginTwoFactorCodeInputMode } from "@generated/Enums/WebUI/HCLoginTwoFactorCodeInputMode";
+import { HCLoginWebAuthnMode } from "@generated/Enums/WebUI/HCLoginWebAuthnMode";
+import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
+import { HCIntegratedLoginRequest } from "@generated/Models/WebUI/HCIntegratedLoginRequest";
+import { Vue,  } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { FetchStatus,  } from '@services/abstractions/HCServiceBase';
+import IntegratedLoginService, { HCIntegratedLoginRequest2FACodeRequest, HCIntegratedLoginResult } from '@services/IntegratedLoginService';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import FloatingSquaresEffectComponent from '@components/Common/Effects/FloatingSquaresEffectComponent.vue';
+import WebAuthnUtil from '@util/WebAuthnUtil';
+import { HCVerifyWebAuthnAssertionModel } from "@generated/Models/WebUI/HCVerifyWebAuthnAssertionModel";
 
-@Component({
+@Options({
     components: {
         BlockComponent,
         FloatingSquaresEffectComponent

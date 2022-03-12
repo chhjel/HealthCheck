@@ -51,9 +51,10 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 
-@Component({
+@Options({
     components: {}
 })
 export default class InputComponent extends Vue

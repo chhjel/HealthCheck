@@ -32,12 +32,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
-import { HCIntegratedProfileConfig } from "generated/Models/WebUI/HCIntegratedProfileConfig";
-import HealthCheckProfileComponent from 'components/profile/HealthCheckProfileComponent.vue';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
+import { HCIntegratedProfileConfig } from "@generated/Models/WebUI/HCIntegratedProfileConfig";
+import HealthCheckProfileComponent from '@components/profile/HealthCheckProfileComponent.vue';
 
-@Component({
+@Options({
     components: {
         HealthCheckProfileComponent
     }

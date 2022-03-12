@@ -5,7 +5,7 @@ import shadow from 'vue-shadow-dom';
 import "es6-promise/auto";
 import 'whatwg-fetch';
 
-import ReleaseNotesSummaryComponent from 'components/modules/ReleaseNotes/ReleaseNotesSummaryComponent.vue';
+import ReleaseNotesSummaryComponent from '@components/modules/ReleaseNotes/ReleaseNotesSummaryComponent.vue';
 
 // Init libs
 Vue.use(shadow);

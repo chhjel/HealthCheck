@@ -79,20 +79,21 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestViewModel from  '../../../models/modules/TestSuite/TestViewModel';
-import TestResultViewModel from  '../../../models/modules/TestSuite/TestResultViewModel';
-import ExecuteTestPayload, { ExecuteTestParameterInputData } from  '../../../models/modules/TestSuite/ExecuteTestPayload';
-import TestParametersComponent from './paremeter_inputs/TestParametersComponent.vue';
-import TestResultComponent from './TestResultComponent.vue';
-import TestService from  '../../../services/TestService';
-import { FetchStatus, ServiceFetchCallbacks } from  '../../../services/abstractions/HCServiceBase';
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import UrlUtils from  '../../../util/UrlUtils';
-import { TestParameterReferenceChoiceViewModel } from "../../../models/modules/TestSuite/TestParameterViewModel";
-import ParameterInputPickReferenceComponent from "./paremeter_inputs/input_types/ParameterInputPickReferenceComponent.vue";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestViewModel } from '@generated/Models/Core/TestViewModel';
+import { TestResultViewModel } from '@generated/Models/Core/TestResultViewModel';
+import ExecuteTestPayload, { ExecuteTestParameterInputData } from '@models/modules/TestSuite/ExecuteTestPayload';
+import TestParametersComponent from '@components/modules/TestSuite/paremeter_inputs/TestParametersComponent.vue';
+import TestResultComponent from '@components/modules/TestSuite/TestResultComponent.vue';
+import TestService from '@services/TestService';
+import { FetchStatus, ServiceFetchCallbacks } from '@services/abstractions/HCServiceBase';
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import UrlUtils from '@util/UrlUtils';
+import { TestParameterReferenceChoiceViewModel } from '@models/modules/TestSuite/TestParameterViewModel';
+import ParameterInputPickReferenceComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputPickReferenceComponent.vue';
 
-@Component({
+@Options({
     components: {
       TestParametersComponent,
       TestResultComponent

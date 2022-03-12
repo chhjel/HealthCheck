@@ -249,26 +249,27 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import KeyArray from  '../../../util/models/KeyArray';
-import KeyValuePair from  '../../../models/Common/KeyValuePair';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import EditorComponent from  '../../Common/EditorComponent.vue';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import DynamicCodeExecutionService from  '../../../services/DynamicCodeExecutionService';
-import { DynamicCodeExecutionResultModel, DynamicCodeScript, AutoCompleteRequest, AutoCompleteData, CodeSnippet } from  '../../../models/modules/DynamicCodeExecution/Models';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import KeyArray from '@util/models/KeyArray';
+import KeyValuePair from '@models/Common/KeyValuePair';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import EditorComponent from '@components/Common/EditorComponent.vue';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import DynamicCodeExecutionService from '@services/DynamicCodeExecutionService';
+import { DynamicCodeExecutionResultModel, DynamicCodeScript, AutoCompleteRequest, AutoCompleteData, CodeSnippet } from '@models/modules/DynamicCodeExecution/Models';
 import { MarkerSeverity } from "monaco-editor";
-import { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
-import FilterableListComponent from  '../../Common/FilterableListComponent.vue';
-import IdUtils from  '../../../util/IdUtils';
+import { FilterableListItem } from '@components/Common/FilterableListComponent.vue';
+import FilterableListComponent from '@components/Common/FilterableListComponent.vue';
+import IdUtils from '@util/IdUtils';
 import * as monaco from 'monaco-editor'
-import HealthCheckPageComponent from  '../../HealthCheckPageComponent.vue';
-import LoadingScreenComponent from  '../../Common/LoadingScreenComponent.vue';
+import HealthCheckPageComponent from '@components/HealthCheckPageComponent.vue';
+import LoadingScreenComponent from '@components/Common/LoadingScreenComponent.vue';
 
 interface DynamicCodeExecutionPageOptions {
     DefaultScript: string | null;
@@ -306,7 +307,7 @@ interface LocalOptions {
     disabledPreProcessorIds: Array<string>;
 }
 
-@Component({
+@Options({
     components: {
         BlockComponent,
         EditorComponent,

@@ -27,13 +27,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestViewModel from  '../../../../models/modules/TestSuite/TestViewModel';
-import TestParameterViewModel from  '../../../../models/modules/TestSuite/TestParameterViewModel';
-import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
-import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestViewModel } from '@generated/Models/Core/TestViewModel';
+import { TestParameterViewModel } from '@generated/Models/Core/TestParameterViewModel';
+import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
+import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 
-@Component({
+@Options({
     components: {
       BackendInputComponent
     }

@@ -39,13 +39,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import TestSetViewModel from  '../../../models/modules/TestSuite/TestSetViewModel';
-import TestViewModel from  '../../../models/modules/TestSuite/TestViewModel';
-import TestComponent from './TestComponent.vue';
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestSetViewModel } from '@generated/Models/Core/TestSetViewModel';
+import { TestViewModel } from '@generated/Models/Core/TestViewModel';
+import TestComponent from '@components/modules/TestSuite/TestComponent.vue';
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 
-@Component({
+@Options({
     components: {
         TestComponent
     }

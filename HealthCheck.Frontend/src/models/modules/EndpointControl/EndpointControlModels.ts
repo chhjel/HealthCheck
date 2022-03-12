@@ -1,4 +1,4 @@
-import { HCBackendInputConfig } from "generated/Models/Core/HCBackendInputConfig";
+import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfig";
 
 export interface GenericEndpointControlResult {
     Success: boolean;

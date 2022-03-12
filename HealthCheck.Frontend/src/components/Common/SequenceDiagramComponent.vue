@@ -57,7 +57,8 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 export interface SequenceDiagramStep<T> {
     from: string;
     to: string;
@@ -77,7 +78,7 @@ export enum SequenceDiagramStyle {
     Test = 'Test'
 }
 
-@Component({
+@Options({
     components: {
     }
 })

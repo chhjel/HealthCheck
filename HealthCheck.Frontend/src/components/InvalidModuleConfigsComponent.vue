@@ -34,14 +34,15 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import ModuleConfig from "../models/Common/ModuleConfig";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import ModuleConfig from '@models/Common/ModuleConfig';
 
-@Component({
+@Options({
     components: {
     }
 })
-export default class NoPageAvailablePageComponent extends Vue {
+export default class InvalidModuleConfigsComponent extends Vue {
     @Prop({ required: true })
     invalidConfigs!: Array<ModuleConfig>;
 

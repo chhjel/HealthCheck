@@ -136,24 +136,25 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import LoggedEndpointDefinitionViewModel from  '../../../models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
-import LoggedEndpointRequestViewModel from  '../../../models/modules/RequestLog/LoggedEndpointRequestViewModel';
-import { EntryState } from  '../../../models/modules/RequestLog/EntryState';
-import DiagramsDataViewModel from  '../../../models/modules/Documentation/DiagramsDataViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import KeyArray from  '../../../util/models/KeyArray';
-import KeyValuePair from  '../../../models/Common/KeyValuePair';
-import SequenceDiagramComponent, { SequenceDiagramStep, SequenceDiagramLineStyle, SequenceDiagramStyle } from  '../../Common/SequenceDiagramComponent.vue';
-import FilterInputComponent from  '../../Common/FilterInputComponent.vue';
-import FlowDiagramComponent, { FlowDiagramStep, FlowDiagramStepType } from  '../../Common/FlowDiagramComponent.vue';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import DocumentationService from  '../../../services/DocumentationService';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import UrlUtils from  '../../../util/UrlUtils';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import LoggedEndpointDefinitionViewModel from '@models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
+import LoggedEndpointRequestViewModel from '@models/modules/RequestLog/LoggedEndpointRequestViewModel';
+import { EntryState } from '@models/modules/RequestLog/EntryState';
+import DiagramsDataViewModel from '@models/modules/Documentation/DiagramsDataViewModel';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import KeyArray from '@util/models/KeyArray';
+import KeyValuePair from '@models/Common/KeyValuePair';
+import SequenceDiagramComponent, { SequenceDiagramStep, SequenceDiagramLineStyle, SequenceDiagramStyle } from '@components/Common/SequenceDiagramComponent.vue';
+import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
+import FlowDiagramComponent, { FlowDiagramStep, FlowDiagramStepType } from '@components/Common/FlowDiagramComponent.vue';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import DocumentationService from '@services/DocumentationService';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import UrlUtils from '@util/UrlUtils';
 
 interface FlowChartData
 {
@@ -190,7 +191,7 @@ interface DocumentationPageOptions
     EnableDiagramDetails: boolean;
 }
 
-@Component({
+@Options({
     components: {
         SequenceDiagramComponent,
         FilterInputComponent,

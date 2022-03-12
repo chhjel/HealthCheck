@@ -84,10 +84,11 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import { EventSinkNotificationConfigFilter, FilterMatchType } from  '../../../models/modules/EventNotifications/EventNotificationModels';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { EventSinkNotificationConfigFilter, FilterMatchType } from '@generated/Models/Core/EventSinkNotificationConfigFilter';
 
-@Component({
+@Options({
     components: {}
 })
 export default class ConfigFilterComponent extends Vue {

@@ -63,18 +63,19 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import SettingsService from  '../../../services/SettingsService';
-import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import { HCBackendInputConfig } from "generated/Models/Core/HCBackendInputConfig";
-import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import { GetSettingsViewModel } from "generated/Models/Core/GetSettingsViewModel";
-import { SetSettingsViewModel } from "generated/Models/Core/SetSettingsViewModel";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import SettingsService from '@services/SettingsService';
+import { FetchStatus,  } from '@services/abstractions/HCServiceBase';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfig";
+import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { GetSettingsViewModel } from "@generated/Models/Core/GetSettingsViewModel";
+import { SetSettingsViewModel } from "@generated/Models/Core/SetSettingsViewModel";
 
 interface CustomSettingGroup
 {
@@ -87,7 +88,7 @@ interface CustomSetting
     value: string;
 }
 
-@Component({
+@Options({
     components: {
         BackendInputComponent
     }

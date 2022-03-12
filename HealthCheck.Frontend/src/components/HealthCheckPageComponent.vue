@@ -60,19 +60,20 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import NoPageAvailablePageComponent from './NoPageAvailablePageComponent.vue';
-import InvalidModuleConfigsComponent from './InvalidModuleConfigsComponent.vue';
-import IntegratedLoginPageComponent from './modules/IntegratedLogin/IntegratedLoginPageComponent.vue';
-import ModuleConfig from "../models/Common/ModuleConfig";
-import BackendInputComponent from "./Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import HealthCheckProfileDialogComponent from 'components/profile/HealthCheckProfileDialogComponent.vue';
-import AccessTokenKillswitchDialog from 'components/modules/AccessTokens/AccessTokenKillswitchDialog.vue';
-import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import NoPageAvailablePageComponent from '@components/NoPageAvailablePageComponent.vue';
+import InvalidModuleConfigsComponent from '@components/InvalidModuleConfigsComponent.vue';
+import IntegratedLoginPageComponent from '@components/modules/IntegratedLogin/IntegratedLoginPageComponent.vue';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import BackendInputComponent from '@components/Common/Inputs/BackendInputs/BackendInputComponent.vue';
+import HealthCheckProfileDialogComponent from '@components/profile/HealthCheckProfileDialogComponent.vue';
+import AccessTokenKillswitchDialog from '@components/modules/AccessTokens/AccessTokenKillswitchDialog.vue';
+import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
 import { Route } from "vue-router";
-import UrlUtils from "util/UrlUtils";
+import UrlUtils from "@util/UrlUtils";
 
-@Component({
+@Options({
     components: {
         NoPageAvailablePageComponent,
         InvalidModuleConfigsComponent,

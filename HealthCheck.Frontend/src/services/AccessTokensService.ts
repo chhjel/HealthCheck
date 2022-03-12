@@ -1,4 +1,4 @@
-import { HCModuleIdData } from "generated/Models/Core/HCModuleIdData";
+import { HCModuleIdData } from "@generated/Models/Core/HCModuleIdData";
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
 
 export default class AccessTokensService extends HCServiceBase

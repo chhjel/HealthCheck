@@ -274,32 +274,33 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import DataflowStreamMetadata from  '../../../models/modules/Dataflow/DataflowStreamMetadata';
-import DataflowEntry from  '../../../models/modules/Dataflow/DataflowEntry';
-import GetDataflowEntriesRequestModel from  '../../../models/modules/Dataflow/GetDataflowEntriesRequestModel';
-import { DataFlowPropertyUIHint, DataFlowPropertyUIVisibilityOption } from  '../../../models/modules/Dataflow/DataFlowPropertyDisplayInfo';
-import DataflowEntryPropertyValueComponent from '../Dataflow/EntryProperties/DataflowEntryPropertyValueComponent.vue';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import DataflowStreamMetadata from '@models/modules/Dataflow/DataflowStreamMetadata';
+import DataflowEntry from '@models/modules/Dataflow/DataflowEntry';
+import GetDataflowEntriesRequestModel from '@models/modules/Dataflow/GetDataflowEntriesRequestModel';
+import { DataFlowPropertyUIHint, DataFlowPropertyUIVisibilityOption } from '@generated/Enums/Core/DataFlowPropertyUIHint';
+import DataflowEntryPropertyValueComponent from '@components/modules/Dataflow/EntryProperties/DataflowEntryPropertyValueComponent.vue';
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
-import FilterInputComponent from  '../../Common/FilterInputComponent.vue';
-import DataTableComponent, { DataTableGroup } from  '../../Common/DataTableComponent.vue';
-import FilterableListComponent, { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
-import DataflowService from  '../../../services/DataflowService';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import UrlUtils from  '../../../util/UrlUtils';
-import DataflowUnifiedSearchMetadata from "models/modules/Dataflow/DataflowUnifiedSearchMetadata";
-import { HCDataflowUnifiedSearchResult } from "generated/Models/Core/HCDataflowUnifiedSearchResult";
-import { HCDataFlowUnifiedSearchRequest } from "generated/Models/Core/HCDataFlowUnifiedSearchRequest";
-import { HCDataflowUnifiedSearchResultItem } from "generated/Models/Core/HCDataflowUnifiedSearchResultItem";
-import { HCDataflowUnifiedSearchStreamResult } from "generated/Models/Core/HCDataflowUnifiedSearchStreamResult";
-import KeyValuePair from "models/Common/KeyValuePair";
+import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
+import DataTableComponent, { DataTableGroup } from '@components/Common/DataTableComponent.vue';
+import FilterableListComponent, { FilterableListItem } from '@components/Common/FilterableListComponent.vue';
+import DataflowService from '@services/DataflowService';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import UrlUtils from '@util/UrlUtils';
+import DataflowUnifiedSearchMetadata from "@models/modules/Dataflow/DataflowUnifiedSearchMetadata";
+import { HCDataflowUnifiedSearchResult } from "@generated/Models/Core/HCDataflowUnifiedSearchResult";
+import { HCDataFlowUnifiedSearchRequest } from "@generated/Models/Core/HCDataFlowUnifiedSearchRequest";
+import { HCDataflowUnifiedSearchResultItem } from "@generated/Models/Core/HCDataflowUnifiedSearchResultItem";
+import { HCDataflowUnifiedSearchStreamResult } from "@generated/Models/Core/HCDataflowUnifiedSearchStreamResult";
+import KeyValuePair from "@models/Common/KeyValuePair";
 
 interface PropFilter
 {
@@ -338,7 +339,7 @@ interface StreamGroup
     streams: Array<DataflowStreamMetadata>;
 }
 
-@Component({
+@Options({
     components: {
         DataflowEntryPropertyValueComponent,
         DateTimePicker,

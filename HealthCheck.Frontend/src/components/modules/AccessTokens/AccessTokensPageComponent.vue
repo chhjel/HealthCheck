@@ -226,19 +226,19 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import AccessTokensService, { AccessData, CreatedAccessData, CreateNewTokenResponse, TokenData } from  '../../../services/AccessTokensService';
-import { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
-import BlockComponent from '../../Common/Basic/BlockComponent.vue';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import EditAccessTokenComponent from './EditAccessTokenComponent.vue';
-import UrlUtils from "util/UrlUtils";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import AccessTokensService, { AccessData, CreatedAccessData, CreateNewTokenResponse, TokenData } from '@services/AccessTokensService';
+import { FetchStatus,  } from '@services/abstractions/HCServiceBase';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import EditAccessTokenComponent from '@components/modules/AccessTokens/EditAccessTokenComponent.vue';
 
-@Component({
+@Options({
     components: {
         BlockComponent,
         EditAccessTokenComponent

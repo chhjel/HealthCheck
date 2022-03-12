@@ -50,11 +50,12 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
-import EditorComponent from '../../../EditorComponent.vue'
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
+import EditorComponent from '@components/Common/EditorComponent.vue'
 
-@Component({
+@Options({
     components: {
         EditorComponent
     }

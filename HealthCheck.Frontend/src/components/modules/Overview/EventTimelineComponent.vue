@@ -42,11 +42,12 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import SiteEventViewModel from  '../../../models/modules/SiteEvents/SiteEventViewModel';
-import LinqUtils from  '../../../util/LinqUtils';
-import { SiteEventSeverity } from  '../../../models/modules/SiteEvents/SiteEventSeverity';
-import DateUtils from  '../../../util/DateUtils';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { SiteEventViewModel } from '@generated/Models/Core/SiteEventViewModel';
+import LinqUtils from '@util/LinqUtils';
+import { SiteEventSeverity } from '@generated/Enums/Core/SiteEventSeverity';
+import DateUtils from '@util/DateUtils';
 
 interface TimelineGroup {
     index: number;
@@ -55,7 +56,7 @@ interface TimelineGroup {
     events: Array<SiteEventViewModel>;
 }
 
-@Component({
+@Options({
     components: {}
 })
 export default class EventTimelineComponent extends Vue {

@@ -61,17 +61,18 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import DataRepeaterService from  '../../../services/DataRepeaterService';
-import { HCDataRepeaterStreamViewModel } from "generated/Models/Core/HCDataRepeaterStreamViewModel";
-import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import ModuleConfig from "models/Common/ModuleConfig";
-import { HCDataRepeaterStreamBatchActionResult } from "generated/Models/Core/HCDataRepeaterStreamBatchActionResult";
-import { HCDataRepeaterStreamBatchActionViewModel } from "generated/Models/Core/HCDataRepeaterStreamBatchActionViewModel";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import DataRepeaterService from '@services/DataRepeaterService';
+import { HCDataRepeaterStreamViewModel } from "@generated/Models/Core/HCDataRepeaterStreamViewModel";
+import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import ModuleConfig from "@models/Common/ModuleConfig";
+import { HCDataRepeaterStreamBatchActionResult } from "@generated/Models/Core/HCDataRepeaterStreamBatchActionResult";
+import { HCDataRepeaterStreamBatchActionViewModel } from "@generated/Models/Core/HCDataRepeaterStreamBatchActionViewModel";
 
-@Component({
+@Options({
     components: {
         BackendInputComponent
     }

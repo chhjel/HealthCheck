@@ -224,29 +224,30 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import KeyArray from  '../../../util/models/KeyArray';
-import KeyValuePair from  '../../../models/Common/KeyValuePair';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import KeyArray from '@util/models/KeyArray';
+import KeyValuePair from '@models/Common/KeyValuePair';
 // @ts-ignore
-import IdUtils from  '../../../util/IdUtils';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import MessagesService from  '../../../services/MessagesService';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import ModuleConfig from "../../../models/Common/ModuleConfig";
-import { DataWithTotalCount, MessageItem, MessagesInboxMetadata } from "../../../models/modules/Messages/MessagesModels";
-import { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
-import FilterableListComponent from  '../../Common/FilterableListComponent.vue';
-import PagingComponent from '../../Common/Basic/PagingComponent.vue';
-import EditorComponent from  '../../Common/EditorComponent.vue';
+import IdUtils from '@util/IdUtils';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import MessagesService from '@services/MessagesService';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import { DataWithTotalCount, MessageItem, MessagesInboxMetadata } from '@models/modules/Messages/MessagesModels';
+import { FilterableListItem } from '@components/Common/FilterableListComponent.vue';
+import FilterableListComponent from '@components/Common/FilterableListComponent.vue';
+import PagingComponent from '@components/Common/Basic/PagingComponent.vue';
+import EditorComponent from '@components/Common/EditorComponent.vue';
 
 export interface ModuleFrontendOptions {
 }
 
-@Component({
+@Options({
     components: {
         BlockComponent,
         PagingComponent,
@@ -254,7 +255,7 @@ export interface ModuleFrontendOptions {
         EditorComponent
     }
 })
-export default class EndpointControlPageComponent extends Vue {
+export default class MessagesPageComponent extends Vue {
     @Prop({ required: true })
     config!: ModuleConfig;
     

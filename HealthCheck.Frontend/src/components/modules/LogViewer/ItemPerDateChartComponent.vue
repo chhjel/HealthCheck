@@ -6,13 +6,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import LinqUtils from  '../../../util/LinqUtils';
-import LogEntrySearchResultItem from  '../../../models/modules/LogViewer/LogEntrySearchResultItem';
-import { FilterDelimiterMode } from  '../../../models/modules/LogViewer/FilterDelimiterMode';
-import DateUtils from  '../../../util/DateUtils';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import LinqUtils from '@util/LinqUtils';
+import { LogEntrySearchResultItem } from '@generated/Models/Core/LogEntrySearchResultItem';
+import { FilterDelimiterMode } from '@models/modules/LogViewer/FilterDelimiterMode';
+import DateUtils from '@util/DateUtils';
 import { Chart, LinearTickOptions, ChartPoint } from 'chart.js';
-import { LogEntrySeverity } from  '../../../models/modules/LogViewer/LogEntrySeverity';
+import { LogEntrySeverity } from '@generated/Enums/Core/LogEntrySeverity';
 
 export interface ChartEntry {
     date: Date;
@@ -25,7 +26,7 @@ interface ChartDataPoint extends Chart.ChartPoint {
     severity: LogEntrySeverity;
 }
 
-@Component({
+@Options({
     components: { }
 })
 export default class ItemPerDateChartComponent extends Vue {

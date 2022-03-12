@@ -31,10 +31,11 @@
 </template>
 
 <script lang="ts">
-import IdUtils from "util/IdUtils";
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import IdUtils from "@util/IdUtils";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 import TestResultDataDumpViewModel from  'models/modules/TestSuite/TestResultDataDumpViewModel';
-import DateUtils from "util/DateUtils";
+import DateUtils from "@util/DateUtils";
 
 interface Timing {
   Description: string;
@@ -47,7 +48,7 @@ interface TimingExt extends Timing {
   EndPercentage: number;
 }
 
-@Component({
+@Options({
     components: {
     }
 })

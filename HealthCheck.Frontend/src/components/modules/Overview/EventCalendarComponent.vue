@@ -75,23 +75,24 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import CalendarEvent from  '../../../models/Common/CalendarEvent';
-import SiteEventViewModel from  '../../../models/modules/SiteEvents/SiteEventViewModel';
-import { SiteEventSeverity } from  '../../../models/modules/SiteEvents/SiteEventSeverity';
-import EventTimelineComponent from '../Overview/EventTimelineComponent.vue';
-import SiteEventDetailsComponent from '../Overview/SiteEventDetailsComponent.vue';
-import LinqUtils from  '../../../util/LinqUtils';
-import DateUtils from  '../../../util/DateUtils';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import CalendarEvent from '@models/Common/CalendarEvent';
+import { SiteEventViewModel } from '@generated/Models/Core/SiteEventViewModel';
+import { SiteEventSeverity } from '@generated/Enums/Core/SiteEventSeverity';
+import EventTimelineComponent from '@components/modules/Overview/EventTimelineComponent.vue';
+import SiteEventDetailsComponent from '@components/modules/Overview/SiteEventDetailsComponent.vue';
+import LinqUtils from '@util/LinqUtils';
+import DateUtils from '@util/DateUtils';
 
-@Component({
+@Options({
     components: {
         EventTimelineComponent,
         SiteEventDetailsComponent
     }
 })
-export default class OverviewPageComponent extends Vue {
+export default class EventCalendarComponent extends Vue {
     @Prop({ required: true })
     events!: Array<SiteEventViewModel>;
 

@@ -565,32 +565,33 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 import draggable from 'vuedraggable'
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import FilterableListComponent, { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import DataExportService from  '../../../services/DataExportService';
-import { HCDataExportStreamViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamViewModel";
-import PagingComponent from "../../Common/Basic/PagingComponent.vue";
-import HashUtils from "../../../util/HashUtils";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import FilterableListComponent, { FilterableListItem } from '@components/Common/FilterableListComponent.vue';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import DataExportService from '@services/DataExportService';
+import { HCDataExportStreamViewModel } from "@generated/Models/Module/DataExport/HCDataExportStreamViewModel";
+import PagingComponent from '@components/Common/Basic/PagingComponent.vue';
+import HashUtils from '@util/HashUtils';
 import { Route } from "vue-router";
-import DateUtils from "util/DateUtils";
-import UrlUtils from "util/UrlUtils";
-import { HCGetDataExportStreamDefinitionsViewModel } from "generated/Models/Module/DataExport/HCGetDataExportStreamDefinitionsViewModel";
-import { HCDataExportQueryResponseViewModel } from "generated/Models/Module/DataExport/HCDataExportQueryResponseViewModel";
-import { HCDataExportStreamItemDefinitionViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamItemDefinitionViewModel";
-import EditorComponent from "components/Common/EditorComponent.vue";
-import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import { HCDataExportStreamQueryPresetViewModel } from "generated/Models/Module/DataExport/HCDataExportStreamQueryPresetViewModel";
-import { HCDataExportQueryRequest } from "generated/Models/Module/DataExport/HCDataExportQueryRequest";
-import { HCDataExportExporterViewModel } from "generated/Models/Module/DataExport/HCDataExportExporterViewModel";
-import { HCDataExportValueFormatterConfig } from "generated/Models/Module/DataExport/HCDataExportValueFormatterConfig";
-import { HCDataExportValueFormatterViewModel } from "generated/Models/Module/DataExport/HCDataExportValueFormatterViewModel";
+import DateUtils from "@util/DateUtils";
+import UrlUtils from "@util/UrlUtils";
+import { HCGetDataExportStreamDefinitionsViewModel } from "@generated/Models/Module/DataExport/HCGetDataExportStreamDefinitionsViewModel";
+import { HCDataExportQueryResponseViewModel } from "@generated/Models/Module/DataExport/HCDataExportQueryResponseViewModel";
+import { HCDataExportStreamItemDefinitionViewModel } from "@generated/Models/Module/DataExport/HCDataExportStreamItemDefinitionViewModel";
+import EditorComponent from "@components/Common/EditorComponent.vue";
+import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { HCDataExportStreamQueryPresetViewModel } from "@generated/Models/Module/DataExport/HCDataExportStreamQueryPresetViewModel";
+import { HCDataExportQueryRequest } from "@generated/Models/Module/DataExport/HCDataExportQueryRequest";
+import { HCDataExportExporterViewModel } from "@generated/Models/Module/DataExport/HCDataExportExporterViewModel";
+import { HCDataExportValueFormatterConfig } from "@generated/Models/Module/DataExport/HCDataExportValueFormatterConfig";
+import { HCDataExportValueFormatterViewModel } from "@generated/Models/Module/DataExport/HCDataExportValueFormatterViewModel";
 
-@Component({
+@Options({
     components: {
         draggable,
         FilterableListComponent,

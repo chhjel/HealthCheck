@@ -16,12 +16,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 // @ts-ignore
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
 
-@Component({ components: {} })
+@Options({ components: {} })
 export default class CustomPageComponent extends Vue {
     @Prop({ required: true })
     config!: ModuleConfig;

@@ -48,15 +48,16 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 // or import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 // if shipping only a subset of the features & languages is desired
 import * as monaco from 'monaco-editor'
-import FrontEndOptionsViewModel from "../../models/Common/FrontEndOptionsViewModel";
-import { ICodeMark, CodeSnippet } from  '../../models/modules/DynamicCodeExecution/Models';
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import { ICodeMark, CodeSnippet } from '@models/modules/DynamicCodeExecution/Models';
 
 
-@Component({
+@Options({
     components: {
     }
 })

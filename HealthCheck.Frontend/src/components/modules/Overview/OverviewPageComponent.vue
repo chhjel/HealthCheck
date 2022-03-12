@@ -157,24 +157,24 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import CalendarEvent from  '../../../models/Common/CalendarEvent';
-import SiteEventViewModel from  '../../../models/modules/SiteEvents/SiteEventViewModel';
-import { SiteEventSeverity } from  '../../../models/modules/SiteEvents/SiteEventSeverity';
-import EventTimelineComponent from '../Overview/EventTimelineComponent.vue';
-import EventCalendarComponent from '../Overview/EventCalendarComponent.vue';
-import SiteEventDetailsComponent from '../Overview/SiteEventDetailsComponent.vue';
-import SiteEventsSummaryComponent from '../Overview/SiteEventsSummaryComponent.vue';
-import StatusComponent from '../Overview/StatusComponent.vue';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import OverviewService from  '../../../services/OverviewService';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import { SiteEvent } from "generated/Models/Core/SiteEvent";
-import InputComponent from "components/Common/Basic/InputComponent.vue";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import CalendarEvent from '@models/Common/CalendarEvent';
+import { SiteEventViewModel } from '@generated/Models/Core/SiteEventViewModel';
+import { SiteEventSeverity } from '@generated/Enums/Core/SiteEventSeverity';
+import EventTimelineComponent from '@components/modules/Overview/EventTimelineComponent.vue';
+import EventCalendarComponent from '@components/modules/Overview/EventCalendarComponent.vue';
+import SiteEventDetailsComponent from '@components/modules/Overview/SiteEventDetailsComponent.vue';
+import SiteEventsSummaryComponent from '@components/modules/Overview/SiteEventsSummaryComponent.vue';
+import StatusComponent from '@components/modules/Overview/StatusComponent.vue';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import OverviewService from '@services/OverviewService';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import { SiteEvent } from "@generated/Models/Core/SiteEvent";
 
 interface OverviewPageOptions
 {
@@ -184,7 +184,7 @@ interface OverviewPageOptions
     ShowFilter: boolean;
 }
 
-@Component({
+@Options({
     components: {
         EventTimelineComponent,
         EventCalendarComponent,

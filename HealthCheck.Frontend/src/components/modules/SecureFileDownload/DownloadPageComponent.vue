@@ -95,13 +95,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import HCServiceBase, { FetchStatus,  } from  '../../../services/abstractions/HCServiceBase';
-import BlockComponent from '../../Common/Basic/BlockComponent.vue';
-import UrlUtils from "../../../util/UrlUtils";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import HCServiceBase, { FetchStatus,  } from '@services/abstractions/HCServiceBase';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import UrlUtils from '@util/UrlUtils';
 
 interface ConfigFromWindow
 {
@@ -125,7 +126,7 @@ interface ValidatePasswordResult
     token: string;
 }
 
-@Component({
+@Options({
     components: {
         BlockComponent,
     }

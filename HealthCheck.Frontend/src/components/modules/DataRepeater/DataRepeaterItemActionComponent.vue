@@ -59,20 +59,21 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import DataRepeaterService, { HCDataRepeaterResultWithItem } from  '../../../services/DataRepeaterService';
-import { HCDataRepeaterStreamViewModel } from "generated/Models/Core/HCDataRepeaterStreamViewModel";
-import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import { HCDataRepeaterStreamItemViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemViewModel";
-import { HCDataRepeaterStreamItemDetails } from "generated/Models/Core/HCDataRepeaterStreamItemDetails";
-import ModuleConfig from "models/Common/ModuleConfig";
-import { HCDataRepeaterStreamActionViewModel } from "generated/Models/Core/HCDataRepeaterStreamActionViewModel";
-import { HCDataRepeaterStreamItemActionResult } from "generated/Models/Core/HCDataRepeaterStreamItemActionResult";
-import { HCDataRepeaterStreamItemActionAllowedViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemActionAllowedViewModel";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import DataRepeaterService, { HCDataRepeaterResultWithItem } from '@services/DataRepeaterService';
+import { HCDataRepeaterStreamViewModel } from "@generated/Models/Core/HCDataRepeaterStreamViewModel";
+import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { HCDataRepeaterStreamItemViewModel } from "@generated/Models/Core/HCDataRepeaterStreamItemViewModel";
+import { HCDataRepeaterStreamItemDetails } from "@generated/Models/Core/HCDataRepeaterStreamItemDetails";
+import ModuleConfig from "@models/Common/ModuleConfig";
+import { HCDataRepeaterStreamActionViewModel } from "@generated/Models/Core/HCDataRepeaterStreamActionViewModel";
+import { HCDataRepeaterStreamItemActionResult } from "@generated/Models/Core/HCDataRepeaterStreamItemActionResult";
+import { HCDataRepeaterStreamItemActionAllowedViewModel } from "@generated/Models/Core/HCDataRepeaterStreamItemActionAllowedViewModel";
 
-@Component({
+@Options({
     components: {
         BackendInputComponent
     }

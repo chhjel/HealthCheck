@@ -249,34 +249,35 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import LoggedEndpointDefinitionViewModel from  '../../../models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
-import LoggedEndpointRequestViewModel from  '../../../models/modules/RequestLog/LoggedEndpointRequestViewModel';
-import { EntryState } from  '../../../models/modules/RequestLog/EntryState';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import KeyArray from  '../../../util/models/KeyArray';
-import KeyValuePair from  '../../../models/Common/KeyValuePair';
-import { GetEventNotificationConfigsViewModel, IEventNotifier, EventSinkNotificationConfig, FilterMatchType, NotifierConfig, Dictionary, NotifierConfigOptionsItem, EventSinkNotificationConfigFilter, KnownEventDefinition } from  '../../../models/modules/EventNotifications/EventNotificationModels';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import LoggedEndpointDefinitionViewModel from '@models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
+import LoggedEndpointRequestViewModel from '@models/modules/RequestLog/LoggedEndpointRequestViewModel';
+import { EntryState } from '@models/modules/RequestLog/EntryState';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import KeyArray from '@util/models/KeyArray';
+import KeyValuePair from '@models/Common/KeyValuePair';
+import { GetEventNotificationConfigsViewModel, IEventNotifier, EventSinkNotificationConfig, FilterMatchType, NotifierConfig, Dictionary, NotifierConfigOptionsItem, EventSinkNotificationConfigFilter, KnownEventDefinition } from '@generated/Models/Core/GetEventNotificationConfigsViewModel';
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
-import FilterInputComponent from  '../../Common/FilterInputComponent.vue';
-import DataTableComponent, { DataTableGroup } from  '../../Common/DataTableComponent.vue';
-import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
-import FilterableListComponent, { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
-import ConfigFilterComponent from '.././EventNotifications/ConfigFilterComponent.vue';
-import EventNotificationConfigComponent from '.././EventNotifications/EventNotificationConfigComponent.vue';
-import IdUtils from  '../../../util/IdUtils';
-import EventSinkNotificationConfigUtils, { ConfigDescription, ConfigFilterDescription, ConfigActionDescription } from  '../../../util/EventNotifications/EventSinkNotificationConfigUtils';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import EventNotificationService from  '../../../services/EventNotificationService';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
+import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
+import DataTableComponent, { DataTableGroup } from '@components/Common/DataTableComponent.vue';
+import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
+import FilterableListComponent, { FilterableListItem } from '@components/Common/FilterableListComponent.vue';
+import ConfigFilterComponent from '@components/modules/EventNotifications/ConfigFilterComponent.vue';
+import EventNotificationConfigComponent from '@components/modules/EventNotifications/EventNotificationConfigComponent.vue';
+import IdUtils from '@util/IdUtils';
+import EventSinkNotificationConfigUtils, { ConfigDescription, ConfigFilterDescription, ConfigActionDescription } from '@util/EventNotifications/EventSinkNotificationConfigUtils';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import EventNotificationService from '@services/EventNotificationService';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
 
-@Component({
+@Options({
     components: {
         ConfigFilterComponent,
         SimpleDateTimeComponent,

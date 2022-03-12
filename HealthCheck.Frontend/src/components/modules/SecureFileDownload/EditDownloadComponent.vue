@@ -13,7 +13,7 @@
                 v-if="absoluteDownloadUrl != null"
                 >Download link: <a :href="absoluteDownloadUrl">{{ absoluteDownloadUrl }}</a> </div>
 
-            <input-component
+            <input-header-component
                 class="mt-2"
                 v-model="internalDownload.FileName"
                 :disabled="!allowChanges"
@@ -23,7 +23,7 @@
                 :error="validateFileName"
                 />
                 
-            <input-component
+            <input-header-component
                 class="mt-2"
                 v-model="internalDownload.UrlSegmentText"
                 :disabled="!allowChanges"
@@ -57,7 +57,7 @@
                     show-description-on-start="true"
                     />
                 
-                <input-component
+                <input-header-component
                     v-if="showFileIdInput"
                     class="mt-2"
                     v-model="internalDownload.FileId"
@@ -103,7 +103,7 @@
                 <span v-if="deleteFileStatus && deleteFileStatus.success">File deleted successfully.</span>
             </div>
             
-            <input-component
+            <input-header-component
                 class="mt-2"
                 v-model="internalDownload.Note"
                 :disabled="!allowChanges"
@@ -118,7 +118,7 @@
 
         <!-- ###### LIMITS ###### -->
         <block-component class="mb-5" title="Limits &amp; password">
-            <input-component
+            <input-header-component
                 class="mt-2"
                 v-model="internalDownload.DownloadCountLimit"
                 :disabled="!allowChanges"
@@ -134,7 +134,7 @@
                 description="After this time, the file will not be available for download."
                 />
                 
-            <input-component
+            <input-header-component
                 class="mt-2"
                 v-model="internalDownload.Password"
                 :disabled="!allowChanges"
@@ -200,26 +200,27 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import IdUtils from  '../../../util/IdUtils';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import InputComponent from  '../../Common/Basic/InputComponent.vue';
-import SelectComponent from  '../../Common/Basic/SelectComponent.vue';
-import { SecureFileDownloadDefinition, SecureFileDownloadSaveViewModel, SecureFileDownloadStorageInfo, SecureFileDownloadStorageUploadFileResult } from "../../../models/modules/SecureFileDownload/Models";
-import SecureFileDownloadUtils from "../../../util/SecureFileDownload/SecureFileDownloadUtils";
-import SecureFileDownloadService from "../../../services/SecureFileDownloadService";
-import { FetchStatus, FetchStatusWithProgress } from "../../../services/abstractions/HCServiceBase";
-import ParameterInputTypeHttpPostedFileBaseComponent from "components/Common/Inputs/BackendInputs/Types/ParameterInputTypeHttpPostedFileBaseComponent.vue";
-import FetchStatusProgressComponent from "components/Common/Basic/FetchStatusProgressComponent.vue";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import IdUtils from '@util/IdUtils';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import InputHeaderComponent from '@components/Common/Basic/InputHeaderComponent.vue';
+import SelectComponent from '@components/Common/Basic/SelectComponent.vue';
+import { SecureFileDownloadDefinition, SecureFileDownloadSaveViewModel, SecureFileDownloadStorageInfo, SecureFileDownloadStorageUploadFileResult } from '@generated/Models/Core/SecureFileDownloadDefinition';
+import SecureFileDownloadUtils from '@util/SecureFileDownload/SecureFileDownloadUtils';
+import SecureFileDownloadService from '@services/SecureFileDownloadService';
+import { FetchStatus, FetchStatusWithProgress } from '@services/abstractions/HCServiceBase';
+import ParameterInputTypeHttpPostedFileBaseComponent from "@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeHttpPostedFileBaseComponent.vue";
+import FetchStatusProgressComponent from "@components/Common/Basic/FetchStatusProgressComponent.vue";
 
-@Component({
+@Options({
     components: {
         SimpleDateTimeComponent,
         BlockComponent,
-        InputComponent,
+        InputHeaderComponent,
         SelectComponent,
         ParameterInputTypeHttpPostedFileBaseComponent,
         FetchStatusProgressComponent

@@ -81,15 +81,16 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from '../../models/Common/FrontEndOptionsViewModel';
-import { EntryState } from  '../../models/modules/RequestLog/EntryState';
-import DateUtils from "../../util/DateUtils";
-import LinqUtils from "../../util/LinqUtils";
-import KeyArray from "../../util/models/KeyArray";
-import KeyValuePair from "../../models/Common/KeyValuePair";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import { EntryState } from '@models/modules/RequestLog/EntryState';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import KeyArray from '@util/models/KeyArray';
+import KeyValuePair from '@models/Common/KeyValuePair';
 // @ts-ignore
-import FilterInputComponent from '.././Common/FilterInputComponent.vue';
+import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
 
 export interface FilterableListGroup
 {
@@ -103,7 +104,7 @@ export interface FilterableListItem
     data: any;
 }
 
-@Component({
+@Options({
     components: {
         FilterInputComponent
     }

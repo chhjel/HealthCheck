@@ -158,14 +158,14 @@
                 <v-divider></v-divider>
                 
                 <v-card-text>
-                    <input-component
+                    <input-header-component
                         name="Confirm account password"
                         autocomplete="current-password"
                         v-model="registerWebAuthnPassword"
                         :disabled="webAuthnAddLoadStatus.inProgress"
                         type="password"
                         :clearable="true"
-                    ></input-component>
+                    ></input-header-component>
 
                     <v-btn
                         round color="primary" large
@@ -211,14 +211,14 @@
                 <v-card-text>
                     <p>Confirm removal of WebAuthn authenticator from your account.</p>
 
-                    <input-component
+                    <input-header-component
                         name="Confirm account password"
                         autocomplete="current-password"
                         v-model="removeWebAuthnPassword"
                         :disabled="disableWebAuthnAdd"
                         type="password"
                         :clearable="true"
-                    ></input-component>
+                    ></input-header-component>
 
                     <v-btn
                         round color="primary" large
@@ -263,7 +263,7 @@
                 <v-divider></v-divider>
                 
                 <v-card-text>
-                    <input-component
+                    <input-header-component
                         name="TOTP code"
                         v-model="totpElevateCode"
                         :disabled="disableTotpElevate"
@@ -271,7 +271,7 @@
                         :loading="show2FACodeExpirationTime"
                         :loadingProgress="twoFactorInputProgress"
                         :loadingColor="twoFactorInputColor"
-                    ></input-component>
+                    ></input-header-component>
 
                     <v-btn
                         round color="primary" large class="mt-4"
@@ -320,22 +320,22 @@
                     <canvas ref="qrCodeCanvas"></canvas>
                     <p v-if="registerTotpSecret">Or optionally enter this secret manually in your app of choice: <code>{{ registerTotpSecret }}</code></p>
 
-                    <input-component
+                    <input-header-component
                         name="Code from authenticator"
                         autocomplete="one-time-code"
                         v-model="registerTotpCode"
                         :disabled="disableTotpAdd"
                         :clearable="true"
-                    ></input-component>
+                    ></input-header-component>
 
-                    <input-component
+                    <input-header-component
                         name="Confirm account password"
                         autocomplete="current-password"
                         v-model="registerTotpPassword"
                         :disabled="disableTotpAdd"
                         type="password"
                         :clearable="true"
-                    ></input-component>
+                    ></input-header-component>
 
                     <v-btn 
                         round color="primary" large
@@ -381,14 +381,14 @@
                 <v-card-text>
                     <p>Confirm removal of TOTP authenticator from your account.</p>
 
-                    <input-component
+                    <input-header-component
                         name="Confirm account password"
                         autocomplete="current-password"
                         v-model="removeTotpPassword"
                         :disabled="disableTotpRemove"
                         type="password"
                         :clearable="true"
-                    ></input-component>
+                    ></input-header-component>
 
                     <v-btn
                         round color="error" large
@@ -417,24 +417,25 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
-import IntegratedProfileService from 'services/IntegratedProfileService';
-import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
-import { HCIntegratedProfileConfig } from "generated/Models/WebUI/HCIntegratedProfileConfig";
-import { FetchStatus } from "services/abstractions/HCServiceBase";
-import InputComponent from "components/Common/Basic/InputComponent.vue"
-import WebAuthnUtil from "util/WebAuthnUtil";
-import Base32Util from "util/Base32Util";
-import { HCVerifyWebAuthnAssertionModel } from "generated/Models/WebUI/HCVerifyWebAuthnAssertionModel";
-import { Ecc, QrCode } from 'util/QRCodeUtil';
-import BlockComponent from 'components/Common/Basic/BlockComponent.vue';
-import { HCResultPageAction } from "generated/Models/WebUI/HCResultPageAction";
-import { HCResultPageActionType } from "generated/Enums/WebUI/HCResultPageActionType";
-import { HCUserModuleCategories } from "generated/Models/Core/HCUserModuleCategories";
+import { Vue,  } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import IntegratedProfileService from '@services/IntegratedProfileService';
+import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
+import { HCIntegratedProfileConfig } from "@generated/Models/WebUI/HCIntegratedProfileConfig";
+import { FetchStatus } from "@services/abstractions/HCServiceBase";
+import InputHeaderComponent from "@components/Common/Basic/InputComponent.vue"
+import WebAuthnUtil from "@util/WebAuthnUtil";
+import Base32Util from "@util/Base32Util";
+import { HCVerifyWebAuthnAssertionModel } from "@generated/Models/WebUI/HCVerifyWebAuthnAssertionModel";
+import { Ecc, QrCode } from '@util/QRCodeUtil';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import { HCResultPageAction } from "@generated/Models/WebUI/HCResultPageAction";
+import { HCResultPageActionType } from "@generated/Enums/WebUI/HCResultPageActionType";
+import { HCUserModuleCategories } from "@generated/Models/Core/HCUserModuleCategories";
 
-@Component({
+@Options({
     components: {
-        InputComponent,
+        InputHeaderComponent,
         BlockComponent
     }
 })

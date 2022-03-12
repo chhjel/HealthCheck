@@ -1,4 +1,4 @@
-import { HCBackendInputConfig } from "generated/Models/Core/HCBackendInputConfig";
+import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfig";
 
 export interface Dictionary<T> {
     [Key: string]: T;

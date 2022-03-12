@@ -1,8 +1,8 @@
 import { HCSecureFileDownloadFileDetails } from './../generated/Models/Core/HCSecureFileDownloadFileDetails';
 import HCServiceBase, { FetchStatus, FetchStatusWithProgress, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
 import { SecureFileDownloadsViewModel, SecureFileDownloadDefinition, SecureFileDownloadSaveViewModel, SecureFileDownloadStorageUploadFileResult } from "../models/modules/SecureFileDownload/Models";
-import UrlUtils from 'util/UrlUtils';
-import SecureFileDownloadUtils from 'util/SecureFileDownload/SecureFileDownloadUtils';
+import UrlUtils from '@util/UrlUtils';
+import SecureFileDownloadUtils from '@util/SecureFileDownload/SecureFileDownloadUtils';
 
 export default class SecureFileDownloadService extends HCServiceBase
 {

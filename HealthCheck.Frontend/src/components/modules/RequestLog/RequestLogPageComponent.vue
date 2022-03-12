@@ -157,23 +157,24 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import LoggedEndpointDefinitionViewModel from  '../../../models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
-import LoggedEndpointRequestViewModel from  '../../../models/modules/RequestLog/LoggedEndpointRequestViewModel';
-import RequestEndpointComponent from '../RequestLog/RequestEndpointComponent.vue';
-import ProgressBarComponent from  '../../Common/ProgressBarComponent.vue';
-import { EntryState } from  '../../../models/modules/RequestLog/EntryState';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import KeyArray from  '../../../util/models/KeyArray';
-import KeyValuePair from  '../../../models/Common/KeyValuePair';
-import RequestLogService from  '../../../services/RequestLogService';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import LoggedEndpointDefinitionViewModel from '@models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
+import LoggedEndpointRequestViewModel from '@models/modules/RequestLog/LoggedEndpointRequestViewModel';
+import RequestEndpointComponent from '@components/modules/RequestLog/RequestEndpointComponent.vue';
+import ProgressBarComponent from '@components/Common/ProgressBarComponent.vue';
+import { EntryState } from '@models/modules/RequestLog/EntryState';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import KeyArray from '@util/models/KeyArray';
+import KeyValuePair from '@models/Common/KeyValuePair';
+import RequestLogService from '@services/RequestLogService';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import ModuleConfig from '@models/Common/ModuleConfig';
 
-@Component({
+@Options({
     components: {
         ProgressBarComponent,
         RequestEndpointComponent

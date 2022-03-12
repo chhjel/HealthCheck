@@ -39,32 +39,33 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
 // Parameter input components
-import UnknownBackendInputComponent from './UnknownBackendInputComponent.vue';
-import ParameterInputTypeInt32Component from './Types/ParameterInputTypeInt32Component.vue';
-import ParameterInputTypeInt64Component from './Types/ParameterInputTypeInt64Component.vue';
-import ParameterInputTypeDecimalComponent from './Types/ParameterInputTypeDecimalComponent.vue';
-import ParameterInputTypeSingleComponent from './Types/ParameterInputTypeSingleComponent.vue';
-import ParameterInputTypeDoubleComponent from './Types/ParameterInputTypeDoubleComponent.vue';
-import ParameterInputTypeStringComponent from './Types/ParameterInputTypeStringComponent.vue';
-import ParameterInputTypeBooleanComponent from './Types/ParameterInputTypeBooleanComponent.vue';
-import ParameterInputTypeDateTimeComponent from './Types/ParameterInputTypeDateTimeComponent.vue';
-import ParameterInputTypeDateTimeOffsetComponent from './Types/ParameterInputTypeDateTimeOffsetComponent.vue';
-import ParameterInputTypeEnumComponent from './Types/ParameterInputTypeEnumComponent.vue';
-import ParameterInputTypeFlaggedEnumComponent from './Types/ParameterInputTypeFlaggedEnumComponent.vue';
-import ParameterInputTypeGenericListComponent from './Types/ParameterInputTypeGenericListComponent.vue';
-import ParameterInputTypeTimeSpanComponent from "./Types/ParameterInputTypeTimeSpanComponent.vue";
-import ParameterInputTypeHttpPostedFileBaseComponent from './Types/ParameterInputTypeHttpPostedFileBaseComponent.vue';
-import ParameterInputPickReferenceComponent from './Types/ParameterInputPickReferenceComponent.vue';
-import ParameterInputTypeGuidComponent from "./Types/ParameterInputTypeGuidComponent.vue";
-import ParameterInputAnyJsonComponent from "./Types/ParameterInputAnyJsonComponent.vue";
-import { TestModuleOptions } from "components/modules/TestSuite/TestSuitesPageComponent.vue";
-import IdUtils from "../../../../util/IdUtils";
-import { ReferenceValueFactoryConfigViewModel } from "generated/Models/Core/ReferenceValueFactoryConfigViewModel";
+import UnknownBackendInputComponent from '@components/Common/Inputs/BackendInputs/UnknownBackendInputComponent.vue';
+import ParameterInputTypeInt32Component from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeInt32Component.vue';
+import ParameterInputTypeInt64Component from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeInt64Component.vue';
+import ParameterInputTypeDecimalComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeDecimalComponent.vue';
+import ParameterInputTypeSingleComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeSingleComponent.vue';
+import ParameterInputTypeDoubleComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeDoubleComponent.vue';
+import ParameterInputTypeStringComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeStringComponent.vue';
+import ParameterInputTypeBooleanComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeBooleanComponent.vue';
+import ParameterInputTypeDateTimeComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeDateTimeComponent.vue';
+import ParameterInputTypeDateTimeOffsetComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeDateTimeOffsetComponent.vue';
+import ParameterInputTypeEnumComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeEnumComponent.vue';
+import ParameterInputTypeFlaggedEnumComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeFlaggedEnumComponent.vue';
+import ParameterInputTypeGenericListComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeGenericListComponent.vue';
+import ParameterInputTypeTimeSpanComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeTimeSpanComponent.vue';
+import ParameterInputTypeHttpPostedFileBaseComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeHttpPostedFileBaseComponent.vue';
+import ParameterInputPickReferenceComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputPickReferenceComponent.vue';
+import ParameterInputTypeGuidComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeGuidComponent.vue';
+import ParameterInputAnyJsonComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputAnyJsonComponent.vue';
+import { TestModuleOptions } from "@components/modules/TestSuite/TestSuitesPageComponent.vue";
+import IdUtils from '@util/IdUtils';
+import { ReferenceValueFactoryConfigViewModel } from "@generated/Models/Core/ReferenceValueFactoryConfigViewModel";
 
-@Component({
+@Options({
     components: {
       // Parameter input components
       UnknownBackendInputComponent,

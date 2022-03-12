@@ -195,28 +195,29 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import FilterableListComponent, { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import DataRepeaterService from  '../../../services/DataRepeaterService';
-import { HCGetDataRepeaterStreamDefinitionsViewModel } from "generated/Models/Core/HCGetDataRepeaterStreamDefinitionsViewModel";
-import { HCDataRepeaterStreamViewModel } from "generated/Models/Core/HCDataRepeaterStreamViewModel";
-import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import { HCDataRepeaterStreamItemViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemViewModel";
-import DataRepeaterItemComponent from "./DataRepeaterItemComponent.vue";
-import DataRepeaterBatchActionComponent from "./DataRepeaterBatchActionComponent.vue";
-import PagingComponent from "../../Common/Basic/PagingComponent.vue";
-import HashUtils from "../../../util/HashUtils";
-import { HCDataRepeaterStreamItemsPagedViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemsPagedViewModel";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import FilterableListComponent, { FilterableListItem } from '@components/Common/FilterableListComponent.vue';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import DataRepeaterService from '@services/DataRepeaterService';
+import { HCGetDataRepeaterStreamDefinitionsViewModel } from "@generated/Models/Core/HCGetDataRepeaterStreamDefinitionsViewModel";
+import { HCDataRepeaterStreamViewModel } from "@generated/Models/Core/HCDataRepeaterStreamViewModel";
+import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { HCDataRepeaterStreamItemViewModel } from "@generated/Models/Core/HCDataRepeaterStreamItemViewModel";
+import DataRepeaterItemComponent from '@components/modules/DataRepeater/DataRepeaterItemComponent.vue';
+import DataRepeaterBatchActionComponent from '@components/modules/DataRepeater/DataRepeaterBatchActionComponent.vue';
+import PagingComponent from '@components/Common/Basic/PagingComponent.vue';
+import HashUtils from '@util/HashUtils';
+import { HCDataRepeaterStreamItemsPagedViewModel } from "@generated/Models/Core/HCDataRepeaterStreamItemsPagedViewModel";
 import { Route } from "vue-router";
-import DateUtils from "util/DateUtils";
-import UrlUtils from "util/UrlUtils";
-import { HCDataRepeaterStreamItemStatus } from "generated/Enums/Core/HCDataRepeaterStreamItemStatus";
+import DateUtils from "@util/DateUtils";
+import UrlUtils from "@util/UrlUtils";
+import { HCDataRepeaterStreamItemStatus } from "@generated/Enums/Core/HCDataRepeaterStreamItemStatus";
 
-@Component({
+@Options({
     components: {
         FilterableListComponent,
         BackendInputComponent,

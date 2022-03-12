@@ -50,23 +50,24 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch, Inject } from "vue-property-decorator";
+import { Vue, Prop, Watch, Inject } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 
 //@ts-ignore
 import draggable from 'vuedraggable'
 import DateUtils from  'util/DateUtils';
-import IdUtils from "util/IdUtils";
-import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
-import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import TestsUtils from "util/TestsModule/TestsUtils";
-import { ReferenceValueFactoryConfigViewModel } from "generated/Models/Core/ReferenceValueFactoryConfigViewModel";
+import IdUtils from "@util/IdUtils";
+import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
+import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import TestsUtils from "@util/TestsModule/TestsUtils";
+import { ReferenceValueFactoryConfigViewModel } from "@generated/Models/Core/ReferenceValueFactoryConfigViewModel";
 
 interface ListItem {
     id: string;
     value: string | null;
 }
 
-@Component({
+@Options({
     name: "BackendInputComponent",
     components: {
         draggable,

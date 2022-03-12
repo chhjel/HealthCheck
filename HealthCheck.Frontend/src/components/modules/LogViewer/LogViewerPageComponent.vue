@@ -342,24 +342,25 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
-import LogEntryTableComponent from '../LogViewer/LogEntryTableComponent.vue';
-import ItemPerDateChartComponent from '../LogViewer/ItemPerDateChartComponent.vue';
+import LogEntryTableComponent from '@components/modules/LogViewer/LogEntryTableComponent.vue';
+import ItemPerDateChartComponent from '@components/modules/LogViewer/ItemPerDateChartComponent.vue';
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
-import LogSearchFilter from  '../../../models/modules/LogViewer/LogSearchFilter';
-import LogSearchResult from  '../../../models/modules/LogViewer/LogSearchResult';
-import { FilterDelimiterMode } from  '../../../models/modules/LogViewer/FilterDelimiterMode';
-import { ChartEntry } from '../LogViewer/ItemPerDateChartComponent.vue';
+import { LogSearchFilter } from '@generated/Models/Core/LogSearchFilter';
+import { LogSearchResult } from '@generated/Models/Core/LogSearchResult';
+import { FilterDelimiterMode } from '@models/modules/LogViewer/FilterDelimiterMode';
+import { ChartEntry } from '@components/Common/Charts/DataOverTimeChartComponent.vue';
 import * as XRegExp from 'xregexp';
-import ParsedQuery from  '../../../models/modules/LogViewer/ParsedQuery';
-import LogService from  '../../../services/LogService';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
+import { ParsedQuery } from '@generated/Models/Core/ParsedQuery';
+import LogService from '@services/LogService';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
 
 interface DatePickerPreset {
     name: string;
@@ -375,7 +376,7 @@ interface LogViewerPageOptions
     MaxInsightsEntryCount: number;
 }
 
-@Component({
+@Options({
     components: {
         DateTimePicker,
         LogEntryTableComponent,

@@ -73,23 +73,24 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestResultDataDumpViewModel from  '../../../../models/modules/TestSuite/TestResultDataDumpViewModel';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDataDumpViewModel';
 // Parameter input components
-import UnknownDataTypeComponent from './UnknownDataTypeComponent.vue';
-import TestResultPlainTextDataComponent from './data_types/TestResultPlainTextDataComponent.vue';
-import TestResultCodeDataComponent from './data_types/TestResultCodeDataComponent.vue';
-import TestResultXmlDataComponent from './data_types/TestResultXmlDataComponent.vue';
-import TestResultJsonDataComponent from './data_types/TestResultJsonDataComponent.vue';
-import TestResultHtmlDataComponent from './data_types/TestResultHtmlDataComponent.vue';
-import TestResultImageUrlsDataComponent from './data_types/TestResultImageUrlsDataComponent.vue';
-import TestResultUrlsDataComponent from './data_types/TestResultUrlsDataComponent.vue';
-import TestResultTimelineDataComponent from './data_types/TestResultTimelineDataComponent.vue';
-import TestResultTimingsDataComponent from './data_types/TestResultTimingsDataComponent.vue';
-import TestResultFileDownloadDataComponent from './data_types/TestResultFileDownloadDataComponent.vue';
-import DownloadUtil from 'util/DownloadUtil';
+import UnknownDataTypeComponent from '@components/modules/TestSuite/result_data/UnknownDataTypeComponent.vue';
+import TestResultPlainTextDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultPlainTextDataComponent.vue';
+import TestResultCodeDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultCodeDataComponent.vue';
+import TestResultXmlDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultXmlDataComponent.vue';
+import TestResultJsonDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultJsonDataComponent.vue';
+import TestResultHtmlDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultHtmlDataComponent.vue';
+import TestResultUrlsDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultImageUrlsDataComponent.vue';
+import TestResultUrlsDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultUrlsDataComponent.vue';
+import TestResultTimelineDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultTimelineDataComponent.vue';
+import TestResultTimingsDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultTimingsDataComponent.vue';
+import TestResultFileDownloadDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultFileDownloadDataComponent.vue';
+import DownloadUtil from '@util/DownloadUtil';
 
-@Component({
+@Options({
     components: {
       // Parameter input components
       UnknownDataTypeComponent,
@@ -97,7 +98,7 @@ import DownloadUtil from 'util/DownloadUtil';
       TestResultXmlDataComponent,
       TestResultJsonDataComponent,
       TestResultHtmlDataComponent,
-      TestResultImageUrlsDataComponent,
+      TestResultUrlsDataComponent,
       TestResultUrlsDataComponent,
       TestResultCodeDataComponent,
       TestResultTimelineDataComponent,

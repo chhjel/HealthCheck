@@ -44,7 +44,8 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 
 export interface DataTableGroup
 {
@@ -56,7 +57,7 @@ export interface DataTableItem
     values: Array<any>;
 }
 
-@Component({
+@Options({
     components: {}
 })
 export default class DataTableComponent extends Vue

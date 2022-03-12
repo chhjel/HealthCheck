@@ -12,9 +12,10 @@
 </template>
 
 <script lang="ts">
-import FrontEndOptionsViewModel from "models/Common/FrontEndOptionsViewModel";
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import TestResultDataDumpViewModel from  '../../../../../models/modules/TestSuite/TestResultDataDumpViewModel';
+import FrontEndOptionsViewModel from "@models/Common/FrontEndOptionsViewModel";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDataDumpViewModel';
 
 interface FileDownloadData
 {
@@ -24,7 +25,7 @@ interface FileDownloadData
   Description: string | null;
 }
 
-@Component({
+@Options({
     components: {
     }
 })

@@ -54,13 +54,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import LinqUtils from  '../../../util/LinqUtils';
-import LogEntrySearchResultItem from  '../../../models/modules/LogViewer/LogEntrySearchResultItem';
-import { FilterDelimiterMode } from  '../../../models/modules/LogViewer/FilterDelimiterMode';
-import DateUtils from  '../../../util/DateUtils';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import LinqUtils from '@util/LinqUtils';
+import { LogEntrySearchResultItem } from '@generated/Models/Core/LogEntrySearchResultItem';
+import { FilterDelimiterMode } from '@models/modules/LogViewer/FilterDelimiterMode';
+import DateUtils from '@util/DateUtils';
 import * as XRegExp from 'xregexp';
-import { LogEntrySeverity } from  '../../../models/modules/LogViewer/LogEntrySeverity';
+import { LogEntrySeverity } from '@generated/Enums/Core/LogEntrySeverity';
 
 interface TableEntryRow {
     Entry: LogEntrySearchResultItem;
@@ -71,7 +72,7 @@ interface ColumnsAndValues {
     Values: Array<string>;
 }
 
-@Component({
+@Options({
     components: { }
 })
 export default class LogEntryTableComponent extends Vue {

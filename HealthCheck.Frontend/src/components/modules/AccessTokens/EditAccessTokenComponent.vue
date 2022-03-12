@@ -116,12 +116,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { AccessData, CreatedAccessData, ModuleAccessData } from  '../../../services/AccessTokensService';
-import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
-import InputHeaderComponent from  '../../Common/Basic/InputHeaderComponent.vue';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { AccessData, CreatedAccessData, ModuleAccessData } from '@services/AccessTokensService';
+import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
+import InputHeaderComponent from '@components/Common/Basic/InputHeaderComponent.vue';
 
-@Component({
+@Options({
     components: {
         SimpleDateTimeComponent,
         InputHeaderComponent

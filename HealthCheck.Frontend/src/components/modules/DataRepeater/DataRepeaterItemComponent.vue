@@ -197,23 +197,24 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import DataRepeaterService, { HCDataRepeaterResultWithItem } from  '../../../services/DataRepeaterService';
-import { HCDataRepeaterStreamViewModel } from "generated/Models/Core/HCDataRepeaterStreamViewModel";
-import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import { HCDataRepeaterStreamItemViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemViewModel";
-import ModuleConfig from "models/Common/ModuleConfig";
-import DataRepeaterItemActionComponent from "./DataRepeaterItemActionComponent.vue";
-import { HCDataRepeaterRetryResult } from "generated/Models/Core/HCDataRepeaterRetryResult";
-import EditorComponent from "components/Common/EditorComponent.vue";
-import { HCDataRepeaterStreamItemDetailsViewModel } from "generated/Models/Core/HCDataRepeaterStreamItemDetailsViewModel";
-import DateUtils from "util/DateUtils";
-import ModuleOptions from "models/Common/ModuleOptions";
-import { HCDataRepeaterItemAnalysisResult } from "generated/Models/Core/HCDataRepeaterItemAnalysisResult";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import DataRepeaterService, { HCDataRepeaterResultWithItem } from '@services/DataRepeaterService';
+import { HCDataRepeaterStreamViewModel } from "@generated/Models/Core/HCDataRepeaterStreamViewModel";
+import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { HCDataRepeaterStreamItemViewModel } from "@generated/Models/Core/HCDataRepeaterStreamItemViewModel";
+import ModuleConfig from "@models/Common/ModuleConfig";
+import DataRepeaterItemActionComponent from '@components/modules/DataRepeater/DataRepeaterItemActionComponent.vue';
+import { HCDataRepeaterRetryResult } from "@generated/Models/Core/HCDataRepeaterRetryResult";
+import EditorComponent from "@components/Common/EditorComponent.vue";
+import { HCDataRepeaterStreamItemDetailsViewModel } from "@generated/Models/Core/HCDataRepeaterStreamItemDetailsViewModel";
+import DateUtils from "@util/DateUtils";
+import ModuleOptions from "@models/Common/ModuleOptions";
+import { HCDataRepeaterItemAnalysisResult } from "@generated/Models/Core/HCDataRepeaterItemAnalysisResult";
 
-@Component({
+@Options({
     components: {
         BackendInputComponent,
         DataRepeaterItemActionComponent,

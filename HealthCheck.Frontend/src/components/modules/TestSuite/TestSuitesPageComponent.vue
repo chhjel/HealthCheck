@@ -136,27 +136,28 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import TestSetViewModel from  '../../../models/modules/TestSuite/TestSetViewModel';
-import TestSetGroupViewModel from  '../../../models/modules/TestSuite/TestSetGroupViewModel';
-import TestsDataViewModel from '../../../models/modules/TestSuite/TestsDataViewModel';
-import InvalidTestViewModel from  '../../../models/modules/TestSuite/InvalidTestViewModel';
-import TestSetComponent from '.././TestSuite/TestSetComponent.vue';
-import FilterInputComponent from  '../../Common/FilterInputComponent.vue';
-import LinqUtils from  '../../../util/LinqUtils';
-import TestViewModel from  '../../../models/modules/TestSuite/TestViewModel';
-import TestService from '../../../services/TestService';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import UrlUtils from  '../../../util/UrlUtils';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import { TestSetViewModel } from '@generated/Models/Core/TestSetViewModel';
+import TestSetGroupViewModel from '@models/modules/TestSuite/TestSetGroupViewModel';
+import { TestsDataViewModel } from '@generated/Models/Core/TestsDataViewModel';
+import { InvalidTestViewModel } from '@generated/Models/Core/InvalidTestViewModel';
+import TestSetComponent from '@components/modules/TestSuite/TestSetComponent.vue';
+import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
+import LinqUtils from '@util/LinqUtils';
+import { TestViewModel } from '@generated/Models/Core/TestViewModel';
+import TestService from '@services/TestService';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import UrlUtils from '@util/UrlUtils';
 
 export interface TestModuleOptions {
     AllowAnyParameterType: boolean;
 }
 
-@Component({
+@Options({
     components: {
         TestSetComponent,
         FilterInputComponent

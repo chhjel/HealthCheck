@@ -90,21 +90,22 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import MetricsService from  '../../../services/MetricsService';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import ModuleConfig from "../../../models/Common/ModuleConfig";
-import { GetMetricsViewModel } from "generated/Models/Core/GetMetricsViewModel";
-import LinqUtils from "util/LinqUtils";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import MetricsService from '@services/MetricsService';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import { GetMetricsViewModel } from "@generated/Models/Core/GetMetricsViewModel";
+import LinqUtils from "@util/LinqUtils";
 
 export interface ModuleFrontendOptions {
 }
 
-@Component({
+@Options({
     components: {
         BlockComponent
     }

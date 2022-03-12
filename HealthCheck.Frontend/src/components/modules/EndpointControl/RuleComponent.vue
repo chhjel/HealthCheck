@@ -110,7 +110,7 @@
 
             <p class="mt-4 mb-2">{{ selectedBlockResultDescription }}</p>
 
-            <backend-input-component
+            <backend-input-header-component
                 v-for="(def, defIndex) in selectedBlockResultPropertyDefinitions"
                 :key="`defx-${defIndex}`"
                 v-model="internalRule.CustomBlockResultProperties[def.Id]"
@@ -140,29 +140,30 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch, Inject } from "vue-property-decorator";
-import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
-import RuleFilterComponent from './RuleFilterComponent.vue';
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import IdUtils from  '../../../util/IdUtils';
-import EndpointControlUtils from  '../../../util/EndpointControl/EndpointControlUtils';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import InputComponent from  '../../Common/Basic/InputComponent.vue';
-import TimespanInputComponent from  '../../Common/Basic/TimespanInputComponent.vue';
-import CountOverDurationComponent from './CountOverDurationComponent.vue';
-import RuleDescriptionComponent from  './RuleDescriptionComponent.vue';
-import EndpointControlService from "../../../services/EndpointControlService";
-import { EndpointControlCountOverDuration, EndpointControlCustomResultDefinitionViewModel, EndpointControlEndpointDefinition, EndpointControlPropertyFilter, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
-import { HCBackendInputConfig } from "generated/Models/Core/HCBackendInputConfig";
-import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { Vue, Prop, Watch, Inject } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
+import RuleFilterComponent from '@components/modules/EndpointControl/RuleFilterComponent.vue';
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import IdUtils from '@util/IdUtils';
+import EndpointControlUtils from '@util/EndpointControl/EndpointControlUtils';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import InputHeaderComponent from '@components/Common/Basic/InputHeaderComponent.vue';
+import TimespanInputComponent from '@components/Common/Basic/TimespanInputComponent.vue';
+import CountOverDurationComponent from '@components/modules/EndpointControl/CountOverDurationComponent.vue';
+import RuleDescriptionComponent from '@components/modules/EndpointControl/RuleDescriptionComponent.vue';
+import EndpointControlService from '@services/EndpointControlService';
+import { EndpointControlCountOverDuration, EndpointControlCustomResultDefinitionViewModel, EndpointControlEndpointDefinition, EndpointControlPropertyFilter, EndpointControlRule } from '@models/modules/EndpointControl/EndpointControlModels';
+import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfig";
+import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 
-@Component({
+@Options({
     components: {
         RuleFilterComponent,
         SimpleDateTimeComponent,
         BlockComponent,
-        InputComponent,
+        InputHeaderComponent,
         TimespanInputComponent,
         CountOverDurationComponent,
         RuleDescriptionComponent,

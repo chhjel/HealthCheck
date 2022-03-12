@@ -36,11 +36,12 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import TestResultViewModel from  '../../../models/modules/TestSuite/TestResultViewModel';
-import TestResultDataComponent from './result_data/TestResultDataComponent.vue';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestResultViewModel } from '@generated/Models/Core/TestResultViewModel';
+import TestResultDataComponent from '@components/modules/TestSuite/result_data/TestResultDataComponent.vue';
 
-@Component({
+@Options({
     components: {
       TestResultDataComponent
     }

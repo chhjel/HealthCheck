@@ -11,15 +11,16 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import TestResultDataDumpViewModel from  '../../../../../models/modules/TestSuite/TestResultDataDumpViewModel';
-import HyperLinkViewModel from  '../../../../../models/Common/HyperLinkViewModel';
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDataDumpViewModel';
+import HyperLinkViewModel from '@models/Common/HyperLinkViewModel';
 
-@Component({
+@Options({
     components: {
     }
 })
-export default class TestResultImageUrlsDataComponent extends Vue {
+export default class TestResultUrlsDataComponent extends Vue {
     @Prop({ required: true })
     data!: TestResultDataDumpViewModel;
     @Prop({ required: true })

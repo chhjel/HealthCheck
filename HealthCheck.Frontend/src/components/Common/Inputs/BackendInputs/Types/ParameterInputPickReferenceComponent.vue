@@ -86,15 +86,16 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { TestParameterReferenceChoiceViewModel } from  '../../../../../models/modules/TestSuite/TestParameterViewModel';
-import { FetchStatus, ServiceFetchCallbacks } from "../../../../../services/abstractions/HCServiceBase";
-import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
-import TestsUtils from "util/TestsModule/TestsUtils";
-import ClipboardUtil from "util/ClipboardUtil";
-import { ReferenceValueFactoryConfigViewModel } from "generated/Models/Core/ReferenceValueFactoryConfigViewModel";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestParameterReferenceChoiceViewModel } from '@models/modules/TestSuite/TestParameterViewModel';
+import { FetchStatus, ServiceFetchCallbacks } from '@services/abstractions/HCServiceBase';
+import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
+import TestsUtils from "@util/TestsModule/TestsUtils";
+import ClipboardUtil from "@util/ClipboardUtil";
+import { ReferenceValueFactoryConfigViewModel } from "@generated/Models/Core/ReferenceValueFactoryConfigViewModel";
 
-@Component({
+@Options({
     components: {
     }
 })

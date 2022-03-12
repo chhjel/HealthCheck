@@ -145,7 +145,7 @@
                     :key="`notifierConfig-${ncindex}-option-${ncoindex}`"
                     style="margin-left:20px">
                     
-                    <backend-input-component
+                    <backend-input-header-component
                         v-model="notifierConfigOption.value"
                         v-on:input="notifierConfig.Options[notifierConfigOption.key] = $event"
                         :config="notifierConfigOption.definition"
@@ -169,7 +169,7 @@
 
         <!-- ###### LIMITS ###### -->
         <block-component class="mb-4" title="Limits">
-            <input-component
+            <input-header-component
                 class="mt-2"
                 v-model="internalConfig.NotificationCountLimit"
                 :disabled="!allowChanges"
@@ -192,7 +192,7 @@
                 description="Only allow notifications before this datetime. After this datetime the config will be disabled."
                 />
 
-            <input-component
+            <input-header-component
                 class="mt-2"
                 v-model="internalConfig.DistinctNotificationKey"
                 :disabled="!allowChanges"
@@ -203,7 +203,7 @@
                 @actionIconClicked="showPayloadPlaceholdersDialog()"
                 />
 
-            <timespan-input-component
+            <timespan-input-header-component
                 class="mt-2"
                 v-model="internalConfig.DistinctNotificationCacheDuration"
                 :disabled="!allowChanges"
@@ -368,27 +368,28 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { EventSinkNotificationConfigFilter, FilterMatchType, EventSinkNotificationConfig, NotifierConfig, Dictionary, IEventNotifier, NotifierConfigOptionsItem, KnownEventDefinition } from  '../../../models/modules/EventNotifications/EventNotificationModels';
-import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
-import ConfigFilterComponent from '.././EventNotifications/ConfigFilterComponent.vue';
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import DateUtils from  '../../../util/DateUtils';
-import IdUtils from  '../../../util/IdUtils';
-import EventSinkNotificationConfigUtils, { ConfigFilterDescription, ConfigActionDescription } from  '../../../util/EventNotifications/EventSinkNotificationConfigUtils';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import InputComponent from  '../../Common/Basic/InputComponent.vue';
-import TimespanInputComponent from  '../../Common/Basic/TimespanInputComponent.vue';
-import EventNotificationService from  '../../../services/EventNotificationService';
-import BackendInputComponent from "components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
-import { NewItemActionType } from "generated/Enums/Core/NewItemActionType";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { EventSinkNotificationConfigFilter, FilterMatchType, EventSinkNotificationConfig, NotifierConfig, Dictionary, IEventNotifier, NotifierConfigOptionsItem, KnownEventDefinition } from '@generated/Models/Core/EventSinkNotificationConfigFilter';
+import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
+import ConfigFilterComponent from '@components/modules/EventNotifications/ConfigFilterComponent.vue';
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import DateUtils from '@util/DateUtils';
+import IdUtils from '@util/IdUtils';
+import EventSinkNotificationConfigUtils, { ConfigFilterDescription, ConfigActionDescription } from '@util/EventNotifications/EventSinkNotificationConfigUtils';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import InputHeaderComponent from '@components/Common/Basic/InputHeaderComponent.vue';
+import TimespanInputComponent from '@components/Common/Basic/TimespanInputComponent.vue';
+import EventNotificationService from '@services/EventNotificationService';
+import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { NewItemActionType } from "@generated/Enums/Core/NewItemActionType";
 
-@Component({
+@Options({
     components: {
         ConfigFilterComponent,
         SimpleDateTimeComponent,
         BlockComponent,
-        InputComponent,
+        InputHeaderComponent,
         TimespanInputComponent,
         BackendInputComponent
     }

@@ -1,4 +1,4 @@
-import { GetMetricsViewModel } from "generated/Models/Core/GetMetricsViewModel";
+import { GetMetricsViewModel } from "@generated/Models/Core/GetMetricsViewModel";
 import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstractions/HCServiceBase";
 
 export default class MetricsService extends HCServiceBase

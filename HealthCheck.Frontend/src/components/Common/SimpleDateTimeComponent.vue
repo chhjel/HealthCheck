@@ -22,10 +22,11 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import DateUtils from "../../util/DateUtils";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import DateUtils from '@util/DateUtils';
 
-@Component({
+@Options({
     components: {}
 })
 export default class SimpleDateTimeComponent extends Vue {

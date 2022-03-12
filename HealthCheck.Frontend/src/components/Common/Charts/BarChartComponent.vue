@@ -6,10 +6,11 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
 import { Chart, LinearTickOptions, ChartPoint, ChartDataSets } from 'chart.js';
-import DateUtils from "../../../util/DateUtils";
-import LinqUtils from "../../../util/LinqUtils";
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
 
 export interface BarChartBar {
     label: string;
@@ -24,7 +25,7 @@ export interface BarChartSet {
 interface ChartDataPoint extends Chart.ChartPoint {
 }
 
-@Component({
+@Options({
 	components: {}
 })
 export default class BarChartComponent extends Vue {

@@ -130,31 +130,32 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import FrontEndOptionsViewModel from  '../../../models/Common/FrontEndOptionsViewModel';
-import { EntryState } from  '../../../models/modules/RequestLog/EntryState';
-import DateUtils from  '../../../util/DateUtils';
-import LinqUtils from  '../../../util/LinqUtils';
-import KeyArray from  '../../../util/models/KeyArray';
-import KeyValuePair from  '../../../models/Common/KeyValuePair';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import { EntryState } from '@models/modules/RequestLog/EntryState';
+import DateUtils from '@util/DateUtils';
+import LinqUtils from '@util/LinqUtils';
+import KeyArray from '@util/models/KeyArray';
+import KeyValuePair from '@models/Common/KeyValuePair';
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
-import FilterInputComponent from  '../../Common/FilterInputComponent.vue';
-import DataTableComponent, { DataTableGroup } from  '../../Common/DataTableComponent.vue';
-import SimpleDateTimeComponent from  '../../Common/SimpleDateTimeComponent.vue';
-import FilterableListComponent, { FilterableListItem } from  '../../Common/FilterableListComponent.vue';
-import EditDownloadComponent from './EditDownloadComponent.vue';
-import IdUtils from  '../../../util/IdUtils';
-import SecureFileDownloadUtils from  '../../../util/SecureFileDownload/SecureFileDownloadUtils';
-import BlockComponent from  '../../Common/Basic/BlockComponent.vue';
-import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
-import ModuleConfig from  '../../../models/Common/ModuleConfig';
-import ModuleOptions from  '../../../models/Common/ModuleOptions';
-import SecureFileDownloadService from "../../../services/SecureFileDownloadService";
-import { SecureFileDownloadsViewModel, SecureFileDownloadDefinition, SecureFileDownloadFrontendOptionsModel } from "../../../models/modules/SecureFileDownload/Models";
+import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
+import DataTableComponent, { DataTableGroup } from '@components/Common/DataTableComponent.vue';
+import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
+import FilterableListComponent, { FilterableListItem } from '@components/Common/FilterableListComponent.vue';
+import EditDownloadComponent from '@components/modules/SecureFileDownload/EditDownloadComponent.vue';
+import IdUtils from '@util/IdUtils';
+import SecureFileDownloadUtils from '@util/SecureFileDownload/SecureFileDownloadUtils';
+import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
+import { FetchStatus } from '@services/abstractions/HCServiceBase';
+import ModuleConfig from '@models/Common/ModuleConfig';
+import ModuleOptions from '@models/Common/ModuleOptions';
+import SecureFileDownloadService from '@services/SecureFileDownloadService';
+import { SecureFileDownloadsViewModel, SecureFileDownloadDefinition, SecureFileDownloadFrontendOptionsModel } from '@generated/Models/Core/SecureFileDownloadsViewModel';
 
-@Component({
+@Options({
     components: {
         SimpleDateTimeComponent,
         EditDownloadComponent,

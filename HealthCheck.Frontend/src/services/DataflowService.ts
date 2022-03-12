@@ -4,7 +4,7 @@ import HCServiceBase, { FetchStatus, ServiceFetchCallbacks } from "./abstraction
 import DataflowStreamMetadata from "../models/modules/Dataflow/DataflowStreamMetadata";
 import DataflowEntry from "../models/modules/Dataflow/DataflowEntry";
 import GetDataflowEntriesRequestModel from "../models/modules/Dataflow/GetDataflowEntriesRequestModel";
-import DataflowUnifiedSearchMetadata from "models/modules/Dataflow/DataflowUnifiedSearchMetadata";
+import DataflowUnifiedSearchMetadata from "@models/modules/Dataflow/DataflowUnifiedSearchMetadata";
 
 export default class DataflowService extends HCServiceBase
 {

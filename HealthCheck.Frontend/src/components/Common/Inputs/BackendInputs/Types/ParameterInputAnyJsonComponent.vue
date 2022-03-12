@@ -49,12 +49,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import TestParameterTemplateViewModel from "../../../../../models/modules/TestSuite/TestParameterTemplateViewModel";
-import EditorComponent from  '../../../../Common/EditorComponent.vue';
-import { HCBackendInputConfig } from 'generated/Models/Core/HCBackendInputConfig';
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { TestParameterTemplateViewModel } from '@generated/Models/Core/TestParameterTemplateViewModel';
+import EditorComponent from '@components/Common/EditorComponent.vue';
+import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
 
-@Component({
+@Options({
     components: {
         EditorComponent
     }

@@ -70,19 +70,20 @@
 </template>
 
 <script lang="ts">
-import IdUtils from "util/IdUtils";
-import { Vue, Component, Prop, } from "vue-property-decorator";
-import { HCMetricsContext } from 'generated/Models/Core/HCMetricsContext';
-import DateUtils from "util/DateUtils";
-import MetricsBlockComponent from 'components/modules/Metrics/MetricsBlockComponent.vue';
-import { HCMetricsItem } from "generated/Models/Core/HCMetricsItem";
-import { MetricItemType } from "generated/Enums/Core/MetricItemType";
+import IdUtils from "@util/IdUtils";
+import { Vue, Prop, } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { HCMetricsContext } from '@generated/Models/Core/HCMetricsContext';
+import DateUtils from "@util/DateUtils";
+import MetricsBlockComponent from '@components/modules/Metrics/MetricsBlockComponent.vue';
+import { HCMetricsItem } from "@generated/Models/Core/HCMetricsItem";
+import { MetricItemType } from "@generated/Enums/Core/MetricItemType";
 
 interface TimingExt extends HCMetricsItem {
   StartPercentage: number;
   EndPercentage: number;
 }
-@Component({
+@Options({
     components: {
         MetricsBlockComponent
     }

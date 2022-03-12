@@ -1,6 +1,6 @@
 // Modules
 import TestSuitesPageComponent from '../components/modules/TestSuite/TestSuitesPageComponent.vue';
-import OverviewPageComponent from '../components/modules/Overview/OverviewPageComponent.vue';
+import EventCalendarComponent from '../components/modules/Overview/OverviewPageComponent.vue';
 import AuditLogPageComponent from '../components/modules/AuditLog/AuditLogPageComponent.vue';
 import LogViewerPageComponent from '../components/modules/LogViewer/LogViewerPageComponent.vue';
 import RequestLogPageComponent from '../components/modules/RequestLog/RequestLogPageComponent.vue';
@@ -11,14 +11,14 @@ import EventNotificationsPageComponent from '../components/modules/EventNotifica
 import DynamicCodeExecutionPageComponent from '../components/modules/DynamicCodeExecution/DynamicCodeExecutionPageComponent.vue';
 import AccessTokensPageComponent from '../components/modules/AccessTokens/AccessTokensPageComponent.vue';
 import SecureFileDownloadPageComponent from '../components/modules/SecureFileDownload/SecureFileDownloadPageComponent.vue';
-import EndpointControlPageComponent from '../components/modules/EndpointControl/EndpointControlPageComponent.vue';
+import MessagesPageComponent from '../components/modules/EndpointControl/EndpointControlPageComponent.vue';
 import MessagesPageComponent from '../components/modules/Messages/MessagesPageComponent.vue';
 import ReleaseNotesPageComponent from '../components/modules/ReleaseNotes/ReleaseNotesPageComponent.vue';
 import MetricsPageComponent from '../components/modules/Metrics/MetricsPageComponent.vue';
 import DataRepeaterPageComponent from '../components/modules/DataRepeater/DataRepeaterPageComponent.vue';
 import DataExportPageComponent from '../components/modules/DataExport/DataExportPageComponent.vue';
 import CustomPageComponent from '../components/modules/Custom/CustomPageComponent.vue';
-import NoPageAvailablePageComponent from '../components/NoPageAvailablePageComponent.vue';
+import InvalidModuleConfigsComponent from '../components/NoPageAvailablePageComponent.vue';
 import Vue, { VueConstructor } from "vue";
 import VueRouter, { RouteConfig } from 'vue-router';
 import ModuleOptions from '../models/Common/ModuleOptions';
@@ -27,7 +27,7 @@ import ModuleConfig from '../models/Common/ModuleConfig';
 export default function createRouter(moduleConfig: Array<ModuleConfig>): VueRouter {
   let moduleComponents: Record<string, VueConstructor<Vue>> = {
     'TestSuitesPageComponent': TestSuitesPageComponent,
-    'OverviewPageComponent': OverviewPageComponent,
+    'OverviewPageComponent': EventCalendarComponent,
     'AuditLogPageComponent': AuditLogPageComponent,
     'LogViewerPageComponent': LogViewerPageComponent,
     'RequestLogPageComponent': RequestLogPageComponent,
@@ -38,7 +38,7 @@ export default function createRouter(moduleConfig: Array<ModuleConfig>): VueRout
     'DynamicCodeExecutionPageComponent': DynamicCodeExecutionPageComponent,
     'AccessTokensPageComponent': AccessTokensPageComponent,
     'SecureFileDownloadPageComponent': SecureFileDownloadPageComponent,
-    'EndpointControlPageComponent': EndpointControlPageComponent,
+    'EndpointControlPageComponent': MessagesPageComponent,
     'MessagesPageComponent': MessagesPageComponent,
     'ReleaseNotesPageComponent': ReleaseNotesPageComponent,
     'MetricsPageComponent': MetricsPageComponent,

@@ -31,11 +31,12 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
-import { EndpointControlCustomResultDefinitionViewModel, EndpointControlEndpointDefinition, EndpointControlRule } from "../../../models/modules/EndpointControl/EndpointControlModels";
-import EndpointControlUtils, { RuleDescription } from "../../../util/EndpointControl/EndpointControlUtils";
+import { Vue, Prop } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { EndpointControlCustomResultDefinitionViewModel, EndpointControlEndpointDefinition, EndpointControlRule } from '@models/modules/EndpointControl/EndpointControlModels';
+import EndpointControlUtils, { RuleDescription } from '@util/EndpointControl/EndpointControlUtils';
 
-@Component({
+@Options({
     components: {  }
 })
 export default class RuleDescriptionComponent extends Vue {

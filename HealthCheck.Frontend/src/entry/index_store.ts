@@ -1,10 +1,7 @@
 import Vuex from "vuex";
 import FrontEndOptionsViewModel from "../models/Common/FrontEndOptionsViewModel";
-import Vue from "vue";
 
 let globalOptions = ((window as any).healthCheckOptions) as FrontEndOptionsViewModel;
-
-Vue.use(Vuex);
 
 export interface ParameterDetails
 {

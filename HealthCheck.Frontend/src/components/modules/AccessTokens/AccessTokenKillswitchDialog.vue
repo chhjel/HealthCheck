@@ -37,12 +37,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from "vue-property-decorator";
-import { HCFrontEndOptions } from "generated/Models/WebUI/HCFrontEndOptions";
-import AccessTokensService from "services/AccessTokensService";
-import { FetchStatus } from "services/abstractions/HCServiceBase";
+import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Options } from "vue-class-component";
+import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
+import AccessTokensService from "@services/AccessTokensService";
+import { FetchStatus } from "@services/abstractions/HCServiceBase";
 
-@Component({
+@Options({
     components: {
     }
 })
