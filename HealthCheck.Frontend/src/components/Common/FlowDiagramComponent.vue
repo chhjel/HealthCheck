@@ -14,23 +14,7 @@ import 'jointjs/dist/joint.min.css'
 import * as dagre from 'dagre/index';
 import IdUtils from '@util/IdUtils';
 
-export interface FlowDiagramStep<T> {
-    title: string;
-	connections: Array<FlowDiagramConnection>;
-	type?: FlowDiagramStepType | undefined | null;
-    data: T;
-}
-export enum FlowDiagramStepType {
-	Element = 'Element',
-	If = 'If',
-	Start = 'Start',
-	End = 'End'
-}
-export interface FlowDiagramConnection {
-	target: string;
-	label: string | null;
-}
-
+import { FlowDiagramStep<T> , FlowDiagramStepType , FlowDiagramConnection  } from './FlowDiagramComponent.vue.models';
 @Options({
 	components: {}
 })

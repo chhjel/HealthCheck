@@ -46,16 +46,7 @@
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 
-export interface DataTableGroup
-{
-    title: string;
-    items: Array<DataTableItem>;
-}
-export interface DataTableItem
-{
-    values: Array<any>;
-}
-
+import { DataTableGroup, DataTableItem } from '@components/Common/DataTableComponent.vue.models';
 @Options({
     components: {}
 })

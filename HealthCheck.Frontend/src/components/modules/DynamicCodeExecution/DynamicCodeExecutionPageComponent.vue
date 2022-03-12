@@ -264,7 +264,7 @@ import { FetchStatus } from '@services/abstractions/HCServiceBase';
 import DynamicCodeExecutionService from '@services/DynamicCodeExecutionService';
 import { DynamicCodeExecutionResultModel, DynamicCodeScript, AutoCompleteRequest, AutoCompleteData, CodeSnippet } from '@models/modules/DynamicCodeExecution/Models';
 import { MarkerSeverity } from "monaco-editor";
-import { FilterableListItem } from '@components/Common/FilterableListComponent.vue';
+import { FilterableListItem } from '@components/Common/FilterableListComponent.vue.models';
 import FilterableListComponent from '@components/Common/FilterableListComponent.vue';
 import IdUtils from '@util/IdUtils';
 import * as monaco from 'monaco-editor'

@@ -85,12 +85,14 @@ import EndpointControlUtils from '@util/EndpointControl/EndpointControlUtils';
 import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
 import EndpointControlService from '@services/EndpointControlService';
 import { EndpointControlCountOverDuration, EndpointControlEndpointDefinition, EndpointControlPropertyFilter, EndpointControlRule, EndpointRequestDetails, EndpointRequestSimpleDetails } from '@models/modules/EndpointControl/EndpointControlModels';
-import DataOverTimeChartComponent, { ChartEntry, ChartSet } from '@components/Common/Charts/DataOverTimeChartComponent.vue';
-import BarChartComponent, { BarChartBar, BarChartSet } from '@components/Common/Charts/BarChartComponent.vue';
+import DataOverTimeChartComponent from '@components/Common/Charts/DataOverTimeChartComponent.vue';
+import { ChartEntry, ChartSet } from '@components/Common/Charts/DataOverTimeChartComponent.vue.models';
+import BarChartComponent from '@components/Common/Charts/BarChartComponent.vue';
+import { BarChartBar, BarChartSet } from '@components/Common/Charts/BarChartComponent.vue.models';
 import PagingComponent from '@components/Common/Basic/PagingComponent.vue';
 import SelectComponent from '@components/Common/Basic/SelectComponent.vue';
 import { FetchStatus } from '@services/abstractions/HCServiceBase';
-import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue';
+import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
 import LinqUtils from '@util/LinqUtils';
 import { Dictionary } from '@models/modules/EventNotifications/EventNotificationModels';
 

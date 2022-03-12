@@ -142,9 +142,11 @@ import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
 import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
-import DataTableComponent, { DataTableGroup } from '@components/Common/DataTableComponent.vue';
+import DataTableComponent from '@components/Common/DataTableComponent.vue';
+import { DataTableGroup } from '@components/Common/DataTableComponent.vue.models';
 import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
-import FilterableListComponent, { FilterableListItem } from '@components/Common/FilterableListComponent.vue';
+import FilterableListComponent from '@components/Common/FilterableListComponent.vue';
+import { FilterableListItem } from '@components/Common/FilterableListComponent.vue.models';
 import EditDownloadComponent from '@components/modules/SecureFileDownload/EditDownloadComponent.vue';
 import IdUtils from '@util/IdUtils';
 import SecureFileDownloadUtils from '@util/SecureFileDownload/SecureFileDownloadUtils';

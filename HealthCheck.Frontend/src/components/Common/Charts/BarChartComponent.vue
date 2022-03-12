@@ -12,16 +12,7 @@ import { Chart, LinearTickOptions, ChartPoint, ChartDataSets } from 'chart.js';
 import DateUtils from '@util/DateUtils';
 import LinqUtils from '@util/LinqUtils';
 
-export interface BarChartBar {
-    label: string;
-    values: number[];
-}
-export interface BarChartSet {
-	label: string;
-	group: string;
-    color: string;
-}
-
+import { BarChartBar, BarChartSet } from '@components/Common/Charts/BarChartComponent.vue.models';
 interface ChartDataPoint extends Chart.ChartPoint {
 }
 

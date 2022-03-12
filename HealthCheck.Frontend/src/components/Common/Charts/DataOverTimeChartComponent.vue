@@ -12,16 +12,7 @@ import { Chart, LinearTickOptions, ChartPoint, ChartDataSets } from 'chart.js';
 import DateUtils from '@util/DateUtils';
 import LinqUtils from '@util/LinqUtils';
 
-export interface ChartEntry {
-    date: Date;
-    group: string;
-}
-export interface ChartSet {
-	label: string;
-	group: string;
-    color: string;
-}
-
+import { ChartEntry, ChartSet } from '@components/Common/Charts/DataOverTimeChartComponent.vue.models';
 interface ChartDataPoint extends Chart.ChartPoint {
 }
 

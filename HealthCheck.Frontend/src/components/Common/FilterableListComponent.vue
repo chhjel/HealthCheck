@@ -92,18 +92,7 @@ import KeyValuePair from '@models/Common/KeyValuePair';
 // @ts-ignore
 import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
 
-export interface FilterableListGroup
-{
-    title: string;
-    items: Array<FilterableListItem>;
-}
-export interface FilterableListItem
-{
-    title: string;
-    subtitle: string | null;
-    data: any;
-}
-
+import { FilterableListGroup, FilterableListItem } from '@components/Common/FilterableListComponent.vue.models';
 @Options({
     components: {
         FilterInputComponent

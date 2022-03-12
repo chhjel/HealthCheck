@@ -352,7 +352,7 @@ import ItemPerDateChartComponent from '@components/modules/LogViewer/ItemPerDate
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
 import { FilterDelimiterMode } from '@models/modules/LogViewer/FilterDelimiterMode';
-import { ChartEntry } from '@components/Common/Charts/DataOverTimeChartComponent.vue';
+import { ChartEntry } from '@components/Common/Charts/DataOverTimeChartComponent.vue.models';
 import * as XRegExp from 'xregexp';
 import LogService from '@services/LogService';
 import { FetchStatus } from '@services/abstractions/HCServiceBase';

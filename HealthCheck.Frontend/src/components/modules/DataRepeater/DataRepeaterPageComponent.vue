@@ -198,7 +198,8 @@
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
-import FilterableListComponent, { FilterableListItem } from '@components/Common/FilterableListComponent.vue';
+import FilterableListComponent from '@components/Common/FilterableListComponent.vue';
+import { FilterableListItem } from '@components/Common/FilterableListComponent.vue.models';
 import { FetchStatus } from '@services/abstractions/HCServiceBase';
 import ModuleConfig from '@models/Common/ModuleConfig';
 import ModuleOptions from '@models/Common/ModuleOptions';

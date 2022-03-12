@@ -288,8 +288,10 @@ import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
 import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
-import DataTableComponent, { DataTableGroup } from '@components/Common/DataTableComponent.vue';
-import FilterableListComponent, { FilterableListItem } from '@components/Common/FilterableListComponent.vue';
+import DataTableComponent from '@components/Common/DataTableComponent.vue';
+import { DataTableGroup } from '@components/Common/DataTableComponent.vue.models';
+import FilterableListComponent from '@components/Common/FilterableListComponent.vue';
+import { FilterableListItem } from '@components/Common/FilterableListComponent.vue.models';
 import DataflowService from '@services/DataflowService';
 import { FetchStatus } from '@services/abstractions/HCServiceBase';
 import ModuleConfig from '@models/Common/ModuleConfig';

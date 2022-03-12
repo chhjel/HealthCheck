@@ -154,10 +154,7 @@ import ModuleConfig from '@models/Common/ModuleConfig';
 import UrlUtils from '@util/UrlUtils';
 import StringUtils from "@util/StringUtils";
 
-export interface TestModuleOptions {
-    AllowAnyParameterType: boolean;
-}
-
+import { TestModuleOptions } from '@components/modules/TestSuite/TestSuitesPageComponent.vue.models';
 @Options({
     components: {
         TestSetComponent,

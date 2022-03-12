@@ -265,10 +265,12 @@ import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
 import { DateTimePicker } from "@lazy-copilot/datetimepicker";
 import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
-import DataTableComponent, { DataTableGroup } from '@components/Common/DataTableComponent.vue';
+import DataTableComponent from '@components/Common/DataTableComponent.vue';
+import { DataTableGroup } from '@components/Common/DataTableComponent.vue.models';
 import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
 import RuleDescriptionComponent from '@components/modules/EndpointControl/RuleDescriptionComponent.vue';
-import FilterableListComponent, { FilterableListItem } from '@components/Common/FilterableListComponent.vue';
+import FilterableListComponent from '@components/Common/FilterableListComponent.vue';
+import { FilterableListItem } from '@components/Common/FilterableListComponent.vue.models';
 import RuleComponent from '@components/modules/EndpointControl/RuleComponent.vue';
 import IdUtils from '@util/IdUtils';
 import EndpointControlUtils from '@util/EndpointControl/EndpointControlUtils';
@@ -280,11 +282,7 @@ import ModuleConfig from '@models/Common/ModuleConfig';
 import { EndpointControlCustomResultDefinitionViewModel, EndpointControlDataViewModel, EndpointControlEndpointDefinition, EndpointControlFilterMode, EndpointControlPropertyFilter, EndpointControlRule } from '@models/modules/EndpointControl/EndpointControlModels';
 import LatestRequestsComponent from '@components/modules/EndpointControl/LatestRequestsComponent.vue';
 
-export interface ModuleFrontendOptions {
-    MaxLatestRequestsToShow: number;
-    MaxLatestSimpleRequestDataToShow: number;
-}
-
+import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
 @Options({
     components: {
         SimpleDateTimeComponent,

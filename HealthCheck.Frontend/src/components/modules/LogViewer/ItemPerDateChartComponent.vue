@@ -15,11 +15,7 @@ import DateUtils from '@util/DateUtils';
 import { Chart, LinearTickOptions, ChartPoint } from 'chart.js';
 import { LogEntrySeverity } from '@generated/Enums/Core/LogEntrySeverity';
 
-export interface ChartEntry {
-    date: Date;
-    label: string;
-    severity: LogEntrySeverity;
-}
+import { ChartEntry } from '@components/Common/Charts/DataOverTimeChartComponent.vue.models';
 interface ChartDataPoint extends Chart.ChartPoint {
     pointTitle: string | null;
     pointLabel: string | null;

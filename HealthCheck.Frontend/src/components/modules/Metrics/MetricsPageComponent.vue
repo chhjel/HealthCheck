@@ -102,9 +102,7 @@ import ModuleConfig from '@models/Common/ModuleConfig';
 import { GetMetricsViewModel } from "@generated/Models/Core/GetMetricsViewModel";
 import LinqUtils from "@util/LinqUtils";
 
-export interface ModuleFrontendOptions {
-}
-
+import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
 @Options({
     components: {
         BlockComponent

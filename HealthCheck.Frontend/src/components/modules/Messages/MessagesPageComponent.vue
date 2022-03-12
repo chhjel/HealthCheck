@@ -239,14 +239,12 @@ import MessagesService from '@services/MessagesService';
 import ModuleOptions from '@models/Common/ModuleOptions';
 import ModuleConfig from '@models/Common/ModuleConfig';
 import { DataWithTotalCount, MessageItem, MessagesInboxMetadata } from '@models/modules/Messages/MessagesModels';
-import { FilterableListItem } from '@components/Common/FilterableListComponent.vue';
+import { FilterableListItem } from '@components/Common/FilterableListComponent.vue.models';
 import FilterableListComponent from '@components/Common/FilterableListComponent.vue';
 import PagingComponent from '@components/Common/Basic/PagingComponent.vue';
 import EditorComponent from '@components/Common/EditorComponent.vue';
 
-export interface ModuleFrontendOptions {
-}
-
+import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
 @Options({
     components: {
         BlockComponent,

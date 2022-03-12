@@ -96,9 +96,7 @@ import ModuleOptions from '@models/Common/ModuleOptions';
 import ModuleConfig from '@models/Common/ModuleConfig';
 import { HCReleaseNotesViewModel } from "@generated/Models/Core/HCReleaseNotesViewModel";
 
-export interface ModuleFrontendOptions {
-}
-
+import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
 @Options({
     components: {
         BlockComponent
