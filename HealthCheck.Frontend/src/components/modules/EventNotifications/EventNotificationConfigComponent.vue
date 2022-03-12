@@ -624,7 +624,7 @@ export default class EventNotificationConfigComponent extends Vue {
         let value = this.currentPlaceholderDialogTargetConfig.Options[this.currentPlaceholderDialogTargetOptionKey];
         value = `${(value || '')}\{${placeholder.toUpperCase()}\}`;
 
-        Vue.set(this.currentPlaceholderDialogTargetConfig.Options, this.currentPlaceholderDialogTargetOptionKey, value);
+        this.currentPlaceholderDialogTargetConfig.Options[this.currentPlaceholderDialogTargetOptionKey] = value;
         // this.currentPlaceholderDialogTargetConfig.Options[this.currentPlaceholderDialogTargetOptionKey] = value;
 
         this.hidePlaceholderDialog();
@@ -795,7 +795,7 @@ export default class EventNotificationConfigComponent extends Vue {
     }
 
     onConfigFilterChanged(index: number, filter: EventSinkNotificationConfigFilter): void {
-        Vue.set(this.internalConfig.PayloadFilters, index, filter);
+        this.internalConfig.PayloadFilters[index] = filter;
     }
 
     onSummaryConditionClicked(condition: ConfigFilterDescription): void {

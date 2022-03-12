@@ -476,7 +476,7 @@ export default class EndpointControlPageComponent extends Vue {
             this.datax.Rules.push(rule);
         }
         else {
-            Vue.set(this.datax.Rules, position, rule);
+            this.datax.Rules[position] = rule;
             // this.datax.Rules.unshift(rule);
         }
         // this.$forceUpdate();

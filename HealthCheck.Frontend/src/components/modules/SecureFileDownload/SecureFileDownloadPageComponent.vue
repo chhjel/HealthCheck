@@ -312,7 +312,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
             this.datax.push(download);
         }
         else {
-            Vue.set(this.data, position, download);
+            this.data[position] = download;
         }
 
         if (download.FileId)

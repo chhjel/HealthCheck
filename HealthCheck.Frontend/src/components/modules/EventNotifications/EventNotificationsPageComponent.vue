@@ -445,7 +445,7 @@ export default class EventNotificationsPageComponent extends Vue {
             this.datax.Configs.push(config);
         }
         else {
-            Vue.set(this.datax.Configs, position, config);
+            this.datax.Configs[position] = config;
             // this.datax.Configs.unshift(config);
         }
         // this.$forceUpdate();

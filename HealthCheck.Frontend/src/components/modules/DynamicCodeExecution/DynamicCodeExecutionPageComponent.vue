@@ -984,7 +984,7 @@ namespace CodeTesting
 
     preprocessBeforeSave(script: DynamicCodeScript): void
     {
-        Vue.set(script, 'IsDraft', false);
+        script['IsDraft'] = false;
         delete script.IsDraft;
 
         const titleFromCode = this.getTitleFromComment(script.Code);

@@ -346,7 +346,7 @@ export default class RuleComponent extends Vue {
     }
 
     onCoDChanged(list: Array<EndpointControlCountOverDuration>, index: number, newVal: EndpointControlCountOverDuration): void {
-        Vue.set(list, index, newVal);
+        list[index] = newVal;
     }
 
     onCoDDelete(list: Array<EndpointControlCountOverDuration>, index: number): void {

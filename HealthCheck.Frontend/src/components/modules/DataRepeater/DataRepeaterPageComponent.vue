@@ -654,7 +654,8 @@ export default class DataRepeaterPageComponent extends Vue {
     }
 
     onItemUpdated(item: HCDataRepeaterStreamItemViewModel): void {
-        Vue.set(this.items, this.items.findIndex(x => x.Id == item.Id), item)
+        const index = this.items.findIndex(x => x.Id == item.Id);
+        this.items[index] = item;
     }
 }
 </script>
