@@ -27,7 +27,7 @@ export default class EndpointControlUtils
     static describeRuleExt(rule: EndpointControlRule, 
             endpointDefs: Array<EndpointControlEndpointDefinition>,
             customResultDefinitions: Array<EndpointControlCustomResultDefinitionViewModel>): RuleDescription {
-        let filters = [];
+        let filters: Array<any> = [];
         let forcedFilters: Array<string> = [];
 
         const endpointFilter = rule.EndpointIdFilter;

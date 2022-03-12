@@ -209,12 +209,12 @@ import IdUtils from '@util/IdUtils';
 import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
 import InputHeaderComponent from '@components/Common/Basic/InputHeaderComponent.vue';
 import SelectComponent from '@components/Common/Basic/SelectComponent.vue';
-import { SecureFileDownloadDefinition, SecureFileDownloadSaveViewModel, SecureFileDownloadStorageInfo, SecureFileDownloadStorageUploadFileResult } from '@generated/Models/Core/SecureFileDownloadDefinition';
 import SecureFileDownloadUtils from '@util/SecureFileDownload/SecureFileDownloadUtils';
 import SecureFileDownloadService from '@services/SecureFileDownloadService';
 import { FetchStatus, FetchStatusWithProgress } from '@services/abstractions/HCServiceBase';
 import ParameterInputTypeHttpPostedFileBaseComponent from "@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeHttpPostedFileBaseComponent.vue";
 import FetchStatusProgressComponent from "@components/Common/Basic/FetchStatusProgressComponent.vue";
+import { SecureFileDownloadDefinition, SecureFileDownloadSaveViewModel, SecureFileDownloadStorageInfo, SecureFileDownloadStorageUploadFileResult } from "@models/modules/SecureFileDownload/Models";
 
 @Options({
     components: {

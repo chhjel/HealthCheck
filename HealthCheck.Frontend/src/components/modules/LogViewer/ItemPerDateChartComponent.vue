@@ -14,7 +14,6 @@ import { FilterDelimiterMode } from '@models/modules/LogViewer/FilterDelimiterMo
 import DateUtils from '@util/DateUtils';
 import { Chart, LinearTickOptions, ChartPoint } from 'chart.js';
 import { LogEntrySeverity } from '@generated/Enums/Core/LogEntrySeverity';
-
 import { ChartEntry } from '@components/Common/Charts/DataOverTimeChartComponent.vue.models';
 interface ChartDataPoint extends Chart.ChartPoint {
     pointTitle: string | null;
@@ -95,15 +94,15 @@ export default class ItemPerDateChartComponent extends Vue {
             (key, items) => {
                 const date = items[0].date;
 
-                const errors = items.filter(x => x.severity == LogEntrySeverity.Error);
+                const errors = items.filter((x:any) => x.severity == LogEntrySeverity.Error);
                 const errorCount = errors.length;
                 const errorEntryWord = (errorCount == 1) ? 'error' : 'errors';
 
-                const warnings = items.filter(x => x.severity == LogEntrySeverity.Warning);
+                const warnings = items.filter((x:any) => x.severity == LogEntrySeverity.Warning);
                 const warningCount = warnings.length;
                 const warningEntryWord = (warningCount == 1) ? 'warning' : 'warnings';
 
-                const infos = items.filter(x => x.severity == LogEntrySeverity.Info);
+                const infos = items.filter((x:any) => x.severity == LogEntrySeverity.Info);
                 const infoCount = infos.length;
                 const infoEntryWord = (infoCount == 1) ? 'other' : 'others';
 

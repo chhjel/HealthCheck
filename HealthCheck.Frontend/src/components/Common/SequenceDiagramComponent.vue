@@ -59,18 +59,18 @@
 <script lang="ts">
 import { Vue, Prop } from "vue-property-decorator";
 import { Options } from "vue-class-component";
-import { SequenceDiagramStep<T> , SequenceDiagramLineStyle , SequenceDiagramStyle  } from './SequenceDiagramComponent.vue.models';
+import { SequenceDiagramStep , SequenceDiagramLineStyle , SequenceDiagramStyle  } from './SequenceDiagramComponent.vue.models';
 @Options({
     components: {
     }
 })
-export default class SequenceDiagramComponent<T> extends Vue
+export default class SequenceDiagramComponent extends Vue
 {
     @Prop({ required: false, default: null })
     title!: string | null;
 
     @Prop({ required: true, default: true })
-    steps!: Array<SequenceDiagramStep<T>>;
+    steps!: Array<SequenceDiagramStep<any>>;
 
     @Prop({ required: false, default: true })
     showRemarks!: boolean;
@@ -98,11 +98,11 @@ export default class SequenceDiagramComponent<T> extends Vue
         return Array.from(values);
     }
 
-    get stepData(): Array<InternalDiagramStep<T>>
+    get stepData(): Array<InternalDiagramStep>
     {
         let remarkCounter = 0;
         return this.steps.map(x => {
-            let remarkNumber = null;
+            let remarkNumber: number | null = null;
             if (x.remark != null)
             {
                 remarkCounter++;
@@ -118,7 +118,7 @@ export default class SequenceDiagramComponent<T> extends Vue
         });
     }
 
-    get stepRemarks(): Array<InternalStepRemark<T>>
+    get stepRemarks(): Array<InternalStepRemark>
     {
         return this.stepData
             .filter(x => x.remarkNumber != null)
@@ -222,7 +222,7 @@ export default class SequenceDiagramComponent<T> extends Vue
         };
     }
 
-    getStepStyle(stepIndex: number, step: InternalDiagramStep<T>): any {
+    getStepStyle(stepIndex: number, step: InternalDiagramStep): any {
         let start = step.columnStart + 1;
         let end = step.columnEnd + 1;
         let isGoingToSelf = step.columnEnd == step.columnStart;
@@ -238,7 +238,7 @@ export default class SequenceDiagramComponent<T> extends Vue
         return style;
     }
 
-    getStepClasses(stepIndex: number, step: InternalDiagramStep<T>): any {
+    getStepClasses(stepIndex: number, step: InternalDiagramStep): any {
         let isLast = (stepIndex == this.steps.length - 1);
         let isGoingLeft = step.columnEnd < step.columnStart;
         let isGoingRight = step.columnEnd > step.columnStart;
@@ -291,7 +291,7 @@ export default class SequenceDiagramComponent<T> extends Vue
         return classes;
     }
 
-    getStepArrowClasses(stepIndex: number, step: InternalDiagramStep<T>): any {
+    getStepArrowClasses(stepIndex: number, step: InternalDiagramStep): any {
         let isGoingLeft = step.columnEnd < step.columnStart;
         let isGoingRight = step.columnEnd > step.columnStart;
         let isGoingToSelf = step.columnEnd == step.columnStart;
@@ -316,19 +316,19 @@ export default class SequenceDiagramComponent<T> extends Vue
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
-    onStepClicked(step: InternalDiagramStep<T>): void
+    onStepClicked(step: InternalDiagramStep): void
     {
         this.$emit('stepClicked', step.data);
     }
 }
-interface InternalDiagramStep<T> {
-    data: SequenceDiagramStep<T>;
+interface InternalDiagramStep {
+    data: SequenceDiagramStep<any>;
     remarkNumber: number | null;
     columnStart: number;
     columnEnd: number;
 }
-interface InternalStepRemark<T> {
-    step: InternalDiagramStep<T>;
+interface InternalStepRemark {
+    step: InternalDiagramStep;
     remarkNumber: number;
     text: string;
 }

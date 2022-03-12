@@ -14,17 +14,17 @@ import 'jointjs/dist/joint.min.css'
 import * as dagre from 'dagre/index';
 import IdUtils from '@util/IdUtils';
 
-import { FlowDiagramStep<T> , FlowDiagramStepType , FlowDiagramConnection  } from './FlowDiagramComponent.vue.models';
+import { FlowDiagramStep , FlowDiagramStepType , FlowDiagramConnection  } from './FlowDiagramComponent.vue.models';
 @Options({
 	components: {}
 })
-export default class FlowDiagramComponent<T> extends Vue
+export default class FlowDiagramComponent extends Vue
 {
 	@Prop({ required: true})
 	title!: string;
 
 	@Prop({ required: true})
-	steps!: Array<FlowDiagramStep<T>>;
+	steps!: Array<FlowDiagramStep<any>>;
 
 	shapeDefault!: joint.dia.Cell.Constructor<joint.dia.Element>;
 	shapeIf!: joint.dia.Cell.Constructor<joint.dia.Element>;
@@ -104,7 +104,7 @@ export default class FlowDiagramComponent<T> extends Vue
 					}
 				],
 
-				setStepData: function(step: FlowDiagramStep<T>)
+				setStepData: function(step: FlowDiagramStep<any>)
 				{
 					let text = step.title;
 
@@ -390,7 +390,7 @@ export default class FlowDiagramComponent<T> extends Vue
 	////////////////
 	//  METHODS  //
 	//////////////
-	getStepElementType(step: FlowDiagramStep<T>): joint.dia.Cell.Constructor<joint.dia.Element>
+	getStepElementType(step: FlowDiagramStep<any>): joint.dia.Cell.Constructor<joint.dia.Element>
 	{
 		let type = this.getStepType(step);
 		step.type = type;
@@ -404,7 +404,7 @@ export default class FlowDiagramComponent<T> extends Vue
 		}
 	}
 
-	getStepType(step: FlowDiagramStep<T>): FlowDiagramStepType
+	getStepType(step: FlowDiagramStep<any>): FlowDiagramStepType
 	{
 		let type = step.type;
 		let text = step.title;

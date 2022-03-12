@@ -16,7 +16,8 @@
 			"@services/*": ["src/services/*"],
 			"@util/*": ["src/util/*"],
 			"src/*": ["src/*"]
-        }
+        },
+        "noImplicitAny": false
     },
     "include": [
         "./src/**/*"
