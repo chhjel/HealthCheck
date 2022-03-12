@@ -83,7 +83,7 @@ import TestResultCodeDataComponent from '@components/modules/TestSuite/result_da
 import TestResultXmlDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultXmlDataComponent.vue';
 import TestResultJsonDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultJsonDataComponent.vue';
 import TestResultHtmlDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultHtmlDataComponent.vue';
-import TestResultUrlsDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultImageUrlsDataComponent.vue';
+import TestResultImageUrlsDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultImageUrlsDataComponent.vue';
 import TestResultUrlsDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultUrlsDataComponent.vue';
 import TestResultTimelineDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultTimelineDataComponent.vue';
 import TestResultTimingsDataComponent from '@components/modules/TestSuite/result_data/data_types/TestResultTimingsDataComponent.vue';
@@ -98,7 +98,7 @@ import DownloadUtil from '@util/DownloadUtil';
       TestResultXmlDataComponent,
       TestResultJsonDataComponent,
       TestResultHtmlDataComponent,
-      TestResultUrlsDataComponent,
+      TestResultImageUrlsDataComponent,
       TestResultUrlsDataComponent,
       TestResultCodeDataComponent,
       TestResultTimelineDataComponent,
