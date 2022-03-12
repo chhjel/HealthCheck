@@ -222,7 +222,7 @@ export default class EditAccessTokenComponent extends Vue {
         else if (!enabled && this.roleIsEnabled(roleId))
         {
             const index = this.datax.Roles.findIndex(x => x == roleId);
-            Vue.delete(this.datax.Roles, index);
+            delete this.datax.Roles[index];
         }
         this.notifyChange();
     }
@@ -240,7 +240,7 @@ export default class EditAccessTokenComponent extends Vue {
         else if (!enabled && this.hasAccessToModule(moduleId))
         {
             const index = this.datax.Modules.findIndex(x => x.ModuleId == moduleId);
-            Vue.delete(this.datax.Modules, index);
+            delete this.datax.Modules[index];
         }
         this.notifyChange();
     }
@@ -259,7 +259,7 @@ export default class EditAccessTokenComponent extends Vue {
         else if (!enabled && this.moduleOptionIsEnabled(moduleId, option))
         {
             const index = module.Options.findIndex(x => x == option);
-            Vue.delete(module.Options, index);
+            delete module.Options[index];
         }
         this.notifyChange();
     }
@@ -278,7 +278,7 @@ export default class EditAccessTokenComponent extends Vue {
         else if (!enabled && this.moduleCategoryIsEnabled(moduleId, category))
         {
             const index = module.Categories.findIndex(x => x == category);
-            Vue.delete(module.Categories, index);
+            delete module.Categories[index];
         }
         this.notifyChange();
     }
