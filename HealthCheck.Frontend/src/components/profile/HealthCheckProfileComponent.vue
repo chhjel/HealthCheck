@@ -451,7 +451,7 @@ export default class HealthCheckProfileComponent extends Vue
     totpElevateCode: string = '';
     hasElevatedTotp: boolean | null = null;
     current2FACodeProgress: number = 0;
-    twoFactorIntervalId: number = 0;
+    twoFactorIntervalId: any = 0;
 
     totpAddLoadStatus: FetchStatus = new FetchStatus();
     addTotpDialogVisible: boolean = false;

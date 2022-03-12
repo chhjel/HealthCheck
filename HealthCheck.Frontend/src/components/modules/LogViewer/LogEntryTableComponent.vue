@@ -16,10 +16,10 @@
                 </thead>
                 <tbody>
                     <template 
-                        v-for="(row, entryRowIndex) in rows">
+                        v-for="(row, entryRowIndex) in rows"
+                        :key="`log-entry-row-${entryRowIndex}`">
                         <tr class="log-table-row"
                             :class="getEntryRowClasses(row.Entry)"
-                            :key="`log-entry-row-${entryRowIndex}`"
                             @click="onRowClicked(entryRowIndex)">
 
                             <td class="text-xs-left"
@@ -182,7 +182,7 @@ export default class LogEntryTableComponent extends Vue {
 
                 if (regexMatches != null) {
                     const matchWithoutGroupsKeys = XRegExp.exec('asdasd', XRegExp('asd', 'gism'));
-                    const discardedKeys = Object.keys(matchWithoutGroupsKeys);
+                    const discardedKeys = matchWithoutGroupsKeys == null ? [] : Object.keys(matchWithoutGroupsKeys);
                     const matchKeys = Object.keys(regexMatches);
                     const groupNames = matchKeys.filter(x => 
                         discardedKeys.indexOf(x) == -1 && !/^[0-9]+$/.test(x)

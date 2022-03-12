@@ -189,9 +189,8 @@
                                                 style="min-height: 10px"
                                                 tag="tr"
                                                 @end="onHeaderDragEnded">
-                                                <template v-for="header in headers">
+                                                <template v-for="header in headers" :key="`header-${header}`">
                                                     <th class="column text-xs-left draggable-header"
-                                                        :key="`header-${header}`"
                                                         >{{ getHeaderName(header) }}</th>
                                                 </template>
                                             </draggable>
@@ -577,7 +576,7 @@ import DataExportService from '@services/DataExportService';
 import { HCDataExportStreamViewModel } from "@generated/Models/Module/DataExport/HCDataExportStreamViewModel";
 import PagingComponent from '@components/Common/Basic/PagingComponent.vue';
 import HashUtils from '@util/HashUtils';
-import { Route } from "vue-router";
+import { RouteLocationNormalized } from "vue-router";
 import DateUtils from "@util/DateUtils";
 import UrlUtils from "@util/UrlUtils";
 import { HCGetDataExportStreamDefinitionsViewModel } from "@generated/Models/Module/DataExport/HCGetDataExportStreamDefinitionsViewModel";
@@ -590,6 +589,7 @@ import { HCDataExportQueryRequest } from "@generated/Models/Module/DataExport/HC
 import { HCDataExportExporterViewModel } from "@generated/Models/Module/DataExport/HCDataExportExporterViewModel";
 import { HCDataExportValueFormatterConfig } from "@generated/Models/Module/DataExport/HCDataExportValueFormatterConfig";
 import { HCDataExportValueFormatterViewModel } from "@generated/Models/Module/DataExport/HCDataExportValueFormatterViewModel";
+import StringUtils from "@util/StringUtils";
 
 @Options({
     components: {
@@ -667,7 +667,7 @@ export default class DataExportPageComponent extends Vue {
         this.loadStreamDefinitions();
 
         setTimeout(() => {
-            this.routeListener = this.$router.afterEach((t, f) => this.onRouteChanged(t, f));
+            this.routeListener = this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
         }, 100);
 
         this.refreshEditorSize();
@@ -883,7 +883,7 @@ export default class DataExportPageComponent extends Vue {
     onStreamDefinitionsRetrieved(data: HCGetDataExportStreamDefinitionsViewModel | null): void {
         this.streamDefinitions = data;
 
-        const idFromHash = this.$route.params.streamId;
+        const idFromHash = Array.isArray(this.$route.params.streamId) ? this.$route.params.streamId[0] : this.$route.params.streamId;
         if (this.streamDefinitions)
         {
             this.exporters = this.streamDefinitions.Exporters;
@@ -930,7 +930,7 @@ export default class DataExportPageComponent extends Vue {
         }
         // this.loadCurrentStreamItems();
 
-        if (updateUrl && this.$route.params.streamId != this.hash(stream.Id))
+        if (updateUrl && StringUtils.stringOrFirstOfArray(this.$route.params.streamId) != StringUtils.stringOrFirstOfArray(this.hash(stream.Id)))
         {
             this.$router.push(`/dataExport/${this.hash(stream.Id)}`);
         }
@@ -1211,11 +1211,11 @@ export default class DataExportPageComponent extends Vue {
         this.loadCurrentStreamItems(false);
     }
 
-    onRouteChanged(to: Route, from: Route): void {
+    onRouteChanged(to: RouteLocationNormalized, from: RouteLocationNormalized): void {
         if (!this.streamDefinitions) return;
 
-        const oldStreamIdFromHash = from.params.streamId || null;
-        const newStreamIdFromHash = to.params.streamId || null;
+        const oldStreamIdFromHash = StringUtils.stringOrFirstOfArray(from.params.streamId) || null;
+        const newStreamIdFromHash = StringUtils.stringOrFirstOfArray(to.params.streamId) || null;
         const streamChanged = oldStreamIdFromHash != newStreamIdFromHash;
 
         if (streamChanged)

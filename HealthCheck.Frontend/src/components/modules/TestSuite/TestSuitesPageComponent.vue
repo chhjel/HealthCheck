@@ -139,19 +139,20 @@
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
-import { TestSetViewModel } from '@generated/Models/Core/TestSetViewModel';
+import TestSetViewModel from '@models/modules/TestSuite/TestSetViewModel';
 import TestSetGroupViewModel from '@models/modules/TestSuite/TestSetGroupViewModel';
-import { TestsDataViewModel } from '@generated/Models/Core/TestsDataViewModel';
-import { InvalidTestViewModel } from '@generated/Models/Core/InvalidTestViewModel';
+import TestsDataViewModel from '@models/modules/TestSuite/TestsDataViewModel';
+import InvalidTestViewModel from '@models/modules/TestSuite/InvalidTestViewModel';
 import TestSetComponent from '@components/modules/TestSuite/TestSetComponent.vue';
 import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
 import LinqUtils from '@util/LinqUtils';
-import { TestViewModel } from '@generated/Models/Core/TestViewModel';
+import TestViewModel from '@models/modules/TestSuite/TestViewModel';
 import TestService from '@services/TestService';
 import { FetchStatus } from '@services/abstractions/HCServiceBase';
 import ModuleOptions from '@models/Common/ModuleOptions';
 import ModuleConfig from '@models/Common/ModuleConfig';
 import UrlUtils from '@util/UrlUtils';
+import StringUtils from "@util/StringUtils";
 
 export interface TestModuleOptions {
     AllowAnyParameterType: boolean;
@@ -373,9 +374,9 @@ export default class TestSuitesPageComponent extends Vue {
                 routeParams['test'] = testId;
             }
 
-            const groupInUrl = this.$route.params.group;
-            const setInUrl = this.$route.params.set;
-            const testInUrl = this.$route.params.test;
+            const groupInUrl = StringUtils.stringOrFirstOfArray(this.$route.params.group);
+            const setInUrl = StringUtils.stringOrFirstOfArray(this.$route.params.set);
+            const testInUrl = StringUtils.stringOrFirstOfArray(this.$route.params.test);
             if (groupInUrl !== groupId || setInUrl != setId || testInUrl != testId)
             {
                 this.$router.push({ name: this.config.Id, params: routeParams })
@@ -395,9 +396,9 @@ export default class TestSuitesPageComponent extends Vue {
 
     updateSelectionFromUrl(): void
     {
-        const groupFromHash = this.$route.params.group || '';
-        const setFromHash = this.$route.params.set;
-        const testFromHash = this.$route.params.test;
+        const groupFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.group) || '';
+        const setFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.set);
+        const testFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.test);
         if (setFromHash != null && this.trySetActiveSetFromEncodedValues(groupFromHash, setFromHash, testFromHash)) {
             return;
         }

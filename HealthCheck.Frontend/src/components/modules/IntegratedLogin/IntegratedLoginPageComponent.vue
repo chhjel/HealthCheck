@@ -152,7 +152,7 @@ export default class IntegratedLoginPageComponent extends Vue {
     codeMessage: string = '';
     showCodeMessageAsHtml: boolean = false;
     current2FACodeProgress: number = 0;
-    twoFactorIntervalId: number = 0;
+    twoFactorIntervalId: any = 0;
     codeExpirationTime: Date | null = null;
     codeExpirationDuration: number | null = null;
     allowShowProgress: boolean = true;

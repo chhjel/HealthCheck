@@ -302,6 +302,7 @@ import { HCDataflowUnifiedSearchResultItem } from "@generated/Models/Core/HCData
 import { HCDataflowUnifiedSearchStreamResult } from "@generated/Models/Core/HCDataflowUnifiedSearchStreamResult";
 import KeyValuePair from "@models/Common/KeyValuePair";
 import { DataFlowPropertyUIVisibilityOption } from "@generated/Enums/Core/DataFlowPropertyUIVisibilityOption";
+import StringUtils from "@util/StringUtils";
 
 interface PropFilter
 {
@@ -535,8 +536,8 @@ export default class DataflowPageComponent extends Vue {
             routeParams['group'] = group;
         }
         
-        const streamNameInUrl = this.$route.params.streamName;
-        const groupInUrl = this.$route.params.group;
+        const streamNameInUrl = StringUtils.stringOrFirstOfArray(this.$route.params.streamName);
+        const groupInUrl = StringUtils.stringOrFirstOfArray(this.$route.params.group);
         if (streamNameInUrl !== streamName || groupInUrl !== group)
         {
             this.$router.push({ name: this.config.Id, params: routeParams })
@@ -544,8 +545,8 @@ export default class DataflowPageComponent extends Vue {
     }
 
     updateSelectionFromUrl(): void {
-        const selectedItemGroup = this.$route.params.group;
-        const selectedItem = this.$route.params.streamName;
+        const selectedItemGroup = StringUtils.stringOrFirstOfArray(this.$route.params.group) || '';
+        const selectedItem = StringUtils.stringOrFirstOfArray(this.$route.params.streamName) || '';
         let didSelectSomething = false;
         if (selectedItem !== undefined && selectedItem.length > 0) {
             let stream = this.streamMetadatas

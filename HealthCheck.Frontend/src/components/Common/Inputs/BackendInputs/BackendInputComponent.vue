@@ -61,7 +61,7 @@ import ParameterInputTypeHttpPostedFileBaseComponent from '@components/Common/In
 import ParameterInputPickReferenceComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputPickReferenceComponent.vue';
 import ParameterInputTypeGuidComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeGuidComponent.vue';
 import ParameterInputAnyJsonComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputAnyJsonComponent.vue';
-import { TestModuleOptions } from "@components/modules/TestSuite/TestSuitesPageComponent.vue";
+import TestModuleOptions from "@components/modules/TestSuite/TestSuitesPageComponent.vue";
 import IdUtils from '@util/IdUtils';
 import { ReferenceValueFactoryConfigViewModel } from "@generated/Models/Core/ReferenceValueFactoryConfigViewModel";
 

@@ -370,7 +370,6 @@
 <script lang="ts">
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
-import { EventSinkNotificationConfigFilter, FilterMatchType, EventSinkNotificationConfig, NotifierConfig, Dictionary, IEventNotifier, NotifierConfigOptionsItem, KnownEventDefinition } from '@generated/Models/Core/EventSinkNotificationConfigFilter';
 import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
 import ConfigFilterComponent from '@components/modules/EventNotifications/ConfigFilterComponent.vue';
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
@@ -383,6 +382,7 @@ import TimespanInputComponent from '@components/Common/Basic/TimespanInputCompon
 import EventNotificationService from '@services/EventNotificationService';
 import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 import { NewItemActionType } from "@generated/Enums/Core/NewItemActionType";
+import { Dictionary, EventSinkNotificationConfig, EventSinkNotificationConfigFilter, FilterMatchType, IEventNotifier, KnownEventDefinition, NotifierConfig, NotifierConfigOptionsItem } from "@models/modules/EventNotifications/EventNotificationModels";
 
 @Options({
     components: {

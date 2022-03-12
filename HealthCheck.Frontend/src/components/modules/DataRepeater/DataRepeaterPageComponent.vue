@@ -212,10 +212,11 @@ import DataRepeaterBatchActionComponent from '@components/modules/DataRepeater/D
 import PagingComponent from '@components/Common/Basic/PagingComponent.vue';
 import HashUtils from '@util/HashUtils';
 import { HCDataRepeaterStreamItemsPagedViewModel } from "@generated/Models/Core/HCDataRepeaterStreamItemsPagedViewModel";
-import { Route } from "vue-router";
 import DateUtils from "@util/DateUtils";
 import UrlUtils from "@util/UrlUtils";
+import StringUtils from "@util/StringUtils";
 import { HCDataRepeaterStreamItemStatus } from "@generated/Enums/Core/HCDataRepeaterStreamItemStatus";
+import { RouteLocationNormalized } from "vue-router";
 
 @Options({
     components: {
@@ -268,7 +269,7 @@ export default class DataRepeaterPageComponent extends Vue {
         this.loadStreamDefinitions();
 
         setTimeout(() => {
-            this.routeListener = this.$router.afterEach((t, f) => this.onRouteChanged(t, f));
+            this.routeListener = this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
         }, 100);
     }
 
@@ -365,7 +366,7 @@ export default class DataRepeaterPageComponent extends Vue {
             });
         });
 
-        const idFromHash = this.$route.params.streamId;
+        const idFromHash = Array.isArray(this.$route.params.streamId) ? this.$route.params.streamId[0] : this.$route.params.streamId;
         if (this.streamDefinitions)
         {
             const matchingStream = this.streamDefinitions.Streams.filter(x => this.hash(x.Id) == idFromHash)[0];
@@ -406,7 +407,7 @@ export default class DataRepeaterPageComponent extends Vue {
         }
         this.loadCurrentStreamItems(true);
 
-        if (updateUrl && this.$route.params.streamId != this.hash(stream.Id))
+        if (updateUrl && StringUtils.stringOrFirstOfArray(this.$route.params.streamId) != StringUtils.stringOrFirstOfArray(this.hash(stream.Id)))
         {
             this.$router.push(`/dataRepeater/${this.hash(stream.Id)}`);
         }
@@ -444,7 +445,7 @@ export default class DataRepeaterPageComponent extends Vue {
         this.totalResultCount = data.TotalCount;
         this.items = data.Items;
         
-        const idFromHash = this.$route.params.itemId;
+        const idFromHash = Array.isArray(this.$route.params.itemId) ? this.$route.params.itemId[0] : this.$route.params.itemId;
         this.setActiveItemId(idFromHash, false);
     }
 
@@ -630,15 +631,15 @@ export default class DataRepeaterPageComponent extends Vue {
         this.loadCurrentStreamItems(false);
     }
 
-    onRouteChanged(to: Route, from: Route): void {
+    onRouteChanged(to: RouteLocationNormalized, from: RouteLocationNormalized): void {
         if (!this.streamDefinitions) return;
 
-        const oldStreamIdFromHash = from.params.streamId || null;
-        const newStreamIdFromHash = to.params.streamId || null;
+        const oldStreamIdFromHash = StringUtils.stringOrFirstOfArray(from.params.streamId) || null;
+        const newStreamIdFromHash = StringUtils.stringOrFirstOfArray(to.params.streamId) || null;
         const streamChanged = oldStreamIdFromHash != newStreamIdFromHash;
 
-        const oldItemIdFromHash = from.params.itemId || null;
-        const newItemIdFromHash = to.params.itemId || null;
+        const oldItemIdFromHash = StringUtils.stringOrFirstOfArray(from.params.itemId) || null;
+        const newItemIdFromHash = StringUtils.stringOrFirstOfArray(to.params.itemId) || null;
         const itemChanged = oldItemIdFromHash != newItemIdFromHash;
 
         if (streamChanged)

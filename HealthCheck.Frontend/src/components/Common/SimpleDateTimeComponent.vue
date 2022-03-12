@@ -97,7 +97,7 @@ export default class SimpleDateTimeComponent extends Vue {
             }
             return;
         }
-        catch(ex) {
+        catch(ex: any) {
             this.error = ex;
         }
         this.$emit('input', null);

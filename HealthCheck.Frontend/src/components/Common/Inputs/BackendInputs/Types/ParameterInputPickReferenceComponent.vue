@@ -216,7 +216,7 @@ export default class ParameterInputPickReferenceComponent extends Vue {
             }
         };
 
-        this.$root.$emit('hc__loadTestParameterChoices', 
+        this.$root?.$emit('hc__loadTestParameterChoices', 
             {
                 'component': this,
                 'loadStatus' : this.loadingChoicesStatus,

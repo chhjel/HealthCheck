@@ -7,8 +7,8 @@
                 group="grp"
                 style="min-height: 10px"
                 @end="onChanged">
-                <template v-for="(item, itemIndex) in items">
-                    <v-list-tile :key="`${id}-item-${item.id}`" class="parameter-list-input-tile">
+                <template v-for="(item, itemIndex) in items" :key="`${id}-item-${item.id}`">
+                    <v-list-tile class="parameter-list-input-tile">
                         <v-list-tile-action v-if="items.length > 1">
                             <v-icon class="handle-icon">drag_handle</v-icon>
                         </v-list-tile-action>
@@ -55,7 +55,7 @@ import { Options } from "vue-class-component";
 
 //@ts-ignore
 import draggable from 'vuedraggable'
-import DateUtils from  'util/DateUtils';
+import DateUtils from '@util/DateUtils';
 import IdUtils from "@util/IdUtils";
 import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
 import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";

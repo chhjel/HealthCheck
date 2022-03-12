@@ -55,7 +55,7 @@
                     :items="filteredAuditEvents"
                     :loading="loadStatus.inProgress"
                     :rows-per-page-items="tableRowsPerPageItems"
-                    :pagination.sync="tablePagination"
+                    v-model:pagination="tablePagination"
                     :custom-sort="tableSorter"
                     item-key="Id"
                     expand
@@ -154,8 +154,6 @@
 import { Vue, Prop } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
-import { AuditEventViewModel } from '@generated/Models/Core/AuditEventViewModel';
-import { AuditEventFilterInputData } from '@generated/Models/Core/AuditEventFilterInputData';
 import DateUtils from '@util/DateUtils';
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
@@ -165,6 +163,8 @@ import { FetchStatus } from '@services/abstractions/HCServiceBase';
 import ModuleConfig from '@models/Common/ModuleConfig';
 import ModuleOptions from '@models/Common/ModuleOptions';
 import KeyValuePair from '@models/Common/KeyValuePair';
+import AuditEventViewModel from "@models/modules/AuditLog/AuditEventViewModel";
+import AuditEventFilterInputData from "@models/modules/AuditLog/AuditEventFilterInputData";
 
 @Options({
     components: {

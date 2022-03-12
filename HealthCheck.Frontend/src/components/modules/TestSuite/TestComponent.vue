@@ -81,8 +81,6 @@
 <script lang="ts">
 import { Vue, Prop } from "vue-property-decorator";
 import { Options } from "vue-class-component";
-import { TestViewModel } from '@generated/Models/Core/TestViewModel';
-import { TestResultViewModel } from '@generated/Models/Core/TestResultViewModel';
 import ExecuteTestPayload, { ExecuteTestParameterInputData } from '@models/modules/TestSuite/ExecuteTestPayload';
 import TestParametersComponent from '@components/modules/TestSuite/paremeter_inputs/TestParametersComponent.vue';
 import TestResultComponent from '@components/modules/TestSuite/TestResultComponent.vue';
@@ -92,6 +90,8 @@ import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import UrlUtils from '@util/UrlUtils';
 import { TestParameterReferenceChoiceViewModel } from '@models/modules/TestSuite/TestParameterViewModel';
 import ParameterInputPickReferenceComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputPickReferenceComponent.vue';
+import TestViewModel from "@models/modules/TestSuite/TestViewModel";
+import TestResultViewModel from "@models/modules/TestSuite/TestResultViewModel";
 
 @Options({
     components: {
@@ -119,18 +119,18 @@ export default class TestComponent extends Vue {
     //  LIFECYCLE  //
     ////////////////
     created(): void {
-      this.$parent.$on('executeAllTestsInSet', this.executeTest);
+      (<any>this.$parent)?.$on('executeAllTestsInSet', this.executeTest);
       this.testResult = this.test.TestResult;
     }
 
     mounted(): void {
-      this.$root.$on('hc__loadTestParameterChoices', (data: any) => {
+      (<any>this.$root)?.$on('hc__loadTestParameterChoices', (data: any) => {
         this.onLoadTestParametersRequested(data)
       });
     }
 
     beforeDestroy(): void {
-      this.$parent.$off('executeAllTestsInSet', this.executeTest);
+      (<any>this.$parent)?.$off('executeAllTestsInSet', this.executeTest);
     }
 
     ////////////////

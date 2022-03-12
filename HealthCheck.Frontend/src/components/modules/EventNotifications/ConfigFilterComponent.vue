@@ -86,7 +86,7 @@
 <script lang="ts">
 import { Vue, Prop } from "vue-property-decorator";
 import { Options } from "vue-class-component";
-import { EventSinkNotificationConfigFilter, FilterMatchType } from '@generated/Models/Core/EventSinkNotificationConfigFilter';
+import { EventSinkNotificationConfigFilter, FilterMatchType } from "@models/modules/EventNotifications/EventNotificationModels";
 
 @Options({
     components: {}

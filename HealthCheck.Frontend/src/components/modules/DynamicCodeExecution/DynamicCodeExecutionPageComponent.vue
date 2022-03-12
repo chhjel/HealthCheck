@@ -270,6 +270,7 @@ import IdUtils from '@util/IdUtils';
 import * as monaco from 'monaco-editor'
 import HealthCheckPageComponent from '@components/HealthCheckPageComponent.vue';
 import LoadingScreenComponent from '@components/Common/LoadingScreenComponent.vue';
+import StringUtils from "@util/StringUtils";
 
 interface DynamicCodeExecutionPageOptions {
     DefaultScript: string | null;
@@ -353,11 +354,11 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     }
 
     created(): void {
-        this.$parent.$parent.$on("onNotAllowedModuleSwitch", this.onNotAllowedModuleSwitch);
+        (<any>this.$parent)?.$parent.$on("onNotAllowedModuleSwitch", this.onNotAllowedModuleSwitch);
     }
 
     beforeDestroy(): void {
-      this.$parent.$parent.$off('onNotAllowedModuleSwitch', this.onNotAllowedModuleSwitch);
+      (<any>this.$parent)?.$parent.$off('onNotAllowedModuleSwitch', this.onNotAllowedModuleSwitch);
     }
 
     ////////////////
@@ -578,7 +579,7 @@ namespace CodeTesting
     }
 
     updateSelectionFromUrl(): void {
-        const selectedScriptId = this.$route.params.id;
+        const selectedScriptId = StringUtils.stringOrFirstOfArray(this.$route.params.id) || '';
 
         if (selectedScriptId !== undefined && selectedScriptId.length > 0) {
             let script = this.localScripts.concat(this.serverScripts)
@@ -709,7 +710,7 @@ namespace CodeTesting
         
         if (updateUrl)
         {
-            const idInUrl = this.$route.params.id;
+            const idInUrl = StringUtils.stringOrFirstOfArray(this.$route.params.id);
             if (idInUrl !== script.Id)
             {
                 this.updateUrl();
@@ -885,7 +886,7 @@ namespace CodeTesting
     onEditorInit(editor: monaco.editor.IStandaloneCodeEditor): void {
         this.editor.foldRegions();
 
-        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {            
+        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {            
             this.onSaveClicked();
         });
 
@@ -1173,7 +1174,7 @@ namespace CodeTesting
                 if (confirmed && this.currentScript != null)
                 {
                     this.code = this.currentScript.Code;
-                    setTimeout(() => (this.$parent.$parent as HealthCheckPageComponent).retryShowModule(), 50);
+                    setTimeout(() => ((<any>this.$parent)?.$parent as HealthCheckPageComponent).retryShowModule(), 50);
                 }
             });
     }

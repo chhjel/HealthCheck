@@ -263,7 +263,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
     }
 
     updateSelectionFromUrl(): void {
-        const idFromHash = this.$route.params.id;
+        const idFromHash = Array.isArray(this.$route.params.id) ? this.$route.params.id[0] : this.$route.params.id;
         
         if (idFromHash) {
             let downloadFromUrl = this.downloads.filter(x => x.Id != null && x.Id == idFromHash)[0];

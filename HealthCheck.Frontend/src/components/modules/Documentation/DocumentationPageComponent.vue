@@ -155,6 +155,7 @@ import DocumentationService from '@services/DocumentationService';
 import ModuleConfig from '@models/Common/ModuleConfig';
 import ModuleOptions from '@models/Common/ModuleOptions';
 import UrlUtils from '@util/UrlUtils';
+import StringUtils from "@util/StringUtils";
 
 interface FlowChartData
 {
@@ -322,7 +323,7 @@ Web -> Frontend: Confirmation is delivered
             routeParams['title'] = title;
         }
         
-        const titleInUrl = this.$route.params.title;
+        const titleInUrl = StringUtils.stringOrFirstOfArray(this.$route.params.title) || '';
         if (titleInUrl !== title)
         {
             this.$router.push({ name: this.config.Id, params: routeParams })
@@ -330,7 +331,7 @@ Web -> Frontend: Confirmation is delivered
     }
 
     updateSelectionFromUrl(): void {
-        const selectedItem = this.$route.params.title;
+        const selectedItem = StringUtils.stringOrFirstOfArray(this.$route.params.title) || '';
         
         if (selectedItem !== undefined && selectedItem.length > 0) {
             let seqDiagram = this.sequenceDiagrams.filter(x => UrlUtils.EncodeHashPart(x.title) == selectedItem)[0];

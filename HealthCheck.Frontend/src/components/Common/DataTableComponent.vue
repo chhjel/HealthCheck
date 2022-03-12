@@ -19,9 +19,8 @@
                     </tr>
 
                     <!-- VALUES -->
-                    <template v-for="(row, rowIndex) in group.items">
-                        <tr class="data-table--row-values"
-                            :key="`dtable-row-${groupIndex}-${rowIndex}`">
+                    <template v-for="(row, rowIndex) in group.items" :key="`dtable-row-${groupIndex}-${rowIndex}`">
+                        <tr class="data-table--row-values">
                             <td v-for="(value, valueIndex) in row.values"
                                 :key="`dtable-item-values-${groupIndex}-${rowIndex}-${valueIndex}`"
                                 @click="setExpanded(`dtable-row-${groupIndex}-${rowIndex}`)"

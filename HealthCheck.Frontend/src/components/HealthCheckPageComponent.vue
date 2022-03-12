@@ -70,7 +70,7 @@ import BackendInputComponent from '@components/Common/Inputs/BackendInputs/Backe
 import HealthCheckProfileDialogComponent from '@components/profile/HealthCheckProfileDialogComponent.vue';
 import AccessTokenKillswitchDialog from '@components/modules/AccessTokens/AccessTokenKillswitchDialog.vue';
 import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
-import { Route } from "vue-router";
+import { RouteLocationNormalized } from "vue-router";
 import UrlUtils from "@util/UrlUtils";
 
 @Options({
@@ -97,7 +97,7 @@ export default class HealthCheckPageComponent extends Vue {
     {
         this.setInitialPage();
         this.bindRootEvents();
-        this.$router.afterEach((t, f) => this.onRouteChanged(t, f));
+        this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
     }
 
     ////////////////
@@ -255,7 +255,7 @@ export default class HealthCheckPageComponent extends Vue {
         this.$store.commit('toggleMenuExpanded');
     }
 
-    onRouteChanged(to: Route, from: Route): void {
+    onRouteChanged(to: RouteLocationNormalized, from: RouteLocationNormalized): void {
         this.$nextTick(() => {
             this.$nextTick(() => {
                 UrlUtils.updatePerstentQueryStringKey();
