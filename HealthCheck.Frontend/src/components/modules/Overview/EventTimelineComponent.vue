@@ -9,9 +9,8 @@
                     </div>
                 </v-layout>
             </v-timeline-item>
-            <template v-for="group in timelineEventGroups">
+            <template v-for="group in timelineEventGroups" :key="`timeline-group-${group.index}-header`">
                 <v-timeline-item 
-                    :key="`timeline-group-${group.index}-header`"
                     small hide-dot class="pb-0">
                     <span>{{group.title}}</span>
                 </v-timeline-item>
