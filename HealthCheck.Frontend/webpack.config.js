@@ -79,7 +79,7 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.js', '.vue', '.json'],
     alias: {
-      'vue$': 'vue/dist/vue.esm.js',
+      'vue$': 'vue/dist/vue.runtime.esm-bundler.js',
       "@generated": path.resolve(__dirname, "./src/generated"),
       "@components": path.resolve(__dirname, "./src/components"),
       "@models": path.resolve(__dirname, "./src/models"),
