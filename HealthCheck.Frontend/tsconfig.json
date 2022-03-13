@@ -17,7 +17,13 @@
 			"@util/*": ["src/util/*"],
 			"src/*": ["src/*"]
         },
-        "noImplicitAny": false
+        "noImplicitAny": false,
+        "noImplicitThis": false,
+        "suppressImplicitAnyIndexErrors": true,
+        "preserveConstEnums": true,
+        "strictNullChecks": false,
+        "noImplicitReturns": false,
+        // "allowSyntheticDefaultImports": true,
     },
     "include": [
         "./src/**/*"

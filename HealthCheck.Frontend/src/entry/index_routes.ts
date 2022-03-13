@@ -11,21 +11,21 @@ import EventNotificationsPageComponent from '../components/modules/EventNotifica
 import DynamicCodeExecutionPageComponent from '../components/modules/DynamicCodeExecution/DynamicCodeExecutionPageComponent.vue';
 import AccessTokensPageComponent from '../components/modules/AccessTokens/AccessTokensPageComponent.vue';
 import SecureFileDownloadPageComponent from '../components/modules/SecureFileDownload/SecureFileDownloadPageComponent.vue';
-import MessagesPageComponent from '../components/modules/EndpointControl/EndpointControlPageComponent.vue';
+import EndpointControlPageComponent from '../components/modules/EndpointControl/EndpointControlPageComponent.vue';
 import MessagesPageComponent from '../components/modules/Messages/MessagesPageComponent.vue';
 import ReleaseNotesPageComponent from '../components/modules/ReleaseNotes/ReleaseNotesPageComponent.vue';
 import MetricsPageComponent from '../components/modules/Metrics/MetricsPageComponent.vue';
 import DataRepeaterPageComponent from '../components/modules/DataRepeater/DataRepeaterPageComponent.vue';
 import DataExportPageComponent from '../components/modules/DataExport/DataExportPageComponent.vue';
 import CustomPageComponent from '../components/modules/Custom/CustomPageComponent.vue';
-import InvalidModuleConfigsComponent from '../components/NoPageAvailablePageComponent.vue';
-import Vue, { VueConstructor } from "vue";
-import VueRouter, { RouteConfig } from 'vue-router';
+import NoPageAvailablePageComponent from '../components/NoPageAvailablePageComponent.vue';
 import ModuleOptions from '../models/Common/ModuleOptions';
 import ModuleConfig from '../models/Common/ModuleConfig';
+import { nextTick } from 'vue';
+import { createRouter, createWebHistory, Router, RouteRecordRaw } from 'vue-router';
 
-export default function createRouter(moduleConfig: Array<ModuleConfig>): VueRouter {
-  let moduleComponents: Record<string, VueConstructor<Vue>> = {
+export default function createHCRouter(moduleConfig: Array<ModuleConfig>): Router {
+  let moduleComponents: Record<string, any> = {
     'TestSuitesPageComponent': TestSuitesPageComponent,
     'OverviewPageComponent': EventCalendarComponent,
     'AuditLogPageComponent': AuditLogPageComponent,
@@ -38,7 +38,7 @@ export default function createRouter(moduleConfig: Array<ModuleConfig>): VueRout
     'DynamicCodeExecutionPageComponent': DynamicCodeExecutionPageComponent,
     'AccessTokensPageComponent': AccessTokensPageComponent,
     'SecureFileDownloadPageComponent': SecureFileDownloadPageComponent,
-    'EndpointControlPageComponent': MessagesPageComponent,
+    'EndpointControlPageComponent': EndpointControlPageComponent,
     'MessagesPageComponent': MessagesPageComponent,
     'ReleaseNotesPageComponent': ReleaseNotesPageComponent,
     'MetricsPageComponent': MetricsPageComponent,
@@ -49,7 +49,7 @@ export default function createRouter(moduleConfig: Array<ModuleConfig>): VueRout
 
 let moduleOptions = ((window as any).healthCheckModuleOptions) as Record<string, ModuleOptions<any>>;
   const initialWindowTitle = document.title;
-  let routes: Array<RouteConfig> = [];
+  let routes: Array<RouteRecordRaw> = [];
   moduleConfig
       .filter(config => config.LoadedSuccessfully)
       .forEach(config => {
@@ -61,7 +61,7 @@ let moduleOptions = ((window as any).healthCheckModuleOptions) as Record<string,
               config: config,
               options: moduleOptions[config.Id]
           },
-          meta: { title: (r: RouteConfig) => `${config.Name} | ${initialWindowTitle}` }
+          meta: { title: (r: RouteRecordRaw) => `${config.Name} | ${initialWindowTitle}` }
       });
   });
 
@@ -69,15 +69,16 @@ let moduleOptions = ((window as any).healthCheckModuleOptions) as Record<string,
   {
     routes.push({ path: '/*', component: NoPageAvailablePageComponent });
   }
-  const router = new VueRouter({
+  const router = createRouter({
     routes: routes,
+    history: createWebHistory()
   });
 
   router.afterEach((to, from) => {
-    Vue.nextTick(() => {
+    nextTick(() => {
         if (to != null && to.meta != null && to.meta.title != null)
         {
-            document.title = to.meta.title(to);
+            document.title = (<any>to).meta.title(to);
         }        
     })
   })

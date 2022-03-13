@@ -10,10 +10,10 @@ import shadow from 'vue-shadow-dom';
 import store from './index_store';
 
 // Router
-import createRouter from './index_routes';
+import createHCRouter from './index_routes';
 
 // Special pages
-// import DownloadPageComponent from '../components/modules/SecureFileDownload/DownloadPageComponent.vue';
+import DownloadPageComponent from '@components/modules/SecureFileDownload/DownloadPageComponent.vue';
 
 // Extensions
 import "../util/extensions/StringExtensions";
@@ -34,7 +34,7 @@ if (loaderElement)
 const appElement = document.getElementById("app");
 if (appElement !== null)
 {
-	const router = createRouter(moduleConfig);
+	const router = createHCRouter(moduleConfig);
 	
 	let props = {
 		moduleConfig: moduleConfig
@@ -45,20 +45,12 @@ if (appElement !== null)
 		.use(shadow)
 		.mount(appElement);
 }
-// else if (document.getElementById("app-download") !== null)
-// {
-// 	let v = new Vue({
-// 		el: "#app-download",
-// 		template: `
-// 		<div>
-// 			<download-page-component />
-// 		</div>
-// 		`,
-// 		data: {
-// 			moduleConfig: moduleConfig
-// 		},
-// 		components: {
-// 			DownloadPageComponent
-// 		}
-// 	});
-// }
+else if (document.getElementById("app-download") !== null)
+{
+	const appElement = document.getElementById("app-download");
+
+	let props = { moduleConfig: moduleConfig };
+	createApp(DownloadPageComponent, props)
+		.use(shadow)
+		.mount(appElement);
+}
