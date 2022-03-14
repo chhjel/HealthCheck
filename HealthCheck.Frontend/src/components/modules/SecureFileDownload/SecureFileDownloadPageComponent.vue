@@ -156,6 +156,7 @@ import ModuleConfig from '@models/Common/ModuleConfig';
 import ModuleOptions from '@models/Common/ModuleOptions';
 import SecureFileDownloadService from '@services/SecureFileDownloadService';
 import { SecureFileDownloadsViewModel, SecureFileDownloadDefinition, SecureFileDownloadFrontendOptionsModel } from "@models/modules/SecureFileDownload/Models";
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -192,7 +193,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get canViewDownload(): boolean {

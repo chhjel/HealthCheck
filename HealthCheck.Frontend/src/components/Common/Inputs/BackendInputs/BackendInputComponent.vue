@@ -64,6 +64,7 @@ import ParameterInputAnyJsonComponent from '@components/Common/Inputs/BackendInp
 import IdUtils from '@util/IdUtils';
 import { ReferenceValueFactoryConfigViewModel } from "@generated/Models/Core/ReferenceValueFactoryConfigViewModel";
 import { TestModuleOptions } from "@components/modules/TestSuite/TestSuitesPageComponent.vue.models";
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -176,7 +177,7 @@ export default class BackendInputComponent extends Vue {
         return this.$refs.inputComp as Vue;
     }
     get testsOptions(): TestModuleOptions {
-        return this.$store.state.tests.options;
+        return StoreUtil.store.state.tests.options;
     }
 
     get allowJsonInput(): boolean {

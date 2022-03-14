@@ -237,6 +237,7 @@ import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
 import ModuleConfig from '@models/Common/ModuleConfig';
 import ModuleOptions from '@models/Common/ModuleOptions';
 import EditAccessTokenComponent from '@components/modules/AccessTokens/EditAccessTokenComponent.vue';
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -286,7 +287,7 @@ export default class AccessTokensPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get canViewTokenData(): boolean {

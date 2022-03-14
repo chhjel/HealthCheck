@@ -103,6 +103,7 @@ import { GetMetricsViewModel } from "@generated/Models/Core/GetMetricsViewModel"
 import LinqUtils from "@util/LinqUtils";
 
 import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
+import { StoreUtil } from "@util/StoreUtil";
 @Options({
     components: {
         BlockComponent
@@ -133,7 +134,7 @@ export default class MetricsPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get hasData(): boolean {

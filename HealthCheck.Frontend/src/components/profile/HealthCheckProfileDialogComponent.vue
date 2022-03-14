@@ -37,6 +37,7 @@ import { Options } from "vue-class-component";
 import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
 import { HCIntegratedProfileConfig } from "@generated/Models/WebUI/HCIntegratedProfileConfig";
 import HealthCheckProfileComponent from '@components/profile/HealthCheckProfileComponent.vue';
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -62,7 +63,7 @@ export default class HealthCheckProfileDialogComponent extends Vue
     //  GETTERS  //
     //////////////
     get globalOptions(): HCFrontEndOptions {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get profileOptions(): HCIntegratedProfileConfig {

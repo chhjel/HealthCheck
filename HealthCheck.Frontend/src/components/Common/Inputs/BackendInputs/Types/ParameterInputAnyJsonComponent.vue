@@ -54,6 +54,7 @@ import { Options } from "vue-class-component";
 import { TestParameterTemplateViewModel } from '@generated/Models/Core/TestParameterTemplateViewModel';
 import EditorComponent from '@components/Common/EditorComponent.vue';
 import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -108,7 +109,7 @@ export default class ParameterInputAnyJsonComponent extends Vue {
 
     get hasTemplate(): boolean {
         try {
-            const _ = (this.$store.state.tests.templateValues as Array<TestParameterTemplateViewModel>)
+            const _ = (StoreUtil.store.state.tests.templateValues as Array<TestParameterTemplateViewModel>)
                 .filter(x => x.Type == this.type)[0];
             return true;
         } catch(e)
@@ -118,7 +119,7 @@ export default class ParameterInputAnyJsonComponent extends Vue {
     }
     
     get templateValue(): string {
-        const templateData = (this.$store.state.tests.templateValues as Array<TestParameterTemplateViewModel>)
+        const templateData = (StoreUtil.store.state.tests.templateValues as Array<TestParameterTemplateViewModel>)
             .filter(x => x.Type == this.type)[0];
         return (templateData) ? templateData.Template : '{\n}';
     }

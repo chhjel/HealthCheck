@@ -61,6 +61,7 @@ import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfi
 // import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 import TestsUtils from "@util/TestsModule/TestsUtils";
 import { ReferenceValueFactoryConfigViewModel } from "@generated/Models/Core/ReferenceValueFactoryConfigViewModel";
+import { StoreUtil } from "@util/StoreUtil";
 
 interface ListItem {
     id: string;
@@ -198,10 +199,10 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
         return this.parameterDetailContext + "_" + this.config.Id;
     }
     setParameterDetail<T>(key: string, value: T): void {
-        return TestsUtils.setParameterDetail<T>(this.$store, this.createParameterDetailKey(), key, value);
+        return TestsUtils.setParameterDetail<T>(StoreUtil.store, this.createParameterDetailKey(), key, value);
     }
     getParameterDetail<T>(key: string): T | null {
-        return TestsUtils.getParameterDetail<T>(this.$store, this.createParameterDetailKey(), key);
+        return TestsUtils.getParameterDetail<T>(StoreUtil.store, this.createParameterDetailKey(), key);
     }
 }
 </script>

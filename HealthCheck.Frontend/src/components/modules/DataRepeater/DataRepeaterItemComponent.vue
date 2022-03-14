@@ -213,6 +213,7 @@ import { HCDataRepeaterStreamItemDetailsViewModel } from "@generated/Models/Core
 import DateUtils from "@util/DateUtils";
 import ModuleOptions from "@models/Common/ModuleOptions";
 import { HCDataRepeaterItemAnalysisResult } from "@generated/Models/Core/HCDataRepeaterItemAnalysisResult";
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -266,7 +267,7 @@ export default class DataRepeaterItemComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get retryAllowed(): boolean {

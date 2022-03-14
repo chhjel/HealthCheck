@@ -218,6 +218,7 @@ import UrlUtils from "@util/UrlUtils";
 import StringUtils from "@util/StringUtils";
 import { HCDataRepeaterStreamItemStatus } from "@generated/Enums/Core/HCDataRepeaterStreamItemStatus";
 import { RouteLocationNormalized } from "vue-router";
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -264,7 +265,7 @@ export default class DataRepeaterPageComponent extends Vue {
     ////////////////
     mounted(): void
     {
-        this.$store.commit('showMenuButton', true);
+        StoreUtil.store.commit('showMenuButton', true);
 
         this.resetFilter();
         this.loadStreamDefinitions();
@@ -286,7 +287,7 @@ export default class DataRepeaterPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get isLoading(): boolean {
@@ -329,7 +330,7 @@ export default class DataRepeaterPageComponent extends Vue {
     //////////////////
     drawerState: boolean = this.storeMenuState;
     get storeMenuState(): boolean {
-        return this.$store.state.ui.menuExpanded;
+        return StoreUtil.store.state.ui.menuExpanded;
     }
     @Watch("storeMenuState")
     onStoreMenuStateChanged(): void {
@@ -337,7 +338,7 @@ export default class DataRepeaterPageComponent extends Vue {
     }
     @Watch("drawerState")
     onDrawerStateChanged(): void {
-        this.$store.commit('setMenuExpanded', this.drawerState);
+        StoreUtil.store.commit('setMenuExpanded', this.drawerState);
     }
 
     ////////////////

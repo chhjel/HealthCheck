@@ -158,6 +158,7 @@ import ModuleConfig from '@models/Common/ModuleConfig';
 import ModuleOptions from '@models/Common/ModuleOptions';
 import UrlUtils from '@util/UrlUtils';
 import StringUtils from "@util/StringUtils";
+import { StoreUtil } from "@util/StoreUtil";
 
 interface FlowChartData
 {
@@ -239,7 +240,7 @@ Web -> Frontend: Confirmation is delivered
     ////////////////
     mounted(): void
     {
-        this.$store.commit('showMenuButton', true);
+        StoreUtil.store.commit('showMenuButton', true);
 
         let restoredSandbox = localStorage.getItem("__HC_Docs_sandbox_sequencediagram_script");
         if (restoredSandbox != null)
@@ -254,7 +255,7 @@ Web -> Frontend: Confirmation is delivered
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get showToggleRemarks(): boolean
@@ -289,7 +290,7 @@ Web -> Frontend: Confirmation is delivered
     //////////////////
     drawerState: boolean = this.storeMenuState;
     get storeMenuState(): boolean {
-        return this.$store.state.ui.menuExpanded;
+        return StoreUtil.store.state.ui.menuExpanded;
     }
     @Watch("storeMenuState")
     onStoreMenuStateChanged(): void {
@@ -297,7 +298,7 @@ Web -> Frontend: Confirmation is delivered
     }
     @Watch("drawerState")
     onDrawerStateChanged(): void {
-        this.$store.commit('setMenuExpanded', this.drawerState);
+        StoreUtil.store.commit('setMenuExpanded', this.drawerState);
     }
 
     ////////////////

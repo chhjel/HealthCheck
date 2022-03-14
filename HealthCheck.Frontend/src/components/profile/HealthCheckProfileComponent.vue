@@ -417,7 +417,7 @@
 </template>
 
 <script lang="ts">
-import { Vue,  } from "vue-property-decorator";
+import { Vue } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import IntegratedProfileService from '@services/IntegratedProfileService';
 import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
@@ -432,6 +432,7 @@ import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
 import { HCResultPageAction } from "@generated/Models/WebUI/HCResultPageAction";
 import { HCResultPageActionType } from "@generated/Enums/WebUI/HCResultPageActionType";
 import { HCUserModuleCategories } from "@generated/Models/Core/HCUserModuleCategories";
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -505,7 +506,7 @@ export default class HealthCheckProfileComponent extends Vue
     //  GETTERS  //
     //////////////
     get globalOptions(): HCFrontEndOptions {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get profileOptions(): HCIntegratedProfileConfig {

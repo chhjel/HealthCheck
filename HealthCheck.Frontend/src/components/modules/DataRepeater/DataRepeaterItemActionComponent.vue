@@ -72,6 +72,7 @@ import ModuleConfig from "@models/Common/ModuleConfig";
 import { HCDataRepeaterStreamActionViewModel } from "@generated/Models/Core/HCDataRepeaterStreamActionViewModel";
 import { HCDataRepeaterStreamItemActionResult } from "@generated/Models/Core/HCDataRepeaterStreamItemActionResult";
 import { HCDataRepeaterStreamItemActionAllowedViewModel } from "@generated/Models/Core/HCDataRepeaterStreamItemActionAllowedViewModel";
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -111,7 +112,7 @@ export default class DataRepeaterItemActionComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get allowExecute(): boolean {

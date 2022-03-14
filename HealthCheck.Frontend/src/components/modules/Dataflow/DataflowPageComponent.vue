@@ -305,6 +305,7 @@ import { HCDataflowUnifiedSearchStreamResult } from "@generated/Models/Core/HCDa
 import KeyValuePair from "@models/Common/KeyValuePair";
 import { DataFlowPropertyUIVisibilityOption } from "@generated/Enums/Core/DataFlowPropertyUIVisibilityOption";
 import StringUtils from "@util/StringUtils";
+import { StoreUtil } from "@util/StoreUtil";
 
 interface PropFilter
 {
@@ -410,7 +411,7 @@ export default class DataflowPageComponent extends Vue {
     ////////////////
     mounted(): void
     {
-        this.$store.commit('showMenuButton', true);
+        StoreUtil.store.commit('showMenuButton', true);
 
         this.resetFilter();
         this.loadData();
@@ -420,7 +421,7 @@ export default class DataflowPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get menuItems(): Array<FilterableListItem>
@@ -505,7 +506,7 @@ export default class DataflowPageComponent extends Vue {
     //////////////////
     drawerState: boolean = this.storeMenuState;
     get storeMenuState(): boolean {
-        return this.$store.state.ui.menuExpanded;
+        return StoreUtil.store.state.ui.menuExpanded;
     }
     @Watch("storeMenuState")
     onStoreMenuStateChanged(): void {
@@ -513,7 +514,7 @@ export default class DataflowPageComponent extends Vue {
     }
     @Watch("drawerState")
     onDrawerStateChanged(): void {
-        this.$store.commit('setMenuExpanded', this.drawerState);
+        StoreUtil.store.commit('setMenuExpanded', this.drawerState);
     }
 
     ////////////////

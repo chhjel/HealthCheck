@@ -76,6 +76,7 @@ import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfi
 import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 import { GetSettingsViewModel } from "@generated/Models/Core/GetSettingsViewModel";
 import { SetSettingsViewModel } from "@generated/Models/Core/SetSettingsViewModel";
+import { StoreUtil } from "@util/StoreUtil";
 
 interface CustomSettingGroup
 {
@@ -124,7 +125,7 @@ export default class SettingsPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get saveButtonText(): string {

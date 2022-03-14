@@ -234,6 +234,7 @@ export default class HealthCheckPageComponent extends Vue {
         if (queryState && queryState != window.location.hash)
         {
             queryState = queryState.replace('#', '');
+            console.log(queryState);
             this.$router.push(queryState);
         }
         

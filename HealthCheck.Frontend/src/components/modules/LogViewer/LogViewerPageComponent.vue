@@ -361,6 +361,7 @@ import ModuleOptions from '@models/Common/ModuleOptions';
 import LogSearchResult from "@models/modules/LogViewer/LogSearchResult";
 import ParsedQuery from "@models/modules/LogViewer/ParsedQuery";
 import LogSearchFilter from "@models/modules/LogViewer/LogSearchFilter";
+import { StoreUtil } from "@util/StoreUtil";
 
 interface DatePickerPreset {
     name: string;
@@ -438,7 +439,7 @@ export default class LogViewerPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get describedQuery(): Array<string>

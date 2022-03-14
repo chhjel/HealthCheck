@@ -71,6 +71,7 @@ import BackendInputComponent from "@components/Common/Inputs/BackendInputs/Backe
 import ModuleConfig from "@models/Common/ModuleConfig";
 import { HCDataRepeaterStreamBatchActionResult } from "@generated/Models/Core/HCDataRepeaterStreamBatchActionResult";
 import { HCDataRepeaterStreamBatchActionViewModel } from "@generated/Models/Core/HCDataRepeaterStreamBatchActionViewModel";
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -106,7 +107,7 @@ export default class DataRepeaterBatchActionComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get allowExecute(): boolean {

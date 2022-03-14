@@ -271,6 +271,7 @@ import * as monaco from 'monaco-editor'
 import HealthCheckPageComponent from '@components/HealthCheckPageComponent.vue';
 import LoadingScreenComponent from '@components/Common/LoadingScreenComponent.vue';
 import StringUtils from "@util/StringUtils";
+import { StoreUtil } from "@util/StoreUtil";
 
 interface DynamicCodeExecutionPageOptions {
     DefaultScript: string | null;
@@ -345,7 +346,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     ////////////////
     mounted(): void
     {
-        this.$store.commit('showMenuButton', true);
+        StoreUtil.store.commit('showMenuButton', true);
         this.loadData();
 
         window.addEventListener("beforeunload", (e) => this.onWindowUnload(e));
@@ -396,7 +397,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     }
 
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get currentScriptTitle(): string {
@@ -547,7 +548,7 @@ namespace CodeTesting
     ///////////////
     @Watch("shouldNotifyUnsavedChanges")
     onShouldNotifyUnsavedChangesCanged(): void {
-        this.$store.commit('allowModuleSwitch', !this.shouldNotifyUnsavedChanges);
+        StoreUtil.store.commit('allowModuleSwitch', !this.shouldNotifyUnsavedChanges);
     }
 
     ////////////////////
@@ -555,7 +556,7 @@ namespace CodeTesting
     //////////////////
     drawerState: boolean = this.storeMenuState;
     get storeMenuState(): boolean {
-        return this.$store.state.ui.menuExpanded;
+        return StoreUtil.store.state.ui.menuExpanded;
     }
     @Watch("storeMenuState")
     onStoreMenuStateChanged(): void {
@@ -563,7 +564,7 @@ namespace CodeTesting
     }
     @Watch("drawerState")
     onDrawerStateChanged(): void {
-        this.$store.commit('setMenuExpanded', this.drawerState);
+        StoreUtil.store.commit('setMenuExpanded', this.drawerState);
     }
 
     ////////////////

@@ -22,7 +22,7 @@ import NoPageAvailablePageComponent from '../components/NoPageAvailablePageCompo
 import ModuleOptions from '../models/Common/ModuleOptions';
 import ModuleConfig from '../models/Common/ModuleConfig';
 import { nextTick } from 'vue';
-import { createRouter, createWebHistory, Router, RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHashHistory, Router, RouteRecordRaw } from 'vue-router';
 
 export default function createHCRouter(moduleConfig: Array<ModuleConfig>): Router {
   let moduleComponents: Record<string, any> = {
@@ -71,7 +71,7 @@ let moduleOptions = ((window as any).healthCheckModuleOptions) as Record<string,
   }
   const router = createRouter({
     routes: routes,
-    history: createWebHistory()
+    history: createWebHashHistory()
   });
 
   router.afterEach((to, from) => {

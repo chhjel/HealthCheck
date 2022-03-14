@@ -45,6 +45,7 @@ import { TestSetViewModel } from '@generated/Models/Core/TestSetViewModel';
 import { TestViewModel } from '@generated/Models/Core/TestViewModel';
 import TestComponent from '@components/modules/TestSuite/TestComponent.vue';
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -74,7 +75,7 @@ export default class TestSetComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get filteredTests(): Array<TestViewModel>

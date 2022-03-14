@@ -155,6 +155,7 @@ import UrlUtils from '@util/UrlUtils';
 import StringUtils from "@util/StringUtils";
 
 import { TestModuleOptions } from '@components/modules/TestSuite/TestSuitesPageComponent.vue.models';
+import { StoreUtil } from "@util/StoreUtil";
 @Options({
     components: {
         TestSetComponent,
@@ -184,8 +185,8 @@ export default class TestSuitesPageComponent extends Vue {
     ////////////////
     mounted(): void
     {
-        this.$store.commit('showMenuButton', true);
-        this.$store.commit('setTestModuleOptions', this.options.Options);
+        StoreUtil.store.commit('showMenuButton', true);
+        StoreUtil.store.commit('setTestModuleOptions', this.options.Options);
 
         this.loadData();
     }
@@ -194,7 +195,7 @@ export default class TestSuitesPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get hasInvalidTests(): boolean {
@@ -238,7 +239,7 @@ export default class TestSuitesPageComponent extends Vue {
     //////////////////
     drawerState: boolean = this.storeMenuState;
     get storeMenuState(): boolean {
-        return this.$store.state.ui.menuExpanded;
+        return StoreUtil.store.state.ui.menuExpanded;
     }
     @Watch("storeMenuState")
     onStoreMenuStateChanged(): void {
@@ -246,7 +247,7 @@ export default class TestSuitesPageComponent extends Vue {
     }
     @Watch("drawerState")
     onDrawerStateChanged(): void {
-        this.$store.commit('setMenuExpanded', this.drawerState);
+        StoreUtil.store.commit('setMenuExpanded', this.drawerState);
     }
 
     ////////////////
@@ -259,7 +260,7 @@ export default class TestSuitesPageComponent extends Vue {
     onTestSetDataRetrieved(testsData: TestsDataViewModel): void {
         this.invalidTests = testsData.InvalidTests;
         
-        this.$store.commit('setTestModuleTemplateValues', testsData.ParameterTemplateValues);
+        StoreUtil.store.commit('setTestModuleTemplateValues', testsData.ParameterTemplateValues);
 
         // Init default value
         for(let set of testsData.TestSets) {

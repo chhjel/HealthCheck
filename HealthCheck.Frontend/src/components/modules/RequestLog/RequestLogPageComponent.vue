@@ -173,6 +173,7 @@ import RequestLogService from '@services/RequestLogService';
 import { FetchStatus } from '@services/abstractions/HCServiceBase';
 import ModuleOptions from '@models/Common/ModuleOptions';
 import ModuleConfig from '@models/Common/ModuleConfig';
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -254,7 +255,7 @@ export default class RequestLogPageComponent extends Vue {
         return this.options.AccessOptions.indexOf('ClearLog') != -1;
     }
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get progressBarMax(): number {

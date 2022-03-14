@@ -59,7 +59,7 @@
 <script lang="ts">
 import { Vue, Prop } from "vue-property-decorator";
 import { Options } from "vue-class-component";
-import { SequenceDiagramStep , SequenceDiagramLineStyle , SequenceDiagramStyle  } from './SequenceDiagramComponent.vue.models';
+import { SequenceDiagramStep, SequenceDiagramLineStyle, SequenceDiagramStyle } from '@components/Common/SequenceDiagramComponent.vue.models';
 @Options({
     components: {
     }

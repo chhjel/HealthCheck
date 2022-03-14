@@ -245,6 +245,7 @@ import PagingComponent from '@components/Common/Basic/PagingComponent.vue';
 import EditorComponent from '@components/Common/EditorComponent.vue';
 
 import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
+import { StoreUtil } from "@util/StoreUtil";
 @Options({
     components: {
         BlockComponent,
@@ -285,7 +286,7 @@ export default class MessagesPageComponent extends Vue {
     ////////////////
     mounted(): void
     {
-        this.$store.commit('showMenuButton', true);
+        StoreUtil.store.commit('showMenuButton', true);
         this.loadInboxes();
     }
 
@@ -293,7 +294,7 @@ export default class MessagesPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     get HasAccessToDeleteMessages(): boolean {
         return this.options.AccessOptions.indexOf("DeleteMessages") != -1;
@@ -562,7 +563,7 @@ export default class MessagesPageComponent extends Vue {
     //////////////////
     drawerState: boolean = this.storeMenuState;
     get storeMenuState(): boolean {
-        return this.$store.state.ui.menuExpanded;
+        return StoreUtil.store.state.ui.menuExpanded;
     }
     @Watch("storeMenuState")
     onStoreMenuStateChanged(): void {
@@ -570,7 +571,7 @@ export default class MessagesPageComponent extends Vue {
     }
     @Watch("drawerState")
     onDrawerStateChanged(): void {
-        this.$store.commit('setMenuExpanded', this.drawerState);
+        StoreUtil.store.commit('setMenuExpanded', this.drawerState);
     }
 }
 </script>

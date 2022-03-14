@@ -97,6 +97,7 @@ import ModuleConfig from '@models/Common/ModuleConfig';
 import { HCReleaseNotesViewModel } from "@generated/Models/Core/HCReleaseNotesViewModel";
 
 import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
+import { StoreUtil } from "@util/StoreUtil";
 @Options({
     components: {
         BlockComponent
@@ -128,7 +129,7 @@ export default class ReleaseNotesPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     get HasAccessToDevDetails(): boolean {
         return this.options.AccessOptions.indexOf("DeveloperDetails") != -1;

@@ -157,6 +157,7 @@ import EndpointControlService from '@services/EndpointControlService';
 import { EndpointControlCountOverDuration, EndpointControlCustomResultDefinitionViewModel, EndpointControlEndpointDefinition, EndpointControlPropertyFilter, EndpointControlRule } from '@models/modules/EndpointControl/EndpointControlModels';
 import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfig";
 import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -214,7 +215,7 @@ export default class RuleComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get allowChanges(): boolean {

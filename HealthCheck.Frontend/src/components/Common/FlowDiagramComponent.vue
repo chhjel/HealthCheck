@@ -14,7 +14,7 @@ import 'jointjs/dist/joint.min.css'
 import * as dagre from 'dagre/index';
 import IdUtils from '@util/IdUtils';
 
-import { FlowDiagramStep , FlowDiagramStepType , FlowDiagramConnection  } from './FlowDiagramComponent.vue.models';
+import { FlowDiagramStep, FlowDiagramStepType, FlowDiagramConnection } from '@components/Common/FlowDiagramComponent.vue.models';
 @Options({
 	components: {}
 })

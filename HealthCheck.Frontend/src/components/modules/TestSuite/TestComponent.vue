@@ -92,6 +92,7 @@ import { TestParameterReferenceChoiceViewModel } from '@models/modules/TestSuite
 import ParameterInputPickReferenceComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputPickReferenceComponent.vue';
 import TestViewModel from "@models/modules/TestSuite/TestViewModel";
 import TestResultViewModel from "@models/modules/TestSuite/TestResultViewModel";
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -138,8 +139,8 @@ export default class TestComponent extends Vue {
     //////////////
     get showCategories() : boolean {
       return this.test.Categories && this.test.Categories.length > 0
-        && this.$store.state.input.ctrlIsHeldDown
-        && this.$store.state.input.shiftIsHeldDown;
+        && StoreUtil.store.state.input.ctrlIsHeldDown
+        && StoreUtil.store.state.input.shiftIsHeldDown;
     }
 
     get categoriesString(): string {
@@ -147,7 +148,7 @@ export default class TestComponent extends Vue {
     }
 
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get allowShowStatusLabel(): boolean {

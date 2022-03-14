@@ -215,6 +215,7 @@ import { FetchStatus, FetchStatusWithProgress } from '@services/abstractions/HCS
 import ParameterInputTypeHttpPostedFileBaseComponent from "@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeHttpPostedFileBaseComponent.vue";
 import FetchStatusProgressComponent from "@components/Common/Basic/FetchStatusProgressComponent.vue";
 import { SecureFileDownloadDefinition, SecureFileDownloadSaveViewModel, SecureFileDownloadStorageInfo, SecureFileDownloadStorageUploadFileResult } from "@models/modules/SecureFileDownload/Models";
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -281,7 +282,7 @@ export default class EditDownloadComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get showFileIdInput(): boolean {

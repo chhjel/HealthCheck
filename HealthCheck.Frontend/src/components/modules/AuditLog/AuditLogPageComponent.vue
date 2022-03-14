@@ -165,6 +165,7 @@ import ModuleOptions from '@models/Common/ModuleOptions';
 import KeyValuePair from '@models/Common/KeyValuePair';
 import AuditEventViewModel from "@models/modules/AuditLog/AuditEventViewModel";
 import AuditEventFilterInputData from "@models/modules/AuditLog/AuditEventFilterInputData";
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -231,7 +232,7 @@ export default class AuditLogPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     ////////////////

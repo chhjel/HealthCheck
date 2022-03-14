@@ -175,6 +175,7 @@ import ModuleConfig from '@models/Common/ModuleConfig';
 import SiteEventViewModel from "@models/modules/SiteEvents/SiteEventViewModel";
 import { SiteEventSeverity } from "@models/modules/SiteEvents/SiteEventSeverity";
 import { SiteEvent } from "@generated/Models/Core/SiteEvent";
+import { StoreUtil } from "@util/StoreUtil";
 
 interface OverviewPageOptions
 {
@@ -242,7 +243,7 @@ export default class OverviewPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get filter(): string {

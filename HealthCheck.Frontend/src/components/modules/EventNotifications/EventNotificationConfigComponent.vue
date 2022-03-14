@@ -383,6 +383,7 @@ import EventNotificationService from '@services/EventNotificationService';
 import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 import { NewItemActionType } from "@generated/Enums/Core/NewItemActionType";
 import { Dictionary, EventSinkNotificationConfig, EventSinkNotificationConfigFilter, FilterMatchType, IEventNotifier, KnownEventDefinition, NotifierConfig, NotifierConfigOptionsItem } from "@models/modules/EventNotifications/EventNotificationModels";
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -450,7 +451,7 @@ export default class EventNotificationConfigComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     get allowChanges(): boolean {

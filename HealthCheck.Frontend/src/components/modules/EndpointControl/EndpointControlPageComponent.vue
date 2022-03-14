@@ -283,6 +283,7 @@ import { EndpointControlCustomResultDefinitionViewModel, EndpointControlDataView
 import LatestRequestsComponent from '@components/modules/EndpointControl/LatestRequestsComponent.vue';
 
 import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
+import { StoreUtil } from "@util/StoreUtil";
 @Options({
     components: {
         SimpleDateTimeComponent,
@@ -325,7 +326,7 @@ export default class EndpointControlPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get HasAccessToEditEndpointDefinitions(): boolean {

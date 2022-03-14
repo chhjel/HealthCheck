@@ -278,6 +278,7 @@ import EventNotificationService from '@services/EventNotificationService';
 import ModuleConfig from '@models/Common/ModuleConfig';
 import ModuleOptions from '@models/Common/ModuleOptions';
 import { EventSinkNotificationConfig, FilterMatchType, GetEventNotificationConfigsViewModel, IEventNotifier, KnownEventDefinition } from "@models/modules/EventNotifications/EventNotificationModels";
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -319,7 +320,7 @@ export default class EventNotificationsPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get HasAccessToEditEventDefinitions(): boolean {

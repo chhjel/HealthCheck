@@ -591,6 +591,7 @@ import { HCDataExportExporterViewModel } from "@generated/Models/Module/DataExpo
 import { HCDataExportValueFormatterConfig } from "@generated/Models/Module/DataExport/HCDataExportValueFormatterConfig";
 import { HCDataExportValueFormatterViewModel } from "@generated/Models/Module/DataExport/HCDataExportValueFormatterViewModel";
 import StringUtils from "@util/StringUtils";
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -662,7 +663,7 @@ export default class DataExportPageComponent extends Vue {
     ////////////////
     mounted(): void
     {
-        this.$store.commit('showMenuButton', true);
+        StoreUtil.store.commit('showMenuButton', true);
 
         this.resetFilter();
         this.loadStreamDefinitions();
@@ -690,7 +691,7 @@ export default class DataExportPageComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get hasAccessToQuery(): boolean {
@@ -834,7 +835,7 @@ export default class DataExportPageComponent extends Vue {
     //////////////////
     drawerState: boolean = this.storeMenuState;
     get storeMenuState(): boolean {
-        return this.$store.state.ui.menuExpanded;
+        return StoreUtil.store.state.ui.menuExpanded;
     }
     @Watch("storeMenuState")
     onStoreMenuStateChanged(): void {
@@ -842,7 +843,7 @@ export default class DataExportPageComponent extends Vue {
     }
     @Watch("drawerState")
     onDrawerStateChanged(): void {
-        this.$store.commit('setMenuExpanded', this.drawerState);
+        StoreUtil.store.commit('setMenuExpanded', this.drawerState);
     }
 
     ////////////////

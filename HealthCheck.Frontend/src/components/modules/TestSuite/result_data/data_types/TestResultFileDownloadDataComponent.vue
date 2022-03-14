@@ -16,6 +16,7 @@ import FrontEndOptionsViewModel from "@models/Common/FrontEndOptionsViewModel";
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDataDumpViewModel';
+import { StoreUtil } from "@util/StoreUtil";
 
 interface FileDownloadData
 {
@@ -45,7 +46,7 @@ export default class TestResultFileDownloadDataComponent extends Vue {
     }
     
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get downloadUrl(): string {

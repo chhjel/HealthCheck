@@ -131,6 +131,7 @@ import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
 import FloatingSquaresEffectComponent from '@components/Common/Effects/FloatingSquaresEffectComponent.vue';
 import WebAuthnUtil from '@util/WebAuthnUtil';
 import { HCVerifyWebAuthnAssertionModel } from "@generated/Models/WebUI/HCVerifyWebAuthnAssertionModel";
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -179,7 +180,7 @@ export default class IntegratedLoginPageComponent extends Vue {
     }
 
     get globalOptions(): HCFrontEndOptions {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get Send2FACodeEndpoint(): string {

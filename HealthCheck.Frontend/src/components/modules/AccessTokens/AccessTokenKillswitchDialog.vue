@@ -42,6 +42,7 @@ import { Options } from "vue-class-component";
 import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
 import AccessTokensService from "@services/AccessTokensService";
 import { FetchStatus } from "@services/abstractions/HCServiceBase";
+import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
@@ -68,7 +69,7 @@ export default class AccessTokenKillswitchDialog extends Vue
     //  GETTERS  //
     //////////////
     get globalOptions(): HCFrontEndOptions {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     ////////////////

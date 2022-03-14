@@ -95,6 +95,7 @@ import { FetchStatus } from '@services/abstractions/HCServiceBase';
 import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
 import LinqUtils from '@util/LinqUtils';
 import { Dictionary } from '@models/modules/EventNotifications/EventNotificationModels';
+import { StoreUtil } from "@util/StoreUtil";
 
 interface BarChartSortOption {
     text: string;
@@ -164,7 +165,7 @@ export default class LatestRequestsComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
 
     get ipSortModeDescription(): string {

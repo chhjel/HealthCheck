@@ -55,6 +55,7 @@ import { Options } from "vue-class-component";
 import * as monaco from 'monaco-editor'
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import { ICodeMark, CodeSnippet } from '@models/modules/DynamicCodeExecution/Models';
+import { StoreUtil } from "@util/StoreUtil";
 
 
 @Options({
@@ -150,7 +151,7 @@ export default class EditorComponent extends Vue {
     //  GETTERS  //
     //////////////
     get globalOptions(): FrontEndOptionsViewModel {
-        return this.$store.state.globalOptions;
+        return StoreUtil.store.state.globalOptions;
     }
     
     ////////////////////////////////////////////////////////////
