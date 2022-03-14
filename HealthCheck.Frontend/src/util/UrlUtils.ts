@@ -18,7 +18,9 @@ export default class UrlUtils
     }
 
     static getOpenRouteInNewTabUrl(route: string): string {
-        let url = window.location.href.replace(window.location.hash, route);
+        let url = (window.location.hash == null || window.location.hash.length == 0)
+            ? window.location.href + route
+            : window.location.href.replace(window.location.hash, route);
         url = UrlUtils.RemoveQueryStringParameter(url, 'h');
         return url;
     }

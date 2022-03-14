@@ -58,7 +58,7 @@ import draggable from 'vuedraggable'
 import DateUtils from '@util/DateUtils';
 import IdUtils from "@util/IdUtils";
 import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
-import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+// import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
 import TestsUtils from "@util/TestsModule/TestsUtils";
 import { ReferenceValueFactoryConfigViewModel } from "@generated/Models/Core/ReferenceValueFactoryConfigViewModel";
 
@@ -71,7 +71,7 @@ interface ListItem {
     name: "BackendInputComponent",
     components: {
         draggable,
-        BackendInputComponent
+        BackendInputComponent: () => import("@components/Common/Inputs/BackendInputs/BackendInputComponent.vue")
     }
 })
 export default class ParameterInputTypeGenericListComponent extends Vue {
