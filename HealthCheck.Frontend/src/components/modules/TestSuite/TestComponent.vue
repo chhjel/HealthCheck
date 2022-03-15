@@ -88,11 +88,11 @@ import TestService from '@services/TestService';
 import { FetchStatus, ServiceFetchCallbacks } from '@services/abstractions/HCServiceBase';
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import UrlUtils from '@util/UrlUtils';
-import { TestParameterReferenceChoiceViewModel } from '@models/modules/TestSuite/TestParameterViewModel';
 import ParameterInputPickReferenceComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputPickReferenceComponent.vue';
 import TestViewModel from "@models/modules/TestSuite/TestViewModel";
 import TestResultViewModel from "@models/modules/TestSuite/TestResultViewModel";
 import { StoreUtil } from "@util/StoreUtil";
+import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
 
 @Options({
     components: {
@@ -116,22 +116,28 @@ export default class TestComponent extends Vue {
     executeTestStatus: FetchStatus = new FetchStatus();
     cancelTestStatus: FetchStatus = new FetchStatus();
 
+    callbacks: Array<CallbackUnregisterShortcut> = [
+      EventBus.on("executeAllTestsInSet", this.executeTest),
+      EventBus.on("loadTestParameterChoices", (d:any) => this.onLoadTestParametersRequested(d))
+    ]
+
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     created(): void {
-      (<any>this.$parent)?.$on('executeAllTestsInSet', this.executeTest);
+      // (<any>this.$parent)?.$on('executeAllTestsInSet', this.executeTest);
       this.testResult = this.test.TestResult;
     }
 
     mounted(): void {
-      (<any>this.$root)?.$on('hc__loadTestParameterChoices', (data: any) => {
-        this.onLoadTestParametersRequested(data)
-      });
+      // (<any>this.$root)?.$on('hc__loadTestParameterChoices', (data: any) => {
+      //   this.onLoadTestParametersRequested(data)
+      // });
     }
 
-    beforeDestroy(): void {
-      (<any>this.$parent)?.$off('executeAllTestsInSet', this.executeTest);
+    beforeUnmounted(): void {
+      this.callbacks.forEach(x => x.unregister());
+      // (<any>this.$parent)?.$off('executeAllTestsInSet', this.executeTest);
     }
 
     ////////////////

@@ -272,6 +272,7 @@ import HealthCheckPageComponent from '@components/HealthCheckPageComponent.vue';
 import LoadingScreenComponent from '@components/Common/LoadingScreenComponent.vue';
 import StringUtils from "@util/StringUtils";
 import { StoreUtil } from "@util/StoreUtil";
+import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
 
 interface DynamicCodeExecutionPageOptions {
     DefaultScript: string | null;
@@ -341,6 +342,10 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     confirmUnchangedDialogVisible: boolean = false;
     configDialogVisible: boolean = false;
 
+    callbacks: Array<CallbackUnregisterShortcut> = [
+      EventBus.on("onNotAllowedModuleSwitch", this.onNotAllowedModuleSwitch)
+    ]
+    
     //////////////////
     //  LIFECYCLE  //
     ////////////////
@@ -355,11 +360,12 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     }
 
     created(): void {
-        (<any>this.$parent)?.$parent.$on("onNotAllowedModuleSwitch", this.onNotAllowedModuleSwitch);
+        // (<any>this.$parent)?.$parent.$on("onNotAllowedModuleSwitch", this.onNotAllowedModuleSwitch);
     }
 
-    beforeDestroy(): void {
-      (<any>this.$parent)?.$parent.$off('onNotAllowedModuleSwitch', this.onNotAllowedModuleSwitch);
+    beforeUnmounted(): void {
+      this.callbacks.forEach(x => x.unregister());
+    //   (<any>this.$parent)?.$parent.$off('onNotAllowedModuleSwitch', this.onNotAllowedModuleSwitch);
     }
 
     ////////////////

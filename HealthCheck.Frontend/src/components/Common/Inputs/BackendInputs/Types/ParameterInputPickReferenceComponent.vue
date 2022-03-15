@@ -95,6 +95,7 @@ import TestsUtils from "@util/TestsModule/TestsUtils";
 import ClipboardUtil from "@util/ClipboardUtil";
 import { ReferenceValueFactoryConfigViewModel } from "@generated/Models/Core/ReferenceValueFactoryConfigViewModel";
 import { StoreUtil } from "@util/StoreUtil";
+import EventBus from "@util/EventBus";
 
 @Options({
     components: {
@@ -217,15 +218,23 @@ export default class ParameterInputPickReferenceComponent extends Vue {
             }
         };
 
-        this.$root?.$emit('hc__loadTestParameterChoices', 
+        EventBus.notify("loadTestParameterChoices", 
             {
                 'component': this,
                 'loadStatus' : this.loadingChoicesStatus,
                 'callbacks': callbacks,
                 'parameterIndex': this.config.ParameterIndex,
                 'filter': this.choicesFilterText ?? ''
-            }
-        );
+            });
+        // this.$root?.$emit('hc__loadTestParameterChoices', 
+        //     {
+        //         'component': this,
+        //         'loadStatus' : this.loadingChoicesStatus,
+        //         'callbacks': callbacks,
+        //         'parameterIndex': this.config.ParameterIndex,
+        //         'filter': this.choicesFilterText ?? ''
+        //     }
+        // );
     }
 
     selectChoice(choice: TestParameterReferenceChoiceViewModel): void

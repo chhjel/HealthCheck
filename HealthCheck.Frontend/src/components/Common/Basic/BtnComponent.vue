@@ -15,7 +15,7 @@
         <div><b>outline:</b>' {{ outline }}'</div>
         <div><b>xSmall:</b>' {{ xSmall }}'</div>
         <div><b>target:</b>' {{ target }}'</div> -->
-		<button><slot></slot></button>
+		<span class="btn-component__contents"><slot></slot></span>
     </div>
 </template>
 
@@ -125,18 +125,37 @@ export default class BtnComponent extends Vue {
 
 <style scoped lang="scss">
 .btn-component {
-	border: 2px solid red;
-	padding: 5px;
-	margin: 5px;
-    &.flat { }
-    &.small { }
+    padding: 5px;
+    background-color: #eee;
+    border: 1px solid gray;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+
+    &__contents {
+        display: flex;
+        align-content: center;
+        justify-content: center;
+        align-items: center;
+        flex-direction: row;
+        white-space: nowrap;
+    }
+
     &.icon { }
-    &.round { }
-    &.large { }
     &.disabled { }
     &.loading { }
-    &.depressed { }
+
+    // Styles
     &.outline { }
+    &.round { }
+    &.flat { }
+    &.depressed { }
+
+    // Sizes
+    &.large { }
+    &.small { }
     &.x-small { }
 }
 </style>

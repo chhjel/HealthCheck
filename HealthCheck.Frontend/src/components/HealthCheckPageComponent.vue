@@ -6,7 +6,7 @@
             <toolbar-component clipped-left>
                 <button-component icon
                     @click.stop="onSideMenuToggleButtonClicked"
-                    v-if="showMenuButton"></button-component>
+                    v-if="showMenuButton">[Menu icon]</button-component>
                 <div class="apptitle">
                     <a v-if="hasTitleLink" :href="titleLink">{{ globalOptions.ApplicationTitle }}</a>
                     <span v-else>{{ globalOptions.ApplicationTitle }}</span>
@@ -69,6 +69,7 @@ import AccessTokenKillswitchDialog from '@components/modules/AccessTokens/Access
 import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
 import { RouteLocationNormalized } from "vue-router";
 import UrlUtils from "@util/UrlUtils";
+import EventBus from "@util/EventBus";
 
 @Options({
     components: {
@@ -203,6 +204,7 @@ export default class HealthCheckPageComponent extends Vue {
         if (!this.$store.state.ui.allowModuleSwitch)
         {
             this.$emit("onNotAllowedModuleSwitch");
+            EventBus.notify("onNotAllowedModuleSwitch");
             return;
         }
 

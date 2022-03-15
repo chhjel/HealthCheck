@@ -1,11 +1,10 @@
 <template>
     <div class="card-component" :class="rootClasses">
-		<h3>TODO: CardComponent</h3>
+		<!-- <h3>TODO: CardComponent</h3>
         <div><b>flat:</b>' {{ flat }}'</div>
         <div><b>color:</b>' {{ color }}'</div>
         <div><b>minWidth:</b>' {{ minWidth }}'</div>
-        <div><b>maxWidth:</b>' {{ maxWidth }}'</div>
-
+        <div><b>maxWidth:</b>' {{ maxWidth }}'</div> -->
 		<slot></slot>
     </div>
 </template>

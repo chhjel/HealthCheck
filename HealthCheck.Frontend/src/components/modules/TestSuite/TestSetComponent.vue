@@ -46,6 +46,7 @@ import { TestViewModel } from '@generated/Models/Core/TestViewModel';
 import TestComponent from '@components/modules/TestSuite/TestComponent.vue';
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import { StoreUtil } from "@util/StoreUtil";
+import EventBus from "@util/EventBus";
 
 @Options({
     components: {
@@ -117,7 +118,8 @@ export default class TestSetComponent extends Vue {
         this.showIndeterminateProgress = false;
         this.testsFinishedCount = 0;
         this.testsTotalCount = this.testSet.Tests.length;
-        this.$emit("executeAllTestsInSet");
+        // this.$emit("executeAllTestsInSet");
+        EventBus.notify("executeAllTestsInSet");
     }
 
     onTestStarted(testId: string): void {

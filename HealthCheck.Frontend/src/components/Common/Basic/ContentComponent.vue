@@ -1,7 +1,5 @@
 <template>
     <div class="content-component" :class="rootClasses">
-		<h3>TODO: ContentComponent</h3>
-
 		<slot></slot>
     </div>
 </template>
@@ -14,8 +12,6 @@ import { Options } from "vue-class-component";
     components: {}
 })
 export default class ContentComponent extends Vue {
-
-
 
     //////////////////
     //  LIFECYCLE  //
@@ -51,9 +47,6 @@ export default class ContentComponent extends Vue {
 
 <style scoped lang="scss">
 .content-component {
-	border: 2px solid red;
-	padding: 5px;
-	margin: 5px;
-
+	padding: 10px;
 }
 </style>

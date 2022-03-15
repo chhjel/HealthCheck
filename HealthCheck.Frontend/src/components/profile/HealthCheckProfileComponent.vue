@@ -103,8 +103,8 @@
             persistent
             max-width="500"
             content-class="profile-dialog">
-            <card-component style="background-color: #f4f4f4">
-                <toolbar-component class="elevation-0">
+            <card-component>
+                <toolbar-component>
                     <v-toolbar-title>Elevate access using WebAuthn</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <btn-component icon @click="elevateWebAuthnDialogVisible = false">
@@ -146,8 +146,8 @@
             persistent
             max-width="500"
             content-class="profile-dialog">
-            <card-component style="background-color: #f4f4f4">
-                <toolbar-component class="elevation-0">
+            <card-component>
+                <toolbar-component>
                     <v-toolbar-title>Register WebAuthn authenticator</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <btn-component icon @click="addWebAuthnDialogVisible = false">
@@ -197,8 +197,8 @@
             persistent
             max-width="500"
             content-class="profile-dialog">
-            <card-component style="background-color: #f4f4f4">
-                <toolbar-component class="elevation-0">
+            <card-component>
+                <toolbar-component>
                     <v-toolbar-title>Remove WebAuthn authenticator</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <btn-component icon @click="removeWebAuthnDialogVisible = false">
@@ -251,8 +251,8 @@
             persistent
             max-width="500"
             content-class="profile-dialog">
-            <card-component style="background-color: #f4f4f4">
-                <toolbar-component class="elevation-0">
+            <card-component>
+                <toolbar-component>
                     <v-toolbar-title>Elevate access using TOTP</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <btn-component icon @click="elevateTotpDialogVisible = false">
@@ -304,8 +304,8 @@
             persistent
             max-width="500"
             content-class="profile-dialog">
-            <card-component style="background-color: #f4f4f4">
-                <toolbar-component class="elevation-0">
+            <card-component>
+                <toolbar-component>
                     <v-toolbar-title>Register TOTP authenticator</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <btn-component icon @click="addTotpDialogVisible = false">
@@ -367,8 +367,8 @@
             persistent
             max-width="500"
             content-class="profile-dialog">
-            <card-component style="background-color: #f4f4f4">
-                <toolbar-component class="elevation-0">
+            <card-component>
+                <toolbar-component>
                     <v-toolbar-title>Remove TOTP authenticator</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <btn-component icon @click="removeTotpDialogVisible = false">
@@ -849,6 +849,7 @@ export default class HealthCheckProfileComponent extends Vue
     generateQrCode(): void {
         const data = this.generateTotpQrCodeData();
         const canvas = this.$refs.qrCodeCanvas as HTMLCanvasElement;
+        console.log(this.$refs);
         
         const qr = QrCode.encodeText(data, Ecc.MEDIUM);
         qr.drawCanvas(10, 2, canvas);
