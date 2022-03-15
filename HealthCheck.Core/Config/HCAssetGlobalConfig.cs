@@ -36,7 +36,6 @@ namespace HealthCheck.Core.Config
         /// </summary>
         public static List<string> DefaultCssUrls { get; set; } = new()
         {
-            "https://cdn.jsdelivr.net/npm/vuetify@1.5.6/dist/vuetify.min.css",
             "https://fonts.googleapis.com/css?family=Montserrat|Material+Icons",
             "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.19.2/min/vs/editor/editor.main.min.css",
             "https://use.fontawesome.com/releases/v5.15.4/css/all.css"
