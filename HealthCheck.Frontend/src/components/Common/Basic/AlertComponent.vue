@@ -25,7 +25,7 @@ import ValueUtils from '@util/ValueUtils'
 export default class AlertComponent extends Vue {
 
     @Prop({ required: true })
-    value!: string;
+    value!: boolean;
 
     @Prop({ required: false, default: null })
     color!: string;
@@ -42,7 +42,7 @@ export default class AlertComponent extends Vue {
     @Prop({ required: false, default: null })
     elevation!: string;
 
-    localValue: string = "";
+    localValue: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //

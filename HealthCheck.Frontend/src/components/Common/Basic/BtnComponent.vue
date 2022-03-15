@@ -1,6 +1,6 @@
 <template>
     <div class="btn-component" :class="rootClasses">
-		<h3>TODO: BtnComponent</h3>
+		<!-- <h3>TODO: BtnComponent</h3>
         <div><b>flat:</b>' {{ flat }}'</div>
         <div><b>href:</b>' {{ href }}'</div>
         <div><b>small:</b>' {{ small }}'</div>
@@ -14,9 +14,8 @@
         <div><b>depressed:</b>' {{ depressed }}'</div>
         <div><b>outline:</b>' {{ outline }}'</div>
         <div><b>xSmall:</b>' {{ xSmall }}'</div>
-        <div><b>target:</b>' {{ target }}'</div>
-
-		<slot></slot>
+        <div><b>target:</b>' {{ target }}'</div> -->
+		<button><slot></slot></button>
     </div>
 </template>
 

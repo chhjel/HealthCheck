@@ -3,41 +3,38 @@
     <div>
         <v-app light class="approot" v-if="!showIntegratedLogin">
             <!-- TOOLBAR -->
-            <toolbar-component clipped-left fixed app class="toolbar-main">
-                <v-toolbar-side-icon
+            <toolbar-component clipped-left>
+                <button-component icon
                     @click.stop="onSideMenuToggleButtonClicked"
-                    v-if="showMenuButton"></v-toolbar-side-icon>
-                <v-toolbar-title class="apptitle">
+                    v-if="showMenuButton"></button-component>
+                <div class="apptitle">
                     <a v-if="hasTitleLink" :href="titleLink">{{ globalOptions.ApplicationTitle }}</a>
                     <span v-else>{{ globalOptions.ApplicationTitle }}</span>
-                </v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-toolbar-items>
-                    <btn-component flat
-                        v-for="(mconf, mindex) in this.moduleConfigsToShowInTopMenu"
-                        :key="`module-menu-${mindex}`"
-                        :href="getModuleLinkUrl(mconf)"
-                        :class="{ 'active-tab': isModuleShowing(mconf) }"
-                        @click.left.prevent="showModule(mconf)">{{ mconf.Name }}</btn-component>
-                    <btn-component flat 
-                        v-if="showTokenKillswitch"
-                        @click.left.prevent="tokenKillswitchDialogVisible = true">
-                        <icon-component class="toolbar-icon mr-1">remove_circle</icon-component>
-                        Token killswitch
-                        </btn-component>
-                    <btn-component flat 
-                        v-if="showIntegratedProfile"
-                        @click.left.prevent="integratedProfileDialogVisible = true">
-                        <icon-component class="toolbar-icon mr-1">person</icon-component>
-                        Profile
-                        </btn-component>
-                    <btn-component flat 
-                        v-if="showLogoutLink"
-                        @click.left.prevent="logoutRedirect">
-                        <icon-component>logout</icon-component>
-                        {{ logoutLinkTitle }}
-                        </btn-component>
-                </v-toolbar-items>
+                </div>
+                <btn-component flat
+                    v-for="(mconf, mindex) in this.moduleConfigsToShowInTopMenu"
+                    :key="`module-menu-${mindex}`"
+                    :href="getModuleLinkUrl(mconf)"
+                    :class="{ 'active-tab': isModuleShowing(mconf) }"
+                    @click.left.prevent="showModule(mconf)">{{ mconf.Name }}</btn-component>
+                <btn-component flat 
+                    v-if="showTokenKillswitch"
+                    @click.left.prevent="tokenKillswitchDialogVisible = true">
+                    <icon-component class="toolbar-icon mr-1">remove_circle</icon-component>
+                    Token killswitch
+                    </btn-component>
+                <btn-component flat 
+                    v-if="showIntegratedProfile"
+                    @click.left.prevent="integratedProfileDialogVisible = true">
+                    <icon-component class="toolbar-icon mr-1">person</icon-component>
+                    Profile
+                    </btn-component>
+                <btn-component flat 
+                    v-if="showLogoutLink"
+                    @click.left.prevent="logoutRedirect">
+                    <icon-component>logout</icon-component>
+                    {{ logoutLinkTitle }}
+                    </btn-component>
             </toolbar-component>
 
             <!-- CONTENT -->
@@ -273,6 +270,7 @@ export default class HealthCheckPageComponent extends Vue {
 
 <style scoped lang="scss">
 .approot {
+    font-family: 'Montserrat';
     background-color: #f4f4f4;
     /* background-color: #f7f6f4; */
 }
@@ -280,29 +278,11 @@ export default class HealthCheckPageComponent extends Vue {
     color: inherit;
     text-decoration: inherit;
 }
-.toolbar-main {
-    background-color: #fff;
-    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    z-index: 99;
-}
 .content-root {
     padding-right: 46px;
 }
 .active-tab {
     font-weight: 900;
-}
-.application {
-    font-family: 'Montserrat';
-}
-.v-toolbar__items {
-    overflow-y: hidden;
-    overflow-x: auto;
-    overflow: overlay hidden;
-    -ms-overflow-style: none;
-
-    &::-webkit-scrollbar {
-        display: none;
-    }
 }
 .toolbar-icon {
     color: #0000008a !important;

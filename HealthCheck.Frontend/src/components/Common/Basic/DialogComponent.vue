@@ -1,17 +1,16 @@
 <template>
-    <div class="dialog-component" :class="rootClasses">
-		<h3>TODO: DialogComponent</h3>
-        <div><b>value:</b>' {{ value }}'</div>
-        <div><b>fullscreen:</b>' {{ fullscreen }}'</div>
-        <div><b>hideOverlay:</b>' {{ hideOverlay }}'</div>
-        <div><b>scrollable:</b>' {{ scrollable }}'</div>
-        <div><b>persistent:</b>' {{ persistent }}'</div>
-        <div><b>maxWidth:</b>' {{ maxWidth }}'</div>
-        <div><b>contentClass:</b>' {{ contentClass }}'</div>
-        <div><b>fullWidth:</b>' {{ fullWidth }}'</div>
-        <div><b>width:</b>' {{ width }}'</div>
-
-		<div v-if="value">
+    <div class="dialog-component" :class="rootClasses" v-if="value">
+		<div>
+            <h3>TODO: DialogComponent</h3>
+            <div><b>value:</b>' {{ value }}'</div>
+            <div><b>fullscreen:</b>' {{ fullscreen }}'</div>
+            <div><b>hideOverlay:</b>' {{ hideOverlay }}'</div>
+            <div><b>scrollable:</b>' {{ scrollable }}'</div>
+            <div><b>persistent:</b>' {{ persistent }}'</div>
+            <div><b>maxWidth:</b>' {{ maxWidth }}'</div>
+            <div><b>contentClass:</b>' {{ contentClass }}'</div>
+            <div><b>fullWidth:</b>' {{ fullWidth }}'</div>
+            <div><b>width:</b>' {{ width }}'</div>
             <slot></slot>
         </div>
     </div>

@@ -1,12 +1,11 @@
 <template>
     <div class="icon-component" :class="rootClasses">
-		<h3>TODO: IconComponent</h3>
+		<!-- <h3>TODO: IconComponent</h3>
         <div><b>color:</b>' {{ color }}'</div>
         <div><b>small:</b>' {{ small }}'</div>
         <div><b>large:</b>' {{ large }}'</div>
         <div><b>slot:</b>' {{ slot }}'</div>
-        <div><b>size:</b>' {{ size }}'</div>
-
+        <div><b>size:</b>' {{ size }}'</div> -->
 		<slot></slot>
     </div>
 </template>
