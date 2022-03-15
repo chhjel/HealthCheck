@@ -3,74 +3,74 @@
     <div class="input-component timespan">
         <div class="input-component--header" v-if="showHeader">
             <div class="input-component--header-name">{{ name }}</div>
-            <v-icon small v-if="hasDescription"
+            <icon-component small v-if="hasDescription"
                 color="gray" class="input-component--help-icon"
-                @click="toggleDescription">help</v-icon>
+                @click="toggleDescription">help</icon-component>
         </div>
 
         <div v-show="showDescription" class="input-component--description" v-html="description"></div>
         
         <div class="input-component--inputs" :style="style">
             <div class="input-component--input-prefix" v-if="minimal">
-                <v-tooltip bottom>
+                <tooltip-component bottom>
                     <template v-slot:activator="{ on }">
                         <span v-on="on">H:</span>
                     </template>
                     <span>Number of hours</span>
-                </v-tooltip>
+                </tooltip-component>
             </div>
-            <v-text-field
-                v-model="hourValue"
+            <text-field-component
+                v-model:value="hourValue"
                 @input="onInput()"
                 :disabled="disabled"
                 :placeholder="isNull ? 'null' : ''"
                 type="number">
-            </v-text-field>
+            </text-field-component>
             <div class="input-component--input-prefix" v-if="!minimal">hours, </div>
             
             <div class="input-component--input-prefix" v-if="minimal">
-                <v-tooltip bottom>
+                <tooltip-component bottom>
                     <template v-slot:activator="{ on }">
                         <span v-on="on">M:</span>
                     </template>
                     <span>Number of minutes</span>
-                </v-tooltip>
+                </tooltip-component>
             </div>
-            <v-text-field
-                v-model="minuteValue"
+            <text-field-component
+                v-model:value="minuteValue"
                 @input="onInput()"
                 :disabled="disabled"
                 :placeholder="isNull ? 'null' : ''"
                 type="number">
-            </v-text-field>
+            </text-field-component>
             <div class="input-component--input-prefix" v-if="!minimal">minutes, </div>
 
             <div class="input-component--input-prefix" v-if="minimal">
-                <v-tooltip bottom>
+                <tooltip-component bottom>
                     <template v-slot:activator="{ on }">
                         <span v-on="on">S:</span>
                     </template>
                     <span>Number of seconds</span>
-                </v-tooltip>
+                </tooltip-component>
             </div>
-            <v-text-field
-                v-model="secondValue"
+            <text-field-component
+                v-model:value="secondValue"
                 @input="onInput()"
                 :disabled="disabled"
                 :placeholder="isNull ? 'null' : ''"
                 type="number">
-            </v-text-field>
+            </text-field-component>
             <div class="input-component--input-prefix" v-if="!minimal">seconds.</div>
 
-            <v-btn 
+            <btn-component 
                 v-if="allowClear"
                 class="clear-button"
                 @click="onClearClicked"
                 :disabled="disabled"
                 flat icon small
                 style="align-self: flex-start;">
-                <v-icon color="#757575">cancel</v-icon>
-            </v-btn>
+                <icon-component color="#757575">cancel</icon-component>
+            </btn-component>
         </div>
 
         <div class="input-component--error" v-if="error != null && error.length > 0">{{ error }}</div>
@@ -197,13 +197,13 @@ export default class TimespanInputComponent extends Vue
         }
         
         this.currentValue = `${this.hourValue}:${this.minuteValue}:${this.secondValue}`;
-        this.$emit('input', this.currentValue);
+        this.$emit('update:value', this.currentValue);
         this.$emit('change', this.currentValue);
     }
 
     onClearClicked(): void {
         if (this.disabled) return;
-        this.$emit('input', '');
+        this.$emit('update:value', '');
         this.$emit('change', '');
     }
 }

@@ -1,15 +1,15 @@
 <!-- src/components/modules/EndpointControl/RuleComponent.vue -->
 <template>
     <div class="root">
-        <v-alert
+        <alert-component
             :value="serverInteractionError != null && serverInteractionError.length > 0"
             type="error" >
             {{ serverInteractionError }}
-        </v-alert>
+        </alert-component>
 
         <div class="header-data">
             <v-switch
-                v-model="internalRule.Enabled" 
+                v-model:value="internalRule.Enabled" 
                 :disabled="!allowChanges"
                 label="Enabled"
                 color="secondary"
@@ -38,22 +38,22 @@
         <block-component class="mb-4" title="Filters">
             <h3 class="mt-4">IP address / user location id</h3>
             <rule-filter-component class="payload-filter" :readonly="!allowChanges"
-                v-model="internalRule.UserLocationIdFilter" />
+                v-model:value="internalRule.UserLocationIdFilter" />
             <h3 class="mt-4">Endpoint Id</h3>
             <rule-filter-component class="payload-filter" :readonly="!allowChanges"
-                v-model="internalRule.EndpointIdFilter"
+                v-model:value="internalRule.EndpointIdFilter"
                 :filterOptions="endpointFilterOptions" />
             <h3 class="mt-4">Url</h3>
             <rule-filter-component class="payload-filter" :readonly="!allowChanges"
-                v-model="internalRule.UrlFilter" />
+                v-model:value="internalRule.UrlFilter" />
             <h3 class="mt-4">User-Agent</h3>
             <rule-filter-component class="payload-filter" :readonly="!allowChanges"
-                v-model="internalRule.UserAgentFilter" />
+                v-model:value="internalRule.UserAgentFilter" />
         </block-component>
         
         <block-component class="mb-4" v-if="internalRule != null" title="Conditions">
             <v-switch
-                v-model="internalRule.AlwaysTrigger" 
+                v-model:value="internalRule.AlwaysTrigger" 
                 label="Always trigger for all matching requests"
                 color="secondary"
                 :disabled="!allowChanges"
@@ -70,12 +70,12 @@
                     @input="(val) => onCoDChanged(internalRule.CurrentEndpointRequestCountLimits, index, val)"
                     @delete="(val) => onCoDDelete(internalRule.CurrentEndpointRequestCountLimits, index)"
                     />
-                <v-btn class="ml-4"
+                <btn-component class="ml-4"
                     :disabled="!allowChanges" 
                     @click.stop="addCodItem(internalRule.CurrentEndpointRequestCountLimits)">
-                    <v-icon size="20px" class="mr-2">add</v-icon>
+                    <icon-component size="20px" class="mr-2">add</icon-component>
                     Add
-                </v-btn>
+                </btn-component>
 
                 <h3 class="mt-4 mb-2">After total request count per IP</h3>
                 <count-over-duration-component
@@ -87,12 +87,12 @@
                     @input="(val) => onCoDChanged(internalRule.TotalRequestCountLimits, index, val)"
                     @delete="(val) => onCoDDelete(internalRule.TotalRequestCountLimits, index)"
                     />
-                <v-btn class="ml-4"
+                <btn-component class="ml-4"
                     :disabled="!allowChanges" 
                     @click.stop="addCodItem(internalRule.TotalRequestCountLimits)">
-                    <v-icon size="20px" class="mr-2">add</v-icon>
+                    <icon-component size="20px" class="mr-2">add</icon-component>
                     Add
-                </v-btn>
+                </btn-component>
             </div>
         </block-component>
         
@@ -101,7 +101,7 @@
             
             <v-select
                 class="mode-select"
-                v-model="internalRule.BlockResultTypeId"
+                v-model:value="internalRule.BlockResultTypeId"
                 :items="blockResultOptions"
                 item-text="text" item-value="value" color="secondary"
                 :disabled="!allowChanges"
@@ -113,17 +113,17 @@
             <backend-input-header-component
                 v-for="(def, defIndex) in selectedBlockResultPropertyDefinitions"
                 :key="`defx-${defIndex}`"
-                v-model="internalRule.CustomBlockResultProperties[def.Id]"
+                v-model:value="internalRule.CustomBlockResultProperties[def.Id]"
                 :config="def"
                 :readonly="!allowChanges"
                 />
         </block-component>
 
-        <v-dialog v-model="deleteDialogVisible"
+        <dialog-component v-model:value="deleteDialogVisible"
             @keydown.esc="deleteDialogVisible = false"
             max-width="290"
             content-class="confirm-dialog">
-            <v-card>
+            <card-component>
                 <v-card-title class="headline">Confirm deletion</v-card-title>
                 <v-card-text>
                     Are you sure you want to delete this rule?
@@ -131,11 +131,11 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="secondary" @click="deleteDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="error" @click="deleteRule()">Delete it</v-btn>
+                    <btn-component color="secondary" @click="deleteDialogVisible = false">Cancel</btn-component>
+                    <btn-component color="error" @click="deleteRule()">Delete it</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
     </div>
 </template>
 

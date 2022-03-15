@@ -1,7 +1,7 @@
 <!-- src/components/modules/LogViewer/LogViewerPageComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
+        <content-component class="pl-0">
         <v-container fluid fill-height class="content-root">
         <v-layout>
         <v-flex class="pl-4 pr-4 pb-4">
@@ -13,23 +13,23 @@
 
                 <v-layout row wrap>
                     <v-flex xs12 sm12 md8 style="position:relative">
-                        <v-menu
+                        <menu-component
                             transition="slide-y-transition"
                             bottom>
                             <template v-slot:activator="{ on }">
-                                <v-btn flat icon color="primary" class="datepicker-button" v-on="on">
-                                    <v-icon>date_range</v-icon>
-                                </v-btn>
+                                <btn-component flat icon color="primary" class="datepicker-button" v-on="on">
+                                    <icon-component>date_range</icon-component>
+                                </btn-component>
                             </template>
-                            <v-list>
+                            <list-component>
                                 <v-list-tile
                                     v-for="(preset, i) in datePickerPresets"
                                     :key="`datepicker-preset-${i}`"
                                     @click="setDatePickerValue(preset)">
                                     <v-list-tile-title>{{ preset.name }}</v-list-tile-title>
                                 </v-list-tile>
-                            </v-list>
-                        </v-menu>
+                            </list-component>
+                        </menu-component>
 
                         <date-time-picker
                             ref="filterDate"
@@ -43,32 +43,32 @@
                     </v-flex>
 
                     <v-flex xs12 sm12 md4 style="text-align: right;">
-                        <v-btn ripple color="error"
+                        <btn-component ripple color="error"
                             @click.stop.prevent="cancelSearch(currentSearchId)"
                             v-if="searchLoadStatus.inProgress && currentSearchId != ''"
                             :disabled="cancelSearchStatus.inProgress">
-                            <v-icon color="white">cancel</v-icon>
+                            <icon-component color="white">cancel</icon-component>
                             Cancel
-                        </v-btn>
-                        <v-btn @click="currentPage=1;loadData()" :disabled="searchLoadStatus.inProgress" class="primary">Search</v-btn>
-                        <v-btn @click="resetFilters" :disabled="searchLoadStatus.inProgress">Reset</v-btn>
+                        </btn-component>
+                        <btn-component @click="currentPage=1;loadData()" :disabled="searchLoadStatus.inProgress" class="primary">Search</btn-component>
+                        <btn-component @click="resetFilters" :disabled="searchLoadStatus.inProgress">Reset</btn-component>
                     </v-flex>
                     
                     <!-- QUERY -->
                     <v-flex xs12>
                         <v-layout row xs12>
                             <v-flex xs10 sm10>
-                                <v-text-field type="text" clearable
+                                <text-field-component type="text" clearable
                                     label="Content filter"
-                                    v-model="filterQuery"
+                                    v-model:value="filterQuery"
                                     :disabled="searchLoadStatus.inProgress"
                                     :error-messages="searchResultData.ParsedQuery.ParseError"
-                                ></v-text-field>
+                                ></text-field-component>
                             </v-flex>
                             <v-flex xs2 sm2 class="pa-3">
                                 <v-checkbox
                                     class="options-checkbox"
-                                    v-model="filterQueryIsRegex"
+                                    v-model:value="filterQueryIsRegex"
                                     label="Regex"
                                 ></v-checkbox>
                             </v-flex>
@@ -79,17 +79,17 @@
                     <v-flex xs12 v-if="showExcludedQuery">
                         <v-layout row xs12>
                             <v-flex xs10 sm10>
-                                <v-text-field type="text" clearable
+                                <text-field-component type="text" clearable
                                     label="Content exclusion filter"
-                                    v-model="filterExcludedQuery"
+                                    v-model:value="filterExcludedQuery"
                                     :disabled="searchLoadStatus.inProgress"
                                     :error-messages="searchResultData.ParsedExcludedQuery.ParseError"
-                                ></v-text-field>
+                                ></text-field-component>
                             </v-flex>
                             <v-flex xs2 sm2 class="pa-3">
                                 <v-checkbox
                                     class="options-checkbox"
-                                    v-model="filterExcludedQueryIsRegex"
+                                    v-model:value="filterExcludedQueryIsRegex"
                                     label="Regex"
                                 ></v-checkbox>
                             </v-flex>
@@ -100,17 +100,17 @@
                     <v-flex xs12 v-if="showLogPathQuery">
                         <v-layout row xs12>
                             <v-flex xs10 sm10>
-                                <v-text-field type="text" clearable
+                                <text-field-component type="text" clearable
                                     label="File path filter"
-                                    v-model="filterLogPathQuery"
+                                    v-model:value="filterLogPathQuery"
                                     :disabled="searchLoadStatus.inProgress"
                                     :error-messages="searchResultData.ParsedLogPathQuery.ParseError"
-                                ></v-text-field>
+                                ></text-field-component>
                             </v-flex>
                             <v-flex xs2 sm2 class="pa-3">
                                 <v-checkbox
                                     class="options-checkbox"
-                                    v-model="filterLogPathQueryIsRegex"
+                                    v-model:value="filterLogPathQueryIsRegex"
                                     label="Regex"
                                 ></v-checkbox>
                             </v-flex>
@@ -121,17 +121,17 @@
                     <v-flex xs12 v-if="showExcludedLogPathQuery">
                         <v-layout row xs12>
                             <v-flex xs10 sm10>
-                                <v-text-field type="text" clearable
+                                <text-field-component type="text" clearable
                                     label="File path exclusion filter"
-                                    v-model="filterExcludedLogPathQuery"
+                                    v-model:value="filterExcludedLogPathQuery"
                                     :disabled="searchLoadStatus.inProgress"
                                     :error-messages="searchResultData.ParsedExcludedLogPathQuery.ParseError"
-                                ></v-text-field>
+                                ></text-field-component>
                             </v-flex>
                             <v-flex xs2 sm2 class="pa-3">
                                 <v-checkbox
                                     class="options-checkbox"
-                                    v-model="filterExcludedLogPathQueryIsRegex"
+                                    v-model:value="filterExcludedLogPathQueryIsRegex"
                                     label="Regex"
                                 ></v-checkbox>
                             </v-flex>
@@ -142,18 +142,18 @@
                     <v-flex xs12 v-if="showcustomColumnRule">
                         <v-layout row xs12>
                             <v-flex xs10 sm10>
-                                <v-text-field type="text" clearable
-                                    v-model="customColumnRule"
+                                <text-field-component type="text" clearable
+                                    v-model:value="customColumnRule"
                                     :label="getDelimiterLabel()"
                                     :disabled="searchLoadStatus.inProgress"
                                     :error-messages="getCustomColumnRuleError()"
                                     append-icon="keyboard_tab"
                                     @click:append="customColumnRule = (customColumnRule || '') +'\t'"
-                                ></v-text-field>
+                                ></text-field-component>
                             </v-flex>
                             <v-flex xs2 sm2>
                                 <v-select
-                                    v-model="customColumnMode"
+                                    v-model:value="customColumnMode"
                                     :items="customColumnModeOptions"
                                     :disabled="searchLoadStatus.inProgress"
                                     item-text="text" item-value="value" color="secondary">
@@ -166,56 +166,56 @@
                 <div>
                     <v-layout row wrap xs12>
                         <v-flex xs6 sm4 lg4 v-if="!showExcludedQuery">
-                            <v-btn depressed small class="extra-filter-btn"
+                            <btn-component depressed small class="extra-filter-btn"
                                 @click="showExcludedQuery = true">
-                                <v-icon >add</v-icon>
+                                <icon-component >add</icon-component>
                                 Exclude content
-                            </v-btn>
+                            </btn-component>
                         </v-flex>
                         <v-flex xs6 sm4 lg4 v-if="!showLogPathQuery">
-                            <v-btn depressed small class="extra-filter-btn"
+                            <btn-component depressed small class="extra-filter-btn"
                                 @click="showLogPathQuery = true">
-                                <v-icon >add</v-icon>
+                                <icon-component >add</icon-component>
                                 Filter log filepaths
-                            </v-btn>
+                            </btn-component>
                         </v-flex>
                         <v-flex xs12 sm4 lg4 v-if="!showExcludedLogPathQuery">
-                            <v-btn depressed small class="extra-filter-btn"
+                            <btn-component depressed small class="extra-filter-btn"
                                 @click="showExcludedLogPathQuery = true">
-                                <v-icon >add</v-icon>
+                                <icon-component >add</icon-component>
                                 Exclude log filepaths
-                            </v-btn>
+                            </btn-component>
                         </v-flex>
                         <v-flex xs6 sm2 style="padding-left: 22px;">
-                            <v-text-field type="number" label="Page size"
+                            <text-field-component type="number" label="Page size"
                                 class="options-input"
                                 v-model.number="filterTake" />
                         </v-flex>
                         <v-flex xs6 sm2 style="padding-left: 22px;">
-                            <v-text-field type="number" label="Margin (ms)"
+                            <text-field-component type="number" label="Margin (ms)"
                                 class="options-input"
                                 v-model.number="filterMargin" />
                         </v-flex>          
                         <v-flex xs6 sm4 lg2 style="padding-left: 22px;">
                             <v-checkbox
                                 class="options-checkbox"
-                                v-model="filterOrderDescending"
+                                v-model:value="filterOrderDescending"
                                 :label="`Newest first`"
                             ></v-checkbox>
                         </v-flex>            
                         <v-flex xs6 sm4 lg2 style="padding-left: 22px;">
                             <v-checkbox
                                 class="options-checkbox"
-                                v-model="expandAllRows"
+                                v-model:value="expandAllRows"
                                 :label="`Expand all rows`"
                             ></v-checkbox>
                         </v-flex>
                         <v-flex xs6 sm4 lg4 v-if="!showcustomColumnRule">
-                            <v-btn depressed small class="extra-filter-btn"
+                            <btn-component depressed small class="extra-filter-btn"
                                 @click="showcustomColumnRule = true; customColumnRule=options.Options.DefaultColumnRule">
-                                <v-icon >add</v-icon>
+                                <icon-component >add</icon-component>
                                 Custom columns
-                            </v-btn>
+                            </btn-component>
                         </v-flex>
                     </v-layout>
                     
@@ -223,83 +223,83 @@
 
                 <!-- METADATA -->
                 <div>
-                    <v-chip v-if="hasSearched" class="mb-4">
+                    <chip-component v-if="hasSearched" class="mb-4">
                         Last searched used {{ prettifyDuration(searchResultData.DurationInMilliseconds) }}
-                    </v-chip>
-                    <v-chip v-if="searchResultData.WasCancelled" class="mb-4">
+                    </chip-component>
+                    <chip-component v-if="searchResultData.WasCancelled" class="mb-4">
                         <b>Search was cancelled</b>
-                    </v-chip>
-                    <v-chip v-if="searchResultData.HighestDate != null" class="mb-4">
+                    </chip-component>
+                    <chip-component v-if="searchResultData.HighestDate != null" class="mb-4">
                         Total results: {{ searchResultData.TotalCount }}
-                    </v-chip>
-                    <v-chip v-if="searchResultData.LowestDate != null" class="mb-4">
+                    </chip-component>
+                    <chip-component v-if="searchResultData.LowestDate != null" class="mb-4">
                         First matching entry @ {{ formatDateForChip(new Date(searchResultData.LowestDate)) }}
-                    </v-chip>
-                    <v-chip v-if="searchResultData.HighestDate != null" class="mb-4">
+                    </chip-component>
+                    <chip-component v-if="searchResultData.HighestDate != null" class="mb-4">
                         Last matching entry @ {{ formatDateForChip(new Date(searchResultData.HighestDate)) }}
-                    </v-chip>
-                    <v-btn ripple color="error"
+                    </chip-component>
+                    <btn-component ripple color="error"
                         @click.stop.prevent="cancelAllSearches()"
                         v-if="options.Options.CurrentlyRunningLogSearchCount > 0 && !hasCancelledAll"
                         :disabled="cancelAllSearchesStatus.inProgress"
                         class="mb-4">
-                        <v-icon color="white">cancel</v-icon>
+                        <icon-component color="white">cancel</icon-component>
                         {{ cancelAllSearchesButtonText }}
-                    </v-btn>
+                    </btn-component>
                 </div>
 
                 <!-- CHARTS -->
-                <v-expansion-panel popout v-if="chartEntries.length > 0" class="mb-4">
+                <expansion-panel-component popout v-if="chartEntries.length > 0" class="mb-4">
                     <v-expansion-panel-content>
                         <template v-slot:header>
                             <div>{{insightsTitle}}</div>
                         </template>
-                        <v-card>
+                        <card-component>
                             <item-per-date-chart-component :entries="chartEntries" />
                             <!-- <v-card-text></v-card-text> -->
-                        </v-card>
+                        </card-component>
                     </v-expansion-panel-content>
-                </v-expansion-panel>
+                </expansion-panel-component>
 
                 <!-- GROUPED ENTRIES //todo -->
-                <v-expansion-panel popout v-if="Object.keys(searchResultData.GroupedEntries).length > 0" class="mb-4">
+                <expansion-panel-component popout v-if="Object.keys(searchResultData.GroupedEntries).length > 0" class="mb-4">
                     <v-expansion-panel-content>
                         <template v-slot:header>
                             <div>Grouped entries (work in progress)</div>
                         </template>
-                        <v-card>
+                        <card-component>
                             <ul class="ma-4">
                                 <li v-for="(groupKey, index) in Object.keys(searchResultData.GroupedEntries)"
                                     :key="`grouped-entries-${index}`">
                                     {{ groupKey }}: {{ searchResultData.GroupedEntries[groupKey].length }}
                                 </li>
                             </ul>
-                        </v-card>
+                        </card-component>
                     </v-expansion-panel-content>
-                </v-expansion-panel>
+                </expansion-panel-component>
             </v-container>
 
             <!-- PAGINATION -->
             <div class="text-xs-center mb-4" v-if="searchResultData.PageCount > 0">
-                <v-pagination
-                    v-model="currentPage"
+                <pagination-component
+                    v-model:value="currentPage"
                     :length="searchResultData.PageCount"
-                    :disabled="searchLoadStatus.inProgress"></v-pagination>
+                    :disabled="searchLoadStatus.inProgress"></pagination-component>
             </div>
 
             <!-- PROGRESS -->
-            <v-progress-linear
+            <progress-linear-component
               v-if="cancelAllSearchesStatus.inProgress || searchLoadStatus.inProgress || cancelSearchStatus.inProgress"
               :indeterminate="true"
               height="4"
-              class="mt-4"></v-progress-linear>
+              class="mt-4"></progress-linear-component>
 
             <!-- ERRORS -->
-            <v-alert
+            <alert-component
               :value="searchLoadStatus.failed"
               type="error">
               {{ searchLoadStatus.errorMessage }}
-            </v-alert>
+            </alert-component>
 
             <log-entry-table-component
                 :entries="searchResultData.Items"
@@ -310,34 +310,34 @@
 
             <!-- PAGINATION -->
             <div class="text-xs-center mb-4" v-if="searchResultData.PageCount > 0">
-                <v-pagination
-                    v-model="currentPage"
+                <pagination-component
+                    v-model:value="currentPage"
                     :length="searchResultData.PageCount"
-                    :disabled="searchLoadStatus.inProgress"></v-pagination>
+                    :disabled="searchLoadStatus.inProgress"></pagination-component>
             </div>
 
             <!-- PARSED QUERY -->
-            <v-expansion-panel popout v-if="describedQuery.length > 0" class="mb-4">
+            <expansion-panel-component popout v-if="describedQuery.length > 0" class="mb-4">
                 <v-expansion-panel-content>
                     <template v-slot:header>
                         <div>Parsed query</div>
                     </template>
-                    <v-card>
+                    <card-component>
                         <ul class="ma-4">
                             <li v-for="(description, index) in describedQuery"
                                 :key="`filter-description-${index}`">
                                 {{ description }}
                             </li>
                         </ul>
-                    </v-card>
+                    </card-component>
                 </v-expansion-panel-content>
-            </v-expansion-panel>
+            </expansion-panel-component>
 
           <!-- CONTENT END -->
         </v-flex>
         </v-layout>
         </v-container>
-        </v-content>
+        </content-component>
     </div>
 </template>
 

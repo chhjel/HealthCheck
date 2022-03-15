@@ -1,36 +1,36 @@
 <!-- src/components/modules/ReleaseNotes/ReleaseNotesPageComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
+        <content-component class="pl-0">
             <!-- CONTENT -->
             <v-container fluid fill-height class="content-root">
             <v-layout>
             <v-flex>
             <v-container>
                 <!-- LOAD PROGRESS -->
-                <v-progress-linear
+                <progress-linear-component
                     v-if="loadStatus.inProgress"
-                    indeterminate color="green"></v-progress-linear>
+                    indeterminate color="green"></progress-linear-component>
 
                 <!-- DATA LOAD ERROR -->
-                <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+                <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
                 {{ loadStatus.errorMessage }}
-                </v-alert>
+                </alert-component>
 
                 <div v-if="!datax && !loadStatus.inProgress">
                     No release notes data was found.
                 </div>
-                <v-alert :value="datax && datax.ErrorMessage" v-if="datax && datax.ErrorMessage" type="error">
+                <alert-component :value="datax && datax.ErrorMessage" v-if="datax && datax.ErrorMessage" type="error">
                     {{ datax.ErrorMessage }}
-                </v-alert>
+                </alert-component>
 
                 <div v-if="datax" class="release-notes">
                     <h1 v-if="datax.Title" class="release-notes__title">{{ data.Title }} (Version {{ data.Version }})</h1>
                     <p v-if="datax.Description" class="release-notes__description">{{ data.Description }}</p>
 
-                    <v-chip v-if="datax.BuiltAt" class="release-notes__metadata">Built at {{ formatDate(datax.BuiltAt) }}</v-chip>
-                    <v-chip v-if="datax.BuiltCommitHash" class="release-notes__metadata">Built hash: {{ data.BuiltCommitHash }}</v-chip>
-                    <v-chip v-if="datax.DeployedAt" class="release-notes__metadata">Deployed at {{ formatDate(datax.DeployedAt) }}</v-chip>
+                    <chip-component v-if="datax.BuiltAt" class="release-notes__metadata">Built at {{ formatDate(datax.BuiltAt) }}</chip-component>
+                    <chip-component v-if="datax.BuiltCommitHash" class="release-notes__metadata">Built hash: {{ data.BuiltCommitHash }}</chip-component>
+                    <chip-component v-if="datax.DeployedAt" class="release-notes__metadata">Deployed at {{ formatDate(datax.DeployedAt) }}</chip-component>
 
                     <div class="release-notes__changes" v-if="datax.Changes">
                         <h2 class="release-notes-changes__title">{{ changesTitle }}</h2>
@@ -43,7 +43,7 @@
                             <div class="release-notes-change__header">
                                 <div>
                                     <h3 class="release-notes-change__title">
-                                        <v-icon class="release-notes-change__icon" v-if="change.Icon">{{ change.Icon }}</v-icon>
+                                        <icon-component class="release-notes-change__icon" v-if="change.Icon">{{ change.Icon }}</icon-component>
                                         {{ change.Title }}
                                     </h3>
                                     <div class="release-notes-change__description"
@@ -59,7 +59,7 @@
                                 <div v-for="(link, lindex) in change.Links"
                                     :key="`change-${cindex}-link-${lindex}`"
                                     class="release-notes-change-link">
-                                    <v-icon v-if="link.Icon">{{ link.Icon }}</v-icon>
+                                    <icon-component v-if="link.Icon">{{ link.Icon }}</icon-component>
                                     <a :href="link.Url">{{ link.Title }}</a>
                                 </div>
                             </div>
@@ -73,14 +73,14 @@
                 </div>
 
                 <div v-if="HasAccessToDevDetails" class="mt-4">
-                    <v-btn flat @click.left="loadDataToggled()">{{ (forcedWithoutDevDetails) ? 'Show with dev details' : 'Show without dev details' }}</v-btn>
+                    <btn-component flat @click.left="loadDataToggled()">{{ (forcedWithoutDevDetails) ? 'Show with dev details' : 'Show without dev details' }}</btn-component>
                 </div>
 
             </v-container>
             </v-flex>
             </v-layout>
             </v-container>
-        </v-content>
+        </content-component>
     </div>
 </template>
 

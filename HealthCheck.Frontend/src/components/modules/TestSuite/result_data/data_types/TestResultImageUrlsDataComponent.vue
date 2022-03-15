@@ -1,11 +1,11 @@
 <!-- src/components/modules/TestSuite/result_data/data_types/TestResultImageUrlsDataComponent.vue -->
 <template>
     <div>
-      <v-progress-linear
+      <progress-linear-component
         v-if="showLoader"
-        indeterminate color="primary"></v-progress-linear>
+        indeterminate color="primary"></progress-linear-component>
 
-      <v-carousel 
+      <carousel-component 
         :height="'100%'"
         :cycle="false"
         :hide-delimiters="!showControls"
@@ -26,7 +26,7 @@
             <div style="clear: both;"></div>
           </div>
         </v-carousel-item>
-      </v-carousel>
+      </carousel-component>
     </div>
 </template>
 

@@ -1,10 +1,10 @@
 <!-- src/components/modules/DataRepeater/DataRepeaterPageComponent.vue -->
 <template>
     <div>
-        <v-content>
+        <content-component>
             <!-- NAVIGATION DRAWER -->
-            <v-navigation-drawer
-                v-model="drawerState"
+            <navigation-drawer-component
+                v-model:value="drawerState"
                 clipped fixed floating app
                 mobile-break-point="1000"
                 dark
@@ -24,7 +24,7 @@
                     v-on:itemClicked="onMenuItemClicked"
                     @itemMiddleClicked="onMenuItemMiddleClicked"
                     />
-            </v-navigation-drawer>
+            </navigation-drawer-component>
             
             <!-- CONTENT -->
             <v-container fluid fill-height class="content-root">
@@ -36,15 +36,15 @@
                                 <p v-if="selectedStream.Description" v-html="selectedStream.Description"></p>
 
                                 <div class="data-repeater-filters">
-                                    <v-text-field
-                                        v-model="filterItemId"
+                                    <text-field-component
+                                        v-model:value="filterItemId"
                                         @blur="onFilterChanged"
                                         @keyup.enter="onFilterChanged"
                                         label="Filter"
                                         clearable
                                         class="filter-input"
                                         :readonly="isLoading"
-                                    ></v-text-field>
+                                    ></text-field-component>
                                 </div>
                                 <div class="data-repeater-filters">
                                     <v-checkbox
@@ -55,8 +55,8 @@
                                         @click="setNextFilterRetryAllowedState"
                                         color="secondary"
                                     ></v-checkbox>
-                                    <v-combobox
-                                        v-model="filterTags"
+                                    <combobox-component
+                                        v-model:value="filterTags"
                                         @blur="onFilterChanged"
                                         @keyup.enter="onFilterChanged"
                                         :items="tagPresets"
@@ -66,20 +66,20 @@
                                         clearable
                                         class="filter-input"
                                         :readonly="isLoading"
-                                        ></v-combobox>
+                                        ></combobox-component>
                                 </div>
 
                                 <div class="pagination-and-actions">
-                                    <v-btn @click="loadCurrentStreamItems(true)" :disabled="isLoading" class="right">
-                                        <v-icon size="20px" class="mr-2">refresh</v-icon>Refresh
-                                    </v-btn>
-                                    <v-btn @click="batchActionsDialogVisible = true" :disabled="isLoading" v-if="hasBatchActions" class="right">
-                                        <v-icon size="20px" class="mr-2">checklist</v-icon>Batch actions
-                                    </v-btn>
+                                    <btn-component @click="loadCurrentStreamItems(true)" :disabled="isLoading" class="right">
+                                        <icon-component size="20px" class="mr-2">refresh</icon-component>Refresh
+                                    </btn-component>
+                                    <btn-component @click="batchActionsDialogVisible = true" :disabled="isLoading" v-if="hasBatchActions" class="right">
+                                        <icon-component size="20px" class="mr-2">checklist</icon-component>Batch actions
+                                    </btn-component>
                                     <paging-component
                                         :count="totalResultCount"
                                         :pageSize="pageSize"
-                                        v-model="pageIndex"
+                                        v-model:value="pageIndex"
                                         @change="onPageIndexChanged"
                                         :asIndex="true"
                                         class="mb-2 mt-2"
@@ -89,14 +89,14 @@
                             </div>
 
                             <!-- LOAD PROGRESS -->
-                            <v-progress-linear 
+                            <progress-linear-component 
                                 v-if="isLoading"
-                                indeterminate color="green"></v-progress-linear>
+                                indeterminate color="green"></progress-linear-component>
 
                             <!-- DATA LOAD ERROR -->
-                            <v-alert :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
+                            <alert-component :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
                             {{ dataLoadStatus.errorMessage }}
-                            </v-alert>
+                            </alert-component>
 
                             <div v-if="selectedStream && selectedItemId == null">
                                 <p>{{ totalResultCount}} matches</p>
@@ -119,11 +119,11 @@
                                         <span class="data-repeater-list-item--icon"
                                             title="Can be attempted retried"
                                             style="cursor: help;" v-if="item.AllowRetry">
-                                            <v-icon>replay</v-icon></span>
+                                            <icon-component>replay</icon-component></span>
                                         <span class="data-repeater-list-item--icon"
                                             title="Expires soon"
                                             style="cursor: help;" v-if="item.ExpiresAt && expiresSoon(item.ExpiresAt)">
-                                            <v-icon>timer</v-icon></span>
+                                            <icon-component>timer</icon-component></span>
 
                                         <div class="data-repeater-list-item--tags">
                                             <div class="data-repeater-list-item--tag"
@@ -136,7 +136,7 @@
                                 <paging-component
                                     :count="totalResultCount"
                                     :pageSize="pageSize"
-                                    v-model="pageIndex"
+                                    v-model:value="pageIndex"
                                     @change="onPageIndexChanged"
                                     :asIndex="true"
                                     class="mb-2 mt-2"
@@ -161,12 +161,12 @@
           <!-- CONTENT END -->
 
           <!-- DIALOGS -->
-            <v-dialog v-model="batchActionsDialogVisible"
+            <dialog-component v-model:value="batchActionsDialogVisible"
                 @keydown.esc="batchActionsDialogVisible = false"
                 max-width="800"
                 content-class="confirm-dialog"
                 :persistent="dataLoadStatus.inProgress">
-                <v-card>
+                <card-component>
                     <v-card-title class="headline">Batch actions</v-card-title>
                     <v-card-text>
                         <div v-if="selectedStream && hasBatchActions">
@@ -182,15 +182,15 @@
                     <v-divider></v-divider>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn color="secondary"
+                        <btn-component color="secondary"
                             :disabled="dataLoadStatus.inProgress"
                             :loading="dataLoadStatus.inProgress"
-                            @click="batchActionsDialogVisible = false">Cancel</v-btn>
+                            @click="batchActionsDialogVisible = false">Cancel</btn-component>
                     </v-card-actions>
-                </v-card>
-            </v-dialog>
+                </card-component>
+            </dialog-component>
           <!-- DIALOGS END -->
-        </v-content>
+        </content-component>
     </div>
 </template>
 

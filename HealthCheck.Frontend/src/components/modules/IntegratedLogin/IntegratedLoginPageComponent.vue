@@ -5,7 +5,7 @@
     <floating-squares-effect-component />
 
     <div class="integrated-login-page">
-        <v-content class="pl-0">
+        <content-component class="pl-0">
         <v-container fluid fill-height class="content-root">
         <v-layout>
         <v-flex class="pl-4 pr-4 pb-4">
@@ -17,8 +17,8 @@
                         <!-- INPUTS -->
                         <div>
                             <h1 class="login-title">{{ title }}</h1>
-                            <v-text-field
-                                v-model="username"
+                            <text-field-component
+                                v-model:value="username"
                                 :disabled="loadStatus.inProgress"
                                 v-on:keyup.enter="onLoginClicked"
                                 type="text"
@@ -26,8 +26,8 @@
                                 placeholder=" "
                                 class="pt-0 mt-5" />
 
-                            <v-text-field
-                                v-model="password"
+                            <text-field-component
+                                v-model:value="password"
                                 :disabled="loadStatus.inProgress"
                                 v-on:keyup.enter="onLoginClicked"
                                 label="Password"
@@ -40,8 +40,8 @@
                             <div v-if="showTwoFactorCodeInput" class="mb-4 mt-b">
                                 <v-layout row class="">
                                     <v-flex :xs6="show2FASendCodeButton" :xs12="!show2FASendCodeButton">
-                                        <v-text-field
-                                            v-model="twoFactorCode"
+                                        <text-field-component
+                                            v-model:value="twoFactorCode"
                                             :disabled="loadStatus.inProgress"
                                             v-on:keyup.enter="onLoginClicked"
                                             label="Two factor code"
@@ -50,20 +50,20 @@
                                             class="pt-0 mt-0"
                                             :loading="show2FACodeExpirationTime">
                                             <template v-slot:progress>
-                                                <v-progress-linear
+                                                <progress-linear-component
                                                 :value="twoFactorInputProgress"
                                                 :color="twoFactorInputColor"
                                                 height="7"
-                                                ></v-progress-linear>
+                                                ></progress-linear-component>
                                             </template>
-                                        </v-text-field>
+                                        </text-field-component>
                                     </v-flex>
                                     <v-flex xs6 v-if="show2FASendCodeButton">
-                                        <v-btn round color="secondary" class="mt-0"
+                                        <btn-component round color="secondary" class="mt-0"
                                             @click.prevent="onSendCodeClicked"
                                             :disabled="loadStatus.inProgress">
                                             <span style="white-space: normal;">{{ send2FASCodeButtonText }}</span>
-                                        </v-btn>
+                                        </btn-component>
                                     </v-flex>
                                 </v-layout>
                                 <div v-if="note2FA" class="mfa-note tfa">{{note2FA}}</div>
@@ -71,22 +71,22 @@
                         </div>
 
                         <div v-if="showWebAuthnInput">
-                            <v-btn round outline  color="primary" 
+                            <btn-component round outline  color="primary" 
                                 class="webauthn-button"
                                 @click.prevent="verifyWebAuthn"
                                 :disabled="loadStatus.inProgress">
                                 <span style="white-space: normal;">Verify WebAuthn</span>
-                            </v-btn>
+                            </btn-component>
                             <div v-if="noteWebAuthn" class="mfa-note mt-1">{{noteWebAuthn}}</div>
                         </div>
 
-                        <v-btn round color="primary" large class="mt-4 login-button"
+                        <btn-component round color="primary" large class="mt-4 login-button"
                             @click.prevent="onLoginClicked"
                             :disabled="loadStatus.inProgress">
                             <span style="white-space: normal;">Sign in</span>
-                        </v-btn>
+                        </btn-component>
 
-                        <v-progress-linear color="primary" indeterminate v-if="loadStatus.inProgress"></v-progress-linear>
+                        <progress-linear-component color="primary" indeterminate v-if="loadStatus.inProgress"></progress-linear-component>
 
                         <div v-if="error != null && error.length > 0" class="error--text mt-4">
                             <b v-if="!showErrorAsHtml">{{ error }}</b>
@@ -99,11 +99,11 @@
                         </div>
 
                         <!-- LOAD STATUS -->
-                        <v-alert
+                        <alert-component
                             :value="loadStatus.failed"
                             type="error">
                         {{ loadStatus.errorMessage }}
-                        </v-alert>
+                        </alert-component>
                     </div>
                 </div>
 
@@ -112,7 +112,7 @@
         </v-flex>
         </v-layout>
         </v-container>
-        </v-content>
+        </content-component>
     </div>
     </v-app>
     </div>

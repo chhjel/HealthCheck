@@ -3,10 +3,10 @@
     <div class="dce_page">
         <loading-screen-component ref="loadingscreen" text="LOADING DCE..." />
 
-        <v-content>
+        <content-component>
             <!-- NAVIGATION DRAWER -->
-            <v-navigation-drawer
-                v-model="drawerState"
+            <navigation-drawer-component
+                v-model:value="drawerState"
                 clipped fixed floating app
                 mobile-break-point="1000"
                 :dark="localOptions.darkTheme"
@@ -25,25 +25,25 @@
                     />
                     
                 <div class="pl-1 pr-1 pt-2 pb-2 menu-bottom-nav">
-                    <v-btn flat :dark="localOptions.darkTheme"
+                    <btn-component flat :dark="localOptions.darkTheme"
                         color="#62b5e4"
                         @click="configDialogVisible = true"
-                        ><v-icon>settings</v-icon>Settings</v-btn>
+                        ><icon-component>settings</icon-component>Settings</btn-component>
 
-                    <v-tooltip top v-if="showCreateNewScriptButton">
+                    <tooltip-component top v-if="showCreateNewScriptButton">
                         <template v-slot:activator="{ on }">
                             <span v-on="on">
-                            <v-btn flat :dark="localOptions.darkTheme"
+                            <btn-component flat :dark="localOptions.darkTheme"
                                 color="#62b5e4"
                                 @click="onNewScriptClicked"
                                 :disabled="loadStatus.inProgress || !allowCreateNewScript"
-                                ><v-icon>add</v-icon>New script</v-btn>
+                                ><icon-component>add</icon-component>New script</btn-component>
                             </span>
                         </template>
                         <span>{{ createNewScriptButtonTooltip }}</span>
-                    </v-tooltip>
+                    </tooltip-component>
                 </div>
-            </v-navigation-drawer>
+            </navigation-drawer-component>
 
             <!-- CONTENT -->
             <v-container fluid fill-height class="content-root pt-3 pb-0 pl-0 pr-0">
@@ -52,16 +52,16 @@
             <v-container class="pt-0 pb-1 pl-0 pr-0 wrapper-container">
 
                 <!-- DATA LOAD ERROR -->
-                <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+                <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
                 {{ loadStatus.errorMessage }}
-                </v-alert>
+                </alert-component>
 
                 <editor-component
                     class="codeeditor codeeditor__input"
                     language="csharp"
                     :theme="editorTheme"
                     :allowFullscreen="true"
-                    v-model="code"
+                    v-model:value="code"
                     v-on:editorInit="onEditorInit"
                     :readOnly="isEditorReadOnly"
                     :title="currentScriptTitle"
@@ -71,21 +71,21 @@
                     ></editor-component>
 
                 <div class="middle-toolbar">
-                    <v-btn flat :dark="localOptions.darkTheme"
+                    <btn-component flat :dark="localOptions.darkTheme"
                         color="#62b5e4"
                         :disabled="!hasUnsavedChanges || loadStatus.inProgress"
                         v-if="showSaveButton"
                         @click="onSaveClicked"
-                        >Save</v-btn>
+                        >Save</btn-component>
 
-                    <v-btn flat :dark="localOptions.darkTheme"
+                    <btn-component flat :dark="localOptions.darkTheme"
                         color="#ff6768"
                         @click="onDeleteClicked"
                         v-if="showDeleteButton"
                         :disabled="currentScript == null || loadStatus.inProgress || !canDeleteCurrentScript"
-                        >Delete</v-btn>
+                        >Delete</btn-component>
                     
-                    <v-btn flat outline :dark="localOptions.darkTheme"
+                    <btn-component flat outline :dark="localOptions.darkTheme"
                         color="#62b5e4"
                         class="right"
                         @click="onExecuteClicked"
@@ -93,8 +93,8 @@
                         v-if="showExecuteButton"
                         :disabled="currentScript == null || loadStatus.inProgress"
                         >
-                        <v-icon class="mr-2">code</v-icon>
-                        Execute</v-btn>
+                        <icon-component class="mr-2">code</icon-component>
+                        Execute</btn-component>
                 </div>
 
                 <editor-component
@@ -103,7 +103,7 @@
                     language="json"
                     :theme="editorTheme"
                     :allowFullscreen="true"
-                    v-model="resultData"
+                    v-model:value="resultData"
                     :title="'Output'"
                     :readOnly="loadStatus.inProgress || currentScript == null"
                     ></editor-component>
@@ -112,15 +112,15 @@
             </v-flex>
             </v-layout>
             </v-container>
-        </v-content>
+        </content-component>
         
         <!-- ##################### -->
         <!-- ###### DIALOGS ######-->
-        <v-dialog v-model="deleteScriptDialogVisible"
+        <dialog-component v-model:value="deleteScriptDialogVisible"
             @keydown.esc="deleteScriptDialogVisible = false"
             max-width="350" dark
             content-class="dce-dialog">
-            <v-card color="secondary" class="white--text">
+            <card-component color="secondary" class="white--text">
                 <v-card-title class="headline">Confirm deletion</v-card-title>
                 <v-card-text>
                     {{ deleteScriptDialogText }}
@@ -128,17 +128,17 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="deleteScriptDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="error" @click="deleteScript(currentScript)">Delete it</v-btn>
+                    <btn-component color="primary" @click="deleteScriptDialogVisible = false">Cancel</btn-component>
+                    <btn-component color="error" @click="deleteScript(currentScript)">Delete it</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
         <!-- ##################### -->
-        <v-dialog v-model="confirmUnchangedDialogVisible"
+        <dialog-component v-model:value="confirmUnchangedDialogVisible"
             @keydown.esc="unsavedChangesDialogGoBack()"
             max-width="350" dark
             content-class="dce-dialog">
-            <v-card color="secondary" class="white--text">
+            <card-component color="secondary" class="white--text">
                 <v-card-title class="headline">Unsaved changes</v-card-title>
                 <v-card-text>
                     It seems you have some unsaved changes.
@@ -146,21 +146,21 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary"
+                    <btn-component color="primary"
                         @click="unsavedChangesDialogGoBack()"
-                        >Go back</v-btn>
-                    <v-btn color="error"
+                        >Go back</btn-component>
+                    <btn-component color="error"
                         @click="unsavedChangesDialogConfirmed()"
-                        >Discard changes</v-btn>
+                        >Discard changes</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
         <!-- ##################### -->
-        <v-dialog v-model="saveScriptDialogVisible"
+        <dialog-component v-model:value="saveScriptDialogVisible"
             @keydown.esc="saveScriptDialogVisible = false"
             max-width="400" dark
             content-class="dce-dialog">
-            <v-card color="secondary" class="white--text">
+            <card-component color="secondary" class="white--text">
                 <v-card-title class="headline">Save new script</v-card-title>
                 <v-card-text>
                     Choose where to save this script.
@@ -168,29 +168,29 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="saveScriptDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="primary" @click="saveScript(currentScript, 'local')"
+                    <btn-component color="primary" @click="saveScriptDialogVisible = false">Cancel</btn-component>
+                    <btn-component color="primary" @click="saveScript(currentScript, 'local')"
                         :disabled="loadStatus.inProgress"
                         :loading="loadStatus.inProgress"
-                        >Local storage</v-btn>
-                    <v-btn color="primary" @click="saveScript(currentScript, 'server')"
+                        >Local storage</btn-component>
+                    <btn-component color="primary" @click="saveScript(currentScript, 'server')"
                         :disabled="loadStatus.inProgress"
                         :loading="loadStatus.inProgress"
-                        >Server</v-btn>
+                        >Server</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
         <!-- ##################### -->
-        <v-dialog v-model="configDialogVisible"
+        <dialog-component v-model:value="configDialogVisible"
             @keydown.esc="configDialogVisible = false"
             max-width="600" dark
             content-class="dce-dialog">
-            <v-card color="secondary" class="white--text">
+            <card-component color="secondary" class="white--text">
                 <v-card-title class="headline">Settings</v-card-title>
                 <v-card-text class="pt-0">
                     <div class="dce-dialog--option">
                         <v-checkbox
-                            v-model="localOptions.autoFormatResult"
+                            v-model:value="localOptions.autoFormatResult"
                             @change="(v) => setLocalConfig(o => o.autoFormatResult = v)"
                             label="Auto-format results" style="display:block"></v-checkbox>
                         <div class="dce-dialog--option--description">
@@ -200,7 +200,7 @@
 
                     <div class="dce-dialog--option">
                         <v-checkbox
-                            v-model="localOptions.autoFoldRegions"
+                            v-model:value="localOptions.autoFoldRegions"
                             @change="(v) => setLocalConfig(o => o.autoFoldRegions = v)"
                             label="Auto-fold regions" style="display:block"></v-checkbox>
                         <div class="dce-dialog--option--description">
@@ -210,7 +210,7 @@
 
                     <div class="dce-dialog--option">
                         <v-checkbox
-                            v-model="localOptions.updateLocalCodeFromRemote"
+                            v-model:value="localOptions.updateLocalCodeFromRemote"
                             @change="(v) => setLocalConfig(o => o.updateLocalCodeFromRemote = v)"
                             label="Update local code from pre-processed" style="display:block"></v-checkbox>
                         <div class="dce-dialog--option--description">
@@ -240,10 +240,10 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="configDialogVisible = false">Close</v-btn>
+                    <btn-component color="primary" @click="configDialogVisible = false">Close</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
         <!-- ##################### -->
     </div>
 </template>

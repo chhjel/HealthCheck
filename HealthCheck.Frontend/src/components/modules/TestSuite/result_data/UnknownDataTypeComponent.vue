@@ -1,14 +1,14 @@
 <!-- src/components/modules/TestSuite/result_data/UnknownDataTypeComponent.vue -->
 <template>
     <div>
-        <v-alert
+        <alert-component
         :value="true"
         color="warning"
         icon="priority_high"
         outline
         >
             Unknown data type '{{datax.Type}}'. No data component created for this type yet.
-        </v-alert>
+        </alert-component>
     </div>
 </template>
 

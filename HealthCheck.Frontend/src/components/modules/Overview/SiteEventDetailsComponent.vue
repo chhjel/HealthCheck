@@ -1,25 +1,25 @@
 <!-- src/components/modules/Overview/SiteEventDetailsComponent.vue -->
 <template>
-    <v-card color="grey lighten-4" flat
+    <card-component color="grey lighten-4" flat
         min-width="350px" max-width="800px">
-        <v-toolbar dark
+        <toolbar-component dark
             :color="getEventSeverityColor(event.Severity)">
-            <v-icon v-text="getEventSeverityIcon(event.Severity)"/>
-            <!-- <v-btn icon>
-                <v-icon>edit</v-icon>
-            </v-btn> -->
+            <icon-component v-text="getEventSeverityIcon(event.Severity)"/>
+            <!-- <btn-component icon>
+                <icon-component>edit</icon-component>
+            </btn-component> -->
             <v-toolbar-title>{{ event.Title }}</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-title class="subheading">
                 {{ getEventTimeLine1(event) }}<br />{{ getEventTimeLine2(event) }}
             </v-toolbar-title>
-            <!-- <v-btn icon>
-                <v-icon>favorite</v-icon>
-            </v-btn> -->
-            <!-- <v-btn icon>
-                <v-icon>more_vert</v-icon>
-            </v-btn> -->
-        </v-toolbar>
+            <!-- <btn-component icon>
+                <icon-component>favorite</icon-component>
+            </btn-component> -->
+            <!-- <btn-component icon>
+                <icon-component>more_vert</icon-component>
+            </btn-component> -->
+        </toolbar-component>
         <v-card-title primary-title>
             <span>
                 {{ event.Description }}
@@ -45,22 +45,22 @@
                 </div>
 
                 <!-- DEVELOPER DETAILS -->
-                <v-expansion-panel class="mt-4"
+                <expansion-panel-component class="mt-4"
                     v-if="event.DeveloperDetails != null && event.DeveloperDetails.length > 0"
-                    v-model="developerDetailsExpandedState">
+                    v-model:value="developerDetailsExpandedState">
                     <v-expansion-panel-content>
                         <template v-slot:header>
                         <div>Developer details</div>
                         </template>
                         <code class="pa-4 dev-details-contents">{{ event.DeveloperDetails }}</code>
                     </v-expansion-panel-content>
-                </v-expansion-panel>
+                </expansion-panel-component>
             </span>
         </v-card-title>
         <v-card-actions>
             <slot name="actions"></slot>
         </v-card-actions>
-    </v-card>
+    </card-component>
 </template>
 
 <script lang="ts">

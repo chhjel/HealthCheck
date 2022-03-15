@@ -8,7 +8,7 @@
             v-for="(parameterDef, pIndex) in action.ParameterDefinitions"
             :key="`action-parameter-item-${action.Id}-${pIndex}`"
             class="action-parameter-item"
-            v-model="parameters[parameterDef.Id]"
+            v-model:value="parameters[parameterDef.Id]"
             :config="parameterDef"
             :readonly="dataLoadStatus.inProgress"
             />
@@ -16,27 +16,27 @@
         <div v-if="disabledReason"><b>{{ disabledReason }}</b></div>
 
         <div style="display: flex; align-items: baseline;">
-            <v-btn :disabled="!allowExecute"
+            <btn-component :disabled="!allowExecute"
                 :loading="dataLoadStatus.inProgress"
                 @click="showExecuteActionDialog" class="mb-3">
                 {{ (action.ExecuteButtonLabel || 'Run') }}
-            </v-btn>
+            </btn-component>
             
             <span v-if="result && result.Message">{{ result.Message }}</span>
         </div>
 
         <!-- DATA LOAD ERROR -->
-        <v-alert :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
+        <alert-component :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
         {{ dataLoadStatus.errorMessage }}
-        </v-alert>
+        </alert-component>
 
         <!-- DIALOGS -->
-        <v-dialog v-model="confirmExecuteDialogVisible"
+        <dialog-component v-model:value="confirmExecuteDialogVisible"
             @keydown.esc="confirmExecuteDialogVisible = false"
             max-width="480"
             content-class="confirm-dialog"
             :persistent="dataLoadStatus.inProgress">
-            <v-card>
+            <card-component>
                 <v-card-title class="headline">Confirm execute '{{ action.Name }}'</v-card-title>
                 <v-card-text>
                     Are you sure you want to execute the action '{{ action.Name }}'?
@@ -44,17 +44,17 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="secondary"
+                    <btn-component color="secondary"
                         :disabled="dataLoadStatus.inProgress"
                         :loading="dataLoadStatus.inProgress"
-                        @click="confirmExecuteDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="primary"
+                        @click="confirmExecuteDialogVisible = false">Cancel</btn-component>
+                    <btn-component color="primary"
                         :disabled="!allowExecute"
                         :loading="dataLoadStatus.inProgress"
-                        @click="executeAction()">Execute</v-btn>
+                        @click="executeAction()">Execute</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
     </div>
 </template>
 

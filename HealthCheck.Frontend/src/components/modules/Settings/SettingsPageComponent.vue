@@ -1,7 +1,7 @@
 <!-- src/components/modules/Settings/SettingsPageComponent.vue -->
 <template>
     <div class="settings-page">
-        <v-content class="pl-0">
+        <content-component class="pl-0">
         <v-container fluid fill-height class="content-root">
         <v-layout>
         <v-flex class="pl-4 pr-4 pb-4">
@@ -10,14 +10,14 @@
                 <h1 class="mb-4">Settings</h1>
 
                 <!-- LOAD PROGRESS -->
-                <v-progress-linear 
+                <progress-linear-component 
                     v-if="loadStatus.inProgress"
-                    indeterminate color="green"></v-progress-linear>
+                    indeterminate color="green"></progress-linear-component>
 
                 <!-- DATA LOAD ERROR -->
-                <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+                <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
                 {{ loadStatus.errorMessage }}
-                </v-alert>
+                </alert-component>
 
                 <div v-for="(group, gIndex) in settingGroups"
                     :key="`setting-group-${gIndex}`"
@@ -33,7 +33,7 @@
                         v-for="(setting, sIndex) in group.settings"
                         :key="`setting-item-${gIndex}-${sIndex}`"
                         class="setting-item"
-                        v-model="setting.value"
+                        v-model:value="setting.value"
                         :config="setting.definition"
                         :readonly="!HasAccessToChangeSettings"
                         />
@@ -41,11 +41,11 @@
 
                 <v-layout v-if="settingGroups.length > 0">
                     <v-flex xs6 sm2 class="mb-2">
-                        <v-btn
+                        <btn-component
                             v-if="HasAccessToChangeSettings"
                             @click="saveSettings()" 
                             class="primary"
-                            :disabled="saveStatus.inProgress">{{ saveButtonText }}</v-btn>
+                            :disabled="saveStatus.inProgress">{{ saveButtonText }}</btn-component>
                     </v-flex>
 
                     <!-- SAVE ERROR -->
@@ -58,7 +58,7 @@
         </v-flex>
         </v-layout>
         </v-container>
-        </v-content>
+        </content-component>
     </div>
 </template>
 

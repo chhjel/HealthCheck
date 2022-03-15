@@ -1,7 +1,7 @@
 <!-- src/components/modules/Metrics/MetricsPageComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
+        <content-component class="pl-0">
             <!-- CONTENT -->
             <v-container fluid fill-height class="content-root">
             <v-layout>
@@ -10,20 +10,20 @@
                 <h1>Metrics</h1>
                 <p>Debug metrics to verify performance of code, values might be a bit delayed until the tracker is disposed.</p>
 
-                <v-btn :disabled="loadStatus.inProgress" @click="loadData" class="mb-3">
-                    <v-icon size="20px" class="mr-2">refresh</v-icon>
+                <btn-component :disabled="loadStatus.inProgress" @click="loadData" class="mb-3">
+                    <icon-component size="20px" class="mr-2">refresh</icon-component>
                     Refresh
-                </v-btn>
+                </btn-component>
 
                 <!-- LOAD PROGRESS -->
-                <v-progress-linear
+                <progress-linear-component
                     v-if="loadStatus.inProgress"
-                    indeterminate color="green"></v-progress-linear>
+                    indeterminate color="green"></progress-linear-component>
 
                 <!-- DATA LOAD ERROR -->
-                <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+                <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
                 {{ loadStatus.errorMessage }}
-                </v-alert>
+                </alert-component>
 
                 <div v-if="!hasData && !loadStatus.inProgress">
                     <b>No metrics data was found.</b>
@@ -85,7 +85,7 @@
             </v-flex>
             </v-layout>
             </v-container>
-        </v-content>
+        </content-component>
     </div>
 </template>
 

@@ -1,9 +1,9 @@
 <!-- src/components/Common/Basic/FetchStatusProgressComponent.vue -->
 <template>
     <div class="fetch-status-progress-component" :style="rootStyle">
-        <v-progress-linear
+        <progress-linear-component
             v-if="visible"
-            v-model="progress"
+            v-model:value="progress"
             :height="height"
             :color="color"
         />

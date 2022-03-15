@@ -2,7 +2,7 @@
 <template>
     <div>
         <v-switch v-if="!isNullable"
-            v-model="localValue" 
+            v-model:value="localValue" 
             :label="label"
             color="secondary"
             class="parameter-checkbox pt-0"
@@ -10,7 +10,7 @@
         ></v-switch>
 
         <v-checkbox v-if="isNullable"
-            v-model="nullableCheckboxState"
+            v-model:value="nullableCheckboxState"
             :indeterminate="localValue == null" 
             :label="label"
             :disabled="readonly"
@@ -126,7 +126,7 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
     onLocalValueChanged(): void
     {
         this.validateValue();
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 }
 </script>

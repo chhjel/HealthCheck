@@ -1,10 +1,10 @@
 <!-- src/components/modules/Messages/MessagesPageComponent.vue -->
 <template>
     <div>
-        <v-content>
+        <content-component>
             <!-- NAVIGATION DRAWER -->
-            <v-navigation-drawer
-                v-model="drawerState"
+            <navigation-drawer-component
+                v-model:value="drawerState"
                 clipped fixed floating app
                 mobile-break-point="1000"
                 dark
@@ -18,7 +18,7 @@
                     :showFilter="false"
                     :groupByKey="`groupName`"
                     />
-            </v-navigation-drawer>
+            </navigation-drawer-component>
             
             <!-- CONTENT -->
             <v-container fluid fill-height class="content-root">
@@ -26,23 +26,23 @@
             <v-flex>
             <v-container>
                 <!-- LOAD PROGRESS -->
-                <v-progress-linear
+                <progress-linear-component
                     v-if="loadStatus.inProgress"
-                    indeterminate color="green"></v-progress-linear>
+                    indeterminate color="green"></progress-linear-component>
 
                 <!-- DATA LOAD ERROR -->
-                <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+                <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
                 {{ loadStatus.errorMessage }}
-                </v-alert>
+                </alert-component>
 
                 <div v-if="currentInbox != null">
                     <div style="display:flex">
                         <h1 class="mb-1">{{ currentInbox.Name }}</h1>
                         <v-spacer></v-spacer>
-                        <v-btn color="error" flat
+                        <btn-component color="error" flat
                             v-if="HasAccessToDeleteMessages"
                             :disabled="messageLoadStatus.inProgress"
-                            @click="showDeleteInbox()">Delete all</v-btn>
+                            @click="showDeleteInbox()">Delete all</btn-component>
                     </div>
                     <p v-if="currentInbox.Description != null && currentInbox.Description.length > 0">{{ currentInbox.Description }}</p>
                     <hr />
@@ -50,20 +50,20 @@
                     <paging-component
                         :count="totalMessageCount"
                         :pageSize="messagesPageSize"
-                        v-model="messagesPageIndex"
+                        v-model:value="messagesPageIndex"
                         :asIndex="true"
                         class="mb-2 mt-2"
                         />
 
                     <!-- MESSAGE LOAD PROGRESS -->
-                    <v-progress-linear
+                    <progress-linear-component
                         v-if="messageLoadStatus.inProgress"
-                        indeterminate color="green"></v-progress-linear>
+                        indeterminate color="green"></progress-linear-component>
 
                     <!-- MESSAGE DATA LOAD ERROR -->
-                    <v-alert :value="messageLoadStatus.failed" v-if="messageLoadStatus.failed" type="error">
+                    <alert-component :value="messageLoadStatus.failed" v-if="messageLoadStatus.failed" type="error">
                     {{ messageLoadStatus.errorMessage }}
-                    </v-alert>
+                    </alert-component>
                     
                     <div class="messages-list">
                         <div class="messages-list__item header">
@@ -78,7 +78,7 @@
                             class="messages-list__item"
                             @click="showMessage(message)">
                             <div class="messages-list__item__icon">
-                                <v-icon :color="getMessageIconColor(message)">{{ getMessageIcon(message) }}</v-icon>
+                                <icon-component :color="getMessageIconColor(message)">{{ getMessageIcon(message) }}</icon-component>
                             </div>
                             <div class="messages-list__item__detail">
                                 <b class="mobile-only">From: </b>
@@ -108,26 +108,26 @@
             </v-flex>
             </v-layout>
             </v-container>
-        </v-content>
+        </content-component>
             
-        <v-dialog v-model="showMessageDialog"
+        <dialog-component v-model:value="showMessageDialog"
             @keydown.esc="hideMessageDialog"
             v-if="currentlyShownMessage != null"
             scrollable
             max-width="1200"
             content-class="message-dialog">
-            <v-card style="background-color: #f4f4f4">
-                <v-toolbar class="elevation-0">
+            <card-component style="background-color: #f4f4f4">
+                <toolbar-component class="elevation-0">
                     <div class="message-dialog__icon">
-                        <v-icon :color="getMessageIconColor(currentlyShownMessage)">{{ getMessageIcon(currentlyShownMessage) }}</v-icon>
+                        <icon-component :color="getMessageIconColor(currentlyShownMessage)">{{ getMessageIcon(currentlyShownMessage) }}</icon-component>
                     </div>
                     <v-toolbar-title class="message-dialog__title">{{ currentlyShownMessage.Summary }}</v-toolbar-title>
                     <v-spacer></v-spacer>
-                    <v-btn icon
+                    <btn-component icon
                         @click="hideMessageDialog">
-                        <v-icon>close</v-icon>
-                    </v-btn>
-                </v-toolbar>
+                        <icon-component>close</icon-component>
+                    </btn-component>
+                </toolbar-component>
 
                 <v-divider></v-divider>
                 
@@ -158,7 +158,7 @@
                                 v-show="currentlyShownMessage.BodyIsHtml && showMessageBodyRaw"
                                 class="editor"
                                 :language="'xml'"
-                                v-model="currentlyShownMessage.Body"
+                                v-model:value="currentlyShownMessage.Body"
                                 :read-only="true"
                                 ref="editor"/>
                             <div class="message__body" v-if="!currentlyShownMessage.BodyIsHtml">{{ currentlyShownMessage.Body }}</div>
@@ -175,21 +175,21 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="error" flat
+                    <btn-component color="error" flat
                         v-if="HasAccessToDeleteMessages"
                         :disabled="messageLoadStatus.inProgress"
-                        @click="showDeleteMessage(currentlyShownMessage)">Delete</v-btn>
-                    <v-btn color="success"
-                        @click="hideMessageDialog">Close</v-btn>
+                        @click="showDeleteMessage(currentlyShownMessage)">Delete</btn-component>
+                    <btn-component color="success"
+                        @click="hideMessageDialog">Close</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
         
-        <v-dialog v-model="deleteMessageDialogVisible"
+        <dialog-component v-model:value="deleteMessageDialogVisible"
             @keydown.esc="deleteMessageDialogVisible = false"
             max-width="290"
             content-class="confirm-dialog">
-            <v-card>
+            <card-component>
                 <v-card-title class="headline">Confirm deletion</v-card-title>
                 <v-card-text>
                     Are you sure you want to delete this message?
@@ -197,17 +197,17 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="secondary" @click="deleteMessageDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="error" @click="deleteMessage()">Delete it</v-btn>
+                    <btn-component color="secondary" @click="deleteMessageDialogVisible = false">Cancel</btn-component>
+                    <btn-component color="error" @click="deleteMessage()">Delete it</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
         
-        <v-dialog v-model="deleteInboxDialogVisible"
+        <dialog-component v-model:value="deleteInboxDialogVisible"
             @keydown.esc="deleteInboxDialogVisible = false"
             max-width="360"
             content-class="confirm-dialog">
-            <v-card>
+            <card-component>
                 <v-card-title class="headline">Confirm deletion</v-card-title>
                 <v-card-text>
                     Are you sure you want to delete all messages in the inbox?
@@ -215,11 +215,11 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="secondary" @click="deleteInboxDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="error" @click="deleteInbox()">Delete whole inbox</v-btn>
+                    <btn-component color="secondary" @click="deleteInboxDialogVisible = false">Cancel</btn-component>
+                    <btn-component color="error" @click="deleteInbox()">Delete whole inbox</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
     </div>
 </template>
 

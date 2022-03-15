@@ -5,7 +5,7 @@
             class="filter-input" type="text"
             v-model="content"
             @input="handleInput" ref="input" />
-        <v-icon class="icon">search</v-icon>
+        <icon-component class="icon">search</icon-component>
     </div>
 </template>
 
@@ -22,7 +22,7 @@ export default class FilterInputComponent extends Vue {
     content: string = this.value;
 
     handleInput(): void {
-      this.$emit('input', this.content);
+      this.$emit('update:value', this.content);
     }
 }
 </script>

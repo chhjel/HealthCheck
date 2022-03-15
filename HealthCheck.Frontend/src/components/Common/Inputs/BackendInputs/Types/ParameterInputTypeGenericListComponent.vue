@@ -1,35 +1,35 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeGenericListComponent.vue -->
 <template>
     <div>
-        <v-list dense class="parameter-list-input" v-if="items.length > 0">
+        <list-component dense class="parameter-list-input" v-if="items.length > 0">
             <draggable
-                v-model="items"
+                v-model:value="items"
                 group="grp"
                 style="min-height: 10px"
                 @end="onChanged">
                 <template v-for="(item, itemIndex) in items" :key="`${id}-item-${item.id}`">
                     <v-list-tile class="parameter-list-input-tile">
                         <v-list-tile-action v-if="items.length > 1">
-                            <v-icon class="handle-icon">drag_handle</v-icon>
+                            <icon-component class="handle-icon">drag_handle</icon-component>
                         </v-list-tile-action>
 
-                        <v-tooltip bottom v-if="!isReadOnlyList" >
+                        <tooltip-component bottom v-if="!isReadOnlyList" >
                             <template v-slot:activator="{ on }">
                                 <v-list-tile-action v-if="!isReadOnlyList" @click="removeItem(itemIndex)" v-on="on">
-                                    <v-btn flat icon color="error" :disabled="readonly">
-                                        <v-icon>remove</v-icon>
-                                    </v-btn>
+                                    <btn-component flat icon color="error" :disabled="readonly">
+                                        <icon-component>remove</icon-component>
+                                    </btn-component>
                                 </v-list-tile-action>
                             </template>
                             <span>Remove</span>
-                        </v-tooltip>
+                        </tooltip-component>
 
                         <v-list-tile-content style="max-width: 100%;">
                             <backend-input-component v-if="!isReadOnlyList"
                                 :key="`${id}-item-input-${item.id}`"
                                 :forceType="listType"
                                 forceName=""
-                                v-model="item.value"
+                                v-model:value="item.value"
                                 :config="config"
                                 :isListItem="true"
                                 :isCustomReferenceType="isCustomReferenceType"
@@ -42,10 +42,10 @@
                     </v-list-tile>
                 </template>
             </draggable>
-        </v-list>
-        <v-btn v-if="!isReadOnlyList" small color="primary" @click="addNewItem()" :disabled="readonly" class="ml-0">
-            <v-icon>add</v-icon>
-        </v-btn>
+        </list-component>
+        <btn-component v-if="!isReadOnlyList" small color="primary" @click="addNewItem()" :disabled="readonly" class="ml-0">
+            <icon-component>add</icon-component>
+        </btn-component>
     </div>
 </template>
 
@@ -148,7 +148,7 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
     @Watch('localValue')
     onLocalValueChanged(): void
     {
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 
     onChanged(): void {

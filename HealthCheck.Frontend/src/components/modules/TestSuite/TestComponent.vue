@@ -14,27 +14,27 @@
               v-if="hasStatus && allowShowStatusLabel">{{statusText}}</div>
             <h4 class="test-name">
               {{ test.Name }}
-              <!-- <v-icon>link</v-icon> -->
+              <!-- <icon-component>link</icon-component> -->
             </h4>
             <div class="test-duration" v-if="showTestDuration">{{ prettifyDuration(testResult.DurationInMilliseconds) }}</div>
 
-            <v-btn ripple color="error"
+            <btn-component ripple color="error"
               @click.stop.prevent="cancelTest()"
               v-if="(executeTestStatus.inProgress || showCancellationButtonUntilNextRun) && test.IsCancellable"
               :disabled="cancelTestStatus.inProgress"
               class="ma-0 mr-2 mt-2 pl-1 pr-3 cancel-test-button">
-              <v-icon color="white">cancel</v-icon>
+              <icon-component color="white">cancel</icon-component>
               {{ cancelTestButtonText }}
-            </v-btn>
+            </btn-component>
             
-            <v-btn ripple color="primary" 
+            <btn-component ripple color="primary" 
               @click.stop.prevent="onExecuteTestClicked()"
               :disabled="executeTestStatus.inProgress || showCancellationButtonUntilNextRun"
               class="ma-0 pl-1 pr-3 run-test-button"
               :class="{ 'cancellable': test.IsCancellable }">
-              <v-icon color="white" large>play_arrow</v-icon>
+              <icon-component color="white" large>play_arrow</icon-component>
               {{ executeTestButtonText }}
-            </v-btn>
+            </btn-component>
           </div>
           
           <div class="test-details" v-if="showDetails">
@@ -53,18 +53,18 @@
             <div v-if="test.Parameters.length > 0 && showTestResult" class="mb-4"></div>
 
             <!-- PROGRESS -->
-            <v-progress-linear
+            <progress-linear-component
               v-if="executeTestStatus.inProgress"
               :indeterminate="true"
               height="4"
-              class="mt-4"></v-progress-linear>
+              class="mt-4"></progress-linear-component>
 
             <!-- ERRORS -->
-            <v-alert
+            <alert-component
               :value="executeTestStatus.failed"
               type="error">
               {{ executeTestStatus.errorMessage }}
-            </v-alert>
+            </alert-component>
             
             <!-- RESULT -->
             <test-result-component 

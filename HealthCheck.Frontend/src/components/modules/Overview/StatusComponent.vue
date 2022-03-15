@@ -1,7 +1,7 @@
 <!-- src/components/modules/Overview/StatusComponent.vue -->
 <template>
     <div class="summary" :class="`with-${type}`">
-        <v-icon color="white" class="icon">{{ icon }}</v-icon>
+        <icon-component color="white" class="icon">{{ icon }}</icon-component>
         <span>{{ text }}</span>
     </div>
 </template>

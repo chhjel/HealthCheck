@@ -5,14 +5,14 @@
             <input-header-component
                 type="number"
                 name="Request count"
-                v-model="count"
+                v-model:value="count"
                 v-on:change="onDataChanged"
                 :disabled="readonly"
                 :clearable="false"
             ></input-header-component>
 
             <timespan-input-header-component
-                v-model="duration"
+                v-model:value="duration"
                 v-on:change="onDataChanged"
                 name="Over duration of"
                 :allowClear="false"
@@ -20,13 +20,13 @@
                 :disabled="readonly"
                 />
 
-            <v-btn
+            <btn-component
                 dark small flat
                 color="error"
                 @click="remove()"
                 :disabled="readonly">
                 Remove
-            </v-btn>
+            </btn-component>
         </div>
     </div>
 </template>
@@ -79,7 +79,7 @@ export default class CountOverDurationComponent extends Vue {
             _frontendId: (<any>this.value)._frontendId
         }
 
-        this.$emit('input', freshValues);
+        this.$emit('update:value', freshValues);
     }
 }
 </script>

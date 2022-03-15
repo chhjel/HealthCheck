@@ -1,9 +1,9 @@
 <!-- src/components/modules/TestSuite/TestResultComponent.vue -->
 <template>
     <div>
-        <v-icon :color="testResultIconColor"
+        <icon-component :color="testResultIconColor"
           v-if="showResultStatusIcon"
-          class="mr-1">{{testResultIcon}}</v-icon>
+          class="mr-1">{{testResultIcon}}</icon-component>
         
         <div class="result-message" v-if="showResultMessage">{{ this.testResult.Message }}</div>
 
@@ -12,16 +12,16 @@
         </div>
 
         <!-- DATA DUMPS -->
-        <v-expansion-panel 
+        <expansion-panel-component 
           class="mt-2 test-result-expansion-panel"
           :class="{ 'clean-mode': testResult.DisplayClean }"
           v-if="showTestResultData"
-          v-model="dataExpandedState">
+          v-model:value="dataExpandedState">
           <v-expansion-panel-content>
             <template v-slot:header v-if="testResult.AllowExpandData && !testResult.DisplayClean">
               <div>{{ testResultDataTitle }}</div>
             </template>
-            <v-card v-if="dataExpandedState == 0">
+            <card-component v-if="dataExpandedState == 0">
               <v-card-text>
                 <test-result-data-component 
                   v-for="(resultData, index) in testResult.Data"
@@ -29,9 +29,9 @@
                   :resultData="resultData"
                   :clean="resultData.DisplayClean || testResult.DisplayClean" />
               </v-card-text>
-            </v-card>
+            </card-component>
           </v-expansion-panel-content>
-        </v-expansion-panel>
+        </expansion-panel-component>
     </div>
 </template>
 

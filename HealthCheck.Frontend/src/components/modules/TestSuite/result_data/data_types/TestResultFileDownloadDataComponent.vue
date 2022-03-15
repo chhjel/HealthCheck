@@ -3,10 +3,10 @@
     <div>
       <div v-if="fileData">
         <p v-if="fileData.Description" class="mb-1">{{ fileData.Description }}</p>
-        <v-btn :href="downloadUrl" target="_blank" color="secondary">
-          <v-icon left dark>file_download</v-icon>
+        <btn-component :href="downloadUrl" target="_blank" color="secondary">
+          <icon-component left dark>file_download</icon-component>
           {{ fileData.Name }}
-        </v-btn>
+        </btn-component>
       </div>
     </div>
 </template>

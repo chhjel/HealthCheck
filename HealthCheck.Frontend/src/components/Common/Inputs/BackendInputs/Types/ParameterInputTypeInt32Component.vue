@@ -1,10 +1,10 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeInt32Component.vue -->
 <template>
     <div>
-        <v-text-field
+        <text-field-component
             type="number"
             class="pt-0"
-            v-model="localValue"
+            v-model:value="localValue"
             :placeholder="placeholderText"
             :disabled="readonly"
             required />
@@ -68,7 +68,7 @@ export default class ParameterInputTypeInt32Component extends Vue {
     onLocalValueChanged(): void
     {
         this.validateValue();
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 }
 </script>

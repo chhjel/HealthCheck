@@ -4,17 +4,17 @@
     <div>
         <v-layout>
             <v-flex :xs10="!config.NotNull" :xs12="config.NotNull">
-                <v-text-field
+                <text-field-component
                     v-if="isTextField"
                     class="pt-0"
-                    v-model="localValue"
+                    v-model:value="localValue"
                     :placeholder="placeholderText"
                     :disabled="readonly"
                     required />
-                <v-textarea
+                <textarea-component
                     v-if="isTextArea"
                     class="pt-0"
-                    v-model="localValue"
+                    v-model:value="localValue"
                     :placeholder="placeholderText"
                     :disabled="readonly"
                     required />
@@ -22,7 +22,7 @@
                     v-if="isCodeArea"
                     class="editor"
                     :language="'json'"
-                    v-model="localValue"
+                    v-model:value="localValue"
                     :read-only="readonly"
                     ref="editor" />
             </v-flex>
@@ -31,18 +31,18 @@
                 :xs3="isListItem"
                 class="text-sm-right"
                 v-if="!config.NotNull">
-                <v-tooltip bottom>
+                <tooltip-component bottom>
                     <template v-slot:activator="{ on }">
                         <span v-on="on">
-                            <v-btn flat icon color="primary" class="ma-0 pa-0"
+                            <btn-component flat icon color="primary" class="ma-0 pa-0"
                                 @click="setValueToNull"
                                 :disabled="localValue == null || readonly">
-                                <v-icon>clear</v-icon>
-                            </v-btn>
+                                <icon-component>clear</icon-component>
+                            </btn-component>
                         </span>
                     </template>
                     <span>Sets value to null</span>
-                </v-tooltip>
+                </tooltip-component>
             </v-flex>
 
         </v-layout>
@@ -131,7 +131,7 @@ export default class ParameterInputTypeStringComponent extends Vue {
     onLocalValueChanged(): void
     {
         this.validateValue();
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 
     validateValue(): void {

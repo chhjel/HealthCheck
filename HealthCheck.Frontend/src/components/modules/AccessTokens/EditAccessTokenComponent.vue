@@ -1,14 +1,14 @@
 <!-- src/components/modules/AccessTokens/EditAccessTokenComponent.vue -->
 <template>
     <div>
-        <v-text-field type="text"
+        <text-field-component type="text"
             label="Name"
-            v-model="datax.name"
+            v-model:value="datax.name"
             :disabled="readonly"
-        ></v-text-field>
+        ></text-field-component>
 
         <simple-date-time-component
-            v-model="datax.ExpiresAt"
+            v-model:value="datax.ExpiresAt"
             :readonly="readonly"
             name="Expiration date"
             />
@@ -17,7 +17,7 @@
         <v-checkbox 
             class="mt-2"
             :label="(datax.AllowKillswitch ? 'Allowed' : 'Not allowed')"
-            v-model="datax.AllowKillswitch"
+            v-model:value="datax.AllowKillswitch"
             :disabled="readonly" />
 
         <h3>Roles</h3>
@@ -38,7 +38,7 @@
         <h3>Modules</h3>
         <p class="mb-0">Give token access to the following modules:</p>
 
-        <v-chip
+        <chip-component
             color="primary"
             v-for="(filterChoice, fcIndex) in moduleFilters"
             :key="`filter-choice-${fcIndex}`"
@@ -48,9 +48,9 @@
             :class="{ 'selected': filterChoice.selected }"
             @click="onModuleAccessToggled(filterChoice.moduleId, !filterChoice.selected)">
                 {{ filterChoice.label }}
-                <v-icon right v-if="!filterChoice.selected">add</v-icon>
-                <v-icon right v-if="filterChoice.selected">close</v-icon>
-            </v-chip>
+                <icon-component right v-if="!filterChoice.selected">add</icon-component>
+                <icon-component right v-if="filterChoice.selected">close</icon-component>
+            </chip-component>
 
         <div class="access-grid ml-4 mt-2">
             <div class="access-grid--row"
@@ -97,7 +97,7 @@
                 <div class="access-grid--row--options"
                     v-if="hasAccessToModule(module.ModuleId) && module.AccessIds.length > 0">
                     <div class="access-grid--row--options--header">Limit to:</div>
-                    <v-autocomplete
+                    <autocomplete-component
                         :items="module.AccessIds"
                         item-value="Id"
                         item-text="Name"
@@ -108,7 +108,7 @@
                         :readonly="readonly"
                         :input="getModuleAccessIds(module.ModuleId)"
                         @change="(v) => onModuleAccessIdChanged(module.ModuleId, v)"
-                        ></v-autocomplete>
+                        ></autocomplete-component>
                 </div>
             </div>
         </div>
@@ -203,7 +203,7 @@ export default class EditAccessTokenComponent extends Vue {
     }
 
     notifyChange(): void {
-        this.$emit('input', this.data);
+        this.$emit('update:value', this.data);
     }
 
     ///////////////////////

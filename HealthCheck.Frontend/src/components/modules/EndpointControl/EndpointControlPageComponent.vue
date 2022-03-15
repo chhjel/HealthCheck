@@ -1,7 +1,7 @@
 <!-- src/components/modules/EndpointControl/EndpointControlPageComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
+        <content-component class="pl-0">
             <v-container fluid fill-height class="content-root">
             <v-layout>
             <v-flex>
@@ -9,33 +9,33 @@
                 <h1 class="mb-1">Endpoint control rules</h1>
 
                 <!-- LOAD PROGRESS -->
-                <v-progress-linear
+                <progress-linear-component
                     v-if="loadStatus.inProgress"
-                    indeterminate color="green"></v-progress-linear>
+                    indeterminate color="green"></progress-linear-component>
 
                 <!-- DATA LOAD ERROR -->
-                <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+                <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
                 {{ loadStatus.errorMessage }}
-                </v-alert>
+                </alert-component>
 
-                <v-btn :disabled="!allowRuleChanges"
+                <btn-component :disabled="!allowRuleChanges"
                     @click="onAddNewRuleClicked"
                     class="mb-3">
-                    <v-icon size="20px" class="mr-2">add</v-icon>
+                    <icon-component size="20px" class="mr-2">add</icon-component>
                     Add new
-                </v-btn>
+                </btn-component>
 
-                <v-btn v-if="HasAccessToEditEndpointDefinitions"
+                <btn-component v-if="HasAccessToEditEndpointDefinitions"
                     @click="editDefinitionsDialogVisible = true"
                     class="mb-3 ml-2 right">
                     Edit endpoint definitions
-                </v-btn>
+                </btn-component>
 
-                <v-btn v-if="HasAccessToLatestRequestsDialog"
+                <btn-component v-if="HasAccessToLatestRequestsDialog"
                     @click="showLatestRequestsDialog"
                     class="mb-3 ml-2 right">
                     Latest requests
-                </v-btn>
+                </btn-component>
 
                 <block-component
                     v-for="(rule, cindex) in rules"
@@ -43,10 +43,10 @@
                     class="rule-list-item"
                     >
                     <div class="rule-list-item--inner">
-                        <v-tooltip bottom>
+                        <tooltip-component bottom>
                             <template v-slot:activator="{ on }">
                             <v-switch v-on="on"
-                                v-model="rule.Enabled"
+                                v-model:value="rule.Enabled"
                                 color="secondary"
                                 style="flex: 0"
                                 @click="setRuleEnabled(rule, !rule.Enabled)"
@@ -54,7 +54,7 @@
                                 ></v-switch>
                             </template>
                             <span>Enable or disable this rule</span>
-                        </v-tooltip>
+                        </tooltip-component>
                         
                         <div class="rule-list-item--rule"
                             @click="showRule(rule)">
@@ -64,27 +64,27 @@
                                 :customResultDefinitions="CustomResultDefinitions" />
                         </div>
                         
-                        <v-tooltip bottom v-if="getRuleWarning(rule) != null">
+                        <tooltip-component bottom v-if="getRuleWarning(rule) != null">
                             <template v-slot:activator="{ on }">
-                                <v-icon style="cursor: help;" color="warning" v-on="on">warning</v-icon>
+                                <icon-component style="cursor: help;" color="warning" v-on="on">warning</icon-component>
                             </template>
                             <span>{{getRuleWarning(rule)}}</span>
-                        </v-tooltip>
+                        </tooltip-component>
 
-                        <v-tooltip bottom v-if="ruleIsOutsideLimit(rule)">
+                        <tooltip-component bottom v-if="ruleIsOutsideLimit(rule)">
                             <template v-slot:activator="{ on }">
-                                <v-icon v-on="on" style="cursor: help;">timer_off</v-icon>
+                                <icon-component v-on="on" style="cursor: help;">timer_off</icon-component>
                             </template>
                             <span>This rules' limits has been reached</span>
-                        </v-tooltip>
+                        </tooltip-component>
 
-                        <v-tooltip bottom>
+                        <tooltip-component bottom>
                             <template v-slot:activator="{ on }">
-                                <v-icon style="cursor: help;" v-on="on">person</v-icon>
+                                <icon-component style="cursor: help;" v-on="on">person</icon-component>
                                 <code style="color: var(--v-primary-base); cursor: help;" v-on="on">{{ rule.LastChangedBy }}</code>
                             </template>
                             <span>Last modified by '{{ rule.LastChangedBy }}'</span>
-                        </v-tooltip>
+                        </tooltip-component>
                     </div>
                 </block-component>
 
@@ -93,21 +93,21 @@
             </v-layout>
             </v-container>
             
-            <v-dialog v-model="ruleDialogVisible"
+            <dialog-component v-model:value="ruleDialogVisible"
                 scrollable
                 persistent
                 max-width="1200"
                 content-class="current-rule-dialog">
-                <v-card v-if="currentRule != null" style="background-color: #f4f4f4">
-                    <v-toolbar class="elevation-0">
+                <card-component v-if="currentRule != null" style="background-color: #f4f4f4">
+                    <toolbar-component class="elevation-0">
                         <v-toolbar-title class="current-rule-dialog__title">{{ currentDialogTitle }}</v-toolbar-title>
                         <v-spacer></v-spacer>
-                        <v-btn icon
+                        <btn-component icon
                             @click="hideCurrentRule()"
                             :disabled="serverInteractionInProgress">
-                            <v-icon>close</v-icon>
-                        </v-btn>
-                    </v-toolbar>
+                            <icon-component>close</icon-component>
+                        </btn-component>
+                    </toolbar-component>
 
                     <v-divider></v-divider>
                     
@@ -128,22 +128,22 @@
                     <v-divider></v-divider>
                     <v-card-actions >
                         <v-spacer></v-spacer>
-                        <v-btn color="error" flat
+                        <btn-component color="error" flat
                             v-if="showDeleteRule"
                             :disabled="serverInteractionInProgress"
-                            @click="$refs.currentRuleComponent.tryDeleteRule()">Delete</v-btn>
-                        <v-btn color="success"
+                            @click="$refs.currentRuleComponent.tryDeleteRule()">Delete</btn-component>
+                        <btn-component color="success"
                             :disabled="serverInteractionInProgress || !HasAccessToEditRules"
-                            @click="$refs.currentRuleComponent.saveRule()">Save</v-btn>
+                            @click="$refs.currentRuleComponent.saveRule()">Save</btn-component>
                     </v-card-actions>
-                </v-card>
-            </v-dialog>
+                </card-component>
+            </dialog-component>
 
-            <v-dialog v-model="deleteDefinitionDialogVisible"
+            <dialog-component v-model:value="deleteDefinitionDialogVisible"
                 @keydown.esc="deleteDefinitionDialogVisible = false"
                 max-width="290"
                 content-class="confirm-dialog">
-                <v-card>
+                <card-component>
                     <v-card-title class="headline">Confirm deletion</v-card-title>
                     <v-card-text>
                         {{ deleteDefinitionDialogText }}
@@ -151,29 +151,29 @@
                     <v-divider></v-divider>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn color="secondary" @click="deleteDefinitionDialogVisible = false">Cancel</v-btn>
-                        <v-btn color="error"
+                        <btn-component color="secondary" @click="deleteDefinitionDialogVisible = false">Cancel</btn-component>
+                        <btn-component color="error"
                             :loading="loadStatus.inProgress"
                             :disabled="loadStatus.inProgress"
-                            @click="confirmDeleteEndpointDefinition()">Delete</v-btn>
+                            @click="confirmDeleteEndpointDefinition()">Delete</btn-component>
                     </v-card-actions>
-                </v-card>
-            </v-dialog>
+                </card-component>
+            </dialog-component>
             
-            <v-dialog v-model="editDefinitionsDialogVisible"
+            <dialog-component v-model:value="editDefinitionsDialogVisible"
                 @keydown.esc="editDefinitionsDialogVisible = false"
                 scrollable
                 max-width="1200"
                 content-class="current-rule-dialog">
-                <v-card style="background-color: #f4f4f4">
-                    <v-toolbar class="elevation-0">
+                <card-component style="background-color: #f4f4f4">
+                    <toolbar-component class="elevation-0">
                         <v-toolbar-title class="current-rule-dialog__title">Edit endpoint definitions</v-toolbar-title>
                         <v-spacer></v-spacer>
-                        <v-btn icon
+                        <btn-component icon
                             @click="editDefinitionsDialogVisible = false">
-                            <v-icon>close</v-icon>
-                        </v-btn>
-                    </v-toolbar>
+                            <icon-component>close</icon-component>
+                        </btn-component>
+                    </toolbar-component>
 
                     <v-divider></v-divider>
                     
@@ -182,14 +182,14 @@
                             v-for="(def, dindex) in EndpointDefinitions"
                             :key="`endpointdef-${dindex}-${def.EndpointId}`"
                             class="definition-list-item mb-2">
-                            <v-btn
+                            <btn-component
                                 :loading="loadStatus.inProgress"
                                 :disabled="loadStatus.inProgress"
                                 color="error" class="right"
                                 @click="showDeleteDefinitionDialog(def.EndpointId)">
-                                <v-icon size="20px" class="mr-2">delete</v-icon>
+                                <icon-component size="20px" class="mr-2">delete</icon-component>
                                 Delete
-                            </v-btn>
+                            </btn-component>
 
                             <h3>{{ getEndpointDisplayName(def.EndpointId) }}</h3>
                             <div style="clear:both;"></div>
@@ -198,34 +198,34 @@
                     <v-divider></v-divider>
                     <v-card-actions >
                         <v-spacer></v-spacer>
-                        <v-btn
+                        <btn-component
                             :loading="loadStatus.inProgress"
                             :disabled="loadStatus.inProgress"
                             color="error"
                             @click="showDeleteDefinitionDialog(null)">
-                            <v-icon size="20px" class="mr-2">delete_forever</v-icon>
+                            <icon-component size="20px" class="mr-2">delete_forever</icon-component>
                             Delete all definitions
-                        </v-btn>
-                        <v-btn color="success"
-                            @click="editDefinitionsDialogVisible = false">Close</v-btn>
+                        </btn-component>
+                        <btn-component color="success"
+                            @click="editDefinitionsDialogVisible = false">Close</btn-component>
                     </v-card-actions>
-                </v-card>
-            </v-dialog>
+                </card-component>
+            </dialog-component>
             
-            <v-dialog v-model="latestRequestsDialogVisible"
+            <dialog-component v-model:value="latestRequestsDialogVisible"
                 @keydown.esc="hideLatestRequestsDialog"
                 scrollable
                 max-width="1200"
                 content-class=""
                 @input="v => v || hideLatestRequestsDialog()">
-                <v-card style="background-color: #f4f4f4">
-                    <v-toolbar class="elevation-0">
+                <card-component style="background-color: #f4f4f4">
+                    <toolbar-component class="elevation-0">
                         <v-toolbar-title class="current-rule-dialog__title">Latest requests</v-toolbar-title>
                         <v-spacer></v-spacer>
-                        <v-btn icon @click="hideLatestRequestsDialog">
-                            <v-icon>close</v-icon>
-                        </v-btn>
-                    </v-toolbar>
+                        <btn-component icon @click="hideLatestRequestsDialog">
+                            <icon-component>close</icon-component>
+                        </btn-component>
+                    </toolbar-component>
 
                     <v-divider></v-divider>
                     <v-card-text>
@@ -242,11 +242,11 @@
                     <v-divider></v-divider>
                     <v-card-actions >
                         <v-spacer></v-spacer>
-                        <v-btn color="success" @click="hideLatestRequestsDialog">Close</v-btn>
+                        <btn-component color="success" @click="hideLatestRequestsDialog">Close</btn-component>
                     </v-card-actions>
-                </v-card>
-            </v-dialog>
-        </v-content>
+                </card-component>
+            </dialog-component>
+        </content-component>
     </div>
 </template>
 

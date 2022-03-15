@@ -4,37 +4,37 @@
         <!-- DATEPICKER & TYPE SELECT-->
         <v-layout v-if="calendarEvents.length > 0">
             <v-flex xs12 sm3 class="mr-4">
-                <v-dialog ref="dateDialog" v-model="datepickerModal"
+                <dialog-component ref="dateDialog" v-model:value="datepickerModal"
                     :return-value.sync="calendarStart" lazy
                     full-width width="290px">
                     <template v-slot:activator="{ on }">
-                    <v-text-field
-                        v-model="calendarStart"
+                    <text-field-component
+                        v-model:value="calendarStart"
                         label="Date"
                         prepend-icon="event"
                         readonly
                         v-on="on"
-                    ></v-text-field>
+                    ></text-field-component>
                     </template>
-                    <v-date-picker 
-                        v-model="calendarStart"
+                    <date-picker-component 
+                        v-model:value="calendarStart"
                         :allowed-dates="allowDatepickerDate"
                         scrollable>
                     <v-spacer></v-spacer>
-                    <v-btn flat color="primary" @click="datepickerModal = false">Cancel</v-btn>
-                    <v-btn flat color="primary" @click="$refs.dateDialog.save(calendarStart)">OK</v-btn>
-                    </v-date-picker>
-                </v-dialog>
+                    <btn-component flat color="primary" @click="datepickerModal = false">Cancel</btn-component>
+                    <btn-component flat color="primary" @click="$refs.dateDialog.save(calendarStart)">OK</btn-component>
+                    </date-picker-component>
+                </dialog-component>
             </v-flex>
             <v-flex xs12 sm3 class="text-xs-center">
-                <v-select v-model="calendarType" :items="calendarTypeOptions" label="Type"></v-select>
+                <v-select v-model:value="calendarType" :items="calendarTypeOptions" label="Type"></v-select>
             </v-flex>
         </v-layout>
 
         <!-- CALENDAR -->
-        <v-calendar
+        <calendar-component
             :value="calendarToday" 
-            v-model="calendarStart"
+            v-model:value="calendarStart"
             :weekdays="[1, 2, 3, 4, 5, 6, 0]"
             :type="calendarType"
             color="primary" ref="calendar">
@@ -70,7 +70,7 @@
                     ></div>
                 </template>
             </template>
-        </v-calendar>
+        </calendar-component>
     </div>
 </template>
 

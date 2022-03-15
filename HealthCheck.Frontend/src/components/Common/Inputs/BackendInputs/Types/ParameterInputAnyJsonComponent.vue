@@ -1,22 +1,22 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputAnyJsonComponent.vue -->
 <template>
     <div>
-        <v-btn @click="showDialog" :disabled="readonly">{{ buttonText }}</v-btn>
+        <btn-component @click="showDialog" :disabled="readonly">{{ buttonText }}</btn-component>
         
-        <v-dialog v-model="editorDialogVisible"
+        <dialog-component v-model:value="editorDialogVisible"
             @keydown.esc="editorDialogVisible = false"
             scrollable
             fullscreen
             content-class="edit-json-value-dialog">
-            <v-card style="background-color: #f4f4f4">
-                <v-toolbar class="elevation-0">
+            <card-component style="background-color: #f4f4f4">
+                <toolbar-component class="elevation-0">
                     <v-toolbar-title>Edit value of parameter '{{ name }}' of type '{{ type}}'</v-toolbar-title>
                     <v-spacer></v-spacer>
-                    <v-btn icon
+                    <btn-component icon
                         @click="editorDialogVisible = false">
-                        <v-icon>close</v-icon>
-                    </v-btn>
-                </v-toolbar>
+                        <icon-component>close</icon-component>
+                    </btn-component>
+                </toolbar-component>
 
                 <v-divider></v-divider>
                 
@@ -25,26 +25,26 @@
                     <editor-component
                         class="editor"
                         :language="'json'"
-                        v-model="localValue"
+                        v-model:value="localValue"
                         :read-only="readonly"
                         ref="editor"/>
                         
                 </v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions >
-                    <v-btn color="error"
-                        @click="setValueToNull">Set value to null</v-btn>
-                    <v-btn color="secondary"
+                    <btn-component color="error"
+                        @click="setValueToNull">Set value to null</btn-component>
+                    <btn-component color="secondary"
                         v-if="hasTemplate"
-                        @click="setValueToTemplate">Reset value</v-btn>
+                        @click="setValueToTemplate">Reset value</btn-component>
                     <v-spacer></v-spacer>
-                    <v-alert :value="error.length > 0" color="error">{{ error }}</v-alert>
+                    <alert-component :value="error.length > 0" color="error">{{ error }}</alert-component>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary"
-                        @click="editorDialogVisible = false">Close</v-btn>
+                    <btn-component color="primary"
+                        @click="editorDialogVisible = false">Close</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
     </div>
 </template>
 
@@ -196,9 +196,9 @@ export default class ParameterInputAnyJsonComponent extends Vue {
     {
         // if (this.isListItem)
         // {
-        //     this.$emit('input', JSON.parse(this.localValue || ''));
+        //     this.$emit('update:value', JSON.parse(this.localValue || ''));
         // }
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 }
 </script>

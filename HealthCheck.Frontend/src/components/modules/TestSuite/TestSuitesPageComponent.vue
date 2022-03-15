@@ -1,18 +1,18 @@
 <!-- src/components/modules/TestSuite/TestSuitesPageComponent.vue -->
 <template>
     <div>
-        <v-content>
+        <content-component>
             <!-- NAVIGATION DRAWER -->
-            <v-navigation-drawer
-                v-model="drawerState"
+            <navigation-drawer-component
+                v-model:value="drawerState"
                 v-if="hasAnyTests"
                 clipped fixed floating app
                 mobile-break-point="1000"
                 dark
                 class="menu testset-menu">
                                 
-                <v-list expand class="menu-items">
-                    <filter-input-component class="filter" v-model="testSetFilterText" />
+                <list-component expand class="menu-items">
+                    <filter-input-component class="filter" v-model:value="testSetFilterText" />
                     
                     <!-- GROUPS IF ANY -->
                     <v-list-group
@@ -24,16 +24,16 @@
                         :key="`testset-menu-group-${group.Id}`">
                         <template v-slot:activator>
                             <v-list-tile>
-                                <v-icon
+                                <icon-component
                                     class="mr-2"
                                     v-if="getTestSetGroupIcon(group) != null" 
-                                    v-text="getTestSetGroupIcon(group)"></v-icon>
+                                    v-text="getTestSetGroupIcon(group)"></icon-component>
                                 <v-list-tile-title v-text="group.Name"></v-list-tile-title>
-                                <v-badge class="mr-3" v-if="showFilterCounts">
+                                <badge-component class="mr-3" v-if="showFilterCounts">
                                     <template v-slot:badge>
                                         <span>{{ getGroupFilterMatchCount(group) }}</span>
                                     </template>
-                                </v-badge>
+                                </badge-component>
                             </v-list-tile>
                         </template>
 
@@ -44,18 +44,18 @@
                             @click="setActiveSet(set)"
                             @click.middle.stop.prevent="onMenuItemMiddleClicked(set)"
                             @mousedown.middle.stop.prevent>
-                            <v-icon
+                            <icon-component
                                 class="mr-2"
                                 v-text="getTestSetIcon(set)" 
-                                v-if="testSetHasIcon(set)"></v-icon>
+                                v-if="testSetHasIcon(set)"></icon-component>
                             <v-list-tile-title
                                 v-text="set.Name"
                                 :class="getTestSetTitleClass(set)"></v-list-tile-title>
-                            <v-badge class="mr-3" v-if="showFilterCounts">
+                            <badge-component class="mr-3" v-if="showFilterCounts">
                                 <template v-slot:badge>
                                     <span>{{ getSetFilterMatchCount(set) }}</span>
                                 </template>
-                            </v-badge>
+                            </badge-component>
                         </v-list-tile>
                     </v-list-group>
 
@@ -67,21 +67,21 @@
                         @click="setActiveSet(set)"
                         @click.middle.stop.prevent="onMenuItemMiddleClicked(set)"
                         @mousedown.middle.stop.prevent>
-                        <v-icon
+                        <icon-component
                             class="mr-2"
                             v-text="getTestSetIcon(set)"
-                            v-if="testSetHasIcon(set)"></v-icon>
+                            v-if="testSetHasIcon(set)"></icon-component>
                         <v-list-tile-title 
                             v-text="set.Name"
                             :class="getTestSetTitleClass(set)"></v-list-tile-title>
-                        <v-badge class="mr-2" v-if="showFilterCounts">
+                        <badge-component class="mr-2" v-if="showFilterCounts">
                             <template v-slot:badge>
                                 <span>{{ getSetFilterMatchCount(set) }}</span>
                             </template>
-                        </v-badge>
+                        </badge-component>
                     </v-list-tile>
-                </v-list>
-            </v-navigation-drawer>
+                </list-component>
+            </navigation-drawer-component>
             
             <!-- CONTENT -->
             <v-container fluid fill-height class="content-root">
@@ -89,7 +89,7 @@
                     <v-flex>
                         <v-container>
                             <!-- INVALID TESTS -->
-                            <v-alert :value="hasInvalidTests" type="error">
+                            <alert-component :value="hasInvalidTests" type="error">
                                 <h3>Some invalid tests were found:</h3>
                                 <ul>
                                     <li v-for="(invalidTest, index) in invalidTests"
@@ -104,22 +104,22 @@
                                         </div>
                                     </li>
                                 </ul>
-                            </v-alert>
+                            </alert-component>
 
                             <!-- NO TESTS INFO -->
-                            <v-alert :value="!hasAnyTests && !setSetsLoadStatus.inProgress" type="info">
+                            <alert-component :value="!hasAnyTests && !setSetsLoadStatus.inProgress" type="info">
                             No tests were found.
-                            </v-alert>
+                            </alert-component>
 
                             <!-- DATA LOAD ERROR -->
-                            <v-alert :value="setSetsLoadStatus.failed" type="error">
+                            <alert-component :value="setSetsLoadStatus.failed" type="error">
                             {{ setSetsLoadStatus.errorMessage }}
-                            </v-alert>
+                            </alert-component>
 
                             <!-- LOAD PROGRESS -->
-                            <v-progress-linear 
+                            <progress-linear-component 
                                 v-if="setSetsLoadStatus.inProgress"
-                                indeterminate color="green"></v-progress-linear>
+                                indeterminate color="green"></progress-linear-component>
 
                             <!-- TESTS -->
                             <test-set-component
@@ -131,7 +131,7 @@
                     </v-flex>
                 </v-layout>
             </v-container>
-        </v-content>
+        </content-component>
     </div>
 </template>
 

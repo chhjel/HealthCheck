@@ -3,43 +3,43 @@
     <div>
         <div class="pick-ref-button-wrapper">
             
-            <v-tooltip bottom :disabled="!tooltip">
+            <tooltip-component bottom :disabled="!tooltip">
                 <template v-slot:activator="{ on }">
-                    <v-btn @click="showDialog" :disabled="readonly" class="pick-ref-button ml-0 mr-0" v-on="on">{{ selectedChoiceLabel }}</v-btn>
+                    <btn-component @click="showDialog" :disabled="readonly" class="pick-ref-button ml-0 mr-0" v-on="on">{{ selectedChoiceLabel }}</btn-component>
                 </template>
                 <span>{{tooltip}}</span>
-            </v-tooltip>
+            </tooltip-component>
         
-            <v-tooltip bottom v-if="localValue" >
+            <tooltip-component bottom v-if="localValue" >
                 <template v-slot:activator="{ on }">
-                    <v-btn flat small icon color="primary" v-if="localValue" class="mr-0" @click="copyToClipboard" v-on="on">
-                        <v-icon small>content_copy</v-icon>
-                    </v-btn>
+                    <btn-component flat small icon color="primary" v-if="localValue" class="mr-0" @click="copyToClipboard" v-on="on">
+                        <icon-component small>content_copy</icon-component>
+                    </btn-component>
                 </template>
                 <span>Copy to clipboard</span>
-            </v-tooltip>
+            </tooltip-component>
         </div>
 
         <textarea style="display:none;" ref="copyValue" :value="localValue" />
-        <v-snackbar v-model="showCopyAlert" :timeout="5000" :color="copyAlertColor" :bottom="true">
+        <snackbar-component v-model:value="showCopyAlert" :timeout="5000" :color="copyAlertColor" :bottom="true">
           {{ copyAlertText }}
-          <v-btn flat @click="showCopyAlert = false">Close</v-btn>
-        </v-snackbar>
+          <btn-component flat @click="showCopyAlert = false">Close</btn-component>
+        </snackbar-component>
         
-        <v-dialog v-model="choicesDialogVisible"
+        <dialog-component v-model:value="choicesDialogVisible"
             @keydown.esc="choicesDialogVisible = false"
             scrollable
             max-width="600"
             content-class="select-reference-item-dialog">
-            <v-card style="background-color: #f4f4f4">
-                <v-toolbar class="elevation-0">
+            <card-component style="background-color: #f4f4f4">
+                <toolbar-component class="elevation-0">
                     <v-toolbar-title>{{ dialogTitle }}</v-toolbar-title>
                     <v-spacer></v-spacer>
-                    <v-btn icon
+                    <btn-component icon
                         @click="choicesDialogVisible = false">
-                        <v-icon>close</v-icon>
-                    </v-btn>
-                </v-toolbar>
+                        <icon-component>close</icon-component>
+                    </btn-component>
+                </toolbar-component>
 
                 <v-divider></v-divider>
                 
@@ -47,13 +47,13 @@
                     <p v-if="dialogDescription">{{ dialogDescription }}</p>
                     <v-layout row>
                         <v-flex xs9>
-                            <v-text-field
+                            <text-field-component
                                 class="pb-1"
-                                v-model="choicesFilterText"
+                                v-model:value="choicesFilterText"
                                 placeholder="Filter.." />
                         </v-flex>
                         <v-flex xs3>
-                            <v-btn @click="loadChoices" :disabled="loadingChoicesStatus.inProgress">{{ dialogSearchButtonText }}</v-btn>
+                            <btn-component @click="loadChoices" :disabled="loadingChoicesStatus.inProgress">{{ dialogSearchButtonText }}</btn-component>
                         </v-flex>
                     </v-layout>
                     <small>{{ choices.length - 1 }} results</small>
@@ -61,27 +61,27 @@
                         v-for="(choice, cindex) in choices"
                         :key="`${config.parameterIndex}-choices-${cindex}`"
                         class="mb-2">
-                        <v-btn class="select-reference-item"
+                        <btn-component class="select-reference-item"
                             @click="selectChoice(choice)"
                             :color="choiceColor(choice)"
                             :disabled="readonly"
                             >
                             <div class="select-reference-item__name">{{ choice.Name }}</div>
                             <div class="select-reference-item__desc" v-if="choice.Description">{{ choice.Description }}</div>
-                        </v-btn>
+                        </btn-component>
                     </div>
-                    <v-progress-linear
+                    <progress-linear-component
                         v-if="loadingChoicesStatus.inProgress"
-                        indeterminate color="primary"></v-progress-linear>
+                        indeterminate color="primary"></progress-linear-component>
                 </v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions >
                     <v-spacer></v-spacer>
-                    <v-btn color="primary"
-                        @click="choicesDialogVisible = false">Cancel</v-btn>
+                    <btn-component color="primary"
+                        @click="choicesDialogVisible = false">Cancel</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
     </div>
 </template>
 
@@ -285,7 +285,7 @@ export default class ParameterInputPickReferenceComponent extends Vue {
     @Watch('localValue')
     onLocalValueChanged(): void
     {
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 }
 </script>

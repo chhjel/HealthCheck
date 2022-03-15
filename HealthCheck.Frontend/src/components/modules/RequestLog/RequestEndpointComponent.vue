@@ -2,7 +2,7 @@
 <template>
     <div>
         <h3 :data-endpoint-id="encodedEndpointId">
-            <v-icon large :color="stateColor">{{ stateIcon }}</v-icon>
+            <icon-component large :color="stateColor">{{ stateIcon }}</icon-component>
             <span class="info-trigger" @click="showDetails = !showDetails">
                 <span v-if="!isGrouped">{{ entry.Controller }} - </span>{{ entry.Name }}
             </span>

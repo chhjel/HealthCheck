@@ -1,7 +1,7 @@
 <!-- src/components/modules/Overview/EventTimelineComponent.vue -->
 <template>
     <div class="root event-timeline-component">
-        <v-timeline align-top dense>
+        <timeline-component align-top dense>
             <v-timeline-item color="info" small v-if="timelineEventGroups.length == 0">
                 <v-layout pt-3>
                     <div class="mr-4">
@@ -36,7 +36,7 @@
                     </v-layout>
                 </v-timeline-item>
             </template>
-        </v-timeline>
+        </timeline-component>
     </div>
 </template>
 

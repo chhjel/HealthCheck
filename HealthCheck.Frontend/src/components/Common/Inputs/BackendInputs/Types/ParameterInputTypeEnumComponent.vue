@@ -2,7 +2,7 @@
 <template>
     <div class="fixed-height-select">
         <v-select
-            v-model="localValue"
+            v-model:value="localValue"
             :items="items"
             :multiple="multiple"
             :chips="multiple"
@@ -92,9 +92,9 @@ export default class ParameterInputTypeEnumComponent extends Vue {
     onChanged(): void {
         if (this.multiple) {
             let selected = <Array<string>>this.localValue;
-            this.$emit('input', selected.join(", "));
+            this.$emit('update:value', selected.join(", "));
         } else {
-            this.$emit('input', <string>this.localValue);
+            this.$emit('update:value', <string>this.localValue);
         }
     }
 }

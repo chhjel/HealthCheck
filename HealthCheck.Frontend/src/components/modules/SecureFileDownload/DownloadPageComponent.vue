@@ -3,7 +3,7 @@
     <div>
     <v-app light class="approot">
     <div class="secure-file-download-page">
-        <v-content class="pl-0">
+        <content-component class="pl-0">
         <v-container fluid fill-height class="content-root">
         <v-layout>
         <v-flex class="pl-4 pr-4 pb-4">
@@ -14,7 +14,7 @@
                 <block-component class="mb-4" v-if="isDownloading">
                     <div class="downloading-content">
                         <h3 class="heading">Downloading '{{datax.download.filename}}'</h3>
-                        <v-icon large color="green darken-2">done</v-icon> 
+                        <icon-component large color="green darken-2">done</icon-component> 
                     </div>
                 </block-component>
                 
@@ -22,22 +22,22 @@
                 <block-component class="mb-4" v-if="!isDownloading">
                     <div>
                         <!-- LOAD STATUS -->
-                        <v-alert :value="datax.definitionValidationError !== null" type="error">
+                        <alert-component :value="datax.definitionValidationError !== null" type="error">
                             {{ datax.definitionValidationError }}
-                        </v-alert>
-                        <v-alert
+                        </alert-component>
+                        <alert-component
                             :value="loadStatus.failed"
                             type="error">
                         {{ loadStatus.errorMessage }}
-                        </v-alert>
+                        </alert-component>
 
                         <!-- PASSWORD INPUT -->
                         <div v-if="datax.download.protected && !isExpired">
                             <strong>A password is required to download this file</strong>
-                            <v-text-field 
+                            <text-field-component 
                                 box
                                 hide-details single-line
-                                v-model="currentPassword"
+                                v-model:value="currentPassword"
                                 :disabled="isPasswordFieldDisabled"
                                 :type="showPassword ? 'text' : 'password'"
                                 :append-icon="showPassword ? 'visibility' : 'visibility_off'"
@@ -51,7 +51,7 @@
                         </div>
 
                         <!-- DOWNLOAD LINK -->
-                        <v-btn color="primary" large
+                        <btn-component color="primary" large
                             class="mt-3"
                             v-if="!isExpired"
                             @click.prevent="onDownloadClicked"
@@ -60,9 +60,9 @@
                             <span style="white-space: normal;">
                             {{ downloadButtonText }}
                             </span>
-                            <v-icon dark right>cloud_download</v-icon>
-                        </v-btn>
-                        <v-progress-linear color="primary" indeterminate v-if="loadStatus.inProgress"></v-progress-linear>
+                            <icon-component dark right>cloud_download</icon-component>
+                        </btn-component>
+                        <progress-linear-component color="primary" indeterminate v-if="loadStatus.inProgress"></progress-linear-component>
                     </div>
                 </block-component>
 
@@ -88,7 +88,7 @@
         </v-flex>
         </v-layout>
         </v-container>
-        </v-content>
+        </content-component>
     </div>
     </v-app>
     </div>

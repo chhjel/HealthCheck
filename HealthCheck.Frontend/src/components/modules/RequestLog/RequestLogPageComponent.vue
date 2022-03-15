@@ -1,7 +1,7 @@
 <!-- src/components/modules/RequestLog/RequestLogPageComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
+        <content-component class="pl-0">
         <v-container fluid fill-height class="content-root">
         <v-layout>
         <v-flex class="pl-4 pr-4 pb-4">
@@ -10,22 +10,22 @@
         <v-container grid-list-md>
             <v-layout align-content-center wrap v-if="loadStatus.inProgress || loadStatus.failed">
                 <!-- LOAD ERROR -->
-                <v-alert
+                <alert-component
                     :value="loadStatus.failed"
                     type="error">
                 {{ loadStatus.errorMessage }}
-                </v-alert>
+                </alert-component>
 
                 <!-- PROGRESS BAR -->
-                <v-progress-linear
+                <progress-linear-component
                     v-if="loadStatus.inProgress"
-                    indeterminate color="green"></v-progress-linear>
+                    indeterminate color="green"></progress-linear-component>
             </v-layout>
 
             <v-layout align-content-center wrap v-if="entries.length == 0 && !loadStatus.inProgress && !loadStatus.failed">
-                <v-alert type="info" :value="true">
+                <alert-component type="info" :value="true">
                     No requests has been logged yet.
-                </v-alert>
+                </alert-component>
             </v-layout>
 
             <div v-if="entries.length > 0" class="filter">
@@ -39,41 +39,41 @@
       
                 <v-layout row wrap>
                     <v-flex xs12>
-                        <v-checkbox v-model="visibleStates" label="Successes" :value="STATE_SUCCESS" style="display:inline-block" class="mr-2"></v-checkbox>
-                        <v-checkbox v-model="visibleStates" label="Errors" :value="STATE_ERROR" style="display:inline-block" class="mr-2"></v-checkbox>
-                        <v-checkbox v-model="visibleStates" label="Not Called" :value="STATE_UNDETERMINED" style="display:inline-block" class="mr-4"></v-checkbox>
+                        <v-checkbox v-model:value="visibleStates" label="Successes" :value="STATE_SUCCESS" style="display:inline-block" class="mr-2"></v-checkbox>
+                        <v-checkbox v-model:value="visibleStates" label="Errors" :value="STATE_ERROR" style="display:inline-block" class="mr-2"></v-checkbox>
+                        <v-checkbox v-model:value="visibleStates" label="Not Called" :value="STATE_UNDETERMINED" style="display:inline-block" class="mr-4"></v-checkbox>
                         
                         <v-checkbox
                             v-for="(verb, index) in verbs"
                             :key="`verb-${index}`"
-                            v-model="visibleVerbs" :label="verb" :value="verb"
+                            v-model:value="visibleVerbs" :label="verb" :value="verb"
                             style="display:inline-block" class="mr-2"></v-checkbox>
                     </v-flex>
                 </v-layout>
 
                 <div>
                     Order by:
-                    <v-btn x-small @click="setSortOrder(sortOption)"
+                    <btn-component x-small @click="setSortOrder(sortOption)"
                         v-for="(sortOption, index) in sortOptions"
                         :key="`sortOption-${index}`"
                         :disabled="currentlySortedBy == sortOption">
                         {{ sortOption.name }}
-                    </v-btn>
+                    </btn-component>
                 </div>
                 <br />
 
-                <v-checkbox v-model="groupEntries" label="Enable grouping" style="display:inline-block" class="mr-4"></v-checkbox>
+                <v-checkbox v-model:value="groupEntries" label="Enable grouping" style="display:inline-block" class="mr-4"></v-checkbox>
                 <a @click="clearFilteredIpAddress()" v-if="filteredIPAddress != null" class="filtere-address-filter mr-2">
                     Filtered to source IP: {{ filteredIPAddress }}
-                    <v-icon size="20px">delete</v-icon>
+                    <icon-component size="20px">delete</icon-component>
                 </a>
-                <v-btn small @click="resetFilters" class="reset-filters-button">Reset filters</v-btn>
+                <btn-component small @click="resetFilters" class="reset-filters-button">Reset filters</btn-component>
                 <br />
 
                 <!-- Versions:
                 <div v-for="(version, index) in versions"
                      :key="`version-${index}`">
-                    <v-checkbox v-model="visibleVersions" :label="version" :value="version"></v-checkbox>
+                    <v-checkbox v-model:value="visibleVersions" :label="version" :value="version"></v-checkbox>
                 </div>
                 <br /> -->
 
@@ -113,35 +113,35 @@
 
                 <v-layout row wrap v-if="hasAccessToClearRequestLog">
                     <v-flex xs12 sm6 md4>
-                        <v-btn
+                        <btn-component
                             :loading="clearStatus.inProgress"
                             :disabled="clearStatus.inProgress"
                             color="error"
                             @click="clearRequestLog(true)"
                             >
-                            <v-icon size="20px" class="mr-2">delete_forever</v-icon>
+                            <icon-component size="20px" class="mr-2">delete_forever</icon-component>
                             Clear requests + definitions
-                        </v-btn>
+                        </btn-component>
                     </v-flex>
 
                     <v-flex xs12 sm6 md4>
-                        <v-btn
+                        <btn-component
                             :loading="clearStatus.inProgress"
                             :disabled="clearStatus.inProgress"
                             color="error"
                             @click="clearRequestLog(false)"
                             >
-                            <v-icon size="20px" class="mr-2">delete</v-icon>
+                            <icon-component size="20px" class="mr-2">delete</icon-component>
                             Clear requests
-                        </v-btn>
+                        </btn-component>
                     </v-flex>
 
                     <v-flex xs12 v-if="clearStatus.failed">
-                        <v-alert
+                        <alert-component
                             :value="clearStatus.failed"
                             type="error">
                         {{ clearStatus.errorMessage }}
-                        </v-alert>
+                        </alert-component>
                     </v-flex>
                 </v-layout>
             </div>
@@ -152,7 +152,7 @@
         </v-flex>
         </v-layout>
         </v-container>
-        </v-content>
+        </content-component>
     </div>
 </template>
 

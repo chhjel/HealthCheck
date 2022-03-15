@@ -3,12 +3,12 @@
     <div>
         <div class="parameter-header" v-if="showInputHeader">
             <div class="parameter-name">{{ displayName }}</div>
-            <v-icon small v-if="hasDescription"
+            <icon-component small v-if="hasDescription"
                 color="gray" class="parameter-help-icon"
-                @click="toggleDescription">help</v-icon>
-            <v-icon v-if="showActionIcon"
+                @click="toggleDescription">help</icon-component>
+            <icon-component v-if="showActionIcon"
                 color="gray" class="parameter-action-icon"
-                @click="onActionIconClicked">{{ actionIcon }}</v-icon>
+                @click="onActionIconClicked">{{ actionIcon }}</icon-component>
         </div>
 
         <div v-show="showDescription" class="parameter-description" v-html="displayDescription"></div>
@@ -17,7 +17,7 @@
             :key="`${id}-input`"
             class="parameter-input"
             :is="inputComponentName"
-            v-model="localValue"
+            v-model:value="localValue"
             :type="resolvedType"
             :name="displayName"
             :config="config"
@@ -291,7 +291,7 @@ export default class BackendInputComponent extends Vue {
     @Watch('localValue')
     emitLocalValue(): void
     {
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 
     onActionIconClicked(): void {

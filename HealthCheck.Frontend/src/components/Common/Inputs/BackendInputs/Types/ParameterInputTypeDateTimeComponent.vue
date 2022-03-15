@@ -1,18 +1,18 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeDateTimeComponent.vue -->
 <template>
     <div>
-        <v-text-field
+        <text-field-component
             class="pt-0"
-            v-model="localValue"
+            v-model:value="localValue"
             :placeholder="placeholderText"
             :disabled="readonly"
             type="datetime-local"
             required> 
-            <v-tooltip slot="append" bottom v-if="isNullable">
-                <v-icon slot="activator" @click="clearValue">clear</v-icon>
+            <tooltip-component slot="append" bottom v-if="isNullable">
+                <icon-component slot="activator" @click="clearValue">clear</icon-component>
                 Set value to null
-            </v-tooltip>
-        </v-text-field>
+            </tooltip-component>
+        </text-field-component>
     </div>
 </template>
 
@@ -93,7 +93,7 @@ export default class ParameterInputTypeDateTimeComponent extends Vue {
     onLocalValueChanged(): void
     {
         this.validateValue();
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 }
 </script>

@@ -4,32 +4,32 @@
         <div class="field-list horizontal-layout">
             
             <div class="horizontal-layout">
-                <v-tooltip bottom>
+                <tooltip-component bottom>
                     <template v-slot:activator="{ on }">
-                        <v-btn v-on="on"
+                        <btn-component v-on="on"
                             dark icon small
                             :color="!isMatchingOnStringified ? `primary` : 'secondary'"
                             :class="{ 'lighten-5': isMatchingOnStringified }"
                             @click="isMatchingOnStringified = !isMatchingOnStringified"
                             :disabled="readonly">
-                            <v-icon>code</v-icon>
-                        </v-btn>
+                            <icon-component>code</icon-component>
+                        </btn-component>
                     </template>
                     <span>
                         Toggle between filtering on a <b>property</b> or the <b>whole stringified event payload</b> itself.
                     </span>
-                </v-tooltip>
+                </tooltip-component>
                 
-                <v-text-field type="text"
+                <text-field-component type="text"
                     v-if="showPropertyName"
                     label="Property name"
-                    v-model="propertyName"
+                    v-model:value="propertyName"
                     v-on:change="onDataChanged"
                     :disabled="readonly"
-                ></v-text-field>
+                ></text-field-component>
 
                 <v-select
-                    v-model="matchType"
+                    v-model:value="matchType"
                     :items="matchTypeOptions"
                     item-text="text" item-value="value" color="secondary"
                     v-on:change="onDataChanged"
@@ -38,46 +38,46 @@
                 </v-select>
             </div>
 
-            <v-text-field type="text"
+            <text-field-component type="text"
                 label="Value to search for"
-                v-model="filter"
+                v-model:value="filter"
                 v-on:change="onDataChanged"
                 :disabled="readonly"
-            ></v-text-field>
+            ></text-field-component>
 
             <div class="horizontal-layout">
                 <v-switch
-                    v-model="caseSensitive" 
+                    v-model:value="caseSensitive" 
                     label="Case sensitive"
                     color="secondary"
                     v-on:change="onDataChanged"
                     :disabled="readonly"
                 ></v-switch>
                 
-                <!-- <v-tooltip bottom>
+                <!-- <tooltip-component bottom>
                     <template v-slot:activator="{ on }">
-                        <v-btn v-on="on"
+                        <btn-component v-on="on"
                             dark icon small
                             :color="caseSensitive ? `primary` : 'secondary'"
                             :class="{ 'lighten-5': !caseSensitive }"
                             @click="caseSensitive = !caseSensitive; onDataChanged();"
                             :disabled="readonly">
-                            <v-icon small>text_fields</v-icon>
-                        </v-btn>
+                            <icon-component small>text_fields</icon-component>
+                        </btn-component>
                     </template>
                     <span>
                         Toggle case-sensitive filtering.
                     </span>
-                </v-tooltip> -->
+                </tooltip-component> -->
                 
-                <v-btn v-if="allowDelete"
+                <btn-component v-if="allowDelete"
                     dark small flat
                     color="error"
                     @click="remove()"
                     :disabled="readonly">
                     Remove
-                    <!-- <v-icon>delete</v-icon> -->
-                </v-btn>
+                    <!-- <icon-component>delete</icon-component> -->
+                </btn-component>
             </div>
         </div>
     </div>

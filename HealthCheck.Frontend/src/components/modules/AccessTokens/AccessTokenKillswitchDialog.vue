@@ -1,19 +1,19 @@
 <!-- src/components/profile/AccessTokenKillswitchDialog.vue -->
 <template>
     <div>
-        <v-dialog v-model="dialogOpen"
+        <dialog-component v-model:value="dialogOpen"
             @keydown.esc="closeDialog"
             scrollable
             max-width="800"
             content-class="root-profile-dialog">
-            <v-card style="background-color: #f4f4f4">
-                <v-toolbar class="elevation-0">
+            <card-component style="background-color: #f4f4f4">
+                <toolbar-component class="elevation-0">
                     <v-toolbar-title>Delete currently used token</v-toolbar-title>
                     <v-spacer></v-spacer>
-                    <v-btn icon @click="closeDialog">
-                        <v-icon>close</v-icon>
-                    </v-btn>
-                </v-toolbar>
+                    <btn-component icon @click="closeDialog">
+                        <icon-component>close</icon-component>
+                    </btn-component>
+                </toolbar-component>
 
                 <v-divider></v-divider>
                 
@@ -25,14 +25,14 @@
                 <v-divider></v-divider>
                 <v-card-actions >
                     <v-spacer></v-spacer>
-                    <v-btn color="error"
+                    <btn-component color="error"
                         :loading="loadStatus.inProgress"
                         :disabled="loadStatus.inProgress"
-                        @click="killswitchToken()">Delete token</v-btn>
-                    <v-btn @click="closeDialog">Close</v-btn>
+                        @click="killswitchToken()">Delete token</btn-component>
+                    <btn-component @click="closeDialog">Close</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
     </div>
 </template>
 
@@ -76,7 +76,7 @@ export default class AccessTokenKillswitchDialog extends Vue
     //  METHODS  //
     //////////////
     closeDialog(): void {
-        this.$emit('input', false);
+        this.$emit('update:value', false);
     }
 
     killswitchToken(): void {
@@ -102,7 +102,7 @@ export default class AccessTokenKillswitchDialog extends Vue
     @Watch("dialogOpen")
     onDialogOpenChanged(): void
     {
-        this.$emit('input', this.dialogOpen);
+        this.$emit('update:value', this.dialogOpen);
     }
 }
 </script>

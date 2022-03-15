@@ -1,7 +1,7 @@
 <!-- src/components/modules/TestSuite/result_data/data_types/TestResultTimelineDataComponent.vue -->
 <template>
     <div>
-      <v-stepper alt-labels non-linear>
+      <stepper-component alt-labels non-linear>
         <v-stepper-header>
           <template v-for="(step, index) in steps" :key="`${id}-step-${index}`">
             <v-stepper-step :rules="[() => step.Error == null]" :step="step.Index + 1"
@@ -20,16 +20,16 @@
             ></v-divider>
           </template>
         </v-stepper-header>
-      </v-stepper>
+      </stepper-component>
       
-      <v-dialog
-        v-model="showStepDialog"
+      <dialog-component
+        v-model:value="showStepDialog"
         max-width="640">
-        <v-card v-if="dialogStep != null">
+        <card-component v-if="dialogStep != null">
           <v-card-title class="headline">
-            <v-icon large left v-if="dialogStep.Icon != null">
+            <icon-component large left v-if="dialogStep.Icon != null">
               {{ dialogStep.Icon }}
-            </v-icon>
+            </icon-component>
             <span class="title">{{ dialogStep.Title }}</span>
           </v-card-title>
           <v-card-text>
@@ -51,12 +51,12 @@
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="green darken-1" flat @click="showStepDialog = false">
+            <btn-component color="green darken-1" flat @click="showStepDialog = false">
               Close
-            </v-btn>
+            </btn-component>
           </v-card-actions>
-        </v-card>
-      </v-dialog>
+        </card-component>
+      </dialog-component>
     </div>
 </template>
 

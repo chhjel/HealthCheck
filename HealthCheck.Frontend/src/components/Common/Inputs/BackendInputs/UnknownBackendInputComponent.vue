@@ -23,7 +23,7 @@ export default class UnknownBackendInputComponent extends Vue {
 
     mounted(): void {
         if (this.type.startsWith("Nullable<")) {
-            this.$emit('input', null);
+            this.$emit('update:value', null);
         }
     }
 

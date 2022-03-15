@@ -1,7 +1,7 @@
 <!-- src/components/modules/SecureFileDownload/SecureFileDownloadPageComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
+        <content-component class="pl-0">
             <v-container fluid fill-height class="content-root">
             <v-layout>
             <v-flex>
@@ -9,23 +9,23 @@
                 <h1 class="mb-1">Downloads</h1>
 
                 <!-- LOAD PROGRESS -->
-                <v-progress-linear
+                <progress-linear-component
                     v-if="loadStatus.inProgress"
-                    indeterminate color="green"></v-progress-linear>
+                    indeterminate color="green"></progress-linear-component>
 
                 <!-- DATA LOAD ERROR -->
-                <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+                <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
                 {{ loadStatus.errorMessage }}
-                </v-alert>
+                </alert-component>
 
-                <v-btn
+                <btn-component
                     v-if="canCreateNewDownloads"
                     :disabled="!allowDownloadChanges"
                     @click="onAddNewDownloadClicked"
                     class="mb-3">
-                    <v-icon size="20px" class="mr-2">add</v-icon>
+                    <icon-component size="20px" class="mr-2">add</icon-component>
                     Add new
-                </v-btn>
+                </btn-component>
 
                 <block-component
                     v-for="(download, cindex) in downloads"
@@ -36,38 +36,38 @@
                         <div class="download-list-item--inner">
                             <div class="download-list-item--rule"
                                 @click="showDownload(download)">
-                                <v-icon>description</v-icon>
+                                <icon-component>description</icon-component>
                                 {{ download.FileName }}
                             </div>
                             
-                            <v-tooltip bottom v-if="download.Password != null">
+                            <tooltip-component bottom v-if="download.Password != null">
                                 <template v-slot:activator="{ on }">
-                                    <v-icon style="cursor: help;" v-on="on">lock</v-icon>
+                                    <icon-component style="cursor: help;" v-on="on">lock</icon-component>
                                 </template>
                                 <span>This download is protected by a password</span>
-                            </v-tooltip>
+                            </tooltip-component>
 
-                            <v-tooltip bottom v-if="getDownloadWarning(download) != null">
+                            <tooltip-component bottom v-if="getDownloadWarning(download) != null">
                                 <template v-slot:activator="{ on }">
-                                    <v-icon style="cursor: help;" color="warning" v-on="on">warning</v-icon>
+                                    <icon-component style="cursor: help;" color="warning" v-on="on">warning</icon-component>
                                 </template>
                                 <span>{{getDownloadWarning(download)}}</span>
-                            </v-tooltip>
+                            </tooltip-component>
 
-                            <v-tooltip bottom v-if="downloadIsOutsideLimit(download)">
+                            <tooltip-component bottom v-if="downloadIsOutsideLimit(download)">
                                 <template v-slot:activator="{ on }">
-                                    <v-icon v-on="on" style="cursor: help;">timer_off</v-icon>
+                                    <icon-component v-on="on" style="cursor: help;">timer_off</icon-component>
                                 </template>
                                 <span>This downloads' limits has been reached</span>
-                            </v-tooltip>
+                            </tooltip-component>
 
-                            <v-tooltip bottom>
+                            <tooltip-component bottom>
                                 <template v-slot:activator="{ on }">
-                                    <v-icon style="cursor: help;" v-on="on">person</v-icon>
+                                    <icon-component style="cursor: help;" v-on="on">person</icon-component>
                                     <code style="color: var(--v-primary-base); cursor: help;" v-on="on">{{ download.LastModifiedByUsername }}</code>
                                 </template>
                                 <span>Last modified by '{{ download.LastModifiedByUsername }}'</span>
-                            </v-tooltip>
+                            </tooltip-component>
                         </div>
                             
                         <div class="download-link">
@@ -81,21 +81,21 @@
             </v-layout>
             </v-container>
             
-            <v-dialog v-model="downloadDialogVisible"
+            <dialog-component v-model:value="downloadDialogVisible"
                 scrollable
                 persistent
                 max-width="1200"
                 content-class="current-download-dialog">
-                <v-card v-if="currentDownload != null" style="background-color: #f4f4f4">
-                    <v-toolbar class="elevation-0">
+                <card-component v-if="currentDownload != null" style="background-color: #f4f4f4">
+                    <toolbar-component class="elevation-0">
                         <v-toolbar-title class="current-download-dialog__title">{{ currentDialogTitle }}</v-toolbar-title>
                         <v-spacer></v-spacer>
-                        <v-btn icon
+                        <btn-component icon
                             @click="hideCurrentDownload()"
                             :disabled="serverInteractionInProgress">
-                            <v-icon>close</v-icon>
-                        </v-btn>
-                    </v-toolbar>
+                            <icon-component>close</icon-component>
+                        </btn-component>
+                    </toolbar-component>
 
                     <v-divider></v-divider>
                     
@@ -114,18 +114,18 @@
                     <v-divider></v-divider>
                     <v-card-actions >
                         <v-spacer></v-spacer>
-                        <v-btn color="error" flat
+                        <btn-component color="error" flat
                             v-if="showDeleteDownload"
                             :disabled="serverInteractionInProgress"
-                            @click="$refs.currentDownloadComponent.tryDeleteDownload()">Delete</v-btn>
-                        <v-btn color="success"
+                            @click="$refs.currentDownloadComponent.tryDeleteDownload()">Delete</btn-component>
+                        <btn-component color="success"
                             v-if="showSaveDownload"
                             :disabled="serverInteractionInProgress"
-                            @click="$refs.currentDownloadComponent.saveDownload()">Save</v-btn>
+                            @click="$refs.currentDownloadComponent.saveDownload()">Save</btn-component>
                     </v-card-actions>
-                </v-card>
-            </v-dialog>
-        </v-content>
+                </card-component>
+            </dialog-component>
+        </content-component>
     </div>
 </template>
 

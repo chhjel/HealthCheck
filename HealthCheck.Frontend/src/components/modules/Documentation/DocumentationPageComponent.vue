@@ -1,17 +1,17 @@
 <!-- src/components/modules/Documentation/DocumentationPageComponent.vue -->
 <template>
     <div class="docpage">
-        <v-content>
+        <content-component>
             <!-- NAVIGATION DRAWER -->
-            <v-navigation-drawer
-                v-model="drawerState"
+            <navigation-drawer-component
+                v-model:value="drawerState"
                 clipped fixed floating app
                 mobile-break-point="1000"
                 dark
                 class="menu testset-menu">
 
-                <v-list expand class="menu-items">
-                    <filter-input-component class="filter" v-model="diagramFilterText" />
+                <list-component expand class="menu-items">
+                    <filter-input-component class="filter" v-model:value="diagramFilterText" />
 
                     <v-list-tile ripple
                         v-for="(menuItem, diagramIndex) in menuItems"
@@ -35,8 +35,8 @@
                         @click="showSandboxMode">
                         <v-list-tile-title v-text="'Sandbox'"></v-list-tile-title>
                     </v-list-tile>
-                </v-list>
-            </v-navigation-drawer>
+                </list-component>
+            </navigation-drawer-component>
             
             <!-- CONTENT -->
             <v-container fluid fill-height class="content-root">
@@ -44,21 +44,21 @@
                     <v-flex>
                         <v-container>
                             <!-- NO DIAGRAMS INFO -->
-                            <v-alert :value="sequenceDiagrams.length == 0 && !loadStatus.inProgress && !loadStatus.failed" type="info">
+                            <alert-component :value="sequenceDiagrams.length == 0 && !loadStatus.inProgress && !loadStatus.failed" type="info">
                                 No documentation was found.<br />
                                 Decorate backend code with <code>[SequenceDiagramStepAttribute]</code> for sequence diagrams to be generated,<br />
                                 or with <code>[FlowChartStepAttribute]</code> for flow charts to be generated.
-                            </v-alert>
+                            </alert-component>
 
                             <!-- DATA LOAD ERROR -->
-                            <v-alert :value="loadStatus.failed" type="error">
+                            <alert-component :value="loadStatus.failed" type="error">
                             {{ loadStatus.errorMessage }}
-                            </v-alert>
+                            </alert-component>
 
                             <!-- LOAD PROGRESS -->
-                            <v-progress-linear 
+                            <progress-linear-component 
                                 v-if="loadStatus.inProgress"
-                                indeterminate color="green"></v-progress-linear>
+                                indeterminate color="green"></progress-linear-component>
 
                             <!-- SELECTED DIAGRAM -->
                             <v-layout v-if="(currentSequenceDiagram != null || currentFlowChart != null) && !sandboxMode"
@@ -93,7 +93,7 @@
 
                                 <v-checkbox
                                     v-if="showToggleRemarks"
-                                    v-model="showRemarks"
+                                    v-model:value="showRemarks"
                                     label="Show remarks" style="display:block"></v-checkbox>
                             </v-layout>
                         </v-container>
@@ -103,7 +103,7 @@
                             <v-flex>
                                 <v-select
                                     v-if="false"
-                                    v-model="diagramStyle"
+                                    v-model:value="diagramStyle"
                                     :items="diagramStyles"
                                     item-text="text" item-value="value" color="secondary">
                                 </v-select>
@@ -131,7 +131,7 @@
                 </v-layout>
             </v-container>
           <!-- CONTENT END -->
-        </v-content>
+        </content-component>
     </div>
 </template>
 

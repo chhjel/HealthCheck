@@ -1,14 +1,14 @@
 <!-- src/components/Common/FilterableListComponent.vue -->
 <template>
     <div>
-        <v-list expand class="menu-items">
-            <filter-input-component class="filter" v-model="filterText" v-if="showFilter" />
+        <list-component expand class="menu-items">
+            <filter-input-component class="filter" v-model:value="filterText" v-if="showFilter" />
             <div v-if="!showFilter" class="mb-5"></div>
             <div v-if="!showFilter" style="margin-top: 76px"></div>
 
-            <v-progress-linear 
+            <progress-linear-component 
                 v-if="loading"
-                indeterminate color="green"></v-progress-linear>
+                indeterminate color="green"></progress-linear-component>
             
             <!-- GROUPS: START -->
             <v-list-group
@@ -21,11 +21,11 @@
                 <template v-slot:activator>
                     <v-list-tile>
                         <v-list-tile-title v-text="group.title"></v-list-tile-title>
-                        <v-badge class="mr-3" v-if="showFilterCounts">
+                        <badge-component class="mr-3" v-if="showFilterCounts">
                             <template v-slot:badge>
                                 <span>{{ getGroupFilterMatchCount(group) }}</span>
                             </template>
-                        </v-badge>
+                        </badge-component>
                     </v-list-tile>
                 </template>
 
@@ -41,12 +41,12 @@
                     :disabled="disabled">
                     <v-list-tile-title>
                         {{ item.title }}
-                        <v-icon
+                        <icon-component
                             v-for="(icon, iindex) in getItemIcons(item.data)"
                             :key="`filterable-menu-item-${itemIndex}-icon-${iindex}`"
                             class="filterable-menu-item__icon"
                             color="#555"
-                            >{{ icon }}</v-icon>
+                            >{{ icon }}</icon-component>
                         <br v-if="item.subTitle != null">
                         <span style="color: darkgray;" v-if="item.subTitle != null">{{ item.subTitle }}</span>
                     </v-list-tile-title>
@@ -76,7 +76,7 @@
             </v-list-tile>
             <!-- NO GROUP: END -->
 
-        </v-list>
+        </list-component>
     </div>
 </template>
 

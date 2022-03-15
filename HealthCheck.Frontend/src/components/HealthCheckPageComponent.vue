@@ -3,7 +3,7 @@
     <div>
         <v-app light class="approot" v-if="!showIntegratedLogin">
             <!-- TOOLBAR -->
-            <v-toolbar clipped-left fixed app class="toolbar-main">
+            <toolbar-component clipped-left fixed app class="toolbar-main">
                 <v-toolbar-side-icon
                     @click.stop="onSideMenuToggleButtonClicked"
                     v-if="showMenuButton"></v-toolbar-side-icon>
@@ -13,32 +13,32 @@
                 </v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-toolbar-items>
-                    <v-btn flat
+                    <btn-component flat
                         v-for="(mconf, mindex) in this.moduleConfigsToShowInTopMenu"
                         :key="`module-menu-${mindex}`"
                         :href="getModuleLinkUrl(mconf)"
                         :class="{ 'active-tab': isModuleShowing(mconf) }"
-                        @click.left.prevent="showModule(mconf)">{{ mconf.Name }}</v-btn>
-                    <v-btn flat 
+                        @click.left.prevent="showModule(mconf)">{{ mconf.Name }}</btn-component>
+                    <btn-component flat 
                         v-if="showTokenKillswitch"
                         @click.left.prevent="tokenKillswitchDialogVisible = true">
-                        <v-icon class="toolbar-icon mr-1">remove_circle</v-icon>
+                        <icon-component class="toolbar-icon mr-1">remove_circle</icon-component>
                         Token killswitch
-                        </v-btn>
-                    <v-btn flat 
+                        </btn-component>
+                    <btn-component flat 
                         v-if="showIntegratedProfile"
                         @click.left.prevent="integratedProfileDialogVisible = true">
-                        <v-icon class="toolbar-icon mr-1">person</v-icon>
+                        <icon-component class="toolbar-icon mr-1">person</icon-component>
                         Profile
-                        </v-btn>
-                    <v-btn flat 
+                        </btn-component>
+                    <btn-component flat 
                         v-if="showLogoutLink"
                         @click.left.prevent="logoutRedirect">
-                        <v-icon>logout</v-icon>
+                        <icon-component>logout</icon-component>
                         {{ logoutLinkTitle }}
-                        </v-btn>
+                        </btn-component>
                 </v-toolbar-items>
-            </v-toolbar>
+            </toolbar-component>
 
             <!-- CONTENT -->
             <invalid-module-configs-component
@@ -51,8 +51,8 @@
                 v-if="noModuleAccess"
                 v-show="noModuleAccess" />
             
-            <health-check-profile-dialog-component v-if="showIntegratedProfile" v-model="integratedProfileDialogVisible" />
-            <access-token-killswitch-dialog v-if="showTokenKillswitch" v-model="tokenKillswitchDialogVisible" />
+            <health-check-profile-dialog-component v-if="showIntegratedProfile" v-model:value="integratedProfileDialogVisible" />
+            <access-token-killswitch-dialog v-if="showTokenKillswitch" v-model:value="tokenKillswitchDialogVisible" />
         </v-app>
         
         <integrated-login-page-component v-if="showIntegratedLogin" />

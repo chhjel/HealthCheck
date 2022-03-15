@@ -1,10 +1,10 @@
 <!-- src/components/modules/Dataflow/DataflowPageComponent.vue -->
 <template>
     <div>
-        <v-content>
+        <content-component>
             <!-- NAVIGATION DRAWER -->
-            <v-navigation-drawer
-                v-model="drawerState"
+            <navigation-drawer-component
+                v-model:value="drawerState"
                 clipped fixed floating app
                 mobile-break-point="1000"
                 dark
@@ -21,7 +21,7 @@
                     v-on:itemClicked="onMenuItemClicked"
                     @itemMiddleClicked="onMenuItemMiddleClicked"
                     />
-            </v-navigation-drawer>
+            </navigation-drawer-component>
             
             <!-- CONTENT -->
             <v-container fluid fill-height class="content-root">
@@ -29,14 +29,14 @@
                     <v-flex>
                         <v-container>
                             <!-- LOAD PROGRESS -->
-                            <v-progress-linear 
+                            <progress-linear-component 
                                 v-if="selectedSearch == null && dataLoadStatus.inProgress"
-                                indeterminate color="green"></v-progress-linear>
+                                indeterminate color="green"></progress-linear-component>
 
                             <!-- DATA LOAD ERROR -->
-                            <v-alert :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
+                            <alert-component :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
                             {{ dataLoadStatus.errorMessage }}
-                            </v-alert>
+                            </alert-component>
 
                             <!-- SELECTED DATAFLOW INFO -->
                             <v-layout v-if="selectedStream != null" style="flex-direction: column;">
@@ -55,23 +55,23 @@
                                 <v-layout>
                                     <v-flex xs12 sm12 md8 style="position:relative"
                                         v-show="selectedStream != null && selectedStream.SupportsFilterByDate">
-                                        <v-menu
+                                        <menu-component
                                             transition="slide-y-transition"
                                             bottom>
                                             <template v-slot:activator="{ on }">
-                                                <v-btn flat icon color="primary" class="datepicker-button" v-on="on">
-                                                    <v-icon>date_range</v-icon>
-                                                </v-btn>
+                                                <btn-component flat icon color="primary" class="datepicker-button" v-on="on">
+                                                    <icon-component>date_range</icon-component>
+                                                </btn-component>
                                             </template>
-                                            <v-list>
+                                            <list-component>
                                                 <v-list-tile
                                                     v-for="(preset, i) in datePickerPresets"
                                                     :key="`datepicker-preset-${i}`"
                                                     @click="setDatePickerValue(preset)">
                                                     <v-list-tile-title>{{ preset.name }}</v-list-tile-title>
                                                 </v-list-tile>
-                                            </v-list>
-                                        </v-menu>
+                                            </list-component>
+                                        </menu-component>
 
                                         <date-time-picker
                                             ref="filterDate"
@@ -86,7 +86,7 @@
                                 </v-layout>
                                 
                                 <b v-if="filterChoices.length > 0">Filter on</b>
-                                <v-chip
+                                <chip-component
                                     color="primary"
                                     v-for="(filterChoice, fcIndex) in filterChoices"
                                     :key="`filter-choice-${fcIndex}`"
@@ -95,41 +95,41 @@
                                     :class="{ 'selected': filters.some(x => x.propertyName == filterChoice.value) }"
                                     @click="togglePropertyFilter(filterChoice.value, filterChoice.text)">
                                         {{ filterChoice.text }}
-                                        <v-icon right
+                                        <icon-component right
                                             v-if="!filters.some(x => x.propertyName == filterChoice.value)"
-                                            >add</v-icon>
-                                        <v-icon right
+                                            >add</icon-component>
+                                        <icon-component right
                                             v-if="filters.some(x => x.propertyName == filterChoice.value)"
-                                            >close</v-icon>
-                                    </v-chip>
+                                            >close</icon-component>
+                                    </chip-component>
 
                                 <div v-for="(filter, findex) in filters"
                                     :key="`dataflow-filter-${findex}`">
-                                    <v-text-field
-                                        v-model="filter.value"
+                                    <text-field-component
+                                        v-model:value="filter.value"
                                         :label="filter.text"
                                         clearable
                                         class="filter-input"
-                                    ></v-text-field>
+                                    ></text-field-component>
                                 </div>
 
                                 <v-layout>
                                     <v-flex xs6 sm2 style="margin-top: 22px;">
-                                        <v-text-field type="number" label="Max items to fetch"
+                                        <text-field-component type="number" label="Max items to fetch"
                                             class="options-input"
                                             v-model.number="filterTake" />
                                     </v-flex>
                                     <v-flex xs6 sm2 style="margin-top: 17px; margin-left: 40px;">
-                                        <v-btn 
+                                        <btn-component 
                                             @click="loadStreamEntries()" 
                                             :disabled="dataLoadStatus.inProgress" 
-                                            class="primary">Fetch data</v-btn>
+                                            class="primary">Fetch data</btn-component>
                                     </v-flex>
                                     <v-flex xs6 sm2 style="margin-top: 17px; margin-left: 25px;">
-                                        <v-btn 
+                                        <btn-component 
                                             @click="clearResults()" 
                                             :disabled="dataLoadStatus.inProgress"
-                                            >Clear view</v-btn>
+                                            >Clear view</btn-component>
                                     </v-flex>
                                     
                                 </v-layout>
@@ -151,7 +151,7 @@
                                     class="elevation-2">
                                     <template v-slot:cell="{ value }">
                                         <span v-if="value.uiHint=='HTML'" v-html="value.value" @click.stop=""></span>
-                                        <span v-else-if="value.uiHint=='Icon'"><v-icon>{{ value.value }}</v-icon></span>
+                                        <span v-else-if="value.uiHint=='Icon'"><icon-component>{{ value.value }}</icon-component></span>
                                         <span v-else-if="value.uiHint=='Link'"><a :href="value.value" target="_blank" @click.stop="">{{ value.key }}</a></span>
                                         <span v-else>{{ value.value }}</span>
                                     </template>
@@ -178,21 +178,21 @@
                                 </div>
 
                                 <div class="unified-search-query-wrapper">
-                                    <v-text-field
+                                    <text-field-component
                                         class="unified-search-query"
-                                        v-model="searchQuery"
+                                        v-model:value="searchQuery"
                                         :disabled="dataLoadStatus.inProgress"
                                         :loading="dataLoadStatus.inProgress"
                                         solo
                                         @keyup.enter="performSearch"
                                         :placeholder="selectedSearch.QueryPlaceholder">
-                                    </v-text-field>
-                                    <v-btn flat color="primary" class="unified-search-query-button"
+                                    </text-field-component>
+                                    <btn-component flat color="primary" class="unified-search-query-button"
                                         :disabled="dataLoadStatus.inProgress"
                                         @click="performSearch">
-                                        <v-icon>search</v-icon>
+                                        <icon-component>search</icon-component>
                                         Search
-                                    </v-btn>
+                                    </btn-component>
                                 </div>
 
                                 <div v-if="searchStatus" class="unified-search-status">{{ searchStatus }}</div>
@@ -245,16 +245,16 @@
                 </v-layout>
             </v-container>
           <!-- CONTENT END -->
-        </v-content>
+        </content-component>
 
         <!-- DIALOGS -->
-        <v-dialog v-model="searchResultDialogVisible"
+        <dialog-component v-model:value="searchResultDialogVisible"
             v-if="selectedSearchResult"
             @keydown.esc="searchResultDialogVisible = false"
             max-width="800"
             content-class="search-result-dialog"
             :persistent="dataLoadStatus.inProgress">
-            <v-card>
+            <card-component>
                 <v-card-title class="headline">{{ selectedSearchResult.Title }}</v-card-title>
                 <v-card-text class="pt-0">
                     <div v-if="selectedSearchResult.Body" v-html="selectedSearchResult.Body" class="mb-2"></div>
@@ -263,13 +263,13 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="secondary"
+                    <btn-component color="secondary"
                         :disabled="dataLoadStatus.inProgress"
                         :loading="dataLoadStatus.inProgress"
-                        @click="searchResultDialogVisible = false">Close</v-btn>
+                        @click="searchResultDialogVisible = false">Close</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
     </div>
 </template>
 

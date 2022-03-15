@@ -5,15 +5,15 @@
         :key="`${id}-timing-${itemIndex}`"
         class="timingbar">
         
-        <v-tooltip bottom>
+        <tooltip-component bottom>
             <template v-slot:activator="{ on }">
               <span class="timingbar-label" v-on="on">{{ item.Description }}</span>
             </template>
             <span>{{ item.Description }}</span>
-        </v-tooltip>
+        </tooltip-component>
 
         <div class="timingbar-bar-wrapper">
-          <v-tooltip bottom>
+          <tooltip-component bottom>
               <template v-slot:activator="{ on }">
                 <div class="timingbar-bar" :style="getBarStyle(item, itemIndex)" v-on="on">
                   <div class="timing-bar-details-wrapper">
@@ -23,7 +23,7 @@
                 </div>
               </template>
               <span>{{ item.DurationText }}</span>
-          </v-tooltip>
+          </tooltip-component>
         </div>
           
       </div>

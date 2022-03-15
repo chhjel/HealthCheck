@@ -3,7 +3,7 @@
     <div class="root">
         <div class="field-list horizontal-layout">
             <v-switch
-                v-model="enabled" 
+                v-model:value="enabled" 
                 label="Enabled"
                 color="secondary"
                 v-on:change="onDataChanged"
@@ -13,7 +13,7 @@
             <div class="horizontal-layout" v-if="enabled">
                 <v-select
                     class="mode-select"
-                    v-model="filterMode"
+                    v-model:value="filterMode"
                     :items="filterModeOptions"
                     item-text="text" item-value="value" color="secondary"
                     v-on:change="onDataChanged"
@@ -22,8 +22,8 @@
                 </v-select>
             </div>
 
-            <v-combobox v-if="enabled"
-                v-model="filterValue"
+            <combobox-component v-if="enabled"
+                v-model:value="filterValue"
                 :items="filterContentOptions"
                 :readonly="readonly"
                 no-data-text="Value required"
@@ -31,10 +31,10 @@
                 v-on:change="onDataChanged"
                 :disabled="readonly"
                 >
-            </v-combobox>
+            </combobox-component>
             <div class="horizontal-layout" v-if="enabled">
                 <v-switch
-                    v-model="caseSensitive" 
+                    v-model:value="caseSensitive" 
                     label="Case sensitive"
                     color="secondary"
                     v-on:change="onDataChanged"
@@ -42,7 +42,7 @@
                 ></v-switch>
 
                 <v-switch
-                    v-model="inverted" 
+                    v-model:value="inverted" 
                     label="Inverted"
                     color="secondary"
                     v-on:change="onDataChanged"
@@ -119,7 +119,7 @@ export default class RuleFilterComponent extends Vue {
         }
 
         let updatedObject = {...this.value, ...freshValues };
-        this.$emit('input', updatedObject);
+        this.$emit('update:value', updatedObject);
     }
 }
 </script>

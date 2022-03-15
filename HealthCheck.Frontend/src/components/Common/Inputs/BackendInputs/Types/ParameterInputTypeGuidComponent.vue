@@ -3,9 +3,9 @@
     <div>
         <v-layout>
             <v-flex :xs10="isNullable" :xs12="!isNullable">
-                <v-text-field
+                <text-field-component
                     class="pt-0"
-                    v-model="localValue"
+                    v-model:value="localValue"
                     :placeholder="placeholderText"
                     :disabled="readonly"
                     required />
@@ -15,18 +15,18 @@
                 :xs3="isListItem"
                 class="text-sm-right"
                 v-if="isNullable">
-                <v-tooltip bottom>
+                <tooltip-component bottom>
                     <template v-slot:activator="{ on }">
                         <span v-on="on">
-                            <v-btn flat icon color="primary" class="ma-0 pa-0"
+                            <btn-component flat icon color="primary" class="ma-0 pa-0"
                                 @click="setValueToNull"
                                 :disabled="localValue == null || readonly">
-                                <v-icon>clear</v-icon>
-                            </v-btn>
+                                <icon-component>clear</icon-component>
+                            </btn-component>
                         </span>
                     </template>
                     <span>Sets value to null</span>
-                </v-tooltip>
+                </tooltip-component>
             </v-flex>
 
         </v-layout>
@@ -102,7 +102,7 @@ export default class ParameterInputTypeGuidComponent extends Vue {
     onLocalValueChanged(): void
     {
         this.validateValue();
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 }
 </script>

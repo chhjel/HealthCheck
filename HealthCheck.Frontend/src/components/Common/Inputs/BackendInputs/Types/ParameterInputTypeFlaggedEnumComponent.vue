@@ -2,7 +2,7 @@
 <template>
     <div>
         <parameter-input-type-enum-component
-            v-model="localValue"
+            v-model:value="localValue"
             :config="config"
             :readonly="readonly"
             :multiple="true" />
@@ -45,7 +45,7 @@ export default class ParameterInputTypeFlaggedEnumComponent extends Vue {
     @Watch('localValue')
     onLocalValueChanged(): void
     {
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
     }
 }
 </script>

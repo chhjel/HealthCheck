@@ -2,7 +2,7 @@
 <template>
     <div class="paging-component" v-if="count > 1 && pageCount > 1">
         
-        <div class="page-button" @click="onNextPrevClick(-1)"><v-icon>chevron_left</v-icon></div>
+        <div class="page-button" @click="onNextPrevClick(-1)"><icon-component>chevron_left</icon-component></div>
         <div v-for="(btn, bIndex) in buttons"
             :key="`page-btn-${bIndex}-${btn.number}-${id}`"
             @click="onClickedButton(btn)"
@@ -11,33 +11,33 @@
             <span v-if="btn.isPage">{{ btn.number }}</span>
             <span v-if="btn.isDialogButton">...</span>
         </div>
-        <div class="page-button" @click="onNextPrevClick(1)"><v-icon>chevron_right</v-icon></div>
+        <div class="page-button" @click="onNextPrevClick(1)"><icon-component>chevron_right</icon-component></div>
         
         <!-- DIALOGS -->
-        <v-dialog v-model="dialogVisible"
+        <dialog-component v-model:value="dialogVisible"
             @keydown.esc="dialogVisible = false"
             max-width="480"
             content-class="confirm-dialog">
-            <v-card>
+            <card-component>
                 <v-card-title class="headline">Jump to page</v-card-title>
                 <v-card-text>
-                    <v-text-field
+                    <text-field-component
                         label="Page number"
                         solo
-                        v-model="dialogNumber"
+                        v-model:value="dialogNumber"
                         type="number"
-                        ref="dialogNumberInput"></v-text-field>
+                        ref="dialogNumberInput"></text-field-component>
                 </v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="secondary"
-                        @click="dialogVisible = false">Cancel</v-btn>
-                    <v-btn color="primary"
-                        @click="navigateToPage(dialogNumber)">Go to page {{ dialogNumber }}</v-btn>
+                    <btn-component color="secondary"
+                        @click="dialogVisible = false">Cancel</btn-component>
+                    <btn-component color="primary"
+                        @click="navigateToPage(dialogNumber)">Go to page {{ dialogNumber }}</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
     </div>
 </template>
 
@@ -192,7 +192,7 @@ export default class PagingComponent extends Vue
         if (num < min) num = min;
         else if (num > max) num = max;
 
-        this.$emit('input', num);
+        this.$emit('update:value', num);
         this.$emit('change', num);
         this.currentValue = num;
         this.dialogVisible = false;

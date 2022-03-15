@@ -4,7 +4,7 @@
         <editor-component
             class="editor"
             :class="`${(fullscreen ? 'fullscreen' : '')}`"
-            v-model="datax.Data"
+            v-model:value="datax.Data"
             :read-only="true"
             :language="language"
             ref="editor"/>

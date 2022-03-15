@@ -1,7 +1,7 @@
 <!-- src/components/modules/AuditLog/AuditLogPageComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
+        <content-component class="pl-0">
         <v-container fluid fill-height class="content-root">
         <v-layout>
         <v-flex class="pl-4 pr-4 pb-4">
@@ -24,27 +24,27 @@
                     </v-flex>
 
                     <v-flex xs12 sm12 md4 style="text-align: right;">
-                        <v-btn @click="loadData" :disabled="loadStatus.inProgress" class="primary">Search</v-btn>
-                        <v-btn @click="resetFilters">Reset</v-btn>
+                        <btn-component @click="loadData" :disabled="loadStatus.inProgress" class="primary">Search</btn-component>
+                        <btn-component @click="resetFilters">Reset</btn-component>
                     </v-flex>
 
                     <v-flex xs12 sm6 md3>
-                        <v-text-field v-model="filterUserName" label="Username"
+                        <text-field-component v-model:value="filterUserName" label="Username"
                             @blur="loadData"
                             @keyup.enter="loadData" />
                     </v-flex>
                     <v-flex xs12 sm6 md3>
-                        <v-text-field v-model="filterAction" label="Action"
+                        <text-field-component v-model:value="filterAction" label="Action"
                             @blur="loadData"
                             @keyup.enter="loadData" />
                     </v-flex>
                     <v-flex xs12 sm6 md3>
-                        <v-text-field v-model="filterSubject" label="Subject"
+                        <text-field-component v-model:value="filterSubject" label="Subject"
                             @blur="loadData"
                             @keyup.enter="loadData" />
                     </v-flex>
                     <v-flex xs12 sm6 md3>
-                        <v-text-field v-model="filterUserId" label="User id"
+                        <text-field-component v-model:value="filterUserId" label="User id"
                             @blur="loadData"
                             @keyup.enter="loadData" />
                     </v-flex>
@@ -60,11 +60,11 @@
                     item-key="Id"
                     expand
                     class="elevation-1 audit-table">
-                    <v-progress-linear v-slot:progress color="primary" indeterminate></v-progress-linear>
+                    <progress-linear-component v-slot:progress color="primary" indeterminate></progress-linear-component>
                     <template v-slot:no-data>
-                    <v-alert :value="true" color="error" icon="warning" v-if="loadStatus.failed">
+                    <alert-component :value="true" color="error" icon="warning" v-if="loadStatus.failed">
                         {{ loadStatus.errorMessage }}
-                    </v-alert>
+                    </alert-component>
                     </template>
                     <template v-slot:items="props">
                         <tr
@@ -77,10 +77,10 @@
                         </tr>
                     </template>
                     <template v-slot:expand="props">
-                        <v-card flat>
+                        <card-component flat>
                             <v-card-text class="row-details">
                                 <div class="row-details-user mt-2 mb-2">
-                                    <v-icon class="row-details-usericon">person</v-icon>
+                                    <icon-component class="row-details-usericon">person</icon-component>
                                     <div class="row-details-username">{{ props.item.UserName }}</div>
                                     <div class="row-details-userid ml-1">({{ props.item.UserId }})</div>
                                     <div class="row-details-roles ml-1" v-if="props.item.UserAccessRoles.length > 0">
@@ -111,7 +111,7 @@
                                     </ul>
                                 </div>
                             </v-card-text>
-                        </v-card>
+                        </card-component>
                     </template>
                 </v-data-table>
             </v-container>
@@ -120,32 +120,32 @@
         </v-flex>
         </v-layout>
         </v-container>
-        </v-content>
+        </content-component>
 
         <!-- ##################### -->
-        <v-dialog v-model="showBlobContentsDialog"
+        <dialog-component v-model:value="showBlobContentsDialog"
             @keydown.esc="showBlobContentsDialog = false"
             max-width="90%" scrollable
             content-class="audit-blob-dialog">
-            <v-card>
+            <card-component>
                 <v-card-title class="headline">{{ currentBlobTitle }}</v-card-title>
                 <v-card-text class="pt-0">
                     <p class="blob-details">{{ currentBlobDetails }}</p>
-                    <v-progress-linear color="primary" indeterminate v-if="loadStatus.inProgress"></v-progress-linear>
+                    <progress-linear-component color="primary" indeterminate v-if="loadStatus.inProgress"></progress-linear-component>
                     
-                    <v-alert :value="true" color="error" icon="warning" v-if="currentBlobError != null">
+                    <alert-component :value="true" color="error" icon="warning" v-if="currentBlobError != null">
                         {{ currentBlobError }}
-                    </v-alert>
+                    </alert-component>
 
                     <code class="blob-contents" v-if="currentBlobContents != null">{{ currentBlobContents }}</code>
                 </v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="hideBlobContentsDialog()">Close</v-btn>
+                    <btn-component color="primary" @click="hideBlobContentsDialog()">Close</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
         <!-- ##################### -->
     </div>
 </template>

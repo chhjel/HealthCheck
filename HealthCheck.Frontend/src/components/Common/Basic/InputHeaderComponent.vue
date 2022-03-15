@@ -3,9 +3,9 @@
     <div class="input-header-component">
         <div class="input-component--header" v-if="showHeader">
             <div class="input-component--header-name">{{ name }}</div>
-            <v-icon small v-if="hasDescription"
+            <icon-component small v-if="hasDescription"
                 color="gray" class="input-component--help-icon"
-                @click="toggleDescription">help</v-icon>
+                @click="toggleDescription">help</icon-component>
         </div>
 
         <div v-show="showDescription" class="input-component--description" v-html="description"></div>

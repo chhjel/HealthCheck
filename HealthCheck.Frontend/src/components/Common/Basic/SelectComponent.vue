@@ -3,15 +3,15 @@
     <div class="select-component">
         <div class="select-component--header" v-if="showHeader">
             <div class="select-component--header-name">{{ name }}</div>
-            <v-icon small v-if="hasDescription"
+            <icon-component small v-if="hasDescription"
                 color="gray" class="select-component--help-icon"
-                @click="toggleDescription">help</v-icon>
+                @click="toggleDescription">help</icon-component>
         </div>
 
         <div v-show="showDescription" class="select-component--description" v-html="description"></div>
         
         <v-select
-            v-model="currentValue"
+            v-model:value="currentValue"
             :items="items"
             :disabled="disabled"
             :loading="loading"
@@ -99,7 +99,7 @@ export default class SelectComponent extends Vue
     }
 
     onInput(newValue: string): void {
-        this.$emit('input', newValue);
+        this.$emit('update:value', newValue);
         this.$emit('change', newValue);
     }
 }

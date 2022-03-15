@@ -2,27 +2,27 @@
 <template>
     <div class="root">
         <!-- DATA LOAD ERROR -->
-        <v-alert :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+        <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
         {{ loadStatus.errorMessage }}
-        </v-alert>
+        </alert-component>
         
         <!-- LOAD PROGRESS -->
-        <v-progress-linear
+        <progress-linear-component
             v-if="loadStatus.inProgress"
-            indeterminate color="green"></v-progress-linear>
+            indeterminate color="green"></progress-linear-component>
 
         <select-component style="display: inline-block" class="right"
             v-if="graphs && chartEntries.length > 0"
-            v-model="barChartSortMode"
+            v-model:value="barChartSortMode"
             :items="barChartSortOptions"
             @input="onBarChartSortModeChanged"
             />
-        <v-btn :disabled="loadStatus.inProgress"
+        <btn-component :disabled="loadStatus.inProgress"
             @click="onRefreshClicked"
             class="mb-3">
-            <v-icon size="20px" class="mr-2">refresh</v-icon>
+            <icon-component size="20px" class="mr-2">refresh</icon-component>
             Refresh
-        </v-btn>
+        </btn-component>
         <div style="clear:both" class="mt-3"></div>
 
         <div v-if="graphs && (chartEntries.length > 0 || iPChartBars.length > 0 || chartBars.length > 0)">
@@ -54,7 +54,7 @@
             <paging-component
                 :items="logEntries"
                 :pageSize="logEntriesPageSize"
-                v-model="logEntriesPage"
+                v-model:value="logEntriesPage"
                 />
             <!-- <a @click="prevLogPage">&lt;&lt;</a>
             <a @click="nextLogPage">&gt;&gt;</a> -->

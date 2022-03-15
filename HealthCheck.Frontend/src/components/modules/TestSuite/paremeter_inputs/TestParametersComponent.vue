@@ -10,7 +10,7 @@
                   v-show="!parameter.Hidden">
 
                   <backend-input-component 
-                      v-model="parameter.Value"
+                      v-model:value="parameter.Value"
                       :forceType="cleanType(parameter.Type)"
                       :forceName="parameter.Name"
                       :forceDescription="parameter.Description"

@@ -1,13 +1,13 @@
 <!-- src/components/modules/TestSuite/result_data/data_types/TestResultPlainTextDataComponent.vue -->
 <template>
     <div>
-        <v-textarea
+        <textarea-component
           :value="text"
           readonly
           :rows="rowCount"
           class="data-textarea mt-0"
           :autoGrow="fullscreen"
-        ></v-textarea>
+        ></textarea-component>
     </div>
 </template>
 

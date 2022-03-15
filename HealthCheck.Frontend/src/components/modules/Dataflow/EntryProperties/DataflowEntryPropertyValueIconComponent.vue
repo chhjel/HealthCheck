@@ -2,7 +2,7 @@
 <template>
     <div>
         Icon:
-        <v-icon>{{ raw }}</v-icon>
+        <icon-component>{{ raw }}</icon-component>
     </div>
 </template>
 

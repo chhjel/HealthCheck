@@ -1,7 +1,7 @@
 <!-- src/components/modules/Overview/OverviewPageComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
+        <content-component class="pl-0">
         <v-container fluid fill-height class="content-root">
         <v-layout>
         <v-flex class="pl-4 pr-4 pb-4 overview-page-content">
@@ -10,16 +10,16 @@
         <v-container grid-list-md>
             <v-layout align-content-center wrap>
                 <!-- LOAD ERROR -->
-                <v-alert
+                <alert-component
                     :value="loadStatus.failed"
                     type="error">
                 {{ loadStatus.errorMessage }}
-                </v-alert>
+                </alert-component>
 
                 <!-- PROGRESS BAR -->
-                <v-progress-linear
+                <progress-linear-component
                     v-if="loadStatus.inProgress"
-                    indeterminate color="green"></v-progress-linear>
+                    indeterminate color="green"></progress-linear-component>
                 
                 <!-- SUMMARY -->
                 <v-flex sm12 v-if="showContent" class="mb-4" >
@@ -29,31 +29,31 @@
                         <v-btn flat v-if="options.Options.ShowFilter && !showFilter" @click="showFilter = !showFilter">Filter data..</v-btn>
                         <v-btn flat v-if="options.Options.ShowFilter && showFilter" @click="showFilter = !showFilter">Hide filter</v-btn>
 
-                        <v-btn @click="toggleAutoRefresh"
+                        <btn-component @click="toggleAutoRefresh"
                             :loading="deleteStatus.inProgress"
                             :disabled="deleteStatus.inProgress"
                             color="secondary"
                             flat class="mr-0">
-                            <v-icon class="mr-2" v-if="!autoRefreshEnabled">update_disabled</v-icon>
-                            <v-progress-circular
+                            <icon-component class="mr-2" v-if="!autoRefreshEnabled">update_disabled</icon-component>
+                            <progress-circular-component
                                 v-if="autoRefreshEnabled"
                                 :size="20"
                                 :width="3"
                                 :value="autoRefreshValue"
                                 color="primary"
                                 style="margin-right: 10px;"
-                                ></v-progress-circular>
+                                ></progress-circular-component>
                             Auto-refresh
-                        </v-btn>
+                        </btn-component>
             
                         <div v-if="canDeleteEvents">
-                            <v-btn @click="deleteAllDialogVisible = true"
+                            <btn-component @click="deleteAllDialogVisible = true"
                                 :loading="deleteStatus.inProgress"
                                 :disabled="deleteStatus.inProgress || !siteEvents || siteEvents.length == 0"
                                 flat color="error" class="mr-0">
-                                <v-icon class="mr-2">clear</v-icon>
+                                <icon-component class="mr-2">clear</icon-component>
                                 Delete all
-                            </v-btn>
+                            </btn-component>
                         </div>
                     </div>
                 
@@ -97,32 +97,32 @@
         </v-flex>
         </v-layout>
         </v-container>
-        </v-content>
+        </content-component>
 
         <!-- ##################### -->
         <!-- ###### DIALOGS ######-->
-        <v-dialog v-model="eventDetailsDialogState" width="700">
+        <dialog-component v-model:value="eventDetailsDialogState" width="700">
             <site-event-details-component :event="selectedEventForDetails" v-if="selectedEventForDetails != null">
                 <template v-slot:actions>
-                    <v-btn flat color="secondary" @click="eventDetailsDialogState = false">
+                    <btn-component flat color="secondary" @click="eventDetailsDialogState = false">
                         Close
-                    </v-btn>
-                    <v-btn @click="showDeleteSingleDialog(selectedEventForDetails)"
+                    </btn-component>
+                    <btn-component @click="showDeleteSingleDialog(selectedEventForDetails)"
                         v-if="canDeleteEvents"
                         :loading="deleteStatus.inProgress"
                         :disabled="deleteStatus.inProgress"
                         flat color="error">
-                        <v-icon size="20px" class="mr-2">clear</v-icon>
+                        <icon-component size="20px" class="mr-2">clear</icon-component>
                         Delete
-                    </v-btn>
+                    </btn-component>
                 </template>
             </site-event-details-component>
-        </v-dialog>
+        </dialog-component>
         <!-- ##################### -->
-        <v-dialog v-model="deleteAllDialogVisible"
+        <dialog-component v-model:value="deleteAllDialogVisible"
             @keydown.esc="deleteAllDialogVisible = false"
             max-width="350">
-            <v-card>
+            <card-component>
                 <v-card-title class="headline">Confirm deletion</v-card-title>
                 <v-card-text>
                     Clear all site events?
@@ -130,16 +130,16 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="deleteAllDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="error" @click="clearAllEvents">Clear all</v-btn>
+                    <btn-component color="primary" @click="deleteAllDialogVisible = false">Cancel</btn-component>
+                    <btn-component color="error" @click="clearAllEvents">Clear all</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
         <!-- ##################### -->
-        <v-dialog v-model="deleteSingleDialogVisible"
+        <dialog-component v-model:value="deleteSingleDialogVisible"
             @keydown.esc="deleteSingleDialogVisible = false"
             max-width="550">
-            <v-card>
+            <card-component>
                 <v-card-title class="headline">{{ deleteSingleDialogTitle }}</v-card-title>
                 <v-card-text>
                     {{ deleteSingleDialogText }}
@@ -147,11 +147,11 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="deleteSingleDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="error" @click="deleteSingleEvent">Delete</v-btn>
+                    <btn-component color="primary" @click="deleteSingleDialogVisible = false">Cancel</btn-component>
+                    <btn-component color="error" @click="deleteSingleEvent">Delete</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
         <!-- DIALOGS END -->
     </div>
 </template>

@@ -1,11 +1,11 @@
 <!-- src/components/modules/SecureFileDownload/EditDownloadComponent.vue -->
 <template>
     <div class="root">
-        <v-alert
+        <alert-component
             :value="serverInteractionError != null && serverInteractionError.length > 0"
             type="error" >
             {{ serverInteractionError }}
-        </v-alert>
+        </alert-component>
 
         <!-- ###### FILE ###### -->
         <block-component class="mb-5">
@@ -15,7 +15,7 @@
 
             <input-header-component
                 class="mt-2"
-                v-model="internalDownload.FileName"
+                v-model:value="internalDownload.FileName"
                 :disabled="!allowChanges"
                 name="Filename"
                 description="Name of the file when downloading."
@@ -25,7 +25,7 @@
                 
             <input-header-component
                 class="mt-2"
-                v-model="internalDownload.UrlSegmentText"
+                v-model:value="internalDownload.UrlSegmentText"
                 :disabled="!allowChanges"
                 name="Url segment text"
                 description="Text in the url after '/download/'."
@@ -35,7 +35,7 @@
             
             <select-component
                 class="mt-2"
-                v-model="internalDownload.StorageId"
+                v-model:value="internalDownload.StorageId"
                 :items="storageOptions"
                 :disabled="!allowChanges || internalDownload.HasUploadedFile"
                 name="Where to get file from"
@@ -45,7 +45,7 @@
             <div class="file-selection-method" v-if="showFileIdSelect || showFileIdInput">
                 <select-component
                     v-if="showFileIdSelect"
-                    v-model="selectedFileName"
+                    v-model:value="selectedFileName"
                     @change="onFileSelectorChanged"
                     class="mt-2"
                     :error="validateFileId"
@@ -60,7 +60,7 @@
                 <input-header-component
                     v-if="showFileIdInput"
                     class="mt-2"
-                    v-model="internalDownload.FileId"
+                    v-model:value="internalDownload.FileId"
                     :error="validateFileId"
                     :disabled="!allowChanges"
                     :name="getStorageFileIdLabel(internalDownload.StorageId)"
@@ -85,19 +85,19 @@
                 <br />
 
                 <div v-if="selectedFile != null">
-                    <v-btn small color="primary"
+                    <btn-component small color="primary"
                         @click="uploadSelectedFile"
                         :loading="uploadResult && uploadResult.inProgress"
-                        :disabled="!allowChanges">Upload selected file</v-btn>
+                        :disabled="!allowChanges">Upload selected file</btn-component>
                     <span v-if="uploadResult && !uploadResult.success">{{ uploadResult.message }}</span>
                     <span v-if="uploadResult && uploadResult.success">File uploaded successfully.</span>
                     <fetch-status-progress-component :status="uploadLoadStatus" class="ml-2 mr-2" style="margin-top: -4px; width: 178px;" />
                 </div>
                 
-                <v-btn small class="error"
+                <btn-component small class="error"
                     v-if="internalDownload.HasUploadedFile"
                     @click="removeUploadedFile"
-                    :disabled="!allowChanges">Delete uploaded file '{{ internalDownload.OriginalFileName }}'</v-btn>
+                    :disabled="!allowChanges">Delete uploaded file '{{ internalDownload.OriginalFileName }}'</btn-component>
                 <b v-if="!isEditing">Save first to upload files.</b>
                 <span v-if="deleteFileStatus && !deleteFileStatus.success">{{ deleteFileStatus.message }}</span>
                 <span v-if="deleteFileStatus && deleteFileStatus.success">File deleted successfully.</span>
@@ -105,7 +105,7 @@
             
             <input-header-component
                 class="mt-2"
-                v-model="internalDownload.Note"
+                v-model:value="internalDownload.Note"
                 :disabled="!allowChanges"
                 name="Note"
                 description="An optional note that will be displayed on the download page."
@@ -120,7 +120,7 @@
         <block-component class="mb-5" title="Limits &amp; password">
             <input-header-component
                 class="mt-2"
-                v-model="internalDownload.DownloadCountLimit"
+                v-model:value="internalDownload.DownloadCountLimit"
                 :disabled="!allowChanges"
                 name="Number of allowed downloads"
                 :description="`Total number of times the file can be downloaded. It has been downloaded ${internalDownload.DownloadCount} times so far.`"
@@ -128,7 +128,7 @@
                 />
             
             <simple-date-time-component
-                v-model="internalDownload.ExpiresAt"
+                v-model:value="internalDownload.ExpiresAt"
                 :readonly="!allowChanges"
                 name="Expires at"
                 description="After this time, the file will not be available for download."
@@ -136,7 +136,7 @@
                 
             <input-header-component
                 class="mt-2"
-                v-model="internalDownload.Password"
+                v-model:value="internalDownload.Password"
                 :disabled="!allowChanges"
                 name="Password (will always be visible here)"
                 description="If a password is set, it must be entered to download the file."
@@ -162,11 +162,11 @@
         </block-component>
 
         <!-- ###### DIALOGS ###### -->
-        <v-dialog v-model="deleteDialogVisible"
+        <dialog-component v-model:value="deleteDialogVisible"
             @keydown.esc="deleteDialogVisible = false"
             max-width="290"
             content-class="confirm-dialog">
-            <v-card>
+            <card-component>
                 <v-card-title class="headline">Confirm deletion</v-card-title>
                 <v-card-text>
                     Are you sure you want to delete this download?
@@ -174,17 +174,17 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="secondary" @click="deleteDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="error" @click="deleteDownload()">Delete it</v-btn>
+                    <btn-component color="secondary" @click="deleteDialogVisible = false">Cancel</btn-component>
+                    <btn-component color="error" @click="deleteDownload()">Delete it</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
 
-        <v-dialog v-model="showSaveError"
+        <dialog-component v-model:value="showSaveError"
             @keydown.esc="showSaveError = false"
             max-width="400"
             content-class="confirm-dialog">
-            <v-card>
+            <card-component>
                 <v-card-title class="headline">Save error</v-card-title>
                 <v-card-text style="overflow: auto;">
                     {{ saveError }}
@@ -192,10 +192,10 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="secondary" @click="showSaveError = false">Close</v-btn>
+                    <btn-component color="secondary" @click="showSaveError = false">Close</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
     </div>
 </template>
 

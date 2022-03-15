@@ -16,7 +16,7 @@
                 @change="onFileChanged"
                 :disabled="readonly" />
             <div class="upload-label-wrapper">
-                <v-tooltip bottom>
+                <tooltip-component bottom>
                     <template v-slot:activator="{ on }">
                         <label :for="`file-parameter-${id}`"
                             v-on="on"
@@ -26,20 +26,20 @@
                         </label>
                     </template>
                     <span>{{ tooltip }}</span>
-                </v-tooltip>
+                </tooltip-component>
             </div>
-            <v-tooltip bottom v-if="allowClear">
+            <tooltip-component bottom v-if="allowClear">
                 <template v-slot:activator="{ on }">
                     <span v-on="on">
-                        <v-btn flat icon color="primary" class="ma-0 pa-0"
+                        <btn-component flat icon color="primary" class="ma-0 pa-0"
                             @click="setValueToNull"
                             :disabled="localValue == null">
-                            <v-icon>clear</v-icon>
-                        </v-btn>
+                            <icon-component>clear</icon-component>
+                        </btn-component>
                     </span>
                 </template>
                 <span>Clear file</span>
-            </v-tooltip>
+            </tooltip-component>
         </v-layout>
     </div>
 </template>
@@ -147,7 +147,7 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
     @Watch('localValue')
     onLocalValueChanged(): void
     {
-        this.$emit('input', this.localValue);
+        this.$emit('update:value', this.localValue);
         this.$emit('onFileChanged', this.selectedFile);
     }
 

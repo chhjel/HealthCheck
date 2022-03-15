@@ -4,20 +4,20 @@
         <div class="testset-header">
             <div class="title-button-wrapper">
                 <h2 class="testset-title font-weight-bold">{{ testSet.Name }}</h2>
-                <v-btn ripple color="primary" outline
+                <btn-component ripple color="primary" outline
                     v-if="testSet.AllowRunAll"
                     @click.stop.prevent="executeAllTestsInSet()"
                     :disabled="anyTestInProgress"
                     class="run-all-tests-button">
 
-                    <v-progress-circular class="mr-2"
+                    <progress-circular-component class="mr-2"
                         v-if="anyTestInProgress" size="22"
                         :indeterminate="showIndeterminateProgress"
-                        :value="allTestsProgress"></v-progress-circular>
-                    <v-icon color="primary"  v-if="!anyTestInProgress">play_arrow</v-icon>
+                        :value="allTestsProgress"></progress-circular-component>
+                    <icon-component color="primary"  v-if="!anyTestInProgress">play_arrow</icon-component>
                     
                     {{executeAllTestsInSetButtonText}}
-                </v-btn>
+                </btn-component>
             </div>
             <div class="subheading testset-subtitle" v-html="testSet.Description"></div>
         </div>

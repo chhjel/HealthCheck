@@ -1,12 +1,12 @@
 <!-- src/components/InvalidModuleConfigsComponent.vue -->
 <template>
     <div>
-        <v-content class="pl-0">
+        <content-component class="pl-0">
         <v-container fluid fill-height class="content-root">
         <v-layout>
         <v-flex>
             <!-- CONTENT BEGIN -->
-            <v-alert
+            <alert-component
                 v-for="(module, mindex) in invalidConfigs"
                 :key="`invalid-module-${mindex}`"
                 :value="true" color="error"
@@ -24,12 +24,12 @@
                         <code v-if="module.LoadErrorStacktrace != null">{{ module.LoadErrorStacktrace }}</code>
                     </ul>
                 </div>
-            </v-alert>
+            </alert-component>
             <!-- CONTENT END -->
         </v-flex>
         </v-layout>
         </v-container>
-        </v-content>
+        </content-component>
     </div>
 </template>
 

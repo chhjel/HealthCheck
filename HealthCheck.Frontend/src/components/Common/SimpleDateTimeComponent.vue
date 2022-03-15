@@ -3,16 +3,16 @@
     <div class="root input-component">
         <div class="input-component--header" v-if="showHeader">
             <div class="input-component--header-name">{{ name }}</div>
-            <v-icon small v-if="hasDescription"
+            <icon-component small v-if="hasDescription"
                 color="gray" class="input-component--help-icon"
-                @click="toggleDescription">help</v-icon>
+                @click="toggleDescription">help</icon-component>
         </div>
 
         <div v-show="showDescription" class="input-component--description" v-html="description"></div>
         
-        <v-text-field
+        <text-field-component
             class="filter-input" type="datetime-local"
-            v-model="content"
+            v-model:value="content"
             v-on:change="onTextChanged"
             v-on:click:clear="onTextChanged"
             :error-messages="error"
@@ -81,7 +81,7 @@ export default class SimpleDateTimeComponent extends Vue {
 
         if (this.content == null || this.content.length == 0)
         {
-            this.$emit('input', null);
+            this.$emit('update:value', null);
             return;
         }
 
@@ -91,16 +91,16 @@ export default class SimpleDateTimeComponent extends Vue {
             if (isNaN(parsedDate.getTime()))
             {
                 this.error = `Invalid date. Must be empty or on on the format '${this.dateFormat}'.`;
-                this.$emit('input', null);
+                this.$emit('update:value', null);
             } else {
-                this.$emit('input', parsedDate);
+                this.$emit('update:value', parsedDate);
             }
             return;
         }
         catch(ex: any) {
             this.error = ex;
         }
-        this.$emit('input', null);
+        this.$emit('update:value', null);
     }
 }
 </script>

@@ -14,15 +14,15 @@
             
             <div class="block-component--header-details" v-if="details.length > 0">{{ details }}</div>
             
-            <v-btn 
+            <btn-component 
                 class="ma-0 pl-1 pr-3 block-component--header-button"
                 v-if="buttonText.length > 0"
                 ripple color="primary" 
                 @click.stop.prevent="onHeaderButtonClicked"
                 :disabled="buttonDisabled">
-            <v-icon color="white" large v-if="buttonIcon.length > 0">{{ buttonIcon }}</v-icon>
+            <icon-component color="white" large v-if="buttonIcon.length > 0">{{ buttonIcon }}</icon-component>
             {{ buttonText }}
-            </v-btn>
+            </btn-component>
         </div>
         
         <!-- CONTENT -->

@@ -13,33 +13,33 @@
         </component>
 
         <v-card-actions v-if="clean == false" class="data-dump-actions pt-0">
-          <v-btn outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2"
+          <btn-component outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2"
             v-if="showCopyButton"
-            @click="putDataOnClipboard">Copy</v-btn>
+            @click="putDataOnClipboard">Copy</btn-component>
 
-          <v-dialog
+          <dialog-component
             v-if="showFullscreenButton"
-            v-model="showFullscreen"
+            v-model:value="showFullscreen"
             @keydown.esc="showFullscreen = false"
             fullscreen hide-overlay transition="dialog-transition">
             <template v-slot:activator="{ on }">
-              <v-btn outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2 ml-0" v-on="on">Fullscreen</v-btn>
+              <btn-component outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2 ml-0" v-on="on">Fullscreen</btn-component>
             </template>
-            <v-card>
+            <card-component>
               <!-- DIALOG TOOLBAR -->
-              <v-toolbar dark color="primary">
-                <v-btn icon dark @click="showFullscreen = false">
-                  <v-icon>close</v-icon>
-                </v-btn>
+              <toolbar-component dark color="primary">
+                <btn-component icon dark @click="showFullscreen = false">
+                  <icon-component>close</icon-component>
+                </btn-component>
                 <v-toolbar-title>{{resultData.Title}}</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-toolbar-items>
-                  <v-btn dark flat @click="putDataOnClipboard">Put data on clipboard</v-btn>
+                  <btn-component dark flat @click="putDataOnClipboard">Put data on clipboard</btn-component>
                 </v-toolbar-items>
                 <v-toolbar-items>
-                  <v-btn dark flat @click="showFullscreen = false">Close</v-btn>
+                  <btn-component dark flat @click="showFullscreen = false">Close</btn-component>
                 </v-toolbar-items>
-              </v-toolbar>
+              </toolbar-component>
               <!-- DIALOG CONTENTS -->
               <component
                   :class="`data-dump data-dump-${resultData.Type.toLowerCase()}`"
@@ -47,28 +47,28 @@
                   :fullscreen="showFullscreen"
                   :is="getDataComponentNameFromType(resultData.Type)">
               </component>
-            </v-card>
-          </v-dialog>
+            </card-component>
+          </dialog-component>
         
-          <v-btn outline small color="secondary-darken2" class="data-dump-action-button mt-2"
+          <btn-component outline small color="secondary-darken2" class="data-dump-action-button mt-2"
             @click="downloadData" 
-            v-if="showDownloadButton">Download '{{ resultData.DownloadFileName }}'</v-btn>
+            v-if="showDownloadButton">Download '{{ resultData.DownloadFileName }}'</btn-component>
         </v-card-actions>
         
         <textarea style="display:none;" ref="copyValue" :value="resultData.Data" />
-        <v-snackbar
-          v-model="showCopyAlert"
+        <snackbar-component
+          v-model:value="showCopyAlert"
           :timeout="5000"
           :color="copyAlertColor"
           :bottom="true"
         >
           {{ copyAlertText }}
-          <v-btn
+          <btn-component
             flat
             @click="showCopyAlert = false">
             Close
-          </v-btn>
-        </v-snackbar>
+          </btn-component>
+        </snackbar-component>
     </div>
 </template>
 

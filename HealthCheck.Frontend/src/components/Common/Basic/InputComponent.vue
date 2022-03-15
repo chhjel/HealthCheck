@@ -3,48 +3,48 @@
     <div class="input-component" :class="{ 'loading': loading }">
         <div class="input-component--header" v-if="showHeader">
             <div class="input-component--header-name">{{ name }}</div>
-            <v-icon small v-if="hasDescription"
+            <icon-component small v-if="hasDescription"
                 color="gray" class="input-component--help-icon"
-                @click="toggleDescription">help</v-icon>
+                @click="toggleDescription">help</icon-component>
         </div>
 
         <div v-show="showDescription" class="input-component--description" v-html="description"></div>
         
-        <v-text-field
+        <text-field-component
             v-if="!isTextArea"
-            v-model="currentValue"
+            v-model:value="currentValue"
             @input="onInput($event)"
             v-on:change="onDataChanged"
             @click:clear="onClearClicked()"
             :disabled="disabled"
             :type="type"
             :clearable="clearable">
-            <v-tooltip slot="append-outer" bottom v-if="showActionIcon">
-                <v-icon slot="activator" @click="onActionIconClicked">{{ actionIcon }}</v-icon>
+            <tooltip-component slot="append-outer" bottom v-if="showActionIcon">
+                <icon-component slot="activator" @click="onActionIconClicked">{{ actionIcon }}</icon-component>
                 Insert placeholder
-            </v-tooltip>
-        </v-text-field>
+            </tooltip-component>
+        </text-field-component>
         
-        <v-textarea
+        <textarea-component
             v-if="isTextArea"
-            v-model="currentValue"
+            v-model:value="currentValue"
             @input="onInput($event)"
             v-on:change="onDataChanged"
             @click:clear="onClearClicked()"
             :disabled="disabled"
             :clearable="clearable">
-            <v-tooltip slot="append-outer" bottom v-if="showActionIcon">
-                <v-icon slot="activator" @click="onActionIconClicked">{{ actionIcon }}</v-icon>
+            <tooltip-component slot="append-outer" bottom v-if="showActionIcon">
+                <icon-component slot="activator" @click="onActionIconClicked">{{ actionIcon }}</icon-component>
                 Insert placeholder
-            </v-tooltip>
-        </v-textarea>
+            </tooltip-component>
+        </textarea-component>
         
-        <v-progress-linear v-if="loading"
+        <progress-linear-component v-if="loading"
             class="mt-0"
             :value="loadingProgress"
             :color="loadingColor"
             :height="loadingHeight"
-        ></v-progress-linear>
+        ></progress-linear-component>
 
         <div class="input-component--error" v-if="error != null && error.length > 0">{{ error }}</div>
     </div>
@@ -148,11 +148,11 @@ export default class InputComponent extends Vue
     }
 
     onInput(newValue: string): void {
-        this.$emit('input', newValue);
+        this.$emit('update:value', newValue);
     }
 
     onClearClicked(): void {
-        this.$emit('input', '');
+        this.$emit('update:value', '');
     }
 
     onActionIconClicked(): void {

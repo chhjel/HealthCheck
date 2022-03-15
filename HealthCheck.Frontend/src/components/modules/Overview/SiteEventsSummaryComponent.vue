@@ -1,12 +1,12 @@
 <!-- src/components/modules/Overview/SiteEventsSummaryComponent.vue -->
 <template>
-    <v-list class="summary-list">
+    <list-component class="summary-list">
         <v-list-tile v-for="(event, index) in events"
             :key="`current-event-${index}`"
             @click="onEventClicked(event)"
             class="summary-list-item">
             <v-list-tile-action>
-                <v-icon :color="getEventIconColor(event)">{{getEventIcon(event)}}</v-icon>
+                <icon-component :color="getEventIconColor(event)">{{getEventIcon(event)}}</icon-component>
             </v-list-tile-action>
 
             <v-list-tile-content>
@@ -14,7 +14,7 @@
                 <v-list-tile-sub-title class="summary-item-description">{{ event.Description }}</v-list-tile-sub-title>
             </v-list-tile-content>
         </v-list-tile>
-    </v-list>
+    </list-component>
 </template>
 
 <script lang="ts">

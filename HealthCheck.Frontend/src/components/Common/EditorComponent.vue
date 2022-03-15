@@ -2,7 +2,7 @@
 <template>
     <div class="editor-component">
         <div class="editor-component__loader-bar" v-if="!isEditorInited">
-            <v-progress-linear 
+            <progress-linear-component 
                 indeterminate
                 width="4"
                 color="primary"
@@ -14,35 +14,35 @@
             :class="{ 'editor-component__editor__fullscreen': (isFullscreen) }"
             ></div>
 
-        <v-btn absolute dark fab flat small top right
+        <btn-component absolute dark fab flat small top right
             color="green"
             class="editor-fullscreen-button"
             title="Fullscreen"
             v-if="allowFullscreen"
             @click.stop="isFullscreen = true">
-            <v-icon>fullscreen</v-icon>
-        </v-btn>
+            <icon-component>fullscreen</icon-component>
+        </btn-component>
         
         <!-- ##################### -->
-        <v-dialog
-            v-model="isFullscreen"
+        <dialog-component
+            v-model:value="isFullscreen"
             @keydown.esc="isFullscreen = false"
             fullscreen hide-overlay transition="dialog-transition">
-            <v-card dark>
+            <card-component dark>
                 <!-- DIALOG TOOLBAR -->
-                <v-toolbar dark color="primary">
-                <v-btn icon dark
+                <toolbar-component dark color="primary">
+                <btn-component icon dark
                     @click="isFullscreen = false">
-                    <v-icon>close</v-icon>
-                </v-btn>
+                    <icon-component>close</icon-component>
+                </btn-component>
                 <v-toolbar-title>{{ title }}</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-toolbar-items>
-                    <v-btn dark flat @click="isFullscreen = false">Close</v-btn>
+                    <btn-component dark flat @click="isFullscreen = false">Close</btn-component>
                 </v-toolbar-items>
-                </v-toolbar>
-            </v-card>
-        </v-dialog>
+                </toolbar-component>
+            </card-component>
+        </dialog-component>
         <!-- ##################### -->
     </div>
 </template>
@@ -390,7 +390,7 @@ export default class EditorComponent extends Vue {
         if (model == null) return;
 
         model.onDidChangeContent((e) => {
-            this.$emit('input', model.getValue());
+            this.$emit('update:value', model.getValue());
         })
     }
 

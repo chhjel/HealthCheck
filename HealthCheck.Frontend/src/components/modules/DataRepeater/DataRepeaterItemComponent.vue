@@ -2,27 +2,27 @@
 <template>
     <div>
         <!-- LOAD PROGRESS -->
-        <v-progress-linear 
+        <progress-linear-component 
             v-if="dataLoadStatus.inProgress && item == null"
-            indeterminate color="green"></v-progress-linear>
+            indeterminate color="green"></progress-linear-component>
 
         <!-- DATA LOAD ERROR -->
-        <v-alert :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
+        <alert-component :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
         {{ dataLoadStatus.errorMessage }}
-        </v-alert>
+        </alert-component>
 
         <!-- NOT FOUND -->
-        <v-alert :value="itemNotFound" v-if="itemNotFound" type="info">
+        <alert-component :value="itemNotFound" v-if="itemNotFound" type="info">
         No item with the given id was found.
-        </v-alert>
+        </alert-component>
         
-        <v-btn @click="$emit('close')" v-if="itemNotFound">Close</v-btn>
+        <btn-component @click="$emit('close')" v-if="itemNotFound">Close</btn-component>
         
         <div v-if="item" class="data-repeater-item">
-            <v-btn @click="$emit('close')" class="right">Close</v-btn>
-            <v-btn @click="loadData" class="right">
-                <v-icon size="20px" class="mr-2">refresh</v-icon>Refresh
-            </v-btn>
+            <btn-component @click="$emit('close')" class="right">Close</btn-component>
+            <btn-component @click="loadData" class="right">
+                <icon-component size="20px" class="mr-2">refresh</icon-component>Refresh
+            </btn-component>
 
             <h1>{{ stream.ItemIdName }}: {{ item.ItemId }}</h1>
             <p v-if="item.Summary">{{ item.Summary }}</p>
@@ -94,36 +94,36 @@
                 <editor-component
                     class="editor mt-2"
                     :language="'json'"
-                    v-model="item.SerializedData"
+                    v-model:value="item.SerializedData"
                     :allowFullscreen="true"
                     ref="editor" />
 
                 <div v-if="item.SerializedData && item.SerializedData != this.item.FirstSerializedData && hasAccessToRetry">
-                    <v-tooltip bottom>
+                    <tooltip-component bottom>
                         <template v-slot:activator="{ on }">
                             <a href="#" @click.prevent="restoreOriginalData" class="right" style="cursor: help;" v-on="on">Revert to original data</a>
                         </template>
                         <span>Reverts the content above to the first data that was stored on {{ formatDate(item.InsertedAt) }}.</span>
-                    </v-tooltip>
+                    </tooltip-component>
                 </div>
 
                 <div v-if="!hasAccessToRetry" class="not-allowed-text">
                     You do not have access to retry this data.
                 </div>
 
-                <v-btn :disabled="!retryAllowed"
+                <btn-component :disabled="!retryAllowed"
                     :loading="dataLoadStatus.inProgress"
                     v-if="hasAccessToRetry"
                     @click="showRetryDialog" class="ml-0 mr-2 mt-2">
                     {{ (stream.RetryActionName || 'Retry') }}
-                </v-btn>
+                </btn-component>
 
-                <v-btn :disabled="!analyzeAllowed"
+                <btn-component :disabled="!analyzeAllowed"
                     :loading="dataLoadStatus.inProgress"
                     v-if="showManualAnalysis"
                     @click="showAnalyzeDialog" class="ml-0 mr-2 mt-2">
                     {{ ( stream.AnalyzeActionName || 'Analyze') }}
-                </v-btn>
+                </btn-component>
 
                 <code v-if="quickStatus" class="quickstatus">{{ quickStatus }}</code>
             </div>
@@ -145,12 +145,12 @@
         </div>
 
         <!-- DIALOGS -->
-        <v-dialog v-model="confirmRetryDialogVisible"
+        <dialog-component v-model:value="confirmRetryDialogVisible"
             @keydown.esc="confirmRetryDialogVisible = false"
             max-width="480"
             content-class="confirm-dialog"
             :persistent="dataLoadStatus.inProgress">
-            <v-card>
+            <card-component>
                 <v-card-title class="headline">Confirm {{ (stream.RetryActionName || 'Retry') }}</v-card-title>
                 <v-card-text>
                     Are you sure you want to {{ (stream.RetryActionName || 'Retry') }}?
@@ -158,23 +158,23 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="secondary"
+                    <btn-component color="secondary"
                         :disabled="dataLoadStatus.inProgress"
                         :loading="dataLoadStatus.inProgress"
-                        @click="confirmRetryDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="primary"
+                        @click="confirmRetryDialogVisible = false">Cancel</btn-component>
+                    <btn-component color="primary"
                         :disabled="!retryAllowed"
                         :loading="dataLoadStatus.inProgress"
-                        @click="retry()">{{ (stream.RetryActionName || 'Retry') }}</v-btn>
+                        @click="retry()">{{ (stream.RetryActionName || 'Retry') }}</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
-        <v-dialog v-model="confirmRunAnalysisDialogVisible"
+            </card-component>
+        </dialog-component>
+        <dialog-component v-model:value="confirmRunAnalysisDialogVisible"
             @keydown.esc="confirmRunAnalysisDialogVisible = false"
             max-width="480"
             content-class="confirm-dialog"
             :persistent="dataLoadStatus.inProgress">
-            <v-card>
+            <card-component>
                 <v-card-title class="headline">Confirm run analysis</v-card-title>
                 <v-card-text>
                     Are you sure you want to run analysis?
@@ -182,17 +182,17 @@
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="secondary"
+                    <btn-component color="secondary"
                         :disabled="dataLoadStatus.inProgress"
                         :loading="dataLoadStatus.inProgress"
-                        @click="confirmRunAnalysisDialogVisible = false">Cancel</v-btn>
-                    <v-btn color="primary"
+                        @click="confirmRunAnalysisDialogVisible = false">Cancel</btn-component>
+                    <btn-component color="primary"
                         :disabled="!analyzeAllowed"
                         :loading="dataLoadStatus.inProgress"
-                        @click="analyze()">Run analysis</v-btn>
+                        @click="analyze()">Run analysis</btn-component>
                 </v-card-actions>
-            </v-card>
-        </v-dialog>
+            </card-component>
+        </dialog-component>
     </div>
 </template>
 
