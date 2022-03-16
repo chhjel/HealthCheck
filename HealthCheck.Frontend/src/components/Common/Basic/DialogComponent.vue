@@ -32,7 +32,7 @@ import ValueUtils from '@util/ValueUtils'
 export default class DialogComponent extends Vue {
 
     @Prop({ required: true })
-    value!: string;
+    value!: boolean;
 
     @Prop({ required: false, default: false })
     fullscreen!: string | boolean;
@@ -58,7 +58,7 @@ export default class DialogComponent extends Vue {
     @Prop({ required: false, default: null })
     width!: number | null;
 
-    localValue: string = "";
+    localValue: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -99,6 +99,7 @@ export default class DialogComponent extends Vue {
     //  METHODS  //
     //////////////
     public close(): void {
+        this.localValue = false;
         this.$emit("update:value", false);
     }
 
