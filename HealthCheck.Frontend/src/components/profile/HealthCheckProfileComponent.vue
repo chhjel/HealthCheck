@@ -849,7 +849,6 @@ export default class HealthCheckProfileComponent extends Vue
     generateQrCode(): void {
         const data = this.generateTotpQrCodeData();
         const canvas = this.$refs.qrCodeCanvas as HTMLCanvasElement;
-        console.log(this.$refs);
         
         const qr = QrCode.encodeText(data, Ecc.MEDIUM);
         qr.drawCanvas(10, 2, canvas);
