@@ -4,9 +4,9 @@
         <v-app light class="approot" v-if="!showIntegratedLogin">
             <!-- TOOLBAR -->
             <toolbar-component clipped-left>
-                <button-component icon
+                <btn-component icon
                     @click.stop="onSideMenuToggleButtonClicked"
-                    v-if="showMenuButton">[Menu icon]</button-component>
+                    v-if="showMenuButton">[Menu icon]</btn-component>
                 <div class="apptitle">
                     <a v-if="hasTitleLink" :href="titleLink">{{ globalOptions.ApplicationTitle }}</a>
                     <span v-else>{{ globalOptions.ApplicationTitle }}</span>
@@ -91,9 +91,9 @@ export default class HealthCheckPageComponent extends Vue {
     //////////////////
     //  LIFECYCLE  //
     ////////////////
-    mounted(): void
+    async mounted()
     {
-        this.setInitialPage();
+        await this.setInitialPage();
         this.bindRootEvents();
         this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
     }
@@ -226,7 +226,7 @@ export default class HealthCheckPageComponent extends Vue {
         return this.$route.matched.some(({ name }) => name === module.Id);
     }
 
-    setInitialPage(): void
+    async setInitialPage()
     {
         // X:ToDo: set based on prioritized order if nothing active.
         let queryState = UrlUtils.GetQueryStringParameter('h');
@@ -236,6 +236,8 @@ export default class HealthCheckPageComponent extends Vue {
             this.$router.push(queryState);
         }
         
+        await this.$router.isReady();
+
         let anyRouteActive = this.$route.matched.length > 0;
         if (!anyRouteActive && this.validModuleConfigs.length > 0)
         {

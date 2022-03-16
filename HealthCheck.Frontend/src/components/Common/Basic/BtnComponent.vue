@@ -133,6 +133,7 @@ export default class BtnComponent extends Vue {
     justify-content: center;
     align-items: center;
     flex-direction: row;
+    cursor: pointer;
 
     &__contents {
         display: flex;
@@ -144,7 +145,9 @@ export default class BtnComponent extends Vue {
     }
 
     &.icon { }
-    &.disabled { }
+    &.disabled {
+        cursor: default;
+    }
     &.loading { }
 
     // Styles

@@ -29,6 +29,9 @@ export default class IconComponent extends Vue {
     @Prop({ required: false, default: false })
     large!: string | boolean;
 
+    @Prop({ required: false, default: false })
+    help!: string | boolean;
+
     @Prop({ required: false, default: null })
     slot!: string;
 
@@ -49,12 +52,14 @@ export default class IconComponent extends Vue {
     get rootClasses(): any {
         return {
              'small': this.isSmall,
-             'large': this.isLarge
+             'large': this.isLarge,
+             'help': this.isHelp
         };
     }
 
     get isSmall(): boolean { return ValueUtils.IsToggleTrue(this.small); }
     get isLarge(): boolean { return ValueUtils.IsToggleTrue(this.large); }
+    get isHelp(): boolean { return ValueUtils.IsToggleTrue(this.help); }
 
     ////////////////
     //  METHODS  //
@@ -73,10 +78,8 @@ export default class IconComponent extends Vue {
 
 <style scoped lang="scss">
 .icon-component {
-	border: 2px solid red;
-	padding: 5px;
-	margin: 5px;
     &.small { }
     &.large { }
+    &.help { cursor: help; }
 }
 </style>
