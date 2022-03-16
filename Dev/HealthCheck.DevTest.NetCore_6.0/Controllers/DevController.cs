@@ -543,6 +543,9 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
         [Route("GetMainScript")]
         public ActionResult GetMainScript() => LoadFile("healthcheck.js");
 
+        [Route("GetMainStyle")]
+        public ActionResult GetMainStyle() => LoadFile("healthcheck.css", "text/css");
+
         [Route("GetVendorScript")]
         public ActionResult GetVendorScript() => LoadFile("healthcheck.vendor.js");
 
@@ -555,11 +558,11 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
         [Route("GetScript")]
         public ActionResult GetScript(string name) => LoadFile(name);
 
-        private ActionResult LoadFile(string filename)
+        private ActionResult LoadFile(string filename, string contentType = "text/plain")
         {
             var filepath = GetFilePath($@"..\..\HealthCheck.Frontend\dist\{filename}");
             if (!System.IO.File.Exists(filepath)) return Content("");
-            return new FileStreamResult(new FileStream(filepath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), new MediaTypeHeaderValue("text/plain"))
+            return new FileStreamResult(new FileStream(filepath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), new MediaTypeHeaderValue(contentType))
             {
                 FileDownloadName = Path.GetFileName(filepath)
             };

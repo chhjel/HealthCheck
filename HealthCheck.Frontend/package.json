@@ -9,7 +9,7 @@
     "watch": "yarn clean && webpack --watch --mode=development",
     "devbuild": "yarn clean && webpack --mode=development",
     "devbuildNoClean": "webpack --mode=development",
-    "clean": "rimraf ./dist/*.js && rimraf ./dist/*.ttf",
+    "clean": "rimraf ./dist/*.js && rimraf ./dist/*.css && rimraf ./dist/*.map && rimraf ./dist/*.ttf",
     "cleanNode": "npkill && yarn",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -41,6 +41,7 @@
     "deepmerge": "^4.2.2",
     "fibers": "^5.0.1",
     "monaco-editor-webpack-plugin": "^7.0.1",
+    "mini-css-extract-plugin": "^2.5.3",
     "npkill": "^0.8.3",
     "rimraf": "^3.0.2",
     "sass": "^1.23.1",

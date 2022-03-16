@@ -566,6 +566,8 @@ namespace HealthCheck.DevTest.Controllers
         #region dev
         [HideFromRequestLog]
         public ActionResult GetMainScript() => LoadFile("healthcheck.js");
+        [HideFromRequestLog]
+        public ActionResult GetMainStyle() => LoadFile("healthcheck.css", "text/css");
         
         //[OutputCache(Duration = 1200, VaryByParam = "none")]
         [HideFromRequestLog]
@@ -580,12 +582,12 @@ namespace HealthCheck.DevTest.Controllers
         [HideFromRequestLog]
         public ActionResult GetScript([FromUri]string name) => LoadFile(name);
 
-        private ActionResult LoadFile(string filename)
+        private ActionResult LoadFile(string filename, string contentType = "text/plain")
         {
             HCMetricsContext.IncrementGlobalCounter(Path.GetFileName(filename) + ".Load()", 1);
             var filepath = Path.GetFullPath($@"{HostingEnvironment.MapPath("~")}..\..\HealthCheck.Frontend\dist\{filename}");
             if (!System.IO.File.Exists(filepath)) return Content("");
-            return new FileStreamResult(System.IO.File.Open(filepath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "content-disposition");
+            return new FileStreamResult(System.IO.File.Open(filepath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), contentType);
         }
 
         public ActionResult TestEvent(int v = 1)

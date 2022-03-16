@@ -271,32 +271,7 @@ export default class HealthCheckPageComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.approot {
-    font-family: 'Montserrat';
-    background-color: #f4f4f4;
-    /* background-color: #f7f6f4; */
-}
-.apptitle a {
-    color: inherit;
-    text-decoration: inherit;
-}
-.content-root {
-    padding-right: 46px;
-}
 .active-tab {
     font-weight: 900;
-}
-.toolbar-icon {
-    color: #0000008a !important;
-}
-</style>
-
-<style lang="scss">
-input[type=number] {
-    -moz-appearance:textfield;
-}
-input[type=number]:hover,
-input[type=number]:focus {
-    -moz-appearance: number-input;
 }
 </style>

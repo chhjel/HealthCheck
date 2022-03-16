@@ -41,9 +41,9 @@ namespace HealthCheck.WebUI.Assets
                 "[base]/GetAsset?n=healthcheck.js&v=[HCVERSION]"
             };
             HCAssetGlobalConfig.DefaultCssUrls = new List<string> {
-                "[base]/GetAsset?n=vuetify.min.css&v=[HCVERSION]",
+                "[base]/GetAsset?n=healthcheck.css&v=[HCVERSION]",
                 "[base]/GetAsset?n=google_fonts.css&v=[HCVERSION]",
-                "[base]/GetAsset?n=monaco_editor.main.min.css&v=[HCVERSION]",
+                "[base]/GetAsset?n=monaco_editor.main.min.css&v=[HCVERSION]", // not needed anymore? included in main bundle?
                 "[base]/GetAsset?n=fontawesome.css&v=[HCVERSION]"
             };
             //HCAssetGlobalConfig.DefaultMetricsSummaryJavascriptUrl = "[base]/GetAsset?n=metrics.js";

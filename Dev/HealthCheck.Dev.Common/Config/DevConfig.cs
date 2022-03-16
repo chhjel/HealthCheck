@@ -12,6 +12,8 @@ namespace HealthCheck.Dev.Common.Config
             HCAssetGlobalConfig.DefaultJavaScriptUrls = new List<string> {
                 "[base]/GetMainScript"
             };
+            HCAssetGlobalConfig.DefaultCssUrls.RemoveAt(0);
+            HCAssetGlobalConfig.DefaultCssUrls.Insert(0, "[base]/GetMainStyle");
             HCAssetGlobalConfig.DefaultMetricsSummaryJavascriptUrl = $"{endpointBase}/GetMetricsScript";
             HCAssetGlobalConfig.DefaultReleaseNotesSummaryJavascriptUrl = $"{endpointBase}/GetReleaseNotesScript";
             HCAssetGlobalConfig.DefaultEditorWorkerUrl = "[base]/getscript?name=editor.worker.js";

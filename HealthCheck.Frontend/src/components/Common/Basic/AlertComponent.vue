@@ -1,16 +1,14 @@
 <template>
-    <div class="alert-component" :class="rootClasses">
-		<h3>TODO: AlertComponent</h3>
+    <div class="alert-component" :class="rootClasses" v-if="value">
+		<!-- <h3>TODO: AlertComponent</h3>
         <div><b>value:</b>' {{ value }}'</div>
         <div><b>color:</b>' {{ color }}'</div>
         <div><b>icon:</b>' {{ icon }}'</div>
         <div><b>outline:</b>' {{ outline }}'</div>
         <div><b>type:</b>' {{ type }}'</div>
-        <div><b>elevation:</b>' {{ elevation }}'</div>
+        <div><b>elevation:</b>' {{ elevation }}'</div> -->
 
-		<div v-if="value">
-            <slot></slot>
-        </div>
+        <slot></slot>
     </div>
 </template>
 

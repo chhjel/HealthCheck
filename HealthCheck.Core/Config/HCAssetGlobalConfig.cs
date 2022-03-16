@@ -36,6 +36,7 @@ namespace HealthCheck.Core.Config
         /// </summary>
         public static List<string> DefaultCssUrls { get; set; } = new()
         {
+            "https://unpkg.com/christianh-healthcheck@2/healthcheck.css",
             "https://fonts.googleapis.com/css?family=Montserrat|Material+Icons",
             "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.19.2/min/vs/editor/editor.main.min.css",
             "https://use.fontawesome.com/releases/v5.15.4/css/all.css"
@@ -80,7 +81,11 @@ namespace HealthCheck.Core.Config
         public static string CreateCssTags(List<string> urls)
             => string.Join("\n", (urls ?? Enumerable.Empty<string>())
                 .Where(x => x != null)
-                .Select(x => $"<link rel=\"stylesheet\" href=\"{x}\" crossorigin=\"anonymous\" />"));
+                .Select(x =>
+                {
+                    var attributes = x.StartsWith("/") ? string.Empty : "crossorigin=\"anonymous\" ";
+                    return $"<link rel=\"stylesheet\" href=\"{x}\" {attributes}/>";
+                }));
 
         /// <summary>
         /// Creates html of the default JavaScript urls, or <paramref name="configured"/> if provided.

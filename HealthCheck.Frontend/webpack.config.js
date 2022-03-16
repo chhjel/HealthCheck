@@ -1,15 +1,18 @@
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { VueLoaderPlugin } = require("vue-loader");
+
+const stylesheets = ["./src/styles/index.scss"];
   
 var path = require('path')
 var webpack = require('webpack')
 
 module.exports = {
   entry: {
-    healthcheck: './src/entry/index.ts',
+    healthcheck: [...stylesheets, './src/entry/index.ts'],
     metrics: './src/entry/others/metrics.ts',
-    releaseNotesSummary: './src/entry/others/release-notes-summary.ts'
+    releaseNotesSummary: './src/entry/others/release-notes-summary.ts',
   },
   output: {
     path: path.resolve(__dirname, './dist'),
@@ -24,41 +27,54 @@ module.exports = {
   },
   module: {
     rules: [
+      // Rule: SASS and CSS files from Vue Single File Components
       {
-        test: /\.s(c|a)ss$/,
-        use: [
-          'vue-style-loader',
-          'css-loader',
-          {
-            loader: 'sass-loader',
-            options: {
-              implementation: require('sass'),
-              sassOptions: {
-                fiber: require('fibers'),
-                // indentedSyntax: true // optional
-              },
-            }
-          }
-        ]
+        test: /\.vue\.(s?[ac]ss)$/,
+        use: ['vue-style-loader', 'css-loader', 'sass-loader']
       },
+      // Rule: SASS and CSS files (standalone)
       {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+          test: /(?<!\.vue)\.(s?[ac]ss)$/,
+          use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader']
       },
+      // // Rule: SASS
+      // {
+      //   test: /\.(scss|sass)$/,
+      //   use: [
+      //     {
+      //       loader: MiniCssExtractPlugin.loader,
+      //     },
+      //     "css-loader",
+      //     "sass-loader",
+      //   ],
+      // },
+      // // Rule: CSS
+      // {
+      //   test: /\.css$/,
+      //   use: [
+      //     {
+      //       loader: MiniCssExtractPlugin.loader,
+      //       options: { hmr: !isProduction }
+      //     },
+      //     "style-loader",
+      //     "css-loader",
+      //   ],
+      // },
+      // Rule: VUE
       {
         test: /\.vue$/,
         loader: 'vue-loader',
-        options: {
-          loaders: {
-            // Since sass-loader (weirdly) has SCSS as its default parse mode, we map
-            // the "scss" and "sass" values for the lang attribute to the right configs here.
-            // other preprocessors should work out of the box, no loader config like this necessary.
-            'scss': 'vue-style-loader!css-loader!sass-loader',
-            'sass': 'vue-style-loader!css-loader!sass-loader',
-          }
-          // other vue-loader options go here
-        }
+        // options: {
+        //   loaders: {
+        //     // Since sass-loader (weirdly) has SCSS as its default parse mode, we map
+        //     // the "scss" and "sass" values for the lang attribute to the right configs here.
+        //     // other preprocessors should work out of the box, no loader config like this necessary.
+        //     'scss': 'vue-style-loader!css-loader!sass-loader',
+        //     'sass': 'vue-style-loader!css-loader!sass-loader',
+        //   }
+        // }
       },
+      // Rule: TSX
       {
         test: /\.tsx?$/,
         loader: 'ts-loader',
@@ -67,6 +83,7 @@ module.exports = {
           appendTsSuffixTo: [/\.vue$/],
         }
       },
+      // Rule: FILES
       {
         test: /\.(png|jpg|gif|svg|ttf)$/,
         loader: 'file-loader',
@@ -77,7 +94,7 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.ts', '.js', '.vue', '.json'],
+    extensions: ['.ts', '.js', '.vue', '.json', '.scss'],
     alias: {
       'vue$': 'vue/dist/vue.runtime.esm-bundler.js',
       "@generated": path.resolve(__dirname, "./src/generated"),
@@ -112,7 +129,8 @@ module.exports.plugins = [
     languages: [ 'csharp', 'json', 'xml' ],
     // filename: '[name].worker.js'
     publicPath: '/'
-  })
+  }),
+  new MiniCssExtractPlugin()
   // ,new BundleAnalyzerPlugin()
 ];
 
