@@ -1,7 +1,7 @@
 <!-- src/components/modules/SecureFileDownload/DownloadPageComponent.vue -->
 <template>
     <div>
-    <v-app light class="approot">
+    <div class="approot">
     <div class="secure-file-download-page">
         <content-component class="pl-0">
         <v-container fluid fill-height class="content-root">
@@ -90,7 +90,7 @@
         </v-container>
         </content-component>
     </div>
-    </v-app>
+    </div>
     </div>
 </template>
 

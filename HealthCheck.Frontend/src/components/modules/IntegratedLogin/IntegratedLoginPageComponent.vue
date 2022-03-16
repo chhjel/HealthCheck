@@ -1,7 +1,7 @@
 <!-- src/components/modules/IntegratedLogin/IntegratedLoginPageComponent.vue -->
 <template>
     <div>
-    <v-app light class="approot">
+    <div>
     <floating-squares-effect-component />
 
     <div class="integrated-login-page">
@@ -114,7 +114,7 @@
         </v-container>
         </content-component>
     </div>
-    </v-app>
+    </div>
     </div>
 </template>
 

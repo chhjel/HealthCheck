@@ -1,6 +1,6 @@
 <template>
     <div class="textarea-component" :class="rootClasses">
-		<h3>TODO: TextareaComponent</h3>
+		<!-- <h3>TODO: TextareaComponent</h3>
         <div><b>disabled:</b>' {{ disabled }}'</div>
         <div><b>clearable:</b>' {{ clearable }}'</div>
         <div><b>placeholder:</b>' {{ placeholder }}'</div>
@@ -8,9 +8,9 @@
         <div><b>value:</b>' {{ value }}'</div>
         <div><b>readonly:</b>' {{ readonly }}'</div>
         <div><b>rows:</b>' {{ rows }}'</div>
-        <div><b>autoGrow:</b>' {{ autoGrow }}'</div>
+        <div><b>autoGrow:</b>' {{ autoGrow }}'</div> -->
 
-		<slot></slot>
+		<textarea v-model="localValue"></textarea>
     </div>
 </template>
 

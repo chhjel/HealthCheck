@@ -1,6 +1,6 @@
 <template>
     <div class="text-field-component" :class="rootClasses">
-		<h3>TODO: TextFieldComponent</h3>
+		<!-- <h3>TODO: TextFieldComponent</h3>
         <div><b>value:</b>' {{ value }}'</div>
         <div><b>type:</b>' {{ type }}'</div>
         <div><b>errorMessages:</b>' {{ errorMessages }}'</div>
@@ -17,9 +17,9 @@
         <div><b>box:</b>' {{ box }}'</div>
         <div><b>hideDetails:</b>' {{ hideDetails }}'</div>
         <div><b>singleLine:</b>' {{ singleLine }}'</div>
-        <div><b>required:</b>' {{ required }}'</div>
+        <div><b>required:</b>' {{ required }}'</div> -->
 
-		<slot></slot>
+		<input type="text" v-model="localValue" />
     </div>
 </template>
 

@@ -2,9 +2,6 @@
 <template>
     <div>
         <content-component class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex>
             <!-- CONTENT BEGIN -->
             <alert-component
                 v-for="(module, mindex) in invalidConfigs"
@@ -26,9 +23,6 @@
                 </div>
             </alert-component>
             <!-- CONTENT END -->
-        </v-flex>
-        </v-layout>
-        </v-container>
         </content-component>
     </div>
 </template>

@@ -1,7 +1,7 @@
 <!-- src/components/HealthCheckPageComponent.vue -->
 <template>
     <div>
-        <v-app light class="approot" v-if="!showIntegratedLogin">
+        <div v-if="!showIntegratedLogin">
             <!-- TOOLBAR -->
             <toolbar-component clipped-left>
                 <btn-component icon
@@ -50,7 +50,7 @@
             
             <health-check-profile-dialog-component v-if="showIntegratedProfile" v-model:value="integratedProfileDialogVisible" />
             <access-token-killswitch-dialog v-if="showTokenKillswitch" v-model:value="tokenKillswitchDialogVisible" />
-        </v-app>
+        </div>
         
         <integrated-login-page-component v-if="showIntegratedLogin" />
     </div>

@@ -48,5 +48,7 @@ export default class ContentComponent extends Vue {
 <style scoped lang="scss">
 .content-component {
 	padding: 10px;
+    margin: 0 auto;
+    max-width: 1280px;
 }
 </style>
