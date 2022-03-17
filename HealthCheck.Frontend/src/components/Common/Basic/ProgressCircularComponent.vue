@@ -21,8 +21,8 @@ import ValueUtils from '@util/ValueUtils'
 })
 export default class ProgressCircularComponent extends Vue {
 
-    @Prop({ required: true })
-    value!: string;
+    @Prop({ required: false, default: 0 })
+    value!: number;
 
     @Prop({ required: false, default: null })
     size!: string;
@@ -36,7 +36,7 @@ export default class ProgressCircularComponent extends Vue {
     @Prop({ required: false, default: false })
     indeterminate!: string | boolean;
 
-    localValue: string = "";
+    localValue: number = 0;
 
     //////////////////
     //  LIFECYCLE  //

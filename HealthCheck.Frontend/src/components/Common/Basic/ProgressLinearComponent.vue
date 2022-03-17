@@ -6,8 +6,6 @@
         <div><b>color:</b>' {{ color }}'</div>
         <div><b>height:</b>' {{ height }}'</div>
         <div><b>value:</b>' {{ value }}'</div>
-
-		<slot></slot>
     </div>
 </template>
 

@@ -1,7 +1,5 @@
 <template>
     <div class="badge-component" :class="rootClasses">
-		<h3>TODO: BadgeComponent</h3>
-
 		<slot></slot>
     </div>
 </template>
@@ -14,8 +12,6 @@ import { Options } from "vue-class-component";
     components: {}
 })
 export default class BadgeComponent extends Vue {
-
-
 
     //////////////////
     //  LIFECYCLE  //
@@ -51,9 +47,13 @@ export default class BadgeComponent extends Vue {
 
 <style scoped lang="scss">
 .badge-component {
-	border: 2px solid red;
-	padding: 5px;
-	margin: 5px;
-
+    border: 1px solid #fff;
+    background-color: gray;
+    color: #fff;
+    border-radius: 20px;
+    min-width: 19px;
+    display: inline-block;
+    padding: 2px;
+    text-align: center;
 }
 </style>

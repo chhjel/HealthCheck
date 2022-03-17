@@ -21,11 +21,7 @@
                 <template v-slot:activator>
                     <v-list-tile>
                         <v-list-tile-title v-text="group.title"></v-list-tile-title>
-                        <badge-component class="mr-3" v-if="showFilterCounts">
-                            <template v-slot:badge>
-                                <span>{{ getGroupFilterMatchCount(group) }}</span>
-                            </template>
-                        </badge-component>
+                        <badge-component class="mr-3" v-if="showFilterCounts">{{ getGroupFilterMatchCount(group) }}</badge-component>
                     </v-list-tile>
                 </template>
 

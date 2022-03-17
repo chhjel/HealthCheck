@@ -29,11 +29,7 @@
                                     v-if="getTestSetGroupIcon(group) != null" 
                                     v-text="getTestSetGroupIcon(group)"></icon-component>
                                 <v-list-tile-title v-text="group.Name"></v-list-tile-title>
-                                <badge-component class="mr-3" v-if="showFilterCounts">
-                                    <template v-slot:badge>
-                                        <span>{{ getGroupFilterMatchCount(group) }}</span>
-                                    </template>
-                                </badge-component>
+                                <badge-component class="mr-3" v-if="showFilterCounts">{{ getGroupFilterMatchCount(group) }}</badge-component>
                             </v-list-tile>
                         </template>
 
@@ -51,11 +47,7 @@
                             <v-list-tile-title
                                 v-text="set.Name"
                                 :class="getTestSetTitleClass(set)"></v-list-tile-title>
-                            <badge-component class="mr-3" v-if="showFilterCounts">
-                                <template v-slot:badge>
-                                    <span>{{ getSetFilterMatchCount(set) }}</span>
-                                </template>
-                            </badge-component>
+                            <badge-component class="mr-3" v-if="showFilterCounts">{{ getSetFilterMatchCount(set) }}</badge-component>
                         </v-list-tile>
                     </v-list-group>
 
@@ -74,11 +66,7 @@
                         <v-list-tile-title 
                             v-text="set.Name"
                             :class="getTestSetTitleClass(set)"></v-list-tile-title>
-                        <badge-component class="mr-2" v-if="showFilterCounts">
-                            <template v-slot:badge>
-                                <span>{{ getSetFilterMatchCount(set) }}</span>
-                            </template>
-                        </badge-component>
+                        <badge-component class="mr-2" v-if="showFilterCounts">{{ getSetFilterMatchCount(set) }}</badge-component>
                     </v-list-tile>
                 </list-component>
             </navigation-drawer-component>
