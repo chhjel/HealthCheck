@@ -13,7 +13,7 @@
                 v-if="absoluteDownloadUrl != null"
                 >Download link: <a :href="absoluteDownloadUrl">{{ absoluteDownloadUrl }}</a> </div>
 
-            <input-header-component
+            <input-component
                 class="mt-2"
                 v-model:value="internalDownload.FileName"
                 :disabled="!allowChanges"
@@ -23,7 +23,7 @@
                 :error="validateFileName"
                 />
                 
-            <input-header-component
+            <input-component
                 class="mt-2"
                 v-model:value="internalDownload.UrlSegmentText"
                 :disabled="!allowChanges"
@@ -57,7 +57,7 @@
                     show-description-on-start="true"
                     />
                 
-                <input-header-component
+                <input-component
                     v-if="showFileIdInput"
                     class="mt-2"
                     v-model:value="internalDownload.FileId"
@@ -103,7 +103,7 @@
                 <span v-if="deleteFileStatus && deleteFileStatus.success">File deleted successfully.</span>
             </div>
             
-            <input-header-component
+            <input-component
                 class="mt-2"
                 v-model:value="internalDownload.Note"
                 :disabled="!allowChanges"
@@ -118,7 +118,7 @@
 
         <!-- ###### LIMITS ###### -->
         <block-component class="mb-5" title="Limits &amp; password">
-            <input-header-component
+            <input-component
                 class="mt-2"
                 v-model:value="internalDownload.DownloadCountLimit"
                 :disabled="!allowChanges"
@@ -134,7 +134,7 @@
                 description="After this time, the file will not be available for download."
                 />
                 
-            <input-header-component
+            <input-component
                 class="mt-2"
                 v-model:value="internalDownload.Password"
                 :disabled="!allowChanges"
@@ -207,7 +207,7 @@ import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import DateUtils from '@util/DateUtils';
 import IdUtils from '@util/IdUtils';
 import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
-import InputHeaderComponent from '@components/Common/Basic/InputHeaderComponent.vue';
+import InputComponent from '@components/Common/Basic/InputComponent.vue';
 import SelectComponent from '@components/Common/Basic/SelectComponent.vue';
 import SecureFileDownloadUtils from '@util/SecureFileDownload/SecureFileDownloadUtils';
 import SecureFileDownloadService from '@services/SecureFileDownloadService';
@@ -221,7 +221,7 @@ import { StoreUtil } from "@util/StoreUtil";
     components: {
         SimpleDateTimeComponent,
         BlockComponent,
-        InputHeaderComponent,
+        InputComponent,
         SelectComponent,
         ParameterInputTypeHttpPostedFileBaseComponent,
         FetchStatusProgressComponent

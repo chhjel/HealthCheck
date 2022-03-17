@@ -46,7 +46,7 @@
                         <div class="config-list-item--switch-and-summary">
                             <tooltip-component bottom>
                                 <template v-slot:activator="{ on }">
-                                <v-switch v-on="on"
+                                <v-switch
                                     v-model:value="config.Enabled"
                                     color="secondary"
                                     style="flex: 0"
@@ -90,22 +90,22 @@
                         <div class="config-list-item--metadata">
                             <tooltip-component bottom v-if="getConfigWarning(config) != null">
                                 <template v-slot:activator="{ on }">
-                                    <icon-component style="cursor: help;" color="warning" v-on="on">warning</icon-component>
+                                    <icon-component style="cursor: help;" color="warning">warning</icon-component>
                                 </template>
                                 <span>{{getConfigWarning(config)}}</span>
                             </tooltip-component>
 
                             <tooltip-component bottom v-if="configIsOutsideLimit(config)">
                                 <template v-slot:activator="{ on }">
-                                    <icon-component v-on="on" style="cursor: help;">timer_off</icon-component>
+                                    <icon-component style="cursor: help;">timer_off</icon-component>
                                 </template>
                                 <span>This configs' limits has been reached</span>
                             </tooltip-component>
 
                             <tooltip-component bottom>
                                 <template v-slot:activator="{ on }">
-                                    <icon-component style="cursor: help;" v-on="on">person</icon-component>
-                                    <code style="color: var(--v-primary-base); cursor: help;" v-on="on">{{ config.LastChangedBy }}</code>
+                                    <icon-component style="cursor: help;">person</icon-component>
+                                    <code style="color: var(--v-primary-base); cursor: help;">{{ config.LastChangedBy }}</code>
                                 </template>
                                 <span>Last modified by '{{ config.LastChangedBy }}'</span>
                             </tooltip-component>
@@ -123,8 +123,8 @@
                 persistent
                 max-width="1200"
                 content-class="current-config-dialog">
-                <card-component v-if="currentConfig != null" style="background-color: #f4f4f4">
-                    <toolbar-component class="elevation-0">
+                <card-component v-if="currentConfig != null">
+                    <toolbar-component>
                         <v-toolbar-title class="current-config-dialog__title">{{ currentDialogTitle }}</v-toolbar-title>
                         <v-spacer></v-spacer>
                         <btn-component icon
@@ -190,8 +190,8 @@
                 scrollable
                 max-width="1200"
                 content-class="current-config-dialog">
-                <card-component style="background-color: #f4f4f4">
-                    <toolbar-component class="elevation-0">
+                <card-component>
+                    <toolbar-component>
                         <v-toolbar-title class="current-config-dialog__title">Edit event payload definitions</v-toolbar-title>
                         <v-spacer></v-spacer>
                         <btn-component icon

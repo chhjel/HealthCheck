@@ -59,7 +59,7 @@
                                             transition="slide-y-transition"
                                             bottom>
                                             <template v-slot:activator="{ on }">
-                                                <btn-component flat icon color="primary" class="datepicker-button" v-on="on">
+                                                <btn-component flat icon color="primary" class="datepicker-button">
                                                     <icon-component>date_range</icon-component>
                                                 </btn-component>
                                             </template>
@@ -148,7 +148,7 @@
                                     v-if="resultCount > 0"
                                     :groups="streamEntryGroups"
                                     :headers="tableHeaders.map(x => x.text)"
-                                    class="elevation-2">
+                                   >
                                     <template v-slot:cell="{ value }">
                                         <span v-if="value.uiHint=='HTML'" v-html="value.value" @click.stop=""></span>
                                         <span v-else-if="value.uiHint=='Icon'"><icon-component>{{ value.value }}</icon-component></span>

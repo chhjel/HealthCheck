@@ -17,7 +17,7 @@
                 v-if="isNullable">
                 <tooltip-component bottom>
                     <template v-slot:activator="{ on }">
-                        <span v-on="on">
+                        <span>
                             <btn-component flat icon color="primary" class="ma-0 pa-0"
                                 @click="setValueToNull"
                                 :disabled="localValue == null || readonly">

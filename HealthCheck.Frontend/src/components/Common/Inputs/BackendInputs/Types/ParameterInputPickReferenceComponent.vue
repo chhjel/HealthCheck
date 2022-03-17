@@ -5,14 +5,14 @@
             
             <tooltip-component bottom :disabled="!tooltip">
                 <template v-slot:activator="{ on }">
-                    <btn-component @click="showDialog" :disabled="readonly" class="pick-ref-button ml-0 mr-0" v-on="on">{{ selectedChoiceLabel }}</btn-component>
+                    <btn-component @click="showDialog" :disabled="readonly" class="pick-ref-button ml-0 mr-0">{{ selectedChoiceLabel }}</btn-component>
                 </template>
                 <span>{{tooltip}}</span>
             </tooltip-component>
         
             <tooltip-component bottom v-if="localValue" >
                 <template v-slot:activator="{ on }">
-                    <btn-component flat small icon color="primary" v-if="localValue" class="mr-0" @click="copyToClipboard" v-on="on">
+                    <btn-component flat small icon color="primary" v-if="localValue" class="mr-0" @click="copyToClipboard">
                         <icon-component small>content_copy</icon-component>
                     </btn-component>
                 </template>
@@ -31,8 +31,8 @@
             scrollable
             max-width="600"
             content-class="select-reference-item-dialog">
-            <card-component style="background-color: #f4f4f4">
-                <toolbar-component class="elevation-0">
+            <card-component>
+                <toolbar-component>
                     <v-toolbar-title>{{ dialogTitle }}</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <btn-component icon

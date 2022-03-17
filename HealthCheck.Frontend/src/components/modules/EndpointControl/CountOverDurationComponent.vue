@@ -2,16 +2,16 @@
 <template>
     <div class="root">
         <div class="field-list horizontal-layout">
-            <input-header-component
+            <input-component
                 type="number"
                 name="Request count"
                 v-model:value="count"
                 v-on:change="onDataChanged"
                 :disabled="readonly"
                 :clearable="false"
-            ></input-header-component>
+            ></input-component>
 
-            <timespan-input-header-component
+            <timespan-input-component
                 v-model:value="duration"
                 v-on:change="onDataChanged"
                 name="Over duration of"
@@ -36,10 +36,10 @@ import { Vue, Prop } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import { EndpointControlCountOverDuration, EndpointControlRule } from '@models/modules/EndpointControl/EndpointControlModels';
 import TimespanInputComponent from '@components/Common/Basic/TimespanInputComponent.vue';
-import InputHeaderComponent from '@components/Common/Basic/InputHeaderComponent.vue';
+import InputComponent from '@components/Common/Basic/InputComponent.vue';
 
 @Options({
-    components: { InputHeaderComponent, TimespanInputComponent }
+    components: { InputComponent, TimespanInputComponent }
 })
 export default class CountOverDurationComponent extends Vue {
     @Prop({ required: true })

@@ -15,7 +15,7 @@
 
                         <tooltip-component bottom v-if="!isReadOnlyList" >
                             <template v-slot:activator="{ on }">
-                                <v-list-tile-action v-if="!isReadOnlyList" @click="removeItem(itemIndex)" v-on="on">
+                                <v-list-tile-action v-if="!isReadOnlyList" @click="removeItem(itemIndex)">
                                     <btn-component flat icon color="error" :disabled="readonly">
                                         <icon-component>remove</icon-component>
                                     </btn-component>

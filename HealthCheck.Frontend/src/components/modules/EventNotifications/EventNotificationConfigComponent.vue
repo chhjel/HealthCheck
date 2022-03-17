@@ -145,7 +145,7 @@
                     :key="`notifierConfig-${ncindex}-option-${ncoindex}`"
                     style="margin-left:20px">
                     
-                    <backend-input-header-component
+                    <backend-input-component
                         v-model:value="notifierConfigOption.value"
                         v-on:input="notifierConfig.Options[notifierConfigOption.key] = $event"
                         :config="notifierConfigOption.definition"
@@ -169,7 +169,7 @@
 
         <!-- ###### LIMITS ###### -->
         <block-component class="mb-4" title="Limits">
-            <input-header-component
+            <input-component
                 class="mt-2"
                 v-model:value="internalConfig.NotificationCountLimit"
                 :disabled="!allowChanges"
@@ -192,7 +192,7 @@
                 description="Only allow notifications before this datetime. After this datetime the config will be disabled."
                 />
 
-            <input-header-component
+            <input-component
                 class="mt-2"
                 v-model:value="internalConfig.DistinctNotificationKey"
                 :disabled="!allowChanges"
@@ -203,7 +203,7 @@
                 @actionIconClicked="showPayloadPlaceholdersDialog()"
                 />
 
-            <timespan-input-header-component
+            <timespan-input-component
                 class="mt-2"
                 v-model:value="internalConfig.DistinctNotificationCacheDuration"
                 :disabled="!allowChanges"
@@ -377,7 +377,7 @@ import DateUtils from '@util/DateUtils';
 import IdUtils from '@util/IdUtils';
 import EventSinkNotificationConfigUtils, { ConfigFilterDescription, ConfigActionDescription } from '@util/EventNotifications/EventSinkNotificationConfigUtils';
 import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
-import InputHeaderComponent from '@components/Common/Basic/InputHeaderComponent.vue';
+import InputComponent from '@components/Common/Basic/InputComponent.vue';
 import TimespanInputComponent from '@components/Common/Basic/TimespanInputComponent.vue';
 import EventNotificationService from '@services/EventNotificationService';
 import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
@@ -390,7 +390,7 @@ import { StoreUtil } from "@util/StoreUtil";
         ConfigFilterComponent,
         SimpleDateTimeComponent,
         BlockComponent,
-        InputHeaderComponent,
+        InputComponent,
         TimespanInputComponent,
         BackendInputComponent
     }

@@ -59,7 +59,7 @@
                     :custom-sort="tableSorter"
                     item-key="Id"
                     expand
-                    class="elevation-1 audit-table">
+                    class="audit-table">
                     <progress-linear-component v-slot:progress color="primary" indeterminate></progress-linear-component>
                     <template v-slot:no-data>
                     <alert-component :value="true" color="error" icon="warning" v-if="loadStatus.failed">

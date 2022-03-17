@@ -158,14 +158,14 @@
                 <v-divider></v-divider>
                 
                 <v-card-text>
-                    <input-header-component
+                    <input-component
                         name="Confirm account password"
                         autocomplete="current-password"
                         v-model:value="registerWebAuthnPassword"
                         :disabled="webAuthnAddLoadStatus.inProgress"
                         type="password"
                         :clearable="true"
-                    ></input-header-component>
+                    ></input-component>
 
                     <btn-component
                         round color="primary" large
@@ -211,14 +211,14 @@
                 <v-card-text>
                     <p>Confirm removal of WebAuthn authenticator from your account.</p>
 
-                    <input-header-component
+                    <input-component
                         name="Confirm account password"
                         autocomplete="current-password"
                         v-model:value="removeWebAuthnPassword"
                         :disabled="disableWebAuthnAdd"
                         type="password"
                         :clearable="true"
-                    ></input-header-component>
+                    ></input-component>
 
                     <btn-component
                         round color="primary" large
@@ -263,7 +263,7 @@
                 <v-divider></v-divider>
                 
                 <v-card-text>
-                    <input-header-component
+                    <input-component
                         name="TOTP code"
                         v-model:value="totpElevateCode"
                         :disabled="disableTotpElevate"
@@ -271,7 +271,7 @@
                         :loading="show2FACodeExpirationTime"
                         :loadingProgress="twoFactorInputProgress"
                         :loadingColor="twoFactorInputColor"
-                    ></input-header-component>
+                    ></input-component>
 
                     <btn-component
                         round color="primary" large class="mt-4"
@@ -320,22 +320,22 @@
                     <canvas ref="qrCodeCanvas"></canvas>
                     <p v-if="registerTotpSecret">Or optionally enter this secret manually in your app of choice: <code>{{ registerTotpSecret }}</code></p>
 
-                    <input-header-component
+                    <input-component
                         name="Code from authenticator"
                         autocomplete="one-time-code"
                         v-model:value="registerTotpCode"
                         :disabled="disableTotpAdd"
                         :clearable="true"
-                    ></input-header-component>
+                    ></input-component>
 
-                    <input-header-component
+                    <input-component
                         name="Confirm account password"
                         autocomplete="current-password"
                         v-model:value="registerTotpPassword"
                         :disabled="disableTotpAdd"
                         type="password"
                         :clearable="true"
-                    ></input-header-component>
+                    ></input-component>
 
                     <btn-component 
                         round color="primary" large
@@ -381,14 +381,14 @@
                 <v-card-text>
                     <p>Confirm removal of TOTP authenticator from your account.</p>
 
-                    <input-header-component
+                    <input-component
                         name="Confirm account password"
                         autocomplete="current-password"
                         v-model:value="removeTotpPassword"
                         :disabled="disableTotpRemove"
                         type="password"
                         :clearable="true"
-                    ></input-header-component>
+                    ></input-component>
 
                     <btn-component
                         round color="error" large
@@ -423,7 +423,7 @@ import IntegratedProfileService from '@services/IntegratedProfileService';
 import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
 import { HCIntegratedProfileConfig } from "@generated/Models/WebUI/HCIntegratedProfileConfig";
 import { FetchStatus } from "@services/abstractions/HCServiceBase";
-import InputHeaderComponent from "@components/Common/Basic/InputComponent.vue"
+import InputComponent from "@components/Common/Basic/InputComponent.vue"
 import WebAuthnUtil from "@util/WebAuthnUtil";
 import Base32Util from "@util/Base32Util";
 import { HCVerifyWebAuthnAssertionModel } from "@generated/Models/WebUI/HCVerifyWebAuthnAssertionModel";
@@ -436,7 +436,7 @@ import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
     components: {
-        InputHeaderComponent,
+        InputComponent,
         BlockComponent
     }
 })

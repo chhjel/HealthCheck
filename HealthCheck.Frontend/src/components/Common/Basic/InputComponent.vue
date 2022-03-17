@@ -19,9 +19,8 @@
             :disabled="disabled"
             :type="type"
             :clearable="clearable">
-            <tooltip-component slot="append-outer" bottom v-if="showActionIcon">
-                <icon-component slot="activator" @click="onActionIconClicked">{{ actionIcon }}</icon-component>
-                Insert placeholder
+            <tooltip-component v-if="showActionIcon" tooltip="Insert placeholder">
+                <icon-component @click="onActionIconClicked">{{ actionIcon }}</icon-component>
             </tooltip-component>
         </text-field-component>
         
@@ -33,9 +32,8 @@
             @click:clear="onClearClicked()"
             :disabled="disabled"
             :clearable="clearable">
-            <tooltip-component slot="append-outer" bottom v-if="showActionIcon">
-                <icon-component slot="activator" @click="onActionIconClicked">{{ actionIcon }}</icon-component>
-                Insert placeholder
+            <tooltip-component v-if="showActionIcon" tooltip="Insert placeholder">
+                <icon-component @click="onActionIconClicked">{{ actionIcon }}</icon-component>
             </tooltip-component>
         </textarea-component>
         
@@ -53,9 +51,11 @@
 <script lang="ts">
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
+import TextareaComponent from '@components/Common/Basic/TextareaComponent.vue';
+import TextFieldComponent from '@components/Common/Basic/TextFieldComponent.vue';
 
 @Options({
-    components: {}
+    components: { TextareaComponent, TextFieldComponent }
 })
 export default class InputComponent extends Vue
 {

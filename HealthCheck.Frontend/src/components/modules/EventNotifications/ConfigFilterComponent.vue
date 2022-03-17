@@ -6,7 +6,7 @@
             <div class="horizontal-layout">
                 <tooltip-component bottom>
                     <template v-slot:activator="{ on }">
-                        <btn-component v-on="on"
+                        <btn-component
                             dark icon small
                             :color="!isMatchingOnStringified ? `primary` : 'secondary'"
                             :class="{ 'lighten-5': isMatchingOnStringified }"
@@ -56,7 +56,7 @@
                 
                 <!-- <tooltip-component bottom>
                     <template v-slot:activator="{ on }">
-                        <btn-component v-on="on"
+                        <btn-component
                             dark icon small
                             :color="caseSensitive ? `primary` : 'secondary'"
                             :class="{ 'lighten-5': !caseSensitive }"

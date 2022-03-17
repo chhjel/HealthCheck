@@ -51,7 +51,7 @@
                         <div class="token-item--metadata">
                             <tooltip-component bottom>
                                 <template v-slot:activator="{ on }">
-                                    <div class="token-item--created-at" v-on="on">
+                                    <div class="token-item--created-at">
                                         <icon-component>vpn_key</icon-component>
                                         {{ token.CreatedAtSummary }}
                                     </div>
@@ -61,7 +61,7 @@
                             
                             <tooltip-component bottom>
                                 <template v-slot:activator="{ on }">
-                                    <div class="token-item--last-used-at" v-on="on">
+                                    <div class="token-item--last-used-at">
                                         <icon-component v-if="token.LastUsedAt != null">visibility</icon-component>
                                         <icon-component v-else>visibility_off</icon-component>
                                         {{ token.LastUsedAtSummary }}
@@ -73,7 +73,7 @@
 
                             <tooltip-component bottom v-if="token.ExpiresAt != null">
                                 <template v-slot:activator="{ on }">
-                                    <div class="token-item--expires-at" v-on="on">
+                                    <div class="token-item--expires-at">
                                         <icon-component v-if="token.IsExpired">timer_off</icon-component>
                                         <icon-component v-else>timer</icon-component>
                                         {{ token.ExpiresAtSummary }}
@@ -166,7 +166,7 @@
             @keydown.esc="deleteTokenDialogVisible = false"
             max-width="350"
             content-class="delete-token-dialog">
-            <card-component style="background-color: #f4f4f4">
+            <card-component>
                 <v-card-title class="headline">Confirm deletion</v-card-title>
                 <v-card-text>
                     {{ deleteTokenDialogText }}
@@ -186,8 +186,8 @@
             :persistent="loadStatus.inProgress"
             max-width="1200"
             content-class="create-access-token-dialog">
-            <card-component style="background-color: #f4f4f4">
-                <toolbar-component class="elevation-0">
+            <card-component>
+                <toolbar-component>
                     <v-toolbar-title class="current-config-dialog__title">Create new access token</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <btn-component icon

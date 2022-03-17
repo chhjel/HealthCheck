@@ -7,7 +7,7 @@
         
         <tooltip-component bottom>
             <template v-slot:activator="{ on }">
-              <span class="timingbar-label" v-on="on">{{ item.Description }}</span>
+              <span class="timingbar-label">{{ item.Description }}</span>
             </template>
             <span>{{ item.Description }}</span>
         </tooltip-component>
@@ -15,7 +15,7 @@
         <div class="timingbar-bar-wrapper">
           <tooltip-component bottom>
               <template v-slot:activator="{ on }">
-                <div class="timingbar-bar" :style="getBarStyle(item, itemIndex)" v-on="on">
+                <div class="timingbar-bar" :style="getBarStyle(item, itemIndex)">
                   <div class="timing-bar-details-wrapper">
                     <div class="timing-bar-details">{{ item.DurationText }}</div>
                   </div>

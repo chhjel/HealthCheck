@@ -32,7 +32,7 @@
 
                     <tooltip-component top v-if="showCreateNewScriptButton">
                         <template v-slot:activator="{ on }">
-                            <span v-on="on">
+                            <span>
                             <btn-component flat :dark="localOptions.darkTheme"
                                 color="#62b5e4"
                                 @click="onNewScriptClicked"

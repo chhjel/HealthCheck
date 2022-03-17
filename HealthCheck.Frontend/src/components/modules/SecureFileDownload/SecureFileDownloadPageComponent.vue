@@ -42,22 +42,22 @@
                             
                             <tooltip-component tooltip="This download is protected by a password"
                                 v-if="download.Password != null" >
-                                <icon-component help v-on="on">lock</icon-component>
+                                <icon-component help>lock</icon-component>
                             </tooltip-component>
 
                             <tooltip-component :tooltip="getDownloadWarning(download)" 
                                 v-if="getDownloadWarning(download) != null">
-                                <icon-component help color="warning" v-on="on">warning</icon-component>
+                                <icon-component help color="warning">warning</icon-component>
                             </tooltip-component>
 
                             <tooltip-component tooltip="This downloads' limits has been reached"
                                 v-if="downloadIsOutsideLimit(download)">
-                                <icon-component help v-on="on" >timer_off</icon-component>
+                                <icon-component help >timer_off</icon-component>
                             </tooltip-component>
 
                             <tooltip-component :tooltip="`Last modified by '${download.LastModifiedByUsername}'`" bottom>
-                                <icon-component help v-on="on">person</icon-component>
-                                <code style="color: var(--v-primary-base); cursor: help;" v-on="on">{{ download.LastModifiedByUsername }}</code>
+                                <icon-component help>person</icon-component>
+                                <code style="color: var(--v-primary-base); cursor: help;">{{ download.LastModifiedByUsername }}</code>
                             </tooltip-component>
                         </div>
                             
@@ -77,8 +77,8 @@
                 persistent
                 max-width="1200"
                 content-class="current-download-dialog">
-                <card-component v-if="currentDownload != null" style="background-color: #f4f4f4">
-                    <toolbar-component class="elevation-0">
+                <card-component v-if="currentDownload != null">
+                    <toolbar-component>
                         <v-toolbar-title class="current-download-dialog__title">{{ currentDialogTitle }}</v-toolbar-title>
                         <v-spacer></v-spacer>
                         <btn-component icon

@@ -19,7 +19,7 @@
                 <tooltip-component bottom>
                     <template v-slot:activator="{ on }">
                         <label :for="`file-parameter-${id}`"
-                            v-on="on"
+                           
                             class="v-btn v-btn--small theme--light upload-label"
                             :class="{ 'disabled': readonly, 'v-btn--disabled': readonly }">
                             <div>{{ label }}</div>
@@ -30,7 +30,7 @@
             </div>
             <tooltip-component bottom v-if="allowClear">
                 <template v-slot:activator="{ on }">
-                    <span v-on="on">
+                    <span>
                         <btn-component flat icon color="primary" class="ma-0 pa-0"
                             @click="setValueToNull"
                             :disabled="localValue == null">

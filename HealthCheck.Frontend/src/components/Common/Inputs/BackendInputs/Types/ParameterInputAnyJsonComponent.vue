@@ -8,8 +8,8 @@
             scrollable
             fullscreen
             content-class="edit-json-value-dialog">
-            <card-component style="background-color: #f4f4f4">
-                <toolbar-component class="elevation-0">
+            <card-component>
+                <toolbar-component>
                     <v-toolbar-title>Edit value of parameter '{{ name }}' of type '{{ type}}'</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <btn-component icon

@@ -13,7 +13,7 @@
                         label="Date"
                         prepend-icon="event"
                         readonly
-                        v-on="on"
+                       
                     ></text-field-component>
                     </template>
                     <date-picker-component 

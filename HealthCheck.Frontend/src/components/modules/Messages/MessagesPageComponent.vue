@@ -116,8 +116,8 @@
             scrollable
             max-width="1200"
             content-class="message-dialog">
-            <card-component style="background-color: #f4f4f4">
-                <toolbar-component class="elevation-0">
+            <card-component>
+                <toolbar-component>
                     <div class="message-dialog__icon">
                         <icon-component :color="getMessageIconColor(currentlyShownMessage)">{{ getMessageIcon(currentlyShownMessage) }}</icon-component>
                     </div>

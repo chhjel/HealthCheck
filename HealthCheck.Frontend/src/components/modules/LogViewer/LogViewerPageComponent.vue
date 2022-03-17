@@ -17,7 +17,7 @@
                             transition="slide-y-transition"
                             bottom>
                             <template v-slot:activator="{ on }">
-                                <btn-component flat icon color="primary" class="datepicker-button" v-on="on">
+                                <btn-component flat icon color="primary" class="datepicker-button">
                                     <icon-component>date_range</icon-component>
                                 </btn-component>
                             </template>

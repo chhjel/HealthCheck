@@ -45,7 +45,7 @@
                     <div class="rule-list-item--inner">
                         <tooltip-component bottom>
                             <template v-slot:activator="{ on }">
-                            <v-switch v-on="on"
+                            <v-switch
                                 v-model:value="rule.Enabled"
                                 color="secondary"
                                 style="flex: 0"
@@ -66,22 +66,22 @@
                         
                         <tooltip-component bottom v-if="getRuleWarning(rule) != null">
                             <template v-slot:activator="{ on }">
-                                <icon-component style="cursor: help;" color="warning" v-on="on">warning</icon-component>
+                                <icon-component style="cursor: help;" color="warning">warning</icon-component>
                             </template>
                             <span>{{getRuleWarning(rule)}}</span>
                         </tooltip-component>
 
                         <tooltip-component bottom v-if="ruleIsOutsideLimit(rule)">
                             <template v-slot:activator="{ on }">
-                                <icon-component v-on="on" style="cursor: help;">timer_off</icon-component>
+                                <icon-component style="cursor: help;">timer_off</icon-component>
                             </template>
                             <span>This rules' limits has been reached</span>
                         </tooltip-component>
 
                         <tooltip-component bottom>
                             <template v-slot:activator="{ on }">
-                                <icon-component style="cursor: help;" v-on="on">person</icon-component>
-                                <code style="color: var(--v-primary-base); cursor: help;" v-on="on">{{ rule.LastChangedBy }}</code>
+                                <icon-component style="cursor: help;">person</icon-component>
+                                <code style="color: var(--v-primary-base); cursor: help;">{{ rule.LastChangedBy }}</code>
                             </template>
                             <span>Last modified by '{{ rule.LastChangedBy }}'</span>
                         </tooltip-component>
@@ -98,8 +98,8 @@
                 persistent
                 max-width="1200"
                 content-class="current-rule-dialog">
-                <card-component v-if="currentRule != null" style="background-color: #f4f4f4">
-                    <toolbar-component class="elevation-0">
+                <card-component v-if="currentRule != null">
+                    <toolbar-component>
                         <v-toolbar-title class="current-rule-dialog__title">{{ currentDialogTitle }}</v-toolbar-title>
                         <v-spacer></v-spacer>
                         <btn-component icon
@@ -165,8 +165,8 @@
                 scrollable
                 max-width="1200"
                 content-class="current-rule-dialog">
-                <card-component style="background-color: #f4f4f4">
-                    <toolbar-component class="elevation-0">
+                <card-component>
+                    <toolbar-component>
                         <v-toolbar-title class="current-rule-dialog__title">Edit endpoint definitions</v-toolbar-title>
                         <v-spacer></v-spacer>
                         <btn-component icon
@@ -218,8 +218,8 @@
                 max-width="1200"
                 content-class=""
                 @input="v => v || hideLatestRequestsDialog()">
-                <card-component style="background-color: #f4f4f4">
-                    <toolbar-component class="elevation-0">
+                <card-component>
+                    <toolbar-component>
                         <v-toolbar-title class="current-rule-dialog__title">Latest requests</v-toolbar-title>
                         <v-spacer></v-spacer>
                         <btn-component icon @click="hideLatestRequestsDialog">

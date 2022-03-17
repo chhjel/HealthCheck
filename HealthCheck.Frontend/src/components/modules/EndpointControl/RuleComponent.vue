@@ -110,7 +110,7 @@
 
             <p class="mt-4 mb-2">{{ selectedBlockResultDescription }}</p>
 
-            <backend-input-header-component
+            <backend-input-component
                 v-for="(def, defIndex) in selectedBlockResultPropertyDefinitions"
                 :key="`defx-${defIndex}`"
                 v-model:value="internalRule.CustomBlockResultProperties[def.Id]"

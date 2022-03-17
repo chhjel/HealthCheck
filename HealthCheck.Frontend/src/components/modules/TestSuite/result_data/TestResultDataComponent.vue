@@ -23,7 +23,7 @@
             @keydown.esc="showFullscreen = false"
             fullscreen hide-overlay transition="dialog-transition">
             <template v-slot:activator="{ on }">
-              <btn-component outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2 ml-0" v-on="on">Fullscreen</btn-component>
+              <btn-component outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2 ml-0">Fullscreen</btn-component>
             </template>
             <card-component>
               <!-- DIALOG TOOLBAR -->

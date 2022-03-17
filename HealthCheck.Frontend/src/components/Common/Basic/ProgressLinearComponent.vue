@@ -21,8 +21,8 @@ import ValueUtils from '@util/ValueUtils'
 })
 export default class ProgressLinearComponent extends Vue {
 
-    @Prop({ required: true })
-    value!: string;
+    @Prop({ required: false, default: 0 })
+    value!: number;
 
     @Prop({ required: false, default: false })
     indeterminate!: string | boolean;
@@ -36,7 +36,7 @@ export default class ProgressLinearComponent extends Vue {
     @Prop({ required: false, default: 0 })
     height!: number;
 
-    localValue: string = "";
+    localValue: number = 0;
 
     //////////////////
     //  LIFECYCLE  //
