@@ -3,13 +3,7 @@
     <div>
         <content-component>
             <!-- NAVIGATION DRAWER -->
-            <navigation-drawer-component
-                v-model:value="drawerState"
-                clipped fixed floating app
-                mobile-break-point="1000"
-                dark
-                class="menu testset-menu">
-
+            <navigation-drawer-component v-model:value="drawerState">
                 <filterable-list-component
                     :items="menuItems"
                     :groupByKey="`GroupName`"
@@ -27,10 +21,10 @@
             </navigation-drawer-component>
             
             <!-- CONTENT -->
-            <v-container fluid fill-height class="content-root">
-                <v-layout>
-                    <v-flex>
-                        <v-container>
+            <div fluid fill-height class="content-root">
+                <div>
+                    <div>
+                        <div>
                             <div v-if="selectedStream && selectedItemId == null">
                                 <h2 v-if="selectedStream.Name">{{ selectedStream.Name }}</h2>
                                 <p v-if="selectedStream.Description" v-html="selectedStream.Description"></p>
@@ -39,8 +33,7 @@
                                 <div class="data-export-filters" v-if="showQuery">
                                     <div style="display: flex; width: 100%">
                                         <b>{{ queryTitle }}</b>
-                                        <v-spacer></v-spacer>
-                                        <a href="#" v-if="hasAccessToQueryCustom" style="font-size: 13px;"
+                                                                                <a href="#" v-if="hasAccessToQueryCustom" style="font-size: 13px;"
                                             @click.prevent="onQueryHelpClicked">Query help</a>
                                     </div>
 
@@ -215,10 +208,10 @@
                                     class="mb-2 mt-2"
                                     />
                             </div>
-                        </v-container>
-                    </v-flex>
-                </v-layout>
-            </v-container>
+                        </div>
+                    </div>
+                </div>
+            </div>
           <!-- CONTENT END -->
         </content-component>
 
@@ -229,8 +222,8 @@
             content-class="confirm-dialog"
             :persistent="dataLoadStatus.inProgress">
             <card-component>
-                <v-card-title class="headline">Select a query preset to load</v-card-title>
-                <v-card-text>
+                <div class="headline">Select a query preset to load</div>
+                <div>
                     <progress-linear-component 
                         v-if="isLoading"
                         indeterminate color="green"></progress-linear-component>
@@ -250,15 +243,13 @@
                             </li>
                         </ul>
                     </div>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary"
+                </div>
+                                <div>
+                                        <btn-component color="secondary"
                         :disabled="dataLoadStatus.inProgress"
                         :loading="dataLoadStatus.inProgress"
                         @click="loadPresetDialogVisible = false">Cancel</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
         <dialog-component v-model:value="savePresetDialogVisible"
@@ -267,8 +258,8 @@
             content-class="confirm-dialog"
             :persistent="true">
             <card-component>
-                <v-card-title class="headline">Save preset</v-card-title>
-                <v-card-text>
+                <div class="headline">Save preset</div>
+                <div>
                     <h3>Save current query as a preset?</h3>
                     
                     <text-field-component
@@ -310,11 +301,9 @@
                             <code>{{ headerOverride }}</code> =&gt; <code>{{ headerNameOverrides[headerOverride] }}</code>
                         </div>
                     </div>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary"
+                </div>
+                                <div>
+                                        <btn-component color="secondary"
                         :disabled="dataLoadStatus.inProgress"
                         :loading="dataLoadStatus.inProgress"
                         @click="savePresetDialogVisible = false">Cancel</btn-component>
@@ -322,7 +311,7 @@
                         :disabled="dataLoadStatus.inProgress"
                         :loading="dataLoadStatus.inProgress"
                         @click="onSavePresetConfirmClicked()">Save</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
         <dialog-component v-model:value="exportDialogVisible"
@@ -331,8 +320,8 @@
             content-class="confirm-dialog"
             :persistent="exportLoadStatus.inProgress">
             <card-component>
-                <v-card-title class="headline">Select export format</v-card-title>
-                <v-card-text>
+                <div class="headline">Select export format</div>
+                <div>
                     <div>
                         <ul>
                             <div v-for="(exporter, eIndex) in exporters"
@@ -353,15 +342,13 @@
                             </div>
                         </ul>
                     </div>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary"
+                </div>
+                                <div>
+                                        <btn-component color="secondary"
                         :disabled="exportLoadStatus.inProgress"
                         :loading="exportLoadStatus.inProgress"
                         @click="exportDialogVisible = false">Cancel</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
         <dialog-component v-model:value="columnConfigDialogVisible"
@@ -369,8 +356,8 @@
             max-width="460"
             content-class="confirm-dialog">
             <card-component>
-                <v-card-title class="headline">Customize columns</v-card-title>
-                <v-card-text>
+                <div class="headline">Customize columns</div>
+                <div>
                     <div>
                         <div v-if="!headers || Object.keys(headers).length == 0">
                             <b>No columns yet, perform a query first.</b>
@@ -403,19 +390,17 @@
                             </div>
                         </ul>
                     </div>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
+                </div>
+                                <div>
                     <btn-component color="primary"
                         :disabled="dataLoadStatus.inProgress"
                         :loading="dataLoadStatus.inProgress"
                         @click="onAddCustomHeaderButtonClicked">Add custom column</btn-component>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary"
+                                        <btn-component color="secondary"
                         :disabled="dataLoadStatus.inProgress"
                         :loading="dataLoadStatus.inProgress"
                         @click="columnConfigDialogVisible = false">Close</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
         <dialog-component v-model:value="queryHelpDialogVisible"
@@ -423,8 +408,8 @@
             max-width="720"
             content-class="confirm-dialog">
             <card-component>
-                <v-card-title class="headline">Query help</v-card-title>
-                <v-card-text>
+                <div class="headline">Query help</div>
+                <div>
                     <div>
                         <p>
                             The query is using LINQ with a few additions. Instead of <code>&amp;&amp;</code> or <code>||</code> you can use <code>and</code> or <code>or</code>.
@@ -447,12 +432,10 @@
                         <code>np(Address.City) == "DevTown"</code><br />
                         <code>Address != null &amp;&amp; Address.City == "DevTown"</code>
                     </div>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary" @click="queryHelpDialogVisible = false">Close</btn-component>
-                </v-card-actions>
+                </div>
+                                <div>
+                                        <btn-component color="secondary" @click="queryHelpDialogVisible = false">Close</btn-component>
+                </div>
             </card-component>
         </dialog-component>
         <dialog-component v-model:value="deletePresetDialogVisible"
@@ -461,14 +444,12 @@
             content-class="confirm-dialog"
             :persistent="deleteLoadStatus.inProgress">
             <card-component>
-                <v-card-title class="headline">Delete preset?</v-card-title>
-                <v-card-text>
+                <div class="headline">Delete preset?</div>
+                <div>
                     Delete preset <code v-if="presetToDelete">{{ presetToDelete.Name }}</code>?
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary"
+                </div>
+                                <div>
+                                        <btn-component color="secondary"
                         :disabled="deleteLoadStatus.inProgress"
                         :loading="deleteLoadStatus.inProgress"
                         @click="deletePresetDialogVisible = false">Cancel</btn-component>
@@ -476,7 +457,7 @@
                         :disabled="deleteLoadStatus.inProgress"
                         :loading="deleteLoadStatus.inProgress"
                         @click="onDeletePresetConfirmed()">Delete</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
         <dialog-component v-model:value="formatDialogVisible"
@@ -484,8 +465,8 @@
             max-width="460"
             content-class="confirm-dialog">
             <card-component>
-                <v-card-title class="headline">Format column</v-card-title>
-                <v-card-text>
+                <div class="headline">Format column</div>
+                <div>
                     <div>
                         <div v-if="!formattersInDialog || formattersInDialog.length == 0">
                             <b>No formatters for this column type found.</b>
@@ -519,15 +500,13 @@
                             </div>
                         </div>
                     </div>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary"
+                </div>
+                                <div>
+                                        <btn-component color="secondary"
                         :disabled="dataLoadStatus.inProgress"
                         :loading="dataLoadStatus.inProgress"
                         @click="formatDialogVisible = false">Close</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
         <dialog-component v-model:value="placeholdersDialogVisible"
@@ -535,29 +514,26 @@
             scrollable
             content-class="possible-placeholders-dialog">
             <card-component>
-                <v-card-title class="headline">Select placeholder to add</v-card-title>
-                <v-divider></v-divider>
-                <v-card-text style="max-height: 500px;">
+                <div class="headline">Select placeholder to add</div>
+                                <div style="max-height: 500px;">
                     <list-component class="possible-placeholders-list">
-                        <v-list-tile v-for="(placeholder, placeholderIndex) in availableProperties"
+                        <div v-for="(placeholder, placeholderIndex) in availableProperties"
                             :key="`possible-placeholder-${placeholderIndex}`"
                             @click="onAddPlaceholderClicked(placeholder)"
                             class="possible-placeholder-list-item">
-                            <v-list-tile-action>
+                            <div>
                                 <icon-component>add</icon-component>
-                            </v-list-tile-action>
+                            </div>
 
-                            <v-list-tile-content>
-                                <v-list-tile-title class="possible-placeholder-item-title">{{ `\{${placeholder}\}` }}</v-list-tile-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
+                            <div>
+                                <div class="possible-placeholder-item-title">{{ `\{${placeholder}\}` }}</div>
+                            </div>
+                        </div>
                     </list-component>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary" flat @click="placeholdersDialogVisible = false">Close</btn-component>
-                </v-card-actions>
+                </div>
+                                <div>
+                                        <btn-component color="secondary" flat @click="placeholdersDialogVisible = false">Close</btn-component>
+                </div>
             </card-component>
         </dialog-component>
     </div>

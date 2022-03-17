@@ -2,8 +2,8 @@
 <!-- todo: flex 1 & max-width: npx -->
 <template>
     <div>
-        <v-layout>
-            <v-flex :xs10="!config.NotNull" :xs12="config.NotNull">
+        <div>
+            <div :xs10="!config.NotNull" :xs12="config.NotNull">
                 <text-field-component
                     v-if="isTextField"
                     class="pt-0"
@@ -25,27 +25,22 @@
                     v-model:value="localValue"
                     :read-only="readonly"
                     ref="editor" />
-            </v-flex>
+            </div>
 
-            <v-flex xs2
+            <div xs2
                 :xs3="isListItem"
                 class="text-sm-right"
                 v-if="!config.NotNull">
-                <tooltip-component bottom>
-                    <template v-slot:activator="{ on }">
-                        <span>
-                            <btn-component flat icon color="primary" class="ma-0 pa-0"
-                                @click="setValueToNull"
-                                :disabled="localValue == null || readonly">
-                                <icon-component>clear</icon-component>
-                            </btn-component>
-                        </span>
-                    </template>
-                    <span>Sets value to null</span>
+                <tooltip-component tooltip="Sets value to null">
+                    <btn-component flat icon color="primary" class="ma-0 pa-0"
+                        @click="setValueToNull"
+                        :disabled="localValue == null || readonly">
+                        <icon-component>clear</icon-component>
+                    </btn-component>
                 </tooltip-component>
-            </v-flex>
+            </div>
 
-        </v-layout>
+        </div>
     </div>
 </template>
 

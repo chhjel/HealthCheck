@@ -1,9 +1,9 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/TestParametersComponent.vue -->
 <template>
     <div>
-        <v-container grid-list-lg class="parameter-container">
-          <v-layout row wrap>
-              <v-flex xs12 sm12 :md6="allowMediumSize(parameter)" :lg3="allowSmallSize(parameter)"
+        <div grid-list-lg class="parameter-container">
+          <div row wrap>
+              <div xs12 sm12 :md6="allowMediumSize(parameter)" :lg3="allowSmallSize(parameter)"
                   v-for="(parameter, index) in filteredParameters"
                   :key="`test-${test.Id}-parameter`+index"
                   class="parameter-block"
@@ -20,9 +20,9 @@
                       :referenceValueFactoryConfig="parameter.ReferenceValueFactoryConfig"
                       @isAnyJson="onIsAnyJson(parameter)"
                       :feedback="parameter.Feedback" />
-              </v-flex>
-          </v-layout>
-        </v-container>
+              </div>
+          </div>
+        </div>
     </div>
 </template>
 

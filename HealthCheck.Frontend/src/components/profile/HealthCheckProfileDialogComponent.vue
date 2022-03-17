@@ -8,24 +8,20 @@
             content-class="root-profile-dialog">
             <card-component>
                 <toolbar-component>
-                    <v-toolbar-title>Profile</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <btn-component icon @click="closeDialog">
+                    <div>Profile</div>
+                                        <btn-component icon @click="closeDialog">
                         <icon-component>close</icon-component>
                     </btn-component>
                 </toolbar-component>
 
-                <v-divider></v-divider>
-                
-                <v-card-text>
+                                
+                <div>
                     <health-check-profile-component />
-                </v-card-text>
+                </div>
 
-                <v-divider></v-divider>
-                <v-card-actions >
-                    <v-spacer></v-spacer>
-                    <btn-component @click="closeDialog">Close</btn-component>
-                </v-card-actions>
+                                <div >
+                                        <btn-component @click="closeDialog">Close</btn-component>
+                </div>
             </card-component>
         </dialog-component>
     </div>

@@ -11,21 +11,19 @@
                 indeterminate color="green"></progress-linear-component>
             
             <!-- GROUPS: START -->
-            <v-list-group
+            <div
                 no-action
                 sub-group
                 prepend-icon="keyboard_arrow_up"
                 value="true"
                 v-for="(group, gindex) in groups"
                 :key="`filterable-menu-group-${gindex}`">
-                <template v-slot:activator>
-                    <v-list-tile>
-                        <v-list-tile-title v-text="group.title"></v-list-tile-title>
-                        <badge-component class="mr-3" v-if="showFilterCounts">{{ getGroupFilterMatchCount(group) }}</badge-component>
-                    </v-list-tile>
-                </template>
+                <div>
+                    <div><b>{{ group.title }}</b></div>
+                    <badge-component class="mr-3" v-if="showFilterCounts">{{ getGroupFilterMatchCount(group) }}</badge-component>
+                </div>
 
-                <v-list-tile ripple
+                <div ripple
                     v-for="(item, itemIndex) in filterItems(group.items)"
                     :key="`filterable-menu-item-${itemIndex}`"
                     class="testset-menu-item"
@@ -35,7 +33,7 @@
                     @mousedown.middle.stop.prevent
                     :href="getItemHref(item.data)"
                     :disabled="disabled">
-                    <v-list-tile-title>
+                    <div>
                         {{ item.title }}
                         <icon-component
                             v-for="(icon, iindex) in getItemIcons(item.data)"
@@ -45,13 +43,13 @@
                             >{{ icon }}</icon-component>
                         <br v-if="item.subTitle != null">
                         <span style="color: darkgray;" v-if="item.subTitle != null">{{ item.subTitle }}</span>
-                    </v-list-tile-title>
-                </v-list-tile>
-            </v-list-group>
+                    </div>
+                </div>
+            </div>
             <!-- GROUPS: END -->
 
             <!-- NO GROUP: START -->
-            <v-list-tile ripple
+            <div ripple
                 v-for="(item, itemIndex) in filterItems(ungroupedItems)"
                 :key="`stream-menu-${itemIndex}`"
                 class="testset-menu-item"
@@ -61,15 +59,15 @@
                 @mousedown.middle.stop.prevent
                 :href="getItemHref(item.data)"
                 :disabled="disabled">
-                <v-list-tile-title v-text="item.title"></v-list-tile-title>
-            </v-list-tile>
+                <div v-text="item.title"></div>
+            </div>
 
-            <v-list-tile ripple
+            <div ripple
                 v-if="!hasGroups && filterText.length > 0 && filterItems(ungroupedItems).length == 0"
                 class="testset-menu-item no-result-found"
                 :disabled="true">
-                <v-list-tile-title>No results found</v-list-tile-title>
-            </v-list-tile>
+                <div>No results found</div>
+            </div>
             <!-- NO GROUP: END -->
 
         </list-component>

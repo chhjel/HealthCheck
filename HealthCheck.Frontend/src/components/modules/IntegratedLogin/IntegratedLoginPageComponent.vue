@@ -6,11 +6,11 @@
 
     <div class="integrated-login-page">
         <content-component class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex class="pl-4 pr-4 pb-4">
+        <div fluid fill-height class="content-root">
+        <div>
+        <div class="pl-4 pr-4 pb-4">
           <!-- CONTENT BEGIN -->
-            <v-container>
+            <div>
 
                 <div class="mb-4 login-block">
                     <div>
@@ -38,8 +38,8 @@
                                 class="pt-0 mt-2" />
 
                             <div v-if="showTwoFactorCodeInput" class="mb-4 mt-b">
-                                <v-layout row class="">
-                                    <v-flex :xs6="show2FASendCodeButton" :xs12="!show2FASendCodeButton">
+                                <div row class="">
+                                    <div :xs6="show2FASendCodeButton" :xs12="!show2FASendCodeButton">
                                         <text-field-component
                                             v-model:value="twoFactorCode"
                                             :disabled="loadStatus.inProgress"
@@ -57,15 +57,15 @@
                                                 ></progress-linear-component>
                                             </template>
                                         </text-field-component>
-                                    </v-flex>
-                                    <v-flex xs6 v-if="show2FASendCodeButton">
+                                    </div>
+                                    <div xs6 v-if="show2FASendCodeButton">
                                         <btn-component round color="secondary" class="mt-0"
                                             @click.prevent="onSendCodeClicked"
                                             :disabled="loadStatus.inProgress">
                                             <span style="white-space: normal;">{{ send2FASCodeButtonText }}</span>
                                         </btn-component>
-                                    </v-flex>
-                                </v-layout>
+                                    </div>
+                                </div>
                                 <div v-if="note2FA" class="mfa-note tfa">{{note2FA}}</div>
                             </div>
                         </div>
@@ -107,11 +107,11 @@
                     </div>
                 </div>
 
-            </v-container>
+            </div>
           <!-- CONTENT END -->
-        </v-flex>
-        </v-layout>
-        </v-container>
+        </div>
+        </div>
+        </div>
         </content-component>
     </div>
     </div>

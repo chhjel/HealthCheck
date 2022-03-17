@@ -124,16 +124,14 @@
             max-width="290"
             content-class="confirm-dialog">
             <card-component>
-                <v-card-title class="headline">Confirm deletion</v-card-title>
-                <v-card-text>
+                <div class="headline">Confirm deletion</div>
+                <div>
                     Are you sure you want to delete this rule?
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary" @click="deleteDialogVisible = false">Cancel</btn-component>
+                </div>
+                                <div>
+                                        <btn-component color="secondary" @click="deleteDialogVisible = false">Cancel</btn-component>
                     <btn-component color="error" @click="deleteRule()">Delete it</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
     </div>

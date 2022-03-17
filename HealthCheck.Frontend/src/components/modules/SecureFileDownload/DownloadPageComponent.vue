@@ -4,11 +4,11 @@
     <div class="approot">
     <div class="secure-file-download-page">
         <content-component class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex class="pl-4 pr-4 pb-4">
+        <div fluid fill-height class="content-root">
+        <div>
+        <div class="pl-4 pr-4 pb-4">
           <!-- CONTENT BEGIN -->
-            <v-container>
+            <div>
                 
                 <!-- AFTER DOWNLOAD HAS STARTED -->
                 <block-component class="mb-4" v-if="isDownloading">
@@ -83,11 +83,11 @@
                     </div>
                 </block-component>
 
-            </v-container>
+            </div>
           <!-- CONTENT END -->
-        </v-flex>
-        </v-layout>
-        </v-container>
+        </div>
+        </div>
+        </div>
         </content-component>
     </div>
     </div>

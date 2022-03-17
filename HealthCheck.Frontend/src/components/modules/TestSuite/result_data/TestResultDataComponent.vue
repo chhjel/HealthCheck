@@ -12,7 +12,7 @@
             @hideFullscreenButton="showFullscreenButton = false">
         </component>
 
-        <v-card-actions v-if="clean == false" class="data-dump-actions pt-0">
+        <div v-if="clean == false" class="data-dump-actions pt-0">
           <btn-component outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2"
             v-if="showCopyButton"
             @click="putDataOnClipboard">Copy</btn-component>
@@ -31,14 +31,13 @@
                 <btn-component icon dark @click="showFullscreen = false">
                   <icon-component>close</icon-component>
                 </btn-component>
-                <v-toolbar-title>{{resultData.Title}}</v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-toolbar-items>
+                <div>{{resultData.Title}}</div>
+                                <div>
                   <btn-component dark flat @click="putDataOnClipboard">Put data on clipboard</btn-component>
-                </v-toolbar-items>
-                <v-toolbar-items>
+                </div>
+                <div>
                   <btn-component dark flat @click="showFullscreen = false">Close</btn-component>
-                </v-toolbar-items>
+                </div>
               </toolbar-component>
               <!-- DIALOG CONTENTS -->
               <component
@@ -53,7 +52,7 @@
           <btn-component outline small color="secondary-darken2" class="data-dump-action-button mt-2"
             @click="downloadData" 
             v-if="showDownloadButton">Download '{{ resultData.DownloadFileName }}'</btn-component>
-        </v-card-actions>
+        </div>
         
         <textarea style="display:none;" ref="copyValue" :value="resultData.Data" />
         <snackbar-component

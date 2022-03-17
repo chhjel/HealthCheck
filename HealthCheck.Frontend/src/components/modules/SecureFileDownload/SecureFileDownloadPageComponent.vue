@@ -2,10 +2,10 @@
 <template>
     <div>
         <content-component class="pl-0">
-            <v-container fluid fill-height class="content-root">
-            <v-layout>
-            <v-flex>
-            <v-container>
+            <div fluid fill-height class="content-root">
+            <div>
+            <div>
+            <div>
                 <h1 class="mb-1">Downloads</h1>
 
                 <!-- LOAD PROGRESS -->
@@ -67,10 +67,10 @@
                     </div>
                 </block-component>
 
-            </v-container>
-            </v-flex>
-            </v-layout>
-            </v-container>
+            </div>
+            </div>
+            </div>
+            </div>
             
             <dialog-component v-model:value="downloadDialogVisible"
                 scrollable
@@ -79,18 +79,16 @@
                 content-class="current-download-dialog">
                 <card-component v-if="currentDownload != null">
                     <toolbar-component>
-                        <v-toolbar-title class="current-download-dialog__title">{{ currentDialogTitle }}</v-toolbar-title>
-                        <v-spacer></v-spacer>
-                        <btn-component icon
+                        <div class="current-download-dialog__title">{{ currentDialogTitle }}</div>
+                                                <btn-component icon
                             @click="hideCurrentDownload()"
                             :disabled="serverInteractionInProgress">
                             <icon-component>close</icon-component>
                         </btn-component>
                     </toolbar-component>
 
-                    <v-divider></v-divider>
-                    
-                    <v-card-text>
+                                        
+                    <div>
                         <edit-download-component
                             :module-id="config.Id"
                             :download="currentDownload"
@@ -101,11 +99,9 @@
                             v-on:serverInteractionInProgress="setServerInteractionInProgress"
                             ref="currentDownloadComponent"
                             />
-                    </v-card-text>
-                    <v-divider></v-divider>
-                    <v-card-actions >
-                        <v-spacer></v-spacer>
-                        <btn-component color="error" flat
+                    </div>
+                                        <div >
+                                                <btn-component color="error" flat
                             v-if="showDeleteDownload"
                             :disabled="serverInteractionInProgress"
                             @click="$refs.currentDownloadComponent.tryDeleteDownload()">Delete</btn-component>
@@ -113,7 +109,7 @@
                             v-if="showSaveDownload"
                             :disabled="serverInteractionInProgress"
                             @click="$refs.currentDownloadComponent.saveDownload()">Save</btn-component>
-                    </v-card-actions>
+                    </div>
                 </card-component>
             </dialog-component>
         </content-component>

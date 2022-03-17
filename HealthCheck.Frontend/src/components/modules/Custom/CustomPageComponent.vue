@@ -2,15 +2,15 @@
 <template>
     <div>
         <content-component class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex class="pl-4 pr-4 pb-4">
+        <div fluid fill-height class="content-root">
+        <div>
+        <div class="pl-4 pr-4 pb-4">
           <!-- CONTENT BEGIN -->
           <div v-html="config.RawHtml"></div>
           <!-- CONTENT END -->
-        </v-flex>
-        </v-layout>
-        </v-container>
+        </div>
+        </div>
+        </div>
         </content-component>
     </div>
 </template>

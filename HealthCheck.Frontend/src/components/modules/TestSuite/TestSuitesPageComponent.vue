@@ -3,37 +3,28 @@
     <div>
         <content-component>
             <!-- NAVIGATION DRAWER -->
-            <navigation-drawer-component
-                v-model:value="drawerState"
-                v-if="hasAnyTests"
-                clipped fixed floating app
-                mobile-break-point="1000"
-                dark
-                class="menu testset-menu">
-                                
+            <navigation-drawer-component v-model:value="drawerState">
                 <list-component expand class="menu-items">
                     <filter-input-component class="filter" v-model:value="testSetFilterText" />
                     
                     <!-- GROUPS IF ANY -->
-                    <v-list-group
+                    <div
                         no-action
                         sub-group
                         prepend-icon="keyboard_arrow_up"
                         value="true"
                         v-for="(group) in groupsWithNames"
                         :key="`testset-menu-group-${group.Id}`">
-                        <template v-slot:activator>
-                            <v-list-tile>
-                                <icon-component
-                                    class="mr-2"
-                                    v-if="getTestSetGroupIcon(group) != null" 
-                                    v-text="getTestSetGroupIcon(group)"></icon-component>
-                                <v-list-tile-title v-text="group.Name"></v-list-tile-title>
-                                <badge-component class="mr-3" v-if="showFilterCounts">{{ getGroupFilterMatchCount(group) }}</badge-component>
-                            </v-list-tile>
-                        </template>
+                        <div>
+                            <icon-component
+                                class="mr-2"
+                                v-if="getTestSetGroupIcon(group) != null" 
+                                v-text="getTestSetGroupIcon(group)"></icon-component>
+                            <div v-text="group.Name"></div>
+                            <badge-component class="mr-3" v-if="showFilterCounts">{{ getGroupFilterMatchCount(group) }}</badge-component>
+                        </div>
 
-                        <v-list-tile ripple class="testset-menu-item"
+                        <div ripple class="testset-menu-item"
                             :class="{ 'active': (activeSet == set) }"
                             v-for="(set) in filterTestSets(group.Sets)"
                             :key="`testset-menu-group-${group.Id}-set-${set.Id}`"
@@ -44,15 +35,15 @@
                                 class="mr-2"
                                 v-text="getTestSetIcon(set)" 
                                 v-if="testSetHasIcon(set)"></icon-component>
-                            <v-list-tile-title
+                            <div
                                 v-text="set.Name"
-                                :class="getTestSetTitleClass(set)"></v-list-tile-title>
+                                :class="getTestSetTitleClass(set)"></div>
                             <badge-component class="mr-3" v-if="showFilterCounts">{{ getSetFilterMatchCount(set) }}</badge-component>
-                        </v-list-tile>
-                    </v-list-group>
+                        </div>
+                    </div>
 
                     <!-- WHEN NO GROUPS -->
-                    <v-list-tile ripple
+                    <div ripple
                         :class="{ 'active': (activeSet == set) }"
                         v-for="(set) in filterTestSets(testSetsWhenThereIsNoNamedGroups)"
                         :key="`testset-menu-${set.Id}`"
@@ -63,19 +54,19 @@
                             class="mr-2"
                             v-text="getTestSetIcon(set)"
                             v-if="testSetHasIcon(set)"></icon-component>
-                        <v-list-tile-title 
+                        <div 
                             v-text="set.Name"
-                            :class="getTestSetTitleClass(set)"></v-list-tile-title>
+                            :class="getTestSetTitleClass(set)"></div>
                         <badge-component class="mr-2" v-if="showFilterCounts">{{ getSetFilterMatchCount(set) }}</badge-component>
-                    </v-list-tile>
+                    </div>
                 </list-component>
             </navigation-drawer-component>
             
             <!-- CONTENT -->
-            <v-container fluid fill-height class="content-root">
-                <v-layout>
-                    <v-flex>
-                        <v-container>
+            <div fluid fill-height class="content-root">
+                <div>
+                    <div>
+                        <div>
                             <!-- INVALID TESTS -->
                             <alert-component :value="hasInvalidTests" type="error">
                                 <h3>Some invalid tests were found:</h3>
@@ -115,10 +106,10 @@
                                 :module-id="config.Id"
                                 :testSet="activeSet"
                                 v-on:testClicked="onTestClicked" />
-                        </v-container>
-                    </v-flex>
-                </v-layout>
-            </v-container>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </content-component>
     </div>
 </template>

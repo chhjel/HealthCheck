@@ -3,20 +3,14 @@
     <div>
         <div class="pick-ref-button-wrapper">
             
-            <tooltip-component bottom :disabled="!tooltip">
-                <template v-slot:activator="{ on }">
-                    <btn-component @click="showDialog" :disabled="readonly" class="pick-ref-button ml-0 mr-0">{{ selectedChoiceLabel }}</btn-component>
-                </template>
-                <span>{{tooltip}}</span>
+            <tooltip-component :disabled="!tooltip" :tooltip="tooltip">
+                <btn-component @click="showDialog" :disabled="readonly" class="pick-ref-button ml-0 mr-0">{{ selectedChoiceLabel }}</btn-component>
             </tooltip-component>
         
-            <tooltip-component bottom v-if="localValue" >
-                <template v-slot:activator="{ on }">
-                    <btn-component flat small icon color="primary" v-if="localValue" class="mr-0" @click="copyToClipboard">
-                        <icon-component small>content_copy</icon-component>
-                    </btn-component>
-                </template>
-                <span>Copy to clipboard</span>
+            <tooltip-component v-if="localValue" tooltip="Copy to clipboard">
+                <btn-component flat small icon color="primary" v-if="localValue" class="mr-0" @click="copyToClipboard">
+                    <icon-component small>content_copy</icon-component>
+                </btn-component>
             </tooltip-component>
         </div>
 
@@ -33,29 +27,27 @@
             content-class="select-reference-item-dialog">
             <card-component>
                 <toolbar-component>
-                    <v-toolbar-title>{{ dialogTitle }}</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <btn-component icon
+                    <div>{{ dialogTitle }}</div>
+                                        <btn-component icon
                         @click="choicesDialogVisible = false">
                         <icon-component>close</icon-component>
                     </btn-component>
                 </toolbar-component>
 
-                <v-divider></v-divider>
-                
-                <v-card-text>
+                                
+                <div>
                     <p v-if="dialogDescription">{{ dialogDescription }}</p>
-                    <v-layout row>
-                        <v-flex xs9>
+                    <div row>
+                        <div xs9>
                             <text-field-component
                                 class="pb-1"
                                 v-model:value="choicesFilterText"
                                 placeholder="Filter.." />
-                        </v-flex>
-                        <v-flex xs3>
+                        </div>
+                        <div xs3>
                             <btn-component @click="loadChoices" :disabled="loadingChoicesStatus.inProgress">{{ dialogSearchButtonText }}</btn-component>
-                        </v-flex>
-                    </v-layout>
+                        </div>
+                    </div>
                     <small>{{ choices.length - 1 }} results</small>
                     <div
                         v-for="(choice, cindex) in choices"
@@ -73,13 +65,11 @@
                     <progress-linear-component
                         v-if="loadingChoicesStatus.inProgress"
                         indeterminate color="primary"></progress-linear-component>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions >
-                    <v-spacer></v-spacer>
-                    <btn-component color="primary"
+                </div>
+                                <div >
+                                        <btn-component color="primary"
                         @click="choicesDialogVisible = false">Cancel</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
     </div>

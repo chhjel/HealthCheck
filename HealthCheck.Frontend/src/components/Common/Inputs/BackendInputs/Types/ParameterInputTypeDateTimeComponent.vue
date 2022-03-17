@@ -8,9 +8,8 @@
             :disabled="readonly"
             type="datetime-local"
             required> 
-            <tooltip-component slot="append" bottom v-if="isNullable">
-                <icon-component slot="activator" @click="clearValue">clear</icon-component>
-                Set value to null
+            <tooltip-component v-if="isNullable" tooltip="Set value to null">
+                <icon-component @click="clearValue">clear</icon-component>
             </tooltip-component>
         </text-field-component>
     </div>

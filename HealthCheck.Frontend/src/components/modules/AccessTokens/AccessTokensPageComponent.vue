@@ -2,11 +2,11 @@
 <template>
     <div class="access-tokens-page">
         <content-component class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex class="pl-4 pr-4 pb-4">
+        <div fluid fill-height class="content-root">
+        <div>
+        <div class="pl-4 pr-4 pb-4">
           <!-- CONTENT BEGIN -->
-            <v-container>
+            <div>
                 <h1 class="mb-1">Access Tokens</h1>
 
                 <!-- LOAD PROGRESS -->
@@ -49,38 +49,27 @@
                         <div class="token-item--title">{{ token.Name }}</div>
 
                         <div class="token-item--metadata">
-                            <tooltip-component bottom>
-                                <template v-slot:activator="{ on }">
-                                    <div class="token-item--created-at">
-                                        <icon-component>vpn_key</icon-component>
-                                        {{ token.CreatedAtSummary }}
-                                    </div>
-                                </template>
-                                Created {{ formatDate(token.CreatedAt) }}
+                            <tooltip-component :tooltip="`Created ${formatDate(token.CreatedAt)}`">
+                                <div class="token-item--created-at">
+                                    <icon-component>vpn_key</icon-component>
+                                    {{ token.CreatedAtSummary }}
+                                </div>
                             </tooltip-component>
                             
-                            <tooltip-component bottom>
-                                <template v-slot:activator="{ on }">
-                                    <div class="token-item--last-used-at">
-                                        <icon-component v-if="token.LastUsedAt != null">visibility</icon-component>
-                                        <icon-component v-else>visibility_off</icon-component>
-                                        {{ token.LastUsedAtSummary }}
-                                    </div>
-                                </template>
-                                <span v-if="token.LastUsedAt != null">Last used {{ formatDate(token.LastUsedAt) }}</span>
-                                <span v-else>Not used yet</span>
+                            <tooltip-component :tooltip="tooltipLastUsedAt(token)">
+                                <div class="token-item--last-used-at">
+                                    <icon-component v-if="token.LastUsedAt != null">visibility</icon-component>
+                                    <icon-component v-else>visibility_off</icon-component>
+                                    {{ token.LastUsedAtSummary }}
+                                </div>
                             </tooltip-component>
 
-                            <tooltip-component bottom v-if="token.ExpiresAt != null">
-                                <template v-slot:activator="{ on }">
-                                    <div class="token-item--expires-at">
-                                        <icon-component v-if="token.IsExpired">timer_off</icon-component>
-                                        <icon-component v-else>timer</icon-component>
-                                        {{ token.ExpiresAtSummary }}
-                                    </div>
-                                </template>
-                                <span v-if="token.IsExpired">This token expired {{ formatDate(token.ExpiresAt) }}</span>
-                                <span v-else>Expires {{ formatDate(token.ExpiresAt) }}</span>
+                            <tooltip-component v-if="token.ExpiresAt != null" :tooltip="tooltipExpiresAt(token)">
+                                <div class="token-item--expires-at">
+                                    <icon-component v-if="token.IsExpired">timer_off</icon-component>
+                                    <icon-component v-else>timer</icon-component>
+                                    {{ token.ExpiresAtSummary }}
+                                </div>
                             </tooltip-component>
                         </div>
 
@@ -154,10 +143,10 @@
                     </block-component>
                 </div>
 
-            </v-container>
-        </v-flex>
-        </v-layout>
-        </v-container>
+            </div>
+        </div>
+        </div>
+        </div>
         
         
         <!-- ##################### -->
@@ -167,16 +156,14 @@
             max-width="350"
             content-class="delete-token-dialog">
             <card-component>
-                <v-card-title class="headline">Confirm deletion</v-card-title>
-                <v-card-text>
+                <div class="headline">Confirm deletion</div>
+                <div>
                     {{ deleteTokenDialogText }}
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="primary" @click="deleteTokenDialogVisible = false">Cancel</btn-component>
+                </div>
+                                <div>
+                                        <btn-component color="primary" @click="deleteTokenDialogVisible = false">Cancel</btn-component>
                     <btn-component color="error" @click="confirmDeleteToken(tokenToBeDeleted)">Delete it</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
         <!-- ##################### -->
@@ -188,25 +175,21 @@
             content-class="create-access-token-dialog">
             <card-component>
                 <toolbar-component>
-                    <v-toolbar-title class="current-config-dialog__title">Create new access token</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <btn-component icon
+                    <div class="current-config-dialog__title">Create new access token</div>
+                                        <btn-component icon
                         @click="createNewTokenDialogVisible = false">
                         <icon-component>close</icon-component>
                     </btn-component>
                 </toolbar-component>
-                <v-divider></v-divider>
-                
-                <v-card-text>
+                                
+                <div>
                     <edit-access-token-component
                         :access-data="accessData"
                         :read-only="loadStatus.inProgress"
                         v-model:value="accessDataInEdit" />
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions >
-                    <v-spacer></v-spacer>
-                    <btn-component
+                </div>
+                                <div >
+                                        <btn-component
                         color="primary"
                         :loading="loadStatus.inProgress"
                         :disabled="loadStatus.inProgress || !enableCreateTokenButton"
@@ -217,7 +200,7 @@
                         :loading="loadStatus.inProgress"
                         :disabled="loadStatus.inProgress"
                         @click="createNewTokenDialogVisible = false">Close</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
         <!-- ##################### -->
@@ -335,6 +318,16 @@ export default class AccessTokensPageComponent extends Vue {
             }
             return x;
         });
+    }
+
+    tooltipExpiresAt(token: TokenData): string {
+        if (token.IsExpired) return `This token expired ${this.formatDate(token.ExpiresAt)}`;
+        else return `Expires ${this.formatDate(token.ExpiresAt)}`;
+    }
+
+    tooltipLastUsedAt(token: TokenData): string {
+        if (token.LastUsedAt != null) return `Last used ${this.formatDate(token.LastUsedAt)}`;
+        else return 'Not used yet';
     }
 
     hasAccess(option: string): boolean {

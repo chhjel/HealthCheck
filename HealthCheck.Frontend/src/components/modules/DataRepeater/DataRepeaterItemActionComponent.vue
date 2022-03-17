@@ -37,14 +37,12 @@
             content-class="confirm-dialog"
             :persistent="dataLoadStatus.inProgress">
             <card-component>
-                <v-card-title class="headline">Confirm execute '{{ action.Name }}'</v-card-title>
-                <v-card-text>
+                <div class="headline">Confirm execute '{{ action.Name }}'</div>
+                <div>
                     Are you sure you want to execute the action '{{ action.Name }}'?
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary"
+                </div>
+                                <div>
+                                        <btn-component color="secondary"
                         :disabled="dataLoadStatus.inProgress"
                         :loading="dataLoadStatus.inProgress"
                         @click="confirmExecuteDialogVisible = false">Cancel</btn-component>
@@ -52,7 +50,7 @@
                         :disabled="!allowExecute"
                         :loading="dataLoadStatus.inProgress"
                         @click="executeAction()">Execute</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
     </div>

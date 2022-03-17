@@ -3,13 +3,7 @@
     <div>
         <content-component>
             <!-- NAVIGATION DRAWER -->
-            <navigation-drawer-component
-                v-model:value="drawerState"
-                clipped fixed floating app
-                mobile-break-point="1000"
-                dark
-                class="menu testset-menu">
-
+            <navigation-drawer-component v-model:value="drawerState">
                 <filterable-list-component
                     :items="menuItems"
                     :groupByKey="`GroupName`"
@@ -27,10 +21,10 @@
             </navigation-drawer-component>
             
             <!-- CONTENT -->
-            <v-container fluid fill-height class="content-root">
-                <v-layout>
-                    <v-flex>
-                        <v-container>
+            <div fluid fill-height class="content-root">
+                <div>
+                    <div>
+                        <div>
                             <div v-if="selectedStream && selectedItemId == null">
                                 <h2 v-if="selectedStream.StreamItemsName">{{ selectedStream.StreamItemsName }}</h2>
                                 <p v-if="selectedStream.Description" v-html="selectedStream.Description"></p>
@@ -154,10 +148,10 @@
                                     @close="setActiveItemId(null)" />
                             </div>
 
-                        </v-container>
-                    </v-flex>
-                </v-layout>
-            </v-container>
+                        </div>
+                    </div>
+                </div>
+            </div>
           <!-- CONTENT END -->
 
           <!-- DIALOGS -->
@@ -167,8 +161,8 @@
                 content-class="confirm-dialog"
                 :persistent="dataLoadStatus.inProgress">
                 <card-component>
-                    <v-card-title class="headline">Batch actions</v-card-title>
-                    <v-card-text>
+                    <div class="headline">Batch actions</div>
+                    <div>
                         <div v-if="selectedStream && hasBatchActions">
                             <data-repeater-batch-action-component
                                 v-for="(batchAction, baIndex) in selectedStream.BatchActions"
@@ -178,15 +172,13 @@
                                 :action="batchAction"
                                 />
                         </div>
-                    </v-card-text>
-                    <v-divider></v-divider>
-                    <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <btn-component color="secondary"
+                    </div>
+                                        <div>
+                                                <btn-component color="secondary"
                             :disabled="dataLoadStatus.inProgress"
                             :loading="dataLoadStatus.inProgress"
                             @click="batchActionsDialogVisible = false">Cancel</btn-component>
-                    </v-card-actions>
+                    </div>
                 </card-component>
             </dialog-component>
           <!-- DIALOGS END -->

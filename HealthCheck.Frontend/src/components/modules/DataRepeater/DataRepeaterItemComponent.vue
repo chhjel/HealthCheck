@@ -99,11 +99,8 @@
                     ref="editor" />
 
                 <div v-if="item.SerializedData && item.SerializedData != this.item.FirstSerializedData && hasAccessToRetry">
-                    <tooltip-component bottom>
-                        <template v-slot:activator="{ on }">
-                            <a href="#" @click.prevent="restoreOriginalData" class="right" style="cursor: help;">Revert to original data</a>
-                        </template>
-                        <span>Reverts the content above to the first data that was stored on {{ formatDate(item.InsertedAt) }}.</span>
+                    <tooltip-component :tooltip="`Reverts the content above to the first data that was stored on ${formatDate(item.InsertedAt)}.`">
+                        <a href="#" @click.prevent="restoreOriginalData" class="right" style="cursor: help;">Revert to original data</a>
                     </tooltip-component>
                 </div>
 
@@ -151,14 +148,12 @@
             content-class="confirm-dialog"
             :persistent="dataLoadStatus.inProgress">
             <card-component>
-                <v-card-title class="headline">Confirm {{ (stream.RetryActionName || 'Retry') }}</v-card-title>
-                <v-card-text>
+                <div class="headline">Confirm {{ (stream.RetryActionName || 'Retry') }}</div>
+                <div>
                     Are you sure you want to {{ (stream.RetryActionName || 'Retry') }}?
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary"
+                </div>
+                                <div>
+                                        <btn-component color="secondary"
                         :disabled="dataLoadStatus.inProgress"
                         :loading="dataLoadStatus.inProgress"
                         @click="confirmRetryDialogVisible = false">Cancel</btn-component>
@@ -166,7 +161,7 @@
                         :disabled="!retryAllowed"
                         :loading="dataLoadStatus.inProgress"
                         @click="retry()">{{ (stream.RetryActionName || 'Retry') }}</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
         <dialog-component v-model:value="confirmRunAnalysisDialogVisible"
@@ -175,14 +170,12 @@
             content-class="confirm-dialog"
             :persistent="dataLoadStatus.inProgress">
             <card-component>
-                <v-card-title class="headline">Confirm run analysis</v-card-title>
-                <v-card-text>
+                <div class="headline">Confirm run analysis</div>
+                <div>
                     Are you sure you want to run analysis?
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary"
+                </div>
+                                <div>
+                                        <btn-component color="secondary"
                         :disabled="dataLoadStatus.inProgress"
                         :loading="dataLoadStatus.inProgress"
                         @click="confirmRunAnalysisDialogVisible = false">Cancel</btn-component>
@@ -190,7 +183,7 @@
                         :disabled="!analyzeAllowed"
                         :loading="dataLoadStatus.inProgress"
                         @click="analyze()">Run analysis</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
     </div>

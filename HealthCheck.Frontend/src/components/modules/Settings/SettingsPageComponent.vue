@@ -2,11 +2,11 @@
 <template>
     <div class="settings-page">
         <content-component class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex class="pl-4 pr-4 pb-4">
+        <div fluid fill-height class="content-root">
+        <div>
+        <div class="pl-4 pr-4 pb-4">
           <!-- CONTENT BEGIN -->
-            <v-container>
+            <div>
                 <h1 class="mb-4">Settings</h1>
 
                 <!-- LOAD PROGRESS -->
@@ -39,25 +39,25 @@
                         />
                 </div>
 
-                <v-layout v-if="settingGroups.length > 0">
-                    <v-flex xs6 sm2 class="mb-2">
+                <div v-if="settingGroups.length > 0">
+                    <div xs6 sm2 class="mb-2">
                         <btn-component
                             v-if="HasAccessToChangeSettings"
                             @click="saveSettings()" 
                             class="primary"
                             :disabled="saveStatus.inProgress">{{ saveButtonText }}</btn-component>
-                    </v-flex>
+                    </div>
 
                     <!-- SAVE ERROR -->
                     <div v-if="saveStatus.failed" class="save-error">
                     {{ saveStatus.errorMessage }}
                     </div>
-                </v-layout>
+                </div>
 
-            </v-container>
-        </v-flex>
-        </v-layout>
-        </v-container>
+            </div>
+        </div>
+        </div>
+        </div>
         </content-component>
     </div>
 </template>

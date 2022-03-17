@@ -35,11 +35,10 @@
                     @click="isFullscreen = false">
                     <icon-component>close</icon-component>
                 </btn-component>
-                <v-toolbar-title>{{ title }}</v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-toolbar-items>
+                <div>{{ title }}</div>
+                                <div>
                     <btn-component dark flat @click="isFullscreen = false">Close</btn-component>
-                </v-toolbar-items>
+                </div>
                 </toolbar-component>
             </card-component>
         </dialog-component>

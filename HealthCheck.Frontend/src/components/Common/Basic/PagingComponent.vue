@@ -19,23 +19,21 @@
             max-width="480"
             content-class="confirm-dialog">
             <card-component>
-                <v-card-title class="headline">Jump to page</v-card-title>
-                <v-card-text>
+                <div class="headline">Jump to page</div>
+                <div>
                     <text-field-component
                         label="Page number"
                         solo
                         v-model:value="dialogNumber"
                         type="number"
                         ref="dialogNumberInput"></text-field-component>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary"
+                </div>
+                                <div>
+                                        <btn-component color="secondary"
                         @click="dialogVisible = false">Cancel</btn-component>
                     <btn-component color="primary"
                         @click="navigateToPage(dialogNumber)">Go to page {{ dialogNumber }}</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
     </div>

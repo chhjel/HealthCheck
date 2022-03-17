@@ -2,10 +2,10 @@
 <template>
     <div>
         <content-component class="pl-0">
-            <v-container fluid fill-height class="content-root">
-            <v-layout>
-            <v-flex>
-            <v-container>
+            <div fluid fill-height class="content-root">
+            <div>
+            <div>
+            <div>
                 <h1 class="mb-1">Configured notifications</h1>
 
                 <!-- LOAD PROGRESS -->
@@ -28,9 +28,7 @@
                         Add new
                     </btn-component>
 
-                    <v-spacer />
-
-                    <btn-component v-if="HasAccessToEditEventDefinitions"
+                                        <btn-component v-if="HasAccessToEditEventDefinitions"
                         @click="editDefinitionsDialogVisible = true"
                         class="mb-3">
                         Edit payload definitions
@@ -44,17 +42,13 @@
                     >
                     <div class="config-list-item--inner">
                         <div class="config-list-item--switch-and-summary">
-                            <tooltip-component bottom>
-                                <template v-slot:activator="{ on }">
+                            <tooltip-component tooltip="Enable or disable this configuration">
                                 <v-switch
                                     v-model:value="config.Enabled"
                                     color="secondary"
                                     style="flex: 0"
                                     @click="setConfigEnabled(config, !config.Enabled)"
                                     ></v-switch>
-                                    <!-- :disabled="!allowConfigChanges" -->
-                                </template>
-                                <span>Enable or disable this configuration</span>
                             </tooltip-component>
                             
                             <div class="config-list-item--rule"
@@ -85,38 +79,27 @@
                             </div>
                         </div>
                         
-                        <v-spacer />
-
-                        <div class="config-list-item--metadata">
-                            <tooltip-component bottom v-if="getConfigWarning(config) != null">
-                                <template v-slot:activator="{ on }">
-                                    <icon-component style="cursor: help;" color="warning">warning</icon-component>
-                                </template>
-                                <span>{{getConfigWarning(config)}}</span>
+                                                <div class="config-list-item--metadata">
+                            <tooltip-component v-if="getConfigWarning(config) != null" :tooltip="getConfigWarning(config)">
+                                <icon-component style="cursor: help;" color="warning">warning</icon-component>
                             </tooltip-component>
 
-                            <tooltip-component bottom v-if="configIsOutsideLimit(config)">
-                                <template v-slot:activator="{ on }">
-                                    <icon-component style="cursor: help;">timer_off</icon-component>
-                                </template>
-                                <span>This configs' limits has been reached</span>
+                            <tooltip-component v-if="configIsOutsideLimit(config)" tooltip="This configs' limits has been reached">
+                                <icon-component style="cursor: help;">timer_off</icon-component>
                             </tooltip-component>
 
-                            <tooltip-component bottom>
-                                <template v-slot:activator="{ on }">
-                                    <icon-component style="cursor: help;">person</icon-component>
-                                    <code style="color: var(--v-primary-base); cursor: help;">{{ config.LastChangedBy }}</code>
-                                </template>
-                                <span>Last modified by '{{ config.LastChangedBy }}'</span>
+                            <tooltip-component :tooltip="`Last modified by '${config.LastChangedBy}'`">
+                                <icon-component style="cursor: help;">person</icon-component>
+                                <code style="color: var(--v-primary-base); cursor: help;">{{ config.LastChangedBy }}</code>
                             </tooltip-component>
                         </div>
                     </div>
                 </block-component>
 
-            </v-container>
-            </v-flex>
-            </v-layout>
-            </v-container>
+            </div>
+            </div>
+            </div>
+            </div>
             
             <dialog-component v-model:value="configDialogVisible"
                 scrollable
@@ -125,18 +108,16 @@
                 content-class="current-config-dialog">
                 <card-component v-if="currentConfig != null">
                     <toolbar-component>
-                        <v-toolbar-title class="current-config-dialog__title">{{ currentDialogTitle }}</v-toolbar-title>
-                        <v-spacer></v-spacer>
-                        <btn-component icon
+                        <div class="current-config-dialog__title">{{ currentDialogTitle }}</div>
+                                                <btn-component icon
                             @click="hideCurrentConfig()"
                             :disabled="serverInteractionInProgress">
                             <icon-component>close</icon-component>
                         </btn-component>
                     </toolbar-component>
 
-                    <v-divider></v-divider>
-                    
-                    <v-card-text>
+                                        
+                    <div>
                         <event-notification-config-component
                             :module-id="config.Id"
                             :config="currentConfig"
@@ -149,18 +130,16 @@
                             v-on:serverInteractionInProgress="setServerInteractionInProgress"
                             ref="currentConfigComponent"
                             />
-                    </v-card-text>
-                    <v-divider></v-divider>
-                    <v-card-actions >
-                        <v-spacer></v-spacer>
-                        <btn-component color="error" flat
+                    </div>
+                                        <div >
+                                                <btn-component color="error" flat
                             v-if="showDeleteConfig"
                             :disabled="serverInteractionInProgress"
                             @click="$refs.currentConfigComponent.tryDeleteConfig()">Delete</btn-component>
                         <btn-component color="success"
                             :disabled="serverInteractionInProgress"
                             @click="$refs.currentConfigComponent.saveConfig()">Save</btn-component>
-                    </v-card-actions>
+                    </div>
                 </card-component>
             </dialog-component>
 
@@ -169,19 +148,17 @@
                 max-width="290"
                 content-class="confirm-dialog">
                 <card-component>
-                    <v-card-title class="headline">Confirm deletion</v-card-title>
-                    <v-card-text>
+                    <div class="headline">Confirm deletion</div>
+                    <div>
                         {{ deleteDefinitionDialogText }}
-                    </v-card-text>
-                    <v-divider></v-divider>
-                    <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <btn-component color="secondary" @click="deleteDefinitionDialogVisible = false">Cancel</btn-component>
+                    </div>
+                                        <div>
+                                                <btn-component color="secondary" @click="deleteDefinitionDialogVisible = false">Cancel</btn-component>
                         <btn-component color="error"
                             :loading="loadStatus.inProgress"
                             :disabled="loadStatus.inProgress"
                             @click="confirmDeleteEventDefinition()">Delete</btn-component>
-                    </v-card-actions>
+                    </div>
                 </card-component>
             </dialog-component>
             
@@ -192,17 +169,15 @@
                 content-class="current-config-dialog">
                 <card-component>
                     <toolbar-component>
-                        <v-toolbar-title class="current-config-dialog__title">Edit event payload definitions</v-toolbar-title>
-                        <v-spacer></v-spacer>
-                        <btn-component icon
+                        <div class="current-config-dialog__title">Edit event payload definitions</div>
+                                                <btn-component icon
                             @click="editDefinitionsDialogVisible = false">
                             <icon-component>close</icon-component>
                         </btn-component>
                     </toolbar-component>
 
-                    <v-divider></v-divider>
-                    
-                    <v-card-text>
+                                        
+                    <div>
                         <block-component
                             v-for="(def, dindex) in eventDefinitions"
                             :key="`eventdef-${dindex}-${def.EventId}`"
@@ -227,11 +202,9 @@
                             </div>
                             <div style="clear:both;"></div>
                         </block-component>
-                    </v-card-text>
-                    <v-divider></v-divider>
-                    <v-card-actions >
-                        <v-spacer></v-spacer>
-                        <btn-component
+                    </div>
+                                        <div >
+                                                <btn-component
                             :loading="loadStatus.inProgress"
                             :disabled="loadStatus.inProgress"
                             color="error"
@@ -241,7 +214,7 @@
                         </btn-component>
                         <btn-component color="success"
                             @click="editDefinitionsDialogVisible = false">Close</btn-component>
-                    </v-card-actions>
+                    </div>
                 </card-component>
             </dialog-component>
         </content-component>

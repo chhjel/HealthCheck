@@ -3,46 +3,38 @@
     <div class="docpage">
         <content-component>
             <!-- NAVIGATION DRAWER -->
-            <navigation-drawer-component
-                v-model:value="drawerState"
-                clipped fixed floating app
-                mobile-break-point="1000"
-                dark
-                class="menu testset-menu">
-
+            <navigation-drawer-component v-model:value="drawerState">
                 <list-component expand class="menu-items">
                     <filter-input-component class="filter" v-model:value="diagramFilterText" />
 
-                    <v-list-tile ripple
+                    <div ripple
                         v-for="(menuItem, diagramIndex) in menuItems"
                         :key="`diagram-menu-${diagramIndex}`"
                         class="testset-menu-item"
                         :class="{ 'active': ((currentSequenceDiagram == menuItem.data || currentFlowChart == menuItem.data) && !sandboxMode) }"
                         @click="setActiveDiagram(menuItem)">
-                        <v-list-tile-title>
+                        <div>
                             {{ menuItem.title }}
                             <br>
                             <span style="color: darkgray;">{{ menuItem.subTitle }}</span>
-                        </v-list-tile-title>
-                    </v-list-tile>
+                        </div>
+                    </div>
 
-                    <v-divider />
-
-                    <v-list-tile ripple 
+                                        <div ripple 
                         v-if="options.Options.EnableDiagramSandbox"
                         class="testset-menu-item"
                         :class="{ 'active': (sandboxMode) }"
                         @click="showSandboxMode">
-                        <v-list-tile-title v-text="'Sandbox'"></v-list-tile-title>
-                    </v-list-tile>
+                        <div v-text="'Sandbox'"></div>
+                    </div>
                 </list-component>
             </navigation-drawer-component>
             
             <!-- CONTENT -->
-            <v-container fluid fill-height class="content-root">
-                <v-layout>
-                    <v-flex>
-                        <v-container>
+            <div fluid fill-height class="content-root">
+                <div>
+                    <div>
+                        <div>
                             <!-- NO DIAGRAMS INFO -->
                             <alert-component :value="sequenceDiagrams.length == 0 && !loadStatus.inProgress && !loadStatus.failed" type="info">
                                 No documentation was found.<br />
@@ -61,9 +53,9 @@
                                 indeterminate color="green"></progress-linear-component>
 
                             <!-- SELECTED DIAGRAM -->
-                            <v-layout v-if="(currentSequenceDiagram != null || currentFlowChart != null) && !sandboxMode"
+                            <div v-if="(currentSequenceDiagram != null || currentFlowChart != null) && !sandboxMode"
                                 style="flex-direction: column;">
-                                <v-flex sm12 md12 lg12>
+                                <div sm12 md12 lg12>
                                     <flow-diagram-component
                                         class="diagram"
                                         v-if="currentFlowChart != null"
@@ -79,7 +71,7 @@
                                         :diagramStyle="diagramStyle"
                                         :clickable="options.Options.EnableDiagramDetails"
                                         v-on:stepClicked="onStepClicked" />
-                                </v-flex>
+                                </div>
 
                                 <div v-if="selectedStep != null" class="selected-step-details">
                                     <b>{{ selectedStep.description }}</b><br />
@@ -95,12 +87,12 @@
                                     v-if="showToggleRemarks"
                                     v-model:value="showRemarks"
                                     label="Show remarks" style="display:block"></v-checkbox>
-                            </v-layout>
-                        </v-container>
+                            </div>
+                        </div>
 
                         <!-- SANDBOX -->
-                        <v-layout v-if="sandboxMode">
-                            <v-flex>
+                        <div v-if="sandboxMode">
+                            <div>
                                 <v-select
                                     v-if="false"
                                     v-model:value="diagramStyle"
@@ -108,28 +100,28 @@
                                     item-text="text" item-value="value" color="secondary">
                                 </v-select>
 
-                                <v-layout>
-                                    <v-flex sm12 lg4>
+                                <div>
+                                    <div sm12 lg4>
                                         <textarea
                                             style="width: 100%; border: 1px solid #ccc; height: 100%; padding: 5px;"
                                             v-model="sandboxScript"
                                             />
-                                    </v-flex>
+                                    </div>
                                         
-                                    <v-flex sm12 lg8>
-                                        <v-container grid-list-md>
+                                    <div sm12 lg8>
+                                        <div grid-list-md>
                                             <sequence-diagram-component
                                                 class="diagram"
                                                 :steps="sandboxSteps"
                                                 :diagramStyle="diagramStyle" />
-                                        </v-container>
-                                    </v-flex>
-                                </v-layout>
-                            </v-flex>
-                        </v-layout>
-                    </v-flex>
-                </v-layout>
-            </v-container>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
           <!-- CONTENT END -->
         </content-component>
     </div>

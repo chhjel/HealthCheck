@@ -69,6 +69,7 @@ import ListComponent from '@components/Common/Basic/ListComponent.vue';
 import BadgeComponent from '@components/Common/Basic/BadgeComponent.vue';
 import TooltipComponent from '@components/Common/Basic/TooltipComponent.vue';
 import TextareaComponent from '@components/Common/Basic/TextareaComponent.vue';
+import TextFieldComponent from '@components/Common/Basic/TextFieldComponent.vue';
 import ChipComponent from '@components/Common/Basic/ChipComponent.vue';
 import AutocompleteComponent from '@components/Common/Basic/AutocompleteComponent.vue';
 import NavigationDrawerComponent from '@components/Common/Basic/NavigationDrawerComponent.vue';
@@ -96,6 +97,7 @@ function registerGlobalComponents(app: App<Element>): void {
 	app.component("BadgeComponent", BadgeComponent);
 	app.component("TooltipComponent", TooltipComponent);
 	app.component("TextareaComponent", TextareaComponent);
+	app.component("TextFieldComponent", TextFieldComponent);
 	app.component("ChipComponent", ChipComponent);
 	app.component("AutocompleteComponent", AutocompleteComponent);
 	app.component("NavigationDrawerComponent", NavigationDrawerComponent);

@@ -2,17 +2,17 @@
 <template>
     <div>
         <content-component class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex class="pl-4 pr-4 pb-4">
+        <div fluid fill-height class="content-root">
+        <div>
+        <div class="pl-4 pr-4 pb-4">
           <!-- CONTENT BEGIN -->
             
             <!-- FILTER -->
-            <v-container grid-list-md>
+            <div grid-list-md>
                 <h1 class="mb-4">Audit log</h1>
 
-                <v-layout row wrap>
-                    <v-flex xs12 sm12 md8>
+                <div row wrap>
+                    <div xs12 sm12 md8>
                         <date-time-picker
                             ref="filterDate"
                             :startDate="filterFromDate"
@@ -21,35 +21,35 @@
                             timeFormat="HH:mm"
                             @onChange="onDateRangeChanged"
                         />
-                    </v-flex>
+                    </div>
 
-                    <v-flex xs12 sm12 md4 style="text-align: right;">
+                    <div xs12 sm12 md4 style="text-align: right;">
                         <btn-component @click="loadData" :disabled="loadStatus.inProgress" class="primary">Search</btn-component>
                         <btn-component @click="resetFilters">Reset</btn-component>
-                    </v-flex>
+                    </div>
 
-                    <v-flex xs12 sm6 md3>
+                    <div xs12 sm6 md3>
                         <text-field-component v-model:value="filterUserName" label="Username"
                             @blur="loadData"
                             @keyup.enter="loadData" />
-                    </v-flex>
-                    <v-flex xs12 sm6 md3>
+                    </div>
+                    <div xs12 sm6 md3>
                         <text-field-component v-model:value="filterAction" label="Action"
                             @blur="loadData"
                             @keyup.enter="loadData" />
-                    </v-flex>
-                    <v-flex xs12 sm6 md3>
+                    </div>
+                    <div xs12 sm6 md3>
                         <text-field-component v-model:value="filterSubject" label="Subject"
                             @blur="loadData"
                             @keyup.enter="loadData" />
-                    </v-flex>
-                    <v-flex xs12 sm6 md3>
+                    </div>
+                    <div xs12 sm6 md3>
                         <text-field-component v-model:value="filterUserId" label="User id"
                             @blur="loadData"
                             @keyup.enter="loadData" />
-                    </v-flex>
-                </v-layout>
-                        
+                    </div>
+                </div>
+
                 <v-data-table
                     :headers="tableHeaders"
                     :items="filteredAuditEvents"
@@ -78,7 +78,7 @@
                     </template>
                     <template v-slot:expand="props">
                         <card-component flat>
-                            <v-card-text class="row-details">
+                            <div class="row-details">
                                 <div class="row-details-user mt-2 mb-2">
                                     <icon-component class="row-details-usericon">person</icon-component>
                                     <div class="row-details-username">{{ props.item.UserName }}</div>
@@ -110,16 +110,16 @@
                                         </li>
                                     </ul>
                                 </div>
-                            </v-card-text>
+                            </div>
                         </card-component>
                     </template>
                 </v-data-table>
-            </v-container>
+            </div>
 
           <!-- CONTENT END -->
-        </v-flex>
-        </v-layout>
-        </v-container>
+        </div>
+        </div>
+        </div>
         </content-component>
 
         <!-- ##################### -->
@@ -128,8 +128,8 @@
             max-width="90%" scrollable
             content-class="audit-blob-dialog">
             <card-component>
-                <v-card-title class="headline">{{ currentBlobTitle }}</v-card-title>
-                <v-card-text class="pt-0">
+                <div class="headline">{{ currentBlobTitle }}</div>
+                <div class="pt-0">
                     <p class="blob-details">{{ currentBlobDetails }}</p>
                     <progress-linear-component color="primary" indeterminate v-if="loadStatus.inProgress"></progress-linear-component>
                     
@@ -138,12 +138,10 @@
                     </alert-component>
 
                     <code class="blob-contents" v-if="currentBlobContents != null">{{ currentBlobContents }}</code>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="primary" @click="hideBlobContentsDialog()">Close</btn-component>
-                </v-card-actions>
+                </div>
+                                <div>
+                                        <btn-component color="primary" @click="hideBlobContentsDialog()">Close</btn-component>
+                </div>
             </card-component>
         </dialog-component>
         <!-- ##################### -->

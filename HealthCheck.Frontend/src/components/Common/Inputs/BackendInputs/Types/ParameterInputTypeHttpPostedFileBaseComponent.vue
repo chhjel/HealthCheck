@@ -1,7 +1,7 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeHttpPostedFileBaseComponent.vue -->
 <template>
     <div>
-        <v-layout class="parameter-input-file">
+        <div class="parameter-input-file">
             <!-- <input
                 type="file"
                 @change="onFileChanged"
@@ -16,31 +16,22 @@
                 @change="onFileChanged"
                 :disabled="readonly" />
             <div class="upload-label-wrapper">
-                <tooltip-component bottom>
-                    <template v-slot:activator="{ on }">
-                        <label :for="`file-parameter-${id}`"
-                           
-                            class="v-btn v-btn--small theme--light upload-label"
-                            :class="{ 'disabled': readonly, 'v-btn--disabled': readonly }">
-                            <div>{{ label }}</div>
-                        </label>
-                    </template>
-                    <span>{{ tooltip }}</span>
+                <tooltip-component :tooltip="tooltip">
+                    <label :for="`file-parameter-${id}`"
+                        class="v-btn v-btn--small theme--light upload-label"
+                        :class="{ 'disabled': readonly, 'v-btn--disabled': readonly }">
+                        <div>{{ label }}</div>
+                    </label>
                 </tooltip-component>
             </div>
-            <tooltip-component bottom v-if="allowClear">
-                <template v-slot:activator="{ on }">
-                    <span>
-                        <btn-component flat icon color="primary" class="ma-0 pa-0"
-                            @click="setValueToNull"
-                            :disabled="localValue == null">
-                            <icon-component>clear</icon-component>
-                        </btn-component>
-                    </span>
-                </template>
-                <span>Clear file</span>
+            <tooltip-component v-if="allowClear" tooltip="Clear file">
+                <btn-component flat icon color="primary" class="ma-0 pa-0"
+                    @click="setValueToNull"
+                    :disabled="localValue == null">
+                    <icon-component>clear</icon-component>
+                </btn-component>
             </tooltip-component>
-        </v-layout>
+        </div>
     </div>
 </template>
 

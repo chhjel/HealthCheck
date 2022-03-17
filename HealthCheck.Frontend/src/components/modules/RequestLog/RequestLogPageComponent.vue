@@ -2,13 +2,13 @@
 <template>
     <div>
         <content-component class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex class="pl-4 pr-4 pb-4">
+        <div fluid fill-height class="content-root">
+        <div>
+        <div class="pl-4 pr-4 pb-4">
           <!-- CONTENT BEGIN -->
             
-        <v-container grid-list-md>
-            <v-layout align-content-center wrap v-if="loadStatus.inProgress || loadStatus.failed">
+        <div grid-list-md>
+            <div align-content-center wrap v-if="loadStatus.inProgress || loadStatus.failed">
                 <!-- LOAD ERROR -->
                 <alert-component
                     :value="loadStatus.failed"
@@ -20,13 +20,13 @@
                 <progress-linear-component
                     v-if="loadStatus.inProgress"
                     indeterminate color="green"></progress-linear-component>
-            </v-layout>
+            </div>
 
-            <v-layout align-content-center wrap v-if="entries.length == 0 && !loadStatus.inProgress && !loadStatus.failed">
+            <div align-content-center wrap v-if="entries.length == 0 && !loadStatus.inProgress && !loadStatus.failed">
                 <alert-component type="info" :value="true">
                     No requests has been logged yet.
                 </alert-component>
-            </v-layout>
+            </div>
 
             <div v-if="entries.length > 0" class="filter">
                 <progress-bar-component class="progress elevation-4" 
@@ -37,8 +37,8 @@
                     v-on:clickedError="showOnlyState(STATE_ERROR)"
                     v-on:clickedRemaining="showOnlyState(STATE_UNDETERMINED)" />
       
-                <v-layout row wrap>
-                    <v-flex xs12>
+                <div row wrap>
+                    <div xs12>
                         <v-checkbox v-model:value="visibleStates" label="Successes" :value="STATE_SUCCESS" style="display:inline-block" class="mr-2"></v-checkbox>
                         <v-checkbox v-model:value="visibleStates" label="Errors" :value="STATE_ERROR" style="display:inline-block" class="mr-2"></v-checkbox>
                         <v-checkbox v-model:value="visibleStates" label="Not Called" :value="STATE_UNDETERMINED" style="display:inline-block" class="mr-4"></v-checkbox>
@@ -48,8 +48,8 @@
                             :key="`verb-${index}`"
                             v-model:value="visibleVerbs" :label="verb" :value="verb"
                             style="display:inline-block" class="mr-2"></v-checkbox>
-                    </v-flex>
-                </v-layout>
+                    </div>
+                </div>
 
                 <div>
                     Order by:
@@ -111,8 +111,8 @@
                         />
                 </div>
 
-                <v-layout row wrap v-if="hasAccessToClearRequestLog">
-                    <v-flex xs12 sm6 md4>
+                <div row wrap v-if="hasAccessToClearRequestLog">
+                    <div xs12 sm6 md4>
                         <btn-component
                             :loading="clearStatus.inProgress"
                             :disabled="clearStatus.inProgress"
@@ -122,9 +122,9 @@
                             <icon-component size="20px" class="mr-2">delete_forever</icon-component>
                             Clear requests + definitions
                         </btn-component>
-                    </v-flex>
+                    </div>
 
-                    <v-flex xs12 sm6 md4>
+                    <div xs12 sm6 md4>
                         <btn-component
                             :loading="clearStatus.inProgress"
                             :disabled="clearStatus.inProgress"
@@ -134,24 +134,24 @@
                             <icon-component size="20px" class="mr-2">delete</icon-component>
                             Clear requests
                         </btn-component>
-                    </v-flex>
+                    </div>
 
-                    <v-flex xs12 v-if="clearStatus.failed">
+                    <div xs12 v-if="clearStatus.failed">
                         <alert-component
                             :value="clearStatus.failed"
                             type="error">
                         {{ clearStatus.errorMessage }}
                         </alert-component>
-                    </v-flex>
-                </v-layout>
+                    </div>
+                </div>
             </div>
-        </v-container>
+        </div>
 
 
           <!-- CONTENT END -->
-        </v-flex>
-        </v-layout>
-        </v-container>
+        </div>
+        </div>
+        </div>
         </content-component>
     </div>
 </template>

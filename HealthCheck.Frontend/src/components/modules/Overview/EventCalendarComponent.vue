@@ -2,8 +2,8 @@
 <template>
     <div>
         <!-- DATEPICKER & TYPE SELECT-->
-        <v-layout v-if="calendarEvents.length > 0">
-            <v-flex xs12 sm3 class="mr-4">
+        <div v-if="calendarEvents.length > 0">
+            <div xs12 sm3 class="mr-4">
                 <dialog-component ref="dateDialog" v-model:value="datepickerModal"
                     :return-value.sync="calendarStart" lazy
                     full-width width="290px">
@@ -20,16 +20,15 @@
                         v-model:value="calendarStart"
                         :allowed-dates="allowDatepickerDate"
                         scrollable>
-                    <v-spacer></v-spacer>
-                    <btn-component flat color="primary" @click="datepickerModal = false">Cancel</btn-component>
+                                        <btn-component flat color="primary" @click="datepickerModal = false">Cancel</btn-component>
                     <btn-component flat color="primary" @click="$refs.dateDialog.save(calendarStart)">OK</btn-component>
                     </date-picker-component>
                 </dialog-component>
-            </v-flex>
-            <v-flex xs12 sm3 class="text-xs-center">
+            </div>
+            <div xs12 sm3 class="text-xs-center">
                 <v-select v-model:value="calendarType" :items="calendarTypeOptions" label="Type"></v-select>
-            </v-flex>
-        </v-layout>
+            </div>
+        </div>
 
         <!-- CALENDAR -->
         <calendar-component

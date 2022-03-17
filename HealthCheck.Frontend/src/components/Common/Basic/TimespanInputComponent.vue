@@ -12,11 +12,8 @@
         
         <div class="input-component--inputs" :style="style">
             <div class="input-component--input-prefix" v-if="minimal">
-                <tooltip-component bottom>
-                    <template v-slot:activator="{ on }">
-                        <span>H:</span>
-                    </template>
-                    <span>Number of hours</span>
+                <tooltip-component tooltip="Number of hours">
+                    <span>H:</span>
                 </tooltip-component>
             </div>
             <text-field-component
@@ -29,11 +26,8 @@
             <div class="input-component--input-prefix" v-if="!minimal">hours, </div>
             
             <div class="input-component--input-prefix" v-if="minimal">
-                <tooltip-component bottom>
-                    <template v-slot:activator="{ on }">
-                        <span>M:</span>
-                    </template>
-                    <span>Number of minutes</span>
+                <tooltip-component tooltip="Number of minutes">
+                    <span>M:</span>
                 </tooltip-component>
             </div>
             <text-field-component
@@ -46,11 +40,8 @@
             <div class="input-component--input-prefix" v-if="!minimal">minutes, </div>
 
             <div class="input-component--input-prefix" v-if="minimal">
-                <tooltip-component bottom>
-                    <template v-slot:activator="{ on }">
-                        <span>S:</span>
-                    </template>
-                    <span>Number of seconds</span>
+                <tooltip-component tooltip="Number of seconds">
+                    <span>S:</span>
                 </tooltip-component>
             </div>
             <text-field-component

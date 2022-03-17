@@ -17,20 +17,18 @@
           :class="{ 'clean-mode': testResult.DisplayClean }"
           v-if="showTestResultData"
           v-model:value="dataExpandedState">
-          <v-expansion-panel-content>
-            <template v-slot:header v-if="testResult.AllowExpandData && !testResult.DisplayClean">
-              <div>{{ testResultDataTitle }}</div>
-            </template>
+          <div>
+            <div v-if="testResult.AllowExpandData && !testResult.DisplayClean">{{ testResultDataTitle }}</div>
             <card-component v-if="dataExpandedState == 0">
-              <v-card-text>
+              <div>
                 <test-result-data-component 
                   v-for="(resultData, index) in testResult.Data"
                   :key="`test-${testResult.TestId}-result-data`+index"
                   :resultData="resultData"
                   :clean="resultData.DisplayClean || testResult.DisplayClean" />
-              </v-card-text>
+              </div>
             </card-component>
-          </v-expansion-panel-content>
+          </div>
         </expansion-panel-component>
     </div>
 </template>

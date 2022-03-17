@@ -22,7 +22,7 @@
 
         <h3>Roles</h3>
         <p class="mb-0">Give token access to the following roles:</p>
-        <v-layout row wrap>
+        <div row wrap>
             <div class="mr-2"
                 v-for="(role, rindex) in accessData.Roles"
                 :key="`access-role-${rindex}`">
@@ -33,7 +33,7 @@
                     :disabled="readonly"
                     @change="(v) => onRoleToggled(role.Id, v)" />
             </div>
-        </v-layout>
+        </div>
 
         <h3>Modules</h3>
         <p class="mb-0">Give token access to the following modules:</p>

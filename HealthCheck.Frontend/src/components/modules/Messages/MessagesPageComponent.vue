@@ -3,13 +3,7 @@
     <div>
         <content-component>
             <!-- NAVIGATION DRAWER -->
-            <navigation-drawer-component
-                v-model:value="drawerState"
-                clipped fixed floating app
-                mobile-break-point="1000"
-                dark
-                class="menu leftside-menu">
-
+            <navigation-drawer-component v-model:value="drawerState">
                 <filterable-list-component 
                     :items="menuItems"
                     :disabled="loadStatus.inProgress"
@@ -21,10 +15,10 @@
             </navigation-drawer-component>
             
             <!-- CONTENT -->
-            <v-container fluid fill-height class="content-root">
-            <v-layout>
-            <v-flex>
-            <v-container>
+            <div fluid fill-height class="content-root">
+            <div>
+            <div>
+            <div>
                 <!-- LOAD PROGRESS -->
                 <progress-linear-component
                     v-if="loadStatus.inProgress"
@@ -38,8 +32,7 @@
                 <div v-if="currentInbox != null">
                     <div style="display:flex">
                         <h1 class="mb-1">{{ currentInbox.Name }}</h1>
-                        <v-spacer></v-spacer>
-                        <btn-component color="error" flat
+                                                <btn-component color="error" flat
                             v-if="HasAccessToDeleteMessages"
                             :disabled="messageLoadStatus.inProgress"
                             @click="showDeleteInbox()">Delete all</btn-component>
@@ -104,10 +97,10 @@
                     </div>
                 </div>
 
-            </v-container>
-            </v-flex>
-            </v-layout>
-            </v-container>
+            </div>
+            </div>
+            </div>
+            </div>
         </content-component>
             
         <dialog-component v-model:value="showMessageDialog"
@@ -121,17 +114,15 @@
                     <div class="message-dialog__icon">
                         <icon-component :color="getMessageIconColor(currentlyShownMessage)">{{ getMessageIcon(currentlyShownMessage) }}</icon-component>
                     </div>
-                    <v-toolbar-title class="message-dialog__title">{{ currentlyShownMessage.Summary }}</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <btn-component icon
+                    <div class="message-dialog__title">{{ currentlyShownMessage.Summary }}</div>
+                                        <btn-component icon
                         @click="hideMessageDialog">
                         <icon-component>close</icon-component>
                     </btn-component>
                 </toolbar-component>
 
-                <v-divider></v-divider>
-                
-                <v-card-text>
+                                
+                <div>
                     <div class="message">
                         <div class="message__time"><b>When: </b>{{ formatDate(currentlyShownMessage.Timestamp, true) }}</div>
                         <div class="message__from"><b>From: </b>{{ currentlyShownMessage.From }}</div>
@@ -171,17 +162,15 @@
                             <code>{{ currentlyShownMessage.ErrorMessage }}</code>
                         </block-component>
                     </div>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="error" flat
+                </div>
+                                <div>
+                                        <btn-component color="error" flat
                         v-if="HasAccessToDeleteMessages"
                         :disabled="messageLoadStatus.inProgress"
                         @click="showDeleteMessage(currentlyShownMessage)">Delete</btn-component>
                     <btn-component color="success"
                         @click="hideMessageDialog">Close</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
         
@@ -190,16 +179,14 @@
             max-width="290"
             content-class="confirm-dialog">
             <card-component>
-                <v-card-title class="headline">Confirm deletion</v-card-title>
-                <v-card-text>
+                <div class="headline">Confirm deletion</div>
+                <div>
                     Are you sure you want to delete this message?
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary" @click="deleteMessageDialogVisible = false">Cancel</btn-component>
+                </div>
+                                <div>
+                                        <btn-component color="secondary" @click="deleteMessageDialogVisible = false">Cancel</btn-component>
                     <btn-component color="error" @click="deleteMessage()">Delete it</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
         
@@ -208,16 +195,14 @@
             max-width="360"
             content-class="confirm-dialog">
             <card-component>
-                <v-card-title class="headline">Confirm deletion</v-card-title>
-                <v-card-text>
+                <div class="headline">Confirm deletion</div>
+                <div>
                     Are you sure you want to delete all messages in the inbox?
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary" @click="deleteInboxDialogVisible = false">Cancel</btn-component>
+                </div>
+                                <div>
+                                        <btn-component color="secondary" @click="deleteInboxDialogVisible = false">Cancel</btn-component>
                     <btn-component color="error" @click="deleteInbox()">Delete whole inbox</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
     </div>

@@ -4,20 +4,15 @@
         <div class="field-list horizontal-layout">
             
             <div class="horizontal-layout">
-                <tooltip-component bottom>
-                    <template v-slot:activator="{ on }">
-                        <btn-component
-                            dark icon small
-                            :color="!isMatchingOnStringified ? `primary` : 'secondary'"
-                            :class="{ 'lighten-5': isMatchingOnStringified }"
-                            @click="isMatchingOnStringified = !isMatchingOnStringified"
-                            :disabled="readonly">
-                            <icon-component>code</icon-component>
-                        </btn-component>
-                    </template>
-                    <span>
-                        Toggle between filtering on a <b>property</b> or the <b>whole stringified event payload</b> itself.
-                    </span>
+                <tooltip-component tooltip="Toggle between filtering on a <b>property</b> or the <b>whole stringified event payload</b> itself.">
+                    <btn-component
+                        dark icon small
+                        :color="!isMatchingOnStringified ? `primary` : 'secondary'"
+                        :class="{ 'lighten-5': isMatchingOnStringified }"
+                        @click="isMatchingOnStringified = !isMatchingOnStringified"
+                        :disabled="readonly">
+                        <icon-component>code</icon-component>
+                    </btn-component>
                 </tooltip-component>
                 
                 <text-field-component type="text"
@@ -53,22 +48,6 @@
                     v-on:change="onDataChanged"
                     :disabled="readonly"
                 ></v-switch>
-                
-                <!-- <tooltip-component bottom>
-                    <template v-slot:activator="{ on }">
-                        <btn-component
-                            dark icon small
-                            :color="caseSensitive ? `primary` : 'secondary'"
-                            :class="{ 'lighten-5': !caseSensitive }"
-                            @click="caseSensitive = !caseSensitive; onDataChanged();"
-                            :disabled="readonly">
-                            <icon-component small>text_fields</icon-component>
-                        </btn-component>
-                    </template>
-                    <span>
-                        Toggle case-sensitive filtering.
-                    </span>
-                </tooltip-component> -->
                 
                 <btn-component v-if="allowDelete"
                     dark small flat

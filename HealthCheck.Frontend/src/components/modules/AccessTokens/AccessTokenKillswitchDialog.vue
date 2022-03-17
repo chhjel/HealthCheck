@@ -8,29 +8,25 @@
             content-class="root-profile-dialog">
             <card-component>
                 <toolbar-component>
-                    <v-toolbar-title>Delete currently used token</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <btn-component icon @click="closeDialog">
+                    <div>Delete currently used token</div>
+                                        <btn-component icon @click="closeDialog">
                         <icon-component>close</icon-component>
                     </btn-component>
                 </toolbar-component>
 
-                <v-divider></v-divider>
-                
-                <v-card-text>
+                                
+                <div>
                     <p>Delete the currently used token if needed.</p>
                     <p><b>This action is irreversible.</b></p>
-                </v-card-text>
+                </div>
 
-                <v-divider></v-divider>
-                <v-card-actions >
-                    <v-spacer></v-spacer>
-                    <btn-component color="error"
+                                <div >
+                                        <btn-component color="error"
                         :loading="loadStatus.inProgress"
                         :disabled="loadStatus.inProgress"
                         @click="killswitchToken()">Delete token</btn-component>
                     <btn-component @click="closeDialog">Close</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
     </div>

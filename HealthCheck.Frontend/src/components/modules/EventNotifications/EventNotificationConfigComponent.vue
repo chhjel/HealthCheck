@@ -230,30 +230,27 @@
             v-if="notifiers != null"
             content-class="possible-notifiers-dialog">
             <card-component>
-                <v-card-title class="headline">Select type of notifier to add</v-card-title>
-                <v-divider></v-divider>
-                <v-card-text style="max-height: 500px;">
+                <div class="headline">Select type of notifier to add</div>
+                                <div style="max-height: 500px;">
                     <list-component class="possible-notifiers-list">
-                        <v-list-tile v-for="(notifier, nindex) in notifiers"
+                        <div v-for="(notifier, nindex) in notifiers"
                             :key="`possible-notifier-${nindex}`"
                             @click="onAddNotifierClicked(notifier)"
                             class="possible-notifiers-list-item">
-                            <v-list-tile-action>
+                            <div>
                                 <icon-component>add</icon-component>
-                            </v-list-tile-action>
+                            </div>
 
-                            <v-list-tile-content>
-                                <v-list-tile-title class="possible-notifier-item-title">{{ notifier.Name }}</v-list-tile-title>
-                                <v-list-tile-sub-title class="possible-notifier-item-description">{{ notifier.Description }}</v-list-tile-sub-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
+                            <div>
+                                <div class="possible-notifier-item-title">{{ notifier.Name }}</div>
+                                <div class="possible-notifier-item-description">{{ notifier.Description }}</div>
+                            </div>
+                        </div>
                     </list-component>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary" flat @click="notifierDialogVisible = false">Cancel</btn-component>
-                </v-card-actions>
+                </div>
+                                <div>
+                                        <btn-component color="secondary" flat @click="notifierDialogVisible = false">Cancel</btn-component>
+                </div>
             </card-component>
         </dialog-component>
 
@@ -262,16 +259,14 @@
             max-width="290"
             content-class="confirm-dialog">
             <card-component>
-                <v-card-title class="headline">Confirm deletion</v-card-title>
-                <v-card-text>
+                <div class="headline">Confirm deletion</div>
+                <div>
                     Are you sure you want to delete this configuration?
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary" @click="deleteDialogVisible = false">Cancel</btn-component>
+                </div>
+                                <div>
+                                        <btn-component color="secondary" @click="deleteDialogVisible = false">Cancel</btn-component>
                     <btn-component color="error" @click="deleteConfig()">Delete it</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
 
@@ -280,29 +275,26 @@
             scrollable
             content-class="possible-placeholders-dialog">
             <card-component>
-                <v-card-title class="headline">Select placeholder to add</v-card-title>
-                <v-divider></v-divider>
-                <v-card-text style="max-height: 500px;">
+                <div class="headline">Select placeholder to add</div>
+                                <div style="max-height: 500px;">
                     <list-component class="possible-placeholders-list">
-                        <v-list-tile v-for="(placeholder, placeholderIndex) in getPayloadPlaceholders()"
+                        <div v-for="(placeholder, placeholderIndex) in getPayloadPlaceholders()"
                             :key="`possible-placeholder-${placeholderIndex}`"
                             @click="onAddPayloadPlaceholderClicked(placeholder)"
                             class="possible-placeholder-list-item">
-                            <v-list-tile-action>
+                            <div>
                                 <icon-component>add</icon-component>
-                            </v-list-tile-action>
+                            </div>
 
-                            <v-list-tile-content>
-                                <v-list-tile-title class="possible-placeholder-item-title">{{ `\{${placeholder.toUpperCase()}\}` }}</v-list-tile-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
+                            <div>
+                                <div class="possible-placeholder-item-title">{{ `\{${placeholder.toUpperCase()}\}` }}</div>
+                            </div>
+                        </div>
                     </list-component>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary" flat @click="hidePayloadPlaceholderDialog()">Cancel</btn-component>
-                </v-card-actions>
+                </div>
+                                <div>
+                                        <btn-component color="secondary" flat @click="hidePayloadPlaceholderDialog()">Cancel</btn-component>
+                </div>
             </card-component>
         </dialog-component>
         <dialog-component v-model:value="placeholderDialogVisible"
@@ -310,29 +302,26 @@
             scrollable
             content-class="possible-placeholders-dialog">
             <card-component>
-                <v-card-title class="headline">Select placeholder to add</v-card-title>
-                <v-divider></v-divider>
-                <v-card-text style="max-height: 500px;">
+                <div class="headline">Select placeholder to add</div>
+                                <div style="max-height: 500px;">
                     <list-component class="possible-placeholders-list">
-                        <v-list-tile v-for="(placeholder, placeholderIndex) in getPlaceholdersFor((currentPlaceholderDialogTargetConfig == null ? null :currentPlaceholderDialogTargetConfig.Notifier), currentPlaceholderDialogTarget)"
+                        <div v-for="(placeholder, placeholderIndex) in getPlaceholdersFor((currentPlaceholderDialogTargetConfig == null ? null :currentPlaceholderDialogTargetConfig.Notifier), currentPlaceholderDialogTarget)"
                             :key="`possible-placeholder-${placeholderIndex}`"
                             @click="onAddPlaceholderClicked(placeholder, currentPlaceholderDialogTarget)"
                             class="possible-placeholder-list-item">
-                            <v-list-tile-action>
+                            <div>
                                 <icon-component>add</icon-component>
-                            </v-list-tile-action>
+                            </div>
 
-                            <v-list-tile-content>
-                                <v-list-tile-title class="possible-placeholder-item-title">{{ `\{${placeholder.toUpperCase()}\}` }}</v-list-tile-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
+                            <div>
+                                <div class="possible-placeholder-item-title">{{ `\{${placeholder.toUpperCase()}\}` }}</div>
+                            </div>
+                        </div>
                     </list-component>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary" flat @click="hidePlaceholderDialog()">Cancel</btn-component>
-                </v-card-actions>
+                </div>
+                                <div>
+                                        <btn-component color="secondary" flat @click="hidePlaceholderDialog()">Cancel</btn-component>
+                </div>
             </card-component>
         </dialog-component>
         <dialog-component v-model:value="testDialogVisible"
@@ -340,9 +329,8 @@
             scrollable
             content-class="possible-placeholders-dialog">
             <card-component v-if="notifierToTest">
-                <v-card-title class="headline">Test notifier '{{ notifierToTest.Notifier.Name }}'</v-card-title>
-                <v-divider></v-divider>
-                <v-card-text>
+                <div class="headline">Test notifier '{{ notifierToTest.Notifier.Name }}'</div>
+                                <div>
                     <div>
                         <p>No placeholders will be resolved, this is just to test the notifier itself.</p>
                         <btn-component color="primary"
@@ -356,12 +344,10 @@
                         <h4>Result:</h4>
                         <code class="notif-test-result">{{ testResponse }}</code>
                     </div>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary" flat @click="testDialogVisible = false">Close</btn-component>
-                </v-card-actions>
+                </div>
+                                <div>
+                                        <btn-component color="secondary" flat @click="testDialogVisible = false">Close</btn-component>
+                </div>
             </card-component>
         </dialog-component>
     </div>

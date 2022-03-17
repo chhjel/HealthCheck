@@ -10,17 +10,15 @@
             content-class="edit-json-value-dialog">
             <card-component>
                 <toolbar-component>
-                    <v-toolbar-title>Edit value of parameter '{{ name }}' of type '{{ type}}'</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <btn-component icon
+                    <div>Edit value of parameter '{{ name }}' of type '{{ type}}'</div>
+                                        <btn-component icon
                         @click="editorDialogVisible = false">
                         <icon-component>close</icon-component>
                     </btn-component>
                 </toolbar-component>
 
-                <v-divider></v-divider>
-                
-                <v-card-text>
+                                
+                <div>
             
                     <editor-component
                         class="editor"
@@ -29,20 +27,17 @@
                         :read-only="readonly"
                         ref="editor"/>
                         
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions >
+                </div>
+                                <div >
                     <btn-component color="error"
                         @click="setValueToNull">Set value to null</btn-component>
                     <btn-component color="secondary"
                         v-if="hasTemplate"
                         @click="setValueToTemplate">Reset value</btn-component>
-                    <v-spacer></v-spacer>
-                    <alert-component :value="error.length > 0" color="error">{{ error }}</alert-component>
-                    <v-spacer></v-spacer>
-                    <btn-component color="primary"
+                                        <alert-component :value="error.length > 0" color="error">{{ error }}</alert-component>
+                                        <btn-component color="primary"
                         @click="editorDialogVisible = false">Close</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
     </div>

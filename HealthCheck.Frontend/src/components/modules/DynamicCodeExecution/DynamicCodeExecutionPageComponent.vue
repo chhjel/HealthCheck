@@ -5,13 +5,7 @@
 
         <content-component>
             <!-- NAVIGATION DRAWER -->
-            <navigation-drawer-component
-                v-model:value="drawerState"
-                clipped fixed floating app
-                mobile-break-point="1000"
-                :dark="localOptions.darkTheme"
-                class="menu testset-menu">
-
+            <navigation-drawer-component v-model:value="drawerState">
                 <filterable-list-component 
                     :items="menuItems"
                     :sortByKey="`Name`"
@@ -30,26 +24,22 @@
                         @click="configDialogVisible = true"
                         ><icon-component>settings</icon-component>Settings</btn-component>
 
-                    <tooltip-component top v-if="showCreateNewScriptButton">
-                        <template v-slot:activator="{ on }">
-                            <span>
-                            <btn-component flat :dark="localOptions.darkTheme"
-                                color="#62b5e4"
-                                @click="onNewScriptClicked"
-                                :disabled="loadStatus.inProgress || !allowCreateNewScript"
-                                ><icon-component>add</icon-component>New script</btn-component>
-                            </span>
-                        </template>
-                        <span>{{ createNewScriptButtonTooltip }}</span>
+                    <tooltip-component v-if="showCreateNewScriptButton" :tooltip="createNewScriptButtonTooltip">
+                        <btn-component flat :dark="localOptions.darkTheme"
+                            color="#62b5e4"
+                            @click="onNewScriptClicked"
+                            :disabled="loadStatus.inProgress || !allowCreateNewScript">
+                            <icon-component>add</icon-component>New script
+                        </btn-component>
                     </tooltip-component>
                 </div>
             </navigation-drawer-component>
 
             <!-- CONTENT -->
-            <v-container fluid fill-height class="content-root pt-3 pb-0 pl-0 pr-0">
-            <v-layout>
-            <v-flex>
-            <v-container class="pt-0 pb-1 pl-0 pr-0 wrapper-container">
+            <div fluid fill-height class="content-root pt-3 pb-0 pl-0 pr-0">
+            <div>
+            <div>
+            <div class="pt-0 pb-1 pl-0 pr-0 wrapper-container">
 
                 <!-- DATA LOAD ERROR -->
                 <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
@@ -108,10 +98,10 @@
                     :readOnly="loadStatus.inProgress || currentScript == null"
                     ></editor-component>
 
-            </v-container>
-            </v-flex>
-            </v-layout>
-            </v-container>
+            </div>
+            </div>
+            </div>
+            </div>
         </content-component>
         
         <!-- ##################### -->
@@ -121,16 +111,14 @@
             max-width="350" dark
             content-class="dce-dialog">
             <card-component color="secondary" class="white--text">
-                <v-card-title class="headline">Confirm deletion</v-card-title>
-                <v-card-text>
+                <div class="headline">Confirm deletion</div>
+                <div>
                     {{ deleteScriptDialogText }}
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="primary" @click="deleteScriptDialogVisible = false">Cancel</btn-component>
+                </div>
+                                <div>
+                                        <btn-component color="primary" @click="deleteScriptDialogVisible = false">Cancel</btn-component>
                     <btn-component color="error" @click="deleteScript(currentScript)">Delete it</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
         <!-- ##################### -->
@@ -139,20 +127,18 @@
             max-width="350" dark
             content-class="dce-dialog">
             <card-component color="secondary" class="white--text">
-                <v-card-title class="headline">Unsaved changes</v-card-title>
-                <v-card-text>
+                <div class="headline">Unsaved changes</div>
+                <div>
                     It seems you have some unsaved changes.
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="primary"
+                </div>
+                                <div>
+                                        <btn-component color="primary"
                         @click="unsavedChangesDialogGoBack()"
                         >Go back</btn-component>
                     <btn-component color="error"
                         @click="unsavedChangesDialogConfirmed()"
                         >Discard changes</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
         <!-- ##################### -->
@@ -161,14 +147,12 @@
             max-width="400" dark
             content-class="dce-dialog">
             <card-component color="secondary" class="white--text">
-                <v-card-title class="headline">Save new script</v-card-title>
-                <v-card-text>
+                <div class="headline">Save new script</div>
+                <div>
                     Choose where to save this script.
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="primary" @click="saveScriptDialogVisible = false">Cancel</btn-component>
+                </div>
+                                <div>
+                                        <btn-component color="primary" @click="saveScriptDialogVisible = false">Cancel</btn-component>
                     <btn-component color="primary" @click="saveScript(currentScript, 'local')"
                         :disabled="loadStatus.inProgress"
                         :loading="loadStatus.inProgress"
@@ -177,7 +161,7 @@
                         :disabled="loadStatus.inProgress"
                         :loading="loadStatus.inProgress"
                         >Server</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
         <!-- ##################### -->
@@ -186,8 +170,8 @@
             max-width="600" dark
             content-class="dce-dialog">
             <card-component color="secondary" class="white--text">
-                <v-card-title class="headline">Settings</v-card-title>
-                <v-card-text class="pt-0">
+                <div class="headline">Settings</div>
+                <div class="pt-0">
                     <div class="dce-dialog--option">
                         <v-checkbox
                             v-model:value="localOptions.autoFormatResult"
@@ -236,12 +220,10 @@
                             {{ prepro.Description }}
                         </div>
                     </div>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="primary" @click="configDialogVisible = false">Close</btn-component>
-                </v-card-actions>
+                </div>
+                                <div>
+                                        <btn-component color="primary" @click="configDialogVisible = false">Close</btn-component>
+                </div>
             </card-component>
         </dialog-component>
         <!-- ##################### -->

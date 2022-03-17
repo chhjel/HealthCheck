@@ -3,13 +3,7 @@
     <div>
         <content-component>
             <!-- NAVIGATION DRAWER -->
-            <navigation-drawer-component
-                v-model:value="drawerState"
-                clipped fixed floating app
-                mobile-break-point="1000"
-                dark
-                class="menu testset-menu">
-
+            <navigation-drawer-component v-model:value="drawerState">
                 <filterable-list-component 
                     :items="menuItems"
                     :groupByKey="`GroupName`"
@@ -24,10 +18,10 @@
             </navigation-drawer-component>
             
             <!-- CONTENT -->
-            <v-container fluid fill-height class="content-root">
-                <v-layout>
-                    <v-flex>
-                        <v-container>
+            <div fluid fill-height class="content-root">
+                <div>
+                    <div>
+                        <div>
                             <!-- LOAD PROGRESS -->
                             <progress-linear-component 
                                 v-if="selectedSearch == null && dataLoadStatus.inProgress"
@@ -39,21 +33,21 @@
                             </alert-component>
 
                             <!-- SELECTED DATAFLOW INFO -->
-                            <v-layout v-if="selectedStream != null" style="flex-direction: column;">
+                            <div v-if="selectedStream != null" style="flex-direction: column;">
                                 <h3>{{ selectedStream.Name }}</h3>
                                 <p v-html="selectedStream.Description"></p>
-                            </v-layout>
+                            </div>
                             
                             <!-- NO DATAFLOW SELECTED INFO -->
-                            <v-layout v-if="selectedStream == null && selectedSearch == null && (streamMetadatas.length > 0 || searchMetadatas.length > 0)" style="flex-direction: column;">
+                            <div v-if="selectedStream == null && selectedSearch == null && (streamMetadatas.length > 0 || searchMetadatas.length > 0)" style="flex-direction: column;">
                                 <h3>No dataflow selected</h3>
                                 <p>← Select one over there.</p>
-                            </v-layout>
+                            </div>
 
                             <!-- STREAM: FILTERS -->
                             <div v-show="selectedStream != null">
-                                <v-layout>
-                                    <v-flex xs12 sm12 md8 style="position:relative"
+                                <div>
+                                    <div xs12 sm12 md8 style="position:relative"
                                         v-show="selectedStream != null && selectedStream.SupportsFilterByDate">
                                         <menu-component
                                             transition="slide-y-transition"
@@ -64,12 +58,12 @@
                                                 </btn-component>
                                             </template>
                                             <list-component>
-                                                <v-list-tile
+                                                <div
                                                     v-for="(preset, i) in datePickerPresets"
                                                     :key="`datepicker-preset-${i}`"
                                                     @click="setDatePickerValue(preset)">
-                                                    <v-list-tile-title>{{ preset.name }}</v-list-tile-title>
-                                                </v-list-tile>
+                                                    <div>{{ preset.name }}</div>
+                                                </div>
                                             </list-component>
                                         </menu-component>
 
@@ -82,8 +76,8 @@
                                             timeFormat="HH:mm"
                                             @onChange="onDateRangeChanged"
                                         />
-                                    </v-flex>
-                                </v-layout>
+                                    </div>
+                                </div>
                                 
                                 <b v-if="filterChoices.length > 0">Filter on</b>
                                 <chip-component
@@ -113,35 +107,35 @@
                                     ></text-field-component>
                                 </div>
 
-                                <v-layout>
-                                    <v-flex xs6 sm2 style="margin-top: 22px;">
+                                <div>
+                                    <div xs6 sm2 style="margin-top: 22px;">
                                         <text-field-component type="number" label="Max items to fetch"
                                             class="options-input"
                                             v-model.number="filterTake" />
-                                    </v-flex>
-                                    <v-flex xs6 sm2 style="margin-top: 17px; margin-left: 40px;">
+                                    </div>
+                                    <div xs6 sm2 style="margin-top: 17px; margin-left: 40px;">
                                         <btn-component 
                                             @click="loadStreamEntries()" 
                                             :disabled="dataLoadStatus.inProgress" 
                                             class="primary">Fetch data</btn-component>
-                                    </v-flex>
-                                    <v-flex xs6 sm2 style="margin-top: 17px; margin-left: 25px;">
+                                    </div>
+                                    <div xs6 sm2 style="margin-top: 17px; margin-left: 25px;">
                                         <btn-component 
                                             @click="clearResults()" 
                                             :disabled="dataLoadStatus.inProgress"
                                             >Clear view</btn-component>
-                                    </v-flex>
+                                    </div>
                                     
-                                </v-layout>
+                                </div>
                             </div>
 
                             <!-- STREAM: CONTENTS -->
                             <div v-if="selectedStream != null">
                                 <!-- Results info -->
-                                <v-layout style="flex-direction: column;">
+                                <div style="flex-direction: column;">
                                     <i v-if="resultCount == 0 && streamsWithDataAttemptedLoadedAtLeastOnce.indexOf(selectedStream.Id) != -1">Could not find any matching items</i>
                                     <i v-if="resultCount > 0">Result count: {{ resultCount }}</i>
-                                </v-layout>
+                                </div>
 
                                 <!-- TABLE START -->
                                 <data-table-component
@@ -240,10 +234,10 @@
                                     </div>
                                 </div>
                             </div>
-                        </v-container>
-                    </v-flex>
-                </v-layout>
-            </v-container>
+                        </div>
+                    </div>
+                </div>
+            </div>
           <!-- CONTENT END -->
         </content-component>
 
@@ -255,19 +249,17 @@
             content-class="search-result-dialog"
             :persistent="dataLoadStatus.inProgress">
             <card-component>
-                <v-card-title class="headline">{{ selectedSearchResult.Title }}</v-card-title>
-                <v-card-text class="pt-0">
+                <div class="headline">{{ selectedSearchResult.Title }}</div>
+                <div class="pt-0">
                     <div v-if="selectedSearchResult.Body" v-html="selectedSearchResult.Body" class="mb-2"></div>
                     <div v-html="selectedSearchResult.PopupBody"></div>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="secondary"
+                </div>
+                                <div>
+                                        <btn-component color="secondary"
                         :disabled="dataLoadStatus.inProgress"
                         :loading="dataLoadStatus.inProgress"
                         @click="searchResultDialogVisible = false">Close</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
     </div>

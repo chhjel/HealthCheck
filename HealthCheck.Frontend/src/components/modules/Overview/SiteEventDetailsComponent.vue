@@ -8,11 +8,10 @@
             <!-- <btn-component icon>
                 <icon-component>edit</icon-component>
             </btn-component> -->
-            <v-toolbar-title>{{ event.Title }}</v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-toolbar-title class="subheading">
+            <div>{{ event.Title }}</div>
+                        <div class="subheading">
                 {{ getEventTimeLine1(event) }}<br />{{ getEventTimeLine2(event) }}
-            </v-toolbar-title>
+            </div>
             <!-- <btn-component icon>
                 <icon-component>favorite</icon-component>
             </btn-component> -->
@@ -20,7 +19,7 @@
                 <icon-component>more_vert</icon-component>
             </btn-component> -->
         </toolbar-component>
-        <v-card-title primary-title>
+        <div primary-title>
             <span>
                 {{ event.Description }}
 
@@ -48,18 +47,16 @@
                 <expansion-panel-component class="mt-4"
                     v-if="event.DeveloperDetails != null && event.DeveloperDetails.length > 0"
                     v-model:value="developerDetailsExpandedState">
-                    <v-expansion-panel-content>
-                        <template v-slot:header>
+                    <div>
                         <div>Developer details</div>
-                        </template>
                         <code class="pa-4 dev-details-contents">{{ event.DeveloperDetails }}</code>
-                    </v-expansion-panel-content>
+                    </div>
                 </expansion-panel-component>
             </span>
-        </v-card-title>
-        <v-card-actions>
+        </div>
+        <div>
             <slot name="actions"></slot>
-        </v-card-actions>
+        </div>
     </card-component>
 </template>
 

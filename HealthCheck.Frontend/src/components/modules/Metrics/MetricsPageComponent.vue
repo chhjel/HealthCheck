@@ -3,10 +3,10 @@
     <div>
         <content-component class="pl-0">
             <!-- CONTENT -->
-            <v-container fluid fill-height class="content-root">
-            <v-layout>
-            <v-flex>
-            <v-container>
+            <div fluid fill-height class="content-root">
+            <div>
+            <div>
+            <div>
                 <h1>Metrics</h1>
                 <p>Debug metrics to verify performance of code, values might be a bit delayed until the tracker is disposed.</p>
 
@@ -81,10 +81,10 @@
                     </div>
                 </div>
 
-            </v-container>
-            </v-flex>
-            </v-layout>
-            </v-container>
+            </div>
+            </div>
+            </div>
+            </div>
         </content-component>
     </div>
 </template>

@@ -8,23 +8,18 @@
                 style="min-height: 10px"
                 @end="onChanged">
                 <template v-for="(item, itemIndex) in items" :key="`${id}-item-${item.id}`">
-                    <v-list-tile class="parameter-list-input-tile">
-                        <v-list-tile-action v-if="items.length > 1">
+                    <div class="parameter-list-input-tile">
+                        <div v-if="items.length > 1">
                             <icon-component class="handle-icon">drag_handle</icon-component>
-                        </v-list-tile-action>
+                        </div>
 
-                        <tooltip-component bottom v-if="!isReadOnlyList" >
-                            <template v-slot:activator="{ on }">
-                                <v-list-tile-action v-if="!isReadOnlyList" @click="removeItem(itemIndex)">
-                                    <btn-component flat icon color="error" :disabled="readonly">
-                                        <icon-component>remove</icon-component>
-                                    </btn-component>
-                                </v-list-tile-action>
-                            </template>
-                            <span>Remove</span>
+                        <tooltip-component v-if="!isReadOnlyList" tooltip="Remove">
+                            <btn-component flat icon color="error" :disabled="readonly" @click="removeItem(itemIndex)">
+                                <icon-component>remove</icon-component>
+                            </btn-component>
                         </tooltip-component>
 
-                        <v-list-tile-content style="max-width: 100%;">
+                        <div style="max-width: 100%;">
                             <backend-input-component v-if="!isReadOnlyList"
                                 :key="`${id}-item-input-${item.id}`"
                                 :forceType="listType"
@@ -38,8 +33,8 @@
                                 @isAnyJson="notifyIsAnyJson()"
                                 style="max-width: 100%;" />
                             <span v-if="isReadOnlyList">{{ item.value }}</span>
-                        </v-list-tile-content>
-                    </v-list-tile>
+                        </div>
+                    </div>
                 </template>
             </draggable>
         </list-component>

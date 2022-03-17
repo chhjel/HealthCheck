@@ -26,13 +26,13 @@
         v-model:value="showStepDialog"
         max-width="640">
         <card-component v-if="dialogStep != null">
-          <v-card-title class="headline">
+          <div class="headline">
             <icon-component large left v-if="dialogStep.Icon != null">
               {{ dialogStep.Icon }}
             </icon-component>
             <span class="title">{{ dialogStep.Title }}</span>
-          </v-card-title>
-          <v-card-text>
+          </div>
+          <div>
             <div v-if="stepHasDate(dialogStep)" class="mb-3">{{ formatStepDate(dialogStep) }}</div>
 
             {{ dialogStep.Description }}
@@ -47,14 +47,13 @@
             </div>
 
             <div v-if="dialogStep.Error != null" class="step-error mt-3"><b>{{ dialogStep.Error }}</b></div>
-          </v-card-text>
+          </div>
 
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <btn-component color="green darken-1" flat @click="showStepDialog = false">
+          <div>
+                        <btn-component color="green darken-1" flat @click="showStepDialog = false">
               Close
             </btn-component>
-          </v-card-actions>
+          </div>
         </card-component>
       </dialog-component>
     </div>

@@ -2,13 +2,13 @@
 <template>
     <div>
         <content-component class="pl-0">
-        <v-container fluid fill-height class="content-root">
-        <v-layout>
-        <v-flex class="pl-4 pr-4 pb-4 overview-page-content">
+        <div fluid fill-height class="content-root">
+        <div>
+        <div class="pl-4 pr-4 pb-4 overview-page-content">
           <!-- CONTENT BEGIN -->
             
-        <v-container grid-list-md>
-            <v-layout align-content-center wrap>
+        <div grid-list-md>
+            <div align-content-center wrap>
                 <!-- LOAD ERROR -->
                 <alert-component
                     :value="loadStatus.failed"
@@ -22,7 +22,7 @@
                     indeterminate color="green"></progress-linear-component>
                 
                 <!-- SUMMARY -->
-                <v-flex sm12 v-if="showContent" class="mb-4" >
+                <div sm12 v-if="showContent" class="mb-4" >
                     <div style="display: flex">
                         <h1 class="mb-2" style="flex: 1">Current status</h1>
                         
@@ -71,32 +71,32 @@
                         v-if="currentEvents.length > 0"
                         :events="currentEvents"
                         v-on:eventClicked="showEventDetailsDialog" />
-                </v-flex>
+                </div>
 
                 <!-- TIMELINE -->
-                <v-flex sm12 v-if="showContent" class="mb-4">
+                <div sm12 v-if="showContent" class="mb-4">
                     <h2>Past events</h2>
                     <event-timeline-component
                         :events="timelineEvents"
                         v-on:eventClicked="showEventDetailsDialog"
                         class="timeline" />
-                </v-flex>
+                </div>
 
                 <!-- CALENDAR -->
-                <v-flex sm12 v-if="showContent">
+                <div sm12 v-if="showContent">
                     <h2>History</h2>
                     <event-calendar-component
                         :events="calendarEvents"
                         v-on:eventClicked="showEventDetailsDialog"
                         class="calendar" />
-                </v-flex>
-            </v-layout>
-        </v-container>
+                </div>
+            </div>
+        </div>
 
           <!-- CONTENT END -->
-        </v-flex>
-        </v-layout>
-        </v-container>
+        </div>
+        </div>
+        </div>
         </content-component>
 
         <!-- ##################### -->
@@ -123,16 +123,14 @@
             @keydown.esc="deleteAllDialogVisible = false"
             max-width="350">
             <card-component>
-                <v-card-title class="headline">Confirm deletion</v-card-title>
-                <v-card-text>
+                <div class="headline">Confirm deletion</div>
+                <div>
                     Clear all site events?
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="primary" @click="deleteAllDialogVisible = false">Cancel</btn-component>
+                </div>
+                                <div>
+                                        <btn-component color="primary" @click="deleteAllDialogVisible = false">Cancel</btn-component>
                     <btn-component color="error" @click="clearAllEvents">Clear all</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
         <!-- ##################### -->
@@ -140,16 +138,14 @@
             @keydown.esc="deleteSingleDialogVisible = false"
             max-width="550">
             <card-component>
-                <v-card-title class="headline">{{ deleteSingleDialogTitle }}</v-card-title>
-                <v-card-text>
+                <div class="headline">{{ deleteSingleDialogTitle }}</div>
+                <div>
                     {{ deleteSingleDialogText }}
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <btn-component color="primary" @click="deleteSingleDialogVisible = false">Cancel</btn-component>
+                </div>
+                                <div>
+                                        <btn-component color="primary" @click="deleteSingleDialogVisible = false">Cancel</btn-component>
                     <btn-component color="error" @click="deleteSingleEvent">Delete</btn-component>
-                </v-card-actions>
+                </div>
             </card-component>
         </dialog-component>
         <!-- DIALOGS END -->

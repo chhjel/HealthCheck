@@ -3,10 +3,10 @@
     <div>
         <content-component class="pl-0">
             <!-- CONTENT -->
-            <v-container fluid fill-height class="content-root">
-            <v-layout>
-            <v-flex>
-            <v-container>
+            <div fluid fill-height class="content-root">
+            <div>
+            <div>
+            <div>
                 <!-- LOAD PROGRESS -->
                 <progress-linear-component
                     v-if="loadStatus.inProgress"
@@ -76,10 +76,10 @@
                     <btn-component flat @click.left="loadDataToggled()">{{ (forcedWithoutDevDetails) ? 'Show with dev details' : 'Show without dev details' }}</btn-component>
                 </div>
 
-            </v-container>
-            </v-flex>
-            </v-layout>
-            </v-container>
+            </div>
+            </div>
+            </div>
+            </div>
         </content-component>
     </div>
 </template>
