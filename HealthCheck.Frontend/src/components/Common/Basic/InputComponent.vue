@@ -202,20 +202,11 @@ export default class InputComponent extends Vue
         color: #000 !important;
     }
 
-    .v-input {
-        padding-top: 0;
-    }
-
     .input-component--error {
         margin-top: -21px;
         margin-left: 2px;
         font-weight: 600;
         color: var(--v-error-base) !important;
-    }
-
-    &.loading {
-        .v-text-field__details { display: none; }
-        .v-input__slot { margin-bottom: 0; }
     }
 }
 </style>

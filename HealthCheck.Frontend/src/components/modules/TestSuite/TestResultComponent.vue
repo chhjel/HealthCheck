@@ -164,19 +164,4 @@ export default class TestResultComponent extends Vue {
   font-size: 18px;
   display: inline;
 }
-.v-expansion-panel.clean-mode {
-  border: none;
-  box-shadow: none;
-}
-</style>
-
-<style lang="scss">
-.test-result-expansion-panel {
-  .v-expansion-panel__header {
-    background-color: #f5f5f5;
-  }
-  .v-expansion-panel__body {
-    margin-left: 8px;
-  }
-}
 </style>

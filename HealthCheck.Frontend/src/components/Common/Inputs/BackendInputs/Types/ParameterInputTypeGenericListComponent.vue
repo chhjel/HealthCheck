@@ -1,13 +1,14 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeGenericListComponent.vue -->
 <template>
     <div>
-        <list-component dense class="parameter-list-input" v-if="items.length > 0">
+        <div class="parameter-list-input" v-if="items.length > 0">
             <draggable
-                v-model:value="items"
-                group="grp"
+                v-model="items"
+                :item-key="x => `${id}-item-${x.id}`"
+                :group="`grp-${id}`"
                 style="min-height: 10px"
                 @end="onChanged">
-                <template v-for="(item, itemIndex) in items" :key="`${id}-item-${item.id}`">
+                <template #item="{element}">
                     <div class="parameter-list-input-tile">
                         <div v-if="items.length > 1">
                             <icon-component class="handle-icon">drag_handle</icon-component>
@@ -21,23 +22,23 @@
 
                         <div style="max-width: 100%;">
                             <backend-input-component v-if="!isReadOnlyList"
-                                :key="`${id}-item-input-${item.id}`"
+                                :key="`${id}-item-input-${element.id}`"
                                 :forceType="listType"
                                 forceName=""
-                                v-model:value="item.value"
+                                v-model:value="element.value"
                                 :config="config"
                                 :isListItem="true"
                                 :isCustomReferenceType="isCustomReferenceType"
-                                :parameterDetailContext="`${parameterDetailContext}_${item.id}`"
+                                :parameterDetailContext="`${parameterDetailContext}_${element.id}`"
                                 :referenceValueFactoryConfig="referenceValueFactoryConfig"
                                 @isAnyJson="notifyIsAnyJson()"
                                 style="max-width: 100%;" />
-                            <span v-if="isReadOnlyList">{{ item.value }}</span>
+                            <span v-if="isReadOnlyList">{{ element.value }}</span>
                         </div>
                     </div>
                 </template>
             </draggable>
-        </list-component>
+        </div>
         <btn-component v-if="!isReadOnlyList" small color="primary" @click="addNewItem()" :disabled="readonly" class="ml-0">
             <icon-component>add</icon-component>
         </btn-component>
@@ -64,10 +65,9 @@ interface ListItem {
 }
 
 @Options({
-    name: "BackendInputComponent",
     components: {
         draggable,
-        BackendInputComponent: () => import("@components/Common/Inputs/BackendInputs/BackendInputComponent.vue")
+        // BackendInputComponent: () => import("@components/Common/Inputs/BackendInputs/BackendInputComponent.vue")
     }
 })
 export default class ParameterInputTypeGenericListComponent extends Vue {
@@ -208,15 +208,6 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
 }
 .parameter-list-input {
     background: none;
-}
-</style>
-
-<style>
-.parameter-list-input .v-list__tile {
-    padding: 0;
-}
-.parameter-list-input .v-list__tile__action {
-    min-width: 32px;
 }
 .parameter-list-input-tile {
     overflow: hidden;

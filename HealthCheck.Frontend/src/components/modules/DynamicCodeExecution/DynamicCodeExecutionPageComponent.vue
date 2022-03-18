@@ -6,7 +6,7 @@
         <content-component>
             <!-- NAVIGATION DRAWER -->
             <navigation-drawer-component v-model:value="drawerState">
-                <filterable-list-component 
+                <filterable-div 
                     :items="menuItems"
                     :sortByKey="`Name`"
                     :groupByKey="`GroupName`"
@@ -173,30 +173,30 @@
                 <div class="headline">Settings</div>
                 <div class="pt-0">
                     <div class="dce-dialog--option">
-                        <v-checkbox
+                        <checkbox-component
                             v-model:value="localOptions.autoFormatResult"
                             @change="(v) => setLocalConfig(o => o.autoFormatResult = v)"
-                            label="Auto-format results" style="display:block"></v-checkbox>
+                            label="Auto-format results" style="display:block"></checkbox-component>
                         <div class="dce-dialog--option--description">
                             Automatically formats json in result after execution.
                         </div>
                     </div>
 
                     <div class="dce-dialog--option">
-                        <v-checkbox
+                        <checkbox-component
                             v-model:value="localOptions.autoFoldRegions"
                             @change="(v) => setLocalConfig(o => o.autoFoldRegions = v)"
-                            label="Auto-fold regions" style="display:block"></v-checkbox>
+                            label="Auto-fold regions" style="display:block"></checkbox-component>
                         <div class="dce-dialog--option--description">
                             Automatically folds any #regions in editor after execution.
                         </div>
                     </div>
 
                     <div class="dce-dialog--option">
-                        <v-checkbox
+                        <checkbox-component
                             v-model:value="localOptions.updateLocalCodeFromRemote"
                             @change="(v) => setLocalConfig(o => o.updateLocalCodeFromRemote = v)"
-                            label="Update local code from pre-processed" style="display:block"></v-checkbox>
+                            label="Update local code from pre-processed" style="display:block"></checkbox-component>
                         <div class="dce-dialog--option--description">
                             Updates local code with its pre-processed version after execution.
                         </div>
@@ -208,13 +208,13 @@
                         :key="`dce_options_preprocessor-${ppindex}`"
                         class="dce-dialog--option"
                         >
-                        <v-checkbox
+                        <checkbox-component
                             :label="prepro.Name"
                             class="mt-0"
                             :disabled="!prepro.CanBeDisabled"
                             :input-value="isPreProcessorEnabled(prepro)"
                             @change="(v) => onPreProcessorToggled(prepro, v)"
-                            ></v-checkbox>
+                            ></checkbox-component>
                         <div class="dce-dialog--option--description"
                             v-if="prepro.Description != null && prepro.Description.trim().length > 0">
                             {{ prepro.Description }}
@@ -1228,18 +1228,6 @@ namespace CodeTesting
     .dce-dialog--option {
         margin-bottom: 10px;
 
-        .v-input {
-            margin-top: 0;
-
-            .v-messages {
-                display: none;
-            }
-        }
-
-        .v-input__slot {
-            margin-bottom: 0 !important;
-        }
-        
         .dce-dialog--option--description {
             font-size: small;
             margin-left: 32px;

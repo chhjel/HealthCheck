@@ -4,7 +4,7 @@
         <content-component>
             <!-- NAVIGATION DRAWER -->
             <navigation-drawer-component v-model:value="drawerState">
-                <filterable-list-component
+                <filterable-div
                     :items="menuItems"
                     :groupByKey="`GroupName`"
                     :sortByKey="`GroupName`"
@@ -178,13 +178,14 @@
                                         <thead>
                                             <draggable
                                                 v-model:value="headers"
+                                                :item-key="x => `header-${x}`"
                                                 group="grp"
                                                 style="min-height: 10px"
                                                 tag="tr"
                                                 @end="onHeaderDragEnded">
-                                                <template v-for="header in headers" :key="`header-${header}`">
+                                                <template #item="{element}">
                                                     <th class="column text-xs-left draggable-header"
-                                                        >{{ getHeaderName(header) }}</th>
+                                                        >{{ getHeaderName(element) }}</th>
                                                 </template>
                                             </draggable>
                                         </thead>
@@ -472,7 +473,7 @@
                             <b>No formatters for this column type found.</b>
                         </div>
                         <div v-else>
-                            <v-select
+                            <select-component
                                 label="Selected formatter"
                                 v-model:value="selectedFormatterId"
                                 :items="formattersInDialogChoices"
@@ -480,7 +481,7 @@
                                 :disabled="dataLoadStatus.inProgress"
                                 v-on:change="onFormatterChanged"
                                 >
-                            </v-select>
+                            </select-component>
                             
                             <div v-if="selectedFormatter">
                                 <h3>{{ selectedFormatter.Name }}</h3>
@@ -516,7 +517,7 @@
             <card-component>
                 <div class="headline">Select placeholder to add</div>
                                 <div style="max-height: 500px;">
-                    <list-component class="possible-placeholders-list">
+                    <div class="possible-placeholders-list">
                         <div v-for="(placeholder, placeholderIndex) in availableProperties"
                             :key="`possible-placeholder-${placeholderIndex}`"
                             @click="onAddPlaceholderClicked(placeholder)"
@@ -529,7 +530,7 @@
                                 <div class="possible-placeholder-item-title">{{ `\{${placeholder}\}` }}</div>
                             </div>
                         </div>
-                    </list-component>
+                    </div>
                 </div>
                                 <div>
                                         <btn-component color="secondary" flat @click="placeholdersDialogVisible = false">Close</btn-component>
@@ -1388,10 +1389,6 @@ export default class DataExportPageComponent extends Vue {
         display: flex;
         align-items: baseline;
     }
-
-    .v-text-field__details {
-        display: none
-    }
 }
 .exporter-button {
     height: auto;
@@ -1419,18 +1416,5 @@ export default class DataExportPageComponent extends Vue {
     flex-direction: column;
     align-content: flex-start;
     align-items: flex-start;
-}
-</style>
-
-<style lang="scss">
-.item-header-override-config {
-    .v-text-field__details {
-        display: none
-    }
-}
-.exporter-button {
-    .v-btn__content {
-        max-width: 100%;
-    }
 }
 </style>

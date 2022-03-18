@@ -8,14 +8,14 @@
         </alert-component>
 
         <div class="header-data">
-            <v-switch
+            <switch-component
                 v-model:value="internalRule.Enabled" 
                 :disabled="!allowChanges"
                 label="Enabled"
                 color="secondary"
                 class="left mr-2"
                 style="flex: 1"
-            ></v-switch>
+            ></switch-component>
             <div>
                 <div class="metadata-chip"
                     v-if="internalRule.LastChangedBy != null && internalRule.LastChangedBy.length > 0">
@@ -52,12 +52,12 @@
         </block-component>
         
         <block-component class="mb-4" v-if="internalRule != null" title="Conditions">
-            <v-switch
+            <switch-component
                 v-model:value="internalRule.AlwaysTrigger" 
                 label="Always trigger for all matching requests"
                 color="secondary"
                 :disabled="!allowChanges"
-            ></v-switch>
+            ></switch-component>
 
             <div v-if="!internalRule.AlwaysTrigger">
                 <h3 class="mt-4 mb-2">After request count per IP per endpoint</h3>
@@ -99,14 +99,14 @@
         <block-component class="mb-4" v-if="internalRule != null" title="Resulting action">
             <h3 class="mt-4 mb-2">Select what happens when a result is overridden</h3>
             
-            <v-select
+            <select-component
                 class="mode-select"
                 v-model:value="internalRule.BlockResultTypeId"
                 :items="blockResultOptions"
                 item-text="text" item-value="value" color="secondary"
                 :disabled="!allowChanges"
                 >
-            </v-select>
+            </select-component>
 
             <p class="mt-4 mb-2">{{ selectedBlockResultDescription }}</p>
 

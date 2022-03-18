@@ -149,9 +149,6 @@ export default class TestSetComponent extends Vue {
     border-width: 2px;
     font-weight: 600;
 }
-.run-all-tests-button .v-icon {
-    margin-right: 5px;
-}
 .testset-title{
     font-size: 26px;
 }

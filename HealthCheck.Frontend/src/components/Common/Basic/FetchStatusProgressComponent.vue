@@ -49,11 +49,3 @@ export default class FetchStatusProgressComponent extends Vue
     }
 }
 </script>
-
-<style lang="scss">
-.fetch-status-progress-component {
-    .v-progress-linear {
-        margin: 0;
-    }
-}
-</style>

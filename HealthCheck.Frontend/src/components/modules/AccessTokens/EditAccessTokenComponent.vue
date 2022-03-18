@@ -14,7 +14,7 @@
             />
 
         <input-header-component name="Allow killswitch" description="If killswitch is allowed, the user of the token can choose to delete it at any time." />
-        <v-checkbox 
+        <checkbox-component 
             class="mt-2"
             :label="(datax.AllowKillswitch ? 'Allowed' : 'Not allowed')"
             v-model:value="datax.AllowKillswitch"
@@ -26,7 +26,7 @@
             <div class="mr-2"
                 v-for="(role, rindex) in accessData.Roles"
                 :key="`access-role-${rindex}`">
-                <v-checkbox 
+                <checkbox-component 
                     class="mt-2"
                     :label="role.Name"
                     :input-value="roleIsEnabled(role.Id)"
@@ -71,7 +71,7 @@
                     <div class="access-grid--row--options--item"
                         v-for="(option, moindex) in module.AccessOptions"
                         :key="`access-module-${mindex}-option-${moindex}`">
-                        <v-checkbox hide-details
+                        <checkbox-component hide-details
                             :label="option.Name"
                             :disabled="readonly"
                             :input-value="moduleOptionIsEnabled(module.ModuleId, option.Id)"
@@ -86,7 +86,7 @@
                     <div class="access-grid--row--cat--item"
                         v-for="(cat, moindex) in module.AccessCategories"
                         :key="`access-module-${mindex}-cat-${moindex}`">
-                        <v-checkbox hide-details
+                        <checkbox-component hide-details
                             :label="cat.Name"
                             :disabled="readonly"
                             :input-value="moduleCategoryIsEnabled(module.ModuleId, cat.Id)"
@@ -324,20 +324,3 @@ export default class EditAccessTokenComponent extends Vue {
     }
 }
 </style>
-
-<style lang="scss">
-.access-grid {
-    .access-grid--row {
-        .access-grid--row--options {
-            .access-grid--row--options--item,
-            .access-grid--row--cat--item {
-                .v-input {
-                    margin-top: 4px;
-                    margin-bottom: 4px;
-                }
-            }
-        }
-    }
-}
-</style>
-

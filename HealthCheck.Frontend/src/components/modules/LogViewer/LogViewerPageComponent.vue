@@ -19,14 +19,14 @@
                             <btn-component flat icon color="primary" class="datepicker-button">
                                 <icon-component>date_range</icon-component>
                             </btn-component>
-                            <list-component>
+                            <div>
                                 <div
                                     v-for="(preset, i) in datePickerPresets"
                                     :key="`datepicker-preset-${i}`"
                                     @click="setDatePickerValue(preset)">
                                     <div>{{ preset.name }}</div>
                                 </div>
-                            </list-component>
+                            </div>
                         </menu-component>
 
                         <date-time-picker
@@ -64,11 +64,11 @@
                                 ></text-field-component>
                             </div>
                             <div xs2 sm2 class="pa-3">
-                                <v-checkbox
+                                <checkbox-component
                                     class="options-checkbox"
                                     v-model:value="filterQueryIsRegex"
                                     label="Regex"
-                                ></v-checkbox>
+                                ></checkbox-component>
                             </div>
                         </div>
                     </div>
@@ -85,11 +85,11 @@
                                 ></text-field-component>
                             </div>
                             <div xs2 sm2 class="pa-3">
-                                <v-checkbox
+                                <checkbox-component
                                     class="options-checkbox"
                                     v-model:value="filterExcludedQueryIsRegex"
                                     label="Regex"
-                                ></v-checkbox>
+                                ></checkbox-component>
                             </div>
                         </div>
                     </div>
@@ -106,11 +106,11 @@
                                 ></text-field-component>
                             </div>
                             <div xs2 sm2 class="pa-3">
-                                <v-checkbox
+                                <checkbox-component
                                     class="options-checkbox"
                                     v-model:value="filterLogPathQueryIsRegex"
                                     label="Regex"
-                                ></v-checkbox>
+                                ></checkbox-component>
                             </div>
                         </div>
                     </div>
@@ -127,11 +127,11 @@
                                 ></text-field-component>
                             </div>
                             <div xs2 sm2 class="pa-3">
-                                <v-checkbox
+                                <checkbox-component
                                     class="options-checkbox"
                                     v-model:value="filterExcludedLogPathQueryIsRegex"
                                     label="Regex"
-                                ></v-checkbox>
+                                ></checkbox-component>
                             </div>
                         </div>
                     </div>
@@ -150,12 +150,12 @@
                                 ></text-field-component>
                             </div>
                             <div xs2 sm2>
-                                <v-select
+                                <select-component
                                     v-model:value="customColumnMode"
                                     :items="customColumnModeOptions"
                                     :disabled="searchLoadStatus.inProgress"
                                     item-text="text" item-value="value" color="secondary">
-                                </v-select>
+                                </select-component>
                             </div>
                         </div>
                     </div>
@@ -195,18 +195,18 @@
                                 v-model.number="filterMargin" />
                         </div>          
                         <div xs6 sm4 lg2 style="padding-left: 22px;">
-                            <v-checkbox
+                            <checkbox-component
                                 class="options-checkbox"
                                 v-model:value="filterOrderDescending"
                                 :label="`Newest first`"
-                            ></v-checkbox>
+                            ></checkbox-component>
                         </div>            
                         <div xs6 sm4 lg2 style="padding-left: 22px;">
-                            <v-checkbox
+                            <checkbox-component
                                 class="options-checkbox"
                                 v-model:value="expandAllRows"
                                 :label="`Expand all rows`"
-                            ></v-checkbox>
+                            ></checkbox-component>
                         </div>
                         <div xs6 sm4 lg4 v-if="!showcustomColumnRule">
                             <btn-component depressed small class="extra-filter-btn"
@@ -756,21 +756,5 @@ export default class LogViewerPageComponent extends Vue {
     right: 2px;
     top: 5px;
     z-index: 2;
-}
-</style>
-
-<style>
-.extra-filter-chip .v-chip__content {
-    cursor: pointer;
-}
-.extra-filter-chip .v-chip__content:hover {
-    text-shadow: 0px 0px 0.5px #928484;
-}
-.options-checkbox.v-input {
-    margin-top: 4px;
-}
-.options-input.v-input {
-    margin-top: 0;
-    padding-top: 4px;
 }
 </style>

@@ -393,9 +393,6 @@ export default class TestComponent extends Vue {
   /* border-radius: 0 25px 0 25px; */
   text-transform: inherit;
 }
-.run-test-button .v-icon {
-    margin-right: 5px;
-}
 .test-details {
   padding: 0px 48px 24px 24px;
 }

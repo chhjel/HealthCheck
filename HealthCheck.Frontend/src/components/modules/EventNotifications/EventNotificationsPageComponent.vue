@@ -43,12 +43,12 @@
                     <div class="config-list-item--inner">
                         <div class="config-list-item--switch-and-summary">
                             <tooltip-component tooltip="Enable or disable this configuration">
-                                <v-switch
+                                <switch-component
                                     v-model:value="config.Enabled"
                                     color="secondary"
                                     style="flex: 0"
                                     @click="setConfigEnabled(config, !config.Enabled)"
-                                    ></v-switch>
+                                    ></switch-component>
                             </tooltip-component>
                             
                             <div class="config-list-item--rule"

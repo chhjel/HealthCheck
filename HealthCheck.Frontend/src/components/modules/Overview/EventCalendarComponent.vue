@@ -26,7 +26,7 @@
                 </dialog-component>
             </div>
             <div xs12 sm3 class="text-xs-center">
-                <v-select v-model:value="calendarType" :items="calendarTypeOptions" label="Type"></v-select>
+                <select-component v-model:value="calendarType" :items="calendarTypeOptions" label="Type"></select-component>
             </div>
         </div>
 
@@ -344,52 +344,4 @@ export default class EventCalendarComponent extends Vue {
 .fatal {
     background-color: #000;
 }
-</style>
-
-<style>
-.v-calendar-weekly__day {
-    min-height: 100px;
-}
-.v-calendar-weekly__day-label {
-    font-size: 18px;
-    color: #9c8888;
-    cursor: default;
-}
-.v-calendar-weekly__day-label:hover {
-    text-decoration: none;
-}
-.v-calendar-weekly__day-month {
-    font-size: 18px;
-    color: #9c8888;
-}
-/* .v-calendar-weekly__day.v-past > .v-calendar-weekly__day-label:only-child::after,
-.v-calendar-weekly__day.v-past > .v-calendar-weekly__day-label+.v-calendar-weekly__day-month::after {
-    content: 'done';
-    color: var(--v-success-lighten5);
-
-    font-family: 'Material Icons';
-    font-weight: normal;
-    font-style: normal;
-    font-size: 51px;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    display: block;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    -webkit-font-feature-settings: 'liga';
-    -webkit-font-smoothing: antialiased;
-    
-    font-size: 5vw;
-}
-.v-calendar-weekly__day.v-past > .v-calendar-weekly__day-label+.v-calendar-weekly__day-month::after {
-    margin-left: -37px;
-}
-@media (min-width: 800px) {
-    .v-calendar-weekly__day.v-past > .v-calendar-weekly__day-label:only-child::after,
-    .v-calendar-weekly__day.v-past > .v-calendar-weekly__day-label+.v-calendar-weekly__day-month::after {
-        font-size: 50px;
-    }
-} */
 </style>

@@ -455,9 +455,5 @@ export default class EditorComponent extends Vue {
     top: 5px !important;
     right: 21px !important;
     overflow: hidden;
-
-    .v-icon {
-        margin-top: 20px;
-    }
 }
 </style>

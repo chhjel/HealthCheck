@@ -311,12 +311,6 @@ export default class ParameterInputPickReferenceComponent extends Vue {
     padding: 10px 10px;
     min-width: inherit;
     
-    .v-btn__content {
-        white-space: normal;
-        flex-direction: column;
-        display: flex;
-        align-items: flex-start;
-    }
     .select-reference-item__name {
         max-width: 524px;
         text-align: left;

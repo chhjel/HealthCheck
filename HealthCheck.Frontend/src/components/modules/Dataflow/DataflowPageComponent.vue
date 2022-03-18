@@ -4,7 +4,7 @@
         <content-component>
             <!-- NAVIGATION DRAWER -->
             <navigation-drawer-component v-model:value="drawerState">
-                <filterable-list-component 
+                <filterable-div 
                     :items="menuItems"
                     :groupByKey="`GroupName`"
                     :sortByKey="`GroupName`"
@@ -57,14 +57,14 @@
                                                     <icon-component>date_range</icon-component>
                                                 </btn-component>
                                             </template>
-                                            <list-component>
+                                            <div>
                                                 <div
                                                     v-for="(preset, i) in datePickerPresets"
                                                     :key="`datepicker-preset-${i}`"
                                                     @click="setDatePickerValue(preset)">
                                                     <div>{{ preset.name }}</div>
                                                 </div>
-                                            </list-component>
+                                            </div>
                                         </menu-component>
 
                                         <date-time-picker
@@ -1213,13 +1213,5 @@ export default class DataflowPageComponent extends Vue {
             }
         }
     }
-}
-</style>
-
-<style lang="scss">
-.unified-search-query {
-    .v-text-field__details { display: none; }
-    .v-text-field__slot { padding: 20px; }
-    .v-input__slot { margin: 0; }
 }
 </style>

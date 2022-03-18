@@ -10,16 +10,14 @@
 
         <div v-show="showDescription" class="select-component--description" v-html="description"></div>
         
-        <v-select
-            v-model:value="currentValue"
-            :items="items"
-            :disabled="disabled"
-            :loading="loading"
-            @input="onInput($event)"
-            item-text="text"
-            item-value="value"
-            color="secondary">
-        </v-select>
+        <select v-model="currentValue" @input="onInput($event.target.value)" :disabled="disabled">
+            <!-- <option disabled value="">Please select one</option> -->
+            <option v-for="(item, iIndex) in optionItems"
+                :key="`${id}-item-${iIndex}`"
+                :value="item.value"
+                >{{ item.text }}</option>
+        </select>
+        <div v-if="loading">Loading...</div>
 
         <div class="select-component--error" v-if="error != null && error.length > 0">{{ error }}</div>
     </div>
@@ -28,6 +26,7 @@
 <script lang="ts">
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
+import IdUtils from "@util/IdUtils";
 
 @Options({
     components: {}
@@ -36,12 +35,21 @@ export default class SelectComponent extends Vue
 {
     @Prop({ required: true })
     value!: string;
-    
-    @Prop({ required: false, default: '' })
-    name!: string;
 
     @Prop({ required: true })
     items!: any;
+    
+    @Prop({ required: false, default: '' })
+    name!: string;
+    
+    @Prop({ required: false, default: 'primary' })
+    color!: string;
+    
+    @Prop({ required: false, default: '' })
+    itemText!: string;
+    
+    @Prop({ required: false, default: '' })
+    itemValue!: string;
     
     @Prop({ required: false, default: '' })
     description!: string;
@@ -53,13 +61,25 @@ export default class SelectComponent extends Vue
     disabled!: boolean;
     
     @Prop({ required: false, default: false })
+    multiple!: boolean;
+    
+    @Prop({ required: false, default: false })
     showDescriptionOnStart!: boolean;
     
     @Prop({ required: false, default: false })
     loading!: boolean;
 
+    id: string = IdUtils.generateId();
     showDescription: boolean = false;
     currentValue: string = '';
+
+    // v-model:value="currentValue"
+    // :items="items"
+    // :disabled="disabled"
+    // :loading="loading"
+    // @input="onInput($event)"
+    // item-text="text"
+    // item-value="value"
 
     //////////////////
     //  LIFECYCLE  //
@@ -75,6 +95,24 @@ export default class SelectComponent extends Vue
     ////////////////
     //  GETTERS  //
     //////////////
+    get optionItems(): Array<any> {
+        if (Array.isArray(this.items))
+        {
+            return this.items.map(x => {
+                return {
+                    value: x,
+                    text: x
+                };
+            });
+        }
+        return Object.keys(this.items).map(key => {
+            return {
+                value: key,
+                text: this.items[key]
+            };
+        });
+    }
+
     get showHeader(): boolean {
         return this.name != null && this.name.length > 0;
     }
@@ -99,8 +137,12 @@ export default class SelectComponent extends Vue
     }
 
     onInput(newValue: string): void {
-        this.$emit('update:value', newValue);
-        this.$emit('change', newValue);
+        let emittedValue: string | string[] = newValue;
+        if (this.multiple) {
+            emittedValue = [ newValue ] // todo;
+        }
+        this.$emit('update:value', emittedValue);
+        this.$emit('change', emittedValue);
     }
 }
 </script>
@@ -141,11 +183,6 @@ export default class SelectComponent extends Vue
         font-size: 18px;
         color: #000 !important;
     }
-
-    .v-input {
-        padding-top: 0;
-    }
-
     .select-component--error {
         margin-top: -21px;
         margin-left: 2px;

@@ -4,7 +4,7 @@
         <content-component>
             <!-- NAVIGATION DRAWER -->
             <navigation-drawer-component v-model:value="drawerState">
-                <filterable-list-component
+                <filterable-div
                     :items="menuItems"
                     :groupByKey="`GroupName`"
                     :sortByKey="`GroupName`"
@@ -41,14 +41,14 @@
                                     ></text-field-component>
                                 </div>
                                 <div class="data-repeater-filters">
-                                    <v-checkbox
+                                    <checkbox-component
                                         :value="filterRetryAllowedBinding"
                                         :indeterminate="filterRetryAllowed == null" 
                                         :label="filterRetryAllowedLabel"
                                         :disabled="isLoading"
                                         @click="setNextFilterRetryAllowedState"
                                         color="secondary"
-                                    ></v-checkbox>
+                                    ></checkbox-component>
                                     <combobox-component
                                         v-model:value="filterTags"
                                         @blur="onFilterChanged"
@@ -670,15 +670,6 @@ export default class DataRepeaterPageComponent extends Vue {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-
-    .v-text-field {
-        margin-right: 10px;
-    }
-    .v-input--checkbox {
-        width: 280px;
-        flex-grow: inherit;
-        flex-shrink: inherit;
-    }
 }
 .data-repeater-list-item {
     cursor: pointer;

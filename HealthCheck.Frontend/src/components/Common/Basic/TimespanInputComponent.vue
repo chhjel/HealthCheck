@@ -241,10 +241,6 @@ export default class TimespanInputComponent extends Vue
         color: #000 !important;
     }
 
-    .v-input {
-        padding-top: 0;
-    }
-
     .input-component--error {
         margin-top: -21px;
         margin-left: 2px;
@@ -257,10 +253,6 @@ export default class TimespanInputComponent extends Vue
         flex-direction: row;
         flex-wrap: nowrap;
         align-items: baseline;
-
-        .v-input {
-            max-width: 80px;
-        }
     }
 
     &--input-prefix {

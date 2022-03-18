@@ -196,14 +196,3 @@ export default class TestResultDataComponent extends Vue {
   max-width: 100%;
 }
 </style>
-<style lang="scss">
-.data-dump-action-button {
-  .v-btn__content {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    max-width: 100%;
-    display: inline-block;
-  }
-}
-</style>

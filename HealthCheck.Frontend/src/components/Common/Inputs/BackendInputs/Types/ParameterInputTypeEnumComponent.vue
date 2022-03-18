@@ -1,7 +1,7 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeEnumComponent.vue -->
 <template>
     <div class="fixed-height-select">
-        <v-select
+        <select-component
             v-model:value="localValue"
             :items="items"
             :multiple="multiple"
@@ -10,7 +10,7 @@
             v-on:change="onChanged"
             color="secondary"
             class="parameter-select pt-0">
-        </v-select>
+        </select-component>
     </div>
 </template>
 
@@ -103,10 +103,5 @@ export default class ParameterInputTypeEnumComponent extends Vue {
 <style lang="scss">
 .parameter-checkbox label {
     color: #000 !important;
-}
-.fixed-height-select {
-    .v-select--chips .v-input__slot {
-        height: 32px;
-    }
 }
 </style>

@@ -83,6 +83,7 @@ namespace HealthCheck.Core.Config
                 .Where(x => x != null)
                 .Select(x =>
                 {
+                    if (x.StartsWith("<")) return x;
                     var attributes = x.StartsWith("/") ? string.Empty : "crossorigin=\"anonymous\" ";
                     return $"<link rel=\"stylesheet\" href=\"{x}\" {attributes}/>";
                 }));

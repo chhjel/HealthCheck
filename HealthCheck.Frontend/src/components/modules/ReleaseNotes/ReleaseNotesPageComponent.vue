@@ -238,9 +238,5 @@ export default class ReleaseNotesPageComponent extends Vue {
     display: inline-flex;
     align-items: center;
     margin-right: 10px;
-
-    .v-icon {
-        margin-right: 2px;
-    }
 }
 </style>

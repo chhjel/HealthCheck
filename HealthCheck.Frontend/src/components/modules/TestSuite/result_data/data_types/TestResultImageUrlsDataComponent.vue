@@ -11,7 +11,7 @@
         :hide-delimiters="!showControls"
         :hide-controls="!showControls">
 
-        <v-carousel-item
+        <div
           class="image-result-data-item"
           v-for="(url,index) in urls"
           :key="`result-data-item-${index}-${url}`"
@@ -25,7 +25,7 @@
             </div>
             <div style="clear: both;"></div>
           </div>
-        </v-carousel-item>
+        </div>
       </carousel-component>
     </div>
 </template>
@@ -85,11 +85,5 @@ export default class TestResultImageUrlsDataComponent extends Vue {
 }
 .image-result-data-item {
   min-height: 100px;
-}
-</style>
-
-<style>
-.v-dialog .data-dump-imageurls {
-    height: calc(100vh - 64px);
 }
 </style>

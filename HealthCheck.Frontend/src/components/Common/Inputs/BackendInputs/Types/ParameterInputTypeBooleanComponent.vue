@@ -1,15 +1,15 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeBooleanComponent.vue -->
 <template>
     <div>
-        <v-switch v-if="!isNullable"
+        <switch-component v-if="!isNullable"
             v-model:value="localValue" 
             :label="label"
             color="secondary"
             class="parameter-checkbox pt-0"
             :disabled="readonly"
-        ></v-switch>
+        ></switch-component>
 
-        <v-checkbox v-if="isNullable"
+        <checkbox-component v-if="isNullable"
             v-model:value="nullableCheckboxState"
             :indeterminate="localValue == null" 
             :label="label"
@@ -17,7 +17,7 @@
             @click="setNextState"
             color="secondary"
             class="parameter-checkbox pt-0"
-        ></v-checkbox>
+        ></checkbox-component>
     </div>
 </template>
 

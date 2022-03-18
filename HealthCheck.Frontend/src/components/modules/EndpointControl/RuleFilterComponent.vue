@@ -2,16 +2,16 @@
 <template>
     <div class="root">
         <div class="field-list horizontal-layout">
-            <v-switch
+            <switch-component
                 v-model:value="enabled" 
                 label="Enabled"
                 color="secondary"
                 v-on:change="onDataChanged"
                 :disabled="readonly"
-            ></v-switch>
+            ></switch-component>
             
             <div class="horizontal-layout" v-if="enabled">
-                <v-select
+                <select-component
                     class="mode-select"
                     v-model:value="filterMode"
                     :items="filterModeOptions"
@@ -19,7 +19,7 @@
                     v-on:change="onDataChanged"
                     :disabled="readonly"
                     >
-                </v-select>
+                </select-component>
             </div>
 
             <combobox-component v-if="enabled"
@@ -33,21 +33,21 @@
                 >
             </combobox-component>
             <div class="horizontal-layout" v-if="enabled">
-                <v-switch
+                <switch-component
                     v-model:value="caseSensitive" 
                     label="Case sensitive"
                     color="secondary"
                     v-on:change="onDataChanged"
                     :disabled="readonly"
-                ></v-switch>
+                ></switch-component>
 
-                <v-switch
+                <switch-component
                     v-model:value="inverted" 
                     label="Inverted"
                     color="secondary"
                     v-on:change="onDataChanged"
                     :disabled="readonly"
-                ></v-switch>
+                ></switch-component>
             </div>
         </div>
     </div>

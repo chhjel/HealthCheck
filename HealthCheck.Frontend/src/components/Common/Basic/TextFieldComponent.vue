@@ -19,7 +19,7 @@
         <div><b>singleLine:</b>' {{ singleLine }}'</div>
         <div><b>required:</b>' {{ required }}'</div> -->
 
-		<input type="text" v-model="localValue" />
+		<input :type="type" v-model="localValue" :placeholder="placeholder" />
     </div>
 </template>
 

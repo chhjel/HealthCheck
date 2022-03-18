@@ -124,9 +124,6 @@ export default class BlockComponent extends Vue
             min-height: 53px;
             border-radius: 25px;
             text-transform: inherit;
-            .v-icon {
-                margin-right: 5px;
-            }
         }
 
         .block-component--header-status-label {

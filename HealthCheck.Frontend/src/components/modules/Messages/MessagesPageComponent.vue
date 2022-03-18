@@ -4,7 +4,7 @@
         <content-component>
             <!-- NAVIGATION DRAWER -->
             <navigation-drawer-component v-model:value="drawerState">
-                <filterable-list-component 
+                <filterable-div 
                     :items="menuItems"
                     :disabled="loadStatus.inProgress"
                     v-on:itemClicked="onMenuItemClicked"
@@ -648,39 +648,7 @@ export default class MessagesPageComponent extends Vue {
 .leftside-menu {
     background-color: hsla(0, 0%, 16%, 1) !important;
 }
-.v-list__group__header--active .v-list__group__header__prepend-icon .v-icon {
-    color: #fff;
-}
 .leftside-menu-item.active a {
     background: hsla(0,0%,100%,.08);
-}
-.leftside-menu .v-list__tile--link:hover {
-    background: hsla(0,0%,100%,.08);
-}
-.leftside-menu-item.active .v-list__tile {
-    border-left: 4px solid #d1495b;
-    padding-left: 42px !important;
-}
-.v-list__group::before, .v-list__group::after {
-    display: none;
-}
-.v-list__tile {
-    height: 42px;
-}
-.v-list__group.v-list__group--active {
-    margin-bottom: 15px;
-}
-.leftside-menu .v-list__group__header .v-list__tile__title {
-    font-weight: 600;
-}
-.v-list__group {
-    margin-bottom: 10px;
-}
-.menu .v-list__group__header__prepend-icon {
-    padding-left: 14px !important;
-    min-width: inherit !important;
-}
-.menu-items .v-list__tile--link {
-    padding-left: 46px !important;
 }
 </style>

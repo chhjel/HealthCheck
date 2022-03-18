@@ -67,6 +67,7 @@ import { TestModuleOptions } from "@components/modules/TestSuite/TestSuitesPageC
 import { StoreUtil } from "@util/StoreUtil";
 
 @Options({
+    name: "BackendInputComponent",
     components: {
       // Parameter input components
       UnknownBackendInputComponent,
@@ -345,10 +346,5 @@ export default class BackendInputComponent extends Vue {
 .parameter-input input {
     font-size: 18px;
     color: #000 !important;
-}
-.parameter-input {
-    .v-text-field__slot {
-        max-width: 100%;
-    }
 }
 </style>

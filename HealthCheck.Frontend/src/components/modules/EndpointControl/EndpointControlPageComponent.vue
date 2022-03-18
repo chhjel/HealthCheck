@@ -44,13 +44,13 @@
                     >
                     <div class="rule-list-item--inner">
                         <tooltip-component tooltip="Enable or disable this rule">
-                            <v-switch
+                            <switch-component
                                 v-model:value="rule.Enabled"
                                 color="secondary"
                                 style="flex: 0"
                                 @click="setRuleEnabled(rule, !rule.Enabled)"
                                 :disabled="!HasAccessToEditRules"
-                                ></v-switch>
+                                ></switch-component>
                         </tooltip-component>
                         
                         <div class="rule-list-item--rule"

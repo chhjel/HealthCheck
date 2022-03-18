@@ -141,9 +141,5 @@ export default class SimpleDateTimeComponent extends Vue {
         font-size: 18px;
         color: #000 !important;
     }
-
-    .v-input {
-        padding-top: 0;
-    }
 }
 </style>

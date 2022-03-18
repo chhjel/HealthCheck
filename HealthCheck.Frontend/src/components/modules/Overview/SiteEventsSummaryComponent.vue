@@ -1,6 +1,6 @@
 <!-- src/components/modules/Overview/SiteEventsSummaryComponent.vue -->
 <template>
-    <list-component class="summary-list">
+    <div class="summary-list">
         <div v-for="(event, index) in events"
             :key="`current-event-${index}`"
             @click="onEventClicked(event)"
@@ -14,7 +14,7 @@
                 <div class="summary-item-description">{{ event.Description }}</div>
             </div>
         </div>
-    </list-component>
+    </div>
 </template>
 
 <script lang="ts">

@@ -4,7 +4,7 @@
         <content-component>
             <!-- NAVIGATION DRAWER -->
             <navigation-drawer-component v-model:value="drawerState">
-                <list-component expand class="menu-items">
+                <div class="menu-items">
                     <filter-input-component class="filter" v-model:value="diagramFilterText" />
 
                     <div ripple
@@ -27,7 +27,7 @@
                         @click="showSandboxMode">
                         <div v-text="'Sandbox'"></div>
                     </div>
-                </list-component>
+                </div>
             </navigation-drawer-component>
             
             <!-- CONTENT -->
@@ -83,22 +83,22 @@
                                     <code>{{ selectedStep.data.methodNameTo }}</code>
                                 </div>
 
-                                <v-checkbox
+                                <checkbox-component
                                     v-if="showToggleRemarks"
                                     v-model:value="showRemarks"
-                                    label="Show remarks" style="display:block"></v-checkbox>
+                                    label="Show remarks" style="display:block"></checkbox-component>
                             </div>
                         </div>
 
                         <!-- SANDBOX -->
                         <div v-if="sandboxMode">
                             <div>
-                                <v-select
+                                <select-component
                                     v-if="false"
                                     v-model:value="diagramStyle"
                                     :items="diagramStyles"
                                     item-text="text" item-value="value" color="secondary">
-                                </v-select>
+                                </select-component>
 
                                 <div>
                                     <div sm12 lg4>
@@ -611,13 +611,6 @@ Web -> Frontend: Confirmation is delivered
 @media (max-width: 960px) {
     .menu-items { 
         margin-top: 67px;
-    }
-}
-.docpage >>> .v-list__tile {
-    height: 62px;
-
-    .v-list__tile__title {
-        height: 48px;
     }
 }
 </style>

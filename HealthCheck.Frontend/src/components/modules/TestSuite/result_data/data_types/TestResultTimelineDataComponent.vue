@@ -2,9 +2,9 @@
 <template>
     <div>
       <stepper-component alt-labels non-linear>
-        <v-stepper-header>
+        <div>
           <template v-for="(step, index) in steps" :key="`${id}-step-${index}`">
-            <v-stepper-step :rules="[() => step.Error == null]" :step="step.Index + 1"
+            <div :rules="[() => step.Error == null]" :step="step.Index + 1"
               class="stepper-step"
               @click="onStepClicked(step)"
               :complete-icon="step.Icon || undefined"
@@ -13,13 +13,13 @@
               {{ step.Title }}
               <small v-if="stepHasDate(step)">{{ formatStepDate(step) }}</small>
               <small v-if="step.Error != null" class="step-error">{{ step.Error.trunc(20) }}</small>
-            </v-stepper-step>
-            <v-divider
+            </div>
+            <div
               v-if="index < steps.length - 1" 
               :key="`${id}-step-divider-${index}`"
-            ></v-divider>
+            ></div>
           </template>
-        </v-stepper-header>
+        </div>
       </stepper-component>
       
       <dialog-component
@@ -138,11 +138,5 @@ export default class TestResultTimelineDataComponent extends Vue {
 }
 .stepper-step:hover {
   background-color: #eee;
-}
-</style>
-
-<style>
-.data-dump-timeline .v-stepper__label {
-  text-align: center;
 }
 </style>

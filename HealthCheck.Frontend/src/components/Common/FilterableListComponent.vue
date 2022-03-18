@@ -1,7 +1,7 @@
 <!-- src/components/Common/FilterableListComponent.vue -->
 <template>
     <div>
-        <list-component expand class="menu-items">
+        <div class="menu-items">
             <filter-input-component class="filter" v-model:value="filterText" v-if="showFilter" />
             <div v-if="!showFilter" class="mb-5"></div>
             <div v-if="!showFilter" style="margin-top: 76px"></div>
@@ -70,7 +70,7 @@
             </div>
             <!-- NO GROUP: END -->
 
-        </list-component>
+        </div>
     </div>
 </template>
 
@@ -273,13 +273,5 @@ export default class FilterableListComponent extends Vue {
 }
 .filterable-menu-item__icon {
     float: right;
-}
-</style>
-
-<style lang="scss">
-.no-result-found {
-    .v-list__tile {
-        padding-left: 0;
-    }
 }
 </style>

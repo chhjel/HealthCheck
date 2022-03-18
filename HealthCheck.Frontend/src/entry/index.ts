@@ -57,6 +57,7 @@ else if (document.getElementById("app-download") !== null)
 	app.mount(appElement);
 }
 
+// Register global components
 import ToolbarComponent from '@components/Common/Basic/ToolbarComponent.vue';
 import BtnComponent from '@components/Common/Basic/BtnComponent.vue';
 import IconComponent from '@components/Common/Basic/IconComponent.vue';
@@ -84,6 +85,9 @@ import ProgressCircularComponent from '@components/Common/Basic/ProgressCircular
 import SnackbarComponent from '@components/Common/Basic/SnackbarComponent.vue';
 import CarouselComponent from '@components/Common/Basic/CarouselComponent.vue';
 import StepperComponent from '@components/Common/Basic/StepperComponent.vue';
+import SelectComponent from '@components/Common/Basic/SelectComponent.vue';
+import CheckboxComponent from '@components/Common/Basic/CheckboxComponent.vue';
+import SwitchComponent from '@components/Common/Basic/SwitchComponent.vue';
 function registerGlobalComponents(app: App<Element>): void {
 	app.component("ToolbarComponent", ToolbarComponent);
 	app.component("BtnComponent", BtnComponent);
@@ -112,4 +116,7 @@ function registerGlobalComponents(app: App<Element>): void {
 	app.component("SnackbarComponent", SnackbarComponent);
 	app.component("CarouselComponent", CarouselComponent);
 	app.component("StepperComponent", StepperComponent);
+	app.component("SelectComponent", SelectComponent);
+	app.component("CheckboxComponent", CheckboxComponent);
+	app.component("SwitchComponent", SwitchComponent);
 }

@@ -25,14 +25,14 @@
                                 :key="`dtable-item-values-${groupIndex}-${rowIndex}-${valueIndex}`"
                                 @click="setExpanded(`dtable-row-${groupIndex}-${rowIndex}`)"
                                 >
-                                <slot name="cell" v-bind:value="value">{{ value }}</slot>
+                                <div>{{ value }}</div>
                             </td>
                         </tr>
                         <tr class="data-table--row-expanded"
                             :key="`dtable-row-expanded-${groupIndex}-${rowIndex}`"
                             v-if="isExpanded(`dtable-row-${groupIndex}-${rowIndex}`)">
                             <td :colspan="headers.length">
-                                <slot name="expandedItem" v-bind:item="row">{{ row }}</slot>
+                                <div name="expandedItem">{{ row }}</div>
                             </td>
                         </tr>
                     </template>

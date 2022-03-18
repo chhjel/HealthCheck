@@ -79,9 +79,3 @@ export default class TestResultUrlsDataComponent extends Vue {
   min-height: 100px;
 }
 </style>
-
-<style>
-.v-dialog .data-dump-imageurls {
-    height: calc(100vh - 64px);
-}
-</style>

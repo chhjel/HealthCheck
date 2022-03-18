@@ -2,20 +2,20 @@
 <template>
     <div class="root event-timeline-component">
         <timeline-component align-top dense>
-            <v-timeline-item color="info" small v-if="timelineEventGroups.length == 0">
+            <div color="info" small v-if="timelineEventGroups.length == 0">
                 <div pt-3>
                     <div class="mr-4">
                         <strong>No recent events</strong>
                     </div>
                 </div>
-            </v-timeline-item>
+            </div>
             <template v-for="group in timelineEventGroups" :key="`timeline-group-${group.index}-header`">
-                <v-timeline-item 
+                <div 
                     small hide-dot class="pb-0">
                     <span>{{group.title}}</span>
-                </v-timeline-item>
+                </div>
 
-                <v-timeline-item
+                <div
                     v-for="event in group.events"
                     :key="`timeline-group-${group.index}-item-${event.Id}`"
                     :color="getTimelineItemColor(event)"
@@ -34,7 +34,7 @@
                             <div class="caption timeline-item-description">{{ event.Description }}</div>
                         </div>
                     </div>
-                </v-timeline-item>
+                </div>
             </template>
         </timeline-component>
     </div>

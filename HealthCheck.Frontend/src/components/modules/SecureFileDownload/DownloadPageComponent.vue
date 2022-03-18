@@ -355,10 +355,6 @@ export default class DownloadPageComponent extends Vue {
 .secure-file-download-page {
     button {
         max-width: 100%;
-
-        .v-btn__content {
-            max-width: 100%;
-        }
     }
 }
 </style>

@@ -23,14 +23,14 @@
                     :disabled="readonly"
                 ></text-field-component>
 
-                <v-select
+                <select-component
                     v-model:value="matchType"
                     :items="matchTypeOptions"
                     item-text="text" item-value="value" color="secondary"
                     v-on:change="onDataChanged"
                     :disabled="readonly"
                     >
-                </v-select>
+                </select-component>
             </div>
 
             <text-field-component type="text"
@@ -41,13 +41,13 @@
             ></text-field-component>
 
             <div class="horizontal-layout">
-                <v-switch
+                <switch-component
                     v-model:value="caseSensitive" 
                     label="Case sensitive"
                     color="secondary"
                     v-on:change="onDataChanged"
                     :disabled="readonly"
-                ></v-switch>
+                ></switch-component>
                 
                 <btn-component v-if="allowDelete"
                     dark small flat

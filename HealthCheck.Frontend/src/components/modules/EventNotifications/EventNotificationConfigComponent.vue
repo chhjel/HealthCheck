@@ -8,14 +8,14 @@
         </alert-component>
 
         <div class="header-data">
-            <v-switch
+            <switch-component
                 v-model:value="internalConfig.Enabled" 
                 :disabled="!allowChanges"
                 label="Enabled"
                 color="secondary"
                 class="left mr-2"
                 style="flex: 1"
-            ></v-switch>
+            ></switch-component>
             <div>
                 <div class="metadata-chip"
                     v-if="internalConfig.LastChangedBy != null && internalConfig.LastChangedBy.length > 0">
@@ -232,7 +232,7 @@
             <card-component>
                 <div class="headline">Select type of notifier to add</div>
                                 <div style="max-height: 500px;">
-                    <list-component class="possible-notifiers-list">
+                    <div class="possible-notifiers-list">
                         <div v-for="(notifier, nindex) in notifiers"
                             :key="`possible-notifier-${nindex}`"
                             @click="onAddNotifierClicked(notifier)"
@@ -246,7 +246,7 @@
                                 <div class="possible-notifier-item-description">{{ notifier.Description }}</div>
                             </div>
                         </div>
-                    </list-component>
+                    </div>
                 </div>
                                 <div>
                                         <btn-component color="secondary" flat @click="notifierDialogVisible = false">Cancel</btn-component>
@@ -277,7 +277,7 @@
             <card-component>
                 <div class="headline">Select placeholder to add</div>
                                 <div style="max-height: 500px;">
-                    <list-component class="possible-placeholders-list">
+                    <div class="possible-placeholders-list">
                         <div v-for="(placeholder, placeholderIndex) in getPayloadPlaceholders()"
                             :key="`possible-placeholder-${placeholderIndex}`"
                             @click="onAddPayloadPlaceholderClicked(placeholder)"
@@ -290,7 +290,7 @@
                                 <div class="possible-placeholder-item-title">{{ `\{${placeholder.toUpperCase()}\}` }}</div>
                             </div>
                         </div>
-                    </list-component>
+                    </div>
                 </div>
                                 <div>
                                         <btn-component color="secondary" flat @click="hidePayloadPlaceholderDialog()">Cancel</btn-component>
@@ -304,7 +304,7 @@
             <card-component>
                 <div class="headline">Select placeholder to add</div>
                                 <div style="max-height: 500px;">
-                    <list-component class="possible-placeholders-list">
+                    <div class="possible-placeholders-list">
                         <div v-for="(placeholder, placeholderIndex) in getPlaceholdersFor((currentPlaceholderDialogTargetConfig == null ? null :currentPlaceholderDialogTargetConfig.Notifier), currentPlaceholderDialogTarget)"
                             :key="`possible-placeholder-${placeholderIndex}`"
                             @click="onAddPlaceholderClicked(placeholder, currentPlaceholderDialogTarget)"
@@ -317,7 +317,7 @@
                                 <div class="possible-placeholder-item-title">{{ `\{${placeholder.toUpperCase()}\}` }}</div>
                             </div>
                         </div>
-                    </list-component>
+                    </div>
                 </div>
                                 <div>
                                         <btn-component color="secondary" flat @click="hidePlaceholderDialog()">Cancel</btn-component>
