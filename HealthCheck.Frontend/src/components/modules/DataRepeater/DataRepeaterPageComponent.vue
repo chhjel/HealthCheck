@@ -4,7 +4,7 @@
         <content-component>
             <!-- NAVIGATION DRAWER -->
             <navigation-drawer-component v-model:value="drawerState">
-                <filterable-div
+                <filterable-list-component
                     :items="menuItems"
                     :groupByKey="`GroupName`"
                     :sortByKey="`GroupName`"
@@ -21,135 +21,128 @@
             </navigation-drawer-component>
             
             <!-- CONTENT -->
-            <div fluid fill-height class="content-root">
-                <div>
+            <div class="content-root">
+                <div v-if="selectedStream && selectedItemId == null">
+                    <h2 v-if="selectedStream.StreamItemsName">{{ selectedStream.StreamItemsName }}</h2>
+                    <p v-if="selectedStream.Description" v-html="selectedStream.Description"></p>
+
+                    <div class="data-repeater-filters">
+                        <text-field-component
+                            v-model:value="filterItemId"
+                            @blur="onFilterChanged"
+                            @keyup.enter="onFilterChanged"
+                            label="Filter"
+                            clearable
+                            class="filter-input"
+                            :readonly="isLoading"
+                        ></text-field-component>
+                    </div>
+                    <div class="data-repeater-filters">
+                        <checkbox-component
+                            :value="filterRetryAllowedBinding"
+                            :indeterminate="filterRetryAllowed == null" 
+                            :label="filterRetryAllowedLabel"
+                            :disabled="isLoading"
+                            @click="setNextFilterRetryAllowedState"
+                            color="secondary"
+                        ></checkbox-component>
+                        <combobox-component
+                            v-model:value="filterTags"
+                            @blur="onFilterChanged"
+                            @keyup.enter="onFilterChanged"
+                            :items="tagPresets"
+                            label="Tags"
+                            multiple
+                            chips
+                            clearable
+                            class="filter-input"
+                            :readonly="isLoading"
+                            ></combobox-component>
+                    </div>
+
+                    <div class="pagination-and-actions">
+                        <btn-component @click="loadCurrentStreamItems(true)" :disabled="isLoading" class="right">
+                            <icon-component size="20px" class="mr-2">refresh</icon-component>Refresh
+                        </btn-component>
+                        <btn-component @click="batchActionsDialogVisible = true" :disabled="isLoading" v-if="hasBatchActions" class="right">
+                            <icon-component size="20px" class="mr-2">checklist</icon-component>Batch actions
+                        </btn-component>
+                        <paging-component
+                            :count="totalResultCount"
+                            :pageSize="pageSize"
+                            v-model:value="pageIndex"
+                            @change="onPageIndexChanged"
+                            :asIndex="true"
+                            class="mb-2 mt-2"
+                            style="padding-top: 6px"
+                            />
+                    </div>
+                </div>
+
+                <!-- LOAD PROGRESS -->
+                <progress-linear-component 
+                    v-if="isLoading"
+                    indeterminate color="green"></progress-linear-component>
+
+                <!-- DATA LOAD ERROR -->
+                <alert-component :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
+                {{ dataLoadStatus.errorMessage }}
+                </alert-component>
+
+                <div v-if="selectedStream && selectedItemId == null">
+                    <p>{{ totalResultCount}} matches</p>
+                    <div style="clear: both"></div>
                     <div>
-                        <div>
-                            <div v-if="selectedStream && selectedItemId == null">
-                                <h2 v-if="selectedStream.StreamItemsName">{{ selectedStream.StreamItemsName }}</h2>
-                                <p v-if="selectedStream.Description" v-html="selectedStream.Description"></p>
+                        <div v-for="(item, iIndex) in items"
+                            :key="`item-${iIndex}-${item.Id}`"
+                            @click="setActiveItemId(item.Id)"
+                            @click.middle.stop.prevent="onItemClickedMiddle(item)"
+                            @mousedown.middle.stop.prevent
+                            @keyup.enter="setActiveItemId(item.Id)"
+                            class="data-repeater-list-item"
+                            :class="itemRowClasses(item)"
+                            tabindex="0">
+                            <span class="data-repeater-list-item--title">{{ item.ItemId }}</span>
+                            <span v-if="item.Summary" class="data-repeater-list-item--summary">{{ item.Summary }}</span>
+                            <div class="data-repeater-list-item--spacer"></div>
+                            <span class="data-repeater-list-item--timestamp">{{ formatDate(item.InsertedAt) }}</span>
+                            <div class="data-repeater-list-item--break"></div>
+                            <span class="data-repeater-list-item--icon"
+                                title="Can be attempted retried"
+                                style="cursor: help;" v-if="item.AllowRetry">
+                                <icon-component>replay</icon-component></span>
+                            <span class="data-repeater-list-item--icon"
+                                title="Expires soon"
+                                style="cursor: help;" v-if="item.ExpiresAt && expiresSoon(item.ExpiresAt)">
+                                <icon-component>timer</icon-component></span>
 
-                                <div class="data-repeater-filters">
-                                    <text-field-component
-                                        v-model:value="filterItemId"
-                                        @blur="onFilterChanged"
-                                        @keyup.enter="onFilterChanged"
-                                        label="Filter"
-                                        clearable
-                                        class="filter-input"
-                                        :readonly="isLoading"
-                                    ></text-field-component>
-                                </div>
-                                <div class="data-repeater-filters">
-                                    <checkbox-component
-                                        :value="filterRetryAllowedBinding"
-                                        :indeterminate="filterRetryAllowed == null" 
-                                        :label="filterRetryAllowedLabel"
-                                        :disabled="isLoading"
-                                        @click="setNextFilterRetryAllowedState"
-                                        color="secondary"
-                                    ></checkbox-component>
-                                    <combobox-component
-                                        v-model:value="filterTags"
-                                        @blur="onFilterChanged"
-                                        @keyup.enter="onFilterChanged"
-                                        :items="tagPresets"
-                                        label="Tags"
-                                        multiple
-                                        chips
-                                        clearable
-                                        class="filter-input"
-                                        :readonly="isLoading"
-                                        ></combobox-component>
-                                </div>
-
-                                <div class="pagination-and-actions">
-                                    <btn-component @click="loadCurrentStreamItems(true)" :disabled="isLoading" class="right">
-                                        <icon-component size="20px" class="mr-2">refresh</icon-component>Refresh
-                                    </btn-component>
-                                    <btn-component @click="batchActionsDialogVisible = true" :disabled="isLoading" v-if="hasBatchActions" class="right">
-                                        <icon-component size="20px" class="mr-2">checklist</icon-component>Batch actions
-                                    </btn-component>
-                                    <paging-component
-                                        :count="totalResultCount"
-                                        :pageSize="pageSize"
-                                        v-model:value="pageIndex"
-                                        @change="onPageIndexChanged"
-                                        :asIndex="true"
-                                        class="mb-2 mt-2"
-                                        style="padding-top: 6px"
-                                        />
-                                </div>
+                            <div class="data-repeater-list-item--tags">
+                                <div class="data-repeater-list-item--tag"
+                                    v-for="(tag, tIndex) in item.Tags"
+                                    :key="`item-${iIndex}-${item.Id}-tag-${tIndex}`">{{ tag }}</div>
                             </div>
-
-                            <!-- LOAD PROGRESS -->
-                            <progress-linear-component 
-                                v-if="isLoading"
-                                indeterminate color="green"></progress-linear-component>
-
-                            <!-- DATA LOAD ERROR -->
-                            <alert-component :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
-                            {{ dataLoadStatus.errorMessage }}
-                            </alert-component>
-
-                            <div v-if="selectedStream && selectedItemId == null">
-                                <p>{{ totalResultCount}} matches</p>
-                                <div style="clear: both"></div>
-                                <div>
-                                    <div v-for="(item, iIndex) in items"
-                                        :key="`item-${iIndex}-${item.Id}`"
-                                        @click="setActiveItemId(item.Id)"
-                                        @click.middle.stop.prevent="onItemClickedMiddle(item)"
-                                        @mousedown.middle.stop.prevent
-                                        @keyup.enter="setActiveItemId(item.Id)"
-                                        class="data-repeater-list-item"
-                                        :class="itemRowClasses(item)"
-                                        tabindex="0">
-                                        <span class="data-repeater-list-item--title">{{ item.ItemId }}</span>
-                                        <span v-if="item.Summary" class="data-repeater-list-item--summary">{{ item.Summary }}</span>
-                                        <div class="data-repeater-list-item--spacer"></div>
-                                        <span class="data-repeater-list-item--timestamp">{{ formatDate(item.InsertedAt) }}</span>
-                                        <div class="data-repeater-list-item--break"></div>
-                                        <span class="data-repeater-list-item--icon"
-                                            title="Can be attempted retried"
-                                            style="cursor: help;" v-if="item.AllowRetry">
-                                            <icon-component>replay</icon-component></span>
-                                        <span class="data-repeater-list-item--icon"
-                                            title="Expires soon"
-                                            style="cursor: help;" v-if="item.ExpiresAt && expiresSoon(item.ExpiresAt)">
-                                            <icon-component>timer</icon-component></span>
-
-                                        <div class="data-repeater-list-item--tags">
-                                            <div class="data-repeater-list-item--tag"
-                                                v-for="(tag, tIndex) in item.Tags"
-                                                :key="`item-${iIndex}-${item.Id}-tag-${tIndex}`">{{ tag }}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <paging-component
-                                    :count="totalResultCount"
-                                    :pageSize="pageSize"
-                                    v-model:value="pageIndex"
-                                    @change="onPageIndexChanged"
-                                    :asIndex="true"
-                                    class="mb-2 mt-2"
-                                    />
-                            </div>
-
-                            <!-- ITEM -->
-                            <div v-if="selectedItemId">
-                                <data-repeater-item-component
-                                    :itemId="selectedItemId"
-                                    :stream="selectedStream"
-                                    :config="config"
-                                    :options="options"
-                                    @change="onItemUpdated"
-                                    @close="setActiveItemId(null)" />
-                            </div>
-
                         </div>
                     </div>
+                    
+                    <paging-component
+                        :count="totalResultCount"
+                        :pageSize="pageSize"
+                        v-model:value="pageIndex"
+                        @change="onPageIndexChanged"
+                        :asIndex="true"
+                        class="mb-2 mt-2"
+                        />
+                </div>
+
+                <!-- ITEM -->
+                <div v-if="selectedItemId">
+                    <data-repeater-item-component
+                        :itemId="selectedItemId"
+                        :stream="selectedStream"
+                        :config="config"
+                        :options="options"
+                        @change="onItemUpdated"
+                        @close="setActiveItemId(null)" />
                 </div>
             </div>
           <!-- CONTENT END -->
@@ -255,16 +248,15 @@ export default class DataRepeaterPageComponent extends Vue {
     //////////////////
     //  LIFECYCLE  //
     ////////////////
-    mounted(): void
+    async mounted()
     {
         StoreUtil.store.commit('showMenuButton', true);
 
         this.resetFilter();
         this.loadStreamDefinitions();
 
-        setTimeout(() => {
-            this.routeListener = this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
-        }, 100);
+        await this.$router.isReady();
+        this.routeListener = this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
     }
 
     routeListener: Function | null = null;
@@ -360,7 +352,7 @@ export default class DataRepeaterPageComponent extends Vue {
             });
         });
 
-        const idFromHash = Array.isArray(this.$route.params.streamId) ? this.$route.params.streamId[0] : this.$route.params.streamId;
+        const idFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.streamId) || null;
         if (this.streamDefinitions)
         {
             const matchingStream = this.streamDefinitions.Streams.filter(x => this.hash(x.Id) == idFromHash)[0];
@@ -439,7 +431,7 @@ export default class DataRepeaterPageComponent extends Vue {
         this.totalResultCount = data.TotalCount;
         this.items = data.Items;
         
-        const idFromHash = Array.isArray(this.$route.params.itemId) ? this.$route.params.itemId[0] : this.$route.params.itemId;
+        const idFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.itemId) || null;
         this.setActiveItemId(idFromHash, false);
     }
 

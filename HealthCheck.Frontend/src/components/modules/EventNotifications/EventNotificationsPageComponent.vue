@@ -252,6 +252,7 @@ import ModuleConfig from '@models/Common/ModuleConfig';
 import ModuleOptions from '@models/Common/ModuleOptions';
 import { EventSinkNotificationConfig, FilterMatchType, GetEventNotificationConfigsViewModel, IEventNotifier, KnownEventDefinition } from "@models/modules/EventNotifications/EventNotificationModels";
 import { StoreUtil } from "@util/StoreUtil";
+import StringUtils from "@util/StringUtils";
 
 @Options({
     components: {
@@ -357,7 +358,7 @@ export default class EventNotificationsPageComponent extends Vue {
     }
 
     updateSelectionFromUrl(): void {
-        const idFromHash = Array.isArray(this.$route.params.id) ? this.$route.params.id[0] : this.$route.params.id;
+        const idFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.id) || null;
         
         if (idFromHash) {
             let configFromUrl = this.configs.filter(x => x.Id != null && x.Id == idFromHash)[0];

@@ -4,7 +4,7 @@
         <content-component>
             <!-- NAVIGATION DRAWER -->
             <navigation-drawer-component v-model:value="drawerState">
-                <filterable-div
+                <filterable-list-component
                     :items="menuItems"
                     :groupByKey="`GroupName`"
                     :sortByKey="`GroupName`"
@@ -177,7 +177,7 @@
                                     <table class="v-table theme--light">
                                         <thead>
                                             <draggable
-                                                v-model:value="headers"
+                                                v-model="headers"
                                                 :item-key="x => `header-${x}`"
                                                 group="grp"
                                                 style="min-height: 10px"
@@ -638,22 +638,21 @@ export default class DataExportPageComponent extends Vue {
     //////////////////
     //  LIFECYCLE  //
     ////////////////
-    mounted(): void
+    async mounted()
     {
         StoreUtil.store.commit('showMenuButton', true);
 
         this.resetFilter();
         this.loadStreamDefinitions();
 
-        setTimeout(() => {
-            this.routeListener = this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
-        }, 100);
-
         this.refreshEditorSize();
         this.$nextTick(() => this.refreshEditorSize());
         setTimeout(() => {
             this.refreshEditorSize();
         }, 100);
+
+        await this.$router.isReady();
+        this.routeListener = this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
     }
 
     routeListener: Function | null = null;
@@ -862,7 +861,7 @@ export default class DataExportPageComponent extends Vue {
     onStreamDefinitionsRetrieved(data: HCGetDataExportStreamDefinitionsViewModel | null): void {
         this.streamDefinitions = data;
 
-        const idFromHash = Array.isArray(this.$route.params.streamId) ? this.$route.params.streamId[0] : this.$route.params.streamId;
+        const idFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.streamId) || null;
         if (this.streamDefinitions)
         {
             this.exporters = this.streamDefinitions.Exporters;

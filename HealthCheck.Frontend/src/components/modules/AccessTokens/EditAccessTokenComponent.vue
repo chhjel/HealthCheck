@@ -29,7 +29,7 @@
                 <checkbox-component 
                     class="mt-2"
                     :label="role.Name"
-                    :input-value="roleIsEnabled(role.Id)"
+                    :value="roleIsEnabled(role.Id)"
                     :disabled="readonly"
                     @change="(v) => onRoleToggled(role.Id, v)" />
             </div>
@@ -74,7 +74,7 @@
                         <checkbox-component hide-details
                             :label="option.Name"
                             :disabled="readonly"
-                            :input-value="moduleOptionIsEnabled(module.ModuleId, option.Id)"
+                            :value="moduleOptionIsEnabled(module.ModuleId, option.Id)"
                             @change="(v) => onModuleAccessOptionToggled(module.ModuleId, option.Id, v)" />
                     </div>
                 </div>
@@ -89,7 +89,7 @@
                         <checkbox-component hide-details
                             :label="cat.Name"
                             :disabled="readonly"
-                            :input-value="moduleCategoryIsEnabled(module.ModuleId, cat.Id)"
+                            :value="moduleCategoryIsEnabled(module.ModuleId, cat.Id)"
                             @change="(v) => onModuleAccessCategoryToggled(module.ModuleId, cat.Id, v)" />
                     </div>
                 </div>

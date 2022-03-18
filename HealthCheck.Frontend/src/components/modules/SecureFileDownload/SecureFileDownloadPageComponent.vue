@@ -144,6 +144,7 @@ import ModuleOptions from '@models/Common/ModuleOptions';
 import SecureFileDownloadService from '@services/SecureFileDownloadService';
 import { SecureFileDownloadsViewModel, SecureFileDownloadDefinition, SecureFileDownloadFrontendOptionsModel } from "@models/modules/SecureFileDownload/Models";
 import { StoreUtil } from "@util/StoreUtil";
+import StringUtils from "@util/StringUtils";
 
 @Options({
     components: {
@@ -253,7 +254,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
     }
 
     updateSelectionFromUrl(): void {
-        const idFromHash = Array.isArray(this.$route.params.id) ? this.$route.params.id[0] : this.$route.params.id;
+        const idFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.id) || null;
         
         if (idFromHash) {
             let downloadFromUrl = this.downloads.filter(x => x.Id != null && x.Id == idFromHash)[0];

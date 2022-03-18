@@ -6,7 +6,7 @@
         <content-component>
             <!-- NAVIGATION DRAWER -->
             <navigation-drawer-component v-model:value="drawerState">
-                <filterable-div 
+                <filterable-list-component 
                     :items="menuItems"
                     :sortByKey="`Name`"
                     :groupByKey="`GroupName`"
@@ -212,7 +212,7 @@
                             :label="prepro.Name"
                             class="mt-0"
                             :disabled="!prepro.CanBeDisabled"
-                            :input-value="isPreProcessorEnabled(prepro)"
+                            :value="isPreProcessorEnabled(prepro)"
                             @change="(v) => onPreProcessorToggled(prepro, v)"
                             ></checkbox-component>
                         <div class="dce-dialog--option--description"

@@ -4,7 +4,7 @@
         <content-component>
             <!-- NAVIGATION DRAWER -->
             <navigation-drawer-component v-model:value="drawerState">
-                <filterable-div 
+                <filterable-list-component 
                     :items="menuItems"
                     :disabled="loadStatus.inProgress"
                     v-on:itemClicked="onMenuItemClicked"
@@ -231,6 +231,7 @@ import EditorComponent from '@components/Common/EditorComponent.vue';
 
 import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
 import { StoreUtil } from "@util/StoreUtil";
+import StringUtils from "@util/StringUtils";
 @Options({
     components: {
         BlockComponent,
@@ -326,7 +327,8 @@ export default class MessagesPageComponent extends Vue {
     }
 
     updateSelectionFromUrl(): void {
-        const idFromHash = Array.isArray(this.$route.params.id) ? this.$route.params.id[0] : this.$route.params.id;
+        const idFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.id) || null;
+        
         if (idFromHash) {
             let inboxId: string | null = null;
             let messageId: string | null = null;

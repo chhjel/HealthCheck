@@ -258,6 +258,7 @@ import LatestRequestsComponent from '@components/modules/EndpointControl/LatestR
 
 import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
 import { StoreUtil } from "@util/StoreUtil";
+import StringUtils from "@util/StringUtils";
 @Options({
     components: {
         SimpleDateTimeComponent,
@@ -381,7 +382,7 @@ export default class EndpointControlPageComponent extends Vue {
     }
 
     updateSelectionFromUrl(): void {
-        const idFromHash = Array.isArray(this.$route.params.id) ? this.$route.params.id[0] : this.$route.params.id;
+        const idFromHash = StringUtils.stringOrFirstOfArray(this.$route.params.id) || null;
         
         if (idFromHash) {
             let ruleFromUrl = this.rules.filter(x => x.Id != null && x.Id == idFromHash)[0];

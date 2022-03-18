@@ -1,8 +1,8 @@
 <template>
-    <div class="navigation-drawer-component" :class="rootClasses" v-if="value">
-		<h3>TODO: NavigationDrawerComponent</h3>
-        <div><b>value:</b>' {{ value }}'</div>
-		<slot></slot>
+    <div class="navigation-drawer-component" :class="rootClasses" v-show="value">
+      <h3>TODO: NavigationDrawerComponent</h3>
+      <div><b>value:</b>' {{ value }}'</div>
+      <slot></slot>
     </div>
 </template>
 
@@ -16,9 +16,9 @@ import ValueUtils from '@util/ValueUtils'
 })
 export default class NavigationDrawerComponent extends Vue {
     @Prop({ required: true })
-    value!: string;
+    value!: boolean;
 
-    localValue: string = "";
+    localValue: boolean = true;
 
     //////////////////
     //  LIFECYCLE  //
