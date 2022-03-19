@@ -1,117 +1,73 @@
 <!-- src/components/modules/TestSuite/TestSuitesPageComponent.vue -->
 <template>
-    <div>
-        <content-component>
-            <!-- NAVIGATION DRAWER -->
-            <navigation-drawer-component v-model:value="drawerState">
-                <div class="menu-items">
-                    <filter-input-component class="filter" v-model:value="testSetFilterText" />
-                    
-                    <!-- GROUPS IF ANY -->
-                    <div
-                        no-action
-                        sub-group
-                        prepend-icon="keyboard_arrow_up"
-                        value="true"
-                        v-for="(group) in groupsWithNames"
-                        :key="`testset-menu-group-${group.Id}`">
-                        <div>
-                            <icon-component
-                                class="mr-2"
-                                v-if="getTestSetGroupIcon(group) != null" 
-                                v-text="getTestSetGroupIcon(group)"></icon-component>
-                            <div v-text="group.Name"></div>
-                            <badge-component class="mr-3" v-if="showFilterCounts">{{ getGroupFilterMatchCount(group) }}</badge-component>
-                        </div>
-
-                        <div ripple class="testset-menu-item"
-                            :class="{ 'active': (activeSet == set) }"
-                            v-for="(set) in filterTestSets(group.Sets)"
-                            :key="`testset-menu-group-${group.Id}-set-${set.Id}`"
-                            @click="setActiveSet(set)"
-                            @click.middle.stop.prevent="onMenuItemMiddleClicked(set)"
-                            @mousedown.middle.stop.prevent>
-                            <icon-component
-                                class="mr-2"
-                                v-text="getTestSetIcon(set)" 
-                                v-if="testSetHasIcon(set)"></icon-component>
-                            <div
-                                v-text="set.Name"
-                                :class="getTestSetTitleClass(set)"></div>
-                            <badge-component class="mr-3" v-if="showFilterCounts">{{ getSetFilterMatchCount(set) }}</badge-component>
-                        </div>
-                    </div>
-
-                    <!-- WHEN NO GROUPS -->
-                    <div ripple
-                        :class="{ 'active': (activeSet == set) }"
-                        v-for="(set) in filterTestSets(testSetsWhenThereIsNoNamedGroups)"
-                        :key="`testset-menu-${set.Id}`"
-                        @click="setActiveSet(set)"
-                        @click.middle.stop.prevent="onMenuItemMiddleClicked(set)"
-                        @mousedown.middle.stop.prevent>
-                        <icon-component
-                            class="mr-2"
-                            v-text="getTestSetIcon(set)"
-                            v-if="testSetHasIcon(set)"></icon-component>
-                        <div 
-                            v-text="set.Name"
-                            :class="getTestSetTitleClass(set)"></div>
-                        <badge-component class="mr-2" v-if="showFilterCounts">{{ getSetFilterMatchCount(set) }}</badge-component>
-                    </div>
-                </div>
-            </navigation-drawer-component>
-            
-            <!-- CONTENT -->
-            <div fluid fill-height class="content-root">
+    <div> <!-- PAGE-->
+        <!-- NAVIGATION DRAWER -->
+        <Teleport to="#module-nav-menu">
+            <filterable-list-component
+                :items="menuItems"
+                :groupByKey="`GroupName`"
+                :sortByKey="`GroupName`"
+                :hrefKey="`Href`"
+                :filterKeys="[ 'Name', 'Description' ]"
+                :loading="setSetsLoadStatus.inProgress"
+                :disabled="setSetsLoadStatus.inProgress"
+                :showFilter="true"
+                :groupIfSingleGroup="false"
+                ref="filterableList"
+                v-on:itemClicked="onMenuItemClicked"
+                @itemMiddleClicked="onMenuItemMiddleClicked"
+                />
+        </Teleport>
+        
+        <!-- CONTENT -->
+        <div class="content-root">
+            <div>
                 <div>
                     <div>
-                        <div>
-                            <!-- INVALID TESTS -->
-                            <alert-component :value="hasInvalidTests" type="error">
-                                <h3>Some invalid tests were found:</h3>
-                                <ul>
-                                    <li v-for="(invalidTest, index) in invalidTests"
-                                        :key="`invalidtest-${index}-${invalidTest.Id}`"
-                                        class="mt-2 mb-2">
-                                        <h4 style="display: flex; align-items: center;">
-                                            "{{ invalidTest.Name }}" 
-                                            <span class="caption ml-2" style="font-family: monospace;">({{ invalidTest.Id }})</span>
-                                        </h4>
-                                        <div class="ma-1">
-                                            {{ invalidTest.Reason }}
-                                        </div>
-                                    </li>
-                                </ul>
-                            </alert-component>
+                        <!-- INVALID TESTS -->
+                        <alert-component :value="hasInvalidTests" type="error">
+                            <h3>Some invalid tests were found:</h3>
+                            <ul>
+                                <li v-for="(invalidTest, index) in invalidTests"
+                                    :key="`invalidtest-${index}-${invalidTest.Id}`"
+                                    class="mt-2 mb-2">
+                                    <h4 style="display: flex; align-items: center;">
+                                        "{{ invalidTest.Name }}" 
+                                        <span class="caption ml-2" style="font-family: monospace;">({{ invalidTest.Id }})</span>
+                                    </h4>
+                                    <div class="ma-1">
+                                        {{ invalidTest.Reason }}
+                                    </div>
+                                </li>
+                            </ul>
+                        </alert-component>
 
-                            <!-- NO TESTS INFO -->
-                            <alert-component :value="!hasAnyTests && !setSetsLoadStatus.inProgress" type="info">
-                            No tests were found.
-                            </alert-component>
+                        <!-- NO TESTS INFO -->
+                        <alert-component :value="!hasAnyTests && !setSetsLoadStatus.inProgress" type="info">
+                        No tests were found.
+                        </alert-component>
 
-                            <!-- DATA LOAD ERROR -->
-                            <alert-component :value="setSetsLoadStatus.failed" type="error">
-                            {{ setSetsLoadStatus.errorMessage }}
-                            </alert-component>
+                        <!-- DATA LOAD ERROR -->
+                        <alert-component :value="setSetsLoadStatus.failed" type="error">
+                        {{ setSetsLoadStatus.errorMessage }}
+                        </alert-component>
 
-                            <!-- LOAD PROGRESS -->
-                            <progress-linear-component 
-                                v-if="setSetsLoadStatus.inProgress"
-                                indeterminate color="green"></progress-linear-component>
+                        <!-- LOAD PROGRESS -->
+                        <progress-linear-component 
+                            v-if="setSetsLoadStatus.inProgress"
+                            indeterminate color="green"></progress-linear-component>
 
-                            <!-- TESTS -->
-                            <test-set-component
-                                v-if="activeSet != null"
-                                :module-id="config.Id"
-                                :testSet="activeSet"
-                                v-on:testClicked="onTestClicked" />
-                        </div>
+                        <!-- TESTS -->
+                        <test-set-component
+                            v-if="activeSet != null"
+                            :module-id="config.Id"
+                            :testSet="activeSet"
+                            v-on:testClicked="onTestClicked" />
                     </div>
                 </div>
             </div>
-        </content-component>
-    </div>
+        </div>
+    </div> <!-- /PAGE-->
 </template>
 
 <script lang="ts">
@@ -119,7 +75,6 @@ import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import TestSetViewModel from '@models/modules/TestSuite/TestSetViewModel';
-import TestSetGroupViewModel from '@models/modules/TestSuite/TestSetGroupViewModel';
 import TestsDataViewModel from '@models/modules/TestSuite/TestsDataViewModel';
 import InvalidTestViewModel from '@models/modules/TestSuite/InvalidTestViewModel';
 import TestSetComponent from '@components/modules/TestSuite/TestSetComponent.vue';
@@ -132,13 +87,16 @@ import ModuleOptions from '@models/Common/ModuleOptions';
 import ModuleConfig from '@models/Common/ModuleConfig';
 import UrlUtils from '@util/UrlUtils';
 import StringUtils from "@util/StringUtils";
-
 import { TestModuleOptions } from '@components/modules/TestSuite/TestSuitesPageComponent.vue.models';
 import { StoreUtil } from "@util/StoreUtil";
+import { FilterableListItem } from "@components/Common/FilterableListComponent.vue.models";
+import FilterableListComponent from "@components/Common/FilterableListComponent.vue";
+
 @Options({
     components: {
         TestSetComponent,
-        FilterInputComponent
+        FilterInputComponent,
+        FilterableListComponent
     }
 })
 export default class TestSuitesPageComponent extends Vue {
@@ -151,7 +109,7 @@ export default class TestSuitesPageComponent extends Vue {
     // UI STATE
     testSetFilterText: string = "";
 
-    testSetGroups: Array<TestSetGroupViewModel> = new Array<TestSetGroupViewModel>();
+    sets: Array<TestSetViewModel> = [];
     activeSet: TestSetViewModel | null = null;
     invalidTests: Array<InvalidTestViewModel> = new Array<InvalidTestViewModel>();
 
@@ -182,51 +140,21 @@ export default class TestSuitesPageComponent extends Vue {
     }
 
     get hasAnyTests(): boolean {
-        return this.testSetGroups.length > 0;
+        return this.sets.length > 0;
     }
-
-    get groupsWithNames(): Array<TestSetGroupViewModel> {
-      return this.testSetGroups.filter(x => x.Name != null);
-    }
-
-    get groupWithoutName(): TestSetGroupViewModel {
-      return this.testSetGroups.filter(x => x.Name == null)[0];
-    }
-
-    get testSetsWhenThereIsNoNamedGroups(): Array<TestSetViewModel> {
-      return this.hasAnyGroups || this.groupWithoutName == null ? Array<TestSetViewModel>() : this.groupWithoutName!.Sets || Array<TestSetViewModel>();
-    }
-
-    get hasAnyGroups(): boolean {
-        return this.groupsWithNames.length > 0;
-    }
-
-    get allTestSets(): Array<TestSetViewModel> {
-        if (this.testSetGroups.length == 0)
-        {
-            return [];
-        }
-        return this.testSetGroups.map(x => x.Sets).reduce((a, b) => a.concat(b));
-    }
-
-    get showFilterCounts(): boolean {
-        return this.testSetFilterText.length > 0;
-    }
-
-    ////////////////////
-    //  Parent Menu  //
-    //////////////////
-    drawerState: boolean = this.storeMenuState;
-    get storeMenuState(): boolean {
-        return StoreUtil.store.state.ui.menuExpanded;
-    }
-    @Watch("storeMenuState")
-    onStoreMenuStateChanged(): void {
-        this.drawerState = this.storeMenuState;
-    }
-    @Watch("drawerState")
-    onDrawerStateChanged(): void {
-        StoreUtil.store.commit('setMenuExpanded', this.drawerState);
+    
+    get menuItems(): Array<FilterableListItem>
+    {
+        if (!this.sets) return [];
+        return this.sets.map(x => {
+            let d = {
+                title: x.Name,
+                subtitle: '',
+                data: x
+            };
+            // (<any>d)['Href'] = "/woot";
+            return d;
+        });
     }
 
     ////////////////
@@ -259,76 +187,22 @@ export default class TestSuitesPageComponent extends Vue {
             }
         }
 
-        let groupIndex = -1;
-        LinqUtils.GroupByInto(testsData.TestSets, (item) => item.GroupName || "", (key, items) => {
-            groupIndex++;
-            return {
-                Id: `g${groupIndex}`,
-                Name: (key === "") ? null : key,
-                Sets: items.sort((a,b) => b.UIOrder - a.UIOrder),
-                Icon: null,
-                UIOrder: (key === "") ? -1 : 0,
-            }
-        })
-        .forEach(x => this.testSetGroups.push(x));
-
-        // Give nameless group a name if any other groups exist
-        if (this.testSetGroups.length > 1 && this.groupWithoutName != null) {
-            this.groupWithoutName.Name = "Other";
-        }
+        this.sets = testsData.TestSets;
         
-        // Apply order
-        if (this.testSetGroups.length > 1) {
-            this.testSetGroups.forEach(group => {
-                let groupOptions = testsData.GroupOptions.filter(x => x.GroupName == group.Name)[0];
-                if (groupOptions != null) {
-                    group.UIOrder = groupOptions.UIOrder;
-                }
-            });
-        }
-
-        this.testSetGroups = this.testSetGroups.sort((a,b) => b.UIOrder - a.UIOrder);
+        // TODO
+        // // Apply order
+        // if (this.testSetGroups.length > 1) {
+        //     this.testSetGroups.forEach(group => {
+        //         let groupOptions = testsData.GroupOptions.filter(x => x.GroupName == group.Name)[0];
+        //         if (groupOptions != null) {
+        //             group.UIOrder = groupOptions.UIOrder;
+        //         }
+        //     });
+        // }
+        // this.testSetGroups = this.testSetGroups.sort((a,b) => b.UIOrder - a.UIOrder);
 
         this.setSetsLoadStatus.inProgress = false;
         this.updateSelectionFromUrl();
-    }
-
-    filterTestSets(sets: Array<TestSetViewModel>) : Array<TestSetViewModel> {
-        return sets.filter(x => this.testSetFilterMatches(x));
-    }
-
-    testSetFilterMatches(set: TestSetViewModel): boolean {
-        return set.Name.toLowerCase().indexOf(this.testSetFilterText.toLowerCase().trim()) != -1
-            || set.Tests.some(x => x.Name.toLowerCase().indexOf(this.testSetFilterText.toLowerCase().trim()) != -1);
-    }
-
-    getGroupFilterMatchCount(group: TestSetGroupViewModel): number {
-        const initialValue = 0;
-        return group.Sets.reduce((sum, obj) => sum + this.getSetFilterMatchCount(obj), initialValue);
-    }
-
-    getSetFilterMatchCount(set: TestSetViewModel): number {
-        return set.Tests.filter(x => x.Name.toLowerCase().indexOf(this.testSetFilterText.toLowerCase().trim()) != -1).length;
-    }
-
-    testSetHasIcon(set: TestSetViewModel): boolean
-    {
-        return this.getTestSetIcon(set) != null;
-    }
-
-    getTestSetIcon(set: TestSetViewModel): string | null
-    {
-        return null; //set.Icon || "sentiment_satisfied_alt";
-    }
-
-    getTestSetTitleClass(set: TestSetViewModel): string
-    {
-        return (this.activeSet == set) ? "font-weight-black active" : "font-weight-regular";
-    }
-
-    getTestSetGroupIcon(group: TestSetGroupViewModel): string | null
-    {
-        return null; //"folder_open"; //group.Icon || "extension";
     }
 
     setActiveSet(set: TestSetViewModel, test: string | null = null, updateRoute: boolean = true): void
@@ -361,7 +235,13 @@ export default class TestSuitesPageComponent extends Vue {
         }
     }
 
-    onMenuItemMiddleClicked(set: TestSetViewModel): void {
+    onMenuItemClicked(item: FilterableListItem): void {
+        const set: TestSetViewModel = item.data;
+        this.setActiveSet(set);
+    }
+
+    onMenuItemMiddleClicked(item: FilterableListItem): void {
+        const set: TestSetViewModel = item.data;
         if (set)
         {
             const groupPart = (set.GroupName == null) ? 'other' : UrlUtils.EncodeHashPart(set.GroupName);
@@ -381,8 +261,8 @@ export default class TestSuitesPageComponent extends Vue {
         }
         
         // Fallback to first set in list
-        if(this.allTestSets.length > 0) {
-            this.setActiveSet(this.allTestSets[0]);
+        if(this.sets.length > 0) {
+            this.setActiveSet(this.sets[0]);
         }
     }
 
@@ -394,7 +274,7 @@ export default class TestSuitesPageComponent extends Vue {
     trySetActiveSetFromEncodedValues(group: string, set: string, test: string | null = null): boolean
     {
         if (set != null) {
-            let matchingSet = this.allTestSets
+            let matchingSet = this.sets
                 .filter(x => (group.length == 0 || UrlUtils.EncodeHashPart(x.GroupName || 'other') == group) 
                               && UrlUtils.EncodeHashPart(x.Name) === set)[0];
 

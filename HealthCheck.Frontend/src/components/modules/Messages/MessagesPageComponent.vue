@@ -1,9 +1,9 @@
 <!-- src/components/modules/Messages/MessagesPageComponent.vue -->
 <template>
-    <div>
-        <content-component>
+    <div> <!-- PAGE-->
+        <div>
             <!-- NAVIGATION DRAWER -->
-            <navigation-drawer-component v-model:value="drawerState">
+            <Teleport to="#module-nav-menu">
                 <filterable-list-component 
                     :items="menuItems"
                     :disabled="loadStatus.inProgress"
@@ -12,7 +12,7 @@
                     :showFilter="false"
                     :groupByKey="`groupName`"
                     />
-            </navigation-drawer-component>
+            </Teleport>
             
             <!-- CONTENT -->
             <div fluid fill-height class="content-root">
@@ -101,7 +101,7 @@
             </div>
             </div>
             </div>
-        </content-component>
+        </div>
             
         <dialog-component v-model:value="showMessageDialog"
             @keydown.esc="hideMessageDialog"
@@ -205,7 +205,7 @@
                 </div>
             </card-component>
         </dialog-component>
-    </div>
+    </div> <!-- /PAGE-->
 </template>
 
 <script lang="ts">
@@ -543,22 +543,6 @@ export default class MessagesPageComponent extends Vue {
         setTimeout(() => {
             this.refreshEditorSize();
         }, 100);
-    }
-
-    ////////////////////
-    //  Parent Menu  //
-    //////////////////
-    drawerState: boolean = this.storeMenuState;
-    get storeMenuState(): boolean {
-        return StoreUtil.store.state.ui.menuExpanded;
-    }
-    @Watch("storeMenuState")
-    onStoreMenuStateChanged(): void {
-        this.drawerState = this.storeMenuState;
-    }
-    @Watch("drawerState")
-    onDrawerStateChanged(): void {
-        StoreUtil.store.commit('setMenuExpanded', this.drawerState);
     }
 }
 </script>

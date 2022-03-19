@@ -5,8 +5,8 @@
             <!-- TOOLBAR -->
             <toolbar-component clipped-left>
                 <btn-component icon
-                    @click.stop="onSideMenuToggleButtonClicked"
-                    v-if="showMenuButton">[Menu icon]</btn-component>
+                    @click.stop="moduleNavMenuState = !moduleNavMenuState"
+                    v-if="showModuleMenuButton">[Menu icon]</btn-component>
                 <div class="apptitle">
                     <a v-if="hasTitleLink" :href="titleLink">{{ globalOptions.ApplicationTitle }}</a>
                     <span v-else>{{ globalOptions.ApplicationTitle }}</span>
@@ -42,7 +42,14 @@
                 v-if="invalidModuleConfigs.length > 0"
                 :invalid-configs="invalidModuleConfigs" />
 
-            <router-view></router-view>
+            <div class="module-root">
+                <div id="module-nav-menu"
+                    :class="{ 'open': isModuleNavOpen }"
+                    ref="moduleNavMenu"></div>
+                <div class="module-content" :class="{ 'has-menu': isModuleNavOpen }">
+                    <router-view></router-view>
+                </div>
+            </div>
 
             <no-page-available-page-component
                 v-if="noModuleAccess"
@@ -87,20 +94,33 @@ export default class HealthCheckPageComponent extends Vue {
 
     integratedProfileDialogVisible: boolean = false;
     tokenKillswitchDialogVisible: boolean = false;
+    moduleNavMenuState: boolean = true;
+    moduleNavMenu: Element | null = null;
+    hackyTimer: number = 0;
 
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     async mounted()
     {
+        this.moduleNavMenu = (<Element>this.$refs.moduleNavMenu);
         await this.setInitialPage();
         this.bindRootEvents();
         this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
+        setInterval(() => this.hackyTimer++, 100);
     }
 
     ////////////////
     //  GETTERS  //
     //////////////
+    get showModuleMenuButton(): boolean {
+        return this.hackyTimer > 0 && this.moduleNavMenu != null && this.moduleNavMenu.childNodes.length > 0;
+    }
+
+    get isModuleNavOpen(): boolean {
+        return this.moduleNavMenuState && this.showModuleMenuButton;
+    }
+
     get showTokenKillswitch(): boolean {
         return this.globalOptions.AllowAccessTokenKillswitch;
     }
@@ -142,11 +162,7 @@ export default class HealthCheckPageComponent extends Vue {
     get logoutLinkUrl(): string {
         return this.globalOptions.LogoutLinkUrl;
     }
-    
-    get showMenuButton(): boolean {
-        return this.$store.state.ui.menuButtonVisible;
-    }
-    
+        
     get noModuleAccess(): boolean {
         return this.moduleConfig.length == 0;
     }
@@ -274,5 +290,34 @@ export default class HealthCheckPageComponent extends Vue {
 <style scoped lang="scss">
 .active-tab {
     font-weight: 900;
+}
+.module-root {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+
+    #module-nav-menu {
+        transition: 0.2s all;
+        position: fixed;
+        left: -300px;
+        width: 300px;
+        &:not(:empty) {
+            &.open {
+                left: 0;
+            }
+        }
+    }
+
+    .module-content {
+        transition: 0.2s all;
+        padding: 5px 20px;
+        margin: 0 auto;
+        max-width: 1280px;
+        width: 100%;
+
+        &.has-menu {
+            padding-left: 300px;
+        }
+    }
 }
 </style>

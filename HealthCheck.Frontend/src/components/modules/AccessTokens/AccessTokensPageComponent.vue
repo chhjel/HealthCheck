@@ -1,7 +1,7 @@
 <!-- src/components/modules/AccessTokens/AccessTokensPageComponent.vue -->
 <template>
     <div class="access-tokens-page">
-        <content-component class="pl-0">
+        <div> <!-- PAGE-->
         <div fluid fill-height class="content-root">
         <div>
         <div class="pl-4 pr-4 pb-4">
@@ -204,7 +204,7 @@
             </card-component>
         </dialog-component>
         <!-- ##################### -->
-        </content-component>
+        </div> <!-- /PAGE-->
     </div>
 </template>
 

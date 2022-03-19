@@ -1,7 +1,7 @@
 <!-- src/components/modules/ReleaseNotes/ReleaseNotesPageComponent.vue -->
 <template>
     <div>
-        <content-component class="pl-0">
+        <div> <!-- PAGE-->
             <!-- CONTENT -->
             <div fluid fill-height class="content-root">
             <div>
@@ -80,7 +80,7 @@
             </div>
             </div>
             </div>
-        </content-component>
+        </div> <!-- /PAGE-->
     </div>
 </template>
 

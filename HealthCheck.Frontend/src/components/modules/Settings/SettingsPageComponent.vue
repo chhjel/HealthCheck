@@ -1,7 +1,7 @@
 <!-- src/components/modules/Settings/SettingsPageComponent.vue -->
 <template>
     <div class="settings-page">
-        <content-component class="pl-0">
+        <div> <!-- PAGE-->
         <div fluid fill-height class="content-root">
         <div>
         <div class="pl-4 pr-4 pb-4">
@@ -58,7 +58,7 @@
         </div>
         </div>
         </div>
-        </content-component>
+        </div> <!-- /PAGE-->
     </div>
 </template>
 

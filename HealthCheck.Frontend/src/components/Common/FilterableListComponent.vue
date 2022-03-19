@@ -23,10 +23,9 @@
                     <badge-component class="mr-3" v-if="showFilterCounts">{{ getGroupFilterMatchCount(group) }}</badge-component>
                 </div>
 
-                <div ripple
-                    v-for="(item, itemIndex) in filterItems(group.items)"
+                <div v-for="(item, itemIndex) in filterItems(group.items)"
                     :key="`filterable-menu-item-${itemIndex}`"
-                    class="testset-menu-item"
+                    class="filterable-menu-item"
                     :class="{ 'active': itemIsSelected(item) }"
                     @click="onItemClicked(item)"
                     @click.middle.stop.prevent="onItemClickedMiddle(item)"
@@ -52,7 +51,7 @@
             <div ripple
                 v-for="(item, itemIndex) in filterItems(ungroupedItems)"
                 :key="`stream-menu-${itemIndex}`"
-                class="testset-menu-item"
+                class="filterable-menu-item"
                 :class="{ 'active': itemIsSelected(item) }"
                 @click="onItemClicked(item)"
                 @click.middle.stop.prevent="onItemClickedMiddle(item)"
@@ -64,7 +63,7 @@
 
             <div ripple
                 v-if="!hasGroups && filterText.length > 0 && filterItems(ungroupedItems).length == 0"
-                class="testset-menu-item no-result-found"
+                class="filterable-menu-item no-result-found"
                 :disabled="true">
                 <div>No results found</div>
             </div>
@@ -273,5 +272,8 @@ export default class FilterableListComponent extends Vue {
 }
 .filterable-menu-item__icon {
     float: right;
+}
+.filterable-menu-item {
+    cursor: pointer;
 }
 </style>

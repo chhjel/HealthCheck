@@ -1,7 +1,7 @@
 <!-- src/components/InvalidModuleConfigsComponent.vue -->
 <template>
     <div>
-        <content-component class="pl-0">
+        <div> <!-- PAGE-->
             <!-- CONTENT BEGIN -->
             <alert-component
                 v-for="(module, mindex) in invalidConfigs"
@@ -23,7 +23,7 @@
                 </div>
             </alert-component>
             <!-- CONTENT END -->
-        </content-component>
+        </div> <!-- /PAGE-->
     </div>
 </template>
 

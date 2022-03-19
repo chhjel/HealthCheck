@@ -1,7 +1,7 @@
 <!-- src/components/NoPageAvailablePageComponent.vue -->
 <template>
     <div>
-        <content-component class="pl-0">
+        <div> <!-- PAGE-->
             <!-- CONTENT BEGIN -->
             <alert-component
                 :value="true" color="info"
@@ -9,7 +9,7 @@
             It seems you do not have access to any of these pages.
             </alert-component>
             <!-- CONTENT END -->
-        </content-component>
+        </div> <!-- /PAGE-->
     </div>
 </template>
 

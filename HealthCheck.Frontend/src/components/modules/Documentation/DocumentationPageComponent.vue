@@ -1,9 +1,9 @@
 <!-- src/components/modules/Documentation/DocumentationPageComponent.vue -->
 <template>
-    <div class="docpage">
-        <content-component>
+    <div class="docpage"> <!-- PAGE-->
+        <div>
             <!-- NAVIGATION DRAWER -->
-            <navigation-drawer-component v-model:value="drawerState">
+            <Teleport to="#module-nav-menu">
                 <div class="menu-items">
                     <filter-input-component class="filter" v-model:value="diagramFilterText" />
 
@@ -28,7 +28,7 @@
                         <div v-text="'Sandbox'"></div>
                     </div>
                 </div>
-            </navigation-drawer-component>
+            </Teleport>
             
             <!-- CONTENT -->
             <div fluid fill-height class="content-root">
@@ -123,8 +123,8 @@
                 </div>
             </div>
           <!-- CONTENT END -->
-        </content-component>
-    </div>
+        </div>
+    </div> <!-- /PAGE-->
 </template>
 
 <script lang="ts">
@@ -275,22 +275,6 @@ Web -> Frontend: Confirmation is delivered
 
     get showFilterCounts(): boolean {
         return this.diagramFilterText.length > 0;
-    }
-
-    ////////////////////
-    //  Parent Menu  //
-    //////////////////
-    drawerState: boolean = this.storeMenuState;
-    get storeMenuState(): boolean {
-        return StoreUtil.store.state.ui.menuExpanded;
-    }
-    @Watch("storeMenuState")
-    onStoreMenuStateChanged(): void {
-        this.drawerState = this.storeMenuState;
-    }
-    @Watch("drawerState")
-    onDrawerStateChanged(): void {
-        StoreUtil.store.commit('setMenuExpanded', this.drawerState);
     }
 
     ////////////////

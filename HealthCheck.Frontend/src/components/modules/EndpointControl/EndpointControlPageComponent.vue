@@ -1,7 +1,7 @@
 <!-- src/components/modules/EndpointControl/EndpointControlPageComponent.vue -->
 <template>
     <div>
-        <content-component class="pl-0">
+        <div> <!-- PAGE-->
             <div fluid fill-height class="content-root">
             <div>
             <div>
@@ -220,7 +220,7 @@
                     </div>
                 </card-component>
             </dialog-component>
-        </content-component>
+        </div> <!-- /PAGE-->
     </div>
 </template>
 

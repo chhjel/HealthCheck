@@ -1,11 +1,10 @@
 <!-- src/components/modules/DynamicCodeExecution/DynamicCodeExecutionPageComponent.vue -->
 <template>
-    <div class="dce_page">
+    <div class="dce_page"> <!-- PAGE-->
         <loading-screen-component ref="loadingscreen" text="LOADING DCE..." />
 
-        <content-component>
-            <!-- NAVIGATION DRAWER -->
-            <navigation-drawer-component v-model:value="drawerState">
+        <div>
+            <Teleport to="#module-nav-menu">
                 <filterable-list-component 
                     :items="menuItems"
                     :sortByKey="`Name`"
@@ -33,7 +32,7 @@
                         </btn-component>
                     </tooltip-component>
                 </div>
-            </navigation-drawer-component>
+            </Teleport>
 
             <!-- CONTENT -->
             <div fluid fill-height class="content-root pt-3 pb-0 pl-0 pr-0">
@@ -102,7 +101,7 @@
             </div>
             </div>
             </div>
-        </content-component>
+        </div>
         
         <!-- ##################### -->
         <!-- ###### DIALOGS ######-->
@@ -221,13 +220,13 @@
                         </div>
                     </div>
                 </div>
-                                <div>
-                                        <btn-component color="primary" @click="configDialogVisible = false">Close</btn-component>
+                <div>
+                    <btn-component color="primary" @click="configDialogVisible = false">Close</btn-component>
                 </div>
             </card-component>
         </dialog-component>
         <!-- ##################### -->
-    </div>
+    </div> <!-- /PAGE-->
 </template>
 
 <script lang="ts">
@@ -537,22 +536,6 @@ namespace CodeTesting
     @Watch("shouldNotifyUnsavedChanges")
     onShouldNotifyUnsavedChangesCanged(): void {
         StoreUtil.store.commit('allowModuleSwitch', !this.shouldNotifyUnsavedChanges);
-    }
-
-    ////////////////////
-    //  Parent Menu  //
-    //////////////////
-    drawerState: boolean = this.storeMenuState;
-    get storeMenuState(): boolean {
-        return StoreUtil.store.state.ui.menuExpanded;
-    }
-    @Watch("storeMenuState")
-    onStoreMenuStateChanged(): void {
-        this.drawerState = this.storeMenuState;
-    }
-    @Watch("drawerState")
-    onDrawerStateChanged(): void {
-        StoreUtil.store.commit('setMenuExpanded', this.drawerState);
     }
 
     ////////////////

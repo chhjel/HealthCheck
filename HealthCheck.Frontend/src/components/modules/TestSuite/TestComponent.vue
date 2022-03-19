@@ -117,8 +117,8 @@ export default class TestComponent extends Vue {
     cancelTestStatus: FetchStatus = new FetchStatus();
 
     callbacks: Array<CallbackUnregisterShortcut> = [
-      EventBus.on("executeAllTestsInSet", this.executeTest),
-      EventBus.on("loadTestParameterChoices", (d:any) => this.onLoadTestParametersRequested(d))
+      EventBus.on("executeAllTestsInSet", this.executeTest.bind(this)),
+      EventBus.on("loadTestParameterChoices", (d:any) => this.onLoadTestParametersRequested.bind(this)(d))
     ]
 
     //////////////////

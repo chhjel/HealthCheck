@@ -1,9 +1,9 @@
 <!-- src/components/modules/DataRepeater/DataRepeaterPageComponent.vue -->
 <template>
-    <div>
-        <content-component>
+    <div> <!-- PAGE-->
+        <div>
             <!-- NAVIGATION DRAWER -->
-            <navigation-drawer-component v-model:value="drawerState">
+            <Teleport to="#module-nav-menu">
                 <filterable-list-component
                     :items="menuItems"
                     :groupByKey="`GroupName`"
@@ -18,7 +18,7 @@
                     v-on:itemClicked="onMenuItemClicked"
                     @itemMiddleClicked="onMenuItemMiddleClicked"
                     />
-            </navigation-drawer-component>
+            </Teleport>
             
             <!-- CONTENT -->
             <div class="content-root">
@@ -175,8 +175,8 @@
                 </card-component>
             </dialog-component>
           <!-- DIALOGS END -->
-        </content-component>
-    </div>
+        </div>
+    </div> <!-- /PAGE-->
 </template>
 
 <script lang="ts">
@@ -307,22 +307,6 @@ export default class DataRepeaterPageComponent extends Vue {
         if (this.filterRetryAllowed == null) return 'Retryable & non-retryable';
         else if (this.filterRetryAllowed == true) return 'Retryable only';
         else return 'Non-retryable only';
-    }
-
-    ////////////////////
-    //  Parent Menu  //
-    //////////////////
-    drawerState: boolean = this.storeMenuState;
-    get storeMenuState(): boolean {
-        return StoreUtil.store.state.ui.menuExpanded;
-    }
-    @Watch("storeMenuState")
-    onStoreMenuStateChanged(): void {
-        this.drawerState = this.storeMenuState;
-    }
-    @Watch("drawerState")
-    onDrawerStateChanged(): void {
-        StoreUtil.store.commit('setMenuExpanded', this.drawerState);
     }
 
     ////////////////

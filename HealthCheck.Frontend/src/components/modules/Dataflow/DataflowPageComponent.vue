@@ -1,9 +1,9 @@
 <!-- src/components/modules/Dataflow/DataflowPageComponent.vue -->
 <template>
-    <div>
-        <content-component>
+    <div> <!-- PAGE-->
+        <div>
             <!-- NAVIGATION DRAWER -->
-            <navigation-drawer-component v-model:value="drawerState">
+            <Teleport to="#module-nav-menu">
                 <filterable-list-component 
                     :items="menuItems"
                     :groupByKey="`GroupName`"
@@ -15,7 +15,7 @@
                     v-on:itemClicked="onMenuItemClicked"
                     @itemMiddleClicked="onMenuItemMiddleClicked"
                     />
-            </navigation-drawer-component>
+            </Teleport>
             
             <!-- CONTENT -->
             <div fluid fill-height class="content-root">
@@ -239,7 +239,7 @@
                 </div>
             </div>
           <!-- CONTENT END -->
-        </content-component>
+        </div>
 
         <!-- DIALOGS -->
         <dialog-component v-model:value="searchResultDialogVisible"
@@ -262,7 +262,7 @@
                 </div>
             </card-component>
         </dialog-component>
-    </div>
+    </div> <!-- /PAGE-->
 </template>
 
 <script lang="ts">
@@ -491,22 +491,6 @@ export default class DataflowPageComponent extends Vue {
         if (!this.searchResult) return [];
         return this.searchResult.StreamResults
             .filter(x => x.Entries.some(e => !e.GroupByKey));
-    }
-
-    ////////////////////
-    //  Parent Menu  //
-    //////////////////
-    drawerState: boolean = this.storeMenuState;
-    get storeMenuState(): boolean {
-        return StoreUtil.store.state.ui.menuExpanded;
-    }
-    @Watch("storeMenuState")
-    onStoreMenuStateChanged(): void {
-        this.drawerState = this.storeMenuState;
-    }
-    @Watch("drawerState")
-    onDrawerStateChanged(): void {
-        StoreUtil.store.commit('setMenuExpanded', this.drawerState);
     }
 
     ////////////////
