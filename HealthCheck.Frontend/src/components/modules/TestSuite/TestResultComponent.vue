@@ -17,18 +17,18 @@
           :class="{ 'clean-mode': testResult.DisplayClean }"
           v-if="showTestResultData"
           v-model:value="dataExpandedState">
-          <div>
-            <div v-if="testResult.AllowExpandData && !testResult.DisplayClean">{{ testResultDataTitle }}</div>
-            <card-component v-if="dataExpandedState == 0">
-              <div>
-                <test-result-data-component 
-                  v-for="(resultData, index) in testResult.Data"
-                  :key="`test-${testResult.TestId}-result-data`+index"
-                  :resultData="resultData"
-                  :clean="resultData.DisplayClean || testResult.DisplayClean" />
-              </div>
-            </card-component>
-          </div>
+            <template #header v-if="testResult.AllowExpandData && !testResult.DisplayClean">{{ testResultDataTitle }}</template>
+            <template #content>
+              <card-component v-if="dataExpandedState">
+                <div>
+                  <test-result-data-component 
+                    v-for="(resultData, index) in testResult.Data"
+                    :key="`test-${testResult.TestId}-result-data`+index"
+                    :resultData="resultData"
+                    :clean="resultData.DisplayClean || testResult.DisplayClean" />
+                </div>
+              </card-component>
+            </template>
         </expansion-panel-component>
     </div>
 </template>
@@ -50,7 +50,7 @@ export default class TestResultComponent extends Vue {
     @Prop({ required: true })
     expandDataOnLoad!: boolean;
 
-    dataExpandedState: number = -1;
+    dataExpandedState: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -59,7 +59,7 @@ export default class TestResultComponent extends Vue {
       if (this.expandDataOnLoad == true 
           || this.testResult.ExpandDataByDefault == true
           || this.testResult.DisplayClean == true) {
-        this.dataExpandedState = 0;
+        this.dataExpandedState = true;
       }
     }
     
@@ -67,8 +67,8 @@ export default class TestResultComponent extends Vue {
     //  WATCHERS  //
     ///////////////
     @Watch("dataExpandedState")
-    onDataExpandedStateChanged(value:number, oldValue:number): void {
-      this.$emit("dataExpandedStateChanged", (value == 0));
+    onDataExpandedStateChanged(value:boolean, oldValue:boolean): void {
+      this.$emit("dataExpandedStateChanged", value);
     }
 
     ////////////////

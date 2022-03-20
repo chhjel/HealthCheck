@@ -70,7 +70,7 @@ export default class CheckboxComponent extends Vue {
     @Watch('localValue')
     emitLocalValue(): void
     {
-		this.$emit('update:input', this.localValue);
+		this.$emit('update:value', this.localValue);
     }
 }
 </script>

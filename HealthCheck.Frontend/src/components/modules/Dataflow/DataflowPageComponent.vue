@@ -52,11 +52,9 @@
                                         <menu-component
                                             transition="slide-y-transition"
                                             bottom>
-                                            <template v-slot:activator="{ on }">
-                                                <btn-component flat icon color="primary" class="datepicker-button">
-                                                    <icon-component>date_range</icon-component>
-                                                </btn-component>
-                                            </template>
+                                            <btn-component flat icon color="primary" class="datepicker-button">
+                                                <icon-component>date_range</icon-component>
+                                            </btn-component>
                                             <div>
                                                 <div
                                                     v-for="(preset, i) in datePickerPresets"

@@ -1,11 +1,11 @@
 <template>
     <div class="snackbar-component" :class="rootClasses">
-		<h3>TODO: SnackbarComponent</h3>
+		  <!-- <h3>TODO: SnackbarComponent</h3>
         <div><b>value:</b>' {{ value }}'</div>
         <div><b>timeout:</b>' {{ timeout }}'</div>
-        <div><b>color:</b>' {{ color }}'</div>
+        <div><b>color:</b>' {{ color }}'</div> -->
 
-		<slot></slot>
+		  <slot></slot>
     </div>
 </template>
 
@@ -19,7 +19,7 @@ import { Options } from "vue-class-component";
 export default class SnackbarComponent extends Vue {
 
     @Prop({ required: true })
-    value!: string;
+    value!: boolean;
 
     @Prop({ required: false, default: null })
     timeout!: string;
@@ -27,7 +27,7 @@ export default class SnackbarComponent extends Vue {
     @Prop({ required: false, default: null })
     color!: string;
 
-    localValue: string = "";
+    localValue: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -67,7 +67,7 @@ export default class SnackbarComponent extends Vue {
     @Watch('localValue')
     emitLocalValue(): void
     {
-		this.$emit('update:input', this.localValue);
+		this.$emit('update:value', this.localValue);
     }
 }
 </script>

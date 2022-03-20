@@ -248,19 +248,18 @@
 
                 <!-- CHARTS -->
                 <expansion-panel-component popout v-if="chartEntries.length > 0" class="mb-4">
-                    <div>
-                        <div>{{insightsTitle}}</div>
+                    <template #header><div>{{insightsTitle}}</div></template>
+                    <template #content>
                         <card-component>
                             <item-per-date-chart-component :entries="chartEntries" />
-                            <!-- <div></div> -->
                         </card-component>
-                    </div>
+                    </template>
                 </expansion-panel-component>
 
                 <!-- GROUPED ENTRIES //todo -->
                 <expansion-panel-component popout v-if="Object.keys(searchResultData.GroupedEntries).length > 0" class="mb-4">
-                    <div>
-                        <div>Grouped entries (work in progress)</div>
+                    <template #header><div>Grouped entries (work in progress)</div></template>
+                    <template #content>
                         <card-component>
                             <ul class="ma-4">
                                 <li v-for="(groupKey, index) in Object.keys(searchResultData.GroupedEntries)"
@@ -269,7 +268,7 @@
                                 </li>
                             </ul>
                         </card-component>
-                    </div>
+                    </template>
                 </expansion-panel-component>
             </div>
 
@@ -312,8 +311,8 @@
 
             <!-- PARSED QUERY -->
             <expansion-panel-component popout v-if="describedQuery.length > 0" class="mb-4">
-                <div>
-                    <div>Parsed query</div>
+                <template #header><div>Parsed query</div></template>
+                <template #content>
                     <card-component>
                         <ul class="ma-4">
                             <li v-for="(description, index) in describedQuery"
@@ -322,7 +321,7 @@
                             </li>
                         </ul>
                     </card-component>
-                </div>
+                </template>
             </expansion-panel-component>
 
           <!-- CONTENT END -->

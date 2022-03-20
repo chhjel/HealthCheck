@@ -2,7 +2,7 @@
 <template>
     <div>
       <code-component language="csharp"
-        :resultData="resultData"
+        :datax="resultData"
         :fullscreen="fullscreen" />
     </div>
 </template>

@@ -1,10 +1,14 @@
 <template>
     <div class="expansion-panel-component" :class="rootClasses">
-		<h3>TODO: ExpansionPanelComponent</h3>
+		<!-- <h3>TODO: ExpansionPanelComponent</h3>
         <div><b>value:</b>' {{ value }}'</div>
-        <div><b>popout:</b>' {{ popout }}'</div>
-
-		<slot></slot>
+        <div><b>popout:</b>' {{ popout }}'</div> -->
+        <div class="expansion-panel_header" @click="localValue = !localValue">
+            <slot name="header"></slot>
+        </div>
+        <div class="expansion-panel_content" v-show="localValue">
+		    <slot name="content" ></slot>
+        </div>
     </div>
 </template>
 
@@ -19,12 +23,12 @@ import ValueUtils from '@util/ValueUtils'
 export default class ExpansionPanelComponent extends Vue {
 
     @Prop({ required: true })
-    value!: string;
+    value!: boolean;
 
     @Prop({ required: false, default: false })
     popout!: string | boolean;
 
-    localValue: string = "";
+    localValue: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -65,7 +69,7 @@ export default class ExpansionPanelComponent extends Vue {
     @Watch('localValue')
     emitLocalValue(): void
     {
-		this.$emit('update:input', this.localValue);
+		this.$emit('update:value', this.localValue);
     }
 }
 </script>

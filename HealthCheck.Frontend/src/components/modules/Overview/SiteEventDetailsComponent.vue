@@ -47,10 +47,10 @@
                 <expansion-panel-component class="mt-4"
                     v-if="event.DeveloperDetails != null && event.DeveloperDetails.length > 0"
                     v-model:value="developerDetailsExpandedState">
-                    <div>
-                        <div>Developer details</div>
+                    <template #header><div>Developer details</div></template>
+                    <template #content>
                         <code class="pa-4 dev-details-contents">{{ event.DeveloperDetails }}</code>
-                    </div>
+                    </template>
                 </expansion-panel-component>
             </span>
         </div>
@@ -75,7 +75,7 @@ export default class SiteEventDetailsComponent extends Vue {
     @Prop()
     event!: SiteEventViewModel;
 
-    developerDetailsExpandedState: number = -1;
+    developerDetailsExpandedState: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //

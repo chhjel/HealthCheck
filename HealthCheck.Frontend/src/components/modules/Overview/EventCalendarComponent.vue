@@ -5,17 +5,13 @@
         <div v-if="calendarEvents.length > 0">
             <div xs12 sm3 class="mr-4">
                 <dialog-component ref="dateDialog" v-model:value="datepickerModal"
-                    :return-value.sync="calendarStart" lazy
                     full-width width="290px">
-                    <template v-slot:activator="{ on }">
                     <text-field-component
                         v-model:value="calendarStart"
                         label="Date"
                         prepend-icon="event"
                         readonly
-                       
                     ></text-field-component>
-                    </template>
                     <date-picker-component 
                         v-model:value="calendarStart"
                         :allowed-dates="allowDatepickerDate"

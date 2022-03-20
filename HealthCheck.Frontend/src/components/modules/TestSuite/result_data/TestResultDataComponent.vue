@@ -1,7 +1,7 @@
 <!-- src/components/modules/TestSuite/result_data/TestResultDataComponent.vue -->
 <template>
     <div class="data-dump-wrapper">
-        <div v-if="resultData.Title && data.Title.length > 0"
+        <div v-if="resultData.Title && resultData.Title.length > 0"
           class="data-dump-title">{{resultData.Title}}</div>
         <component
             :class="`data-dump data-dump-${resultData.Type.toLowerCase()}`"
@@ -22,9 +22,7 @@
             v-model:value="showFullscreen"
             @keydown.esc="showFullscreen = false"
             fullscreen hide-overlay transition="dialog-transition">
-            <template v-slot:activator="{ on }">
-              <btn-component outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2 ml-0">Fullscreen</btn-component>
-            </template>
+            <btn-component outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2 ml-0">Fullscreen</btn-component>
             <card-component>
               <!-- DIALOG TOOLBAR -->
               <toolbar-component dark color="primary">
