@@ -1,0 +1,42 @@
+$util-margin-padding-list: (
+	0: 0,
+	1: 4,
+	2: 8,
+	3: 16,
+	4: 24,
+	5: 48,
+);
+
+@each $key, $val in $util-margin-padding-list {
+	.pa-#{$key} {
+		padding: ($val) + px !important;
+	}
+	.pt-#{$key} {
+		padding-top: ($val) + px !important;
+	}
+	.pb-#{$key} {
+		padding-bottom: ($val) + px !important;
+	}
+	.pl-#{$key} {
+		padding-left: ($val) + px !important;
+	}
+	.pr-#{$key} {
+		padding-right: ($val) + px !important;
+	}
+
+	.ma-#{$key} {
+		margin: ($val) + px !important;
+	}
+	.mt-#{$key} {
+		margin-top: ($val) + px !important;
+	}
+	.mb-#{$key} {
+		margin-bottom: ($val) + px !important;
+	}
+	.ml-#{$key} {
+		margin-left: ($val) + px !important;
+	}
+	.mr-#{$key} {
+		margin-right: ($val) + px !important;
+	}
+}
