@@ -107,6 +107,9 @@ export default class FilterableListComponent extends Vue {
     @Prop({ required: false, default: null })
     sortByKey!: string | null;
 
+    @Prop({ required: false, default: null })
+    groupOrders!: { [key:string]:number } | null;
+
     @Prop({ required: false, default: () => [] })
     filterKeys!: Array<string>;
 
@@ -142,7 +145,9 @@ export default class FilterableListComponent extends Vue {
     
     get ungroupedItems(): Array<FilterableListItem>
     {
-        return (this.groups.length == 0) ? this.items : [];
+        if (this.groups.length > 0) return [];
+        return this.items
+            .sort((a, b) => LinqUtils.SortBy(a, b, (x: any) => x[this.sortByKey || '']));
     }
 
     get groups(): Array<FilterableListGroup>
@@ -162,9 +167,22 @@ export default class FilterableListComponent extends Vue {
             return [];
         }
 
+        // Sort items within groups
         if (this.sortByKey != null)
         {
-            groupList = groupList.sort((a, b) => LinqUtils.SortBy(a, b, (x: any) => x[this.sortByKey || '']));
+            for (let i=0;i<groupList.length;i++)
+            {
+                groupList[i].items = groupList[i].items.sort((a, b) => LinqUtils.SortBy(a, b, (x: any) => x[this.sortByKey || '']));
+            }
+        }
+        // Sort groups
+        if (this.groupOrders != null && this.groupByKey != null)
+        {
+            groupList = groupList.sort((a, b) => LinqUtils.SortBy(a, b, (x: FilterableListGroup) => {
+                const groupName: string = x.items[0].data[this.groupByKey];
+                const groupOrder: number = this.groupOrders[groupName] || -999999;
+                return groupOrder;
+            }));
         }
 
         return groupList;

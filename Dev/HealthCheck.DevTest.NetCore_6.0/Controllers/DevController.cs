@@ -146,6 +146,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                 ReferenceParameterFactories = CreateReferenceParameterFactories
             }))
                 .ConfigureGroups((options) => options
+                    .ConfigureGroup(RuntimeTestConstants.Group.TopGroup, uiOrder: 130)
                     .ConfigureGroup(RuntimeTestConstants.Group.Modules, uiOrder: 120)
                     .ConfigureGroup(RuntimeTestConstants.Group.AdminStuff, uiOrder: 100)
                     .ConfigureGroup(RuntimeTestConstants.Group.AlmostTopGroup, uiOrder: 50)

@@ -5,6 +5,7 @@
         <Teleport to="#module-nav-menu">
             <filterable-list-component
                 :items="menuItems"
+                :groupOrders="menuGroupOrders"
                 :groupByKey="`GroupName`"
                 :sortByKey="`UIOrder`"
                 :hrefKey="`Href`"
@@ -92,6 +93,7 @@ import { StoreUtil } from "@util/StoreUtil";
 import { FilterableListItem } from "@components/Common/FilterableListComponent.vue.models";
 import FilterableListComponent from "@components/Common/FilterableListComponent.vue";
 import { RouteLocationNormalized } from "vue-router";
+import GroupOptionsViewModel from "@models/modules/TestSuite/GroupOptionsViewModel";
 
 @Options({
     components: {
@@ -111,6 +113,8 @@ export default class TestSuitesPageComponent extends Vue {
     testSetFilterText: string = "";
 
     sets: Array<TestSetViewModel> = [];
+    groupOptions: Array<GroupOptionsViewModel> = [];
+    menuGroupOrders: { [key:string]:number } | null = null;
     activeSet: TestSetViewModel | null = null;
     invalidTests: Array<InvalidTestViewModel> = new Array<InvalidTestViewModel>();
 
@@ -147,17 +151,6 @@ export default class TestSuitesPageComponent extends Vue {
     get menuItems(): Array<FilterableListItem>
     {
         if (!this.sets) return [];
-        // TODO: Order groups
-        // // Apply order
-        // if (this.testSetGroups.length > 1) {
-        //     this.testSetGroups.forEach(group => {
-        //         let groupOptions = testsData.GroupOptions.filter(x => x.GroupName == group.Name)[0];
-        //         if (groupOptions != null) {
-        //             group.UIOrder = groupOptions.UIOrder;
-        //         }
-        //     });
-        // }
-
         return this.sets.map(x => {
             let d = {
                 title: x.Name,
@@ -167,6 +160,20 @@ export default class TestSuitesPageComponent extends Vue {
             // (<any>d)['Href'] = "/woot";
             return d;
         });
+    }
+
+    setMenuGroupOrders(): void
+    {
+        this.menuGroupOrders = null;
+        let orders: { [key:string]:number } = {};
+        if (this.groupOptions == null || this.groupOptions.length == 0) return;
+
+        this.groupOptions.forEach(g => {
+            orders[g.GroupName] = g.UIOrder;
+        });
+
+        this.menuGroupOrders = orders;
+        console.log(this.menuGroupOrders);
     }
 
     ////////////////
@@ -200,8 +207,10 @@ export default class TestSuitesPageComponent extends Vue {
         }
 
         this.sets = testsData.TestSets;
+        this.groupOptions = testsData.GroupOptions;
 
         this.setSetsLoadStatus.inProgress = false;
+        this.setMenuGroupOrders();
         this.updateSelectionFromUrl();
     }
 
