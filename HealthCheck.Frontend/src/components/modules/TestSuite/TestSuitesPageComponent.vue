@@ -6,7 +6,7 @@
             <filterable-list-component
                 :items="menuItems"
                 :groupByKey="`GroupName`"
-                :sortByKey="`GroupName`"
+                :sortByKey="`UIOrder`"
                 :hrefKey="`Href`"
                 :filterKeys="[ 'Name', 'Description' ]"
                 :loading="setSetsLoadStatus.inProgress"
@@ -91,6 +91,7 @@ import { TestModuleOptions } from '@components/modules/TestSuite/TestSuitesPageC
 import { StoreUtil } from "@util/StoreUtil";
 import { FilterableListItem } from "@components/Common/FilterableListComponent.vue.models";
 import FilterableListComponent from "@components/Common/FilterableListComponent.vue";
+import { RouteLocationNormalized } from "vue-router";
 
 @Options({
     components: {
@@ -146,6 +147,17 @@ export default class TestSuitesPageComponent extends Vue {
     get menuItems(): Array<FilterableListItem>
     {
         if (!this.sets) return [];
+        // TODO: Order groups
+        // // Apply order
+        // if (this.testSetGroups.length > 1) {
+        //     this.testSetGroups.forEach(group => {
+        //         let groupOptions = testsData.GroupOptions.filter(x => x.GroupName == group.Name)[0];
+        //         if (groupOptions != null) {
+        //             group.UIOrder = groupOptions.UIOrder;
+        //         }
+        //     });
+        // }
+
         return this.sets.map(x => {
             let d = {
                 title: x.Name,
@@ -188,18 +200,6 @@ export default class TestSuitesPageComponent extends Vue {
         }
 
         this.sets = testsData.TestSets;
-        
-        // TODO
-        // // Apply order
-        // if (this.testSetGroups.length > 1) {
-        //     this.testSetGroups.forEach(group => {
-        //         let groupOptions = testsData.GroupOptions.filter(x => x.GroupName == group.Name)[0];
-        //         if (groupOptions != null) {
-        //             group.UIOrder = groupOptions.UIOrder;
-        //         }
-        //     });
-        // }
-        // this.testSetGroups = this.testSetGroups.sort((a,b) => b.UIOrder - a.UIOrder);
 
         this.setSetsLoadStatus.inProgress = false;
         this.updateSelectionFromUrl();
@@ -267,8 +267,11 @@ export default class TestSuitesPageComponent extends Vue {
     }
 
     @Watch('$route')
-    onRouteChanged(to: any, from: any): void {
-        this.updateSelectionFromUrl();
+    onRouteChanged(to: RouteLocationNormalized, from: RouteLocationNormalized): void {
+        if (to.fullPath.toLowerCase().startsWith('/tests'))
+        {
+            this.updateSelectionFromUrl();
+        }
     }
 
     trySetActiveSetFromEncodedValues(group: string, set: string, test: string | null = null): boolean

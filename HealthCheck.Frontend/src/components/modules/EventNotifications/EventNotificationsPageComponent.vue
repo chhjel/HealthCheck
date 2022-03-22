@@ -225,22 +225,10 @@
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
-import LoggedEndpointDefinitionViewModel from '@models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
-import LoggedEndpointRequestViewModel from '@models/modules/RequestLog/LoggedEndpointRequestViewModel';
-import { EntryState } from '@models/modules/RequestLog/EntryState';
-import DateUtils from '@util/DateUtils';
 import LinqUtils from '@util/LinqUtils';
-import KeyArray from '@util/models/KeyArray';
-import KeyValuePair from '@models/Common/KeyValuePair';
 import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
-import { DateTimePicker } from "@lazy-copilot/datetimepicker";
-import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
-import DataTableComponent from '@components/Common/DataTableComponent.vue';
-import { DataTableGroup } from '@components/Common/DataTableComponent.vue.models';
 import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
-import FilterableListComponent from '@components/Common/FilterableListComponent.vue';
-import { FilterableListItem } from '@components/Common/FilterableListComponent.vue.models';
 import ConfigFilterComponent from '@components/modules/EventNotifications/ConfigFilterComponent.vue';
 import EventNotificationConfigComponent from '@components/modules/EventNotifications/EventNotificationConfigComponent.vue';
 import IdUtils from '@util/IdUtils';

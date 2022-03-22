@@ -15,7 +15,10 @@
         <div><b>outline:</b>' {{ outline }}'</div>
         <div><b>xSmall:</b>' {{ xSmall }}'</div>
         <div><b>target:</b>' {{ target }}'</div> -->
-		<span class="btn-component__contents"><slot></slot></span>
+        <a v-if="href" :href="(href || '')">
+		    <span class="btn-component__contents"><slot></slot></span>
+        </a>
+        <span v-else class="btn-component__contents"><slot></slot></span>
     </div>
 </template>
 
@@ -136,12 +139,17 @@ export default class BtnComponent extends Vue {
     cursor: pointer;
 
     &__contents {
+        color: #333;
         display: flex;
         align-content: center;
         justify-content: center;
         align-items: center;
         flex-direction: row;
         white-space: nowrap;
+
+        &:hover {
+            text-decoration: none;
+        }
     }
 
     &.icon { }
