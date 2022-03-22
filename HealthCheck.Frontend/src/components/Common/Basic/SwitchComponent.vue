@@ -1,6 +1,6 @@
 <template>
     <div class="switch-component" :class="rootClasses">
-        <input type="checkbox" :id="`sw-${id}`" v-model="value" />
+        <input type="checkbox" :id="`sw-${id}`" v-model="localValue" />
         <label :for="`sw-${id}`">{{ label }}</label>
     </div>
 </template>

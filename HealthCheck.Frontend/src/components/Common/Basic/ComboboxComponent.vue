@@ -1,6 +1,6 @@
 <template>
     <div class="combobox-component" :class="rootClasses">
-		<h3>TODO: ComboboxComponent</h3>
+		<!-- <h3>TODO: ComboboxComponent</h3>
         <div><b>value:</b>' {{ value }}'</div>
         <div><b>items:</b>' {{ items }}'</div>
         <div><b>label:</b>' {{ label }}'</div>
@@ -10,7 +10,7 @@
         <div><b>readonly:</b>' {{ readonly }}'</div>
         <div><b>noDataText:</b>' {{ noDataText }}'</div>
         <div><b>placeholder:</b>' {{ placeholder }}'</div>
-        <div><b>disabled:</b>' {{ disabled }}'</div>
+        <div><b>disabled:</b>' {{ disabled }}'</div> -->
 
 		<slot></slot>
     </div>

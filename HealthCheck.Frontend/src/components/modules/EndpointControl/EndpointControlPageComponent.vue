@@ -228,25 +228,11 @@
 import { Vue, Prop, Watch, Provide } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
-import LoggedEndpointDefinitionViewModel from '@models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
-import LoggedEndpointRequestViewModel from '@models/modules/RequestLog/LoggedEndpointRequestViewModel';
-import { EntryState } from '@models/modules/RequestLog/EntryState';
-import DateUtils from '@util/DateUtils';
 import LinqUtils from '@util/LinqUtils';
-import KeyArray from '@util/models/KeyArray';
-import KeyValuePair from '@models/Common/KeyValuePair';
-import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 // @ts-ignore
-import { DateTimePicker } from "@lazy-copilot/datetimepicker";
-import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
-import DataTableComponent from '@components/Common/DataTableComponent.vue';
-import { DataTableGroup } from '@components/Common/DataTableComponent.vue.models';
 import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
 import RuleDescriptionComponent from '@components/modules/EndpointControl/RuleDescriptionComponent.vue';
-import FilterableListComponent from '@components/Common/FilterableListComponent.vue';
-import { FilterableListItem } from '@components/Common/FilterableListComponent.vue.models';
 import RuleComponent from '@components/modules/EndpointControl/RuleComponent.vue';
-import IdUtils from '@util/IdUtils';
 import EndpointControlUtils from '@util/EndpointControl/EndpointControlUtils';
 import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
 import { FetchStatus } from '@services/abstractions/HCServiceBase';
@@ -283,6 +269,7 @@ export default class EndpointControlPageComponent extends Vue {
     editDefinitionsDialogVisible: boolean = false;
     deleteDefinitionDialogVisible: boolean = false;
     latestRequestsDialogVisible: boolean = false;
+    ruleDialogVisible: boolean = false;
     deleteDefinitionDialogText: string = "";
     endpointDefinitionIdToDelete: string | null = null;
 
@@ -336,12 +323,6 @@ export default class EndpointControlPageComponent extends Vue {
             ? 'Edit endpoint rule'
             : 'Create new endpoint rule';
     }
-
-    get ruleDialogVisible(): boolean
-    {
-        return this.currentRule != null;
-    }
-    set ruleDialogVisible(v: boolean) {}
 
     get EndpointDefinitions(): Array<EndpointControlEndpointDefinition>
     {
@@ -471,6 +452,7 @@ export default class EndpointControlPageComponent extends Vue {
 
     showRule(rule: EndpointControlRule, updateRoute: boolean = true): void {
         this.currentRule = rule;
+        this.ruleDialogVisible = rule != null;
 
         if (updateRoute)
         {
@@ -480,6 +462,7 @@ export default class EndpointControlPageComponent extends Vue {
 
     hideCurrentRule(): void {
         this.currentRule = null;
+        this.ruleDialogVisible = false;
         this.updateUrl();
     }
     

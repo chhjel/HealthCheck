@@ -120,22 +120,8 @@
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
-import { EntryState } from '@models/modules/RequestLog/EntryState';
-import DateUtils from '@util/DateUtils';
-import LinqUtils from '@util/LinqUtils';
-import KeyArray from '@util/models/KeyArray';
-import KeyValuePair from '@models/Common/KeyValuePair';
-import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
-// @ts-ignore
-import { DateTimePicker } from "@lazy-copilot/datetimepicker";
-import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
-import DataTableComponent from '@components/Common/DataTableComponent.vue';
-import { DataTableGroup } from '@components/Common/DataTableComponent.vue.models';
 import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
-import FilterableListComponent from '@components/Common/FilterableListComponent.vue';
-import { FilterableListItem } from '@components/Common/FilterableListComponent.vue.models';
 import EditDownloadComponent from '@components/modules/SecureFileDownload/EditDownloadComponent.vue';
-import IdUtils from '@util/IdUtils';
 import SecureFileDownloadUtils from '@util/SecureFileDownload/SecureFileDownloadUtils';
 import BlockComponent from '@components/Common/Basic/BlockComponent.vue';
 import { FetchStatus } from '@services/abstractions/HCServiceBase';
@@ -165,6 +151,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
     // UI STATE
     loadStatus: FetchStatus = new FetchStatus();
     serverInteractionInProgress: boolean = false;
+    downloadDialogVisible: boolean = false;
 
     datax: Array<SecureFileDownloadDefinition> = [];
     currentDownload: SecureFileDownloadDefinition | null = null;
@@ -228,12 +215,6 @@ export default class SecureFileDownloadPageComponent extends Vue {
             ? 'Edit download'
             : 'Create new download';
     }
-
-    get downloadDialogVisible(): boolean
-    {
-        return this.currentDownload != null;
-    }
-    set downloadDialogVisible(v: boolean) {}
 
     get downloads(): Array<SecureFileDownloadDefinition>
     {
@@ -325,6 +306,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
 
     showDownload(download: SecureFileDownloadDefinition, updateRoute: boolean = true): void {
         this.currentDownload = download;
+        this.downloadDialogVisible = download != null;
 
         if (updateRoute)
         {
@@ -334,6 +316,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
 
     hideCurrentDownload(): void {
         this.currentDownload = null;
+        this.downloadDialogVisible = false;
         this.updateUrl();
     }
     

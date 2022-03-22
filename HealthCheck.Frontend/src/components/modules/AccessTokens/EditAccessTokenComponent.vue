@@ -135,10 +135,10 @@ export default class EditAccessTokenComponent extends Vue {
     @Prop({ required: false, default: false })
     readonly!: boolean;
 
-    @Prop({ required: false, default: {
+    @Prop({ required: false, default: () => { return {
         roles: [],
         modules: []
-    }})
+    }}})
     value!: CreatedAccessData;
 
     datax: CreatedAccessData = {
@@ -203,7 +203,7 @@ export default class EditAccessTokenComponent extends Vue {
     }
 
     notifyChange(): void {
-        this.$emit('update:value', this.data);
+        this.$emit('update:value', this.datax);
     }
 
     ///////////////////////

@@ -226,8 +226,6 @@ import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import LinqUtils from '@util/LinqUtils';
-import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
-// @ts-ignore
 import SimpleDateTimeComponent from '@components/Common/SimpleDateTimeComponent.vue';
 import ConfigFilterComponent from '@components/modules/EventNotifications/ConfigFilterComponent.vue';
 import EventNotificationConfigComponent from '@components/modules/EventNotifications/EventNotificationConfigComponent.vue';
@@ -264,6 +262,7 @@ export default class EventNotificationsPageComponent extends Vue {
     serverInteractionInProgress: boolean = false;
     editDefinitionsDialogVisible: boolean = false;
     deleteDefinitionDialogVisible: boolean = false;
+    configDialogVisible: boolean = false;
     deleteDefinitionDialogText: string = "";
     eventDefinitionIdToDelete: string | null = null;
 
@@ -305,12 +304,6 @@ export default class EventNotificationsPageComponent extends Vue {
             ? 'Edit notification config'
             : 'Create new notification config';
     }
-
-    get configDialogVisible(): boolean
-    {
-        return this.currentConfig != null;
-    }
-    set configDialogVisible(v: boolean) {}
 
     get notifiers(): Array<IEventNotifier>
     {
@@ -431,6 +424,7 @@ export default class EventNotificationsPageComponent extends Vue {
 
     showConfig(config: EventSinkNotificationConfig, updateRoute: boolean = true): void {
         this.currentConfig = config;
+        this.configDialogVisible = config != null;
 
         if (updateRoute)
         {
@@ -440,6 +434,7 @@ export default class EventNotificationsPageComponent extends Vue {
 
     hideCurrentConfig(): void {
         this.currentConfig = null;
+        this.configDialogVisible = false;
         this.updateUrl();
     }
     

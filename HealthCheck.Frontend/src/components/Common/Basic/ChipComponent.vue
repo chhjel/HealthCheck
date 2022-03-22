@@ -1,10 +1,9 @@
 <template>
     <div class="chip-component" :class="rootClasses">
-		<h3>TODO: ChipComponent</h3>
+		<!-- <h3>TODO: ChipComponent</h3>
         <div><b>color:</b>' {{ color }}'</div>
         <div><b>outline:</b>' {{ outline }}'</div>
-        <div><b>disabled:</b>' {{ disabled }}'</div>
-
+        <div><b>disabled:</b>' {{ disabled }}'</div> -->
 		<slot></slot>
     </div>
 </template>

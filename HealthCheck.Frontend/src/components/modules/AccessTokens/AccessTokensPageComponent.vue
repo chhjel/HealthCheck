@@ -188,8 +188,8 @@
                         :read-only="loadStatus.inProgress"
                         v-model:value="accessDataInEdit" />
                 </div>
-                                <div >
-                                        <btn-component
+                <div >
+                    <btn-component
                         color="primary"
                         :loading="loadStatus.inProgress"
                         :disabled="loadStatus.inProgress || !enableCreateTokenButton"
