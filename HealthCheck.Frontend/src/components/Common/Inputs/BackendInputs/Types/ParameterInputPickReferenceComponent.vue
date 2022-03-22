@@ -15,7 +15,7 @@
         </div>
 
         <textarea style="display:none;" ref="copyValue" :value="localValue" />
-        <snackbar-component v-model:value="showCopyAlert" :timeout="5000" :color="copyAlertColor" :bottom="true">
+        <snackbar-component v-model:value="showCopyAlert" :timeout="5000" :color="copyAlertColor">
           {{ copyAlertText }}
           <btn-component flat @click="showCopyAlert = false">Close</btn-component>
         </snackbar-component>

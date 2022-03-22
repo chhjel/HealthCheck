@@ -318,6 +318,9 @@ export default class HealthCheckPageComponent extends Vue {
         &.has-menu {
             padding-left: 300px;
         }
+        @media (min-width: 960px) {
+            // todo: menu on top instead of pushing content
+        }
     }
 }
 </style>

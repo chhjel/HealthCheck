@@ -57,7 +57,6 @@
           v-model:value="showCopyAlert"
           :timeout="5000"
           :color="copyAlertColor"
-          :bottom="true"
         >
           {{ copyAlertText }}
           <btn-component

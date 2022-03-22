@@ -1,11 +1,11 @@
 <template>
     <div class="snackbar-component" :class="rootClasses">
-		  <!-- <h3>TODO: SnackbarComponent</h3>
+        <!-- <h3>TODO: SnackbarComponent</h3>
+        ToDo: show on bottom and fade out after timeout or clicked close
         <div><b>value:</b>' {{ value }}'</div>
         <div><b>timeout:</b>' {{ timeout }}'</div>
         <div><b>color:</b>' {{ color }}'</div> -->
-
-		  <slot></slot>
+        <slot></slot>
     </div>
 </template>
 
