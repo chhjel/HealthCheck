@@ -400,7 +400,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             _eventDataSink.RegisterEvent("GetRequestInfo", new
             {
                 Type = GetType().Name,
-                Path = Request?.Path
+                Path = Request?.Path,
+                Message = "wut"
             });
             HCMetricsContext.AddNote("Random value", new Random().Next());
             HCMetricsContext.AddGlobalValue("Rng", new Random().Next());
