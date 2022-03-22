@@ -62,7 +62,7 @@
 
                     <!-- FILTER -->
                     <div v-if="options.Options.ShowFilter" class="mb-2">
-                        <input-component v-if="showFilter" v-model="filterInternal" name="Filter" />
+                        <input-component v-if="showFilter" v-model:value="filterInternal" name="Filter" />
                     </div>
 
                     <status-component :type="summaryType" :text="summaryText" />
