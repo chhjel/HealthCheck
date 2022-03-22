@@ -172,6 +172,7 @@ import SiteEventViewModel from "@models/modules/SiteEvents/SiteEventViewModel";
 import { SiteEventSeverity } from "@models/modules/SiteEvents/SiteEventSeverity";
 import { SiteEvent } from "@generated/Models/Core/SiteEvent";
 import { StoreUtil } from "@util/StoreUtil";
+import InputComponent from "@components/Common/Basic/InputComponent.vue";
 
 interface OverviewPageOptions
 {
