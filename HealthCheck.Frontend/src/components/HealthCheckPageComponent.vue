@@ -5,6 +5,8 @@
             <!-- TOOLBAR -->
             <toolbar-component clipped-left>
                 <btn-component icon
+                    @click.stop="toggleThemes">[Theme: {{ theme }}]</btn-component>
+                <btn-component icon
                     @click.stop="moduleNavMenuState = !moduleNavMenuState"
                     v-if="showModuleMenuButton">[Menu icon]</btn-component>
                 <div class="apptitle">
@@ -64,7 +66,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Prop } from "vue-property-decorator";
+import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import NoPageAvailablePageComponent from '@components/NoPageAvailablePageComponent.vue';
 import InvalidModuleConfigsComponent from '@components/InvalidModuleConfigsComponent.vue';
@@ -97,12 +99,16 @@ export default class HealthCheckPageComponent extends Vue {
     moduleNavMenuState: boolean = true;
     moduleNavMenu: Element | null = null;
     hackyTimer: number = 0;
+    theme: string = 'light';
 
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     async mounted()
     {
+        this.theme = localStorage.getItem('theme') || 'light';
+        this.onThemeChanged();
+
         this.moduleNavMenu = (<Element>this.$refs.moduleNavMenu);
         await this.setInitialPage();
         this.bindRootEvents();
@@ -203,6 +209,11 @@ export default class HealthCheckPageComponent extends Vue {
         }
     }
 
+    toggleThemes(): void {
+        if (this.theme == 'light') this.theme = 'dark';
+        else this.theme = 'light';
+    }
+
     getModuleOptions(moduleId: string): any
     {
         var options = (<any>window).healthCheckModuleOptions;
@@ -283,6 +294,12 @@ export default class HealthCheckPageComponent extends Vue {
     getModuleLinkUrl(mconf: ModuleConfig): string {
         let route = `#${mconf.InitialRoute}`;
         return UrlUtils.getOpenRouteInNewTabUrl(route);
+    }
+
+    @Watch('theme')
+    onThemeChanged(): void {
+        document.documentElement.setAttribute('theme', this.theme);
+        localStorage.setItem('theme', this.theme);
     }
 }
 </script>

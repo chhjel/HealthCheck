@@ -57,7 +57,7 @@
 
                             <tooltip-component :tooltip="`Last modified by '${download.LastModifiedByUsername}'`" bottom>
                                 <icon-component help>person</icon-component>
-                                <code style="color: var(--v-primary-base); cursor: help;">{{ download.LastModifiedByUsername }}</code>
+                                <code style="color: var(--color--primary-base); cursor: help;">{{ download.LastModifiedByUsername }}</code>
                             </tooltip-component>
                         </div>
                             
@@ -417,10 +417,10 @@ export default class SecureFileDownloadPageComponent extends Vue {
                 font-weight: 600;
             }
             .download-list-item--condition {
-                color: var(--v-primary-base);
+                color: var(--color--primary-base);
             }
             .download-list-item--action {
-                color: var(--v-secondary-base);
+                color: var(--color--secondary-base);
             }
             /* .download-list-item--condition,
             .download-list-item--action {

@@ -60,7 +60,7 @@
                     item-key="Id"
                     expand
                     class="audit-table">
-                    <progress-linear-component v-slot:progress color="primary" indeterminate></progress-linear-component>
+                    <progress-linear-component color="primary" indeterminate></progress-linear-component>
                     <template v-slot:no-data>
                     <alert-component :value="true" color="error" icon="warning" v-if="loadStatus.failed">
                         {{ loadStatus.errorMessage }}
@@ -382,9 +382,9 @@ export default class AuditLogPageComponent extends Vue {
 }
 /* .row-details-role {
     display: inline;
-    color: var(--v-secondary-base);
+    color: var(--color--secondary-base);
     padding: 5px;
-    border: 1px solid var(--v-secondary-base);
+    border: 1px solid var(--color--secondary-base);
     border-radius: 15px;
     margin: 2px;
     font-size: 12px;
@@ -403,7 +403,7 @@ export default class AuditLogPageComponent extends Vue {
     display: inline;
 }
 .row-details-details-value {
-    color: #333;
+    /* color: #333; */
 }
 .row-details-blobs-title {
     font-weight: 600;
@@ -444,11 +444,11 @@ input.calendarInput {
     border: 1px solid #d5dbde !important;
 }
 .calendarTrigger:hover svg {
-    fill: var(--v-primary-base) !important;
-    color: var(--v-primary-base) !important;
+    fill: var(--color--primary-base) !important;
+    color: var(--color--primary-base) !important;
 }
 .dateTimeWrapper a.confirm {
-    background: var(--v-primary-base) !important;
+    background: var(--color--primary-base) !important;
     font-size: 0 !important;
 }
 .dateTimeWrapper a.confirm::after {
@@ -456,13 +456,13 @@ input.calendarInput {
     font-size: 13px;
 }
 .timeContainer .bigNumber {
-    color: var(--v-primary-base) !important;
+    color: var(--color--primary-base) !important;
 }
 .dateTimeWrapper .calendar .innerStartDate,.innerEndDate {
-    background: var(--v-primary-base) !important;
+    background: var(--color--primary-base) !important;
 }
 .dateTimeWrapper .calendar .day span:hover {
-    background: var(--v-secondary-base) !important;
+    background: var(--color--secondary-base) !important;
 }
 @media (max-width: 600px) {
     .audit-table {

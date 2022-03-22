@@ -881,7 +881,7 @@ export default class EventNotificationConfigComponent extends Vue {
 .notif-test-result {
     width: 100%;
     overflow: auto;
-    color: #333;
+    /* color: #333; */
     padding: 10px;
 
     &::before {

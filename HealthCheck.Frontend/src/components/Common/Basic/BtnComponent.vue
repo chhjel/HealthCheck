@@ -129,7 +129,8 @@ export default class BtnComponent extends Vue {
 <style scoped lang="scss">
 .btn-component {
     padding: 5px;
-    background-color: #eee;
+    background-color: var(--color--background);
+    /* background-color: #eee; */
     border: 1px solid gray;
     display: flex;
     align-content: center;
@@ -139,7 +140,7 @@ export default class BtnComponent extends Vue {
     cursor: pointer;
 
     &__contents {
-        color: #333;
+        /* color: #333; */
         display: flex;
         align-content: center;
         justify-content: center;

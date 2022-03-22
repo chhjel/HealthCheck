@@ -409,7 +409,7 @@ export default class TestComponent extends Vue {
 }
 .test-status-label {
   color: #fff;
-  background-color: var(--v-success-base);
+  background-color: var(--color--success-base);
   height: 33px;
   padding: 8px;
   margin-right: 8px;

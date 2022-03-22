@@ -208,7 +208,7 @@ export default class TimespanInputComponent extends Vue
         .input-component--header-name {
             display: inline-block;
             font-size: 16px;
-            color: var(--v-secondary-base);
+            color: var(--color--secondary-base);
             font-weight: 600;
         }
 
@@ -245,7 +245,7 @@ export default class TimespanInputComponent extends Vue
         margin-top: -21px;
         margin-left: 2px;
         font-weight: 600;
-        color: var(--v-error-base) !important;
+        color: var(--color--error-base) !important;
     }
 
     &--inputs {

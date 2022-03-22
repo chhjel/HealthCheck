@@ -193,7 +193,7 @@ export default class ReleaseNotesPageComponent extends Vue {
     color: #666;
     /* border-radius: 5px; */
     border: 1px solid #ccc;
-    border-left: 3px solid var(--v-success-base);
+    border-left: 3px solid var(--color--success-base);
     text-decoration: none;
 
     &:not(.has-issue) {

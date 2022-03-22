@@ -133,7 +133,7 @@ export default class TestResultTimelineDataComponent extends Vue {
   cursor: pointer;
 }
 .step-error {
-  color: var(--v-error-base) !important;
+  color: var(--color--error-base) !important;
   font-weight: bold;
 }
 .stepper-step:hover {

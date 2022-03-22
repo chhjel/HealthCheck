@@ -26,8 +26,8 @@
                     <div style="display: flex">
                         <h1 class="mb-2" style="flex: 1">Current status</h1>
                         
-                        <v-btn flat v-if="options.Options.ShowFilter && !showFilter" @click="showFilter = !showFilter">Filter data..</v-btn>
-                        <v-btn flat v-if="options.Options.ShowFilter && showFilter" @click="showFilter = !showFilter">Hide filter</v-btn>
+                        <btn-component flat v-if="options.Options.ShowFilter && !showFilter" @click="showFilter = !showFilter">Filter data..</btn-component>
+                        <btn-component flat v-if="options.Options.ShowFilter && showFilter" @click="showFilter = !showFilter">Hide filter</btn-component>
 
                         <btn-component @click="toggleAutoRefresh"
                             :loading="deleteStatus.inProgress"
@@ -245,7 +245,7 @@ export default class OverviewPageComponent extends Vue {
 
     get filter(): string {
         if (!this.showFilter) return '';
-        else return this.filterInternal;
+        else return this.filterInternal || '';
     }
 
     get performFiltering(): boolean { return this.filter != ''; }

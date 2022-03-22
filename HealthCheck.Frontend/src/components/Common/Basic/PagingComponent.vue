@@ -261,7 +261,7 @@ export default class PagingComponent extends Vue
         &.active {
             font-weight: 600;
             color: #fff;
-            background-color: var(--v-primary-base);
+            background-color: var(--color--primary-base);
         }
 
         &.middle {

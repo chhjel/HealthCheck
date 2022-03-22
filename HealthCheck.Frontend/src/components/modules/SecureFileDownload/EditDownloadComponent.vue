@@ -568,7 +568,7 @@ export default class EditDownloadComponent extends Vue {
 .input-label-d {
     display: inline-block;
     font-size: 16px;
-    color: var(--v-secondary-base);
+    color: var(--color--secondary-base);
     font-weight: 600;
 }
 .upload-file-component {

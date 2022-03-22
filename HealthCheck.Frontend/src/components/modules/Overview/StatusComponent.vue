@@ -69,23 +69,23 @@ export default class StatusComponent extends Vue {
     font-size: 17px;
     border-radius: 2px;
     color: #fff;
-    background: var(--v-success-base);
+    background: var(--color--success-base);
     white-space: pre;
 }
 .summary.with-info {
     color: #fff;
-    background: var(--v-info-base);
+    background: var(--color--info-base);
 }
 .summary.with-warning {
     color: #fff;
-    background: var(--v-warning-base);
+    background: var(--color--warning-base);
 }
 .summary.with-error {
     color: #fff;
-    background: var(--v-error-base);
+    background: var(--color--error-base);
 }
 .summary.with-fatal {
     color: #fff;
-    background: #333;
+    /* background: #333; */
 }
 </style>

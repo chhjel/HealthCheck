@@ -327,7 +327,7 @@ export default class TestSuitesPageComponent extends Vue {
 
 <style scoped>
 .menu {
-    /* background-color: var(--v-primary-base); */
+    /* background-color: var(--color--primary-base); */
     box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 .filter {

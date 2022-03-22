@@ -232,7 +232,7 @@ export default class EventTimelineComponent extends Vue {
     font-size: 18px;
 }
 .timeline-item-title-resolved-label {
-    color: var(--v-success-base);
+    color: var(--color--success-base);
     font-size: 14px;
     margin-left: 10px;
     font-weight: normal;

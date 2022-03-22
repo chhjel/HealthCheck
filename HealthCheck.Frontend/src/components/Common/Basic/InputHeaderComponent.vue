@@ -75,7 +75,7 @@ export default class InputHeaderComponent extends Vue
         .input-component--header-name {
             display: inline-block;
             font-size: 16px;
-            color: var(--v-secondary-base);
+            color: var(--color--secondary-base);
             font-weight: 600;
         }
 

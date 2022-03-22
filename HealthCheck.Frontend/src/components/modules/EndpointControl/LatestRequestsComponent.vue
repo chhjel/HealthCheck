@@ -418,11 +418,11 @@ export default class LatestRequestsComponent extends Vue {
     padding: 10px;
 
     &.blocked {
-        border-left: 3px solid var(--v-error-base);
+        border-left: 3px solid var(--color--error-base);
     }
 
     &.allowed {
-        border-left: 3px solid var(--v-success-base);
+        border-left: 3px solid var(--color--success-base);
 
         code {
             color: #666;

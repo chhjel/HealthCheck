@@ -456,7 +456,7 @@ export default class DataRepeaterItemComponent extends Vue {
     box-shadow: none;
 
     &:not(.failed) {
-        color: #333;
+        /* color: #333; */
     }
 }
 code {

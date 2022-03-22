@@ -78,7 +78,7 @@ export default class DataflowEntryPropertyValueComponent extends Vue {
 .parameter-name {
     display: inline-block;
     font-size: 16px;
-    color: var(--v-secondary-base);
+    color: var(--color--secondary-base);
     font-weight: 600;
 }
 .parameter-description {

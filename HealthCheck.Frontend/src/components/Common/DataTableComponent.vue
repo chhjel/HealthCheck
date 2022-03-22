@@ -92,8 +92,6 @@ export default class DataTableComponent extends Vue
 
 <style scoped lang="scss">
 .data-table {
-    /* background-color: #292929;
-    color: #eee; */
     overflow-x: auto;
     padding: 10px;
     background-color: #fff;
@@ -101,10 +99,6 @@ export default class DataTableComponent extends Vue
     table {
         width: 100%;
         border-collapse: collapse;
-
-        /* th, td {
-            min-width: 100px;
-        } */
 
         th {
             text-align: left;

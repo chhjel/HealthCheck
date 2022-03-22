@@ -1,0 +1,19 @@
+:root {
+	--color--primary-base: rgb(104, 175, 104);
+	--color--secondary-base: rgb(113, 143, 163);
+	
+	--color--info-base: #82a4d8;
+	--color--success-base: #9fc793;
+	--color--warning-base: #e4883d;
+	--color--error-base: #eb7f7f;
+}
+
+[theme="light"] {
+	--color--background: #eee;
+	--color--text: #333;
+}
+
+[theme="dark"] {
+	--color--background: #333;
+	--color--text: #eee;
+}

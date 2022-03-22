@@ -90,7 +90,7 @@
 
                             <tooltip-component :tooltip="`Last modified by '${config.LastChangedBy}'`">
                                 <icon-component style="cursor: help;">person</icon-component>
-                                <code style="color: var(--v-primary-base); cursor: help;">{{ config.LastChangedBy }}</code>
+                                <code style="color: var(--color--primary-base); cursor: help;">{{ config.LastChangedBy }}</code>
                             </tooltip-component>
                         </div>
                     </div>
@@ -603,10 +603,10 @@ export default class EventNotificationsPageComponent extends Vue {
                 font-weight: 600;
             }
             .config-list-item--condition {
-                color: var(--v-primary-base);
+                color: var(--color--primary-base);
             }
             .config-list-item--action {
-                color: var(--v-secondary-base);
+                color: var(--color--secondary-base);
             }
         }
 

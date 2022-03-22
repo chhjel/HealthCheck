@@ -71,7 +71,7 @@
 
                         <tooltip-component :tooltip="`Last modified by '${rule.LastChangedBy}'`">
                             <icon-component style="cursor: help;">person</icon-component>
-                            <code style="color: var(--v-primary-base); cursor: help;">{{ rule.LastChangedBy }}</code>
+                            <code style="color: var(--color--primary-base); cursor: help;">{{ rule.LastChangedBy }}</code>
                         </tooltip-component>
                     </div>
                 </block-component>
@@ -612,10 +612,10 @@ export default class EndpointControlPageComponent extends Vue {
                 font-weight: 600;
             }
             .rule-list-item--condition {
-                color: var(--v-primary-base);
+                color: var(--color--primary-base);
             }
             .rule-list-item--action {
-                color: var(--v-secondary-base);
+                color: var(--color--secondary-base);
             }
             /* .rule-list-item--condition,
             .rule-list-item--action {

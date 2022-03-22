@@ -323,9 +323,9 @@ export default class EventCalendarComponent extends Vue {
     text-overflow: ellipsis;
     white-space: nowrap;
     border-radius: 2px;
-    background-color: var(--v-primary-base);
+    background-color: var(--color--primary-base);
     color: #ffffff;
-    border: 1px solid var(--v-primary-base);
+    border: 1px solid var(--color--primary-base);
     width: 100%;
     font-size: 12px;
     padding: 3px;
