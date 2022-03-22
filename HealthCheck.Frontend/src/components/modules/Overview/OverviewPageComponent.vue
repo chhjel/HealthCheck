@@ -8,8 +8,6 @@
           <!-- CONTENT BEGIN -->
             
         <v-container grid-list-md>
-            <!-- <h1 class="mb-2">Events overview</h1> -->
-
             <v-layout align-content-center wrap>
                 <!-- LOAD ERROR -->
                 <v-alert
@@ -27,6 +25,9 @@
                 <v-flex sm12 v-if="showContent" class="mb-4" >
                     <div style="display: flex">
                         <h1 class="mb-2" style="flex: 1">Current status</h1>
+                        
+                        <v-btn flat v-if="options.Options.ShowFilter && !showFilter" @click="showFilter = !showFilter">Filter data..</v-btn>
+                        <v-btn flat v-if="options.Options.ShowFilter && showFilter" @click="showFilter = !showFilter">Hide filter</v-btn>
 
                         <v-btn @click="toggleAutoRefresh"
                             :loading="deleteStatus.inProgress"
@@ -54,6 +55,14 @@
                                 Delete all
                             </v-btn>
                         </div>
+                    </div>
+                
+                    <!-- CUSTOM HTML -->
+                    <div class="mb-2 mt-2" v-if="options.Options.CustomHtml" v-html="options.Options.CustomHtml"></div>
+
+                    <!-- FILTER -->
+                    <div v-if="options.Options.ShowFilter" class="mb-2">
+                        <input-component v-if="showFilter" v-model="filterInternal" name="Filter" />
                     </div>
 
                     <status-component :type="summaryType" :text="summaryText" />
@@ -165,11 +174,14 @@ import { FetchStatus } from  '../../../services/abstractions/HCServiceBase';
 import ModuleOptions from  '../../../models/Common/ModuleOptions';
 import ModuleConfig from  '../../../models/Common/ModuleConfig';
 import { SiteEvent } from "generated/Models/Core/SiteEvent";
+import InputComponent from "components/Common/Basic/InputComponent.vue";
 
 interface OverviewPageOptions
 {
     CurrentEventBufferMinutes: number;
     FrontendAutoRefreshSecondsInterval: number;
+    CustomHtml: string;
+    ShowFilter: boolean;
 }
 
 @Component({
@@ -178,7 +190,8 @@ interface OverviewPageOptions
         EventCalendarComponent,
         SiteEventDetailsComponent,
         SiteEventsSummaryComponent,
-        StatusComponent
+        StatusComponent,
+        InputComponent
     }
 })
 export default class OverviewPageComponent extends Vue {
@@ -208,6 +221,8 @@ export default class OverviewPageComponent extends Vue {
     autoRefreshRef: number = 0;
     autoRefreshValue: number = 100;
     nextAutoRefresh: Date | null = null;
+    filterInternal: string = '';
+    showFilter: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -229,9 +244,17 @@ export default class OverviewPageComponent extends Vue {
     get globalOptions(): FrontEndOptionsViewModel {
         return this.$store.state.globalOptions;
     }
+
+    get filter(): string {
+        if (!this.showFilter) return '';
+        else return this.filterInternal;
+    }
+
+    get performFiltering(): boolean { return this.filter != ''; }
     
     get calendarEvents(): Array<SiteEventViewModel> {
-        return this.siteEvents;
+        return this.siteEvents
+            .filter(x => this.isEventMatchingFilter(x));
     }
 
     get timelineEvents(): Array<SiteEventViewModel> {
@@ -240,15 +263,30 @@ export default class OverviewPageComponent extends Vue {
         fromDate.setHours(23);
         fromDate.setMinutes(59);
         
-        return this.siteEvents.filter(x => new Date(x.EndTime) >= fromDate);
+        return this.siteEvents
+            .filter(x => new Date(x.EndTime) >= fromDate)
+            .filter(x => this.isEventMatchingFilter(x));
     }
 
     get currentEvents(): Array<SiteEventViewModel> {
         return this.siteEvents
             .filter(x => this.isEventCurrent(x))
+            .filter(x => this.isEventMatchingFilter(x))
             .sort((a, b) => LinqUtils.SortByThenBy(a, b,
                 (item) => item.SeverityCode,
                 (item) => item.Timestamp)
+            );
+    }
+
+    isEventMatchingFilter(event: SiteEventViewModel): boolean {
+        if (!this.performFiltering) return true;
+        else return(
+            event.EventTypeId?.toLowerCase()?.includes(this.filter.toLowerCase())
+            || event.Severity?.toLowerCase()?.includes(this.filter.toLowerCase())
+            || event.Title?.toLowerCase()?.includes(this.filter.toLowerCase())
+            || event.Description?.toLowerCase()?.includes(this.filter.toLowerCase())
+            || event.DeveloperDetails?.toLowerCase()?.includes(this.filter.toLowerCase())
+            || event.Timestamp?.toString()?.toLowerCase()?.includes(this.filter.toLowerCase())
             );
     }
 

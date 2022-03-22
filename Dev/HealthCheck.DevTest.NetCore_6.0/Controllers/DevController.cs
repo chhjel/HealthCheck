@@ -176,7 +176,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                     return value;
                 }
             }));
-            UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = siteEventService }));
+            UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = siteEventService, CustomHtml = "<h2>Something custom here</h2><p>And some more.</p>" }));
             UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { Service = settingsService, ModelType = typeof(TestSettings) }));
 
             if (!_hasInited)

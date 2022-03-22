@@ -10,6 +10,7 @@ export default interface SiteEventViewModel {
     EventTypeId: string;
     Title: string;
     Description: string;
+    DeveloperDetails: string;
     Duration: number;
     RelatedLinks: Array<HyperLinkViewModel>;
     Resolved: boolean;
