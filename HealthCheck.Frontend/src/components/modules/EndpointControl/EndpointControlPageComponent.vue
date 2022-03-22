@@ -341,6 +341,7 @@ export default class EndpointControlPageComponent extends Vue {
     {
         return this.currentRule != null;
     }
+    set ruleDialogVisible(v: boolean) {}
 
     get EndpointDefinitions(): Array<EndpointControlEndpointDefinition>
     {

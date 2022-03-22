@@ -131,8 +131,8 @@
                             ref="currentConfigComponent"
                             />
                     </div>
-                                        <div >
-                                                <btn-component color="error" flat
+                    <div >
+                        <btn-component color="error" flat
                             v-if="showDeleteConfig"
                             :disabled="serverInteractionInProgress"
                             @click="$refs.currentConfigComponent.tryDeleteConfig()">Delete</btn-component>
@@ -322,6 +322,7 @@ export default class EventNotificationsPageComponent extends Vue {
     {
         return this.currentConfig != null;
     }
+    set configDialogVisible(v: boolean) {}
 
     get notifiers(): Array<IEventNotifier>
     {

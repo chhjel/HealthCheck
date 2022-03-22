@@ -233,6 +233,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
     {
         return this.currentDownload != null;
     }
+    set downloadDialogVisible(v: boolean) {}
 
     get downloads(): Array<SecureFileDownloadDefinition>
     {
