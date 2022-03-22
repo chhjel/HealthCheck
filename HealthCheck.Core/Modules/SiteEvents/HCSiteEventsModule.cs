@@ -41,7 +41,9 @@ namespace HealthCheck.Core.Modules.SiteEvents
         public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => new
         {
             CurrentEventBufferMinutes = Options.CurrentEventBufferMinutes,
-            FrontendAutoRefreshSecondsInterval = Options.FrontendAutoRefreshSecondsInterval
+            FrontendAutoRefreshSecondsInterval = Options.FrontendAutoRefreshSecondsInterval,
+            CustomHtml = Options.CustomHtml,
+            ShowFilter = Options.ShowFilter
         };
 
         /// <summary>

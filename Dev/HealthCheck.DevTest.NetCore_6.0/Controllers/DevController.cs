@@ -176,7 +176,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                     return value;
                 }
             }));
-            UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = siteEventService }));
+            UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = siteEventService, CustomHtml = "<h2>Something custom here</h2><p>And some more.</p>" }));
             UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { Service = settingsService, ModelType = typeof(TestSettings) }));
 
             if (!_hasInited)
@@ -400,7 +400,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             _eventDataSink.RegisterEvent("GetRequestInfo", new
             {
                 Type = GetType().Name,
-                Path = Request?.Path
+                Path = Request?.Path,
+                Message = "wut"
             });
             HCMetricsContext.AddNote("Random value", new Random().Next());
             HCMetricsContext.AddGlobalValue("Rng", new Random().Next());

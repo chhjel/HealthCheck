@@ -621,7 +621,7 @@ export default class EventNotificationConfigComponent extends Vue {
         }
 
         let value = this.currentPlaceholderDialogTargetConfig.Options[this.currentPlaceholderDialogTargetOptionKey];
-        value = `${value}\{${placeholder.toUpperCase()}\}`;
+        value = `${(value || '')}\{${placeholder.toUpperCase()}\}`;
 
         Vue.set(this.currentPlaceholderDialogTargetConfig.Options, this.currentPlaceholderDialogTargetOptionKey, value);
         // this.currentPlaceholderDialogTargetConfig.Options[this.currentPlaceholderDialogTargetOptionKey] = value;
