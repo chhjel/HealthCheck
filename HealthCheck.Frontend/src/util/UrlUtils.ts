@@ -1,5 +1,17 @@
 export default class UrlUtils
 {
+    static getCurrentUrlWithoutParamsAndHash(suffix: string | null = null): string {
+        let clean = location.protocol + '//' + location.host + location.pathname;
+        if (suffix)
+        {
+            if (clean.endsWith('/') && suffix.startsWith('/'))
+            {
+                suffix = suffix.substring(1);
+            }
+            clean += suffix;
+        }
+        return clean;
+    }
     static openRouteInNewTab(route: string): void {
         const url = UrlUtils.getOpenRouteInNewTabUrl(route);
         window.open(url, '_blank');

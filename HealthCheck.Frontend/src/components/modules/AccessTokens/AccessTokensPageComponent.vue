@@ -27,7 +27,7 @@
                 
                 <!-- TOKEN USAGE INFO -->
                 <v-alert :value="true" v-if="lastCreatedTokenData != null" outline type="info" elevation="2">
-                Tokens can be consumed either through query string <code>?x-token=...</code> or header <code>x-token: ...</code>
+                Tokens can be consumed either through query string <a :href="tokenUrlExample"><code>?x-token=...</code></a> or header <code>x-token: ...</code>
                 </v-alert>
 
                 <v-btn
@@ -236,6 +236,7 @@ import BlockComponent from '../../Common/Basic/BlockComponent.vue';
 import ModuleConfig from  '../../../models/Common/ModuleConfig';
 import ModuleOptions from  '../../../models/Common/ModuleOptions';
 import EditAccessTokenComponent from './EditAccessTokenComponent.vue';
+import UrlUtils from "util/UrlUtils";
 
 @Component({
     components: {
@@ -302,6 +303,11 @@ export default class AccessTokensPageComponent extends Vue {
 
     get enableCreateTokenButton(): boolean {
         return this.accessDataInEdit.Modules.length > 0;
+    }
+
+    get tokenUrlExample(): string {
+        if (!this.lastCreatedTokenData) return '/';
+        return UrlUtils.getCurrentUrlWithoutParamsAndHash(`?x-token=${this.lastCreatedTokenData.Token}`);
     }
     
     ////////////////
