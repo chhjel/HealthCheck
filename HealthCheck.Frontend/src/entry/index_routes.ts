@@ -19,6 +19,7 @@ import DataRepeaterPageComponent from '../components/modules/DataRepeater/DataRe
 import DataExportPageComponent from '../components/modules/DataExport/DataExportPageComponent.vue';
 import CustomPageComponent from '../components/modules/Custom/CustomPageComponent.vue';
 import NoPageAvailablePageComponent from '../components/NoPageAvailablePageComponent.vue';
+import DevPageComponent from '../components/modules/Dev/DevPageComponent.vue';
 import ModuleOptions from '../models/Common/ModuleOptions';
 import ModuleConfig from '../models/Common/ModuleConfig';
 import { nextTick } from 'vue';
@@ -69,6 +70,7 @@ let moduleOptions = ((window as any).healthCheckModuleOptions) as Record<string,
   {
     routes.push({ path: '/*', component: NoPageAvailablePageComponent });
   }
+  routes.push({ path: '/styling', component: DevPageComponent });
   const router = createRouter({
     routes: routes,
     history: createWebHashHistory()

@@ -1,6 +1,6 @@
 <!-- src/components/modules/TestSuite/TestSuitesPageComponent.vue -->
 <template>
-    <div> <!-- PAGE-->
+    <div class="module-root">
         <!-- NAVIGATION DRAWER -->
         <Teleport to="#module-nav-menu">
             <filterable-list-component
@@ -22,53 +22,47 @@
         
         <!-- CONTENT -->
         <div class="content-root">
-            <div>
-                <div>
-                    <div>
-                        <!-- INVALID TESTS -->
-                        <alert-component :value="hasInvalidTests" type="error">
-                            <h3>Some invalid tests were found:</h3>
-                            <ul>
-                                <li v-for="(invalidTest, index) in invalidTests"
-                                    :key="`invalidtest-${index}-${invalidTest.Id}`"
-                                    class="mt-2 mb-2">
-                                    <h4 style="display: flex; align-items: center;">
-                                        "{{ invalidTest.Name }}" 
-                                        <span class="caption ml-2" style="font-family: monospace;">({{ invalidTest.Id }})</span>
-                                    </h4>
-                                    <div class="ma-1">
-                                        {{ invalidTest.Reason }}
-                                    </div>
-                                </li>
-                            </ul>
-                        </alert-component>
+            <!-- INVALID TESTS -->
+            <alert-component :value="hasInvalidTests" type="error">
+                <h3>Some invalid tests were found:</h3>
+                <ul>
+                    <li v-for="(invalidTest, index) in invalidTests"
+                        :key="`invalidtest-${index}-${invalidTest.Id}`"
+                        class="mt-2 mb-2">
+                        <h4 style="display: flex; align-items: center;">
+                            "{{ invalidTest.Name }}" 
+                            <span class="caption ml-2" style="font-family: monospace;">({{ invalidTest.Id }})</span>
+                        </h4>
+                        <div class="ma-1">
+                            {{ invalidTest.Reason }}
+                        </div>
+                    </li>
+                </ul>
+            </alert-component>
 
-                        <!-- NO TESTS INFO -->
-                        <alert-component :value="!hasAnyTests && !setSetsLoadStatus.inProgress" type="info">
-                        No tests were found.
-                        </alert-component>
+            <!-- NO TESTS INFO -->
+            <alert-component :value="!hasAnyTests && !setSetsLoadStatus.inProgress" type="info">
+            No tests were found.
+            </alert-component>
 
-                        <!-- DATA LOAD ERROR -->
-                        <alert-component :value="setSetsLoadStatus.failed" type="error">
-                        {{ setSetsLoadStatus.errorMessage }}
-                        </alert-component>
+            <!-- DATA LOAD ERROR -->
+            <alert-component :value="setSetsLoadStatus.failed" type="error">
+            {{ setSetsLoadStatus.errorMessage }}
+            </alert-component>
 
-                        <!-- LOAD PROGRESS -->
-                        <progress-linear-component 
-                            v-if="setSetsLoadStatus.inProgress"
-                            indeterminate color="green"></progress-linear-component>
+            <!-- LOAD PROGRESS -->
+            <progress-linear-component 
+                v-if="setSetsLoadStatus.inProgress"
+                indeterminate color="green"></progress-linear-component>
 
-                        <!-- TESTS -->
-                        <test-set-component
-                            v-if="activeSet != null"
-                            :module-id="config.Id"
-                            :testSet="activeSet"
-                            v-on:testClicked="onTestClicked" />
-                    </div>
-                </div>
-            </div>
+            <!-- TESTS -->
+            <test-set-component
+                v-if="activeSet != null"
+                :module-id="config.Id"
+                :testSet="activeSet"
+                v-on:testClicked="onTestClicked" />
         </div>
-    </div> <!-- /PAGE-->
+    </div>
 </template>
 
 <script lang="ts">
