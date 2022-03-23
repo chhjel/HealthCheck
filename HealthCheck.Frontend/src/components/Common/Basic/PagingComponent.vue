@@ -1,4 +1,4 @@
-<!-- src/components/Common/Basic/SimplePagingComponent.vue -->
+<!-- src/components/Common/Basic/PagingComponent.vue -->
 <template>
     <div class="paging-component" v-if="count > 1 && pageCount > 1">
         

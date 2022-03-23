@@ -6,7 +6,7 @@
 
 		<!-- CONTENT -->
 		<div class="content-root">
-			<h3>data-table-component</h3>
+			<h3 class="todo">data-table-component</h3>
 			<!-- DataTableComponent -->
 			<data-table-component
 				:groups="DataTableComponent_groups"
@@ -14,26 +14,27 @@
 			></data-table-component>
 			<hr />
 
-			<h3>editor-component</h3>
+			<h3 class="ok">editor-component</h3>
 			<!-- EditorComponent -->
 			<editor-component style="height:200px"></editor-component>
 			<hr />
 
-			<h3>filterable-list-component</h3>
+			<h3 class="todo">filterable-list-component</h3>
 			<!-- FilterableListComponent -->
 			<filterable-list-component
 				:items="FilterableListComponent_items"
 			></filterable-list-component>
 			<hr />
 
-			<h3>filter-input-component</h3>
+			<h3 class="todo">filter-input-component</h3>
 			<!-- FilterInputComponent -->
 			<filter-input-component
 				v-model:value="FilterInputComponent_value"
 			></filter-input-component>
+            <code>{{ FilterInputComponent_value }}</code>
 			<hr />
 
-			<h3>flow-diagram-component</h3>
+			<h3 class="todo">flow-diagram-component</h3>
 			<!-- FlowDiagramComponent -->
 			<flow-diagram-component
 				:title="FlowDiagramComponent_title"
@@ -42,11 +43,11 @@
 			<hr />
 
             <!-- 
-			<h3>loading-screen-component</h3>
+			<h3 class="todo">loading-screen-component</h3>
 			<loading-screen-component></loading-screen-component>
 			<hr /> -->
 
-			<h3>progress-bar-component</h3>
+			<h3 class="todo">progress-bar-component</h3>
 			<!-- ProgressBarComponent -->
 			<progress-bar-component
 				:max="ProgressBarComponent_max"
@@ -55,224 +56,235 @@
 			></progress-bar-component>
 			<hr />
 
-			<h3>sequence-diagram-component</h3>
+			<h3 class="todo">sequence-diagram-component</h3>
 			<!-- SequenceDiagramComponent -->
 			<sequence-diagram-component
 				:steps="SequenceDiagramComponent_steps"
 			></sequence-diagram-component>
 			<hr />
 
-			<h3>simple-date-time-component</h3>
+			<h3 class="todo">simple-date-time-component</h3>
 			<!-- SimpleDateTimeComponent -->
 			<simple-date-time-component
 				v-model:value="SimpleDateTimeComponent_value"
 			></simple-date-time-component>
+            <code>{{ SimpleDateTimeComponent_value }}</code>
 			<hr />
 
-			<h3>alert-component</h3>
+			<h3 class="todo">alert-component</h3>
 			<!-- AlertComponent -->
 			<alert-component v-model:value="AlertComponent_value">Some alert here!</alert-component>
 			<hr />
 
-			<h3>autocomplete-component</h3>
+			<h3 class="todo">autocomplete-component</h3>
 			<!-- AutocompleteComponent -->
 			<autocomplete-component
 				v-model:value="AutocompleteComponent_value"
 			></autocomplete-component>
+            <code>{{ AutocompleteComponent_value }}</code>
 			<hr />
 
-			<h3>badge-component</h3>
+			<h3 class="todo">badge-component</h3>
 			<!-- BadgeComponent -->
 			<badge-component>42</badge-component>
 			<hr />
 
-			<h3>block-component</h3>
+			<h3 class="todo">block-component</h3>
 			<!-- BlockComponent -->
 			<block-component>Block content</block-component>
 			<hr />
 
-			<h3>btn-component</h3>
+			<h3 class="todo">btn-component</h3>
 			<!-- BtnComponent -->
 			<btn-component>Button</btn-component>
 			<hr />
 
-			<h3>calendar-component</h3>
+			<h3 class="todo">calendar-component</h3>
 			<!-- CalendarComponent -->
 			<calendar-component
 				v-model:value="CalendarComponent_value"
 			></calendar-component>
+            <code>{{ CalendarComponent_value }}</code>
 			<hr />
 
-			<h3>card-component</h3>
+			<h3 class="todo">card-component</h3>
 			<!-- CardComponent -->
 			<card-component>Card?</card-component>
 			<hr />
 
-			<h3>carousel-component</h3>
+			<h3 class="todo">carousel-component</h3>
 			<!-- CarouselComponent -->
 			<carousel-component></carousel-component>
 			<hr />
 
-			<h3>checkbox-component</h3>
+			<h3 class="todo">checkbox-component</h3>
 			<!-- CheckboxComponent -->
 			<checkbox-component
 				v-model:value="CheckboxComponent_value"
 			></checkbox-component>
+            <code>{{ CheckboxComponent_value }}</code>
 			<hr />
 
-			<h3>chip-component</h3>
+			<h3 class="todo">chip-component</h3>
 			<!-- ChipComponent -->
-			<chip-component></chip-component>
+			<chip-component>Chip?</chip-component>
 			<hr />
 
-			<h3>combobox-component</h3>
+			<h3 class="todo">combobox-component</h3>
 			<!-- ComboboxComponent -->
 			<combobox-component
 				v-model:value="ComboboxComponent_value"
 			></combobox-component>
+            <code>{{ ComboboxComponent_value }}</code>
 			<hr />
 
-			<h3>date-picker-component</h3>
+			<h3 class="todo">date-picker-component</h3>
 			<!-- DatePickerComponent -->
 			<date-picker-component
 				v-model:value="DatePickerComponent_value"
 			></date-picker-component>
+            <code>{{ DatePickerComponent_value }}</code>
 			<hr />
 
-			<h3>dialog-component</h3>
+			<h3 @click="DialogComponent_value = !DialogComponent_value">dialog-component</h3>
 			<!-- DialogComponent -->
-			<dialog-component v-model:value="DialogComponent_value"></dialog-component>
+			<dialog-component v-model:value="DialogComponent_value">Dialog contents here</dialog-component>
+            <code>{{ DialogComponent_value }}</code>
 			<hr />
 
-			<h3>expansion-panel-component</h3>
+			<h3 class="todo">expansion-panel-component</h3>
 			<!-- ExpansionPanelComponent -->
 			<expansion-panel-component
 				v-model:value="ExpansionPanelComponent_value"
 			></expansion-panel-component>
+            <code>{{ ExpansionPanelComponent_value }}</code>
 			<hr />
 
-			<h3>fetch-status-progress-component</h3>
+			<h3 class="todo">fetch-status-progress-component</h3>
 			<!-- FetchStatusProgressComponent -->
 			<fetch-status-progress-component
 				:status="FetchStatusProgressComponent_status"
 			></fetch-status-progress-component>
+            <code>{{ FetchStatusProgressComponent_status }}</code>
 			<hr />
 
-			<h3>icon-component</h3>
+			<h3 class="todo">icon-component</h3>
 			<!-- IconComponent -->
-			<icon-component></icon-component>
+			<icon-component>person</icon-component>
 			<hr />
 
-			<h3>input-component</h3>
+			<h3 class="todo">input-component</h3>
 			<!-- InputComponent -->
 			<input-component v-model:value="InputComponent_value"></input-component>
+            <code>{{ InputComponent_value }}</code>
 			<hr />
 
-			<h3>input-header-component</h3>
+			<h3 class="todo">input-header-component</h3>
 			<!-- InputHeaderComponent -->
 			<input-header-component></input-header-component>
 			<hr />
 
-			<h3>menu-component</h3>
+			<h3 class="todo">menu-component</h3>
 			<!-- MenuComponent -->
 			<menu-component></menu-component>
 			<hr />
 
-			<h3>pagination-component</h3>
+			<h3 class="todo">pagination-component</h3>
 			<!-- PaginationComponent -->
 			<pagination-component
 				v-model:value="PaginationComponent_value"
 			></pagination-component>
+            <code>{{ PaginationComponent_value }}</code>
 			<hr />
 
-			<h3>paging-component</h3>
+			<h3 class="todo">paging-component</h3>
 			<!-- PagingComponent -->
 			<paging-component
 				v-model:value="PagingComponent_value"
 				:count="PagingComponent_count"
+                pageSize="3"
 			></paging-component>
+            <code>{{ PagingComponent_value }}</code>
 			<hr />
 
-			<h3>progress-circular-component</h3>
+			<h3 class="todo">progress-circular-component</h3>
 			<!-- ProgressCircularComponent -->
 			<progress-circular-component></progress-circular-component>
 			<hr />
 
-			<h3>progress-linear-component</h3>
+			<h3 class="todo">progress-linear-component</h3>
 			<!-- ProgressLinearComponent -->
-			<progress-linear-component></progress-linear-component>
+			<progress-linear-component value="82"></progress-linear-component>
 			<hr />
 
-			<h3>select-component</h3>
+			<h3 class="todo">select-component</h3>
 			<!-- SelectComponent -->
 			<select-component
 				v-model:value="SelectComponent_value"
 				:items="SelectComponent_items"
 			></select-component>
+            <code>{{ SelectComponent_value }}</code>
 			<hr />
 
-			<h3>simple-paging-component</h3>
-			<!-- SimplePagingComponent -->
-			<simple-paging-component
-				v-model:value="SimplePagingComponent_value"
-				:items="SimplePagingComponent_items"
-			></simple-paging-component>
-			<hr />
-
-			<h3>snackbar-component</h3>
+			<h3 class="todo">snackbar-component</h3>
 			<!-- SnackbarComponent -->
 			<snackbar-component
 				v-model:value="SnackbarComponent_value"
 			></snackbar-component>
+            <code>{{ SnackbarComponent_value }}</code>
 			<hr />
 
-			<h3>stepper-component</h3>
+			<h3 class="todo">stepper-component</h3>
 			<!-- StepperComponent -->
 			<stepper-component></stepper-component>
 			<hr />
 
-			<h3>switch-component</h3>
+			<h3 class="todo">switch-component</h3>
 			<!-- SwitchComponent -->
 			<switch-component v-model:value="SwitchComponent_value"></switch-component>
+            <code>{{ SwitchComponent_value }}</code>
 			<hr />
 
-			<h3>textarea-component</h3>
+			<h3 class="todo">textarea-component</h3>
 			<!-- TextareaComponent -->
 			<textarea-component
 				v-model:value="TextareaComponent_value"
 			></textarea-component>
+            <code>{{ TextareaComponent_value }}</code>
 			<hr />
 
-			<h3>text-field-component</h3>
+			<h3 class="todo">text-field-component</h3>
 			<!-- TextFieldComponent -->
 			<text-field-component
 				v-model:value="TextFieldComponent_value"
 			></text-field-component>
+            <code>{{ TextFieldComponent_value }}</code>
 			<hr />
 
-			<h3>timeline-component</h3>
+			<h3 class="todo">timeline-component</h3>
 			<!-- TimelineComponent -->
 			<timeline-component></timeline-component>
 			<hr />
 
-			<h3>timespan-input-component</h3>
+			<h3 class="todo">timespan-input-component</h3>
 			<!-- TimespanInputComponent -->
 			<timespan-input-component
 				v-model:value="TimespanInputComponent_value"
 			></timespan-input-component>
+            <code>{{ TimespanInputComponent_value }}</code>
 			<hr />
 
-			<h3>toolbar-component</h3>
+			<h3 class="todo">toolbar-component</h3>
 			<!-- ToolbarComponent -->
 			<toolbar-component></toolbar-component>
 			<hr />
 
-			<h3>tooltip-component</h3>
+			<h3 class="todo">tooltip-component</h3>
 			<!-- TooltipComponent -->
 			<tooltip-component></tooltip-component>
 			<hr />
 
-			<h3>bar-chart-component</h3>
+			<h3 class="todo">bar-chart-component</h3>
 			<!-- BarChartComponent -->
 			<bar-chart-component
 				:sets="BarChartComponent_sets"
@@ -280,7 +292,7 @@
 			></bar-chart-component>
 			<hr />
 
-			<h3>data-over-time-chart-component</h3>
+			<h3 class="todo">data-over-time-chart-component</h3>
 			<!-- DataOverTimeChartComponent -->
 			<data-over-time-chart-component
 				:entries="DataOverTimeChartComponent_entries"
@@ -288,28 +300,30 @@
 			></data-over-time-chart-component>
 			<hr />
 
-			<h3>floating-squares-effect-component</h3>
+			<h3 class="todo">floating-squares-effect-component</h3>
 			<!-- FloatingSquaresEffectComponent -->
 			<floating-squares-effect-component></floating-squares-effect-component>
 			<hr />
 
-			<h3>backend-input-component</h3>
+			<h3 class="todo">backend-input-component</h3>
 			<!-- BackendInputComponent -->
 			<backend-input-component
 				:config="BackendInputComponent_config"
 				v-model:value="BackendInputComponent_value"
 			></backend-input-component>
+            <code>{{ BackendInputComponent_value }}</code>
 			<hr />
 
-			<h3>unknown-backend-input-component</h3>
+			<h3 class="todo">unknown-backend-input-component</h3>
 			<!-- UnknownBackendInputComponent -->
 			<unknown-backend-input-component
 				v-model:value="UnknownBackendInputComponent_value"
 				:type="UnknownBackendInputComponent_type"
 			></unknown-backend-input-component>
+            <code>{{ UnknownBackendInputComponent_value }}</code>
 			<hr />
 
-			<h3>parameter-input-any-json-component</h3>
+			<h3 class="todo">parameter-input-any-json-component</h3>
 			<!-- ParameterInputAnyJsonComponent -->
 			<parameter-input-any-json-component
 				:name="ParameterInputAnyJsonComponent_name"
@@ -317,73 +331,82 @@
 				:type="ParameterInputAnyJsonComponent_type"
 				:config="ParameterInputAnyJsonComponent_config"
 			></parameter-input-any-json-component>
+            <code>{{ ParameterInputAnyJsonComponent_value }}</code>
 			<hr />
 
-			<h3>parameter-input-pick-reference-component</h3>
+			<h3 class="todo">parameter-input-pick-reference-component</h3>
 			<!-- ParameterInputPickReferenceComponent -->
 			<parameter-input-pick-reference-component
 				v-model:value="ParameterInputPickReferenceComponent_value"
 				:config="ParameterInputPickReferenceComponent_config"
 			></parameter-input-pick-reference-component>
+            <code>{{ ParameterInputPickReferenceComponent_value }}</code>
 			<hr />
 
-			<h3>parameter-input-type-boolean-component</h3>
+			<h3 class="todo">parameter-input-type-boolean-component</h3>
 			<!-- ParameterInputTypeBooleanComponent -->
 			<parameter-input-type-boolean-component
 				v-model:value="ParameterInputTypeBooleanComponent_value"
 				:config="ParameterInputTypeBooleanComponent_config"
 			></parameter-input-type-boolean-component>
+            <code>{{ ParameterInputTypeBooleanComponent_value }}</code>
 			<hr />
 
-			<h3>parameter-input-type-date-time-component</h3>
+			<h3 class="todo">parameter-input-type-date-time-component</h3>
 			<!-- ParameterInputTypeDateTimeComponent -->
 			<parameter-input-type-date-time-component
 				v-model:value="ParameterInputTypeDateTimeComponent_value"
 				:config="ParameterInputTypeDateTimeComponent_config"
 			></parameter-input-type-date-time-component>
+            <code>{{ ParameterInputTypeDateTimeComponent_value }}</code>
 			<hr />
 
-			<h3>parameter-input-type-date-time-offset-component</h3>
+			<h3 class="todo">parameter-input-type-date-time-offset-component</h3>
 			<!-- ParameterInputTypeDateTimeOffsetComponent -->
 			<parameter-input-type-date-time-offset-component
 				v-model:value="ParameterInputTypeDateTimeOffsetComponent_value"
 				:config="ParameterInputTypeDateTimeOffsetComponent_config"
 			></parameter-input-type-date-time-offset-component>
+            <code>{{ ParameterInputTypeDateTimeOffsetComponent_value }}</code>
 			<hr />
 
-			<h3>parameter-input-type-decimal-component</h3>
+			<h3 class="todo">parameter-input-type-decimal-component</h3>
 			<!-- ParameterInputTypeDecimalComponent -->
 			<parameter-input-type-decimal-component
 				v-model:value="ParameterInputTypeDecimalComponent_value"
 				:config="ParameterInputTypeDecimalComponent_config"
 			></parameter-input-type-decimal-component>
+            <code>{{ ParameterInputTypeDecimalComponent_value }}</code>
 			<hr />
 
-			<h3>parameter-input-type-double-component</h3>
+			<h3 class="todo">parameter-input-type-double-component</h3>
 			<!-- ParameterInputTypeDoubleComponent -->
 			<parameter-input-type-double-component
 				v-model:value="ParameterInputTypeDoubleComponent_value"
 				:config="ParameterInputTypeDoubleComponent_config"
 			></parameter-input-type-double-component>
+            <code>{{ ParameterInputTypeDoubleComponent_value }}</code>
 			<hr />
 
-			<h3>parameter-input-type-enum-component</h3>
+			<h3 class="todo">parameter-input-type-enum-component</h3>
 			<!-- ParameterInputTypeEnumComponent -->
 			<parameter-input-type-enum-component
 				v-model:value="ParameterInputTypeEnumComponent_value"
 				:config="ParameterInputTypeEnumComponent_config"
 			></parameter-input-type-enum-component>
+            <code>{{ ParameterInputTypeEnumComponent_value }}</code>
 			<hr />
 
-			<h3>parameter-input-type-flagged-enum-component</h3>
+			<h3 class="todo">parameter-input-type-flagged-enum-component</h3>
 			<!-- ParameterInputTypeFlaggedEnumComponent -->
 			<parameter-input-type-flagged-enum-component
 				v-model:value="ParameterInputTypeFlaggedEnumComponent_value"
 				:config="ParameterInputTypeFlaggedEnumComponent_config"
 			></parameter-input-type-flagged-enum-component>
+            <code>{{ ParameterInputTypeFlaggedEnumComponent_value }}</code>
 			<hr />
 
-			<h3>parameter-input-type-generic-list-component</h3>
+			<h3 class="todo">parameter-input-type-generic-list-component</h3>
 			<!-- ParameterInputTypeGenericListComponent -->
 			<parameter-input-type-generic-list-component
 				:name="ParameterInputTypeGenericListComponent_name"
@@ -392,62 +415,70 @@
 				:listType="ParameterInputTypeGenericListComponent_listType"
 				:config="ParameterInputTypeGenericListComponent_config"
 			></parameter-input-type-generic-list-component>
+            <code>{{ ParameterInputTypeGenericListComponent_value }}</code>
 			<hr />
 
-			<h3>parameter-input-type-guid-component</h3>
+			<h3 class="todo">parameter-input-type-guid-component</h3>
 			<!-- ParameterInputTypeGuidComponent -->
 			<parameter-input-type-guid-component
 				v-model:value="ParameterInputTypeGuidComponent_value"
 				:config="ParameterInputTypeGuidComponent_config"
 			></parameter-input-type-guid-component>
+            <code>{{ ParameterInputTypeGuidComponent_value }}</code>
 			<hr />
 
-			<h3>parameter-input-type-http-posted-file-base-component</h3>
+			<h3 class="todo">parameter-input-type-http-posted-file-base-component</h3>
 			<!-- ParameterInputTypeHttpPostedFileBaseComponent -->
 			<parameter-input-type-http-posted-file-base-component
 				v-model:value="ParameterInputTypeHttpPostedFileBaseComponent_value"
 				:config="ParameterInputTypeHttpPostedFileBaseComponent_config"
 			></parameter-input-type-http-posted-file-base-component>
+            <code>{{ ParameterInputTypeHttpPostedFileBaseComponent_value }}</code>
 			<hr />
 
-			<h3>parameter-input-type-int32-component</h3>
+			<h3 class="todo">parameter-input-type-int32-component</h3>
 			<!-- ParameterInputTypeInt32Component -->
 			<parameter-input-type-int32-component
 				v-model:value="ParameterInputTypeInt32Component_value"
 				:config="ParameterInputTypeInt32Component_config"
 			></parameter-input-type-int32-component>
+            <code>{{ ParameterInputTypeInt32Component_value }}</code>
 			<hr />
 
-			<h3>parameter-input-type-int64-component</h3>
+			<h3 class="todo">parameter-input-type-int64-component</h3>
 			<!-- ParameterInputTypeInt64Component -->
 			<parameter-input-type-int64-component
 				v-model:value="ParameterInputTypeInt64Component_value"
 				:config="ParameterInputTypeInt64Component_config"
 			></parameter-input-type-int64-component>
+            <code>{{ ParameterInputTypeInt64Component_value }}</code>
 			<hr />
 
-			<h3>parameter-input-type-single-component</h3>
+			<h3 class="todo">parameter-input-type-single-component</h3>
 			<!-- ParameterInputTypeSingleComponent -->
 			<parameter-input-type-single-component
 				v-model:value="ParameterInputTypeSingleComponent_value"
 				:config="ParameterInputTypeSingleComponent_config"
 			></parameter-input-type-single-component>
+            <code>{{ ParameterInputTypeSingleComponent_value }}</code>
 			<hr />
 
-			<h3>parameter-input-type-string-component</h3>
+			<h3 class="todo">parameter-input-type-string-component</h3>
 			<!-- ParameterInputTypeStringComponent -->
 			<parameter-input-type-string-component
 				v-model:value="ParameterInputTypeStringComponent_value"
 				:config="ParameterInputTypeStringComponent_config"
 			></parameter-input-type-string-component>
+            <code>{{ ParameterInputTypeStringComponent_value }}</code>
 			<hr />
 
-			<h3>parameter-input-type-time-span-component</h3>
+			<h3 class="todo">parameter-input-type-time-span-component</h3>
 			<!-- ParameterInputTypeTimeSpanComponent -->
 			<parameter-input-type-time-span-component
 				v-model:value="ParameterInputTypeTimeSpanComponent_value"
 				:config="ParameterInputTypeTimeSpanComponent_config"
 			></parameter-input-type-time-span-component>
+            <code>{{ ParameterInputTypeTimeSpanComponent_value }}</code>
 			<hr />
 		</div>
 	</div>
@@ -490,7 +521,6 @@ import PagingComponent from "@components/Common/Basic/PagingComponent.vue";
 import ProgressCircularComponent from "@components/Common/Basic/ProgressCircularComponent.vue";
 import ProgressLinearComponent from "@components/Common/Basic/ProgressLinearComponent.vue";
 import SelectComponent from "@components/Common/Basic/SelectComponent.vue";
-import SimplePagingComponent from "@components/Common/Basic/SimplePagingComponent.vue";
 import SnackbarComponent from "@components/Common/Basic/SnackbarComponent.vue";
 import StepperComponent from "@components/Common/Basic/StepperComponent.vue";
 import SwitchComponent from "@components/Common/Basic/SwitchComponent.vue";
@@ -560,7 +590,6 @@ import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfi
 		ProgressCircularComponent,
 		ProgressLinearComponent,
 		SelectComponent,
-		SimplePagingComponent,
 		SnackbarComponent,
 		StepperComponent,
 		SwitchComponent,
@@ -616,17 +645,15 @@ export default class DevPageComponent extends Vue {
 	CheckboxComponent_value: boolean = true;
 	ComboboxComponent_value: string = "Some string here";
 	DatePickerComponent_value: string = "Some string here";
-	DialogComponent_value: boolean = true;
+	DialogComponent_value: boolean = false;
 	ExpansionPanelComponent_value: boolean = true;
 	FetchStatusProgressComponent_status: FetchStatusWithProgress | null = { inProgress: true, progress: 50, failed: false, errorMessage: null };
 	InputComponent_value: string = "Some string here";
 	PaginationComponent_value: string = "Some string here";
-	PagingComponent_value: number = 88;
+	PagingComponent_value: number = 2;
 	PagingComponent_count: number = 88;
-	SelectComponent_value: string = "Some string here";
+	SelectComponent_value: string = "B";
 	SelectComponent_items: Array<string> = ['A', 'B', 'C'];
-	SimplePagingComponent_value: number = 88;
-	SimplePagingComponent_items: Array<any>= [];
 	SnackbarComponent_value: boolean = true;
 	SwitchComponent_value: boolean = true;
 	TextareaComponent_value: string = "Some string here";
@@ -701,4 +728,14 @@ export default class DevPageComponent extends Vue {
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.ok { color: rgb(54, 105, 54); }
+.todo {
+    color: rgb(122, 43, 43);
+    font-weight: bold;
+    &::before {
+        content: '// ToDo: ';
+        display: inline-block;
+    }
+}
+</style>

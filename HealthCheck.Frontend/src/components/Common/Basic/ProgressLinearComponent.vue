@@ -1,11 +1,11 @@
 <template>
     <div class="progress-linear-component" :class="rootClasses">
-		<h3>TODO: ProgressLinearComponent</h3>
+		<!-- <h3>TODO: ProgressLinearComponent</h3>
         <div><b>indeterminate:</b>' {{ indeterminate }}'</div>
         <div><b>width:</b>' {{ width }}'</div>
         <div><b>color:</b>' {{ color }}'</div>
-        <div><b>height:</b>' {{ height }}'</div>
-        <div><b>value:</b>' {{ value }}'</div>
+        <div><b>height:</b>' {{ height }}'</div> -->
+        <progress :value="value" max="100"> {{value}}% </progress>
     </div>
 </template>
 
