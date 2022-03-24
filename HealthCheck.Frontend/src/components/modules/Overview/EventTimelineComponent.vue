@@ -1,6 +1,6 @@
 <!-- src/components/modules/Overview/EventTimelineComponent.vue -->
 <template>
-    <div class="root">
+    <div class="root event-timeline-component">
         <v-timeline align-top dense>
             <v-timeline-item color="info" small v-if="timelineEventGroups.length == 0">
                 <v-layout pt-3>
@@ -212,7 +212,7 @@ export default class EventTimelineComponent extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .timeline-item {
     cursor: pointer;
 }
@@ -222,6 +222,11 @@ export default class EventTimelineComponent extends Vue {
 .timeline-item-time {
     font-size: 18px;
     min-width: 110px;
+    @media (max-width: 540px) {
+        margin-right: 0 !important;
+        min-width: 80px;
+        max-width: 80px;
+    }
 }
 .timeline-item-title {
     font-size: 18px;
@@ -235,5 +240,15 @@ export default class EventTimelineComponent extends Vue {
 }
 .timeline-item-description {
     font-size: 16px !important;
+}
+</style>
+
+<style lang="scss">
+.event-timeline-component {
+    .v-timeline-item__body {
+        @media (max-width: 540px) {
+            max-width: calc(100% - 45px);
+        }
+    }
 }
 </style>
