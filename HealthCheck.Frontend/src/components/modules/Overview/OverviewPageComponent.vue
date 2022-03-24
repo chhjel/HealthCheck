@@ -4,7 +4,7 @@
         <v-content class="pl-0">
         <v-container fluid fill-height class="content-root">
         <v-layout>
-        <v-flex class="pl-4 pr-4 pb-4">
+        <v-flex class="pl-4 pr-4 pb-4 overview-page-content">
           <!-- CONTENT BEGIN -->
             
         <v-container grid-list-md>
@@ -487,11 +487,17 @@ export default class OverviewPageComponent extends Vue {
 }
 </script>
 
-<style scoped>
-/* .content-root {
-    margin: auto;
-    max-width: 800px;
-} */
+<style scoped lang="scss">
+.overview-page-content {
+    @media (max-width: 540px) {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        .container {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+    }
+}
 </style>
 
 <style>
