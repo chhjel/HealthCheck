@@ -813,7 +813,7 @@ namespace HealthCheck.WebUI.Util
     text-align: center;
     margin-top: 12%;
 }
-</style
+</style>
 ";
         }
 
