@@ -7,14 +7,6 @@
 		<!-- CONTENT -->
 		<div class="content-root">
 			<div>
-				<h3 class="todo">data-table-component</h3>
-				<!-- DataTableComponent -->
-				<data-table-component
-					:groups="DataTableComponent_groups"
-					:headers="DataTableComponent_headers"
-				></data-table-component>
-				<hr />
-
 				<h3 class="todo">filterable-list-component</h3>
 				<!-- FilterableListComponent -->
 				<filterable-list-component
@@ -30,34 +22,10 @@
 				<code>{{ FilterInputComponent_value }}</code>
 				<hr />
 
-				<h3 class="todo">flow-diagram-component</h3>
-				<!-- FlowDiagramComponent -->
-				<flow-diagram-component
-					:title="FlowDiagramComponent_title"
-					:steps="FlowDiagramComponent_steps"
-				></flow-diagram-component>
-				<hr />
-
 				<!-- 
 				<h3 class="todo">loading-screen-component</h3>
 				<loading-screen-component></loading-screen-component>
 				<hr /> -->
-
-				<h3 class="todo">progress-bar-component</h3>
-				<!-- ProgressBarComponent -->
-				<progress-bar-component
-					:max="ProgressBarComponent_max"
-					:success="ProgressBarComponent_success"
-					:error="ProgressBarComponent_error"
-				></progress-bar-component>
-				<hr />
-
-				<h3 class="todo">sequence-diagram-component</h3>
-				<!-- SequenceDiagramComponent -->
-				<sequence-diagram-component
-					:steps="SequenceDiagramComponent_steps"
-				></sequence-diagram-component>
-				<hr />
 
 				<h3 class="todo">simple-date-time-component</h3>
 				<!-- SimpleDateTimeComponent -->
@@ -80,14 +48,14 @@
 				<code>{{ AutocompleteComponent_value }}</code>
 				<hr />
 
-				<h3 class="todo">badge-component</h3>
-				<!-- BadgeComponent -->
-				<badge-component>42</badge-component>
-				<hr />
-
 				<h3 class="todo">block-component</h3>
 				<!-- BlockComponent -->
-				<block-component>Block content</block-component>
+				<block-component class="mb-1">Block with only content</block-component>
+				<block-component title="Title" class="mb-1">Block with title</block-component>
+				<block-component title="Title" details="Details here" class="mb-1">Block with title and details</block-component>
+				<block-component title="Title" details="Details here" buttonText="Button here" class="mb-1">Block with title, details and button</block-component>
+				<block-component title="Title" details="Details here" buttonText="Button here" buttonIcon="person" class="mb-1">Block with title, details and button icon</block-component>
+				<block-component title="Title" details="Details here" buttonText="Button here" buttonIcon="person" status="Success" class="mb-1">Block with title, details, button icon and status</block-component>
 				<hr />
 
 				<h3 class="todo">btn-component</h3>
@@ -483,6 +451,51 @@
 				<!-- EditorComponent -->
 				<editor-component style="height:200px"></editor-component>
 				<hr />
+
+				<h3 class="ok">data-table-component</h3>
+				<!-- DataTableComponent -->
+				<data-table-component
+					:groups="DataTableComponent_groups"
+					:headers="DataTableComponent_headers">
+					<template v-slot:cell="{ value }">
+						{{ value.value }}
+					</template>
+					<template v-slot:expandedItem="{ item }">
+						Item: {{ item }}
+					</template>
+				</data-table-component>
+				<hr />
+
+				<h3 class="ok">flow-diagram-component</h3>
+				<!-- FlowDiagramComponent -->
+				<flow-diagram-component
+					:title="FlowDiagramComponent_title"
+					:steps="FlowDiagramComponent_steps"
+				></flow-diagram-component>
+				<hr />
+
+				<h3 class="ok">progress-bar-component</h3>
+				<!-- ProgressBarComponent -->
+				<progress-bar-component
+					:max="ProgressBarComponent_max"
+					:success="ProgressBarComponent_success"
+					:error="ProgressBarComponent_error"
+				></progress-bar-component>
+				<hr />
+
+				<h3 class="ok">sequence-diagram-component</h3>
+				<!-- SequenceDiagramComponent -->
+				<sequence-diagram-component
+					:steps="SequenceDiagramComponent_steps"
+					ref="sandboxDiagram"
+				></sequence-diagram-component>
+				<textarea v-model="SequenceDiagramComponent_sandboxScript"></textarea>
+				<hr />
+
+				<h3 class="ok">badge-component</h3>
+				<!-- BadgeComponent -->
+				<badge-component>42</badge-component>
+				<hr />
 			</div>
 		</div>
 	</div>
@@ -558,6 +571,9 @@ import ParameterInputTypeStringComponent from "@components/Common/Inputs/Backend
 import ParameterInputTypeTimeSpanComponent from "@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeTimeSpanComponent.vue";
 import { FetchStatusWithProgress } from "@services/abstractions/HCServiceBase";
 import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfig";
+import { DataTableGroup } from "@components/Common/DataTableComponent.vue.models";
+import { FlowDiagramStep, FlowDiagramStepType } from "@components/Common/FlowDiagramComponent.vue.models";
+import { SequenceDiagramStep } from "@components/Common/SequenceDiagramComponent.vue.models";
 
 @Options({
 	components: {
@@ -628,21 +644,40 @@ import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfi
 	},
 })
 export default class DevPageComponent extends Vue {
-	DataTableComponent_groups: Array<any>= [];
+	DataTableComponent_groups: Array<DataTableGroup>= [
+		{ title: 'Id', items: [
+			{ values: [ { key: 'Id', value: '1', uiHint: 'Raw' }, { key: 'Name', value: 'Name #1', uiHint: 'Raw' }, { key: 'Something', value: 'asdasd1', uiHint: 'Raw' } ], expandedValues: [{ key: 'ExpandedId', value: 'ExpandedValue1', uiHint: 'Raw' }] },
+			{ values: [ { key: 'Id', value: '2', uiHint: 'Raw' }, { key: 'Name', value: 'Name #2', uiHint: 'Raw' }, { key: 'Something', value: 'asdasd2', uiHint: 'Raw' } ], expandedValues: [{ key: 'ExpandedId', value: 'ExpandedValue2', uiHint: 'Raw' }] }
+		] },
+	];
 	DataTableComponent_headers: Array<string> = [
-		"Some string here",
-		"Some string here",
-		"Some string here",
+		"Id",
+		"Name",
+		"Something",
 	];
 	FilterableListComponent_items: Array<any>= [];
 	FilterInputComponent_value: string = "Some string here";
 	FlowDiagramComponent_title: string = "Some string here";
-	FlowDiagramComponent_steps: Array<any>= [];
-	ProgressBarComponent_max: number = 88;
-	ProgressBarComponent_success: number = 88;
-	ProgressBarComponent_error: number = 88;
-	SequenceDiagramComponent_steps: Array<any>= [];
+	FlowDiagramComponent_steps: Array<FlowDiagramStep<any>>= [
+		{ title: 'Start', type: FlowDiagramStepType.Start, data: null, connections: [{ target: 'Step #2', label: 'Go!',  }] },
+		{ title: 'Step #2', type: FlowDiagramStepType.If, data: null, connections: [{ target: 'Step #3a', label: 'Yes',  }, { target: 'Step #3b', label: 'No',  }] },
+		{ title: 'Step #3a', type: FlowDiagramStepType.Element, data: null, connections: [] },
+		{ title: 'Step #3b', type: FlowDiagramStepType.Element, data: null, connections: [{ target: 'End', label: 'Good!',  }] },
+		{ title: 'End', type: FlowDiagramStepType.End, data: null, connections: [] }
+	];
+	ProgressBarComponent_max: number = 200;
+	ProgressBarComponent_success: number = 150;
+	ProgressBarComponent_error: number = 25;
 	SimpleDateTimeComponent_value: Date | null = new Date();
+	SequenceDiagramComponent_sandboxScript: string = `
+Frontend --> Web: User sends form
+Web -> Web: Validate input
+opt Invoice only
+Web -> External Service: Data is sent to 3rd party | remark: Some remark here
+Web -> Database: Backup of data is stored in database
+end
+Web -> Frontend: Confirmation is delivered
+`;
 	AlertComponent_value: boolean = true;
 	AutocompleteComponent_value: string = "Some string here";
 	CalendarComponent_value: string = "Some string here";
@@ -710,6 +745,11 @@ export default class DevPageComponent extends Vue {
 	ParameterInputTypeStringComponent_config: HCBackendInputConfig = this.createBackendInputConfig();
 	ParameterInputTypeTimeSpanComponent_value: string = "Some string here";
 	ParameterInputTypeTimeSpanComponent_config: HCBackendInputConfig = this.createBackendInputConfig();
+    hackyTimer: number = 0;
+
+	mounted(): void {
+        setInterval(() => this.hackyTimer++, 1000);
+	}
 
     createBackendInputConfig(type: string = 'type'): HCBackendInputConfig {
         return {
@@ -728,6 +768,18 @@ export default class DevPageComponent extends Vue {
             ExtraValues: { },
             PropertyInfo: null
         };
+    }
+
+    convertStringToSteps(text: string): Array<SequenceDiagramStep<any>>
+    {
+        var d = this.$refs.sandboxDiagram as SequenceDiagramComponent;
+		if (d == null || this.hackyTimer == 0) return [];
+        return d.convertStringToSteps<any>(text);
+    }
+
+    get SequenceDiagramComponent_steps(): Array<SequenceDiagramStep<any>>
+    {
+        return this.convertStringToSteps(this.SequenceDiagramComponent_sandboxScript);
     }
 }
 </script>

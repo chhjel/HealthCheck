@@ -7,6 +7,7 @@ export interface DataTableGroup
 export interface DataTableItem
 {
     values: Array<any>;
+    expandedValues: Array<any>;
 }
 
 

@@ -313,6 +313,80 @@ export default class SequenceDiagramComponent extends Vue
         };
     }
 
+    public convertStringToSteps<TData>(text: string): Array<SequenceDiagramStep<TData>>
+    {
+        let lines = text.split('\n');
+        
+        let currentOptional: string | undefined = undefined;
+        let steps: Array<SequenceDiagramStep<TData>> = [];
+        for(let i=0; i<lines.length; i++)
+        {
+            let line = lines[i];
+            
+            let isNormalLine = line.indexOf('->') > -1 && line.indexOf(':') > line.indexOf('->');
+            if (!isNormalLine)
+            {
+                if (line.startsWith('opt '))
+                {
+                    currentOptional = line.substring(4).trim();
+                }
+                else if(line.trim() == 'end')
+                {
+                    currentOptional = undefined;
+                }
+                continue;
+            }
+
+            // ["A -> B", ": note"]
+            let mainParts = line.split(':');
+
+            // A -> B
+            let fromTo = mainParts[0].split('->');
+            let style: SequenceDiagramLineStyle | undefined = undefined;
+            let from = fromTo[0].trim();
+            let to = fromTo[1].trim();
+            // --> arrow means dashed style
+            if (from.endsWith('-'))
+            {
+                from = from.substring(0, from.length - 1).trim();
+                style = SequenceDiagramLineStyle.Dashed;
+            }
+
+            // : note
+            let otherParts = line.split('|');
+            let description = otherParts[0].split(':')[1].trim();
+            let note: undefined | string = undefined;
+            let remark: undefined | string = undefined;
+            for (let p=1; p < otherParts.length; p++)
+            {
+                let part = otherParts[p].split(':', 2).map(a => a.trim());
+                let partKey = part[0];
+                let partValue = part[1];
+                if (partKey == "note")
+                {
+                    note = partValue;
+                }
+                else if (partKey == "remark")
+                {
+                    remark = partValue;
+                }
+            }
+
+            let step = {
+                from: from,
+                to: to,
+                description: description,
+                note: note,
+                remark: remark,
+                optional: currentOptional,
+                style: style,
+                data: null
+            };
+            steps.push(step);
+        }
+        return steps;
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////

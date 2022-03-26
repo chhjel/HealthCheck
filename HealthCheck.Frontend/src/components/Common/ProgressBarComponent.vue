@@ -96,12 +96,11 @@ export default class ProgressBarComponent extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .progress-bar-parent {
     position: relative;
 }
 .progress-bar {
-    /* height: 30px; */
     border: 1px solid gray;
     white-space: nowrap;
     font-size: 0px;
@@ -116,14 +115,11 @@ export default class ProgressBarComponent extends Vue {
     padding: 5px;
     font-weight: 600;
     color: white;
-    text-shadow: 0 0 5px var(--v-accent-darken2);
+    text-shadow: 0 0 5px var(--color--secondary-base);
     min-width: 26px;
-}
-/* .progress-bar-value.success {
-}
-.progress-bar-value.error {
-} */
-.progress-bar-value.remaining {
-    background-color: var(--v-accent-lighten2)
+
+    &.success { background-color: var(--color--success-base); }
+    &.error { background-color: var(--color--error-base); }
+    /* &.remaining { background-color: var(--color--secondary-base); } */
 }
 </style>
