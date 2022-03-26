@@ -1,6 +1,9 @@
 <template>
     <div class="checkbox-component" :class="rootClasses">
-        <input type="checkbox" :id="`cb-${id}`" v-model="localValue" />
+        <input type="checkbox" :id="`cb-${id}`"
+            v-model="localValue"
+            :disabled="disabled"
+            :indeterminate="indeterminate" />
         <label :for="`cb-${id}`">{{ label }}</label>
     </div>
 </template>
@@ -25,6 +28,9 @@ export default class CheckboxComponent extends Vue {
     @Prop({ required: false, default: false })
     disabled!: string | boolean;
 
+    @Prop({ required: false, default: false })
+    indeterminate!: string | boolean;
+
     @Prop({ required: false, default: null })
     inputValue!: string;
 
@@ -44,11 +50,13 @@ export default class CheckboxComponent extends Vue {
     //////////////
     get rootClasses(): any {
         return {
-             'disabled': this.isDisabled
+             'disabled': this.isDisabled,
+             'indeterminate': this.isIndeterminate
         };
     }
 
     get isDisabled(): boolean { return ValueUtils.IsToggleTrue(this.disabled); }
+    get isIndeterminate(): boolean { return ValueUtils.IsToggleTrue(this.indeterminate); }
 
     ////////////////
     //  METHODS  //
@@ -77,9 +85,9 @@ export default class CheckboxComponent extends Vue {
 
 <style scoped lang="scss">
 .checkbox-component {
-	border: 2px solid red;
 	padding: 5px;
 	margin: 5px;
     &.disabled { }
+    &.indeterminate { }
 }
 </style>

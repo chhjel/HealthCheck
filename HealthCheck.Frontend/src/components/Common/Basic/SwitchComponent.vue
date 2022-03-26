@@ -1,6 +1,8 @@
 <template>
     <div class="switch-component" :class="rootClasses">
-        <input type="checkbox" :id="`sw-${id}`" v-model="localValue" />
+        <input type="checkbox" :id="`sw-${id}`"
+            v-model="localValue"
+            :disabled="disabled" />
         <label :for="`sw-${id}`">{{ label }}</label>
     </div>
 </template>
@@ -74,7 +76,6 @@ export default class SwitchComponent extends Vue {
 
 <style scoped lang="scss">
 .switch-component {
-	border: 2px solid red;
 	padding: 5px;
 	margin: 5px;
     &.disabled { }

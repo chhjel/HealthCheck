@@ -68,10 +68,18 @@
 
 				<h3 class="todo">checkbox-component</h3>
 				<!-- CheckboxComponent -->
-				<checkbox-component
-					v-model:value="CheckboxComponent_value"
-				></checkbox-component>
+				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox"></checkbox-component>
+				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox disabled" disabled></checkbox-component>
+				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox indeterminate" indeterminate></checkbox-component>
+				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox disabled indeterminate" disabled indeterminate></checkbox-component>
 				<code>{{ CheckboxComponent_value }}</code>
+				<hr />
+
+				<h3 class="todo">switch-component</h3>
+				<!-- SwitchComponent -->
+				<switch-component v-model:value="SwitchComponent_value" label="Switch"></switch-component>
+				<switch-component v-model:value="SwitchComponent_value" label="Switch disabled" disabled></switch-component>
+				<code>{{ SwitchComponent_value }}</code>
 				<hr />
 
 				<h3 class="todo">chip-component</h3>
@@ -186,12 +194,6 @@
 				<h3 class="todo">stepper-component</h3>
 				<!-- StepperComponent -->
 				<stepper-component></stepper-component>
-				<hr />
-
-				<h3 class="todo">switch-component</h3>
-				<!-- SwitchComponent -->
-				<switch-component v-model:value="SwitchComponent_value"></switch-component>
-				<code>{{ SwitchComponent_value }}</code>
 				<hr />
 
 				<h3 class="todo">textarea-component</h3>
