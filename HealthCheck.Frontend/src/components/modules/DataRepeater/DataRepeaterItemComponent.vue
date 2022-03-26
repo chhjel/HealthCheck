@@ -147,7 +147,7 @@
             max-width="480"
             content-class="confirm-dialog"
             :persistent="dataLoadStatus.inProgress">
-            <card-component>
+            <div>
                 <div class="headline">Confirm {{ (stream.RetryActionName || 'Retry') }}</div>
                 <div>
                     Are you sure you want to {{ (stream.RetryActionName || 'Retry') }}?
@@ -162,14 +162,14 @@
                         :loading="dataLoadStatus.inProgress"
                         @click="retry()">{{ (stream.RetryActionName || 'Retry') }}</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <dialog-component v-model:value="confirmRunAnalysisDialogVisible"
             @keydown.esc="confirmRunAnalysisDialogVisible = false"
             max-width="480"
             content-class="confirm-dialog"
             :persistent="dataLoadStatus.inProgress">
-            <card-component>
+            <div>
                 <div class="headline">Confirm run analysis</div>
                 <div>
                     Are you sure you want to run analysis?
@@ -184,7 +184,7 @@
                         :loading="dataLoadStatus.inProgress"
                         @click="analyze()">Run analysis</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
     </div>
 </template>

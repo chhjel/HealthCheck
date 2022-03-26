@@ -1,6 +1,6 @@
 <!-- src/components/modules/Overview/SiteEventDetailsComponent.vue -->
 <template>
-    <card-component color="grey lighten-4" flat
+    <div color="grey lighten-4" flat
         min-width="350px" max-width="800px">
         <toolbar-component dark
             :color="getEventSeverityColor(event.Severity)">
@@ -57,7 +57,7 @@
         <div>
             <slot name="actions"></slot>
         </div>
-    </card-component>
+    </div>
 </template>
 
 <script lang="ts">

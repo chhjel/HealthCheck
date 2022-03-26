@@ -38,7 +38,7 @@
             max-width="480"
             content-class="confirm-dialog"
             :persistent="dataLoadStatus.inProgress">
-            <card-component>
+            <div>
                 <div class="headline">Confirm execute '{{ action.Name }}'</div>
                 <div>
                     Are you sure you want to execute the action '{{ action.Name }}'?
@@ -53,7 +53,7 @@
                         :loading="dataLoadStatus.inProgress"
                         @click="executeAction()">Execute</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
     </div>
 </template>

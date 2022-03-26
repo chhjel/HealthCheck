@@ -122,7 +122,7 @@
         <dialog-component v-model:value="deleteAllDialogVisible"
             @keydown.esc="deleteAllDialogVisible = false"
             max-width="350">
-            <card-component>
+            <div>
                 <div class="headline">Confirm deletion</div>
                 <div>
                     Clear all site events?
@@ -131,13 +131,13 @@
                                         <btn-component color="primary" @click="deleteAllDialogVisible = false">Cancel</btn-component>
                     <btn-component color="error" @click="clearAllEvents">Clear all</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <!-- ##################### -->
         <dialog-component v-model:value="deleteSingleDialogVisible"
             @keydown.esc="deleteSingleDialogVisible = false"
             max-width="550">
-            <card-component>
+            <div>
                 <div class="headline">{{ deleteSingleDialogTitle }}</div>
                 <div>
                     {{ deleteSingleDialogText }}
@@ -146,7 +146,7 @@
                                         <btn-component color="primary" @click="deleteSingleDialogVisible = false">Cancel</btn-component>
                     <btn-component color="error" @click="deleteSingleEvent">Delete</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <!-- DIALOGS END -->
     </div>

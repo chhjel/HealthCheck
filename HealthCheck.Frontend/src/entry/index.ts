@@ -64,7 +64,6 @@ import IconComponent from '@components/Common/Basic/IconComponent.vue';
 import AlertComponent from '@components/Common/Basic/AlertComponent.vue';
 import ProgressLinearComponent from '@components/Common/Basic/ProgressLinearComponent.vue';
 import DialogComponent from '@components/Common/Basic/DialogComponent.vue';
-import CardComponent from '@components/Common/Basic/CardComponent.vue';
 import BadgeComponent from '@components/Common/Basic/BadgeComponent.vue';
 import TooltipComponent from '@components/Common/Basic/TooltipComponent.vue';
 import TextareaComponent from '@components/Common/Basic/TextareaComponent.vue';
@@ -92,7 +91,6 @@ function registerGlobalComponents(app: App<Element>): void {
 	app.component("AlertComponent", AlertComponent);
 	app.component("ProgressLinearComponent", ProgressLinearComponent);
 	app.component("DialogComponent", DialogComponent);
-	app.component("CardComponent", CardComponent);
 	app.component("BadgeComponent", BadgeComponent);
 	app.component("TooltipComponent", TooltipComponent);
 	app.component("TextareaComponent", TextareaComponent);

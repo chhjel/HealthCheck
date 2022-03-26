@@ -48,16 +48,6 @@
 				<code>{{ AutocompleteComponent_value }}</code>
 				<hr />
 
-				<h3 class="todo">block-component</h3>
-				<!-- BlockComponent -->
-				<block-component class="mb-1">Block with only content</block-component>
-				<block-component title="Title" class="mb-1">Block with title</block-component>
-				<block-component title="Title" details="Details here" class="mb-1">Block with title and details</block-component>
-				<block-component title="Title" details="Details here" buttonText="Button here" class="mb-1">Block with title, details and button</block-component>
-				<block-component title="Title" details="Details here" buttonText="Button here" buttonIcon="person" class="mb-1">Block with title, details and button icon</block-component>
-				<block-component title="Title" details="Details here" buttonText="Button here" buttonIcon="person" status="Success" class="mb-1">Block with title, details, button icon and status</block-component>
-				<hr />
-
 				<h3 class="todo">btn-component</h3>
 				<!-- BtnComponent -->
 				<btn-component>Button</btn-component>
@@ -69,11 +59,6 @@
 					v-model:value="CalendarComponent_value"
 				></calendar-component>
 				<code>{{ CalendarComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">card-component</h3>
-				<!-- CardComponent -->
-				<card-component>Card?</card-component>
 				<hr />
 
 				<h3 class="todo">carousel-component</h3>
@@ -496,6 +481,16 @@
 				<!-- BadgeComponent -->
 				<badge-component>42</badge-component>
 				<hr />
+
+				<h3 class="ok">block-component</h3>
+				<!-- BlockComponent -->
+				<block-component class="mb-1">Block with only content</block-component>
+				<block-component title="Title" class="mb-1">Block with title</block-component>
+				<block-component title="Title" details="Details here" class="mb-1">Block with title and details</block-component>
+				<block-component title="Title" details="Details here" buttonText="Button here" class="mb-1">Block with title, details and button</block-component>
+				<block-component title="Title" details="Details here" buttonText="Button here" buttonIcon="person" class="mb-1">Block with title, details and button icon</block-component>
+				<block-component title="Title" details="Details here" buttonText="Button here" buttonIcon="person" status="Success" class="mb-1">Block with title, details, button icon and status</block-component>
+				<hr />
 			</div>
 		</div>
 	</div>
@@ -520,7 +515,6 @@ import BadgeComponent from "@components/Common/Basic/BadgeComponent.vue";
 import BlockComponent from "@components/Common/Basic/BlockComponent.vue";
 import BtnComponent from "@components/Common/Basic/BtnComponent.vue";
 import CalendarComponent from "@components/Common/Basic/CalendarComponent.vue";
-import CardComponent from "@components/Common/Basic/CardComponent.vue";
 import CarouselComponent from "@components/Common/Basic/CarouselComponent.vue";
 import CheckboxComponent from "@components/Common/Basic/CheckboxComponent.vue";
 import ChipComponent from "@components/Common/Basic/ChipComponent.vue";
@@ -592,7 +586,6 @@ import { SequenceDiagramStep } from "@components/Common/SequenceDiagramComponent
 		BlockComponent,
 		BtnComponent,
 		CalendarComponent,
-		CardComponent,
 		CarouselComponent,
 		CheckboxComponent,
 		ChipComponent,

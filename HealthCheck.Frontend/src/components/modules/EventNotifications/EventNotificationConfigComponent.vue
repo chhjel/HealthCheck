@@ -229,7 +229,7 @@
             @keydown.esc="notifierDialogVisible = false"
             v-if="notifiers != null"
             content-class="possible-notifiers-dialog">
-            <card-component>
+            <div>
                 <div class="headline">Select type of notifier to add</div>
                                 <div style="max-height: 500px;">
                     <div class="possible-notifiers-list">
@@ -251,14 +251,14 @@
                                 <div>
                                         <btn-component color="secondary" flat @click="notifierDialogVisible = false">Cancel</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
 
         <dialog-component v-model:value="deleteDialogVisible"
             @keydown.esc="deleteDialogVisible = false"
             max-width="290"
             content-class="confirm-dialog">
-            <card-component>
+            <div>
                 <div class="headline">Confirm deletion</div>
                 <div>
                     Are you sure you want to delete this configuration?
@@ -267,14 +267,14 @@
                                         <btn-component color="secondary" @click="deleteDialogVisible = false">Cancel</btn-component>
                     <btn-component color="error" @click="deleteConfig()">Delete it</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
 
         <dialog-component v-model:value="payloadPlaceholderDialogVisible"
             @keydown.esc="payloadPlaceholderDialogVisible = false"
             scrollable
             content-class="possible-placeholders-dialog">
-            <card-component>
+            <div>
                 <div class="headline">Select placeholder to add</div>
                                 <div style="max-height: 500px;">
                     <div class="possible-placeholders-list">
@@ -295,13 +295,13 @@
                                 <div>
                                         <btn-component color="secondary" flat @click="hidePayloadPlaceholderDialog()">Cancel</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <dialog-component v-model:value="placeholderDialogVisible"
             @keydown.esc="placeholderDialogVisible = false"
             scrollable
             content-class="possible-placeholders-dialog">
-            <card-component>
+            <div>
                 <div class="headline">Select placeholder to add</div>
                                 <div style="max-height: 500px;">
                     <div class="possible-placeholders-list">
@@ -322,13 +322,13 @@
                                 <div>
                                         <btn-component color="secondary" flat @click="hidePlaceholderDialog()">Cancel</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <dialog-component v-model:value="testDialogVisible"
             @keydown.esc="testDialogVisible = false"
             scrollable
             content-class="possible-placeholders-dialog">
-            <card-component v-if="notifierToTest">
+            <div v-if="notifierToTest">
                 <div class="headline">Test notifier '{{ notifierToTest.Notifier.Name }}'</div>
                                 <div>
                     <div>
@@ -348,7 +348,7 @@
                                 <div>
                                         <btn-component color="secondary" flat @click="testDialogVisible = false">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
     </div>
 </template>

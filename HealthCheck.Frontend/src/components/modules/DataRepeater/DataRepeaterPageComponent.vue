@@ -153,7 +153,7 @@
                 max-width="800"
                 content-class="confirm-dialog"
                 :persistent="dataLoadStatus.inProgress">
-                <card-component>
+                <div>
                     <div class="headline">Batch actions</div>
                     <div>
                         <div v-if="selectedStream && hasBatchActions">
@@ -172,7 +172,7 @@
                             :loading="dataLoadStatus.inProgress"
                             @click="batchActionsDialogVisible = false">Cancel</btn-component>
                     </div>
-                </card-component>
+                </div>
             </dialog-component>
           <!-- DIALOGS END -->
         </div>

@@ -77,7 +77,7 @@
                 persistent
                 max-width="1200"
                 content-class="current-download-dialog">
-                <card-component v-if="currentDownload != null">
+                <div v-if="currentDownload != null">
                     <toolbar-component>
                         <div class="current-download-dialog__title">{{ currentDialogTitle }}</div>
                                                 <btn-component icon
@@ -110,7 +110,7 @@
                             :disabled="serverInteractionInProgress"
                             @click="$refs.currentDownloadComponent.saveDownload()">Save</btn-component>
                     </div>
-                </card-component>
+                </div>
             </dialog-component>
         </div> <!-- /PAGE-->
     </div>

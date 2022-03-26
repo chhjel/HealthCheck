@@ -222,7 +222,7 @@
             max-width="480"
             content-class="confirm-dialog"
             :persistent="dataLoadStatus.inProgress">
-            <card-component>
+            <div>
                 <div class="headline">Select a query preset to load</div>
                 <div>
                     <progress-linear-component 
@@ -251,14 +251,14 @@
                         :loading="dataLoadStatus.inProgress"
                         @click="loadPresetDialogVisible = false">Cancel</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <dialog-component v-model:value="savePresetDialogVisible"
             @keydown.esc="savePresetDialogVisible = false"
             max-width="480"
             content-class="confirm-dialog"
             :persistent="true">
-            <card-component>
+            <div>
                 <div class="headline">Save preset</div>
                 <div>
                     <h3>Save current query as a preset?</h3>
@@ -313,14 +313,14 @@
                         :loading="dataLoadStatus.inProgress"
                         @click="onSavePresetConfirmClicked()">Save</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <dialog-component v-model:value="exportDialogVisible"
             @keydown.esc="exportDialogVisible = false"
             max-width="480"
             content-class="confirm-dialog"
             :persistent="exportLoadStatus.inProgress">
-            <card-component>
+            <div>
                 <div class="headline">Select export format</div>
                 <div>
                     <div>
@@ -350,13 +350,13 @@
                         :loading="exportLoadStatus.inProgress"
                         @click="exportDialogVisible = false">Cancel</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <dialog-component v-model:value="columnConfigDialogVisible"
             @keydown.esc="columnConfigDialogVisible = false"
             max-width="460"
             content-class="confirm-dialog">
-            <card-component>
+            <div>
                 <div class="headline">Customize columns</div>
                 <div>
                     <div>
@@ -402,13 +402,13 @@
                         :loading="dataLoadStatus.inProgress"
                         @click="columnConfigDialogVisible = false">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <dialog-component v-model:value="queryHelpDialogVisible"
             @keydown.esc="queryHelpDialogVisible = false"
             max-width="720"
             content-class="confirm-dialog">
-            <card-component>
+            <div>
                 <div class="headline">Query help</div>
                 <div>
                     <div>
@@ -437,14 +437,14 @@
                                 <div>
                                         <btn-component color="secondary" @click="queryHelpDialogVisible = false">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <dialog-component v-model:value="deletePresetDialogVisible"
             @keydown.esc="deletePresetDialogVisible = false"
             max-width="480"
             content-class="confirm-dialog"
             :persistent="deleteLoadStatus.inProgress">
-            <card-component>
+            <div>
                 <div class="headline">Delete preset?</div>
                 <div>
                     Delete preset <code v-if="presetToDelete">{{ presetToDelete.Name }}</code>?
@@ -459,13 +459,13 @@
                         :loading="deleteLoadStatus.inProgress"
                         @click="onDeletePresetConfirmed()">Delete</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <dialog-component v-model:value="formatDialogVisible"
             @keydown.esc="formatDialogVisible = false"
             max-width="460"
             content-class="confirm-dialog">
-            <card-component>
+            <div>
                 <div class="headline">Format column</div>
                 <div>
                     <div>
@@ -508,13 +508,13 @@
                         :loading="dataLoadStatus.inProgress"
                         @click="formatDialogVisible = false">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <dialog-component v-model:value="placeholdersDialogVisible"
             @keydown.esc="placeholdersDialogVisible = false"
             scrollable
             content-class="possible-placeholders-dialog">
-            <card-component>
+            <div>
                 <div class="headline">Select placeholder to add</div>
                                 <div style="max-height: 500px;">
                     <div class="possible-placeholders-list">
@@ -535,7 +535,7 @@
                                 <div>
                                         <btn-component color="secondary" flat @click="placeholdersDialogVisible = false">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
     </div> <!-- /PAGE-->
 </template>

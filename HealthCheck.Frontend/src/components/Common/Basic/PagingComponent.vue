@@ -18,7 +18,7 @@
             @keydown.esc="dialogVisible = false"
             max-width="480"
             content-class="confirm-dialog">
-            <card-component>
+            <div>
                 <div class="headline">Jump to page</div>
                 <div>
                     <text-field-component
@@ -34,7 +34,7 @@
                     <btn-component color="primary"
                         @click="navigateToPage(dialogNumber)">Go to page {{ dialogNumber }}</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
     </div>
 </template>

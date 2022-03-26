@@ -77,7 +77,7 @@
                         </tr>
                     </template>
                     <template v-slot:expand="props">
-                        <card-component flat>
+                        <div flat>
                             <div class="row-details">
                                 <div class="row-details-user mt-2 mb-2">
                                     <icon-component class="row-details-usericon">person</icon-component>
@@ -111,7 +111,7 @@
                                     </ul>
                                 </div>
                             </div>
-                        </card-component>
+                        </div>
                     </template>
                 </v-data-table>
             </div>
@@ -127,7 +127,7 @@
             @keydown.esc="showBlobContentsDialog = false"
             max-width="90%" scrollable
             content-class="audit-blob-dialog">
-            <card-component>
+            <div>
                 <div class="headline">{{ currentBlobTitle }}</div>
                 <div class="pt-0">
                     <p class="blob-details">{{ currentBlobDetails }}</p>
@@ -142,7 +142,7 @@
                                 <div>
                                         <btn-component color="primary" @click="hideBlobContentsDialog()">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <!-- ##################### -->
     </div>

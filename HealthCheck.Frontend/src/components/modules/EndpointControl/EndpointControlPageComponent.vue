@@ -86,7 +86,7 @@
                 persistent
                 max-width="1200"
                 content-class="current-rule-dialog">
-                <card-component v-if="currentRule != null">
+                <div v-if="currentRule != null">
                     <toolbar-component>
                         <div class="current-rule-dialog__title">{{ currentDialogTitle }}</div>
                                                 <btn-component icon
@@ -120,14 +120,14 @@
                             :disabled="serverInteractionInProgress || !HasAccessToEditRules"
                             @click="$refs.currentRuleComponent.saveRule()">Save</btn-component>
                     </div>
-                </card-component>
+                </div>
             </dialog-component>
 
             <dialog-component v-model:value="deleteDefinitionDialogVisible"
                 @keydown.esc="deleteDefinitionDialogVisible = false"
                 max-width="290"
                 content-class="confirm-dialog">
-                <card-component>
+                <div>
                     <div class="headline">Confirm deletion</div>
                     <div>
                         {{ deleteDefinitionDialogText }}
@@ -139,7 +139,7 @@
                             :disabled="loadStatus.inProgress"
                             @click="confirmDeleteEndpointDefinition()">Delete</btn-component>
                     </div>
-                </card-component>
+                </div>
             </dialog-component>
             
             <dialog-component v-model:value="editDefinitionsDialogVisible"
@@ -147,7 +147,7 @@
                 scrollable
                 max-width="1200"
                 content-class="current-rule-dialog">
-                <card-component>
+                <div>
                     <toolbar-component>
                         <div class="current-rule-dialog__title">Edit endpoint definitions</div>
                                                 <btn-component icon
@@ -187,7 +187,7 @@
                         <btn-component color="success"
                             @click="editDefinitionsDialogVisible = false">Close</btn-component>
                     </div>
-                </card-component>
+                </div>
             </dialog-component>
             
             <dialog-component v-model:value="latestRequestsDialogVisible"
@@ -196,7 +196,7 @@
                 max-width="1200"
                 content-class=""
                 @input="v => v || hideLatestRequestsDialog()">
-                <card-component>
+                <div>
                     <toolbar-component>
                         <div class="current-rule-dialog__title">Latest requests</div>
                                                 <btn-component icon @click="hideLatestRequestsDialog">
@@ -218,7 +218,7 @@
                                         <div >
                                                 <btn-component color="success" @click="hideLatestRequestsDialog">Close</btn-component>
                     </div>
-                </card-component>
+                </div>
             </dialog-component>
         </div> <!-- /PAGE-->
     </div>

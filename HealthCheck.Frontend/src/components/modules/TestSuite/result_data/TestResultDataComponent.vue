@@ -23,7 +23,7 @@
             @keydown.esc="showFullscreen = false"
             fullscreen hide-overlay transition="dialog-transition">
             <btn-component outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2 ml-0">Fullscreen</btn-component>
-            <card-component>
+            <div>
               <!-- DIALOG TOOLBAR -->
               <toolbar-component dark color="primary">
                 <btn-component icon dark @click="showFullscreen = false">
@@ -44,7 +44,7 @@
                   :fullscreen="showFullscreen"
                   :is="getDataComponentNameFromType(resultData.Type)">
               </component>
-            </card-component>
+            </div>
           </dialog-component>
         
           <btn-component outline small color="secondary-darken2" class="data-dump-action-button mt-2"

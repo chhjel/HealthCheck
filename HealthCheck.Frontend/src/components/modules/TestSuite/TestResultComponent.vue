@@ -19,7 +19,7 @@
           v-model:value="dataExpandedState">
             <template #header v-if="testResult.AllowExpandData && !testResult.DisplayClean">{{ testResultDataTitle }}</template>
             <template #content>
-              <card-component v-if="dataExpandedState">
+              <div v-if="dataExpandedState">
                 <div>
                   <test-result-data-component 
                     v-for="(resultData, index) in testResult.Data"
@@ -27,7 +27,7 @@
                     :resultData="resultData"
                     :clean="resultData.DisplayClean || testResult.DisplayClean" />
                 </div>
-              </card-component>
+              </div>
             </template>
         </expansion-panel-component>
     </div>

@@ -103,7 +103,7 @@
             persistent
             max-width="500"
             content-class="profile-dialog">
-            <card-component>
+            <div>
                 <toolbar-component>
                     <div>Elevate access using WebAuthn</div>
                                         <btn-component icon @click="elevateWebAuthnDialogVisible = false">
@@ -132,7 +132,7 @@
                                         <btn-component :disabled="webAuthnElevateStatus.inProgress"
                             @click="elevateWebAuthnDialogVisible = false">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         
         </dialog-component>
 
@@ -142,7 +142,7 @@
             persistent
             max-width="500"
             content-class="profile-dialog">
-            <card-component>
+            <div>
                 <toolbar-component>
                     <div>Register WebAuthn authenticator</div>
                                         <btn-component icon @click="addWebAuthnDialogVisible = false">
@@ -180,7 +180,7 @@
                                         <btn-component :disabled="webAuthnAddLoadStatus.inProgress"
                             @click="addWebAuthnDialogVisible = false">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
 
         <dialog-component v-model:value="removeWebAuthnDialogVisible"
@@ -189,7 +189,7 @@
             persistent
             max-width="500"
             content-class="profile-dialog">
-            <card-component>
+            <div>
                 <toolbar-component>
                     <div>Remove WebAuthn authenticator</div>
                                         <btn-component icon @click="removeWebAuthnDialogVisible = false">
@@ -229,7 +229,7 @@
                                         <btn-component :disabled="webAuthnRemoveStatus.inProgress"
                             @click="removeWebAuthnDialogVisible = false">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
 
         <!-- TOTP DIALOGS -->
@@ -239,7 +239,7 @@
             persistent
             max-width="500"
             content-class="profile-dialog">
-            <card-component>
+            <div>
                 <toolbar-component>
                     <div>Elevate access using TOTP</div>
                                         <btn-component icon @click="elevateTotpDialogVisible = false">
@@ -278,7 +278,7 @@
                                         <btn-component :disabled="totpElevateLoadStatus.inProgress"
                             @click="elevateTotpDialogVisible = false">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         
         </dialog-component>
 
@@ -288,7 +288,7 @@
             persistent
             max-width="500"
             content-class="profile-dialog">
-            <card-component>
+            <div>
                 <toolbar-component>
                     <div>Register TOTP authenticator</div>
                                         <btn-component icon @click="addTotpDialogVisible = false">
@@ -338,7 +338,7 @@
                                         <btn-component :disabled="totpAddLoadStatus.inProgress"
                             @click="addTotpDialogVisible = false">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
 
         <dialog-component v-model:value="removeTotpDialogVisible"
@@ -347,7 +347,7 @@
             persistent
             max-width="500"
             content-class="profile-dialog">
-            <card-component>
+            <div>
                 <toolbar-component>
                     <div>Remove TOTP authenticator</div>
                                         <btn-component icon @click="removeTotpDialogVisible = false">
@@ -387,7 +387,7 @@
                                         <btn-component :disabled="totpRemoveLoadStatus.inProgress"
                             @click="removeTotpDialogVisible = false">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
     </div>
 </template>

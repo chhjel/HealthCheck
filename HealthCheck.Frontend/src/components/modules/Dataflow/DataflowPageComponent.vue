@@ -246,7 +246,7 @@
             max-width="800"
             content-class="search-result-dialog"
             :persistent="dataLoadStatus.inProgress">
-            <card-component>
+            <div>
                 <div class="headline">{{ selectedSearchResult.Title }}</div>
                 <div class="pt-0">
                     <div v-if="selectedSearchResult.Body" v-html="selectedSearchResult.Body" class="mb-2"></div>
@@ -258,7 +258,7 @@
                         :loading="dataLoadStatus.inProgress"
                         @click="searchResultDialogVisible = false">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
     </div> <!-- /PAGE-->
 </template>

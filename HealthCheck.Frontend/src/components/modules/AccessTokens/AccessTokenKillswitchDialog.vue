@@ -6,7 +6,7 @@
             scrollable
             max-width="800"
             content-class="root-profile-dialog">
-            <card-component>
+            <div>
                 <toolbar-component>
                     <div>Delete currently used token</div>
                                         <btn-component icon @click="closeDialog">
@@ -27,7 +27,7 @@
                         @click="killswitchToken()">Delete token</btn-component>
                     <btn-component @click="closeDialog">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
     </div>
 </template>

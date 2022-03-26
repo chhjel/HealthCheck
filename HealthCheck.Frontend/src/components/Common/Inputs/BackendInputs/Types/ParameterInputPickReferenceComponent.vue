@@ -25,7 +25,7 @@
             scrollable
             max-width="600"
             content-class="select-reference-item-dialog">
-            <card-component>
+            <div>
                 <toolbar-component>
                     <div>{{ dialogTitle }}</div>
                                         <btn-component icon
@@ -70,7 +70,7 @@
                                         <btn-component color="primary"
                         @click="choicesDialogVisible = false">Cancel</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
     </div>
 </template>

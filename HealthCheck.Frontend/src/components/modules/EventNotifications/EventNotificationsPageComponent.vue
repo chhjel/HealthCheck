@@ -106,7 +106,7 @@
                 persistent
                 max-width="1200"
                 content-class="current-config-dialog">
-                <card-component v-if="currentConfig != null">
+                <div v-if="currentConfig != null">
                     <toolbar-component>
                         <div class="current-config-dialog__title">{{ currentDialogTitle }}</div>
                                                 <btn-component icon
@@ -140,14 +140,14 @@
                             :disabled="serverInteractionInProgress"
                             @click="$refs.currentConfigComponent.saveConfig()">Save</btn-component>
                     </div>
-                </card-component>
+                </div>
             </dialog-component>
 
             <dialog-component v-model:value="deleteDefinitionDialogVisible"
                 @keydown.esc="deleteDefinitionDialogVisible = false"
                 max-width="290"
                 content-class="confirm-dialog">
-                <card-component>
+                <div>
                     <div class="headline">Confirm deletion</div>
                     <div>
                         {{ deleteDefinitionDialogText }}
@@ -159,7 +159,7 @@
                             :disabled="loadStatus.inProgress"
                             @click="confirmDeleteEventDefinition()">Delete</btn-component>
                     </div>
-                </card-component>
+                </div>
             </dialog-component>
             
             <dialog-component v-model:value="editDefinitionsDialogVisible"
@@ -167,7 +167,7 @@
                 scrollable
                 max-width="1200"
                 content-class="current-config-dialog">
-                <card-component>
+                <div>
                     <toolbar-component>
                         <div class="current-config-dialog__title">Edit event payload definitions</div>
                                                 <btn-component icon
@@ -215,7 +215,7 @@
                         <btn-component color="success"
                             @click="editDefinitionsDialogVisible = false">Close</btn-component>
                     </div>
-                </card-component>
+                </div>
             </dialog-component>
         </div> <!-- /PAGE-->
     </div>

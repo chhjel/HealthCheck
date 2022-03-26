@@ -250,9 +250,9 @@
                 <expansion-panel-component popout v-if="chartEntries.length > 0" class="mb-4">
                     <template #header><div>{{insightsTitle}}</div></template>
                     <template #content>
-                        <card-component>
+                        <div>
                             <item-per-date-chart-component :entries="chartEntries" />
-                        </card-component>
+                        </div>
                     </template>
                 </expansion-panel-component>
 
@@ -260,14 +260,14 @@
                 <expansion-panel-component popout v-if="Object.keys(searchResultData.GroupedEntries).length > 0" class="mb-4">
                     <template #header><div>Grouped entries (work in progress)</div></template>
                     <template #content>
-                        <card-component>
+                        <div>
                             <ul class="ma-4">
                                 <li v-for="(groupKey, index) in Object.keys(searchResultData.GroupedEntries)"
                                     :key="`grouped-entries-${index}`">
                                     {{ groupKey }}: {{ searchResultData.GroupedEntries[groupKey].length }}
                                 </li>
                             </ul>
-                        </card-component>
+                        </div>
                     </template>
                 </expansion-panel-component>
             </div>
@@ -313,14 +313,14 @@
             <expansion-panel-component popout v-if="describedQuery.length > 0" class="mb-4">
                 <template #header><div>Parsed query</div></template>
                 <template #content>
-                    <card-component>
+                    <div>
                         <ul class="ma-4">
                             <li v-for="(description, index) in describedQuery"
                                 :key="`filter-description-${index}`">
                                 {{ description }}
                             </li>
                         </ul>
-                    </card-component>
+                    </div>
                 </template>
             </expansion-panel-component>
 

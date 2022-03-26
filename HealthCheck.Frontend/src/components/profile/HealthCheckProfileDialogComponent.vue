@@ -6,7 +6,7 @@
             scrollable
             max-width="800"
             content-class="root-profile-dialog">
-            <card-component>
+            <div>
                 <toolbar-component>
                     <div>Profile</div>
                                         <btn-component icon @click="closeDialog">
@@ -22,7 +22,7 @@
                                 <div >
                                         <btn-component @click="closeDialog">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
     </div>
 </template>

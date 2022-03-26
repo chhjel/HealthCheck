@@ -8,7 +8,7 @@
             scrollable
             fullscreen
             content-class="edit-json-value-dialog">
-            <card-component>
+            <div>
                 <toolbar-component>
                     <div>Edit value of parameter '{{ name }}' of type '{{ type}}'</div>
                                         <btn-component icon
@@ -38,7 +38,7 @@
                                         <btn-component color="primary"
                         @click="editorDialogVisible = false">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
     </div>
 </template>

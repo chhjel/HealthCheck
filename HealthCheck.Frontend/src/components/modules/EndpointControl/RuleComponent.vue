@@ -123,7 +123,7 @@
             @keydown.esc="deleteDialogVisible = false"
             max-width="290"
             content-class="confirm-dialog">
-            <card-component>
+            <div>
                 <div class="headline">Confirm deletion</div>
                 <div>
                     Are you sure you want to delete this rule?
@@ -132,7 +132,7 @@
                                         <btn-component color="secondary" @click="deleteDialogVisible = false">Cancel</btn-component>
                     <btn-component color="error" @click="deleteRule()">Delete it</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
     </div>
 </template>

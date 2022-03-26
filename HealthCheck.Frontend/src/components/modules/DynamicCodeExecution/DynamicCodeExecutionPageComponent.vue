@@ -109,7 +109,7 @@
             @keydown.esc="deleteScriptDialogVisible = false"
             max-width="350" dark
             content-class="dce-dialog">
-            <card-component color="secondary" class="white--text">
+            <div color="secondary" class="white--text">
                 <div class="headline">Confirm deletion</div>
                 <div>
                     {{ deleteScriptDialogText }}
@@ -118,14 +118,14 @@
                                         <btn-component color="primary" @click="deleteScriptDialogVisible = false">Cancel</btn-component>
                     <btn-component color="error" @click="deleteScript(currentScript)">Delete it</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <!-- ##################### -->
         <dialog-component v-model:value="confirmUnchangedDialogVisible"
             @keydown.esc="unsavedChangesDialogGoBack()"
             max-width="350" dark
             content-class="dce-dialog">
-            <card-component color="secondary" class="white--text">
+            <div color="secondary" class="white--text">
                 <div class="headline">Unsaved changes</div>
                 <div>
                     It seems you have some unsaved changes.
@@ -138,14 +138,14 @@
                         @click="unsavedChangesDialogConfirmed()"
                         >Discard changes</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <!-- ##################### -->
         <dialog-component v-model:value="saveScriptDialogVisible"
             @keydown.esc="saveScriptDialogVisible = false"
             max-width="400" dark
             content-class="dce-dialog">
-            <card-component color="secondary" class="white--text">
+            <div color="secondary" class="white--text">
                 <div class="headline">Save new script</div>
                 <div>
                     Choose where to save this script.
@@ -161,14 +161,14 @@
                         :loading="loadStatus.inProgress"
                         >Server</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <!-- ##################### -->
         <dialog-component v-model:value="configDialogVisible"
             @keydown.esc="configDialogVisible = false"
             max-width="600" dark
             content-class="dce-dialog">
-            <card-component color="secondary" class="white--text">
+            <div color="secondary" class="white--text">
                 <div class="headline">Settings</div>
                 <div class="pt-0">
                     <div class="dce-dialog--option">
@@ -223,7 +223,7 @@
                 <div>
                     <btn-component color="primary" @click="configDialogVisible = false">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <!-- ##################### -->
     </div> <!-- /PAGE-->

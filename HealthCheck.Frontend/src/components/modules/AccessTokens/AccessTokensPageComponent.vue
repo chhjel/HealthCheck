@@ -155,7 +155,7 @@
             @keydown.esc="deleteTokenDialogVisible = false"
             max-width="350"
             content-class="delete-token-dialog">
-            <card-component>
+            <div>
                 <div class="headline">Confirm deletion</div>
                 <div>
                     {{ deleteTokenDialogText }}
@@ -164,7 +164,7 @@
                                         <btn-component color="primary" @click="deleteTokenDialogVisible = false">Cancel</btn-component>
                     <btn-component color="error" @click="confirmDeleteToken(tokenToBeDeleted)">Delete it</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <!-- ##################### -->
         <dialog-component v-model:value="createNewTokenDialogVisible"
@@ -173,7 +173,7 @@
             :persistent="loadStatus.inProgress"
             max-width="1200"
             content-class="create-access-token-dialog">
-            <card-component>
+            <div>
                 <toolbar-component>
                     <div class="current-config-dialog__title">Create new access token</div>
                                         <btn-component icon
@@ -201,7 +201,7 @@
                         :disabled="loadStatus.inProgress"
                         @click="createNewTokenDialogVisible = false">Close</btn-component>
                 </div>
-            </card-component>
+            </div>
         </dialog-component>
         <!-- ##################### -->
         </div> <!-- /PAGE-->

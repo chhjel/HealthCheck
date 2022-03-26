@@ -25,7 +25,7 @@
       <dialog-component
         v-model:value="showStepDialog"
         max-width="640">
-        <card-component v-if="dialogStep != null">
+        <div v-if="dialogStep != null">
           <div class="headline">
             <icon-component large left v-if="dialogStep.Icon != null">
               {{ dialogStep.Icon }}
@@ -54,7 +54,7 @@
               Close
             </btn-component>
           </div>
-        </card-component>
+        </div>
       </dialog-component>
     </div>
 </template>
