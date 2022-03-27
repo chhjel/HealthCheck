@@ -66,22 +66,6 @@
 				<carousel-component></carousel-component>
 				<hr />
 
-				<h3 class="todo">checkbox-component</h3>
-				<!-- CheckboxComponent -->
-				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox"></checkbox-component>
-				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox disabled" disabled></checkbox-component>
-				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox indeterminate" indeterminate></checkbox-component>
-				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox disabled indeterminate" disabled indeterminate></checkbox-component>
-				<code>{{ CheckboxComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">switch-component</h3>
-				<!-- SwitchComponent -->
-				<switch-component v-model:value="SwitchComponent_value" label="Switch"></switch-component>
-				<switch-component v-model:value="SwitchComponent_value" label="Switch disabled" disabled></switch-component>
-				<code>{{ SwitchComponent_value }}</code>
-				<hr />
-
 				<h3 class="todo">chip-component</h3>
 				<!-- ChipComponent -->
 				<chip-component>Chip?</chip-component>
@@ -103,17 +87,12 @@
 				<code>{{ DatePickerComponent_value }}</code>
 				<hr />
 
-				<h3 @click="DialogComponent_value = !DialogComponent_value">dialog-component</h3>
-				<!-- DialogComponent -->
-				<dialog-component v-model:value="DialogComponent_value">Dialog contents here</dialog-component>
-				<code>{{ DialogComponent_value }}</code>
-				<hr />
-
 				<h3 class="todo">expansion-panel-component</h3>
 				<!-- ExpansionPanelComponent -->
-				<expansion-panel-component
-					v-model:value="ExpansionPanelComponent_value"
-				></expansion-panel-component>
+				<expansion-panel-component v-model:value="ExpansionPanelComponent_value">
+                    <template #header>Header here</template>
+                    <template #content>Content here</template>
+				</expansion-panel-component>
 				<code>{{ ExpansionPanelComponent_value }}</code>
 				<hr />
 
@@ -125,11 +104,6 @@
 				<code>{{ FetchStatusProgressComponent_status }}</code>
 				<hr />
 
-				<h3 class="todo">icon-component</h3>
-				<!-- IconComponent -->
-				<icon-component>person</icon-component>
-				<hr />
-
 				<h3 class="todo">input-component</h3>
 				<!-- InputComponent -->
 				<input-component v-model:value="InputComponent_value"></input-component>
@@ -138,30 +112,14 @@
 
 				<h3 class="todo">input-header-component</h3>
 				<!-- InputHeaderComponent -->
-				<input-header-component></input-header-component>
+				<input-header-component name="Name here"></input-header-component>
+				<input-header-component name="Name here" description="Description here"></input-header-component>
 				<hr />
 
 				<h3 class="todo">menu-component</h3>
 				<!-- MenuComponent -->
+				// todo: remove and build into datepicker instead?
 				<menu-component></menu-component>
-				<hr />
-
-				<h3 class="todo">pagination-component</h3>
-				<!-- PaginationComponent -->
-				<pagination-component
-					v-model:value="PaginationComponent_value"
-				></pagination-component>
-				<code>{{ PaginationComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">paging-component</h3>
-				<!-- PagingComponent -->
-				<paging-component
-					v-model:value="PagingComponent_value"
-					:count="PagingComponent_count"
-					pageSize="3"
-				></paging-component>
-				<code>{{ PagingComponent_value }}</code>
 				<hr />
 
 				<h3 class="todo">progress-circular-component</h3>
@@ -493,6 +451,49 @@
 				<block-component title="Title" details="Details here" buttonText="Button here" buttonIcon="person" class="mb-1">Block with title, details and button icon</block-component>
 				<block-component title="Title" details="Details here" buttonText="Button here" buttonIcon="person" status="Success" class="mb-1">Block with title, details, button icon and status</block-component>
 				<hr />
+
+				<h3 class="ok" @click="DialogComponent_value = !DialogComponent_value">dialog-component</h3>
+				<!-- DialogComponent -->
+				<dialog-component v-model:value="DialogComponent_value">Dialog contents here</dialog-component>
+				<code>{{ DialogComponent_value }}</code>
+				<hr />
+
+				<h3 class="ok">checkbox-component</h3>
+				<!-- CheckboxComponent -->
+				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox"></checkbox-component>
+				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox disabled" disabled></checkbox-component>
+				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox indeterminate" indeterminate></checkbox-component>
+				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox disabled indeterminate" disabled indeterminate></checkbox-component>
+				<code>{{ CheckboxComponent_value }}</code>
+				<hr />
+
+				<h3 class="ok">switch-component</h3>
+				<!-- SwitchComponent -->
+				<switch-component v-model:value="SwitchComponent_value" label="Switch"></switch-component>
+				<switch-component v-model:value="SwitchComponent_value" label="Switch disabled" disabled></switch-component>
+				<code>{{ SwitchComponent_value }}</code>
+				<hr />
+
+				<h3 class="ok">icon-component</h3>
+				<!-- IconComponent -->
+				<icon-component>person</icon-component>
+				<hr />
+
+				<h3 class="ok">paging-component</h3>
+				<!-- PagingComponent -->
+				<paging-component
+					v-model:value="PagingComponent_value"
+					:count="PagingComponent_count"
+					pageSize="3"
+				></paging-component>
+				<paging-component
+					v-model:value="PagingComponent_value"
+					:count="PagingComponent_count"
+					pageSize="3"
+					:disabled="true"
+				></paging-component>
+				<code>{{ PagingComponent_value }}</code>
+				<hr />
 			</div>
 		</div>
 	</div>
@@ -529,7 +530,6 @@ import IconComponent from "@components/Common/Basic/IconComponent.vue";
 import InputComponent from "@components/Common/Basic/InputComponent.vue";
 import InputHeaderComponent from "@components/Common/Basic/InputHeaderComponent.vue";
 import MenuComponent from "@components/Common/Basic/MenuComponent.vue";
-import PaginationComponent from "@components/Common/Basic/PaginationComponent.vue";
 import PagingComponent from "@components/Common/Basic/PagingComponent.vue";
 import ProgressCircularComponent from "@components/Common/Basic/ProgressCircularComponent.vue";
 import ProgressLinearComponent from "@components/Common/Basic/ProgressLinearComponent.vue";
@@ -600,7 +600,6 @@ import { SequenceDiagramStep } from "@components/Common/SequenceDiagramComponent
 		InputComponent,
 		InputHeaderComponent,
 		MenuComponent,
-		PaginationComponent,
 		PagingComponent,
 		ProgressCircularComponent,
 		ProgressLinearComponent,
@@ -680,10 +679,10 @@ Web -> Frontend: Confirmation is delivered
 	ComboboxComponent_value: string = "Some string here";
 	DatePickerComponent_value: string = "Some string here";
 	DialogComponent_value: boolean = false;
-	ExpansionPanelComponent_value: boolean = true;
+	ExpansionPanelComponent_value: boolean = false;
 	FetchStatusProgressComponent_status: FetchStatusWithProgress | null = { inProgress: true, progress: 50, failed: false, errorMessage: null };
 	InputComponent_value: string = "Some string here";
-	PaginationComponent_value: string = "Some string here";
+	PaginationComponent_value: number = 2;
 	PagingComponent_value: number = 2;
 	PagingComponent_count: number = 88;
 	SelectComponent_value: string = "B";

@@ -73,7 +73,6 @@ import AutocompleteComponent from '@components/Common/Basic/AutocompleteComponen
 import MenuComponent from '@components/Common/Basic/MenuComponent.vue';
 import ComboboxComponent from '@components/Common/Basic/ComboboxComponent.vue';
 import ExpansionPanelComponent from '@components/Common/Basic/ExpansionPanelComponent.vue';
-import PaginationComponent from '@components/Common/Basic/PaginationComponent.vue';
 import DatePickerComponent from '@components/Common/Basic/DatePickerComponent.vue';
 import CalendarComponent from '@components/Common/Basic/CalendarComponent.vue';
 import TimelineComponent from '@components/Common/Basic/TimelineComponent.vue';
@@ -100,7 +99,6 @@ function registerGlobalComponents(app: App<Element>): void {
 	app.component("MenuComponent", MenuComponent);
 	app.component("ComboboxComponent", ComboboxComponent);
 	app.component("ExpansionPanelComponent", ExpansionPanelComponent);
-	app.component("PaginationComponent", PaginationComponent);
 	app.component("DatePickerComponent", DatePickerComponent);
 	app.component("CalendarComponent", CalendarComponent);
 	app.component("TimelineComponent", TimelineComponent);

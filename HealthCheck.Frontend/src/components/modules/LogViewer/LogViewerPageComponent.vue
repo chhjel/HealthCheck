@@ -274,10 +274,11 @@
 
             <!-- PAGINATION -->
             <div class="text-xs-center mb-4" v-if="searchResultData.PageCount > 0">
-                <pagination-component
-                    v-model:value="currentPage"
-                    :length="searchResultData.PageCount"
-                    :disabled="searchLoadStatus.inProgress"></pagination-component>
+				<paging-component
+					v-model:value="currentPage"
+					:pagesCount="searchResultData.PageCount"
+                    :disabled="searchLoadStatus.inProgress"
+				></paging-component>
             </div>
 
             <!-- PROGRESS -->
@@ -303,10 +304,11 @@
 
             <!-- PAGINATION -->
             <div class="text-xs-center mb-4" v-if="searchResultData.PageCount > 0">
-                <pagination-component
-                    v-model:value="currentPage"
-                    :length="searchResultData.PageCount"
-                    :disabled="searchLoadStatus.inProgress"></pagination-component>
+				<paging-component
+					v-model:value="currentPage"
+					:pagesCount="searchResultData.PageCount"
+                    :disabled="searchLoadStatus.inProgress"
+				></paging-component>
             </div>
 
             <!-- PARSED QUERY -->
