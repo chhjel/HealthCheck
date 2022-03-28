@@ -1,0 +1,48 @@
+@mixin color_setup($name, $colorBase, $darkText: false, $flatLightenLevel: 5) {
+	.#{$name} {
+		background-color: var(#{$colorBase}-base);
+		color: var(--color--text-light);
+		@if $darkText {
+			color: var(--color--text-dark);
+		}
+		&.outline {
+			background-color: transparent;
+			border: 2px solid var(#{$colorBase}-base);
+			@if $darkText {
+				color: var(#{$colorBase}-darker3);
+			}
+			@else {
+				color: var(#{$colorBase}-base);
+			}
+		}
+		&.flat {
+			@if $darkText {
+				color: var(#{$colorBase}-darker3);
+			}
+			@else {
+				color: var(#{$colorBase}-base);
+			}
+		}
+		&.hoverable {
+			transition: 0.2s;
+			&:hover {
+				&.outline {
+					border-color: var(#{$colorBase}-lighten3);
+				}
+				&:not(.outline):not(.flat) {
+					background-color: var(#{$colorBase}-lighten1);
+				}
+				&.flat {
+					background-color: var(#{$colorBase}-lighten#{$flatLightenLevel});
+				}
+			}
+		}
+	}
+}
+
+@include color_setup('accent', '--color--accent', true, $flatLightenLevel: 2);
+@include color_setup('primary', '--color--primary', $flatLightenLevel: 6);
+@include color_setup('secondary', '--color--secondary', $flatLightenLevel: 6);
+@include color_setup('error', '--color--error', $flatLightenLevel: 4);
+@include color_setup('warning', '--color--warning', $flatLightenLevel: 5);
+@include color_setup('info', '--color--info', $flatLightenLevel: 4);

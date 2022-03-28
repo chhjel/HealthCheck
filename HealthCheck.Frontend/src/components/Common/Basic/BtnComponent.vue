@@ -86,7 +86,8 @@ export default class BtnComponent extends Vue {
     //  GETTERS  //
     //////////////
     get rootClasses(): any {
-        return {
+        let classes = {
+             'hoverable': !this.disabled,
              'flat': this.isFlat,
              'small': this.isSmall,
              'icon': this.isIcon,
@@ -98,6 +99,8 @@ export default class BtnComponent extends Vue {
              'outline': this.isOutline,
              'x-small': this.isXSmall
         };
+        classes[this.color || 'accent'] = true;
+        return classes;
     }
 
     get isFlat(): boolean { return ValueUtils.IsToggleTrue(this.flat); }
@@ -128,29 +131,29 @@ export default class BtnComponent extends Vue {
 
 <style scoped lang="scss">
 .btn-component {
-    padding: 5px;
-    background-color: var(--color--background);
-    /* background-color: #eee; */
-    border: 1px solid gray;
-    display: flex;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
     align-content: center;
     justify-content: center;
     align-items: center;
     flex-direction: row;
+    text-transform: uppercase;
+    text-decoration: none;
     cursor: pointer;
+    border-radius: 2px;
+    &:not(.flat) {
+        box-shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
+    }
 
     &__contents {
-        /* color: #333; */
         display: flex;
         align-content: center;
         justify-content: center;
         align-items: center;
         flex-direction: row;
         white-space: nowrap;
-
-        &:hover {
-            text-decoration: none;
-        }
     }
 
     &.icon { }
@@ -160,9 +163,14 @@ export default class BtnComponent extends Vue {
     &.loading { }
 
     // Styles
-    &.outline { }
+    &.outline {
+        box-shadow: none !important;
+    }
     &.round { }
-    &.flat { }
+    &.flat {
+        background-color: transparent;
+        box-shadow: none !important;
+    }
     &.depressed { }
 
     // Sizes

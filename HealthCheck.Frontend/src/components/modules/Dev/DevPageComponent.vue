@@ -22,10 +22,9 @@
 				<code>{{ FilterInputComponent_value }}</code>
 				<hr />
 
-				<!-- 
-				<h3 class="todo">loading-screen-component</h3>
-				<loading-screen-component></loading-screen-component>
-				<hr /> -->
+				<h3 class="todo" @click="showLoader = !showLoader">loading-screen-component</h3>
+				<loading-screen-component v-if="showLoader" @click="showLoader = !showLoader"></loading-screen-component>
+				<hr />
 
 				<h3 class="todo">simple-date-time-component</h3>
 				<!-- SimpleDateTimeComponent -->
@@ -41,11 +40,6 @@
 					v-model:value="AutocompleteComponent_value"
 				></autocomplete-component>
 				<code>{{ AutocompleteComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">btn-component</h3>
-				<!-- BtnComponent -->
-				<btn-component>Button</btn-component>
 				<hr />
 
 				<h3 class="todo">calendar-component</h3>
@@ -489,6 +483,40 @@
 				></paging-component>
 				<code>{{ PagingComponent_value }}</code>
 				<hr />
+
+				<h3 class="ok">alert-component</h3>
+				<!-- AlertComponent -->
+				<alert-component v-model:value="AlertComponent_value" icon="person" type="error" class="mb-1">Some error here!</alert-component>
+				<alert-component v-model:value="AlertComponent_value" icon="person" type="warning" class="mb-1">Some warning here!</alert-component>
+				<alert-component v-model:value="AlertComponent_value" icon="person" type="info" class="mb-1">Some info here!</alert-component>
+				<alert-component v-model:value="AlertComponent_value" icon="person" type="error" outline class="mb-1">Some error outline here!</alert-component>
+				<alert-component v-model:value="AlertComponent_value" icon="person" type="warning" outline class="mb-1">Some warning outline here!</alert-component>
+				<alert-component v-model:value="AlertComponent_value" icon="person" type="info" outline class="mb-1">Some info outline here!</alert-component>
+				<alert-component v-model:value="AlertComponent_value" type="info" class="mb-1">Without icon</alert-component>
+				<alert-component v-model:value="AlertComponent_value" type="error" outline class="mb-1">Without icon</alert-component>
+				<hr />
+
+				<h3 class="ok">btn-component</h3>
+				<!-- BtnComponent -->
+				<btn-component class="mr-1 mb-1">Button</btn-component>
+				<btn-component class="mr-1" color="primary">Button primary</btn-component>
+				<btn-component class="mr-1" color="secondary">Button secondary</btn-component>
+				<btn-component class="mr-1" color="error">Button error</btn-component>
+				<btn-component class="mr-1" color="warning">Button warning</btn-component>
+				<btn-component class="mr-1" color="info">Button info</btn-component><br />
+				<btn-component class="mr-1 mb-1" outline>Button outline</btn-component>
+				<btn-component class="mr-1" outline color="primary">Button primary outline</btn-component>
+				<btn-component class="mr-1" outline color="secondary">Button secondary outline</btn-component>
+				<btn-component class="mr-1" outline color="error">Button error outline</btn-component>
+				<btn-component class="mr-1" outline color="warning">Button warning outline</btn-component>
+				<btn-component class="mr-1" outline color="info">Button info outline</btn-component><br />
+				<btn-component class="mr-1 mb-1" flat>Button flat</btn-component>
+				<btn-component class="mr-1" flat color="primary">Button primary flat</btn-component>
+				<btn-component class="mr-1" flat color="secondary">Button secondary flat</btn-component>
+				<btn-component class="mr-1" flat color="error">Button error flat</btn-component>
+				<btn-component class="mr-1" flat color="warning">Button warning flat</btn-component>
+				<btn-component class="mr-1" flat color="info">Button info flat</btn-component><br />
+				<hr />
 			</div>
 		</div>
 	</div>
@@ -647,6 +675,7 @@ export default class DevPageComponent extends Vue {
 	FilterableListComponent_items: Array<any>= [];
 	FilterInputComponent_value: string = "Some string here";
 	FlowDiagramComponent_title: string = "Some string here";
+	showLoader: boolean = false;
 	FlowDiagramComponent_steps: Array<FlowDiagramStep<any>>= [
 		{ title: 'Start', type: FlowDiagramStepType.Start, data: null, connections: [{ target: 'Step #2', label: 'Go!',  }] },
 		{ title: 'Step #2', type: FlowDiagramStepType.If, data: null, connections: [{ target: 'Step #3a', label: 'Yes',  }, { target: 'Step #3b', label: 'No',  }] },
