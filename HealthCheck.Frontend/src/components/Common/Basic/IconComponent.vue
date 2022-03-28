@@ -74,6 +74,7 @@ export default class IconComponent extends Vue {
 
 <style scoped lang="scss">
 .icon-component {
+    display: flex;
     &.small { }
     &.large { }
     &.help { cursor: help; }

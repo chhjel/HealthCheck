@@ -6,9 +6,9 @@
         <div><b>icon:</b>' {{ icon }}'</div>
         <div><b>outline:</b>' {{ outline }}'</div>
         <div><b>type:</b>' {{ type }}'</div>
-        <div><b>elevation:</b>' {{ elevation }}'</div> -->
-
-        <slot></slot>
+        -->
+        <icon-component v-if="icon">{{ icon }}</icon-component>
+        <div class="alert-component_content"><slot></slot></div>
     </div>
 </template>
 
@@ -28,17 +28,14 @@ export default class AlertComponent extends Vue {
     @Prop({ required: false, default: null })
     color!: string;
 
-    @Prop({ required: false, default: false })
-    icon!: string | boolean;
+    @Prop({ required: false, default: '' })
+    icon!: string;
 
     @Prop({ required: false, default: false })
     outline!: string | boolean;
 
     @Prop({ required: false, default: null })
-    type!: string;
-
-    @Prop({ required: false, default: null })
-    elevation!: string;
+    type!: 'error' | 'info' | 'warning';
 
     localValue: boolean = false;
 
@@ -54,13 +51,15 @@ export default class AlertComponent extends Vue {
     //  GETTERS  //
     //////////////
     get rootClasses(): any {
-        return {
-             'icon': this.isIcon,
-             'outline': this.isOutline
+        let classes = {
+            'icon': this.hasIcon,
+            'outline': this.isOutline
         };
+        classes[this.type] = true;
+        return classes;
     }
 
-    get isIcon(): boolean { return ValueUtils.IsToggleTrue(this.icon); }
+    get hasIcon(): boolean { return this.icon && this.icon.length > 0; }
     get isOutline(): boolean { return ValueUtils.IsToggleTrue(this.outline); }
 
     ////////////////
@@ -90,10 +89,15 @@ export default class AlertComponent extends Vue {
 
 <style scoped lang="scss">
 .alert-component {
-	border: 2px solid red;
-	padding: 5px;
-	margin: 5px;
-    &.icon { }
-    &.outline { }
+    padding: 10px;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+
+    &.icon {
+        .alert-component_content {
+            margin-left: 5px;
+        }
+    }
 }
 </style>

@@ -35,11 +35,6 @@
 				<code>{{ SimpleDateTimeComponent_value }}</code>
 				<hr />
 
-				<h3 class="todo">alert-component</h3>
-				<!-- AlertComponent -->
-				<alert-component v-model:value="AlertComponent_value">Some alert here!</alert-component>
-				<hr />
-
 				<h3 class="todo">autocomplete-component</h3>
 				<!-- AutocompleteComponent -->
 				<autocomplete-component
