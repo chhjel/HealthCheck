@@ -1,10 +1,10 @@
-$color_primary: rgb(104, 175, 104);
-$color_secondary: rgb(113, 143, 163);
+$color_primary: #18618c;
+$color_secondary: #263238;
 $color_info: #82a4d8;
 $color_info_lighten1: lighten($color_info, 30%);
 $color_success: #9fc793;
 $color_warning: #e4883d;
-$color_error: #eb7f7f;
+$color_error: #d62839;
 $color_accent: #e0e0e0;
 
 $color_accent_darken1: darken($color_accent, 5%);
