@@ -40,3 +40,7 @@ $util-margin-padding-list: (
 		margin-right: ($val) + px !important;
 	}
 }
+
+.clickable {
+	cursor: pointer;
+}

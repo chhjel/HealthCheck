@@ -27,7 +27,6 @@ export default class ChipComponent extends Vue {
     @Prop({ required: false, default: false })
     disabled!: string | boolean;
 
-
     //////////////////
     //  LIFECYCLE  //
     ////////////////
@@ -39,14 +38,21 @@ export default class ChipComponent extends Vue {
     //  GETTERS  //
     //////////////
     get rootClasses(): any {
-        return {
+        let classes = {
              'outline': this.isOutline,
              'disabled': this.isDisabled
         };
+        classes[this.color || 'accent'] = true;
+        classes['hoverable'] = this.hasClickListener;
+        classes['clickable'] = this.hasClickListener;
+        return classes;
     }
 
     get isOutline(): boolean { return ValueUtils.IsToggleTrue(this.outline); }
     get isDisabled(): boolean { return ValueUtils.IsToggleTrue(this.disabled); }
+    get hasClickListener(): boolean {
+        return this.$attrs && this.$attrs.onClick != null;
+    }
 
     ////////////////
     //  METHODS  //
@@ -65,9 +71,14 @@ export default class ChipComponent extends Vue {
 
 <style scoped lang="scss">
 .chip-component {
-	border: 2px solid red;
-	padding: 5px;
-	margin: 5px;
+    padding: 2px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    min-height: 25px;
     &.outline { }
     &.disabled { }
 }

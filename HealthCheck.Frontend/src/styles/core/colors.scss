@@ -1,9 +1,11 @@
 @mixin color_setup($name, $colorBase, $darkText: false, $flatLightenLevel: 5) {
 	.#{$name} {
 		background-color: var(#{$colorBase}-base);
-		color: var(--color--text-light);
 		@if $darkText {
 			color: var(--color--text-dark);
+		}
+		@else {
+			color: var(--color--text-light);
 		}
 		&.outline {
 			background-color: transparent;

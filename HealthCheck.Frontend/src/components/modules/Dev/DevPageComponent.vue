@@ -55,11 +55,6 @@
 				<carousel-component></carousel-component>
 				<hr />
 
-				<h3 class="todo">chip-component</h3>
-				<!-- ChipComponent -->
-				<chip-component>Chip?</chip-component>
-				<hr />
-
 				<h3 class="todo">combobox-component</h3>
 				<!-- ComboboxComponent -->
 				<combobox-component
@@ -516,6 +511,16 @@
 				<btn-component class="mr-1" flat color="error">Button error flat</btn-component>
 				<btn-component class="mr-1" flat color="warning">Button warning flat</btn-component>
 				<btn-component class="mr-1" flat color="info">Button info flat</btn-component><br />
+				<hr />
+				
+				<h3 class="ok">chip-component</h3>
+				<!-- ChipComponent -->
+				<chip-component class="mr-1">Chip</chip-component>
+				<chip-component class="mr-1" outline>Chip outline</chip-component>
+				<chip-component class="mr-1" color="primary" @click="test = 0">Chip primary</chip-component>
+				<chip-component class="mr-1" outline color="primary" @click="test = 0">Chip outline primary</chip-component>
+				<chip-component class="mr-1" color="error">Chip error</chip-component>
+				<chip-component class="mr-1" outline color="error">Chip outline error</chip-component>
 				<hr />
 			</div>
 		</div>
