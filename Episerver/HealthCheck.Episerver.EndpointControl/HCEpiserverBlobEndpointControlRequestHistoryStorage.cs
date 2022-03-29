@@ -1,13 +1,14 @@
 ﻿using EPiServer.Framework.Blobs;
 using HealthCheck.Core.Abstractions;
+using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Util.Storage;
 using HealthCheck.Episerver.Utils;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Models;
+using HealthCheck.Module.EndpointControl.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using HealthCheck.Core.Extensions;
 
 namespace HealthCheck.Episerver.EndpointControl
 {
@@ -17,6 +18,13 @@ namespace HealthCheck.Episerver.EndpointControl
     public class HCEpiserverBlobEndpointControlRequestHistoryStorage
 		: HCSingleBufferedBlobStorageBase<LatestEndpointRequestsHistory, EndpointControlEndpointRequestData>, IEndpointControlRequestHistoryStorage
 	{
+		private readonly EndpointControlRequestHistoryStorageHelper _helper = new()
+		{
+			MaxMemoryIdentityCount = 250,
+			MaxMemoryRequestCountPerIdentity = 1000,
+			MaxMemoryLatestRequestCount = 250
+		};
+
 		/// <summary>
 		/// Max duration to keep data for. Checked before saving.
 		/// <para>Defaults to 7 days.</para>
@@ -26,17 +34,17 @@ namespace HealthCheck.Episerver.EndpointControl
 		/// <summary>
 		/// The max latest number of identities to save to blob.
 		/// </summary>
-		public int MaxStoredIdentityCount { get; set; } = 250;
+		public int MaxStoredIdentityCount { get => _helper.MaxMemoryIdentityCount; set => _helper.MaxMemoryIdentityCount = value; }
 
 		/// <summary>
 		/// Max number of latest requests to save to blob per identity.
 		/// </summary>
-		public int MaxStoredRequestCountPerIdentity { get; set; } = 1000;
+		public int MaxStoredRequestCountPerIdentity { get => _helper.MaxMemoryRequestCountPerIdentity; set => _helper.MaxMemoryRequestCountPerIdentity = value; }
 
 		/// <summary>
 		/// Max number of latest requests to save to blob in a separate collection only used to display latest request data in the UI.
 		/// </summary>
-		public int MaxStoredLatestRequestCount { get; set; } = 250;
+		public int MaxStoredLatestRequestCount { get => _helper.MaxMemoryLatestRequestCount; set => _helper.MaxMemoryLatestRequestCount = value; }
 
 		/// <summary>
 		/// Container id used if not overridden.
@@ -78,7 +86,7 @@ namespace HealthCheck.Episerver.EndpointControl
 		public void AddRequest(EndpointControlEndpointRequestData request)
 		{
 			var data = GetBlobData();
-			AddRequestToCollections(request, data);
+			_helper.AddRequestToCollections(request, data);
 			InsertItemBuffered(request);
 		}
 
@@ -158,85 +166,5 @@ namespace HealthCheck.Episerver.EndpointControl
 				data.IdentityRequests.Remove(identity);
 			}
 		}
-
-		private void AddRequestToCollections(EndpointControlEndpointRequestData request, LatestEndpointRequestsHistory data)
-		{
-			lock (data.LatestRequests)
-			{
-				var details = CreateRequestDetails(request);
-				data.LatestRequests.Enqueue(details);
-
-				if (data.LatestRequests.Count > MaxStoredLatestRequestCount)
-				{
-					data.LatestRequests.Dequeue();
-				}
-			}
-
-			lock (data.LatestRequestIdentities)
-			{
-				// Append request if identity already exists in memory
-				if (data.IdentityRequests.ContainsKey(request.UserLocationId))
-				{
-					AddRequest(data.IdentityRequests[request.UserLocationId], request);
-
-					// Move identity to the top
-					var oldIndex = data.LatestRequestIdentities.IndexOf(request.UserLocationId);
-					var oldValue = data.LatestRequestIdentities[0];
-					data.LatestRequestIdentities[0] = data.LatestRequestIdentities[oldIndex];
-					data.LatestRequestIdentities[oldIndex] = oldValue;
-					return;
-				}
-
-				// Create new if missing
-				var newItem = new LatestUserEndpointRequestHistory()
-				{
-					UserLocationIdentifier = request.UserLocationId
-				};
-				AddRequest(newItem, request);
-
-				data.IdentityRequests[request.UserLocationId] = newItem;
-				data.LatestRequestIdentities.Insert(0, request.UserLocationId);
-
-				// Cleanup if needed
-				if (data.LatestRequestIdentities.Count > MaxStoredIdentityCount)
-				{
-					var indexToRemove = data.LatestRequestIdentities.Count - 1;
-					var removedIdentity = data.LatestRequestIdentities[indexToRemove];
-					data.LatestRequestIdentities.RemoveAt(indexToRemove);
-					data.IdentityRequests.Remove(removedIdentity);
-				}
-			}
-		}
-
-		private void AddRequest(LatestUserEndpointRequestHistory container, EndpointControlEndpointRequestData request)
-		{
-			lock (container.LatestRequests)
-			{
-				container.TotalRequestCount++;
-
-				var details = CreateRequestDetails(request);
-				container.LatestRequests.Enqueue(details);
-
-				if (container.LatestRequests.Count > MaxStoredRequestCountPerIdentity)
-				{
-					container.LatestRequests.Dequeue();
-				}
-			}
-		}
-
-		private static EndpointRequestDetails CreateRequestDetails(EndpointControlEndpointRequestData request)
-		{
-			return new EndpointRequestDetails
-			{
-				UserLocationIdentifier = request.UserLocationId,
-				EndpointId = request.EndpointId,
-				Timestamp = request.Timestamp,
-				Url = request.Url,
-				UserAgent = request.UserAgent,
-				WasBlocked = request.WasBlocked,
-				BlockingRuleId = request.BlockingRuleId
-			};
-		}
-
 	}
 }

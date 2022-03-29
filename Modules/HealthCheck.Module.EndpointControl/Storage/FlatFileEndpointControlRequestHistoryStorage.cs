@@ -2,6 +2,7 @@
 using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Models;
+using HealthCheck.Module.EndpointControl.Utils;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,9 @@ namespace HealthCheck.Module.EndpointControl.Storage
     /// </summary>
     public class FlatFileEndpointControlRequestHistoryStorage : IEndpointControlRequestHistoryStorage
 	{
+		private readonly EndpointControlRequestHistoryStorageHelper _helper = new();
+		private LatestEndpointRequestsHistory _data => _helper.Data;
+
 		/// <summary>
 		/// Filepath where the flatfile will be stored.
 		/// </summary>
@@ -28,29 +32,14 @@ namespace HealthCheck.Module.EndpointControl.Storage
 		public TimeSpan MaxDataAge { get; set; } = TimeSpan.FromDays(7);
 
 		/// <summary>
-		/// The max latest number of identities to store in memory.
-		/// </summary>
-		public int MaxMemoryIdentityCount { get; set; } = 1000;
-
-		/// <summary>
 		/// The max latest number of identities to save to disk.
 		/// </summary>
 		public int MaxStoredIdentityCount { get; set; } = 100;
 
 		/// <summary>
-		/// Max number of latest requests to store in memory per identity.
-		/// </summary>
-		public int MaxMemoryRequestCountPerIdentity { get; set; } = 1000;
-
-		/// <summary>
 		/// Max number of latest requests to save to disk per identity.
 		/// </summary>
 		public int MaxStoredRequestCountPerIdentity { get; set; } = 1000;
-
-		/// <summary>
-		/// Max number of latest requests to store in memory in a separate collection only used to display latest request data in the UI.
-		/// </summary>
-		public int MaxMemoryLatestRequestCount { get; set; } = 500;
 
 		/// <summary>
 		/// Max number of latest requests to save to disk in a separate collection only used to display latest request data in the UI.
@@ -67,7 +56,6 @@ namespace HealthCheck.Module.EndpointControl.Storage
 		/// </summary>
 		public bool PrettyFormat { get; set; }
 
-		private LatestEndpointRequestsHistory _data = new();
 		private readonly object _delayedStorageLock = new();
 		private readonly object _fileLock = new();
 		private bool _isSaving = false;
@@ -101,7 +89,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
 		/// </summary>
 		public void AddRequest(EndpointControlEndpointRequestData request)
 		{
-			AddRequestToCollections(request);
+			_helper.AddRequestToCollections(request);
 			SaveDataDelayed();
 		}
 
@@ -242,7 +230,7 @@ namespace HealthCheck.Module.EndpointControl.Storage
 		{
 			if (!File.Exists(FilePath))
             {
-				_data = new LatestEndpointRequestsHistory();
+				_helper.Data = new LatestEndpointRequestsHistory();
 				return;
             }
 
@@ -250,87 +238,8 @@ namespace HealthCheck.Module.EndpointControl.Storage
 			var fileReader = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using var streamReader = new StreamReader(fileReader);
             using var jsonReader = new JsonTextReader(streamReader);
-            _data = _serializer.Deserialize<LatestEndpointRequestsHistory>(jsonReader);
+			_helper.Data = _serializer.Deserialize<LatestEndpointRequestsHistory>(jsonReader);
 			HCMetricsContext.AddGlobalTimingValue(timer);
 		}
-
-		private void AddRequestToCollections(EndpointControlEndpointRequestData request)
-		{
-			lock (_data.LatestRequests)
-            {
-				var details = CreateRequestDetails(request);
-				_data.LatestRequests.Enqueue(details);
-
-				if (_data.LatestRequests.Count > MaxMemoryLatestRequestCount)
-				{
-					_data.LatestRequests.Dequeue();
-				}
-			}
-
-			lock (_data.LatestRequestIdentities)
-			{
-				// Append request if identity already exists in memory
-				if (_data.IdentityRequests.ContainsKey(request.UserLocationId))
-				{
-					AddRequest(_data.IdentityRequests[request.UserLocationId], request);
-
-					// Move identity to the top
-					var oldIndex = _data.LatestRequestIdentities.IndexOf(request.UserLocationId);
-					var oldValue = _data.LatestRequestIdentities[0];
-					_data.LatestRequestIdentities[0] = _data.LatestRequestIdentities[oldIndex];
-					_data.LatestRequestIdentities[oldIndex] = oldValue;
-					return;
-				}
-
-				// Create new if missing
-				var newItem = new LatestUserEndpointRequestHistory()
-				{
-					UserLocationIdentifier = request.UserLocationId
-				};
-				AddRequest(newItem, request);
-
-				_data.IdentityRequests[request.UserLocationId] = newItem;
-				_data.LatestRequestIdentities.Insert(0, request.UserLocationId);
-
-				// Cleanup if needed
-				if (_data.LatestRequestIdentities.Count > MaxMemoryIdentityCount)
-				{
-					var indexToRemove = _data.LatestRequestIdentities.Count - 1;
-					var removedIdentity = _data.LatestRequestIdentities[indexToRemove];
-					_data.LatestRequestIdentities.RemoveAt(indexToRemove);
-					_data.IdentityRequests.Remove(removedIdentity);
-				}
-			}
-		}
-
-		private void AddRequest(LatestUserEndpointRequestHistory container, EndpointControlEndpointRequestData request)
-		{
-			lock (container.LatestRequests)
-            {
-                container.TotalRequestCount++;
-
-                var details = CreateRequestDetails(request);
-                container.LatestRequests.Enqueue(details);
-
-                if (container.LatestRequests.Count > MaxMemoryRequestCountPerIdentity)
-                {
-                    container.LatestRequests.Dequeue();
-                }
-            }
-        }
-
-        private static EndpointRequestDetails CreateRequestDetails(EndpointControlEndpointRequestData request)
-        {
-            return new EndpointRequestDetails
-            {
-                UserLocationIdentifier = request.UserLocationId,
-                EndpointId = request.EndpointId,
-                Timestamp = request.Timestamp,
-                Url = request.Url,
-                UserAgent = request.UserAgent,
-                WasBlocked = request.WasBlocked,
-                BlockingRuleId = request.BlockingRuleId
-            };
-        }
     }
 }
