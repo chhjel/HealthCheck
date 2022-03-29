@@ -71,15 +71,6 @@
 				<code>{{ DatePickerComponent_value }}</code>
 				<hr />
 
-				<h3 class="todo">expansion-panel-component</h3>
-				<!-- ExpansionPanelComponent -->
-				<expansion-panel-component v-model:value="ExpansionPanelComponent_value">
-                    <template #header>Header here</template>
-                    <template #content>Content here</template>
-				</expansion-panel-component>
-				<code>{{ ExpansionPanelComponent_value }}</code>
-				<hr />
-
 				<h3 class="todo">fetch-status-progress-component</h3>
 				<!-- FetchStatusProgressComponent -->
 				<fetch-status-progress-component
@@ -521,6 +512,15 @@
 				<chip-component class="mr-1" outline color="primary" @click="test = 0">Chip outline primary</chip-component>
 				<chip-component class="mr-1" color="error">Chip error</chip-component>
 				<chip-component class="mr-1" outline color="error">Chip outline error</chip-component>
+				<hr />
+
+				<h3 class="ok">expansion-panel-component</h3>
+				<!-- ExpansionPanelComponent -->
+				<expansion-panel-component v-model:value="ExpansionPanelComponent_value">
+                    <template #header>Header here</template>
+                    <template #content>Content here</template>
+				</expansion-panel-component>
+				<code>{{ ExpansionPanelComponent_value }}</code>
 				<hr />
 			</div>
 		</div>

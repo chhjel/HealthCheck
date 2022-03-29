@@ -1,12 +1,9 @@
 <template>
     <div class="expansion-panel-component" :class="rootClasses">
-		<!-- <h3>TODO: ExpansionPanelComponent</h3>
-        <div><b>value:</b>' {{ value }}'</div>
-        <div><b>popout:</b>' {{ popout }}'</div> -->
         <div class="expansion-panel_header" @click="localValue = !localValue">
             <slot name="header"></slot>
         </div>
-        <div class="expansion-panel_content" v-show="localValue">
+        <div class="expansion-panel_content">
 		    <slot name="content" ></slot>
         </div>
     </div>
@@ -43,7 +40,8 @@ export default class ExpansionPanelComponent extends Vue {
     //////////////
     get rootClasses(): any {
         return {
-             'popout': this.isPopout
+             'popout': this.isPopout,
+             'open': this.value
         };
     }
 
@@ -76,9 +74,29 @@ export default class ExpansionPanelComponent extends Vue {
 
 <style scoped lang="scss">
 .expansion-panel-component {
-	border: 2px solid red;
-	padding: 5px;
-	margin: 5px;
+    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
+    border-radius: 4px;
+    font-size: 14px;
+
     &.popout { }
+
+    .expansion-panel_header {
+        cursor: pointer;
+        padding: 12px 24px;
+        background-color: #f5f5f5;
+    }
+
+    .expansion-panel_content {
+        padding: 0px 24px;
+        max-height: 0px;
+        overflow: hidden;
+        transition: all .25s ease-in-out;
+    }
+    &.open {
+        .expansion-panel_content {
+	        padding: 12px 24px;
+            max-height: 100vh;
+        }
+    }
 }
 </style>
