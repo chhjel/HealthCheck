@@ -73,6 +73,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.DevTest.NetCore
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck.WebUI.Assets", "HealthCheck.WebUI.Assets\HealthCheck.WebUI.Assets.csproj", "{25B55F67-7413-4E01-879C-E7FCA75C9B30}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck.Module.EndpointControl.Tests", "Tests\HealthCheck.Module.EndpointControl.Tests\HealthCheck.Module.EndpointControl.Tests.csproj", "{1A1FE586-26F9-4202-81DB-D154707E536F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -174,6 +176,10 @@ Global
 		{25B55F67-7413-4E01-879C-E7FCA75C9B30}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25B55F67-7413-4E01-879C-E7FCA75C9B30}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25B55F67-7413-4E01-879C-E7FCA75C9B30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A1FE586-26F9-4202-81DB-D154707E536F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A1FE586-26F9-4202-81DB-D154707E536F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A1FE586-26F9-4202-81DB-D154707E536F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A1FE586-26F9-4202-81DB-D154707E536F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -197,6 +203,7 @@ Global
 		{523519C4-83BC-4456-BBBD-E23A0B679E05} = {DFA1DC1E-CEA9-4C53-9677-A203B2B045E4}
 		{F2BDA820-2936-4625-A883-9112D7CCCA26} = {3FDC5685-F607-4E31-981B-1D23817E5E2E}
 		{238DC1B6-1BCA-4110-839F-F7A947806692} = {B26DDE73-0369-4977-A004-3CCDE2B38825}
+		{1A1FE586-26F9-4202-81DB-D154707E536F} = {23FF7575-64C7-43DC-9FDB-1FE4BF5A1D3F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F29D958F-997A-4DDE-B100-586ADFF9A3D3}
