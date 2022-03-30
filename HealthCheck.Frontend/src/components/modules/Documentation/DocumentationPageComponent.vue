@@ -50,7 +50,7 @@
                             <!-- LOAD PROGRESS -->
                             <progress-linear-component 
                                 v-if="loadStatus.inProgress"
-                                indeterminate color="green"></progress-linear-component>
+                                indeterminate color="success"></progress-linear-component>
 
                             <!-- SELECTED DIAGRAM -->
                             <div v-if="(currentSequenceDiagram != null || currentFlowChart != null) && !sandboxMode"

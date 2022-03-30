@@ -9,7 +9,7 @@
         <!-- LOAD PROGRESS -->
         <progress-linear-component
             v-if="loadStatus.inProgress"
-            indeterminate color="green"></progress-linear-component>
+            indeterminate color="success"></progress-linear-component>
 
         <select-component style="display: inline-block" class="right"
             v-if="graphs && chartEntries.length > 0"

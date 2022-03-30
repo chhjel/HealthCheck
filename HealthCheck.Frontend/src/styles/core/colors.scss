@@ -11,7 +11,7 @@
 			background-color: transparent;
 			border: 2px solid var(#{$colorBase}-base);
 			@if $darkText {
-				color: var(#{$colorBase}-darker3);
+				color: var(#{$colorBase}-darken3);
 			}
 			@else {
 				color: var(#{$colorBase}-base);
@@ -19,7 +19,7 @@
 		}
 		&.flat {
 			@if $darkText {
-				color: var(#{$colorBase}-darker3);
+				color: var(#{$colorBase}-darken3);
 			}
 			@else {
 				color: var(#{$colorBase}-base);
@@ -46,5 +46,6 @@
 @include color_setup('primary', '--color--primary', $flatLightenLevel: 6);
 @include color_setup('secondary', '--color--secondary', $flatLightenLevel: 6);
 @include color_setup('error', '--color--error', $flatLightenLevel: 4);
+@include color_setup('success', '--color--success', $flatLightenLevel: 5);
 @include color_setup('warning', '--color--warning', $flatLightenLevel: 5);
 @include color_setup('info', '--color--info', $flatLightenLevel: 4);

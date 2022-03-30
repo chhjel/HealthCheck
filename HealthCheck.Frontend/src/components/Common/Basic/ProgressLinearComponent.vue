@@ -1,11 +1,6 @@
 <template>
-    <div class="progress-linear-component" :class="rootClasses">
-		<!-- <h3>TODO: ProgressLinearComponent</h3>
-        <div><b>indeterminate:</b>' {{ indeterminate }}'</div>
-        <div><b>width:</b>' {{ width }}'</div>
-        <div><b>color:</b>' {{ color }}'</div>
-        <div><b>height:</b>' {{ height }}'</div> -->
-        <progress :value="value" max="100"> {{value}}% </progress>
+    <div class="progress-linear-component" :class="rootClasses" :style="rootStyle">
+        <div class="progress-linear-component_bar" :class="barClasses" :style="barStyle"></div>
     </div>
 </template>
 
@@ -25,13 +20,10 @@ export default class ProgressLinearComponent extends Vue {
     @Prop({ required: false, default: false })
     indeterminate!: string | boolean;
 
-    @Prop({ required: false, default: 0 })
-    width!: number;
-
     @Prop({ required: false, default: null })
     color!: string;
 
-    @Prop({ required: false, default: 0 })
+    @Prop({ required: false, default: 7 })
     height!: number;
 
     localValue: number = 0;
@@ -47,10 +39,38 @@ export default class ProgressLinearComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get resolvedColorName(): string {
+        return this.color || 'primary';
+    }
     get rootClasses(): any {
-        return {
+        let classes = {
              'indeterminate': this.isIndeterminate
         };
+        // classes[this.resolvedColorName] = true;
+        return classes;
+    }
+
+    get rootStyle(): any {
+        const colorVarName = `--color--${this.resolvedColorName}-lighten7`;
+        return {
+            'height': `${this.height}px`,
+            'background-color': `var(${colorVarName})`
+        };
+    }
+
+    get barClasses(): any {
+        let classes = {};
+        classes[this.resolvedColorName] = true;
+        return classes;
+    }
+
+    get barStyle(): any {
+        let style = {};
+        if (!this.isIndeterminate)
+        {
+            style['width'] = `${Math.max(0, Math.min(100, this.value))}%`;
+        }
+        return style;
     }
 
     get isIndeterminate(): boolean { return ValueUtils.IsToggleTrue(this.indeterminate); }
@@ -82,9 +102,29 @@ export default class ProgressLinearComponent extends Vue {
 
 <style scoped lang="scss">
 .progress-linear-component {
-	border: 2px solid red;
-	padding: 5px;
-	margin: 5px;
-    &.indeterminate { }
+    overflow: hidden;
+    &_bar {
+        height: 100%;
+        transition: width 0.2s;
+    }
+
+    &.indeterminate {
+        .progress-linear-component_bar {
+            width: 100%;
+            animation: indeterminateAnimation 1s infinite linear;
+            transform-origin: 0% 50%;
+        }
+    }
+}
+@keyframes indeterminateAnimation {
+  0% {
+    transform:  translateX(0) scaleX(0);
+  }
+  40% {
+    transform:  translateX(0) scaleX(0.4);
+  }
+  100% {
+    transform:  translateX(100%) scaleX(0.5);
+  }
 }
 </style>

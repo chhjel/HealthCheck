@@ -1,13 +1,12 @@
 <template>
-    <div class="progress-circular-component" :class="rootClasses">
-		<h3>TODO: ProgressCircularComponent</h3>
-        <div><b>size:</b>' {{ size }}'</div>
-        <div><b>width:</b>' {{ width }}'</div>
-        <div><b>value:</b>' {{ value }}'</div>
-        <div><b>color:</b>' {{ color }}'</div>
-        <div><b>indeterminate:</b>' {{ indeterminate }}'</div>
-
-		<slot></slot>
+    <div class="progress-circular-component" :class="rootClasses" :style="rootStyle">
+        <svg :width="size" :height="size" viewPort="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg">
+            <circle :r="size/2" :cx="size/2" :cy="size/2" fill="transparent" stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
+            <circle class="progress-circular-component_bar" :r="size/2" :cx="size/2" :cy="size/2" fill="transparent" stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
+        </svg>
+        <div class="progress-circular-component_content">
+            <slot></slot>
+        </div>
     </div>
 </template>
 
@@ -24,10 +23,10 @@ export default class ProgressCircularComponent extends Vue {
     @Prop({ required: false, default: 0 })
     value!: number;
 
-    @Prop({ required: false, default: null })
-    size!: string;
+    @Prop({ required: false, default: 32 })
+    size!: number;
 
-    @Prop({ required: false, default: 0 })
+    @Prop({ required: false, default: 4 })
     width!: number;
 
     @Prop({ required: false, default: null })
@@ -49,11 +48,68 @@ export default class ProgressCircularComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get resolvedColorName(): string {
+        return this.color || 'primary';
+    }
+
     get rootClasses(): any {
-        return {
+        let classes = {
              'indeterminate': this.isIndeterminate
         };
+        // classes[this.resolvedColorName] = true;
+        return classes;
     }
+
+    get rootStyle(): any {
+        const colorVarName = `--color--${this.resolvedColorName}-lighten7`;
+        return {
+            'height': `${this.size}px`,
+            'width': `${this.size}px`,
+            // 'background-color': `var(${colorVarName})`
+        };
+    }
+
+    // get barClasses(): any {
+    //     let classes = {};
+    //     classes[this.resolvedColorName] = true;
+    //     return classes;
+    // }
+
+    // get barStyle(): any {
+    //     const colorVarName = `--color--${this.resolvedColorName}-base`;
+    //     const barSize = this.size - this.width;
+    //     let style = {
+    //         // 'height': `${barSize}px`,
+    //         // 'width': `${barSize}px`,
+    //         'background-color': `var(${colorVarName})`
+    //     };
+    //     if (!this.isIndeterminate)
+    //     {
+    //         // style['width'] = `${Math.max(0, Math.min(100, this.value))}%`;
+    //     }
+    //     return style;
+    // }
+
+    // get centerClasses(): any {
+    //     let classes = {};
+    //     classes[this.resolvedColorName] = true;
+    //     return classes;
+    // }
+
+    // get centerStyle(): any {
+    //     const colorVarName = `--color--${this.resolvedColorName}-base`;
+    //     const barSize = this.size - this.width;
+    //     let style = {
+    //         'height': `${barSize}px`,
+    //         'width': `${barSize}px`,
+    //         'background-color': `var(${colorVarName})`
+    //     };
+    //     if (!this.isIndeterminate)
+    //     {
+    //         // style['width'] = `${Math.max(0, Math.min(100, this.value))}%`;
+    //     }
+    //     return style;
+    // }
 
     get isIndeterminate(): boolean { return ValueUtils.IsToggleTrue(this.indeterminate); }
 
@@ -84,9 +140,28 @@ export default class ProgressCircularComponent extends Vue {
 
 <style scoped lang="scss">
 .progress-circular-component {
-	border: 2px solid red;
-	padding: 5px;
-	margin: 5px;
-    &.indeterminate { }
+
+    svg circle {
+        stroke-dashoffset: 424;
+        transition: stroke-dashoffset 1s linear;
+        stroke: #666;
+        stroke-width: 8px;
+    }
+
+    &_bar {
+        /* transition: width 0.2s; */
+        stroke: #FF9F1E;
+    }
+
+    &_center {
+    }
+
+    &.indeterminate {
+        /* .progress-linear-component_bar {
+            width: 100%;
+            animation: indeterminateAnimation 1s infinite linear;
+            transform-origin: 0% 50%;
+        } */
+    }
 }
 </style>

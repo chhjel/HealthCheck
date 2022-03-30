@@ -53,7 +53,7 @@
             <!-- LOAD PROGRESS -->
             <progress-linear-component 
                 v-if="setSetsLoadStatus.inProgress"
-                indeterminate color="green"></progress-linear-component>
+                indeterminate color="success"></progress-linear-component>
 
             <!-- TESTS -->
             <test-set-component

@@ -15,7 +15,7 @@
             ></div>
 
         <btn-component absolute dark fab flat small top right
-            color="green"
+            color="success"
             class="editor-fullscreen-button"
             title="Fullscreen"
             v-if="allowFullscreen"

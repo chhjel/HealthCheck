@@ -8,7 +8,7 @@
 
             <progress-linear-component 
                 v-if="loading"
-                indeterminate color="green"></progress-linear-component>
+                indeterminate color="success"></progress-linear-component>
             
             <!-- GROUPS: START -->
             <div

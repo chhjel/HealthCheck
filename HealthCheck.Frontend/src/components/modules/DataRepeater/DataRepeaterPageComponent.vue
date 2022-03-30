@@ -82,7 +82,7 @@
                 <!-- LOAD PROGRESS -->
                 <progress-linear-component 
                     v-if="isLoading"
-                    indeterminate color="green"></progress-linear-component>
+                    indeterminate color="success"></progress-linear-component>
 
                 <!-- DATA LOAD ERROR -->
                 <alert-component :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">

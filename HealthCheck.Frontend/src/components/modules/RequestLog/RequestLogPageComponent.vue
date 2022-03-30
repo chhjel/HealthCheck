@@ -19,7 +19,7 @@
                 <!-- PROGRESS BAR -->
                 <progress-linear-component
                     v-if="loadStatus.inProgress"
-                    indeterminate color="green"></progress-linear-component>
+                    indeterminate color="success"></progress-linear-component>
             </div>
 
             <div align-content-center wrap v-if="entries.length == 0 && !loadStatus.inProgress && !loadStatus.failed">

@@ -22,7 +22,7 @@
                 <!-- LOAD PROGRESS -->
                 <progress-linear-component
                     v-if="loadStatus.inProgress"
-                    indeterminate color="green"></progress-linear-component>
+                    indeterminate color="success"></progress-linear-component>
 
                 <!-- DATA LOAD ERROR -->
                 <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
@@ -51,7 +51,7 @@
                     <!-- MESSAGE LOAD PROGRESS -->
                     <progress-linear-component
                         v-if="messageLoadStatus.inProgress"
-                        indeterminate color="green"></progress-linear-component>
+                        indeterminate color="success"></progress-linear-component>
 
                     <!-- MESSAGE DATA LOAD ERROR -->
                     <alert-component :value="messageLoadStatus.failed" v-if="messageLoadStatus.failed" type="error">

@@ -19,7 +19,7 @@
                 <!-- PROGRESS BAR -->
                 <progress-linear-component
                     v-if="loadStatus.inProgress"
-                    indeterminate color="green"></progress-linear-component>
+                    indeterminate color="success"></progress-linear-component>
                 
                 <!-- SUMMARY -->
                 <div sm12 v-if="showContent" class="mb-4" >

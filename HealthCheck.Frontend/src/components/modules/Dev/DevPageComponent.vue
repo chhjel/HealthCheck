@@ -7,11 +7,55 @@
 		<!-- CONTENT -->
 		<div class="content-root">
 			<div>
+				<h3 class="ok">progress-linear-component</h3>
+				<!-- ProgressLinearComponent -->
+				<progress-linear-component :value="progressValue - 25" class="mb-2"></progress-linear-component>
+				<progress-linear-component :value="progressValue" color="warning" class="mb-2"></progress-linear-component>
+				<progress-linear-component indeterminate height="4" class="mb-2"></progress-linear-component>
+				<progress-linear-component indeterminate color="error" class="mb-2"></progress-linear-component>
+				<hr />
+
+				<h3 class="todo">progress-circular-component</h3>
+				<!-- ProgressCircularComponent -->
+				<progress-circular-component :value="progressValue - 25" class="mb-2"></progress-circular-component>
+				<progress-circular-component :value="progressValue" color="warning" class="mb-2"></progress-circular-component>
+				<progress-circular-component indeterminate size="40" width="1" class="mb-2"></progress-circular-component>
+				<progress-circular-component indeterminate color="error" class="mb-2"></progress-circular-component>
+				<hr />
+
 				<h3 class="todo">filterable-list-component</h3>
 				<!-- FilterableListComponent -->
-				<filterable-list-component
+				<filterable-list-component class="dev_border"
 					:items="FilterableListComponent_items"
-				></filterable-list-component>
+                    :groupByKey="`GroupName`"
+                    :sortByKey="`GroupName`"
+                    :hrefKey="`Href`"
+                    :filterKeys="[ 'Name', 'Description' ]"
+                    :disabled="false"
+                    :showFilter="true"
+                    :groupIfSingleGroup="false"
+                    />
+				<filterable-list-component class="dev_border"
+					:items="FilterableListComponent_items"
+                    :groupByKey="`GroupName`"
+                    :sortByKey="`GroupName`"
+                    :hrefKey="`Href`"
+                    :filterKeys="[ 'Name', 'Description' ]"
+                    :disabled="true"
+                    :showFilter="false"
+                    :groupIfSingleGroup="false"
+                    />
+				<filterable-list-component class="dev_border"
+					:items="FilterableListComponent_items"
+                    :groupByKey="`GroupName`"
+                    :sortByKey="`GroupName`"
+                    :hrefKey="`Href`"
+                    :filterKeys="[ 'Name', 'Description' ]"
+                    :loading="true"
+                    :disabled="true"
+                    :showFilter="false"
+                    :groupIfSingleGroup="false"
+                    />
 				<hr />
 
 				<h3 class="todo">filter-input-component</h3>
@@ -95,16 +139,6 @@
 				<!-- MenuComponent -->
 				// todo: remove and build into datepicker instead?
 				<menu-component></menu-component>
-				<hr />
-
-				<h3 class="todo">progress-circular-component</h3>
-				<!-- ProgressCircularComponent -->
-				<progress-circular-component></progress-circular-component>
-				<hr />
-
-				<h3 class="todo">progress-linear-component</h3>
-				<!-- ProgressLinearComponent -->
-				<progress-linear-component value="82"></progress-linear-component>
 				<hr />
 
 				<h3 class="todo">select-component</h3>
@@ -598,6 +632,7 @@ import { HCBackendInputConfig } from "@generated/Models/Core/HCBackendInputConfi
 import { DataTableGroup } from "@components/Common/DataTableComponent.vue.models";
 import { FlowDiagramStep, FlowDiagramStepType } from "@components/Common/FlowDiagramComponent.vue.models";
 import { SequenceDiagramStep } from "@components/Common/SequenceDiagramComponent.vue.models";
+import { FilterableListItem } from "@components/Common/FilterableListComponent.vue.models";
 
 @Options({
 	components: {
@@ -677,7 +712,22 @@ export default class DevPageComponent extends Vue {
 		"Name",
 		"Something",
 	];
-	FilterableListComponent_items: Array<any>= [];
+    get FilterableListComponent_items(): Array<FilterableListItem>
+    {
+        return [1,2,3,4,5].map(x => {
+            let d = {
+                title: `Item #${x}`,
+                subtitle: 'Some subtitle',
+                data: {
+					GroupName: `Group ${(x % 2)}`,
+					Href: `/href-${x}`,
+					Name: `Item #${x}`,
+					Description: 'Some desc'
+				}
+            };
+            return d;
+        });
+    }
 	FilterInputComponent_value: string = "Some string here";
 	FlowDiagramComponent_title: string = "Some string here";
 	showLoader: boolean = false;
@@ -768,10 +818,15 @@ Web -> Frontend: Confirmation is delivered
 	ParameterInputTypeStringComponent_config: HCBackendInputConfig = this.createBackendInputConfig();
 	ParameterInputTypeTimeSpanComponent_value: string = "Some string here";
 	ParameterInputTypeTimeSpanComponent_config: HCBackendInputConfig = this.createBackendInputConfig();
+	progressValue: number = 66;
     hackyTimer: number = 0;
 
 	mounted(): void {
-        setInterval(() => this.hackyTimer++, 1000);
+        setInterval(() => {
+			this.hackyTimer++;
+			this.progressValue += Math.random() * 25;
+			if (this.progressValue > 100) this.progressValue = 0;
+		}, 1000);
 	}
 
     createBackendInputConfig(type: string = 'type'): HCBackendInputConfig {
@@ -816,5 +871,9 @@ Web -> Frontend: Confirmation is delivered
         content: '// ToDo: ';
         display: inline-block;
     }
+}
+.dev_border {
+	border: 2px solid rgb(122, 155, 192);
+	margin: 5px 0;
 }
 </style>

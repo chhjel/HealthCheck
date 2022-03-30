@@ -12,7 +12,7 @@
                 <progress-linear-component
                     class="ma-0"
                     v-if="loadStatus.inProgress"
-                    indeterminate color="green"></progress-linear-component>
+                    indeterminate color="success"></progress-linear-component>
                 <div style="height: 7px" v-else></div>
 
                 <!-- DATA LOAD ERROR -->
