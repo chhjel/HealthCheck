@@ -7,12 +7,30 @@
 		<!-- CONTENT -->
 		<div class="content-root">
 			<div>
+				<h3 class="todo">input-header-component</h3>
+				<!-- InputHeaderComponent -->
+				<input-header-component name="Name here"></input-header-component>
+				<input-header-component name="Name here" description="Description here"></input-header-component>
+				<hr />
+
 				<h3 class="todo">text-field-component</h3>
 				<!-- TextFieldComponent -->
-				<text-field-component
-					v-model:value="TextFieldComponent_value"
-				></text-field-component>
+				<text-field-component v-model:value="TextFieldComponent_value" />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Label here" />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Label here" description="Description here." />
+				<text-field-component v-model:value="TextFieldComponent_value" description="Description only." />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Loading" description="Description here." :loading="true" />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Disabled" disabled />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Readonly" readonly />
 				<code>{{ TextFieldComponent_value }}</code>
+				<hr />
+
+				<h3 class="todo">simple-date-time-component</h3>
+				<!-- SimpleDateTimeComponent -->
+				<simple-date-time-component
+					v-model:value="SimpleDateTimeComponent_value"
+				></simple-date-time-component>
+				<code>{{ SimpleDateTimeComponent_value }}</code>
 				<hr />
 
 				<h3 class="todo">textarea-component</h3>
@@ -40,14 +58,6 @@
 				<code>{{ ComboboxComponent_value }}</code>
 				<hr />
 
-				<h3 class="todo">simple-date-time-component</h3>
-				<!-- SimpleDateTimeComponent -->
-				<simple-date-time-component
-					v-model:value="SimpleDateTimeComponent_value"
-				></simple-date-time-component>
-				<code>{{ SimpleDateTimeComponent_value }}</code>
-				<hr />
-
 				<h3 class="todo">autocomplete-component</h3>
 				<!-- AutocompleteComponent -->
 				<autocomplete-component
@@ -68,12 +78,6 @@
 				<!-- InputComponent -->
 				<input-component v-model:value="InputComponent_value"></input-component>
 				<code>{{ InputComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">input-header-component</h3>
-				<!-- InputHeaderComponent -->
-				<input-header-component name="Name here"></input-header-component>
-				<input-header-component name="Name here" description="Description here"></input-header-component>
 				<hr />
 
 				<h3 class="todo">filterable-list-component</h3>

@@ -1,6 +1,6 @@
 <!-- src/components/Common/Basic/InputHeaderComponent.vue -->
 <template>
-    <div class="input-header-component">
+    <div class="input-header-component" v-if="showHeader || showDescription">
         <div class="input-component--header" v-if="showHeader">
             <div class="input-component--header-name">{{ name }}</div>
             <icon-component small v-if="hasDescription"
@@ -71,7 +71,10 @@ export default class InputHeaderComponent extends Vue
 .input-header-component {
     .input-component--header {
         text-align: left;
-
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        
         .input-component--header-name {
             display: inline-block;
             font-size: 16px;
