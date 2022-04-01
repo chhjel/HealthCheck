@@ -1,6 +1,6 @@
 <template>
     <div class="progress-circular-component" :class="rootClasses" :style="rootStyle">
-        <svg :width="size + 2" :height="size + 2"
+        <svg :width="svgWidth" :height="svgHeight"
             viewPort="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg">
             <circle
                 :r="r" cx="50%" cy="50%"
@@ -55,7 +55,9 @@ export default class ProgressCircularComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
-    get r(): number { return (this.size / 2) - this.width; }
+    get svgWidth(): number { return Number(this.size) + 2; }
+    get svgHeight(): number { return Number(this.size) + 2; }
+    get r(): number { return (Number(this.size) / 2) - this.width; }
     get circumference(): number { return Math.PI * (this.r * 2); }
 
     get resolvedColorName(): string {
@@ -72,8 +74,8 @@ export default class ProgressCircularComponent extends Vue {
 
     get rootStyle(): any {
         return {
-            'height': `${this.size+2}px`,
-            'width': `${this.size+2}px`,
+            'height': `${Number(Number(this.size))+2}px`,
+            'width': `${Number(this.size)+2}px`,
             // 'background-color': `var(${colorVarName})`
         };
     }
