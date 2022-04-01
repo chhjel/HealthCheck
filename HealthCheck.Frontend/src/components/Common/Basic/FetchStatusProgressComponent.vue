@@ -2,7 +2,7 @@
 <template>
     <div class="fetch-status-progress-component" :style="rootStyle">
         <progress-linear-component
-            v-if="visible"
+            v-if="progressVisible"
             v-model:value="progress"
             :height="height"
             :color="color"
@@ -37,7 +37,7 @@ export default class FetchStatusProgressComponent extends Vue
         return this.status.progress; 
     }
     
-    get visible(): boolean {
+    get progressVisible(): boolean {
         if (!this.status) return false;
         return this.status.inProgress || this.status.progress > 0;
     }

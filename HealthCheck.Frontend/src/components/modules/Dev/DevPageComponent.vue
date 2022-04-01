@@ -7,6 +7,75 @@
 		<!-- CONTENT -->
 		<div class="content-root">
 			<div>
+				<h3 class="todo">text-field-component</h3>
+				<!-- TextFieldComponent -->
+				<text-field-component
+					v-model:value="TextFieldComponent_value"
+				></text-field-component>
+				<code>{{ TextFieldComponent_value }}</code>
+				<hr />
+
+				<h3 class="todo">textarea-component</h3>
+				<!-- TextareaComponent -->
+				<textarea-component
+					v-model:value="TextareaComponent_value"
+				></textarea-component>
+				<code>{{ TextareaComponent_value }}</code>
+				<hr />
+
+				<h3 class="todo">select-component</h3>
+				<!-- SelectComponent -->
+				<select-component
+					v-model:value="SelectComponent_value"
+					:items="SelectComponent_items"
+				></select-component>
+				<code>{{ SelectComponent_value }}</code>
+				<hr />
+
+				<h3 class="todo">combobox-component</h3>
+				<!-- ComboboxComponent -->
+				<combobox-component
+					v-model:value="ComboboxComponent_value"
+				></combobox-component>
+				<code>{{ ComboboxComponent_value }}</code>
+				<hr />
+
+				<h3 class="todo">simple-date-time-component</h3>
+				<!-- SimpleDateTimeComponent -->
+				<simple-date-time-component
+					v-model:value="SimpleDateTimeComponent_value"
+				></simple-date-time-component>
+				<code>{{ SimpleDateTimeComponent_value }}</code>
+				<hr />
+
+				<h3 class="todo">autocomplete-component</h3>
+				<!-- AutocompleteComponent -->
+				<autocomplete-component
+					v-model:value="AutocompleteComponent_value"
+				></autocomplete-component>
+				<code>{{ AutocompleteComponent_value }}</code>
+				<hr />
+
+				<h3 class="todo">date-picker-component</h3>
+				<!-- DatePickerComponent -->
+				<date-picker-component
+					v-model:value="DatePickerComponent_value"
+				></date-picker-component>
+				<code>{{ DatePickerComponent_value }}</code>
+				<hr />
+
+				<h3 class="todo">input-component</h3>
+				<!-- InputComponent -->
+				<input-component v-model:value="InputComponent_value"></input-component>
+				<code>{{ InputComponent_value }}</code>
+				<hr />
+
+				<h3 class="todo">input-header-component</h3>
+				<!-- InputHeaderComponent -->
+				<input-header-component name="Name here"></input-header-component>
+				<input-header-component name="Name here" description="Description here"></input-header-component>
+				<hr />
+
 				<h3 class="todo">filterable-list-component</h3>
 				<!-- FilterableListComponent -->
 				<filterable-list-component class="dev_border"
@@ -54,22 +123,6 @@
 				<loading-screen-component v-if="showLoader" @click="showLoader = !showLoader"></loading-screen-component>
 				<hr />
 
-				<h3 class="todo">simple-date-time-component</h3>
-				<!-- SimpleDateTimeComponent -->
-				<simple-date-time-component
-					v-model:value="SimpleDateTimeComponent_value"
-				></simple-date-time-component>
-				<code>{{ SimpleDateTimeComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">autocomplete-component</h3>
-				<!-- AutocompleteComponent -->
-				<autocomplete-component
-					v-model:value="AutocompleteComponent_value"
-				></autocomplete-component>
-				<code>{{ AutocompleteComponent_value }}</code>
-				<hr />
-
 				<h3 class="todo">calendar-component</h3>
 				<!-- CalendarComponent -->
 				<calendar-component
@@ -83,57 +136,11 @@
 				<carousel-component></carousel-component>
 				<hr />
 
-				<h3 class="todo">combobox-component</h3>
-				<!-- ComboboxComponent -->
-				<combobox-component
-					v-model:value="ComboboxComponent_value"
-				></combobox-component>
-				<code>{{ ComboboxComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">date-picker-component</h3>
-				<!-- DatePickerComponent -->
-				<date-picker-component
-					v-model:value="DatePickerComponent_value"
-				></date-picker-component>
-				<code>{{ DatePickerComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">fetch-status-progress-component</h3>
-				<!-- FetchStatusProgressComponent -->
-				<fetch-status-progress-component
-					:status="FetchStatusProgressComponent_status"
-				></fetch-status-progress-component>
-				<code>{{ FetchStatusProgressComponent_status }}</code>
-				<hr />
-
-				<h3 class="todo">input-component</h3>
-				<!-- InputComponent -->
-				<input-component v-model:value="InputComponent_value"></input-component>
-				<code>{{ InputComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">input-header-component</h3>
-				<!-- InputHeaderComponent -->
-				<input-header-component name="Name here"></input-header-component>
-				<input-header-component name="Name here" description="Description here"></input-header-component>
-				<hr />
-
 				<h3 class="todo">menu-component</h3>
 				<!-- MenuComponent -->
 				// todo: remove and build into datepicker instead?
 				<menu-component></menu-component>
 				<hr />
-
-				<h3 class="todo">select-component</h3>
-				<!-- SelectComponent -->
-				<select-component
-					v-model:value="SelectComponent_value"
-					:items="SelectComponent_items"
-				></select-component>
-				<code>{{ SelectComponent_value }}</code>
-				<hr />
-
 				<h3 class="todo">snackbar-component</h3>
 				<!-- SnackbarComponent -->
 				<snackbar-component
@@ -145,22 +152,6 @@
 				<h3 class="todo">stepper-component</h3>
 				<!-- StepperComponent -->
 				<stepper-component></stepper-component>
-				<hr />
-
-				<h3 class="todo">textarea-component</h3>
-				<!-- TextareaComponent -->
-				<textarea-component
-					v-model:value="TextareaComponent_value"
-				></textarea-component>
-				<code>{{ TextareaComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">text-field-component</h3>
-				<!-- TextFieldComponent -->
-				<text-field-component
-					v-model:value="TextFieldComponent_value"
-				></text-field-component>
-				<code>{{ TextFieldComponent_value }}</code>
 				<hr />
 
 				<h3 class="todo">timeline-component</h3>
@@ -540,7 +531,7 @@
 				</expansion-panel-component>
 				<code>{{ ExpansionPanelComponent_value }}</code>
 				<hr />
-				
+
 				<h3 class="ok">progress-linear-component</h3>
 				<!-- ProgressLinearComponent -->
 				<progress-linear-component :value="progressValue - 25" class="mb-2"></progress-linear-component>
@@ -557,6 +548,12 @@
 				<progress-circular-component indeterminate color="error" class="mb-2"></progress-circular-component>
 				<progress-circular-component :value="progressValueCustom" size="100" color="success" class="mb-2"></progress-circular-component>
   				<input type="range" min="1" max="100" v-model="progressValueCustom">
+				<hr />
+				
+				<h3 class="ok">fetch-status-progress-component</h3>
+				<!-- FetchStatusProgressComponent -->
+				<fetch-status-progress-component :status="FetchStatusProgressComponent_status_loading" />
+				<fetch-status-progress-component :status="FetchStatusProgressComponent_status_error" />
 				<hr />
 			</div>
 		</div>
@@ -761,7 +758,8 @@ Web -> Frontend: Confirmation is delivered
 	DatePickerComponent_value: string = "Some string here";
 	DialogComponent_value: boolean = false;
 	ExpansionPanelComponent_value: boolean = false;
-	FetchStatusProgressComponent_status: FetchStatusWithProgress | null = { inProgress: true, progress: 50, failed: false, errorMessage: null };
+	FetchStatusProgressComponent_status_loading: FetchStatusWithProgress | null = { inProgress: true, progress: 50, failed: false, errorMessage: null };
+	FetchStatusProgressComponent_status_error: FetchStatusWithProgress | null = { inProgress: false, progress: 0, failed: true, errorMessage: 'Oh no! Something failed!' };
 	InputComponent_value: string = "Some string here";
 	PaginationComponent_value: number = 2;
 	PagingComponent_value: number = 2;
