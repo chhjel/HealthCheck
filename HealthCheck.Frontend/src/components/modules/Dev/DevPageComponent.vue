@@ -7,22 +7,6 @@
 		<!-- CONTENT -->
 		<div class="content-root">
 			<div>
-				<h3 class="ok">progress-linear-component</h3>
-				<!-- ProgressLinearComponent -->
-				<progress-linear-component :value="progressValue - 25" class="mb-2"></progress-linear-component>
-				<progress-linear-component :value="progressValue" color="warning" class="mb-2"></progress-linear-component>
-				<progress-linear-component indeterminate height="4" class="mb-2"></progress-linear-component>
-				<progress-linear-component indeterminate color="error" class="mb-2"></progress-linear-component>
-				<hr />
-
-				<h3 class="todo">progress-circular-component</h3>
-				<!-- ProgressCircularComponent -->
-				<progress-circular-component :value="progressValue - 25" class="mb-2"></progress-circular-component>
-				<progress-circular-component :value="progressValue" color="warning" class="mb-2"></progress-circular-component>
-				<progress-circular-component indeterminate size="40" width="1" class="mb-2"></progress-circular-component>
-				<progress-circular-component indeterminate color="error" class="mb-2"></progress-circular-component>
-				<hr />
-
 				<h3 class="todo">filterable-list-component</h3>
 				<!-- FilterableListComponent -->
 				<filterable-list-component class="dev_border"
@@ -556,6 +540,24 @@
 				</expansion-panel-component>
 				<code>{{ ExpansionPanelComponent_value }}</code>
 				<hr />
+				
+				<h3 class="ok">progress-linear-component</h3>
+				<!-- ProgressLinearComponent -->
+				<progress-linear-component :value="progressValue - 25" class="mb-2"></progress-linear-component>
+				<progress-linear-component :value="progressValue" color="warning" class="mb-2"></progress-linear-component>
+				<progress-linear-component indeterminate height="4" class="mb-2"></progress-linear-component>
+				<progress-linear-component indeterminate color="error" class="mb-2"></progress-linear-component>
+				<hr />
+
+				<h3 class="ok">progress-circular-component</h3>
+				<!-- ProgressCircularComponent -->
+				<progress-circular-component :value="progressValue - 25" class="mb-2"></progress-circular-component>
+				<progress-circular-component :value="progressValue" size="140" color="warning" class="mb-2"></progress-circular-component>
+				<progress-circular-component indeterminate size="120" width="20" class="mb-2"></progress-circular-component>
+				<progress-circular-component indeterminate color="error" class="mb-2"></progress-circular-component>
+				<progress-circular-component :value="progressValueCustom" size="100" color="success" class="mb-2"></progress-circular-component>
+  				<input type="range" min="1" max="100" v-model="progressValueCustom">
+				<hr />
 			</div>
 		</div>
 	</div>
@@ -819,6 +821,7 @@ Web -> Frontend: Confirmation is delivered
 	ParameterInputTypeTimeSpanComponent_value: string = "Some string here";
 	ParameterInputTypeTimeSpanComponent_config: HCBackendInputConfig = this.createBackendInputConfig();
 	progressValue: number = 66;
+	progressValueCustom: number = 75;
     hackyTimer: number = 0;
 
 	mounted(): void {

@@ -1,8 +1,15 @@
 <template>
     <div class="progress-circular-component" :class="rootClasses" :style="rootStyle">
-        <svg :width="size" :height="size" viewPort="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg">
-            <circle :r="size/2" :cx="size/2" :cy="size/2" fill="transparent" stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
-            <circle class="progress-circular-component_bar" :r="size/2" :cx="size/2" :cy="size/2" fill="transparent" stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
+        <svg :width="size + 2" :height="size + 2"
+            viewPort="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg">
+            <circle
+                :r="r" cx="50%" cy="50%"
+                :style="circleBgStyle"
+                fill="transparent" :stroke-dasharray="circumference" stroke-dashoffset="0"></circle>
+            <circle class="progress-circular-component_bar"
+                :r="r" cx="50%" cy="50%"
+                :style="circleStyle"
+                fill="transparent" :stroke-dasharray="circumference" stroke-dashoffset="0"></circle>
         </svg>
         <div class="progress-circular-component_content">
             <slot></slot>
@@ -48,6 +55,9 @@ export default class ProgressCircularComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
+    get r(): number { return (this.size / 2) - this.width; }
+    get circumference(): number { return Math.PI * (this.r * 2); }
+
     get resolvedColorName(): string {
         return this.color || 'primary';
     }
@@ -61,61 +71,49 @@ export default class ProgressCircularComponent extends Vue {
     }
 
     get rootStyle(): any {
-        const colorVarName = `--color--${this.resolvedColorName}-lighten7`;
         return {
-            'height': `${this.size}px`,
-            'width': `${this.size}px`,
+            'height': `${this.size+2}px`,
+            'width': `${this.size+2}px`,
             // 'background-color': `var(${colorVarName})`
         };
     }
 
-    // get barClasses(): any {
-    //     let classes = {};
-    //     classes[this.resolvedColorName] = true;
-    //     return classes;
-    // }
+    get circleStyle(): any {
+        const colorVarName = `--color--${this.resolvedColorName}-base`;
+        let style = {
+            'stroke': `var(${colorVarName})`,
+            'stroke-width': `${this.width}px`
+        };
+        if (!this.isIndeterminate)
+        {
+            style['stroke-dashoffset'] = `${this.calcDashOffset(this.value)}px`;
+        }
+        return style;
+    }
 
-    // get barStyle(): any {
-    //     const colorVarName = `--color--${this.resolvedColorName}-base`;
-    //     const barSize = this.size - this.width;
-    //     let style = {
-    //         // 'height': `${barSize}px`,
-    //         // 'width': `${barSize}px`,
-    //         'background-color': `var(${colorVarName})`
-    //     };
-    //     if (!this.isIndeterminate)
-    //     {
-    //         // style['width'] = `${Math.max(0, Math.min(100, this.value))}%`;
-    //     }
-    //     return style;
-    // }
-
-    // get centerClasses(): any {
-    //     let classes = {};
-    //     classes[this.resolvedColorName] = true;
-    //     return classes;
-    // }
-
-    // get centerStyle(): any {
-    //     const colorVarName = `--color--${this.resolvedColorName}-base`;
-    //     const barSize = this.size - this.width;
-    //     let style = {
-    //         'height': `${barSize}px`,
-    //         'width': `${barSize}px`,
-    //         'background-color': `var(${colorVarName})`
-    //     };
-    //     if (!this.isIndeterminate)
-    //     {
-    //         // style['width'] = `${Math.max(0, Math.min(100, this.value))}%`;
-    //     }
-    //     return style;
-    // }
+    get circleBgStyle(): any {
+        const colorVarName = `--color--${this.resolvedColorName}-lighten7`;
+        let style = {
+            'stroke': `var(${colorVarName})`,
+            'stroke-width': `${this.width}px`,
+            'stroke-dashoffset': `${this.calcDashOffset(100)}px`
+        };
+        return style;
+    }
 
     get isIndeterminate(): boolean { return ValueUtils.IsToggleTrue(this.indeterminate); }
 
     ////////////////
     //  METHODS  //
     //////////////
+    calcDashOffset(value: number): number {
+        let val: number = (value == null || isNaN(value)) ? 100 : value;
+        if (val < 0) { val = 0; }
+        else if (val > 100) { val = 100; }
+
+        const percentage = ((100 - val) / 100); // alt: val / 100;
+        return percentage * this.circumference;
+    }
 
     ///////////////////////
     //  EVENT HANDLERS  //
@@ -142,26 +140,39 @@ export default class ProgressCircularComponent extends Vue {
 .progress-circular-component {
 
     svg circle {
-        stroke-dashoffset: 424;
-        transition: stroke-dashoffset 1s linear;
-        stroke: #666;
-        stroke-width: 8px;
-    }
-
-    &_bar {
-        /* transition: width 0.2s; */
-        stroke: #FF9F1E;
-    }
-
-    &_center {
+        stroke-dashoffset: 0;
+        transition: stroke-dashoffset 0.2s;
+        /* stroke-linecap: round; */
     }
 
     &.indeterminate {
-        /* .progress-linear-component_bar {
-            width: 100%;
-            animation: indeterminateAnimation 1s infinite linear;
-            transform-origin: 0% 50%;
-        } */
+        svg {
+            animation: rotate 2s linear infinite;
+        }
+        .progress-circular-component_bar {
+            stroke-dasharray: 100%;
+            stroke-dashoffset: -55;
+            animation: dash 1.5s ease-in-out infinite;
+        }
+    }
+    @keyframes rotate {
+        100%{
+            transform: rotate(360deg);
+        }
+    }
+    @keyframes dash {
+        0%{
+            stroke-dasharray: 100%;
+            stroke-dashoffset: -55;
+        }
+        50%{
+            stroke-dasharray: 170%;
+            stroke-dashoffset: -10%;
+        }
+        100%{
+            stroke-dasharray: 100%;
+            stroke-dashoffset: -55;
+        }
     }
 }
 </style>
