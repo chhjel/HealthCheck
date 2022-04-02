@@ -42,5 +42,8 @@ $util-margin-padding-list: (
 }
 
 .clickable {
-	cursor: pointer;
+	&:not(.disabled)
+	{
+		cursor: pointer;
+	}
 }

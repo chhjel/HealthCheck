@@ -385,8 +385,8 @@
                                         label="Custom value"
                                         v-if="isCustomHeader(header)"
                                         v-model:value="customColumns[header]"
-                                        append-outer-icon="insert_link"
-                                        @click:append-outer="onShowPlaceholdersClicked(header)" />
+                                        append-icon="insert_link"
+                                        @click:append="onShowPlaceholdersClicked(header)" />
                                 </div>
                             </div>
                         </ul>

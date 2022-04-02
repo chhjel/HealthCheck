@@ -6,10 +6,17 @@ export default class CssUtils
 		{
 			return null;
 		}
+		else if (color.includes('-'))
+		{
+			return `var(${color})`;
+		}
 		else if (color == 'info'
 			|| color == 'warning'
 			|| color == 'error'
-			|| color == 'success')
+			|| color == 'success'
+			|| color == 'primary'
+			|| color == 'secondary'
+			|| color == 'accent')
 		{
 			return `var(--color--${color}-base)`;
 		}

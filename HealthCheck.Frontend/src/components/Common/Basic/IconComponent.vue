@@ -1,10 +1,5 @@
 <template>
     <span class="icon-component" :class="rootClasses">
-		<!-- <h3>TODO: IconComponent</h3>
-        <div><b>color:</b>' {{ color }}'</div>
-        <div><b>small:</b>' {{ small }}'</div>
-        <div><b>large:</b>' {{ large }}'</div>
-        <div><b>size:</b>' {{ size }}'</div> -->
         <span class="material-icons"><slot></slot></span>
     </span>
 </template>
@@ -13,6 +8,7 @@
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import ValueUtils from '@util/ValueUtils'
+import CssUtils from "@util/CssUtils";
 
 @Options({
     components: {}
@@ -26,14 +22,19 @@ export default class IconComponent extends Vue {
     small!: string | boolean;
 
     @Prop({ required: false, default: false })
+    medium!: string | boolean;
+
+    @Prop({ required: false, default: false })
     large!: string | boolean;
+
+    @Prop({ required: false, default: false })
+    xLarge!: string | boolean;
 
     @Prop({ required: false, default: false })
     help!: string | boolean;
 
     @Prop({ required: false, default: null })
     size!: string;
-
 
     //////////////////
     //  LIFECYCLE  //
@@ -46,15 +47,22 @@ export default class IconComponent extends Vue {
     //  GETTERS  //
     //////////////
     get rootClasses(): any {
-        return {
+        let classes = {
              'small': this.isSmall,
              'large': this.isLarge,
-             'help': this.isHelp
+             'medium': this.isMedium,
+             'xLarge': this.isXLarge,
+             'help': this.isHelp,
+             'color-f': true
         };
+        classes[this.color || 'secondary'] = true;
+        return classes;
     }
 
     get isSmall(): boolean { return ValueUtils.IsToggleTrue(this.small); }
     get isLarge(): boolean { return ValueUtils.IsToggleTrue(this.large); }
+    get isMedium(): boolean { return ValueUtils.IsToggleTrue(this.medium); }
+    get isXLarge(): boolean { return ValueUtils.IsToggleTrue(this.xLarge); }
     get isHelp(): boolean { return ValueUtils.IsToggleTrue(this.help); }
 
     ////////////////
@@ -75,8 +83,11 @@ export default class IconComponent extends Vue {
 <style scoped lang="scss">
 .icon-component {
     display: flex;
-    &.small { }
-    &.large { }
+    user-select: none;
+    &.small { font-size: 24px; }
+    &.medium { font-size: 28px; }
+    &.large { font-size: 36px; }
+    &.xLarge { font-size: 40px; }
     &.help { cursor: help; }
 }
 </style>

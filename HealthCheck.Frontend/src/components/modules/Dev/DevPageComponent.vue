@@ -21,7 +21,13 @@
 				<text-field-component v-model:value="TextFieldComponent_value" description="Description only." />
 				<text-field-component v-model:value="TextFieldComponent_value" label="Loading" description="Description here." :loading="true" />
 				<text-field-component v-model:value="TextFieldComponent_value" label="Disabled" disabled />
-				<text-field-component v-model:value="TextFieldComponent_value" label="Readonly" readonly />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Append icon" appendIcon="person" />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Prepend icon" prependIcon="person" />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Append + prepend icon" appendIcon="person" prependIcon="person" />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Append + prepend icon + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Append + prepend icon w listeners + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading @click:append="notify('append')" @click:prepend="notify('prepend')" />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Append + prepend icon + clearable + loading + disabled" clearable appendIcon="person" prependIcon="person" loading disabled />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Append + prepend icon w listeners + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading @click:append="notify('append')" @click:prepend="notify('prepend')" errorMessages="Some error here." />
 				<code>{{ TextFieldComponent_value }}</code>
 				<hr />
 
@@ -864,6 +870,8 @@ Web -> Frontend: Confirmation is delivered
     {
         return this.convertStringToSteps(this.SequenceDiagramComponent_sandboxScript);
     }
+
+	notify(msg: string): void { alert(msg); }
 }
 </script>
 
