@@ -2,10 +2,7 @@
     <div class="text-field-component" :class="rootClasses">
         <input-header-component :name="label" :description="description" />
 		<!-- <h3>TODO: TextFieldComponent</h3>
-        <div><b>errorMessages:</b>' {{ errorMessages }}'</div>
-
         <div><b>solo:</b>' {{ solo }}'</div>
-        <div><b>clearable:</b>' {{ clearable }}'</div>
 
         <div><b>singleLine:</b>' {{ singleLine }}'</div>
         <div><b>hideDetails:</b>' {{ hideDetails }}'</div>
@@ -17,9 +14,11 @@
             <icon-component v-if="prependIcon" class="text-field-component__icon" :class="prependedIconClasses"
                 :title="prependIconTooltip"
                 @click="onPrependedIconClicked">{{ prependIcon }}</icon-component>
+
             <input :type="type" v-model="localValue"
                 :placeholder="placeholder" :disabled="isDisabled"
                 class="text-field-component__input" />
+
             <icon-component v-if="appendIcon" class="text-field-component__icon" :class="appendedIconClasses"
                 :title="appendIconTooltip"
                 @click="onApendedIconClicked">{{ appendIcon }}</icon-component>

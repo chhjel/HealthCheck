@@ -7,43 +7,22 @@
 		<!-- CONTENT -->
 		<div class="content-root">
 			<div>
-				<h3 class="todo">input-header-component</h3>
-				<!-- InputHeaderComponent -->
-				<input-header-component name="Name here"></input-header-component>
-				<input-header-component name="Name here" description="Description here"></input-header-component>
-				<hr />
-
-				<h3 class="todo">text-field-component</h3>
-				<!-- TextFieldComponent -->
-				<text-field-component v-model:value="TextFieldComponent_value" />
-				<text-field-component v-model:value="TextFieldComponent_value" label="Label here" />
-				<text-field-component v-model:value="TextFieldComponent_value" label="Label here" description="Description here." />
-				<text-field-component v-model:value="TextFieldComponent_value" description="Description only." />
-				<text-field-component v-model:value="TextFieldComponent_value" label="Loading" description="Description here." :loading="true" />
-				<text-field-component v-model:value="TextFieldComponent_value" label="Disabled" disabled />
-				<text-field-component v-model:value="TextFieldComponent_value" label="Append icon" appendIcon="person" />
-				<text-field-component v-model:value="TextFieldComponent_value" label="Prepend icon" prependIcon="person" />
-				<text-field-component v-model:value="TextFieldComponent_value" label="Append + prepend icon" appendIcon="person" prependIcon="person" />
-				<text-field-component v-model:value="TextFieldComponent_value" label="Append + prepend icon + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading />
-				<text-field-component v-model:value="TextFieldComponent_value" label="Append + prepend icon w listeners + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading @click:append="notify('append')" @click:prepend="notify('prepend')" />
-				<text-field-component v-model:value="TextFieldComponent_value" label="Append + prepend icon + clearable + loading + disabled" clearable appendIcon="person" prependIcon="person" loading disabled />
-				<text-field-component v-model:value="TextFieldComponent_value" label="Append + prepend icon w listeners + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading @click:append="notify('append')" @click:prepend="notify('prepend')" errorMessages="Some error here." />
-				<code>{{ TextFieldComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">simple-date-time-component</h3>
-				<!-- SimpleDateTimeComponent -->
-				<simple-date-time-component
-					v-model:value="SimpleDateTimeComponent_value"
-				></simple-date-time-component>
-				<code>{{ SimpleDateTimeComponent_value }}</code>
-				<hr />
-
 				<h3 class="todo">textarea-component</h3>
 				<!-- TextareaComponent -->
-				<textarea-component
-					v-model:value="TextareaComponent_value"
-				></textarea-component>
+				<textarea-component v-model:value="TextareaComponent_value" autoGrow />
+				<textarea-component v-model:value="TextareaComponent_value" label="Label here" rows="5" />
+				<textarea-component v-model:value="TextareaComponent_value" label="Label here" description="Description here." />
+				<textarea-component v-model:value="TextareaComponent_value" description="Description only." />
+				<textarea-component v-model:value="TextareaComponent_value" label="Loading" description="Description here." :loading="true" />
+				<textarea-component v-model:value="TextareaComponent_value" label="Disabled" disabled />
+				<textarea-component v-model:value="TextareaComponent_value" label="Append icon" appendIcon="person" />
+				<textarea-component v-model:value="TextareaComponent_value" label="Prepend icon" prependIcon="person" />
+				<textarea-component v-model:value="TextareaComponent_value" label="Append + prepend icon" appendIcon="person" prependIcon="person" />
+				<textarea-component v-model:value="TextareaComponent_value" label="Append + prepend icon + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading />
+				<textarea-component v-model:value="TextareaComponent_value" label="Append + prepend icon w listeners + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading @click:append="notify('append')" @click:prepend="notify('prepend')" />
+				<textarea-component v-model:value="TextareaComponent_value" label="Append + prepend icon + clearable + loading + disabled" clearable appendIcon="person" prependIcon="person" loading disabled />
+				<textarea-component v-model:value="TextareaComponent_value" label="Append + prepend icon w listeners + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading @click:append="notify('append')" @click:prepend="notify('prepend')" errorMessages="Some error here."
+					rows="5" autoGrow />
 				<code>{{ TextareaComponent_value }}</code>
 				<hr />
 
@@ -564,6 +543,38 @@
 				<!-- FetchStatusProgressComponent -->
 				<fetch-status-progress-component :status="FetchStatusProgressComponent_status_loading" />
 				<fetch-status-progress-component :status="FetchStatusProgressComponent_status_error" />
+				<hr />
+
+				<h3 class="ok">input-header-component</h3>
+				<!-- InputHeaderComponent -->
+				<input-header-component name="Name here"></input-header-component>
+				<input-header-component name="Name here" description="Description here"></input-header-component>
+				<hr />
+
+				<h3 class="ok">text-field-component</h3>
+				<!-- TextFieldComponent -->
+				<text-field-component v-model:value="TextFieldComponent_value" />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Label here" />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Label here" description="Description here." />
+				<text-field-component v-model:value="TextFieldComponent_value" description="Description only." />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Loading" description="Description here." :loading="true" />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Disabled" disabled />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Append icon" appendIcon="person" />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Prepend icon" prependIcon="person" />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Append + prepend icon" appendIcon="person" prependIcon="person" />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Append + prepend icon + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Append + prepend icon w listeners + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading @click:append="notify('append')" @click:prepend="notify('prepend')" />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Append + prepend icon + clearable + loading + disabled" clearable appendIcon="person" prependIcon="person" loading disabled />
+				<text-field-component v-model:value="TextFieldComponent_value" label="Append + prepend icon w listeners + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading @click:append="notify('append')" @click:prepend="notify('prepend')" errorMessages="Some error here." />
+				<code>{{ TextFieldComponent_value }}</code>
+				<hr />
+
+				<h3 class="ok">simple-date-time-component</h3>
+				<!-- SimpleDateTimeComponent -->
+				<simple-date-time-component
+					v-model:value="SimpleDateTimeComponent_value"
+				></simple-date-time-component>
+				<code>{{ SimpleDateTimeComponent_value }}</code>
 				<hr />
 			</div>
 		</div>

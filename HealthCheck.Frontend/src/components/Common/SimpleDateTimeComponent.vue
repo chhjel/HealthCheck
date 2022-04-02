@@ -1,14 +1,7 @@
 <!-- src/components/Common/SimpleDateTimeComponent.vue -->
 <template>
     <div class="root input-component">
-        <div class="input-component--header" v-if="showHeader">
-            <div class="input-component--header-name">{{ name }}</div>
-            <icon-component small v-if="hasDescription"
-                color="gray" class="input-component--help-icon"
-                @click="toggleDescription">help</icon-component>
-        </div>
-
-        <div v-show="showDescription" class="input-component--description" v-html="description"></div>
+        <input-header-component :name="name" :description="description" />
         
         <text-field-component
             class="filter-input" type="datetime-local"
@@ -25,9 +18,10 @@
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import DateUtils from '@util/DateUtils';
+import InputHeaderComponent from "./Basic/InputHeaderComponent.vue";
 
 @Options({
-    components: {}
+    components: { InputHeaderComponent }
 })
 export default class SimpleDateTimeComponent extends Vue {
     @Prop({ required: true })
@@ -106,40 +100,4 @@ export default class SimpleDateTimeComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.input-component {
-    .input-component--header {
-        text-align: left;
-
-        .input-component--header-name {
-            display: inline-block;
-            font-size: 16px;
-            color: var(--color--secondary-base);
-            font-weight: 600;
-        }
-
-        .input-component--help-icon {
-            user-select: none;
-            font-size: 20px !important;
-            &:hover {
-                color: #1976d2;
-            }
-        }
-    }
-
-    .input-component--description {
-        text-align: left;
-        padding: 10px;
-        border-radius: 10px;
-        background-color: #ebf1fb;
-    }
-}
-</style>
-
-<style lang="scss">
-.input-component {
-    input {
-        font-size: 18px;
-        color: #000 !important;
-    }
-}
 </style>
