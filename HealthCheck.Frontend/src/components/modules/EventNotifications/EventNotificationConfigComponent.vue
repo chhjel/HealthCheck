@@ -200,6 +200,7 @@
                 description="Optionally limit to a single notification for the given duration for each distinct value made from the pattern below that supports placeholders. Requires both a template value and a duration."
                 type="text"
                 :action-icon="getPayloadPlaceholders().length > 0 ? 'insert_link' : ''"
+                actionIconTooltip="Insert placeholder"
                 @actionIconClicked="showPayloadPlaceholdersDialog()"
                 />
 

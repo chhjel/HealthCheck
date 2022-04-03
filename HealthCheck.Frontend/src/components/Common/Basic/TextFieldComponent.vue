@@ -1,6 +1,6 @@
 <template>
     <div class="text-field-component" :class="rootClasses">
-        <input-header-component :name="label" :description="description" />
+        <input-header-component :name="label" :description="description" :showDescriptionOnStart="showDescriptionOnStart" />
 		<!-- <h3>TODO: TextFieldComponent</h3>
         <div><b>solo:</b>' {{ solo }}'</div>
 
@@ -17,6 +17,7 @@
 
             <input :type="type" v-model="localValue"
                 :placeholder="placeholder" :disabled="isDisabled"
+                @input="onInput"
                 class="text-field-component__input" />
 
             <icon-component v-if="appendIcon" class="text-field-component__icon" :class="appendedIconClasses"
@@ -56,6 +57,9 @@ export default class TextFieldComponent extends Vue {
 
     @Prop({ required: false, default: null })
     description!: string;
+    
+    @Prop({ required: false, default: false })
+    showDescriptionOnStart!: boolean;
 
     @Prop({ required: false, default: null })
     type!: string;
@@ -155,6 +159,7 @@ export default class TextFieldComponent extends Vue {
     clear(): void {
         if (this.isReadonly || this.isDisabled) return;
         this.localValue = null;
+        this.$emit('click:clear');
     }
 
     ///////////////////////
@@ -167,6 +172,9 @@ export default class TextFieldComponent extends Vue {
     onApendedIconClicked(): void {
         if (this.isReadonly || this.isDisabled) return;
         this.$emit('click:append');
+    }
+    onInput(): void {
+		this.$emit('input', this.localValue);
     }
 	
     /////////////////
@@ -186,6 +194,7 @@ export default class TextFieldComponent extends Vue {
             return;
         }
 		this.$emit('update:value', this.localValue);
+		this.$emit('change', this.localValue);
     }
 }
 </script>

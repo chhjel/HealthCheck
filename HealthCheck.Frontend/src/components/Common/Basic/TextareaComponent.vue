@@ -1,6 +1,6 @@
 <template>
     <div class="textarea-component" :class="rootClasses">
-        <input-header-component :name="label" :description="description" />
+        <input-header-component :name="label" :description="description" :showDescriptionOnStart="showDescriptionOnStart" />
 
         <div class="textarea-component__input-wrapper">
             <icon-component v-if="prependIcon" class="textarea-component__icon" :class="prependedIconClasses"
@@ -34,9 +34,10 @@
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import ValueUtils from '@util/ValueUtils'
+import InputHeaderComponent from "./InputHeaderComponent.vue";
 
 @Options({
-    components: {}
+    components: { InputHeaderComponent }
 })
 export default class TextareaComponent extends Vue {
 
@@ -48,6 +49,9 @@ export default class TextareaComponent extends Vue {
 
     @Prop({ required: false, default: null })
     description!: string;
+    
+    @Prop({ required: false, default: false })
+    showDescriptionOnStart!: boolean;
 
     @Prop({ required: false, default: null })
     errorMessages!: string;
@@ -143,6 +147,7 @@ export default class TextareaComponent extends Vue {
     clear(): void {
         if (this.isReadonly || this.isDisabled) return;
         this.localValue = null;
+        this.$emit('click:clear');
     }
 
     getInputOffset(): number {
@@ -189,6 +194,7 @@ export default class TextareaComponent extends Vue {
             newHeight = textarea.scrollHeight - offset;
         }
         textarea.style.height = newHeight + 'px';
+		this.$emit('input', this.localValue);
     }
 	
     /////////////////
@@ -208,6 +214,7 @@ export default class TextareaComponent extends Vue {
             return;
         }
 		this.$emit('update:value', this.localValue);
+		this.$emit('change', this.localValue);
     }
 }
 </script>

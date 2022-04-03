@@ -7,23 +7,11 @@
 		<!-- CONTENT -->
 		<div class="content-root">
 			<div>
-				<h3 class="todo">textarea-component</h3>
-				<!-- TextareaComponent -->
-				<textarea-component v-model:value="TextareaComponent_value" autoGrow />
-				<textarea-component v-model:value="TextareaComponent_value" label="Label here" rows="5" />
-				<textarea-component v-model:value="TextareaComponent_value" label="Label here" description="Description here." />
-				<textarea-component v-model:value="TextareaComponent_value" description="Description only." />
-				<textarea-component v-model:value="TextareaComponent_value" label="Loading" description="Description here." :loading="true" />
-				<textarea-component v-model:value="TextareaComponent_value" label="Disabled" disabled />
-				<textarea-component v-model:value="TextareaComponent_value" label="Append icon" appendIcon="person" />
-				<textarea-component v-model:value="TextareaComponent_value" label="Prepend icon" prependIcon="person" />
-				<textarea-component v-model:value="TextareaComponent_value" label="Append + prepend icon" appendIcon="person" prependIcon="person" />
-				<textarea-component v-model:value="TextareaComponent_value" label="Append + prepend icon + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading />
-				<textarea-component v-model:value="TextareaComponent_value" label="Append + prepend icon w listeners + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading @click:append="notify('append')" @click:prepend="notify('prepend')" />
-				<textarea-component v-model:value="TextareaComponent_value" label="Append + prepend icon + clearable + loading + disabled" clearable appendIcon="person" prependIcon="person" loading disabled />
-				<textarea-component v-model:value="TextareaComponent_value" label="Append + prepend icon w listeners + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading @click:append="notify('append')" @click:prepend="notify('prepend')" errorMessages="Some error here."
-					rows="5" autoGrow />
-				<code>{{ TextareaComponent_value }}</code>
+				<h3 class="todo">input-component</h3>
+				<!-- InputComponent -->
+				<input-component v-model:value="InputComponent_value"></input-component>
+				<input-component v-model:value="InputComponent_value" actionIcon="person" @actionIconClicked="notify('actionIconClicked')"></input-component>
+				<code>{{ InputComponent_value }}</code>
 				<hr />
 
 				<h3 class="todo">select-component</h3>
@@ -57,12 +45,6 @@
 					v-model:value="DatePickerComponent_value"
 				></date-picker-component>
 				<code>{{ DatePickerComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">input-component</h3>
-				<!-- InputComponent -->
-				<input-component v-model:value="InputComponent_value"></input-component>
-				<code>{{ InputComponent_value }}</code>
 				<hr />
 
 				<h3 class="todo">filterable-list-component</h3>
@@ -575,6 +557,25 @@
 					v-model:value="SimpleDateTimeComponent_value"
 				></simple-date-time-component>
 				<code>{{ SimpleDateTimeComponent_value }}</code>
+				<hr />
+				
+				<h3 class="ok">textarea-component</h3>
+				<!-- TextareaComponent -->
+				<textarea-component v-model:value="TextareaComponent_value" autoGrow />
+				<textarea-component v-model:value="TextareaComponent_value" label="Label here" rows="5" />
+				<textarea-component v-model:value="TextareaComponent_value" label="Label here" description="Description here." />
+				<textarea-component v-model:value="TextareaComponent_value" description="Description only." />
+				<textarea-component v-model:value="TextareaComponent_value" label="Loading" description="Description here." :loading="true" />
+				<textarea-component v-model:value="TextareaComponent_value" label="Disabled" disabled />
+				<textarea-component v-model:value="TextareaComponent_value" label="Append icon" appendIcon="person" />
+				<textarea-component v-model:value="TextareaComponent_value" label="Prepend icon" prependIcon="person" />
+				<textarea-component v-model:value="TextareaComponent_value" label="Append + prepend icon" appendIcon="person" prependIcon="person" />
+				<textarea-component v-model:value="TextareaComponent_value" label="Append + prepend icon + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading />
+				<textarea-component v-model:value="TextareaComponent_value" label="Append + prepend icon w listeners + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading @click:append="notify('append')" @click:prepend="notify('prepend')" />
+				<textarea-component v-model:value="TextareaComponent_value" label="Append + prepend icon + clearable + loading + disabled" clearable appendIcon="person" prependIcon="person" loading disabled />
+				<textarea-component v-model:value="TextareaComponent_value" label="Append + prepend icon w listeners + clearable + loading" clearable appendIcon="person" appendIconTooltip="Some tooltip here" prependIcon="person" loading @click:append="notify('append')" @click:prepend="notify('prepend')" errorMessages="Some error here."
+					rows="5" autoGrow />
+				<code>{{ TextareaComponent_value }}</code>
 				<hr />
 			</div>
 		</div>
