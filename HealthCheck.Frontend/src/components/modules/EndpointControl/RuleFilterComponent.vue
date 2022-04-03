@@ -15,7 +15,7 @@
                     class="mode-select"
                     v-model:value="filterMode"
                     :items="filterModeOptions"
-                    item-text="text" item-value="value" color="secondary"
+                    item-text="text" item-value="value"
                     v-on:change="onDataChanged"
                     :disabled="readonly"
                     >

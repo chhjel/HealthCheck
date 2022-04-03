@@ -1,14 +1,7 @@
 <!-- src/components/Common/Basic/SelectComponent.vue -->
 <template>
     <div class="select-component">
-        <div class="select-component--header" v-if="showHeader">
-            <div class="select-component--header-name">{{ name }}</div>
-            <icon-component small v-if="hasDescription"
-                color="gray" class="select-component--help-icon"
-                @click="toggleDescription">help</icon-component>
-        </div>
-
-        <div v-show="showDescription" class="select-component--description" v-html="description"></div>
+        <input-header-component :name="label" :description="description" :showDescriptionOnStart="showDescriptionOnStart" />
         
         <select v-model="currentValue" @input="onInput($event.target.value)" :disabled="disabled">
             <!-- <option disabled value="">Please select one</option> -->
@@ -17,7 +10,8 @@
                 :value="item.value"
                 >{{ item.text }}</option>
         </select>
-        <div v-if="loading">Loading...</div>
+
+        <progress-linear-component v-if="isLoading" indeterminate height="3" />
 
         <div class="select-component--error" v-if="error != null && error.length > 0">{{ error }}</div>
     </div>
@@ -27,50 +21,48 @@
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import IdUtils from "@util/IdUtils";
+import InputHeaderComponent from "./InputHeaderComponent.vue";
+import ValueUtils from "@util/ValueUtils";
 
 @Options({
-    components: {}
+    components: { InputHeaderComponent }
 })
 export default class SelectComponent extends Vue
 {
     @Prop({ required: true })
     value!: string;
+    
+    @Prop({ required: false, default: '' })
+    label!: string;
+    
+    @Prop({ required: false, default: '' })
+    description!: string;
+    
+    @Prop({ required: false, default: false })
+    showDescriptionOnStart!: boolean;
 
     @Prop({ required: true })
     items!: any;
     
-    @Prop({ required: false, default: '' })
-    name!: string;
-    
-    @Prop({ required: false, default: 'primary' })
-    color!: string;
-    
-    @Prop({ required: false, default: '' })
-    itemText!: string;
-    
-    @Prop({ required: false, default: '' })
+    @Prop({ required: false, default: 'id' })
     itemValue!: string;
     
-    @Prop({ required: false, default: '' })
-    description!: string;
+    @Prop({ required: false, default: 'text' })
+    itemText!: string;
     
     @Prop({ required: false, default: null})
     error!: string | null;
     
     @Prop({ required: false, default: false })
-    disabled!: boolean;
+    disabled!: string | boolean;
     
     @Prop({ required: false, default: false })
-    multiple!: boolean;
-    
+    multiple!: string | boolean;
+
     @Prop({ required: false, default: false })
-    showDescriptionOnStart!: boolean;
-    
-    @Prop({ required: false, default: false })
-    loading!: boolean;
+    loading!: string | boolean;
 
     id: string = IdUtils.generateId();
-    showDescription: boolean = false;
     currentValue: string = '';
 
     // v-model:value="currentValue"
@@ -86,7 +78,6 @@ export default class SelectComponent extends Vue
     ////////////////
     created(): void {
         this.currentValue = this.value;
-        this.showDescription = this.hasDescription && this.showDescriptionOnStart;
     }
 
     mounted(): void {
@@ -98,11 +89,24 @@ export default class SelectComponent extends Vue
     get optionItems(): Array<any> {
         if (Array.isArray(this.items))
         {
+            if (this.items.length == 0) return [];
+            const firstValue = this.items[0];
+            const isSimpleValue = typeof firstValue === 'string' || firstValue instanceof String;
             return this.items.map(x => {
-                return {
-                    value: x,
-                    text: x
-                };
+                if (isSimpleValue)
+                {
+                    return {
+                        value: x,
+                        text: x
+                    };
+                }
+                else
+                {
+                    return {
+                        value: x[this.itemValue],
+                        text: x[this.itemText]
+                    };
+                }
             });
         }
         return Object.keys(this.items).map(key => {
@@ -112,21 +116,14 @@ export default class SelectComponent extends Vue
             };
         });
     }
-
-    get showHeader(): boolean {
-        return this.name != null && this.name.length > 0;
-    }
-
-    get hasDescription(): boolean {
-        return this.description != null && this.description.length > 0;
-    }
+    
+    get isLoading(): boolean { return ValueUtils.IsToggleTrue(this.loading); }
+    get isDisabled(): boolean { return ValueUtils.IsToggleTrue(this.disabled); }
+    get isMultiple(): boolean { return ValueUtils.IsToggleTrue(this.multiple); }
 
     ////////////////
     //  METHODS  //
     //////////////
-    toggleDescription(): void {
-        this.showDescription = !this.showDescription;
-    }
 
     ///////////////////////
     //  EVENT HANDLERS  //
@@ -138,7 +135,7 @@ export default class SelectComponent extends Vue
 
     onInput(newValue: string): void {
         let emittedValue: string | string[] = newValue;
-        if (this.multiple) {
+        if (this.isMultiple) {
             emittedValue = [ newValue ] // todo;
         }
         this.$emit('update:value', emittedValue);

@@ -477,7 +477,7 @@
                                 label="Selected formatter"
                                 v-model:value="selectedFormatterId"
                                 :items="formattersInDialogChoices"
-                                item-text="Name" item-value="Id" color="secondary"
+                                item-text="Name" item-value="Id"
                                 :disabled="dataLoadStatus.inProgress"
                                 v-on:change="onFormatterChanged"
                                 >

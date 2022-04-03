@@ -38,7 +38,7 @@
                 v-model:value="internalDownload.StorageId"
                 :items="storageOptions"
                 :disabled="!allowChanges || internalDownload.HasUploadedFile"
-                name="Where to get file from"
+                label="Where to get file from"
                 @input="onStorageChanged()"
                 />
             
@@ -52,7 +52,7 @@
                     :items="fileIdOptions"
                     :disabled="!allowChanges"
                     :loading="fileIdOptionsLoadStatus.inProgress"
-                    :name="getStorageFileIdLabel(internalDownload.StorageId)"
+                    :label="getStorageFileIdLabel(internalDownload.StorageId)"
                     :description="getStorageFileIdInfo(internalDownload.StorageId)"
                     show-description-on-start="true"
                     />

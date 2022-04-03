@@ -103,7 +103,7 @@
                 class="mode-select"
                 v-model:value="internalRule.BlockResultTypeId"
                 :items="blockResultOptions"
-                item-text="text" item-value="value" color="secondary"
+                item-text="text" item-value="value"
                 :disabled="!allowChanges"
                 >
             </select-component>

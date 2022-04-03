@@ -8,7 +8,6 @@
             :chips="multiple"
             :disabled="readonly"
             v-on:change="onChanged"
-            color="secondary"
             class="parameter-select pt-0">
         </select-component>
     </div>

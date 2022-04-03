@@ -7,20 +7,15 @@
 		<!-- CONTENT -->
 		<div class="content-root">
 			<div>
-				<h3 class="todo">input-component</h3>
-				<!-- InputComponent -->
-				<input-component v-model:value="InputComponent_value"></input-component>
-				<input-component v-model:value="InputComponent_value" actionIcon="person" @actionIconClicked="notify('actionIconClicked')"></input-component>
-				<code>{{ InputComponent_value }}</code>
-				<hr />
-
 				<h3 class="todo">select-component</h3>
 				<!-- SelectComponent -->
-				<select-component
-					v-model:value="SelectComponent_value"
-					:items="SelectComponent_items"
-				></select-component>
-				<code>{{ SelectComponent_value }}</code>
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Array" />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Disabled" disabled />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Loading" loading />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Loading + disabled" disabled loading />
+				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex" description="Not just a simple array + multiple." />
+				<code>{{ SelectComponent_value }}</code><br />
+				<code>{{ SelectComponent_valueMultiple }}</code>
 				<hr />
 
 				<h3 class="todo">combobox-component</h3>
@@ -577,6 +572,14 @@
 					rows="5" autoGrow />
 				<code>{{ TextareaComponent_value }}</code>
 				<hr />
+
+				<h3 class="ok">input-component</h3>
+				<!-- InputComponent -->
+				<input-component v-model:value="InputComponent_value"></input-component>
+				<input-component v-model:value="InputComponent_value" actionIcon="person" @actionIconClicked="notify('actionIconClicked')"></input-component>
+				<code>{{ InputComponent_value }}</code>
+				<hr />
+
 			</div>
 		</div>
 	</div>
@@ -788,6 +791,8 @@ Web -> Frontend: Confirmation is delivered
 	PagingComponent_count: number = 88;
 	SelectComponent_value: string = "B";
 	SelectComponent_items: Array<string> = ['A', 'B', 'C'];
+	SelectComponent_valueMultiple: string = "[A,C]";
+	SelectComponent_itemsMultiple: Array<any> = [ { id: 'A', text: 'Item A' }, { id: 'B', text: 'Item B' }, { id: 'C', text: 'Item C' } ];
 	SnackbarComponent_value: boolean = true;
 	SwitchComponent_value: boolean = true;
 	TextareaComponent_value: string = "Some string here";

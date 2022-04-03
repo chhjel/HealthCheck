@@ -97,7 +97,7 @@
                                     v-if="false"
                                     v-model:value="diagramStyle"
                                     :items="diagramStyles"
-                                    item-text="text" item-value="value" color="secondary">
+                                    item-text="text" item-value="value">
                                 </select-component>
 
                                 <div>
