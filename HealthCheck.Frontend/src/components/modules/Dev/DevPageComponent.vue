@@ -14,8 +14,9 @@
 				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Loading" loading />
 				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Loading + disabled" disabled loading />
 				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex" description="Not just a simple array + multiple." />
-				<code>{{ SelectComponent_value }}</code><br />
-				<code>{{ SelectComponent_valueMultiple }}</code>
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="With error" error="Some error here" />
+				Value: <code>{{ SelectComponent_value }}</code><br />
+				Value multiple: <code>{{ SelectComponent_valueMultiple }}</code>
 				<hr />
 
 				<h3 class="todo">combobox-component</h3>
@@ -791,7 +792,7 @@ Web -> Frontend: Confirmation is delivered
 	PagingComponent_count: number = 88;
 	SelectComponent_value: string = "B";
 	SelectComponent_items: Array<string> = ['A', 'B', 'C'];
-	SelectComponent_valueMultiple: string = "[A,C]";
+	SelectComponent_valueMultiple: Array<string> = ['A', 'C'];
 	SelectComponent_itemsMultiple: Array<any> = [ { id: 'A', text: 'Item A' }, { id: 'B', text: 'Item B' }, { id: 'C', text: 'Item C' } ];
 	SnackbarComponent_value: boolean = true;
 	SwitchComponent_value: boolean = true;

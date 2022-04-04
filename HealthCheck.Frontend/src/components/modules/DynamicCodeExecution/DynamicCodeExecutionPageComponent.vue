@@ -324,7 +324,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     configDialogVisible: boolean = false;
 
     callbacks: Array<CallbackUnregisterShortcut> = [
-      EventBus.on("onNotAllowedModuleSwitch", this.onNotAllowedModuleSwitch)
+      EventBus.on("onNotAllowedModuleSwitch", this.onNotAllowedModuleSwitch.bind(this))
     ]
     
     //////////////////

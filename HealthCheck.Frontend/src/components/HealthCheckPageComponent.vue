@@ -192,6 +192,11 @@ export default class HealthCheckPageComponent extends Vue {
     bindRootEvents(): void {
         document.addEventListener('keyup', this.onDocumentKeyDownOrDown);
         document.addEventListener('keydown', this.onDocumentKeyDownOrDown);
+        window.addEventListener('click', this.onWindowClick);
+    }
+
+    onWindowClick(e: MouseEvent): void {
+        EventBus.notify("onWindowClick", e);
     }
     
     onDocumentKeyDownOrDown(e: KeyboardEvent): void {

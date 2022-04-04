@@ -1,28 +1,52 @@
 <!-- src/components/Common/Basic/SelectComponent.vue -->
 <template>
-    <div class="select-component">
+    <div class="select-component" :class="rootClasses">
         <input-header-component :name="label" :description="description" :showDescriptionOnStart="showDescriptionOnStart" />
         
-        <select v-model="currentValue" @input="onInput($event.target.value)" :disabled="disabled">
-            <!-- <option disabled value="">Please select one</option> -->
-            <option v-for="(item, iIndex) in optionItems"
+        <div class="select-component__input" @click="onInputClicked" ref="inputElement">
+            <div v-for="(item, iIndex) in selectedItems"
                 :key="`${id}-item-${iIndex}`"
-                :value="item.value"
-                >{{ item.text }}</option>
-        </select>
+                class="select-component__input-chip">
+                <span class="select-component__input-chip-value">{{ item.text }}</span>
+                <div class="select-component__input-chip-remove accent clickable hoverable"
+                    @click.stop.prevent="removeValue(item.value)"
+                    v-if="!isDisabled">
+                    <icon-component>clear</icon-component>
+                </div>
+            </div>
+        </div>
+        <div class="select-component__dropdown" v-show="showDropdown" ref="dropdownElement">
+            <!-- <div class="select-component__dropdown__search">
+                Search here
+            </div> -->
+            <div class="select-component__dropdown__items">
+                <div v-for="(item, iIndex) in optionItems"
+                    :key="`${id}-item-${iIndex}`"
+                    class="select-component__dropdown__item"
+                    @click.stop.prevent="addValue(item.value)">
+                    {{ item.text }}
+                </div>
+            </div>
+        </div>
 
         <progress-linear-component v-if="isLoading" indeterminate height="3" />
 
-        <div class="select-component--error" v-if="error != null && error.length > 0">{{ error }}</div>
+        <div class="select-component__error" v-if="error != null && error.length > 0">{{ error }}</div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import IdUtils from "@util/IdUtils";
 import InputHeaderComponent from "./InputHeaderComponent.vue";
 import ValueUtils from "@util/ValueUtils";
+import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
+
+interface Item {
+    value: string;
+    text: string;
+}
 
 @Options({
     components: { InputHeaderComponent }
@@ -30,7 +54,7 @@ import ValueUtils from "@util/ValueUtils";
 export default class SelectComponent extends Vue
 {
     @Prop({ required: true })
-    value!: string;
+    value!: string | Array<string>;
     
     @Prop({ required: false, default: '' })
     label!: string;
@@ -61,32 +85,41 @@ export default class SelectComponent extends Vue
 
     @Prop({ required: false, default: false })
     loading!: string | boolean;
+    
+    @Ref() readonly inputElement!: HTMLElement;
+    @Ref() readonly dropdownElement!: HTMLElement;
 
     id: string = IdUtils.generateId();
-    currentValue: string = '';
-
-    // v-model:value="currentValue"
-    // :items="items"
-    // :disabled="disabled"
-    // :loading="loading"
-    // @input="onInput($event)"
-    // item-text="text"
-    // item-value="value"
+    selectedValues: Array<string> = [];
+    showDropdown: boolean = false;
+    
+    callbacks: Array<CallbackUnregisterShortcut> = [];
 
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     created(): void {
-        this.currentValue = this.value;
+        this.onValueChanged();
     }
 
     mounted(): void {
+        this.callbacks = [
+            EventBus.on("onWindowClick", this.onWindowClick.bind(this))
+        ];
+    }
+
+    beforeUnmounted(): void {
+      this.callbacks.forEach(x => x.unregister());
     }
 
     ////////////////
     //  GETTERS  //
     //////////////
-    get optionItems(): Array<any> {
+    get selectedItems(): Array<Item> {
+        return this.optionItems.filter(x => this.selectedValues.includes(x.value));
+    }
+
+    get optionItems(): Array<Item> {
         if (Array.isArray(this.items))
         {
             if (this.items.length == 0) return [];
@@ -116,75 +149,123 @@ export default class SelectComponent extends Vue
             };
         });
     }
+
+    get rootClasses(): any {
+        return {
+             'disabled': this.isDisabled,
+             'loading': this.isLoading,
+             'multiple': this.isMultiple
+        };
+    }
     
     get isLoading(): boolean { return ValueUtils.IsToggleTrue(this.loading); }
     get isDisabled(): boolean { return ValueUtils.IsToggleTrue(this.disabled); }
     get isMultiple(): boolean { return ValueUtils.IsToggleTrue(this.multiple); }
-
+    
     ////////////////
     //  METHODS  //
     //////////////
+    addValue(val: string): void {
+        if (!this.selectedValues.includes(val))
+        {
+            this.selectedValues.push(val);
+            this.emitValue();
+        }
+    }
+    removeValue(val: string): void {
+        this.selectedValues = this.selectedValues.filter(x => x != val);
+        this.emitValue();
+    }
+
+    emitValue(): void {
+        let emittedValue: string | string[];
+        if (this.isMultiple) {
+            emittedValue = this.selectedValues;
+        }
+        else {
+            emittedValue = this.selectedValues[0] || '';
+        }
+        this.$emit('update:value', emittedValue);
+        this.$emit('change', emittedValue);
+    }
+
+    valueIsSelected(val: string): boolean { return this.selectedValues.includes(val); }
 
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
-    @Watch('value')
-    onValueChanged(): void {
-        this.currentValue = this.value;
+    onInputClicked(): void {
+        if (this.isDisabled)
+        {
+            this.showDropdown = false;
+            return;
+        }
+        this.showDropdown = !this.showDropdown;
     }
 
-    onInput(newValue: string): void {
-        let emittedValue: string | string[] = newValue;
-        if (this.isMultiple) {
-            emittedValue = [ newValue ] // todo;
+    @Watch('value')
+    onValueChanged(): void {
+        if (Array.isArray(this.value))
+        {
+            this.selectedValues = this.value;
         }
-        this.$emit('update:value', emittedValue);
-        this.$emit('change', emittedValue);
+        else {
+            this.selectedValues = !!this.value ? [ this.value ] : [];
+        }
+    }
+
+    onWindowClick(e: MouseEvent): void {
+        this.$nextTick(() => {
+            if (this.dropdownElement == null || this.inputElement == null || !(e.target instanceof Element)) return;
+            console.log(this.dropdownElement.contains(e.target), this.inputElement.contains(e.target), e.target);
+            if (this.dropdownElement.contains(e.target) || this.inputElement.contains(e.target)) return;
+            this.showDropdown = false;
+        });
     }
 }
 </script>
 
 <style scoped lang="scss">
-.select-component {
-    .select-component--header {
-        text-align: left;
-
-        .select-component--header-name {
-            display: inline-block;
-            font-size: 16px;
-            color: var(--color--secondary-base);
-            font-weight: 600;
-        }
-
-        .select-component--help-icon {
-            user-select: none;
-            font-size: 20px !important;
-            &:hover {
-                color: #1976d2;
-            }
-        }
-    }
-
-    .select-component--description {
-        text-align: left;
-        padding: 10px;
-        border-radius: 10px;
-        background-color: #ebf1fb;
-    }
-}
 </style>
 
 <style lang="scss">
 .select-component {
     input {
-        font-size: 18px;
-        color: #000 !important;
+        font-size: 16px;
     }
-    .select-component--error {
-        margin-top: -21px;
-        margin-left: 2px;
+    &__input {
+        display: flex;
+        flex-wrap: wrap;
+        min-height: 24px;
+    }
+    &__input-chip {
+        display: flex;
+        align-items: center;
+        padding-left: 5px;
+        margin-right: 5px;
+        background-color: var(--color--accent-base);
+        border-radius: 2px;
+    }
+    &__input-chip-remove {
+        padding-right: 3px;
+        border-left: 1px solid var(--color--accent-darken2);
+    }
+    &__input-chip-value {
+        padding-right: 5px;
+    }
+    &__dropdown {
+
+    }
+    &__dropdown__items {
+
+    }
+    &__dropdown__item {
+
+    }
+    &__error {
+        font-size: 12px;
+        color: var(--color--error-darken2);
         font-weight: 600;
-        color: var(--color--error-base) !important;
     }
 }
 </style>
