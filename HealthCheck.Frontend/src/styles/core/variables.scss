@@ -149,8 +149,11 @@ $color_warning_lighten8: lighten($color_warning, 40%);
 $color_warning_lighten9: lighten($color_warning, 45%);
 
 :root {
-	--color--text-light: #fff;
+	--color--text-light: #eee;
 	--color--text-dark: #333;
+	--color--text-disabled: #949494;
+	--color--text-light-disabled: #949494;
+	--color--text-dark-disabled: #808080;
 
 	--color--primary-base: #{$color_primary};
 	--color--secondary-base: #{$color_secondary};
@@ -303,10 +306,12 @@ $color_warning_lighten9: lighten($color_warning, 45%);
 
 [theme="light"] {
 	--color--background: #eee;
-	--color--text: #333;
+	--color--text: var(--color--text-dark);
+	--color--text-disabled: var(--color--text-dark-disabled);
 }
 
 [theme="dark"] {
 	--color--background: #333;
-	--color--text: #eee;
+	--color--text: var(--color--text-light);
+	--color--text-disabled: var(--color--text-light-disabled);
 }

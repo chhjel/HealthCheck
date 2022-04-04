@@ -10,10 +10,12 @@
                 <span class="select-component__input-chip-value">{{ item.text }}</span>
                 <div class="select-component__input-chip-remove accent clickable hoverable"
                     @click.stop.prevent="removeValue(item.value)"
-                    v-if="!isDisabled">
+                    v-if="showItemRemoveButton">
                     <icon-component>clear</icon-component>
                 </div>
             </div>
+            <span class="select-component__placeholder"
+                v-if="selectedItems.length == 0"> - Nothing selected -</span>
         </div>
         <div class="select-component__dropdown" v-show="showDropdown" ref="dropdownElement">
             <!-- <div class="select-component__dropdown__search">
@@ -23,7 +25,9 @@
                 <div v-for="(item, iIndex) in optionItems"
                     :key="`${id}-item-${iIndex}`"
                     class="select-component__dropdown__item"
-                    @click.stop.prevent="addValue(item.value)">
+                    @click.stop.prevent="onDropdownItemClicked(item)">
+                    <icon-component v-if="valueIsSelected(item.value)" class="mr-1">check_box</icon-component>
+                    <icon-component v-if="!valueIsSelected(item.value)" class="mr-1">check_box_outline_blank</icon-component>
                     {{ item.text }}
                 </div>
             </div>
@@ -82,6 +86,9 @@ export default class SelectComponent extends Vue
     
     @Prop({ required: false, default: false })
     multiple!: string | boolean;
+    
+    @Prop({ required: false, default: false })
+    nullable!: string | boolean;
 
     @Prop({ required: false, default: false })
     loading!: string | boolean;
@@ -154,24 +161,38 @@ export default class SelectComponent extends Vue
         return {
              'disabled': this.isDisabled,
              'loading': this.isLoading,
-             'multiple': this.isMultiple
+             'multiple': this.isMultiple,
+             'clickable': this.allowModify
         };
+    }
+
+    get showItemRemoveButton(): boolean {
+        if (!this.allowModify) return false;
+        return this.isNullable || this.isMultiple;
+    }
+
+    get allowModify(): boolean {
+        return !this.isDisabled && !this.isLoading;
     }
     
     get isLoading(): boolean { return ValueUtils.IsToggleTrue(this.loading); }
     get isDisabled(): boolean { return ValueUtils.IsToggleTrue(this.disabled); }
     get isMultiple(): boolean { return ValueUtils.IsToggleTrue(this.multiple); }
+    get isNullable(): boolean { return ValueUtils.IsToggleTrue(this.nullable); }
     
     ////////////////
     //  METHODS  //
     //////////////
     addValue(val: string): void {
+        if (!this.isMultiple) this.selectedValues = [];
         if (!this.selectedValues.includes(val))
         {
             this.selectedValues.push(val);
             this.emitValue();
         }
+        if (!this.isMultiple) this.showDropdown = false;
     }
+    // todo: nullable, if not remove clears
     removeValue(val: string): void {
         this.selectedValues = this.selectedValues.filter(x => x != val);
         this.emitValue();
@@ -183,6 +204,7 @@ export default class SelectComponent extends Vue
             emittedValue = this.selectedValues;
         }
         else {
+            if (this.selectedValues.length == 0 && this.isNullable) return null;
             emittedValue = this.selectedValues[0] || '';
         }
         this.$emit('update:value', emittedValue);
@@ -195,12 +217,21 @@ export default class SelectComponent extends Vue
     //  EVENT HANDLERS  //
     /////////////////////
     onInputClicked(): void {
-        if (this.isDisabled)
+        if (this.isDisabled || this.isLoading)
         {
             this.showDropdown = false;
             return;
         }
         this.showDropdown = !this.showDropdown;
+    }
+
+    onDropdownItemClicked(item: Item): void {
+        if (!this.allowModify) return;
+        if (!this.valueIsSelected(item.value)) {
+            this.addValue(item.value);
+        } else if (this.isNullable || this.isMultiple || this.selectedValues.length > 1) {
+            this.removeValue(item.value);
+        }
     }
 
     @Watch('value')
@@ -217,10 +248,14 @@ export default class SelectComponent extends Vue
     onWindowClick(e: MouseEvent): void {
         this.$nextTick(() => {
             if (this.dropdownElement == null || this.inputElement == null || !(e.target instanceof Element)) return;
-            console.log(this.dropdownElement.contains(e.target), this.inputElement.contains(e.target), e.target);
             if (this.dropdownElement.contains(e.target) || this.inputElement.contains(e.target)) return;
             this.showDropdown = false;
         });
+    }
+
+    @Watch('isLoading')
+    onIsLoadingChanged(): void {
+        if (this.isLoading) this.showDropdown = false;
     }
 }
 </script>
@@ -236,7 +271,9 @@ export default class SelectComponent extends Vue
     &__input {
         display: flex;
         flex-wrap: wrap;
-        min-height: 24px;
+        min-height: 32px;
+        padding: 5px;
+        border: 1px solid var(--color--accent-base);
     }
     &__input-chip {
         display: flex;
@@ -254,13 +291,24 @@ export default class SelectComponent extends Vue
         padding-right: 5px;
     }
     &__dropdown {
-
+        position: absolute;
+        z-index: 99999;
+        background-color: var(--color--accent-lighten1);
+        padding: 5px 10px;
+        border: 1px solid var(--color--accent-base);
     }
-    &__dropdown__items {
-
-    }
+    /* &__dropdown__items {
+    } */
     &__dropdown__item {
-
+        padding: 5px;
+        display: flex;
+        align-items: center;
+    }
+    &__placeholder {
+        align-self: center;
+        margin-left: 5px;
+        color: var(--color--text-disabled);
+        font-size: 14px;
     }
     &__error {
         font-size: 12px;

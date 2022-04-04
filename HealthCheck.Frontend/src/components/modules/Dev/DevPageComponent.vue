@@ -7,18 +7,6 @@
 		<!-- CONTENT -->
 		<div class="content-root">
 			<div>
-				<h3 class="todo">select-component</h3>
-				<!-- SelectComponent -->
-				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Array" />
-				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Disabled" disabled />
-				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Loading" loading />
-				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Loading + disabled" disabled loading />
-				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex" description="Not just a simple array + multiple." />
-				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="With error" error="Some error here" />
-				Value: <code>{{ SelectComponent_value }}</code><br />
-				Value multiple: <code>{{ SelectComponent_valueMultiple }}</code>
-				<hr />
-
 				<h3 class="todo">combobox-component</h3>
 				<!-- ComboboxComponent -->
 				<combobox-component
@@ -581,6 +569,20 @@
 				<code>{{ InputComponent_value }}</code>
 				<hr />
 
+				<h3 class="todo">select-component</h3>
+				<!-- SelectComponent -->
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Array" />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Disabled" disabled />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Loading" loading />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Nullable" nullable />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Loading + disabled" disabled loading />
+				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex" description="Not just a simple array + multiple." />
+				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex loading" description="Not just a simple array + multiple." loading />
+				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex + loading + disabled" description="Not just a simple array + multiple." disabled loading />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="With error" error="Some error here" />
+				Value: <code>{{ SelectComponent_value }}</code><br />
+				Value multiple: <code>{{ SelectComponent_valueMultiple }}</code>
+				<hr />
 			</div>
 		</div>
 	</div>
@@ -790,8 +792,8 @@ Web -> Frontend: Confirmation is delivered
 	PaginationComponent_value: number = 2;
 	PagingComponent_value: number = 2;
 	PagingComponent_count: number = 88;
-	SelectComponent_value: string = "B";
-	SelectComponent_items: Array<string> = ['A', 'B', 'C'];
+	SelectComponent_value: string = "Simple B";
+	SelectComponent_items: Array<string> = ['Simple A', 'Simple B', 'Simple C'];
 	SelectComponent_valueMultiple: Array<string> = ['A', 'C'];
 	SelectComponent_itemsMultiple: Array<any> = [ { id: 'A', text: 'Item A' }, { id: 'B', text: 'Item B' }, { id: 'C', text: 'Item C' } ];
 	SnackbarComponent_value: boolean = true;

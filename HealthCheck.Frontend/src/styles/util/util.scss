@@ -47,3 +47,7 @@ $util-margin-padding-list: (
 		cursor: pointer;
 	}
 }
+
+.disabled {
+	color: var(--color--text-disabled);
+}
