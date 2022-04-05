@@ -46,18 +46,17 @@
                             @click="setNextFilterRetryAllowedState"
                             color="secondary"
                         ></checkbox-component>
-                        <combobox-component
+                        <select-component
                             v-model:value="filterTags"
                             @blur="onFilterChanged"
                             @keyup.enter="onFilterChanged"
                             :items="tagPresets"
                             label="Tags"
                             multiple
-                            chips
                             clearable
                             class="filter-input"
                             :readonly="isLoading"
-                            ></combobox-component>
+                            ></select-component>
                     </div>
 
                     <div class="pagination-and-actions">

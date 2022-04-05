@@ -7,38 +7,6 @@
 		<!-- CONTENT -->
 		<div class="content-root">
 			<div>
-				<h3 class="todo">autocomplete-component</h3>
-				<!-- AutocompleteComponent -->
-				<autocomplete-component
-					v-model:value="AutocompleteComponent_value"
-				></autocomplete-component>
-				<code>{{ AutocompleteComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">combobox-component</h3>
-				<div>Todo: wrap autocomplete to allow custom values.</div>
-				<!-- ComboboxComponent -->
-				<combobox-component
-					v-model:value="ComboboxComponent_value"
-				></combobox-component>
-				<code>{{ ComboboxComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">select-component</h3>
-				<!-- SelectComponent -->
-				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Array" />
-				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Disabled" disabled />
-				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Loading" loading />
-				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Nullable" nullable />
-				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Loading + disabled" disabled loading />
-				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex" description="Not just a simple array + multiple." />
-				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex loading" description="Not just a simple array + multiple." loading />
-				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex + loading + disabled" description="Not just a simple array + multiple." disabled loading placeholder="[null]" />
-				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="With error" error="Some error here" />
-				Value: <code>{{ SelectComponent_value }}</code><br />
-				Value multiple: <code>{{ SelectComponent_valueMultiple }}</code>
-				<hr />
-
 				<h3 class="todo">date-picker-component</h3>
 				<!-- DatePickerComponent -->
 				<date-picker-component
@@ -584,6 +552,26 @@
 				<input-component v-model:value="InputComponent_value" actionIcon="person" @actionIconClicked="notify('actionIconClicked')"></input-component>
 				<code>{{ InputComponent_value }}</code>
 				<hr />
+				
+				<h3 class="ok">select-component</h3>
+				<!-- SelectComponent -->
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Array" />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Disabled" disabled />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Loading" loading />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Nullable" nullable />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Loading + disabled" disabled loading />
+				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex" description="Not just a simple array + multiple." />
+				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex loading" description="Not just a simple array + multiple." loading />
+				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex + loading + disabled" description="Not just a simple array + multiple." disabled loading placeholder="[null]" />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="With error" error="Some error here" />
+				
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Array input" allowInput />
+				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex input" allowInput />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Array input custom" allowInput allowCustom />
+				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex input custom" allowInput allowCustom />
+				Value: <code>{{ SelectComponent_value }}</code><br />
+				Value multiple: <code>{{ SelectComponent_valueMultiple }}</code>
+				<hr />
 			</div>
 		</div>
 	</div>
@@ -780,10 +768,8 @@ end
 Web -> Frontend: Confirmation is delivered
 `;
 	AlertComponent_value: boolean = true;
-	AutocompleteComponent_value: string = "Some string here";
 	CalendarComponent_value: string = "Some string here";
 	CheckboxComponent_value: boolean = true;
-	ComboboxComponent_value: string = "Some string here";
 	DatePickerComponent_value: string = "Some string here";
 	DialogComponent_value: boolean = false;
 	ExpansionPanelComponent_value: boolean = false;
@@ -794,9 +780,9 @@ Web -> Frontend: Confirmation is delivered
 	PagingComponent_value: number = 2;
 	PagingComponent_count: number = 88;
 	SelectComponent_value: string = "Simple B";
-	SelectComponent_items: Array<string> = ['Simple A', 'Simple B', 'Simple C'];
-	SelectComponent_valueMultiple: Array<string> = ['A', 'C'];
-	SelectComponent_itemsMultiple: Array<any> = [ { id: 'A', text: 'Item A' }, { id: 'B', text: 'Item B' }, { id: 'C', text: 'Item C' } ];
+	SelectComponent_items: Array<string> = ['Simple A', 'Simple B', 'Simple C', 'Another X', 'Another Y', 'Another Z'];
+	SelectComponent_valueMultiple: Array<string> = ['s88', 'a67', 's2'];
+	SelectComponent_itemsMultiple: Array<any> = [];
 	SnackbarComponent_value: boolean = true;
 	SwitchComponent_value: boolean = true;
 	TextareaComponent_value: string = "Some string here";
@@ -859,6 +845,15 @@ Web -> Frontend: Confirmation is delivered
 			this.progressValue += Math.random() * 25;
 			if (this.progressValue > 100) this.progressValue = 0;
 		}, 1000);
+
+		let counter = 0;
+		for (let i=0;i<1000;i++)
+		{
+			this.SelectComponent_itemsMultiple.push({ id: `s${counter}`, text: `Something #${counter}` });
+			counter++;
+			this.SelectComponent_itemsMultiple.push({ id: `a${counter}`, text: `Another #${counter}` });
+			counter++;
+		}
 	}
 
     createBackendInputConfig(type: string = 'type'): HCBackendInputConfig {

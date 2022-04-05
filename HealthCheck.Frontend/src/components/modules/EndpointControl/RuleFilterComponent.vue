@@ -22,7 +22,7 @@
                 </select-component>
             </div>
 
-            <combobox-component v-if="enabled"
+            <select-component v-if="enabled"
                 v-model:value="filterValue"
                 :items="filterContentOptions"
                 :readonly="readonly"
@@ -31,7 +31,7 @@
                 v-on:change="onDataChanged"
                 :disabled="readonly"
                 >
-            </combobox-component>
+            </select-component>
             <div class="horizontal-layout" v-if="enabled">
                 <switch-component
                     v-model:value="caseSensitive" 

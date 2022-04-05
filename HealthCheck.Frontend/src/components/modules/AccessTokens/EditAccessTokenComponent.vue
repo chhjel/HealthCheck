@@ -97,7 +97,7 @@
                 <div class="access-grid--row--options"
                     v-if="hasAccessToModule(module.ModuleId) && module.AccessIds.length > 0">
                     <div class="access-grid--row--options--header">Limit to:</div>
-                    <autocomplete-component
+                    <select-component
                         :items="module.AccessIds"
                         item-value="Id"
                         item-text="Name"
@@ -107,7 +107,7 @@
                         :readonly="readonly"
                         :input="getModuleAccessIds(module.ModuleId)"
                         @change="(v) => onModuleAccessIdChanged(module.ModuleId, v)"
-                        ></autocomplete-component>
+                        ></select-component>
                 </div>
             </div>
         </div>

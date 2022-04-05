@@ -54,7 +54,7 @@
         <!-- ###### EVENT ID ###### -->
         <block-component class="mb-4">
             <h3>Event id to listen for</h3>
-            <combobox-component
+            <select-component
                 v-model:value="internalConfig.EventIdFilter.Filter"
                 :items="knownEventIds"
                 :readonly="!allowChanges"
@@ -63,7 +63,7 @@
                 class="without-label"
                 ref="eventIdFilter"
                 >
-            </combobox-component>
+            </select-component>
             <!-- label="Event id" -->
             <!-- </div> -->
             <!-- prepend-icon="mdi-city" -->

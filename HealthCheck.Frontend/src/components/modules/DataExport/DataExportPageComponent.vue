@@ -70,14 +70,14 @@
                                     class="mb-2">{{ queryErrorDetails }}</code>
                                 
                                 <div class="data-export-filters" v-if="hasAccessToQueryCustom">
-                                    <autocomplete-component
+                                    <select-component
                                         v-model:value="includedProperties"
                                         :disabled="isLoading"
                                         :items="availableProperties"
                                         clearable
                                         :label="includedProperties.length == 0 ? 'Included properties - All' : 'Included properties'"
                                         multiple
-                                        ></autocomplete-component>
+                                        ></select-component>
                                 </div>
                             
                                 <div class="data-export-actions" v-if="!isSimpleExportMode">
