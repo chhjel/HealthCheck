@@ -1,10 +1,13 @@
 <template>
     <div class="toolbar-component" :class="rootClasses">
-		<!-- <h3>TODO: ToolbarComponent</h3>
-        <div><b>clippedLeft:</b>' {{ clippedLeft }}'</div>
-        <div><b>color:</b>' {{ color }}'</div> -->
-        <div class="toolbar-component__items">
+        <div class="toolbar-component__prefix">
+            <slot name="prefix"></slot>
+        </div>
+        <div class="toolbar-component__content">
 		    <slot></slot>
+        </div>
+        <div class="toolbar-component__suffix">
+            <slot name="suffix"></slot>
         </div>
     </div>
 </template>
@@ -12,19 +15,17 @@
 <script lang="ts">
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
-import ValueUtils from '@util/ValueUtils'
+import ValueUtils from "@util/ValueUtils";
 
 @Options({
     components: {}
 })
 export default class ToolbarComponent extends Vue {
-
-    @Prop({ required: false, default: false })
-    clippedLeft!: string | boolean;
-
     @Prop({ required: false, default: null })
     color!: string;
 
+    @Prop({ required: false, default: false })
+    fixed!: string | boolean;
 
     //////////////////
     //  LIFECYCLE  //
@@ -37,12 +38,14 @@ export default class ToolbarComponent extends Vue {
     //  GETTERS  //
     //////////////
     get rootClasses(): any {
-        return {
-             'clipped-left': this.isClippedLeft
+        let classes = {
+            'fixed': this.isFixed
         };
+        classes[this.color || 'accent'] = true;
+        return classes;
     }
 
-    get isClippedLeft(): boolean { return ValueUtils.IsToggleTrue(this.clippedLeft); }
+    get isFixed(): boolean { return ValueUtils.IsToggleTrue(this.fixed); }
 
     ////////////////
     //  METHODS  //
@@ -61,15 +64,18 @@ export default class ToolbarComponent extends Vue {
 
 <style scoped lang="scss">
 .toolbar-component {
-    background-color: #fff;
+    background-color: var(--color--background-bright);
     box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    width: 100%;
+    position: relative;
     z-index: 99;
-	border: 2px solid red;
-	padding: 5px;
-	margin: 5px;
-    &.clipped-left { }
+    display: flex;
 
-    &__items {
+    &.fixed {
+        position: fixed;
+    }
+
+    &__content {
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
@@ -77,9 +83,14 @@ export default class ToolbarComponent extends Vue {
         overflow-x: auto;
         overflow: overlay hidden;
         -ms-overflow-style: none;
+        height: 56px;
 
         &::-webkit-scrollbar {
             display: none;
+        }
+         
+        @media (min-width: 960px) {
+            height: 64px;
         }
     }
 }
@@ -87,8 +98,11 @@ export default class ToolbarComponent extends Vue {
 
 <style lang="scss">
 .toolbar-component {
-    .button-component {
-
+    .btn-component {
+        border: none;
+        box-shadow: none !important;
+        padding: 5px 16px;
+        flex-shrink: 0;
     }
 }
 </style>

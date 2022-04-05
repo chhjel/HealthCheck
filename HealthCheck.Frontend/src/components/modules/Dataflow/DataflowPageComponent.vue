@@ -1088,20 +1088,12 @@ export default class DataflowPageComponent extends Vue {
     top: 5px;
     z-index: 2;
 }
-.menu {
-    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-}
 .filter {
     position: relative;
     margin-left: 44px;
     margin-top: 26px;
     margin-bottom: 18px;
     margin-right: 44px;
-}
-@media (max-width: 960px) {
-    .menu-items { 
-        margin-top: 67px;
-    }
 }
 // .unified-search-header { }
 .unified-search-query-wrapper {

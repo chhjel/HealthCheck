@@ -3,16 +3,18 @@
     <div>
         <div v-if="!showIntegratedLogin">
             <!-- TOOLBAR -->
-            <toolbar-component clipped-left>
-                <btn-component icon
-                    @click.stop="toggleThemes">[Theme: {{ theme }}]</btn-component>
-                <btn-component icon
-                    @click.stop="moduleNavMenuState = !moduleNavMenuState"
-                    v-if="showModuleMenuButton">[Menu icon]</btn-component>
-                <div class="apptitle">
-                    <a v-if="hasTitleLink" :href="titleLink">{{ globalOptions.ApplicationTitle }}</a>
-                    <span v-else>{{ globalOptions.ApplicationTitle }}</span>
-                </div>
+            <toolbar-component fixed>
+                <template #prefix>
+                    <div class="toolbar-prefix">
+                        <icon-component class="clickable toolbar-icon"
+                            @click.stop="moduleNavMenuState = !moduleNavMenuState"
+                            v-if="showModuleMenuButton">menu</icon-component>
+                        <div class="toolbar-prefix_apptitle">
+                            <a v-if="hasTitleLink" :href="titleLink">{{ globalOptions.ApplicationTitle }}</a>
+                            <span v-else>{{ globalOptions.ApplicationTitle }}</span>
+                        </div>
+                    </div>
+                </template>
                 <btn-component flat
                     v-for="(mconf, mindex) in this.moduleConfigsToShowInTopMenu"
                     :key="`module-menu-${mindex}`"
@@ -22,13 +24,15 @@
                 <btn-component flat 
                     v-if="showTokenKillswitch"
                     @click.left.prevent="tokenKillswitchDialogVisible = true">
-                    <icon-component class="toolbar-icon mr-1">remove_circle</icon-component>
+                    <icon-component class="mr-1">remove_circle</icon-component>
                     Token killswitch
                     </btn-component>
+                <icon-component class="clickable toolbar-icon"
+                    @click.stop="toggleThemes">dark_mode</icon-component>
                 <btn-component flat 
                     v-if="showIntegratedProfile"
                     @click.left.prevent="integratedProfileDialogVisible = true">
-                    <icon-component class="toolbar-icon mr-1">person</icon-component>
+                    <icon-component class="mr-1">person</icon-component>
                     Profile
                     </btn-component>
                 <btn-component flat 
@@ -36,7 +40,7 @@
                     @click.left.prevent="logoutRedirect">
                     <icon-component>logout</icon-component>
                     {{ logoutLinkTitle }}
-                    </btn-component>
+                </btn-component>
             </toolbar-component>
 
             <!-- CONTENT -->
@@ -45,7 +49,7 @@
                 :invalid-configs="invalidModuleConfigs" />
 
             <div class="module-root">
-                <div id="module-nav-menu"
+                <div id="module-nav-menu" class="toolbar-offset"
                     :class="{ 'open': isModuleNavOpen }"
                     ref="moduleNavMenu"></div>
                 <div class="module-content" :class="{ 'has-menu': isModuleNavOpen }">
@@ -313,6 +317,37 @@ export default class HealthCheckPageComponent extends Vue {
 .active-tab {
     font-weight: 900;
 }
+.toolbar-prefix {
+    display: flex;
+    height: 100%;
+    align-items: stretch;
+    padding-left: 10px;
+    &_apptitle {
+        display: flex;
+        align-items: center;
+        font-size: 20px;
+        font-weight: 500;
+        letter-spacing: .02em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-left: 5px;
+        padding-right: 10px;
+        a {
+            color: var(--color--text);
+            text-decoration: inherit;
+        }
+    }
+}
+.toolbar-icon {
+    align-self: center;
+    border-radius: 50%;
+    transition: 0.2s all;
+    padding: 5px;
+    &:hover {
+        background-color: var(--color--accent-lighten1);
+    }
+}
 .module-root {
     display: flex;
     flex-direction: row;
@@ -323,6 +358,12 @@ export default class HealthCheckPageComponent extends Vue {
         position: fixed;
         left: -300px;
         width: 300px;
+        height: 100%;
+        box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        background-color: #292929;
+        color: var(--color--text-light);
+        overflow-y: auto;
+        z-index: 10;
         &:not(:empty) {
             &.open {
                 left: 0;

@@ -16,7 +16,7 @@
 			background-color: transparent;
 			border: 2px solid var(#{$colorBase}-base);
 			@if $darkText {
-				color: var(#{$colorBase}-darken3);
+				color: var(#{$colorBase}-darken9);
 			}
 			@else {
 				color: var(#{$colorBase}-base);
@@ -24,7 +24,7 @@
 		}
 		&.flat {
 			@if $darkText {
-				color: var(#{$colorBase}-darken3);
+				color: var(#{$colorBase}-darken9);
 			}
 			@else {
 				color: var(#{$colorBase}-base);
@@ -43,6 +43,12 @@
 					background-color: var(#{$colorBase}-lighten#{$flatLightenLevel});
 				}
 			}
+		}
+	}
+	.#{$name}-text {
+		color: var(#{$colorBase}-base) !important;
+		&.disabled {
+			color: var(#{$colorBase}-lighten2) !important;
 		}
 	}
 }

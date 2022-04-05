@@ -56,6 +56,7 @@ export default class IconComponent extends Vue {
              'color-f': true
         };
         classes[this.color || 'secondary'] = true;
+        if (!this.isSmall && !this.isMedium && !this.isLarge && !this.isXLarge) classes['small'] = true;
         return classes;
     }
 
@@ -84,10 +85,12 @@ export default class IconComponent extends Vue {
 .icon-component {
     display: flex;
     user-select: none;
-    &.small { font-size: 24px; }
-    &.medium { font-size: 28px; }
-    &.large { font-size: 36px; }
-    &.xLarge { font-size: 40px; }
+    align-items: center;
+
+    &.small { width: 24px; height: 24px; .material-icons { font-size: 24px; } }
+    &.medium { width: 28px; height: 28px; .material-icons { font-size: 28px; } }
+    &.large { width: 36px; height: 36px; .material-icons { font-size: 36px; } }
+    &.xLarge { width: 40px; height: 40px; .material-icons { font-size: 40px; } }
     &.help { cursor: help; }
 }
 </style>

@@ -305,12 +305,14 @@ $color_warning_lighten9: lighten($color_warning, 45%);
 }
 
 [theme="light"] {
+	--color--background-bright: #fff;
 	--color--background: #eee;
 	--color--text: var(--color--text-dark);
 	--color--text-disabled: var(--color--text-dark-disabled);
 }
 
 [theme="dark"] {
+	--color--background-bright: #111;
 	--color--background: #333;
 	--color--text: var(--color--text-light);
 	--color--text-disabled: var(--color--text-light-disabled);

@@ -16,8 +16,8 @@
                         v-model:value="calendarStart"
                         :allowed-dates="allowDatepickerDate"
                         scrollable>
-                                        <btn-component flat color="primary" @click="datepickerModal = false">Cancel</btn-component>
-                    <btn-component flat color="primary" @click="$refs.dateDialog.save(calendarStart)">OK</btn-component>
+                        <btn-component flat color="primary" @click="datepickerModal = false">Cancel</btn-component>
+                        <btn-component flat color="primary" @click="$refs.dateDialog.save(calendarStart)">OK</btn-component>
                     </date-picker-component>
                 </dialog-component>
             </div>

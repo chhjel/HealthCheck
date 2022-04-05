@@ -7,12 +7,17 @@
 		<!-- CONTENT -->
 		<div class="content-root">
 			<div>
-				<h3 class="todo">date-picker-component</h3>
-				<!-- DatePickerComponent -->
-				<date-picker-component
-					v-model:value="DatePickerComponent_value"
-				></date-picker-component>
-				<code>{{ DatePickerComponent_value }}</code>
+				<h3 class="todo">toolbar-component</h3>
+				<!-- ToolbarComponent -->
+				<toolbar-component>
+					<btn-component>Some button</btn-component>
+					<btn-component>Another button</btn-component>
+				</toolbar-component>
+				<hr />
+
+				<h3 class="todo">tooltip-component</h3>
+				<!-- TooltipComponent -->
+				<tooltip-component></tooltip-component>
 				<hr />
 
 				<h3 class="todo">filterable-list-component</h3>
@@ -62,6 +67,14 @@
 				<loading-screen-component v-if="showLoader" @click="showLoader = !showLoader"></loading-screen-component>
 				<hr />
 
+				<h3 class="todo">date-picker-component</h3>
+				<!-- DatePickerComponent -->
+				<date-picker-component
+					v-model:value="DatePickerComponent_value"
+				></date-picker-component>
+				<code>{{ DatePickerComponent_value }}</code>
+				<hr />
+
 				<h3 class="todo">calendar-component</h3>
 				<!-- CalendarComponent -->
 				<calendar-component
@@ -80,6 +93,7 @@
 				// todo: remove and build into datepicker instead?
 				<menu-component></menu-component>
 				<hr />
+
 				<h3 class="todo">snackbar-component</h3>
 				<!-- SnackbarComponent -->
 				<snackbar-component
@@ -96,24 +110,6 @@
 				<h3 class="todo">timeline-component</h3>
 				<!-- TimelineComponent -->
 				<timeline-component></timeline-component>
-				<hr />
-
-				<h3 class="todo">timespan-input-component</h3>
-				<!-- TimespanInputComponent -->
-				<timespan-input-component
-					v-model:value="TimespanInputComponent_value"
-				></timespan-input-component>
-				<code>{{ TimespanInputComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">toolbar-component</h3>
-				<!-- ToolbarComponent -->
-				<toolbar-component></toolbar-component>
-				<hr />
-
-				<h3 class="todo">tooltip-component</h3>
-				<!-- TooltipComponent -->
-				<tooltip-component></tooltip-component>
 				<hr />
 
 				<h3 class="todo">bar-chart-component</h3>
@@ -572,6 +568,14 @@
 				Value: <code>{{ SelectComponent_value }}</code><br />
 				Value multiple: <code>{{ SelectComponent_valueMultiple }}</code>
 				<hr />
+
+				<h3 class="ok">timespan-input-component</h3>
+				<!-- TimespanInputComponent -->
+				<timespan-input-component
+					v-model:value="TimespanInputComponent_value"
+				></timespan-input-component>
+				<code>{{ TimespanInputComponent_value }}</code>
+				<hr />
 			</div>
 		</div>
 	</div>
@@ -770,7 +774,7 @@ Web -> Frontend: Confirmation is delivered
 	AlertComponent_value: boolean = true;
 	CalendarComponent_value: string = "Some string here";
 	CheckboxComponent_value: boolean = true;
-	DatePickerComponent_value: string = "Some string here";
+	DatePickerComponent_value: Date = new Date();
 	DialogComponent_value: boolean = false;
 	ExpansionPanelComponent_value: boolean = false;
 	FetchStatusProgressComponent_status_loading: FetchStatusWithProgress | null = { inProgress: true, progress: 50, failed: false, errorMessage: null };
@@ -787,15 +791,15 @@ Web -> Frontend: Confirmation is delivered
 	SwitchComponent_value: boolean = true;
 	TextareaComponent_value: string = "Some string here";
 	TextFieldComponent_value: string = "Some string here";
-	TimespanInputComponent_value: string = "Some string here";
+	TimespanInputComponent_value: string = "33:22:11";
 	BarChartComponent_sets: Array<any>= [];
 	BarChartComponent_bars: Array<any>= [];
 	DataOverTimeChartComponent_entries: Array<any>= [];
 	DataOverTimeChartComponent_sets: Array<any>= [];
-	BackendInputComponent_config: HCBackendInputConfig = this.createBackendInputConfig();
+	BackendInputComponent_config: HCBackendInputConfig = this.createBackendInputConfig('Int32');
 	BackendInputComponent_value: string = "Some string here";
 	UnknownBackendInputComponent_value: string = "Some string here";
-	UnknownBackendInputComponent_type: string = "Some string here";
+	UnknownBackendInputComponent_type: string = "SomeType";
 	ParameterInputAnyJsonComponent_name: string = "Some string here";
 	ParameterInputAnyJsonComponent_value: string = "Some string here";
 	ParameterInputAnyJsonComponent_type: string = "Some string here";

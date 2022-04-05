@@ -1330,14 +1330,6 @@ export default class DataExportPageComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.menu {
-    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-}
-@media (max-width: 960px) {
-    .menu-items { 
-        margin-top: 67px;
-    }
-}
 .data-export-filters {
     display: flex;
     flex-direction: row;

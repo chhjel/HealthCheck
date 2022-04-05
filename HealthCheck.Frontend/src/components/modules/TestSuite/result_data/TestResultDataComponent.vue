@@ -13,7 +13,7 @@
         </component>
 
         <div v-if="clean == false" class="data-dump-actions pt-0">
-          <btn-component outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2"
+          <btn-component outline small color="accent" class="data-dump-action-button mt-2 mr-2"
             v-if="showCopyButton"
             @click="putDataOnClipboard">Copy</btn-component>
 
@@ -22,7 +22,7 @@
             v-model:value="showFullscreen"
             @keydown.esc="showFullscreen = false"
             fullscreen hide-overlay transition="dialog-transition">
-            <btn-component outline small color="secondary-darken2" class="data-dump-action-button mt-2 mr-2 ml-0">Fullscreen</btn-component>
+            <btn-component outline small color="accent" class="data-dump-action-button mt-2 mr-2 ml-0">Fullscreen</btn-component>
             <div>
               <!-- DIALOG TOOLBAR -->
               <toolbar-component dark color="primary">
@@ -47,7 +47,7 @@
             </div>
           </dialog-component>
         
-          <btn-component outline small color="secondary-darken2" class="data-dump-action-button mt-2"
+          <btn-component outline small color="accent" class="data-dump-action-button mt-2"
             @click="downloadData" 
             v-if="showDownloadButton">Download '{{ resultData.DownloadFileName }}'</btn-component>
         </div>

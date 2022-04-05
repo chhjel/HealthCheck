@@ -1,6 +1,6 @@
 <!-- src/components/Common/FilterableListComponent.vue -->
 <template>
-    <div>
+    <div class="filterable-list">
         <div class="menu-items">
             <filter-input-component class="filter" v-model:value="filterText" v-if="showFilter" />
             <div v-if="!showFilter" class="mb-5"></div>
@@ -270,20 +270,12 @@ export default class FilterableListComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.menu {
-    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-}
 .filter {
     position: relative;
     margin-left: 44px;
     margin-top: 26px;
     margin-bottom: 18px;
     margin-right: 44px;
-}
-@media (max-width: 960px) {
-    .menu-items { 
-        margin-top: 67px;
-    }
 }
 .no-result-found {
     padding-left: 46px;

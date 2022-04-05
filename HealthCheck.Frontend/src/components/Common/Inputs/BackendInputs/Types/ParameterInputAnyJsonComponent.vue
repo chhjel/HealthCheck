@@ -11,32 +11,24 @@
             <div>
                 <toolbar-component>
                     <div>Edit value of parameter '{{ name }}' of type '{{ type}}'</div>
-                                        <btn-component icon
-                        @click="editorDialogVisible = false">
+                    <btn-component icon @click="editorDialogVisible = false">
                         <icon-component>close</icon-component>
                     </btn-component>
                 </toolbar-component>
-
                                 
                 <div>
-            
                     <editor-component
                         class="editor"
                         :language="'json'"
                         v-model:value="localValue"
                         :read-only="readonly"
                         ref="editor"/>
-                        
                 </div>
-                                <div >
-                    <btn-component color="error"
-                        @click="setValueToNull">Set value to null</btn-component>
-                    <btn-component color="secondary"
-                        v-if="hasTemplate"
-                        @click="setValueToTemplate">Reset value</btn-component>
-                                        <alert-component :value="error.length > 0" color="error">{{ error }}</alert-component>
-                                        <btn-component color="primary"
-                        @click="editorDialogVisible = false">Close</btn-component>
+                <div >
+                    <btn-component color="error" @click="setValueToNull">Set value to null</btn-component>
+                    <btn-component color="secondary" v-if="hasTemplate" @click="setValueToTemplate">Reset value</btn-component>
+                    <alert-component :value="error.length > 0" color="error">{{ error }}</alert-component>
+                    <btn-component color="primary" @click="editorDialogVisible = false">Close</btn-component>
                 </div>
             </div>
         </dialog-component>
