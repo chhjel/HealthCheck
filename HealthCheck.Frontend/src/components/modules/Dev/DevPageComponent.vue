@@ -7,7 +7,16 @@
 		<!-- CONTENT -->
 		<div class="content-root">
 			<div>
+				<h3 class="todo">autocomplete-component</h3>
+				<!-- AutocompleteComponent -->
+				<autocomplete-component
+					v-model:value="AutocompleteComponent_value"
+				></autocomplete-component>
+				<code>{{ AutocompleteComponent_value }}</code>
+				<hr />
+
 				<h3 class="todo">combobox-component</h3>
+				<div>Todo: wrap autocomplete to allow custom values.</div>
 				<!-- ComboboxComponent -->
 				<combobox-component
 					v-model:value="ComboboxComponent_value"
@@ -15,12 +24,19 @@
 				<code>{{ ComboboxComponent_value }}</code>
 				<hr />
 
-				<h3 class="todo">autocomplete-component</h3>
-				<!-- AutocompleteComponent -->
-				<autocomplete-component
-					v-model:value="AutocompleteComponent_value"
-				></autocomplete-component>
-				<code>{{ AutocompleteComponent_value }}</code>
+				<h3 class="todo">select-component</h3>
+				<!-- SelectComponent -->
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Array" />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Disabled" disabled />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Loading" loading />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Nullable" nullable />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Loading + disabled" disabled loading />
+				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex" description="Not just a simple array + multiple." />
+				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex loading" description="Not just a simple array + multiple." loading />
+				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex + loading + disabled" description="Not just a simple array + multiple." disabled loading />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="With error" error="Some error here" />
+				Value: <code>{{ SelectComponent_value }}</code><br />
+				Value multiple: <code>{{ SelectComponent_valueMultiple }}</code>
 				<hr />
 
 				<h3 class="todo">date-picker-component</h3>
@@ -567,21 +583,6 @@
 				<input-component v-model:value="InputComponent_value"></input-component>
 				<input-component v-model:value="InputComponent_value" actionIcon="person" @actionIconClicked="notify('actionIconClicked')"></input-component>
 				<code>{{ InputComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">select-component</h3>
-				<!-- SelectComponent -->
-				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Array" />
-				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Disabled" disabled />
-				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Loading" loading />
-				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Nullable" nullable />
-				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Loading + disabled" disabled loading />
-				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex" description="Not just a simple array + multiple." />
-				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex loading" description="Not just a simple array + multiple." loading />
-				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex + loading + disabled" description="Not just a simple array + multiple." disabled loading />
-				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="With error" error="Some error here" />
-				Value: <code>{{ SelectComponent_value }}</code><br />
-				Value multiple: <code>{{ SelectComponent_valueMultiple }}</code>
 				<hr />
 			</div>
 		</div>

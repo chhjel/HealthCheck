@@ -2,8 +2,8 @@
     <div class="textarea-component" :class="rootClasses">
         <input-header-component :name="label" :description="description" :showDescriptionOnStart="showDescriptionOnStart" />
 
-        <div class="textarea-component__input-wrapper">
-            <icon-component v-if="prependIcon" class="textarea-component__icon" :class="prependedIconClasses"
+        <div class="textarea-component__input-wrapper input-wrapper">
+            <icon-component v-if="prependIcon" class="input-icon" :class="prependedIconClasses"
                 :title="prependIconTooltip"
                 @click="onPrependedIconClicked">{{ prependIcon }}</icon-component>
 
@@ -12,19 +12,19 @@
                 :rows="rows"
                 @input="onInput"
                 ref="input"
-                class="textarea-component__input"></textarea>
+                class="textarea-component__input input"></textarea>
 
-            <icon-component v-if="appendIcon" class="textarea-component__icon" :class="appendedIconClasses"
+            <icon-component v-if="appendIcon" class="input-icon" :class="appendedIconClasses"
                 :title="appendIconTooltip"
                 @click="onApendedIconClicked">{{ appendIcon }}</icon-component>
-            <icon-component v-if="isClearable" class="textarea-component__icon" :class="clearableIconClasses"
+            <icon-component v-if="isClearable" class="input-icon" :class="clearableIconClasses"
                 title="Clear"
                 @click="clear">clear</icon-component>
         </div>
 
         <progress-linear-component v-if="isLoading" indeterminate height="3" />
 
-        <div class="textarea-component__error mt-1" v-if="errorMessages">
+        <div class="input-error mt-1" v-if="errorMessages">
             {{ errorMessages }}
         </div>
     </div>
@@ -224,77 +224,22 @@ export default class TextareaComponent extends Vue {
     /* display: inline-block; */
 	padding: 5px;
 
-    &.clearable { }
-    &.loading { }
-    &.auto-grow { }
-
     &__input-wrapper {
-        display: flex;
-        flex-flow: nowrap;
         align-items: flex-start;
     }
-
-    &__icon {
-        transition: background-color 0.2s;
-        padding: 2px;
-        border-radius: 50%;
-    }
-    &:not(.disabled)
-    {
-        .textarea-component__icon {
-            &.clickable 
-            {
-                cursor: pointer;
-                &:hover {
-                    background-color: var(--color--accent-base);
-                }
-            }
-        }
-    }
     
-    &__input {
-        border: 0;
-        outline: 0;
-        width: 100%;
-        border-bottom: 2px solid var(--color--primary-base);
-        font-size: 16px;
-        padding: 6px 0;
-        background: transparent;
-        transition: border-color 0.2s;
-        box-sizing: border-box;
-
-        &:focus {
-            padding-bottom: 5px; 
-            border-bottom: 3px solid var(--color--primary-lighten3);
-        }
-    }
+    /* &__input {} */
+    /* &.disabled { } */
+    /* &.readonly { } */
+    /* &.clearable { } */
+    /* &.loading { } */
+    /* &.auto-grow { } */
 
     &.autogrow {
         .textarea-component__input {
             resize: none;
             overflow: hidden;
         }
-    }
-    
-    &.loading {
-        .textarea-component__input {
-            padding-bottom: 5px;
-            border-bottom: none;
-        }
-    }
-
-    &.disabled {
-        .textarea-component__input {
-            color: var(--color--accent-darken6);
-            border-color: var(--color--accent-darken6);
-        }
-    }
-    &.readonly { }
-
-    &__error {
-        font-size: 12px;
-        color: var(--color--error-darken2);
-        font-weight: 600;
     }
 }
 </style>

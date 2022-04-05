@@ -74,7 +74,6 @@
                                         v-model:value="includedProperties"
                                         :disabled="isLoading"
                                         :items="availableProperties"
-                                        chips
                                         clearable
                                         :label="includedProperties.length == 0 ? 'Included properties - All' : 'Included properties'"
                                         multiple

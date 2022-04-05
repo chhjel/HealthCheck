@@ -6,31 +6,30 @@
 
         <div><b>singleLine:</b>' {{ singleLine }}'</div>
         <div><b>hideDetails:</b>' {{ hideDetails }}'</div>
-        <div><b>required:</b>' {{ required }}'</div>
         <div><b>box:</b>' {{ box }}'</div>
         -->
 
-        <div class="text-field-component__input-wrapper">
-            <icon-component v-if="prependIcon" class="text-field-component__icon" :class="prependedIconClasses"
+        <div class="text-field-component__input-wrapper input-wrapper">
+            <icon-component v-if="prependIcon" class="input-icon" :class="prependedIconClasses"
                 :title="prependIconTooltip"
                 @click="onPrependedIconClicked">{{ prependIcon }}</icon-component>
 
             <input :type="type" v-model="localValue"
                 :placeholder="placeholder" :disabled="isDisabled"
                 @input="onInput"
-                class="text-field-component__input" />
+                class="text-field-component__input input" />
 
-            <icon-component v-if="appendIcon" class="text-field-component__icon" :class="appendedIconClasses"
+            <icon-component v-if="appendIcon" class="input-icon" :class="appendedIconClasses"
                 :title="appendIconTooltip"
                 @click="onApendedIconClicked">{{ appendIcon }}</icon-component>
-            <icon-component v-if="isClearable" class="text-field-component__icon" :class="clearableIconClasses"
+            <icon-component v-if="isClearable" class="input-icon" :class="clearableIconClasses"
                 title="Clear"
                 @click="clear">clear</icon-component>
         </div>
 
         <progress-linear-component v-if="isLoading" indeterminate height="3" />
 
-        <div class="text-field-component__error mt-1" v-if="errorMessages">
+        <div class="input-error mt-1" v-if="errorMessages">
             {{ errorMessages }}
         </div>
     </div>
@@ -203,69 +202,11 @@ export default class TextFieldComponent extends Vue {
 .text-field-component {
     /* display: inline-block; */
 	padding: 5px;
-
-    &.clearable { }
-    &.loading { }
-
-    &__input-wrapper {
-        display: flex;
-        flex-flow: nowrap;
-        align-items: center;
-    }
-
-    &__icon {
-        transition: background-color 0.2s;
-        padding: 2px;
-        border-radius: 50%;
-    }
-    &:not(.disabled)
-    {
-        .text-field-component__icon {
-            &.clickable 
-            {
-                cursor: pointer;
-                &:hover {
-                    background-color: var(--color--accent-base);
-                }
-            }
-        }
-    }
     
-    &__input {
-        border: 0;
-        outline: 0;
-        width: 100%;
-        border-bottom: 2px solid var(--color--primary-base);
-        font-size: 16px;
-        padding: 6px 0;
-        background: transparent;
-        transition: border-color 0.2s;
-
-        &:focus {
-            padding-bottom: 5px; 
-            border-bottom: 3px solid var(--color--primary-lighten3);
-        }
-    }
-    
-    &.loading {
-        .text-field-component__input {
-            padding-bottom: 5px;
-            border-bottom: none;
-        }
-    }
-
-    &.disabled {
-        .text-field-component__input {
-            color: var(--color--accent-darken6);
-            border-color: var(--color--accent-darken6);
-        }
-    }
-    &.readonly { }
-
-    &__error {
-        font-size: 12px;
-        color: var(--color--error-darken2);
-        font-weight: 600;
-    }
+    /* &__input {} */
+    /* &.disabled { } */
+    /* &.readonly { } */
+    /* &.clearable { } */
+    /* &.loading { } */
 }
 </style>

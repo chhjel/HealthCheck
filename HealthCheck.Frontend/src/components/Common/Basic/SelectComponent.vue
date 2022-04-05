@@ -3,19 +3,21 @@
     <div class="select-component" :class="rootClasses">
         <input-header-component :name="label" :description="description" :showDescriptionOnStart="showDescriptionOnStart" />
         
-        <div class="select-component__input" @click="onInputClicked" ref="inputElement">
-            <div v-for="(item, iIndex) in selectedItems"
-                :key="`${id}-item-${iIndex}`"
-                class="select-component__input-chip">
-                <span class="select-component__input-chip-value">{{ item.text }}</span>
-                <div class="select-component__input-chip-remove accent clickable hoverable"
-                    @click.stop.prevent="removeValue(item.value)"
-                    v-if="showItemRemoveButton">
-                    <icon-component>clear</icon-component>
+        <div class="input-wrapper">
+            <div class="select-component__input input input-padding-4" @click="onInputClicked" ref="inputElement" tabindex="0">
+                <div v-for="(item, iIndex) in selectedItems"
+                    :key="`${id}-item-${iIndex}`"
+                    class="select-component__input-chip">
+                    <span class="select-component__input-chip-value">{{ item.text }}</span>
+                    <div class="select-component__input-chip-remove accent clickable hoverable" tabindex="0"
+                        @click.stop.prevent="removeValue(item.value)"
+                        v-if="showItemRemoveButton">
+                        <icon-component>clear</icon-component>
+                    </div>
                 </div>
+                <span class="select-component__placeholder input-placeholder"
+                    v-if="selectedItems.length == 0"> - Nothing selected -</span>
             </div>
-            <span class="select-component__placeholder"
-                v-if="selectedItems.length == 0"> - Nothing selected -</span>
         </div>
         <div class="select-component__dropdown" v-show="showDropdown" ref="dropdownElement">
             <!-- <div class="select-component__dropdown__search">
@@ -24,7 +26,7 @@
             <div class="select-component__dropdown__items">
                 <div v-for="(item, iIndex) in optionItems"
                     :key="`${id}-item-${iIndex}`"
-                    class="select-component__dropdown__item"
+                    class="select-component__dropdown__item" tabindex="0"
                     @click.stop.prevent="onDropdownItemClicked(item)">
                     <icon-component v-if="valueIsSelected(item.value)" class="mr-1">check_box</icon-component>
                     <icon-component v-if="!valueIsSelected(item.value)" class="mr-1">check_box_outline_blank</icon-component>
@@ -265,15 +267,9 @@ export default class SelectComponent extends Vue
 
 <style lang="scss">
 .select-component {
-    input {
-        font-size: 16px;
-    }
     &__input {
         display: flex;
         flex-wrap: wrap;
-        min-height: 32px;
-        padding: 5px;
-        border: 1px solid var(--color--accent-base);
     }
     &__input-chip {
         display: flex;
@@ -283,12 +279,18 @@ export default class SelectComponent extends Vue
         background-color: var(--color--accent-base);
         border-radius: 2px;
     }
-    &__input-chip-remove {
-        padding-right: 3px;
-        border-left: 1px solid var(--color--accent-darken2);
-    }
     &__input-chip-value {
         padding-right: 5px;
+        min-height: 27px;
+        display: flex;
+        align-items: center;
+    }
+    &__input-chip-remove {
+        height: 100%;
+        padding-right: 3px;
+        border-left: 1px solid var(--color--accent-darken2);
+        display: flex;
+        align-items: center;
     }
     &__dropdown {
         position: absolute;
@@ -304,12 +306,7 @@ export default class SelectComponent extends Vue
         display: flex;
         align-items: center;
     }
-    &__placeholder {
-        align-self: center;
-        margin-left: 5px;
-        color: var(--color--text-disabled);
-        font-size: 14px;
-    }
+    /* &__placeholder { } */
     &__error {
         font-size: 12px;
         color: var(--color--error-darken2);

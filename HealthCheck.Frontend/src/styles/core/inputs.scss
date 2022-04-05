@@ -1,0 +1,106 @@
+// Input fields
+$input-padding-base: 7;
+$input-paddings: (
+	4: 4,
+	// 4: 24,
+);
+.input-wrapper {
+	display: flex;
+	flex-flow: nowrap;
+	align-items: center;
+}
+.input {
+	border: 0;
+	outline: 0;
+	width: 100%;
+	font-size: 16px;
+	background: transparent;
+	box-sizing: border-box;
+	transition: border-color 0.2s;
+	border-bottom: 1px solid var(--color--primary-darken2);
+	padding: ($input-padding-base) + px 0;
+	min-height: 36px;
+
+	&:focus {
+		padding-bottom: ($input-padding-base - 2) + px; 
+		border-bottom: 3px solid var(--color--primary-lighten3);
+	}
+
+	@each $key, $val in $input-paddings {
+		&-padding-#{$key} {
+			padding: ($val) + px 0;
+			&:focus {
+				padding-bottom: ($val - 2) + px; 
+				border-bottom: 3px solid var(--color--primary-lighten3);
+			}
+		}
+	}
+}
+.disabled.input, .disabled .input {
+	color: var(--color--accent-darken6);
+	border-color: var(--color--accent-darken6);
+
+	&:focus {
+		padding-bottom: ($input-padding-base);
+		border-bottom: 1px solid var(--color--accent-darken6);
+	}
+
+	@each $key, $val in $input-paddings {
+		&-padding-#{$key} {
+			&:focus {
+				padding-bottom: ($val) + px; 
+			}
+		}
+	}
+}
+.loading.input, .loading .input {
+	padding-bottom: ($input-padding-base) + px;
+	border-bottom: none;
+
+	&:focus {
+		padding-bottom: ($input-padding-base) + px;
+		border-bottom: none;
+	}
+
+	@each $key, $val in $input-paddings {
+		&-padding-#{$key} {
+			padding-bottom: ($val - 2) + px; 
+			&:focus {
+				padding-bottom: ($val - 2) + px; 
+			}
+		}
+	}
+}
+
+// Input placeholder
+.input-placeholder {
+	align-self: center;
+	margin-left: 5px;
+	color: var(--color--text-disabled);
+	font-size: 14px;
+}
+// Input error text
+.input-error {
+	font-size: 12px;
+	color: var(--color--error-darken2);
+	font-weight: 600;
+}
+
+// Input action icons
+.input-icon {
+	transition: background-color 0.2s;
+	padding: 2px;
+	border-radius: 50%;
+}
+:not(.disabled)
+{
+	.input-icon {
+		&.clickable 
+		{
+			cursor: pointer;
+			&:hover {
+				background-color: var(--color--accent-base);
+			}
+		}
+	}
+}

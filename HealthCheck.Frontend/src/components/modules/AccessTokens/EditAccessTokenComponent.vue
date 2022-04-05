@@ -102,7 +102,6 @@
                         item-value="Id"
                         item-text="Name"
                         multiple
-                        chips
                         clearable
                         class="filter-input"
                         :readonly="readonly"

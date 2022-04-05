@@ -95,6 +95,7 @@ export default class InputHeaderComponent extends Vue
         text-align: left;
         padding: 10px;
         border-radius: 10px;
+        color: var(--color--text) !important;
         background-color: #ebf1fb;
     }
 }
