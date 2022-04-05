@@ -201,7 +201,7 @@ export default class TextFieldComponent extends Vue {
 <style scoped lang="scss">
 .text-field-component {
     /* display: inline-block; */
-	padding: 5px;
+	/* padding: 5px; */
     
     /* &__input {} */
     /* &.disabled { } */

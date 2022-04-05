@@ -4,7 +4,7 @@
         <input-header-component :name="label" :description="description" :showDescriptionOnStart="showDescriptionOnStart" />
         
         <div class="input-wrapper" ref="wrapperElement">
-            <div class="select-component__input input input-padding-4" @click="onInputClicked" ref="inputElement" tabindex="0">
+            <div class="select-component__input input input-padding-2" @click="onInputClicked" ref="inputElement" tabindex="0">
                 <div v-for="(item, iIndex) in selectedItems"
                     :key="`${id}-item-${iIndex}`"
                     class="select-component__input-chip">
@@ -372,6 +372,7 @@ export default class SelectComponent extends Vue
     &__input {
         display: flex;
         flex-wrap: wrap;
+        padding-top: 3px;
     }
     &__input-chip {
         display: flex;
@@ -380,10 +381,11 @@ export default class SelectComponent extends Vue
         margin-right: 5px;
         background-color: var(--color--accent-base);
         border-radius: 2px;
+        margin-bottom: 2px;
     }
     &__input-chip-value {
         padding-right: 5px;
-        min-height: 36px;
+        min-height: 28px;
         display: flex;
         align-items: center;
     }

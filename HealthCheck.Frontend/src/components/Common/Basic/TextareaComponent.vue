@@ -222,7 +222,7 @@ export default class TextareaComponent extends Vue {
 <style scoped lang="scss">
 .textarea-component {
     /* display: inline-block; */
-	padding: 5px;
+	/* padding: 5px; */
 
     &__input-wrapper {
         align-items: flex-start;

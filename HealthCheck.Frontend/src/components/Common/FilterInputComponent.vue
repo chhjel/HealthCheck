@@ -1,11 +1,11 @@
 <!-- src/components/Common/FilterInputComponent.vue -->
 <template>
     <div class="root">
-        <input
-            class="filter-input" type="text"
-            v-model="content"
-            @input="handleInput" ref="input" />
-        <icon-component class="icon">search</icon-component>
+        <text-field-component
+            class="filter-input"
+            v-model:value="content"
+            @input="handleInput" ref="input"
+            appendIcon="search" />
     </div>
 </template>
 
@@ -33,7 +33,6 @@ export default class FilterInputComponent extends Vue {
     align-items: center;
 }
 .filter-input {
-    border-bottom: 1px solid #e4e4e4;
     padding: 5px;
     flex: 1;
 }
