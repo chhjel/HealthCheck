@@ -37,7 +37,7 @@
 
         <progress-linear-component v-if="isLoading" indeterminate height="3" />
 
-        <div class="select-component__error" v-if="error != null && error.length > 0">{{ error }}</div>
+        <div class="select-component__error input-error" v-if="error != null && error.length > 0">{{ error }}</div>
     </div>
 </template>
 
@@ -310,10 +310,6 @@ export default class SelectComponent extends Vue
         align-items: center;
     }
     /* &__placeholder { } */
-    &__error {
-        font-size: 12px;
-        color: var(--color--error-darken2);
-        font-weight: 600;
-    }
+    /* &__error { } */
 }
 </style>
