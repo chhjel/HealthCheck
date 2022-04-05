@@ -16,7 +16,7 @@
                     </div>
                 </div>
                 <span class="select-component__placeholder input-placeholder"
-                    v-if="selectedItems.length == 0"> - Nothing selected -</span>
+                    v-if="selectedItems.length == 0 && placeholder">{{ placeholder }}</span>
             </div>
         </div>
         <div class="select-component__dropdown" v-show="showDropdown" ref="dropdownElement">
@@ -73,6 +73,9 @@ export default class SelectComponent extends Vue
 
     @Prop({ required: true })
     items!: any;
+    
+    @Prop({ required: false, default: '- Nothing selected -' })
+    placeholder!: string;
     
     @Prop({ required: false, default: 'id' })
     itemValue!: string;

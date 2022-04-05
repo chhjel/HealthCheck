@@ -33,7 +33,7 @@
 				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Loading + disabled" disabled loading />
 				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex" description="Not just a simple array + multiple." />
 				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex loading" description="Not just a simple array + multiple." loading />
-				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex + loading + disabled" description="Not just a simple array + multiple." disabled loading />
+				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex + loading + disabled" description="Not just a simple array + multiple." disabled loading placeholder="[null]" />
 				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="With error" error="Some error here" />
 				Value: <code>{{ SelectComponent_value }}</code><br />
 				Value multiple: <code>{{ SelectComponent_valueMultiple }}</code>
