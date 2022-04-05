@@ -77,6 +77,7 @@
                                         clearable
                                         :label="includedProperties.length == 0 ? 'Included properties - All' : 'Included properties'"
                                         multiple
+                                        allowInput
                                         ></select-component>
                                 </div>
                             

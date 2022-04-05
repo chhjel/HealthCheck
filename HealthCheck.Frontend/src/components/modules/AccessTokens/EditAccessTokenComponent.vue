@@ -103,6 +103,7 @@
                         item-text="Name"
                         multiple
                         clearable
+                        allowInput
                         class="filter-input"
                         :readonly="readonly"
                         :input="getModuleAccessIds(module.ModuleId)"

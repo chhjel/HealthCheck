@@ -62,6 +62,7 @@
                 placeholder="Event id"
                 class="without-label"
                 ref="eventIdFilter"
+                allowInput allowCustom
                 >
             </select-component>
             <!-- label="Event id" -->

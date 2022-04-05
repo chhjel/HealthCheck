@@ -54,6 +54,7 @@
                             label="Tags"
                             multiple
                             clearable
+                            allowInput allowCustom
                             class="filter-input"
                             :readonly="isLoading"
                             ></select-component>

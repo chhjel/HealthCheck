@@ -30,6 +30,7 @@
                 placeholder="Value to search for"
                 v-on:change="onDataChanged"
                 :disabled="readonly"
+                allowInput allowCustom
                 >
             </select-component>
             <div class="horizontal-layout" v-if="enabled">
