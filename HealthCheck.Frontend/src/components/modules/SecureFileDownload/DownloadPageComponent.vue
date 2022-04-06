@@ -3,11 +3,11 @@
     <div>
     <div class="approot">
     <div class="secure-file-download-page">
-        <div> <!-- PAGE-->
+        <div>
         <div fluid fill-height class="content-root">
         <div>
         <div class="pl-4 pr-4 pb-4">
-          <!-- CONTENT BEGIN -->
+          
             <div>
                 
                 <!-- AFTER DOWNLOAD HAS STARTED -->
@@ -84,11 +84,11 @@
                 </block-component>
 
             </div>
-          <!-- CONTENT END -->
+          
         </div>
         </div>
         </div>
-        </div> <!-- /PAGE-->
+        </div>
     </div>
     </div>
     </div>

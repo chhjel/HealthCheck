@@ -4,7 +4,7 @@
 		<!-- NAVIGATION DRAWER -->
 		<Teleport to="#module-nav-menu"> Nav here </Teleport>
 
-		<!-- CONTENT -->
+		
 		<div class="content-root">
 			<div>
 				<h3 class="todo">toolbar-component</h3>

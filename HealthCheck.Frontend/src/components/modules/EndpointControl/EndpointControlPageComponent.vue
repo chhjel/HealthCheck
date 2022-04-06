@@ -1,226 +1,218 @@
 <!-- src/components/modules/EndpointControl/EndpointControlPageComponent.vue -->
 <template>
     <div>
-        <div> <!-- PAGE-->
-            <div fluid fill-height class="content-root">
-            <div>
-            <div>
-            <div>
-                <h1 class="mb-1">Endpoint control rules</h1>
+        <div class="content-root">
+            <h1 class="mb-1">Endpoint control rules</h1>
 
-                <!-- LOAD PROGRESS -->
-                <progress-linear-component
-                    v-if="loadStatus.inProgress"
-                    indeterminate color="success"></progress-linear-component>
+            <!-- LOAD PROGRESS -->
+            <progress-linear-component
+                v-if="loadStatus.inProgress"
+                indeterminate color="success"></progress-linear-component>
 
-                <!-- DATA LOAD ERROR -->
-                <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
-                {{ loadStatus.errorMessage }}
-                </alert-component>
+            <!-- DATA LOAD ERROR -->
+            <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+            {{ loadStatus.errorMessage }}
+            </alert-component>
 
-                <btn-component :disabled="!allowRuleChanges"
-                    @click="onAddNewRuleClicked"
-                    class="mb-3">
-                    <icon-component size="20px" class="mr-2">add</icon-component>
-                    Add new
-                </btn-component>
+            <btn-component :disabled="!allowRuleChanges"
+                @click="onAddNewRuleClicked"
+                class="mb-3">
+                <icon-component size="20px" class="mr-2">add</icon-component>
+                Add new
+            </btn-component>
 
-                <btn-component v-if="HasAccessToEditEndpointDefinitions"
-                    @click="editDefinitionsDialogVisible = true"
-                    class="mb-3 ml-2 right">
-                    Edit endpoint definitions
-                </btn-component>
+            <btn-component v-if="HasAccessToEditEndpointDefinitions"
+                @click="editDefinitionsDialogVisible = true"
+                class="mb-3 ml-2 right">
+                Edit endpoint definitions
+            </btn-component>
 
-                <btn-component v-if="HasAccessToLatestRequestsDialog"
-                    @click="showLatestRequestsDialog"
-                    class="mb-3 ml-2 right">
-                    Latest requests
-                </btn-component>
+            <btn-component v-if="HasAccessToLatestRequestsDialog"
+                @click="showLatestRequestsDialog"
+                class="mb-3 ml-2 right">
+                Latest requests
+            </btn-component>
 
-                <block-component
-                    v-for="(rule, cindex) in rules"
-                    :key="`rule-${cindex}-${rule.Id}`"
-                    class="rule-list-item"
-                    >
-                    <div class="rule-list-item--inner">
-                        <tooltip-component tooltip="Enable or disable this rule">
-                            <switch-component
-                                v-model:value="rule.Enabled"
-                                color="secondary"
-                                style="flex: 0"
-                                @click="setRuleEnabled(rule, !rule.Enabled)"
-                                :disabled="!HasAccessToEditRules"
-                                ></switch-component>
-                        </tooltip-component>
-                        
-                        <div class="rule-list-item--rule"
-                            @click="showRule(rule)">
-                            <rule-description-component 
-                                :rule="rule" 
-                                :endpointDefinitions="EndpointDefinitions"
-                                :customResultDefinitions="CustomResultDefinitions" />
-                        </div>
-                        
-                        <tooltip-component v-if="getRuleWarning(rule) != null" :tooltip="getRuleWarning(rule)">
-                            <icon-component style="cursor: help;" color="warning">warning</icon-component>
-                        </tooltip-component>
-
-                        <tooltip-component v-if="ruleIsOutsideLimit(rule)" tooltip="This rules' limits has been reached">
-                            <icon-component style="cursor: help;">timer_off</icon-component>
-                        </tooltip-component>
-
-                        <tooltip-component :tooltip="`Last modified by '${rule.LastChangedBy}'`">
-                            <icon-component style="cursor: help;">person</icon-component>
-                            <code style="color: var(--color--primary-base); cursor: help;">{{ rule.LastChangedBy }}</code>
-                        </tooltip-component>
-                    </div>
-                </block-component>
-
-            </div>
-            </div>
-            </div>
-            </div>
-            
-            <dialog-component v-model:value="ruleDialogVisible"
-                scrollable
-                persistent
-                max-width="1200"
-                content-class="current-rule-dialog">
-                <div v-if="currentRule != null">
-                    <toolbar-component>
-                        <div class="current-rule-dialog__title">{{ currentDialogTitle }}</div>
-                                                <btn-component icon
-                            @click="hideCurrentRule()"
-                            :disabled="serverInteractionInProgress">
-                            <icon-component>close</icon-component>
-                        </btn-component>
-                    </toolbar-component>
-
-                                        
-                    <div>
-                        <rule-component
-                            :module-id="config.Id"
-                            :rule="currentRule"
+            <block-component
+                v-for="(rule, cindex) in rules"
+                :key="`rule-${cindex}-${rule.Id}`"
+                class="rule-list-item"
+                >
+                <div class="rule-list-item--inner">
+                    <tooltip-component tooltip="Enable or disable this rule">
+                        <switch-component
+                            v-model:value="rule.Enabled"
+                            color="secondary"
+                            style="flex: 0"
+                            @click="setRuleEnabled(rule, !rule.Enabled)"
+                            :disabled="!HasAccessToEditRules"
+                            ></switch-component>
+                    </tooltip-component>
+                    
+                    <div class="rule-list-item--rule"
+                        @click="showRule(rule)">
+                        <rule-description-component 
+                            :rule="rule" 
                             :endpointDefinitions="EndpointDefinitions"
-                            :readonly="!allowRuleChanges"
-                            :customResultDefinitions="datax.CustomResultDefinitions"
-                            v-on:ruleDeleted="onRuleDeleted"
-                            v-on:ruleSaved="onRuleSaved"
-                            v-on:serverInteractionInProgress="setServerInteractionInProgress"
-                            ref="currentRuleComponent"
+                            :customResultDefinitions="CustomResultDefinitions" />
+                    </div>
+                    
+                    <tooltip-component v-if="getRuleWarning(rule) != null" :tooltip="getRuleWarning(rule)">
+                        <icon-component style="cursor: help;" color="warning">warning</icon-component>
+                    </tooltip-component>
+
+                    <tooltip-component v-if="ruleIsOutsideLimit(rule)" tooltip="This rules' limits has been reached">
+                        <icon-component style="cursor: help;">timer_off</icon-component>
+                    </tooltip-component>
+
+                    <tooltip-component :tooltip="`Last modified by '${rule.LastChangedBy}'`">
+                        <icon-component style="cursor: help;">person</icon-component>
+                        <code style="color: var(--color--primary-base); cursor: help;">{{ rule.LastChangedBy }}</code>
+                    </tooltip-component>
+                </div>
+            </block-component>
+
+        </div>
+        
+        <dialog-component v-model:value="ruleDialogVisible"
+            scrollable
+            persistent
+            max-width="1200"
+            content-class="current-rule-dialog">
+            <div v-if="currentRule != null">
+                <toolbar-component>
+                    <div class="current-rule-dialog__title">{{ currentDialogTitle }}</div>
+                                            <btn-component icon
+                        @click="hideCurrentRule()"
+                        :disabled="serverInteractionInProgress">
+                        <icon-component>close</icon-component>
+                    </btn-component>
+                </toolbar-component>
+
+                                    
+                <div>
+                    <rule-component
+                        :module-id="config.Id"
+                        :rule="currentRule"
+                        :endpointDefinitions="EndpointDefinitions"
+                        :readonly="!allowRuleChanges"
+                        :customResultDefinitions="datax.CustomResultDefinitions"
+                        v-on:ruleDeleted="onRuleDeleted"
+                        v-on:ruleSaved="onRuleSaved"
+                        v-on:serverInteractionInProgress="setServerInteractionInProgress"
+                        ref="currentRuleComponent"
+                        />
+                </div>
+
+                                    <div >
+                                            <btn-component color="error" flat
+                        v-if="showDeleteRule"
+                        :disabled="serverInteractionInProgress"
+                        @click="$refs.currentRuleComponent.tryDeleteRule()">Delete</btn-component>
+                    <btn-component color="success"
+                        :disabled="serverInteractionInProgress || !HasAccessToEditRules"
+                        @click="$refs.currentRuleComponent.saveRule()">Save</btn-component>
+                </div>
+            </div>
+        </dialog-component>
+
+        <dialog-component v-model:value="deleteDefinitionDialogVisible"
+            @keydown.esc="deleteDefinitionDialogVisible = false"
+            max-width="290"
+            content-class="confirm-dialog">
+            <div>
+                <div class="headline">Confirm deletion</div>
+                <div>
+                    {{ deleteDefinitionDialogText }}
+                </div>
+                                    <div>
+                                            <btn-component color="secondary" @click="deleteDefinitionDialogVisible = false">Cancel</btn-component>
+                    <btn-component color="error"
+                        :loading="loadStatus.inProgress"
+                        :disabled="loadStatus.inProgress"
+                        @click="confirmDeleteEndpointDefinition()">Delete</btn-component>
+                </div>
+            </div>
+        </dialog-component>
+        
+        <dialog-component v-model:value="editDefinitionsDialogVisible"
+            @keydown.esc="editDefinitionsDialogVisible = false"
+            scrollable
+            max-width="1200"
+            content-class="current-rule-dialog">
+            <div>
+                <toolbar-component>
+                    <div class="current-rule-dialog__title">Edit endpoint definitions</div>
+                                            <btn-component icon
+                        @click="editDefinitionsDialogVisible = false">
+                        <icon-component>close</icon-component>
+                    </btn-component>
+                </toolbar-component>
+
+                                    
+                <div>
+                    <block-component
+                        v-for="(def, dindex) in EndpointDefinitions"
+                        :key="`endpointdef-${dindex}-${def.EndpointId}`"
+                        class="definition-list-item mb-2">
+                        <btn-component
+                            :loading="loadStatus.inProgress"
+                            :disabled="loadStatus.inProgress"
+                            color="error" class="right"
+                            @click="showDeleteDefinitionDialog(def.EndpointId)">
+                            <icon-component size="20px" class="mr-2">delete</icon-component>
+                            Delete
+                        </btn-component>
+
+                        <h3>{{ getEndpointDisplayName(def.EndpointId) }}</h3>
+                        <div style="clear:both;"></div>
+                    </block-component>
+                </div>
+                                    <div >
+                                            <btn-component
+                        :loading="loadStatus.inProgress"
+                        :disabled="loadStatus.inProgress"
+                        color="error"
+                        @click="showDeleteDefinitionDialog(null)">
+                        <icon-component size="20px" class="mr-2">delete_forever</icon-component>
+                        Delete all definitions
+                    </btn-component>
+                    <btn-component color="success"
+                        @click="editDefinitionsDialogVisible = false">Close</btn-component>
+                </div>
+            </div>
+        </dialog-component>
+        
+        <dialog-component v-model:value="latestRequestsDialogVisible"
+            @keydown.esc="hideLatestRequestsDialog"
+            scrollable
+            max-width="1200"
+            content-class=""
+            @input="v => v || hideLatestRequestsDialog()">
+            <div>
+                <toolbar-component>
+                    <div class="current-rule-dialog__title">Latest requests</div>
+                                            <btn-component icon @click="hideLatestRequestsDialog">
+                        <icon-component>close</icon-component>
+                    </btn-component>
+                </toolbar-component>
+
+                                    <div>
+                    <block-component class="mb-2">
+                        <latest-requests-component 
+                            :moduleId="config.Id"
+                            :endpointDefinitions="EndpointDefinitions"
+                            :options="options.Options"
+                            :log="HasAccessToViewLatestRequestData"
+                            :charts="HasAccessToViewRequestCharts"
                             />
-                    </div>
-
-                                        <div >
-                                                <btn-component color="error" flat
-                            v-if="showDeleteRule"
-                            :disabled="serverInteractionInProgress"
-                            @click="$refs.currentRuleComponent.tryDeleteRule()">Delete</btn-component>
-                        <btn-component color="success"
-                            :disabled="serverInteractionInProgress || !HasAccessToEditRules"
-                            @click="$refs.currentRuleComponent.saveRule()">Save</btn-component>
-                    </div>
+                    </block-component>
                 </div>
-            </dialog-component>
-
-            <dialog-component v-model:value="deleteDefinitionDialogVisible"
-                @keydown.esc="deleteDefinitionDialogVisible = false"
-                max-width="290"
-                content-class="confirm-dialog">
-                <div>
-                    <div class="headline">Confirm deletion</div>
-                    <div>
-                        {{ deleteDefinitionDialogText }}
-                    </div>
-                                        <div>
-                                                <btn-component color="secondary" @click="deleteDefinitionDialogVisible = false">Cancel</btn-component>
-                        <btn-component color="error"
-                            :loading="loadStatus.inProgress"
-                            :disabled="loadStatus.inProgress"
-                            @click="confirmDeleteEndpointDefinition()">Delete</btn-component>
-                    </div>
+                                    <div >
+                                            <btn-component color="success" @click="hideLatestRequestsDialog">Close</btn-component>
                 </div>
-            </dialog-component>
-            
-            <dialog-component v-model:value="editDefinitionsDialogVisible"
-                @keydown.esc="editDefinitionsDialogVisible = false"
-                scrollable
-                max-width="1200"
-                content-class="current-rule-dialog">
-                <div>
-                    <toolbar-component>
-                        <div class="current-rule-dialog__title">Edit endpoint definitions</div>
-                                                <btn-component icon
-                            @click="editDefinitionsDialogVisible = false">
-                            <icon-component>close</icon-component>
-                        </btn-component>
-                    </toolbar-component>
-
-                                        
-                    <div>
-                        <block-component
-                            v-for="(def, dindex) in EndpointDefinitions"
-                            :key="`endpointdef-${dindex}-${def.EndpointId}`"
-                            class="definition-list-item mb-2">
-                            <btn-component
-                                :loading="loadStatus.inProgress"
-                                :disabled="loadStatus.inProgress"
-                                color="error" class="right"
-                                @click="showDeleteDefinitionDialog(def.EndpointId)">
-                                <icon-component size="20px" class="mr-2">delete</icon-component>
-                                Delete
-                            </btn-component>
-
-                            <h3>{{ getEndpointDisplayName(def.EndpointId) }}</h3>
-                            <div style="clear:both;"></div>
-                        </block-component>
-                    </div>
-                                        <div >
-                                                <btn-component
-                            :loading="loadStatus.inProgress"
-                            :disabled="loadStatus.inProgress"
-                            color="error"
-                            @click="showDeleteDefinitionDialog(null)">
-                            <icon-component size="20px" class="mr-2">delete_forever</icon-component>
-                            Delete all definitions
-                        </btn-component>
-                        <btn-component color="success"
-                            @click="editDefinitionsDialogVisible = false">Close</btn-component>
-                    </div>
-                </div>
-            </dialog-component>
-            
-            <dialog-component v-model:value="latestRequestsDialogVisible"
-                @keydown.esc="hideLatestRequestsDialog"
-                scrollable
-                max-width="1200"
-                content-class=""
-                @input="v => v || hideLatestRequestsDialog()">
-                <div>
-                    <toolbar-component>
-                        <div class="current-rule-dialog__title">Latest requests</div>
-                                                <btn-component icon @click="hideLatestRequestsDialog">
-                            <icon-component>close</icon-component>
-                        </btn-component>
-                    </toolbar-component>
-
-                                        <div>
-                        <block-component class="mb-2">
-                            <latest-requests-component 
-                                :moduleId="config.Id"
-                                :endpointDefinitions="EndpointDefinitions"
-                                :options="options.Options"
-                                :log="HasAccessToViewLatestRequestData"
-                                :charts="HasAccessToViewRequestCharts"
-                                />
-                        </block-component>
-                    </div>
-                                        <div >
-                                                <btn-component color="success" @click="hideLatestRequestsDialog">Close</btn-component>
-                    </div>
-                </div>
-            </dialog-component>
-        </div> <!-- /PAGE-->
+            </div>
+        </dialog-component>
     </div>
 </template>
 

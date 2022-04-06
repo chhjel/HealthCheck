@@ -1,13 +1,7 @@
 <!-- src/components/modules/RequestLog/RequestLogPageComponent.vue -->
 <template>
     <div>
-        <div> <!-- PAGE-->
-        <div fluid fill-height class="content-root">
-        <div>
-        <div class="pl-4 pr-4 pb-4">
-          <!-- CONTENT BEGIN -->
-            
-        <div grid-list-md>
+        <div class="content-root">
             <div align-content-center wrap v-if="loadStatus.inProgress || loadStatus.failed">
                 <!-- LOAD ERROR -->
                 <alert-component
@@ -146,13 +140,6 @@
                 </div>
             </div>
         </div>
-
-
-          <!-- CONTENT END -->
-        </div>
-        </div>
-        </div>
-        </div> <!-- /PAGE-->
     </div>
 </template>
 

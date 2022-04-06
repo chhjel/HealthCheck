@@ -1,6 +1,6 @@
 <!-- src/components/modules/Messages/MessagesPageComponent.vue -->
 <template>
-    <div> <!-- PAGE-->
+    <div>
         <div>
             <!-- NAVIGATION DRAWER -->
             <Teleport to="#module-nav-menu">
@@ -14,11 +14,7 @@
                     />
             </Teleport>
             
-            <!-- CONTENT -->
-            <div fluid fill-height class="content-root">
-            <div>
-            <div>
-            <div>
+            <div class="content-root">
                 <!-- LOAD PROGRESS -->
                 <progress-linear-component
                     v-if="loadStatus.inProgress"
@@ -97,9 +93,6 @@
                     </div>
                 </div>
 
-            </div>
-            </div>
-            </div>
             </div>
         </div>
             
@@ -205,7 +198,7 @@
                 </div>
             </div>
         </dialog-component>
-    </div> <!-- /PAGE-->
+    </div>
 </template>
 
 <script lang="ts">

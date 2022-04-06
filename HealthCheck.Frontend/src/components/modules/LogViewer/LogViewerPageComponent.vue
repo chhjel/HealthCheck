@@ -1,11 +1,17 @@
 <!-- src/components/modules/LogViewer/LogViewerPageComponent.vue -->
 <template>
     <div>
-        <div> <!-- PAGE-->
+       <h2 class="warning pa-4">Module currently not implemented, might be deprecated.</h2>
+    </div>
+</template>
+
+<script lang="ts">
+/*
+ <div>
         <div fluid fill-height class="content-root">
         <div>
         <div class="pl-4 pr-4 pb-4">
-          <!-- CONTENT BEGIN -->
+          
           
             <!-- FILTER -->
             <div grid-list-md>
@@ -326,15 +332,13 @@
                 </template>
             </expansion-panel-component>
 
-          <!-- CONTENT END -->
+          
         </div>
         </div>
         </div>
-        </div> <!-- /PAGE-->
-    </div>
-</template>
-
-<script lang="ts">
+        </div>
+*/
+/*
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
@@ -748,14 +752,15 @@ export default class LogViewerPageComponent extends Vue {
         this.filterToDate = data.endDate;
     }
 }
+*/
 </script>
 
 <style scoped>
-.datepicker-button {
+/* .datepicker-button {
     float: right;
     position: absolute;
     right: 2px;
     top: 5px;
     z-index: 2;
-}
+} */
 </style>

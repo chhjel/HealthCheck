@@ -1,13 +1,7 @@
 <!-- src/components/modules/Overview/OverviewPageComponent.vue -->
 <template>
     <div>
-        <div> <!-- PAGE-->
-        <div fluid fill-height class="content-root">
-        <div>
-        <div class="pl-4 pr-4 pb-4 overview-page-content">
-          <!-- CONTENT BEGIN -->
-            
-        <div grid-list-md>
+        <div class="content-root overview-page-content">
             <div align-content-center wrap>
                 <!-- LOAD ERROR -->
                 <alert-component
@@ -92,12 +86,6 @@
                 </div>
             </div>
         </div>
-
-          <!-- CONTENT END -->
-        </div>
-        </div>
-        </div>
-        </div> <!-- /PAGE-->
 
         <!-- ##################### -->
         <!-- ###### DIALOGS ######-->

@@ -1,9 +1,10 @@
 <!-- src/components/modules/DynamicCodeExecution/DynamicCodeExecutionPageComponent.vue -->
 <template>
-    <div class="dce_page"> <!-- PAGE-->
+    <div class="dce_page">
         <loading-screen-component ref="loadingscreen" text="LOADING DCE..." />
 
         <div>
+            <!-- NAVIGATION DRAWER -->
             <Teleport to="#module-nav-menu">
                 <filterable-list-component 
                     :items="menuItems"
@@ -34,72 +35,68 @@
                 </div>
             </Teleport>
 
-            <!-- CONTENT -->
-            <div fluid fill-height class="content-root pt-3 pb-0 pl-0 pr-0">
-            <div>
-            <div>
-            <div class="pt-0 pb-1 pl-0 pr-0 wrapper-container">
+            
+            <div class="content-root pt-3 pb-0 pl-0 pr-0">
+                <div class="pt-0 pb-1 pl-0 pr-0 wrapper-container">
 
-                <!-- DATA LOAD ERROR -->
-                <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
-                {{ loadStatus.errorMessage }}
-                </alert-component>
+                    <!-- DATA LOAD ERROR -->
+                    <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+                    {{ loadStatus.errorMessage }}
+                    </alert-component>
 
-                <editor-component
-                    class="codeeditor codeeditor__input"
-                    language="csharp"
-                    :theme="editorTheme"
-                    :allowFullscreen="true"
-                    v-model:value="code"
-                    v-on:editorInit="onEditorInit"
-                    :readOnly="isEditorReadOnly"
-                    :title="currentScriptTitle"
-                    :suggestions="suggestions"
-                    :includeBuiltInSuggestions="true"
-                    ref="editor"
-                    ></editor-component>
+                    <editor-component
+                        class="codeeditor codeeditor__input"
+                        language="csharp"
+                        :theme="editorTheme"
+                        :allowFullscreen="true"
+                        v-model:value="code"
+                        v-on:editorInit="onEditorInit"
+                        :readOnly="isEditorReadOnly"
+                        :title="currentScriptTitle"
+                        :suggestions="suggestions"
+                        :includeBuiltInSuggestions="true"
+                        ref="editor"
+                        ></editor-component>
 
-                <div class="middle-toolbar">
-                    <btn-component flat :dark="localOptions.darkTheme"
-                        color="#62b5e4"
-                        :disabled="!hasUnsavedChanges || loadStatus.inProgress"
-                        v-if="showSaveButton"
-                        @click="onSaveClicked"
-                        >Save</btn-component>
+                    <div class="middle-toolbar">
+                        <btn-component flat :dark="localOptions.darkTheme"
+                            color="#62b5e4"
+                            :disabled="!hasUnsavedChanges || loadStatus.inProgress"
+                            v-if="showSaveButton"
+                            @click="onSaveClicked"
+                            >Save</btn-component>
 
-                    <btn-component flat :dark="localOptions.darkTheme"
-                        color="#ff6768"
-                        @click="onDeleteClicked"
-                        v-if="showDeleteButton"
-                        :disabled="currentScript == null || loadStatus.inProgress || !canDeleteCurrentScript"
-                        >Delete</btn-component>
-                    
-                    <btn-component flat outline :dark="localOptions.darkTheme"
-                        color="#62b5e4"
-                        class="right"
-                        @click="onExecuteClicked"
-                        :loading="loadStatus.inProgress"
-                        v-if="showExecuteButton"
-                        :disabled="currentScript == null || loadStatus.inProgress"
-                        >
-                        <icon-component class="mr-2">code</icon-component>
-                        Execute</btn-component>
+                        <btn-component flat :dark="localOptions.darkTheme"
+                            color="#ff6768"
+                            @click="onDeleteClicked"
+                            v-if="showDeleteButton"
+                            :disabled="currentScript == null || loadStatus.inProgress || !canDeleteCurrentScript"
+                            >Delete</btn-component>
+                        
+                        <btn-component flat outline :dark="localOptions.darkTheme"
+                            color="#62b5e4"
+                            class="right"
+                            @click="onExecuteClicked"
+                            :loading="loadStatus.inProgress"
+                            v-if="showExecuteButton"
+                            :disabled="currentScript == null || loadStatus.inProgress"
+                            >
+                            <icon-component class="mr-2">code</icon-component>
+                            Execute</btn-component>
+                    </div>
+
+                    <editor-component
+                        ref="outputEditor"
+                        class="codeeditor codeeditor__output"
+                        language="json"
+                        :theme="editorTheme"
+                        :allowFullscreen="true"
+                        v-model:value="resultData"
+                        :title="'Output'"
+                        :readOnly="loadStatus.inProgress || currentScript == null"
+                        ></editor-component>
+
                 </div>
-
-                <editor-component
-                    ref="outputEditor"
-                    class="codeeditor codeeditor__output"
-                    language="json"
-                    :theme="editorTheme"
-                    :allowFullscreen="true"
-                    v-model:value="resultData"
-                    :title="'Output'"
-                    :readOnly="loadStatus.inProgress || currentScript == null"
-                    ></editor-component>
-
-            </div>
-            </div>
-            </div>
             </div>
         </div>
         
@@ -226,7 +223,7 @@
             </div>
         </dialog-component>
         <!-- ##################### -->
-    </div> <!-- /PAGE-->
+    </div>
 </template>
 
 <script lang="ts">

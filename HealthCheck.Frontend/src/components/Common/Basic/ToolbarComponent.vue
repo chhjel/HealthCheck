@@ -73,6 +73,7 @@ export default class ToolbarComponent extends Vue {
 
     &.fixed {
         position: fixed;
+        top: 0;
     }
 
     &__content {
@@ -103,6 +104,7 @@ export default class ToolbarComponent extends Vue {
         box-shadow: none !important;
         padding: 5px 16px;
         flex-shrink: 0;
+        margin: 0;
     }
 }
 </style>

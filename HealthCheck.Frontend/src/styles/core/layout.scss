@@ -1,15 +1,11 @@
 .content-root {
 	flex: 1;
-	
-	margin-top: 94px;
-	@media (min-width: 960px) {
-		margin-top: 70px;
-	}
+	padding-left: 20px;
 }
 
 .toolbar-offset {
-	margin-top: 94px;
+	margin-top: 56px;
 	@media (min-width: 960px) {
-		margin-top: 70px;
+		margin-top: 64px;
 	}
 }

@@ -43,7 +43,7 @@
                 </btn-component>
             </toolbar-component>
 
-            <!-- CONTENT -->
+            
             <invalid-module-configs-component
                 v-if="invalidModuleConfigs.length > 0"
                 :invalid-configs="invalidModuleConfigs" />
@@ -352,11 +352,16 @@ export default class HealthCheckPageComponent extends Vue {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
+	margin-top: 56px;
+	@media (min-width: 960px) {
+		margin-top: 64px;
+	}
 
     #module-nav-menu {
         transition: 0.2s all;
         position: fixed;
         left: -300px;
+        top: 0;
         width: 300px;
         height: 100%;
         box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);

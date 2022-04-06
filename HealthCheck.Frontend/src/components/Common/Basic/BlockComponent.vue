@@ -25,7 +25,7 @@
             </btn-component>
         </div>
         
-        <!-- CONTENT -->
+        
         <div v-if="!headerOnly"
             class="block-component--content"
             :class="{'no-header': title.length == 0}"

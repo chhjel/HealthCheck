@@ -1,118 +1,110 @@
 <!-- src/components/modules/SecureFileDownload/SecureFileDownloadPageComponent.vue -->
 <template>
     <div>
-        <div> <!-- PAGE-->
-            <div fluid fill-height class="content-root">
-            <div>
-            <div>
-            <div>
-                <h1 class="mb-1">Downloads</h1>
+        <div class="content-root">
+            <h1 class="mb-1">Downloads</h1>
 
-                <!-- LOAD PROGRESS -->
-                <progress-linear-component
-                    v-if="loadStatus.inProgress"
-                    indeterminate color="success"></progress-linear-component>
+            <!-- LOAD PROGRESS -->
+            <progress-linear-component
+                v-if="loadStatus.inProgress"
+                indeterminate color="success"></progress-linear-component>
 
-                <!-- DATA LOAD ERROR -->
-                <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
-                {{ loadStatus.errorMessage }}
-                </alert-component>
+            <!-- DATA LOAD ERROR -->
+            <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+            {{ loadStatus.errorMessage }}
+            </alert-component>
 
-                <btn-component
-                    v-if="canCreateNewDownloads"
-                    :disabled="!allowDownloadChanges"
-                    @click="onAddNewDownloadClicked"
-                    class="mb-3">
-                    <icon-component size="20px" class="mr-2">add</icon-component>
-                    Add new
-                </btn-component>
+            <btn-component
+                v-if="canCreateNewDownloads"
+                :disabled="!allowDownloadChanges"
+                @click="onAddNewDownloadClicked"
+                class="mb-3">
+                <icon-component size="20px" class="mr-2">add</icon-component>
+                Add new
+            </btn-component>
 
-                <block-component
-                    v-for="(download, cindex) in downloads"
-                    :key="`download-${cindex}-${download.Id}`"
-                    class="download-list-item"
-                    >
-                    <div>
-                        <div class="download-list-item--inner">
-                            <div class="download-list-item--rule"
-                                @click="showDownload(download)">
-                                <icon-component>description</icon-component>
-                                {{ download.FileName }}
-                            </div>
-                            
-                            <tooltip-component tooltip="This download is protected by a password"
-                                v-if="download.Password != null" >
-                                <icon-component help>lock</icon-component>
-                            </tooltip-component>
-
-                            <tooltip-component :tooltip="getDownloadWarning(download)" 
-                                v-if="getDownloadWarning(download) != null">
-                                <icon-component help color="warning">warning</icon-component>
-                            </tooltip-component>
-
-                            <tooltip-component tooltip="This downloads' limits has been reached"
-                                v-if="downloadIsOutsideLimit(download)">
-                                <icon-component help >timer_off</icon-component>
-                            </tooltip-component>
-
-                            <tooltip-component :tooltip="`Last modified by '${download.LastModifiedByUsername}'`" bottom>
-                                <icon-component help>person</icon-component>
-                                <code style="color: var(--color--primary-base); cursor: help;">{{ download.LastModifiedByUsername }}</code>
-                            </tooltip-component>
+            <block-component
+                v-for="(download, cindex) in downloads"
+                :key="`download-${cindex}-${download.Id}`"
+                class="download-list-item"
+                >
+                <div>
+                    <div class="download-list-item--inner">
+                        <div class="download-list-item--rule"
+                            @click="showDownload(download)">
+                            <icon-component>description</icon-component>
+                            {{ download.FileName }}
                         </div>
-                            
-                        <div class="download-link">
-                            Download link: <a :href="getAbsoluteDownloadUrl(download)">{{ getAbsoluteDownloadUrl(download) }}</a>
-                        </div>
-                    </div>
-                </block-component>
+                        
+                        <tooltip-component tooltip="This download is protected by a password"
+                            v-if="download.Password != null" >
+                            <icon-component help>lock</icon-component>
+                        </tooltip-component>
 
-            </div>
-            </div>
-            </div>
-            </div>
-            
-            <dialog-component v-model:value="downloadDialogVisible"
-                scrollable
-                persistent
-                max-width="1200"
-                content-class="current-download-dialog">
-                <div v-if="currentDownload != null">
-                    <toolbar-component>
-                        <div class="current-download-dialog__title">{{ currentDialogTitle }}</div>
-                                                <btn-component icon
-                            @click="hideCurrentDownload()"
-                            :disabled="serverInteractionInProgress">
-                            <icon-component>close</icon-component>
-                        </btn-component>
-                    </toolbar-component>
+                        <tooltip-component :tooltip="getDownloadWarning(download)" 
+                            v-if="getDownloadWarning(download) != null">
+                            <icon-component help color="warning">warning</icon-component>
+                        </tooltip-component>
 
-                                        
-                    <div>
-                        <edit-download-component
-                            :module-id="config.Id"
-                            :download="currentDownload"
-                            :storage-infos="options.Options.StorageInfos"
-                            :readonly="!allowDownloadChanges"
-                            v-on:downloadDeleted="onDownloadDeleted"
-                            v-on:downloadSaved="onDownloadSaved"
-                            v-on:serverInteractionInProgress="setServerInteractionInProgress"
-                            ref="currentDownloadComponent"
-                            />
+                        <tooltip-component tooltip="This downloads' limits has been reached"
+                            v-if="downloadIsOutsideLimit(download)">
+                            <icon-component help >timer_off</icon-component>
+                        </tooltip-component>
+
+                        <tooltip-component :tooltip="`Last modified by '${download.LastModifiedByUsername}'`" bottom>
+                            <icon-component help>person</icon-component>
+                            <code style="color: var(--color--primary-base); cursor: help;">{{ download.LastModifiedByUsername }}</code>
+                        </tooltip-component>
                     </div>
-                                        <div >
-                                                <btn-component color="error" flat
-                            v-if="showDeleteDownload"
-                            :disabled="serverInteractionInProgress"
-                            @click="$refs.currentDownloadComponent.tryDeleteDownload()">Delete</btn-component>
-                        <btn-component color="success"
-                            v-if="showSaveDownload"
-                            :disabled="serverInteractionInProgress"
-                            @click="$refs.currentDownloadComponent.saveDownload()">Save</btn-component>
+                        
+                    <div class="download-link">
+                        Download link: <a :href="getAbsoluteDownloadUrl(download)">{{ getAbsoluteDownloadUrl(download) }}</a>
                     </div>
                 </div>
-            </dialog-component>
-        </div> <!-- /PAGE-->
+            </block-component>
+
+        </div>
+        
+        <dialog-component v-model:value="downloadDialogVisible"
+            scrollable
+            persistent
+            max-width="1200"
+            content-class="current-download-dialog">
+            <div v-if="currentDownload != null">
+                <toolbar-component>
+                    <div class="current-download-dialog__title">{{ currentDialogTitle }}</div>
+                                            <btn-component icon
+                        @click="hideCurrentDownload()"
+                        :disabled="serverInteractionInProgress">
+                        <icon-component>close</icon-component>
+                    </btn-component>
+                </toolbar-component>
+
+                                    
+                <div>
+                    <edit-download-component
+                        :module-id="config.Id"
+                        :download="currentDownload"
+                        :storage-infos="options.Options.StorageInfos"
+                        :readonly="!allowDownloadChanges"
+                        v-on:downloadDeleted="onDownloadDeleted"
+                        v-on:downloadSaved="onDownloadSaved"
+                        v-on:serverInteractionInProgress="setServerInteractionInProgress"
+                        ref="currentDownloadComponent"
+                        />
+                </div>
+                                    <div >
+                                            <btn-component color="error" flat
+                        v-if="showDeleteDownload"
+                        :disabled="serverInteractionInProgress"
+                        @click="$refs.currentDownloadComponent.tryDeleteDownload()">Delete</btn-component>
+                    <btn-component color="success"
+                        v-if="showSaveDownload"
+                        :disabled="serverInteractionInProgress"
+                        @click="$refs.currentDownloadComponent.saveDownload()">Save</btn-component>
+                </div>
+            </div>
+        </dialog-component>
     </div>
 </template>
 

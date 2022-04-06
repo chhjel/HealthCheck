@@ -1,6 +1,6 @@
 <!-- src/components/modules/DataExport/DataExportPageComponent.vue -->
 <template>
-    <div> <!-- PAGE-->
+    <div>
         <div>
             <!-- NAVIGATION DRAWER -->
             <Teleport to="#module-nav-menu">
@@ -20,200 +20,194 @@
                     />
             </Teleport>
             
-            <!-- CONTENT -->
-            <div fluid fill-height class="content-root">
-                <div>
-                    <div>
-                        <div>
-                            <div v-if="selectedStream && selectedItemId == null">
-                                <h2 v-if="selectedStream.Name">{{ selectedStream.Name }}</h2>
-                                <p v-if="selectedStream.Description" v-html="selectedStream.Description"></p>
+            
+            <div class="content-root">
+                <div v-if="selectedStream && selectedItemId == null">
+                    <h2 v-if="selectedStream.Name">{{ selectedStream.Name }}</h2>
+                    <p v-if="selectedStream.Description" v-html="selectedStream.Description"></p>
 
-                                <!-- QUERY INPUT -->
-                                <div class="data-export-filters" v-if="showQuery">
-                                    <div style="display: flex; width: 100%">
-                                        <b>{{ queryTitle }}</b>
-                                                                                <a href="#" v-if="hasAccessToQueryCustom" style="font-size: 13px;"
-                                            @click.prevent="onQueryHelpClicked">Query help</a>
-                                    </div>
+                    <!-- QUERY INPUT -->
+                    <div class="data-export-filters" v-if="showQuery">
+                        <div style="display: flex; width: 100%">
+                            <b>{{ queryTitle }}</b>
+                                                                    <a href="#" v-if="hasAccessToQueryCustom" style="font-size: 13px;"
+                                @click.prevent="onQueryHelpClicked">Query help</a>
+                        </div>
 
-                                    <editor-component
-                                        class="editor mb-2"
-                                        :language="'csharp'"
-                                        v-model:value="queryInput"
-                                        :read-only="isLoading || !hasAccessToQueryCustom"
-                                        ref="editor" />
-                                </div>
-                                <!-- CUSTOM PARAMETERS -->
-                                <div v-if="showCustomInputs">
-                                    <div style="display: flex; width: 100%" class="mb-2">
-                                        <b>{{ queryTitle }}</b>
-                                    </div>
+                        <editor-component
+                            class="editor mb-2"
+                            :language="'csharp'"
+                            v-model:value="queryInput"
+                            :read-only="isLoading || !hasAccessToQueryCustom"
+                            ref="editor" />
+                    </div>
+                    <!-- CUSTOM PARAMETERS -->
+                    <div v-if="showCustomInputs">
+                        <div style="display: flex; width: 100%" class="mb-2">
+                            <b>{{ queryTitle }}</b>
+                        </div>
 
-                                    <div class="export-parameter-items">
-                                        <backend-input-component
-                                            v-for="(parameterDef, pIndex) in selectedStream.CustomParameterDefinitions"
-                                            :key="`export-parameter-item-${selectedStream.Id}-${pIndex}`"
-                                            class="export-parameter-item"
-                                            v-model:value="customParameters[parameterDef.Id]"
-                                            :config="parameterDef"
-                                            :readonly="isLoading || !hasAccessToQueryCustom"
-                                            />
-                                    </div>
-                                </div>
-
-                                <code v-if="queryError"
-                                    @click="showQueryErrorDetails = !showQueryErrorDetails"
-                                    class="mb-2"
-                                    style="cursor: pointer">{{ queryError }}</code>
-                                <code v-if="queryErrorDetails && showQueryErrorDetails"
-                                    class="mb-2">{{ queryErrorDetails }}</code>
-                                
-                                <div class="data-export-filters" v-if="hasAccessToQueryCustom">
-                                    <select-component
-                                        v-model:value="includedProperties"
-                                        :disabled="isLoading"
-                                        :items="availableProperties"
-                                        clearable
-                                        :label="includedProperties.length == 0 ? 'Included properties - All' : 'Included properties'"
-                                        multiple
-                                        allowInput
-                                        ></select-component>
-                                </div>
-                            
-                                <div class="data-export-actions" v-if="!isSimpleExportMode">
-                                    <btn-component :disabled="isLoading" v-if="hasAccessToQueryPreset || hasAccessToExport" @click="onLoadPresetsClicked">
-                                        <icon-component size="20px" class="mr-2">file_upload</icon-component>Load preset..
-                                    </btn-component>
-                                    <btn-component :disabled="isLoading" v-if="hasAccessToSavePreset" @click="onSavePresetClicked">
-                                        <icon-component size="20px" class="mr-2">save_alt</icon-component>Save preset..
-                                    </btn-component>
-                                    <btn-component :disabled="isLoading" v-if="hasAccessToQueryCustom" @click="onShowColumnTitlesClicked"
-                                        :loading="exportLoadStatus.inProgress">
-                                        <icon-component size="20px" class="mr-2">title</icon-component>Column config..
-                                    </btn-component>
-                                    <btn-component :disabled="isLoading" v-if="showExport" @click="onShowExportDialogClicked"
-                                        :loading="exportLoadStatus.inProgress">
-                                        <icon-component size="20px" class="mr-2">file_download</icon-component>Export..
-                                    </btn-component>
-                                    <btn-component :disabled="isLoading" @click="loadCurrentStreamItems(true)" v-if="showExecuteQuery"
-                                        color="primary">
-                                        <icon-component size="20px" class="mr-2">search</icon-component>Execute query
-                                    </btn-component>
-                                </div>
-
-                                <div v-if="isSimpleExportMode">
-                                    <!-- SIMPLE MODE -->
-                                    <progress-linear-component v-if="isLoading" indeterminate color="success"></progress-linear-component>
-
-                                    <!-- NO PRESETS YET -->
-                                    <div v-if="!isLoading && (!presets || presets.length == 0)">
-                                        <b>No export presets available, someone with access must create them first.</b>
-                                    </div>
-
-                                    <!-- HAS PRESETS -->
-                                    <div v-if="!isLoading && presets && presets.length > 0">
-                                        <div>
-                                            <h3>1. Select preset to export:</h3>
-                                            <div class="simple-export-buttons">
-                                                <btn-component v-for="preset in presets"
-                                                    :key="`item-d-${preset.Id}-preset`"
-                                                    :class="{ 'selected': (selectedPresetId == preset.Id) }"
-                                                    @click.prevent="applyPreset(preset)"
-                                                    depressed :color="(selectedPresetId == preset.Id) ? 'primary' : '#ddd'">
-                                                    {{ preset.Name }}
-                                                </btn-component>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h3>2. Select export format:</h3>
-                                            <div class="simple-export-buttons">
-                                                <div v-for="(exporter, eIndex) in exporters"
-                                                    :key="`item-d-${exporter.Id}-export-${eIndex}`">
-                                                    <btn-component color="primary"
-                                                        :disabled="isLoading || selectedPresetId == null"
-                                                        :loading="exportLoadStatus.inProgress"
-                                                        @click="onExportClicked(exporter.Id)"
-                                                        class="exporter-button">
-                                                        <div class="exporter-button-content">
-                                                            <icon-component size="20px" class="exporter-button-icon mr-2">file_download</icon-component>
-                                                            <div class="exporter-button-texts">
-                                                                <div class="exporter-button-title">{{ exporter.Name }}</div>
-                                                                <div v-if="exporter.Description" class="exporter-description">{{ exporter.Description }}</div>
-                                                            </div>
-                                                        </div>
-                                                    </btn-component>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- END OF SIMPLE MODE -->
-                                </div>
-
-                                <paging-component
-                                    :count="totalResultCount"
-                                    :pageSize="pageSize"
-                                    v-model:value="pageIndex"
-                                    @change="onPageIndexChanged"
-                                    :asIndex="true"
-                                    class="mb-2 mt-2"
-                                    />
-                            </div>
-
-                            <!-- LOAD PROGRESS -->
-                            <progress-linear-component 
-                                v-if="isLoading"
-                                indeterminate color="success"></progress-linear-component>
-
-                            <!-- DATA LOAD ERROR -->
-                            <alert-component :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
-                            {{ dataLoadStatus.errorMessage }}
-                            </alert-component>
-
-                            <div v-if="selectedStream && selectedItemId == null">
-                                <p v-if="hasQueriedAtLeastOnce">{{ resultCountText }}</p>
-                                <div style="clear: both"></div>
-                                <div class="table-overflow-wrapper" v-if="items.length > 0">
-                                    <table class="v-table theme--light">
-                                        <thead>
-                                            <draggable
-                                                v-model="headers"
-                                                :item-key="x => `header-${x}`"
-                                                group="grp"
-                                                style="min-height: 10px"
-                                                tag="tr"
-                                                @end="onHeaderDragEnded">
-                                                <template #item="{element}">
-                                                    <th class="column text-xs-left draggable-header"
-                                                        >{{ getHeaderName(element) }}</th>
-                                                </template>
-                                            </draggable>
-                                        </thead>
-                                        <tbody>
-                                            <tr v-for="(item, iIndex) in items"
-                                                :key="`item-row-${iIndex}`">
-                                                <td v-for="header in headers"
-                                                    :key="`item-row-${iIndex}-column-${header}`"
-                                                    >{{ item[header] }}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                
-                                <paging-component
-                                    :count="totalResultCount"
-                                    :pageSize="pageSize"
-                                    v-model:value="pageIndex"
-                                    @change="onPageIndexChanged"
-                                    :asIndex="true"
-                                    class="mb-2 mt-2"
-                                    />
-                            </div>
+                        <div class="export-parameter-items">
+                            <backend-input-component
+                                v-for="(parameterDef, pIndex) in selectedStream.CustomParameterDefinitions"
+                                :key="`export-parameter-item-${selectedStream.Id}-${pIndex}`"
+                                class="export-parameter-item"
+                                v-model:value="customParameters[parameterDef.Id]"
+                                :config="parameterDef"
+                                :readonly="isLoading || !hasAccessToQueryCustom"
+                                />
                         </div>
                     </div>
+
+                    <code v-if="queryError"
+                        @click="showQueryErrorDetails = !showQueryErrorDetails"
+                        class="mb-2"
+                        style="cursor: pointer">{{ queryError }}</code>
+                    <code v-if="queryErrorDetails && showQueryErrorDetails"
+                        class="mb-2">{{ queryErrorDetails }}</code>
+                    
+                    <div class="data-export-filters" v-if="hasAccessToQueryCustom">
+                        <select-component
+                            v-model:value="includedProperties"
+                            :disabled="isLoading"
+                            :items="availableProperties"
+                            clearable
+                            :label="includedProperties.length == 0 ? 'Included properties - All' : 'Included properties'"
+                            multiple
+                            allowInput
+                            ></select-component>
+                    </div>
+                
+                    <div class="data-export-actions" v-if="!isSimpleExportMode">
+                        <btn-component :disabled="isLoading" v-if="hasAccessToQueryPreset || hasAccessToExport" @click="onLoadPresetsClicked">
+                            <icon-component size="20px" class="mr-2">file_upload</icon-component>Load preset..
+                        </btn-component>
+                        <btn-component :disabled="isLoading" v-if="hasAccessToSavePreset" @click="onSavePresetClicked">
+                            <icon-component size="20px" class="mr-2">save_alt</icon-component>Save preset..
+                        </btn-component>
+                        <btn-component :disabled="isLoading" v-if="hasAccessToQueryCustom" @click="onShowColumnTitlesClicked"
+                            :loading="exportLoadStatus.inProgress">
+                            <icon-component size="20px" class="mr-2">title</icon-component>Column config..
+                        </btn-component>
+                        <btn-component :disabled="isLoading" v-if="showExport" @click="onShowExportDialogClicked"
+                            :loading="exportLoadStatus.inProgress">
+                            <icon-component size="20px" class="mr-2">file_download</icon-component>Export..
+                        </btn-component>
+                        <btn-component :disabled="isLoading" @click="loadCurrentStreamItems(true)" v-if="showExecuteQuery"
+                            color="primary">
+                            <icon-component size="20px" class="mr-2">search</icon-component>Execute query
+                        </btn-component>
+                    </div>
+
+                    <div v-if="isSimpleExportMode">
+                        <!-- SIMPLE MODE -->
+                        <progress-linear-component v-if="isLoading" indeterminate color="success"></progress-linear-component>
+
+                        <!-- NO PRESETS YET -->
+                        <div v-if="!isLoading && (!presets || presets.length == 0)">
+                            <b>No export presets available, someone with access must create them first.</b>
+                        </div>
+
+                        <!-- HAS PRESETS -->
+                        <div v-if="!isLoading && presets && presets.length > 0">
+                            <div>
+                                <h3>1. Select preset to export:</h3>
+                                <div class="simple-export-buttons">
+                                    <btn-component v-for="preset in presets"
+                                        :key="`item-d-${preset.Id}-preset`"
+                                        :class="{ 'selected': (selectedPresetId == preset.Id) }"
+                                        @click.prevent="applyPreset(preset)"
+                                        depressed :color="(selectedPresetId == preset.Id) ? 'primary' : '#ddd'">
+                                        {{ preset.Name }}
+                                    </btn-component>
+                                </div>
+                            </div>
+                            <div>
+                                <h3>2. Select export format:</h3>
+                                <div class="simple-export-buttons">
+                                    <div v-for="(exporter, eIndex) in exporters"
+                                        :key="`item-d-${exporter.Id}-export-${eIndex}`">
+                                        <btn-component color="primary"
+                                            :disabled="isLoading || selectedPresetId == null"
+                                            :loading="exportLoadStatus.inProgress"
+                                            @click="onExportClicked(exporter.Id)"
+                                            class="exporter-button">
+                                            <div class="exporter-button-content">
+                                                <icon-component size="20px" class="exporter-button-icon mr-2">file_download</icon-component>
+                                                <div class="exporter-button-texts">
+                                                    <div class="exporter-button-title">{{ exporter.Name }}</div>
+                                                    <div v-if="exporter.Description" class="exporter-description">{{ exporter.Description }}</div>
+                                                </div>
+                                            </div>
+                                        </btn-component>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- END OF SIMPLE MODE -->
+                    </div>
+
+                    <paging-component
+                        :count="totalResultCount"
+                        :pageSize="pageSize"
+                        v-model:value="pageIndex"
+                        @change="onPageIndexChanged"
+                        :asIndex="true"
+                        class="mb-2 mt-2"
+                        />
+                </div>
+
+                <!-- LOAD PROGRESS -->
+                <progress-linear-component 
+                    v-if="isLoading"
+                    indeterminate color="success"></progress-linear-component>
+
+                <!-- DATA LOAD ERROR -->
+                <alert-component :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
+                {{ dataLoadStatus.errorMessage }}
+                </alert-component>
+
+                <div v-if="selectedStream && selectedItemId == null">
+                    <p v-if="hasQueriedAtLeastOnce">{{ resultCountText }}</p>
+                    <div style="clear: both"></div>
+                    <div class="table-overflow-wrapper" v-if="items.length > 0">
+                        <table class="v-table theme--light">
+                            <thead>
+                                <draggable
+                                    v-model="headers"
+                                    :item-key="x => `header-${x}`"
+                                    group="grp"
+                                    style="min-height: 10px"
+                                    tag="tr"
+                                    @end="onHeaderDragEnded">
+                                    <template #item="{element}">
+                                        <th class="column text-xs-left draggable-header"
+                                            >{{ getHeaderName(element) }}</th>
+                                    </template>
+                                </draggable>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, iIndex) in items"
+                                    :key="`item-row-${iIndex}`">
+                                    <td v-for="header in headers"
+                                        :key="`item-row-${iIndex}-column-${header}`"
+                                        >{{ item[header] }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <paging-component
+                        :count="totalResultCount"
+                        :pageSize="pageSize"
+                        v-model:value="pageIndex"
+                        @change="onPageIndexChanged"
+                        :asIndex="true"
+                        class="mb-2 mt-2"
+                        />
                 </div>
             </div>
-          <!-- CONTENT END -->
+          
         </div>
 
         <!-- DIALOGS -->
@@ -537,7 +531,7 @@
                 </div>
             </div>
         </dialog-component>
-    </div> <!-- /PAGE-->
+    </div>
 </template>
 
 <script lang="ts">

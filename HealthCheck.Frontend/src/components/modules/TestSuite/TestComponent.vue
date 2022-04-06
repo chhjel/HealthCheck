@@ -386,12 +386,11 @@ export default class TestComponent extends Vue {
   border-radius: 0 25px 0 25px;
 }
 .run-test-button {
-  font-size: 20px;
-  min-width: 120px;
-  min-height: 53px;
-  border-radius: 25px;
-  /* border-radius: 0 25px 0 25px; */
-  text-transform: inherit;
+  font-size: 20px !important;
+  min-width: 120px !important;
+  min-height: 53px !important;
+  border-radius: 25px !important;
+  text-transform: inherit !important;
 }
 .test-details {
   padding: 0px 48px 24px 24px;

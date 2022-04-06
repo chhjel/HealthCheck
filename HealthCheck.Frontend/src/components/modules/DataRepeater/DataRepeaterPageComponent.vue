@@ -1,6 +1,6 @@
 <!-- src/components/modules/DataRepeater/DataRepeaterPageComponent.vue -->
 <template>
-    <div> <!-- PAGE-->
+    <div>
         <div>
             <!-- NAVIGATION DRAWER -->
             <Teleport to="#module-nav-menu">
@@ -20,7 +20,7 @@
                     />
             </Teleport>
             
-            <!-- CONTENT -->
+            
             <div class="content-root">
                 <div v-if="selectedStream && selectedItemId == null">
                     <h2 v-if="selectedStream.StreamItemsName">{{ selectedStream.StreamItemsName }}</h2>
@@ -145,7 +145,7 @@
                         @close="setActiveItemId(null)" />
                 </div>
             </div>
-          <!-- CONTENT END -->
+          
 
           <!-- DIALOGS -->
             <dialog-component v-model:value="batchActionsDialogVisible"
@@ -176,7 +176,7 @@
             </dialog-component>
           <!-- DIALOGS END -->
         </div>
-    </div> <!-- /PAGE-->
+    </div>
 </template>
 
 <script lang="ts">

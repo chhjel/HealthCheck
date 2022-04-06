@@ -1,86 +1,76 @@
 <!-- src/components/modules/ReleaseNotes/ReleaseNotesPageComponent.vue -->
 <template>
     <div>
-        <div> <!-- PAGE-->
-            <!-- CONTENT -->
-            <div fluid fill-height class="content-root">
-            <div>
-            <div>
-            <div>
-                <!-- LOAD PROGRESS -->
-                <progress-linear-component
-                    v-if="loadStatus.inProgress"
-                    indeterminate color="success"></progress-linear-component>
+        <div class="content-root">
+            <!-- LOAD PROGRESS -->
+            <progress-linear-component
+                v-if="loadStatus.inProgress"
+                indeterminate color="success"></progress-linear-component>
 
-                <!-- DATA LOAD ERROR -->
-                <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
-                {{ loadStatus.errorMessage }}
-                </alert-component>
+            <!-- DATA LOAD ERROR -->
+            <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+            {{ loadStatus.errorMessage }}
+            </alert-component>
 
-                <div v-if="!datax && !loadStatus.inProgress">
-                    No release notes data was found.
-                </div>
-                <alert-component :value="datax && datax.ErrorMessage" v-if="datax && datax.ErrorMessage" type="error">
-                    {{ datax.ErrorMessage }}
-                </alert-component>
+            <div v-if="!datax && !loadStatus.inProgress">
+                No release notes data was found.
+            </div>
+            <alert-component :value="datax && datax.ErrorMessage" v-if="datax && datax.ErrorMessage" type="error">
+                {{ datax.ErrorMessage }}
+            </alert-component>
 
-                <div v-if="datax" class="release-notes">
-                    <h1 v-if="datax.Title" class="release-notes__title">{{ data.Title }} (Version {{ data.Version }})</h1>
-                    <p v-if="datax.Description" class="release-notes__description">{{ data.Description }}</p>
+            <div v-if="datax" class="release-notes">
+                <h1 v-if="datax.Title" class="release-notes__title">{{ data.Title }} (Version {{ data.Version }})</h1>
+                <p v-if="datax.Description" class="release-notes__description">{{ data.Description }}</p>
 
-                    <chip-component v-if="datax.BuiltAt" class="release-notes__metadata">Built at {{ formatDate(datax.BuiltAt) }}</chip-component>
-                    <chip-component v-if="datax.BuiltCommitHash" class="release-notes__metadata">Built hash: {{ data.BuiltCommitHash }}</chip-component>
-                    <chip-component v-if="datax.DeployedAt" class="release-notes__metadata">Deployed at {{ formatDate(datax.DeployedAt) }}</chip-component>
+                <chip-component v-if="datax.BuiltAt" class="release-notes__metadata">Built at {{ formatDate(datax.BuiltAt) }}</chip-component>
+                <chip-component v-if="datax.BuiltCommitHash" class="release-notes__metadata">Built hash: {{ data.BuiltCommitHash }}</chip-component>
+                <chip-component v-if="datax.DeployedAt" class="release-notes__metadata">Deployed at {{ formatDate(datax.DeployedAt) }}</chip-component>
 
-                    <div class="release-notes__changes" v-if="datax.Changes">
-                        <h2 class="release-notes-changes__title">{{ changesTitle }}</h2>
-                        <div v-for="(change, cindex) in datax.Changes"
-                            :key="`change-${cindex}`"
-                            class="release-notes-change"
-                            :class="{ 'has-link': !!change.MainLink, 'has-pr': change.HasPullRequestLink, 'has-issue': change.HasIssueLink }"
-                            :href="change.MainLink">
-                            
-                            <div class="release-notes-change__header">
-                                <div>
-                                    <h3 class="release-notes-change__title">
-                                        <icon-component class="release-notes-change__icon" v-if="change.Icon">{{ change.Icon }}</icon-component>
-                                        {{ change.Title }}
-                                    </h3>
-                                    <div class="release-notes-change__description"
-                                        v-if="change.Description">{{ change.Description }}</div>
-                                </div>
-                                <div>
-                                    <div class="release-notes-change__timestamp"
-                                        v-if="change.Timestamp">{{ formatDate(change.Timestamp) }}</div>
-                                </div>
+                <div class="release-notes__changes" v-if="datax.Changes">
+                    <h2 class="release-notes-changes__title">{{ changesTitle }}</h2>
+                    <div v-for="(change, cindex) in datax.Changes"
+                        :key="`change-${cindex}`"
+                        class="release-notes-change"
+                        :class="{ 'has-link': !!change.MainLink, 'has-pr': change.HasPullRequestLink, 'has-issue': change.HasIssueLink }"
+                        :href="change.MainLink">
+                        
+                        <div class="release-notes-change__header">
+                            <div>
+                                <h3 class="release-notes-change__title">
+                                    <icon-component class="release-notes-change__icon" v-if="change.Icon">{{ change.Icon }}</icon-component>
+                                    {{ change.Title }}
+                                </h3>
+                                <div class="release-notes-change__description"
+                                    v-if="change.Description">{{ change.Description }}</div>
                             </div>
-                            
-                            <div class="release-notes-change__links">
-                                <div v-for="(link, lindex) in change.Links"
-                                    :key="`change-${cindex}-link-${lindex}`"
-                                    class="release-notes-change-link">
-                                    <icon-component v-if="link.Icon">{{ link.Icon }}</icon-component>
-                                    <a :href="link.Url">{{ link.Title }}</a>
-                                </div>
+                            <div>
+                                <div class="release-notes-change__timestamp"
+                                    v-if="change.Timestamp">{{ formatDate(change.Timestamp) }}</div>
                             </div>
+                        </div>
+                        
+                        <div class="release-notes-change__links">
+                            <div v-for="(link, lindex) in change.Links"
+                                :key="`change-${cindex}-link-${lindex}`"
+                                class="release-notes-change-link">
+                                <icon-component v-if="link.Icon">{{ link.Icon }}</icon-component>
+                                <a :href="link.Url">{{ link.Title }}</a>
+                            </div>
+                        </div>
 
-                            <div class="release-notes-change__metadata">
-                                <span v-if="change.CommitHash">Commit ({{ change.CommitHash }})</span>
-                                <span v-if="change.AuthorName">by {{ change.AuthorName }}</span>
-                            </div>
+                        <div class="release-notes-change__metadata">
+                            <span v-if="change.CommitHash">Commit ({{ change.CommitHash }})</span>
+                            <span v-if="change.AuthorName">by {{ change.AuthorName }}</span>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div v-if="HasAccessToDevDetails" class="mt-4">
-                    <btn-component flat @click.left="loadDataToggled()">{{ (forcedWithoutDevDetails) ? 'Show with dev details' : 'Show without dev details' }}</btn-component>
-                </div>
-
+            <div v-if="HasAccessToDevDetails" class="mt-4">
+                <btn-component flat @click.left="loadDataToggled()">{{ (forcedWithoutDevDetails) ? 'Show with dev details' : 'Show without dev details' }}</btn-component>
             </div>
-            </div>
-            </div>
-            </div>
-        </div> <!-- /PAGE-->
+        </div>
     </div>
 </template>
 

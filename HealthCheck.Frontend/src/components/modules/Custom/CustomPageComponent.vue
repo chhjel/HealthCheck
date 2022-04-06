@@ -1,17 +1,11 @@
 <!-- src/components/modules/Custom/CustomPageComponent.vue -->
 <template>
     <div>
-        <div> <!-- PAGE-->
-        <div fluid fill-height class="content-root">
-        <div>
-        <div class="pl-4 pr-4 pb-4">
-          <!-- CONTENT BEGIN -->
+        <div class="content-root">
+          
           <div v-html="config.RawHtml"></div>
-          <!-- CONTENT END -->
+          
         </div>
-        </div>
-        </div>
-        </div> <!-- /PAGE-->
     </div>
 </template>
 

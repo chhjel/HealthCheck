@@ -1,153 +1,144 @@
 <!-- src/components/modules/AccessTokens/AccessTokensPageComponent.vue -->
 <template>
-    <div class="access-tokens-page">
-        <div> <!-- PAGE-->
-        <div fluid fill-height class="content-root">
-        <div>
-        <div class="pl-4 pr-4 pb-4">
-          <!-- CONTENT BEGIN -->
-            <div>
-                <h1 class="mb-1">Access Tokens</h1>
+    <div>
+        <div class="content-root">
+            
+            <h1 class="mb-1">Access Tokens</h1>
 
-                <!-- LOAD PROGRESS -->
-                <progress-linear-component 
-                    v-if="loadStatus.inProgress"
-                    indeterminate color="success"></progress-linear-component>
+            <!-- LOAD PROGRESS -->
+            <progress-linear-component 
+                v-if="loadStatus.inProgress"
+                indeterminate color="success"></progress-linear-component>
 
-                <!-- DATA LOAD ERROR -->
-                <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
-                {{ loadStatus.errorMessage }}
-                </alert-component>
+            <!-- DATA LOAD ERROR -->
+            <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+            {{ loadStatus.errorMessage }}
+            </alert-component>
 
-                <!-- CEATED TOKEN DETAILS -->
-                <alert-component :value="true" v-if="lastCreatedTokenData != null" type="info">
-                New token '{{ lastCreatedTokenData.Name }}' created: <code>{{ lastCreatedTokenData.Token }}</code><br />
-                Copy it now, it will never be shown again.
-                </alert-component>
-                
-                <!-- TOKEN USAGE INFO -->
-                <alert-component :value="true" v-if="lastCreatedTokenData != null" outline type="info" elevation="2">
-                Tokens can be consumed either through query string <a :href="tokenUrlExample"><code>?x-token=...</code></a> or header <code>x-token: ...</code>
-                </alert-component>
+            <!-- CEATED TOKEN DETAILS -->
+            <alert-component :value="true" v-if="lastCreatedTokenData != null" type="info">
+            New token '{{ lastCreatedTokenData.Name }}' created: <code>{{ lastCreatedTokenData.Token }}</code><br />
+            Copy it now, it will never be shown again.
+            </alert-component>
+            
+            <!-- TOKEN USAGE INFO -->
+            <alert-component :value="true" v-if="lastCreatedTokenData != null" outline type="info" elevation="2">
+            Tokens can be consumed either through query string <a :href="tokenUrlExample"><code>?x-token=...</code></a> or header <code>x-token: ...</code>
+            </alert-component>
 
-                <btn-component
-                    v-if="canCreateNewTokens"
-                    @click="onAddNewTokenClicked"
-                    class="mb-3">
-                    <icon-component size="20px" class="mr-2">add</icon-component>
-                    Add new
-                </btn-component>
+            <btn-component
+                v-if="canCreateNewTokens"
+                @click="onAddNewTokenClicked"
+                class="mb-3">
+                <icon-component size="20px" class="mr-2">add</icon-component>
+                Add new
+            </btn-component>
 
-                <div v-if="canViewTokenData"
-                    class="token-items">
-                    <block-component
-                        class="token-item mb-3"
-                        v-for="(token, tokenIndex) in tokens"
-                        :key="`token-${tokenIndex}`"
-                        :class="{ 'token-item--expired': token.IsExpired }">
+            <div v-if="canViewTokenData"
+                class="token-items">
+                <block-component
+                    class="token-item mb-3"
+                    v-for="(token, tokenIndex) in tokens"
+                    :key="`token-${tokenIndex}`"
+                    :class="{ 'token-item--expired': token.IsExpired }">
 
-                        <div class="token-item--title">{{ token.Name }}</div>
+                    <div class="token-item--title">{{ token.Name }}</div>
 
-                        <div class="token-item--metadata">
-                            <tooltip-component :tooltip="`Created ${formatDate(token.CreatedAt)}`">
-                                <div class="token-item--created-at">
-                                    <icon-component>vpn_key</icon-component>
-                                    {{ token.CreatedAtSummary }}
-                                </div>
-                            </tooltip-component>
-                            
-                            <tooltip-component :tooltip="tooltipLastUsedAt(token)">
-                                <div class="token-item--last-used-at">
-                                    <icon-component v-if="token.LastUsedAt != null">visibility</icon-component>
-                                    <icon-component v-else>visibility_off</icon-component>
-                                    {{ token.LastUsedAtSummary }}
-                                </div>
-                            </tooltip-component>
-
-                            <tooltip-component v-if="token.ExpiresAt != null" :tooltip="tooltipExpiresAt(token)">
-                                <div class="token-item--expires-at">
-                                    <icon-component v-if="token.IsExpired">timer_off</icon-component>
-                                    <icon-component v-else>timer</icon-component>
-                                    {{ token.ExpiresAtSummary }}
-                                </div>
-                            </tooltip-component>
-                        </div>
-
-                        <div class="token-item--roles">
-                            <span class="token-item--roles--header">Roles:</span>
-                            <span class="token-item--roles--item"
-                                v-for="(role, roleIndex) in token.Roles"
-                                :key="`token-${tokenIndex}-role-${roleIndex}`">
-                                {{ role }}
-                            </span>
-                            <span v-if="token.Roles.length == 0">
-                                None
-                            </span>
-                        </div>
-
-                        <div class="token-item--modules">
-                            <span class="token-item--modules--header">Modules:</span>
-                            <span class="token-item--modules--item"
-                                v-for="(module, moduleIndex) in token.Modules"
-                                :key="`token-${tokenIndex}-module-${moduleIndex}`">
-                                <span class="token-item--modules--item--header">{{ module.ModuleId }}</span>
-                                
-                                <span v-if="module.Options.length > 0">
-                                    with access to
-                                    <span class="token-item--modules--item--option"
-                                        v-for="(option, optionIndex) in module.Options"
-                                        :key="`token-${tokenIndex}-module-${moduleIndex}-option-${optionIndex}`">
-                                        <code>{{ option }}</code>
-                                        <span v-if="module.Options.length >= 2 && optionIndex == module.Options.length - 2">and</span>
-                                        <span v-else-if="module.Options.length >= 2 && optionIndex < module.Options.length - 2">,</span>
-                                    </span>
-                                </span>
-                                <span v-if="module.Options.length == 0">
-                                    without any specific access options
-                                </span>
-
-                                <span v-if="module.Categories.length > 0">
-                                    <br />
-                                    * Access limited to the following categories:
-                                    <span class="token-item--modules--item--option"
-                                        v-for="(cat, catIndex) in module.Categories"
-                                        :key="`token-${tokenIndex}-module-${moduleIndex}-cat-${catIndex}`">
-                                        <code>{{ cat }}</code>
-                                        <span v-if="module.Categories.length >= 2 && catIndex == module.Categories.length - 2">and</span>
-                                        <span v-else-if="module.Categories.length >= 2 && catIndex < module.Categories.length - 2">,</span>
-                                    </span>
-                                </span>
-
-                                <span v-if="module.Ids && module.Ids.length > 0">
-                                    <br />
-                                    * Access limited to the following:
-                                    <span class="token-item--modules--item--option"
-                                        v-for="(id, idIndex) in module.Ids"
-                                        :key="`token-${tokenIndex}-module-${moduleIndex}-id-${idIndex}`">
-                                        <code>{{ id }}</code>
-                                        <span v-if="module.Ids.length >= 2 && idIndex == module.Ids.length - 2">and</span>
-                                        <span v-else-if="module.Ids.length >= 2 && idIndex < module.Ids.length - 2">,</span>
-                                    </span>
-                                </span>
-                            </span>
-                            <span v-if="token.Modules.length == 0">
-                                None
-                            </span>
-                        </div>
+                    <div class="token-item--metadata">
+                        <tooltip-component :tooltip="`Created ${formatDate(token.CreatedAt)}`">
+                            <div class="token-item--created-at">
+                                <icon-component>vpn_key</icon-component>
+                                {{ token.CreatedAtSummary }}
+                            </div>
+                        </tooltip-component>
                         
-                        <btn-component color="error" small
-                            v-if="canDeleteToken"
-                            :loading="loadStatus.inProgress"
-                            :disabled="loadStatus.inProgress"
-                            @click="deleteToken(token)">Delete</btn-component>
-                    </block-component>
-                </div>
+                        <tooltip-component :tooltip="tooltipLastUsedAt(token)">
+                            <div class="token-item--last-used-at">
+                                <icon-component v-if="token.LastUsedAt != null">visibility</icon-component>
+                                <icon-component v-else>visibility_off</icon-component>
+                                {{ token.LastUsedAtSummary }}
+                            </div>
+                        </tooltip-component>
 
+                        <tooltip-component v-if="token.ExpiresAt != null" :tooltip="tooltipExpiresAt(token)">
+                            <div class="token-item--expires-at">
+                                <icon-component v-if="token.IsExpired">timer_off</icon-component>
+                                <icon-component v-else>timer</icon-component>
+                                {{ token.ExpiresAtSummary }}
+                            </div>
+                        </tooltip-component>
+                    </div>
+
+                    <div class="token-item--roles">
+                        <span class="token-item--roles--header">Roles:</span>
+                        <span class="token-item--roles--item"
+                            v-for="(role, roleIndex) in token.Roles"
+                            :key="`token-${tokenIndex}-role-${roleIndex}`">
+                            {{ role }}
+                        </span>
+                        <span v-if="token.Roles.length == 0">
+                            None
+                        </span>
+                    </div>
+
+                    <div class="token-item--modules">
+                        <span class="token-item--modules--header">Modules:</span>
+                        <span class="token-item--modules--item"
+                            v-for="(module, moduleIndex) in token.Modules"
+                            :key="`token-${tokenIndex}-module-${moduleIndex}`">
+                            <span class="token-item--modules--item--header">{{ module.ModuleId }}</span>
+                            
+                            <span v-if="module.Options.length > 0">
+                                with access to
+                                <span class="token-item--modules--item--option"
+                                    v-for="(option, optionIndex) in module.Options"
+                                    :key="`token-${tokenIndex}-module-${moduleIndex}-option-${optionIndex}`">
+                                    <code>{{ option }}</code>
+                                    <span v-if="module.Options.length >= 2 && optionIndex == module.Options.length - 2">and</span>
+                                    <span v-else-if="module.Options.length >= 2 && optionIndex < module.Options.length - 2">,</span>
+                                </span>
+                            </span>
+                            <span v-if="module.Options.length == 0">
+                                without any specific access options
+                            </span>
+
+                            <span v-if="module.Categories.length > 0">
+                                <br />
+                                * Access limited to the following categories:
+                                <span class="token-item--modules--item--option"
+                                    v-for="(cat, catIndex) in module.Categories"
+                                    :key="`token-${tokenIndex}-module-${moduleIndex}-cat-${catIndex}`">
+                                    <code>{{ cat }}</code>
+                                    <span v-if="module.Categories.length >= 2 && catIndex == module.Categories.length - 2">and</span>
+                                    <span v-else-if="module.Categories.length >= 2 && catIndex < module.Categories.length - 2">,</span>
+                                </span>
+                            </span>
+
+                            <span v-if="module.Ids && module.Ids.length > 0">
+                                <br />
+                                * Access limited to the following:
+                                <span class="token-item--modules--item--option"
+                                    v-for="(id, idIndex) in module.Ids"
+                                    :key="`token-${tokenIndex}-module-${moduleIndex}-id-${idIndex}`">
+                                    <code>{{ id }}</code>
+                                    <span v-if="module.Ids.length >= 2 && idIndex == module.Ids.length - 2">and</span>
+                                    <span v-else-if="module.Ids.length >= 2 && idIndex < module.Ids.length - 2">,</span>
+                                </span>
+                            </span>
+                        </span>
+                        <span v-if="token.Modules.length == 0">
+                            None
+                        </span>
+                    </div>
+                    
+                    <btn-component color="error" small
+                        v-if="canDeleteToken"
+                        :loading="loadStatus.inProgress"
+                        :disabled="loadStatus.inProgress"
+                        @click="deleteToken(token)">Delete</btn-component>
+                </block-component>
             </div>
         </div>
-        </div>
-        </div>
-        
         
         <!-- ##################### -->
         <!-- ###### DIALOGS ######-->
@@ -204,7 +195,6 @@
             </div>
         </dialog-component>
         <!-- ##################### -->
-        </div> <!-- /PAGE-->
     </div>
 </template>
 
@@ -406,67 +396,65 @@ export default class AccessTokensPageComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.access-tokens-page {
-    .token-items {
-        .token-item {
-            &.token-item--expired {
-                background-color: #fdd;;
+.token-items {
+    .token-item {
+        &.token-item--expired {
+            background-color: #fdd;;
+        }
+
+        .token-item--title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .token-item--roles {
+            margin-bottom: 5px;
+
+            .token-item--roles--item {
+                display: inline-block;
+                padding: 0px 2px;
+                margin-right: 4px;
+                box-shadow: 0 0 3px 0px #b5b5b5;
+                background-color: #eef;
+                margin-right: 10px;
             }
+        }
+        .token-item--modules {
+            .token-item--modules--item {
+                display: block;
+                margin-left: 10px;
+                padding: 2px;
 
-            .token-item--title {
-                font-size: 18px;
-                font-weight: 600;
-            }
-            .token-item--roles {
-                margin-bottom: 5px;
-
-                .token-item--roles--item {
-                    display: inline-block;
-                    padding: 0px 2px;
-                    margin-right: 4px;
-                    box-shadow: 0 0 3px 0px #b5b5b5;
-                    background-color: #eef;
-                    margin-right: 10px;
+                .token-item--modules--item--header {
+                    font-weight: 600;
                 }
-            }
-            .token-item--modules {
-                .token-item--modules--item {
-                    display: block;
-                    margin-left: 10px;
-                    padding: 2px;
 
-                    .token-item--modules--item--header {
-                        font-weight: 600;
-                    }
-
-                    .token-item--modules--item--option {
-                        margin-right: 7px;
-                    }
-                }
-            }
-            .token-item--metadata {
-                margin-top: 5px;
-                margin-bottom: 5px;
-
-                .token-item--created-at {
-                    display: inline-flex;
-                    align-items: flex-end;
-                    cursor: help;
-                    margin-right: 10px;
-                }
-                .token-item--last-used-at {
-                    display: inline-flex;
-                    align-items: flex-end;
-                    cursor: help;
-                    margin-right: 10px;
-                }
-                .token-item--expires-at {
-                    display: inline-flex;
-                    align-items: flex-end;
-                    cursor: help;
+                .token-item--modules--item--option {
+                    margin-right: 7px;
                 }
             }
         }
+        .token-item--metadata {
+            margin-top: 5px;
+            margin-bottom: 5px;
+
+            .token-item--created-at {
+                display: inline-flex;
+                align-items: flex-end;
+                cursor: help;
+                margin-right: 10px;
+            }
+            .token-item--last-used-at {
+                display: inline-flex;
+                align-items: flex-end;
+                cursor: help;
+                margin-right: 10px;
+            }
+            .token-item--expires-at {
+                display: inline-flex;
+                align-items: flex-end;
+                cursor: help;
+            }
+        }
     }
-} 
+}
 </style>

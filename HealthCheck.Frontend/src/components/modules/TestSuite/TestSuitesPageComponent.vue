@@ -1,6 +1,6 @@
 <!-- src/components/modules/TestSuite/TestSuitesPageComponent.vue -->
 <template>
-    <div class="module-root">
+    <div>
         <!-- NAVIGATION DRAWER -->
         <Teleport to="#module-nav-menu">
             <filterable-list-component
@@ -20,7 +20,7 @@
                 />
         </Teleport>
         
-        <!-- CONTENT -->
+        
         <div class="content-root">
             <!-- INVALID TESTS -->
             <alert-component :value="hasInvalidTests" type="error">

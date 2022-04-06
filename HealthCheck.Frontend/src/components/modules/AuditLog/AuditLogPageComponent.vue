@@ -1,12 +1,7 @@
 <!-- src/components/modules/AuditLog/AuditLogPageComponent.vue -->
 <template>
     <div>
-        <div> <!-- PAGE-->
-        <div fluid fill-height class="content-root">
-        <div>
-        <div class="pl-4 pr-4 pb-4">
-          <!-- CONTENT BEGIN -->
-            
+        <div class="content-root">
             <!-- FILTER -->
             <div grid-list-md>
                 <h1 class="mb-4">Audit log</h1>
@@ -50,7 +45,7 @@
                     </div>
                 </div>
 
-                <v-data-table
+                <data-table-component
                     :headers="tableHeaders"
                     :items="filteredAuditEvents"
                     :loading="loadStatus.inProgress"
@@ -113,14 +108,9 @@
                             </div>
                         </div>
                     </template>
-                </v-data-table>
+                </data-table-component>
             </div>
-
-          <!-- CONTENT END -->
         </div>
-        </div>
-        </div>
-        </div> <!-- /PAGE-->
 
         <!-- ##################### -->
         <dialog-component v-model:value="showBlobContentsDialog"

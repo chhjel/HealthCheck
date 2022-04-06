@@ -1,15 +1,15 @@
 <!-- src/components/NoPageAvailablePageComponent.vue -->
 <template>
     <div>
-        <div> <!-- PAGE-->
-            <!-- CONTENT BEGIN -->
+        <div>
+            
             <alert-component
                 :value="true" color="info"
                 icon="info" outline>
             It seems you do not have access to any of these pages.
             </alert-component>
-            <!-- CONTENT END -->
-        </div> <!-- /PAGE-->
+            
+        </div>
     </div>
 </template>
 

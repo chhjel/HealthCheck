@@ -1,223 +1,216 @@
 <!-- src/components/modules/EventNotifications/EventNotificationsPageComponent.vue -->
 <template>
     <div>
-        <div> <!-- PAGE-->
-            <div fluid fill-height class="content-root">
-            <div>
-            <div>
-            <div>
-                <h1 class="mb-1">Configured notifications</h1>
+        
+        <div class="content-root">
+            <h1 class="mb-1">Configured notifications</h1>
 
-                <!-- LOAD PROGRESS -->
-                <progress-linear-component
-                    class="ma-0"
-                    v-if="loadStatus.inProgress"
-                    indeterminate color="success"></progress-linear-component>
-                <div style="height: 7px" v-else></div>
+            <!-- LOAD PROGRESS -->
+            <progress-linear-component
+                class="ma-0"
+                v-if="loadStatus.inProgress"
+                indeterminate color="success"></progress-linear-component>
+            <div style="height: 7px" v-else></div>
 
-                <!-- DATA LOAD ERROR -->
-                <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
-                {{ loadStatus.errorMessage }}
-                </alert-component>
+            <!-- DATA LOAD ERROR -->
+            <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+            {{ loadStatus.errorMessage }}
+            </alert-component>
 
-                <div class="top-actions">
-                    <btn-component :disabled="!allowConfigChanges"
-                        @click="onAddNewConfigClicked"
-                        class="mb-3 mr-2">
-                        <icon-component size="20px" class="mr-2">add</icon-component>
-                        Add new
-                    </btn-component>
+            <div class="top-actions">
+                <btn-component :disabled="!allowConfigChanges"
+                    @click="onAddNewConfigClicked"
+                    class="mb-3 mr-2">
+                    <icon-component size="20px" class="mr-2">add</icon-component>
+                    Add new
+                </btn-component>
 
-                                        <btn-component v-if="HasAccessToEditEventDefinitions"
-                        @click="editDefinitionsDialogVisible = true"
-                        class="mb-3">
-                        Edit payload definitions
-                    </btn-component>
-                </div>
+                                    <btn-component v-if="HasAccessToEditEventDefinitions"
+                    @click="editDefinitionsDialogVisible = true"
+                    class="mb-3">
+                    Edit payload definitions
+                </btn-component>
+            </div>
 
-                <block-component
-                    v-for="(config, cindex) in configs"
-                    :key="`config-${cindex}-${config.Id}`"
-                    class="config-list-item"
-                    >
-                    <div class="config-list-item--inner">
-                        <div class="config-list-item--switch-and-summary">
-                            <tooltip-component tooltip="Enable or disable this configuration">
-                                <switch-component
-                                    v-model:value="config.Enabled"
-                                    color="secondary"
-                                    style="flex: 0"
-                                    @click="setConfigEnabled(config, !config.Enabled)"
-                                    ></switch-component>
-                            </tooltip-component>
-                            
-                            <div class="config-list-item--rule"
-                                @click="showConfig(config)"
-                                >
-                                <span class="config-list-item--operator">IF</span>
-                                <span v-for="(condition, condIndex) in describeConditions(config)"
-                                    :key="`condition-${condIndex}`">
-                                    <span class="config-list-item--condition">
-                                        {{ condition.description }}
-                                    </span>
-                                    <span v-if="condIndex == describeConditions(config).length - 2"> and </span>
-                                    <span v-else-if="condIndex < describeConditions(config).length - 1">, </span>
-                                </span>
-
-                                <br />
-                                <span class="config-list-item--operator">THEN</span>
-                                <span v-if="describeActions(config).length == 0">&lt;do nothing&gt;</span>
-                                <span v-else>notify using</span>
-                                <span v-for="(action, actIndex) in describeActions(config)"
-                                    :key="`action-${actIndex}`">
-                                    <span class="config-list-item--action">
-                                        {{ action.description }}
-                                    </span>
-                                    <span v-if="actIndex == describeActions(config).length - 2"> and </span>
-                                    <span v-else-if="actIndex < describeActions(config).length - 1">, </span>
-                                </span>
-                            </div>
-                        </div>
+            <block-component
+                v-for="(config, cindex) in configs"
+                :key="`config-${cindex}-${config.Id}`"
+                class="config-list-item"
+                >
+                <div class="config-list-item--inner">
+                    <div class="config-list-item--switch-and-summary">
+                        <tooltip-component tooltip="Enable or disable this configuration">
+                            <switch-component
+                                v-model:value="config.Enabled"
+                                color="secondary"
+                                style="flex: 0"
+                                @click="setConfigEnabled(config, !config.Enabled)"
+                                ></switch-component>
+                        </tooltip-component>
                         
-                                                <div class="config-list-item--metadata">
-                            <tooltip-component v-if="getConfigWarning(config) != null" :tooltip="getConfigWarning(config)">
-                                <icon-component style="cursor: help;" color="warning">warning</icon-component>
-                            </tooltip-component>
+                        <div class="config-list-item--rule"
+                            @click="showConfig(config)"
+                            >
+                            <span class="config-list-item--operator">IF</span>
+                            <span v-for="(condition, condIndex) in describeConditions(config)"
+                                :key="`condition-${condIndex}`">
+                                <span class="config-list-item--condition">
+                                    {{ condition.description }}
+                                </span>
+                                <span v-if="condIndex == describeConditions(config).length - 2"> and </span>
+                                <span v-else-if="condIndex < describeConditions(config).length - 1">, </span>
+                            </span>
 
-                            <tooltip-component v-if="configIsOutsideLimit(config)" tooltip="This configs' limits has been reached">
-                                <icon-component style="cursor: help;">timer_off</icon-component>
-                            </tooltip-component>
-
-                            <tooltip-component :tooltip="`Last modified by '${config.LastChangedBy}'`">
-                                <icon-component style="cursor: help;">person</icon-component>
-                                <code style="color: var(--color--primary-base); cursor: help;">{{ config.LastChangedBy }}</code>
-                            </tooltip-component>
+                            <br />
+                            <span class="config-list-item--operator">THEN</span>
+                            <span v-if="describeActions(config).length == 0">&lt;do nothing&gt;</span>
+                            <span v-else>notify using</span>
+                            <span v-for="(action, actIndex) in describeActions(config)"
+                                :key="`action-${actIndex}`">
+                                <span class="config-list-item--action">
+                                    {{ action.description }}
+                                </span>
+                                <span v-if="actIndex == describeActions(config).length - 2"> and </span>
+                                <span v-else-if="actIndex < describeActions(config).length - 1">, </span>
+                            </span>
                         </div>
                     </div>
-                </block-component>
+                    
+                                            <div class="config-list-item--metadata">
+                        <tooltip-component v-if="getConfigWarning(config) != null" :tooltip="getConfigWarning(config)">
+                            <icon-component style="cursor: help;" color="warning">warning</icon-component>
+                        </tooltip-component>
 
-            </div>
-            </div>
-            </div>
-            </div>
-            
-            <dialog-component v-model:value="configDialogVisible"
-                scrollable
-                persistent
-                max-width="1200"
-                content-class="current-config-dialog">
-                <div v-if="currentConfig != null">
-                    <toolbar-component>
-                        <div class="current-config-dialog__title">{{ currentDialogTitle }}</div>
-                                                <btn-component icon
-                            @click="hideCurrentConfig()"
-                            :disabled="serverInteractionInProgress">
-                            <icon-component>close</icon-component>
-                        </btn-component>
-                    </toolbar-component>
+                        <tooltip-component v-if="configIsOutsideLimit(config)" tooltip="This configs' limits has been reached">
+                            <icon-component style="cursor: help;">timer_off</icon-component>
+                        </tooltip-component>
 
-                                        
-                    <div>
-                        <event-notification-config-component
-                            :module-id="config.Id"
-                            :config="currentConfig"
-                            :notifiers="notifiers"
-                            :eventdefinitions="eventDefinitions"
-                            :placeholders="placeholders"
-                            :readonly="!allowConfigChanges"
-                            v-on:configDeleted="onConfigDeleted"
-                            v-on:configSaved="onConfigSaved"
-                            v-on:serverInteractionInProgress="setServerInteractionInProgress"
-                            ref="currentConfigComponent"
-                            />
-                    </div>
-                    <div >
-                        <btn-component color="error" flat
-                            v-if="showDeleteConfig"
-                            :disabled="serverInteractionInProgress"
-                            @click="$refs.currentConfigComponent.tryDeleteConfig()">Delete</btn-component>
-                        <btn-component color="success"
-                            :disabled="serverInteractionInProgress"
-                            @click="$refs.currentConfigComponent.saveConfig()">Save</btn-component>
+                        <tooltip-component :tooltip="`Last modified by '${config.LastChangedBy}'`">
+                            <icon-component style="cursor: help;">person</icon-component>
+                            <code style="color: var(--color--primary-base); cursor: help;">{{ config.LastChangedBy }}</code>
+                        </tooltip-component>
                     </div>
                 </div>
-            </dialog-component>
+            </block-component>
+        </div>
+        
+        <!-- DIALOGS -->
+        <dialog-component v-model:value="configDialogVisible"
+            scrollable
+            persistent
+            max-width="1200"
+            content-class="current-config-dialog">
+            <div v-if="currentConfig != null">
+                <toolbar-component>
+                    <div class="current-config-dialog__title">{{ currentDialogTitle }}</div>
+                                            <btn-component icon
+                        @click="hideCurrentConfig()"
+                        :disabled="serverInteractionInProgress">
+                        <icon-component>close</icon-component>
+                    </btn-component>
+                </toolbar-component>
 
-            <dialog-component v-model:value="deleteDefinitionDialogVisible"
-                @keydown.esc="deleteDefinitionDialogVisible = false"
-                max-width="290"
-                content-class="confirm-dialog">
+                                    
                 <div>
-                    <div class="headline">Confirm deletion</div>
-                    <div>
-                        {{ deleteDefinitionDialogText }}
-                    </div>
-                                        <div>
-                                                <btn-component color="secondary" @click="deleteDefinitionDialogVisible = false">Cancel</btn-component>
-                        <btn-component color="error"
+                    <event-notification-config-component
+                        :module-id="config.Id"
+                        :config="currentConfig"
+                        :notifiers="notifiers"
+                        :eventdefinitions="eventDefinitions"
+                        :placeholders="placeholders"
+                        :readonly="!allowConfigChanges"
+                        v-on:configDeleted="onConfigDeleted"
+                        v-on:configSaved="onConfigSaved"
+                        v-on:serverInteractionInProgress="setServerInteractionInProgress"
+                        ref="currentConfigComponent"
+                        />
+                </div>
+                <div >
+                    <btn-component color="error" flat
+                        v-if="showDeleteConfig"
+                        :disabled="serverInteractionInProgress"
+                        @click="$refs.currentConfigComponent.tryDeleteConfig()">Delete</btn-component>
+                    <btn-component color="success"
+                        :disabled="serverInteractionInProgress"
+                        @click="$refs.currentConfigComponent.saveConfig()">Save</btn-component>
+                </div>
+            </div>
+        </dialog-component>
+
+        <dialog-component v-model:value="deleteDefinitionDialogVisible"
+            @keydown.esc="deleteDefinitionDialogVisible = false"
+            max-width="290"
+            content-class="confirm-dialog">
+            <div>
+                <div class="headline">Confirm deletion</div>
+                <div>
+                    {{ deleteDefinitionDialogText }}
+                </div>
+                                    <div>
+                                            <btn-component color="secondary" @click="deleteDefinitionDialogVisible = false">Cancel</btn-component>
+                    <btn-component color="error"
+                        :loading="loadStatus.inProgress"
+                        :disabled="loadStatus.inProgress"
+                        @click="confirmDeleteEventDefinition()">Delete</btn-component>
+                </div>
+            </div>
+        </dialog-component>
+        
+        <dialog-component v-model:value="editDefinitionsDialogVisible"
+            @keydown.esc="editDefinitionsDialogVisible = false"
+            scrollable
+            max-width="1200"
+            content-class="current-config-dialog">
+            <div>
+                <toolbar-component>
+                    <div class="current-config-dialog__title">Edit event payload definitions</div>
+                                            <btn-component icon
+                        @click="editDefinitionsDialogVisible = false">
+                        <icon-component>close</icon-component>
+                    </btn-component>
+                </toolbar-component>
+
+                                    
+                <div>
+                    <block-component
+                        v-for="(def, dindex) in eventDefinitions"
+                        :key="`eventdef-${dindex}-${def.EventId}`"
+                        class="definition-list-item mb-2">
+                        <btn-component
                             :loading="loadStatus.inProgress"
                             :disabled="loadStatus.inProgress"
-                            @click="confirmDeleteEventDefinition()">Delete</btn-component>
-                    </div>
-                </div>
-            </dialog-component>
-            
-            <dialog-component v-model:value="editDefinitionsDialogVisible"
-                @keydown.esc="editDefinitionsDialogVisible = false"
-                scrollable
-                max-width="1200"
-                content-class="current-config-dialog">
-                <div>
-                    <toolbar-component>
-                        <div class="current-config-dialog__title">Edit event payload definitions</div>
-                                                <btn-component icon
-                            @click="editDefinitionsDialogVisible = false">
-                            <icon-component>close</icon-component>
+                            color="error" class="right"
+                            @click="showDeleteDefinitionDialog(def.EventId)">
+                            <icon-component size="20px" class="mr-2">delete</icon-component>
+                            Delete
                         </btn-component>
-                    </toolbar-component>
 
-                                        
-                    <div>
-                        <block-component
-                            v-for="(def, dindex) in eventDefinitions"
-                            :key="`eventdef-${dindex}-${def.EventId}`"
-                            class="definition-list-item mb-2">
-                            <btn-component
-                                :loading="loadStatus.inProgress"
-                                :disabled="loadStatus.inProgress"
-                                color="error" class="right"
-                                @click="showDeleteDefinitionDialog(def.EventId)">
-                                <icon-component size="20px" class="mr-2">delete</icon-component>
-                                Delete
-                            </btn-component>
+                        <h3>{{ def.EventId }}</h3>
 
-                            <h3>{{ def.EventId }}</h3>
-
-                            <div v-if="!def.IsStringified">
-                                <h4 class="mt-2 mr-1" style="display:inline-block">Properties:</h4>
-                                <code
-                                    v-for="(defProp, dpindex) in def.PayloadProperties"
-                                    :key="`eventdefprop-${dindex}-${dpindex}`"
-                                    class="mr-2">{{ defProp }}</code>
-                            </div>
-                            <div style="clear:both;"></div>
-                        </block-component>
-                    </div>
-                                        <div >
-                                                <btn-component
-                            :loading="loadStatus.inProgress"
-                            :disabled="loadStatus.inProgress"
-                            color="error"
-                            @click="showDeleteDefinitionDialog(null)">
-                            <icon-component size="20px" class="mr-2">delete_forever</icon-component>
-                            Delete all definitions
-                        </btn-component>
-                        <btn-component color="success"
-                            @click="editDefinitionsDialogVisible = false">Close</btn-component>
-                    </div>
+                        <div v-if="!def.IsStringified">
+                            <h4 class="mt-2 mr-1" style="display:inline-block">Properties:</h4>
+                            <code
+                                v-for="(defProp, dpindex) in def.PayloadProperties"
+                                :key="`eventdefprop-${dindex}-${dpindex}`"
+                                class="mr-2">{{ defProp }}</code>
+                        </div>
+                        <div style="clear:both;"></div>
+                    </block-component>
                 </div>
-            </dialog-component>
-        </div> <!-- /PAGE-->
+                                    <div >
+                                            <btn-component
+                        :loading="loadStatus.inProgress"
+                        :disabled="loadStatus.inProgress"
+                        color="error"
+                        @click="showDeleteDefinitionDialog(null)">
+                        <icon-component size="20px" class="mr-2">delete_forever</icon-component>
+                        Delete all definitions
+                    </btn-component>
+                    <btn-component color="success"
+                        @click="editDefinitionsDialogVisible = false">Close</btn-component>
+                </div>
+            </div>
+        </dialog-component>
     </div>
 </template>
 

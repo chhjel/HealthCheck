@@ -1,8 +1,8 @@
 <!-- src/components/InvalidModuleConfigsComponent.vue -->
 <template>
     <div>
-        <div> <!-- PAGE-->
-            <!-- CONTENT BEGIN -->
+        <div>
+            
             <alert-component
                 v-for="(module, mindex) in invalidConfigs"
                 :key="`invalid-module-${mindex}`"
@@ -22,8 +22,8 @@
                     </ul>
                 </div>
             </alert-component>
-            <!-- CONTENT END -->
-        </div> <!-- /PAGE-->
+            
+        </div>
     </div>
 </template>
 

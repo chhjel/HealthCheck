@@ -1,91 +1,82 @@
 <!-- src/components/modules/Metrics/MetricsPageComponent.vue -->
 <template>
     <div>
-        <div> <!-- PAGE-->
-            <!-- CONTENT -->
-            <div fluid fill-height class="content-root">
-            <div>
-            <div>
-            <div>
-                <h1>Metrics</h1>
-                <p>Debug metrics to verify performance of code, values might be a bit delayed until the tracker is disposed.</p>
+        
+        <div class="content-root">
+            <h1>Metrics</h1>
+            <p>Debug metrics to verify performance of code, values might be a bit delayed until the tracker is disposed.</p>
 
-                <btn-component :disabled="loadStatus.inProgress" @click="loadData" class="mb-3">
-                    <icon-component size="20px" class="mr-2">refresh</icon-component>
-                    Refresh
-                </btn-component>
+            <btn-component :disabled="loadStatus.inProgress" @click="loadData" class="mb-3">
+                <icon-component size="20px" class="mr-2">refresh</icon-component>
+                Refresh
+            </btn-component>
 
-                <!-- LOAD PROGRESS -->
-                <progress-linear-component
-                    v-if="loadStatus.inProgress"
-                    indeterminate color="success"></progress-linear-component>
+            <!-- LOAD PROGRESS -->
+            <progress-linear-component
+                v-if="loadStatus.inProgress"
+                indeterminate color="success"></progress-linear-component>
 
-                <!-- DATA LOAD ERROR -->
-                <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
-                {{ loadStatus.errorMessage }}
-                </alert-component>
+            <!-- DATA LOAD ERROR -->
+            <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+            {{ loadStatus.errorMessage }}
+            </alert-component>
 
-                <div v-if="!hasData && !loadStatus.inProgress">
-                    <b>No metrics data was found.</b>
+            <div v-if="!hasData && !loadStatus.inProgress">
+                <b>No metrics data was found.</b>
+            </div>
+
+            <div v-if="hasData" class="metrics">
+                <div v-if="globalCounters.length > 0">
+                    <h2>Global counters</h2>
+                    <ul>
+                        <li v-for="(item, itemIndex) in globalCounters"
+                            :key="`gcounter-${itemIndex}`">
+                            <b class="mr-1">{{ item.key }}:</b> <code>{{ item.value.Value }}</code>
+                            <br />
+                            <small class="ml-1">Between {{ formatDate(item.value.FirstStored) }} and  {{ formatDate(item.value.LastChanged) }}</small>
+                        </li>
+                    </ul>
                 </div>
 
-                <div v-if="hasData" class="metrics">
-                    <div v-if="globalCounters.length > 0">
-                        <h2>Global counters</h2>
-                        <ul>
-                            <li v-for="(item, itemIndex) in globalCounters"
-                                :key="`gcounter-${itemIndex}`">
-                                <b class="mr-1">{{ item.key }}:</b> <code>{{ item.value.Value }}</code>
-                                <br />
-                                <small class="ml-1">Between {{ formatDate(item.value.FirstStored) }} and  {{ formatDate(item.value.LastChanged) }}</small>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div v-if="globalValues.length > 0" class="mt-4">
-                        <h2>Global values</h2>
-                        <ul v-if="globalValues.length > 0">
-                            <li v-for="(item, itemIndex) in globalValues"
-                                :key="`gvalue-${itemIndex}`">
-                                <b class="mr-1">{{ item.key }}:</b> 
-                                <span v-if="item.values.ValueCount == 1">
-                                    <code>{{ item.values.Average }}{{ item.values.Suffix }}</code>. 
-                                </span>
-                                <span v-if="item.values.ValueCount > 1">
-                                    <code>{{ item.values.Min }}{{ item.values.Suffix }}</code> to <code>{{ item.values.Max }}{{ item.values.Suffix }}</code>, average <code>{{ item.values.Average }}{{ item.values.Suffix }}</code>. 
-                                </span>
-                                n=<code>{{ item.values.ValueCount }}</code>
-                                <br />
-                                <span v-if="item.values.ValueCount == 1">
-                                    <small class="ml-1">{{ formatDate(item.values.LastChanged) }}</small>
-                                </span>
-                                <span v-if="item.values.ValueCount > 1">
-                                    <small class="ml-1">Between {{ formatDate(item.values.FirstStored) }} and {{ formatDate(item.values.LastChanged) }}</small>
-                                </span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div v-if="globalNotes.length > 0" class="mt-4">
-                        <h2>Global notes</h2>
-                        <ul>
-                            <li v-for="(item, itemIndex) in globalNotes"
-                                :key="`gnote-${itemIndex}`">
-                                <div style="display: flex; align-items: baseline;">
-                                    <b class="mr-1">{{ item.id }}</b>
-                                    <small class="ml-1"> ({{ formatDate(item.note.LastChanged) }}):</small>
-                                </div>
-                                <div><code>{{ item.note.Note }}</code></div>
-                            </li>
-                        </ul>
-                    </div>
+                <div v-if="globalValues.length > 0" class="mt-4">
+                    <h2>Global values</h2>
+                    <ul v-if="globalValues.length > 0">
+                        <li v-for="(item, itemIndex) in globalValues"
+                            :key="`gvalue-${itemIndex}`">
+                            <b class="mr-1">{{ item.key }}:</b> 
+                            <span v-if="item.values.ValueCount == 1">
+                                <code>{{ item.values.Average }}{{ item.values.Suffix }}</code>. 
+                            </span>
+                            <span v-if="item.values.ValueCount > 1">
+                                <code>{{ item.values.Min }}{{ item.values.Suffix }}</code> to <code>{{ item.values.Max }}{{ item.values.Suffix }}</code>, average <code>{{ item.values.Average }}{{ item.values.Suffix }}</code>. 
+                            </span>
+                            n=<code>{{ item.values.ValueCount }}</code>
+                            <br />
+                            <span v-if="item.values.ValueCount == 1">
+                                <small class="ml-1">{{ formatDate(item.values.LastChanged) }}</small>
+                            </span>
+                            <span v-if="item.values.ValueCount > 1">
+                                <small class="ml-1">Between {{ formatDate(item.values.FirstStored) }} and {{ formatDate(item.values.LastChanged) }}</small>
+                            </span>
+                        </li>
+                    </ul>
                 </div>
 
+                <div v-if="globalNotes.length > 0" class="mt-4">
+                    <h2>Global notes</h2>
+                    <ul>
+                        <li v-for="(item, itemIndex) in globalNotes"
+                            :key="`gnote-${itemIndex}`">
+                            <div style="display: flex; align-items: baseline;">
+                                <b class="mr-1">{{ item.id }}</b>
+                                <small class="ml-1"> ({{ formatDate(item.note.LastChanged) }}):</small>
+                            </div>
+                            <div><code>{{ item.note.Note }}</code></div>
+                        </li>
+                    </ul>
+                </div>
             </div>
-            </div>
-            </div>
-            </div>
-        </div> <!-- /PAGE-->
+        </div>
     </div>
 </template>
 

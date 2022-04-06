@@ -1,64 +1,54 @@
 <!-- src/components/modules/Settings/SettingsPageComponent.vue -->
 <template>
-    <div class="settings-page">
-        <div> <!-- PAGE-->
-        <div fluid fill-height class="content-root">
-        <div>
-        <div class="pl-4 pr-4 pb-4">
-          <!-- CONTENT BEGIN -->
-            <div>
-                <h1 class="mb-4">Settings</h1>
+    <div>
+        <div class="content-root">
+            <h1 class="mb-4">Settings</h1>
 
-                <!-- LOAD PROGRESS -->
-                <progress-linear-component 
-                    v-if="loadStatus.inProgress"
-                    indeterminate color="success"></progress-linear-component>
+            <!-- LOAD PROGRESS -->
+            <progress-linear-component 
+                v-if="loadStatus.inProgress"
+                indeterminate color="success"></progress-linear-component>
 
-                <!-- DATA LOAD ERROR -->
-                <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
-                {{ loadStatus.errorMessage }}
-                </alert-component>
+            <!-- DATA LOAD ERROR -->
+            <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
+            {{ loadStatus.errorMessage }}
+            </alert-component>
 
-                <div v-for="(group, gIndex) in settingGroups"
-                    :key="`setting-group-${gIndex}`"
-                    class="setting-group"
-                    :class="{ 'without-header': group.name == null, 'with-header': group.name != null }">
-                    
-                    <div v-if="group.name != null" class="setting-group-header">
-                        <h2 class="setting-group-header--name">{{ group.name }}</h2>
-                        <p v-if="group.description != null" class="setting-group-header--desc">{{ group.description }}}</p>
-                    </div>
-                    
-                    <backend-input-component
-                        v-for="(setting, sIndex) in group.settings"
-                        :key="`setting-item-${gIndex}-${sIndex}`"
-                        class="setting-item"
-                        v-model:value="setting.value"
-                        :config="setting.definition"
-                        :readonly="!HasAccessToChangeSettings"
-                        />
+            <div v-for="(group, gIndex) in settingGroups"
+                :key="`setting-group-${gIndex}`"
+                class="setting-group"
+                :class="{ 'without-header': group.name == null, 'with-header': group.name != null }">
+                
+                <div v-if="group.name != null" class="setting-group-header">
+                    <h2 class="setting-group-header--name">{{ group.name }}</h2>
+                    <p v-if="group.description != null" class="setting-group-header--desc">{{ group.description }}}</p>
+                </div>
+                
+                <backend-input-component
+                    v-for="(setting, sIndex) in group.settings"
+                    :key="`setting-item-${gIndex}-${sIndex}`"
+                    class="setting-item"
+                    v-model:value="setting.value"
+                    :config="setting.definition"
+                    :readonly="!HasAccessToChangeSettings"
+                    />
+            </div>
+
+            <div v-if="settingGroups.length > 0">
+                <div xs6 sm2 class="mb-2">
+                    <btn-component
+                        v-if="HasAccessToChangeSettings"
+                        @click="saveSettings()" 
+                        class="primary"
+                        :disabled="saveStatus.inProgress">{{ saveButtonText }}</btn-component>
                 </div>
 
-                <div v-if="settingGroups.length > 0">
-                    <div xs6 sm2 class="mb-2">
-                        <btn-component
-                            v-if="HasAccessToChangeSettings"
-                            @click="saveSettings()" 
-                            class="primary"
-                            :disabled="saveStatus.inProgress">{{ saveButtonText }}</btn-component>
-                    </div>
-
-                    <!-- SAVE ERROR -->
-                    <div v-if="saveStatus.failed" class="save-error">
-                    {{ saveStatus.errorMessage }}
-                    </div>
+                <!-- SAVE ERROR -->
+                <div v-if="saveStatus.failed" class="save-error">
+                {{ saveStatus.errorMessage }}
                 </div>
-
             </div>
         </div>
-        </div>
-        </div>
-        </div> <!-- /PAGE-->
     </div>
 </template>
 
@@ -188,35 +178,33 @@ export default class SettingsPageComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.settings-page {
-    .setting-group {
-        margin-bottom: 40px;
-        margin-top: 15px;
-        padding: 20px;
-        border-radius: 25px;
-        background-color: #fff;
-        box-shadow: #d5d7d5 4px 4px 6px 0px;
+.setting-group {
+    margin-bottom: 40px;
+    margin-top: 15px;
+    padding: 20px;
+    border-radius: 25px;
+    background-color: #fff;
+    box-shadow: #d5d7d5 4px 4px 6px 0px;
 
-        /* &.without-header {}
-        &.with-header {} */
+    /* &.without-header {}
+    &.with-header {} */
 
-        .setting-group-header {
-            padding-bottom: 10px;
+    .setting-group-header {
+        padding-bottom: 10px;
 
-            /* .setting-group-header--name {}
-            .setting-group-header--desc {} */
-        }
-
-        .setting-item {
-            padding-bottom: 10px;
-        }
+        /* .setting-group-header--name {}
+        .setting-group-header--desc {} */
     }
 
-    .save-error {
-        color: red;
-        display: flex;
-        align-items: center;
-        padding-bottom: 5px;
+    .setting-item {
+        padding-bottom: 10px;
     }
+}
+
+.save-error {
+    color: red;
+    display: flex;
+    align-items: center;
+    padding-bottom: 5px;
 }
 </style>

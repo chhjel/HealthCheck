@@ -1,131 +1,125 @@
 <!-- src/components/modules/Documentation/DocumentationPageComponent.vue -->
 <template>
-    <div class="docpage"> <!-- PAGE-->
-        <div>
-            <!-- NAVIGATION DRAWER -->
-            <Teleport to="#module-nav-menu">
-                <div class="menu-items">
-                    <filter-input-component class="filter" v-model:value="diagramFilterText" />
+    <div>
+        <!-- NAVIGATION DRAWER -->
+        <Teleport to="#module-nav-menu">
+            <div class="menu-items">
+                <filter-input-component class="filter" v-model:value="diagramFilterText" />
 
-                    <div ripple
-                        v-for="(menuItem, diagramIndex) in menuItems"
-                        :key="`diagram-menu-${diagramIndex}`"
-                        class="testset-menu-item"
-                        :class="{ 'active': ((currentSequenceDiagram == menuItem.data || currentFlowChart == menuItem.data) && !sandboxMode) }"
-                        @click="setActiveDiagram(menuItem)">
-                        <div>
-                            {{ menuItem.title }}
-                            <br>
-                            <span style="color: darkgray;">{{ menuItem.subTitle }}</span>
-                        </div>
-                    </div>
-
-                                        <div ripple 
-                        v-if="options.Options.EnableDiagramSandbox"
-                        class="testset-menu-item"
-                        :class="{ 'active': (sandboxMode) }"
-                        @click="showSandboxMode">
-                        <div v-text="'Sandbox'"></div>
+                <div ripple
+                    v-for="(menuItem, diagramIndex) in menuItems"
+                    :key="`diagram-menu-${diagramIndex}`"
+                    class="testset-menu-item"
+                    :class="{ 'active': ((currentSequenceDiagram == menuItem.data || currentFlowChart == menuItem.data) && !sandboxMode) }"
+                    @click="setActiveDiagram(menuItem)">
+                    <div>
+                        {{ menuItem.title }}
+                        <br>
+                        <span style="color: darkgray;">{{ menuItem.subTitle }}</span>
                     </div>
                 </div>
-            </Teleport>
-            
-            <!-- CONTENT -->
-            <div fluid fill-height class="content-root">
+
+                                    <div ripple 
+                    v-if="options.Options.EnableDiagramSandbox"
+                    class="testset-menu-item"
+                    :class="{ 'active': (sandboxMode) }"
+                    @click="showSandboxMode">
+                    <div v-text="'Sandbox'"></div>
+                </div>
+            </div>
+        </Teleport>
+        
+        
+        <div class="content-root">
+            <div>
+                <!-- NO DIAGRAMS INFO -->
+                <alert-component :value="sequenceDiagrams.length == 0 && !loadStatus.inProgress && !loadStatus.failed" type="info">
+                    No documentation was found.<br />
+                    Decorate backend code with <code>[SequenceDiagramStepAttribute]</code> for sequence diagrams to be generated,<br />
+                    or with <code>[FlowChartStepAttribute]</code> for flow charts to be generated.
+                </alert-component>
+
+                <!-- DATA LOAD ERROR -->
+                <alert-component :value="loadStatus.failed" type="error">
+                {{ loadStatus.errorMessage }}
+                </alert-component>
+
+                <!-- LOAD PROGRESS -->
+                <progress-linear-component 
+                    v-if="loadStatus.inProgress"
+                    indeterminate color="success"></progress-linear-component>
+
+                <!-- SELECTED DIAGRAM -->
+                <div v-if="(currentSequenceDiagram != null || currentFlowChart != null) && !sandboxMode"
+                    style="flex-direction: column;">
+                    <div sm12 md12 lg12>
+                        <flow-diagram-component
+                            class="diagram"
+                            v-if="currentFlowChart != null"
+                            :steps="currentFlowChart.steps"
+                            :title="currentFlowChart.title" />
+
+                        <sequence-diagram-component
+                            class="diagram"
+                            v-if="currentSequenceDiagram != null"
+                            :title="currentSequenceDiagram.title"
+                            :steps="currentSequenceDiagram.steps"
+                            :showRemarks="showRemarks"
+                            :diagramStyle="diagramStyle"
+                            :clickable="options.Options.EnableDiagramDetails"
+                            v-on:stepClicked="onStepClicked" />
+                    </div>
+
+                    <div v-if="selectedStep != null" class="selected-step-details">
+                        <b>{{ selectedStep.description }}</b><br />
+                        <b>From:</b>
+                        <code>{{ selectedStep.data.classNameFrom }}</code>
+                        <code>{{ selectedStep.data.methodNameFrom }}</code><br />
+                        <b>To:</b>
+                        <code>{{ selectedStep.data.classNameTo }}</code>
+                        <code>{{ selectedStep.data.methodNameTo }}</code>
+                    </div>
+
+                    <checkbox-component
+                        v-if="showToggleRemarks"
+                        v-model:value="showRemarks"
+                        label="Show remarks" style="display:block"></checkbox-component>
+                </div>
+            </div>
+
+            <!-- SANDBOX -->
+            <div v-if="sandboxMode">
                 <div>
+                    <select-component
+                        v-if="false"
+                        v-model:value="diagramStyle"
+                        :items="diagramStyles"
+                        item-text="text" item-value="value">
+                    </select-component>
+
                     <div>
-                        <div>
-                            <!-- NO DIAGRAMS INFO -->
-                            <alert-component :value="sequenceDiagrams.length == 0 && !loadStatus.inProgress && !loadStatus.failed" type="info">
-                                No documentation was found.<br />
-                                Decorate backend code with <code>[SequenceDiagramStepAttribute]</code> for sequence diagrams to be generated,<br />
-                                or with <code>[FlowChartStepAttribute]</code> for flow charts to be generated.
-                            </alert-component>
-
-                            <!-- DATA LOAD ERROR -->
-                            <alert-component :value="loadStatus.failed" type="error">
-                            {{ loadStatus.errorMessage }}
-                            </alert-component>
-
-                            <!-- LOAD PROGRESS -->
-                            <progress-linear-component 
-                                v-if="loadStatus.inProgress"
-                                indeterminate color="success"></progress-linear-component>
-
-                            <!-- SELECTED DIAGRAM -->
-                            <div v-if="(currentSequenceDiagram != null || currentFlowChart != null) && !sandboxMode"
-                                style="flex-direction: column;">
-                                <div sm12 md12 lg12>
-                                    <flow-diagram-component
-                                        class="diagram"
-                                        v-if="currentFlowChart != null"
-                                        :steps="currentFlowChart.steps"
-                                        :title="currentFlowChart.title" />
-
-                                    <sequence-diagram-component
-                                        class="diagram"
-                                        v-if="currentSequenceDiagram != null"
-                                        :title="currentSequenceDiagram.title"
-                                        :steps="currentSequenceDiagram.steps"
-                                        :showRemarks="showRemarks"
-                                        :diagramStyle="diagramStyle"
-                                        :clickable="options.Options.EnableDiagramDetails"
-                                        v-on:stepClicked="onStepClicked" />
-                                </div>
-
-                                <div v-if="selectedStep != null" class="selected-step-details">
-                                    <b>{{ selectedStep.description }}</b><br />
-                                    <b>From:</b>
-                                    <code>{{ selectedStep.data.classNameFrom }}</code>
-                                    <code>{{ selectedStep.data.methodNameFrom }}</code><br />
-                                    <b>To:</b>
-                                    <code>{{ selectedStep.data.classNameTo }}</code>
-                                    <code>{{ selectedStep.data.methodNameTo }}</code>
-                                </div>
-
-                                <checkbox-component
-                                    v-if="showToggleRemarks"
-                                    v-model:value="showRemarks"
-                                    label="Show remarks" style="display:block"></checkbox-component>
-                            </div>
+                        <div sm12 lg4>
+                            <textarea
+                                style="width: 100%; border: 1px solid #ccc; height: 100%; padding: 5px;"
+                                v-model="sandboxScript"
+                                />
                         </div>
-
-                        <!-- SANDBOX -->
-                        <div v-if="sandboxMode">
-                            <div>
-                                <select-component
-                                    v-if="false"
-                                    v-model:value="diagramStyle"
-                                    :items="diagramStyles"
-                                    item-text="text" item-value="value">
-                                </select-component>
-
-                                <div>
-                                    <div sm12 lg4>
-                                        <textarea
-                                            style="width: 100%; border: 1px solid #ccc; height: 100%; padding: 5px;"
-                                            v-model="sandboxScript"
-                                            />
-                                    </div>
-                                        
-                                    <div sm12 lg8>
-                                        <div grid-list-md>
-                                            <sequence-diagram-component
-                                                class="diagram"
-                                                ref="sandboxDiagram"
-                                                :steps="sandboxSteps"
-                                                :diagramStyle="diagramStyle" />
-                                        </div>
-                                    </div>
-                                </div>
+                            
+                        <div sm12 lg8>
+                            <div grid-list-md>
+                                <sequence-diagram-component
+                                    class="diagram"
+                                    ref="sandboxDiagram"
+                                    :steps="sandboxSteps"
+                                    :diagramStyle="diagramStyle" />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-          <!-- CONTENT END -->
         </div>
-    </div> <!-- /PAGE-->
+        
+    </div>
 </template>
 
 <script lang="ts">
