@@ -94,11 +94,12 @@
 				<menu-component></menu-component>
 				<hr />
 
-				<h3 class="todo">snackbar-component</h3>
+				<h3 class="todo" @click="SnackbarComponent_value = true">snackbar-component</h3>
 				<!-- SnackbarComponent -->
-				<snackbar-component
-					v-model:value="SnackbarComponent_value"
-				></snackbar-component>
+				<snackbar-component v-model:value="SnackbarComponent_value" :timeout="5000" color="info">
+					Some text here!
+					<btn-component flat @click="SnackbarComponent_value = false">Close</btn-component>
+				</snackbar-component>
 				<code>{{ SnackbarComponent_value }}</code>
 				<hr />
 
