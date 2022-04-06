@@ -595,7 +595,6 @@ import ProgressBarComponent from "@components/Common/ProgressBarComponent.vue";
 import SequenceDiagramComponent from "@components/Common/SequenceDiagramComponent.vue";
 import SimpleDateTimeComponent from "@components/Common/SimpleDateTimeComponent.vue";
 import AlertComponent from "@components/Common/Basic/AlertComponent.vue";
-import AutocompleteComponent from "@components/Common/Basic/AutocompleteComponent.vue";
 import BadgeComponent from "@components/Common/Basic/BadgeComponent.vue";
 import BlockComponent from "@components/Common/Basic/BlockComponent.vue";
 import BtnComponent from "@components/Common/Basic/BtnComponent.vue";
@@ -603,7 +602,6 @@ import CalendarComponent from "@components/Common/Basic/CalendarComponent.vue";
 import CarouselComponent from "@components/Common/Basic/CarouselComponent.vue";
 import CheckboxComponent from "@components/Common/Basic/CheckboxComponent.vue";
 import ChipComponent from "@components/Common/Basic/ChipComponent.vue";
-import ComboboxComponent from "@components/Common/Basic/ComboboxComponent.vue";
 import DatePickerComponent from "@components/Common/Basic/DatePickerComponent.vue";
 import DialogComponent from "@components/Common/Basic/DialogComponent.vue";
 import ExpansionPanelComponent from "@components/Common/Basic/ExpansionPanelComponent.vue";
@@ -666,7 +664,6 @@ import { FilterableListItem } from "@components/Common/FilterableListComponent.v
 		SequenceDiagramComponent,
 		SimpleDateTimeComponent,
 		AlertComponent,
-		AutocompleteComponent,
 		BadgeComponent,
 		BlockComponent,
 		BtnComponent,
@@ -674,7 +671,6 @@ import { FilterableListItem } from "@components/Common/FilterableListComponent.v
 		CarouselComponent,
 		CheckboxComponent,
 		ChipComponent,
-		ComboboxComponent,
 		DatePickerComponent,
 		DialogComponent,
 		ExpansionPanelComponent,

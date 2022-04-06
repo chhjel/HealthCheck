@@ -51,3 +51,11 @@ $util-margin-padding-list: (
 .disabled {
 	color: var(--color--text-disabled);
 }
+
+.right {
+    float: right !important;
+}
+
+.left {
+    float: left !important;
+}

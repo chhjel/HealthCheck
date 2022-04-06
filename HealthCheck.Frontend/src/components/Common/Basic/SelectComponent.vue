@@ -18,11 +18,12 @@
                 <div v-if="showInput" class="select-component__textInput-wrapper">
                     <input type="text" class="select-component__textInput input" :disabled="!allowModify"
                         v-model="filter"
+                        :placeholder="placeholderText"
                         @keyup.enter="onFilterEnter"
                         @focus="onFilterFocus" />
                 </div>
                 <span class="select-component__placeholder input-placeholder"
-                    v-if="selectedItems.length == 0 && placeholder">{{ placeholder }}</span>
+                    v-if="placeholderText && !showInput">{{ placeholderText }}</span>
             </div>
         </div>
         <div class="select-component__dropdown box-shadow" v-show="showDropdown" ref="dropdownElement">
@@ -84,7 +85,7 @@ export default class SelectComponent extends Vue
     @Prop({ required: false, default: '- Nothing selected -' })
     placeholder!: string;
     
-    @Prop({ required: false, default: '- Nothing data -' })
+    @Prop({ required: false, default: '- No data -' })
     noDataText!: string;
     
     @Prop({ required: false, default: 'id' })
@@ -204,6 +205,10 @@ export default class SelectComponent extends Vue
         });
 
         return baseItems;
+    }
+
+    get placeholderText(): string  {
+        return (this.selectedItems.length == 0 && this.placeholder) ? this.placeholder : '';
     }
 
     get rootClasses(): any {
@@ -418,7 +423,8 @@ export default class SelectComponent extends Vue
     }
     &__textInput {
         width: 100%;
-        padding: 5px Im !important;
+        padding: 5px 0 !important;
+        min-height: 28px;
         border: none !important;
     }
     /* &__placeholder { } */
