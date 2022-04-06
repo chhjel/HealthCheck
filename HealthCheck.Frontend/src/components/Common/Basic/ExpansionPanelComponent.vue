@@ -95,7 +95,7 @@ export default class ExpansionPanelComponent extends Vue {
     &.open {
         .expansion-panel_content {
 	        padding: 12px 24px;
-            max-height: 100vh;
+            max-height: inherit;
         }
     }
 }
