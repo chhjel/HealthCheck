@@ -3,13 +3,13 @@
     <div class="loading-screen" 
         v-if="showLoadingScreen"
         v-bind:class="{ done: loadingIsDone }">
-        <center class="spinner">
+        <div class="spinner">
             <div class="loader" id="loader"></div>
             <div class="loader" id="loader2"></div>
             <div class="loader" id="loader3"></div>
             <div class="loader" id="loader4"></div>
             <span id="text">{{ text }}</span>
-        </center>
+        </div>
     </div>
 </template>
 
