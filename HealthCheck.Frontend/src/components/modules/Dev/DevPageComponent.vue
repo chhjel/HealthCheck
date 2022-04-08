@@ -113,14 +113,6 @@
 				<timeline-component></timeline-component>
 				<hr />
 
-				<h3 class="todo">bar-chart-component</h3>
-				<!-- BarChartComponent -->
-				<bar-chart-component
-					:sets="BarChartComponent_sets"
-					:bars="BarChartComponent_bars"
-				></bar-chart-component>
-				<hr />
-
 				<h3 class="todo">data-over-time-chart-component</h3>
 				<!-- DataOverTimeChartComponent -->
 				<data-over-time-chart-component
@@ -577,6 +569,18 @@
 				></timespan-input-component>
 				<code>{{ TimespanInputComponent_value }}</code>
 				<hr />
+
+				<h3 class="ok">bar-chart-component</h3>
+				<!-- BarChartComponent -->
+				<bar-chart-component
+					title="Some title here"
+					ylabel="Y-Label here"
+					:sets="BarChartComponent_sets"
+					:bars="BarChartComponent_bars"
+				></bar-chart-component>
+				<hr />
+
+				<!-- qwe -->
 			</div>
 		</div>
 	</div>
@@ -652,6 +656,7 @@ import { DataTableGroup } from "@components/Common/DataTableComponent.vue.models
 import { FlowDiagramStep, FlowDiagramStepType } from "@components/Common/FlowDiagramComponent.vue.models";
 import { SequenceDiagramStep } from "@components/Common/SequenceDiagramComponent.vue.models";
 import { FilterableListItem } from "@components/Common/FilterableListComponent.vue.models";
+import { BarChartSet } from "@components/Common/Charts/BarChartComponent.vue.models";
 
 @Options({
 	components: {
@@ -789,8 +794,16 @@ Web -> Frontend: Confirmation is delivered
 	TextareaComponent_value: string = "Some string here 5";
 	TextFieldComponent_value: string = "Some string here 6";
 	TimespanInputComponent_value: string = "33:22:11";
-	BarChartComponent_sets: Array<any>= [];
-	BarChartComponent_bars: Array<any>= [];
+	BarChartComponent_sets: Array<BarChartSet> = [
+		{ label: 'Set 1', group: 'group1', color: '#4cff50' },
+		{ label: 'Set 2', group: 'group2', color: '#FF0000' },
+		{ label: 'Set 3', group: 'group3', color: '#0000FF' }
+	];
+	BarChartComponent_bars: Array<any>= [
+        { label: 'Bar A', values: [100, 200, 300] },
+        { label: 'Bar B', values: [50, 25, 12] },
+        { label: 'Bar C', values: [200, 400, 600] }
+	];
 	DataOverTimeChartComponent_entries: Array<any>= [];
 	DataOverTimeChartComponent_sets: Array<any>= [];
 	BackendInputComponent_config: HCBackendInputConfig = this.createBackendInputConfig('Int32');
