@@ -17,6 +17,7 @@
             <input :type="type" v-model="localValue"
                 :placeholder="placeholder" :disabled="isDisabled"
                 @input="onInput"
+                ref="inputElement"
                 class="text-field-component__input input" />
 
             <icon-component v-if="appendIcon" class="input-icon" :class="appendedIconClasses"
@@ -36,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import ValueUtils from '@util/ValueUtils'
 import InputHeaderComponent from "./InputHeaderComponent.vue";
@@ -105,6 +106,8 @@ export default class TextFieldComponent extends Vue {
     @Prop({ required: false, default: null })
     singleLine!: string;
 
+    @Ref() readonly inputElement!: HTMLInputElement;
+
     localValue: string = "";
 
     //////////////////
@@ -159,6 +162,11 @@ export default class TextFieldComponent extends Vue {
         if (this.isReadonly || this.isDisabled) return;
         this.localValue = null;
         this.$emit('click:clear');
+    }
+
+    focus(): void {
+        this.inputElement.focus();
+        this.inputElement.select();
     }
 
     ///////////////////////

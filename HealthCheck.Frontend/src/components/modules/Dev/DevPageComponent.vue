@@ -797,8 +797,8 @@ Web -> Frontend: Confirmation is delivered
 	BackendInputComponent_value: string = "Some string here";
 	UnknownBackendInputComponent_value: string = "Some string here";
 	UnknownBackendInputComponent_type: string = "SomeType";
-	ParameterInputAnyJsonComponent_name: string = "Some string here";
-	ParameterInputAnyJsonComponent_value: string = "Some string here";
+	ParameterInputAnyJsonComponent_name: string = "Any JSON name";
+	ParameterInputAnyJsonComponent_value: string = "{ \"something\": true }";
 	ParameterInputAnyJsonComponent_type: string = "Some string here";
 	ParameterInputAnyJsonComponent_config: HCBackendInputConfig = this.createBackendInputConfig();
 	ParameterInputPickReferenceComponent_value: string = "Some string here";

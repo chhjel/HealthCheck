@@ -42,8 +42,9 @@
 <script lang="ts">
 import IdUtils from "@util/IdUtils";
 import LinqUtils from "@util/LinqUtils";
-import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
 import { Options } from "vue-class-component";
+import TextFieldComponent from "./TextFieldComponent.vue";
 
 interface PageinationButton {
     number: number;
@@ -73,6 +74,8 @@ export default class PagingComponent extends Vue
 
     @Prop({ required: false, default: false })
     disabled!: boolean;
+
+    @Ref() readonly dialogNumberInput!: TextFieldComponent;
 
     id: string = IdUtils.generateId();
     currentValue: number = this.asIndex ? 0 : 1;
@@ -219,11 +222,9 @@ export default class PagingComponent extends Vue
         else if (btn.isDialogButton)
         {
             this.dialogVisible = true;
+            const self = this;
             this.$nextTick(() => {
-                (<HTMLInputElement>this.$refs.dialogNumberInput).focus();
-                const el = (<Vue>this.$refs.dialogNumberInput).$el;
-                const input = el.getElementsByTagName('input')[0];
-                input.select();
+                self.dialogNumberInput.focus();
             });
         }
     }

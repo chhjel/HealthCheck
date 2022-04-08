@@ -6,6 +6,17 @@ import HealthCheckPageComponent from "@components/HealthCheckPageComponent.vue";
 import ModuleConfig from "@models/Common/ModuleConfig";
 import shadow from 'vue-shadow-dom';
 
+// Debugging
+if (window.location.search?.includes('hc_debug_warning=true'))
+{
+	var oldWarningFunction = console.warn;
+	console.warn = function (message?: any, ...optionalParams: any[]) {
+		oldWarningFunction.apply(console, [`CONSOLE.WARN() INTERCEPTED: "${message}"`]);
+		oldWarningFunction.apply(console, [message, ...optionalParams]);
+		if (!message.includes('Feature flags __VUE_OPTIONS_API__')) debugger;
+	};
+}
+
 // Store
 import store from './index_store';
 

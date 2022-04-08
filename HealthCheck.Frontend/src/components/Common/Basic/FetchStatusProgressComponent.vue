@@ -3,7 +3,7 @@
     <div class="fetch-status-progress-component" :style="rootStyle">
         <progress-linear-component
             v-if="progressVisible"
-            v-model:value="progress"
+            :value="progress"
             :height="height"
             :color="color"
         />
