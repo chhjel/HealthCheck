@@ -113,14 +113,6 @@
 				<timeline-component></timeline-component>
 				<hr />
 
-				<h3 class="todo">data-over-time-chart-component</h3>
-				<!-- DataOverTimeChartComponent -->
-				<data-over-time-chart-component
-					:entries="DataOverTimeChartComponent_entries"
-					:sets="DataOverTimeChartComponent_sets"
-				></data-over-time-chart-component>
-				<hr />
-
 				<h3 class="todo">floating-squares-effect-component</h3>
 				<!-- FloatingSquaresEffectComponent -->
 				<floating-squares-effect-component></floating-squares-effect-component>
@@ -580,6 +572,16 @@
 				></bar-chart-component>
 				<hr />
 
+				<h3 class="ok">data-over-time-chart-component</h3>
+				<!-- DataOverTimeChartComponent -->
+				<data-over-time-chart-component
+					:entries="DataOverTimeChartComponent_entries"
+					:sets="DataOverTimeChartComponent_sets"
+					title="[count] total requests over the last [timespan]"
+					ylabel="Requests"
+				></data-over-time-chart-component>
+				<hr />
+
 				<!-- qwe -->
 			</div>
 		</div>
@@ -804,8 +806,18 @@ Web -> Frontend: Confirmation is delivered
         { label: 'Bar B', values: [50, 25, 12] },
         { label: 'Bar C', values: [200, 400, 600] }
 	];
-	DataOverTimeChartComponent_entries: Array<any>= [];
-	DataOverTimeChartComponent_sets: Array<any>= [];
+	DataOverTimeChartComponent_sets: Array<any>= [
+        { label: 'Allowed', group: 'allowed', color: '#4cff50' },
+        { label: 'Blocked', group: 'blocked', color: '#FF0000' }
+    ];
+	DataOverTimeChartComponent_entries: Array<any>= [
+		{ date: new Date(1649435434932), group: 'blocked' },
+		{ date: new Date(1649435534932), group: 'allowed' },
+		{ date: new Date(1649435534932), group: 'blocked' },
+		{ date: new Date(1649435634932), group: 'allowed' },
+		{ date: new Date(1649435734932), group: 'blocked' },
+		{ date: new Date(1649435834932), group: 'allowed' }
+	];
 	BackendInputComponent_config: HCBackendInputConfig = this.createBackendInputConfig('Int32');
 	BackendInputComponent_value: string = "Some string here 7";
 	UnknownBackendInputComponent_value: string = "Some string here 8";
