@@ -20,10 +20,7 @@ export default function getCustomDirectives(): Array<CustomDirective>
             let targetElement: HTMLElement;
             let observer: ResizeObserver;
             let setHeight = () => {
-                // selfElement.style.maxHeight = null;
                 selfElement.style.maxHeight = `${targetElement.clientHeight}px`;
-                setTimeout(() => {
-                }, 1);
             }
             return {
                 name: 'set-max-height',
