@@ -4,7 +4,6 @@
 		<!-- NAVIGATION DRAWER -->
 		<Teleport to="#module-nav-menu"> Nav here </Teleport>
 
-		
 		<div class="content-root">
 			<div>
 				<h3 class="todo">toolbar-component</h3>
@@ -19,57 +18,11 @@
 				</toolbar-component>
 				<hr />
 
-				<h3 class="todo">filterable-list-component</h3>
-				<!-- FilterableListComponent -->
-				<filterable-list-component class="dev_border"
-					:items="FilterableListComponent_items"
-                    :groupByKey="`GroupName`"
-                    :sortByKey="`GroupName`"
-                    :hrefKey="`Href`"
-                    :filterKeys="[ 'Name', 'Description' ]"
-                    :disabled="false"
-                    :showFilter="true"
-                    :groupIfSingleGroup="false"
-                    />
-				<filterable-list-component class="dev_border"
-					:items="FilterableListComponent_items"
-                    :groupByKey="`GroupName`"
-                    :sortByKey="`GroupName`"
-                    :hrefKey="`Href`"
-                    :filterKeys="[ 'Name', 'Description' ]"
-                    :disabled="true"
-                    :showFilter="false"
-                    :groupIfSingleGroup="false"
-                    />
-				<filterable-list-component class="dev_border"
-					:items="FilterableListComponent_items"
-                    :groupByKey="`GroupName`"
-                    :sortByKey="`GroupName`"
-                    :hrefKey="`Href`"
-                    :filterKeys="[ 'Name', 'Description' ]"
-                    :loading="true"
-                    :disabled="true"
-                    :showFilter="false"
-                    :groupIfSingleGroup="false"
-                    />
-				<hr />
-
-				<h3 class="todo">filter-input-component</h3>
-				<!-- FilterInputComponent -->
-				<filter-input-component
-					v-model:value="FilterInputComponent_value"
-				></filter-input-component>
-				<code>{{ FilterInputComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo" @click="showLoader = !showLoader">loading-screen-component</h3>
-				<loading-screen-component v-if="showLoader" @click="showLoader = !showLoader"></loading-screen-component>
-				<hr />
-
 				<h3 class="todo">date-picker-component</h3>
 				<!-- DatePickerComponent -->
 				<date-picker-component
 					v-model:value="DatePickerComponent_value"
+					:allowed-dates="DatePickerComponent_allowDate"
 				></date-picker-component>
 				<code>{{ DatePickerComponent_value }}</code>
 				<hr />
@@ -291,6 +244,10 @@
 					:config="ParameterInputTypeTimeSpanComponent_config"
 				></parameter-input-type-time-span-component>
 				<code>{{ ParameterInputTypeTimeSpanComponent_value }}</code>
+				<hr />
+
+				<h3 class="todo" @click="showLoader = !showLoader">loading-screen-component</h3>
+				<loading-screen-component v-if="showLoader" @click="showLoader = !showLoader"></loading-screen-component>
 				<hr />
 			</div>
 
@@ -586,6 +543,49 @@
 				<tooltip-component tooltip="Tooltip here!">Some text here</tooltip-component>
 				<hr />
 
+				<h3 class="ok">filterable-list-component</h3>
+				<!-- FilterableListComponent -->
+				<filterable-list-component class="dev_border"
+					:items="FilterableListComponent_items"
+                    :groupByKey="`GroupName`"
+                    :sortByKey="`GroupName`"
+                    :hrefKey="`Href`"
+                    :filterKeys="[ 'Name', 'Description' ]"
+                    :disabled="false"
+                    :showFilter="true"
+                    :groupIfSingleGroup="false"
+                    />
+				<filterable-list-component class="dev_border"
+					:items="FilterableListComponent_items"
+                    :groupByKey="`GroupName`"
+                    :sortByKey="`GroupName`"
+                    :hrefKey="`Href`"
+                    :filterKeys="[ 'Name', 'Description' ]"
+                    :disabled="true"
+                    :showFilter="false"
+                    :groupIfSingleGroup="false"
+                    />
+				<filterable-list-component class="dev_border"
+					:items="FilterableListComponent_items"
+                    :groupByKey="`GroupName`"
+                    :sortByKey="`GroupName`"
+                    :hrefKey="`Href`"
+                    :filterKeys="[ 'Name', 'Description' ]"
+                    :loading="true"
+                    :disabled="true"
+                    :showFilter="false"
+                    :groupIfSingleGroup="false"
+                    />
+				<hr />
+
+				<h3 class="ok">filter-input-component</h3>
+				<!-- FilterInputComponent -->
+				<filter-input-component
+					v-model:value="FilterInputComponent_value"
+				></filter-input-component>
+				<code>{{ FilterInputComponent_value }}</code>
+				<hr />
+
 				<!-- qwe -->
 			</div>
 		</div>
@@ -783,6 +783,10 @@ Web -> Frontend: Confirmation is delivered
 	CalendarComponent_value: string = "Some string here 3";
 	CheckboxComponent_value: boolean = true;
 	DatePickerComponent_value: Date = new Date();
+    DatePickerComponent_allowDate = (dateStr: string) => {
+        // let date = new Date(dateStr);
+		return dateStr.includes('2');
+    }
 	DialogComponent_value: boolean = false;
 	ExpansionPanelComponent_value: boolean = false;
 	FetchStatusProgressComponent_status_loading: FetchStatusWithProgress | null = { inProgress: true, progress: 50, failed: false, errorMessage: null };

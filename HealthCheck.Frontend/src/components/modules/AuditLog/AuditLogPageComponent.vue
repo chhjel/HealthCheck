@@ -154,10 +154,12 @@ import KeyValuePair from '@models/Common/KeyValuePair';
 import AuditEventViewModel from "@models/modules/AuditLog/AuditEventViewModel";
 import AuditEventFilterInputData from "@models/modules/AuditLog/AuditEventFilterInputData";
 import { StoreUtil } from "@util/StoreUtil";
+import DataTableComponent from "@components/Common/DataTableComponent.vue";
 
 @Options({
     components: {
-        DateTimePicker
+        DateTimePicker,
+        DataTableComponent
     }
 })
 export default class AuditLogPageComponent extends Vue {

@@ -4,7 +4,7 @@
             <slot name="header"></slot>
         </div>
         <div class="expansion-panel_content">
-		    <slot name="content" ></slot>
+		    <slot name="content"></slot>
         </div>
     </div>
 </template>

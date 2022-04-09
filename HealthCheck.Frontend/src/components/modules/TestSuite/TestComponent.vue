@@ -18,7 +18,7 @@
             </h4>
             <div class="test-duration" v-if="showTestDuration">{{ prettifyDuration(testResult.DurationInMilliseconds) }}</div>
 
-            <btn-component ripple color="error"
+            <btn-component color="error"
               @click.stop.prevent="cancelTest()"
               v-if="(executeTestStatus.inProgress || showCancellationButtonUntilNextRun) && test.IsCancellable"
               :disabled="cancelTestStatus.inProgress"
@@ -27,7 +27,7 @@
               {{ cancelTestButtonText }}
             </btn-component>
             
-            <btn-component ripple color="primary" 
+            <btn-component color="primary" 
               @click.stop.prevent="onExecuteTestClicked()"
               :disabled="executeTestStatus.inProgress || showCancellationButtonUntilNextRun"
               class="ma-0 pl-1 pr-3 run-test-button"

@@ -17,7 +17,7 @@
             <btn-component 
                 class="ma-0 pl-1 pr-3 block-component--header-button"
                 v-if="buttonText.length > 0"
-                ripple color="primary" 
+                color="primary" 
                 @click.stop.prevent="onHeaderButtonClicked"
                 :disabled="buttonDisabled">
             <icon-component color="white" large v-if="buttonIcon.length > 0">{{ buttonIcon }}</icon-component>

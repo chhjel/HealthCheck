@@ -47,7 +47,7 @@
                     </div>
 
                     <div xs12 sm12 md4 style="text-align: right;">
-                        <btn-component ripple color="error"
+                        <btn-component color="error"
                             @click.stop.prevent="cancelSearch(currentSearchId)"
                             v-if="searchLoadStatus.inProgress && currentSearchId != ''"
                             :disabled="cancelSearchStatus.inProgress">
@@ -242,7 +242,7 @@
                     <chip-component v-if="searchResultData.HighestDate != null" class="mb-4">
                         Last matching entry @ {{ formatDateForChip(new Date(searchResultData.HighestDate)) }}
                     </chip-component>
-                    <btn-component ripple color="error"
+                    <btn-component color="error"
                         @click.stop.prevent="cancelAllSearches()"
                         v-if="options.Options.CurrentlyRunningLogSearchCount > 0 && !hasCancelledAll"
                         :disabled="cancelAllSearchesStatus.inProgress"

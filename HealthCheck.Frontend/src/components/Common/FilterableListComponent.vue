@@ -50,7 +50,7 @@
             <!-- GROUPS: END -->
 
             <!-- NO GROUP: START -->
-            <div ripple
+            <div
                 v-for="(item, itemIndex) in filterItems(ungroupedItems)"
                 :key="`stream-menu-${itemIndex}`"
                 class="filterable-menu-item"
@@ -63,7 +63,7 @@
                 <div v-text="item.title"></div>
             </div>
 
-            <div ripple
+            <div
                 v-if="!hasGroups && filterText.length > 0 && filterItems(ungroupedItems).length == 0"
                 class="filterable-menu-item no-result-found"
                 :disabled="true">
@@ -321,9 +321,9 @@ export default class FilterableListComponent extends Vue {
     }
     &__text {
         flex: 1;
+        margin-left: 22px;
     }
-    &__badge {
-    }
+    /* &__badge { } */
 
     &.open {
         .group-item__arrow {

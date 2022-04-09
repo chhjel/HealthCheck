@@ -14,8 +14,7 @@
                     ></text-field-component>
                     <date-picker-component 
                         v-model:value="calendarStart"
-                        :allowed-dates="allowDatepickerDate"
-                        scrollable>
+                        :allowed-dates="allowDatepickerDate">
                         <btn-component flat color="primary" @click="datepickerModal = false">Cancel</btn-component>
                         <btn-component flat color="primary" @click="$refs.dateDialog.save(calendarStart)">OK</btn-component>
                     </date-picker-component>
@@ -37,7 +36,6 @@
             <template v-slot:day="{ date }">
                 <div v-for="(event, eventIndex) in calendarEventsMap[date]"
                     :key="`month-item-${event.id}-${eventIndex}`"
-                    v-ripple
                     @click="onEventClicked(event.data)"
                     class="calendar-event"
                     :class="getEventSeverityClass(event.data.Severity)">
@@ -48,7 +46,7 @@
             <!-- WITH-TIME VIEW -->
             <template v-slot:dayBody="{ date, timeToY, minutesToPixels }">
                 <template  v-for="(event) in calendarEventsMap[date]">
-                    <div v-ripple
+                    <div
                         v-if="event.time"
                         :key="`day-item-${event.id}`"
                         :style="{

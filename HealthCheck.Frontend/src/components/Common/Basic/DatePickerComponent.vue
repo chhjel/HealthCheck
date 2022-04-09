@@ -3,9 +3,10 @@
 		<h3>TODO: DatePickerComponent</h3>
         <div><b>value:</b>' {{ value }}'</div>
         <div><b>allowedDates:</b>' {{ allowedDates }}'</div>
-        <div><b>scrollable:</b>' {{ scrollable }}'</div>
 
-		<slot></slot>
+        <div class="date-picker-component__actions">
+		    <slot></slot>
+        </div>
     </div>
 </template>
 
@@ -23,10 +24,7 @@ export default class DatePickerComponent extends Vue {
     value!: string;
 
     @Prop({ required: false, default: null })
-    allowedDates!: string;
-
-    @Prop({ required: false, default: false })
-    scrollable!: string | boolean;
+    allowedDates!: (dateStr: string) => boolean;
 
     localValue: string = "";
 
@@ -43,11 +41,8 @@ export default class DatePickerComponent extends Vue {
     //////////////
     get rootClasses(): any {
         return {
-             'scrollable': this.isScrollable
         };
     }
-
-    get isScrollable(): boolean { return ValueUtils.IsToggleTrue(this.scrollable); }
 
     ////////////////
     //  METHODS  //
@@ -79,6 +74,5 @@ export default class DatePickerComponent extends Vue {
 	border: 2px solid red;
 	padding: 5px;
 	margin: 5px;
-    &.scrollable { }
 }
 </style>

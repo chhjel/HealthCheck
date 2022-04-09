@@ -6,7 +6,7 @@
             <div class="menu-items">
                 <filter-input-component class="filter" v-model:value="diagramFilterText" />
 
-                <div ripple
+                <div
                     v-for="(menuItem, diagramIndex) in menuItems"
                     :key="`diagram-menu-${diagramIndex}`"
                     class="testset-menu-item"
@@ -19,7 +19,7 @@
                     </div>
                 </div>
 
-                                    <div ripple 
+                <div 
                     v-if="options.Options.EnableDiagramSandbox"
                     class="testset-menu-item"
                     :class="{ 'active': (sandboxMode) }"
