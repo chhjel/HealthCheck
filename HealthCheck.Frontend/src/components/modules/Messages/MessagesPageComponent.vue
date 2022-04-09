@@ -624,10 +624,4 @@ export default class MessagesPageComponent extends Vue {
         display: none;
     }
 }
-.leftside-menu {
-    background-color: hsla(0, 0%, 16%, 1) !important;
-}
-.leftside-menu-item.active a {
-    background: hsla(0,0%,100%,.08);
-}
 </style>

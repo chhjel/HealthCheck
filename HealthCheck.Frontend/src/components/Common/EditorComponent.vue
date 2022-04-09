@@ -28,7 +28,7 @@
             v-model:value="isFullscreen"
             @keydown.esc="isFullscreen = false"
             fullscreen hide-overlay transition="dialog-transition">
-            <div dark>
+            <div>
                 <!-- DIALOG TOOLBAR -->
                 <toolbar-component dark color="primary">
                 <btn-component icon dark
@@ -36,7 +36,7 @@
                     <icon-component>close</icon-component>
                 </btn-component>
                 <div>{{ title }}</div>
-                                <div>
+                <div>
                     <btn-component dark flat @click="isFullscreen = false">Close</btn-component>
                 </div>
                 </toolbar-component>

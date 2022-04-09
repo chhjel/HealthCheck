@@ -1,7 +1,9 @@
 <template>
-    <div class="badge-component" :class="rootClasses">
-		<slot></slot>
-    </div>
+    <span class="badge-component">
+        <div class="badge-component__badge" :class="badgeClasses">
+            <slot></slot>
+        </div>
+    </span>
 </template>
 
 <script lang="ts">
@@ -13,6 +15,9 @@ import { Options } from "vue-class-component";
 })
 export default class BadgeComponent extends Vue {
 
+    @Prop({ required: false, default: null })
+    color!: string;
+
     //////////////////
     //  LIFECYCLE  //
     ////////////////
@@ -23,10 +28,11 @@ export default class BadgeComponent extends Vue {
     ////////////////
     //  GETTERS  //
     //////////////
-    get rootClasses(): any {
-        return {
-
+    get badgeClasses(): any {
+        let classes = {
         };
+        classes[this.color || 'primary'] = true;
+        return classes;
     }
 
 
@@ -47,13 +53,16 @@ export default class BadgeComponent extends Vue {
 
 <style scoped lang="scss">
 .badge-component {
-    border: 1px solid #fff;
-    background-color: gray;
-    color: #fff;
-    border-radius: 20px;
-    min-width: 19px;
-    display: inline-block;
-    padding: 2px;
-    text-align: center;
+    &__badge {
+        width: 22px;
+        height: 22px;
+        font-size: 14px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
 }
 </style>

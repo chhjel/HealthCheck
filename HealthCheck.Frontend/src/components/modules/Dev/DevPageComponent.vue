@@ -13,11 +13,10 @@
 					<btn-component>Some button</btn-component>
 					<btn-component>Another button</btn-component>
 				</toolbar-component>
-				<hr />
-
-				<h3 class="todo">tooltip-component</h3>
-				<!-- TooltipComponent -->
-				<tooltip-component></tooltip-component>
+				<toolbar-component dark>
+					<btn-component>Some button</btn-component>
+					<btn-component>Another button</btn-component>
+				</toolbar-component>
 				<hr />
 
 				<h3 class="todo">filterable-list-component</h3>
@@ -298,7 +297,7 @@
 			<div>
 				<h3 class="ok">editor-component</h3>
 				<!-- EditorComponent -->
-				<editor-component style="height:200px"></editor-component>
+				<editor-component style="height:200px" :allowFullscreen="true"></editor-component>
 				<hr />
 
 				<h3 class="ok">data-table-component</h3>
@@ -580,6 +579,11 @@
 					title="[count] total requests over the last [timespan]"
 					ylabel="Requests"
 				></data-over-time-chart-component>
+				<hr />
+
+				<h3 class="ok">tooltip-component</h3>
+				<!-- TooltipComponent -->
+				<tooltip-component tooltip="Tooltip here!">Some text here</tooltip-component>
 				<hr />
 
 				<!-- qwe -->

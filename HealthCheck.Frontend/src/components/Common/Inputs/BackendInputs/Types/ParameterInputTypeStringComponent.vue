@@ -9,15 +9,13 @@
                     class="pt-0"
                     v-model:value="localValue"
                     :placeholder="placeholderText"
-                    :disabled="readonly"
-                    required />
+                    :disabled="readonly" />
                 <textarea-component
                     v-if="isTextArea"
                     class="pt-0"
                     v-model:value="localValue"
                     :placeholder="placeholderText"
-                    :disabled="readonly"
-                    required />
+                    :disabled="readonly" />
                 <editor-component
                     v-if="isCodeArea"
                     class="editor"

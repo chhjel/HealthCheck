@@ -37,6 +37,14 @@ $input-paddings: (
 		}
 	}
 }
+.contrast.input, .contrast .input {
+	color: var(--color--text-light);
+	border-color: var(--color--text-light);
+
+	&:focus {
+		border: 1px solid var(--color--text-light);
+	}
+}
 .disabled.input, .disabled .input {
 	color: var(--color--accent-darken6);
 	border-color: var(--color--accent-darken6);

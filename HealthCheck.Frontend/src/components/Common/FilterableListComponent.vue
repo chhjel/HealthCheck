@@ -2,7 +2,7 @@
 <template>
     <div class="filterable-list">
         <div class="menu-items">
-            <filter-input-component class="filter" v-model:value="filterText" v-if="showFilter" />
+            <filter-input-component class="filter contrast" v-model:value="filterText" v-if="showFilter" />
             <div v-if="!showFilter" class="mb-5"></div>
             <div v-if="!showFilter" style="margin-top: 76px"></div>
 
@@ -11,37 +11,39 @@
                 indeterminate color="success"></progress-linear-component>
             
             <!-- GROUPS: START -->
-            <div
-                no-action
-                sub-group
-                prepend-icon="keyboard_arrow_up"
-                value="true"
-                v-for="(group, gindex) in groups"
-                :key="`filterable-menu-group-${gindex}`">
-                <div>
-                    <div><b>{{ group.title }}</b></div>
-                    <badge-component class="mr-3" v-if="showFilterCounts">{{ getGroupFilterMatchCount(group) }}</badge-component>
-                </div>
+            <div v-for="(group, gindex) in groups"
+                :key="`filterable-menu-group-${gindex}`"
+                class="menu-item-group"
+                :class="{ 'open': isGroupOpen(group.title) }"
+                v-set-max-height>
+                <div class="menu-item-group--wrapper">
+                    <div class="group-item" :class="{ 'open': isGroupOpen(group.title) }"
+                        @click="toggleGroup(group.title)">
+                        <icon-component class="group-item__arrow">keyboard_arrow_up</icon-component>
+                        <div class="group-item__text"><b>{{ group.title }}</b></div>
+                        <badge-component class="group-item__badge mr-3" v-if="showFilterCounts">{{ getGroupFilterMatchCount(group) }}</badge-component>
+                    </div>
 
-                <div v-for="(item, itemIndex) in filterItems(group.items)"
-                    :key="`filterable-menu-item-${itemIndex}`"
-                    class="filterable-menu-item"
-                    :class="{ 'active': itemIsSelected(item) }"
-                    @click="onItemClicked(item)"
-                    @click.middle.stop.prevent="onItemClickedMiddle(item)"
-                    @mousedown.middle.stop.prevent
-                    :href="getItemHref(item.data)"
-                    :disabled="disabled">
-                    <div>
-                        {{ item.title }}
-                        <icon-component
-                            v-for="(icon, iindex) in getItemIcons(item.data)"
-                            :key="`filterable-menu-item-${itemIndex}-icon-${iindex}`"
-                            class="filterable-menu-item__icon"
-                            color="#555"
-                            >{{ icon }}</icon-component>
-                        <br v-if="item.subTitle != null">
-                        <span style="color: darkgray;" v-if="item.subTitle != null">{{ item.subTitle }}</span>
+                    <div v-for="(item, itemIndex) in filterItems(group.items)"
+                        :key="`filterable-menu-item-${itemIndex}`"
+                        class="filterable-menu-item"
+                        :class="{ 'active': itemIsSelected(item) }"
+                        @click="onItemClicked(item)"
+                        @click.middle.stop.prevent="onItemClickedMiddle(item)"
+                        @mousedown.middle.stop.prevent
+                        :href="getItemHref(item.data)"
+                        :disabled="disabled">
+                        <div>
+                            {{ item.title }}
+                            <icon-component
+                                v-for="(icon, iindex) in getItemIcons(item.data)"
+                                :key="`filterable-menu-item-${itemIndex}-icon-${iindex}`"
+                                class="filterable-menu-item__icon"
+                                color="#555"
+                                >{{ icon }}</icon-component>
+                            <br v-if="item.subTitle != null">
+                            <span style="color: darkgray;" v-if="item.subTitle != null">{{ item.subTitle }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -125,6 +127,7 @@ export default class FilterableListComponent extends Vue {
     @Prop({ required: false, default: true })
     showFilter!: boolean;
 
+    closedGroups: Array<string> = [];
     filterText: string = "";
     selectedItemData: any = null;
 
@@ -195,6 +198,15 @@ export default class FilterableListComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    isGroupOpen(name: string): boolean {
+        return !this.closedGroups.includes(name);
+    }
+
+    toggleGroup(name: string): void {
+        if (this.isGroupOpen(name)) this.closedGroups.push(name);
+        else this.closedGroups = this.closedGroups.filter(x => x != name);
+    }
+
     filterItems(data: Array<FilterableListItem>) : Array<FilterableListItem> {
         return this.showFilter ? data.filter(x => this.itemFilterMatches(x)) : data;
     }
@@ -284,6 +296,55 @@ export default class FilterableListComponent extends Vue {
     float: right;
 }
 .filterable-menu-item {
+    display: flex;
     cursor: pointer;
+    /* border-left: 4px solid var(--v-primary-base); */
+    padding-left: 46px;
+    &.active {
+        padding-left: 42px;
+        border-left: 4px solid #d1495b;
+    }
+}
+.menu-item-group {
+    overflow: hidden;
+    transition: all 0.2s;
+    &:not(.open) {
+        max-height: 42px !important;
+    }
+}
+.group-item {
+    display: flex;
+    cursor: pointer;
+
+    &__arrow {
+        transition: transform 0.2s;
+    }
+    &__text {
+        flex: 1;
+    }
+    &__badge {
+    }
+
+    &.open {
+        .group-item__arrow {
+            transform: rotate(180deg);
+        }
+    }
+}
+.open 
+.group-item, .filterable-menu-item {
+    height: 42px;
+    align-items: center;
+    &.active, &:hover {
+        background: hsla(0,0%,100%,.08);
+    }
+}
+</style>
+
+<style lang="scss">
+.filterable-list {
+    .icon-component {
+        color: var(--color--text-light) !important;
+    }
 }
 </style>

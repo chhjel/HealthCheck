@@ -6,8 +6,7 @@
             v-model:value="localValue"
             :placeholder="placeholderText"
             :disabled="readonly"
-            type="datetime-local"
-            required>
+            type="datetime-local">
             <tooltip-component v-if="isNullable" tooltip="Set value to null">
                 <icon-component @click="clearValue">clear</icon-component>
             </tooltip-component>

@@ -27,6 +27,9 @@ export default class ToolbarComponent extends Vue {
     @Prop({ required: false, default: false })
     fixed!: string | boolean;
 
+    @Prop({ required: false, default: false })
+    dark!: string | boolean;
+
     //////////////////
     //  LIFECYCLE  //
     ////////////////
@@ -39,13 +42,15 @@ export default class ToolbarComponent extends Vue {
     //////////////
     get rootClasses(): any {
         let classes = {
-            'fixed': this.isFixed
+            'fixed': this.isFixed,
+            'dark': this.isDark
         };
         classes[this.color || 'accent'] = true;
         return classes;
     }
 
     get isFixed(): boolean { return ValueUtils.IsToggleTrue(this.fixed); }
+    get isDark(): boolean { return ValueUtils.IsToggleTrue(this.dark); }
 
     ////////////////
     //  METHODS  //

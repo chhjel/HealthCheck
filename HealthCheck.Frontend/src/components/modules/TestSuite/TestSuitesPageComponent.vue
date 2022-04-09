@@ -328,12 +328,3 @@ export default class TestSuitesPageComponent extends Vue {
     margin-right: 44px;
 }
 </style>
-
-<style>
-.testset-menu {
-    background-color: hsla(0, 0%, 16%, 1) !important;
-}
-.testset-menu-item.active a {
-    background: hsla(0,0%,100%,.08);
-}
-</style>

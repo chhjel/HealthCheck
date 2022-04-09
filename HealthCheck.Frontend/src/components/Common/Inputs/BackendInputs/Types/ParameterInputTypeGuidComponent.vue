@@ -7,8 +7,7 @@
                     class="pt-0"
                     v-model:value="localValue"
                     :placeholder="placeholderText"
-                    :disabled="readonly"
-                    required />
+                    :disabled="readonly" />
             </div>
 
             <div xs2

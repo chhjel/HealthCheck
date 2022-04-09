@@ -94,6 +94,7 @@ import StepperComponent from '@components/Common/Basic/StepperComponent.vue';
 import SelectComponent from '@components/Common/Basic/SelectComponent.vue';
 import CheckboxComponent from '@components/Common/Basic/CheckboxComponent.vue';
 import SwitchComponent from '@components/Common/Basic/SwitchComponent.vue';
+import getCustomDirectives from "@util/VueDirectives";
 function registerGlobalComponents(app: App<Element>): void {
 	app.component("ToolbarComponent", ToolbarComponent);
 	app.component("BtnComponent", BtnComponent);
@@ -118,4 +119,7 @@ function registerGlobalComponents(app: App<Element>): void {
 	app.component("SelectComponent", SelectComponent);
 	app.component("CheckboxComponent", CheckboxComponent);
 	app.component("SwitchComponent", SwitchComponent);
+
+	const customDirectives = getCustomDirectives();
+	customDirectives.forEach(d => app.directive(d.name, d.directive));
 }
