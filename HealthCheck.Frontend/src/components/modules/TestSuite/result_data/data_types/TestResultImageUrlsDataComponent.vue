@@ -5,12 +5,7 @@
         v-if="showLoader"
         indeterminate color="primary"></progress-linear-component>
 
-      <carousel-component 
-        :height="'100%'"
-        :cycle="false"
-        :hide-delimiters="!showControls"
-        :hide-controls="!showControls">
-
+      <carousel-component>
         <div
           class="image-result-data-item"
           v-for="(url,index) in urls"

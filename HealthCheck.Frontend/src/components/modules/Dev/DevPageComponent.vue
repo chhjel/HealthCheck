@@ -35,11 +35,6 @@
 				<code>{{ CalendarComponent_value }}</code>
 				<hr />
 
-				<h3 class="todo">carousel-component</h3>
-				<!-- CarouselComponent -->
-				<carousel-component></carousel-component>
-				<hr />
-
 				<h3 class="todo">menu-component</h3>
 				<!-- MenuComponent -->
 				// todo: remove and build into datepicker instead?
@@ -586,6 +581,11 @@
 				<code>{{ FilterInputComponent_value }}</code>
 				<hr />
 
+				<h3 class="ok">carousel-component</h3>
+				<!-- CarouselComponent -->
+				<carousel-component :items="CarouselComponent_items" />
+				<hr />
+
 				<!-- qwe -->
 			</div>
 		</div>
@@ -611,6 +611,7 @@ import BlockComponent from "@components/Common/Basic/BlockComponent.vue";
 import BtnComponent from "@components/Common/Basic/BtnComponent.vue";
 import CalendarComponent from "@components/Common/Basic/CalendarComponent.vue";
 import CarouselComponent from "@components/Common/Basic/CarouselComponent.vue";
+import { CarouselItem } from "@components/Common/Basic/CarouselComponent.vue.models";
 import CheckboxComponent from "@components/Common/Basic/CheckboxComponent.vue";
 import ChipComponent from "@components/Common/Basic/ChipComponent.vue";
 import DatePickerComponent from "@components/Common/Basic/DatePickerComponent.vue";
@@ -781,6 +782,12 @@ Web -> Frontend: Confirmation is delivered
 `;
 	AlertComponent_value: boolean = true;
 	CalendarComponent_value: string = "Some string here 3";
+	CarouselComponent_items: Array<CarouselItem> = [
+		{ url: "https://via.placeholder.com/2500x1000", detailsHtml: "Item A <a href=\"asd\">some link</a>" },
+		{ url: "https://via.placeholder.com/500x2000", detailsHtml: "Item B" },
+		{ url: "https://via.placeholder.com/1234", detailsHtml: "Item C" },
+		{ url: "https://via.placeholder.com/55", detailsHtml: "Item D" }
+	];
 	CheckboxComponent_value: boolean = true;
 	DatePickerComponent_value: Date = new Date();
     DatePickerComponent_allowDate = (dateStr: string) => {
