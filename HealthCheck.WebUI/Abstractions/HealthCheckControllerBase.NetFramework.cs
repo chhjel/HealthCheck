@@ -186,7 +186,7 @@ namespace HealthCheck.WebUI.Abstractions
             {
                 return CreateNoAccessResult();
             }
-            return Content(result.Result);
+            return Content(result.Result, "application/json");
         }
 
         /// <summary>
