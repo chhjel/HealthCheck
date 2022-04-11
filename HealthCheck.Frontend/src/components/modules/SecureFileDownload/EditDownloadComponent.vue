@@ -39,7 +39,7 @@
                 :items="storageOptions"
                 :disabled="!allowChanges || internalDownload.HasUploadedFile"
                 label="Where to get file from"
-                @input="onStorageChanged()"
+                @update:value="onStorageChanged()"
                 />
             
             <div class="file-selection-method" v-if="showFileIdSelect || showFileIdInput">

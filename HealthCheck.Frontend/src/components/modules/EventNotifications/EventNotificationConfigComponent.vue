@@ -88,7 +88,7 @@
                 :allow-property-name="true"
                 :allow-delete="true"
                 @delete="onConfigFilterDelete(pfindex)"
-                @change="onConfigFilterChanged(pfindex, $event)"
+                @change.self="onConfigFilterChanged(pfindex, $event)"
                 />
             <small v-if="internalConfig.PayloadFilters.length == 0">No event payload filters added.</small>
 
@@ -148,7 +148,7 @@
                     
                     <backend-input-component
                         v-model:value="notifierConfigOption.value"
-                        v-on:input="notifierConfig.Options[notifierConfigOption.key] = $event"
+                        @update:value="notifierConfig.Options[notifierConfigOption.key] = $event"
                         :config="notifierConfigOption.definition"
                         :readonly="!allowChanges"
                         :action-icon="getPlaceholdersFor(notifierConfig.Notifier, notifierConfigOption).length > 0 ? 'insert_link' : ''"

@@ -67,7 +67,7 @@
                     :key="`endpoint-limit-${item._frontendId}`"
                     :value="item"
                     :readonly="!allowChanges"
-                    @input="(val) => onCoDChanged(internalRule.CurrentEndpointRequestCountLimits, index, val)"
+                    @update:value="(val) => onCoDChanged(internalRule.CurrentEndpointRequestCountLimits, index, val)"
                     @delete="(val) => onCoDDelete(internalRule.CurrentEndpointRequestCountLimits, index)"
                     />
                 <btn-component class="ml-4"
