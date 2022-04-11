@@ -140,3 +140,11 @@ export default class CarouselComponent extends Vue {
     }
 }
 </style>
+
+<style lang="scss">
+    .carousel-component__item-details {
+        a, a:visited {
+            color: var(--color--text-light);
+        }
+    }
+</style>

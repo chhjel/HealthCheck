@@ -6,6 +6,11 @@
 
 		<div class="content-root">
 			<div>
+				<h3 class="todo">carousel-component</h3>
+				<!-- CarouselComponent -->
+				<carousel-component :items="CarouselComponent_items" />
+				<hr />
+
 				<h3 class="todo">toolbar-component</h3>
 				<!-- ToolbarComponent -->
 				<toolbar-component>
@@ -58,11 +63,6 @@
 				<h3 class="todo">timeline-component</h3>
 				<!-- TimelineComponent -->
 				<timeline-component></timeline-component>
-				<hr />
-
-				<h3 class="todo">floating-squares-effect-component</h3>
-				<!-- FloatingSquaresEffectComponent -->
-				<floating-squares-effect-component></floating-squares-effect-component>
 				<hr />
 
 				<h3 class="todo">backend-input-component</h3>
@@ -581,9 +581,9 @@
 				<code>{{ FilterInputComponent_value }}</code>
 				<hr />
 
-				<h3 class="ok">carousel-component</h3>
-				<!-- CarouselComponent -->
-				<carousel-component :items="CarouselComponent_items" />
+				<h3 class="ok" @click="showFloatingSquares = !showFloatingSquares">floating-squares-effect-component</h3>
+				<!-- FloatingSquaresEffectComponent -->
+				<floating-squares-effect-component v-if="showFloatingSquares"></floating-squares-effect-component>
 				<hr />
 
 				<!-- qwe -->
@@ -760,6 +760,7 @@ export default class DevPageComponent extends Vue {
 	FilterInputComponent_value: string = "Some string here 1";
 	FlowDiagramComponent_title: string = "Some string here 2";
 	showLoader: boolean = false;
+	showFloatingSquares: boolean = false;
 	FlowDiagramComponent_steps: Array<FlowDiagramStep<any>>= [
 		{ title: 'Start', type: FlowDiagramStepType.Start, data: null, connections: [{ target: 'Step #2', label: 'Go!',  }] },
 		{ title: 'Step #2', type: FlowDiagramStepType.If, data: null, connections: [{ target: 'Step #3a', label: 'Yes',  }, { target: 'Step #3b', label: 'No',  }] },
@@ -783,7 +784,8 @@ Web -> Frontend: Confirmation is delivered
 	AlertComponent_value: boolean = true;
 	CalendarComponent_value: string = "Some string here 3";
 	CarouselComponent_items: Array<CarouselItem> = [
-		{ url: "https://via.placeholder.com/2500x1000", detailsHtml: "Item A <a href=\"asd\">some link</a>" },
+		{ url: "https://via.placeholder.com/2500x300", detailsHtml: "Item A <a href=\"asd\">some link</a>" },
+		{ url: "https://via.placeholder.com/1000x2500", detailsHtml: "Item X <a href=\"asd\">some link</a>" },
 		{ url: "https://via.placeholder.com/500x2000", detailsHtml: "Item B" },
 		{ url: "https://via.placeholder.com/1234", detailsHtml: "Item C" },
 		{ url: "https://via.placeholder.com/55", detailsHtml: "Item D" }
