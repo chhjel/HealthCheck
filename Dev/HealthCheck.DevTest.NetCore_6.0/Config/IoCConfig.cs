@@ -11,6 +11,7 @@ using HealthCheck.Core.Modules.EventNotifications.Abstractions;
 using HealthCheck.Core.Modules.EventNotifications.Notifiers;
 using HealthCheck.Core.Modules.EventNotifications.Services;
 using HealthCheck.Core.Modules.LogViewer.Services;
+using HealthCheck.Core.Modules.Messages.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Context;
 using HealthCheck.Core.Modules.Metrics.Services;
@@ -70,6 +71,9 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
             services.AddSingleton<IHCDataExportStream, TestDataExportStreamHeavy>();
             services.AddSingleton<IHCDataExportService, HCDataExportService>();
             services.AddSingleton<IHCDataExportPresetStorage>(x => new HCFlatFileDataExportPresetStorage(@"C:\temp\DataExportPreset.json"));
+
+            // Messages
+            services.AddSingleton<IHCMessageStorage>(x => new HCFlatFileMessageStore(@"c:\temp\hc_messages"));
 
             services.AddSingleton(x => CreateSettingsService());
             services.AddSingleton(x => CreateSiteEventService(env));

@@ -15,6 +15,9 @@ using HealthCheck.Core.Modules.Documentation.Services;
 using HealthCheck.Core.Modules.EventNotifications;
 using HealthCheck.Core.Modules.EventNotifications.Abstractions;
 using HealthCheck.Core.Modules.LogViewer;
+using HealthCheck.Core.Modules.Messages;
+using HealthCheck.Core.Modules.Messages.Abstractions;
+using HealthCheck.Core.Modules.Messages.Models;
 using HealthCheck.Core.Modules.Metrics;
 using HealthCheck.Core.Modules.Metrics.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Context;
@@ -69,6 +72,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
         private readonly ISiteEventService _siteEventService;
         private readonly IHCSettingsService _settingsService;
         private readonly IHCDataRepeaterService _dataRepeaterService;
+        private readonly IHCMessageStorage _messageStore;
         private const string EndpointBase = "/";
         private static bool ForceLogout { get; set; }
         #endregion
@@ -89,7 +93,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             IHCMetricsStorage metricsStorage,
             IHCDataRepeaterService dataRepeaterService,
             IHCDataExportService dataExportService,
-            IHCDataExportPresetStorage dataExportPresetStorage
+            IHCDataExportPresetStorage dataExportPresetStorage,
+            IHCMessageStorage messageStore
         )
             : base()
         {
@@ -98,7 +103,12 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             _siteEventService = siteEventService;
             _settingsService = settingsService;
             _dataRepeaterService = dataRepeaterService;
+            _messageStore = messageStore;
 
+            UseModule(new HCMessagesModule(new HCMessagesModuleOptions() { MessageStorage = _messageStore }
+                .DefineInbox("mail", "Mail", "All sent email ends up here.")
+                .DefineInbox("sms", "SMS", "All sent sms ends up here.")
+            ));
             UseModule(new HCDataExportModule(new HCDataExportModuleOptions
                 {
                     Service = dataExportService,
@@ -256,6 +266,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<TestModuleB>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCEndpointControlModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCMetricsModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCMessagesModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
@@ -419,7 +430,44 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             {
                 roles |= RuntimeTestAccessRole.QuerystringTest;
             }
-
+            if (request.Query.ContainsKey("addmessages"))
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    var msg = new HCDefaultMessageItem($"Some summary here #{i}", $"{i}345678", $"841244{i}", $"Some test message #{i} here etc etc.", false);
+                    if (i % 4 == 0)
+                    {
+                        msg.SetError("Failed to send because of server error.")
+                            .AddNote("Mail not actually sent, devmode enabled etc.");
+                    }
+                    if (i % 2 == 0)
+                    {
+                        msg.AddNote("Mail not actually sent, devmode enabled etc.");
+                    }
+                    _messageStore.StoreMessage("sms", msg);
+                }
+                for (int i = 0; i < 13; i++)
+                {
+                    var msg = new HCDefaultMessageItem($"Subject #{i}, totally not spam", $"test_{i}@somewhe.re", $"to@{i}mail.com",
+                            $"<html>" +
+                            $"<body>" +
+                            $"<style>" +
+                            $"div {{" +
+                            $"display: inline-block;" +
+                            $"font-size: 40px !important;" +
+                            $"color: red !important;" +
+                            $"}}" +
+                            $"</style>" +
+                            $"<h3>Super fancy contents here!</h3>Now <b>this</b> is a mail! #{i} or <div>something</div> <img src=\"https://picsum.photos/200\" />.'" +
+                            $"</body>" +
+                            $"</html>", true);
+                    if (i % 5 == 0)
+                    {
+                        msg.SetError("Failed to send because of invalid email.");
+                    }
+                    _messageStore.StoreMessage("mail", msg);
+                }
+            }
             if (request.Query.ContainsKey("siteEvents"))
             {
                 for (int i = 0; i < 500; i++)

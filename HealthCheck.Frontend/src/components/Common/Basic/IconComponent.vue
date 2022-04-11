@@ -1,5 +1,5 @@
 <template>
-    <span class="icon-component" :class="rootClasses">
+    <span class="icon-component" :class="rootClasses" :style="rootStyle">
         <span class="material-icons"><slot></slot></span>
     </span>
 </template>
@@ -55,9 +55,16 @@ export default class IconComponent extends Vue {
              'help': this.isHelp,
              'color-f': true
         };
-        classes[this.color || 'secondary'] = true;
+
+        CssUtils.setColorClassIfPredefined(this.color || 'secondary', classes);
         if (!this.isSmall && !this.isMedium && !this.isLarge && !this.isXLarge) classes['small'] = true;
         return classes;
+    }
+
+    get rootStyle(): any {
+        let style = {};
+        CssUtils.setColorStyleIfNotPredefined(this.color || 'secondary', style);
+        return style;
     }
 
     get isSmall(): boolean { return ValueUtils.IsToggleTrue(this.small); }
