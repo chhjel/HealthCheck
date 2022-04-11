@@ -99,9 +99,10 @@
 
                     <div>
                         <div sm12 lg4>
-                            <textarea
-                                style="width: 100%; border: 1px solid #ccc; height: 100%; padding: 5px;"
-                                v-model="sandboxScript"
+                            <textarea-component
+                                rows="10"
+                                v-model:value="sandboxScript"
+                                @input="updateSandbox"
                                 />
                         </div>
                             
@@ -123,7 +124,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import LoggedEndpointDefinitionViewModel from '@models/modules/RequestLog/LoggedEndpointDefinitionViewModel';
@@ -196,8 +197,11 @@ export default class DocumentationPageComponent extends Vue {
     @Prop({ required: true })
     options!: ModuleOptions<DocumentationPageOptions>;
 
+    @Ref() readonly sandboxDiagram!: SequenceDiagramComponent;
+
     sequenceDiagrams: Array<SequenceDiagramData> = [];
     flowCharts: Array<FlowChartData> = [];
+    sandboxSteps: Array<SequenceDiagramStep<SequenceDiagramStepDetails | null>> = [];
 
     service: DocumentationService = new DocumentationService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     loadStatus: FetchStatus = new FetchStatus();
@@ -255,11 +259,6 @@ Web -> Frontend: Confirmation is delivered
         return this.currentSequenceDiagram.steps.some(x => x.remark != null && x.remark.trim().length > 0);
     }
 
-    get sandboxSteps(): Array<SequenceDiagramStep<SequenceDiagramStepDetails | null>>
-    {
-        return this.convertStringToSteps(this.sandboxScript);
-    }
-
     get diagramStyles(): Array<any>
     {
         return [
@@ -275,6 +274,16 @@ Web -> Frontend: Confirmation is delivered
     ////////////////
     //  METHODS  //
     //////////////
+    updateSandbox(): void {
+        this.sandboxSteps = this.calcSandboxSteps();
+    }
+
+    calcSandboxSteps(): Array<SequenceDiagramStep<SequenceDiagramStepDetails | null>>
+    {
+        if (this.sandboxDiagram == null) return [];
+        return this.convertStringToSteps(this.sandboxScript);
+    }
+    
     updateUrl(): void {
         let title: string | null = null;
         
@@ -337,6 +346,7 @@ Web -> Frontend: Confirmation is delivered
         {
             this.sandboxMode = true;
         }
+        this.$nextTick(() => this.updateSandbox());
     }
 
     loadData(): void {
@@ -399,8 +409,7 @@ Web -> Frontend: Confirmation is delivered
 
     convertStringToSteps(text: string): Array<SequenceDiagramStep<SequenceDiagramStepDetails | null>>
     {
-        var d = this.$refs.sandboxDiagram as SequenceDiagramComponent;
-        return d.convertStringToSteps<SequenceDiagramStepDetails | null>(text);
+        return this.sandboxDiagram.convertStringToSteps<SequenceDiagramStepDetails | null>(text);
     }
 
     get menuItems(): Array<DocMenuItem>
