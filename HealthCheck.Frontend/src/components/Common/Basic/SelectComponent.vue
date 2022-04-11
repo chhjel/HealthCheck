@@ -88,7 +88,7 @@ export default class SelectComponent extends Vue
     @Prop({ required: false, default: '- No data -' })
     noDataText!: string;
     
-    @Prop({ required: false, default: 'id' })
+    @Prop({ required: false, default: 'value' })
     itemValue!: string;
     
     @Prop({ required: false, default: 'text' })

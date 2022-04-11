@@ -586,7 +586,7 @@
 				<!-- CarouselComponent -->
 				<carousel-component :items="CarouselComponent_items" />
 				<hr />
-				
+
 				<!-- qwe -->
 			</div>
 		</div>
@@ -893,9 +893,9 @@ Web -> Frontend: Confirmation is delivered
 		let counter = 0;
 		for (let i=0;i<1000;i++)
 		{
-			this.SelectComponent_itemsMultiple.push({ id: `s${counter}`, text: `Something #${counter}` });
+			this.SelectComponent_itemsMultiple.push({ value: `s${counter}`, text: `Something #${counter}` });
 			counter++;
-			this.SelectComponent_itemsMultiple.push({ id: `a${counter}`, text: `Another #${counter}` });
+			this.SelectComponent_itemsMultiple.push({ value: `a${counter}`, text: `Another #${counter}` });
 			counter++;
 		}
 	}
