@@ -110,10 +110,12 @@ export default class CarouselComponent extends Vue {
     }
     &__item-img {
         height: 100%;
+        max-width: 100%;
     }
     &__item-details {
         position: absolute;
         width: 100%;
+        max-width: 100%;
         text-align: center;
         bottom: 0;
         padding: 3px;

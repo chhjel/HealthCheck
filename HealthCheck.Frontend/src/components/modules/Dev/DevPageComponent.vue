@@ -6,10 +6,6 @@
 
 		<div class="content-root">
 			<div>
-				<h3 class="todo">carousel-component</h3>
-				<!-- CarouselComponent -->
-				<carousel-component :items="CarouselComponent_items" />
-				<hr />
 
 				<h3 class="todo">toolbar-component</h3>
 				<!-- ToolbarComponent -->
@@ -586,6 +582,11 @@
 				<floating-squares-effect-component v-if="showFloatingSquares"></floating-squares-effect-component>
 				<hr />
 
+				<h3 class="ok">carousel-component</h3>
+				<!-- CarouselComponent -->
+				<carousel-component :items="CarouselComponent_items" />
+				<hr />
+				
 				<!-- qwe -->
 			</div>
 		</div>
