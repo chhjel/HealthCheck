@@ -480,6 +480,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             }
             if (request.Query.ContainsKey("siteEvent"))
             {
+                HCSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Fatal, "debug1", "Debug 1", "With failing dev details", 5,
+                    "Failed to deserialize response: \n\r\n\r[InternalServerError] <html><head><title>500 - The request timed out.</title></head><body><font color =\"#aa0000\">         <h2>500 - The request timed out.</h2></font>  The web server failed to respond within the specified time.</body></html>");
                 HCSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Error, "api_z_error", "Oh no! API Z is broken!", "How could this happen to us!?",
                     developerDetails: "Hmm this is probably why.",
                     config: x => x.AddRelatedLink("Status page", "https://status.otherapi.com"));
