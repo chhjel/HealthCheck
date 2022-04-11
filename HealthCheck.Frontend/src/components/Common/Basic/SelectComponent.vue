@@ -305,8 +305,12 @@ export default class SelectComponent extends Vue
 
     setDropdownVisible(): void {
         this.showDropdown = true;
+        this.$nextTick(() => this.setDropdownTop());
+    }
+
+    setDropdownTop(): void {
         const vh = window.innerHeight;
-        const dropdownHeight = Math.min(vh * 0.4, 400) + 12 /* 12=padding+border */;
+        const dropdownHeight = this.dropdownElement.clientHeight + 2 /* 2=border */;
         const dropdownTopY = this.wrapperElement.getBoundingClientRect().top;
         const dropdownBottomY = dropdownTopY + dropdownHeight;
         if (dropdownBottomY >= vh) {

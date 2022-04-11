@@ -167,7 +167,6 @@ export default class TestSuitesPageComponent extends Vue {
         });
 
         this.menuGroupOrders = orders;
-        console.log(this.menuGroupOrders);
     }
 
     ////////////////
