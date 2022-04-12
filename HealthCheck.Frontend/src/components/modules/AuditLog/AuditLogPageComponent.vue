@@ -8,14 +8,9 @@
 
                 <div row wrap>
                     <div xs12 sm12 md8>
-                        <date-time-picker
-                            ref="filterDate"
-                            :startDate="filterFromDate"
-                            :endDate="filterToDate"
-                            :singleDate="false"
-                            timeFormat="HH:mm"
-                            @onChange="onDateRangeChanged"
-                        />
+                        <datepicker range v-model="filterDate" :disabled="loadStatus.inProgress"
+                            :clearable="false"
+                            @update:modelValue="onDateRangeChanged" />
                     </div>
 
                     <div xs12 sm12 md4 style="text-align: right;">
@@ -143,9 +138,6 @@ import { Vue, Prop } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import DateUtils from '@util/DateUtils';
-import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
-// @ts-ignore
-import { DateTimePicker } from "@lazy-copilot/datetimepicker";
 import AuditLogService from '@services/AuditLogService';
 import { FetchStatus } from '@services/abstractions/HCServiceBase';
 import ModuleConfig from '@models/Common/ModuleConfig';
@@ -158,7 +150,6 @@ import DataTableComponent from "@components/Common/DataTableComponent.vue";
 
 @Options({
     components: {
-        DateTimePicker,
         DataTableComponent
     }
 })
@@ -175,12 +166,11 @@ export default class AuditLogPageComponent extends Vue {
     filterAction: string = "";
     filterUserId: string = "";
     filterUserName: string = "";
-    filterFromDate: Date = new Date();
-    filterToDate: Date = new Date();
-    
-    // UI state
-    filterFromDateModal: boolean = false;
-    filterToDateModal: boolean = false;
+    filterDate: Array<Date> = [new Date(), new Date()];
+    get filterFromDate(): Date { return this.filterDate[0] };
+    get filterToDate(): Date { return this.filterDate[1] };
+    set filterFromDate(v: Date) { this.filterDate[0] = v; };
+    set filterToDate(v: Date) { this.filterDate[1] = v; };
 
     // Table
     tableHeaders: Array<any> = [
@@ -242,10 +232,6 @@ export default class AuditLogPageComponent extends Vue {
         this.filterAction = "";
         this.filterUserId = "";
         this.filterUserName = "";
-
-        let dateFilterFormat = 'yyyy MMM d  HH:mm';
-        (<any>this.$refs.filterDate).selectDateString 
-            = `${DateUtils.FormatDate(this.filterFromDate, dateFilterFormat)} - ${DateUtils.FormatDate(this.filterToDate, dateFilterFormat)}`;
     }
 
     loadData(): void {
@@ -314,9 +300,7 @@ export default class AuditLogPageComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
-    onDateRangeChanged(data: any): void {
-        this.filterFromDate = data.startDate;
-        this.filterToDate = data.endDate;
+    onDateRangeChanged(): void {
         this.loadData();
     }
 

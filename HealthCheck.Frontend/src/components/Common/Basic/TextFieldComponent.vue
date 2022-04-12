@@ -181,6 +181,7 @@ export default class TextFieldComponent extends Vue {
         this.$emit('click:append');
     }
     onInput(): void {
+		this.$emit('update:value', this.localValue);
 		this.$emit('input', this.localValue);
     }
 	

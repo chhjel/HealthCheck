@@ -193,12 +193,12 @@
                         <div xs6 sm2 style="padding-left: 22px;">
                             <text-field-component type="number" label="Page size"
                                 class="options-input"
-                                v-model.number="filterTake" />
+                                v-model:value.number="filterTake" />
                         </div>
                         <div xs6 sm2 style="padding-left: 22px;">
                             <text-field-component type="number" label="Margin (ms)"
                                 class="options-input"
-                                v-model.number="filterMargin" />
+                                v-model:value.number="filterMargin" />
                         </div>          
                         <div xs6 sm4 lg2 style="padding-left: 22px;">
                             <checkbox-component
@@ -343,11 +343,8 @@ import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import DateUtils from '@util/DateUtils';
-import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
 import LogEntryTableComponent from '@components/modules/LogViewer/LogEntryTableComponent.vue';
 import ItemPerDateChartComponent from '@components/modules/LogViewer/ItemPerDateChartComponent.vue';
-// @ts-ignore
-import { DateTimePicker } from "@lazy-copilot/datetimepicker";
 import { FilterDelimiterMode } from '@models/modules/LogViewer/FilterDelimiterMode';
 import { ChartEntry } from '@components/Common/Charts/DataOverTimeChartComponent.vue.models';
 import * as XRegExp from 'xregexp';

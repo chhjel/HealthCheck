@@ -61,15 +61,7 @@
                             </div>
                         </menu-component>
 
-                        <date-time-picker
-                            ref="filterDate"
-                            :startDate="filterFromDate"
-                            :endDate="filterToDate"
-                            :singleDate="false"
-                            :disabled="dataLoadStatus.inProgress"
-                            timeFormat="HH:mm"
-                            @onChange="onDateRangeChanged"
-                        />
+                        <datepicker range v-model="filterDate" :disabled="dataLoadStatus.inProgress" :clearable="false" />
                     </div>
                 </div>
                 
@@ -105,7 +97,7 @@
                     <div xs6 sm2 style="margin-top: 22px;">
                         <text-field-component type="number" label="Max items to fetch"
                             class="options-input"
-                            v-model.number="filterTake" />
+                            v-model:value.number="filterTake" />
                     </div>
                     <div xs6 sm2 style="margin-top: 17px; margin-left: 40px;">
                         <btn-component 
@@ -266,9 +258,6 @@ import DataflowEntry from '@models/modules/Dataflow/DataflowEntry';
 import GetDataflowEntriesRequestModel from '@models/modules/Dataflow/GetDataflowEntriesRequestModel';
 import { DataFlowPropertyUIHint } from '@generated/Enums/Core/DataFlowPropertyUIHint';
 import DataflowEntryPropertyValueComponent from '@components/modules/Dataflow/EntryProperties/DataflowEntryPropertyValueComponent.vue';
-import '@lazy-copilot/datetimepicker/dist/datetimepicker.css'
-// @ts-ignore
-import { DateTimePicker } from "@lazy-copilot/datetimepicker";
 import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
 import DataTableComponent from '@components/Common/DataTableComponent.vue';
 import { DataTableGroup } from '@components/Common/DataTableComponent.vue.models';
@@ -329,7 +318,6 @@ interface StreamGroup
 @Options({
     components: {
         DataflowEntryPropertyValueComponent,
-        DateTimePicker,
         FilterInputComponent,
         DataTableComponent,
         FilterableListComponent
@@ -368,8 +356,11 @@ export default class DataflowPageComponent extends Vue {
     selectedFilter: string | null = null;
     filtersPerStream: StreamPropFilters = {};
     firstEntryPerStream: FirstEntryPerStream = {};
-    filterFromDate: Date = new Date();
-    filterToDate: Date = new Date();
+    filterDate: Array<Date> = [new Date(), new Date()];
+    get filterFromDate(): Date { return this.filterDate[0] };
+    get filterToDate(): Date { return this.filterDate[1] };
+    set filterFromDate(v: Date) { this.filterDate[0] = v; };
+    set filterToDate(v: Date) { this.filterDate[1] = v; };
     filterTake: number = 50;
 
     searchQuery: string = '';
@@ -555,23 +546,13 @@ export default class DataflowPageComponent extends Vue {
         this.filterToDate.setHours(23);
         this.filterToDate.setMinutes(59);
 
-        this.setDatePickerDate(this.filterFromDate, this.filterToDate);
-
         this.filterTake = 50;
         this.filters = [];
     }
 
     setDatePickerValue(preset: DatePickerPreset): void {
-        this.setDatePickerDate(preset.from, preset.to);
-    }
-
-    setDatePickerDate(from: Date, to: Date): void {
-        this.filterFromDate = from;
-        this.filterToDate = to;
-
-        let dateFilterFormat = 'yyyy MMM d  HH:mm';
-        (<any>this.$refs.filterDate).selectDateString 
-            = `${DateUtils.FormatDate(this.filterFromDate, dateFilterFormat)} - ${DateUtils.FormatDate(this.filterToDate, dateFilterFormat)}`;
+        this.filterFromDate = preset.from;
+        this.filterToDate = preset.to;
     }
 
     loadData(): void {
@@ -1043,11 +1024,6 @@ export default class DataflowPageComponent extends Vue {
             const route = `#/dataflow/${group}/${streamName}`;
             UrlUtils.openRouteInNewTab(route);
         }
-    }
-
-    onDateRangeChanged(data: any): void {
-        this.filterFromDate = data.startDate;
-        this.filterToDate = data.endDate;
     }
 }
 </script>

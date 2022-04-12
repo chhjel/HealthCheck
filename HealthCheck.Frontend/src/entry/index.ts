@@ -6,6 +6,10 @@ import HealthCheckPageComponent from "@components/HealthCheckPageComponent.vue";
 import ModuleConfig from "@models/Common/ModuleConfig";
 import shadow from 'vue-shadow-dom';
 
+// Datepicker
+import Datepicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
+
 // Debugging
 if (window.location.search?.includes('hc_debug_warning=true'))
 {
@@ -119,6 +123,9 @@ function registerGlobalComponents(app: App<Element>): void {
 	app.component("SelectComponent", SelectComponent);
 	app.component("CheckboxComponent", CheckboxComponent);
 	app.component("SwitchComponent", SwitchComponent);
+	
+	// External
+	app.component('Datepicker', Datepicker);
 
 	const customDirectives = getCustomDirectives();
 	customDirectives.forEach(d => app.directive(d.name, d.directive));
