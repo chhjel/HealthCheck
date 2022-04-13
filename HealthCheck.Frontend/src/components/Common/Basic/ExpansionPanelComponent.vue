@@ -1,5 +1,5 @@
 <template>
-    <div class="expansion-panel-component" :class="rootClasses" v-set-max-height:1>
+    <div class="expansion-panel-component" :class="rootClasses" v-set-max-height:c>
         <div class="expansion-panel_header" @click="localValue = !localValue">
             <slot name="header"></slot>
         </div>

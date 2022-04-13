@@ -1,12 +1,9 @@
 <template>
-    <div class="snackbar-component" :class="rootClasses">
-        <!-- <h3>TODO: SnackbarComponent</h3>
-        ToDo: show on bottom and fade out after timeout or clicked close
-        <div><b>value:</b>' {{ value }}'</div>
-        <div><b>timeout:</b>' {{ timeout }}'</div>
-        <div><b>color:</b>' {{ color }}'</div> -->
-        <slot></slot>
-    </div>
+    <Teleport to="body">
+        <div class="snackbar-component" :class="rootClasses" v-if="isVisible">
+            <slot></slot>
+        </div>
+    </Teleport>
 </template>
 
 <script lang="ts">
@@ -21,13 +18,18 @@ export default class SnackbarComponent extends Vue {
     @Prop({ required: true })
     value!: boolean;
 
-    @Prop({ required: false, default: null })
-    timeout!: string;
+    @Prop({ required: false, default: 6000 })
+    timeout!: number;
 
     @Prop({ required: false, default: null })
     color!: string;
 
     localValue: boolean = false;
+    
+    isVisible: boolean = false;
+    timeoutRefFade: NodeJS.Timeout;
+    timeoutRefHide: NodeJS.Timeout;
+    hideDelay: number = 1500;
 
     //////////////////
     //  LIFECYCLE  //
@@ -41,11 +43,12 @@ export default class SnackbarComponent extends Vue {
     //  GETTERS  //
     //////////////
     get rootClasses(): any {
-        return {
-
+        let classes = {
+            'fading': !this.localValue
         };
+        classes[this.color || 'info'] = true;
+        return classes;
     }
-
 
     ////////////////
     //  METHODS  //
@@ -54,6 +57,12 @@ export default class SnackbarComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    onTimeoutFade(): void {
+        this.localValue = false;
+    }
+    onTimeoutHide(): void {
+        this.isVisible = false;
+    }
 	
     /////////////////
     //  WATCHERS  //
@@ -62,6 +71,15 @@ export default class SnackbarComponent extends Vue {
     updateLocalValue(): void
     {
 		this.localValue = this.value;
+
+        if (this.localValue)
+        {
+            this.isVisible = true;
+            if (this.timeoutRefFade) clearTimeout(this.timeoutRefFade);
+            if (this.timeoutRefHide) clearTimeout(this.timeoutRefHide);
+            this.timeoutRefFade = setTimeout(this.onTimeoutFade, this.timeout);
+            this.timeoutRefHide = setTimeout(this.onTimeoutHide, this.timeout + this.hideDelay);
+        }
     }
 
     @Watch('localValue')
@@ -74,9 +92,18 @@ export default class SnackbarComponent extends Vue {
 
 <style scoped lang="scss">
 .snackbar-component {
-	border: 2px solid red;
-	padding: 5px;
-	margin: 5px;
+    padding: 5px;
+    display: inline-flex;
+    align-items: baseline;
+    position: fixed;
+    bottom: 0;
+    transition: 1s all;
+    z-index: 99999;
+    left: 50%;
+    transform: translateX(-50%);
 
+    &.fading {
+        bottom: -100px;
+    }
 }
 </style>

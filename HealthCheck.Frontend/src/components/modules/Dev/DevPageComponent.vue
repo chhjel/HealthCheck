@@ -42,15 +42,6 @@
 				<menu-component></menu-component>
 				<hr />
 
-				<h3 class="todo" @click="SnackbarComponent_value = true">snackbar-component</h3>
-				<!-- SnackbarComponent -->
-				<snackbar-component v-model:value="SnackbarComponent_value" :timeout="5000" color="info">
-					Some text here!
-					<btn-component flat @click="SnackbarComponent_value = false">Close</btn-component>
-				</snackbar-component>
-				<code>{{ SnackbarComponent_value }}</code>
-				<hr />
-
 				<h3 class="todo">stepper-component</h3>
 				<!-- StepperComponent -->
 				<stepper-component></stepper-component>
@@ -587,6 +578,15 @@
 				<carousel-component :items="CarouselComponent_items" />
 				<hr />
 
+				<h3 class="ok" @click="SnackbarComponent_value = true">snackbar-component</h3>
+				<!-- SnackbarComponent -->
+				<snackbar-component v-model:value="SnackbarComponent_value" :timeout="2500" color="info">
+					Some text here!
+					<btn-component flat @click="SnackbarComponent_value = false">Close</btn-component>
+				</snackbar-component>
+				<code>{{ SnackbarComponent_value }}</code>
+				<hr />
+
 				<!-- qwe -->
 			</div>
 		</div>
@@ -809,7 +809,7 @@ Web -> Frontend: Confirmation is delivered
 	SelectComponent_items: Array<string> = ['Simple A', 'Simple B', 'Simple C', 'Another X', 'Another Y', 'Another Z'];
 	SelectComponent_valueMultiple: Array<string> = ['s88', 'a67', 's2'];
 	SelectComponent_itemsMultiple: Array<any> = [];
-	SnackbarComponent_value: boolean = true;
+	SnackbarComponent_value: boolean = false;
 	SwitchComponent_value: boolean = true;
 	TextareaComponent_value: string = "Some string here 5";
 	TextFieldComponent_value: string = "Some string here 6";
