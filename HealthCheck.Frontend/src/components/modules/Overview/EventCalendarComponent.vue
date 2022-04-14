@@ -4,14 +4,15 @@
         <!-- DATEPICKER & TYPE SELECT-->
         <div v-if="calendarEvents.length > 0">
             <div xs12 sm3 class="mr-4">
+                <text-field-component
+                    v-model:value="calendarStart"
+                    label="Date"
+                    prepend-icon="event"
+                    readonly
+                    @click="datepickerModal = true"
+                ></text-field-component>
                 <dialog-component ref="dateDialog" v-model:value="datepickerModal"
                     full-width width="290px">
-                    <text-field-component
-                        v-model:value="calendarStart"
-                        label="Date"
-                        prepend-icon="event"
-                        readonly
-                    ></text-field-component>
                     <date-picker-component 
                         v-model:value="calendarStart"
                         :allowed-dates="allowDatepickerDate">

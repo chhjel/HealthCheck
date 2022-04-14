@@ -7,18 +7,6 @@
 		<div class="content-root">
 			<div>
 
-				<h3 class="todo">toolbar-component</h3>
-				<!-- ToolbarComponent -->
-				<toolbar-component>
-					<btn-component>Some button</btn-component>
-					<btn-component>Another button</btn-component>
-				</toolbar-component>
-				<toolbar-component dark>
-					<btn-component>Some button</btn-component>
-					<btn-component>Another button</btn-component>
-				</toolbar-component>
-				<hr />
-
 				<h3 class="todo">date-picker-component</h3>
 				<!-- DatePickerComponent -->
 				<date-picker-component
@@ -585,6 +573,18 @@
 					<btn-component flat @click="SnackbarComponent_value = false">Close</btn-component>
 				</snackbar-component>
 				<code>{{ SnackbarComponent_value }}</code>
+				<hr />
+
+				<h3 class="ok">toolbar-component</h3>
+				<!-- ToolbarComponent -->
+				<toolbar-component>
+					<btn-component>Some button</btn-component>
+					<btn-component>Another button</btn-component>
+				</toolbar-component>
+				<toolbar-component dark>
+					<btn-component>Some button</btn-component>
+					<btn-component>Another button</btn-component>
+				</toolbar-component>
 				<hr />
 
 				<!-- qwe -->
