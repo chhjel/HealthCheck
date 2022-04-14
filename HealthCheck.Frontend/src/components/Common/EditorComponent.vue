@@ -14,7 +14,7 @@
             :class="{ 'editor-component__editor__fullscreen': (isFullscreen) }"
             ></div>
 
-        <btn-component absolute dark fab flat small top right
+        <btn-component absolute dark icon flat small top right
             color="success"
             class="editor-fullscreen-button"
             title="Fullscreen"
@@ -24,24 +24,23 @@
         </btn-component>
         
         <!-- ##################### -->
-        <dialog-component
+        <!-- <dialog-component
             v-model:value="isFullscreen"
             @keydown.esc="isFullscreen = false"
-            fullscreen hide-overlay transition="dialog-transition">
+            fullscreen hide-overlay>
             <div>
-                <!-- DIALOG TOOLBAR -->
-                <toolbar-component dark color="primary">
-                <btn-component icon dark
-                    @click="isFullscreen = false">
-                    <icon-component>close</icon-component>
-                </btn-component>
-                <div>{{ title }}</div>
-                <div>
-                    <btn-component dark flat @click="isFullscreen = false">Close</btn-component>
-                </div>
-                </toolbar-component>
             </div>
-        </dialog-component>
+        </dialog-component> -->
+        <!-- DIALOG TOOLBAR -->
+        <toolbar-component color="primary" fixed v-if="isFullscreen">
+            <btn-component icon @click="isFullscreen = false">
+                <icon-component>close</icon-component>
+            </btn-component>
+            <div>{{ title }}</div>
+            <div>
+                <btn-component flat @click="isFullscreen = false">Close</btn-component>
+            </div>
+        </toolbar-component>
         <!-- ##################### -->
     </div>
 </template>

@@ -69,6 +69,9 @@ export default class BtnComponent extends Vue {
     outline!: string | boolean;
 
     @Prop({ required: false, default: false })
+    absolute!: string | boolean;
+
+    @Prop({ required: false, default: false })
     xSmall!: string | boolean;
 
     @Prop({ required: false, default: null })
@@ -97,12 +100,14 @@ export default class BtnComponent extends Vue {
              'loading': this.isLoading,
              'depressed': this.isDepressed,
              'outline': this.isOutline,
-             'x-small': this.isXSmall
+             'x-small': this.isXSmall,
+             'absolute': this.isAbsolute
         };
         classes[this.color || 'accent'] = true;
         return classes;
     }
 
+    get isAbsolute(): boolean { return ValueUtils.IsToggleTrue(this.absolute); }
     get isFlat(): boolean { return ValueUtils.IsToggleTrue(this.flat); }
     get isSmall(): boolean { return ValueUtils.IsToggleTrue(this.small); }
     get isIcon(): boolean { return ValueUtils.IsToggleTrue(this.icon); }
@@ -167,7 +172,14 @@ export default class BtnComponent extends Vue {
         padding: 5px 10px;
     }
 
-    &.icon { }
+    &.icon {
+        border-radius: 50%;
+        min-width: 0;
+        .btn-component__contents {
+            padding: 5px;
+        }
+    }
+
     &.disabled {
         cursor: default;
     }

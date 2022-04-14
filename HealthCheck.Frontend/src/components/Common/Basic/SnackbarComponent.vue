@@ -1,9 +1,11 @@
 <template>
-    <Teleport to="body">
-        <div class="snackbar-component" :class="rootClasses" v-if="isVisible">
-            <slot></slot>
-        </div>
-    </Teleport>
+    <div>
+        <Teleport to="body">
+            <div class="snackbar-component" :class="rootClasses" v-if="isVisible">
+                <slot></slot>
+            </div>
+        </Teleport>
+    </div>
 </template>
 
 <script lang="ts">

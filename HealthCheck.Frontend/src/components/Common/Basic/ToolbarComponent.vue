@@ -69,8 +69,7 @@ export default class ToolbarComponent extends Vue {
 
 <style scoped lang="scss">
 .toolbar-component {
-    background-color: var(--color--background-bright);
-    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    background-color: #f5f5f5;
     width: 100%;
     position: relative;
     z-index: 99;
@@ -79,6 +78,7 @@ export default class ToolbarComponent extends Vue {
     &.fixed {
         position: fixed;
         top: 0;
+        left: 0;
     }
 
     &__content {

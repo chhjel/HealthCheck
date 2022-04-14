@@ -3,7 +3,7 @@
     <div>
         <div v-if="!showIntegratedLogin">
             <!-- TOOLBAR -->
-            <toolbar-component fixed>
+            <toolbar-component fixed class="box-shadow-small">
                 <template #prefix>
                     <div class="toolbar-prefix">
                         <icon-component class="clickable toolbar-icon"

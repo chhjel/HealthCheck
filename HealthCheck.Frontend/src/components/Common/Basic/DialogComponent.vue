@@ -141,14 +141,13 @@ export default class DialogComponent extends Vue {
     background-color: #0000005c;
     z-index: 1000;
 
-    &.fullscreen { }
     &.hide-overlay {
-        background-color: none;
+        background-color: inherit;
     }
     &.scrollable { }
     &.persistent { }
     &.full-width { }
-        
+    
     .dialog-component_modal_wrapper {
         height: 100%;
         display: flex;
@@ -176,6 +175,23 @@ export default class DialogComponent extends Vue {
             font-size: 20px;
             padding: 3px 8px;
             border-radius: 50%;
+        }
+    }
+
+    &.fullscreen {
+        .dialog-component_modal_wrapper {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            padding: 0;
+            justify-content: inherit;
+
+            .dialog-component_modal {
+            }
+            .dialog-component_modal_cross {
+            }
         }
     }
 }
