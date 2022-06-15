@@ -20,7 +20,9 @@
                         v-model="filter"
                         :placeholder="placeholderText"
                         @keyup.enter="onFilterEnter"
-                        @focus="onFilterFocus" />
+                        @blur="onFilterBlur"
+                        @focus="onFilterFocus"
+                        ref="filterInputElement" />
                 </div>
                 <span class="select-component__placeholder input-placeholder"
                     v-if="placeholderText && !showInput">{{ placeholderText }}</span>
@@ -124,6 +126,7 @@ export default class SelectComponent extends Vue
     @Ref() readonly inputElement!: HTMLElement;
     @Ref() readonly dropdownElement!: HTMLElement;
     @Ref() readonly wrapperElement!: HTMLElement;
+    @Ref() readonly filterInputElement!: HTMLInputElement;
 
     id: string = IdUtils.generateId();
     selectedValues: Array<string> = [];
@@ -153,6 +156,7 @@ export default class SelectComponent extends Vue
     //  GETTERS  //
     //////////////
     get selectedItems(): Array<Item> {
+        if (this.useInputOnly) return [];
         return this.optionItems.filter(x => this.selectedValues.includes(x.value));
     }
 
@@ -162,9 +166,8 @@ export default class SelectComponent extends Vue
 
     get optionItems(): Array<Item> {
         let baseItems: Array<Item> = [];
-        if (Array.isArray(this.items))
+        if (Array.isArray(this.items) && this.items.length > 0)
         {
-            if (this.items.length == 0) return [];
             const firstValue = this.items[0];
             const isSimpleValue = typeof firstValue === 'string' || firstValue instanceof String;
             baseItems = this.items.map(x => {
@@ -184,7 +187,7 @@ export default class SelectComponent extends Vue
                 }
             });
         }
-        else
+        else if (!Array.isArray(this.items))
         {
             baseItems = Object.keys(this.items).map(key => {
                 return {
@@ -231,6 +234,10 @@ export default class SelectComponent extends Vue
 
     get showInput(): boolean {
         return this.isAllowInput || this.isAllowCustom;
+    }
+
+    get useInputOnly(): boolean {
+        return this.showInput && (!this.items || (Array.isArray(this.items) && this.items.length == 0));
     }
     
     get isLoading(): boolean { return ValueUtils.IsToggleTrue(this.loading); }
@@ -282,10 +289,12 @@ export default class SelectComponent extends Vue
         const val = this.filter.trim();
         if (this.selectedValues.includes(val)) return;
         this.addValue(val);
-        this.filter = '';
+        
+        if (!this.useInputOnly) this.filter = '';
     }
 
     isAllowedToShowDropdown(): boolean {
+        if (this.useInputOnly) return false;
         return !this.isDisabled && !this.isLoading;
     }
 
@@ -342,6 +351,9 @@ export default class SelectComponent extends Vue
     onFilterEnter(): void {
         this.tryAddCustomValue();
     }
+    onFilterBlur(): void {
+        this.tryAddCustomValue();
+    }
     onFilterFocus(): void {
         this.tryShowDropdown();
     }
@@ -354,6 +366,15 @@ export default class SelectComponent extends Vue
         }
         else {
             this.selectedValues = !!this.value ? [ this.value ] : [];
+        }
+
+        if (this.useInputOnly) {
+            if (Array.isArray(this.value) && this.value.length > 0 && this.value[0]) {
+                this.filter = this.value[0];
+            }
+            else if (!Array.isArray(this.value) && this.value) {
+                this.filter = this.value;
+            }
         }
     }
 

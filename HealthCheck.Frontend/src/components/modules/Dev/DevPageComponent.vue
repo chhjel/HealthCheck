@@ -404,8 +404,8 @@
 
 				<h3 class="ok">input-header-component</h3>
 				<!-- InputHeaderComponent -->
-				<input-header-component name="Name here"></input-header-component>
-				<input-header-component name="Name here" description="Description here"></input-header-component>
+				<input-header-component name="Name only here"></input-header-component>
+				<input-header-component name="Name and desc here" description="Description here"></input-header-component>
 				<hr />
 
 				<h3 class="ok">text-field-component</h3>
@@ -476,6 +476,10 @@
 				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex input" allowInput />
 				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Array input custom" allowInput allowCustom />
 				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex input custom" allowInput allowCustom />
+				
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_itemsEmpty" label="Custom, no items" no-data-text="Value required" placeholder="Value to search for" allowInput allowCustom />
+				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_itemsMultiple" label="Custom, with items" no-data-text="Value required" placeholder="Value to search for" allowInput allowCustom />
+
 				Value: <code>{{ SelectComponent_value }}</code><br />
 				Value multiple: <code>{{ SelectComponent_valueMultiple }}</code>
 				<hr />
@@ -807,6 +811,7 @@ Web -> Frontend: Confirmation is delivered
 	PagingComponent_count: number = 88;
 	SelectComponent_value: string = "Simple B";
 	SelectComponent_items: Array<string> = ['Simple A', 'Simple B', 'Simple C', 'Another X', 'Another Y', 'Another Z'];
+	SelectComponent_itemsEmpty: Array<string> = [];
 	SelectComponent_valueMultiple: Array<string> = ['s88', 'a67', 's2'];
 	SelectComponent_itemsMultiple: Array<any> = [];
 	SnackbarComponent_value: boolean = false;
