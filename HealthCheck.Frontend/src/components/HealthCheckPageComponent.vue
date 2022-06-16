@@ -27,8 +27,8 @@
                     <icon-component class="mr-1">remove_circle</icon-component>
                     Token killswitch
                     </btn-component>
-                <icon-component class="clickable toolbar-icon"
-                    @click.stop="toggleThemes">dark_mode</icon-component>
+                <!-- <icon-component class="clickable toolbar-icon"
+                    @click.stop="toggleThemes">dark_mode</icon-component> -->
                 <btn-component flat 
                     v-if="showIntegratedProfile"
                     @click.left.prevent="integratedProfileDialogVisible = true">

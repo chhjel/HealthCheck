@@ -40,8 +40,8 @@
                     </div>
                 </div>
 
-                <data-table-component
-                    :headers="tableHeaders"
+                <!-- <data-table-component
+                    :headers="tableHeaders.map(x => x.text)"
                     :items="filteredAuditEvents"
                     :loading="loadStatus.inProgress"
                     :rows-per-page-items="tableRowsPerPageItems"
@@ -49,61 +49,57 @@
                     :custom-sort="tableSorter"
                     item-key="Id"
                     expand
+                    class="audit-table"> -->
+                <alert-component :value="true" color="error" icon="warning" v-if="loadStatus.failed">
+                    {{ loadStatus.errorMessage }}
+                </alert-component>
+                <progress-linear-component color="primary" indeterminate v-if="loadStatus.inProgress"></progress-linear-component>
+
+                <data-table-component
+                    :headers="tableHeaders.map(x => x.text)"
+                    :groups="auditEntryGroups"
                     class="audit-table">
-                    <progress-linear-component color="primary" indeterminate></progress-linear-component>
-                    <template v-slot:no-data>
-                    <alert-component :value="true" color="error" icon="warning" v-if="loadStatus.failed">
-                        {{ loadStatus.errorMessage }}
-                    </alert-component>
+                    <template v-slot:cell="{ value }">
+                        <span>{{ value }}</span>
                     </template>
-                    <template v-slot:items="props">
-                        <tr
-                            @click="props.expanded = !props.expanded"
-                            class="audit-table-row">
-                            <td width="200">{{ formatDateForTable(props.item.Timestamp) }}</td>
-                            <td class="text-xs-left">{{ props.item.UserName }}</td>
-                            <td class="text-xs-left">{{ props.item.Action }}</td>
-                            <td class="text-xs-left">{{ props.item.Subject }}</td>
-                        </tr>
-                    </template>
-                    <template v-slot:expand="props">
-                        <div flat>
-                            <div class="row-details">
-                                <div class="row-details-user mt-2 mb-2">
-                                    <icon-component class="row-details-usericon">person</icon-component>
-                                    <div class="row-details-username">{{ props.item.UserName }}</div>
-                                    <div class="row-details-userid ml-1">({{ props.item.UserId }})</div>
-                                    <div class="row-details-roles ml-1" v-if="props.item.UserAccessRoles.length > 0">
-                                        <div v-for="(role, index) in props.item.UserAccessRoles"
-                                            :key="`audit-${props.item.Id}-role-${index}`"
-                                            class="role-tag">
-                                            {{ role }}
-                                        </div>
+                    <template v-slot:expandedItem="{ item }">
+                        <div class="row-details">
+                            <div class="row-details-user mt-2 mb-2">
+                                <icon-component class="row-details-usericon">person</icon-component>
+                                <div class="row-details-username">{{ item.expandedValues[0].UserName }}</div>
+                                <div class="row-details-userid ml-1">({{ item.expandedValues[0].UserId }})</div>
+                                <div class="row-details-roles ml-1" v-if="item.expandedValues[0].UserAccessRoles.length > 0">
+                                    <div v-for="(role, index) in item.expandedValues[0].UserAccessRoles"
+                                        :key="`audit-${item.expandedValues[0].Id}-role-${index}`"
+                                        class="role-tag">
+                                        {{ role }}
                                     </div>
                                 </div>
-                                <div class="row-details-details" v-if="props.item.Details.length > 0">
-                                    <ul>
-                                        <li v-for="(detail, index) in props.item.Details"
-                                            :key="`audit-${props.item.Id}-detail-${index}`">
-                                            <div class="row-details-details-title">{{ detail.Key }}:</div> <code class="row-details-details-value">{{ detail.Value }}</code>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="row-details-blobs" v-if="props.item.Blobs.length > 0">
-                                    <ul>
-                                        <li v-for="(blob, index) in props.item.Blobs"
-                                            :key="`audit-${props.item.Id}-blob-${index}`">
-                                            <div class="row-details-blobs-title">{{ blob.Key }}:</div> 
-                                            <a class="row-details-blobs-value"
-                                                @click.prevent="onViewBlobClicked(props.item, blob)"
-                                                >[View]</a>
-                                        </li>
-                                    </ul>
-                                </div>
+                            </div>
+                            <div class="row-details-details" v-if="item.expandedValues[0].Details.length > 0">
+                                <ul>
+                                    <li v-for="(detail, index) in item.expandedValues[0].Details"
+                                        :key="`audit-${item.expandedValues[0].Id}-detail-${index}`">
+                                        <div class="row-details-details-title">{{ detail.Key }}:</div> <code class="row-details-details-value">{{ detail.Value }}</code>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="row-details-blobs" v-if="item.expandedValues[0].Blobs.length > 0">
+                                <ul>
+                                    <li v-for="(blob, index) in item.expandedValues[0].Blobs"
+                                        :key="`audit-${item.expandedValues[0].Id}-blob-${index}`">
+                                        <div class="row-details-blobs-title">{{ blob.Key }}:</div> 
+                                        <a class="row-details-blobs-value"
+                                            @click.prevent="onViewBlobClicked(item.expandedValues, blob)"
+                                            >[View]</a>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </template>
                 </data-table-component>
+            
+                <code>{{filteredAuditEvents}}</code>
             </div>
         </div>
 
@@ -147,6 +143,7 @@ import AuditEventViewModel from "@models/modules/AuditLog/AuditEventViewModel";
 import AuditEventFilterInputData from "@models/modules/AuditLog/AuditEventFilterInputData";
 import { StoreUtil } from "@util/StoreUtil";
 import DataTableComponent from "@components/Common/DataTableComponent.vue";
+import { DataTableGroup } from "@components/Common/DataTableComponent.vue.models";
 
 @Options({
     components: {
@@ -175,8 +172,8 @@ export default class AuditLogPageComponent extends Vue {
     // Table
     tableHeaders: Array<any> = [
         //{ text: 'Area', align: 'left', sortable: true, value: 'Area' },
-        { text: 'When', value: 'Timestamp', align: 'left' },
-        { text: 'Username', value: 'UserName', align: 'left' },
+        { text: 'Timestamp', value: 'Timestamp', align: 'left' },
+        { text: 'UserName', value: 'UserName', align: 'left' },
         { text: 'Action', value: 'Action', align: 'left' },
         { text: 'Subject', value: 'Subject', align: 'left' }
     ];
@@ -198,6 +195,7 @@ export default class AuditLogPageComponent extends Vue {
     loadStatus: FetchStatus = new FetchStatus();
     
     filteredAuditEvents: Array<AuditEventViewModel> = [];
+    auditEntryGroups: Array<DataTableGroup> = [];
 
     //////////////////
     //  LIFECYCLE  //
@@ -238,7 +236,10 @@ export default class AuditLogPageComponent extends Vue {
         let payload = this.generateFilterPayload();
         this.service.Search(payload, this.loadStatus, {
             onSuccess: (data) => this.onEventDataRetrieved(data),
-            onError: (err) => this.filteredAuditEvents = []
+            onError: (err) => {
+                this.filteredAuditEvents = [];
+                this.auditEntryGroups = [];
+            }
         });
     }
 
@@ -261,36 +262,21 @@ export default class AuditLogPageComponent extends Vue {
             x.Id = index.toString();
             x.Timestamp = new Date(x.Timestamp);
         });
-        this.filteredAuditEvents = events;
+        this.filteredAuditEvents = events.sort((a,b) => b.Timestamp.getTime() - a.Timestamp.getTime());
+
+        this.auditEntryGroups = [];
+        let group: DataTableGroup = { title: '', items: [] };
+        this.auditEntryGroups.push(group);
+        this.filteredAuditEvents.forEach(e => {
+            group.items.push({
+                values: [ this.formatDateForTable(e.Timestamp), e.UserName, e.Action, e.Subject ],
+                expandedValues: [ e ]
+            });
+        });
     }
 
     formatDateForTable(date: Date): string {
         return DateUtils.FormatDate(date, 'MMMM d, yyyy @ HH:mm:ss');
-    }
-
-    tableSorter(items: AuditEventViewModel[], index: string, isDescending: boolean): AuditEventViewModel[]
-    {
-        if (index == null) {
-            // Do nothing
-        }
-        else if (index === "Timestamp")
-        {
-            items = items.sort((a:AuditEventViewModel, b:AuditEventViewModel) => b.Timestamp.getTime() - a.Timestamp.getTime());
-        }
-        else {
-            items = items.sort((a:AuditEventViewModel, b:AuditEventViewModel) => {
-            
-                var textA = (<any>a)[index].toUpperCase();
-                var textB = (<any>b)[index].toUpperCase();
-                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-            });
-        }
-        
-        if (isDescending === true) {
-            items = items.reverse();
-        }
-
-        return items;
     }
 
     hideBlobContentsDialog(): void {
