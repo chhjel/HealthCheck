@@ -120,7 +120,9 @@ module.exports.plugins = [
   new VueLoaderPlugin(),
   new webpack.DefinePlugin({
     DEVMODE: JSON.stringify(!isProd),
-    PRODMODE: JSON.stringify(isProd)
+    PRODMODE: JSON.stringify(isProd),
+    __VUE_OPTIONS_API__: true,
+    __VUE_PROD_DEVTOOLS__: false
   }),
   new webpack.optimize.LimitChunkCountPlugin({
     maxChunks: 1
