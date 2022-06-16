@@ -31,7 +31,7 @@ export default class ParameterInputTypeInt64Component extends Vue {
 
     localValue: string | null = '';
     
-    mounted(): void {
+    created(): void {
         this.updateLocalValue();
     }
 

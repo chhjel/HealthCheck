@@ -1,13 +1,6 @@
 <template>
     <div class="text-field-component" :class="rootClasses">
         <input-header-component :name="label" :description="description" :showDescriptionOnStart="showDescriptionOnStart" />
-		<!-- <h3>TODO: TextFieldComponent</h3>
-        <div><b>solo:</b>' {{ solo }}'</div>
-
-        <div><b>singleLine:</b>' {{ singleLine }}'</div>
-        <div><b>hideDetails:</b>' {{ hideDetails }}'</div>
-        <div><b>box:</b>' {{ box }}'</div>
-        -->
 
         <div class="text-field-component__input-wrapper input-wrapper">
             <icon-component v-if="prependIcon" class="input-icon" :class="prependedIconClasses"
@@ -113,7 +106,7 @@ export default class TextFieldComponent extends Vue {
     //////////////////
     //  LIFECYCLE  //
     ////////////////
-    mounted(): void {
+    created(): void {
         this.updateLocalValue();
         this.emitLocalValue();
     }

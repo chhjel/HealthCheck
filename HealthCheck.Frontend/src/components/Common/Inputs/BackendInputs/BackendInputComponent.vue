@@ -135,9 +135,16 @@ export default class BackendInputComponent extends Vue {
     localValue: string = "";
     id: string = IdUtils.generateId();
 
-    mounted(): void {
+    created(): void {
         this.updateLocalValue();
-        if (this.config && this.config.DefaultValue)
+        if (this.isListItem)
+        {
+            this.disableInputHeader();
+        }
+    }
+
+    mounted(): void {
+        if (this.config && this.config.DefaultValue && !this.value)
         {
             let def = this.config.DefaultValue;
             // Any of the subcomponents may have a method with the signature: public formatDefaultValue(val: string): string | null 
@@ -152,11 +159,6 @@ export default class BackendInputComponent extends Vue {
             }
         }
         this.emitLocalValue();
-
-        if (this.isListItem)
-        {
-            this.disableInputHeader();
-        }
     }
 
     disableInputHeader(): void {

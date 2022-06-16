@@ -57,7 +57,7 @@ export default class ParameterInputTypeTimeSpanComponent extends Vue {
 
     localValue: string | null = '';
     
-    mounted(): void {
+    created(): void {
         this.updateLocalValue();
     }
     

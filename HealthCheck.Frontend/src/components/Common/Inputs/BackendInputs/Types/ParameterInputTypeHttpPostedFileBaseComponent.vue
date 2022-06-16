@@ -65,7 +65,7 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
     id: string = IdUtils.generateId();
     selectedFile: File | null = null;
     
-    mounted(): void {
+    created(): void {
         this.updateLocalValue();
         this.onLocalValueChanged();
     }

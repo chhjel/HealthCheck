@@ -97,7 +97,7 @@ export default class TextareaComponent extends Vue {
     //////////////////
     //  LIFECYCLE  //
     ////////////////
-    mounted(): void {
+    created(): void {
         this.updateLocalValue();
         this.emitLocalValue();
     }

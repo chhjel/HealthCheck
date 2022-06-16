@@ -32,7 +32,7 @@ export default class ParameterInputTypeFlaggedEnumComponent extends Vue {
 
     localValue: any = "";
 
-    mounted(): void {
+    created(): void {
         this.localValue = this.value;
     }
     

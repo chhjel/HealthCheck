@@ -1,12 +1,10 @@
 <template>
     <div>
-    <component :is="Teleport" to="body">
-        <!-- <Teleport to="body"> -->
+        <Teleport to="body">
             <div class="snackbar-component" :class="rootClasses" v-if="isVisible">
                 <slot></slot>
             </div>
-        <!-- </Teleport> -->
-    </component>
+        </Teleport>
     </div>
 </template>
 

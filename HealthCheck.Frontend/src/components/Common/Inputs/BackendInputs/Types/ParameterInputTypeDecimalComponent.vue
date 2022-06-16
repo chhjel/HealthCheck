@@ -31,7 +31,7 @@ export default class ParameterInputTypeDecimalComponent extends Vue {
 
     localValue: string | null = '';
     
-    mounted(): void {
+    created(): void {
         this.updateLocalValue();
     }
 

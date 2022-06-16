@@ -110,7 +110,7 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
         this.$options.components.BackendInputComponent = require('../BackendInputComponent.vue').default
     }
 
-    mounted(): void {
+    created(): void {
         const loadedValue = this.getParameterDetail('selection');
         if (loadedValue) { this.items = loadedValue as Array<ListItem>; }
 

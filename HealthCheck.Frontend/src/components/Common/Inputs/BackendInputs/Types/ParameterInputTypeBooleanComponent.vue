@@ -43,7 +43,7 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
     localValue: any = false;
     nullableCheckboxState: boolean = false;
     
-    mounted(): void {
+    created(): void {
         this.$nextTick(() => {
             this.updateLocalValue();
             this.onLocalValueChanged();

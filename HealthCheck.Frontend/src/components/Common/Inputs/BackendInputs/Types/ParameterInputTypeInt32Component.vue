@@ -31,13 +31,16 @@ export default class ParameterInputTypeInt32Component extends Vue {
 
     localValue: string | null = '';
     
-    mounted(): void {
+    created(): void {
         this.updateLocalValue();
     }
 
     validateValue(): void {
         if (this.localValue == null || this.localValue === '') {
             this.localValue = this.isNullable ? null : "0";
+        }
+        else if (!isNaN(Number(this.localValue))) {
+            this.localValue = Math.floor(Number(this.localValue)).toString();
         }
     }
 

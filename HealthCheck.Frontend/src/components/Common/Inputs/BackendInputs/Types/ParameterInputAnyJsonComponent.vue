@@ -71,7 +71,7 @@ export default class ParameterInputAnyJsonComponent extends Vue {
 
     editorDialogVisible: boolean = false;
     
-    mounted(): void {
+    created(): void {
         if (this.localValue == null) {
             this.localValue = '';
         }

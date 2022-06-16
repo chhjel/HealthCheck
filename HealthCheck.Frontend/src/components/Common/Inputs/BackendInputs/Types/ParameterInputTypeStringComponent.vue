@@ -68,7 +68,7 @@ export default class ParameterInputTypeStringComponent extends Vue {
 
     localValue: string | null = '';
     
-    mounted(): void {
+    created(): void {
         this.updateLocalValue();
         
         this.refreshEditorSize();

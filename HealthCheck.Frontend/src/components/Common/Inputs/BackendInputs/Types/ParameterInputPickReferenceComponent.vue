@@ -125,7 +125,7 @@ export default class ParameterInputPickReferenceComponent extends Vue {
     copyAlertText: string = "";
     copyAlertColor: string = "success";
     
-    mounted(): void {
+    created(): void {
         const loadedValue = this.getParameterDetail('choice');
         if (loadedValue) { this.selectedChoice = loadedValue as TestParameterReferenceChoiceViewModel; }
 

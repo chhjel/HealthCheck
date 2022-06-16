@@ -56,7 +56,6 @@
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
-import DateUtils from '@util/DateUtils';
 import LinqUtils from '@util/LinqUtils';
 import SettingsService from '@services/SettingsService';
 import { FetchStatus,  } from '@services/abstractions/HCServiceBase';
