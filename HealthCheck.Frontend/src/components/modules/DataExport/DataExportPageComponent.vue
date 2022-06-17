@@ -535,7 +535,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import draggable from 'vuedraggable'
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
@@ -580,6 +580,8 @@ export default class DataExportPageComponent extends Vue {
     @Prop({ required: true })
     options!: ModuleOptions<any>;
     
+    @Ref() readonly filterableList!: FilterableListComponent;
+
     // Service
     service: DataExportService = new DataExportService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
     dataLoadStatus: FetchStatus = new FetchStatus();
@@ -861,7 +863,7 @@ export default class DataExportPageComponent extends Vue {
 
         this.selectedStream = stream;
         this.selectedItemId = null;
-        (this.$refs.filterableList as FilterableListComponent).setSelectedItem(stream);
+        (this.filterableList as FilterableListComponent).setSelectedItem(stream);
         if (stream == null)
         {
             return;
@@ -1168,7 +1170,7 @@ export default class DataExportPageComponent extends Vue {
     }
 
     onRouteChanged(to: RouteLocationNormalized, from: RouteLocationNormalized): void {
-        if (!this.streamDefinitions) return;
+        if (!this.streamDefinitions || !to.path.toLowerCase().startsWith('/dataexport/')) return;
 
         const oldStreamIdFromHash = StringUtils.stringOrFirstOfArray(from.params.streamId) || null;
         const newStreamIdFromHash = StringUtils.stringOrFirstOfArray(to.params.streamId) || null;

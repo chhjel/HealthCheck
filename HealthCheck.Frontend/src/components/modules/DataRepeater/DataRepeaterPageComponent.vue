@@ -180,7 +180,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import FilterableListComponent from '@components/Common/FilterableListComponent.vue';
@@ -220,6 +220,8 @@ export default class DataRepeaterPageComponent extends Vue {
     
     @Prop({ required: true })
     options!: ModuleOptions<any>;
+    
+    @Ref() readonly filterableList!: FilterableListComponent;
     
     // Service
     service: DataRepeaterService = new DataRepeaterService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
@@ -357,7 +359,7 @@ export default class DataRepeaterPageComponent extends Vue {
 
         this.selectedStream = stream;
         this.selectedItemId = null;
-        (this.$refs.filterableList as FilterableListComponent).setSelectedItem(stream);
+        (this.filterableList as FilterableListComponent).setSelectedItem(stream);
         if (stream == null)
         {
             return;
@@ -602,7 +604,7 @@ export default class DataRepeaterPageComponent extends Vue {
     }
 
     onRouteChanged(to: RouteLocationNormalized, from: RouteLocationNormalized): void {
-        if (!this.streamDefinitions) return;
+        if (!this.streamDefinitions || !to.path.toLowerCase().startsWith('/datarepeater/')) return;
 
         const oldStreamIdFromHash = StringUtils.stringOrFirstOfArray(from.params.streamId) || null;
         const newStreamIdFromHash = StringUtils.stringOrFirstOfArray(to.params.streamId) || null;
