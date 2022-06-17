@@ -9,7 +9,7 @@
                 :groupByKey="`GroupName`"
                 :sortByKey="`UIOrder`"
                 :hrefKey="`Href`"
-                :filterKeys="[ 'Name', 'Description' ]"
+                :filterKeys="[ 'Name', 'Description', '__TestNames' ]"
                 :loading="setSetsLoadStatus.inProgress"
                 :disabled="setSetsLoadStatus.inProgress"
                 :showFilter="true"
@@ -147,6 +147,7 @@ export default class TestSuitesPageComponent extends Vue {
     {
         if (!this.sets) return [];
         return this.sets.map(x => {
+            (<any>x).__TestNames = x.Tests.map(t => t.Name).join(' ');
             let d = {
                 title: x.Name,
                 subtitle: '',
