@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import TestSetViewModel from '@models/modules/TestSuite/TestSetViewModel';
@@ -74,7 +74,6 @@ import TestsDataViewModel from '@models/modules/TestSuite/TestsDataViewModel';
 import InvalidTestViewModel from '@models/modules/TestSuite/InvalidTestViewModel';
 import TestSetComponent from '@components/modules/TestSuite/TestSetComponent.vue';
 import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
-import LinqUtils from '@util/LinqUtils';
 import TestViewModel from '@models/modules/TestSuite/TestViewModel';
 import TestService from '@services/TestService';
 import { FetchStatus } from '@services/abstractions/HCServiceBase';
@@ -102,6 +101,8 @@ export default class TestSuitesPageComponent extends Vue {
     
     @Prop({ required: true })
     options!: ModuleOptions<TestModuleOptions>;
+    
+    @Ref() readonly filterableList!: FilterableListComponent;
 
     // UI STATE
     testSetFilterText: string = "";
@@ -210,6 +211,9 @@ export default class TestSuitesPageComponent extends Vue {
     setActiveSet(set: TestSetViewModel, test: string | null = null, updateRoute: boolean = true): void
     {
         this.activeSet = set;
+        if (this.filterableList) {
+            this.filterableList.setSelectedItem(set);
+        }
 
         if (updateRoute)
         {
@@ -264,6 +268,7 @@ export default class TestSuitesPageComponent extends Vue {
         
         // Fallback to first set in list
         if(this.sets.length > 0) {
+            // todo: sort by ui order to get the topmost one
             this.setActiveSet(this.sets[0]);
         }
     }
