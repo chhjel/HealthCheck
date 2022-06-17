@@ -39,15 +39,6 @@
 				<timeline-component></timeline-component>
 				<hr />
 
-				<h3 class="todo">parameter-input-pick-reference-component</h3>
-				<!-- ParameterInputPickReferenceComponent -->
-				<parameter-input-pick-reference-component
-					v-model:value="ParameterInputPickReferenceComponent_value"
-					:config="ParameterInputPickReferenceComponent_config"
-				></parameter-input-pick-reference-component>
-				<code>{{ ParameterInputPickReferenceComponent_value }}</code>
-				<hr />
-
 				<h3 class="todo" @click="showLoader = !showLoader">loading-screen-component</h3>
 				<loading-screen-component v-if="showLoader" @click="showLoader = !showLoader"></loading-screen-component>
 				<hr />
@@ -589,6 +580,15 @@
 					:config="ParameterInputTypeTimeSpanComponent_config"
 				></parameter-input-type-time-span-component>
 				<code>{{ ParameterInputTypeTimeSpanComponent_value }}</code>
+				<hr />
+
+				<h3 class="ok">parameter-input-pick-reference-component</h3>
+				<!-- ParameterInputPickReferenceComponent -->
+				<parameter-input-pick-reference-component
+					v-model:value="ParameterInputPickReferenceComponent_value"
+					:config="ParameterInputPickReferenceComponent_config"
+				></parameter-input-pick-reference-component>
+				<code>{{ ParameterInputPickReferenceComponent_value }}</code>
 				<hr />
 
 				<!-- qwe -->
