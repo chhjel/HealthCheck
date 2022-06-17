@@ -265,7 +265,7 @@ export default class FilterableListComponent extends Vue {
     /////////////////////
     itemIsSelected(item: FilterableListItem): boolean
     {
-        return item.data == this.selectedItemData;
+        return JSON.stringify(item.data) == JSON.stringify(this.selectedItemData);
     }
 
     onItemClicked(item: FilterableListItem): void
