@@ -7,10 +7,11 @@
                 <filterable-list-component 
                     :items="menuItems"
                     :disabled="loadStatus.inProgress"
-                    v-on:itemClicked="onMenuItemClicked"
                     ref="filterableList"
                     :showFilter="false"
                     :groupByKey="`groupName`"
+                    v-on:itemClicked="onMenuItemClicked"
+                    @itemMiddleClicked="onMenuItemMiddleClicked"
                     />
             </Teleport>
             
@@ -225,6 +226,7 @@ import EditorComponent from '@components/Common/EditorComponent.vue';
 import { ModuleFrontendOptions } from '@components/modules/EndpointControl/EndpointControlPageComponent.vue.models';
 import { StoreUtil } from "@util/StoreUtil";
 import StringUtils from "@util/StringUtils";
+import UrlUtils from "@util/UrlUtils";
 @Options({
     components: {
         BlockComponent,
@@ -518,9 +520,19 @@ export default class MessagesPageComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
-    onMenuItemClicked(item: any): void {
+    onMenuItemClicked(item: FilterableListItem): void {
         const inboxId = item.data.id;
         this.setSelectedInbox(inboxId);
+    }
+
+    onMenuItemMiddleClicked(item: FilterableListItem): void {
+        const inboxId = item?.data?.id;
+        if (inboxId)
+        {
+            const idPart = UrlUtils.EncodeHashPart(inboxId);
+            const route = `#/messages/${idPart}`;
+            UrlUtils.openRouteInNewTab(route);
+        }
     }
 
     @Watch("messagesPageIndex")
