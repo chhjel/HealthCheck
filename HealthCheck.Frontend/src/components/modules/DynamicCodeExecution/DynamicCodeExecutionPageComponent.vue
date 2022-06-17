@@ -341,7 +341,7 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
         // (<any>this.$parent)?.$parent.$on("onNotAllowedModuleSwitch", this.onNotAllowedModuleSwitch);
     }
 
-    beforeUnmounted(): void {
+    beforeUnmount(): void {
       this.callbacks.forEach(x => x.unregister());
     //   (<any>this.$parent)?.$parent.$off('onNotAllowedModuleSwitch', this.onNotAllowedModuleSwitch);
     }

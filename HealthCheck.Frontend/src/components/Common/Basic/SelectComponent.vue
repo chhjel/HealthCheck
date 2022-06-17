@@ -148,7 +148,7 @@ export default class SelectComponent extends Vue
         ];
     }
 
-    beforeUnmounted(): void {
+    beforeUnmount(): void {
       this.callbacks.forEach(x => x.unregister());
     }
 

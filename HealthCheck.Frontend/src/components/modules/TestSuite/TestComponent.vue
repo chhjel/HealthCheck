@@ -93,6 +93,7 @@ import TestViewModel from "@models/modules/TestSuite/TestViewModel";
 import TestResultViewModel from "@models/modules/TestSuite/TestResultViewModel";
 import { StoreUtil } from "@util/StoreUtil";
 import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
+import { nextTick } from "vue";
 
 @Options({
     components: {
@@ -135,7 +136,7 @@ export default class TestComponent extends Vue {
       // });
     }
 
-    beforeUnmounted(): void {
+    beforeUnmount(): void {
       this.callbacks.forEach(x => x.unregister());
       // (<any>this.$parent)?.$off('executeAllTestsInSet', this.executeTest);
     }
@@ -315,7 +316,7 @@ export default class TestComponent extends Vue {
           }
 
           // Force update
-          this.$nextTick(() => {
+          nextTick(() => {
             this.test.Parameters.forEach(p => p.Name = p.Name.endsWith(' ') ? p.Name.trim() : p.Name.trim() + ' ');
           });
         },
