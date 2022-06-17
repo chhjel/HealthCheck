@@ -15,7 +15,7 @@
                 :key="`filterable-menu-group-${gindex}`"
                 class="menu-item-group"
                 :class="{ 'open': isGroupOpen(group.title) }"
-                v-set-max-height>
+                v-set-max-height:c>
                 <div class="menu-item-group--wrapper">
                     <div class="group-item" :class="{ 'open': isGroupOpen(group.title) }"
                         @click="toggleGroup(group.title)">
