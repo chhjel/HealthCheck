@@ -99,6 +99,9 @@ export default class TextFieldComponent extends Vue {
     @Prop({ required: false, default: null })
     singleLine!: string;
 
+    @Prop({ required: false, default: false })
+    undefinedWhenEmpty!: string | boolean;
+
     @Ref() readonly inputElement!: HTMLInputElement;
 
     localValue: string = "";
@@ -127,6 +130,7 @@ export default class TextFieldComponent extends Vue {
     get isClearable(): boolean { return ValueUtils.IsToggleTrue(this.clearable); }
     get isLoading(): boolean { return ValueUtils.IsToggleTrue(this.loading); }
     get isReadonly(): boolean { return ValueUtils.IsToggleTrue(this.readonly); }
+    get isUndefinedWhenEmpty(): boolean { return ValueUtils.IsToggleTrue(this.undefinedWhenEmpty); }
 
     get appendedIconClasses(): any {
         const hasAppendedIconClickListener = this.$attrs && this.$attrs["onClick:append"] != null;
@@ -194,8 +198,12 @@ export default class TextFieldComponent extends Vue {
             this.localValue = this.value;
             return;
         }
-		this.$emit('update:value', this.localValue);
-		this.$emit('change', this.localValue);
+        let valueToEmit = this.localValue;
+        if (this.isUndefinedWhenEmpty && !this.localValue) {
+            valueToEmit = undefined;
+        }
+		this.$emit('update:value', valueToEmit);
+		this.$emit('change', valueToEmit);
     }
 }
 </script>

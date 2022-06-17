@@ -297,8 +297,8 @@
                         </div>
                     </div>
                 </div>
-                                <div>
-                                        <btn-component color="secondary"
+                <div>
+                    <btn-component color="secondary"
                         :disabled="dataLoadStatus.inProgress"
                         :loading="dataLoadStatus.inProgress"
                         @click="savePresetDialogVisible = false">Cancel</btn-component>
@@ -366,7 +366,8 @@
                                     <text-field-component
                                         label="Name override"
                                         v-model:value="headerNameOverrides[header]"
-                                        :placeholder="header" />
+                                        :placeholder="header"
+                                        :undefinedWhenEmpty="true" />
                                     <btn-component flat
                                         v-if="hasFormatterForHeader(header)"
                                         @click="onValueFormatButtonClicked(header)">Format</btn-component>
