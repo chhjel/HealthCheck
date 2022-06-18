@@ -3,24 +3,11 @@
     <div>
         <!-- DATEPICKER & TYPE SELECT-->
         <div v-if="calendarEvents.length > 0">
-            <div xs12 sm3 class="mr-4">
-                <text-field-component
-                    v-model:value="calendarStart"
-                    label="Date"
-                    prepend-icon="event"
-                    readonly
-                    @click="datepickerModal = true"
-                ></text-field-component>
-                <dialog-component ref="dateDialog" v-model:value="datepickerModal"
-                    full-width width="290px">
-                    <date-picker-component 
-                        v-model:value="calendarStart"
-                        :allowed-dates="allowDatepickerDate">
-                        <btn-component flat color="primary" @click="datepickerModal = false">Cancel</btn-component>
-                        <btn-component flat color="primary" @click="$refs.dateDialog.save(calendarStart)">OK</btn-component>
-                    </date-picker-component>
-                </dialog-component>
-            </div>
+            <date-picker-component
+                v-model:value="calendarStart"
+                :allowed-dates="allowDatepickerDate"
+                rangePresets="past">
+            </date-picker-component>
             <div xs12 sm3 class="text-xs-center">
                 <select-component v-model:value="calendarType" :items="calendarTypeOptions" label="Type"></select-component>
             </div>
@@ -200,8 +187,7 @@ export default class EventCalendarComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
-    allowDatepickerDate(dateStr: string): boolean {
-        let date = new Date(dateStr);
+    allowDatepickerDate(date: Date): boolean {
         return this.calendarEvents
             .some(x => {
                 let start = x.data.Timestamp;

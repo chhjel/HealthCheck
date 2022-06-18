@@ -11,6 +11,7 @@
 				<date-picker-component
 					v-model:value="DatePickerComponent_value"
 					:allowed-dates="DatePickerComponent_allowDate"
+					rangePresets="past"
 				></date-picker-component>
 				<code>{{ DatePickerComponent_value }}</code>
 				<hr />
@@ -21,12 +22,6 @@
 					v-model:value="CalendarComponent_value"
 				></calendar-component>
 				<code>{{ CalendarComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">menu-component</h3>
-				<!-- MenuComponent -->
-				// todo: remove and build into datepicker instead?
-				<menu-component></menu-component>
 				<hr />
 
 				<h3 class="todo">stepper-component</h3>
@@ -626,7 +621,6 @@ import FetchStatusProgressComponent from "@components/Common/Basic/FetchStatusPr
 import IconComponent from "@components/Common/Basic/IconComponent.vue";
 import InputComponent from "@components/Common/Basic/InputComponent.vue";
 import InputHeaderComponent from "@components/Common/Basic/InputHeaderComponent.vue";
-import MenuComponent from "@components/Common/Basic/MenuComponent.vue";
 import PagingComponent from "@components/Common/Basic/PagingComponent.vue";
 import ProgressCircularComponent from "@components/Common/Basic/ProgressCircularComponent.vue";
 import ProgressLinearComponent from "@components/Common/Basic/ProgressLinearComponent.vue";
@@ -696,7 +690,6 @@ import { BarChartSet } from "@components/Common/Charts/BarChartComponent.vue.mod
 		IconComponent,
 		InputComponent,
 		InputHeaderComponent,
-		MenuComponent,
 		PagingComponent,
 		ProgressCircularComponent,
 		ProgressLinearComponent,
@@ -797,9 +790,8 @@ Web -> Frontend: Confirmation is delivered
 	];
 	CheckboxComponent_value: boolean = true;
 	DatePickerComponent_value: Date = new Date();
-    DatePickerComponent_allowDate = (dateStr: string) => {
-        // let date = new Date(dateStr);
-		return dateStr.includes('2');
+    DatePickerComponent_allowDate = (date: Date) => {
+		return date.toString().includes('2');
     }
 	DialogComponent_value: boolean = false;
 	ExpansionPanelComponent_value: boolean = false;

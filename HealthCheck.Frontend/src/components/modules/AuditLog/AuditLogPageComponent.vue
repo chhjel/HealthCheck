@@ -8,9 +8,8 @@
 
                 <div row wrap>
                     <div xs12 sm12 md8>
-                        <datepicker range v-model="filterDate" :disabled="loadStatus.inProgress"
-                            :clearable="false"
-                            @update:modelValue="onDateRangeChanged" />
+                        <date-picker-component range v-model:value="filterDate" :disabled="loadStatus.inProgress" :clearable="false"
+                            @update:value="onDateRangeChanged" rangePresets="past" />
                     </div>
 
                     <div xs12 sm12 md4 style="text-align: right;">

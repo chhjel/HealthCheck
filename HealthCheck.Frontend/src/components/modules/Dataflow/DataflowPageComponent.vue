@@ -45,23 +45,7 @@
                 <div>
                     <div xs12 sm12 md8 style="position:relative"
                         v-show="selectedStream != null && selectedStream.SupportsFilterByDate">
-                        <menu-component
-                            transition="slide-y-transition"
-                            bottom>
-                            <btn-component flat icon color="primary" class="datepicker-button">
-                                <icon-component>date_range</icon-component>
-                            </btn-component>
-                            <div>
-                                <div
-                                    v-for="(preset, i) in datePickerPresets"
-                                    :key="`datepicker-preset-${i}`"
-                                    @click="setDatePickerValue(preset)">
-                                    <div>{{ preset.name }}</div>
-                                </div>
-                            </div>
-                        </menu-component>
-
-                        <datepicker range v-model="filterDate" :disabled="dataLoadStatus.inProgress" :clearable="false" />
+                        <date-picker-component range v-model:value="filterDate" :disabled="dataLoadStatus.inProgress" :clearable="false" rangePresets="past" />
                     </div>
                 </div>
                 
@@ -277,6 +261,7 @@ import KeyValuePair from "@models/Common/KeyValuePair";
 import { DataFlowPropertyUIVisibilityOption } from "@generated/Enums/Core/DataFlowPropertyUIVisibilityOption";
 import StringUtils from "@util/StringUtils";
 import { StoreUtil } from "@util/StoreUtil";
+import { DatePickerPresetDateRange } from '@components/Common/Basic/DatePickerComponent.vue.models';
 
 interface PropFilter
 {
@@ -298,11 +283,6 @@ interface SearchQueryCachePerSearch {
 }
 interface FirstEntryPerStream {
    [key: string]: DataflowEntry;
-}
-interface DatePickerPreset {
-    name: string;
-    from: Date;
-    to: Date;
 }
 interface DateRangeGroup {
     title: string;
@@ -448,22 +428,6 @@ export default class DataflowPageComponent extends Vue {
             });
     }
 
-    get datePickerPresets(): Array<DatePickerPreset> {
-        const endOfToday = new Date();
-        endOfToday.setHours(23);
-        endOfToday.setMinutes(59);
-
-        return [
-            { name: 'Last hour', from: DateUtils.CreateDateWithMinutesOffset(-60), to: endOfToday },
-            { name: 'Today', from: DateUtils.CreateDateWithDayOffset(0), to: endOfToday },
-            { name: 'Last 3 days', from: DateUtils.CreateDateWithDayOffset(-3), to: endOfToday },
-            { name: 'Last 7 days', from: DateUtils.CreateDateWithDayOffset(-7), to: endOfToday },
-            { name: 'Last 30 days', from: DateUtils.CreateDateWithDayOffset(-30), to: endOfToday },
-            { name: 'Last 60 days', from: DateUtils.CreateDateWithDayOffset(-60), to: endOfToday },
-            { name: 'Last 90 days', from: DateUtils.CreateDateWithDayOffset(-90), to: endOfToday }
-        ];
-    }
-
     get showFilterCounts(): boolean {
         return this.streamsFilterText.length > 0;
     }
@@ -548,11 +512,6 @@ export default class DataflowPageComponent extends Vue {
 
         this.filterTake = 50;
         this.filters = [];
-    }
-
-    setDatePickerValue(preset: DatePickerPreset): void {
-        this.filterFromDate = preset.from;
-        this.filterToDate = preset.to;
     }
 
     loadData(): void {

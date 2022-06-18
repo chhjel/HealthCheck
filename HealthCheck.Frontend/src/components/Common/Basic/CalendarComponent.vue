@@ -1,12 +1,12 @@
 <template>
     <div class="calendar-component" :class="rootClasses">
-		<h3>TODO: CalendarComponent</h3>
-        <div><b>value:</b>' {{ value }}'</div>
-        <div><b>weekdays:</b>' {{ weekdays }}'</div>
-        <div><b>type:</b>' {{ type }}'</div>
-        <div><b>color:</b>' {{ color }}'</div>
+		  <h3>TODO: CalendarComponent</h3>
+      <div><b>value:</b>' {{ value }}'</div>
+      <div><b>weekdays:</b>' {{ weekdays }}'</div>
+      <div><b>type:</b>' {{ type }}'</div>
+      <div><b>color:</b>' {{ color }}'</div>
 
-		<slot></slot>
+		  <slot></slot>
     </div>
 </template>
 

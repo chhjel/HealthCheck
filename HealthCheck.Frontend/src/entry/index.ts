@@ -86,7 +86,6 @@ import TooltipComponent from '@components/Common/Basic/TooltipComponent.vue';
 import TextareaComponent from '@components/Common/Basic/TextareaComponent.vue';
 import TextFieldComponent from '@components/Common/Basic/TextFieldComponent.vue';
 import ChipComponent from '@components/Common/Basic/ChipComponent.vue';
-import MenuComponent from '@components/Common/Basic/MenuComponent.vue';
 import ExpansionPanelComponent from '@components/Common/Basic/ExpansionPanelComponent.vue';
 import DatePickerComponent from '@components/Common/Basic/DatePickerComponent.vue';
 import CalendarComponent from '@components/Common/Basic/CalendarComponent.vue';
@@ -111,7 +110,6 @@ function registerGlobalComponents(app: App<Element>): void {
 	app.component("TextareaComponent", TextareaComponent);
 	app.component("TextFieldComponent", TextFieldComponent);
 	app.component("ChipComponent", ChipComponent);
-	app.component("MenuComponent", MenuComponent);
 	app.component("ExpansionPanelComponent", ExpansionPanelComponent);
 	app.component("DatePickerComponent", DatePickerComponent);
 	app.component("CalendarComponent", CalendarComponent);
