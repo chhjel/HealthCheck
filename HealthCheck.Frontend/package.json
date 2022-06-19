@@ -19,13 +19,19 @@
     "url": "https://github.com/chhjel"
   },
   "dependencies": {
-    "@vuepic/vue-datepicker": "^3.1.0"
   },
   "devDependencies": {
     "@types/chart.js": "^2.9.35",
     "@types/dagre": "^0.7.47",
     "@types/xregexp": "^4.4.0",
     "@vue/compiler-sfc": "^3.2.31",
+    "@fullcalendar/core": "^5.11.0",
+    "@fullcalendar/vue3": "^5.11.1",
+    "@fullcalendar/daygrid": "^5.11.0",
+    "@fullcalendar/timegrid": "^5.11.0",
+    "@fullcalendar/list": "^5.11.0",
+    "@fullcalendar/interaction": "^5.11.0",
+    "@vuepic/vue-datepicker": "^3.1.0",
     "babel-polyfill": "^6.26.0",
     "chart.js": "2.9.3",
     "css-loader": "^6.7.1",

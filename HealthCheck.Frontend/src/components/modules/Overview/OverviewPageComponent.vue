@@ -144,7 +144,6 @@
 import { Vue, Prop } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
-import CalendarEvent from '@models/Common/CalendarEvent';
 import EventTimelineComponent from '@components/modules/Overview/EventTimelineComponent.vue';
 import EventCalendarComponent from '@components/modules/Overview/EventCalendarComponent.vue';
 import SiteEventDetailsComponent from '@components/modules/Overview/SiteEventDetailsComponent.vue';
