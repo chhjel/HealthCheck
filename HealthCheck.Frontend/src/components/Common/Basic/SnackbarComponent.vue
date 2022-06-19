@@ -1,19 +1,23 @@
 <template>
-    <div>
-        <Teleport to="body">
-            <div class="snackbar-component" :class="rootClasses" v-if="isVisible">
-                <slot></slot>
-            </div>
-        </Teleport>
-    </div>
+    <TeleportFix to="body">
+        <div class="snackbar-component" :class="rootClasses" v-if="isVisible">
+            <slot></slot>
+        </div>
+    </TeleportFix>
 </template>
 
 <script lang="ts">
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
+import { Teleport as teleport_, TeleportProps, VNodeProps } from 'vue'
 
+const TeleportFix = teleport_ as {
+  new (): {
+    $props: VNodeProps & TeleportProps
+  }
+}
 @Options({
-    components: {}
+    components: { TeleportFix }
 })
 export default class SnackbarComponent extends Vue {
 
