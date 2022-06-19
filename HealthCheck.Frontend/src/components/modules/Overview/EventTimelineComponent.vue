@@ -1,42 +1,40 @@
 <!-- src/components/modules/Overview/EventTimelineComponent.vue -->
 <template>
     <div class="root event-timeline-component">
-        <timeline-component align-top dense>
-            <div color="info" small v-if="timelineEventGroups.length == 0">
-                <div pt-3>
-                    <div class="mr-4">
-                        <strong>No recent events</strong>
+        <div color="info" small v-if="timelineEventGroups.length == 0">
+            <div pt-3>
+                <div class="mr-4">
+                    <strong>No recent events</strong>
+                </div>
+            </div>
+        </div>
+        <template v-for="group in timelineEventGroups" :key="`timeline-group-${group.index}-header`">
+            <div 
+                small hide-dot class="pb-0">
+                <span>{{group.title}}</span>
+            </div>
+
+            <div
+                v-for="event in group.events"
+                :key="`timeline-group-${group.index}-item-${event.Id}`"
+                :color="getTimelineItemColor(event)"
+                small>
+                <div pt-3 class="timeline-item" @click="onEventClicked(event)">
+                    <div class="mr-4 pt-1 timeline-item-time">
+                        <strong>{{getTimelineItemTimeString(event, group)}}</strong>
+                    </div>
+                    <div>
+                        <strong class="timeline-item-title">
+                            {{ event.Title }}
+                            <strong class="timeline-item-title-resolved-label" v-if="event.Resolved">
+                                Resolved
+                            </strong>
+                        </strong>
+                        <div class="caption timeline-item-description">{{ event.Description }}</div>
                     </div>
                 </div>
             </div>
-            <template v-for="group in timelineEventGroups" :key="`timeline-group-${group.index}-header`">
-                <div 
-                    small hide-dot class="pb-0">
-                    <span>{{group.title}}</span>
-                </div>
-
-                <div
-                    v-for="event in group.events"
-                    :key="`timeline-group-${group.index}-item-${event.Id}`"
-                    :color="getTimelineItemColor(event)"
-                    small>
-                    <div pt-3 class="timeline-item" @click="onEventClicked(event)">
-                        <div class="mr-4 pt-1 timeline-item-time">
-                            <strong>{{getTimelineItemTimeString(event, group)}}</strong>
-                        </div>
-                        <div>
-                            <strong class="timeline-item-title">
-                                {{ event.Title }}
-                                <strong class="timeline-item-title-resolved-label" v-if="event.Resolved">
-                                    Resolved
-                                </strong>
-                            </strong>
-                            <div class="caption timeline-item-description">{{ event.Description }}</div>
-                        </div>
-                    </div>
-                </div>
-            </template>
-        </timeline-component>
+        </template>
     </div>
 </template>
 

@@ -29,11 +29,6 @@
 				<stepper-component></stepper-component>
 				<hr />
 
-				<h3 class="todo">timeline-component</h3>
-				<!-- TimelineComponent -->
-				<timeline-component></timeline-component>
-				<hr />
-
 				<h3 class="todo" @click="showLoader = !showLoader">loading-screen-component</h3>
 				<loading-screen-component v-if="showLoader" @click="showLoader = !showLoader"></loading-screen-component>
 				<hr />
@@ -630,7 +625,6 @@ import StepperComponent from "@components/Common/Basic/StepperComponent.vue";
 import SwitchComponent from "@components/Common/Basic/SwitchComponent.vue";
 import TextareaComponent from "@components/Common/Basic/TextareaComponent.vue";
 import TextFieldComponent from "@components/Common/Basic/TextFieldComponent.vue";
-import TimelineComponent from "@components/Common/Basic/TimelineComponent.vue";
 import TimespanInputComponent from "@components/Common/Basic/TimespanInputComponent.vue";
 import ToolbarComponent from "@components/Common/Basic/ToolbarComponent.vue";
 import TooltipComponent from "@components/Common/Basic/TooltipComponent.vue";
@@ -699,7 +693,6 @@ import { BarChartSet } from "@components/Common/Charts/BarChartComponent.vue.mod
 		SwitchComponent,
 		TextareaComponent,
 		TextFieldComponent,
-		TimelineComponent,
 		TimespanInputComponent,
 		ToolbarComponent,
 		TooltipComponent,

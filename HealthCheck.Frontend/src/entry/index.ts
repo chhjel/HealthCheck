@@ -89,7 +89,6 @@ import ChipComponent from '@components/Common/Basic/ChipComponent.vue';
 import ExpansionPanelComponent from '@components/Common/Basic/ExpansionPanelComponent.vue';
 import DatePickerComponent from '@components/Common/Basic/DatePickerComponent.vue';
 import CalendarComponent from '@components/Common/Basic/CalendarComponent.vue';
-import TimelineComponent from '@components/Common/Basic/TimelineComponent.vue';
 import ProgressCircularComponent from '@components/Common/Basic/ProgressCircularComponent.vue';
 import SnackbarComponent from '@components/Common/Basic/SnackbarComponent.vue';
 import CarouselComponent from '@components/Common/Basic/CarouselComponent.vue';
@@ -113,7 +112,6 @@ function registerGlobalComponents(app: App<Element>): void {
 	app.component("ExpansionPanelComponent", ExpansionPanelComponent);
 	app.component("DatePickerComponent", DatePickerComponent);
 	app.component("CalendarComponent", CalendarComponent);
-	app.component("TimelineComponent", TimelineComponent);
 	app.component("ProgressCircularComponent", ProgressCircularComponent);
 	app.component("SnackbarComponent", SnackbarComponent);
 	app.component("CarouselComponent", CarouselComponent);
