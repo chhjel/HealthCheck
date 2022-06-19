@@ -10,13 +10,9 @@
 <script lang="ts">
 import { Vue, Prop } from "vue-property-decorator";
 import { Options } from "vue-class-component";
-import FrontEndOptionsViewModel from '@models/Common/FrontEndOptionsViewModel';
 import { SiteEventViewModel } from '@generated/Models/Core/SiteEventViewModel';
-import { SiteEventSeverity } from '@generated/Enums/Core/SiteEventSeverity';
 import EventTimelineComponent from '@components/modules/Overview/EventTimelineComponent.vue';
 import SiteEventDetailsComponent from '@components/modules/Overview/SiteEventDetailsComponent.vue';
-import LinqUtils from '@util/LinqUtils';
-import DateUtils from '@util/DateUtils';
 import { CalendarComponentEvent } from "@components/Common/Basic/CalendarComponent.vue.models";
 
 @Options({
@@ -44,8 +40,9 @@ export default class EventCalendarComponent extends Vue {
                 start: x.Timestamp,
                 end: this.getEventEndTime(x),
                 data: x,
-                allDay: x.Timestamp.getDate() !== x.EndTime.getDate(),
-                color: '#FF0000',
+                // allDay: x.Timestamp.getDate() !== x.EndTime.getDate(),
+                classNames: ['calendar-event', `cevent-${x.Severity?.toLowerCase()}`]
+                // color: '#FF0000'
             };
         });
         
@@ -68,78 +65,19 @@ export default class EventCalendarComponent extends Vue {
         return date.getHours() + ":" + date.getMinutes();
     }
 
-    getEventSeverityClass(severity: SiteEventSeverity): string {
-        if (severity == SiteEventSeverity.Information) {
-            return 'info';
-        } else if (severity == SiteEventSeverity.Warning) {
-            return 'warning';
-        } else if (severity == SiteEventSeverity.Error) {
-            return 'error';
-        } else if (severity == SiteEventSeverity.Fatal) {
-            return 'fatal';
-        } else {
-            return '';
-        }
-    }
-
-    getEventSeverityIcon(severity: SiteEventSeverity): string {
-        if (severity == SiteEventSeverity.Information) {
-            return 'info';
-        } else if (severity == SiteEventSeverity.Warning) {
-            return 'warning';
-        } else if (severity == SiteEventSeverity.Error) {
-            return 'error';
-        } else if (severity == SiteEventSeverity.Fatal) {
-            return 'report';
-        } else {
-            return '';
-        }
-    }
-
-    getEventSeverityColor(severity: SiteEventSeverity): string {
-        if (severity == SiteEventSeverity.Information) {
-            return 'info';
-        } else if (severity == SiteEventSeverity.Warning) {
-            return 'warning';
-        } else if (severity == SiteEventSeverity.Error) {
-            return 'error';
-        } else if (severity == SiteEventSeverity.Fatal) {
-            return 'black';
-        } else {
-            return '';
-        }
-    }
-
-    getEventWithTimeWidth(event: SiteEventViewModel): string
-    {
-        let numberOfCollidingEvents = this.events
-            .filter(x => DateUtils.DateRangeOverlaps(x.Timestamp, x.EndTime, event.Timestamp, event.EndTime))
-            .length;
-        return `${Math.floor(100 / numberOfCollidingEvents)}%`;
-    }
-
-    getEventWithTimeLeft(event: SiteEventViewModel): string
-    {
-        let numberOfCollidingEvents = this.events
-            .filter(x => DateUtils.DateRangeOverlaps(x.Timestamp, x.EndTime, event.Timestamp, event.EndTime))
-            .length;
-        let numberOfCollidingEventsBeforeIt = 0;
-        for(let i=0; i<this.events.length; i++)
-        {
-            let ev = this.events[i];
-            if (ev === event) {
-                break;
-            }
-
-            if (DateUtils.DateRangeOverlaps(ev.Timestamp, ev.EndTime, event.Timestamp, event.EndTime))
-            {
-                numberOfCollidingEventsBeforeIt++;
-            }
-        }
-
-        let width = Math.floor(100 / numberOfCollidingEvents);
-        return `${width * numberOfCollidingEventsBeforeIt}%`;
-    }
+    // getEventSeverityIcon(severity: SiteEventSeverity): string {
+    //     if (severity == SiteEventSeverity.Information) {
+    //         return 'info';
+    //     } else if (severity == SiteEventSeverity.Warning) {
+    //         return 'warning';
+    //     } else if (severity == SiteEventSeverity.Error) {
+    //         return 'error';
+    //     } else if (severity == SiteEventSeverity.Fatal) {
+    //         return 'report';
+    //     } else {
+    //         return '';
+    //     }
+    // }
 
     ///////////////////////
     //  EVENT HANDLERS  //
@@ -151,4 +89,46 @@ export default class EventCalendarComponent extends Vue {
 </script>
 
 <style scoped>
+</style>
+
+<style lang="scss">
+.calendar-event {
+    cursor: pointer;
+}
+.cevent-information {
+    background-color: var(--color--info-base);
+    border-color: var(--color--info-base);
+    color: #111 !important;
+    &:hover {
+        background-color: var(--color--info-lighten1);
+        td { background-color: var(--color--info-lighten1) !important; }
+    }
+}
+.cevent-warning {
+    background-color: var(--color--warning-base);
+    border-color: var(--color--warning-base);
+    color: #111 !important;
+    &:hover {
+        background-color: var(--color--warning-lighten1);
+        td { background-color: var(--color--warning-lighten1) !important; }
+    }
+}
+.cevent-error {
+    background-color: var(--color--error-base);
+    border-color: var(--color--error-base);
+    color: #fff !important;
+    &:hover {
+        background-color: var(--color--error-lighten1);
+        td { background-color: var(--color--error-lighten1) !important; }
+    }
+}
+.cevent-fatal {
+    background-color: #111;
+    border-color: #111;
+    color: #fff !important;
+    &:hover {
+        background-color: #222;
+        td { background-color: #222 !important; }
+    }
+}
 </style>

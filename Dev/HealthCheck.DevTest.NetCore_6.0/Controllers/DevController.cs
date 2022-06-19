@@ -492,6 +492,21 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                     developerDetails: "Hmm this is probably why.",
                     config: x => x.AddRelatedLink("Status page", "https://status.otherapi.com").SetMinimumDurationRequiredToDisplay(2));
             }
+            if (request.Query.ContainsKey("siteEvent4"))
+            {
+                HCSiteEventUtils.TryRegisterNewEvent(new SiteEvent(SiteEventSeverity.Information, "test_info", "Some info here", "Some more details etc.",
+                    developerDetails: "Hmm this is probably why.")
+                { Timestamp = DateTimeOffset.Now - TimeSpan.FromMinutes(5), Duration = 5 });
+                HCSiteEventUtils.TryRegisterNewEvent(new SiteEvent(SiteEventSeverity.Warning, "test_warn", "Some warning here", "Some more details etc.",
+                    developerDetails: "Hmm this is probably why.")
+                { Timestamp = DateTimeOffset.Now - TimeSpan.FromMinutes(500), Duration = 450 });
+                HCSiteEventUtils.TryRegisterNewEvent(new SiteEvent(SiteEventSeverity.Error, "test_error", "Some error here", "Some more details etc.",
+                    developerDetails: "Hmm this is probably why.")
+                { Timestamp = DateTimeOffset.Now - TimeSpan.FromMinutes(60), Duration = 60 });
+                HCSiteEventUtils.TryRegisterNewEvent(new SiteEvent(SiteEventSeverity.Fatal, "test_fatal", "Some fatal things here", "Some more details etc.",
+                    developerDetails: "Hmm this is probably why.")
+                { Timestamp = DateTimeOffset.Now - TimeSpan.FromMinutes(36), Duration = 30 });
+            }
             if (request.Query.ContainsKey("siteEvent2"))
             {
                 var now = DateTime.Now;

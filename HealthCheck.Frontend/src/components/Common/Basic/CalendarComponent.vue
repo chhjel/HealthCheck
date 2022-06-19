@@ -44,10 +44,11 @@ export default class CalendarComponent extends Vue {
         // events: this.internalCalendarEvents,
         editable: false,
         selectable: false,
-        selectMirror: true,
         dayMaxEvents: true,
         weekends: true,
         firstDay: 1,
+        allDaySlot: false,
+
         // select: this.handleDateSelect,
         eventClick: this.handleEventClick.bind(this),
         // eventsSet: this.handleEvents,
@@ -112,5 +113,13 @@ export default class CalendarComponent extends Vue {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
+.calendar-component {
+    a {
+        color: var(--color--text);
+        &:hover {
+            text-decoration: none;
+        }
+    }
+}
 </style>

@@ -7,6 +7,6 @@ export interface CalendarComponentEvent<T> {
   startTime?: string,
   endTime?: string,
   allDay?: boolean,
-  color: string,
+  classNames?: string | string[],
   data: T
 }

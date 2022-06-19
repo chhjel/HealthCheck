@@ -317,3 +317,8 @@ $color_warning_lighten9: lighten($color_warning, 45%);
 	--color--text: var(--color--text-light);
 	--color--text-disabled: var(--color--text-light-disabled);
 }
+
+// Calendar overrides
+// :root {
+// 	--fc-list-event-hover-bg-color: #00FF00 !important;
+// }
