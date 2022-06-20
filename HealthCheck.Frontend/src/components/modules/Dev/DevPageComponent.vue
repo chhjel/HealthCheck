@@ -6,29 +6,6 @@
 
 		<div class="content-root">
 			<div>
-				<h3 class="todo">date-picker-component</h3>
-				<!-- DatePickerComponent -->
-				<date-picker-component
-					v-model:value="DatePickerComponent_value"
-					:allowed-dates="DatePickerComponent_allowDate"
-					rangePresets="past"
-				></date-picker-component>
-				<code>{{ DatePickerComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">calendar-component</h3>
-				<!-- CalendarComponent -->
-				<calendar-component
-					v-model:value="CalendarComponent_value"
-				></calendar-component>
-				<code>{{ CalendarComponent_value }}</code>
-				<hr />
-
-				<h3 class="todo">stepper-component</h3>
-				<!-- StepperComponent -->
-				<stepper-component></stepper-component>
-				<hr />
-
 				<h3 class="todo" @click="showLoader = !showLoader">loading-screen-component</h3>
 				<loading-screen-component v-if="showLoader" @click="showLoader = !showLoader"></loading-screen-component>
 				<hr />
@@ -581,6 +558,26 @@
 				<code>{{ ParameterInputPickReferenceComponent_value }}</code>
 				<hr />
 
+				<h3 class="ok">date-picker-component</h3>
+				<!-- DatePickerComponent -->
+				<date-picker-component
+					v-model:value="DatePickerComponent_value"
+					:allowed-dates="DatePickerComponent_allowDate"
+					rangePresets="past"
+				></date-picker-component>
+				<code>{{ DatePickerComponent_value }}</code>
+				<hr />
+
+				<h3 class="ok">calendar-component</h3>
+				<!-- CalendarComponent -->
+				<calendar-component :events="CalendarComponent_value"></calendar-component>
+				<hr />
+
+				<h3 class="ok">stepper-component</h3>
+				<!-- StepperComponent -->
+				<stepper-component :steps="Stepper_Steps"></stepper-component>
+				<hr />
+
 				<!-- qwe -->
 			</div>
 		</div>
@@ -657,6 +654,7 @@ import { FlowDiagramStep, FlowDiagramStepType } from "@components/Common/FlowDia
 import { SequenceDiagramStep } from "@components/Common/SequenceDiagramComponent.vue.models";
 import { FilterableListItem } from "@components/Common/FilterableListComponent.vue.models";
 import { BarChartSet } from "@components/Common/Charts/BarChartComponent.vue.models";
+import { StepperComponentStepViewModel } from "@components/Common/Basic/StepperComponent.vue.models";
 
 @Options({
 	components: {
@@ -773,7 +771,7 @@ end
 Web -> Frontend: Confirmation is delivered
 `;
 	AlertComponent_value: boolean = true;
-	CalendarComponent_value: string = "Some string here 3";
+	CalendarComponent_value: Array<any> = [];
 	CarouselComponent_items: Array<CarouselItem> = [
 		{ url: "https://via.placeholder.com/2500x300", detailsHtml: "Item A <a href=\"asd\">some link</a>" },
 		{ url: "https://via.placeholder.com/1000x2500", detailsHtml: "Item X <a href=\"asd\">some link</a>" },
@@ -827,7 +825,7 @@ Web -> Frontend: Confirmation is delivered
 		{ date: new Date(1649435834932), group: 'allowed' }
 	];
 	BackendInputComponent_config: HCBackendInputConfig = this.createBackendInputConfig('Int32');
-	BackendInputComponent_value: string = "Some string here 7";
+	BackendInputComponent_value: string = "1234";
 	UnknownBackendInputComponent_value: string = "Some string here 8";
 	UnknownBackendInputComponent_type: string = "SomeType";
 	ParameterInputAnyJsonComponent_name: string = "Any JSON name";
@@ -872,6 +870,31 @@ Web -> Frontend: Confirmation is delivered
 	progressValue: number = 66;
 	progressValueCustom: number = 75;
     hackyTimer: number = 0;
+    Stepper_Steps: Array<StepperComponentStepViewModel> = [
+			{
+				Index: 0,
+				Title: 'First step',
+				Description: 'Some description',
+				Error: null,
+				Links: [],
+				Icon: 'check',
+				Timestamp: new Date(),
+				HideTimeInTimestamp: true,
+				IsCompleted: true
+			},
+			{
+				Index: 1,
+				Title: 'Second step',
+				Description: 'Some description',
+				Error: null,
+				Links: [],
+				Icon: '',
+				Timestamp: new Date(),
+				HideTimeInTimestamp: true,
+				IsCompleted: false
+			}
+		];
+    
 
 	mounted(): void {
         setInterval(() => {

@@ -1,26 +1,7 @@
 <!-- src/components/modules/TestSuite/result_data/data_types/TestResultTimelineDataComponent.vue -->
 <template>
     <div>
-      <stepper-component alt-labels non-linear>
-        <div>
-          <template v-for="(step, index) in steps" :key="`${id}-step-${index}`">
-            <div :rules="[() => step.Error == null]" :step="step.Index + 1"
-              class="stepper-step"
-              @click="onStepClicked(step)"
-              :complete-icon="step.Icon || undefined"
-              :edit-icon="step.Icon || undefined"
-              :complete=step.IsCompleted>
-              {{ step.Title }}
-              <small v-if="stepHasDate(step)">{{ formatStepDate(step) }}</small>
-              <small v-if="step.Error != null" class="step-error">{{ step.Error.trunc(20) }}</small>
-            </div>
-            <div
-              v-if="index < steps.length - 1" 
-              :key="`${id}-step-divider-${index}`"
-            ></div>
-          </template>
-        </div>
-      </stepper-component>
+      <stepper-component :steps="steps" @stepClicked="onStepClicked" ref="stepperElement" />
       
       <dialog-component
         v-model:value="showStepDialog"
@@ -50,7 +31,7 @@
           </div>
 
           <div>
-                        <btn-component color="green darken-1" flat @click="showStepDialog = false">
+            <btn-component color="green darken-1" flat @click="showStepDialog = false">
               Close
             </btn-component>
           </div>
@@ -60,11 +41,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import { TestResultDataDumpViewModel } from '@generated/Models/Core/TestResultDataDumpViewModel';
-import TimelineStepViewModel from '@models/modules/TestSuite/TimelineStepViewModel';
 import DateUtils from '@util/DateUtils';
+import IdUtils from "@util/IdUtils";
+import { StepperComponentStepViewModel } from '@components/Common/Basic/StepperComponent.vue.models';
+import StepperComponent from "@components/Common/Basic/StepperComponent.vue";
 
 @Options({
     components: {
@@ -76,16 +59,14 @@ export default class TestResultTimelineDataComponent extends Vue {
     @Prop({ required: true })
     fullscreen!: boolean;
 
-    id!: string;
-    dialogStep: TimelineStepViewModel | null = null;
+    @Ref() readonly stepperElement!: StepperComponent;
+
+    id: string = IdUtils.generateId();
+    dialogStep: StepperComponentStepViewModel | null = null;
     showStepDialog: boolean = false;
 
-    created(): void {
-      this.id = this.createGuid();
-    }
-
-    get steps(): Array<TimelineStepViewModel> {
-      let items = JSON.parse(this.resultData.Data) as Array<TimelineStepViewModel>;
+    get steps(): Array<StepperComponentStepViewModel> {
+      let items = JSON.parse(this.resultData.Data) as Array<StepperComponentStepViewModel>;
       
       items.forEach((item) => {
         let dateStr = (<any>item.Timestamp) as string;
@@ -95,48 +76,16 @@ export default class TestResultTimelineDataComponent extends Vue {
       return items;
     }
 
-    onStepClicked(step: TimelineStepViewModel): void
+    onStepClicked(step: StepperComponentStepViewModel): void
     {
       this.dialogStep = step;
       this.showStepDialog = true;
     }
 
-    createGuid(): string
-    {
-      let S4 = function() {
-        return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-      };
-      return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
-    }
-
-    stepHasDate(step: TimelineStepViewModel): boolean
-    {
-      return step.Timestamp != null;
-    }
-
-    formatStepDate(step: TimelineStepViewModel): string
-    {
-      if (step.HideTimeInTimestamp)
-      {
-        return DateUtils.FormatDate(<Date>step.Timestamp, 'd. MMM');
-      } 
-      else
-      {
-        return DateUtils.FormatDate(<Date>step.Timestamp, 'd. MMM HH:mm:ss');
-      }
-    }
+    stepHasDate(step: StepperComponentStepViewModel): boolean { return this.stepperElement.stepHasDate(step); }
+    formatStepDate(step: StepperComponentStepViewModel): string { return this.stepperElement.formatStepDate(step); }
 }
 </script>
 
 <style scoped>
-.stepper-step {
-  cursor: pointer;
-}
-.step-error {
-  color: var(--color--error-base) !important;
-  font-weight: bold;
-}
-.stepper-step:hover {
-  background-color: #eee;
-}
 </style>

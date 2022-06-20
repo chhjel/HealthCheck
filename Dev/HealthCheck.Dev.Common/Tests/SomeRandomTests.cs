@@ -136,13 +136,13 @@ namespace HealthCheck.Dev.Common.Tests
         }
 
         [RuntimeTest]
-        public TestResult TestTimeline(int orderId)
+        public TestResult TestTimeline()
         {
             return TestResult.CreateSuccess("")
                 .SetCleanMode()
                 .AddTimelineData(new[]
                 {
-                    new TimelineStep($"Cart #{orderId} created", "A cart was created")
+                    new TimelineStep($"Cart #12345678 created", "A cart was created")
                         .SetTimestamp(DateTime.Now.AddMinutes(-15), hideTime: true)
                         .SetIcon("shopping_cart")
                         .SetCompleted(),

@@ -1,4 +1,4 @@
-export default interface TimelineStepViewModel {
+export interface StepperComponentStepViewModel {
     Index: number;
     Title: string;
     Description: string | null;
