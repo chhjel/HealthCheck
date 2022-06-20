@@ -111,8 +111,8 @@
                 <div>
                     {{ deleteScriptDialogText }}
                 </div>
-                                <div>
-                                        <btn-component color="primary" @click="deleteScriptDialogVisible = false">Cancel</btn-component>
+                <div>
+                    <btn-component color="primary" @click="deleteScriptDialogVisible = false">Cancel</btn-component>
                     <btn-component color="error" @click="deleteScript(currentScript)">Delete it</btn-component>
                 </div>
             </div>
@@ -127,12 +127,12 @@
                 <div>
                     It seems you have some unsaved changes.
                 </div>
-                                <div>
-                                        <btn-component color="primary"
-                        @click="unsavedChangesDialogGoBack()"
+                <div>
+                    <btn-component color="primary"
+                        @click="unsavedChangesDialogGoBack"
                         >Go back</btn-component>
                     <btn-component color="error"
-                        @click="unsavedChangesDialogConfirmed()"
+                        @click="unsavedChangesDialogConfirmed"
                         >Discard changes</btn-component>
                 </div>
             </div>
@@ -320,15 +320,16 @@ export default class DynamicCodeExecutionPageComponent extends Vue {
     confirmUnchangedDialogVisible: boolean = false;
     configDialogVisible: boolean = false;
 
-    callbacks: Array<CallbackUnregisterShortcut> = [
-      EventBus.on("onNotAllowedModuleSwitch", this.onNotAllowedModuleSwitch.bind(this))
-    ]
+    callbacks: Array<CallbackUnregisterShortcut> = [];
     
     //////////////////
     //  LIFECYCLE  //
     ////////////////
     mounted(): void
     {
+        this.callbacks = [
+            EventBus.on("onNotAllowedModuleSwitch", this.onNotAllowedModuleSwitch.bind(this))
+        ];
         StoreUtil.store.commit('showMenuButton', true);
         this.loadData();
 
