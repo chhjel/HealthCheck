@@ -95,120 +95,87 @@
         </div>
         
         <!-- DIALOGS -->
-        <dialog-component v-model:value="configDialogVisible"
-            scrollable
-            persistent
-            max-width="1200"
-            content-class="current-config-dialog">
-            <div v-if="currentConfig != null">
-                <toolbar-component>
-                    <div class="current-config-dialog__title">{{ currentDialogTitle }}</div>
-                                            <btn-component icon
-                        @click="hideCurrentConfig()"
-                        :disabled="serverInteractionInProgress">
-                        <icon-component>close</icon-component>
-                    </btn-component>
-                </toolbar-component>
-
-                                    
-                <div>
-                    <event-notification-config-component
-                        :module-id="config.Id"
-                        :config="currentConfig"
-                        :notifiers="notifiers"
-                        :eventdefinitions="eventDefinitions"
-                        :placeholders="placeholders"
-                        :readonly="!allowConfigChanges"
-                        v-on:configDeleted="onConfigDeleted"
-                        v-on:configSaved="onConfigSaved"
-                        v-on:serverInteractionInProgress="setServerInteractionInProgress"
-                        ref="currentConfigComponent"
-                        />
-                </div>
-                <div >
-                    <btn-component color="error" flat
-                        v-if="showDeleteConfig"
-                        :disabled="serverInteractionInProgress"
-                        @click="$refs.currentConfigComponent.tryDeleteConfig()">Delete</btn-component>
-                    <btn-component color="success"
-                        :disabled="serverInteractionInProgress"
-                        @click="$refs.currentConfigComponent.saveConfig()">Save</btn-component>
-                </div>
+        <dialog-component v-model:value="configDialogVisible" persistent max-width="1200">
+            <template #header>{{ currentDialogTitle }}</template>
+            <template #footer>
+                <btn-component color="error" flat
+                    v-if="showDeleteConfig"
+                    :disabled="serverInteractionInProgress"
+                    @click="$refs.currentConfigComponent.tryDeleteConfig()">Delete</btn-component>
+                <btn-component color="success"
+                    :disabled="serverInteractionInProgress"
+                    @click="$refs.currentConfigComponent.saveConfig()">Save</btn-component>
+            </template>
+            <div v-if="currentConfig != null">                 
+                <event-notification-config-component
+                    :module-id="config.Id"
+                    :config="currentConfig"
+                    :notifiers="notifiers"
+                    :eventdefinitions="eventDefinitions"
+                    :placeholders="placeholders"
+                    :readonly="!allowConfigChanges"
+                    v-on:configDeleted="onConfigDeleted"
+                    v-on:configSaved="onConfigSaved"
+                    v-on:serverInteractionInProgress="setServerInteractionInProgress"
+                    ref="currentConfigComponent"
+                    />
             </div>
         </dialog-component>
 
-        <dialog-component v-model:value="deleteDefinitionDialogVisible"
-            @keydown.esc="deleteDefinitionDialogVisible = false"
-            max-width="290"
-            content-class="confirm-dialog">
+        <dialog-component v-model:value="deleteDefinitionDialogVisible" max-width="290">
+            <template #header>Confirm deletion</template>
+            <template #footer>
+                <btn-component color="secondary" @click="deleteDefinitionDialogVisible = false">Cancel</btn-component>
+                <btn-component color="error"
+                    :loading="loadStatus.inProgress"
+                    :disabled="loadStatus.inProgress"
+                    @click="confirmDeleteEventDefinition()">Delete</btn-component>
+            </template>
             <div>
-                <div class="headline">Confirm deletion</div>
-                <div>
-                    {{ deleteDefinitionDialogText }}
-                </div>
-                                    <div>
-                                            <btn-component color="secondary" @click="deleteDefinitionDialogVisible = false">Cancel</btn-component>
-                    <btn-component color="error"
-                        :loading="loadStatus.inProgress"
-                        :disabled="loadStatus.inProgress"
-                        @click="confirmDeleteEventDefinition()">Delete</btn-component>
-                </div>
+                {{ deleteDefinitionDialogText }}
             </div>
         </dialog-component>
         
-        <dialog-component v-model:value="editDefinitionsDialogVisible"
-            @keydown.esc="editDefinitionsDialogVisible = false"
-            scrollable
-            max-width="1200"
-            content-class="current-config-dialog">
+        <dialog-component v-model:value="editDefinitionsDialogVisible" max-width="1200">
+            <template #header>Edit event payload definitions</template>
+            <template #footer>
+                <btn-component
+                    :loading="loadStatus.inProgress"
+                    :disabled="loadStatus.inProgress"
+                    color="error"
+                    @click="showDeleteDefinitionDialog(null)">
+                    <icon-component size="20px" class="mr-2">delete_forever</icon-component>
+                    Delete all definitions
+                </btn-component>
+                <btn-component color="success"
+                    @click="editDefinitionsDialogVisible = false">Close</btn-component>
+            </template>
+
             <div>
-                <toolbar-component>
-                    <div class="current-config-dialog__title">Edit event payload definitions</div>
-                                            <btn-component icon
-                        @click="editDefinitionsDialogVisible = false">
-                        <icon-component>close</icon-component>
-                    </btn-component>
-                </toolbar-component>
-
-                                    
-                <div>
-                    <block-component
-                        v-for="(def, dindex) in eventDefinitions"
-                        :key="`eventdef-${dindex}-${def.EventId}`"
-                        class="definition-list-item mb-2">
-                        <btn-component
-                            :loading="loadStatus.inProgress"
-                            :disabled="loadStatus.inProgress"
-                            color="error" class="right"
-                            @click="showDeleteDefinitionDialog(def.EventId)">
-                            <icon-component size="20px" class="mr-2">delete</icon-component>
-                            Delete
-                        </btn-component>
-
-                        <h3>{{ def.EventId }}</h3>
-
-                        <div v-if="!def.IsStringified">
-                            <h4 class="mt-2 mr-1" style="display:inline-block">Properties:</h4>
-                            <code
-                                v-for="(defProp, dpindex) in def.PayloadProperties"
-                                :key="`eventdefprop-${dindex}-${dpindex}`"
-                                class="mr-2">{{ defProp }}</code>
-                        </div>
-                        <div style="clear:both;"></div>
-                    </block-component>
-                </div>
-                                    <div >
-                                            <btn-component
+                <block-component
+                    v-for="(def, dindex) in eventDefinitions"
+                    :key="`eventdef-${dindex}-${def.EventId}`"
+                    class="definition-list-item mb-2">
+                    <btn-component
                         :loading="loadStatus.inProgress"
                         :disabled="loadStatus.inProgress"
-                        color="error"
-                        @click="showDeleteDefinitionDialog(null)">
-                        <icon-component size="20px" class="mr-2">delete_forever</icon-component>
-                        Delete all definitions
+                        color="error" class="right"
+                        @click="showDeleteDefinitionDialog(def.EventId)">
+                        <icon-component size="20px" class="mr-2">delete</icon-component>
+                        Delete
                     </btn-component>
-                    <btn-component color="success"
-                        @click="editDefinitionsDialogVisible = false">Close</btn-component>
-                </div>
+
+                    <h3>{{ def.EventId }}</h3>
+
+                    <div v-if="!def.IsStringified">
+                        <h4 class="mt-2 mr-1" style="display:inline-block">Properties:</h4>
+                        <code
+                            v-for="(defProp, dpindex) in def.PayloadProperties"
+                            :key="`eventdefprop-${dindex}-${dpindex}`"
+                            class="mr-2">{{ defProp }}</code>
+                    </div>
+                    <div style="clear:both;"></div>
+                </block-component>
             </div>
         </dialog-component>
     </div>

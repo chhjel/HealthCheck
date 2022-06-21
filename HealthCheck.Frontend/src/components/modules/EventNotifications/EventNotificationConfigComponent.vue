@@ -226,129 +226,104 @@
             </ul>
         </block-component>
 
-        <dialog-component v-model:value="notifierDialogVisible"
-            scrollable
-            @keydown.esc="notifierDialogVisible = false"
-            v-if="notifiers != null"
-            content-class="possible-notifiers-dialog">
-            <div>
-                <div class="headline">Select type of notifier to add</div>
-                                <div style="max-height: 500px;">
-                    <div class="possible-notifiers-list">
-                        <div v-for="(notifier, nindex) in notifiers"
-                            :key="`possible-notifier-${nindex}`"
-                            @click="onAddNotifierClicked(notifier)"
-                            class="possible-notifiers-list-item">
-                            <div>
-                                <icon-component>add</icon-component>
-                            </div>
+        <dialog-component v-model:value="notifierDialogVisible" v-if="notifiers != null">
+            <template #header>Select type of notifier to add</template>
+            <template #footer>
+                <btn-component color="secondary" flat @click="notifierDialogVisible = false">Cancel</btn-component>
+            </template>
+            <div style="max-height: 500px;">
+                <div class="possible-notifiers-list">
+                    <div v-for="(notifier, nindex) in notifiers"
+                        :key="`possible-notifier-${nindex}`"
+                        @click="onAddNotifierClicked(notifier)"
+                        class="possible-notifiers-list-item">
+                        <div>
+                            <icon-component>add</icon-component>
+                        </div>
 
-                            <div>
-                                <div class="possible-notifier-item-title">{{ notifier.Name }}</div>
-                                <div class="possible-notifier-item-description">{{ notifier.Description }}</div>
-                            </div>
+                        <div>
+                            <div class="possible-notifier-item-title">{{ notifier.Name }}</div>
+                            <div class="possible-notifier-item-description">{{ notifier.Description }}</div>
                         </div>
                     </div>
                 </div>
-                                <div>
-                                        <btn-component color="secondary" flat @click="notifierDialogVisible = false">Cancel</btn-component>
-                </div>
             </div>
         </dialog-component>
 
-        <dialog-component v-model:value="deleteDialogVisible"
-            @keydown.esc="deleteDialogVisible = false"
-            max-width="290"
-            content-class="confirm-dialog">
+        <dialog-component v-model:value="deleteDialogVisible" max-width="290">
+            <template #header>Confirm deletion</template>
+            <template #footer>
+                <btn-component color="secondary" @click="deleteDialogVisible = false">Cancel</btn-component>
+                <btn-component color="error" @click="deleteConfig()">Delete it</btn-component>
+            </template>
             <div>
-                <div class="headline">Confirm deletion</div>
-                <div>
-                    Are you sure you want to delete this configuration?
-                </div>
-                                <div>
-                                        <btn-component color="secondary" @click="deleteDialogVisible = false">Cancel</btn-component>
-                    <btn-component color="error" @click="deleteConfig()">Delete it</btn-component>
-                </div>
+                Are you sure you want to delete this configuration?
             </div>
         </dialog-component>
 
-        <dialog-component v-model:value="payloadPlaceholderDialogVisible"
-            @keydown.esc="payloadPlaceholderDialogVisible = false"
-            scrollable
-            content-class="possible-placeholders-dialog">
-            <div>
-                <div class="headline">Select placeholder to add</div>
-                                <div style="max-height: 500px;">
-                    <div class="possible-placeholders-list">
-                        <div v-for="(placeholder, placeholderIndex) in getPayloadPlaceholders()"
-                            :key="`possible-placeholder-${placeholderIndex}`"
-                            @click="onAddPayloadPlaceholderClicked(placeholder)"
-                            class="possible-placeholder-list-item">
-                            <div>
-                                <icon-component>add</icon-component>
-                            </div>
+        <dialog-component v-model:value="payloadPlaceholderDialogVisible">
+            <template #header>Select placeholder to add</template>
+            <template #footer>
+                <btn-component color="secondary" flat @click="hidePayloadPlaceholderDialog()">Cancel</btn-component>
+            </template>
+            <div style="max-height: 500px;">
+                <div class="possible-placeholders-list">
+                    <div v-for="(placeholder, placeholderIndex) in getPayloadPlaceholders()"
+                        :key="`possible-placeholder-${placeholderIndex}`"
+                        @click="onAddPayloadPlaceholderClicked(placeholder)"
+                        class="possible-placeholder-list-item">
+                        <div>
+                            <icon-component>add</icon-component>
+                        </div>
 
-                            <div>
-                                <div class="possible-placeholder-item-title">{{ `\{${placeholder.toUpperCase()}\}` }}</div>
-                            </div>
+                        <div>
+                            <div class="possible-placeholder-item-title">{{ `\{${placeholder.toUpperCase()}\}` }}</div>
                         </div>
                     </div>
                 </div>
-                                <div>
-                                        <btn-component color="secondary" flat @click="hidePayloadPlaceholderDialog()">Cancel</btn-component>
-                </div>
             </div>
         </dialog-component>
-        <dialog-component v-model:value="placeholderDialogVisible"
-            @keydown.esc="placeholderDialogVisible = false"
-            scrollable
-            content-class="possible-placeholders-dialog">
-            <div>
-                <div class="headline">Select placeholder to add</div>
-                                <div style="max-height: 500px;">
-                    <div class="possible-placeholders-list">
-                        <div v-for="(placeholder, placeholderIndex) in getPlaceholdersFor((currentPlaceholderDialogTargetConfig == null ? null :currentPlaceholderDialogTargetConfig.Notifier), currentPlaceholderDialogTarget)"
-                            :key="`possible-placeholder-${placeholderIndex}`"
-                            @click="onAddPlaceholderClicked(placeholder, currentPlaceholderDialogTarget)"
-                            class="possible-placeholder-list-item">
-                            <div>
-                                <icon-component>add</icon-component>
-                            </div>
+        <dialog-component v-model:value="placeholderDialogVisible">
+            <template #header>Select placeholder to add</template>
+            <template #footer>
+                <btn-component color="secondary" flat @click="hidePlaceholderDialog()">Cancel</btn-component>
+            </template>
+            <div style="max-height: 500px;">
+                <div class="possible-placeholders-list">
+                    <div v-for="(placeholder, placeholderIndex) in getPlaceholdersFor((currentPlaceholderDialogTargetConfig == null ? null :currentPlaceholderDialogTargetConfig.Notifier), currentPlaceholderDialogTarget)"
+                        :key="`possible-placeholder-${placeholderIndex}`"
+                        @click="onAddPlaceholderClicked(placeholder, currentPlaceholderDialogTarget)"
+                        class="possible-placeholder-list-item">
+                        <div>
+                            <icon-component>add</icon-component>
+                        </div>
 
-                            <div>
-                                <div class="possible-placeholder-item-title">{{ `\{${placeholder.toUpperCase()}\}` }}</div>
-                            </div>
+                        <div>
+                            <div class="possible-placeholder-item-title">{{ `\{${placeholder.toUpperCase()}\}` }}</div>
                         </div>
                     </div>
                 </div>
-                                <div>
-                                        <btn-component color="secondary" flat @click="hidePlaceholderDialog()">Cancel</btn-component>
-                </div>
             </div>
         </dialog-component>
-        <dialog-component v-model:value="testDialogVisible"
-            @keydown.esc="testDialogVisible = false"
-            scrollable
-            content-class="possible-placeholders-dialog">
+        <dialog-component v-model:value="testDialogVisible">
+            <template #header>Test notifier '{{ notifierToTest.Notifier.Name }}'</template>
+            <template #footer>
+                <btn-component color="secondary" flat @click="testDialogVisible = false">Close</btn-component>
+            </template>
+
             <div v-if="notifierToTest">
-                <div class="headline">Test notifier '{{ notifierToTest.Notifier.Name }}'</div>
-                                <div>
-                    <div>
-                        <p>No placeholders will be resolved, this is just to test the notifier itself.</p>
-                        <btn-component color="primary"
-                            @click="testNotifier"
-                            :disabled="!allowChanges">
-                            Execute notifier
-                        </btn-component>
-                    </div>
-
-                    <div v-if="testResponse" class="ml-2 mt-3 mb-3">
-                        <h4>Result:</h4>
-                        <code class="notif-test-result">{{ testResponse }}</code>
-                    </div>
+                <div>
+                    <p>No placeholders will be resolved, this is just to test the notifier itself.</p>
+                    <btn-component color="primary"
+                        @click="testNotifier"
+                        :disabled="!allowChanges">
+                        Execute notifier
+                    </btn-component>
                 </div>
-                                <div>
-                                        <btn-component color="secondary" flat @click="testDialogVisible = false">Close</btn-component>
+
+                <div v-if="testResponse" class="ml-2 mt-3 mb-3">
+                    <h4>Result:</h4>
+                    <code class="notif-test-result">{{ testResponse }}</code>
                 </div>
             </div>
         </dialog-component>
