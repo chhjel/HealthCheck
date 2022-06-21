@@ -102,123 +102,103 @@
         
         <!-- ##################### -->
         <!-- ###### DIALOGS ######-->
-        <dialog-component v-model:value="deleteScriptDialogVisible"
-            @keydown.esc="deleteScriptDialogVisible = false"
-            max-width="350" dark
-            content-class="dce-dialog">
-            <div color="secondary" class="white--text">
-                <div class="headline">Confirm deletion</div>
-                <div>
-                    {{ deleteScriptDialogText }}
-                </div>
-                <div>
-                    <btn-component color="primary" @click="deleteScriptDialogVisible = false">Cancel</btn-component>
-                    <btn-component color="error" @click="deleteScript(currentScript)">Delete it</btn-component>
-                </div>
+        <dialog-component v-model:value="deleteScriptDialogVisible" max-width="350" dark>
+            <template #header>Confirm deletion</template>
+            <template #footer>
+                <btn-component color="primary" @click="deleteScriptDialogVisible = false">Cancel</btn-component>
+                <btn-component color="error" @click="deleteScript(currentScript)">Delete it</btn-component>
+            </template>
+            <div>
+                {{ deleteScriptDialogText }}
             </div>
         </dialog-component>
         <!-- ##################### -->
-        <dialog-component v-model:value="confirmUnchangedDialogVisible"
-            @keydown.esc="unsavedChangesDialogGoBack()"
-            max-width="350" dark
-            content-class="dce-dialog">
-            <div color="secondary" class="white--text">
-                <div class="headline">Unsaved changes</div>
-                <div>
-                    It seems you have some unsaved changes.
-                </div>
-                <div>
-                    <btn-component color="primary"
-                        @click="unsavedChangesDialogGoBack"
-                        >Go back</btn-component>
-                    <btn-component color="error"
-                        @click="unsavedChangesDialogConfirmed"
-                        >Discard changes</btn-component>
-                </div>
+        <dialog-component v-model:value="confirmUnchangedDialogVisible" max-width="350" dark>
+            <template #header>Unsaved changes</template>
+            <template #footer>
+                <btn-component color="primary"
+                    @click="unsavedChangesDialogGoBack"
+                    >Go back</btn-component>
+                <btn-component color="error"
+                    @click="unsavedChangesDialogConfirmed"
+                    >Discard changes</btn-component>
+            </template>
+            <div>
+                It seems you have some unsaved changes.
             </div>
         </dialog-component>
         <!-- ##################### -->
-        <dialog-component v-model:value="saveScriptDialogVisible"
-            @keydown.esc="saveScriptDialogVisible = false"
-            max-width="400" dark
-            content-class="dce-dialog">
-            <div color="secondary" class="white--text">
-                <div class="headline">Save new script</div>
-                <div>
-                    Choose where to save this script.
-                </div>
-                                <div>
-                                        <btn-component color="primary" @click="saveScriptDialogVisible = false">Cancel</btn-component>
-                    <btn-component color="primary" @click="saveScript(currentScript, 'local')"
-                        :disabled="loadStatus.inProgress"
-                        :loading="loadStatus.inProgress"
-                        >Local storage</btn-component>
-                    <btn-component color="primary" @click="saveScript(currentScript, 'server')"
-                        :disabled="loadStatus.inProgress"
-                        :loading="loadStatus.inProgress"
-                        >Server</btn-component>
-                </div>
+        <dialog-component v-model:value="saveScriptDialogVisible" max-width="400" dark>
+            <template #header>Save new script</template>
+            <template #footer>
+                <btn-component color="primary" @click="saveScriptDialogVisible = false">Cancel</btn-component>
+                <btn-component color="primary" @click="saveScript(currentScript, 'local')"
+                    :disabled="loadStatus.inProgress"
+                    :loading="loadStatus.inProgress"
+                    >Local storage</btn-component>
+                <btn-component color="primary" @click="saveScript(currentScript, 'server')"
+                    :disabled="loadStatus.inProgress"
+                    :loading="loadStatus.inProgress"
+                    >Server</btn-component>
+            </template>
+            <div>
+                Choose where to save this script.
             </div>
         </dialog-component>
         <!-- ##################### -->
-        <dialog-component v-model:value="configDialogVisible"
-            @keydown.esc="configDialogVisible = false"
-            max-width="600" dark
-            content-class="dce-dialog">
-            <div color="secondary" class="white--text">
-                <div class="headline">Settings</div>
-                <div class="pt-0">
-                    <div class="dce-dialog--option">
-                        <checkbox-component
-                            v-model:value="localOptions.autoFormatResult"
-                            @change="(v) => setLocalConfig(o => o.autoFormatResult = v)"
-                            label="Auto-format results" style="display:block"></checkbox-component>
-                        <div class="dce-dialog--option--description">
-                            Automatically formats json in result after execution.
-                        </div>
+        <dialog-component v-model:value="configDialogVisible" max-width="600" dark>
+            <template #header>Settings</template>
+            <template #footer>
+                <btn-component color="primary" @click="configDialogVisible = false">Close</btn-component>
+            </template>
+            <div>
+                <div class="dce-dialog--option">
+                    <checkbox-component
+                        v-model:value="localOptions.autoFormatResult"
+                        @change="(v) => setLocalConfig(o => o.autoFormatResult = v)"
+                        label="Auto-format results" style="display:block"></checkbox-component>
+                    <div class="dce-dialog--option--description">
+                        Automatically formats json in result after execution.
                     </div>
+                </div>
 
-                    <div class="dce-dialog--option">
-                        <checkbox-component
-                            v-model:value="localOptions.autoFoldRegions"
-                            @change="(v) => setLocalConfig(o => o.autoFoldRegions = v)"
-                            label="Auto-fold regions" style="display:block"></checkbox-component>
-                        <div class="dce-dialog--option--description">
-                            Automatically folds any #regions in editor after execution.
-                        </div>
-                    </div>
-
-                    <div class="dce-dialog--option">
-                        <checkbox-component
-                            v-model:value="localOptions.updateLocalCodeFromRemote"
-                            @change="(v) => setLocalConfig(o => o.updateLocalCodeFromRemote = v)"
-                            label="Update local code from pre-processed" style="display:block"></checkbox-component>
-                        <div class="dce-dialog--option--description">
-                            Updates local code with its pre-processed version after execution.
-                        </div>
-                    </div>
-                    
-                    
-                    <h3 class="mt-4 mb-2">Code pre-processors</h3>
-                    <div v-for="(prepro, ppindex) in options.Options.PreProcessors"
-                        :key="`dce_options_preprocessor-${ppindex}`"
-                        class="dce-dialog--option"
-                        >
-                        <checkbox-component
-                            :label="prepro.Name"
-                            class="mt-0"
-                            :disabled="!prepro.CanBeDisabled"
-                            :value="isPreProcessorEnabled(prepro)"
-                            @change="(v) => onPreProcessorToggled(prepro, v)"
-                            ></checkbox-component>
-                        <div class="dce-dialog--option--description"
-                            v-if="prepro.Description != null && prepro.Description.trim().length > 0">
-                            {{ prepro.Description }}
-                        </div>
+                <div class="dce-dialog--option">
+                    <checkbox-component
+                        v-model:value="localOptions.autoFoldRegions"
+                        @change="(v) => setLocalConfig(o => o.autoFoldRegions = v)"
+                        label="Auto-fold regions" style="display:block"></checkbox-component>
+                    <div class="dce-dialog--option--description">
+                        Automatically folds any #regions in editor after execution.
                     </div>
                 </div>
-                <div>
-                    <btn-component color="primary" @click="configDialogVisible = false">Close</btn-component>
+
+                <div class="dce-dialog--option">
+                    <checkbox-component
+                        v-model:value="localOptions.updateLocalCodeFromRemote"
+                        @change="(v) => setLocalConfig(o => o.updateLocalCodeFromRemote = v)"
+                        label="Update local code from pre-processed" style="display:block"></checkbox-component>
+                    <div class="dce-dialog--option--description">
+                        Updates local code with its pre-processed version after execution.
+                    </div>
+                </div>
+                
+                
+                <h3 class="mt-4 mb-2">Code pre-processors</h3>
+                <div v-for="(prepro, ppindex) in options.Options.PreProcessors"
+                    :key="`dce_options_preprocessor-${ppindex}`"
+                    class="dce-dialog--option"
+                    >
+                    <checkbox-component
+                        :label="prepro.Name"
+                        class="mt-0"
+                        :disabled="!prepro.CanBeDisabled"
+                        :value="isPreProcessorEnabled(prepro)"
+                        @change="(v) => onPreProcessorToggled(prepro, v)"
+                        ></checkbox-component>
+                    <div class="dce-dialog--option--description"
+                        v-if="prepro.Description != null && prepro.Description.trim().length > 0">
+                        {{ prepro.Description }}
+                    </div>
                 </div>
             </div>
         </dialog-component>
