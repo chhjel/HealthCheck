@@ -65,44 +65,30 @@
 
         </div>
         
-        <dialog-component v-model:value="downloadDialogVisible"
-            scrollable
-            persistent
-            max-width="1200"
-            content-class="current-download-dialog">
-            <div v-if="currentDownload != null">
-                <toolbar-component>
-                    <div class="current-download-dialog__title">{{ currentDialogTitle }}</div>
-                                            <btn-component icon
-                        @click="hideCurrentDownload()"
-                        :disabled="serverInteractionInProgress">
-                        <icon-component>close</icon-component>
-                    </btn-component>
-                </toolbar-component>
+        <dialog-component v-model:value="downloadDialogVisible" persistent max-width="1200">
+            <template #header>{{ currentDialogTitle }}</template>
+            <template #footer>
+                <btn-component color="error" flat
+                    v-if="showDeleteDownload"
+                    :disabled="serverInteractionInProgress"
+                    @click="$refs.currentDownloadComponent.tryDeleteDownload()">Delete</btn-component>
+                <btn-component color="success"
+                    v-if="showSaveDownload"
+                    :disabled="serverInteractionInProgress"
+                    @click="$refs.currentDownloadComponent.saveDownload()">Save</btn-component>
+            </template>
 
-                                    
-                <div>
-                    <edit-download-component
-                        :module-id="config.Id"
-                        :download="currentDownload"
-                        :storage-infos="options.Options.StorageInfos"
-                        :readonly="!allowDownloadChanges"
-                        v-on:downloadDeleted="onDownloadDeleted"
-                        v-on:downloadSaved="onDownloadSaved"
-                        v-on:serverInteractionInProgress="setServerInteractionInProgress"
-                        ref="currentDownloadComponent"
-                        />
-                </div>
-                                    <div >
-                                            <btn-component color="error" flat
-                        v-if="showDeleteDownload"
-                        :disabled="serverInteractionInProgress"
-                        @click="$refs.currentDownloadComponent.tryDeleteDownload()">Delete</btn-component>
-                    <btn-component color="success"
-                        v-if="showSaveDownload"
-                        :disabled="serverInteractionInProgress"
-                        @click="$refs.currentDownloadComponent.saveDownload()">Save</btn-component>
-                </div>
+            <div v-if="currentDownload != null">
+                <edit-download-component
+                    :module-id="config.Id"
+                    :download="currentDownload"
+                    :storage-infos="options.Options.StorageInfos"
+                    :readonly="!allowDownloadChanges"
+                    v-on:downloadDeleted="onDownloadDeleted"
+                    v-on:downloadSaved="onDownloadSaved"
+                    v-on:serverInteractionInProgress="setServerInteractionInProgress"
+                    ref="currentDownloadComponent"
+                    />
             </div>
         </dialog-component>
     </div>

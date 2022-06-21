@@ -74,7 +74,7 @@
 
         </div>
         
-        <dialog-component v-model:value="ruleDialogVisible" max-width="1200">
+        <dialog-component v-model:value="ruleDialogVisible" max-width="1200" persistent>
             <template #header>{{ currentDialogTitle }}</template>
             <template #footer>
                 <btn-component color="error" flat
