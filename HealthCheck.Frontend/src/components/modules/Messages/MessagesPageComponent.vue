@@ -105,13 +105,7 @@
             </div>
         </div>
             
-        <dialog-component v-model:value="showMessageDialog"
-            @keydown.esc="hideMessageDialog"
-            v-if="currentlyShownMessage != null"
-            scrollable
-            max-width="1200"
-            content-class="message-dialog">
-
+        <dialog-component v-model:value="showMessageDialog" v-if="currentlyShownMessage != null" max-width="1200">
             <template #header>
                 {{ currentlyShownMessage.Summary }}
                 <icon-component :color="getMessageIconColor(currentlyShownMessage)" class="ml-2">{{ getMessageIcon(currentlyShownMessage) }}</icon-component>
@@ -167,35 +161,25 @@
             </div>
         </dialog-component>
         
-        <dialog-component v-model:value="deleteMessageDialogVisible"
-            @keydown.esc="deleteMessageDialogVisible = false"
-            max-width="290"
-            content-class="confirm-dialog">
+        <dialog-component v-model:value="deleteMessageDialogVisible" max-width="290">
+            <template #header>Confirm deletion</template>
+            <template #footer>
+                <btn-component color="secondary" @click="deleteMessageDialogVisible = false">Cancel</btn-component>
+                <btn-component color="error" @click="deleteMessage()">Delete it</btn-component>
+            </template>
             <div>
-                <div class="headline">Confirm deletion</div>
-                <div>
-                    Are you sure you want to delete this message?
-                </div>
-                                <div>
-                                        <btn-component color="secondary" @click="deleteMessageDialogVisible = false">Cancel</btn-component>
-                    <btn-component color="error" @click="deleteMessage()">Delete it</btn-component>
-                </div>
+                Are you sure you want to delete this message?
             </div>
         </dialog-component>
         
-        <dialog-component v-model:value="deleteInboxDialogVisible"
-            @keydown.esc="deleteInboxDialogVisible = false"
-            max-width="360"
-            content-class="confirm-dialog">
+        <dialog-component v-model:value="deleteInboxDialogVisible" max-width="360">
+            <template #header>Confirm deletion</template>
+            <template #footer>
+                <btn-component color="secondary" @click="deleteInboxDialogVisible = false">Cancel</btn-component>
+                <btn-component color="error" @click="deleteInbox()">Delete whole inbox</btn-component>
+            </template>
             <div>
-                <div class="headline">Confirm deletion</div>
-                <div>
-                    Are you sure you want to delete all messages in the inbox?
-                </div>
-                                <div>
-                                        <btn-component color="secondary" @click="deleteInboxDialogVisible = false">Cancel</btn-component>
-                    <btn-component color="error" @click="deleteInbox()">Delete whole inbox</btn-component>
-                </div>
+                Are you sure you want to delete all messages in the inbox?
             </div>
         </dialog-component>
     </div>
