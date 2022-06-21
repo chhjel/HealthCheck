@@ -142,56 +142,37 @@
         
         <!-- ##################### -->
         <!-- ###### DIALOGS ######-->
-        <dialog-component v-model:value="deleteTokenDialogVisible"
-            @keydown.esc="deleteTokenDialogVisible = false"
-            max-width="350"
-            content-class="delete-token-dialog">
+        <dialog-component v-model:value="deleteTokenDialogVisible" max-width="350">
+            <template #header>Confirm deletion</template>
+            <template #footer>
+                <btn-component color="primary" @click="deleteTokenDialogVisible = false">Cancel</btn-component>
+                <btn-component color="error" @click="confirmDeleteToken(tokenToBeDeleted)">Delete it</btn-component>
+            </template>
             <div>
-                <div class="headline">Confirm deletion</div>
-                <div>
-                    {{ deleteTokenDialogText }}
-                </div>
-                                <div>
-                                        <btn-component color="primary" @click="deleteTokenDialogVisible = false">Cancel</btn-component>
-                    <btn-component color="error" @click="confirmDeleteToken(tokenToBeDeleted)">Delete it</btn-component>
-                </div>
+                {{ deleteTokenDialogText }}
             </div>
         </dialog-component>
         <!-- ##################### -->
-        <dialog-component v-model:value="createNewTokenDialogVisible"
-            @keydown.esc="createNewTokenDialogVisible = false"
-            scrollable
-            :persistent="loadStatus.inProgress"
-            max-width="1200"
-            content-class="create-access-token-dialog">
+        <dialog-component v-model:value="createNewTokenDialogVisible" :persistent="loadStatus.inProgress" max-width="1200">
+            <template #header>Create new access token</template>
+            <template #footer>
+                <btn-component
+                    color="primary"
+                    :loading="loadStatus.inProgress"
+                    :disabled="loadStatus.inProgress || !enableCreateTokenButton"
+                    @click="onCreateNewTokenClicked">
+                    Create token
+                </btn-component>
+                <btn-component color="secondary"
+                    :loading="loadStatus.inProgress"
+                    :disabled="loadStatus.inProgress"
+                    @click="createNewTokenDialogVisible = false">Close</btn-component>
+            </template>
             <div>
-                <toolbar-component>
-                    <div class="current-config-dialog__title">Create new access token</div>
-                                        <btn-component icon
-                        @click="createNewTokenDialogVisible = false">
-                        <icon-component>close</icon-component>
-                    </btn-component>
-                </toolbar-component>
-                                
-                <div>
-                    <edit-access-token-component
-                        :access-data="accessData"
-                        :read-only="loadStatus.inProgress"
-                        v-model:value="accessDataInEdit" />
-                </div>
-                <div >
-                    <btn-component
-                        color="primary"
-                        :loading="loadStatus.inProgress"
-                        :disabled="loadStatus.inProgress || !enableCreateTokenButton"
-                        @click="onCreateNewTokenClicked">
-                        Create token
-                    </btn-component>
-                    <btn-component color="secondary"
-                        :loading="loadStatus.inProgress"
-                        :disabled="loadStatus.inProgress"
-                        @click="createNewTokenDialogVisible = false">Close</btn-component>
-                </div>
+                <edit-access-token-component
+                    :access-data="accessData"
+                    :read-only="loadStatus.inProgress"
+                    v-model:value="accessDataInEdit" />
             </div>
         </dialog-component>
         <!-- ##################### -->

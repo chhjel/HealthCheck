@@ -1,32 +1,19 @@
 <!-- src/components/profile/AccessTokenKillswitchDialog.vue -->
 <template>
     <div>
-        <dialog-component v-model:value="dialogOpen"
-            @keydown.esc="closeDialog"
-            scrollable
-            max-width="800"
-            content-class="root-profile-dialog">
+        <dialog-component v-model:value="dialogOpen" max-width="800">
+            <template #header>Delete currently used token</template>
+            <template #footer>
+                <btn-component color="error"
+                    :loading="loadStatus.inProgress"
+                    :disabled="loadStatus.inProgress"
+                    @click="killswitchToken()">Delete token</btn-component>
+                <btn-component @click="closeDialog">Close</btn-component>
+            </template>
+
             <div>
-                <toolbar-component>
-                    <div>Delete currently used token</div>
-                                        <btn-component icon @click="closeDialog">
-                        <icon-component>close</icon-component>
-                    </btn-component>
-                </toolbar-component>
-
-                                
-                <div>
-                    <p>Delete the currently used token if needed.</p>
-                    <p><b>This action is irreversible.</b></p>
-                </div>
-
-                                <div >
-                                        <btn-component color="error"
-                        :loading="loadStatus.inProgress"
-                        :disabled="loadStatus.inProgress"
-                        @click="killswitchToken()">Delete token</btn-component>
-                    <btn-component @click="closeDialog">Close</btn-component>
-                </div>
+                <p>Delete the currently used token if needed.</p>
+                <p><b>This action is irreversible.</b></p>
             </div>
         </dialog-component>
     </div>
