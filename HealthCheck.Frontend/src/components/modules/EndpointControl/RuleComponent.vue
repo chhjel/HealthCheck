@@ -119,19 +119,14 @@
                 />
         </block-component>
 
-        <dialog-component v-model:value="deleteDialogVisible"
-            @keydown.esc="deleteDialogVisible = false"
-            max-width="290"
-            content-class="confirm-dialog">
+        <dialog-component v-model:value="deleteDialogVisible" max-width="290">
+            <template #header>Confirm deletion</template>
+            <template #footer>
+                <btn-component color="secondary" @click="deleteDialogVisible = false">Cancel</btn-component>
+                <btn-component color="error" @click="deleteRule()">Delete it</btn-component>
+            </template>
             <div>
-                <div class="headline">Confirm deletion</div>
-                <div>
-                    Are you sure you want to delete this rule?
-                </div>
-                                <div>
-                                        <btn-component color="secondary" @click="deleteDialogVisible = false">Cancel</btn-component>
-                    <btn-component color="error" @click="deleteRule()">Delete it</btn-component>
-                </div>
+                Are you sure you want to delete this rule?
             </div>
         </dialog-component>
     </div>
