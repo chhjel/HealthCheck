@@ -91,9 +91,9 @@ export default class DialogComponent extends Vue {
 
     get contentStyle(): any {
         let style = {
-            maxWidth: this.maxWidth
+            maxWidth: `${this.maxWidth}px`
         };
-        if (this.width) style['width'] = this.width;
+        if (this.width) style['width'] = `${this.width}px`;
         return style;
     }
 
@@ -196,7 +196,7 @@ export default class DialogComponent extends Vue {
                 overflow-y: auto;
                 overflow-x: hidden;
                 max-height: calc(100vh - 190px);
-                padding: 5px 30px;
+                padding: 15px 30px;
             }
         }
         .dialog-component_modal_cross {

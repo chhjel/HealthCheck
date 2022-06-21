@@ -22,10 +22,7 @@
             v-if="showDownloadButton">Download '{{ resultData.DownloadFileName }}'</btn-component>
 
           <btn-component outline small color="accent" class="data-dump-action-button mt-2 mr-2" v-if="showFullscreenButton" @click="showFullscreen=true">Fullscreen</btn-component>
-          <dialog-component
-            v-model:value="showFullscreen"
-            @keydown.esc="showFullscreen = false"
-            fullscreen hide-overlay>
+          <dialog-component v-model:value="showFullscreen" fullscreen hide-overlay>
             <template #header>
               {{resultData.Title}}
             </template>

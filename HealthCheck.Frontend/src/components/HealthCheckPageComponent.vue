@@ -204,7 +204,6 @@ export default class HealthCheckPageComponent extends Vue {
     }
     
     onDocumentKeyDownOrDown(e: KeyboardEvent): void {
-        console.log(e);
         if (e.key == 'Escape') {
             EventBus.notify("onEscapeClicked", e);
         }
