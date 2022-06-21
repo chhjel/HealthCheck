@@ -143,47 +143,39 @@
 
         <!-- DIALOGS -->
         <dialog-component v-model:value="confirmRetryDialogVisible"
-            @keydown.esc="confirmRetryDialogVisible = false"
             max-width="480"
-            content-class="confirm-dialog"
             :persistent="dataLoadStatus.inProgress">
+            <template #header>Confirm {{ (stream.RetryActionName || 'Retry') }}</template>
+            <template #footer>
+                <btn-component color="secondary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="confirmRetryDialogVisible = false">Cancel</btn-component>
+                <btn-component color="primary"
+                    :disabled="!retryAllowed"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="retry()">{{ (stream.RetryActionName || 'Retry') }}</btn-component>
+            </template>
             <div>
-                <div class="headline">Confirm {{ (stream.RetryActionName || 'Retry') }}</div>
-                <div>
-                    Are you sure you want to {{ (stream.RetryActionName || 'Retry') }}?
-                </div>
-                                <div>
-                                        <btn-component color="secondary"
-                        :disabled="dataLoadStatus.inProgress"
-                        :loading="dataLoadStatus.inProgress"
-                        @click="confirmRetryDialogVisible = false">Cancel</btn-component>
-                    <btn-component color="primary"
-                        :disabled="!retryAllowed"
-                        :loading="dataLoadStatus.inProgress"
-                        @click="retry()">{{ (stream.RetryActionName || 'Retry') }}</btn-component>
-                </div>
+                Are you sure you want to {{ (stream.RetryActionName || 'Retry') }}?
             </div>
         </dialog-component>
         <dialog-component v-model:value="confirmRunAnalysisDialogVisible"
-            @keydown.esc="confirmRunAnalysisDialogVisible = false"
             max-width="480"
-            content-class="confirm-dialog"
             :persistent="dataLoadStatus.inProgress">
+            <template #header>Confirm run analysis</template>
+            <template #footer>
+                <btn-component color="secondary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="confirmRunAnalysisDialogVisible = false">Cancel</btn-component>
+                <btn-component color="primary"
+                    :disabled="!analyzeAllowed"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="analyze()">Run analysis</btn-component>
+            </template>
             <div>
-                <div class="headline">Confirm run analysis</div>
-                <div>
-                    Are you sure you want to run analysis?
-                </div>
-                                <div>
-                                        <btn-component color="secondary"
-                        :disabled="dataLoadStatus.inProgress"
-                        :loading="dataLoadStatus.inProgress"
-                        @click="confirmRunAnalysisDialogVisible = false">Cancel</btn-component>
-                    <btn-component color="primary"
-                        :disabled="!analyzeAllowed"
-                        :loading="dataLoadStatus.inProgress"
-                        @click="analyze()">Run analysis</btn-component>
-                </div>
+                Are you sure you want to run analysis?
             </div>
         </dialog-component>
     </div>

@@ -149,29 +149,23 @@
 
           <!-- DIALOGS -->
             <dialog-component v-model:value="batchActionsDialogVisible"
-                @keydown.esc="batchActionsDialogVisible = false"
                 max-width="800"
-                content-class="confirm-dialog"
                 :persistent="dataLoadStatus.inProgress">
-                <div>
-                    <div class="headline">Batch actions</div>
-                    <div>
-                        <div v-if="selectedStream && hasBatchActions">
-                            <data-repeater-batch-action-component
-                                v-for="(batchAction, baIndex) in selectedStream.BatchActions"
-                                :key="`batch-action-${baIndex}-${batchAction.Id}`"
-                                :config="config"
-                                :stream="selectedStream"
-                                :action="batchAction"
-                                />
-                        </div>
-                    </div>
-                                        <div>
-                                                <btn-component color="secondary"
-                            :disabled="dataLoadStatus.inProgress"
-                            :loading="dataLoadStatus.inProgress"
-                            @click="batchActionsDialogVisible = false">Cancel</btn-component>
-                    </div>
+                <template #header>Batch actions</template>
+                <template #footer>
+                    <btn-component color="secondary"
+                        :disabled="dataLoadStatus.inProgress"
+                        :loading="dataLoadStatus.inProgress"
+                        @click="batchActionsDialogVisible = false">Cancel</btn-component>
+                </template>
+                <div v-if="selectedStream && hasBatchActions">
+                    <data-repeater-batch-action-component
+                        v-for="(batchAction, baIndex) in selectedStream.BatchActions"
+                        :key="`batch-action-${baIndex}-${batchAction.Id}`"
+                        :config="config"
+                        :stream="selectedStream"
+                        :action="batchAction"
+                        />
                 </div>
             </dialog-component>
           <!-- DIALOGS END -->

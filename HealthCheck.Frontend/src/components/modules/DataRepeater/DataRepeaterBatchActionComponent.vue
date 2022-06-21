@@ -34,25 +34,21 @@
 
         <!-- DIALOGS -->
         <dialog-component v-model:value="confirmExecuteDialogVisible"
-            @keydown.esc="confirmExecuteDialogVisible = false"
-            max-width="480"
-            content-class="confirm-dialog"
+            max-width="520"
             :persistent="dataLoadStatus.inProgress">
+            <template #header>Confirm execute '{{ action.Name }}'</template>
+            <template #footer>
+                <btn-component color="secondary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="confirmExecuteDialogVisible = false">Cancel</btn-component>
+                <btn-component color="primary"
+                    :disabled="!allowExecute"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="executeAction()">Execute</btn-component>
+            </template>
             <div>
-                <div class="headline">Confirm execute '{{ action.Name }}'</div>
-                <div>
-                    Are you sure you want to execute the action '{{ action.Name }}'?
-                </div>
-                                <div>
-                                        <btn-component color="secondary"
-                        :disabled="dataLoadStatus.inProgress"
-                        :loading="dataLoadStatus.inProgress"
-                        @click="confirmExecuteDialogVisible = false">Cancel</btn-component>
-                    <btn-component color="primary"
-                        :disabled="!allowExecute"
-                        :loading="dataLoadStatus.inProgress"
-                        @click="executeAction()">Execute</btn-component>
-                </div>
+                Are you sure you want to execute the action '{{ action.Name }}'?
             </div>
         </dialog-component>
     </div>
