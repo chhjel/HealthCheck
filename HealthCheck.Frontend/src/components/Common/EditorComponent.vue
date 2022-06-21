@@ -24,13 +24,6 @@
         </btn-component>
         
         <!-- ##################### -->
-        <!-- <dialog-component
-            v-model:value="isFullscreen"
-            @keydown.esc="isFullscreen = false"
-            fullscreen hide-overlay>
-            <div>
-            </div>
-        </dialog-component> -->
         <!-- DIALOG TOOLBAR -->
         <toolbar-component color="primary" fixed v-if="isFullscreen">
             <btn-component icon @click="isFullscreen = false">

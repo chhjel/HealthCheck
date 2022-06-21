@@ -3,33 +3,22 @@
     <div>
         <btn-component @click="showDialog" :disabled="readonly">{{ buttonText }}</btn-component>
         
-        <dialog-component v-model:value="editorDialogVisible"
-            @keydown.esc="editorDialogVisible = false"
-            scrollable
-            fullscreen
-            content-class="edit-json-value-dialog">
+        <dialog-component v-model:value="editorDialogVisible" fullscreen>
+            <template #header>Edit value of parameter '{{ name }}' of type '{{ type}}'</template>
+            <template #footer>
+                <btn-component color="error" @click="setValueToNull">Set value to null</btn-component>
+                <btn-component color="secondary" v-if="hasTemplate" @click="setValueToTemplate">Reset value</btn-component>
+                <alert-component :value="error.length > 0" color="error">{{ error }}</alert-component>
+                <btn-component color="primary" @click="editorDialogVisible = false">Close</btn-component>
+            </template>
+
             <div>
-                <toolbar-component>
-                    <div>Edit value of parameter '{{ name }}' of type '{{ type}}'</div>
-                    <btn-component icon @click="editorDialogVisible = false">
-                        <icon-component>close</icon-component>
-                    </btn-component>
-                </toolbar-component>
-                                
-                <div>
-                    <editor-component
-                        class="editor"
-                        :language="'json'"
-                        v-model:value="localValue"
-                        :read-only="readonly"
-                        ref="editor"/>
-                </div>
-                <div >
-                    <btn-component color="error" @click="setValueToNull">Set value to null</btn-component>
-                    <btn-component color="secondary" v-if="hasTemplate" @click="setValueToTemplate">Reset value</btn-component>
-                    <alert-component :value="error.length > 0" color="error">{{ error }}</alert-component>
-                    <btn-component color="primary" @click="editorDialogVisible = false">Close</btn-component>
-                </div>
+                <editor-component
+                    class="editor"
+                    :language="'json'"
+                    v-model:value="localValue"
+                    :read-only="readonly"
+                    ref="editor"/>
             </div>
         </dialog-component>
     </div>

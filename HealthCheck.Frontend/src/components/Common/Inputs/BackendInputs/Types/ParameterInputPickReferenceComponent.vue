@@ -20,56 +20,43 @@
           <btn-component flat @click="showCopyAlert = false">Close</btn-component>
         </snackbar-component>
         
-        <dialog-component v-model:value="choicesDialogVisible"
-            @keydown.esc="choicesDialogVisible = false"
-            scrollable
-            max-width="600"
-            content-class="select-reference-item-dialog">
-            <div>
-                <toolbar-component>
-                    <div>{{ dialogTitle }}</div>
-                                        <btn-component icon
-                        @click="choicesDialogVisible = false">
-                        <icon-component>close</icon-component>
-                    </btn-component>
-                </toolbar-component>
+        <dialog-component v-model:value="choicesDialogVisible" max-width="600">
+            <template #header>{{ dialogTitle }}</template>
+            <template #footer>
+                <btn-component color="primary"
+                    @click="choicesDialogVisible = false">Cancel</btn-component>
+            </template>
 
-                                
-                <div>
-                    <p v-if="dialogDescription">{{ dialogDescription }}</p>
-                    <div row>
-                        <div xs9>
-                            <text-field-component
-                                class="pb-1"
-                                v-model:value="choicesFilterText"
-                                placeholder="Filter.." />
-                        </div>
-                        <div xs3>
-                            <btn-component @click="loadChoices" :disabled="loadingChoicesStatus.inProgress">{{ dialogSearchButtonText }}</btn-component>
-                        </div>
+            <div>
+                <p v-if="dialogDescription">{{ dialogDescription }}</p>
+                <div row>
+                    <div xs9>
+                        <text-field-component
+                            class="pb-1"
+                            v-model:value="choicesFilterText"
+                            placeholder="Filter.." />
                     </div>
-                    <small>{{ choices.length - 1 }} results</small>
-                    <div
-                        v-for="(choice, cindex) in choices"
-                        :key="`${config.parameterIndex}-choices-${cindex}`"
-                        class="mb-2">
-                        <btn-component class="select-reference-item"
-                            @click="selectChoice(choice)"
-                            :color="choiceColor(choice)"
-                            :disabled="readonly"
-                            >
-                            <div class="select-reference-item__name">{{ choice.Name }}</div>
-                            <div class="select-reference-item__desc" v-if="choice.Description">{{ choice.Description }}</div>
-                        </btn-component>
+                    <div xs3>
+                        <btn-component @click="loadChoices" :disabled="loadingChoicesStatus.inProgress">{{ dialogSearchButtonText }}</btn-component>
                     </div>
-                    <progress-linear-component
-                        v-if="loadingChoicesStatus.inProgress"
-                        indeterminate color="primary"></progress-linear-component>
                 </div>
-                                <div >
-                                        <btn-component color="primary"
-                        @click="choicesDialogVisible = false">Cancel</btn-component>
+                <small>{{ choices.length - 1 }} results</small>
+                <div
+                    v-for="(choice, cindex) in choices"
+                    :key="`${config.parameterIndex}-choices-${cindex}`"
+                    class="mb-2">
+                    <btn-component class="select-reference-item"
+                        @click="selectChoice(choice)"
+                        :color="choiceColor(choice)"
+                        :disabled="readonly"
+                        >
+                        <div class="select-reference-item__name">{{ choice.Name }}</div>
+                        <div class="select-reference-item__desc" v-if="choice.Description">{{ choice.Description }}</div>
+                    </btn-component>
                 </div>
+                <progress-linear-component
+                    v-if="loadingChoicesStatus.inProgress"
+                    indeterminate color="primary"></progress-linear-component>
             </div>
         </dialog-component>
     </div>

@@ -6,35 +6,32 @@
       <dialog-component
         v-model:value="showStepDialog"
         max-width="640">
+        <template #header v-if="dialogStep != null">
+          <icon-component large left v-if="dialogStep.Icon != null">
+            {{ dialogStep.Icon }}
+          </icon-component>
+          <span class="title">{{ dialogStep.Title }}</span>
+        </template>
+        <template #footer>
+          <btn-component color="green darken-1" flat @click="showStepDialog = false">
+            Close
+          </btn-component>
+        </template>
         <div v-if="dialogStep != null">
-          <div class="headline">
-            <icon-component large left v-if="dialogStep.Icon != null">
-              {{ dialogStep.Icon }}
-            </icon-component>
-            <span class="title">{{ dialogStep.Title }}</span>
-          </div>
-          <div>
-            <div v-if="stepHasDate(dialogStep)" class="mb-3">{{ formatStepDate(dialogStep) }}</div>
+          <div v-if="stepHasDate(dialogStep)" class="mb-3">{{ formatStepDate(dialogStep) }}</div>
 
-            {{ dialogStep.Description }}
+          {{ dialogStep.Description }}
 
-            <div v-if="dialogStep.Links.length > 0" class="mt-2">
-              <ul>
-                <li v-for="(link, linkIndex) in dialogStep.Links"
-                    :key="`${id}-step-${linkIndex}`">
-                  <a :href="link[0]" target="_blank">{{ link[1] || link[0] }}</a>
-                </li>
-              </ul>
-            </div>
-
-            <div v-if="dialogStep.Error != null" class="step-error mt-3"><b>{{ dialogStep.Error }}</b></div>
+          <div v-if="dialogStep.Links.length > 0" class="mt-2">
+            <ul>
+              <li v-for="(link, linkIndex) in dialogStep.Links"
+                  :key="`${id}-step-${linkIndex}`">
+                <a :href="link[0]" target="_blank">{{ link[1] || link[0] }}</a>
+              </li>
+            </ul>
           </div>
 
-          <div>
-            <btn-component color="green darken-1" flat @click="showStepDialog = false">
-              Close
-            </btn-component>
-          </div>
+          <div v-if="dialogStep.Error != null" class="step-error mt-3"><b>{{ dialogStep.Error }}</b></div>
         </div>
       </dialog-component>
     </div>
