@@ -14,26 +14,22 @@
         <div class="page-button" @click="onNextPrevClick(1)"><icon-component>chevron_right</icon-component></div>
         
         <!-- DIALOGS -->
-        <dialog-component v-model:value="dialogVisible"
-            @keydown.esc="dialogVisible = false"
-            max-width="480"
-            content-class="confirm-dialog">
+        <dialog-component v-model:value="dialogVisible" max-width="480">
+            <template #header>Jump to page</template>
+            <template #footer>
+                <btn-component color="secondary"
+                    @click="dialogVisible = false">Cancel</btn-component>
+                <btn-component color="primary"
+                    @click="navigateToPage(dialogNumber)">Go to page {{ dialogNumber }}</btn-component>
+            </template>
+
             <div>
-                <div class="headline">Jump to page</div>
-                <div>
-                    <text-field-component
-                        label="Page number"
-                        solo
-                        v-model:value="dialogNumber"
-                        type="number"
-                        ref="dialogNumberInput"></text-field-component>
-                </div>
-                <div>
-                    <btn-component color="secondary"
-                        @click="dialogVisible = false">Cancel</btn-component>
-                    <btn-component color="primary"
-                        @click="navigateToPage(dialogNumber)">Go to page {{ dialogNumber }}</btn-component>
-                </div>
+                <text-field-component
+                    label="Page number"
+                    solo
+                    v-model:value="dialogNumber"
+                    type="number"
+                    ref="dialogNumberInput"></text-field-component>
             </div>
         </dialog-component>
     </div>
