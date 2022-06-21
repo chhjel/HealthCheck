@@ -1,534 +1,488 @@
 <!-- src/components/modules/DataExport/DataExportPageComponent.vue -->
 <template>
     <div>
-        <div>
-            <!-- NAVIGATION DRAWER -->
-            <Teleport to="#module-nav-menu">
-                <filterable-list-component
-                    :items="menuItems"
-                    :groupByKey="`GroupName`"
-                    :sortByKey="`GroupName`"
-                    :hrefKey="`Href`"
-                    :filterKeys="[ 'Name', 'Description' ]"
-                    :loading="metadataLoadStatus.inProgress"
-                    :disabled="isLoading"
-                    :showFilter="false"
-                    :groupIfSingleGroup="false"
-                    ref="filterableList"
-                    v-on:itemClicked="onMenuItemClicked"
-                    @itemMiddleClicked="onMenuItemMiddleClicked"
-                    />
-            </Teleport>
-            
-            
-            <div class="content-root">
-                <div v-if="selectedStream && selectedItemId == null">
-                    <h2 v-if="selectedStream.Name">{{ selectedStream.Name }}</h2>
-                    <p v-if="selectedStream.Description" v-html="selectedStream.Description"></p>
+        <!-- NAVIGATION DRAWER -->
+        <Teleport to="#module-nav-menu">
+            <filterable-list-component
+                :items="menuItems"
+                :groupByKey="`GroupName`"
+                :sortByKey="`GroupName`"
+                :hrefKey="`Href`"
+                :filterKeys="[ 'Name', 'Description' ]"
+                :loading="metadataLoadStatus.inProgress"
+                :disabled="isLoading"
+                :showFilter="false"
+                :groupIfSingleGroup="false"
+                ref="filterableList"
+                v-on:itemClicked="onMenuItemClicked"
+                @itemMiddleClicked="onMenuItemMiddleClicked"
+                />
+        </Teleport>
+        
+        <div class="content-root">
+            <div v-if="selectedStream && selectedItemId == null">
+                <h2 v-if="selectedStream.Name">{{ selectedStream.Name }}</h2>
+                <p v-if="selectedStream.Description" v-html="selectedStream.Description"></p>
 
-                    <!-- QUERY INPUT -->
-                    <div class="data-export-filters" v-if="showQuery">
-                        <div style="display: flex; width: 100%">
-                            <b>{{ queryTitle }}</b>
-                                                                    <a href="#" v-if="hasAccessToQueryCustom" style="font-size: 13px;"
-                                @click.prevent="onQueryHelpClicked">Query help</a>
-                        </div>
-
-                        <editor-component
-                            class="editor mb-2"
-                            :language="'csharp'"
-                            v-model:value="queryInput"
-                            :read-only="isLoading || !hasAccessToQueryCustom"
-                            ref="editor" />
-                    </div>
-                    <!-- CUSTOM PARAMETERS -->
-                    <div v-if="showCustomInputs">
-                        <div style="display: flex; width: 100%" class="mb-2">
-                            <b>{{ queryTitle }}</b>
-                        </div>
-
-                        <div class="export-parameter-items">
-                            <backend-input-component
-                                v-for="(parameterDef, pIndex) in selectedStream.CustomParameterDefinitions"
-                                :key="`export-parameter-item-${selectedStream.Id}-${pIndex}`"
-                                class="export-parameter-item"
-                                v-model:value="customParameters[parameterDef.Id]"
-                                :config="parameterDef"
-                                :readonly="isLoading || !hasAccessToQueryCustom"
-                                />
-                        </div>
+                <!-- QUERY INPUT -->
+                <div class="data-export-filters" v-if="showQuery">
+                    <div style="display: flex; width: 100%">
+                        <b>{{ queryTitle }}</b>
+                                                                <a href="#" v-if="hasAccessToQueryCustom" style="font-size: 13px;"
+                            @click.prevent="onQueryHelpClicked">Query help</a>
                     </div>
 
-                    <code v-if="queryError"
-                        @click="showQueryErrorDetails = !showQueryErrorDetails"
-                        class="mb-2"
-                        style="cursor: pointer">{{ queryError }}</code>
-                    <code v-if="queryErrorDetails && showQueryErrorDetails"
-                        class="mb-2">{{ queryErrorDetails }}</code>
-                    
-                    <div class="data-export-filters" v-if="hasAccessToQueryCustom">
-                        <select-component
-                            v-model:value="includedProperties"
-                            :disabled="isLoading"
-                            :items="availableProperties"
-                            clearable
-                            :label="includedProperties.length == 0 ? 'Included properties - All' : 'Included properties'"
-                            multiple
-                            allowInput
-                            ></select-component>
+                    <editor-component
+                        class="editor mb-2"
+                        :language="'csharp'"
+                        v-model:value="queryInput"
+                        :read-only="isLoading || !hasAccessToQueryCustom"
+                        ref="editor" />
+                </div>
+                <!-- CUSTOM PARAMETERS -->
+                <div v-if="showCustomInputs">
+                    <div style="display: flex; width: 100%" class="mb-2">
+                        <b>{{ queryTitle }}</b>
                     </div>
+
+                    <div class="export-parameter-items">
+                        <backend-input-component
+                            v-for="(parameterDef, pIndex) in selectedStream.CustomParameterDefinitions"
+                            :key="`export-parameter-item-${selectedStream.Id}-${pIndex}`"
+                            class="export-parameter-item"
+                            v-model:value="customParameters[parameterDef.Id]"
+                            :config="parameterDef"
+                            :readonly="isLoading || !hasAccessToQueryCustom"
+                            />
+                    </div>
+                </div>
+
+                <code v-if="queryError"
+                    @click="showQueryErrorDetails = !showQueryErrorDetails"
+                    class="mb-2"
+                    style="cursor: pointer">{{ queryError }}</code>
+                <code v-if="queryErrorDetails && showQueryErrorDetails"
+                    class="mb-2">{{ queryErrorDetails }}</code>
                 
-                    <div class="data-export-actions" v-if="!isSimpleExportMode">
-                        <btn-component :disabled="isLoading" v-if="hasAccessToQueryPreset || hasAccessToExport" @click="onLoadPresetsClicked">
-                            <icon-component size="20px" class="mr-2">file_upload</icon-component>Load preset..
-                        </btn-component>
-                        <btn-component :disabled="isLoading" v-if="hasAccessToSavePreset" @click="onSavePresetClicked">
-                            <icon-component size="20px" class="mr-2">save_alt</icon-component>Save preset..
-                        </btn-component>
-                        <btn-component :disabled="isLoading" v-if="hasAccessToQueryCustom" @click="onShowColumnTitlesClicked"
-                            :loading="exportLoadStatus.inProgress">
-                            <icon-component size="20px" class="mr-2">title</icon-component>Column config..
-                        </btn-component>
-                        <btn-component :disabled="isLoading" v-if="showExport" @click="onShowExportDialogClicked"
-                            :loading="exportLoadStatus.inProgress">
-                            <icon-component size="20px" class="mr-2">file_download</icon-component>Export..
-                        </btn-component>
-                        <btn-component :disabled="isLoading" @click="loadCurrentStreamItems(true)" v-if="showExecuteQuery"
-                            color="primary">
-                            <icon-component size="20px" class="mr-2">search</icon-component>Execute query
-                        </btn-component>
+                <div class="data-export-filters" v-if="hasAccessToQueryCustom">
+                    <select-component
+                        v-model:value="includedProperties"
+                        :disabled="isLoading"
+                        :items="availableProperties"
+                        clearable
+                        :label="includedProperties.length == 0 ? 'Included properties - All' : 'Included properties'"
+                        multiple
+                        allowInput
+                        ></select-component>
+                </div>
+            
+                <div class="data-export-actions" v-if="!isSimpleExportMode">
+                    <btn-component :disabled="isLoading" v-if="hasAccessToQueryPreset || hasAccessToExport" @click="onLoadPresetsClicked">
+                        <icon-component size="20px" class="mr-2">file_upload</icon-component>Load preset..
+                    </btn-component>
+                    <btn-component :disabled="isLoading" v-if="hasAccessToSavePreset" @click="onSavePresetClicked">
+                        <icon-component size="20px" class="mr-2">save_alt</icon-component>Save preset..
+                    </btn-component>
+                    <btn-component :disabled="isLoading" v-if="hasAccessToQueryCustom" @click="onShowColumnTitlesClicked"
+                        :loading="exportLoadStatus.inProgress">
+                        <icon-component size="20px" class="mr-2">title</icon-component>Column config..
+                    </btn-component>
+                    <btn-component :disabled="isLoading" v-if="showExport" @click="onShowExportDialogClicked"
+                        :loading="exportLoadStatus.inProgress">
+                        <icon-component size="20px" class="mr-2">file_download</icon-component>Export..
+                    </btn-component>
+                    <btn-component :disabled="isLoading" @click="loadCurrentStreamItems(true)" v-if="showExecuteQuery"
+                        color="primary">
+                        <icon-component size="20px" class="mr-2">search</icon-component>Execute query
+                    </btn-component>
+                </div>
+
+                <div v-if="isSimpleExportMode">
+                    <!-- SIMPLE MODE -->
+                    <progress-linear-component v-if="isLoading" indeterminate color="success"></progress-linear-component>
+
+                    <!-- NO PRESETS YET -->
+                    <div v-if="!isLoading && (!presets || presets.length == 0)">
+                        <b>No export presets available, someone with access must create them first.</b>
                     </div>
 
-                    <div v-if="isSimpleExportMode">
-                        <!-- SIMPLE MODE -->
-                        <progress-linear-component v-if="isLoading" indeterminate color="success"></progress-linear-component>
-
-                        <!-- NO PRESETS YET -->
-                        <div v-if="!isLoading && (!presets || presets.length == 0)">
-                            <b>No export presets available, someone with access must create them first.</b>
+                    <!-- HAS PRESETS -->
+                    <div v-if="!isLoading && presets && presets.length > 0">
+                        <div>
+                            <h3>1. Select preset to export:</h3>
+                            <div class="simple-export-buttons">
+                                <btn-component v-for="preset in presets"
+                                    :key="`item-d-${preset.Id}-preset`"
+                                    :class="{ 'selected': (selectedPresetId == preset.Id) }"
+                                    @click.prevent="applyPreset(preset)"
+                                    depressed :color="(selectedPresetId == preset.Id) ? 'primary' : '#ddd'">
+                                    {{ preset.Name }}
+                                </btn-component>
+                            </div>
                         </div>
-
-                        <!-- HAS PRESETS -->
-                        <div v-if="!isLoading && presets && presets.length > 0">
-                            <div>
-                                <h3>1. Select preset to export:</h3>
-                                <div class="simple-export-buttons">
-                                    <btn-component v-for="preset in presets"
-                                        :key="`item-d-${preset.Id}-preset`"
-                                        :class="{ 'selected': (selectedPresetId == preset.Id) }"
-                                        @click.prevent="applyPreset(preset)"
-                                        depressed :color="(selectedPresetId == preset.Id) ? 'primary' : '#ddd'">
-                                        {{ preset.Name }}
+                        <div>
+                            <h3>2. Select export format:</h3>
+                            <div class="simple-export-buttons">
+                                <div v-for="(exporter, eIndex) in exporters"
+                                    :key="`item-d-${exporter.Id}-export-${eIndex}`">
+                                    <btn-component color="primary"
+                                        :disabled="isLoading || selectedPresetId == null"
+                                        :loading="exportLoadStatus.inProgress"
+                                        @click="onExportClicked(exporter.Id)"
+                                        class="exporter-button">
+                                        <div class="exporter-button-content">
+                                            <icon-component size="20px" class="exporter-button-icon mr-2">file_download</icon-component>
+                                            <div class="exporter-button-texts">
+                                                <div class="exporter-button-title">{{ exporter.Name }}</div>
+                                                <div v-if="exporter.Description" class="exporter-description">{{ exporter.Description }}</div>
+                                            </div>
+                                        </div>
                                     </btn-component>
                                 </div>
                             </div>
-                            <div>
-                                <h3>2. Select export format:</h3>
-                                <div class="simple-export-buttons">
-                                    <div v-for="(exporter, eIndex) in exporters"
-                                        :key="`item-d-${exporter.Id}-export-${eIndex}`">
-                                        <btn-component color="primary"
-                                            :disabled="isLoading || selectedPresetId == null"
-                                            :loading="exportLoadStatus.inProgress"
-                                            @click="onExportClicked(exporter.Id)"
-                                            class="exporter-button">
-                                            <div class="exporter-button-content">
-                                                <icon-component size="20px" class="exporter-button-icon mr-2">file_download</icon-component>
-                                                <div class="exporter-button-texts">
-                                                    <div class="exporter-button-title">{{ exporter.Name }}</div>
-                                                    <div v-if="exporter.Description" class="exporter-description">{{ exporter.Description }}</div>
-                                                </div>
-                                            </div>
-                                        </btn-component>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
-                        <!-- END OF SIMPLE MODE -->
                     </div>
-
-                    <paging-component
-                        :count="totalResultCount"
-                        :pageSize="pageSize"
-                        v-model:value="pageIndex"
-                        @change="onPageIndexChanged"
-                        :asIndex="true"
-                        class="mb-2 mt-2"
-                        />
+                    <!-- END OF SIMPLE MODE -->
                 </div>
 
-                <!-- LOAD PROGRESS -->
-                <progress-linear-component 
-                    v-if="isLoading"
-                    indeterminate color="success"></progress-linear-component>
-
-                <!-- DATA LOAD ERROR -->
-                <alert-component :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
-                {{ dataLoadStatus.errorMessage }}
-                </alert-component>
-
-                <div v-if="selectedStream && selectedItemId == null">
-                    <p v-if="hasQueriedAtLeastOnce">{{ resultCountText }}</p>
-                    <div style="clear: both"></div>
-                    <div class="table-overflow-wrapper" v-if="items.length > 0">
-                        <table class="v-table theme--light">
-                            <thead>
-                                <draggable
-                                    v-model="headers"
-                                    :item-key="x => `header-${x}`"
-                                    group="grp"
-                                    style="min-height: 10px"
-                                    tag="tr"
-                                    @end="onHeaderDragEnded">
-                                    <template #item="{element}">
-                                        <th class="column text-xs-left draggable-header"
-                                            >{{ getHeaderName(element) }}</th>
-                                    </template>
-                                </draggable>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(item, iIndex) in items"
-                                    :key="`item-row-${iIndex}`">
-                                    <td v-for="header in headers"
-                                        :key="`item-row-${iIndex}-column-${header}`"
-                                        >{{ item[header] }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <paging-component
-                        :count="totalResultCount"
-                        :pageSize="pageSize"
-                        v-model:value="pageIndex"
-                        @change="onPageIndexChanged"
-                        :asIndex="true"
-                        class="mb-2 mt-2"
-                        />
-                </div>
+                <paging-component
+                    :count="totalResultCount"
+                    :pageSize="pageSize"
+                    v-model:value="pageIndex"
+                    @change="onPageIndexChanged"
+                    :asIndex="true"
+                    class="mb-2 mt-2"
+                    />
             </div>
-          
+
+            <!-- LOAD PROGRESS -->
+            <progress-linear-component 
+                v-if="isLoading"
+                indeterminate color="success"></progress-linear-component>
+
+            <!-- DATA LOAD ERROR -->
+            <alert-component :value="dataLoadStatus.failed" v-if="dataLoadStatus.failed" type="error">
+            {{ dataLoadStatus.errorMessage }}
+            </alert-component>
+
+            <div v-if="selectedStream && selectedItemId == null">
+                <p v-if="hasQueriedAtLeastOnce">{{ resultCountText }}</p>
+                <div style="clear: both"></div>
+                <div class="table-overflow-wrapper" v-if="items.length > 0">
+                    <table class="v-table theme--light">
+                        <thead>
+                            <draggable
+                                v-model="headers"
+                                :item-key="x => `header-${x}`"
+                                group="grp"
+                                style="min-height: 10px"
+                                tag="tr"
+                                @end="onHeaderDragEnded">
+                                <template #item="{element}">
+                                    <th class="column text-xs-left draggable-header"
+                                        >{{ getHeaderName(element) }}</th>
+                                </template>
+                            </draggable>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(item, iIndex) in items"
+                                :key="`item-row-${iIndex}`">
+                                <td v-for="header in headers"
+                                    :key="`item-row-${iIndex}-column-${header}`"
+                                    >{{ item[header] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <paging-component
+                    :count="totalResultCount"
+                    :pageSize="pageSize"
+                    v-model:value="pageIndex"
+                    @change="onPageIndexChanged"
+                    :asIndex="true"
+                    class="mb-2 mt-2"
+                    />
+            </div>
         </div>
 
         <!-- DIALOGS -->
         <dialog-component v-model:value="loadPresetDialogVisible"
-            @keydown.esc="loadPresetDialogVisible = false"
             max-width="480"
-            content-class="confirm-dialog"
             :persistent="dataLoadStatus.inProgress">
+            <template #header>Select a query preset to load</template>
+            <template #footer>
+                <btn-component color="secondary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="loadPresetDialogVisible = false">Cancel</btn-component>
+            </template>
             <div>
-                <div class="headline">Select a query preset to load</div>
-                <div>
-                    <progress-linear-component 
-                        v-if="isLoading"
-                        indeterminate color="success"></progress-linear-component>
-                    <!-- NO PRESETS YET -->
-                    <div v-if="!presets || presets.length == 0 && !dataLoadStatus.inProgress">
-                        <b>No presets created yet.</b>
-                    </div>
-                    <!-- HAS PRESETS -->
-                    <div v-if="presets && presets.length > 0">
-                        <ul>
-                            <li v-for="(preset, pIndex) in presets"
-                                :key="`item-d-${preset.Id}-preset-${pIndex}`">
-                                <a href="#" @click.prevent="onDeletePresetClicked(preset)"
-                                    class="error--text right"
-                                    v-if="hasAccessToDeletePreset">[delete]</a>
-                                <a href="#" @click.prevent="applyPreset(preset)">{{ preset.Name }}</a>
-                            </li>
-                        </ul>
-                    </div>
+                <progress-linear-component 
+                    v-if="isLoading"
+                    indeterminate color="success"></progress-linear-component>
+                <!-- NO PRESETS YET -->
+                <div v-if="!presets || presets.length == 0 && !dataLoadStatus.inProgress">
+                    <b>No presets created yet.</b>
                 </div>
-                                <div>
-                                        <btn-component color="secondary"
-                        :disabled="dataLoadStatus.inProgress"
-                        :loading="dataLoadStatus.inProgress"
-                        @click="loadPresetDialogVisible = false">Cancel</btn-component>
+                <!-- HAS PRESETS -->
+                <div v-if="presets && presets.length > 0">
+                    <ul>
+                        <li v-for="(preset, pIndex) in presets"
+                            :key="`item-d-${preset.Id}-preset-${pIndex}`">
+                            <a href="#" @click.prevent="onDeletePresetClicked(preset)"
+                                class="error--text right"
+                                v-if="hasAccessToDeletePreset">[delete]</a>
+                            <a href="#" @click.prevent="applyPreset(preset)">{{ preset.Name }}</a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </dialog-component>
         <dialog-component v-model:value="savePresetDialogVisible"
-            @keydown.esc="savePresetDialogVisible = false"
             max-width="480"
-            content-class="confirm-dialog"
             :persistent="true">
+            <template #header>Save preset</template>
+            <template #footer>
+                <btn-component color="secondary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="savePresetDialogVisible = false">Cancel</btn-component>
+                <btn-component color="primary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="onSavePresetConfirmClicked()">Save</btn-component>
+            </template>
             <div>
-                <div class="headline">Save preset</div>
-                <div>
-                    <h3>Save current query as a preset?</h3>
-                    
-                    <text-field-component
-                        v-model:value="newPresetName"
-                        placeholder="Preset name"
-                        :disabled="dataLoadStatus.inProgress" />
+                <h3>Save current query as a preset?</h3>
+                
+                <text-field-component
+                    v-model:value="newPresetName"
+                    placeholder="Preset name"
+                    :disabled="dataLoadStatus.inProgress" />
 
-                    <h4 v-if="showQuery">Query</h4>
-                    <code v-if="showQuery">{{ queryInput }}</code>
+                <h4 v-if="showQuery">Query</h4>
+                <code v-if="showQuery">{{ queryInput }}</code>
 
-                    <div v-if="showCustomInputs && Object.keys(customParameters).length > 0">
-                        <h4 class="mt-2">Filter</h4>
-                        <div v-for="(key, hIndex) in Object.keys(customParameters)"
-                            :key="`custom-input-preview-${hIndex}`">
-                            <span>{{ key }}</span>: <code>{{ customParameters[key] }}</code>
-                        </div>
-                    </div>
-
-                    <h4 class="mt-2">Included properties</h4>
-                    <ul>
-                        <li v-for="(prop, hIndex) in includedProperties"
-                            :key="`included-prop-preview-${hIndex}`">
-                            {{ prop }}
-                        </li>
-                    </ul>
-
-                    <div v-if="Object.keys(customColumns).length > 0">
-                        <h4 class="mt-2">Custom columns</h4>
-                        <div v-for="(key, hIndex) in Object.keys(customColumns)"
-                            :key="`custom-col-preview-${hIndex}`">
-                            <span>{{ key }}</span>: <code>{{ customColumns[key] }}</code>
-                        </div>
-                    </div>
-                    
-                    <div v-if="hasAnyHeaderOverrides">
-                        <h4 class="mt-2">Column name overrides</h4>
-                        <div v-for="(headerOverride, hIndex) in Object.keys(visibleHeaderNameOverrides)"
-                            :key="`header-override-preview-${hIndex}`">
-                            <code>{{ headerOverride }}</code> =&gt; <code>{{ headerNameOverrides[headerOverride] }}</code>
-                        </div>
+                <div v-if="showCustomInputs && Object.keys(customParameters).length > 0">
+                    <h4 class="mt-2">Filter</h4>
+                    <div v-for="(key, hIndex) in Object.keys(customParameters)"
+                        :key="`custom-input-preview-${hIndex}`">
+                        <span>{{ key }}</span>: <code>{{ customParameters[key] }}</code>
                     </div>
                 </div>
-                <div>
-                    <btn-component color="secondary"
-                        :disabled="dataLoadStatus.inProgress"
-                        :loading="dataLoadStatus.inProgress"
-                        @click="savePresetDialogVisible = false">Cancel</btn-component>
-                    <btn-component color="primary"
-                        :disabled="dataLoadStatus.inProgress"
-                        :loading="dataLoadStatus.inProgress"
-                        @click="onSavePresetConfirmClicked()">Save</btn-component>
+
+                <h4 class="mt-2">Included properties</h4>
+                <ul>
+                    <li v-for="(prop, hIndex) in includedProperties"
+                        :key="`included-prop-preview-${hIndex}`">
+                        {{ prop }}
+                    </li>
+                </ul>
+
+                <div v-if="Object.keys(customColumns).length > 0">
+                    <h4 class="mt-2">Custom columns</h4>
+                    <div v-for="(key, hIndex) in Object.keys(customColumns)"
+                        :key="`custom-col-preview-${hIndex}`">
+                        <span>{{ key }}</span>: <code>{{ customColumns[key] }}</code>
+                    </div>
+                </div>
+                
+                <div v-if="hasAnyHeaderOverrides">
+                    <h4 class="mt-2">Column name overrides</h4>
+                    <div v-for="(headerOverride, hIndex) in Object.keys(visibleHeaderNameOverrides)"
+                        :key="`header-override-preview-${hIndex}`">
+                        <code>{{ headerOverride }}</code> =&gt; <code>{{ headerNameOverrides[headerOverride] }}</code>
+                    </div>
                 </div>
             </div>
         </dialog-component>
         <dialog-component v-model:value="exportDialogVisible"
-            @keydown.esc="exportDialogVisible = false"
             max-width="480"
-            content-class="confirm-dialog"
             :persistent="exportLoadStatus.inProgress">
+            <template #header>Select export format</template>
+            <template #footer>
+                <btn-component color="secondary"
+                    :disabled="exportLoadStatus.inProgress"
+                    :loading="exportLoadStatus.inProgress"
+                    @click="exportDialogVisible = false">Cancel</btn-component>
+            </template>
             <div>
-                <div class="headline">Select export format</div>
-                <div>
-                    <div>
-                        <ul>
-                            <div v-for="(exporter, eIndex) in exporters"
-                                :key="`item-d-${exporter.Id}-export-${eIndex}`">
-                                <btn-component color="primary"
-                                    :disabled="isLoading"
-                                    :loading="exportLoadStatus.inProgress"
-                                    @click="onExportClicked(exporter.Id)"
-                                    class="exporter-button">
-                                    <div class="exporter-button-content">
-                                        <icon-component size="20px" class="exporter-button-icon mr-2">file_download</icon-component>
-                                        <div class="exporter-button-texts">
-                                            <div class="exporter-button-title">{{ exporter.Name }}</div>
-                                            <div v-if="exporter.Description" class="exporter-description">{{ exporter.Description }}</div>
-                                        </div>
-                                    </div>
-                                </btn-component>
+                <ul>
+                    <div v-for="(exporter, eIndex) in exporters"
+                        :key="`item-d-${exporter.Id}-export-${eIndex}`">
+                        <btn-component color="primary"
+                            :disabled="isLoading"
+                            :loading="exportLoadStatus.inProgress"
+                            @click="onExportClicked(exporter.Id)"
+                            class="exporter-button">
+                            <div class="exporter-button-content">
+                                <icon-component size="20px" class="exporter-button-icon mr-2">file_download</icon-component>
+                                <div class="exporter-button-texts">
+                                    <div class="exporter-button-title">{{ exporter.Name }}</div>
+                                    <div v-if="exporter.Description" class="exporter-description">{{ exporter.Description }}</div>
+                                </div>
                             </div>
-                        </ul>
+                        </btn-component>
                     </div>
-                </div>
-                                <div>
-                                        <btn-component color="secondary"
-                        :disabled="exportLoadStatus.inProgress"
-                        :loading="exportLoadStatus.inProgress"
-                        @click="exportDialogVisible = false">Cancel</btn-component>
-                </div>
+                </ul>
             </div>
         </dialog-component>
         <dialog-component v-model:value="columnConfigDialogVisible"
-            @keydown.esc="columnConfigDialogVisible = false"
-            max-width="460"
-            content-class="confirm-dialog">
+            max-width="460" width="720">
+            <template #header>Customize columns</template>
+            <template #footer>
+                <btn-component color="primary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="onAddCustomHeaderButtonClicked">Add custom column</btn-component>
+                <btn-component color="secondary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="columnConfigDialogVisible = false">Close</btn-component>
+            </template>
             <div>
-                <div class="headline">Customize columns</div>
-                <div>
-                    <div>
-                        <div v-if="!headers || Object.keys(headers).length == 0">
-                            <b>No columns yet, perform a query first.</b>
+                <div v-if="!headers || Object.keys(headers).length == 0">
+                    <b>No columns yet, perform a query first.</b>
+                </div>
+                <ul>
+                    <div v-for="(header, hIndex) in headers"
+                        :key="`item-header-override-${hIndex}`"
+                        class="item-header-override-config">
+                        <h4>{{ header }}</h4>
+                        <div class="item-header-override-config__row">
+                            <text-field-component
+                                label="Name override"
+                                v-model:value="headerNameOverrides[header]"
+                                :placeholder="header"
+                                :undefinedWhenEmpty="true" />
+                            <btn-component flat
+                                v-if="hasFormatterForHeader(header)"
+                                @click="onValueFormatButtonClicked(header)">Format</btn-component>
+                            <btn-component flat color="error"
+                                v-if="isCustomHeader(header)"
+                                @click="onRemoveCustomHeaderButtonClicked(header)">Remove</btn-component>
                         </div>
-                        <ul>
-                            <div v-for="(header, hIndex) in headers"
-                                :key="`item-header-override-${hIndex}`"
-                                class="item-header-override-config">
-                                <h4>{{ header }}</h4>
-                                <div class="item-header-override-config__row">
-                                    <text-field-component
-                                        label="Name override"
-                                        v-model:value="headerNameOverrides[header]"
-                                        :placeholder="header"
-                                        :undefinedWhenEmpty="true" />
-                                    <btn-component flat
-                                        v-if="hasFormatterForHeader(header)"
-                                        @click="onValueFormatButtonClicked(header)">Format</btn-component>
-                                    <btn-component flat color="error"
-                                        v-if="isCustomHeader(header)"
-                                        @click="onRemoveCustomHeaderButtonClicked(header)">Remove</btn-component>
-                                </div>
-                                <div class="item-header-override-config__row">
-                                    <text-field-component
-                                        label="Custom value"
-                                        v-if="isCustomHeader(header)"
-                                        v-model:value="customColumns[header]"
-                                        append-icon="insert_link"
-                                        @click:append="onShowPlaceholdersClicked(header)" />
-                                </div>
-                            </div>
-                        </ul>
+                        <div class="item-header-override-config__row">
+                            <text-field-component
+                                label="Custom value"
+                                v-if="isCustomHeader(header)"
+                                v-model:value="customColumns[header]"
+                                append-icon="insert_link"
+                                @click:append="onShowPlaceholdersClicked(header)" />
+                        </div>
                     </div>
-                </div>
-                                <div>
-                    <btn-component color="primary"
-                        :disabled="dataLoadStatus.inProgress"
-                        :loading="dataLoadStatus.inProgress"
-                        @click="onAddCustomHeaderButtonClicked">Add custom column</btn-component>
-                                        <btn-component color="secondary"
-                        :disabled="dataLoadStatus.inProgress"
-                        :loading="dataLoadStatus.inProgress"
-                        @click="columnConfigDialogVisible = false">Close</btn-component>
-                </div>
+                </ul>
             </div>
         </dialog-component>
         <dialog-component v-model:value="queryHelpDialogVisible"
-            @keydown.esc="queryHelpDialogVisible = false"
-            max-width="720"
-            content-class="confirm-dialog">
+            max-width="720">
+            <template #header>Query help</template>
+            <template #footer>
+                <btn-component color="secondary" @click="queryHelpDialogVisible = false">Close</btn-component>
+            </template>
             <div>
-                <div class="headline">Query help</div>
-                <div>
-                    <div>
-                        <p>
-                            The query is using LINQ with a few additions. Instead of <code>&amp;&amp;</code> or <code>||</code> you can use <code>and</code> or <code>or</code>.
-                        </p>
+                <p>
+                    The query is using LINQ with a few additions. Instead of <code>&amp;&amp;</code> or <code>||</code> you can use <code>and</code> or <code>or</code>.
+                </p>
 
-                        <h4>Simple predicates</h4>
-                        <code>Name == "Jimmy" &amp;&amp; Age > 50</code><br />
-                        <code>(Name == "Jimmy" and Age > 50) or Name == "Smithy"</code>
+                <h4>Simple predicates</h4>
+                <code>Name == "Jimmy" &amp;&amp; Age > 50</code><br />
+                <code>(Name == "Jimmy" and Age > 50) or Name == "Smithy"</code>
 
-                        <h4 class="mt-2">Methods</h4>
-                        <p class="mb-0">The usual methods can be used, e.g. ToString(), StartsWith(), Contains() etc.</p>
-                        <code>SomeNumber.ToString().StartsWith("8")</code>
+                <h4 class="mt-2">Methods</h4>
+                <p class="mb-0">The usual methods can be used, e.g. ToString(), StartsWith(), Contains() etc.</p>
+                <code>SomeNumber.ToString().StartsWith("8")</code>
 
-                        <h4 class="mt-2">Dates</h4>
-                        <p class="mb-0">If there's a date property available it can be compared to DateTime.Now to e.g. get the last weeks data:</p>
-                        <code>Created &gt; DateTime.Now.AddDays(-7)</code>
+                <h4 class="mt-2">Dates</h4>
+                <p class="mb-0">If there's a date property available it can be compared to DateTime.Now to e.g. get the last weeks data:</p>
+                <code>Created &gt; DateTime.Now.AddDays(-7)</code>
 
-                        <h4 class="mt-2">Null Propagation</h4>
-                        <p class="mb-0">To filter on properties that can be null, use <code>np()</code> instead of <code>?.</code> Or just nullcheck it first.</p>
-                        <code>np(Address.City) == "DevTown"</code><br />
-                        <code>Address != null &amp;&amp; Address.City == "DevTown"</code>
-                    </div>
-                </div>
-                                <div>
-                                        <btn-component color="secondary" @click="queryHelpDialogVisible = false">Close</btn-component>
-                </div>
+                <h4 class="mt-2">Null Propagation</h4>
+                <p class="mb-0">To filter on properties that can be null, use <code>np()</code> instead of <code>?.</code> Or just nullcheck it first.</p>
+                <code>np(Address.City) == "DevTown"</code><br />
+                <code>Address != null &amp;&amp; Address.City == "DevTown"</code>
             </div>
         </dialog-component>
         <dialog-component v-model:value="deletePresetDialogVisible"
-            @keydown.esc="deletePresetDialogVisible = false"
             max-width="480"
-            content-class="confirm-dialog"
             :persistent="deleteLoadStatus.inProgress">
+            <template #header>Delete preset?</template>
+            <template #footer>
+                <btn-component color="secondary"
+                    :disabled="deleteLoadStatus.inProgress"
+                    :loading="deleteLoadStatus.inProgress"
+                    @click="deletePresetDialogVisible = false">Cancel</btn-component>
+                <btn-component color="error"
+                    :disabled="deleteLoadStatus.inProgress"
+                    :loading="deleteLoadStatus.inProgress"
+                    @click="onDeletePresetConfirmed()">Delete</btn-component>
+            </template>
             <div>
-                <div class="headline">Delete preset?</div>
-                <div>
-                    Delete preset <code v-if="presetToDelete">{{ presetToDelete.Name }}</code>?
-                </div>
-                                <div>
-                                        <btn-component color="secondary"
-                        :disabled="deleteLoadStatus.inProgress"
-                        :loading="deleteLoadStatus.inProgress"
-                        @click="deletePresetDialogVisible = false">Cancel</btn-component>
-                    <btn-component color="error"
-                        :disabled="deleteLoadStatus.inProgress"
-                        :loading="deleteLoadStatus.inProgress"
-                        @click="onDeletePresetConfirmed()">Delete</btn-component>
-                </div>
+                Delete preset <code v-if="presetToDelete">{{ presetToDelete.Name }}</code>?
             </div>
         </dialog-component>
-        <dialog-component v-model:value="formatDialogVisible"
-            @keydown.esc="formatDialogVisible = false"
-            max-width="460"
-            content-class="confirm-dialog">
+        <dialog-component v-model:value="formatDialogVisible" max-width="460">
+            <template #header>Format column</template>
+            <template #footer>
+                <btn-component color="secondary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="formatDialogVisible = false">Close</btn-component>
+            </template>
             <div>
-                <div class="headline">Format column</div>
-                <div>
-                    <div>
-                        <div v-if="!formattersInDialog || formattersInDialog.length == 0">
-                            <b>No formatters for this column type found.</b>
-                        </div>
-                        <div v-else>
-                            <select-component
-                                label="Selected formatter"
-                                v-model:value="selectedFormatterId"
-                                :items="formattersInDialogChoices"
-                                item-text="Name" item-value="Id"
-                                :disabled="dataLoadStatus.inProgress"
-                                v-on:change="onFormatterChanged"
-                                >
-                            </select-component>
-                            
-                            <div v-if="selectedFormatter">
-                                <h3>{{ selectedFormatter.Name }}</h3>
-                                <p v-if="selectedFormatter.Description">{{ selectedFormatter.Description }}</p>
-
-                                <div class="format-parameter-items"
-                                    v-if="valueFormatterConfigs[selectedFormatHeader].CustomParameters">
-                                    <backend-input-component
-                                        v-for="(parameterDef, pIndex) in selectedFormatter.CustomParameterDefinitions"
-                                        :key="`format-parameter-item-${selectedFormatter.Id}-${pIndex}-${parameterDef.Id}`"
-                                        class="format-parameter-item"
-                                        v-model:value="valueFormatterConfigs[selectedFormatHeader].CustomParameters[parameterDef.Id]"
-                                        :config="parameterDef"
-                                        :readonly="isLoading"
-                                        />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div v-if="!formattersInDialog || formattersInDialog.length == 0">
+                    <b>No formatters for this column type found.</b>
                 </div>
-                                <div>
-                                        <btn-component color="secondary"
+                <div v-else>
+                    <select-component
+                        label="Selected formatter"
+                        v-model:value="selectedFormatterId"
+                        :items="formattersInDialogChoices"
+                        item-text="Name" item-value="Id"
                         :disabled="dataLoadStatus.inProgress"
-                        :loading="dataLoadStatus.inProgress"
-                        @click="formatDialogVisible = false">Close</btn-component>
-                </div>
-            </div>
-        </dialog-component>
-        <dialog-component v-model:value="placeholdersDialogVisible"
-            @keydown.esc="placeholdersDialogVisible = false"
-            scrollable
-            content-class="possible-placeholders-dialog">
-            <div>
-                <div class="headline">Select placeholder to add</div>
-                                <div style="max-height: 500px;">
-                    <div class="possible-placeholders-list">
-                        <div v-for="(placeholder, placeholderIndex) in availableProperties"
-                            :key="`possible-placeholder-${placeholderIndex}`"
-                            @click="onAddPlaceholderClicked(placeholder)"
-                            class="possible-placeholder-list-item">
-                            <div>
-                                <icon-component>add</icon-component>
-                            </div>
+                        v-on:change="onFormatterChanged"
+                        >
+                    </select-component>
+                    
+                    <div v-if="selectedFormatter">
+                        <h3>{{ selectedFormatter.Name }}</h3>
+                        <p v-if="selectedFormatter.Description">{{ selectedFormatter.Description }}</p>
 
-                            <div>
-                                <div class="possible-placeholder-item-title">{{ `\{${placeholder}\}` }}</div>
-                            </div>
+                        <div class="format-parameter-items"
+                            v-if="valueFormatterConfigs[selectedFormatHeader].CustomParameters">
+                            <backend-input-component
+                                v-for="(parameterDef, pIndex) in selectedFormatter.CustomParameterDefinitions"
+                                :key="`format-parameter-item-${selectedFormatter.Id}-${pIndex}-${parameterDef.Id}`"
+                                class="format-parameter-item"
+                                v-model:value="valueFormatterConfigs[selectedFormatHeader].CustomParameters[parameterDef.Id]"
+                                :config="parameterDef"
+                                :readonly="isLoading"
+                                />
                         </div>
                     </div>
                 </div>
-                                <div>
-                                        <btn-component color="secondary" flat @click="placeholdersDialogVisible = false">Close</btn-component>
+            </div>
+        </dialog-component>
+        <dialog-component v-model:value="placeholdersDialogVisible">
+            <template #header>Select placeholder to add</template>
+            <template #footer>
+                <btn-component color="secondary" flat @click="placeholdersDialogVisible = false">Close</btn-component>
+            </template>
+            <div style="max-height: 500px;">
+                <div class="possible-placeholders-list">
+                    <div v-for="(placeholder, placeholderIndex) in availableProperties"
+                        :key="`possible-placeholder-${placeholderIndex}`"
+                        @click="onAddPlaceholderClicked(placeholder)"
+                        class="possible-placeholder-list-item">
+                        <div>
+                            <icon-component>add</icon-component>
+                        </div>
+
+                        <div>
+                            <div class="possible-placeholder-item-title">{{ `\{${placeholder}\}` }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </dialog-component>
@@ -1360,6 +1314,9 @@ export default class DataExportPageComponent extends Vue {
     &__row {
         display: flex;
         align-items: baseline;
+        .text-field-component {
+            flex: 1;
+        }
     }
 }
 .exporter-button {
