@@ -16,28 +16,24 @@
           <btn-component outline small color="accent" class="data-dump-action-button mt-2 mr-2"
             v-if="showCopyButton"
             @click="putDataOnClipboard">Copy</btn-component>
+        
+          <btn-component outline small color="accent" class="data-dump-action-button mt-2"
+            @click="downloadData" 
+            v-if="showDownloadButton">Download '{{ resultData.DownloadFileName }}'</btn-component>
 
+          <btn-component outline small color="accent" class="data-dump-action-button mt-2 mr-2" v-if="showFullscreenButton" @click="showFullscreen=true">Fullscreen</btn-component>
           <dialog-component
-            v-if="showFullscreenButton"
             v-model:value="showFullscreen"
             @keydown.esc="showFullscreen = false"
-            fullscreen hide-overlay transition="dialog-transition">
-            <btn-component outline small color="accent" class="data-dump-action-button mt-2 mr-2 ml-0">Fullscreen</btn-component>
-            <div>
-              <!-- DIALOG TOOLBAR -->
-              <toolbar-component dark color="primary">
-                <btn-component icon dark @click="showFullscreen = false">
-                  <icon-component>close</icon-component>
-                </btn-component>
-                <div>{{resultData.Title}}</div>
-                                <div>
+            fullscreen hide-overlay>
+            <template #header>
+              {{resultData.Title}}
+            </template>
+            <template #footer>
                   <btn-component dark flat @click="putDataOnClipboard">Put data on clipboard</btn-component>
-                </div>
-                <div>
                   <btn-component dark flat @click="showFullscreen = false">Close</btn-component>
-                </div>
-              </toolbar-component>
-              <!-- DIALOG CONTENTS -->
+            </template>
+            <div>
               <component
                   :class="`data-dump data-dump-${resultData.Type.toLowerCase()}`"
                   :resultData="resultData"
@@ -46,10 +42,6 @@
               </component>
             </div>
           </dialog-component>
-        
-          <btn-component outline small color="accent" class="data-dump-action-button mt-2"
-            @click="downloadData" 
-            v-if="showDownloadButton">Download '{{ resultData.DownloadFileName }}'</btn-component>
         </div>
         
         <textarea style="display:none;" ref="copyValue" :value="resultData.Data" />

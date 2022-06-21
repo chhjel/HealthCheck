@@ -740,7 +740,8 @@ export default class DevPageComponent extends Vue {
 					GroupName: `Group ${(x % 2)}`,
 					Href: `/href-${x}`,
 					Name: `Item #${x}`,
-					Description: 'Some desc'
+					Description: 'Some desc',
+					Icon: (x % 2 == 0) ? 'cloud' : ''
 				}
             };
             return d;

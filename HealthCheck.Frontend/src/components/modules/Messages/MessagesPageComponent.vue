@@ -29,10 +29,10 @@
                 <div v-if="currentInbox != null">
                     <div style="display:flex">
                         <h1 class="mb-1">{{ currentInbox.Name }}</h1>
-                                                <btn-component color="error" flat
-                            v-if="HasAccessToDeleteMessages"
-                            :disabled="messageLoadStatus.inProgress"
-                            @click="showDeleteInbox()">Delete all</btn-component>
+                            <btn-component color="error" flat
+                                v-if="HasAccessToDeleteMessages"
+                                :disabled="messageLoadStatus.inProgress"
+                                @click="showDeleteInbox()">Delete all</btn-component>
                     </div>
                     <p v-if="currentInbox.Description != null && currentInbox.Description.length > 0">{{ currentInbox.Description }}</p>
                     <hr />
@@ -92,6 +92,14 @@
                             No messages found.
                         </div>
                     </div>
+
+                    <paging-component
+                        :count="totalMessageCount"
+                        :pageSize="messagesPageSize"
+                        v-model:value="messagesPageIndex"
+                        :asIndex="true"
+                        class="mb-2 mt-2"
+                        />
                 </div>
 
             </div>
@@ -103,68 +111,59 @@
             scrollable
             max-width="1200"
             content-class="message-dialog">
-            <div>
-                <toolbar-component>
-                    <div class="message-dialog__icon">
-                        <icon-component :color="getMessageIconColor(currentlyShownMessage)">{{ getMessageIcon(currentlyShownMessage) }}</icon-component>
-                    </div>
-                    <div class="message-dialog__title">{{ currentlyShownMessage.Summary }}</div>
-                                        <btn-component icon
-                        @click="hideMessageDialog">
-                        <icon-component>close</icon-component>
-                    </btn-component>
-                </toolbar-component>
 
-                                
-                <div>
-                    <div class="message">
-                        <div class="message__time"><b>When: </b>{{ formatDate(currentlyShownMessage.Timestamp, true) }}</div>
-                        <div class="message__from"><b>From: </b>{{ currentlyShownMessage.From }}</div>
-                        <div class="message__to"><b>To: </b>{{ currentlyShownMessage.To }}</div>
-                        <div class="message__summary"><b>Summary: </b>{{ currentlyShownMessage.Summary }}</div>
-                        <div v-if="currentlyShownMessage.Notes && currentlyShownMessage.Notes.length > 0">
-                            <b>Notes:</b>
-                            <ul>
-                                <li class="message__note" v-for="(note, noteIndex) in currentlyShownMessage.Notes"
-                                    :key="`message-dialog-note-${noteIndex}`"
-                                    >{{ note }}</li>
-                            </ul>
-                        </div>
-                        <div v-if="currentlyShownMessage.HasError" class="message__error-note">
-                            Message contains an error, see below for details.
-                        </div>
-                        <block-component class="mt-2 mb-1">
-                            <div class="message__body" v-if="currentlyShownMessage.BodyIsHtml && !showMessageBodyRaw">
-                                <shadow-root>
-                                    <div v-html="currentlyShownMessage.Body"></div>
-                                </shadow-root>
-                            </div>
-                            <editor-component
-                                v-show="currentlyShownMessage.BodyIsHtml && showMessageBodyRaw"
-                                class="editor"
-                                :language="'xml'"
-                                v-model:value="currentlyShownMessage.Body"
-                                :read-only="true"
-                                ref="editor"/>
-                            <div class="message__body" v-if="!currentlyShownMessage.BodyIsHtml">{{ currentlyShownMessage.Body }}</div>
-                            <div v-if="getAdditionalDetails(currentlyShownMessage).length > 0">
-                                <code>{{ getAdditionalDetails(currentlyShownMessage) }}</code>
-                            </div>
-                        </block-component>
-                        <a v-if="currentlyShownMessage.BodyIsHtml" @click="showMessageBodyRaw = !showMessageBodyRaw" class="ml-5">Toggle HTML</a>
-                        <block-component class="mt-2 mb-1" v-if="currentlyShownMessage.HasError" title="Error">
-                            <code>{{ currentlyShownMessage.ErrorMessage }}</code>
-                        </block-component>
+            <template #header>
+                {{ currentlyShownMessage.Summary }}
+                <icon-component :color="getMessageIconColor(currentlyShownMessage)" class="ml-2">{{ getMessageIcon(currentlyShownMessage) }}</icon-component>
+            </template>
+
+            <template #footer>
+                <btn-component color="error" flat
+                    v-if="HasAccessToDeleteMessages"
+                    :disabled="messageLoadStatus.inProgress"
+                    @click="showDeleteMessage(currentlyShownMessage)">Delete</btn-component>
+                <btn-component color="success"
+                    @click="hideMessageDialog">Close</btn-component>
+            </template>
+
+            <div class="message">
+                <div class="message__time"><b>When: </b>{{ formatDate(currentlyShownMessage.Timestamp, true) }}</div>
+                <div class="message__from"><b>From: </b>{{ currentlyShownMessage.From }}</div>
+                <div class="message__to"><b>To: </b>{{ currentlyShownMessage.To }}</div>
+                <div class="message__summary"><b>Summary: </b>{{ currentlyShownMessage.Summary }}</div>
+                <div v-if="currentlyShownMessage.Notes && currentlyShownMessage.Notes.length > 0">
+                    <b>Notes:</b>
+                    <ul>
+                        <li class="message__note" v-for="(note, noteIndex) in currentlyShownMessage.Notes"
+                            :key="`message-dialog-note-${noteIndex}`"
+                            >{{ note }}</li>
+                    </ul>
+                </div>
+                <div v-if="currentlyShownMessage.HasError" class="message__error-note">
+                    Message contains an error, see below for details.
+                </div>
+                <block-component class="mt-2 mb-1">
+                    <div class="message__body" v-if="currentlyShownMessage.BodyIsHtml && !showMessageBodyRaw">
+                        <shadow-root>
+                            <div v-html="currentlyShownMessage.Body"></div>
+                        </shadow-root>
                     </div>
-                </div>
-                                <div>
-                                        <btn-component color="error" flat
-                        v-if="HasAccessToDeleteMessages"
-                        :disabled="messageLoadStatus.inProgress"
-                        @click="showDeleteMessage(currentlyShownMessage)">Delete</btn-component>
-                    <btn-component color="success"
-                        @click="hideMessageDialog">Close</btn-component>
-                </div>
+                    <editor-component
+                        v-show="currentlyShownMessage.BodyIsHtml && showMessageBodyRaw"
+                        class="editor"
+                        :language="'xml'"
+                        v-model:value="currentlyShownMessage.Body"
+                        :read-only="true"
+                        ref="editor"/>
+                    <div class="message__body" v-if="!currentlyShownMessage.BodyIsHtml">{{ currentlyShownMessage.Body }}</div>
+                    <div v-if="getAdditionalDetails(currentlyShownMessage).length > 0">
+                        <code>{{ getAdditionalDetails(currentlyShownMessage) }}</code>
+                    </div>
+                </block-component>
+                <a v-if="currentlyShownMessage.BodyIsHtml" @click="showMessageBodyRaw = !showMessageBodyRaw" class="ml-5">Toggle HTML</a>
+                <block-component class="mt-2 mb-1" v-if="currentlyShownMessage.HasError" title="Error">
+                    <code>{{ currentlyShownMessage.ErrorMessage }}</code>
+                </block-component>
             </div>
         </dialog-component>
         
@@ -564,7 +563,7 @@ export default class MessagesPageComponent extends Vue {
         
         &__icon {
             position: absolute;
-            left: -26px;
+            left: -20px;
             top: 3px;
         }
 

@@ -1,20 +1,16 @@
 <template>
     <div class="dialog-component" :class="rootClasses" v-show="localValue">
-        <!-- <h3>TODO: DialogComponent</h3>
-        <div><b>value:</b>' {{ value }}'</div>
-        <div><b>fullscreen:</b>' {{ fullscreen }}'</div>
-        <div><b>hideOverlay:</b>' {{ hideOverlay }}'</div>
-        <div><b>scrollable:</b>' {{ scrollable }}'</div>
-        <div><b>persistent:</b>' {{ persistent }}'</div>
-        <div><b>maxWidth:</b>' {{ maxWidth }}'</div>
-        <div><b>contentClass:</b>' {{ contentClass }}'</div>
-        <div><b>fullWidth:</b>' {{ fullWidth }}'</div>
-        <div><b>width:</b>' {{ width }}'</div> -->
         <div class="dialog-component_modal_wrapper" @click.self.stop.prevent="onClickOutside">
             <div class="dialog-component_modal">
                 <div class="dialog-component_modal_cross" @click.self.stop.prevent="onClickClose">X</div>
+                <div class="dialog-component_modal_header" v-if="hasHeaderSlot">
+                    <slot name="header"></slot>
+                </div>
                 <div class="dialog-component_modal_content" :style="contentStyle">
                     <slot></slot>
+                </div>
+                <div class="dialog-component_modal_footer" v-if="hasFooterSlot">
+                    <slot name="footer"></slot>
                 </div>
             </div>
         </div>
@@ -25,6 +21,7 @@
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import ValueUtils from '@util/ValueUtils'
+import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
 
 @Options({
     components: {}
@@ -39,9 +36,6 @@ export default class DialogComponent extends Vue {
 
     @Prop({ required: false, default: false })
     hideOverlay!: string | boolean;
-
-    @Prop({ required: false, default: false })
-    scrollable!: string | boolean;
 
     @Prop({ required: false, default: false })
     persistent!: string | boolean;
@@ -59,6 +53,7 @@ export default class DialogComponent extends Vue {
     width!: number | null;
 
     localValue: boolean = false;
+    callbacks: Array<CallbackUnregisterShortcut> = [];
 
     //////////////////
     //  LIFECYCLE  //
@@ -66,7 +61,21 @@ export default class DialogComponent extends Vue {
     mounted(): void {
         this.updateLocalValue();
         this.emitLocalValue();
+
+        this.callbacks = [
+            EventBus.on("onEscapeClicked", this.onEscapeClicked.bind(this))
+        ];
     }
+
+    beforeUnmount(): void {
+      this.callbacks.forEach(x => x.unregister());
+    }
+
+    ////////////////
+    //  METHODS  //
+    //////////////
+    hasHeaderSlot() { return !!this.$slots.header; }
+    hasFooterSlot() { return !!this.$slots.footer; }
 
     ////////////////
     //  GETTERS  //
@@ -75,7 +84,6 @@ export default class DialogComponent extends Vue {
         return {
              'fullscreen': this.isFullscreen,
              'hide-overlay': this.isHideOverlay,
-             'scrollable': this.isScrollable,
              'persistent': this.isPersistent,
              'full-width': this.isFullWidth
         };
@@ -91,7 +99,6 @@ export default class DialogComponent extends Vue {
 
     get isFullscreen(): boolean { return ValueUtils.IsToggleTrue(this.fullscreen); }
     get isHideOverlay(): boolean { return ValueUtils.IsToggleTrue(this.hideOverlay); }
-    get isScrollable(): boolean { return ValueUtils.IsToggleTrue(this.scrollable); }
     get isPersistent(): boolean { return ValueUtils.IsToggleTrue(this.persistent); }
     get isFullWidth(): boolean { return ValueUtils.IsToggleTrue(this.fullWidth); }
 
@@ -106,6 +113,10 @@ export default class DialogComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    onEscapeClicked(): void {
+        if (!this.isPersistent) this.close();
+    }
+
     onClickOutside(): void {
         if (!this.persistent) this.close();
     }
@@ -144,7 +155,6 @@ export default class DialogComponent extends Vue {
     &.hide-overlay {
         background-color: inherit;
     }
-    &.scrollable { }
     &.persistent { }
     &.full-width { }
     
@@ -157,13 +167,37 @@ export default class DialogComponent extends Vue {
         
         .dialog-component_modal {
             margin: 0 auto;
-            padding: 30px;
+            margin-bottom: 40px;
+            padding: 30px 0;
             background-color: #fff;
             border: 2px solid #dfdfdf;
-            overflow-y: auto;
-            overflow-x: hidden;
             position: relative;
             max-width: 100%;
+            /* max-height: calc(100vh - 40px - 40px); */
+            overflow: hidden;
+
+            &_header {
+                display: flex;
+                align-items: center;
+                margin-top: -30px;
+                padding: 10px 30px;
+                font-size: 30px;
+                font-weight: 600;
+                /* border-bottom: 2px solid var(--color--accent-lighten1); */
+                background-color: var(--color--accent-lighten1);
+            }
+            &_footer {
+                margin-bottom: -30px;
+                padding: 10px 30px;
+                border-top: 2px solid var(--color--accent-lighten1);
+                /* background-color: var(--color--accent-base); */
+            }
+            &_content {
+                overflow-y: auto;
+                overflow-x: hidden;
+                max-height: calc(100vh - 190px);
+                padding: 5px 30px;
+            }
         }
         .dialog-component_modal_cross {
             cursor: pointer;
@@ -179,6 +213,11 @@ export default class DialogComponent extends Vue {
     }
 
     &.fullscreen {
+        .dialog-component_modal {
+            margin-bottom: 0;
+            width: 100%;
+        }
+
         .dialog-component_modal_wrapper {
             position: fixed;
             left: 0;
@@ -189,8 +228,9 @@ export default class DialogComponent extends Vue {
             justify-content: inherit;
 
             .dialog-component_modal {
-            }
-            .dialog-component_modal_cross {
+                &_content {
+                max-height: calc(100vh - 140px);
+                }
             }
         }
     }

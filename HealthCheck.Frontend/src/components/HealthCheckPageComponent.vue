@@ -204,6 +204,10 @@ export default class HealthCheckPageComponent extends Vue {
     }
     
     onDocumentKeyDownOrDown(e: KeyboardEvent): void {
+        console.log(e);
+        if (e.key == 'Escape') {
+            EventBus.notify("onEscapeClicked", e);
+        }
         if (this.$store.state.input.ctrlIsHeldDown != e.ctrlKey)
         {
             this.$store.commit('setCtrlHeldDown', e.ctrlKey);
