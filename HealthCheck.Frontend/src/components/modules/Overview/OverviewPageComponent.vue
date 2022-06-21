@@ -90,50 +90,44 @@
         <!-- ##################### -->
         <!-- ###### DIALOGS ######-->
         <dialog-component v-model:value="eventDetailsDialogState" width="700">
+            <template #header></template>
+            <template #footer>
+                <btn-component flat color="secondary" @click="eventDetailsDialogState = false">
+                    Close
+                </btn-component>
+                <btn-component @click="showDeleteSingleDialog(selectedEventForDetails)"
+                    v-if="canDeleteEvents"
+                    :loading="deleteStatus.inProgress"
+                    :disabled="deleteStatus.inProgress"
+                    flat color="error">
+                    <icon-component size="20px" class="mr-2">clear</icon-component>
+                    Delete
+                </btn-component>
+            </template>
+
             <site-event-details-component :event="selectedEventForDetails" v-if="selectedEventForDetails != null">
-                <template v-slot:actions>
-                    <btn-component flat color="secondary" @click="eventDetailsDialogState = false">
-                        Close
-                    </btn-component>
-                    <btn-component @click="showDeleteSingleDialog(selectedEventForDetails)"
-                        v-if="canDeleteEvents"
-                        :loading="deleteStatus.inProgress"
-                        :disabled="deleteStatus.inProgress"
-                        flat color="error">
-                        <icon-component size="20px" class="mr-2">clear</icon-component>
-                        Delete
-                    </btn-component>
-                </template>
             </site-event-details-component>
         </dialog-component>
         <!-- ##################### -->
-        <dialog-component v-model:value="deleteAllDialogVisible"
-            @keydown.esc="deleteAllDialogVisible = false"
-            max-width="350">
+        <dialog-component v-model:value="deleteAllDialogVisible" max-width="350">
+            <template #header></template>
+            <template #footer>
+                <btn-component color="primary" @click="deleteAllDialogVisible = false">Cancel</btn-component>
+                <btn-component color="error" @click="clearAllEvents">Clear all</btn-component>
+            </template>
             <div>
-                <div class="headline">Confirm deletion</div>
-                <div>
-                    Clear all site events?
-                </div>
-                                <div>
-                                        <btn-component color="primary" @click="deleteAllDialogVisible = false">Cancel</btn-component>
-                    <btn-component color="error" @click="clearAllEvents">Clear all</btn-component>
-                </div>
+                Clear all site events?
             </div>
         </dialog-component>
         <!-- ##################### -->
-        <dialog-component v-model:value="deleteSingleDialogVisible"
-            @keydown.esc="deleteSingleDialogVisible = false"
-            max-width="550">
+        <dialog-component v-model:value="deleteSingleDialogVisible" max-width="550">
+            <template #header>{{ deleteSingleDialogTitle }}</template>
+            <template #footer>
+                <btn-component color="primary" @click="deleteSingleDialogVisible = false">Cancel</btn-component>
+                <btn-component color="error" @click="deleteSingleEvent">Delete</btn-component>
+            </template>
             <div>
-                <div class="headline">{{ deleteSingleDialogTitle }}</div>
-                <div>
-                    {{ deleteSingleDialogText }}
-                </div>
-                                <div>
-                                        <btn-component color="primary" @click="deleteSingleDialogVisible = false">Cancel</btn-component>
-                    <btn-component color="error" @click="deleteSingleEvent">Delete</btn-component>
-                </div>
+                {{ deleteSingleDialogText }}
             </div>
         </dialog-component>
         <!-- DIALOGS END -->

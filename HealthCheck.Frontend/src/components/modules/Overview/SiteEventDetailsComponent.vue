@@ -9,7 +9,7 @@
                 <icon-component>edit</icon-component>
             </btn-component> -->
             <div>{{ event.Title }}</div>
-                        <div class="subheading">
+            <div class="subheading">
                 {{ getEventTimeLine1(event) }}<br />{{ getEventTimeLine2(event) }}
             </div>
             <!-- <btn-component icon>
