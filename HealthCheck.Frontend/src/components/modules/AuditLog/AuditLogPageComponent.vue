@@ -103,25 +103,21 @@
         </div>
 
         <!-- ##################### -->
-        <dialog-component v-model:value="showBlobContentsDialog"
-            @keydown.esc="showBlobContentsDialog = false"
-            max-width="90%" scrollable
-            content-class="audit-blob-dialog">
-            <div>
-                <div class="headline">{{ currentBlobTitle }}</div>
-                <div class="pt-0">
-                    <p class="blob-details">{{ currentBlobDetails }}</p>
-                    <progress-linear-component color="primary" indeterminate v-if="loadStatus.inProgress"></progress-linear-component>
-                    
-                    <alert-component :value="true" color="error" icon="warning" v-if="currentBlobError != null">
-                        {{ currentBlobError }}
-                    </alert-component>
+        <dialog-component v-model:value="showBlobContentsDialog" max-width="90%">
+            <template #header>{{ currentBlobTitle }}</template>
+            <template #footer>
+                <btn-component color="primary" @click="hideBlobContentsDialog()">Close</btn-component>
+            </template>
 
-                    <code class="blob-contents" v-if="currentBlobContents != null">{{ currentBlobContents }}</code>
-                </div>
-                                <div>
-                                        <btn-component color="primary" @click="hideBlobContentsDialog()">Close</btn-component>
-                </div>
+            <div>
+                <p class="blob-details">{{ currentBlobDetails }}</p>
+                <progress-linear-component color="primary" indeterminate v-if="loadStatus.inProgress"></progress-linear-component>
+                
+                <alert-component :value="true" color="error" icon="warning" v-if="currentBlobError != null">
+                    {{ currentBlobError }}
+                </alert-component>
+
+                <code class="blob-contents" v-if="currentBlobContents != null">{{ currentBlobContents }}</code>
             </div>
         </dialog-component>
         <!-- ##################### -->
