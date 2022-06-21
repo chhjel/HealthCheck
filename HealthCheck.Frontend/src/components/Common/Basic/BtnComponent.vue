@@ -1,21 +1,6 @@
 <template>
     <div class="btn-component" :class="rootClasses">
-		<!-- <h3>TODO: BtnComponent</h3>
-        <div><b>flat:</b>' {{ flat }}'</div>
-        <div><b>href:</b>' {{ href }}'</div>
-        <div><b>small:</b>' {{ small }}'</div>
-        <div><b>color:</b>' {{ color }}'</div>
-        <div><b>title:</b>' {{ title }}'</div>
-        <div><b>icon:</b>' {{ icon }}'</div>
-        <div><b>round:</b>' {{ round }}'</div>
-        <div><b>large:</b>' {{ large }}'</div>
-        <div><b>disabled:</b>' {{ disabled }}'</div>
-        <div><b>loading:</b>' {{ loading }}'</div>
-        <div><b>depressed:</b>' {{ depressed }}'</div>
-        <div><b>outline:</b>' {{ outline }}'</div>
-        <div><b>xSmall:</b>' {{ xSmall }}'</div>
-        <div><b>target:</b>' {{ target }}'</div> -->
-        <a v-if="href" :href="(href || '')">
+        <a v-if="href" :href="(href || '')" :target="target">
 		    <span class="btn-component__contents"><slot></slot></span>
         </a>
         <span v-else class="btn-component__contents"><slot></slot></span>

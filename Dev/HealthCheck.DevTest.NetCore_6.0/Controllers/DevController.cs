@@ -34,6 +34,7 @@ using HealthCheck.Core.Modules.SiteEvents.Utils;
 using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Modules;
 using HealthCheck.Dev.Common;
 using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.Settings;
@@ -59,6 +60,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace HealthCheck.DevTest.NetCore_6._0.Controllers
@@ -153,7 +155,14 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                         typeof(DevController).Assembly,
                         typeof(RuntimeTestConstants).Assembly
                     },
-                ReferenceParameterFactories = CreateReferenceParameterFactories
+                ReferenceParameterFactories = CreateReferenceParameterFactories,
+                FileDownloadHandler = (type, id) =>
+                {
+                    if (id == "404") return null;
+                    else if (Guid.TryParse(id, out var fileGuid)) return HealthCheckFileDownloadResult.CreateFromString("guid.txt", $"The guid was {id}");
+                    else if (id == "ascii") return HealthCheckFileDownloadResult.CreateFromString("Success.txt", $"Type: {type}, Id: {id}. ÆØÅæøå etc ôasd. ASCII", encoding: Encoding.ASCII);
+                    else return HealthCheckFileDownloadResult.CreateFromString("Success.txt", $"Type: {type}, Id: {id}. ÆØÅæøå etc ôasd.");
+                },
             }))
                 .ConfigureGroups((options) => options
                     .ConfigureGroup(RuntimeTestConstants.Group.TopGroup, uiOrder: 130)

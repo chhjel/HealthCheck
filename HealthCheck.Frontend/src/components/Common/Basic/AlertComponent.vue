@@ -1,12 +1,5 @@
 <template>
     <div class="alert-component" :class="rootClasses" v-if="value">
-		<!-- <h3>TODO: AlertComponent</h3>
-        <div><b>value:</b>' {{ value }}'</div>
-        <div><b>color:</b>' {{ color }}'</div>
-        <div><b>icon:</b>' {{ icon }}'</div>
-        <div><b>outline:</b>' {{ outline }}'</div>
-        <div><b>type:</b>' {{ type }}'</div>
-        -->
         <icon-component v-if="icon">{{ icon }}</icon-component>
         <div class="alert-component_content"><slot></slot></div>
     </div>
