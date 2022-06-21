@@ -74,7 +74,11 @@
 
 				<h3 class="ok" @click="DialogComponent_value = !DialogComponent_value">dialog-component</h3>
 				<!-- DialogComponent -->
-				<dialog-component v-model:value="DialogComponent_value">Dialog contents here</dialog-component>
+				<dialog-component v-model:value="DialogComponent_value">
+					<template #header>Header here</template>
+					<template #footer>Footer here<br /><btn-component @click="DialogComponent_value=false">Close</btn-component></template>
+					<div>Contents here</div>
+				</dialog-component>
 				<code>{{ DialogComponent_value }}</code>
 				<hr />
 

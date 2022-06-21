@@ -1,28 +1,12 @@
 <!-- src/components/profile/HealthCheckProfileDialogComponent.vue -->
 <template>
     <div>
-        <dialog-component v-model:value="dialogOpen"
-            @keydown.esc="closeDialog"
-            scrollable
-            max-width="800"
-            content-class="root-profile-dialog">
-            <div>
-                <toolbar-component>
-                    <div>Profile</div>
-                                        <btn-component icon @click="closeDialog">
-                        <icon-component>close</icon-component>
-                    </btn-component>
-                </toolbar-component>
-
-                                
-                <div>
-                    <health-check-profile-component />
-                </div>
-
-                                <div >
-                                        <btn-component @click="closeDialog">Close</btn-component>
-                </div>
-            </div>
+        <dialog-component v-model:value="dialogOpen" max-width="800">
+            <template #header>Profile</template>
+            <template #footer>
+                <btn-component @click="closeDialog">Close</btn-component>
+            </template>
+            <health-check-profile-component />
         </dialog-component>
     </div>
 </template>

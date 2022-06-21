@@ -97,296 +97,208 @@
         </block-component>
 
         <!-- WEBAUTHN DIALOGS -->
-        <dialog-component v-model:value="elevateWebAuthnDialogVisible"
-            @keydown.esc="elevateWebAuthnDialogVisible = false"
-            scrollable
-            persistent
-            max-width="500"
-            content-class="profile-dialog">
+        <dialog-component v-model:value="elevateWebAuthnDialogVisible" persistent max-width="500">
+            <template #header>Elevate access using WebAuthn</template>
+            <template #footer>
+                <btn-component :disabled="webAuthnElevateStatus.inProgress"
+                    @click="elevateWebAuthnDialogVisible = false">Close</btn-component>
+            </template>
             <div>
-                <toolbar-component>
-                    <div>Elevate access using WebAuthn</div>
-                                        <btn-component icon @click="elevateWebAuthnDialogVisible = false">
-                        <icon-component>close</icon-component>
-                    </btn-component>
-                </toolbar-component>
+                <btn-component
+                    round color="primary" large
+                    @click.prevent="elevateWebAuthn"
+                    :disabled="disableWebAuthnElevate">
+                    Elevate access
+                </btn-component>
 
-                                
-                <div>
-                    <btn-component
-                        round color="primary" large
-                        @click.prevent="elevateWebAuthn"
-                        :disabled="disableWebAuthnElevate">
-                        Elevate access
-                    </btn-component>
+                <alert-component :value="webAuthnElevateStatus.failed" type="error">
+                {{ webAuthnElevateStatus.errorMessage }}
+                </alert-component>
 
-                    <alert-component :value="webAuthnElevateStatus.failed" type="error">
-                    {{ webAuthnElevateStatus.errorMessage }}
-                    </alert-component>
-
-                    <div class="success-result">{{ webAuthnElevationSuccessMessage }}</div>
-                    <div class="error-result">{{ webAuthnElevationError }}</div>
-                </div>
-
-                                <div >
-                                        <btn-component :disabled="webAuthnElevateStatus.inProgress"
-                            @click="elevateWebAuthnDialogVisible = false">Close</btn-component>
-                </div>
-            </div>
-        
-        </dialog-component>
-
-        <dialog-component v-model:value="addWebAuthnDialogVisible"
-            @keydown.esc="addWebAuthnDialogVisible = false"
-            scrollable
-            persistent
-            max-width="500"
-            content-class="profile-dialog">
-            <div>
-                <toolbar-component>
-                    <div>Register WebAuthn authenticator</div>
-                                        <btn-component icon @click="addWebAuthnDialogVisible = false">
-                        <icon-component>close</icon-component>
-                    </btn-component>
-                </toolbar-component>
-
-                                
-                <div>
-                    <input-component
-                        name="Confirm account password"
-                        autocomplete="current-password"
-                        v-model:value="registerWebAuthnPassword"
-                        :disabled="webAuthnAddLoadStatus.inProgress"
-                        type="password"
-                        :clearable="true"
-                    ></input-component>
-
-                    <btn-component
-                        round color="primary" large
-                        @click.prevent="registerWebAuthn"
-                        :disabled="disableWebAuthnAdd">
-                        Register WebAuthn
-                    </btn-component>
-
-                    <alert-component :value="webAuthnAddLoadStatus.failed" type="error">
-                    {{ webAuthnAddLoadStatus.errorMessage }}
-                    </alert-component>
-
-                    <div class="success-result">{{ webAuthnAddSuccessMessage }}</div>
-                    <div class="error-result">{{ webAuthnAddError }}</div>
-                </div>
-
-                                <div >
-                                        <btn-component :disabled="webAuthnAddLoadStatus.inProgress"
-                            @click="addWebAuthnDialogVisible = false">Close</btn-component>
-                </div>
+                <div class="success-result">{{ webAuthnElevationSuccessMessage }}</div>
+                <div class="error-result">{{ webAuthnElevationError }}</div>
             </div>
         </dialog-component>
 
-        <dialog-component v-model:value="removeWebAuthnDialogVisible"
-            @keydown.esc="removeWebAuthnDialogVisible = false"
-            scrollable
-            persistent
-            max-width="500"
-            content-class="profile-dialog">
+        <dialog-component v-model:value="addWebAuthnDialogVisible" persistent max-width="500">
+            <template #header>Register WebAuthn authenticator</template>
+            <template #footer>
+                <btn-component :disabled="webAuthnAddLoadStatus.inProgress"
+                    @click="addWebAuthnDialogVisible = false">Close</btn-component>
+            </template>
             <div>
-                <toolbar-component>
-                    <div>Remove WebAuthn authenticator</div>
-                                        <btn-component icon @click="removeWebAuthnDialogVisible = false">
-                        <icon-component>close</icon-component>
-                    </btn-component>
-                </toolbar-component>
+                <input-component
+                    name="Confirm account password"
+                    autocomplete="current-password"
+                    v-model:value="registerWebAuthnPassword"
+                    :disabled="webAuthnAddLoadStatus.inProgress"
+                    type="password"
+                    :clearable="true"
+                ></input-component>
 
-                                
-                <div>
-                    <p>Confirm removal of WebAuthn authenticator from your account.</p>
+                <btn-component
+                    round color="primary" large
+                    @click.prevent="registerWebAuthn"
+                    :disabled="disableWebAuthnAdd">
+                    Register WebAuthn
+                </btn-component>
 
-                    <input-component
-                        name="Confirm account password"
-                        autocomplete="current-password"
-                        v-model:value="removeWebAuthnPassword"
-                        :disabled="disableWebAuthnAdd"
-                        type="password"
-                        :clearable="true"
-                    ></input-component>
+                <alert-component :value="webAuthnAddLoadStatus.failed" type="error">
+                {{ webAuthnAddLoadStatus.errorMessage }}
+                </alert-component>
 
-                    <btn-component
-                        round color="primary" large
-                        @click.prevent="removeWebAuthn"
-                        :disabled="disableWebAuthnRemove">
-                        Remove WebAuthn
-                    </btn-component>
+                <div class="success-result">{{ webAuthnAddSuccessMessage }}</div>
+                <div class="error-result">{{ webAuthnAddError }}</div>
+            </div>
+        </dialog-component>
 
-                    <alert-component :value="webAuthnRemoveStatus.failed" type="error">
-                    {{ webAuthnRemoveStatus.errorMessage }}
-                    </alert-component>
-                    
-                    <div class="success-result">{{ webAuthnRemoveSuccessMessage }}</div>
-                    <div class="error-result">{{ webAuthnRemoveError }}</div>
-                </div>
+        <dialog-component v-model:value="removeWebAuthnDialogVisible" persistent max-width="500">
+            <template #header>Remove WebAuthn authenticator</template>
+            <template #footer>
+                <btn-component :disabled="webAuthnRemoveStatus.inProgress"
+                    @click="removeWebAuthnDialogVisible = false">Close</btn-component>
+            </template>
 
-                                <div >
-                                        <btn-component :disabled="webAuthnRemoveStatus.inProgress"
-                            @click="removeWebAuthnDialogVisible = false">Close</btn-component>
-                </div>
+            <div>
+                <p>Confirm removal of WebAuthn authenticator from your account.</p>
+
+                <input-component
+                    name="Confirm account password"
+                    autocomplete="current-password"
+                    v-model:value="removeWebAuthnPassword"
+                    :disabled="disableWebAuthnAdd"
+                    type="password"
+                    :clearable="true"
+                ></input-component>
+
+                <btn-component
+                    round color="primary" large
+                    @click.prevent="removeWebAuthn"
+                    :disabled="disableWebAuthnRemove">
+                    Remove WebAuthn
+                </btn-component>
+
+                <alert-component :value="webAuthnRemoveStatus.failed" type="error">
+                {{ webAuthnRemoveStatus.errorMessage }}
+                </alert-component>
+                
+                <div class="success-result">{{ webAuthnRemoveSuccessMessage }}</div>
+                <div class="error-result">{{ webAuthnRemoveError }}</div>
             </div>
         </dialog-component>
 
         <!-- TOTP DIALOGS -->
-        <dialog-component v-model:value="elevateTotpDialogVisible"
-            @keydown.esc="elevateTotpDialogVisible = false"
-            scrollable
-            persistent
-            max-width="500"
-            content-class="profile-dialog">
+        <dialog-component v-model:value="elevateTotpDialogVisible" persistent max-width="500">
+            <template #header>Elevate access using TOTP</template>
+            <template #footer>
+                <btn-component :disabled="totpElevateLoadStatus.inProgress"
+                    @click="elevateTotpDialogVisible = false">Close</btn-component>
+            </template>
+
             <div>
-                <toolbar-component>
-                    <div>Elevate access using TOTP</div>
-                                        <btn-component icon @click="elevateTotpDialogVisible = false">
-                        <icon-component>close</icon-component>
-                    </btn-component>
-                </toolbar-component>
+                <input-component
+                    name="TOTP code"
+                    v-model:value="totpElevateCode"
+                    :disabled="disableTotpElevate"
+                    :clearable="true"
+                    :loading="show2FACodeExpirationTime"
+                    :loadingProgress="twoFactorInputProgress"
+                    :loadingColor="twoFactorInputColor"
+                ></input-component>
 
-                                
-                <div>
-                    <input-component
-                        name="TOTP code"
-                        v-model:value="totpElevateCode"
-                        :disabled="disableTotpElevate"
-                        :clearable="true"
-                        :loading="show2FACodeExpirationTime"
-                        :loadingProgress="twoFactorInputProgress"
-                        :loadingColor="twoFactorInputColor"
-                    ></input-component>
+                <btn-component
+                    round color="primary" large class="mt-4"
+                    @click.prevent="elevateTotp"
+                    :disabled="disableTotpElevate">
+                    Elevate access
+                </btn-component>
 
-                    <btn-component
-                        round color="primary" large class="mt-4"
-                        @click.prevent="elevateTotp"
-                        :disabled="disableTotpElevate">
-                        Elevate access
-                    </btn-component>
+                <alert-component :value="totpElevateLoadStatus.failed" type="error">
+                {{ totpElevateLoadStatus.errorMessage }}
+                </alert-component>
 
-                    <alert-component :value="totpElevateLoadStatus.failed" type="error">
-                    {{ totpElevateLoadStatus.errorMessage }}
-                    </alert-component>
-
-                    <div class="success-result">{{ totpElevateSuccessMessage }}</div>
-                    <div class="error-result">{{ totpElevationError }}</div>
-                </div>
-
-                                <div >
-                                        <btn-component :disabled="totpElevateLoadStatus.inProgress"
-                            @click="elevateTotpDialogVisible = false">Close</btn-component>
-                </div>
-            </div>
-        
-        </dialog-component>
-
-        <dialog-component v-model:value="addTotpDialogVisible"
-            @keydown.esc="addTotpDialogVisible = false"
-            scrollable
-            persistent
-            max-width="500"
-            content-class="profile-dialog">
-            <div>
-                <toolbar-component>
-                    <div>Register TOTP authenticator</div>
-                                        <btn-component icon @click="addTotpDialogVisible = false">
-                        <icon-component>close</icon-component>
-                    </btn-component>
-                </toolbar-component>
-
-                                
-                <div>
-                    <p>Scan the QR code with an authenticator app</p>
-                    <canvas ref="qrCodeCanvas"></canvas>
-                    <p v-if="registerTotpSecret">Or optionally enter this secret manually in your app of choice: <code>{{ registerTotpSecret }}</code></p>
-
-                    <input-component
-                        name="Code from authenticator"
-                        autocomplete="one-time-code"
-                        v-model:value="registerTotpCode"
-                        :disabled="disableTotpAdd"
-                        :clearable="true"
-                    ></input-component>
-
-                    <input-component
-                        name="Confirm account password"
-                        autocomplete="current-password"
-                        v-model:value="registerTotpPassword"
-                        :disabled="disableTotpAdd"
-                        type="password"
-                        :clearable="true"
-                    ></input-component>
-
-                    <btn-component 
-                        round color="primary" large
-                        @click.prevent="registerTotp"
-                        :disabled="disableTotpAdd">
-                        Register TOTP
-                    </btn-component>
-
-                    <alert-component :value="totpAddLoadStatus.failed" type="error">
-                    {{ totpAddLoadStatus.errorMessage }}
-                    </alert-component>
-
-                    <div class="success-result">{{ totpAddSuccessMessage }}</div>
-                    <div class="error-result">{{ totpAddError }}</div>
-                </div>
-
-                                <div >
-                                        <btn-component :disabled="totpAddLoadStatus.inProgress"
-                            @click="addTotpDialogVisible = false">Close</btn-component>
-                </div>
+                <div class="success-result">{{ totpElevateSuccessMessage }}</div>
+                <div class="error-result">{{ totpElevationError }}</div>
             </div>
         </dialog-component>
 
-        <dialog-component v-model:value="removeTotpDialogVisible"
-            @keydown.esc="removeTotpDialogVisible = false"
-            scrollable
-            persistent
-            max-width="500"
-            content-class="profile-dialog">
+        <dialog-component v-model:value="addTotpDialogVisible" persistent max-width="500">
+            <template #header>Register TOTP authenticator</template>
+            <template #footer>
+                <btn-component :disabled="totpAddLoadStatus.inProgress"
+                    @click="addTotpDialogVisible = false">Close</btn-component>
+            </template>
+
             <div>
-                <toolbar-component>
-                    <div>Remove TOTP authenticator</div>
-                                        <btn-component icon @click="removeTotpDialogVisible = false">
-                        <icon-component>close</icon-component>
-                    </btn-component>
-                </toolbar-component>
+                <p>Scan the QR code with an authenticator app</p>
+                <canvas ref="qrCodeCanvas"></canvas>
+                <p v-if="registerTotpSecret">Or optionally enter this secret manually in your app of choice: <code>{{ registerTotpSecret }}</code></p>
 
-                                
-                <div>
-                    <p>Confirm removal of TOTP authenticator from your account.</p>
+                <input-component
+                    name="Code from authenticator"
+                    autocomplete="one-time-code"
+                    v-model:value="registerTotpCode"
+                    :disabled="disableTotpAdd"
+                    :clearable="true"
+                ></input-component>
 
-                    <input-component
-                        name="Confirm account password"
-                        autocomplete="current-password"
-                        v-model:value="removeTotpPassword"
-                        :disabled="disableTotpRemove"
-                        type="password"
-                        :clearable="true"
-                    ></input-component>
+                <input-component
+                    name="Confirm account password"
+                    autocomplete="current-password"
+                    v-model:value="registerTotpPassword"
+                    :disabled="disableTotpAdd"
+                    type="password"
+                    :clearable="true"
+                ></input-component>
 
-                    <btn-component
-                        round color="error" large
-                        @click.prevent="removeTotp"
-                        :disabled="disableTotpRemove">
-                        Remove TOTP
-                    </btn-component>
+                <btn-component 
+                    round color="primary" large
+                    @click.prevent="registerTotp"
+                    :disabled="disableTotpAdd">
+                    Register TOTP
+                </btn-component>
 
-                    <alert-component :value="totpRemoveLoadStatus.failed" type="error">
-                    {{ totpRemoveLoadStatus.errorMessage }}
-                    </alert-component>
-                    
-                    <div class="success-result">{{ totpRemoveSuccessMessage }}</div>
-                    <div class="error-result">{{ totpRemoveError }}</div>
-                </div>
+                <alert-component :value="totpAddLoadStatus.failed" type="error">
+                {{ totpAddLoadStatus.errorMessage }}
+                </alert-component>
 
-                                <div >
-                                        <btn-component :disabled="totpRemoveLoadStatus.inProgress"
-                            @click="removeTotpDialogVisible = false">Close</btn-component>
-                </div>
+                <div class="success-result">{{ totpAddSuccessMessage }}</div>
+                <div class="error-result">{{ totpAddError }}</div>
+            </div>
+        </dialog-component>
+
+        <dialog-component v-model:value="removeTotpDialogVisible" persistent max-width="500">
+            <template #header>Remove TOTP authenticator</template>
+            <template #footer>
+                <btn-component :disabled="totpRemoveLoadStatus.inProgress"
+                    @click="removeTotpDialogVisible = false">Close</btn-component>
+            </template>
+
+            <div>
+                <p>Confirm removal of TOTP authenticator from your account.</p>
+
+                <input-component
+                    name="Confirm account password"
+                    autocomplete="current-password"
+                    v-model:value="removeTotpPassword"
+                    :disabled="disableTotpRemove"
+                    type="password"
+                    :clearable="true"
+                ></input-component>
+
+                <btn-component
+                    round color="error" large
+                    @click.prevent="removeTotp"
+                    :disabled="disableTotpRemove">
+                    Remove TOTP
+                </btn-component>
+
+                <alert-component :value="totpRemoveLoadStatus.failed" type="error">
+                {{ totpRemoveLoadStatus.errorMessage }}
+                </alert-component>
+                
+                <div class="success-result">{{ totpRemoveSuccessMessage }}</div>
+                <div class="error-result">{{ totpRemoveError }}</div>
             </div>
         </dialog-component>
     </div>
