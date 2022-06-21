@@ -306,7 +306,7 @@
             </div>
         </dialog-component>
         <dialog-component v-model:value="testDialogVisible">
-            <template #header>Test notifier '{{ notifierToTest.Notifier.Name }}'</template>
+            <template #header v-if="notifierToTest">Test notifier '{{ notifierToTest.Notifier.Name }}'</template>
             <template #footer>
                 <btn-component color="secondary" flat @click="testDialogVisible = false">Close</btn-component>
             </template>

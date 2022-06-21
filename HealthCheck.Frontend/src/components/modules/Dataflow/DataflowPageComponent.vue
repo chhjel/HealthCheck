@@ -208,24 +208,18 @@
         
 
         <!-- DIALOGS -->
-        <dialog-component v-model:value="searchResultDialogVisible"
-            v-if="selectedSearchResult"
-            @keydown.esc="searchResultDialogVisible = false"
-            max-width="800"
-            content-class="search-result-dialog"
-            :persistent="dataLoadStatus.inProgress">
+        <dialog-component v-model:value="searchResultDialogVisible" v-if="selectedSearchResult" max-width="800" :persistent="dataLoadStatus.inProgress">
+            <template #header>{{ selectedSearchResult.Title }}</template>
+            <template #footer>
+                <btn-component color="secondary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="searchResultDialogVisible = false">Close</btn-component>
+            </template>
+
             <div>
-                <div class="headline">{{ selectedSearchResult.Title }}</div>
-                <div class="pt-0">
-                    <div v-if="selectedSearchResult.Body" v-html="selectedSearchResult.Body" class="mb-2"></div>
-                    <div v-html="selectedSearchResult.PopupBody"></div>
-                </div>
-                                <div>
-                                        <btn-component color="secondary"
-                        :disabled="dataLoadStatus.inProgress"
-                        :loading="dataLoadStatus.inProgress"
-                        @click="searchResultDialogVisible = false">Close</btn-component>
-                </div>
+                <div v-if="selectedSearchResult.Body" v-html="selectedSearchResult.Body" class="mb-2"></div>
+                <div v-html="selectedSearchResult.PopupBody"></div>
             </div>
         </dialog-component>
     </div>
