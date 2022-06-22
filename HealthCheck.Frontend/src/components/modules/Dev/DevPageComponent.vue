@@ -270,6 +270,7 @@
 				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex input" allowInput />
 				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_items" label="Array input custom" allowInput allowCustom />
 				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex input custom" allowInput allowCustom />
+				<select-component v-model:value="SelectComponent_valueMultiple" :items="SelectComponent_itemsMultiple" multiple label="Complex input custom, clearable" allowInput allowCustom clearable />
 				
 				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_itemsEmpty" label="Custom, no items" no-data-text="Value required" placeholder="Value to search for" allowInput allowCustom />
 				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_itemsMultiple" label="Custom, with items" no-data-text="Value required" placeholder="Value to search for" allowInput allowCustom />

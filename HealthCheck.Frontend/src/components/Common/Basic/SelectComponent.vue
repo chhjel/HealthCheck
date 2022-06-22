@@ -24,15 +24,15 @@
                         @blur="onFilterBlur"
                         @focus="onFilterFocus"
                         ref="filterInputElement" />
+                    <icon-component v-if="isClearable" class="input-icon" :class="clearableIconClasses"
+                        title="Clear"
+                        @click="clear">clear</icon-component>
                 </div>
                 <span class="select-component__placeholder input-placeholder"
                     v-if="placeholderText && !showInput">{{ placeholderText }}</span>
             </div>
         </div>
         <div class="select-component__dropdown box-shadow" v-show="showDropdown" ref="dropdownElement">
-            <!-- <div class="select-component__dropdown__search">
-                Search here
-            </div> -->
             <div class="select-component__dropdown__items">
                 <div v-for="(item, iIndex) in filteredOptionItems"
                     :key="`${id}-item-${iIndex}`"
@@ -241,6 +241,12 @@ export default class SelectComponent extends Vue
         return this.showInput && (!this.items || (Array.isArray(this.items) && this.items.length == 0));
     }
     
+    get clearableIconClasses(): any {
+        return {
+            'clickable': !this.isDisabled
+        };
+    }
+
     get isLoading(): boolean { return ValueUtils.IsToggleTrue(this.loading); }
     get isDisabled(): boolean { return ValueUtils.IsToggleTrue(this.disabled) || ValueUtils.IsToggleTrue(this.readonly); }
     get isReadonly(): boolean { return ValueUtils.IsToggleTrue(this.readonly) || ValueUtils.IsToggleTrue(this.disabled); }
@@ -253,6 +259,13 @@ export default class SelectComponent extends Vue
     ////////////////
     //  METHODS  //
     //////////////
+    clear(): void {
+        if (this.isReadonly || this.isDisabled || !this.selectedValues || this.selectedValues.length == 0) return;
+        this.selectedValues = [];
+        this.$emit('click:clear');
+        this.emitValue();
+    }
+
     addValue(val: string): void {
         if (!this.isMultiple) this.selectedValues = [];
         if (!this.selectedValues.includes(val))
@@ -454,6 +467,7 @@ export default class SelectComponent extends Vue
     }
     &__textInput-wrapper {
         flex: 1;
+        display: flex;
     }
     &__textInput {
         width: 100%;
