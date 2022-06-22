@@ -20,6 +20,7 @@
                         v-model="filter"
                         :placeholder="placeholderText"
                         @keyup.enter="onFilterEnter"
+                        @keydown="onFilterKeyDown"
                         @blur="onFilterBlur"
                         @focus="onFilterFocus"
                         ref="filterInputElement" />
@@ -356,6 +357,14 @@ export default class SelectComponent extends Vue
     }
     onFilterFocus(): void {
         this.tryShowDropdown();
+    }
+    onFilterKeyDown(e: KeyboardEvent): void {
+        if (!this.isAllowInput) return;
+        if (e.key == 'Backspace'
+            && this.selectedItems && this.selectedItems.length > 0
+            && this.filter.length == 0) {
+            this.removeValue(this.selectedItems[this.selectedItems.length-1].value);
+        }
     }
 
     @Watch('value')
