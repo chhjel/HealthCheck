@@ -1,43 +1,35 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeStringComponent.vue -->
 <!-- todo: flex 1 & max-width: npx -->
 <template>
-    <div>
-        <div>
-            <div :xs10="!config.NotNull" :xs12="config.NotNull">
-                <text-field-component
-                    v-if="isTextField"
-                    class="pt-0"
-                    v-model:value="localValue"
-                    :placeholder="placeholderText"
-                    :disabled="readonly" />
-                <textarea-component
-                    v-if="isTextArea"
-                    class="pt-0"
-                    v-model:value="localValue"
-                    :placeholder="placeholderText"
-                    :disabled="readonly" />
-                <editor-component
-                    v-if="isCodeArea"
-                    class="editor"
-                    :language="'json'"
-                    v-model:value="localValue"
-                    :read-only="readonly"
-                    ref="editor" />
-            </div>
+    <div class="flex">
+        <text-field-component
+            v-if="isTextField"
+            class="pt-0 spacer"
+            v-model:value="localValue"
+            :placeholder="placeholderText"
+            :disabled="readonly" />
+        <textarea-component
+            v-if="isTextArea"
+            class="pt-0 spacer"
+            v-model:value="localValue"
+            :placeholder="placeholderText"
+            :disabled="readonly" />
+        <editor-component
+            v-if="isCodeArea"
+            class="editor spacer"
+            :language="'json'"
+            v-model:value="localValue"
+            :read-only="readonly"
+            ref="editor" />
 
-            <div xs2
-                :xs3="isListItem"
-                class="text-sm-right"
-                v-if="!config.NotNull">
-                <tooltip-component tooltip="Sets value to null">
-                    <btn-component flat icon color="primary" class="ma-0 pa-0"
-                        @click="setValueToNull"
-                        :disabled="localValue == null || readonly">
-                        <icon-component>clear</icon-component>
-                    </btn-component>
-                </tooltip-component>
-            </div>
-
+        <div v-if="!config.NotNull">
+            <tooltip-component tooltip="Sets value to null">
+                <btn-component flat icon color="primary" class="ma-0 pa-0"
+                    @click="setValueToNull"
+                    :disabled="localValue == null || readonly">
+                    <icon-component>clear</icon-component>
+                </btn-component>
+            </tooltip-component>
         </div>
     </div>
 </template>

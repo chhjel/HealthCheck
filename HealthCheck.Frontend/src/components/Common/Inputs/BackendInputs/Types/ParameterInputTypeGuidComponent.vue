@@ -1,28 +1,20 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeGuidComponent.vue -->
 <template>
-    <div>
-        <div>
-            <div :xs10="isNullable" :xs12="!isNullable">
-                <text-field-component
-                    class="pt-0"
-                    v-model:value="localValue"
-                    :placeholder="placeholderText"
-                    :disabled="readonly" />
-            </div>
+    <div class="flex">
+        <text-field-component
+            class="pt-0 spacer"
+            v-model:value="localValue"
+            :placeholder="placeholderText"
+            :disabled="readonly" />
 
-            <div xs2
-                :xs3="isListItem"
-                class="text-sm-right"
-                v-if="isNullable">
-                <tooltip-component tooltip="Sets value to null">
-                    <btn-component flat icon color="primary" class="ma-0 pa-0"
-                        @click="setValueToNull"
-                        :disabled="localValue == null || readonly">
-                        <icon-component>clear</icon-component>
-                    </btn-component>
-                </tooltip-component>
-            </div>
-
+        <div v-if="isNullable">
+            <tooltip-component tooltip="Sets value to null">
+                <btn-component flat icon color="primary" class="ma-0 pa-0"
+                    @click="setValueToNull"
+                    :disabled="localValue == null || readonly">
+                    <icon-component>clear</icon-component>
+                </btn-component>
+            </tooltip-component>
         </div>
     </div>
 </template>

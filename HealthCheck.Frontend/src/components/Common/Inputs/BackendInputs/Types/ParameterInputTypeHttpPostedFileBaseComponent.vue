@@ -1,37 +1,28 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeHttpPostedFileBaseComponent.vue -->
 <template>
-    <div>
-        <div class="parameter-input-file">
-            <!-- <input
-                type="file"
-                @change="onFileChanged"
-                ref="fileinput"
-                style="width:100%"
-                :disabled="readonly" /> -->
-
-            <input type="file"
-                :id="`file-parameter-${id}`"
-                style="display: none;"
-                ref="fileinput"
-                @change="onFileChanged"
-                :disabled="readonly" />
-            <div class="upload-label-wrapper">
-                <tooltip-component :tooltip="tooltip">
-                    <label :for="`file-parameter-${id}`"
-                        class="v-btn v-btn--small theme--light upload-label"
-                        :class="{ 'disabled': readonly, 'v-btn--disabled': readonly }">
-                        <div>{{ label }}</div>
-                    </label>
-                </tooltip-component>
-            </div>
-            <tooltip-component v-if="allowClear" tooltip="Clear file">
-                <btn-component flat icon color="primary" class="ma-0 pa-0"
-                    @click="setValueToNull"
-                    :disabled="localValue == null">
-                    <icon-component>clear</icon-component>
-                </btn-component>
+    <div class="parameter-input-file flex">
+        <input type="file"
+            :id="`file-parameter-${id}`"
+            style="display: none;"
+            ref="fileinput"
+            @change="onFileChanged"
+            :disabled="readonly" />
+        <div class="upload-label-wrapper">
+            <tooltip-component :tooltip="tooltip">
+                <label :for="`file-parameter-${id}`"
+                    class="v-btn v-btn--small theme--light upload-label"
+                    :class="{ 'disabled': readonly, 'v-btn--disabled': readonly }">
+                    <div>{{ label }}</div>
+                </label>
             </tooltip-component>
         </div>
+        <tooltip-component v-if="allowClear" tooltip="Clear file">
+            <btn-component flat icon color="primary" class="ma-0 pa-0"
+                @click="setValueToNull"
+                :disabled="localValue == null">
+                <icon-component>clear</icon-component>
+            </btn-component>
+        </tooltip-component>
     </div>
 </template>
 
@@ -170,7 +161,6 @@ export default class ParameterInputTypeHttpPostedFileBaseComponent extends Vue {
 <style scoped lang="scss">
 .parameter-input-file {
     position: relative;
-    align-items: baseline;
     margin-top: 0 !important;
 }
 .upload-label-wrapper {

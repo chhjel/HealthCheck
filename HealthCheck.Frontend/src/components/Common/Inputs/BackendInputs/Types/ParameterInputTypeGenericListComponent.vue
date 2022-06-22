@@ -211,5 +211,7 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
 }
 .parameter-list-input-tile {
     overflow: hidden;
+    display: flex;
+    align-items: center;
 }
 </style>

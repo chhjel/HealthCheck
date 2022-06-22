@@ -1,32 +1,24 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeTimeSpanComponent.vue -->
 <template>
-    <div>
-        <div>
-            <div :xs10="!config.NotNull" :xs12="config.NotNull">
-                <timespan-input-component
-                    class="pt-0"
-                    v-model:value="localValue"
-                    :disabled="readonly"
-                    :minimal="true"
-                    :allowClear="false"
-                    :fill="true"
-                    :maxHour="null"
-                    />
-            </div>
+    <div class="flex">
+        <timespan-input-component
+            class="pt-0 spacer"
+            v-model:value="localValue"
+            :disabled="readonly"
+            :minimal="true"
+            :allowClear="false"
+            :fill="true"
+            :maxHour="null"
+            />
 
-            <div xs2
-                :xs3="isListItem"
-                class="text-sm-right"
-                v-if="!config.NotNull">
-                <tooltip-component :tooltip="clearTooltip">
-                    <btn-component flat icon color="primary" class="ma-0 pa-0"
-                        @click="setValueToNull"
-                        :disabled="localValue == null || readonly">
-                        <icon-component>clear</icon-component>
-                    </btn-component>
-                </tooltip-component>
-            </div>
-
+        <div v-if="!config.NotNull">
+            <tooltip-component :tooltip="clearTooltip">
+                <btn-component flat icon color="primary" class="ma-0 pa-0"
+                    @click="setValueToNull"
+                    :disabled="localValue == null || readonly">
+                    <icon-component>clear</icon-component>
+                </btn-component>
+            </tooltip-component>
         </div>
     </div>
 </template>

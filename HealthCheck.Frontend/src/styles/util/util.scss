@@ -48,16 +48,10 @@ $util-margin-padding-list: (
 	}
 }
 
-.disabled {
-	color: var(--color--text-disabled);
-}
-
-.right {
-    float: right !important;
-}
-
-.left {
-    float: left !important;
-}
-
+.disabled { color: var(--color--text-disabled); }
+.right { float: right !important; }
+.left { float: left !important; }
 .absolute { position: absolute; }
+
+.flex { display: flex; align-items: center; }
+.spacer { flex: 1; }

@@ -21,7 +21,8 @@
                 @input="onInput()"
                 :disabled="disabled"
                 :placeholder="isNull ? 'null' : ''"
-                type="number">
+                type="number"
+                class="spacer">
             </text-field-component>
             <div class="input-component--input-prefix" v-if="!minimal">hours, </div>
             
@@ -35,7 +36,8 @@
                 @input="onInput()"
                 :disabled="disabled"
                 :placeholder="isNull ? 'null' : ''"
-                type="number">
+                type="number"
+                class="spacer">
             </text-field-component>
             <div class="input-component--input-prefix" v-if="!minimal">minutes, </div>
 
@@ -49,7 +51,8 @@
                 @input="onInput()"
                 :disabled="disabled"
                 :placeholder="isNull ? 'null' : ''"
-                type="number">
+                type="number"
+                class="spacer">
             </text-field-component>
             <div class="input-component--input-prefix" v-if="!minimal">seconds.</div>
 

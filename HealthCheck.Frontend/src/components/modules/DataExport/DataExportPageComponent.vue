@@ -28,8 +28,8 @@
                 <div class="data-export-filters" v-if="showQuery">
                     <div style="display: flex; width: 100%">
                         <b>{{ queryTitle }}</b>
-                                                                <a href="#" v-if="hasAccessToQueryCustom" style="font-size: 13px;"
-                            @click.prevent="onQueryHelpClicked">Query help</a>
+                        <div class="spacer"></div>
+                        <a href="#" v-if="hasAccessToQueryCustom" style="font-size: 13px;" @click.prevent="onQueryHelpClicked">Query help</a>
                     </div>
 
                     <editor-component
@@ -1304,6 +1304,7 @@ export default class DataExportPageComponent extends Vue {
     justify-content: space-between;
     .export-parameter-item {
         min-width: 48%;
+        margin-bottom: 5px;
     }
 }
 .item-header-override-config {
