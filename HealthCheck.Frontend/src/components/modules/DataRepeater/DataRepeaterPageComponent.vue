@@ -26,7 +26,7 @@
                     <h2 v-if="selectedStream.StreamItemsName">{{ selectedStream.StreamItemsName }}</h2>
                     <p v-if="selectedStream.Description" v-html="selectedStream.Description"></p>
 
-                    <div class="data-repeater-filters">
+                    <div class="data-repeater-filters mb-2">
                         <text-field-component
                             v-model:value="filterItemId"
                             @blur="onFilterChanged"
@@ -34,10 +34,11 @@
                             label="Filter"
                             clearable
                             class="filter-input"
+                            style="flex:1"
                             :readonly="isLoading"
                         ></text-field-component>
                     </div>
-                    <div class="data-repeater-filters">
+                    <div class="data-repeater-filters mb-2">
                         <checkbox-component
                             :value="filterRetryAllowedBinding"
                             :indeterminate="filterRetryAllowed == null" 
@@ -56,6 +57,7 @@
                             clearable
                             allowInput allowCustom
                             class="filter-input"
+                            style="flex:1"
                             :readonly="isLoading"
                             ></select-component>
                     </div>
@@ -634,6 +636,7 @@ export default class DataRepeaterPageComponent extends Vue {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    align-items: center;
 }
 .data-repeater-list-item {
     cursor: pointer;

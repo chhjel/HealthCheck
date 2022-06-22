@@ -228,14 +228,14 @@ export default class DialogComponent extends Vue {
         .dialog-component_modal_cross {
             cursor: pointer;
             position: absolute;
-            top: 7px;
-            right: 7px;
-            height: 42px;
-            width: 42px;
+            top: -1px;
+            right: -1px;
+            height: 19px;
+            width: 19px;
             background-color: #dfdfdf;
             border: 1px solid #dfdfdf;
             font-weight: 600;
-            font-size: 24px;
+            font-size: 17px;
             display: flex;
             align-items: center;
             justify-content: center;
