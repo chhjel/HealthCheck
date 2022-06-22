@@ -100,7 +100,8 @@
         <dialog-component v-model:value="elevateWebAuthnDialogVisible" persistent max-width="500">
             <template #header>Elevate access using WebAuthn</template>
             <template #footer>
-                <btn-component :disabled="webAuthnElevateStatus.inProgress"
+                <btn-component color="secondary"
+                    :disabled="webAuthnElevateStatus.inProgress"
                     @click="elevateWebAuthnDialogVisible = false">Close</btn-component>
             </template>
             <div>
@@ -123,7 +124,8 @@
         <dialog-component v-model:value="addWebAuthnDialogVisible" persistent max-width="500">
             <template #header>Register WebAuthn authenticator</template>
             <template #footer>
-                <btn-component :disabled="webAuthnAddLoadStatus.inProgress"
+                <btn-component color="secondary"
+                    :disabled="webAuthnAddLoadStatus.inProgress"
                     @click="addWebAuthnDialogVisible = false">Close</btn-component>
             </template>
             <div>
@@ -155,7 +157,8 @@
         <dialog-component v-model:value="removeWebAuthnDialogVisible" persistent max-width="500">
             <template #header>Remove WebAuthn authenticator</template>
             <template #footer>
-                <btn-component :disabled="webAuthnRemoveStatus.inProgress"
+                <btn-component color="secondary"
+                    :disabled="webAuthnRemoveStatus.inProgress"
                     @click="removeWebAuthnDialogVisible = false">Close</btn-component>
             </template>
 
@@ -191,7 +194,8 @@
         <dialog-component v-model:value="elevateTotpDialogVisible" persistent max-width="500">
             <template #header>Elevate access using TOTP</template>
             <template #footer>
-                <btn-component :disabled="totpElevateLoadStatus.inProgress"
+                <btn-component color="secondary"
+                    :disabled="totpElevateLoadStatus.inProgress"
                     @click="elevateTotpDialogVisible = false">Close</btn-component>
             </template>
 
@@ -225,7 +229,8 @@
         <dialog-component v-model:value="addTotpDialogVisible" persistent max-width="500">
             <template #header>Register TOTP authenticator</template>
             <template #footer>
-                <btn-component :disabled="totpAddLoadStatus.inProgress"
+                <btn-component color="secondary"
+                    :disabled="totpAddLoadStatus.inProgress"
                     @click="addTotpDialogVisible = false">Close</btn-component>
             </template>
 
@@ -270,7 +275,8 @@
         <dialog-component v-model:value="removeTotpDialogVisible" persistent max-width="500">
             <template #header>Remove TOTP authenticator</template>
             <template #footer>
-                <btn-component :disabled="totpRemoveLoadStatus.inProgress"
+                <btn-component color="secondary"
+                    :disabled="totpRemoveLoadStatus.inProgress"
                     @click="removeTotpDialogVisible = false">Close</btn-component>
             </template>
 

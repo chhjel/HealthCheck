@@ -13,9 +13,7 @@
           <span class="title">{{ dialogStep.Title }}</span>
         </template>
         <template #footer>
-          <btn-component color="green darken-1" flat @click="showStepDialog = false">
-            Close
-          </btn-component>
+          <btn-component color="secondary" @click="showStepDialog = false">Close</btn-component>
         </template>
         <div v-if="dialogStep != null">
           <div v-if="stepHasDate(dialogStep)" class="mb-3">{{ formatStepDate(dialogStep) }}</div>

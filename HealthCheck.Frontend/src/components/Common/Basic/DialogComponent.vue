@@ -1,7 +1,7 @@
 <template>
     <div class="dialog-component" :class="rootClasses" v-show="localValue">
         <div class="dialog-component_modal_wrapper" @click.self.stop.prevent="onClickOutside">
-            <div class="dialog-component_modal">
+            <div class="dialog-component_modal" :style="dialogStyle">
                 <div class="dialog-component_modal_cross" @click.self.stop.prevent="onClickClose">X</div>
                 <div class="dialog-component_modal_header" v-if="hasHeaderSlot">
                     <slot name="header"></slot>
@@ -89,7 +89,7 @@ export default class DialogComponent extends Vue {
         };
     }
 
-    get contentStyle(): any {
+    get dialogStyle(): any {
         let maxWidthValue = this.maxWidth?.toString() || '';
         if (this.maxWidth && maxWidthValue && !isNaN(Number(maxWidthValue))) {
             maxWidthValue = `${maxWidthValue}px`;
@@ -103,6 +103,23 @@ export default class DialogComponent extends Vue {
             maxWidth: maxWidthValue
         };
         if (widthValue) style['width'] = widthValue;
+        return style;
+    }
+
+    get contentStyle(): any {
+        // let maxWidthValue = this.maxWidth?.toString() || '';
+        // if (this.maxWidth && maxWidthValue && !isNaN(Number(maxWidthValue))) {
+        //     maxWidthValue = `${maxWidthValue}px`;
+        // }
+        // let widthValue = this.width?.toString() || '';
+        // if (this.width && widthValue && !isNaN(Number(widthValue))) {
+        //     widthValue = `${widthValue}px`;
+        // }
+
+        let style = {
+            // maxWidth: maxWidthValue
+        };
+        // if (widthValue) style['width'] = widthValue;
         return style;
     }
 
@@ -211,13 +228,20 @@ export default class DialogComponent extends Vue {
         .dialog-component_modal_cross {
             cursor: pointer;
             position: absolute;
-            top: -6px;
-            right: -7px;
+            top: 7px;
+            right: 7px;
+            height: 42px;
+            width: 42px;
             background-color: #dfdfdf;
+            border: 1px solid #dfdfdf;
             font-weight: 600;
-            font-size: 20px;
-            padding: 3px 8px;
-            border-radius: 50%;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            &:hover {
+                background-color: #e8e8e8;
+            }
         }
     }
 

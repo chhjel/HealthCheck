@@ -467,7 +467,7 @@
         <dialog-component v-model:value="placeholdersDialogVisible">
             <template #header>Select placeholder to add</template>
             <template #footer>
-                <btn-component color="secondary" flat @click="placeholdersDialogVisible = false">Close</btn-component>
+                <btn-component color="secondary" @click="placeholdersDialogVisible = false">Close</btn-component>
             </template>
             <div style="max-height: 500px;">
                 <div class="possible-placeholders-list">

@@ -2,7 +2,6 @@
 <template>
     <div>
         <div class="pick-ref-button-wrapper">
-            
             <tooltip-component :disabled="!tooltip" :tooltip="tooltip">
                 <btn-component @click="showDialog" :disabled="readonly" class="pick-ref-button ml-0 mr-0">{{ selectedChoiceLabel }}</btn-component>
             </tooltip-component>
@@ -23,7 +22,7 @@
         <dialog-component v-model:value="choicesDialogVisible" max-width="600">
             <template #header>{{ dialogTitle }}</template>
             <template #footer>
-                <btn-component color="primary"
+                <btn-component color="secondary"
                     @click="choicesDialogVisible = false">Cancel</btn-component>
             </template>
 

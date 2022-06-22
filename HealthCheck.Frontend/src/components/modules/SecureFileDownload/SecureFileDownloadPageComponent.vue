@@ -68,11 +68,11 @@
         <dialog-component v-model:value="downloadDialogVisible" persistent max-width="1200">
             <template #header>{{ currentDialogTitle }}</template>
             <template #footer>
-                <btn-component color="error" flat
+                <btn-component color="error"
                     v-if="showDeleteDownload"
                     :disabled="serverInteractionInProgress"
                     @click="$refs.currentDownloadComponent.tryDeleteDownload()">Delete</btn-component>
-                <btn-component color="success"
+                <btn-component color="primary"
                     v-if="showSaveDownload"
                     :disabled="serverInteractionInProgress"
                     @click="$refs.currentDownloadComponent.saveDownload()">Save</btn-component>

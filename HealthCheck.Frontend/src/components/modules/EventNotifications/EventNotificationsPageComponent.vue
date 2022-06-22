@@ -98,11 +98,11 @@
         <dialog-component v-model:value="configDialogVisible" persistent max-width="1200">
             <template #header>{{ currentDialogTitle }}</template>
             <template #footer>
-                <btn-component color="error" flat
+                <btn-component color="error"
                     v-if="showDeleteConfig"
                     :disabled="serverInteractionInProgress"
                     @click="$refs.currentConfigComponent.tryDeleteConfig()">Delete</btn-component>
-                <btn-component color="success"
+                <btn-component color="primary"
                     :disabled="serverInteractionInProgress"
                     @click="$refs.currentConfigComponent.saveConfig()">Save</btn-component>
             </template>
@@ -147,7 +147,7 @@
                     <icon-component size="20px" class="mr-2">delete_forever</icon-component>
                     Delete all definitions
                 </btn-component>
-                <btn-component color="success"
+                <btn-component color="secondary"
                     @click="editDefinitionsDialogVisible = false">Close</btn-component>
             </template>
 

@@ -8,7 +8,7 @@
                     :loading="loadStatus.inProgress"
                     :disabled="loadStatus.inProgress"
                     @click="killswitchToken()">Delete token</btn-component>
-                <btn-component @click="closeDialog">Close</btn-component>
+                <btn-component color="secondary" @click="closeDialog">Close</btn-component>
             </template>
 
             <div>

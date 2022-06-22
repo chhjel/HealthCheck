@@ -77,11 +77,11 @@
         <dialog-component v-model:value="ruleDialogVisible" max-width="1200" persistent>
             <template #header>{{ currentDialogTitle }}</template>
             <template #footer>
-                <btn-component color="error" flat
+                <btn-component color="error"
                     v-if="showDeleteRule"
                     :disabled="serverInteractionInProgress"
                     @click="$refs.currentRuleComponent.tryDeleteRule()">Delete</btn-component>
-                <btn-component color="success"
+                <btn-component color="primary"
                     :disabled="serverInteractionInProgress || !HasAccessToEditRules"
                     @click="$refs.currentRuleComponent.saveRule()">Save</btn-component>
             </template>
@@ -125,7 +125,7 @@
                     <icon-component size="20px" class="mr-2">delete_forever</icon-component>
                     Delete all definitions
                 </btn-component>
-                <btn-component color="success" @click="editDefinitionsDialogVisible = false">Close</btn-component>
+                <btn-component @click="editDefinitionsDialogVisible = false" color="secondary">Close</btn-component>
             </template>
             <div>
                 <block-component
@@ -150,7 +150,7 @@
         <dialog-component v-model:value="latestRequestsDialogVisible" max-width="1200" @input="v => v || hideLatestRequestsDialog()">
             <template #header>Latest requests</template>
             <template #footer>
-                <btn-component color="success" @click="hideLatestRequestsDialog">Close</btn-component>
+                <btn-component color="secondary" @click="hideLatestRequestsDialog">Close</btn-component>
             </template>
             <div>
                 <block-component class="mb-2">

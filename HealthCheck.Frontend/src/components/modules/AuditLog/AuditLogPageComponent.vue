@@ -106,7 +106,7 @@
         <dialog-component v-model:value="showBlobContentsDialog" max-width="90%">
             <template #header>{{ currentBlobTitle }}</template>
             <template #footer>
-                <btn-component color="primary" @click="hideBlobContentsDialog()">Close</btn-component>
+                <btn-component color="secondary" @click="hideBlobContentsDialog()">Close</btn-component>
             </template>
 
             <div>

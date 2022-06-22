@@ -105,19 +105,18 @@
             </div>
         </div>
             
-        <dialog-component v-model:value="showMessageDialog" v-if="currentlyShownMessage != null" max-width="1200">
+        <dialog-component v-model:value="showMessageDialog" v-if="currentlyShownMessage != null" width="90vw" max-width="1200">
             <template #header>
                 {{ currentlyShownMessage.Summary }}
                 <icon-component :color="getMessageIconColor(currentlyShownMessage)" class="ml-2">{{ getMessageIcon(currentlyShownMessage) }}</icon-component>
             </template>
 
             <template #footer>
-                <btn-component color="error" flat
+                <btn-component color="error"
                     v-if="HasAccessToDeleteMessages"
                     :disabled="messageLoadStatus.inProgress"
                     @click="showDeleteMessage(currentlyShownMessage)">Delete</btn-component>
-                <btn-component color="success"
-                    @click="hideMessageDialog">Close</btn-component>
+                <btn-component color="secondary" @click="hideMessageDialog">Close</btn-component>
             </template>
 
             <div class="message">
@@ -154,7 +153,7 @@
                         <code>{{ getAdditionalDetails(currentlyShownMessage) }}</code>
                     </div>
                 </block-component>
-                <a v-if="currentlyShownMessage.BodyIsHtml" @click="showMessageBodyRaw = !showMessageBodyRaw" class="ml-5">Toggle HTML</a>
+                <a v-if="currentlyShownMessage.BodyIsHtml" @click="showMessageBodyRaw = !showMessageBodyRaw" class="ml-5 clickable">Toggle HTML</a>
                 <block-component class="mt-2 mb-1" v-if="currentlyShownMessage.HasError" title="Error">
                     <code>{{ currentlyShownMessage.ErrorMessage }}</code>
                 </block-component>

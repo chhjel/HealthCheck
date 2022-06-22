@@ -4,7 +4,7 @@
         <dialog-component v-model:value="dialogOpen" max-width="800">
             <template #header>Profile</template>
             <template #footer>
-                <btn-component @click="closeDialog">Close</btn-component>
+                <btn-component color="secondary" @click="closeDialog">Close</btn-component>
             </template>
             <health-check-profile-component />
         </dialog-component>

@@ -229,7 +229,7 @@
         <dialog-component v-model:value="notifierDialogVisible" v-if="notifiers != null">
             <template #header>Select type of notifier to add</template>
             <template #footer>
-                <btn-component color="secondary" flat @click="notifierDialogVisible = false">Cancel</btn-component>
+                <btn-component color="secondary"  @click="notifierDialogVisible = false">Cancel</btn-component>
             </template>
             <div style="max-height: 500px;">
                 <div class="possible-notifiers-list">
@@ -264,7 +264,7 @@
         <dialog-component v-model:value="payloadPlaceholderDialogVisible">
             <template #header>Select placeholder to add</template>
             <template #footer>
-                <btn-component color="secondary" flat @click="hidePayloadPlaceholderDialog()">Cancel</btn-component>
+                <btn-component color="secondary" @click="hidePayloadPlaceholderDialog()">Cancel</btn-component>
             </template>
             <div style="max-height: 500px;">
                 <div class="possible-placeholders-list">
@@ -286,7 +286,7 @@
         <dialog-component v-model:value="placeholderDialogVisible">
             <template #header>Select placeholder to add</template>
             <template #footer>
-                <btn-component color="secondary" flat @click="hidePlaceholderDialog()">Cancel</btn-component>
+                <btn-component color="secondary" @click="hidePlaceholderDialog()">Cancel</btn-component>
             </template>
             <div style="max-height: 500px;">
                 <div class="possible-placeholders-list">
@@ -308,7 +308,7 @@
         <dialog-component v-model:value="testDialogVisible">
             <template #header v-if="notifierToTest">Test notifier '{{ notifierToTest.Notifier.Name }}'</template>
             <template #footer>
-                <btn-component color="secondary" flat @click="testDialogVisible = false">Close</btn-component>
+                <btn-component color="secondary" @click="testDialogVisible = false">Close</btn-component>
             </template>
 
             <div v-if="notifierToTest">

@@ -27,8 +27,8 @@
               {{resultData.Title}}
             </template>
             <template #footer>
-                  <btn-component dark flat @click="putDataOnClipboard">Put data on clipboard</btn-component>
-                  <btn-component dark flat @click="showFullscreen = false">Close</btn-component>
+                  <btn-component color="primary" @click="putDataOnClipboard">Put data on clipboard</btn-component>
+                  <btn-component color="secondary" @click="showFullscreen = false">Close</btn-component>
             </template>
             <div>
               <component

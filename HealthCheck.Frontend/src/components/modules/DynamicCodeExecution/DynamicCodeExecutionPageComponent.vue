@@ -105,7 +105,7 @@
         <dialog-component v-model:value="deleteScriptDialogVisible" max-width="350" dark>
             <template #header>Confirm deletion</template>
             <template #footer>
-                <btn-component color="primary" @click="deleteScriptDialogVisible = false">Cancel</btn-component>
+                <btn-component color="secondary" @click="deleteScriptDialogVisible = false">Cancel</btn-component>
                 <btn-component color="error" @click="deleteScript(currentScript)">Delete it</btn-component>
             </template>
             <div>
@@ -116,7 +116,7 @@
         <dialog-component v-model:value="confirmUnchangedDialogVisible" max-width="350" dark>
             <template #header>Unsaved changes</template>
             <template #footer>
-                <btn-component color="primary"
+                <btn-component color="secondary"
                     @click="unsavedChangesDialogGoBack"
                     >Go back</btn-component>
                 <btn-component color="error"
@@ -131,7 +131,7 @@
         <dialog-component v-model:value="saveScriptDialogVisible" max-width="400" dark>
             <template #header>Save new script</template>
             <template #footer>
-                <btn-component color="primary" @click="saveScriptDialogVisible = false">Cancel</btn-component>
+                <btn-component color="secondary" @click="saveScriptDialogVisible = false">Cancel</btn-component>
                 <btn-component color="primary" @click="saveScript(currentScript, 'local')"
                     :disabled="loadStatus.inProgress"
                     :loading="loadStatus.inProgress"
@@ -149,7 +149,7 @@
         <dialog-component v-model:value="configDialogVisible" max-width="600" dark>
             <template #header>Settings</template>
             <template #footer>
-                <btn-component color="primary" @click="configDialogVisible = false">Close</btn-component>
+                <btn-component color="secondary" @click="configDialogVisible = false">Close</btn-component>
             </template>
             <div>
                 <div class="dce-dialog--option">

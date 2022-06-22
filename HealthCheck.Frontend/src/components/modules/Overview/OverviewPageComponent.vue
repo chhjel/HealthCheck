@@ -92,14 +92,14 @@
         <dialog-component v-model:value="eventDetailsDialogState" width="700">
             <template #header></template>
             <template #footer>
-                <btn-component flat color="secondary" @click="eventDetailsDialogState = false">
+                <btn-component color="secondary" @click="eventDetailsDialogState = false">
                     Close
                 </btn-component>
                 <btn-component @click="showDeleteSingleDialog(selectedEventForDetails)"
                     v-if="canDeleteEvents"
                     :loading="deleteStatus.inProgress"
                     :disabled="deleteStatus.inProgress"
-                    flat color="error">
+                    color="error">
                     <icon-component size="20px" class="mr-2">clear</icon-component>
                     Delete
                 </btn-component>
@@ -112,7 +112,7 @@
         <dialog-component v-model:value="deleteAllDialogVisible" max-width="350">
             <template #header></template>
             <template #footer>
-                <btn-component color="primary" @click="deleteAllDialogVisible = false">Cancel</btn-component>
+                <btn-component color="secondary" @click="deleteAllDialogVisible = false">Cancel</btn-component>
                 <btn-component color="error" @click="clearAllEvents">Clear all</btn-component>
             </template>
             <div>
@@ -123,7 +123,7 @@
         <dialog-component v-model:value="deleteSingleDialogVisible" max-width="550">
             <template #header>{{ deleteSingleDialogTitle }}</template>
             <template #footer>
-                <btn-component color="primary" @click="deleteSingleDialogVisible = false">Cancel</btn-component>
+                <btn-component color="secondary" @click="deleteSingleDialogVisible = false">Cancel</btn-component>
                 <btn-component color="error" @click="deleteSingleEvent">Delete</btn-component>
             </template>
             <div>
