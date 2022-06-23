@@ -37,7 +37,8 @@
                 <div v-for="(item, iIndex) in filteredOptionItems"
                     :key="`${id}-item-${iIndex}`"
                     class="select-component__dropdown__item" tabindex="0"
-                    @click.stop.prevent="onDropdownItemClicked(item)">
+                    @click.stop.prevent="onDropdownItemClicked(item)"
+                    :class="dropdownItemClasses(item)">
                     <icon-component v-if="isMultiple && valueIsSelected(item.value)" class="mr-1">check_box</icon-component>
                     <icon-component v-if="isMultiple && !valueIsSelected(item.value)" class="mr-1">check_box_outline_blank</icon-component>
                     {{ item.text }}
@@ -88,7 +89,7 @@ export default class SelectComponent extends Vue
     @Prop({ required: false, default: '- Nothing selected -' })
     placeholder!: string;
     
-    @Prop({ required: false, default: '- No data -' })
+    @Prop({ required: false, default: '- No matches -' })
     noDataText!: string;
     
     @Prop({ required: false, default: 'value' })
@@ -296,6 +297,14 @@ export default class SelectComponent extends Vue
 
     valueIsSelected(val: string): boolean { return this.selectedValues.includes(val); }
 
+    dropdownItemClasses(item: Item): any {
+        let classes: any = {};
+        if (!this.isMultiple && this.valueIsSelected(item.value)) {
+            classes['selected'] = true;
+        }
+        return classes;
+    }
+
     tryAddCustomValue(): void {
         if (!this.isAllowCustom) return;
         else if (this.filter.trim().length == 0) return;
@@ -420,7 +429,7 @@ export default class SelectComponent extends Vue
 
 <style lang="scss">
 .select-component {
-    position: relative;
+    /* position: relative; */
     &__input {
         display: flex;
         flex-wrap: wrap;
@@ -464,6 +473,10 @@ export default class SelectComponent extends Vue
         padding: 5px;
         display: flex;
         align-items: center;
+
+        &.selected {
+            font-weight: 600;
+        }
     }
     &__textInput-wrapper {
         flex: 1;
