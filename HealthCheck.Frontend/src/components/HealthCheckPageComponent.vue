@@ -384,13 +384,18 @@ export default class HealthCheckPageComponent extends Vue {
         padding: 5px 20px;
         margin: 0 auto;
         max-width: 1280px;
-        width: 100%;
+        width: calc(100% - 40px); // - padding (20+20)
 
         &.has-menu {
             padding-left: 300px;
+            width: calc(100% - 320px); // - padding (300+20)
         }
-        @media (min-width: 960px) {
-            // todo: menu on top instead of pushing content
+        @media (max-width: 960px) {
+            &.has-menu {
+                padding-left: 20px;
+                width: calc(100% - 40px); // - padding (20+20)
+                opacity: 0.7;
+            }
         }
     }
 }

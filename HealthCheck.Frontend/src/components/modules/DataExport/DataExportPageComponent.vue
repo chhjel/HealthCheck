@@ -169,6 +169,7 @@
             <div v-if="selectedStream && selectedItemId == null">
                 <a href="#" class="right" style="font-size: 13px;"
                     v-if="items.length > 0"
+                    title="Use to optionally truncate the displayed values if they are too long."
                     @click.stop.prevent="limitTableCellLengths = !limitTableCellLengths">{{ tableLengthLimitText }}</a>
                 <p v-if="hasQueriedAtLeastOnce">{{ resultCountText }}</p>
                 <div style="clear: both"></div>

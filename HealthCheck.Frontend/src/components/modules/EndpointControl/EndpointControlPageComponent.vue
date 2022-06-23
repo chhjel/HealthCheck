@@ -32,6 +32,7 @@
                 class="mb-3 ml-2 right">
                 Latest requests
             </btn-component>
+            <div style="clear:both"></div>
 
             <block-component
                 v-for="(rule, cindex) in rules"
