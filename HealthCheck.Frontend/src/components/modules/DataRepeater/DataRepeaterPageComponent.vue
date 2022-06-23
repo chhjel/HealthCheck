@@ -23,8 +23,8 @@
             
             <div class="content-root">
                 <div v-if="selectedStream && selectedItemId == null">
-                    <h2 v-if="selectedStream.StreamItemsName">{{ selectedStream.StreamItemsName }}</h2>
-                    <p v-if="selectedStream.Description" v-html="selectedStream.Description"></p>
+                    <h2 v-if="selectedStream.StreamItemsName" class="mb-3">{{ selectedStream.StreamItemsName }}</h2>
+                    <p v-if="selectedStream.Description" class="mb-3" v-html="selectedStream.Description"></p>
 
                     <div class="data-repeater-filters mb-2">
                         <text-field-component
@@ -53,6 +53,7 @@
                             @keyup.enter="onFilterChanged"
                             :items="tagPresets"
                             label="Tags"
+                            placeholder="All tags included"
                             multiple
                             clearable
                             allowInput allowCustom
@@ -636,7 +637,7 @@ export default class DataRepeaterPageComponent extends Vue {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: flex-end;
 }
 .data-repeater-list-item {
     cursor: pointer;

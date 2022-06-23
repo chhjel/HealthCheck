@@ -318,7 +318,8 @@ export default class HealthCheckPageComponent extends Vue {
 
 <style scoped lang="scss">
 .active-tab {
-    font-weight: 900;
+    font-weight: 900 !important;
+    background-color: var(--color--accent-lighten1) !important;
 }
 .toolbar-prefix {
     display: flex;
@@ -390,6 +391,7 @@ export default class HealthCheckPageComponent extends Vue {
             padding-left: 300px;
             width: calc(100% - 320px); // - padding (300+20)
         }
+        // todo: overlay w/ click to close instead of opacity change only
         @media (max-width: 960px) {
             &.has-menu {
                 padding-left: 20px;
