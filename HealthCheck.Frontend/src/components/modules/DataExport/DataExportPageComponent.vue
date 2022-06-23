@@ -150,6 +150,7 @@
                     :pageSize="pageSize"
                     v-model:value="pageIndex"
                     @change="onPageIndexChanged"
+                    :disabled="isLoading"
                     :asIndex="true"
                     class="mb-2 mt-2"
                     />
@@ -166,10 +167,13 @@
             </alert-component>
 
             <div v-if="selectedStream && selectedItemId == null">
+                <a href="#" class="right" style="font-size: 13px;"
+                    v-if="items.length > 0"
+                    @click.stop.prevent="limitTableCellLengths = !limitTableCellLengths">{{ tableLengthLimitText }}</a>
                 <p v-if="hasQueriedAtLeastOnce">{{ resultCountText }}</p>
                 <div style="clear: both"></div>
                 <div class="table-overflow-wrapper" v-if="items.length > 0">
-                    <table class="v-table theme--light">
+                    <table class="table" :class="tableClasses">
                         <thead>
                             <draggable
                                 v-model="headers"
@@ -200,6 +204,7 @@
                     :pageSize="pageSize"
                     v-model:value="pageIndex"
                     @change="onPageIndexChanged"
+                    :disabled="isLoading"
                     :asIndex="true"
                     class="mb-2 mt-2"
                     />
@@ -578,6 +583,7 @@ export default class DataExportPageComponent extends Vue {
     placeholdersDialogVisible: boolean = false;
     hasQueriedAtLeastOnce: boolean = false;
     currentPlaceholderDialogTarget: string | null = null;
+    limitTableCellLengths: boolean = true;
 
     // Filter/pagination
     pageIndex: number = 0;
@@ -709,6 +715,16 @@ export default class DataExportPageComponent extends Vue {
             (<any>d)['Href'] = "/woot";
             return d;
         });
+    }
+
+    get tableClasses(): any {
+        let classes: any = {};
+        if (this.limitTableCellLengths) classes['limit-data'] = true;
+        return classes;
+    }
+
+    get tableLengthLimitText(): string {
+        return this.limitTableCellLengths ? 'Show full value lengths' : 'Limit value lengths';
     }
 
     get resultCountText(): string {
@@ -1302,6 +1318,9 @@ export default class DataExportPageComponent extends Vue {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    border-left: 2px solid var(--color--accent-base);
+    padding-left: 10px;
+    margin-bottom: 10px;
     .export-parameter-item {
         min-width: 48%;
         margin-bottom: 5px;
