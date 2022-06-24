@@ -2,8 +2,8 @@
     <div class="dialog-component" :class="rootClasses" v-show="localValue">
         <div class="dialog-component_modal_wrapper" @click.self.stop.prevent="onClickOutside">
             <div class="dialog-component_modal" :style="dialogStyle">
-                <div class="dialog-component_modal_cross" @click.self.stop.prevent="onClickClose">X</div>
-                <div class="dialog-component_modal_header" v-if="hasHeaderSlot">
+                <div class="dialog-component_modal_header">
+                    <div class="dialog-component_modal_cross" @click.self.stop.prevent="onClickClose">X</div>
                     <slot name="header"></slot>
                 </div>
                 <div class="dialog-component_modal_content" :style="contentStyle">
@@ -74,7 +74,6 @@ export default class DialogComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
-    hasHeaderSlot() { return !!this.$slots.header; }
     hasFooterSlot() { return !!this.$slots.footer; }
 
     ////////////////
@@ -97,6 +96,11 @@ export default class DialogComponent extends Vue {
         let widthValue = this.width?.toString() || '';
         if (this.width && widthValue && !isNaN(Number(widthValue))) {
             widthValue = `${widthValue}px`;
+        }
+
+        if (this.isFullscreen) {
+            maxWidthValue = null;
+            widthValue = null;
         }
 
         let style = {
@@ -201,6 +205,8 @@ export default class DialogComponent extends Vue {
             max-width: 100%;
             /* max-height: calc(100vh - 40px - 40px); */
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
 
             &_header {
                 display: flex;
@@ -223,6 +229,7 @@ export default class DialogComponent extends Vue {
                 overflow-x: hidden;
                 max-height: calc(100vh - 190px);
                 padding: 15px 30px;
+                flex: 1;
             }
         }
         .dialog-component_modal_cross {
@@ -249,6 +256,7 @@ export default class DialogComponent extends Vue {
         .dialog-component_modal {
             margin-bottom: 0;
             width: 100%;
+            height: 100%;
         }
 
         .dialog-component_modal_wrapper {

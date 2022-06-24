@@ -1,6 +1,6 @@
 <template>
     <div class="expansion-panel-component" :class="rootClasses" v-set-max-height-from-children>
-        <div class="expansion-panel_header" @click="localValue = !localValue">
+        <div class="expansion-panel_header" @click="localValue = !localValue" v-if="showHeader">
             <slot name="header"></slot>
         </div>
         <div class="expansion-panel_content">
@@ -22,6 +22,12 @@ export default class ExpansionPanelComponent extends Vue {
     @Prop({ required: true })
     value!: boolean;
 
+    @Prop({ required: false, default: true })
+    showHeader!: boolean;
+
+    @Prop({ required: false, default: false })
+    cleanMode!: boolean;
+
     localValue: boolean = false;
 
     //////////////////
@@ -37,7 +43,8 @@ export default class ExpansionPanelComponent extends Vue {
     //////////////
     get rootClasses(): any {
         return {
-             'open': this.value
+             'open': this.value,
+             'clean': this.cleanMode
         };
     }
 
@@ -68,12 +75,15 @@ export default class ExpansionPanelComponent extends Vue {
 
 <style scoped lang="scss">
 .expansion-panel-component {
-    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
     border-radius: 4px;
     font-size: 14px;
     transition: all .05s ease-in-out;
     overflow: hidden;
     min-height: 42px;
+
+    &:not(.clean) {
+        box-shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
+    }
 
     .expansion-panel_header {
         cursor: pointer;

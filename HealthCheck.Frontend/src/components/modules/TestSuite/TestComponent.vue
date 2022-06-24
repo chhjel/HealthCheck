@@ -41,9 +41,7 @@
             <!-- DESCRIPTION -->
             <div v-if="hasDescription">
               <div class="mt-3"></div>
-              <h4 class="subheading"
-                :class="{ 'mb-4':  (showTestResult && test.Parameters.length == 0) }"
-                v-html="test.Description"></h4>
+              <h4 class="subheading mb-4" v-html="test.Description"></h4>
             </div>
             
             <!-- PARAMETERS -->

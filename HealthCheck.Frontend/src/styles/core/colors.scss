@@ -60,3 +60,8 @@
 @include color_setup('success', '--color--success', $flatLightenLevel: 5);
 @include color_setup('warning', '--color--warning', $flatLightenLevel: 5);
 @include color_setup('info', '--color--info', $flatLightenLevel: 4);
+
+.accent.hoverable:hover.outline {
+	border-color: var(--color--accent-lighten2);
+	background-color: var(--color--accent-lighten1);;
+}

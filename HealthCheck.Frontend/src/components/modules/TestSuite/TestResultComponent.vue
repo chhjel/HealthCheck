@@ -3,7 +3,7 @@
     <div>
         <icon-component :color="testResultIconColor"
           v-if="showResultStatusIcon"
-          class="mr-1">{{testResultIcon}}</icon-component>
+          class="mr-1 left">{{testResultIcon}}</icon-component>
         
         <div class="result-message" v-if="showResultMessage">{{ this.testResult.Message }}</div>
 
@@ -16,6 +16,8 @@
           class="mt-2 test-result-expansion-panel"
           :class="{ 'clean-mode': testResult.DisplayClean }"
           v-if="showTestResultData"
+          :showHeader="!testResult.DisplayClean"
+          :cleanMode="testResult.DisplayClean"
           v-model:value="dataExpandedState">
             <template #header v-if="testResult.AllowExpandData && !testResult.DisplayClean">{{ testResultDataTitle }}</template>
             <template #content>
