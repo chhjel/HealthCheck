@@ -165,11 +165,16 @@
 
 				<h3 class="ok">expansion-panel-component</h3>
 				<!-- ExpansionPanelComponent -->
-				<expansion-panel-component v-model:value="ExpansionPanelComponent_value">
-                    <template #header>Header here</template>
-                    <template #content>Content here</template>
+				<expansion-panel-component v-model:value="ExpansionPanelComponent_value" class="mb-2">
+                    <template #header>Header A here</template>
+                    <template #content>Content A here</template>
 				</expansion-panel-component>
 				<code>{{ ExpansionPanelComponent_value }}</code>
+				<expansion-panel-component :value="!ExpansionPanelComponent_value" class="ma-2">
+                    <template #header>Header B here</template>
+                    <template #content>Content B here</template>
+				</expansion-panel-component>
+				<code>{{ !ExpansionPanelComponent_value }}</code>
 				<hr />
 
 				<h3 class="ok">progress-linear-component</h3>

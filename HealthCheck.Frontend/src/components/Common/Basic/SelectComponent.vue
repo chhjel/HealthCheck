@@ -345,6 +345,8 @@ export default class SelectComponent extends Vue
         const dropdownHeight = this.dropdownElement.clientHeight + 2 /* 2=border */;
         const dropdownTopY = this.wrapperElement.getBoundingClientRect().top;
         const dropdownBottomY = dropdownTopY + dropdownHeight;
+        // todo: parent must be relative for the dropdown menu to follow it.
+        // but when relative, it does not overflow out of overflow:hidden..
         if (dropdownBottomY >= vh) {
             this.dropdownElement.style.top = (-dropdownHeight + this.wrapperElement.offsetTop) + 'px';
         }
