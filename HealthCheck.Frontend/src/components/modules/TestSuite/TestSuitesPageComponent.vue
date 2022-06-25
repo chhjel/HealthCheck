@@ -104,9 +104,6 @@ export default class TestSuitesPageComponent extends Vue {
     
     @Ref() readonly filterableList!: FilterableListComponent;
 
-    // UI STATE
-    testSetFilterText: string = "";
-
     sets: Array<TestSetViewModel> = [];
     groupOptions: Array<GroupOptionsViewModel> = [];
     menuGroupOrders: { [key:string]:number } | null = null;
@@ -245,6 +242,22 @@ export default class TestSuitesPageComponent extends Vue {
     onMenuItemClicked(item: FilterableListItem): void {
         const set: TestSetViewModel = item.data;
         this.setActiveSet(set);
+        
+        let testNameToScrollTo: string | null = null;
+        if (this.filterableList.filterInputText() && this.filterableList) {
+            const filterInput = this.filterableList.filterInputText();
+            const matchingName = set.Tests.filter(t => t.Name?.toLowerCase()?.includes(filterInput?.toLowerCase()))[0];
+            const matchingDescriptions = set.Tests.filter(t => t.Description?.toLowerCase()?.includes(filterInput?.toLowerCase()))[0];
+            testNameToScrollTo = matchingName?.Name || matchingDescriptions?.Name || '';
+
+            if (testNameToScrollTo) {
+                setTimeout(() => {
+                    const encodedTestName = UrlUtils.EncodeHashPart(testNameToScrollTo);
+                    this.setActiveSet(set, encodedTestName)
+                    this.scrollToTest(encodedTestName);
+                }, 100);
+            }
+        }
     }
 
     onMenuItemMiddleClicked(item: FilterableListItem): void {

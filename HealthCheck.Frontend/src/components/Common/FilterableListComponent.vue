@@ -246,11 +246,9 @@ export default class FilterableListComponent extends Vue {
         return href;
     }
 
-    public setSelectedItem(data: any): void
-    {
-        this.selectedItemData = data;
-    }
-
+    public filterInputText(): string { return this.filterText; }
+    public setSelectedItem(data: any): void { this.selectedItemData = data; }
+    public getDisplayedItems(): Array<FilterableListItem> { return this.items.filter(x => this.itemFilterMatches(x)); }
     public setSelectedItemByFilter(filter: ((data: any) => boolean)): void
     {
         const item = this.items.filter(x => filter(x))[0];
