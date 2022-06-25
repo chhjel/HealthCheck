@@ -3,7 +3,7 @@
     <div>
       <div v-if="fileData">
         <p v-if="fileData.Description" class="mb-1">{{ fileData.Description }}</p>
-        <btn-component :href="downloadUrl" target="_blank" color="secondary">
+        <btn-component :href="downloadUrl" target="_blank">
           <icon-component left dark>file_download</icon-component>
           {{ fileData.Name }}
         </btn-component>
