@@ -361,7 +361,7 @@ export default class TestComponent extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .test-item {
   /* border-radius: 0 25px 0 25px; */
   position: relative;
@@ -381,6 +381,7 @@ export default class TestComponent extends Vue {
   padding-left: 24px;
   border-radius: 0 25px 0 0;
   cursor: pointer;
+  align-items: center;
 }
 .test-header.no-details {
   border-radius: 0 25px 0 25px;
@@ -398,7 +399,7 @@ export default class TestComponent extends Vue {
 .test-name {
   flex-grow: 1;
   font-size: 22px;
-  margin-top: 10px;
+  /* margin-top: 10px; */
 }
 .test-duration {
   padding-right: 10px;
@@ -414,17 +415,20 @@ export default class TestComponent extends Vue {
   margin-right: 8px;
   padding-top: 5px;
   align-self: center;
-}
-.test-status-label.label-success {
-  color: #317711;
-  background-color: #c7e6c8;
-}
-.test-status-label.label-warning {
-  color: #df6d03;
-  background-color: #f3d5b2;
-}
-.test-status-label.label-error {
-  color: #c20404;
-  background-color: #eeb2b2;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  &.label-success {
+    color: #317711;
+    background-color: #c7e6c8;
+  }
+  &.label-warning {
+    color: #df6d03;
+    background-color: #f3d5b2;
+  }
+  &.label-error {
+    color: #c20404;
+    background-color: #eeb2b2;
+  }
 }
 </style>

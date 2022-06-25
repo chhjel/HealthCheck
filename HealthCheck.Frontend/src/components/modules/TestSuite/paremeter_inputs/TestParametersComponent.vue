@@ -1,27 +1,23 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/TestParametersComponent.vue -->
 <template>
-    <div>
-        <div grid-list-lg class="parameter-container">
-          <div row wrap>
-              <div xs12 sm12 :md6="allowMediumSize(parameter)" :lg3="allowSmallSize(parameter)"
-                  v-for="(parameter, index) in filteredParameters"
-                  :key="`test-${test.Id}-parameter`+index"
-                  class="parameter-block"
-                  v-show="!parameter.Hidden">
+    <div class="parameter-container flex layout">
+          <div v-for="(parameter, index) in filteredParameters"
+              :key="`test-${test.Id}-parameter`+index"
+              class="parameter-block"
+              :class="parameterClasses(parameter)"
+              v-show="!parameter.Hidden">
 
-                  <backend-input-component 
-                      v-model:value="parameter.Value"
-                      :forceType="cleanType(parameter.Type)"
-                      :forceName="parameter.Name"
-                      :forceDescription="parameter.Description"
-                      :isCustomReferenceType="parameter.IsCustomReferenceType"
-                      :config="createConfig(parameter, index)"
-                      :parameterDetailContext="test.Id"
-                      :referenceValueFactoryConfig="parameter.ReferenceValueFactoryConfig"
-                      @isAnyJson="onIsAnyJson(parameter)"
-                      :feedback="parameter.Feedback" />
-              </div>
-          </div>
+              <backend-input-component 
+                  v-model:value="parameter.Value"
+                  :forceType="cleanType(parameter.Type)"
+                  :forceName="parameter.Name"
+                  :forceDescription="parameter.Description"
+                  :isCustomReferenceType="parameter.IsCustomReferenceType"
+                  :config="createConfig(parameter, index)"
+                  :parameterDetailContext="test.Id"
+                  :referenceValueFactoryConfig="parameter.ReferenceValueFactoryConfig"
+                  @isAnyJson="onIsAnyJson(parameter)"
+                  :feedback="parameter.Feedback" />
         </div>
     </div>
 </template>
@@ -108,6 +104,16 @@ export default class TestParametersComponent extends Vue {
     get filteredParameters(): Array<TestParameterViewModel> {
       return this.test.Parameters;//.filter(x => !x.Hidden); //todo: v-show instead
     }
+
+    parameterClasses(parameter: TestParameterViewModel): Array<string> {
+      let classes: Array<string> = [
+        'xs12'
+      ];
+      if (this.allowMediumSize(parameter)) classes.push('md6');
+      if (this.allowSmallSize(parameter)) classes.push('lg3');
+      // xs-12 sm-12 :md-6="allowMediumSize(parameter)" :lg-3="allowSmallSize(parameter)"
+      return classes;
+    }
 }
 </script>
 
@@ -119,5 +125,6 @@ export default class TestParametersComponent extends Vue {
 .parameter-block {
   padding-right: 40px !important;
   padding-left: 0 !important;
+  margin-bottom: 10px;
 }
 </style>
