@@ -54,9 +54,7 @@ export default class TooltipComponent extends Vue {
 
 <style scoped lang="scss">
 .tooltip-component {
-	/* border: 2px solid red;
-	padding: 5px;
-	margin: 5px; */
+    display: contents;
     &.disabled { }
 }
 </style>
