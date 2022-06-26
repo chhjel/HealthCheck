@@ -26,7 +26,7 @@
                         ref="filterInputElement" />
                     <icon-component v-if="isClearable" class="input-icon" :class="clearableIconClasses"
                         title="Clear"
-                        @click="clear">clear</icon-component>
+                        @click.stop.prevent="clear">clear</icon-component>
                 </div>
                 <span class="select-component__placeholder input-placeholder"
                     v-if="placeholderText && !showInput">{{ placeholderText }}</span>
