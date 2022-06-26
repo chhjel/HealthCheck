@@ -4,7 +4,7 @@
         <switch-component v-if="!isNullable"
             v-model:value="localValue" 
             :label="label"
-            color="secondary"
+            color="primary"
             class="parameter-checkbox pt-0"
             :disabled="readonly"
         ></switch-component>

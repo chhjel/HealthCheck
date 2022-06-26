@@ -2,88 +2,86 @@
 <template>
     <div>
         <div class="content-root overview-page-content">
-            <div align-content-center wrap>
-                <!-- LOAD ERROR -->
-                <alert-component
-                    :value="loadStatus.failed"
-                    type="error">
-                {{ loadStatus.errorMessage }}
-                </alert-component>
+            <!-- LOAD ERROR -->
+            <alert-component
+                :value="loadStatus.failed"
+                type="error">
+            {{ loadStatus.errorMessage }}
+            </alert-component>
 
-                <!-- PROGRESS BAR -->
-                <progress-linear-component
-                    v-if="loadStatus.inProgress"
-                    indeterminate color="success"></progress-linear-component>
-                
-                <!-- SUMMARY -->
-                <div sm12 v-if="showContent" class="mb-4" >
-                    <div style="display: flex">
-                        <h1 class="mb-2" style="flex: 1">Current status</h1>
-                        
-                        <btn-component flat v-if="options.Options.ShowFilter && !showFilter" @click="showFilter = !showFilter">Filter data..</btn-component>
-                        <btn-component flat v-if="options.Options.ShowFilter && showFilter" @click="showFilter = !showFilter">Hide filter</btn-component>
-
-                        <btn-component @click="toggleAutoRefresh"
-                            :loading="deleteStatus.inProgress"
-                            :disabled="deleteStatus.inProgress"
-                            color="secondary"
-                            flat class="mr-0">
-                            <icon-component class="mr-2" v-if="!autoRefreshEnabled">update_disabled</icon-component>
-                            <progress-circular-component
-                                v-if="autoRefreshEnabled"
-                                :size="20"
-                                :width="3"
-                                :value="autoRefreshValue"
-                                color="primary"
-                                style="margin-right: 10px;"
-                                ></progress-circular-component>
-                            Auto-refresh
-                        </btn-component>
+            <!-- PROGRESS BAR -->
+            <progress-linear-component
+                v-if="loadStatus.inProgress"
+                indeterminate color="success"></progress-linear-component>
             
-                        <div v-if="canDeleteEvents">
-                            <btn-component @click="deleteAllDialogVisible = true"
-                                :loading="deleteStatus.inProgress"
-                                :disabled="deleteStatus.inProgress || !siteEvents || siteEvents.length == 0"
-                                flat color="error" class="mr-0">
-                                <icon-component class="mr-2">clear</icon-component>
-                                Delete all
-                            </btn-component>
-                        </div>
+            <!-- SUMMARY -->
+            <div v-if="showContent" class="mb-4" >
+                <div style="display: flex">
+                    <h1 class="mb-2" style="flex: 1">Current status</h1>
+                    
+                    <btn-component flat v-if="options.Options.ShowFilter && !showFilter" @click="showFilter = !showFilter">Filter data..</btn-component>
+                    <btn-component flat v-if="options.Options.ShowFilter && showFilter" @click="showFilter = !showFilter">Hide filter</btn-component>
+
+                    <btn-component @click="toggleAutoRefresh"
+                        :loading="deleteStatus.inProgress"
+                        :disabled="deleteStatus.inProgress"
+                        color="secondary"
+                        flat class="mr-0">
+                        <icon-component class="mr-2" v-if="!autoRefreshEnabled">update_disabled</icon-component>
+                        <progress-circular-component
+                            v-if="autoRefreshEnabled"
+                            :size="20"
+                            :width="3"
+                            :value="autoRefreshValue"
+                            color="primary"
+                            style="margin-right: 10px;"
+                            ></progress-circular-component>
+                        Auto-refresh
+                    </btn-component>
+        
+                    <div v-if="canDeleteEvents">
+                        <btn-component @click="deleteAllDialogVisible = true"
+                            :loading="deleteStatus.inProgress"
+                            :disabled="deleteStatus.inProgress || !siteEvents || siteEvents.length == 0"
+                            flat color="error" class="mr-0">
+                            <icon-component class="mr-2">clear</icon-component>
+                            Delete all
+                        </btn-component>
                     </div>
-                
-                    <!-- CUSTOM HTML -->
-                    <div class="mb-2 mt-2" v-if="options.Options.CustomHtml" v-html="options.Options.CustomHtml"></div>
+                </div>
+            
+                <!-- CUSTOM HTML -->
+                <div class="mb-2 mt-2" v-if="options.Options.CustomHtml" v-html="options.Options.CustomHtml"></div>
 
-                    <!-- FILTER -->
-                    <div v-if="options.Options.ShowFilter" class="mb-2">
-                        <input-component v-if="showFilter" v-model:value="filterInternal" name="Filter" />
-                    </div>
-
-                    <status-component :type="summaryType" :text="summaryText" />
-
-                    <site-events-summary-component
-                        v-if="currentEvents.length > 0"
-                        :events="currentEvents"
-                        v-on:eventClicked="showEventDetailsDialog" />
+                <!-- FILTER -->
+                <div v-if="options.Options.ShowFilter" class="mb-2">
+                    <input-component v-if="showFilter" v-model:value="filterInternal" name="Filter" />
                 </div>
 
-                <!-- TIMELINE -->
-                <div sm12 v-if="showContent" class="mb-4">
-                    <h2>Past events</h2>
-                    <event-timeline-component
-                        :events="timelineEvents"
-                        v-on:eventClicked="showEventDetailsDialog"
-                        class="timeline" />
-                </div>
+                <status-component :type="summaryType" :text="summaryText" />
 
-                <!-- CALENDAR -->
-                <div sm12 v-if="showContent">
-                    <h2>History</h2>
-                    <event-calendar-component
-                        :events="calendarEvents"
-                        v-on:eventClicked="showEventDetailsDialog"
-                        class="calendar" />
-                </div>
+                <site-events-summary-component
+                    v-if="currentEvents.length > 0"
+                    :events="currentEvents"
+                    v-on:eventClicked="showEventDetailsDialog" />
+            </div>
+
+            <!-- TIMELINE -->
+            <div v-if="showContent" class="mb-4">
+                <h2>Past events</h2>
+                <event-timeline-component
+                    :events="timelineEvents"
+                    v-on:eventClicked="showEventDetailsDialog"
+                    class="timeline" />
+            </div>
+
+            <!-- CALENDAR -->
+            <div v-if="showContent">
+                <h2>History</h2>
+                <event-calendar-component
+                    :events="calendarEvents"
+                    v-on:eventClicked="showEventDetailsDialog"
+                    class="calendar" />
             </div>
         </div>
 

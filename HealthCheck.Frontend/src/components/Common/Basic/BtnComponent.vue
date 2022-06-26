@@ -75,7 +75,7 @@ export default class BtnComponent extends Vue {
     //////////////
     get rootClasses(): any {
         let classes = {
-             'hoverable': !this.disabled,
+             'hoverable': !this.isDepressed,
              'flat': this.isFlat,
              'small': this.isSmall,
              'icon': this.isIcon,

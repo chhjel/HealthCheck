@@ -76,7 +76,7 @@
                         ></select-component>
                 </div>
             
-                <div class="data-export-actions" v-if="!isSimpleExportMode">
+                <div class="data-export-actions mt-2" v-if="!isSimpleExportMode">
                     <btn-component :disabled="isLoading" v-if="hasAccessToQueryPreset || hasAccessToExport" @click="onLoadPresetsClicked">
                         <icon-component size="20px" class="mr-2">file_upload</icon-component>Load preset..
                     </btn-component>

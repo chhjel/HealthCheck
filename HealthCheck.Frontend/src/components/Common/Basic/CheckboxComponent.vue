@@ -87,6 +87,13 @@ export default class CheckboxComponent extends Vue {
 .checkbox-component {
 	padding: 5px;
 	margin: 5px;
+    &:not(.disabled) {
+        cursor: pointer;
+        input, label {
+            cursor: pointer;
+        }
+    }
+
     &.disabled { }
     &.indeterminate { }
 }
