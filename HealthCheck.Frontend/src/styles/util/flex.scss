@@ -12,6 +12,10 @@
 			box-sizing: border-box;
 		}
 	}
+
+	&.flex-end { justify-content: flex-end; }
+	&.flex-wrap { flex-wrap: wrap; }
+	&.flex-wrap-reverse { flex-wrap: wrap-reverse; }
 }
 
 .spacer { flex: 1; }

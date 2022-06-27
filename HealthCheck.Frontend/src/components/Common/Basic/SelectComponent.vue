@@ -248,6 +248,8 @@ export default class SelectComponent extends Vue
         };
     }
 
+    get allowNullValue(): boolean { return this.optionItems.some(x => x.value == null); }
+
     get isLoading(): boolean { return ValueUtils.IsToggleTrue(this.loading); }
     get isDisabled(): boolean { return ValueUtils.IsToggleTrue(this.disabled) || ValueUtils.IsToggleTrue(this.readonly); }
     get isReadonly(): boolean { return ValueUtils.IsToggleTrue(this.readonly) || ValueUtils.IsToggleTrue(this.disabled); }
@@ -289,10 +291,12 @@ export default class SelectComponent extends Vue
         }
         else {
             if (this.selectedValues.length == 0 && this.isNullable) emittedValue = null;
+            else if (this.allowNullValue) emittedValue = this.selectedValues[0];
             else emittedValue = this.selectedValues[0] || '';
         }
         this.$emit('update:value', emittedValue);
         this.$emit('change', emittedValue);
+        this.$emit('blur', emittedValue);
     }
 
     valueIsSelected(val: string): boolean { return this.selectedValues.includes(val); }
@@ -398,7 +402,13 @@ export default class SelectComponent extends Vue
             this.selectedValues = this.value;
         }
         else {
-            this.selectedValues = !!this.value ? [ this.value ] : [];
+            // Value is not null, set as selected
+            if (this.value != null) {
+                this.selectedValues = [ this.value ];
+            // Value is null, set as value if a possible choice
+            } else {
+                this.selectedValues = this.allowNullValue ? [ this.value ] : [];
+            }
         }
 
         if (this.useInputOnly) {

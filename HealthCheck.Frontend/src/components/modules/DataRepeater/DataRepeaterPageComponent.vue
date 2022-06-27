@@ -39,15 +39,14 @@
                         ></text-field-component>
                     </div>
                     <div class="data-repeater-filters mb-2 flex layout">
-                        <checkbox-component
-                            :value="filterRetryAllowedBinding"
-                            :indeterminate="filterRetryAllowed == null" 
-                            :label="filterRetryAllowedLabel"
-                            :disabled="isLoading"
-                            @click="setNextFilterRetryAllowedState"
-                            color="secondary"
-                            class="xs12 md4 mb-2 mt-2"
-                        ></checkbox-component>
+                        <select-component
+                            v-model:value="filterRetryAllowedBinding"
+                            @blur="onFilterChanged"
+                            :items="retryableChoices"
+                            label="Included"
+                            class="filter-input xs12 md4"
+                            :readonly="isLoading"
+                            ></select-component>
                         <select-component
                             v-model:value="filterTags"
                             @blur="onFilterChanged"
@@ -64,22 +63,25 @@
                             ></select-component>
                     </div>
 
-                    <div class="pagination-and-actions">
-                        <btn-component @click="loadCurrentStreamItems(true)" :disabled="isLoading" class="right">
-                            <icon-component size="20px" class="mr-2">refresh</icon-component>Refresh
-                        </btn-component>
-                        <btn-component @click="batchActionsDialogVisible = true" :disabled="isLoading" v-if="hasBatchActions" class="right">
-                            <icon-component size="20px" class="mr-2">checklist</icon-component>Batch actions
-                        </btn-component>
+                    <div class="pagination-and-actions flex layout">
                         <paging-component
                             :count="totalResultCount"
                             :pageSize="pageSize"
                             v-model:value="pageIndex"
                             @change="onPageIndexChanged"
                             :asIndex="true"
-                            class="mb-2 mt-2"
+                            class="mb-2 mt-2 xs12 md7"
                             style="padding-top: 6px"
                             />
+                        <div class="spacer"></div>
+                        <div class="flex flex-end flex-wrap">
+                            <btn-component @click="loadCurrentStreamItems(true)" :disabled="isLoading">
+                                <icon-component size="20px" class="mr-2">refresh</icon-component>Refresh
+                            </btn-component>
+                            <btn-component @click="batchActionsDialogVisible = true" :disabled="isLoading" v-if="hasBatchActions">
+                                <icon-component size="20px" class="mr-2">checklist</icon-component>Batch actions
+                            </btn-component>
+                        </div>
                     </div>
                 </div>
 
@@ -114,11 +116,11 @@
                             <span class="data-repeater-list-item--icon"
                                 title="Can be attempted retried"
                                 style="cursor: help;" v-if="item.AllowRetry">
-                                <icon-component>replay</icon-component></span>
+                                <icon-component size="22px" color="#00000033">replay</icon-component></span>
                             <span class="data-repeater-list-item--icon"
                                 title="Expires soon"
                                 style="cursor: help;" v-if="item.ExpiresAt && expiresSoon(item.ExpiresAt)">
-                                <icon-component>timer</icon-component></span>
+                                <icon-component size="22px" color="#00000033">timer</icon-component></span>
 
                             <div class="data-repeater-list-item--tags">
                                 <div class="data-repeater-list-item--tag"
@@ -237,11 +239,15 @@ export default class DataRepeaterPageComponent extends Vue {
     pageIndex: number = 0;
     pageSize: number = 50;
     filterItemId: string = '';
-    filterRetryAllowed: boolean | null = null;
-    filterRetryAllowedBinding: boolean | null = null;
     filterTags: Array<string> = [];
     totalResultCount: number = 0;
     filterCache: any = {};
+    filterRetryAllowedBinding: null | 'retryable' | 'non-retryable' = null;
+    retryableChoices: Array<any> = [
+        { value: null, text: 'Retryable & non-retryable' },
+        { value: 'retryable', text: 'Retryable only' },
+        { value: 'non-retryable', text: 'Non-retryable only' }
+    ];
 
     batchActionsDialogVisible: boolean = false;
 
@@ -302,12 +308,11 @@ export default class DataRepeaterPageComponent extends Vue {
             return d;
         });
     }
-    
-    get filterRetryAllowedLabel(): string {
-        if (this.filterRetryAllowed == null) return 'Retryable & non-retryable';
-        else if (this.filterRetryAllowed == true) return 'Retryable only';
-        else return 'Non-retryable only';
-    }
+
+    get filterRetryAllowed(): boolean | null {
+        if (this.filterRetryAllowedBinding === null) return null;
+        else return this.filterRetryAllowedBinding === 'retryable';
+    };
 
     ////////////////
     //  METHODS  //
@@ -316,8 +321,7 @@ export default class DataRepeaterPageComponent extends Vue {
         this.pageIndex = 0;
         this.pageSize = 50;
         this.filterItemId = '';
-        this.filterRetryAllowed = null;
-        this.filterRetryAllowedBinding = false;
+        this.filterRetryAllowedBinding = null;
         this.tagPresets = this.selectedStream?.FilterableTags || [];
         this.filterTags = this.selectedStream?.InitiallySelectedTags || [];
     }
@@ -463,10 +467,8 @@ export default class DataRepeaterPageComponent extends Vue {
         const retryAllowed = this.$route.query.r as string | boolean;
         if (retryAllowed != null)
         {
-            this.$nextTick(() => {
-                this.filterRetryAllowed = retryAllowed == 'true' || retryAllowed == true;
-                this.filterRetryAllowedBinding = this.filterRetryAllowed;
-            });
+            this.filterRetryAllowedBinding = (retryAllowed == 'true' || retryAllowed == true)
+                ? 'retryable' : 'non-retryable';
         }
 
         const tags = this.$route.query.t;
@@ -499,8 +501,8 @@ export default class DataRepeaterPageComponent extends Vue {
 
         if (this.filterCache[streamId].r != null)
         {
-            this.filterRetryAllowed = this.filterCache[streamId].r == 'true' || this.filterCache[streamId].r == true;
-            this.filterRetryAllowedBinding = this.filterRetryAllowed;
+            this.filterRetryAllowedBinding = (this.filterCache[streamId].r == 'true' || this.filterCache[streamId].r == true)
+                ? 'retryable' : 'non-retryable';
         }
         this.filterTags = this.filterCache[streamId].t || [];
 
@@ -525,27 +527,6 @@ export default class DataRepeaterPageComponent extends Vue {
     onItemClickedMiddle(item: HCDataRepeaterStreamItemViewModel): void {
         const route = `#/dataRepeater/${this.hash(this.selectedStream?.Id||'')}/${item.Id}`;
         UrlUtils.openRouteInNewTab(route);
-    }
-
-    setNextFilterRetryAllowedState(): void {
-        if (this.isLoading)
-        {
-            return;
-        }
-        
-        this.$nextTick(() => {
-            if (this.filterRetryAllowed == null) {
-                this.filterRetryAllowed = true;
-                this.filterRetryAllowedBinding = true;
-            } else if (this.filterRetryAllowed == true) {
-                this.filterRetryAllowed = false;
-                this.filterRetryAllowedBinding = false;
-            } else {
-                this.filterRetryAllowed = null
-                this.filterRetryAllowedBinding = false;
-            }
-            this.onFilterChanged();
-        });
     }
 
     formatDate(date: Date): string {
@@ -646,7 +627,7 @@ export default class DataRepeaterPageComponent extends Vue {
     flex-direction: row;
     flex-wrap: wrap;
     padding: 5px;
-    align-items: baseline;
+    align-items: center;
     border-left: 4px solid #d5d5d5;
 
     &.retry-success {
@@ -676,11 +657,7 @@ export default class DataRepeaterPageComponent extends Vue {
     }
     &--icon {
         margin-right: 5px;
-        i {
-            height: 22px;
-            padding-top: 1px;
-            color: rgba(0,0,0,0.20);
-        }
+        margin-top: 4px;
     }
     &--timestamp {
         margin-right: 10px;
@@ -702,7 +679,7 @@ export default class DataRepeaterPageComponent extends Vue {
         flex-wrap: wrap;
     }
     &--tag {
-        padding: 3px 6px;
+        padding: 5px 6px;
         background-color: #dcdcdc;
         border-radius: 3px;
         margin-right: 5px;

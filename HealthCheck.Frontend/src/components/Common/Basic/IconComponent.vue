@@ -1,6 +1,6 @@
 <template>
     <span class="icon-component" :class="rootClasses" :style="rootStyle">
-        <span class="material-icons" :style="iconStyle"><slot></slot></span>
+        <i class="material-icons" :style="iconStyle"><slot></slot></i>
     </span>
 </template>
 
