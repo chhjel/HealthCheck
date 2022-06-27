@@ -1,6 +1,6 @@
 <template>
     <span class="icon-component" :class="rootClasses" :style="rootStyle">
-        <span class="material-icons"><slot></slot></span>
+        <span class="material-icons" :style="iconStyle"><slot></slot></span>
     </span>
 </template>
 
@@ -64,6 +64,18 @@ export default class IconComponent extends Vue {
     get rootStyle(): any {
         let style = {};
         CssUtils.setColorStyleIfNotPredefined(this.color || 'secondary', style);
+        if (this.size) {
+            style['width'] = this.size;
+            style['height'] = this.size;
+        }
+        return style;
+    }
+
+    get iconStyle(): any {
+        let style = {};
+        if (this.size) {
+            style['font-size'] = this.size;
+        }
         return style;
     }
 

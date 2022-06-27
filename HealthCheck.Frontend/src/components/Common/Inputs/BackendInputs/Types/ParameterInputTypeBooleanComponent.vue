@@ -15,7 +15,7 @@
             :label="label"
             :disabled="readonly"
             @click="setNextState"
-            color="secondary"
+            color="primary"
             class="parameter-checkbox pt-0"
         ></checkbox-component>
     </div>

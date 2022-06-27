@@ -38,7 +38,7 @@
                             :readonly="isLoading"
                         ></text-field-component>
                     </div>
-                    <div class="data-repeater-filters mb-2">
+                    <div class="data-repeater-filters mb-2 flex layout">
                         <checkbox-component
                             :value="filterRetryAllowedBinding"
                             :indeterminate="filterRetryAllowed == null" 
@@ -46,6 +46,7 @@
                             :disabled="isLoading"
                             @click="setNextFilterRetryAllowedState"
                             color="secondary"
+                            class="xs12 md4 mb-2 mt-2"
                         ></checkbox-component>
                         <select-component
                             v-model:value="filterTags"
@@ -57,7 +58,7 @@
                             multiple
                             clearable
                             allowInput allowCustom
-                            class="filter-input"
+                            class="filter-input xs12 md8"
                             style="flex:1"
                             :readonly="isLoading"
                             ></select-component>

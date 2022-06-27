@@ -12,6 +12,9 @@
 		&.color-f {
 			color: var(#{$colorBase}-base);
 		}
+		&.color-border {
+			border-color: var(#{$colorBase}-base);
+		}
 		&.outline {
 			background-color: transparent;
 			border: 2px solid var(#{$colorBase}-base);

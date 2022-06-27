@@ -1,9 +1,9 @@
 <template>
-    <div class="switch-component" :class="rootClasses">
+    <div class="switch-component" :class="rootClasses" tabindex="0" @keydown.enter="tryToggle">
         <input type="checkbox" :id="`sw-${id}`"
             v-model="localValue"
             :disabled="disabled" />
-        <span class="switch-component__toggle" @click="onToggleClick" :class="toggleClasses"></span>
+        <span class="switch-component__toggle" @click="tryToggle" :class="toggleClasses"></span>
         <label :for="`sw-${id}`" v-if="label">{{ label }}</label>
     </div>
 </template>
@@ -68,9 +68,8 @@ export default class SwitchComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
-    onToggleClick(): void {
-        if (this.isDisabled) return;
-        this.localValue = !this.localValue;
+    tryToggle(): void {
+        if (!this.isDisabled) this.localValue = !this.localValue;
     }
 	
     /////////////////
