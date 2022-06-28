@@ -70,7 +70,7 @@
                     </div>
 
                     <div class="token-item--roles">
-                        <span class="token-item--roles--header">Roles:</span>
+                        <span class="token-item--roles--header">Roles: </span>
                         <span class="token-item--roles--item"
                             v-for="(role, roleIndex) in token.Roles"
                             :key="`token-${tokenIndex}-role-${roleIndex}`">
@@ -94,8 +94,8 @@
                                     v-for="(option, optionIndex) in module.Options"
                                     :key="`token-${tokenIndex}-module-${moduleIndex}-option-${optionIndex}`">
                                     <code>{{ option }}</code>
-                                    <span v-if="module.Options.length >= 2 && optionIndex == module.Options.length - 2">and</span>
-                                    <span v-else-if="module.Options.length >= 2 && optionIndex < module.Options.length - 2">,</span>
+                                    <span v-if="module.Options.length >= 2 && optionIndex == module.Options.length - 2"> and</span>
+                                    <span v-else-if="module.Options.length >= 2 && optionIndex < module.Options.length - 2"> ,</span>
                                 </span>
                             </span>
                             <span v-if="module.Options.length == 0">

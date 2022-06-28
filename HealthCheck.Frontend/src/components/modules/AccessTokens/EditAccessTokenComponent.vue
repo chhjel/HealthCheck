@@ -5,24 +5,26 @@
             label="Name"
             v-model:value="datax.name"
             :disabled="readonly"
+            class="mb-3"
         ></text-field-component>
 
         <simple-date-time-component
             v-model:value="datax.ExpiresAt"
             :readonly="readonly"
             name="Expiration date"
+            class="mb-3"
             />
 
         <input-header-component name="Allow killswitch" description="If killswitch is allowed, the user of the token can choose to delete it at any time." />
         <checkbox-component 
-            class="mt-2"
+            class="mt-2 mb-3"
             :label="(datax.AllowKillswitch ? 'Allowed' : 'Not allowed')"
             v-model:value="datax.AllowKillswitch"
             :disabled="readonly" />
 
         <h3>Roles</h3>
-        <p class="mb-0">Give token access to the following roles:</p>
-        <div row wrap>
+        <p class="mb-0 mt-0">Give token access to the following roles:</p>
+        <div class="flex flex-wrap mb-3">
             <div class="mr-2"
                 v-for="(role, rindex) in accessData.Roles"
                 :key="`access-role-${rindex}`">
@@ -36,7 +38,7 @@
         </div>
 
         <h3>Modules</h3>
-        <p class="mb-0">Give token access to the following modules:</p>
+        <p class="mb-1 mt-0">Give token access to the following modules:</p>
 
         <chip-component
             color="primary"
@@ -44,12 +46,12 @@
             :key="`filter-choice-${fcIndex}`"
             :outline="!filterChoice.selected"
             :disabled="readonly"
-            class="filter-choice"
+            class="filter-choice mb-1 mr-1"
             :class="{ 'selected': filterChoice.selected }"
             @click="onModuleAccessToggled(filterChoice.moduleId, !filterChoice.selected)">
                 {{ filterChoice.label }}
                 <icon-component right v-if="!filterChoice.selected">add</icon-component>
-                <icon-component right v-if="filterChoice.selected">close</icon-component>
+                <icon-component right v-if="filterChoice.selected" color="#fff">close</icon-component>
             </chip-component>
 
         <div class="access-grid ml-4 mt-2">
