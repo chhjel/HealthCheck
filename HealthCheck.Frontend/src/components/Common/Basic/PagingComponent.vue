@@ -261,7 +261,8 @@ export default class PagingComponent extends Vue
     flex-wrap: nowrap;
 
     .page-button {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
         padding: 5px 15px;
         border-radius: 5px;
         background-color: #eee;

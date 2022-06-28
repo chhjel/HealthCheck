@@ -56,14 +56,14 @@ export default class IconComponent extends Vue {
              'color-f': true
         };
 
-        CssUtils.setColorClassIfPredefined(this.color || 'secondary', classes);
+        CssUtils.setColorClassIfPredefined(this.color || '--color--accent-darken10', classes);
         if (!this.isSmall && !this.isMedium && !this.isLarge && !this.isXLarge) classes['small'] = true;
         return classes;
     }
 
     get rootStyle(): any {
         let style = {};
-        CssUtils.setColorStyleIfNotPredefined(this.color || 'secondary', style);
+        CssUtils.setColorStyleIfNotPredefined(this.color || '--color--accent-darken10', style);
         if (this.size) {
             style['width'] = this.size;
             style['height'] = this.size;

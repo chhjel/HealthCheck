@@ -68,7 +68,7 @@
                             class="messages-list__item"
                             @click="showMessage(message)">
                             <div class="messages-list__item__icon">
-                                <icon-component :color="getMessageIconColor(message)">{{ getMessageIcon(message) }}</icon-component>
+                                <icon-component :color="getMessageIconColor(message)" size="20px">{{ getMessageIcon(message) }}</icon-component>
                             </div>
                             <div class="messages-list__item__detail">
                                 <b class="mobile-only">From: </b>
@@ -416,7 +416,7 @@ export default class MessagesPageComponent extends Vue {
 
     getMessageIconColor(message: MessageItem): string {
         return (message != null && message.HasError)
-            ? 'red'
+            ? '--color--error-lighten1'
             : '';
     }
 
@@ -547,7 +547,7 @@ export default class MessagesPageComponent extends Vue {
         &__icon {
             position: absolute;
             left: -20px;
-            top: 3px;
+            top: 4px;
         }
 
         &__detail {
