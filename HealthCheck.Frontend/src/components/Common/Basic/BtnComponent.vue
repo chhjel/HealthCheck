@@ -1,5 +1,5 @@
 <template>
-    <div class="btn-component" :class="rootClasses">
+    <div class="btn-component" :class="rootClasses" @click="onClick">
         <a v-if="href" :href="(href || '')" :target="target">
 		    <span class="btn-component__contents"><slot></slot></span>
         </a>
@@ -75,7 +75,7 @@ export default class BtnComponent extends Vue {
     //////////////
     get rootClasses(): any {
         let classes = {
-             'hoverable': !this.isDepressed,
+             'hoverable': !this.isDepressed && !this.isDisabled,
              'flat': this.isFlat,
              'small': this.isSmall,
              'icon': this.isIcon,
@@ -111,6 +111,10 @@ export default class BtnComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    onClick(): void {
+        if (this.isDisabled) return;
+        this.$emit('click');
+    }
 	
     /////////////////
     //  WATCHERS  //
@@ -167,6 +171,8 @@ export default class BtnComponent extends Vue {
 
     &.disabled {
         cursor: default;
+        opacity: 0.8;
+        pointer-events: none;
     }
     &.loading { }
 

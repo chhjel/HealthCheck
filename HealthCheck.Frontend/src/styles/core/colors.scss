@@ -54,6 +54,15 @@
 			color: var(#{$colorBase}-lighten2) !important;
 		}
 	}
+	@if not ($darkText) {
+		.#{$name}:not(.flat) {
+			.icon-component {
+				.material-icons {
+					color: #eee;
+				}
+			}
+		}
+	}
 }
 
 @include color_setup('accent', '--color--accent', true, $flatLightenLevel: 2);

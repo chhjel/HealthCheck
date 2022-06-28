@@ -93,7 +93,7 @@
                     </btn-component>
                     <btn-component :disabled="isLoading" @click="loadCurrentStreamItems(true)" v-if="showExecuteQuery"
                         color="primary">
-                        <icon-component size="20px" class="mr-2">search</icon-component>Execute query
+                        <icon-component size="22px" class="mr-2" color="#eee">search</icon-component>Execute query
                     </btn-component>
                 </div>
 
@@ -267,7 +267,7 @@
                     placeholder="Preset name"
                     :disabled="dataLoadStatus.inProgress" />
 
-                <h4 v-if="showQuery">Query</h4>
+                <h4 v-if="showQuery && queryInput" class="mt-2">Query</h4>
                 <code v-if="showQuery">{{ queryInput }}</code>
 
                 <div v-if="showCustomInputs && Object.keys(customParameters).length > 0">
@@ -278,7 +278,7 @@
                     </div>
                 </div>
 
-                <h4 class="mt-2">Included properties</h4>
+                <h4 class="mt-2" v-if="includedProperties.length > 0">Included properties</h4>
                 <ul>
                     <li v-for="(prop, hIndex) in includedProperties"
                         :key="`included-prop-preview-${hIndex}`">
@@ -480,14 +480,9 @@
                     <div v-for="(placeholder, placeholderIndex) in availableProperties"
                         :key="`possible-placeholder-${placeholderIndex}`"
                         @click="onAddPlaceholderClicked(placeholder)"
-                        class="possible-placeholder-list-item">
-                        <div>
-                            <icon-component>add</icon-component>
-                        </div>
-
-                        <div>
-                            <div class="possible-placeholder-item-title">{{ `\{${placeholder}\}` }}</div>
-                        </div>
+                        class="possible-placeholder-list-item flex clickable">
+                        <icon-component>add</icon-component>
+                        <div class="possible-placeholder-item-title">{{ `\{${placeholder}\}` }}</div>
                     </div>
                 </div>
             </div>

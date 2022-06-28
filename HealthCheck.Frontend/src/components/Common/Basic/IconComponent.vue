@@ -56,14 +56,16 @@ export default class IconComponent extends Vue {
              'color-f': true
         };
 
-        CssUtils.setColorClassIfPredefined(this.color || '--color--accent-darken10', classes);
+        // CssUtils.setColorClassIfPredefined(this.color || '--color--accent-darken10', classes);
+        CssUtils.setColorClassIfPredefined(this.color || 'def-color', classes);
         if (!this.isSmall && !this.isMedium && !this.isLarge && !this.isXLarge) classes['small'] = true;
         return classes;
     }
 
     get rootStyle(): any {
         let style = {};
-        CssUtils.setColorStyleIfNotPredefined(this.color || '--color--accent-darken10', style);
+        // CssUtils.setColorStyleIfNotPredefined(this.color || '--color--accent-darken10', style);
+        CssUtils.setColorClassIfPredefined(this.color || 'def-color', style);
         if (this.size) {
             style['width'] = this.size;
             style['height'] = this.size;
@@ -105,6 +107,7 @@ export default class IconComponent extends Vue {
     display: flex;
     user-select: none;
     align-items: center;
+    color: var(--color--accent-darken10);
 
     &.small { width: 24px; height: 24px; .material-icons { font-size: 24px; } }
     &.medium { width: 28px; height: 28px; .material-icons { font-size: 28px; } }
