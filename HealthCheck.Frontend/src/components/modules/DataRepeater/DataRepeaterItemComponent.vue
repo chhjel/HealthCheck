@@ -111,7 +111,8 @@
                 <btn-component :disabled="!retryAllowed"
                     :loading="dataLoadStatus.inProgress"
                     v-if="hasAccessToRetry"
-                    @click="showRetryDialog" class="ml-0 mr-2 mt-2">
+                    @click="showRetryDialog" class="ml-0 mr-2 mt-2"
+                    color="primary">
                     {{ (stream.RetryActionName || 'Retry') }}
                 </btn-component>
 
@@ -452,7 +453,7 @@ export default class DataRepeaterItemComponent extends Vue {
     }
 }
 code {
-    width: 100%;
+    width: calc(100% - 16px);
     overflow-x: auto;
 }
 .repeater-error:before {

@@ -15,7 +15,7 @@
         
         <div v-if="disabledReason"><b>{{ disabledReason }}</b></div>
 
-        <div style="display: flex; align-items: baseline;">
+        <div style="display: flex; align-items: baseline;" class="mt-2">
             <btn-component :disabled="!allowExecute"
                 :loading="dataLoadStatus.inProgress"
                 @click="showExecuteActionDialog" class="mb-3">
