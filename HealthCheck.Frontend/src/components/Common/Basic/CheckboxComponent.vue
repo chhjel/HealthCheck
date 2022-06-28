@@ -1,13 +1,9 @@
 <template>
-    <div class="checkbox-component" :class="rootClasses" tabindex="0">
-        <input type="checkbox" :id="`cb-${id}`"
-            v-model="localValue"
-            :disabled="disabled"
-            :indeterminate="indeterminate" />
+    <div class="checkbox-component" :class="rootClasses" tabindex="0" @click="onClick">
         <span class='checkbox-component__indicator color-f color-border' :class="colorClasses" :style="indicatorStyle">
             <div v-if="isChecked" class="checkbox-component__indicator_bg" :class="colorClasses"></div>
             <icon-component v-if="localValue == true" :color="iconColor" :size="size" style="position:absolute">check</icon-component>
-            <icon-component v-if="isIndeterminate" :color="iconColor" :size="size" style="position:absolute">horizontal_rule</icon-component>
+            <icon-component v-if="currentValueIsIndeterminate" :color="iconColor" :size="size" style="position:absolute">horizontal_rule</icon-component>
         </span>
         <label v-if="label">{{ label }}</label>
     </div>
@@ -25,7 +21,7 @@ import IdUtils from "@util/IdUtils";
 export default class CheckboxComponent extends Vue {
 
     @Prop({ required: true })
-    value!: boolean;
+    value!: boolean | null;
 
     @Prop({ required: false, default: null })
     label!: string;
@@ -34,8 +30,11 @@ export default class CheckboxComponent extends Vue {
     disabled!: string | boolean;
 
     @Prop({ required: false, default: false })
-    indeterminate!: string | boolean;
+    readonly!: string | boolean;
 
+    @Prop({ required: false, default: false })
+    allowIndeterminate!: string | boolean;
+    
     @Prop({ required: false, default: null })
     inputValue!: string;
 
@@ -46,7 +45,7 @@ export default class CheckboxComponent extends Vue {
     size!: string;
 
     id: string = IdUtils.generateId();
-    localValue: boolean = false;
+    localValue: boolean | null = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -62,7 +61,7 @@ export default class CheckboxComponent extends Vue {
     get rootClasses(): any {
         return {
              'disabled': this.isDisabled,
-             'indeterminate': this.isIndeterminate,
+             'indeterminate': this.currentValueIsIndeterminate,
              'checked': this.localValue == true
         };
     }
@@ -88,16 +87,46 @@ export default class CheckboxComponent extends Vue {
         else return this.color;
     }
 
+    get currentValueIsIndeterminate(): boolean {
+        return !this.localValue && this.localValue !== false;
+    }
+
     get isChecked(): boolean { return this.localValue === true; }
-    get isDisabled(): boolean { return ValueUtils.IsToggleTrue(this.disabled); }
-    get isIndeterminate(): boolean { return ValueUtils.IsToggleTrue(this.indeterminate); }
+    get isDisabled(): boolean { return ValueUtils.IsToggleTrue(this.disabled) || ValueUtils.IsToggleTrue(this.readonly); }
+    get isReadOnly(): boolean { return ValueUtils.IsToggleTrue(this.readonly) || ValueUtils.IsToggleTrue(this.disabled); }
+    get isAllowIndeterminate(): boolean { return ValueUtils.IsToggleTrue(this.allowIndeterminate); }
 
     ////////////////
     //  METHODS  //
     //////////////
-    tryToggle(): void {
-        if (!this.isDisabled) {
-            this.localValue = !this.localValue;
+    onClick(): void {
+        if (this.isDisabled || this.isReadOnly) {
+            return;
+        }
+        this.setNextState();
+    }
+
+    setNextState(): void {
+        if (this.readonly)
+        {
+            return;
+        }
+        
+        // null => true
+        if (this.localValue == null) {
+            this.localValue = true;
+        }
+        // true => false
+        else if (this.localValue === true) {
+            this.localValue = false;
+        }
+        // false => null if indeterminate allowed
+        else if (this.localValue === false && this.isAllowIndeterminate) {
+            this.localValue = null
+        }
+        // false => true if indeterminate not allowed
+        else if (this.localValue === false && !this.isAllowIndeterminate) {
+            this.localValue = true
         }
     }
 

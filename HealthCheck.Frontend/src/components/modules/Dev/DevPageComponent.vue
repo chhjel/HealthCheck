@@ -86,8 +86,8 @@
 				<!-- CheckboxComponent -->
 				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox"></checkbox-component>
 				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox disabled" disabled></checkbox-component>
-				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox indeterminate" indeterminate></checkbox-component>
-				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox disabled indeterminate" disabled indeterminate></checkbox-component>
+				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox indeterminate" allowIndeterminate></checkbox-component>
+				<checkbox-component v-model:value="CheckboxComponent_value" label="Checkbox disabled indeterminate" disabled allowIndeterminate></checkbox-component>
 				<code>{{ CheckboxComponent_value }}</code>
 				<hr />
 

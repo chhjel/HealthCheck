@@ -10,11 +10,10 @@
         ></switch-component>
 
         <checkbox-component v-if="isNullable"
-            v-model:value="nullableCheckboxState"
-            :indeterminate="localValue == null" 
+            v-model:value="localValue"
+            :allowIndeterminate="true" 
             :label="label"
             :disabled="readonly"
-            @click="setNextState"
             color="primary"
             class="parameter-checkbox pt-0"
         ></checkbox-component>
@@ -41,7 +40,6 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
     readonly!: boolean;
 
     localValue: any = false;
-    nullableCheckboxState: boolean = false;
     
     created(): void {
         this.$nextTick(() => {
@@ -64,26 +62,6 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
         {
             this.localValue = this.valueIsTrue(this.localValue);
         }
-    }
-
-    setNextState(): void {
-        if (this.readonly)
-        {
-            return;
-        }
-        
-        if (this.localValue == null) {
-            this.localValue = "true";
-        } else if (this.isTrue) {
-            this.localValue = "false";
-        } else {
-            this.localValue = null
-        }
-        this.updateCheckboxState();
-    }
-
-    updateCheckboxState(): void {
-        this.nullableCheckboxState = (this.localValue == null) ? false : this.isTrue;
     }
 
     valueIsTrue(value: any): boolean {
@@ -119,7 +97,6 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
     {
         this.localValue = this.value;
         this.validateValue();
-        this.updateCheckboxState();
     }
 
     @Watch('localValue')
