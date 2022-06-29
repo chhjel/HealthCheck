@@ -346,13 +346,6 @@ export default class DataflowPageComponent extends Vue {
     searchResultCache: SearchResultCachePerSearch = {};
     searchQueryCache: SearchQueryCachePerSearch = {};
 
-    // Table
-    tableRowsPerPageItems: Array<any> 
-        = [25, 50, 100, {"text":"$vuetify.dataIterator.rowsPerPageAll","value":-1}];
-    tablePagination: any = {
-        rowsPerPage: 25
-    };
-
     //////////////////
     //  LIFECYCLE  //
     ////////////////

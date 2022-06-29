@@ -39,16 +39,6 @@
                     </div>
                 </div>
 
-                <!-- <data-table-component
-                    :headers="tableHeaders.map(x => x.text)"
-                    :items="filteredAuditEvents"
-                    :loading="loadStatus.inProgress"
-                    :rows-per-page-items="tableRowsPerPageItems"
-                    v-model:pagination="tablePagination"
-                    :custom-sort="tableSorter"
-                    item-key="Id"
-                    expand
-                    class="audit-table"> -->
                 <alert-component :value="true" color="error" icon="warning" v-if="loadStatus.failed">
                     {{ loadStatus.errorMessage }}
                 </alert-component>
@@ -172,11 +162,6 @@ export default class AuditLogPageComponent extends Vue {
         { text: 'Action', value: 'Action', align: 'left' },
         { text: 'Subject', value: 'Subject', align: 'left' }
     ];
-    tableRowsPerPageItems: Array<any> 
-        = [10, 25, 50, {"text":"$vuetify.dataIterator.rowsPerPageAll","value":-1}];
-    tablePagination: any = {
-        rowsPerPage: 25
-    };
 
     // Blobs
     showBlobContentsDialog: boolean = false;
