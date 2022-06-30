@@ -29,22 +29,22 @@
         </div>
 
         <div class="config-summary">
-            <b>IF</b>
+            <b>IF </b>
             <span v-for="(condition, condIndex) in descriptionConditions"
                 :key="`condition-${condIndex}`">
-                <a @click.prevent.stop="onSummaryConditionClicked(condition)"
+                <a @click.prevent.stop="onSummaryConditionClicked(condition)" class="clickable"
                     >{{ condition.description }}</a>
                 <span v-if="condIndex == descriptionConditions.length - 2"> and </span>
                 <span v-else-if="condIndex < descriptionConditions.length - 1">, </span>
             </span>
 
             <br />
-            <b>THEN</b>
+            <b>THEN </b>
             <span v-if="descriptionActions.length == 0">&lt;do nothing&gt;</span>
-            <span v-else>notify using</span>
+            <span v-else>notify using </span>
             <span v-for="(action, actIndex) in descriptionActions"
                 :key="`action-${actIndex}`">
-                <a @click.prevent.stop="onSummaryActionClicked(action)"
+                <a @click.prevent.stop="onSummaryActionClicked(action)" class="clickable"
                     >{{ action.description }}</a>
                 <span v-if="actIndex == descriptionActions.length - 2"> and </span>
                 <span v-else-if="actIndex < descriptionActions.length - 1">, </span>

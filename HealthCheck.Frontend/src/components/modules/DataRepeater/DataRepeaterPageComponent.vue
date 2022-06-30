@@ -38,13 +38,13 @@
                             :readonly="isLoading"
                         ></text-field-component>
                     </div>
-                    <div class="data-repeater-filters mb-2 flex layout">
+                    <div class="data-repeater-filters flex layout">
                         <select-component
                             v-model:value="filterRetryAllowedBinding"
                             @blur="onFilterChanged"
                             :items="retryableChoices"
                             label="Included"
-                            class="filter-input xs12 md4"
+                            class="filter-input xs12 md4 mr-2 mb-2"
                             :readonly="isLoading"
                             ></select-component>
                         <select-component
@@ -57,7 +57,7 @@
                             multiple
                             clearable
                             allowInput allowCustom
-                            class="filter-input xs12 md8"
+                            class="filter-input xs12 md8 mb-2"
                             style="flex:1"
                             :readonly="isLoading"
                             ></select-component>

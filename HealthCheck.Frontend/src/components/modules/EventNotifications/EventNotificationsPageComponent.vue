@@ -51,7 +51,7 @@
                         <div class="config-list-item--rule"
                             @click="showConfig(config)"
                             >
-                            <span class="config-list-item--operator">IF</span>
+                            <span class="config-list-item--operator">IF </span>
                             <span v-for="(condition, condIndex) in describeConditions(config)"
                                 :key="`condition-${condIndex}`">
                                 <span class="config-list-item--condition">
@@ -62,7 +62,7 @@
                             </span>
 
                             <br />
-                            <span class="config-list-item--operator">THEN</span>
+                            <span class="config-list-item--operator">THEN </span>
                             <span v-if="describeActions(config).length == 0">&lt;do nothing&gt;</span>
                             <span v-else>notify using</span>
                             <span v-for="(action, actIndex) in describeActions(config)"
