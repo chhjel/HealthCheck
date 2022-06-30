@@ -117,8 +117,7 @@ export default class ParameterInputTypeBooleanComponent extends Vue {
 }
 .parameter-list-input {
     .parameter-checkbox {
-        margin-top: 24px;
-        margin-left: 8px;
+        margin-top: 0;
     }
 }
 </style>

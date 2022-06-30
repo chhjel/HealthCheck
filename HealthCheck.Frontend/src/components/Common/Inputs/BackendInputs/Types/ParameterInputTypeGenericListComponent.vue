@@ -15,7 +15,7 @@
                         </div>
 
                         <tooltip-component v-if="!isReadOnlyList" tooltip="Remove">
-                            <btn-component flat icon color="error" :disabled="readonly" @click="removeItem(itemIndex)">
+                            <btn-component flat icon color="error" :disabled="readonly" @click="removeItem(itemIndex)" style="min-width: 34px">
                                 <icon-component>remove</icon-component>
                             </btn-component>
                         </tooltip-component>
