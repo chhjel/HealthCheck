@@ -1,5 +1,6 @@
 <template>
-    <div class="btn-component" :class="rootClasses" @click="onClick">
+    <!-- @click.stop.prevent.capture="onClick" -->
+    <div class="btn-component" :class="rootClasses" :disabled="isDisabled">
         <a v-if="href" :href="(href || '')" :target="target">
 		    <span class="btn-component__contents"><slot></slot></span>
         </a>
@@ -111,10 +112,6 @@ export default class BtnComponent extends Vue {
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
-    onClick(): void {
-        if (this.isDisabled) return;
-        this.$emit('click');
-    }
 	
     /////////////////
     //  WATCHERS  //

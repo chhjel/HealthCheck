@@ -151,6 +151,8 @@
 				<btn-component class="mr-1" flat color="error">Button error flat</btn-component>
 				<btn-component class="mr-1" flat color="warning">Button warning flat</btn-component>
 				<btn-component class="mr-1" flat color="info">Button info flat</btn-component><br />
+				<btn-component class="mr-1 mb-1" @click="notify('enabled')">Button - enabled</btn-component>
+				<btn-component class="mr-1 mb-1" disabled @click="notify('disabled')">Button - disabled</btn-component>
 				<hr />
 				
 				<h3 class="ok">chip-component</h3>
