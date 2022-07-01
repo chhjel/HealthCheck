@@ -1,5 +1,6 @@
 // Input fields
 $input-padding-base: 7;
+$input-padding-solo: 12;
 $input-paddings: (
 	2: 2,
 	4: 4,
@@ -9,11 +10,28 @@ $input-paddings: (
 	display: flex;
 	flex-flow: nowrap;
 	align-items: center;
+	
+	&.solo {
+		box-shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
+		background: #fff;
+		height: 100%;
+
+		.input {
+			height: 100%;
+			padding: ($input-padding-solo) + px 32px;
+			border-bottom: 1px solid #fff;
+			&:focus {
+				padding-bottom: ($input-padding-solo - 2) + px; 
+				border-bottom: 3px solid var(--color--primary-lighten5);
+			}
+		}
+	}
 }
 .input {
 	border: 0;
 	outline: 0;
 	width: 100%;
+	font-family: "Montserrat", Roboto, sans-serif;
 	font-size: 16px;
 	background: transparent;
 	box-sizing: border-box;
@@ -25,6 +43,9 @@ $input-paddings: (
 	&:focus {
 		padding-bottom: ($input-padding-base - 2) + px; 
 		border-bottom: 3px solid var(--color--primary-lighten3);
+	}
+	&::placeholder {
+		color: #C5C5C5;
 	}
 
 	@each $key, $val in $input-paddings {

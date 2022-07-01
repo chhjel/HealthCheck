@@ -26,7 +26,6 @@
             <div>
                 <text-field-component
                     label="Page number"
-                    solo
                     v-model:value="dialogNumber"
                     type="number"
                     ref="dialogNumberInput"></text-field-component>

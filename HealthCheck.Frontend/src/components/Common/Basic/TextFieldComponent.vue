@@ -2,7 +2,7 @@
     <div class="text-field-component" :class="rootClasses">
         <input-header-component :name="label" :description="description" :showDescriptionOnStart="showDescriptionOnStart" />
 
-        <div class="text-field-component__input-wrapper input-wrapper">
+        <div class="text-field-component__input-wrapper input-wrapper" :class="inputWrapperClasses">
             <icon-component v-if="prependIcon" class="input-icon" :class="prependedIconClasses"
                 :title="prependIconTooltip"
                 @click="onPrependedIconClicked">{{ prependIcon }}</icon-component>
@@ -126,6 +126,13 @@ export default class TextFieldComponent extends Vue {
         };
     }
 
+    get inputWrapperClasses(): any {
+        return {
+             'solo': this.isSolo
+        };
+    }
+
+    get isSolo(): boolean { return ValueUtils.IsToggleTrue(this.solo); }
     get isDisabled(): boolean { return ValueUtils.IsToggleTrue(this.disabled); }
     get isClearable(): boolean { return ValueUtils.IsToggleTrue(this.clearable); }
     get isLoading(): boolean { return ValueUtils.IsToggleTrue(this.loading); }

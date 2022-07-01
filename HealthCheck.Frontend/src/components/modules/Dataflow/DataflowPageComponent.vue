@@ -42,60 +42,55 @@
 
             <!-- STREAM: FILTERS -->
             <div v-show="selectedStream != null">
-                <div>
-                    <div xs12 sm12 md8 style="position:relative"
-                        v-show="selectedStream != null && selectedStream.SupportsFilterByDate">
-                        <date-picker-component range v-model:value="filterDate" :disabled="dataLoadStatus.inProgress" :clearable="false" rangePresets="past" />
-                    </div>
+                <div v-show="selectedStream != null && selectedStream.SupportsFilterByDate">
+                    <date-picker-component range v-model:value="filterDate" :disabled="dataLoadStatus.inProgress" :clearable="false" rangePresets="past" />
                 </div>
                 
-                <b v-if="filterChoices.length > 0">Filter on</b>
-                <chip-component
-                    color="primary"
-                    v-for="(filterChoice, fcIndex) in filterChoices"
-                    :key="`filter-choice-${fcIndex}`"
-                    :outline="!filters.some(x => x.propertyName == filterChoice.value)"
-                    class="filter-choice"
-                    :class="{ 'selected': filters.some(x => x.propertyName == filterChoice.value) }"
-                    @click="togglePropertyFilter(filterChoice.value, filterChoice.text)">
-                        {{ filterChoice.text }}
-                        <icon-component right
-                            v-if="!filters.some(x => x.propertyName == filterChoice.value)"
-                            >add</icon-component>
-                        <icon-component right
-                            v-if="filters.some(x => x.propertyName == filterChoice.value)"
-                            >close</icon-component>
-                    </chip-component>
+                <div class="mt-2">
+                    <b v-if="filterChoices.length > 0">Filter on</b>
+                    <chip-component
+                        color="primary"
+                        v-for="(filterChoice, fcIndex) in filterChoices"
+                        :key="`filter-choice-${fcIndex}`"
+                        :outline="!filters.some(x => x.propertyName == filterChoice.value)"
+                        class="filter-choice ml-1 mb-1"
+                        :class="{ 'selected': filters.some(x => x.propertyName == filterChoice.value) }"
+                        @click="togglePropertyFilter(filterChoice.value, filterChoice.text)">
+                            {{ filterChoice.text }}
+                            <icon-component right
+                                v-if="!filters.some(x => x.propertyName == filterChoice.value)"
+                                >add</icon-component>
+                            <icon-component right
+                                v-if="filters.some(x => x.propertyName == filterChoice.value)"
+                                >close</icon-component>
+                        </chip-component>
 
-                <div v-for="(filter, findex) in filters"
-                    :key="`dataflow-filter-${findex}`">
-                    <text-field-component
-                        v-model:value="filter.value"
-                        :label="filter.text"
-                        clearable
-                        class="filter-input"
-                    ></text-field-component>
+                    <div class="filter-chip-inputs">
+                        <div v-for="(filter, findex) in filters"
+                            :key="`dataflow-filter-${findex}`">
+                            <text-field-component
+                                v-model:value="filter.value"
+                                :label="filter.text"
+                                clearable
+                                class="filter-input mb-2"
+                            ></text-field-component>
+                        </div>
+                    </div>
                 </div>
 
-                <div>
-                    <div xs6 sm2 style="margin-top: 22px;">
-                        <text-field-component type="number" label="Max items to fetch"
-                            class="options-input"
-                            v-model:value.number="filterTake" />
-                    </div>
-                    <div xs6 sm2 style="margin-top: 17px; margin-left: 40px;">
-                        <btn-component 
-                            @click="loadStreamEntries()" 
-                            :disabled="dataLoadStatus.inProgress" 
-                            class="primary">Fetch data</btn-component>
-                    </div>
-                    <div xs6 sm2 style="margin-top: 17px; margin-left: 25px;">
-                        <btn-component 
-                            @click="clearResults()" 
-                            :disabled="dataLoadStatus.inProgress"
-                            >Clear view</btn-component>
-                    </div>
-                    
+                <div class="flex layout mt-3">
+                    <text-field-component type="number" label="Max items to fetch"
+                        class="options-input"
+                        v-model:value.number="filterTake" />
+                    <btn-component 
+                        @click="loadStreamEntries()" 
+                        :disabled="dataLoadStatus.inProgress" 
+                        class="primary">Fetch data</btn-component>
+                    <btn-component 
+                        @click="clearResults()" 
+                        :disabled="dataLoadStatus.inProgress || resultCount == 0"
+                        v-if="resultCount > 0"
+                        >Clear view</btn-component>
                 </div>
             </div>
 
@@ -1009,6 +1004,10 @@ export default class DataflowPageComponent extends Vue {
     margin-bottom: 18px;
     margin-right: 44px;
 }
+.filter-chip-inputs {
+    border-left: 4px solid #d5d5d5;
+    padding-left: 8px;
+}
 // .unified-search-header { }
 .unified-search-query-wrapper {
     padding-bottom: 5px !important;
@@ -1016,7 +1015,8 @@ export default class DataflowPageComponent extends Vue {
     flex-wrap: nowrap;
     align-items: center;
     .unified-search-query {
-        font-size: 24px;
+        height: 72px;
+        min-width: 50%;
     }
     .unified-search-query-button {
         height: 72px;
@@ -1100,6 +1100,13 @@ export default class DataflowPageComponent extends Vue {
                 }
             }
         }
+    }
+}
+</style>
+<style lang="scss">
+.unified-search-query-wrapper {
+    input {
+        font-size: 24px;
     }
 }
 </style>
