@@ -55,7 +55,7 @@
 		}
 	}
 	@if not ($darkText) {
-		.#{$name}:not(.flat) {
+		.#{$name}:not(.flat):not(.outline) {
 			.icon-component {
 				.material-icons {
 					color: #eee;

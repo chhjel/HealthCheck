@@ -100,7 +100,7 @@
                 </btn-component>
 
                 <div v-if="suggestedPayloadProperties.length > 0" style="display: inline-block;">
-                    <small>Suggested for selected event id:</small>
+                    <small>Suggested for selected event id: </small>
                     <chip-component
                         v-for="(suggestedPayloadProperty, sppIndex) in suggestedPayloadProperties"
                         :key="`suggested-payload-property-${sppIndex}`"
