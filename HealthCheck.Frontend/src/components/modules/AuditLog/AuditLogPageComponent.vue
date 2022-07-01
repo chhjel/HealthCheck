@@ -3,36 +3,36 @@
     <div>
         <div class="content-root">
             <!-- FILTER -->
-            <div grid-list-md>
+            <div class="mb-4">
                 <h1 class="mb-4">Audit log</h1>
 
-                <div row wrap>
-                    <div xs12 sm12 md8>
+                <div class="flex layout mb-3">
+                    <div class="xs12 sm12 md8">
                         <date-picker-component range v-model:value="filterDate" :disabled="loadStatus.inProgress" :clearable="false"
                             @update:value="onDateRangeChanged" rangePresets="past" />
                     </div>
 
-                    <div xs12 sm12 md4 style="text-align: right;">
+                    <div class="xs12 sm12 md4" style="text-align: right;">
                         <btn-component @click="loadData" :disabled="loadStatus.inProgress" class="primary">Search</btn-component>
                         <btn-component @click="resetFilters">Reset</btn-component>
                     </div>
 
-                    <div xs12 sm6 md3>
+                    <div class="xs12 sm6 md3 mb-2 pr-2">
                         <text-field-component v-model:value="filterUserName" label="Username"
                             @blur="loadData"
                             @keyup.enter="loadData" />
                     </div>
-                    <div xs12 sm6 md3>
+                    <div class="xs12 sm6 md3 mb-2 pr-2">
                         <text-field-component v-model:value="filterAction" label="Action"
                             @blur="loadData"
                             @keyup.enter="loadData" />
                     </div>
-                    <div xs12 sm6 md3>
+                    <div class="xs12 sm6 md3 mb-2 pr-2">
                         <text-field-component v-model:value="filterSubject" label="Subject"
                             @blur="loadData"
                             @keyup.enter="loadData" />
                     </div>
-                    <div xs12 sm6 md3>
+                    <div class="xs12 sm6 md3 mb-2 pr-2">
                         <text-field-component v-model:value="filterUserId" label="User id"
                             @blur="loadData"
                             @keyup.enter="loadData" />
@@ -87,8 +87,6 @@
                         </div>
                     </template>
                 </data-table-component>
-            
-                <code>{{filteredAuditEvents}}</code>
             </div>
         </div>
 
@@ -322,15 +320,6 @@ export default class AuditLogPageComponent extends Vue {
 .row-details-roles {
     display: inline;
 }
-/* .row-details-role {
-    display: inline;
-    color: var(--color--secondary-base);
-    padding: 5px;
-    border: 1px solid var(--color--secondary-base);
-    border-radius: 15px;
-    margin: 2px;
-    font-size: 12px;
-} */
 .role-tag {
     display: inline;
     color: #4c41a5;
@@ -366,12 +355,16 @@ export default class AuditLogPageComponent extends Vue {
 }
 </style>
 
-<style>
+<style lang="scss">
 .audit-table th i {
     margin-left: 5px;
 }
-.audit-table-row {
+.audit-table .data-table--row-values {
     cursor: pointer;
+    transition: 0.1s;
+    &:hover {
+        background-color: #eee;
+    }
 }
 /* .dateTimePickerWrapper {
 } */
