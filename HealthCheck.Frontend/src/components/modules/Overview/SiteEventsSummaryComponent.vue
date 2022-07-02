@@ -4,14 +4,13 @@
         <div v-for="(event, index) in events"
             :key="`current-event-${index}`"
             @click="onEventClicked(event)"
-            class="summary-list-item">
-            <div>
-                <icon-component :color="getEventIconColor(event)">{{getEventIcon(event)}}</icon-component>
-            </div>
-
-            <div>
-                <div class="summary-item-title">{{ event.Title }}</div>
-                <div class="summary-item-description">{{ event.Description }}</div>
+            class="summary-list-item pa-2">
+            <div class="flex">
+                <icon-component :color="getEventIconColor(event)" class="mr-2">{{getEventIcon(event)}}</icon-component>
+                <div>
+                    <div class="summary-item-title">{{ event.Title }}</div>
+                    <div class="summary-item-description">{{ event.Description }}</div>
+                </div>
             </div>
         </div>
     </div>
@@ -68,7 +67,7 @@ export default class SiteEventsSummaryComponent extends Vue {
         } else if (event.Severity == SiteEventSeverity.Error) {
             return "error";
         } else if (event.Severity == SiteEventSeverity.Fatal) {
-            return "black";
+            return "fatal";
         } else {
             return "success";
         }
@@ -121,6 +120,8 @@ export default class SiteEventsSummaryComponent extends Vue {
 .summary-list-item {
     background: #fff;
     margin-bottom: 5px;
+    margin-top: 5px;
+    cursor: pointer;
 }
 .summary-list {
     background: inherit;

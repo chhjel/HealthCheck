@@ -103,11 +103,19 @@ export default class IconComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
+@import 'src/styles/core/colors_mixin.scss';
+
 .icon-component {
     display: flex;
     user-select: none;
     align-items: center;
-    color: var(--color--accent-darken10);
+
+    /* &:not(.info):not(.warning):not(.error):not(.fatal):not(.success):not(.primary):not(.secondary):not(.accent) {
+        color: var(--color--accent-darken10);
+    } */
+    @include no-color-class {
+        color: var(--color--accent-darken10);
+    }
 
     &.small { width: 24px; height: 24px; .material-icons { font-size: 24px; } }
     &.medium { width: 28px; height: 28px; .material-icons { font-size: 28px; } }

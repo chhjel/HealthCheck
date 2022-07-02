@@ -1,7 +1,7 @@
 export default class CssUtils
 {
 	static readonly PredefColorVariableNames: Array<string> = [
-		'info', 'warning', 'error', 'success', 'primary', 'secondary', 'accent'
+		'info', 'warning', 'error', 'fatal', 'success', 'primary', 'secondary', 'accent'
 	];
 
 	static translateColor(color: string): string

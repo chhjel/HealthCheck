@@ -2,7 +2,7 @@
     <div class="dialog-component" :class="rootClasses" v-show="localValue">
         <div class="dialog-component_modal_wrapper" @click.self.stop.prevent="onClickOutside">
             <div class="dialog-component_modal" :style="dialogStyle">
-                <div class="dialog-component_modal_header">
+                <div class="dialog-component_modal_header" :class="headerColor">
                     <div class="dialog-component_modal_cross" @click.self.stop.prevent="onClickClose">X</div>
                     <slot name="header"></slot>
                 </div>
@@ -52,6 +52,9 @@ export default class DialogComponent extends Vue {
     @Prop({ required: false, default: null })
     width!: number | null;
 
+    @Prop({ required: false, default: null })
+    headerColor!: string | null;
+
     localValue: boolean = false;
     callbacks: Array<CallbackUnregisterShortcut> = [];
 
@@ -84,7 +87,8 @@ export default class DialogComponent extends Vue {
              'fullscreen': this.isFullscreen,
              'hide-overlay': this.isHideOverlay,
              'persistent': this.isPersistent,
-             'full-width': this.isFullWidth
+             'full-width': this.isFullWidth,
+             'has-color': !!this.headerColor
         };
     }
 
@@ -187,6 +191,11 @@ export default class DialogComponent extends Vue {
     }
     &.persistent { }
     &.full-width { }
+    &:not(.has-color) {
+        .dialog-component_modal_header {
+            background-color: var(--color--accent-lighten1);
+        }
+    }
     
     .dialog-component_modal_wrapper {
         height: 100%;
@@ -200,7 +209,7 @@ export default class DialogComponent extends Vue {
             margin-bottom: 40px;
             padding: 30px 0;
             background-color: #fff;
-            border: 2px solid #dfdfdf;
+            /* border: 2px solid #dfdfdf; */
             position: relative;
             max-width: 100%;
             /* max-height: calc(100vh - 40px - 40px); */
@@ -216,11 +225,12 @@ export default class DialogComponent extends Vue {
                 font-size: 30px;
                 font-weight: 600;
                 /* border-bottom: 2px solid var(--color--accent-lighten1); */
-                background-color: var(--color--accent-lighten1);
             }
             &_footer {
                 margin-bottom: -30px;
                 padding: 10px 30px;
+                /* border-top: 2px solid var(--color--accent-lighten1); */
+                border: 2px solid #dfdfdf;
                 border-top: 2px solid var(--color--accent-lighten1);
                 /* background-color: var(--color--accent-base); */
             }
@@ -230,6 +240,8 @@ export default class DialogComponent extends Vue {
                 max-height: calc(100vh - 190px);
                 padding: 15px 30px;
                 flex: 1;
+                border-left: 2px solid #dfdfdf;
+                border-right: 2px solid #dfdfdf;
             }
         }
         .dialog-component_modal_cross {

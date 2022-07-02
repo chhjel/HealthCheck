@@ -87,8 +87,15 @@
 
         <!-- ##################### -->
         <!-- ###### DIALOGS ######-->
-        <dialog-component v-model:value="eventDetailsDialogState" width="700">
-            <template #header></template>
+        <dialog-component v-model:value="eventDetailsDialogState" width="700"
+            :headerColor="getEventSeverityColorClass(selectedEventForDetails?.Severity)">
+            <template #header v-if="selectedEventForDetails != null">
+                <icon-component>{{ getEventSeverityIcon(selectedEventForDetails.Severity) }}</icon-component>
+                <div class="details-title">{{ selectedEventForDetails.Title }}</div>
+                <div class="details-date">
+                    {{ getEventTimeLine1(selectedEventForDetails) }}<br />{{ getEventTimeLine2(selectedEventForDetails) }}
+                </div>
+            </template>
             <template #footer>
                 <btn-component color="secondary" @click="eventDetailsDialogState = false">
                     Close
@@ -406,6 +413,61 @@ export default class OverviewPageComponent extends Vue {
         }
     }
 
+    getEventSeverityColorClass(severity: SiteEventSeverity): string {
+        if (severity == SiteEventSeverity.Information) {
+            return 'info';
+        } else if (severity == SiteEventSeverity.Warning) {
+            return 'warning';
+        } else if (severity == SiteEventSeverity.Error) {
+            return 'error';
+        } else if (severity == SiteEventSeverity.Fatal) {
+            return 'fatal';
+        } else {
+            return '';
+        }
+    }
+
+    getEventSeverityIcon(severity: SiteEventSeverity): string {
+        if (severity == SiteEventSeverity.Information) {
+            return 'info';
+        } else if (severity == SiteEventSeverity.Warning) {
+            return 'warning';
+        } else if (severity == SiteEventSeverity.Error) {
+            return 'error';
+        } else if (severity == SiteEventSeverity.Fatal) {
+            return 'report';
+        } else {
+            return '';
+        }
+    }
+
+    getEventTimeLine1(event: SiteEventViewModel) : string {
+        if (event.Timestamp.getDate() === event.EndTime.getDate()) {
+            let dateFormat = 'dd. MMMM';
+            return DateUtils.FormatDate(event.Timestamp, dateFormat);
+        } else {
+            let timeFormat = 'HH:mm';
+            let dateFormat = 'dd. MMM';
+            return `${DateUtils.FormatDate(event.Timestamp, `${dateFormat} ${timeFormat}`)} -`;
+        }
+    }
+
+    getEventTimeLine2(event: SiteEventViewModel) : string {
+        let timeFormat = 'HH:mm';
+        if (event.Timestamp.getDate() === event.EndTime.getDate()) {
+            let start = event.Timestamp;
+            let end = this.getEventEndDate(event);
+            if (end == null) {
+                return DateUtils.FormatDate(start, timeFormat);
+            } else {
+                return `${DateUtils.FormatDate(start, timeFormat)} - ${DateUtils.FormatDate(end, timeFormat)}`;
+            }
+        } else {
+            let dateFormat = 'dd. MMM';
+            return `${DateUtils.FormatDate(event.EndTime, `${dateFormat} ${timeFormat}`)}`;
+        }
+    }
+
     getEventDateRange(event: SiteEventViewModel) : string {
         let timeFormat = 'HH:mm';
         let start = event.Timestamp;
@@ -469,13 +531,16 @@ export default class OverviewPageComponent extends Vue {
     @media (max-width: 540px) {
         padding-left: 0 !important;
         padding-right: 0 !important;
-        .container {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-        }
     }
 }
-</style>
-
-<style>
+.details-title {
+    flex: 1;
+    margin-left: 5px;
+}
+.details-date {
+    font-size: 12px;
+    /* color: var(--color--accent-darken9); */
+    text-align: right;
+    margin-left: 10px;
+}
 </style>

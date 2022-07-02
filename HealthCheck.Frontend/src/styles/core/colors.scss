@@ -68,6 +68,7 @@
 @include color_setup('accent', '--color--accent', true, $flatLightenLevel: 2);
 @include color_setup('primary', '--color--primary', $flatLightenLevel: 6);
 @include color_setup('secondary', '--color--secondary', $flatLightenLevel: 6);
+@include color_setup('fatal', '--color--fatal', $flatLightenLevel: 4);
 @include color_setup('error', '--color--error', $flatLightenLevel: 4);
 @include color_setup('success', '--color--success', $flatLightenLevel: 5);
 @include color_setup('warning', '--color--warning', $flatLightenLevel: 5);
