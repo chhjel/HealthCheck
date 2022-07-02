@@ -1,14 +1,7 @@
 <!-- src/components/Common/Basic/TimespanInputComponent.vue -->
 <template>
     <div class="input-component timespan">
-        <div class="input-component--header" v-if="showHeader">
-            <div class="input-component--header-name">{{ name }}</div>
-            <icon-component small v-if="hasDescription"
-                color="gray" class="input-component--help-icon"
-                @click="toggleDescription">help</icon-component>
-        </div>
-
-        <div v-show="showDescription" class="input-component--description" v-html="description"></div>
+        <input-header-component :name="name" :description="description" :showDescriptionOnStart="showDescriptionOnStart" />
         
         <div class="input-component--inputs" :style="style">
             <div class="input-component--input-prefix" v-if="minimal">
@@ -61,9 +54,8 @@
                 class="clear-button"
                 @click="onClearClicked"
                 :disabled="disabled"
-                flat icon small
-                style="align-self: flex-start;">
-                <icon-component color="#757575">cancel</icon-component>
+                flat icon small>
+                <icon-component color="#757575">clear</icon-component>
             </btn-component>
         </div>
 
@@ -74,9 +66,10 @@
 <script lang="ts">
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
+import InputHeaderComponent from "./InputHeaderComponent.vue";
 
 @Options({
-    components: {}
+    components: { InputHeaderComponent }
 })
 export default class TimespanInputComponent extends Vue
 {
@@ -121,7 +114,6 @@ export default class TimespanInputComponent extends Vue
     //  LIFECYCLE  //
     ////////////////
     created(): void {
-        this.showDescription = this.hasDescription && this.showDescriptionOnStart;
         this.onValueChanged();
     }
 
@@ -133,14 +125,6 @@ export default class TimespanInputComponent extends Vue
     //////////////
     get isNull(): boolean {
         return this.value == null || this.value == undefined;
-    }
-
-    get showHeader(): boolean {
-        return this.name != null && this.name.length > 0;
-    }
-
-    get hasDescription(): boolean {
-        return this.description != null && this.description.length > 0;
     }
 
     get style(): any {
@@ -156,9 +140,6 @@ export default class TimespanInputComponent extends Vue
     ////////////////
     //  METHODS  //
     //////////////
-    toggleDescription(): void {
-        this.showDescription = !this.showDescription;
-    }
 
     ///////////////////////
     //  EVENT HANDLERS  //
@@ -204,37 +185,6 @@ export default class TimespanInputComponent extends Vue
 </script>
 
 <style scoped lang="scss">
-.input-component {
-    .input-component--header {
-        text-align: left;
-
-        .input-component--header-name {
-            display: inline-block;
-            font-size: 16px;
-            color: var(--color--secondary-base);
-            font-weight: 600;
-        }
-
-        .input-component--help-icon {
-            user-select: none;
-            font-size: 20px !important;
-            &:hover {
-                color: #1976d2;
-            }
-        }
-    }
-
-    .input-component--description {
-        text-align: left;
-        padding: 10px;
-        border-radius: 10px;
-        background-color: #ebf1fb;
-    }
-
-    .clickable {
-        cursor: pointer;
-    }
-}
 </style>
 
 <style lang="scss">
@@ -264,7 +214,9 @@ export default class TimespanInputComponent extends Vue
     }
 
     .clear-button {
-        align-self: end;
+        margin: 0 !important;
+        padding: 0;
+        width: 28px;
     }
 }
 </style>
