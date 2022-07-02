@@ -1,7 +1,7 @@
 <!-- src/components/Common/Basic/SelectComponent.vue -->
 <template>
     <div class="select-component" :class="rootClasses">
-        <input-header-component :name="label" :description="description" :showDescriptionOnStart="showDescriptionOnStart" />
+        <input-header-component :name="label" :description="description" :showDescriptionOnStart="showDescriptionOnStart" :ensureHeight="isEnsureLabelHeight" />
         
         <div class="input-wrapper" ref="wrapperElement">
             <div class="select-component__input input input-padding-2" @click="onInputClicked" ref="inputElement" tabindex="0">
@@ -21,6 +21,7 @@
                         :placeholder="placeholderText"
                         @keyup.enter="onFilterEnter"
                         @keydown="onFilterKeyDown"
+                        @keydown.esc="hideDropdown"
                         @blur="onFilterBlur"
                         @focus="onFilterFocus"
                         ref="filterInputElement" />
@@ -38,6 +39,8 @@
                     :key="`${id}-item-${iIndex}`"
                     class="select-component__dropdown__item" tabindex="0"
                     @click.stop.prevent="onDropdownItemClicked(item)"
+                    @keyup.enter="onDropdownItemClicked(item)"
+                    @keydown.esc="hideDropdown"
                     :class="dropdownItemClasses(item)">
                     <icon-component v-if="isMultiple && valueIsSelected(item.value)" class="mr-1">check_box</icon-component>
                     <icon-component v-if="isMultiple && !valueIsSelected(item.value)" class="mr-1">check_box_outline_blank</icon-component>
@@ -100,6 +103,9 @@ export default class SelectComponent extends Vue
     
     @Prop({ required: false, default: null})
     error!: string | null;
+    
+    @Prop({ required: false, default: false })
+    ensureLabelHeight!: string | boolean;
     
     @Prop({ required: false, default: false })
     disabled!: string | boolean;
@@ -250,6 +256,7 @@ export default class SelectComponent extends Vue
 
     get allowNullValue(): boolean { return this.optionItems.some(x => x.value == null); }
 
+    get isEnsureLabelHeight(): boolean { return ValueUtils.IsToggleTrue(this.ensureLabelHeight); }
     get isLoading(): boolean { return ValueUtils.IsToggleTrue(this.loading); }
     get isDisabled(): boolean { return ValueUtils.IsToggleTrue(this.disabled) || ValueUtils.IsToggleTrue(this.readonly); }
     get isReadonly(): boolean { return ValueUtils.IsToggleTrue(this.readonly) || ValueUtils.IsToggleTrue(this.disabled); }
@@ -339,6 +346,10 @@ export default class SelectComponent extends Vue
         else this.setDropdownVisible();
     }
 
+    hideDropdown(): void {
+        this.showDropdown = false;
+    }
+
     setDropdownVisible(): void {
         this.showDropdown = true;
         this.$nextTick(() => this.setDropdownTop());
@@ -402,8 +413,12 @@ export default class SelectComponent extends Vue
             this.selectedValues = this.value;
         }
         else {
+            // Value is empty, ignore
+            if (this.value === '') {
+                this.selectedValues = [];
+            }
             // Value is not null, set as selected
-            if (this.value != null) {
+            else if (this.value != null) {
                 this.selectedValues = [ this.value ];
             // Value is null, set as value if a possible choice
             } else {

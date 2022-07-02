@@ -29,6 +29,7 @@
                     item-text="text" item-value="value"
                     v-on:change="onDataChanged"
                     :disabled="readonly"
+                    ensureLabelHeight
                     >
                 </select-component>
             </div>
@@ -47,6 +48,7 @@
                     color="secondary"
                     v-on:change="onDataChanged"
                     :disabled="readonly"
+                    ensureLabelHeight
                 ></switch-component>
                 
                 <btn-component v-if="allowDelete"

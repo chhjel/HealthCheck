@@ -4,10 +4,10 @@
         <div class="parameter-header" v-if="showInputHeader">
             <div class="parameter-name">{{ displayName }}</div>
             <icon-component small v-if="hasDescription"
-                color="gray" class="parameter-help-icon"
+                color="gray" class="parameter-help-icon clickable"
                 @click="toggleDescription">help</icon-component>
             <icon-component v-if="showActionIcon"
-                color="gray" class="parameter-action-icon"
+                color="gray" class="parameter-action-icon clickable"
                 @click="onActionIconClicked">{{ actionIcon }}</icon-component>
         </div>
 
@@ -303,7 +303,7 @@ export default class BackendInputComponent extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .parameter-header {
     text-align: left;
     display: flex;
@@ -325,17 +325,17 @@ export default class BackendInputComponent extends Vue {
     user-select: none;
     font-size: 20px !important;
     margin-left: 4px;
-}
-.parameter-help-icon:hover {
-    color: #1976d2;
+    &:hover {
+        color: var(--color--info-base) !important;
+    }
 }
 .parameter-action-icon {
     user-select: none;
     font-size: 24px !important;
     margin-left: 4px;
-}
-.parameter-action-icon:hover {
-    color: #1976d2;
+    &:hover {
+        color: var(--color--info-base) !important;
+    }
 }
 .parameter-feedback {
     font-size: small;

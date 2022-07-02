@@ -1,10 +1,10 @@
 <template>
-    <div class="switch-component" :class="rootClasses" tabindex="0" @keydown.enter="tryToggle">
+    <div class="switch-component" :class="rootClasses" tabindex="0" @keydown.enter="tryToggle" :disabled="isDisabled">
         <input type="checkbox" :id="`sw-${id}`"
             v-model="localValue"
             :disabled="disabled" />
         <span class="switch-component__toggle" @click="tryToggle" :class="toggleClasses"></span>
-        <label :for="`sw-${id}`" v-if="label">{{ label }}</label>
+        <label :for="`sw-${id}`" v-if="resolvedLabel">{{ resolvedLabel }}</label>
     </div>
 </template>
 
@@ -29,7 +29,13 @@ export default class SwitchComponent extends Vue {
     label!: string;
 
     @Prop({ required: false, default: null })
+    falseLabel!: string;
+
+    @Prop({ required: false, default: null })
     color!: string;
+    
+    @Prop({ required: false, default: false })
+    ensureLabelHeight!: string | boolean;
 
     id: string = IdUtils.generateId();
     localValue: boolean = false;
@@ -47,7 +53,8 @@ export default class SwitchComponent extends Vue {
     //////////////
     get rootClasses(): any {
         let classes = {
-             'disabled': this.isDisabled
+             'disabled': this.isDisabled,
+             'ensure-label-height': this.isEnsureLabelHeight
         };
         return classes;
     }
@@ -59,6 +66,14 @@ export default class SwitchComponent extends Vue {
         return classes;
     }
 
+    get resolvedLabel(): string | null {
+        if (this.localValue != true) {
+            return this.falseLabel || this.label;
+        }
+        return this.label;
+    }
+
+    get isEnsureLabelHeight(): boolean { return ValueUtils.IsToggleTrue(this.ensureLabelHeight); }
     get isDisabled(): boolean { return ValueUtils.IsToggleTrue(this.disabled); }
 
     ////////////////
@@ -85,6 +100,8 @@ export default class SwitchComponent extends Vue {
     emitLocalValue(): void
     {
 		this.$emit('update:value', this.localValue);
+        this.$emit('change', this.localValue);
+        this.$emit('blur', this.localValue);
     }
 }
 </script>
@@ -128,7 +145,7 @@ export default class SwitchComponent extends Vue {
         height: 1.6em;
         /* background: #50565a; */
         border-radius: 1em;
-        transition: background 0.1s ease-in-out;
+        transition: all 0.1s ease-in-out;
 
         &:before {
             content: "";
@@ -144,5 +161,8 @@ export default class SwitchComponent extends Vue {
         }
     }
     &.disabled { }
+    &.ensure-label-height {
+        margin-top: 19px;
+    }
 }
 </style>

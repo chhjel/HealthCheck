@@ -77,7 +77,7 @@
                 /> -->
             
             <!-- ###### PAYLOAD FILTERS ###### -->
-            <h3>Filters</h3>
+            <h3 class="mt-4">Filters</h3>
             <config-filter-component
                 v-for="(payloadFilter, pfindex) in internalConfig.PayloadFilters"
                 :key="`payloadFilter-${pfindex}-${payloadFilter._frontendId}`"
@@ -105,7 +105,7 @@
                         v-for="(suggestedPayloadProperty, sppIndex) in suggestedPayloadProperties"
                         :key="`suggested-payload-property-${sppIndex}`"
                         color="primary" outline
-                        class="suggested-payload-property-choice"
+                        class="suggested-payload-property-choice mr-1 mb-1"
                         @click="onSuggestedPayloadFilterClicked(suggestedPayloadProperty)">
                         {{ suggestedPayloadProperty }}
                         <icon-component right>add</icon-component>
@@ -144,6 +144,7 @@
                 
                 <div v-for="(notifierConfigOption, ncoindex) in getNotifierConfigOptions(notifierConfig.Notifier, notifierConfig.Options)"
                     :key="`notifierConfig-${ncindex}-option-${ncoindex}`"
+                    class="mb-2"
                     style="margin-left:20px">
                     
                     <backend-input-component
@@ -226,7 +227,7 @@
             </ul>
         </block-component>
 
-        <dialog-component v-model:value="notifierDialogVisible" v-if="notifiers != null">
+        <dialog-component v-model:value="notifierDialogVisible" v-if="notifiers != null" max-width="700">
             <template #header>Select type of notifier to add</template>
             <template #footer>
                 <btn-component color="secondary"  @click="notifierDialogVisible = false">Cancel</btn-component>
@@ -236,7 +237,7 @@
                     <div v-for="(notifier, nindex) in notifiers"
                         :key="`possible-notifier-${nindex}`"
                         @click="onAddNotifierClicked(notifier)"
-                        class="possible-notifiers-list-item">
+                        class="possible-notifiers-list-item mb-2 pa-2 flex clickable hoverable-light">
                         <div>
                             <icon-component>add</icon-component>
                         </div>
@@ -261,7 +262,7 @@
             </div>
         </dialog-component>
 
-        <dialog-component v-model:value="payloadPlaceholderDialogVisible">
+        <dialog-component v-model:value="payloadPlaceholderDialogVisible" max-width="700">
             <template #header>Select placeholder to add</template>
             <template #footer>
                 <btn-component color="secondary" @click="hidePayloadPlaceholderDialog()">Cancel</btn-component>
@@ -271,7 +272,7 @@
                     <div v-for="(placeholder, placeholderIndex) in getPayloadPlaceholders()"
                         :key="`possible-placeholder-${placeholderIndex}`"
                         @click="onAddPayloadPlaceholderClicked(placeholder)"
-                        class="possible-placeholder-list-item">
+                        class="possible-placeholder-list-item mb-2 pa-2 flex clickable hoverable-light">
                         <div>
                             <icon-component>add</icon-component>
                         </div>
@@ -283,7 +284,7 @@
                 </div>
             </div>
         </dialog-component>
-        <dialog-component v-model:value="placeholderDialogVisible">
+        <dialog-component v-model:value="placeholderDialogVisible" max-width="700">
             <template #header>Select placeholder to add</template>
             <template #footer>
                 <btn-component color="secondary" @click="hidePlaceholderDialog()">Cancel</btn-component>
@@ -293,7 +294,7 @@
                     <div v-for="(placeholder, placeholderIndex) in getPlaceholdersFor((currentPlaceholderDialogTargetConfig == null ? null :currentPlaceholderDialogTargetConfig.Notifier), currentPlaceholderDialogTarget)"
                         :key="`possible-placeholder-${placeholderIndex}`"
                         @click="onAddPlaceholderClicked(placeholder, currentPlaceholderDialogTarget)"
-                        class="possible-placeholder-list-item">
+                        class="possible-placeholder-list-item mb-2 pa-2 flex clickable hoverable-light">
                         <div>
                             <icon-component>add</icon-component>
                         </div>
@@ -766,7 +767,9 @@ export default class EventNotificationConfigComponent extends Vue {
         let targetElement: HTMLElement | null = null;
         if (condition.id == this.internalConfig.EventIdFilter._frontendId) 
         {
-            targetElement = this.$refs.eventIdFilter as HTMLElement;
+            const comp = this.$refs.eventIdFilter as Vue;
+            // targetElement = this.$refs.eventIdFilter as HTMLElement;
+            targetElement = (comp.$el.querySelectorAll("input")[0]) as HTMLElement;
         }
         else
         {
@@ -811,6 +814,8 @@ export default class EventNotificationConfigComponent extends Vue {
 }
 .payload-filter {
     border-bottom: solid 1px #ccc;
+    padding-bottom: 8px;
+    padding-top: 8px;
 }
 .config-summary {
     padding: 10px;
@@ -841,20 +846,6 @@ export default class EventNotificationConfigComponent extends Vue {
 </style>
 
 <style lang="scss">
-.possible-notifiers-dialog {
-    max-width: 700px;
-
-    .possible-notifiers-list-item {
-        margin-bottom: 10px;
-    }
-}
-.possible-placeholders-dialog {
-    max-width: 700px;
-
-    .possible-placeholder-list-item {
-        margin-bottom: 10px;
-    }
-}
 .notif-test-result {
     width: 100%;
     overflow: auto;

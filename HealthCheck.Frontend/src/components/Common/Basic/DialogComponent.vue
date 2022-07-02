@@ -142,6 +142,7 @@ export default class DialogComponent extends Vue {
     public close(): void {
         this.localValue = false;
         this.$emit("update:value", false);
+        this.$emit("close", true);
     }
 
     ///////////////////////

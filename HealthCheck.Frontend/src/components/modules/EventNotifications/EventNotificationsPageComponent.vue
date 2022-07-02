@@ -37,20 +37,18 @@
                 :key="`config-${cindex}-${config.Id}`"
                 class="config-list-item"
                 >
-                <div class="config-list-item--inner">
+                <div class="config-list-item--inner flex layout">
                     <div class="config-list-item--switch-and-summary">
                         <tooltip-component tooltip="Enable or disable this configuration">
                             <switch-component
-                                v-model:value="config.Enabled"
+                                :value="config.Enabled"
                                 color="secondary"
                                 style="flex: 0"
                                 @click="setConfigEnabled(config, !config.Enabled)"
                                 ></switch-component>
                         </tooltip-component>
                         
-                        <div class="config-list-item--rule"
-                            @click="showConfig(config)"
-                            >
+                        <div class="config-list-item--rule" @click="showConfig(config)">
                             <span class="config-list-item--operator">IF </span>
                             <span v-for="(condition, condIndex) in describeConditions(config)"
                                 :key="`condition-${condIndex}`">
@@ -76,7 +74,7 @@
                         </div>
                     </div>
                     
-                                            <div class="config-list-item--metadata">
+                    <div class="config-list-item--metadata">
                         <tooltip-component v-if="getConfigWarning(config) != null" :tooltip="getConfigWarning(config)">
                             <icon-component style="cursor: help;" color="warning">warning</icon-component>
                         </tooltip-component>
@@ -95,7 +93,7 @@
         </div>
         
         <!-- DIALOGS -->
-        <dialog-component v-model:value="configDialogVisible" persistent max-width="1200">
+        <dialog-component v-model:value="configDialogVisible" persistent max-width="1200" @close="hideCurrentConfig">
             <template #header>{{ currentDialogTitle }}</template>
             <template #footer>
                 <btn-component color="error"
@@ -550,6 +548,7 @@ export default class EventNotificationsPageComponent extends Vue {
             align-items: center;
             flex-direction: row;
             flex-wrap: nowrap;
+            flex: 1;
         }
 
         .config-list-item--rule {

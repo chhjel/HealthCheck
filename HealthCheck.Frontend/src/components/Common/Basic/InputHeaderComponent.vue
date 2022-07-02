@@ -1,10 +1,10 @@
 <!-- src/components/Common/Basic/InputHeaderComponent.vue -->
 <template>
-    <div class="input-header-component" v-if="showHeader || showDescription">
+    <div class="input-header-component" v-if="showHeader || showDescription || isEnsureHeight">
         <div class="input-component--header" v-if="showHeader">
             <div class="input-component--header-name">{{ name }}</div>
             <icon-component small v-if="hasDescription"
-                color="gray" class="input-component--help-icon"
+                color="gray" class="input-component--help-icon clickable"
                 @click="toggleDescription">help</icon-component>
         </div>
 
@@ -15,6 +15,7 @@
 <script lang="ts">
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
+import ValueUtils from "@util/ValueUtils";
 
 @Options({
     components: {}
@@ -29,6 +30,9 @@ export default class InputHeaderComponent extends Vue
     
     @Prop({ required: false, default: false })
     showDescriptionOnStart!: boolean;
+
+    @Prop({ required: false, default: false })
+    ensureHeight!: string | boolean;
 
     showDescription: boolean = false;
 
@@ -54,6 +58,8 @@ export default class InputHeaderComponent extends Vue
         return this.description != null && this.description.length > 0;
     }
 
+    get isEnsureHeight(): boolean { return ValueUtils.IsToggleTrue(this.ensureHeight); }
+
     ////////////////
     //  METHODS  //
     //////////////
@@ -69,6 +75,8 @@ export default class InputHeaderComponent extends Vue
 
 <style scoped lang="scss">
 .input-header-component {
+    min-height: 19px;
+    
     .input-component--header {
         text-align: left;
         display: flex;
@@ -86,7 +94,7 @@ export default class InputHeaderComponent extends Vue
             user-select: none;
             font-size: 20px !important;
             &:hover {
-                color: #1976d2;
+                color: var(--color--info-base) !important;
             }
         }
     }

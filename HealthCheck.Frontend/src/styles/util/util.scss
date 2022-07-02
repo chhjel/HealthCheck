@@ -47,6 +47,12 @@ $util-margin-padding-list: (
 		cursor: pointer;
 	}
 }
+.hoverable-light {
+	transition: 0.2s;
+	&:hover {
+		background-color: #eee;
+	}
+}
 
 .disabled { color: var(--color--text-disabled); }
 .right { float: right !important; }
