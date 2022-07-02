@@ -274,7 +274,8 @@ export default class RequestMetricsSummaryComponent extends Vue {
             "position": "relative",
             "min-width": "5px",
             "height": "30px",
-            "border-radius": "15px"
+            "border-radius": "15px",
+            "box-sizing": "border-box"
         }
     }
 
