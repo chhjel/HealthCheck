@@ -77,9 +77,9 @@
                                 <ul>
                                     <li v-for="(blob, index) in item.expandedValues[0].Blobs"
                                         :key="`audit-${item.expandedValues[0].Id}-blob-${index}`">
-                                        <div class="row-details-blobs-title">{{ blob.Key }}:</div> 
-                                        <a class="row-details-blobs-value"
-                                            @click.prevent="onViewBlobClicked(item.expandedValues, blob)"
+                                        <div class="row-details-blobs-title">{{ blob.Key }}: </div> 
+                                        <a class="row-details-blobs-value clickable"
+                                            @click.prevent="onViewBlobClicked(item.expandedValues[0], blob)"
                                             >[View]</a>
                                     </li>
                                 </ul>
@@ -276,6 +276,8 @@ export default class AuditLogPageComponent extends Vue {
 
         this.currentBlobTitle = name;
 
+        console.log(event);
+        console.log(blob);
         let detailParts = [
             { name: 'Timestamp', value: this.formatDateForTable(event.Timestamp) },
             { name: 'Action', value: event.Action },

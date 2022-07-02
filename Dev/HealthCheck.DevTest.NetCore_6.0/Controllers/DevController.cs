@@ -6,6 +6,7 @@ using HealthCheck.Core.Modules.AccessTokens;
 using HealthCheck.Core.Modules.AccessTokens.Abstractions;
 using HealthCheck.Core.Modules.AuditLog;
 using HealthCheck.Core.Modules.AuditLog.Abstractions;
+using HealthCheck.Core.Modules.AuditLog.Models;
 using HealthCheck.Core.Modules.Dataflow;
 using HealthCheck.Core.Modules.Dataflow.Abstractions;
 using HealthCheck.Core.Modules.DataRepeater;
@@ -71,6 +72,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
         #region Props & Fields
         private readonly IWebHostEnvironment _env;
         private readonly IEventDataSink _eventDataSink;
+        private readonly IAuditEventStorage _auditEventStorage;
         private readonly ISiteEventService _siteEventService;
         private readonly IHCSettingsService _settingsService;
         private readonly IHCDataRepeaterService _dataRepeaterService;
@@ -102,6 +104,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
         {
             _env = env;
             _eventDataSink = eventDataSink;
+            _auditEventStorage = auditEventStorage;
             _siteEventService = siteEventService;
             _settingsService = settingsService;
             _dataRepeaterService = dataRepeaterService;
@@ -438,6 +441,11 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             if (request.Query.ContainsKey("qstest"))
             {
                 roles |= RuntimeTestAccessRole.QuerystringTest;
+            }
+            if (request.Query.ContainsKey("makeABlob"))
+            {
+                _auditEventStorage.StoreEvent(new AuditEvent(DateTimeOffset.Now, "DevArea", "Dev test title", "Subject", "UserX", "User X", new List<string>())
+                    .AddBlob("Blob name", "Blob contents here."));
             }
             if (request.Query.ContainsKey("addmessages"))
             {
