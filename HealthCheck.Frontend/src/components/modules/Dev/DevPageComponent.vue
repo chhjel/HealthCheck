@@ -281,6 +281,17 @@
 				
 				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_itemsEmpty" label="Custom, no items" no-data-text="Value required" placeholder="Value to search for" allowInput allowCustom />
 				<select-component v-model:value="SelectComponent_value" :items="SelectComponent_itemsMultiple" label="Custom, with items" no-data-text="Value required" placeholder="Value to search for" allowInput allowCustom />
+				<a href="#" @click.stop.prevent="SelectComponent_testdialog=true">Dialog</a><br />
+				<dialog-component v-model:value="SelectComponent_testdialog">
+					<template #header></template>
+					<template #footer>Footer here<br /><btn-component @click="SelectComponent_testdialog=false" color="secondary">Close</btn-component></template>
+					<select-component v-model:value="SelectComponent_value" :items="SelectComponent_itemsMultiple" label="A" allowInput allowCustom />
+					<select-component v-model:value="SelectComponent_value" :items="SelectComponent_itemsMultiple" label="B" multiple />
+					<div style="max-height:100px; overflow: scroll">
+						<div style="height: 300px"></div>
+						<select-component v-model:value="SelectComponent_value" :items="SelectComponent_itemsMultiple" label="C" multiple />
+					</div>
+				</dialog-component>
 
 				Value: <code>{{ SelectComponent_value }}</code><br />
 				Value multiple: <code>{{ SelectComponent_valueMultiple }}</code>
@@ -805,6 +816,7 @@ Web -> Frontend: Confirmation is delivered
 	PaginationComponent_value: number = 2;
 	PagingComponent_value: number = 2;
 	PagingComponent_count: number = 88;
+	SelectComponent_testdialog: boolean = false;
 	SelectComponent_value: string = "Simple B";
 	SelectComponent_items: Array<string> = ['Simple A', 'Simple B', 'Simple C', 'Another X', 'Another Y', 'Another Z'];
 	SelectComponent_itemsEmpty: Array<string> = [];

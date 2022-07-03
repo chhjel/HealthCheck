@@ -33,22 +33,24 @@
                     v-if="placeholderText && !showInput">{{ placeholderText }}</span>
             </div>
         </div>
-        <div class="select-component__dropdown box-shadow" v-show="showDropdown" ref="dropdownElement">
-            <div class="select-component__dropdown__items">
-                <div v-for="(item, iIndex) in filteredOptionItems"
-                    :key="`${id}-item-${iIndex}`"
-                    class="select-component__dropdown__item" tabindex="0"
-                    @click.stop.prevent="onDropdownItemClicked(item)"
-                    @keyup.enter="onDropdownItemClicked(item)"
-                    @keydown.esc="hideDropdown"
-                    :class="dropdownItemClasses(item)">
-                    <icon-component v-if="isMultiple && valueIsSelected(item.value)" class="mr-1">check_box</icon-component>
-                    <icon-component v-if="isMultiple && !valueIsSelected(item.value)" class="mr-1">check_box_outline_blank</icon-component>
-                    {{ item.text }}
-                </div>
+        <Teleport to="body">
+            <div class="select-component__dropdown box-shadow" v-show="showDropdown" ref="dropdownElement">
+                <div class="select-component__dropdown__items">
+                    <div v-for="(item, iIndex) in filteredOptionItems"
+                        :key="`${id}-item-${iIndex}`"
+                        class="select-component__dropdown__item" tabindex="0"
+                        @click.stop.prevent="onDropdownItemClicked(item)"
+                        @keyup.enter="onDropdownItemClicked(item)"
+                        @keydown.esc="hideDropdown"
+                        :class="dropdownItemClasses(item)">
+                        <icon-component v-if="isMultiple && valueIsSelected(item.value)" class="mr-1">check_box</icon-component>
+                        <icon-component v-if="isMultiple && !valueIsSelected(item.value)" class="mr-1">check_box_outline_blank</icon-component>
+                        {{ item.text }}
+                    </div>
+                </div>                
+                <div v-if="noDataText && filteredOptionItems.length == 0" class="select-component__statusText">{{ noDataText }}</div>
             </div>
-            <div v-if="noDataText && filteredOptionItems.length == 0">{{ noDataText }}</div>
-        </div>
+        </Teleport>
 
         <progress-linear-component v-if="isLoading" indeterminate height="3" />
 
@@ -62,6 +64,7 @@ import { Options } from "vue-class-component";
 import IdUtils from "@util/IdUtils";
 import InputHeaderComponent from "./InputHeaderComponent.vue";
 import ValueUtils from "@util/ValueUtils";
+import ElementUtils from "@util/ElementUtils";
 import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
 
 interface Item {
@@ -152,7 +155,9 @@ export default class SelectComponent extends Vue
 
     mounted(): void {
         this.callbacks = [
-            EventBus.on("onWindowClick", this.onWindowClick.bind(this))
+            EventBus.on("onWindowClick", this.onWindowClick.bind(this)),
+            EventBus.on("onWindowScroll", this.onWindowScroll.bind(this)),
+            EventBus.on("onWindowResize", this.onWindowResize.bind(this)),
         ];
     }
 
@@ -273,6 +278,7 @@ export default class SelectComponent extends Vue
     clear(): void {
         if (this.isReadonly || this.isDisabled || !this.selectedValues || this.selectedValues.length == 0) return;
         this.selectedValues = [];
+        this.filter = '';
         this.$emit('click:clear');
         this.emitValue();
     }
@@ -354,23 +360,38 @@ export default class SelectComponent extends Vue
 
     setDropdownVisible(): void {
         this.showDropdown = true;
-        this.$nextTick(() => this.setDropdownTop());
+        this.$nextTick(() => this.setDropdownPosition());
     }
 
-    setDropdownTop(): void {
-        const vh = window.innerHeight;
-        const dropdownHeight = this.dropdownElement.clientHeight + 2 /* 2=border */;
-        const dropdownTopY = this.wrapperElement.getBoundingClientRect().top;
-        const dropdownBottomY = dropdownTopY + dropdownHeight;
-        // todo: parent must be relative for the dropdown menu to follow it.
-        // but when relative, it does not overflow out of overflow:hidden..
-        if (dropdownBottomY >= vh) {
-            this.dropdownElement.style.top = (-dropdownHeight + this.wrapperElement.offsetTop) + 'px';
-        }
-        else
-        {
-            this.dropdownElement.style.top = null;
-        }
+    setDropdownPosition(): void {
+        if (!this.showDropdown) return;
+
+        // const vh = window.innerHeight;
+        // const dropdownHeight = this.dropdownElement.clientHeight + 2 /* 2=border */;
+        // const dropdownBottomY = dropdownTopY + dropdownHeight;
+        
+        const inputWrapperHeight = this.wrapperElement.clientHeight;
+        const inputWrapperRect = this.wrapperElement.getBoundingClientRect();
+
+        var bodyOffsetTop = window.scrollY + document.body.getBoundingClientRect().top;
+        var bodyOffsetLeft = window.scrollX + document.body.getBoundingClientRect().left;
+        let top: number = inputWrapperRect.top + window.scrollY - bodyOffsetTop + inputWrapperHeight;
+        let left: number = inputWrapperRect.left + window.scrollX - bodyOffsetLeft;
+
+        let showBelowInput = true;
+        const yOffset = 4;
+        top += yOffset * (showBelowInput ? -1 : 1);
+
+        this.dropdownElement.style.top = top + 'px';
+        this.dropdownElement.style.left = left + 'px';
+
+        // if (dropdownBottomY >= vh) {
+        //     this.dropdownElement.style.top = (-dropdownHeight + this.wrapperElement.offsetTop) + 'px';
+        // }
+        // else
+        // {
+        //     this.dropdownElement.style.top = null;
+        // }
     }
 
     ///////////////////////
@@ -446,6 +467,14 @@ export default class SelectComponent extends Vue
         });
     }
 
+    onWindowScroll(e: Event): void {
+        this.setDropdownPosition();
+        if (!ElementUtils.isScrolledIntoView(this.wrapperElement)) {
+            this.hideDropdown();
+        }
+    }
+    onWindowResize(e: UIEvent): void { this.setDropdownPosition(); }
+
     @Watch('isLoading')
     onIsLoadingChanged(): void {
         if (this.isLoading) this.showDropdown = false;
@@ -458,7 +487,7 @@ export default class SelectComponent extends Vue
 
 <style lang="scss">
 .select-component {
-    /* position: relative; */
+    position: relative;
     &__input {
         display: flex;
         flex-wrap: wrap;
@@ -490,7 +519,7 @@ export default class SelectComponent extends Vue
         position: absolute;
         z-index: 99999;
         background-color: var(--color--accent-lighten1);
-        padding: 5px 10px;
+        /* padding: 5px 10px; */
         border: 1px solid var(--color--accent-base);
         max-height: calc(min(40vh, 400px));
         max-width: 800px;
@@ -499,13 +528,21 @@ export default class SelectComponent extends Vue
     /* &__dropdown__items {
     } */
     &__dropdown__item {
-        padding: 5px;
+        padding: 5px 10px;
         display: flex;
         align-items: center;
+        cursor: pointer;
+        transition: all 0.2s;
 
         &.selected {
             font-weight: 600;
         }
+        &:hover {
+            background-color: #f6f6f6;
+        }
+    }
+    &__statusText {
+        padding: 5px 10px;
     }
     &__textInput-wrapper {
         flex: 1;

@@ -197,6 +197,16 @@ export default class HealthCheckPageComponent extends Vue {
         document.addEventListener('keyup', this.onDocumentKeyDownOrDown);
         document.addEventListener('keydown', this.onDocumentKeyDownOrDown);
         window.addEventListener('click', this.onWindowClick);
+        window.addEventListener('scroll', this.onWindowScroll, true);
+        window.addEventListener('resize', this.onWindowResize, true);
+    }
+
+    onWindowScroll(e: Event): void {
+        EventBus.notify("onWindowScroll", e);
+    }
+
+    onWindowResize(e: UIEvent): void {
+        EventBus.notify("onWindowResize", e);
     }
 
     onWindowClick(e: MouseEvent): void {
