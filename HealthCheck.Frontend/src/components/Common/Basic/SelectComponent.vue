@@ -255,6 +255,7 @@ export default class SelectComponent extends Vue
     }
 
     get allowNullValue(): boolean { return this.optionItems.some(x => x.value == null); }
+    get allowEmptyValue(): boolean { return this.optionItems.some(x => x.value === ''); }
 
     get isEnsureLabelHeight(): boolean { return ValueUtils.IsToggleTrue(this.ensureLabelHeight); }
     get isLoading(): boolean { return ValueUtils.IsToggleTrue(this.loading); }
@@ -299,6 +300,7 @@ export default class SelectComponent extends Vue
         else {
             if (this.selectedValues.length == 0 && this.isNullable) emittedValue = null;
             else if (this.allowNullValue) emittedValue = this.selectedValues[0];
+            else if (this.selectedValues[0] as any === 0) emittedValue = this.selectedValues[0];
             else emittedValue = this.selectedValues[0] || '';
         }
         this.$emit('update:value', emittedValue);
@@ -413,8 +415,8 @@ export default class SelectComponent extends Vue
             this.selectedValues = this.value;
         }
         else {
-            // Value is empty, ignore
-            if (this.value === '') {
+            // Value is empty, ignore if not allowed
+            if (this.value === '' && !this.allowEmptyValue) {
                 this.selectedValues = [];
             }
             // Value is not null, set as selected
