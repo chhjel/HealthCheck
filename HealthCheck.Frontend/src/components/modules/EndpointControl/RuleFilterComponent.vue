@@ -4,7 +4,7 @@
         <div class="field-list horizontal-layout">
             <switch-component
                 v-model:value="enabled" 
-                label="Enabled"
+                falseLabel="Filter disabled"
                 color="secondary"
                 v-on:change="onDataChanged"
                 :disabled="readonly"

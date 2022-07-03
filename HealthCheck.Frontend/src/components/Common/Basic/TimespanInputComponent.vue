@@ -188,10 +188,11 @@ export default class TimespanInputComponent extends Vue
 </style>
 
 <style lang="scss">
-.input-component {
+.input-component.timespan {
     input {
         font-size: 18px;
         color: #000 !important;
+        text-align: right;
     }
 
     .input-component--error {
@@ -201,14 +202,14 @@ export default class TimespanInputComponent extends Vue
         color: var(--color--error-base) !important;
     }
 
-    &--inputs {
+    .input-component--inputs {
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
         align-items: baseline;
     }
 
-    &--input-prefix {
+    .input-component--input-prefix {
         font-size: 18px;
         margin-right: 5px;
     }

@@ -8,6 +8,7 @@
             <progress-linear-component
                 v-if="loadStatus.inProgress"
                 indeterminate color="success"></progress-linear-component>
+            <div style="height: 7px" v-else></div>
 
             <!-- DATA LOAD ERROR -->
             <alert-component :value="loadStatus.failed" v-if="loadStatus.failed" type="error">
@@ -42,7 +43,7 @@
                 <div class="rule-list-item--inner">
                     <tooltip-component tooltip="Enable or disable this rule">
                         <switch-component
-                            v-model:value="rule.Enabled"
+                            :value="rule.Enabled"
                             color="secondary"
                             style="flex: 0"
                             @click="setRuleEnabled(rule, !rule.Enabled)"
@@ -75,7 +76,7 @@
 
         </div>
         
-        <dialog-component v-model:value="ruleDialogVisible" max-width="1200" persistent>
+        <dialog-component v-model:value="ruleDialogVisible" max-width="1200" persistent @close="hideCurrentRule">
             <template #header>{{ currentDialogTitle }}</template>
             <template #footer>
                 <btn-component color="error"
@@ -148,22 +149,19 @@
             </div>
         </dialog-component>
         
-        <dialog-component v-model:value="latestRequestsDialogVisible" max-width="1200" @input="v => v || hideLatestRequestsDialog()">
+        <dialog-component v-model:value="latestRequestsDialogVisible" max-width="1200" @close="hideLatestRequestsDialog">
             <template #header>Latest requests</template>
             <template #footer>
                 <btn-component color="secondary" @click="hideLatestRequestsDialog">Close</btn-component>
             </template>
-            <div>
-                <block-component class="mb-2">
-                    <latest-requests-component 
-                        :moduleId="config.Id"
-                        :endpointDefinitions="EndpointDefinitions"
-                        :options="options.Options"
-                        :log="HasAccessToViewLatestRequestData"
-                        :charts="HasAccessToViewRequestCharts"
-                        />
-                </block-component>
-            </div>
+            <latest-requests-component 
+                :moduleId="config.Id"
+                :endpointDefinitions="EndpointDefinitions"
+                :options="options.Options"
+                :log="HasAccessToViewLatestRequestData"
+                :charts="HasAccessToViewRequestCharts"
+                class="mb-2"
+                />
         </dialog-component>
     </div>
 </template>

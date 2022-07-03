@@ -26,7 +26,7 @@ export default class SwitchComponent extends Vue {
     disabled!: string | boolean;
 
     @Prop({ required: false, default: null })
-    label!: string;
+    label!: string | Array<string> | null;
 
     @Prop({ required: false, default: null })
     falseLabel!: string;
@@ -67,10 +67,22 @@ export default class SwitchComponent extends Vue {
     }
 
     get resolvedLabel(): string | null {
-        if (this.localValue != true) {
-            return this.falseLabel || this.label;
+        let trueLabel: string | null = null;
+        let falseLabel: string | null = null;
+
+        if (this.label != null && Array.isArray(this.label) && this.label.length > 1) {
+            trueLabel = this.label[0];
+            falseLabel = this.label[1];
         }
-        return this.label;
+        else {
+            if (this.label != null && typeof this.label === 'string') trueLabel = this.label;
+            if (this.falseLabel != null && typeof this.falseLabel === 'string') falseLabel = this.falseLabel;
+        }
+
+        if (this.localValue != true) {
+            return falseLabel || trueLabel;
+        }
+        return trueLabel;
     }
 
     get isEnsureLabelHeight(): boolean { return ValueUtils.IsToggleTrue(this.ensureLabelHeight); }
@@ -110,6 +122,7 @@ export default class SwitchComponent extends Vue {
 .switch-component {
     display: flex;
     align-items: center;
+    min-height: 36px;
 
     input, label, .switch-component__toggle {
         user-select: none;

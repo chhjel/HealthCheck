@@ -12,6 +12,7 @@
                 v-model:value="internalRule.Enabled" 
                 :disabled="!allowChanges"
                 label="Enabled"
+                falseLabel="Disabled"
                 color="secondary"
                 class="left mr-2"
                 style="flex: 1"
@@ -35,7 +36,7 @@
                 :customResultDefinitions="customResultDefinitions" />
         </div>
 
-        <block-component class="mb-4" title="Filters">
+        <block-component class="mb-4 pt-0" title="Filters">
             <h3 class="mt-4">IP address / user location id</h3>
             <rule-filter-component class="payload-filter" :readonly="!allowChanges"
                 v-model:value="internalRule.UserLocationIdFilter" />

@@ -12,6 +12,7 @@
                 v-model:value="internalConfig.Enabled" 
                 :disabled="!allowChanges"
                 label="Enabled"
+                falseLabel="Disabled"
                 color="secondary"
                 class="left mr-2"
                 style="flex: 1"
