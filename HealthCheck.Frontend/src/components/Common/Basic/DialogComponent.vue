@@ -1,6 +1,6 @@
 <template>
     <div class="dialog-component" :class="rootClasses" :style="rootStyle" v-show="localValue">
-        <div class="dialog-component_modal_wrapper" @click.self.stop.prevent="onClickOutside">
+        <div class="dialog-component_modal_wrapper" @click.self.prevent="onClickOutside">
             <div class="dialog-component_modal" :style="dialogStyle">
                 <div class="dialog-component_modal_header" :class="headerColor">
                     <div class="dialog-component_modal_cross" @click.self.stop.prevent="onClickClose">X</div>
