@@ -134,17 +134,17 @@
                     v-for="(def, dindex) in EndpointDefinitions"
                     :key="`endpointdef-${dindex}-${def.EndpointId}`"
                     class="definition-list-item mb-2">
-                    <btn-component
-                        :loading="loadStatus.inProgress"
-                        :disabled="loadStatus.inProgress"
-                        color="error" class="right"
-                        @click="showDeleteDefinitionDialog(def.EndpointId)">
-                        <icon-component size="20px" class="mr-2">delete</icon-component>
-                        Delete
-                    </btn-component>
-
-                    <h3>{{ getEndpointDisplayName(def.EndpointId) }}</h3>
-                    <div style="clear:both;"></div>
+                    <div class="flex">
+                        <h3 style="flex:1">{{ getEndpointDisplayName(def.EndpointId) }}</h3>
+                        <btn-component
+                            :loading="loadStatus.inProgress"
+                            :disabled="loadStatus.inProgress"
+                            color="error" class="flex-self-start"
+                            @click="showDeleteDefinitionDialog(def.EndpointId)">
+                            <icon-component size="20px" class="mr-2">delete</icon-component>
+                            Delete
+                        </btn-component>
+                    </div>
                 </block-component>
             </div>
         </dialog-component>

@@ -16,7 +16,9 @@
 	&.flex-end { justify-content: flex-end; }
 	&.flex-wrap { flex-wrap: wrap; }
 	&.flex-wrap-reverse { flex-wrap: wrap-reverse; }
+	&.flex-start { align-items: flex-start; }
 }
+.flex-self-start { align-self: flex-start; }
 
 .spacer { flex: 1; }
 

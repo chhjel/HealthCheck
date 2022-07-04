@@ -1,5 +1,5 @@
 <template>
-    <div class="dialog-component" :class="rootClasses" v-show="localValue">
+    <div class="dialog-component" :class="rootClasses" :style="rootStyle" v-show="localValue">
         <div class="dialog-component_modal_wrapper" @click.self.stop.prevent="onClickOutside">
             <div class="dialog-component_modal" :style="dialogStyle">
                 <div class="dialog-component_modal_header" :class="headerColor">
@@ -57,6 +57,8 @@ export default class DialogComponent extends Vue {
 
     localValue: boolean = false;
     callbacks: Array<CallbackUnregisterShortcut> = [];
+    static zIndexCounter: number = 1001;
+    zIndex: number = 1001;
 
     //////////////////
     //  LIFECYCLE  //
@@ -90,6 +92,13 @@ export default class DialogComponent extends Vue {
              'full-width': this.isFullWidth,
              'has-color': !!this.headerColor
         };
+    }
+
+    get rootStyle(): any {
+        let style: any = {
+            'z-index': this.zIndex
+        };
+        return style;
     }
 
     get dialogStyle(): any {
@@ -167,6 +176,10 @@ export default class DialogComponent extends Vue {
     updateLocalValue(): void
     {
 		this.localValue = this.value;
+        if (this.localValue) {
+            DialogComponent.zIndexCounter = DialogComponent.zIndexCounter + 1;
+            this.zIndex = DialogComponent.zIndexCounter;
+        }
     }
 
     @Watch('localValue')
