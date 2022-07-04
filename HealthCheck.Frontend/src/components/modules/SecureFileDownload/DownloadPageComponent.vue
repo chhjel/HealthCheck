@@ -1,7 +1,5 @@
 <!-- src/components/modules/SecureFileDownload/DownloadPageComponent.vue -->
 <template>
-    <div>
-    <div class="approot">
     <div class="secure-file-download-page">
         <div>
         <div fluid fill-height class="content-root">
@@ -35,13 +33,14 @@
                         <div v-if="datax.download.protected && !isExpired">
                             <strong>A password is required to download this file</strong>
                             <text-field-component 
-                                box
+                                box center
                                 hide-details single-line
                                 v-model:value="currentPassword"
                                 :disabled="isPasswordFieldDisabled"
                                 :type="showPassword ? 'text' : 'password'"
                                 :append-icon="showPassword ? 'visibility' : 'visibility_off'"
                                 @click:append="showPassword = !showPassword"
+                                placeholder="Enter password.."
                                 class="pt-0 mt-2" />
                         
                             <div v-if="passwordValidationResult != null && !passwordValidationResult.success"
@@ -60,7 +59,7 @@
                             <span style="white-space: normal;">
                             {{ downloadButtonText }}
                             </span>
-                            <icon-component dark right>cloud_download</icon-component>
+                            <icon-component right class="ml-2">cloud_download</icon-component>
                         </btn-component>
                         <progress-linear-component color="primary" indeterminate v-if="loadStatus.inProgress"></progress-linear-component>
                     </div>
@@ -89,8 +88,6 @@
         </div>
         </div>
         </div>
-    </div>
-    </div>
     </div>
 </template>
 
@@ -331,12 +328,16 @@ export default class DownloadPageComponent extends Vue {
 
 <style scoped lang="scss">
 .secure-file-download-page {
-    /* background-color: hsla(0, 0%, 16%, 1); */
     height: 100%;
     text-align: center;
+    padding: 5px 20px;
+    margin: 0 auto;
+    max-width: 1280px;
+    width: calc(100% - 40px); // - padding (20+20)
     
     .content-root {
         max-width: 800px;
+        margin: 0 auto;
     }
 
     .downloading-content {

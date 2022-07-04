@@ -27,12 +27,12 @@
                 v-for="(download, cindex) in downloads"
                 :key="`download-${cindex}-${download.Id}`"
                 class="download-list-item"
+                @click="showDownload(download)"
                 >
                 <div>
                     <div class="download-list-item--inner">
-                        <div class="download-list-item--rule"
-                            @click="showDownload(download)">
-                            <icon-component>description</icon-component>
+                        <div class="download-list-item--rule">
+                            <icon-component class="download-list-item--rule-icon">description</icon-component>
                             {{ download.FileName }}
                         </div>
                         
@@ -58,14 +58,14 @@
                     </div>
                         
                     <div class="download-link">
-                        Download link: <a :href="getAbsoluteDownloadUrl(download)">{{ getAbsoluteDownloadUrl(download) }}</a>
+                        Download link: <a :href="getAbsoluteDownloadUrl(download)" @click.stop="" target="_blank">{{ getAbsoluteDownloadUrl(download) }}</a>
                     </div>
                 </div>
             </block-component>
 
         </div>
         
-        <dialog-component v-model:value="downloadDialogVisible" persistent max-width="1200">
+        <dialog-component v-model:value="downloadDialogVisible" persistent max-width="1200" @close="hideCurrentDownload">
             <template #header>{{ currentDialogTitle }}</template>
             <template #footer>
                 <btn-component color="error"
@@ -263,7 +263,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
             this.datax.push(download);
         }
         else {
-            this.data[position] = download;
+            this.datax[position] = download;
         }
 
         if (download.FileId)
@@ -378,6 +378,7 @@ export default class SecureFileDownloadPageComponent extends Vue {
 }
 .download-list-item {
     margin-bottom: 20px;
+    cursor: pointer;
     
     .download-list-item--inner {
         display: flex;
@@ -387,10 +388,11 @@ export default class SecureFileDownloadPageComponent extends Vue {
 
         .download-list-item--rule {
             flex: 1;
-            cursor: pointer;
             font-size: 16px;
             margin-right: 20px;
-            
+            display: flex;
+            align-items: center;
+
             .download-list-item--operator {
                 font-weight: 600;
             }
@@ -404,6 +406,10 @@ export default class SecureFileDownloadPageComponent extends Vue {
             .download-list-item--action {
                 font-weight: 600;
             } */
+        }
+
+        .download-list-item--rule-icon {
+            margin-right: 5px;
         }
     }
 }

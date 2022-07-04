@@ -26,6 +26,11 @@ $input-paddings: (
 			}
 		}
 	}
+	&.center {
+		.input {
+			text-align: center;
+		}
+	}
 }
 .input {
 	border: 0;
