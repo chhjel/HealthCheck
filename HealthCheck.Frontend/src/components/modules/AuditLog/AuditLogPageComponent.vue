@@ -47,6 +47,7 @@
                 <data-table-component
                     :headers="tableHeaders.map(x => x.text)"
                     :groups="auditEntryGroups"
+                    v-if="auditEntryGroups.length > 0 && auditEntryGroups[0].items.length > 0"
                     class="audit-table">
                     <template v-slot:cell="{ value }">
                         <span>{{ value }}</span>
@@ -87,6 +88,7 @@
                         </div>
                     </template>
                 </data-table-component>
+                <div v-else>No matching events found.</div>
             </div>
         </div>
 
