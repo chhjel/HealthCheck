@@ -232,10 +232,10 @@
   resolved "https://registry.yarnpkg.com/@vue/shared/-/shared-3.2.31.tgz#c90de7126d833dcd3a4c7534d534be2fb41faa4e"
   integrity sha512-ymN2pj6zEjiKJZbrf98UM2pfDd6F2H7ksKw7NDt/ZZ1fh5Ei39X5tABugtT03ZRlWd9imccoK0hE8hpjpU7irQ==
 
-"@vuepic/vue-datepicker@^3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@vuepic/vue-datepicker/-/vue-datepicker-3.1.0.tgz#4235dcf7ea74ccc5a3be95d9fb2182027e5bb538"
-  integrity sha512-ZPxAwmwpraHcytyXf/OI9buBz+8yLNQWpW+NBQGHiSiyajCf1WXaljEHV5ScNJM4kJRG++b2bM2nY/odiLY9ZA==
+"@vuepic/vue-datepicker@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@vuepic/vue-datepicker/-/vue-datepicker-3.3.0.tgz#a5c8f5ef8562fdd2f29b2d54918ea9641ee839eb"
+  integrity sha512-fg+Ks/TSJXX+XRlYPFfwFp2vSpwUZW+6AwYNioitjqLaSHwx5Jtg6TeucHmfF7B3ecbh3x1jB6bwJXjRWjEkSQ==
   dependencies:
     date-fns "^2.28.0"
 
