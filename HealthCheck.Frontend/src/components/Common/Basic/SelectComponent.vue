@@ -24,6 +24,7 @@
                         @keydown.esc="hideDropdown"
                         @blur="onFilterBlur"
                         @focus="onFilterFocus"
+                        @input="onFilterInput"
                         ref="filterInputElement" />
                     <icon-component v-if="isClearable" class="input-icon" :class="clearableIconClasses"
                         title="Clear"
@@ -426,6 +427,9 @@ export default class SelectComponent extends Vue
             && this.filter.length == 0) {
             this.removeValue(this.selectedItems[this.selectedItems.length-1].value);
         }
+    }
+    onFilterInput(): void {
+        this.setDropdownPosition();
     }
 
     @Watch('value')
