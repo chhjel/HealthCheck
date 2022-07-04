@@ -365,33 +365,32 @@ export default class SelectComponent extends Vue
 
     setDropdownPosition(): void {
         if (!this.showDropdown) return;
-
-        // const vh = window.innerHeight;
-        // const dropdownHeight = this.dropdownElement.clientHeight + 2 /* 2=border */;
-        // const dropdownBottomY = dropdownTopY + dropdownHeight;
         
+        // Calculate some values
+        const bodyOffsetLeft = window.scrollX + document.body.getBoundingClientRect().left;
+        const bodyOffsetTop = window.scrollY + document.body.getBoundingClientRect().top;
         const inputWrapperHeight = this.wrapperElement.clientHeight;
         const inputWrapperRect = this.wrapperElement.getBoundingClientRect();
+        const inputWrapperTop = inputWrapperRect.top + window.scrollY - bodyOffsetTop;
 
-        var bodyOffsetTop = window.scrollY + document.body.getBoundingClientRect().top;
-        var bodyOffsetLeft = window.scrollX + document.body.getBoundingClientRect().left;
-        let top: number = inputWrapperRect.top + window.scrollY - bodyOffsetTop + inputWrapperHeight;
+        // Find top/left of dropdown
         let left: number = inputWrapperRect.left + window.scrollX - bodyOffsetLeft;
 
-        let showBelowInput = true;
-        const yOffset = 4;
-        top += yOffset * (showBelowInput ? -1 : 1);
+        // Check if dropdown should be above input
+        let top: number = 0;
+        const dropdownHeight = this.dropdownElement.clientHeight + 2 /* 2=border */;
+        const dropdownBottomY = inputWrapperRect.top + inputWrapperHeight + dropdownHeight;
+        const yExtraOffset = 4;
+        if (dropdownBottomY >= window.innerHeight) {
+            top = inputWrapperTop - dropdownHeight + yExtraOffset;
+        }
+        else {
+            top = inputWrapperTop + inputWrapperHeight - yExtraOffset;
+        }
 
+        // Apply calculated values
         this.dropdownElement.style.top = top + 'px';
         this.dropdownElement.style.left = left + 'px';
-
-        // if (dropdownBottomY >= vh) {
-        //     this.dropdownElement.style.top = (-dropdownHeight + this.wrapperElement.offsetTop) + 'px';
-        // }
-        // else
-        // {
-        //     this.dropdownElement.style.top = null;
-        // }
     }
 
     ///////////////////////
