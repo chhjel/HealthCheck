@@ -52,7 +52,6 @@ import ParameterInputTypeDoubleComponent from '@components/Common/Inputs/Backend
 import ParameterInputTypeStringComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeStringComponent.vue';
 import ParameterInputTypeBooleanComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeBooleanComponent.vue';
 import ParameterInputTypeDateTimeComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeDateTimeComponent.vue';
-import ParameterInputTypeDateTimeOffsetComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeDateTimeOffsetComponent.vue';
 import ParameterInputTypeEnumComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeEnumComponent.vue';
 import ParameterInputTypeFlaggedEnumComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeFlaggedEnumComponent.vue';
 import ParameterInputTypeGenericListComponent from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeGenericListComponent.vue';
@@ -79,7 +78,6 @@ import { StoreUtil } from "@util/StoreUtil";
       ParameterInputTypeStringComponent,
       ParameterInputTypeBooleanComponent,
       ParameterInputTypeDateTimeComponent,
-      ParameterInputTypeDateTimeOffsetComponent,
       ParameterInputTypeEnumComponent,
       ParameterInputTypeFlaggedEnumComponent,
       ParameterInputTypeTimeSpanComponent,
@@ -207,17 +205,22 @@ export default class BackendInputComponent extends Vue {
         return this.feedback != null && this.feedback.length > 0;
     }
 
+    static typeAliases: { [key: string]: string } = {
+        'DateTimeOffset': 'DateTime'
+    };
     get resolvedType(): string {
+        let resultType = '';
         if (this.forceType && this.forceType.length > 0)
         {
-            return this.forceType;
+            resultType = this.forceType;
         }
         else if (this.config.Type && this.config.Type.length > 0)
         {
-            return this.config.Type;
+            resultType = this.config.Type;
         }
 
-        return this.forceType;
+        const aliased = BackendInputComponent.typeAliases[resultType];
+        return aliased || resultType;
     }
 
     get displayDescription(): string {

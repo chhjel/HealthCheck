@@ -7,16 +7,24 @@
             :disabled="isDisabled" 
             :clearable="isClearable"
             :presetRanges="internalRangePresets"
-            :disabledDates="disabledDates" />
+            :disabledDates="disabledDates"
+            :placeholder="placeholder"
+            :is24="true"
+            :enableSeconds="true"
+            :format="format"
+            :altPosition="dropdownPosition"
+            inputClassName="input input-date"
+            ref="pickerElement" />
     </div>
 </template>
 
 <script lang="ts">
 // https://vue3datepicker.com/api/props/#inline
-import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import ValueUtils from '@util/ValueUtils'
 import { DatePickerPresetDateRange, presetRangesBackInTime } from "./DatePickerComponent.vue.models";
+import ElementUtils from "@util/ElementUtils";
 
 @Options({
     components: {}
@@ -37,8 +45,13 @@ export default class DatePickerComponent extends Vue {
     @Prop({ required: false, default: false })
     disabled!: string | boolean;
 
+    @Prop({ required: false, default: null })
+    placeholder!: string | null;
+
     @Prop({ required: false, default: '' })
     rangePresets!: 'past' | DatePickerPresetDateRange[];
+
+    @Ref() readonly pickerElement!: Vue;
 
     localValue: Date[] = [];
     presetItems: DatePickerPresetDateRange[] = [];
@@ -70,6 +83,12 @@ export default class DatePickerComponent extends Vue {
         else return [];
     }
 
+    get format(): string {
+        return this.isRange
+            ? 'dd/MM/yyyy HH:mm:ss - dd/MM/yyyy HH:mm:ss'
+            : 'dd/MM/yyyy HH:mm:ss';
+    }
+
     //#region Proxy methods consumed by internal datepicker
     get internalRangePresets(): Array<any> {
         return this.presets.map(x => ({
@@ -88,6 +107,19 @@ export default class DatePickerComponent extends Vue {
     //////////////
     setDatePickerPresetRange(preset: DatePickerPresetDateRange): void {
         this.localValue = [ preset.from, preset.to ];
+    }
+
+    dropdownPosition(el: HTMLElement | undefined): { top: string; left: string; transform: string } {
+        if (this.pickerElement == null) return { top: '', left: '', transform: ''}
+
+        const input = this.pickerElement.$el;
+        const dropdown = document.getElementsByClassName("dp__menu")[0] as HTMLElement;
+        const pos = ElementUtils.calcDropdownPosition(input, dropdown, 4);
+        return {
+            top: pos.top,
+            left: pos.left,
+            transform: ''
+        };
     }
 
     ///////////////////////

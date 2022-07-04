@@ -367,31 +367,9 @@ export default class SelectComponent extends Vue
     setDropdownPosition(): void {
         if (!this.showDropdown) return;
         
-        // Calculate some values
-        const bodyOffsetLeft = window.scrollX + document.body.getBoundingClientRect().left;
-        const bodyOffsetTop = window.scrollY + document.body.getBoundingClientRect().top;
-        const inputWrapperHeight = this.wrapperElement.clientHeight;
-        const inputWrapperRect = this.wrapperElement.getBoundingClientRect();
-        const inputWrapperTop = inputWrapperRect.top + window.scrollY - bodyOffsetTop;
-
-        // Find top/left of dropdown
-        let left: number = inputWrapperRect.left + window.scrollX - bodyOffsetLeft;
-
-        // Check if dropdown should be above input
-        let top: number = 0;
-        const dropdownHeight = this.dropdownElement.clientHeight + 2 /* 2=border */;
-        const dropdownBottomY = inputWrapperRect.top + inputWrapperHeight + dropdownHeight;
-        const yExtraOffset = 4;
-        if (dropdownBottomY >= window.innerHeight) {
-            top = inputWrapperTop - dropdownHeight + yExtraOffset;
-        }
-        else {
-            top = inputWrapperTop + inputWrapperHeight - yExtraOffset;
-        }
-
-        // Apply calculated values
-        this.dropdownElement.style.top = top + 'px';
-        this.dropdownElement.style.left = left + 'px';
+        const pos = ElementUtils.calcDropdownPosition(this.wrapperElement, this.dropdownElement);
+        this.dropdownElement.style.top = pos.top;
+        this.dropdownElement.style.left = pos.left;
     }
 
     ///////////////////////

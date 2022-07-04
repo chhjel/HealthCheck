@@ -1,20 +1,27 @@
 <!-- src/components/modules/TestSuite/paremeter_inputs/input_types/ParameterInputTypeDateTimeComponent.vue -->
 <template>
     <div>
-        <text-field-component
-            class="pt-0"
-            v-model:value="localValue"
+        <date-picker-component
+            v-model:value="localValueDates"
             :placeholder="placeholderText"
             :disabled="readonly"
-            type="datetime-local"> 
-            <tooltip-component v-if="isNullable" tooltip="Set value to null">
-                <icon-component @click="clearValue">clear</icon-component>
-            </tooltip-component>
-        </text-field-component>
+            :clearable="isNullable"
+        ></date-picker-component>
     </div>
 </template>
 
 <script lang="ts">
+// Old:
+// <text-field-component
+//     class="pt-0"
+//     v-model:value="localValue"
+//     :placeholder="placeholderText"
+//     :disabled="readonly"
+//     type="datetime-local"> 
+//     <tooltip-component v-if="isNullable" tooltip="Set value to null">
+//         <icon-component @click="clearValue">clear</icon-component>
+//     </tooltip-component>
+// </text-field-component>
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import DateUtils from '@util/DateUtils';
@@ -35,13 +42,14 @@ export default class ParameterInputTypeDateTimeComponent extends Vue {
     readonly!: boolean;
 
     localValue: string | null = '';
+    localValueDates: Date[] | null = null;
     
     created(): void {
         this.updateLocalValue();
     }
 
     public formatDefaultValue(val: string): string | null {
-        return DateUtils.FormatDate(new Date(val), 'yyyy-MM-ddThh:mm:ss');;
+        return DateUtils.FormatDate(new Date(val), 'yyyy-MM-ddTHH:mm:ss');;
     }
 
     validateValue(): void {
@@ -62,7 +70,7 @@ export default class ParameterInputTypeDateTimeComponent extends Vue {
     }
 
     setValueToNow(): void {
-        this.localValue = DateUtils.FormatDate(new Date(), 'yyyy-MM-ddThh:mm:ss');
+        this.localValue = DateUtils.FormatDate(new Date(), 'yyyy-MM-ddTHH:mm:ss');
     }
 
     get isNullable(): boolean {
@@ -77,6 +85,18 @@ export default class ParameterInputTypeDateTimeComponent extends Vue {
         return this.config.NullName || 'null';
     }
 
+    setLocalValueFromDate(date: Date | Date[] | null): void {
+        if (date == null) {
+            this.clearValue();
+        } else if (Array.isArray(date) && (date.length == 0 || date[0] == null)) {
+            this.clearValue();
+        } else if (Array.isArray(date) && date.length > 0) {
+            this.localValue = DateUtils.FormatDate(date[0], 'yyyy-MM-ddTHH:mm:ss');
+        } else if (!Array.isArray(date)) {
+            this.localValue = DateUtils.FormatDate(date, 'yyyy-MM-ddTHH:mm:ss');
+        }
+    }
+
     /////////////////
     //  WATCHERS  //
     ///////////////
@@ -84,6 +104,7 @@ export default class ParameterInputTypeDateTimeComponent extends Vue {
     updateLocalValue(): void
     {
         this.localValue = this.value;
+        this.localValueDates = !!this.localValue ? [new Date(this.localValue)] : null;
         this.validateValue();
     }
 
@@ -92,6 +113,12 @@ export default class ParameterInputTypeDateTimeComponent extends Vue {
     {
         this.validateValue();
         this.$emit('update:value', this.localValue);
+    }
+
+    @Watch('localValueDates', { deep: true })
+    onLocalValueDatesChanged(): void
+    {
+        this.setLocalValueFromDate(this.localValueDates);
     }
 }
 </script>

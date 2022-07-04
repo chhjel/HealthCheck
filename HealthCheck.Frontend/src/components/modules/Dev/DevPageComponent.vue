@@ -453,15 +453,6 @@
 				<code>{{ ParameterInputTypeDateTimeComponent_value }}</code>
 				<hr />
 
-				<h3 class="ok">parameter-input-type-date-time-offset-component</h3>
-				<!-- ParameterInputTypeDateTimeOffsetComponent -->
-				<parameter-input-type-date-time-offset-component
-					v-model:value="ParameterInputTypeDateTimeOffsetComponent_value"
-					:config="ParameterInputTypeDateTimeOffsetComponent_config"
-				></parameter-input-type-date-time-offset-component>
-				<code>{{ ParameterInputTypeDateTimeOffsetComponent_value }}</code>
-				<hr />
-
 				<h3 class="ok">parameter-input-type-decimal-component</h3>
 				<!-- ParameterInputTypeDecimalComponent -->
 				<parameter-input-type-decimal-component
@@ -587,9 +578,17 @@
 				<date-picker-component
 					v-model:value="DatePickerComponent_value"
 					:allowed-dates="DatePickerComponent_allowDate"
-					rangePresets="past"
+					clearable
 				></date-picker-component>
-				<code>{{ DatePickerComponent_value }}</code>
+				<code>{{ (DatePickerComponent_value == null ? 'null' : DatePickerComponent_value) }}</code>
+				<date-picker-component class="mt-2"
+					v-model:value="DatePickerComponent_values"
+					range
+					rangePresets="past"
+					placeholder="range"
+					clearable
+				></date-picker-component>
+				<code>{{ (DatePickerComponent_values == null ? 'null' : DatePickerComponent_values) }}</code>
 				<hr />
 
 				<h3 class="ok">calendar-component</h3>
@@ -658,7 +657,6 @@ import ParameterInputAnyJsonComponent from "@components/Common/Inputs/BackendInp
 import ParameterInputPickReferenceComponent from "@components/Common/Inputs/BackendInputs/Types/ParameterInputPickReferenceComponent.vue";
 import ParameterInputTypeBooleanComponent from "@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeBooleanComponent.vue";
 import ParameterInputTypeDateTimeComponent from "@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeDateTimeComponent.vue";
-import ParameterInputTypeDateTimeOffsetComponent from "@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeDateTimeOffsetComponent.vue";
 import ParameterInputTypeDecimalComponent from "@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeDecimalComponent.vue";
 import ParameterInputTypeDoubleComponent from "@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeDoubleComponent.vue";
 import ParameterInputTypeEnumComponent from "@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeEnumComponent.vue";
@@ -727,7 +725,6 @@ import { StepperComponentStepViewModel } from "@components/Common/Basic/StepperC
 		ParameterInputPickReferenceComponent,
 		ParameterInputTypeBooleanComponent,
 		ParameterInputTypeDateTimeComponent,
-		ParameterInputTypeDateTimeOffsetComponent,
 		ParameterInputTypeDecimalComponent,
 		ParameterInputTypeDoubleComponent,
 		ParameterInputTypeEnumComponent,
@@ -805,9 +802,10 @@ Web -> Frontend: Confirmation is delivered
 		{ url: "https://via.placeholder.com/55", detailsHtml: "Item D" }
 	];
 	CheckboxComponent_value: boolean = true;
-	DatePickerComponent_value: Date = new Date();
+	DatePickerComponent_value: Date[] = [new Date(), null];
+	DatePickerComponent_values: Date[] = [new Date(), new Date()];
     DatePickerComponent_allowDate = (date: Date) => {
-		return date.toString().includes('2');
+		return date.getDay() % 2 == 0;
     }
 	DialogComponent_value: boolean = false;
 	ExpansionPanelComponent_value: boolean = false;
@@ -864,8 +862,6 @@ Web -> Frontend: Confirmation is delivered
 	ParameterInputTypeBooleanComponent_config: HCBackendInputConfig = this.createBackendInputConfig();
 	ParameterInputTypeDateTimeComponent_value: string = "2021-08-14T22:22:00";
 	ParameterInputTypeDateTimeComponent_config: HCBackendInputConfig = this.createBackendInputConfig();
-	ParameterInputTypeDateTimeOffsetComponent_value: string = "2021-08-14T18:18:18";
-	ParameterInputTypeDateTimeOffsetComponent_config: HCBackendInputConfig = this.createBackendInputConfig();
 	ParameterInputTypeDecimalComponent_value: string = "12.34";
 	ParameterInputTypeDecimalComponent_config: HCBackendInputConfig = this.createBackendInputConfig();
 	ParameterInputTypeDoubleComponent_value: string = "23.45";

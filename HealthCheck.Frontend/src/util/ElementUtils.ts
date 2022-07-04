@@ -14,4 +14,37 @@ export default class ElementUtils
 			return (elemTop >= 0) && (elemBottom <= window.innerHeight);
 		}
 	}
+
+	static calcDropdownPosition(input: HTMLElement, dropdown: HTMLElement, yOffset: number = 0): { top: string, left: string } {
+        // Calculate some values
+        const bodyOffsetLeft = window.scrollX + document.body.getBoundingClientRect().left;
+        const bodyOffsetTop = window.scrollY + document.body.getBoundingClientRect().top;
+        const inputWrapperHeight = input.clientHeight;
+        const inputWrapperRect = input.getBoundingClientRect();
+        const inputWrapperTop = inputWrapperRect.top + window.scrollY - bodyOffsetTop;
+
+        // Find top/left of dropdown
+        let left: number = inputWrapperRect.left + window.scrollX - bodyOffsetLeft;
+
+        // Check if dropdown should be above input
+        let top: number = 0;
+        const dropdownHeight = dropdown.clientHeight + 2 /* 2=border */;
+        const dropdownBottomY = inputWrapperRect.top + inputWrapperHeight + dropdownHeight;
+        let yExtraOffset = 4;
+		if (yOffset) {
+			yExtraOffset -= yOffset;
+		}
+        if (dropdownBottomY >= window.innerHeight) {
+            top = inputWrapperTop - dropdownHeight + yExtraOffset;
+        }
+        else {
+            top = inputWrapperTop + inputWrapperHeight - yExtraOffset;
+        }
+
+        // Return calculated values
+		return {
+			top: top + 'px',
+			left: left + 'px'
+		};
+	}
 }
