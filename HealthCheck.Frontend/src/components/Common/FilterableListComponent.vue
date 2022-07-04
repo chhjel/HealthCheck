@@ -296,7 +296,6 @@ export default class FilterableListComponent extends Vue {
 .filterable-menu-item {
     display: flex;
     cursor: pointer;
-    /* border-left: 4px solid var(--v-primary-base); */
     padding-left: 46px;
     &.active {
         padding-left: 42px;

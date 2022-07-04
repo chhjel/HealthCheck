@@ -1,7 +1,7 @@
 <!-- src/components/modules/IntegratedLogin/IntegratedLoginPageComponent.vue -->
 <template>
     <div>
-        <floating-squares-effect-component />
+        <floating-squares-effect-component /> 
 
         <div class="integrated-login-page">
             <div class="content-root">
@@ -29,9 +29,9 @@
                             @click:append="showPassword = !showPassword"
                             class="pt-0 mt-2" />
 
-                        <div v-if="showTwoFactorCodeInput" class="mb-4 mt-b">
-                            <div row class="">
-                                <div :xs6="show2FASendCodeButton" :xs12="!show2FASendCodeButton">
+                        <div v-if="showTwoFactorCodeInput" class="mb-4 mt-2">
+                            <div class="flex layout">
+                                <div :class="mfaInputClasses">
                                     <text-field-component
                                         v-model:value="twoFactorCode"
                                         :disabled="loadStatus.inProgress"
@@ -50,7 +50,7 @@
                                         </template>
                                     </text-field-component>
                                 </div>
-                                <div xs6 v-if="show2FASendCodeButton">
+                                <div class="xs6" v-if="show2FASendCodeButton">
                                     <btn-component round color="secondary" class="mt-0"
                                         @click.prevent="onSendCodeClicked"
                                         :disabled="loadStatus.inProgress">
@@ -78,7 +78,7 @@
                         <span style="white-space: normal;">Sign in</span>
                     </btn-component>
 
-                    <progress-linear-component color="primary" indeterminate v-if="loadStatus.inProgress"></progress-linear-component>
+                    <progress-linear-component color="primary" class="mt-1" indeterminate v-if="loadStatus.inProgress"></progress-linear-component>
 
                     <div v-if="error != null && error.length > 0" class="error--text mt-4">
                         <b v-if="!showErrorAsHtml">{{ error }}</b>
@@ -231,6 +231,13 @@ export default class IntegratedLoginPageComponent extends Vue {
         else {
             return 'success';
         }
+    }
+
+    get mfaInputClasses(): any {
+        return {
+            xs6: this.show2FASendCodeButton,
+            xs12: !this.show2FASendCodeButton,
+        };
     }
 
     ////////////////
@@ -414,20 +421,25 @@ export default class IntegratedLoginPageComponent extends Vue {
 
 <style scoped lang="scss">
 .integrated-login-page {
-    /* background-color: hsla(0, 0%, 16%, 1); */
     height: 100%;
     text-align: center;
     font-family: 'Montserrat';
+    padding: 5px 20px;
+    margin: 0 auto;
+    max-width: 1280px;
+    width: calc(100% - 40px); // - padding (20+20)
 
     .content-root {
-        max-width: 500px;
+        max-width: 370px;
+        margin: 0 auto;
         margin-top: 8vh;
+        background: #ffffff94;
     }
 
     .login-button {
         width: 100%;
         margin: 0;
-        background-color: var(--v-primary-darken2) !important;
+        background-color: var(--color--primary-darken1) !important;
         text-transform: none;
         font-size: 19px;
         height: 46px;
@@ -449,10 +461,10 @@ export default class IntegratedLoginPageComponent extends Vue {
 
     .mfa-note {
         font-size: small;
-
+/* 
         &.tfa { 
             margin-top: -8px;
-        }
+        } */
     }
 }
 </style>

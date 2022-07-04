@@ -72,7 +72,7 @@
             class="mt-4">
             <div v-if="profileOptions.ShowHealthCheckRoles" class="mt-2">
                 <div class="meta-header">Access roles:</div>
-                <ul>
+                <ul class="mt-0">
                     <li
                         v-for="(userRole, urIndex) in userRoles"
                         :key="`urolename-${urIndex}`">
@@ -83,7 +83,7 @@
 
             <div v-if="profileOptions.ShowHealthCheckCategories" class="mt-2">
                 <div class="meta-header">Category access per module:</div>
-                <ul>
+                <ul class="mt-0">
                     <li
                         v-for="(modCat, mcIndex) in userModuleCategories"
                         :key="`modcat-${mcIndex}`"

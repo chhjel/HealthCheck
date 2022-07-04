@@ -177,7 +177,9 @@ export default class BtnComponent extends Vue {
     &.outline {
         box-shadow: none !important;
     }
-    &.round { }
+    &.round {
+        border-radius: 50vh;
+    }
     &.flat {
         background-color: transparent;
         box-shadow: none !important;

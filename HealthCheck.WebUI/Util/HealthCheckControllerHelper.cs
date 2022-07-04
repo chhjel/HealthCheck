@@ -694,6 +694,7 @@ namespace HealthCheck.WebUI.Util
     height: 100%;
     position: fixed;
     background-color: #fff;
+    z-index: -10;
 }
 
 .floating-squares-effect .bg-bubbles {

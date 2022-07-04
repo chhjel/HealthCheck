@@ -68,7 +68,7 @@ let moduleOptions = ((window as any).healthCheckModuleOptions) as Record<string,
 
   if (moduleConfig.length == 0)
   {
-    routes.push({ path: '/*', component: NoPageAvailablePageComponent });
+    routes.push({ path: '/:catchAll(.*)*', component: NoPageAvailablePageComponent });
   }
   routes.push({ path: '/styling', component: DevPageComponent });
   const router = createRouter({
