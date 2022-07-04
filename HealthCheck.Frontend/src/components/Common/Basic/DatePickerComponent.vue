@@ -3,6 +3,7 @@
         <datepicker 
             v-model="localValue"
             :range="isRange"
+            :partialRange="false"
             :disabled="isDisabled" 
             :clearable="isClearable"
             :presetRanges="internalRangePresets"
