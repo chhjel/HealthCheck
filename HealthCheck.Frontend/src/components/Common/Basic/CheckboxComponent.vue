@@ -156,6 +156,7 @@ export default class CheckboxComponent extends Vue {
 .checkbox-component {
     display: flex;
     align-items: center;
+    min-height: 36px;
     
     &:not(.disabled) {
         cursor: pointer;
