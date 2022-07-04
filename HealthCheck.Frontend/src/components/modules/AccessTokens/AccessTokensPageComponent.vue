@@ -395,7 +395,7 @@ export default class AccessTokensPageComponent extends Vue {
                 padding: 0px 2px;
                 margin-right: 4px;
                 box-shadow: 0 0 3px 0px #b5b5b5;
-                background-color: #eef;
+                background-color: #f3f3f3;
                 margin-right: 10px;
             }
         }

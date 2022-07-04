@@ -4,7 +4,11 @@
         <input-header-component :name="label" :description="description" :showDescriptionOnStart="showDescriptionOnStart" :ensureHeight="isEnsureLabelHeight" />
         
         <div class="input-wrapper" ref="wrapperElement">
-            <div class="select-component__input input input-padding-2" @click="onInputClicked" ref="inputElement" tabindex="0">
+            <div class="select-component__input input input-padding-2"
+                @click="onInputClicked"
+                ref="inputElement"
+                tabindex="0"
+                @keypress="onSelectKeyPress">
                 <div v-for="(item, iIndex) in selectedItems"
                     :key="`${id}-item-${iIndex}`"
                     class="select-component__input-chip">
@@ -387,6 +391,14 @@ export default class SelectComponent extends Vue
         } else if (this.isNullable || this.isMultiple || this.selectedValues.length > 1) {
             this.removeValue(item.value);
         }
+    }
+
+    onSelectKeyPress(e: KeyboardEvent): void {
+        // todo: allows opening dropdown while others are open as well
+        // if (e.code == 'Space' && e.currentTarget == e.target) {
+        //     e.preventDefault();
+        //     this.tryToggleDropdown();
+        // }
     }
 
     onFilterEnter(): void {
