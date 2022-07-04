@@ -66,6 +66,9 @@ export default class TextFieldComponent extends Vue {
     @Prop({ required: false, default: false })
     clearable!: string | boolean;
 
+    @Prop({ required: false, default: false })
+    center!: string | boolean;
+
     @Prop({ required: false, default: null })
     solo!: string;
 
@@ -128,10 +131,12 @@ export default class TextFieldComponent extends Vue {
 
     get inputWrapperClasses(): any {
         return {
-             'solo': this.isSolo
+             'solo': this.isSolo,
+             'center': this.isCenter
         };
     }
 
+    get isCenter(): boolean { return ValueUtils.IsToggleTrue(this.center); }
     get isSolo(): boolean { return ValueUtils.IsToggleTrue(this.solo); }
     get isDisabled(): boolean { return ValueUtils.IsToggleTrue(this.disabled); }
     get isClearable(): boolean { return ValueUtils.IsToggleTrue(this.clearable); }
