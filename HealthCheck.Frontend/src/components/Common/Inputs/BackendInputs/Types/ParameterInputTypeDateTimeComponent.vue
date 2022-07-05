@@ -43,9 +43,11 @@ export default class ParameterInputTypeDateTimeComponent extends Vue {
 
     localValue: string | null = '';
     localValueDates: Date[] | null = null;
+    isCreated: boolean = false;
     
     created(): void {
         this.updateLocalValue();
+        this.isCreated = true;
     }
 
     public formatDefaultValue(val: string): string | null {
@@ -58,6 +60,8 @@ export default class ParameterInputTypeDateTimeComponent extends Vue {
             {
                 this.localValue = null;
             }
+            // Ignore on create if we have default value
+            else if (!this.isCreated && this.config.DefaultValue && !this.config.DefaultValue.startsWith('01-Jan-01 00:00:00')) { }
             else
             {
                 this.setValueToNow();
