@@ -87,6 +87,9 @@ export default class BlockComponent extends Vue
     background-color: #fff;
     box-shadow: #d5d7d5 4px 4px 6px 0px;
     padding: 24px;
+    border: 1px solid #eee;
+    box-sizing: border-box;
+
     @media (max-width: 960px) {
         padding-left: 0;
         padding-right: 0;

@@ -88,7 +88,7 @@
                         v-for="(modCat, mcIndex) in userModuleCategories"
                         :key="`modcat-${mcIndex}`"
                     >
-                        <b>{{ modCat.ModuleName }}:</b> 
+                        <b>{{ modCat.ModuleName }}: </b> 
                         <span v-if="modCat.Categories && modCat.Categories.length > 0" class="usercategories">{{ (modCat.Categories.join(', ')) }}</span>
                         <span v-else class="usercategoriesall">All categories</span>
                     </li>
