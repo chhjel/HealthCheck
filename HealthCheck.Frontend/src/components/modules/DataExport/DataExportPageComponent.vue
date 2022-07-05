@@ -341,7 +341,7 @@
                 <btn-component color="primary"
                     :disabled="dataLoadStatus.inProgress"
                     :loading="dataLoadStatus.inProgress"
-                    @click="onAddCustomHeaderButtonClicked">Add custom column</btn-component>
+                    @click="onAddCustomHeaderButtonClicked">Add new custom column</btn-component>
                 <btn-component color="secondary"
                     :disabled="dataLoadStatus.inProgress"
                     :loading="dataLoadStatus.inProgress"
@@ -355,27 +355,32 @@
                     <div v-for="(header, hIndex) in headers"
                         :key="`item-header-override-${hIndex}`"
                         class="item-header-override-config">
-                        <h4>{{ header }}</h4>
-                        <div class="item-header-override-config__row">
-                            <text-field-component
-                                label="Name override"
-                                v-model:value="headerNameOverrides[header]"
-                                :placeholder="header"
-                                :undefinedWhenEmpty="true" />
-                            <btn-component flat
-                                v-if="hasFormatterForHeader(header)"
-                                @click="onValueFormatButtonClicked(header)">Format</btn-component>
-                            <btn-component flat color="error"
-                                v-if="isCustomHeader(header)"
-                                @click="onRemoveCustomHeaderButtonClicked(header)">Remove</btn-component>
+                        <div class="item-header-override-config__header">
+                            <h3>{{ getPrettyHeaderDisplayName(header) }}</h3>
                         </div>
-                        <div class="item-header-override-config__row">
-                            <text-field-component
-                                label="Custom value"
-                                v-if="isCustomHeader(header)"
-                                v-model:value="customColumns[header]"
-                                append-icon="insert_link"
-                                @click:append="onShowPlaceholdersClicked(header)" />
+                        <div class="item-header-override-config__content">
+                            <div class="item-header-override-config__row">
+                                <text-field-component
+                                    label="Override name"
+                                    v-model:value="headerNameOverrides[header]"
+                                    :placeholder="header"
+                                    :undefinedWhenEmpty="true" />
+                                <btn-component flat
+                                    v-if="hasFormatterForHeader(header)"
+                                    @click="onValueFormatButtonClicked(header)">Format</btn-component>
+                                <btn-component flat color="error"
+                                    v-if="isCustomHeader(header)"
+                                    @click="onRemoveCustomHeaderButtonClicked(header)">Remove</btn-component>
+                            </div>
+                            <div class="item-header-override-config__row">
+                                <text-field-component
+                                    label="Custom value"
+                                    class="mt-2"
+                                    v-if="isCustomHeader(header)"
+                                    v-model:value="customColumns[header]"
+                                    append-icon="insert_link"
+                                    @click:append="onShowPlaceholdersClicked(header)" />
+                            </div>
                         </div>
                     </div>
                 </ul>
@@ -448,6 +453,7 @@
                         item-text="Name" item-value="Id"
                         :disabled="dataLoadStatus.inProgress"
                         v-on:change="onFormatterChanged"
+                        class="mb-2"
                         >
                     </select-component>
                     
@@ -480,7 +486,7 @@
                     <div v-for="(placeholder, placeholderIndex) in availableProperties"
                         :key="`possible-placeholder-${placeholderIndex}`"
                         @click="onAddPlaceholderClicked(placeholder)"
-                        class="possible-placeholder-list-item flex clickable">
+                        class="possible-placeholder-list-item flex clickable hoverable-light">
                         <icon-component>add</icon-component>
                         <div class="possible-placeholder-item-title">{{ `\{${placeholder}\}` }}</div>
                     </div>
@@ -955,6 +961,13 @@ export default class DataExportPageComponent extends Vue {
         return Object.keys(this.customColumns).includes(header);
     }
 
+    getPrettyHeaderDisplayName(header: string): string {
+        if (this.isCustomHeader(header) && header.startsWith('#')) {
+            header = header.substring(1).replace('_', ' ');
+        }
+        return header;
+    }
+
     hasFormatterForHeader(header: string): boolean {
         return this.getFormattersForHeader(header).length > 0;
     }
@@ -1323,13 +1336,19 @@ export default class DataExportPageComponent extends Vue {
     }
 }
 .item-header-override-config {
-    border-left: 4px solid #e7e7e7;
-    margin-bottom: 10px;
-    padding-left: 10px;
-
+    margin-bottom: 16px;
+    &__header {
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+    }
+    &__content {
+        border-left: 4px solid #e7e7e7;
+        padding-left: 10px;
+    }
     &__row {
         display: flex;
-        align-items: baseline;
+        align-items: center;
         .text-field-component {
             flex: 1;
         }
@@ -1361,5 +1380,8 @@ export default class DataExportPageComponent extends Vue {
     flex-direction: column;
     align-content: flex-start;
     align-items: flex-start;
+}
+.possible-placeholder-list-item {
+    padding: 2px 0;
 }
 </style>
