@@ -36,11 +36,13 @@ export default class CssUtils
 		else return CssUtils.PredefColorVariableNames.includes(color);
 	}
 	
-	static setColorClassIfPredefined(color: string, classes: any): void {
+	static setColorClassIfPredefined(color: string, classes: any, classIfNotPredefined: string | null = null): void {
         if (CssUtils.isColorVariableName(color))
         {
             classes[color] = true;
-        }
+        } else if(classIfNotPredefined) {
+            classes[classIfNotPredefined] = true;
+		}
     }
 
 	static setColorStyleIfNotPredefined(color: string, style: any): void {

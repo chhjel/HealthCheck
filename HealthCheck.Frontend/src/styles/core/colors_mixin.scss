@@ -1,6 +1,6 @@
 
 @mixin no-color-class {
-	&:not(.info):not(.warning):not(.error):not(.fatal):not(.success):not(.primary):not(.secondary):not(.accent) {
+	&:not(.info):not(.warning):not(.error):not(.fatal):not(.success):not(.primary):not(.secondary):not(.accent):not(.custom-color) {
 		@content;
 	}
 }

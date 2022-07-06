@@ -68,7 +68,7 @@
 
             <!-- TIMELINE -->
             <div v-if="showContent" class="mb-4">
-                <h2>Past events</h2>
+                <h2>Recent events</h2>
                 <event-timeline-component
                     :events="timelineEvents"
                     v-on:eventClicked="showEventDetailsDialog"

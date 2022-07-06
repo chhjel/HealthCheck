@@ -4,7 +4,7 @@
         <div v-for="(event, index) in events"
             :key="`current-event-${index}`"
             @click="onEventClicked(event)"
-            class="summary-list-item pa-2">
+            class="summary-list-item">
             <div class="flex">
                 <icon-component :color="getEventIconColor(event)" class="mr-2">{{getEventIcon(event)}}</icon-component>
                 <div>
@@ -82,7 +82,7 @@ export default class SiteEventsSummaryComponent extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .icon {
     margin-right: 5px;
 }
@@ -109,7 +109,7 @@ export default class SiteEventsSummaryComponent extends Vue {
 }
 .summary.with-fatal {
     color: #fff;
-    /* background: #333; */
+    background: var(--color--fatal-base);
 }
 .summary-item-title {
     font-size: 18px;
@@ -119,9 +119,12 @@ export default class SiteEventsSummaryComponent extends Vue {
 }
 .summary-list-item {
     background: #fff;
-    margin-bottom: 5px;
-    margin-top: 5px;
     cursor: pointer;
+    padding: 8px 0 8px 50px;
+	transition: 0.2s;
+	&:hover {
+		background-color: #e8e8e8;
+	}
 }
 .summary-list {
     background: inherit;

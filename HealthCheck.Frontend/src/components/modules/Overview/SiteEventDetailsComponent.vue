@@ -18,7 +18,7 @@
             </ul>
         </div>
 
-        <div class="caption mt-4">
+        <div class="small-font mt-4">
             This is a {{ event.Severity.toString().toLowerCase() }}-level event.<br />
             EventTypeId: {{ event.EventTypeId }}
         </div>
@@ -87,7 +87,7 @@ export default class SiteEventDetailsComponent extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .dev-details-contents::before,
 .dev-details-contents::after {
     content:'';

@@ -1,7 +1,7 @@
 <!-- src/components/modules/Overview/StatusComponent.vue -->
 <template>
     <div class="summary" :class="`with-${type}`">
-        <icon-component color="white" class="icon">{{ icon }}</icon-component>
+        <icon-component :color="color" class="icon">{{ icon }}</icon-component>
         <span>{{ text }}</span>
     </div>
 </template>
@@ -52,6 +52,10 @@ export default class StatusComponent extends Vue {
         }
     }
 
+    get color(): string {
+        return '#fff';
+    }
+
     ////////////////
     //  METHODS  //
     //////////////
@@ -66,6 +70,7 @@ export default class StatusComponent extends Vue {
 .summary {
     padding: 16px;
     display: flex;
+    align-items: center;
     font-size: 17px;
     border-radius: 2px;
     color: #fff;
@@ -86,6 +91,6 @@ export default class StatusComponent extends Vue {
 }
 .summary.with-fatal {
     color: #fff;
-    /* background: #333; */
+    background: var(--color--fatal-base);
 }
 </style>

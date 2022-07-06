@@ -1,40 +1,38 @@
 <!-- src/components/modules/Overview/EventTimelineComponent.vue -->
 <template>
     <div class="root event-timeline-component">
-        <div color="info" small v-if="timelineEventGroups.length == 0">
-            <div pt-3>
-                <div class="mr-4">
-                    <strong>No recent events</strong>
-                </div>
-            </div>
+        <div v-if="timelineEventGroups.length == 0" class="mr-4 pt-3 info">
+            <strong>No recent events</strong>
         </div>
-        <template v-for="group in timelineEventGroups" :key="`timeline-group-${group.index}-header`">
-            <div 
-                small hide-dot class="pb-0">
+
+        <div v-for="group in timelineEventGroups"
+            :key="`timeline-group-${group.index}-header`"
+            class="event-timeline-item-group">
+            <div class="event-timeline-item-group__header with-timeline">
                 <span>{{group.title}}</span>
             </div>
 
-            <div
-                v-for="event in group.events"
+            <div v-for="event in group.events"
                 :key="`timeline-group-${group.index}-item-${event.Id}`"
-                :color="getTimelineItemColor(event)"
-                small>
-                <div pt-3 class="timeline-item" @click="onEventClicked(event)">
-                    <div class="mr-4 pt-1 timeline-item-time">
+                class="event-timeline-item with-timeline"
+                @click="onEventClicked(event)">
+                <div class="event-timeline-item__dot" :class="getTimelineItemDotClasses(event)"></div>
+                <div class="event-timeline-item__content">
+                    <div class="event-timeline-item__time">
                         <strong>{{getTimelineItemTimeString(event, group)}}</strong>
                     </div>
                     <div>
-                        <strong class="timeline-item-title">
+                        <strong class="event-timeline-item__title">
                             {{ event.Title }}
-                            <strong class="timeline-item-title-resolved-label" v-if="event.Resolved">
+                            <strong class="event-timeline-item__title-resolved-label" v-if="event.Resolved">
                                 Resolved
                             </strong>
                         </strong>
-                        <div class="caption timeline-item-description">{{ event.Description }}</div>
+                        <div class="caption event-timeline-item__description">{{ event.Description }}</div>
                     </div>
                 </div>
             </div>
-        </template>
+        </div>
     </div>
 </template>
 
@@ -174,11 +172,15 @@ export default class EventTimelineComponent extends Vue {
         }
     }
 
-    getTimelineItemColor(event: SiteEventViewModel): string {
-        if (event.Severity == SiteEventSeverity.Warning) return "warning";
-        else if (event.Severity == SiteEventSeverity.Error) return "error";
-        else if (event.Severity == SiteEventSeverity.Fatal) return "black";
-        else return "info";
+    getTimelineItemDotClasses(event: SiteEventViewModel): any {
+        let classes: any = {};
+
+        if (event.Severity == SiteEventSeverity.Warning) classes["warning"] = true;
+        else if (event.Severity == SiteEventSeverity.Error) classes["error"] = true;
+        else if (event.Severity == SiteEventSeverity.Fatal) classes["fatal"] = true;
+        else classes["info"] = true;
+
+        return classes;
     }
 
     dayNames: string[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -211,41 +213,64 @@ export default class EventTimelineComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.timeline-item {
-    cursor: pointer;
+.with-timeline {
+    padding-left: 25px;
+    border-left: 2px solid #c9c9c9;
+    margin-left: 25px;
 }
-.timeline-item:hover {
-    background-color: #f1eded;
-}
-.timeline-item-time {
-    font-size: 18px;
-    min-width: 110px;
-    @media (max-width: 540px) {
-        margin-right: 0 !important;
-        min-width: 80px;
-        max-width: 80px;
+.event-timeline-item-group {
+    &__header {
+        padding-top: 10px;
     }
 }
-.timeline-item-title {
-    font-size: 18px;
-}
-.timeline-item-title-resolved-label {
-    color: var(--color--success-base);
-    font-size: 14px;
-    margin-left: 10px;
-    font-weight: normal;
-    font-weight: 600;
-}
-.timeline-item-description {
-    font-size: 16px !important;
-}
-</style>
+.event-timeline-item {
+    cursor: pointer;
+    display: flex;
+    flex-wrap: nowrap;
+    padding-top: 5px;
+    padding-bottom: 10px;
+    transition: all 0.2s;
 
-<style lang="scss">
-.event-timeline-component {
-    .v-timeline-item__body {
+    &:hover {
+        background-color: #dfdfdf;
+    }
+
+    &__dot {
+        box-sizing: border-box;
+        width: 20px;
+        height: 20px;
+        margin-left: calc(-25px - 10px);
+        border-radius: 50%;
+        border: 3px solid #fff;
+    }
+
+    &__content {
+        margin-left: 16px;
         @media (max-width: 540px) {
-            max-width: calc(100% - 45px);
+            max-width: calc(100% - 60px);
+        }
+
+        &__time {
+            font-size: 18px;
+            min-width: 110px;
+            @media (max-width: 540px) {
+                margin-right: 0 !important;
+                min-width: 80px;
+                max-width: 80px;
+            }
+        }
+        &__title {
+            font-size: 18px;
+        }
+        &__title-resolved-label {
+            color: var(--color--success-base);
+            font-size: 14px;
+            margin-left: 10px;
+            font-weight: normal;
+            font-weight: 600;
+        }
+        &__description {
+            font-size: 16px !important;
         }
     }
 }
