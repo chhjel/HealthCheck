@@ -9,7 +9,7 @@
 import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 // import '@fullcalendar/core/vdom' // solves problem with Vite
-import FullCalendar, { Calendar, CalendarOptions, DateSelectArg, EventApi, EventClickArg, EventInput } from '@fullcalendar/vue3';
+import FullCalendar, { Calendar, CalendarOptions, DateRangeInput, DateSelectArg, EventApi, EventClickArg, EventInput } from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
@@ -40,6 +40,7 @@ export default class CalendarComponent extends Vue {
             right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
         },
         initialView: 'dayGridMonth',
+        // validRange: { start: '2022-05-01', end: '2022-07-01' },
         // initialEvents: this.internalCalendarEvents, // alternatively, use the `events` setting to fetch from a feed
         // events: this.internalCalendarEvents,
         editable: false,
@@ -68,6 +69,7 @@ export default class CalendarComponent extends Vue {
         this.internalCalendarEvents.forEach(x => {
             this.calendarApi.addEvent(x);
         });
+        this.updateValidRange();
     }
 
     ////////////////
@@ -93,6 +95,15 @@ export default class CalendarComponent extends Vue {
     //////////////
     // handleDateSelect(selectInfo: DateSelectArg): void {
     // }
+    updateValidRange(): void {
+        const start = this.internalCalendarEvents.sort((a,b) => (<Date>a.start).getTime() - (<Date>b.start).getTime())[0];
+        const end = this.internalCalendarEvents.sort((a,b) => (<Date>b.end).getTime() - (<Date>a.end).getTime())[0];
+        let dateRange: DateRangeInput = {
+            start: start?.start || null,
+            end: end?.end || null
+        }
+        this.calendarOptions.validRange = dateRange;
+    }
 
     handleEventClick(clickInfo: EventClickArg): void {
         const data = this.events.find(x => x.id == clickInfo.event.id).data;
@@ -110,6 +121,10 @@ export default class CalendarComponent extends Vue {
     /////////////////
     //  WATCHERS  //
     ///////////////
+    @Watch("internalCalendarEvents")
+    onEventsChanged(): void {
+        this.updateValidRange();
+    }
 }
 </script>
 
