@@ -121,6 +121,7 @@
 
 				<h3 class="ok">alert-component</h3>
 				<!-- AlertComponent -->
+				<alert-component v-model:value="AlertComponent_value" icon="person" type="success" class="mb-1">Some success here!</alert-component>
 				<alert-component v-model:value="AlertComponent_value" icon="person" type="error" class="mb-1">Some error here!</alert-component>
 				<alert-component v-model:value="AlertComponent_value" icon="person" type="warning" class="mb-1">Some warning here!</alert-component>
 				<alert-component v-model:value="AlertComponent_value" icon="person" type="info" class="mb-1">Some info here!</alert-component>
@@ -136,6 +137,7 @@
 				<btn-component class="mr-1 mb-1">Button</btn-component>
 				<btn-component class="mr-1" color="primary">Button primary</btn-component>
 				<btn-component class="mr-1" color="secondary">Button secondary</btn-component>
+				<btn-component class="mr-1" color="success">Button success</btn-component>
 				<btn-component class="mr-1" color="error">Button error</btn-component>
 				<btn-component class="mr-1" color="warning">Button warning</btn-component>
 				<btn-component class="mr-1" color="info">Button info</btn-component><br />

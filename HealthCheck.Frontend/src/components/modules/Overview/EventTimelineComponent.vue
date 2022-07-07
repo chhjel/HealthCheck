@@ -21,7 +21,7 @@
                     <div class="event-timeline-item__time">
                         <strong>{{getTimelineItemTimeString(event, group)}}</strong>
                     </div>
-                    <div>
+                    <div class="event-timeline-item__data">
                         <strong class="event-timeline-item__title">
                             {{ event.Title }}
                             <strong class="event-timeline-item__title-resolved-label" v-if="event.Resolved">
@@ -221,6 +221,10 @@ export default class EventTimelineComponent extends Vue {
 .event-timeline-item-group {
     &__header {
         padding-top: 10px;
+        font-variant: all-small-caps;
+        color: var(--color--accent-darken8);
+        font-size: 20px;
+        font-weight: 700;
     }
 }
 .event-timeline-item {
@@ -239,6 +243,8 @@ export default class EventTimelineComponent extends Vue {
         box-sizing: border-box;
         width: 20px;
         height: 20px;
+        min-width: 20px;
+        min-height: 20px;
         margin-left: calc(-25px - 10px);
         border-radius: 50%;
         border: 3px solid #fff;
@@ -246,32 +252,38 @@ export default class EventTimelineComponent extends Vue {
 
     &__content {
         margin-left: 16px;
+        display: flex;
         @media (max-width: 540px) {
             max-width: calc(100% - 60px);
         }
+    }
 
-        &__time {
-            font-size: 18px;
-            min-width: 110px;
-            @media (max-width: 540px) {
-                margin-right: 0 !important;
-                min-width: 80px;
-                max-width: 80px;
-            }
+    &__time {
+        font-size: 18px;
+        min-width: 110px;
+        @media (max-width: 540px) {
+            margin-right: 0 !important;
+            min-width: 80px;
+            max-width: 80px;
         }
-        &__title {
-            font-size: 18px;
-        }
-        &__title-resolved-label {
-            color: var(--color--success-base);
-            font-size: 14px;
-            margin-left: 10px;
-            font-weight: normal;
-            font-weight: 600;
-        }
-        &__description {
-            font-size: 16px !important;
-        }
+    }
+    &__data {
+        margin-left: 10px;
+    }
+    &__title {
+        font-size: 18px;
+        display: flex;
+        align-items: baseline;
+    }
+    &__title-resolved-label {
+        color: var(--color--success-base);
+        font-size: 14px;
+        margin-left: 10px;
+        font-weight: normal;
+        font-weight: 600;
+    }
+    &__description {
+        font-size: 16px !important;
     }
 }
 </style>

@@ -95,6 +95,12 @@ export default class EventCalendarComponent extends Vue {
 .calendar-event {
     cursor: pointer;
 }
+.fc-header-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+}
+.fc-toolbar-chunk { margin-top: 5px; }
+.fc-list-event-graphic { display: none; }
 .cevent-information {
     background-color: var(--color--info-base);
     border-color: var(--color--info-base);

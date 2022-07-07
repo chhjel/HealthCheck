@@ -77,7 +77,7 @@
 
             <!-- CALENDAR -->
             <div v-if="showContent">
-                <h2>History</h2>
+                <h2 class="mb-2">History</h2>
                 <event-calendar-component
                     :events="calendarEvents"
                     v-on:eventClicked="showEventDetailsDialog"
