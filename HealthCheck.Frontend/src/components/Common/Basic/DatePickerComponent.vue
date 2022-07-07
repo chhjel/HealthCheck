@@ -84,9 +84,10 @@ export default class DatePickerComponent extends Vue {
     }
 
     get format(): string {
-        return this.isRange
-            ? 'dd/MM/yyyy HH:mm:ss - dd/MM/yyyy HH:mm:ss'
-            : 'dd/MM/yyyy HH:mm:ss';
+        return 'dd/MM/yyyy HH:mm:ss';
+        // return this.isRange
+        //     ? 'dd/MM/yyyy HH:mm:ss - dd/MM/yyyy HH:mm:ss'
+        //     : 'dd/MM/yyyy HH:mm:ss';
     }
 
     //#region Proxy methods consumed by internal datepicker
