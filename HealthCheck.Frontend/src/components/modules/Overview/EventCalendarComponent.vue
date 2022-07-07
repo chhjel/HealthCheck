@@ -101,10 +101,12 @@ export default class EventCalendarComponent extends Vue {
 }
 .fc-toolbar-chunk { margin-top: 5px; }
 .fc-list-event-graphic { display: none; }
+.fc-daygrid-event-dot { visibility: hidden; margin: 0; }
+.fc-daygrid-dot-event .fc-event-title { font-weight: normal !important; }
 .cevent-information {
     background-color: var(--color--info-base);
     border-color: var(--color--info-base);
-    color: #111 !important;
+    color: #fff !important;
     &:hover {
         background-color: var(--color--info-lighten1);
         td { background-color: var(--color--info-lighten1) !important; }
@@ -113,7 +115,7 @@ export default class EventCalendarComponent extends Vue {
 .cevent-warning {
     background-color: var(--color--warning-base);
     border-color: var(--color--warning-base);
-    color: #111 !important;
+    color: #fff !important;
     &:hover {
         background-color: var(--color--warning-lighten1);
         td { background-color: var(--color--warning-lighten1) !important; }

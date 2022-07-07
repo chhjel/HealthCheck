@@ -120,7 +120,7 @@ export default class SiteEventsSummaryComponent extends Vue {
 .summary-list-item {
     background: #fff;
     cursor: pointer;
-    padding: 8px 0 8px 50px;
+    padding: 5px 0 5px 16px;
 	transition: 0.2s;
 	&:hover {
 		background-color: #e8e8e8;

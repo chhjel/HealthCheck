@@ -40,6 +40,13 @@ export default class CalendarComponent extends Vue {
             right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
         },
         initialView: 'dayGridMonth',
+        eventTimeFormat: {
+            hour: 'numeric',
+            minute: 'numeric',
+            // second: '2-digit',
+            meridiem: false,
+            hour12: false
+        },
         // validRange: { start: '2022-05-01', end: '2022-07-01' },
         // initialEvents: this.internalCalendarEvents, // alternatively, use the `events` setting to fetch from a feed
         // events: this.internalCalendarEvents,
@@ -53,7 +60,18 @@ export default class CalendarComponent extends Vue {
         // select: this.handleDateSelect,
         eventClick: this.handleEventClick.bind(this),
         // eventsSet: this.handleEvents,
-        views: { dayGridMonth: { } },
+        views: {
+            dayGridMonth: { },
+            timeGrid: {
+                slotLabelFormat: {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    // second: '2-digit',
+                    meridiem: false,
+                    hour12: false
+                }
+            },
+        },
         /* you can update a remote database when these fire:
         eventAdd:
         eventChange:

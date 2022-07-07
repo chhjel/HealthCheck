@@ -58,7 +58,7 @@
                     <input-component v-if="showFilter" v-model:value="filterInternal" name="Filter" />
                 </div>
 
-                <status-component :type="summaryType" :text="summaryText" />
+                <status-component :type="summaryType" :text="summaryText" v-if="summaryText" />
 
                 <site-events-summary-component
                     v-if="currentEvents.length > 0"
@@ -302,6 +302,7 @@ export default class OverviewPageComponent extends Vue {
             .filter(x => x.Severity == severity)
             .map(x => x.Title);
 
+        // More than a single of highest severity
         if (relevantMessages.length > 1) {
             if (severity == SiteEventSeverity.Information) {
                 return "Some informative events have been reported";
@@ -316,8 +317,22 @@ export default class OverviewPageComponent extends Vue {
                 return "The site is currently experiencing a few errors";
             }
         }
-
-        return relevantMessages[0];
+        // Has some events
+        else if (relevantEvents.length >= 1) {
+            if (severity == SiteEventSeverity.Information) {
+                return "An informative event has been reported";
+            }
+            else if (severity == SiteEventSeverity.Warning) {
+                return "A warning has been reported";
+            }
+            else if (severity == SiteEventSeverity.Error) {
+                return "An error is currently ongoing";
+            }
+            else if (severity == SiteEventSeverity.Fatal) {
+                return "The site is currently experiencing an error";
+            }
+        }
+        return null;//relevantMessages[0];
     }
 
     get summaryType(): string {
