@@ -8,31 +8,33 @@
 
                 <div class="flex layout mb-3">
                     <div class="xs12 sm12 md8">
-                        <date-picker-component range v-model:value="filterDate" :disabled="loadStatus.inProgress" :clearable="false"
+                        <input-header-component name="Date range" />
+                        <date-picker-component
+                            range v-model:value="filterDate" :disabled="loadStatus.inProgress" :clearable="false"
                             @update:value="onDateRangeChanged" rangePresets="past" />
                     </div>
 
-                    <div class="xs12 sm12 md4" style="text-align: right;">
+                    <div class="xs12 sm12 md4 audit-actions">
                         <btn-component @click="loadData" :disabled="loadStatus.inProgress" class="primary">Search</btn-component>
                         <btn-component @click="resetFilters">Reset</btn-component>
                     </div>
 
-                    <div class="xs12 sm6 md3 mb-2 pr-2">
+                    <div class="xs12 sm6 md3 mb-2 pr-2 mt-2">
                         <text-field-component v-model:value="filterUserName" label="Username"
                             @blur="loadData"
                             @keyup.enter="loadData" />
                     </div>
-                    <div class="xs12 sm6 md3 mb-2 pr-2">
+                    <div class="xs12 sm6 md3 mb-2 pr-2 mt-2">
                         <text-field-component v-model:value="filterAction" label="Action"
                             @blur="loadData"
                             @keyup.enter="loadData" />
                     </div>
-                    <div class="xs12 sm6 md3 mb-2 pr-2">
+                    <div class="xs12 sm6 md3 mb-2 pr-2 mt-2">
                         <text-field-component v-model:value="filterSubject" label="Subject"
                             @blur="loadData"
                             @keyup.enter="loadData" />
                     </div>
-                    <div class="xs12 sm6 md3 mb-2 pr-2">
+                    <div class="xs12 sm6 md3 mb-2 pr-2 mt-2">
                         <text-field-component v-model:value="filterUserId" label="User id"
                             @blur="loadData"
                             @keyup.enter="loadData" />
@@ -129,10 +131,12 @@ import AuditEventFilterInputData from "@models/modules/AuditLog/AuditEventFilter
 import { StoreUtil } from "@util/StoreUtil";
 import DataTableComponent from "@components/Common/DataTableComponent.vue";
 import { DataTableGroup } from "@components/Common/DataTableComponent.vue.models";
+import InputHeaderComponent from "@components/Common/Basic/InputHeaderComponent.vue";
 
 @Options({
     components: {
-        DataTableComponent
+        DataTableComponent,
+        InputHeaderComponent
     }
 })
 export default class AuditLogPageComponent extends Vue {
@@ -310,6 +314,11 @@ export default class AuditLogPageComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
+.audit-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: stretch;
+}
 .row-details-user {
     display: flex;
     align-items: center;
