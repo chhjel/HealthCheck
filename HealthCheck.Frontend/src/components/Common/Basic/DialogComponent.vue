@@ -49,6 +49,9 @@ export default class DialogComponent extends Vue {
     @Prop({ required: false, default: false })
     fullWidth!: string | boolean;
 
+    @Prop({ required: false, default: false })
+    dark!: string | boolean;
+
     @Prop({ required: false, default: null })
     width!: number | null;
 
@@ -91,6 +94,7 @@ export default class DialogComponent extends Vue {
              'hide-overlay': this.isHideOverlay,
              'persistent': this.isPersistent,
              'full-width': this.isFullWidth,
+             'dark': this.isDark,
              'has-color': !!this.headerColor
         };
     }
@@ -145,6 +149,7 @@ export default class DialogComponent extends Vue {
     get isHideOverlay(): boolean { return ValueUtils.IsToggleTrue(this.hideOverlay); }
     get isPersistent(): boolean { return ValueUtils.IsToggleTrue(this.persistent); }
     get isFullWidth(): boolean { return ValueUtils.IsToggleTrue(this.fullWidth); }
+    get isDark(): boolean { return ValueUtils.IsToggleTrue(this.dark); }
 
     ////////////////
     //  METHODS  //
@@ -291,6 +296,26 @@ export default class DialogComponent extends Vue {
             &:hover {
                 background-color: #e8e8e8;
             }
+        }
+    }
+
+    &.dark {
+        .dialog-component_modal {
+            background: var(--color--background-dark);
+            color: #fff;
+        }
+        .dialog-component_modal_header {
+            background: var(--color--background-dark) !important;
+        }
+        .dialog-component_modal_content {
+            border: none;
+        }
+        .dialog-component_modal_cross {
+            // todo: style main dialog better first
+        }
+        .dialog-component_modal_footer {
+            border: none;
+            border-top: 2px solid var(--color--accent-darken9);
         }
     }
 
