@@ -1,17 +1,13 @@
 <!-- src/components/Common/Inputs/BackendInputs/BackendInputComponent.vue -->
 <template>
     <div>
-        <div class="parameter-header" v-if="showInputHeader">
-            <div class="parameter-name">{{ displayName }}</div>
-            <icon-component small v-if="hasDescription"
-                color="gray" class="parameter-help-icon clickable"
-                @click="toggleDescription">help</icon-component>
-            <icon-component v-if="showActionIcon"
-                color="gray" class="parameter-action-icon clickable"
-                @click="onActionIconClicked">{{ actionIcon }}</icon-component>
-        </div>
-
-        <div v-show="showDescription" class="parameter-description" v-html="displayDescription"></div>
+        <input-header-component 
+            v-if="showInputHeader"
+            :name="displayName"
+            :description="displayDescription"
+            :actionIcon="actionIcon"
+            @actionIconClicked="onActionIconClicked"
+            />
 
         <component
             :key="`${id}-input`"
@@ -42,6 +38,7 @@
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
+import InputHeaderComponent from '@components/Common/Basic/InputHeaderComponent.vue';
 // Parameter input components
 import UnknownBackendInputComponent from '@components/Common/Inputs/BackendInputs/UnknownBackendInputComponent.vue';
 import ParameterInputTypeInt32Component from '@components/Common/Inputs/BackendInputs/Types/ParameterInputTypeInt32Component.vue';
@@ -68,6 +65,7 @@ import { StoreUtil } from "@util/StoreUtil";
 @Options({
     name: "BackendInputComponent",
     components: {
+      InputHeaderComponent,
       // Parameter input components
       UnknownBackendInputComponent,
       ParameterInputTypeInt32Component,
@@ -163,10 +161,6 @@ export default class BackendInputComponent extends Vue {
         this.showInputHeader = false;
     }
 
-    toggleDescription(): void {
-        this.showDescription = !this.showDescription;
-    }
-
     notifyIsAnyJson(): void {
         this.$emit('isAnyJson');
     }
@@ -183,10 +177,6 @@ export default class BackendInputComponent extends Vue {
 
     get allowJsonInput(): boolean {
         return this.testsOptions.AllowAnyParameterType;
-    }
-
-    get showActionIcon(): boolean {
-        return !!this.actionIcon && this.actionIcon.length > 0;
     }
 
     get displayName(): string {
@@ -233,10 +223,6 @@ export default class BackendInputComponent extends Vue {
             return this.config.Description;
         }
         return this.forceDescription;
-    }
-
-    get hasDescription(): boolean {
-        return this.displayDescription != null && this.displayDescription.length > 0;
     }
     
     get inputComponentName(): string
@@ -307,39 +293,6 @@ export default class BackendInputComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.parameter-header {
-    text-align: left;
-    display: flex;
-    align-items: center;
-}
-.parameter-name {
-    display: inline-block;
-    font-size: 16px;
-    color: var(--color--secondary-base);
-    font-weight: 600;
-}
-.parameter-description {
-    text-align: left;
-    padding: 10px;
-    border-radius: 10px;
-    background-color: #ebf1fb;
-}
-.parameter-help-icon {
-    user-select: none;
-    font-size: 20px !important;
-    margin-left: 4px;
-    &:hover {
-        color: var(--color--info-base) !important;
-    }
-}
-.parameter-action-icon {
-    user-select: none;
-    font-size: 24px !important;
-    margin-left: 4px;
-    &:hover {
-        color: var(--color--info-base) !important;
-    }
-}
 .parameter-feedback {
     font-size: small;
     font-weight: 600;

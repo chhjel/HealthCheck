@@ -41,7 +41,6 @@ export default class SimpleDateTimeComponent extends Vue {
 
     content!: string;
     error: string = "";
-    showDescription: boolean = false;
 
     beforeMount(): void {
         if (this.value == null)
@@ -52,18 +51,6 @@ export default class SimpleDateTimeComponent extends Vue {
         {
             this.content = DateUtils.FormatDate(this.value, this.dateFormat);
         }
-    }
-
-    get showHeader(): boolean {
-        return this.name != null && this.name.length > 0;
-    }
-
-    get hasDescription(): boolean {
-        return this.description != null && this.description.length > 0;
-    }
-
-    toggleDescription(): void {
-        this.showDescription = !this.showDescription;
     }
 
     onTextChanged(): void {

@@ -6,6 +6,9 @@
             <icon-component small v-if="hasDescription"
                 color="gray" class="input-component--help-icon clickable"
                 @click="toggleDescription">help</icon-component>
+            <icon-component v-if="showActionIcon"
+                color="gray" class="input-component--action-icon clickable"
+                @click="onActionIconClicked">{{ actionIcon }}</icon-component>
         </div>
 
         <div v-show="showDescription" class="input-component--description" v-html="description"></div>
@@ -33,6 +36,9 @@ export default class InputHeaderComponent extends Vue
 
     @Prop({ required: false, default: false })
     ensureHeight!: string | boolean;
+    
+    @Prop({ required: false, default: '' })
+    actionIcon!: string;
 
     showDescription: boolean = false;
 
@@ -60,6 +66,10 @@ export default class InputHeaderComponent extends Vue
 
     get isEnsureHeight(): boolean { return ValueUtils.IsToggleTrue(this.ensureHeight); }
 
+    get showActionIcon(): boolean {
+        return !!this.actionIcon && this.actionIcon.length > 0;
+    }
+
     ////////////////
     //  METHODS  //
     //////////////
@@ -70,6 +80,9 @@ export default class InputHeaderComponent extends Vue
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
+    onActionIconClicked(): void {
+        this.$emit('actionIconClicked');
+    }
 }
 </script>
 
@@ -93,6 +106,15 @@ export default class InputHeaderComponent extends Vue
         .input-component--help-icon {
             user-select: none;
             font-size: 20px !important;
+            margin-left: 2px;
+            &:hover {
+                color: var(--color--info-base) !important;
+            }
+        }
+        .input-component--action-icon {
+            user-select: none;
+            font-size: 20px !important;
+            margin-left: 4px;
             &:hover {
                 color: var(--color--info-base) !important;
             }

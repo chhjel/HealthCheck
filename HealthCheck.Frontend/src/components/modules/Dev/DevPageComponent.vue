@@ -210,6 +210,7 @@
 				<!-- InputHeaderComponent -->
 				<input-header-component name="Name only here"></input-header-component>
 				<input-header-component name="Name and desc here" description="Description here"></input-header-component>
+				<input-header-component name="With all things" description="Some description here" actionIcon="person" @actionIconClicked="notify('action clicked')"></input-header-component>
 				<hr />
 
 				<h3 class="ok">text-field-component</h3>
