@@ -72,6 +72,4 @@ export default class RuleDescriptionComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-/* .root {
-} */
 </style>

@@ -1,6 +1,6 @@
 <!-- src/components/modules/EventNotifications/ConfigFilterComponent.vue -->
 <template>
-    <div class="root">
+    <div class="config-filter-component">
         <div class="field-list horizontal-layout">
             
             <div class="horizontal-layout">
@@ -157,7 +157,7 @@ export default class ConfigFilterComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.root {
+.config-filter-component {
     margin-left: 20px;
     padding-left: 20px;
 

@@ -1,6 +1,6 @@
 <!-- src/components/Common/FilterInputComponent.vue -->
 <template>
-    <div class="root">
+    <div class="filter-input-component">
         <text-field-component
             class="filter-input"
             v-model:value="content"
@@ -28,7 +28,7 @@ export default class FilterInputComponent extends Vue {
 </script>
 
 <style scoped>
-.root {
+.filter-input-component {
     display: flex;
     align-items: center;
 }

@@ -1,6 +1,6 @@
 <!-- src/components/modules/EndpointControl/CountOverDurationComponent.vue -->
 <template>
-    <div class="root">
+    <div class="count-over-duration-component">
         <div class="field-list horizontal-layout">
             <input-component
                 type="number"
@@ -85,7 +85,7 @@ export default class CountOverDurationComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.root {
+.count-over-duration-component {
     margin-left: 20px;
     padding-left: 20px;
 

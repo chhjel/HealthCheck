@@ -7,7 +7,7 @@
                 <template #prefix>
                     <div class="toolbar-prefix">
                         <icon-component class="clickable toolbar-icon"
-                            @click.stop="moduleNavMenuState = !moduleNavMenuState"
+                            @click.stop="toggleNavMenu"
                             v-if="showModuleMenuButton">menu</icon-component>
                         <div class="toolbar-prefix_apptitle">
                             <a v-if="hasTitleLink" :href="titleLink">{{ globalOptions.ApplicationTitle }}</a>
@@ -43,7 +43,6 @@
                 </btn-component>
             </toolbar-component>
 
-            
             <invalid-module-configs-component
                 v-if="invalidModuleConfigs.length > 0"
                 :invalid-configs="invalidModuleConfigs" />
@@ -52,6 +51,10 @@
                 <div id="module-nav-menu" class="toolbar-offset"
                     :class="{ 'open': isModuleNavOpen }"
                     ref="moduleNavMenu"></div>
+                <div class="module-nav-menu__overlay"
+                    :class="{ 'has-menu': isModuleNavOpen }"
+                    @click.stop="hideNavMenu"></div>
+                
                 <div class="module-content" :class="{ 'has-menu': isModuleNavOpen }">
                     <router-view></router-view>
                 </div>
@@ -110,6 +113,10 @@ export default class HealthCheckPageComponent extends Vue {
     ////////////////
     async mounted()
     {
+        // // Don't open menu on page load for smaller devices
+        // const isSmallMenuMode = window.matchMedia('(min-width: 961px)')
+        // this.moduleNavMenuState = isSmallMenuMode.matches;
+
         this.theme = localStorage.getItem('theme') || 'light';
         this.onThemeChanged();
 
@@ -275,6 +282,13 @@ export default class HealthCheckPageComponent extends Vue {
         return this.$route.matched.some(({ name }) => name === module.Id);
     }
 
+    hideNavMenu(): void {
+        this.moduleNavMenuState = false;
+    }
+    toggleNavMenu(): void {
+        this.moduleNavMenuState = !this.moduleNavMenuState;
+    }
+
     async setInitialPage()
     {
         // X:ToDo: set based on prioritized order if nothing active.
@@ -389,6 +403,21 @@ export default class HealthCheckPageComponent extends Vue {
             }
         }
     }
+    .module-nav-menu__overlay {
+        background-color: #303f4863;
+        position: fixed;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 9;
+        &:not(.has-menu) {
+            display: none;
+        }
+        @media (min-width: 961px) {
+            display: none;
+        }
+    }
 
     .module-content {
         transition: 0.2s all;
@@ -401,12 +430,10 @@ export default class HealthCheckPageComponent extends Vue {
             padding-left: 300px;
             width: calc(100% - 320px); // - padding (300+20)
         }
-        // todo: overlay w/ click to close instead of opacity change only
         @media (max-width: 960px) {
             &.has-menu {
                 padding-left: 20px;
                 width: calc(100% - 40px); // - padding (20+20)
-                opacity: 0.7;
             }
         }
     }

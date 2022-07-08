@@ -76,9 +76,3 @@ export default class HealthCheckProfileDialogComponent extends Vue
 
 <style scoped lang="scss">
 </style>
-
-<style lang="scss">
-.root-profile-dialog {
-    
-}
-</style>

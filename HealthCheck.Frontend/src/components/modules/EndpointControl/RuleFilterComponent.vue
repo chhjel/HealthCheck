@@ -1,6 +1,6 @@
 <!-- src/components/modules/EndpointControl/RuleFilterComponent.vue -->
 <template>
-    <div class="root">
+    <div class="rule-filter-component">
         <div class="field-list horizontal-layout">
             <switch-component
                 v-model:value="enabled" 
@@ -126,7 +126,7 @@ export default class RuleFilterComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.root {
+.rule-filter-component {
     margin-left: 20px;
     padding-left: 20px;
 
