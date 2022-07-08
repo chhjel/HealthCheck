@@ -59,6 +59,7 @@ export default class DialogComponent extends Vue {
     callbacks: Array<CallbackUnregisterShortcut> = [];
     static zIndexCounter: number = 1001;
     zIndex: number = 1001;
+    static activeDialogCount: number = 0;
 
     //////////////////
     //  LIFECYCLE  //
@@ -149,7 +150,11 @@ export default class DialogComponent extends Vue {
     //  METHODS  //
     //////////////
     public close(): void {
+        const changed = this.localValue == true;
         this.localValue = false;
+        if (changed) {
+            this.onVisibilityChanged(this.localValue);
+        }
         this.$emit("update:value", false);
         this.$emit("close", true);
     }
@@ -168,6 +173,11 @@ export default class DialogComponent extends Vue {
     onClickClose(): void {
         this.close();
     }
+
+    onVisibilityChanged(shown: boolean): void {
+        DialogComponent.activeDialogCount = DialogComponent.activeDialogCount + (shown ? 1 : -1);
+        document.body.style.overflow = DialogComponent.activeDialogCount == 0 ? null : 'hidden';
+    }
 	
     /////////////////
     //  WATCHERS  //
@@ -175,10 +185,16 @@ export default class DialogComponent extends Vue {
     @Watch('value')
     updateLocalValue(): void
     {
+        const changed = this.localValue != this.value;
+
 		this.localValue = this.value;
         if (this.localValue) {
             DialogComponent.zIndexCounter = DialogComponent.zIndexCounter + 1;
             this.zIndex = DialogComponent.zIndexCounter;
+        }
+
+        if (changed) {
+            this.onVisibilityChanged(this.localValue);
         }
     }
 
