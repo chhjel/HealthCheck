@@ -182,3 +182,13 @@ export default class TestResultDataComponent extends Vue {
   max-width: 100%;
 }
 </style>
+
+<style lang="scss">
+.dialog-component_modal_content {
+  .data-dump-code, .data-dump-xml, .data-dump-json {
+    .editor-component {
+      height: calc(100vh - 160px);
+    }
+  }
+}
+</style>
