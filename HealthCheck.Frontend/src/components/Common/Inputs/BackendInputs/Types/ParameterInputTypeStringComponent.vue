@@ -20,6 +20,8 @@
             :language="'json'"
             v-model:value="localValue"
             :read-only="readonly"
+            :allowFullscreen="true"
+            :title="config?.Name"
             ref="editor" />
 
         <div v-if="!config.NotNull">

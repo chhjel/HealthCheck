@@ -168,7 +168,11 @@ export default class DialogComponent extends Vue {
     //  EVENT HANDLERS  //
     /////////////////////
     onEscapeClicked(): void {
-        if (!this.isPersistent) this.close();
+        if (this.isPersistent
+            || document.activeElement?.classList?.contains('monaco-mouse-cursor-text') == true) {
+            return;
+        }
+        this.close();
     }
 
     onClickOutside(): void {
