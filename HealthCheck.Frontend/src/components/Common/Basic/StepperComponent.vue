@@ -95,17 +95,19 @@ export default class StepperComponent extends Vue {
 .stepper-component {
 	padding: 5px;
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     justify-content: center;
 
     &__arrow {
         align-self: center;
         margin-left: 5px;
         margin-right: 5px;
+        margin-bottom: 10px;
     }
     &__step {
         cursor: pointer;
         padding: 10px;
+        margin-bottom: 10px;
         border: 4px solid #eee;
         min-width: 160px;
         &:hover {

@@ -83,4 +83,7 @@ export default class TestResultTimelineDataComponent extends Vue {
 </script>
 
 <style scoped>
+.step-error {
+  color: var(--color--error-base) !important;
+}
 </style>
