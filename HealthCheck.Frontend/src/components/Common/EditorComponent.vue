@@ -25,15 +25,10 @@
         
         <!-- ##################### -->
         <!-- DIALOG TOOLBAR -->
-        <toolbar-component color="primary" fixed v-if="isFullscreen">
-            <btn-component icon @click="isFullscreen = false">
-                <icon-component>close</icon-component>
-            </btn-component>
-            <div>{{ title }}</div>
-            <div>
-                <btn-component flat @click="isFullscreen = false">Close</btn-component>
-            </div>
-        </toolbar-component>
+        <div v-if="isFullscreen" class="editor-toolbar flex">
+            <div class="spacer">{{ title }}</div>
+            <div class="editor-toolbar__close" @click="isFullscreen = false">Close</div>
+        </div>
         <!-- ##################### -->
     </div>
 </template>
@@ -447,5 +442,30 @@ export default class EditorComponent extends Vue {
     top: 5px !important;
     right: 21px !important;
     overflow: hidden;
+}
+.editor-toolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    z-index: 100;
+    padding: 5px;
+    box-sizing: border-box;
+    background-color: var(--color--primary-darken2);
+    color: #fff;
+
+    &__close {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        padding: 10px 30px;
+        cursor: pointer;
+        transition: 0.2s all;
+        background-color: var(--color--primary-base);
+        &:hover {
+            background-color: var(--color--primary-lighten1);
+        }
+    }
 }
 </style>

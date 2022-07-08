@@ -14,7 +14,7 @@
 			<div>
 				<h3 class="ok">editor-component</h3>
 				<!-- EditorComponent -->
-				<editor-component style="height:200px" :allowFullscreen="true"></editor-component>
+				<editor-component style="height:200px" :allowFullscreen="true" title="Editor dev testing"></editor-component>
 				<hr />
 
 				<h3 class="ok">data-table-component</h3>
@@ -402,12 +402,7 @@
 					<btn-component>Some button</btn-component>
 					<btn-component>Another button</btn-component>
 				</toolbar-component>
-				<toolbar-component dark>
-					<btn-component>Some button</btn-component>
-					<btn-component>Another button</btn-component>
-				</toolbar-component>
 				<hr />
-
 
 				<h3 class="ok">backend-input-component</h3>
 				<!-- BackendInputComponent -->
