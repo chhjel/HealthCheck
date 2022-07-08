@@ -156,6 +156,8 @@ export default class BtnComponent extends Vue {
         flex-direction: row;
         white-space: nowrap;
         padding: 5px 10px;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
     &.icon {
