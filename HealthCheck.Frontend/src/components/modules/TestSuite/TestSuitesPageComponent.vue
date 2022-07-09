@@ -107,6 +107,7 @@ export default class TestSuitesPageComponent extends Vue {
     sets: Array<TestSetViewModel> = [];
     groupOptions: Array<GroupOptionsViewModel> = [];
     menuGroupOrders: { [key:string]:number } | null = null;
+    menuItems: Array<FilterableListItem> = [];
     activeSet: TestSetViewModel | null = null;
     invalidTests: Array<InvalidTestViewModel> = new Array<InvalidTestViewModel>();
 
@@ -140,10 +141,10 @@ export default class TestSuitesPageComponent extends Vue {
         return this.sets.length > 0;
     }
     
-    get menuItems(): Array<FilterableListItem>
+    updateMenuItems(): void
     {
-        if (!this.sets) return [];
-        return this.sets.map(x => {
+        if (!this.sets) this.menuItems = [];
+        this.menuItems = this.sets.map(x => {
             (<any>x).__TestNames = x.Tests.map(t => t.Name).join(' ');
             let d = {
                 title: x.Name,
@@ -202,6 +203,7 @@ export default class TestSuitesPageComponent extends Vue {
         this.groupOptions = testsData.GroupOptions;
 
         this.setSetsLoadStatus.inProgress = false;
+        this.updateMenuItems();
         this.setMenuGroupOrders();
         this.updateSelectionFromUrl();
     }
