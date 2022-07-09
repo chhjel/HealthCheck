@@ -33,17 +33,16 @@
                         @mousedown.middle.stop.prevent
                         :href="getItemHref(item.data)"
                         :disabled="disabled">
-                        <div>
-                            {{ item.title }}
-                            <icon-component
-                                v-for="(icon, iindex) in getItemIcons(item.data)"
-                                :key="`filterable-menu-item-${itemIndex}-icon-${iindex}`"
-                                class="filterable-menu-item__icon"
-                                color="#555"
-                                >{{ icon }}</icon-component>
-                            <br v-if="item.subTitle != null">
-                            <span style="color: darkgray;" v-if="item.subTitle != null">{{ item.subTitle }}</span>
-                        </div>
+                        {{ item.title }}
+                        <div class="spacer"></div>
+                        <icon-component
+                            v-for="(icon, iindex) in getItemIcons(item.data)"
+                            :key="`filterable-menu-item-${itemIndex}-icon-${iindex}`"
+                            class="filterable-menu-item__icon"
+                            color="#555"
+                            >{{ icon }}</icon-component>
+                        <br v-if="item.subTitle != null">
+                        <span style="color: darkgray;" v-if="item.subTitle != null">{{ item.subTitle }}</span>
                     </div>
                 </div>
             </div>
@@ -290,8 +289,12 @@ export default class FilterableListComponent extends Vue {
 .no-result-found {
     padding-left: 46px;
 }
+.menu-items {
+    padding-bottom: 20px;
+}
 .filterable-menu-item__icon {
     float: right;
+    margin-right: 20px;
 }
 .filterable-menu-item {
     display: flex;
