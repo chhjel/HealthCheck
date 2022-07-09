@@ -146,7 +146,7 @@
             </div>
         </dialog-component>
         <!-- ##################### -->
-        <dialog-component v-model:value="configDialogVisible" max-width="600" dark>
+        <dialog-component v-model:value="configDialogVisible" max-width="600" dark class="dce-dialog">
             <template #header>Settings</template>
             <template #footer>
                 <btn-component color="secondary" @click="configDialogVisible = false">Close</btn-component>
@@ -156,7 +156,7 @@
                     <checkbox-component
                         v-model:value="localOptions.autoFormatResult"
                         @change="(v) => setLocalConfig(o => o.autoFormatResult = v)"
-                        label="Auto-format results" style="display:block"></checkbox-component>
+                        label="Auto-format results"></checkbox-component>
                     <div class="dce-dialog--option--description">
                         Automatically formats json in result after execution.
                     </div>
@@ -166,7 +166,7 @@
                     <checkbox-component
                         v-model:value="localOptions.autoFoldRegions"
                         @change="(v) => setLocalConfig(o => o.autoFoldRegions = v)"
-                        label="Auto-fold regions" style="display:block"></checkbox-component>
+                        label="Auto-fold regions"></checkbox-component>
                     <div class="dce-dialog--option--description">
                         Automatically folds any #regions in editor after execution.
                     </div>
@@ -176,14 +176,14 @@
                     <checkbox-component
                         v-model:value="localOptions.updateLocalCodeFromRemote"
                         @change="(v) => setLocalConfig(o => o.updateLocalCodeFromRemote = v)"
-                        label="Update local code from pre-processed" style="display:block"></checkbox-component>
+                        label="Update local code from pre-processed"></checkbox-component>
                     <div class="dce-dialog--option--description">
                         Updates local code with its pre-processed version after execution.
                     </div>
                 </div>
                 
                 
-                <h3 class="mt-4 mb-2">Code pre-processors</h3>
+                <h3 class="mt-4 mb-2" v-if="options.Options.PreProcessors.length > 0">Code pre-processors</h3>
                 <div v-for="(prepro, ppindex) in options.Options.PreProcessors"
                     :key="`dce_options_preprocessor-${ppindex}`"
                     class="dce-dialog--option"
@@ -231,6 +231,7 @@ import LoadingScreenComponent from '@components/Common/LoadingScreenComponent.vu
 import StringUtils from "@util/StringUtils";
 import { StoreUtil } from "@util/StoreUtil";
 import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
+import { ModuleSpecificConfig } from "@components/HealthCheckPageComponent.vue.models";
 
 interface DynamicCodeExecutionPageOptions {
     DefaultScript: string | null;
@@ -519,6 +520,14 @@ namespace CodeTesting
     ////////////////
     //  METHODS  //
     //////////////
+    public moduleSpecificConfig(): ModuleSpecificConfig {
+        return {
+            fullWidth: true,
+            fullHeight: true,
+            dark: true
+        };
+    }
+
     updateUrl(): void {
         let routeParams: any = {};
         if (this.currentScript != null && this.currentScript.IsDraft != true)
@@ -1154,33 +1163,32 @@ namespace CodeTesting
         }
     }
 
-    .menu {
-        overflow: hidden;
-    }
-
-    .menu > div:first-of-type {
-        height: calc(100% - 62px);
-        overflow-y: auto;
-    }
-
-    .menu-bottom-nav {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 62px;
-        overflow: hidden;
-        display: flex;
-        /* justify-content: flex-end; */
-        box-shadow: 0px 0px 13px 0px #1b1b1b;
-
-        button {
-            flex: 1;
-        }
-    }
-
     /* .dce-config-dialog {
     } */
+}
+.menu {
+    overflow: hidden;
+}
+
+.menu > div:first-of-type {
+    height: calc(100% - 62px);
+    overflow-y: auto;
+}
+
+.menu-bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 62px;
+    overflow: hidden;
+    display: flex;
+    /* justify-content: flex-end; */
+    box-shadow: 0px 0px 13px 0px #1b1b1b;
+
+    button {
+        flex: 1;
+    }
 }
 </style>
 
