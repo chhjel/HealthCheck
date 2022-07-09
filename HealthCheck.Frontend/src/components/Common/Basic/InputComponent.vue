@@ -5,7 +5,7 @@
             v-if="!isTextArea"
             :label="name" :description="description" :showDescriptionOnStart="showDescriptionOnStart"
             v-model:value="currentValue"
-            @input="onInput($event.target.value)"
+            @input="onInput"
             v-on:change="onDataChanged"
             @click:clear="onClearClicked()"
             :errorMessages="error"
@@ -21,7 +21,7 @@
             v-if="isTextArea"
             :label="name" :description="description" :showDescriptionOnStart="showDescriptionOnStart"
             v-model:value="currentValue"
-            @input="onInput($event.target.value)"
+            @input="onInput"
             v-on:change="onDataChanged"
             @click:clear="onClearClicked()"
             :errorMessages="error"
@@ -127,8 +127,9 @@ export default class InputComponent extends Vue
         this.currentValue = this.value;
     }
 
-    onInput(newValue: string): void {
-        this.$emit('update:value', newValue);
+    onInput(newValue: string | InputEvent): void {
+        const eventValue = (<any>newValue)?.target?.value;
+        this.$emit('update:value', eventValue ?? newValue);
     }
 
     onClearClicked(): void {

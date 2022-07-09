@@ -84,9 +84,7 @@ export default class CalendarComponent extends Vue {
     //  LIFECYCLE  //
     ////////////////
     mounted(): void {
-        this.internalCalendarEvents.forEach(x => {
-            this.calendarApi.addEvent(x);
-        });
+        this.updateCalendarEvents();
         this.updateValidRange();
     }
 
@@ -132,6 +130,14 @@ export default class CalendarComponent extends Vue {
       this.currentEvents = events
     }
 
+    updateCalendarEvents(): void {
+        // todo: optimize
+        this.calendarApi.removeAllEvents();
+        this.internalCalendarEvents.forEach(x => {
+            this.calendarApi.addEvent(x);
+        });
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
@@ -142,6 +148,7 @@ export default class CalendarComponent extends Vue {
     @Watch("internalCalendarEvents")
     onEventsChanged(): void {
         this.updateValidRange();
+        this.updateCalendarEvents();
     }
 }
 </script>
