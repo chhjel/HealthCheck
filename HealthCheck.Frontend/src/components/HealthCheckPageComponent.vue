@@ -55,8 +55,8 @@
                     :class="{ 'has-menu': isModuleNavOpen }"
                     @click.stop="hideNavMenu"></div>
                 
-                <div class="module-content" :class="{ 'has-menu': isModuleNavOpen }">
-                    <router-view></router-view>
+                <div class="module-content" :class="moduleContentClasses">
+                    <router-view ref="routerView"></router-view>
                 </div>
             </div>
 
@@ -86,6 +86,7 @@ import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
 import { RouteLocationNormalized } from "vue-router";
 import UrlUtils from "@util/UrlUtils";
 import EventBus from "@util/EventBus";
+import { ModuleSpecificConfig } from "./HealthCheckPageComponent.vue.models";
 
 @Options({
     components: {
@@ -107,6 +108,7 @@ export default class HealthCheckPageComponent extends Vue {
     moduleNavMenu: Element | null = null;
     hackyTimer: number = 0;
     theme: string = 'light';
+    moduleSpecificConfig: ModuleSpecificConfig = {};
 
     //////////////////
     //  LIFECYCLE  //
@@ -125,6 +127,8 @@ export default class HealthCheckPageComponent extends Vue {
         this.bindRootEvents();
         this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
         setInterval(() => this.hackyTimer++, 100);
+
+        this.onLoadOrRouteChanged();
     }
 
     ////////////////
@@ -195,6 +199,16 @@ export default class HealthCheckPageComponent extends Vue {
 
     get titleLink(): string {
         return this.globalOptions.ApplicationTitleLink;
+    }
+
+    get moduleContentClasses(): any {
+        let classes: any =  {
+            'has-menu': this.isModuleNavOpen,
+            'full-width': this.moduleSpecificConfig?.fullWidth == true,
+            'full-height': this.moduleSpecificConfig?.fullHeight == true,
+            'dark': this.moduleSpecificConfig?.dark == true
+        };
+        return classes;
     }
     
     ////////////////
@@ -322,9 +336,27 @@ export default class HealthCheckPageComponent extends Vue {
     onRouteChanged(to: RouteLocationNormalized, from: RouteLocationNormalized): void {
         this.$nextTick(() => {
             this.$nextTick(() => {
+                // Update querystring from hash
                 UrlUtils.updatePerstentQueryStringKey();
             })
+
+            this.onLoadOrRouteChanged();
         });
+    }
+
+    onLoadOrRouteChanged(): void {
+        // Any of the page modules may have a method with the signature: public moduleSpecificConfig(): ModuleSpecificConfig
+        const currentPageComponent = this.$route?.matched[0]?.instances?.default;
+        const moduleSpecificConfigMethod = (<any>currentPageComponent)?.moduleSpecificConfig;
+        let moduleSpecificConfig: ModuleSpecificConfig | null = null;
+        if (moduleSpecificConfigMethod) {
+            moduleSpecificConfig = moduleSpecificConfigMethod();
+        }
+        this.processModuleSpecificConfig(moduleSpecificConfig);
+    }
+
+    processModuleSpecificConfig(config: ModuleSpecificConfig | null): void {
+        this.moduleSpecificConfig = config || {};
     }
 
     getModuleLinkUrl(mconf: ModuleConfig): string {
@@ -380,9 +412,9 @@ export default class HealthCheckPageComponent extends Vue {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-	margin-top: 56px;
+	padding-top: 56px;
 	@media (min-width: 960px) {
-		margin-top: 64px;
+		padding-top: 64px;
 	}
 
     #module-nav-menu {
@@ -391,16 +423,19 @@ export default class HealthCheckPageComponent extends Vue {
         left: -300px;
         top: 0;
         width: 300px;
-        height: 100%;
         box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
         background-color: #292929;
         color: var(--color--text-light);
         overflow-y: auto;
         z-index: 10;
+        height: calc(100% - 56px);
         &:not(:empty) {
             &.open {
                 left: 0;
             }
+        }
+        @media (min-width: 960px) {
+            height: calc(100% - 64px);
         }
     }
     .module-nav-menu__overlay {
@@ -426,14 +461,32 @@ export default class HealthCheckPageComponent extends Vue {
         max-width: 1280px;
         width: calc(100% - 40px); // - padding (20+20)
 
+        &.dark {
+            background: var(--color--background-dark);
+        }
         &.has-menu {
             padding-left: 300px;
             width: calc(100% - 320px); // - padding (300+20)
+        }
+        &.full-width {
+            max-width: calc(100% - 40px);
+        }
+        &.has-menu.full-width {
+            max-width: calc(100% - 320px);
+        }
+        &.full-height {
+            height: calc(100vh - 74px);
         }
         @media (max-width: 960px) {
             &.has-menu {
                 padding-left: 20px;
                 width: calc(100% - 40px); // - padding (20+20)
+            }
+            &.has-menu.full-width {
+                max-width: calc(100% - 40px);
+            }
+            &.full-height {
+                height: calc(100vh - 66px);
             }
         }
     }
