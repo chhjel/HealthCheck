@@ -44,6 +44,11 @@ using HealthCheck.Module.DataExport;
 using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Exporter.Excel;
 using HealthCheck.Module.DevModule;
+using HealthCheck.Module.DynamicCodeExecution.Abstractions;
+using HealthCheck.Module.DynamicCodeExecution.Models;
+using HealthCheck.Module.DynamicCodeExecution.Module;
+using HealthCheck.Module.DynamicCodeExecution.Storage;
+using HealthCheck.Module.DynamicCodeExecution.Validators;
 using HealthCheck.Module.EndpointControl.Abstractions;
 using HealthCheck.Module.EndpointControl.Module;
 using HealthCheck.WebUI.Abstractions;
@@ -201,6 +206,26 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             }));
             UseModule(new HCSiteEventsModule(new HCSiteEventsModuleOptions() { SiteEventService = siteEventService, CustomHtml = "<h2>Something custom here</h2><p>And some more.</p>" }));
             UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { Service = settingsService, ModelType = typeof(TestSettings) }));
+            UseModule(new HCDynamicCodeExecutionModule(new HCDynamicCodeExecutionModuleOptions()
+            {
+                StoreCopyOfExecutedScriptsAsAuditBlobs = true,
+                TargetAssembly = typeof(DevController).Assembly,
+                ScriptStorage = new FlatFileDynamicCodeScriptStorage(@"C:\temp\DCE_Scripts.json"),
+                PreProcessors = new IDynamicCodePreProcessor[0],
+                Validators = new IDynamicCodeValidator[]
+                {
+                    new FuncCodeValidator((code) =>
+                        code.Contains("format c:")
+                            ? DynamicCodeValidationResult.Deny("No format pls")
+                            : DynamicCodeValidationResult.Allow()
+                    )
+                },
+                AutoCompleter = null,// new DCEMCAAutoCompleter(),
+                StaticSnippets = new List<CodeSuggestion>
+                {
+                    new CodeSuggestion("GetService<T>(id)", "Get a registered service", "GetService<${1:T}>(${2:x})")
+                }
+            }));
 
             if (!_hasInited)
             {
@@ -279,6 +304,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             config.GiveRolesAccessToModuleWithFullAccess<HCEndpointControlModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCMetricsModule>(RuntimeTestAccessRole.WebAdmins);
             config.GiveRolesAccessToModuleWithFullAccess<HCMessagesModule>(RuntimeTestAccessRole.WebAdmins);
+            config.GiveRolesAccessToModuleWithFullAccess<HCDynamicCodeExecutionModule>(RuntimeTestAccessRole.WebAdmins);
             //////////////
 
             config.ShowFailedModuleLoadStackTrace = new Maybe<RuntimeTestAccessRole>(RuntimeTestAccessRole.WebAdmins);
