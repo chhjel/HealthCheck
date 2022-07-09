@@ -1,6 +1,6 @@
 <template>
     <!-- @click.stop.prevent.capture="onClick" -->
-    <div class="btn-component" :class="rootClasses" :disabled="isDisabled">
+    <div class="btn-component" :class="rootClasses" :disabled="isDisabled" :style="rootStyle">
         <a v-if="href" :href="(href || '')" :target="target">
 		    <span class="btn-component__contents"><slot></slot></span>
         </a>
@@ -12,6 +12,7 @@
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import ValueUtils from '@util/ValueUtils'
+import CssUtils from "@util/CssUtils";
 
 @Options({
     components: {}
@@ -89,8 +90,19 @@ export default class BtnComponent extends Vue {
              'x-small': this.isXSmall,
              'absolute': this.isAbsolute
         };
-        classes[this.color || 'accent'] = true;
+
+        if (!this.color) {
+            classes['accent'] = true;
+        } else {
+            CssUtils.setColorClassIfPredefined(this.color, classes);
+        }
         return classes;
+    }
+
+    get rootStyle(): any {
+        let style = {};
+        CssUtils.setColorStyleIfNotPredefined(this.color || 'def-color', style);
+        return style;
     }
 
     get isAbsolute(): boolean { return ValueUtils.IsToggleTrue(this.absolute); }
