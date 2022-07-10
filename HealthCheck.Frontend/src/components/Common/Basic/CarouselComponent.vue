@@ -107,10 +107,15 @@ export default class CarouselComponent extends Vue {
         text-align: center;
         position: relative;
         flex: 0 0 100%;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
     &__item-img {
-        height: 100%;
+        height: auto;
         max-width: 100%;
+        max-height: 100%;
     }
     &__item-details {
         position: absolute;
@@ -120,6 +125,8 @@ export default class CarouselComponent extends Vue {
         bottom: 0;
         padding: 3px;
         background-color: #00000036;
+        color: #fff;
+        text-shadow: 0 0 4px #0a0a0a;
     }
     &__nav {
         position: absolute;
@@ -131,6 +138,7 @@ export default class CarouselComponent extends Vue {
         padding: 5px;
         cursor: pointer;
         z-index: 10;
+        text-shadow: 0 0 3px #fff;
 
         &--left {
             left: 5px;
@@ -147,6 +155,7 @@ export default class CarouselComponent extends Vue {
     .carousel-component__item-details {
         a, a:visited {
             color: var(--color--text-light);
+            text-shadow: 0 0 4px #0a0a0a;
         }
     }
 </style>

@@ -1,7 +1,7 @@
 <!-- src/components/modules/TestSuite/result_data/data_types/TestResultImageUrlsDataComponent.vue -->
 <template>
 	<div>
-		<carousel-component :items="items" />
+		<carousel-component :items="items" :height="height" />
 	</div>
 </template>
 
@@ -38,6 +38,11 @@ export default class TestResultImageUrlsDataComponent extends Vue {
         detailsHtml: html
       }
     });
+	}
+
+	get height(): string {
+		if (this.fullscreen) return 'calc(100vh - 160px)';
+		else return "400px";
 	}
 }
 </script>
