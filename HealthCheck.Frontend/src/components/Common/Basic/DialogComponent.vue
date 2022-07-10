@@ -1,7 +1,7 @@
 <template>
     <Teleport to="body">
     <div class="dialog-component" :class="rootClasses" :style="rootStyle" v-show="localValue">
-        <div class="dialog-component_modal_wrapper" @click.self.prevent="onClickOutside">
+        <div class="dialog-component_modal_wrapper" @click.self.prevent="onClickOutside" ref="modalWrapper">
             <div class="dialog-component_modal" :style="dialogStyle">
                 <div class="dialog-component_modal_header" :class="headerColor">
                     <div class="dialog-component_modal_cross" @click.self.stop.prevent="onClickClose">X</div>
@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Watch } from "vue-property-decorator";
+import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import ValueUtils from '@util/ValueUtils'
 import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
@@ -59,6 +59,8 @@ export default class DialogComponent extends Vue {
 
     @Prop({ required: false, default: null })
     headerColor!: string | null;
+
+    @Ref() readonly modalWrapper!: HTMLElement;
 
     localValue: boolean = false;
     callbacks: Array<CallbackUnregisterShortcut> = [];
@@ -166,6 +168,16 @@ export default class DialogComponent extends Vue {
         this.$emit("close", true);
     }
 
+    shake(): void {
+        this.clearShake();
+        void this.modalWrapper.offsetWidth; // trigger reflow
+        this.modalWrapper.classList.add('persistent-shake'); // start animation
+    }
+
+    clearShake(): void {
+        this.modalWrapper.classList.remove('persistent-shake'); // reset animation
+    }
+
     ///////////////////////
     //  EVENT HANDLERS  //
     /////////////////////
@@ -179,6 +191,7 @@ export default class DialogComponent extends Vue {
 
     onClickOutside(): void {
         if (!this.persistent) this.close();
+        else this.shake();
     }
 
     onClickClose(): void {
@@ -188,6 +201,7 @@ export default class DialogComponent extends Vue {
     onVisibilityChanged(shown: boolean): void {
         DialogComponent.activeDialogCount = DialogComponent.activeDialogCount + (shown ? 1 : -1);
         document.body.style.overflow = DialogComponent.activeDialogCount == 0 ? null : 'hidden';
+        this.clearShake();
     }
 	
     /////////////////
@@ -246,6 +260,10 @@ export default class DialogComponent extends Vue {
         justify-content: center;
         padding: 20px;
         animation: dialog-open .15s ease-in-out;
+
+        &.persistent-shake {
+            animation: dialog-persistent-shake 0.35s; // ease-in-out;
+        }
         
         .dialog-component_modal {
             margin: 0 auto;
@@ -360,12 +378,18 @@ export default class DialogComponent extends Vue {
   0% {
     opacity: 0;
     transform: translateY(50px);
-    /* transform:scale(0); */
   }
   100% {
     opacity: 1;
     transform: translateY(0);
-    /* transform:scale(1); */
   }
+}
+
+@keyframes dialog-persistent-shake {
+    0% { transform: translateX(0) }
+    25% { transform: translateX(5px) }
+    50% { transform: translateX(-5px) }
+    75% { transform: translateX(5px) }
+    100% { transform: translateX(0) }
 }
 </style>
