@@ -1,4 +1,5 @@
 <template>
+    <Teleport to="body">
     <div class="dialog-component" :class="rootClasses" :style="rootStyle" v-show="localValue">
         <div class="dialog-component_modal_wrapper" @click.self.prevent="onClickOutside">
             <div class="dialog-component_modal" :style="dialogStyle">
@@ -15,6 +16,7 @@
             </div>
         </div>
     </div>
+    </Teleport>
 </template>
 
 <script lang="ts">

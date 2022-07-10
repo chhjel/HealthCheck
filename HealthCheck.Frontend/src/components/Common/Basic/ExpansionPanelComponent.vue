@@ -1,5 +1,5 @@
 <template>
-    <div class="expansion-panel-component" :class="rootClasses" v-set-max-height-from-children>
+    <div class="expansion-panel-component" :class="rootClasses">
         <div class="expansion-panel_header" @click="localValue = !localValue" v-if="showHeader">
             <slot name="header"></slot>
         </div>
@@ -77,7 +77,6 @@ export default class ExpansionPanelComponent extends Vue {
 .expansion-panel-component {
     border-radius: 4px;
     font-size: 14px;
-    transition: all .05s ease-in-out;
     overflow: hidden;
     min-height: 42px;
 
@@ -92,14 +91,32 @@ export default class ExpansionPanelComponent extends Vue {
     }
 
     .expansion-panel_content {
-        padding: 12px 24px;
+        padding: 0px 24px;
     }
     &:not(.open) {
-        max-height: 0 !important;
-        /* max-height: inherit !important; */
         .expansion-panel_content {
-            padding: 0px 24px;
+            display: none;
         }
     }
+    &.open {
+        .expansion-panel_content {
+            animation: fade-in .3s ease-in-out;
+            padding: 12px 24px;
+        }
+    }
+}
+
+@keyframes fade-in {
+  0% {
+    display: none;
+    opacity: 0;
+  }
+  1% {
+    display: block;
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 </style>
