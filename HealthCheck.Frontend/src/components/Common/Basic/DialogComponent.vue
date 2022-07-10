@@ -226,6 +226,7 @@ export default class DialogComponent extends Vue {
     right: 0;
     background-color: #0000005c;
     z-index: 1000;
+    animation: dialog-open-bg .15s ease-in-out;
 
     &.hide-overlay {
         background-color: inherit;
@@ -244,16 +245,15 @@ export default class DialogComponent extends Vue {
         flex-direction: column;
         justify-content: center;
         padding: 20px;
+        animation: dialog-open .15s ease-in-out;
         
         .dialog-component_modal {
             margin: 0 auto;
             margin-bottom: 40px;
             padding: 30px 0;
             background-color: #fff;
-            /* border: 2px solid #dfdfdf; */
             position: relative;
             max-width: 100%;
-            /* max-height: calc(100vh - 40px - 40px); */
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -265,15 +265,12 @@ export default class DialogComponent extends Vue {
                 padding: 10px 30px;
                 font-size: 30px;
                 font-weight: 600;
-                /* border-bottom: 2px solid var(--color--accent-lighten1); */
             }
             &_footer {
                 margin-bottom: -30px;
                 padding: 10px 30px;
-                /* border-top: 2px solid var(--color--accent-lighten1); */
                 border: 2px solid #dfdfdf;
                 border-top: 2px solid var(--color--accent-lighten1);
-                /* background-color: var(--color--accent-base); */
             }
             &_content {
                 overflow-y: auto;
@@ -348,5 +345,27 @@ export default class DialogComponent extends Vue {
             }
         }
     }
+}
+
+@keyframes dialog-open-bg {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes dialog-open {
+  0% {
+    opacity: 0;
+    transform: translateY(50px);
+    /* transform:scale(0); */
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    /* transform:scale(1); */
+  }
 }
 </style>
