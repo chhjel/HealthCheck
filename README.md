@@ -24,9 +24,9 @@ Available modules:
 * Downloads module where files can be made available for download, optionally protected by password, expiration date and download count limit.
 * Metrics module that outputs some simple metrics you can track manually.
 * Request log module that lists controllers and actions with their latest requests and errors.
-* Log searcher module for searching through logfiles on disk.
 * Documentation module that shows generated sequence diagrams from code decorated with attributes.
 * Release notes module that can show release notes.
+* *[Deprecated in 4.x+]* Log searcher module for searching through logfiles on disk.
 
 ## Getting started
 
@@ -551,7 +551,7 @@ IAuditEventStorage auditEventStorage = new FlatFileAuditEventStorage(HostingEnvi
 
 ---------
 
-## Module: Log Viewer
+## Module: Log Viewer *[Deprecated in 4.x+]*
 
 UI for searching through logfiles.
 

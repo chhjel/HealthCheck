@@ -101,7 +101,9 @@ export default class BtnComponent extends Vue {
 
     get rootStyle(): any {
         let style = {};
-        CssUtils.setColorStyleIfNotPredefined(this.color || 'def-color', style);
+        if (!this.isDisabled) {
+            CssUtils.setColorStyleIfNotPredefined(this.color || 'def-color', style);
+        }
         return style;
     }
 

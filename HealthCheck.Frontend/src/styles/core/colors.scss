@@ -78,3 +78,11 @@
 	border-color: var(--color--accent-lighten2);
 	background-color: var(--color--accent-lighten1);;
 }
+.forced-flat-dark-hover-bg {
+    .hoverable.flat:not(.disabled) {
+		transition: 0.2s;
+		&:hover {
+			background-color: #ffffff12 !important;
+		}
+    }
+}

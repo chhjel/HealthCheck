@@ -45,9 +45,6 @@ export default class DialogComponent extends Vue {
     @Prop({ required: false, default: 800 })
     maxWidth!: number;
 
-    @Prop({ required: false, default: null })
-    contentClass!: string;
-
     @Prop({ required: false, default: false })
     fullWidth!: string | boolean;
 
@@ -59,6 +56,9 @@ export default class DialogComponent extends Vue {
 
     @Prop({ required: false, default: null })
     headerColor!: string | null;
+
+    @Prop({ required: false, default: null })
+    class!: string | null;
 
     @Ref() readonly modalWrapper!: HTMLElement;
 
@@ -93,7 +93,7 @@ export default class DialogComponent extends Vue {
     //  GETTERS  //
     //////////////
     get rootClasses(): any {
-        return {
+        let classes: any = {
              'fullscreen': this.isFullscreen,
              'hide-overlay': this.isHideOverlay,
              'persistent': this.isPersistent,
@@ -101,6 +101,8 @@ export default class DialogComponent extends Vue {
              'dark': this.isDark,
              'has-color': !!this.headerColor
         };
+        if (this.class) classes[this.class] = true;
+        return classes;
     }
 
     get rootStyle(): any {

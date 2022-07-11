@@ -18,7 +18,7 @@
                     v-on:itemClicked="onMenuItemClicked"
                     />
                     
-                <div class="pl-1 pr-1 pt-2 pb-2 menu-bottom-nav">
+                <div class="pl-1 pr-1 pt-2 pb-2 menu-bottom-nav forced-flat-dark-hover-bg">
                     <btn-component flat :dark="localOptions.darkTheme"
                         color="#62b5e4"
                         @click="configDialogVisible = true"
@@ -58,7 +58,7 @@
                         ref="editor"
                         ></editor-component>
 
-                    <div class="middle-toolbar">
+                    <div class="middle-toolbar forced-flat-dark-hover-bg">
                         <btn-component flat :dark="localOptions.darkTheme"
                             color="#62b5e4"
                             :disabled="!hasUnsavedChanges || loadStatus.inProgress"
