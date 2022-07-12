@@ -3,7 +3,7 @@
     <div>
         <div v-if="!showIntegratedLogin">
             <!-- TOOLBAR -->
-            <toolbar-component fixed class="box-shadow-small">
+            <toolbar-component fixed class="box-shadow-small" :items="toolbarItems">
                 <template #prefix>
                     <div class="toolbar-prefix">
                         <icon-component class="clickable toolbar-icon"
@@ -15,32 +15,6 @@
                         </div>
                     </div>
                 </template>
-                <btn-component flat
-                    v-for="(mconf, mindex) in this.moduleConfigsToShowInTopMenu"
-                    :key="`module-menu-${mindex}`"
-                    :href="getModuleLinkUrl(mconf)"
-                    :class="{ 'active-tab': isModuleShowing(mconf) }"
-                    @click.left.prevent="showModule(mconf)">{{ mconf.Name }}</btn-component>
-                <btn-component flat 
-                    v-if="showTokenKillswitch"
-                    @click.left.prevent="tokenKillswitchDialogVisible = true">
-                    <icon-component class="mr-1">remove_circle</icon-component>
-                    Token killswitch
-                    </btn-component>
-                <!-- <icon-component class="clickable toolbar-icon"
-                    @click.stop="toggleThemes">dark_mode</icon-component> -->
-                <btn-component flat 
-                    v-if="showIntegratedProfile"
-                    @click.left.prevent="integratedProfileDialogVisible = true">
-                    <icon-component class="mr-1">person</icon-component>
-                    Profile
-                    </btn-component>
-                <btn-component flat 
-                    v-if="showLogoutLink"
-                    @click.left.prevent="logoutRedirect">
-                    <icon-component>logout</icon-component>
-                    {{ logoutLinkTitle }}
-                </btn-component>
             </toolbar-component>
 
             <invalid-module-configs-component
@@ -87,6 +61,7 @@ import { RouteLocationNormalized } from "vue-router";
 import UrlUtils from "@util/UrlUtils";
 import EventBus from "@util/EventBus";
 import { ModuleSpecificConfig } from "./HealthCheckPageComponent.vue.models";
+import { ToolbarComponentMenuItem } from "./Common/Basic/ToolbarComponent.vue.models";
 
 @Options({
     components: {
@@ -211,6 +186,51 @@ export default class HealthCheckPageComponent extends Vue {
         return classes;
     }
     
+    get toolbarItems(): Array<ToolbarComponentMenuItem> {
+        let items: Array<ToolbarComponentMenuItem> = [];
+
+        // Modules
+        this.moduleConfigsToShowInTopMenu.forEach(mconf => {
+            items.push({
+                label: mconf.Name,
+                active: this.isModuleShowing(mconf),
+                data: mconf,
+                onClick: () => this.showModule(mconf),
+                href: this.getModuleLinkUrl(mconf)
+            });
+        });
+
+        // Utils
+        if (this.showTokenKillswitch) {
+            items.push({
+                label: 'Token killswitch',
+                icon: 'remove_circle',
+                active: false,
+                data: null,
+                onClick: () => this.tokenKillswitchDialogVisible = true,
+            });
+        }
+        if (this.showIntegratedProfile) {
+            items.push({
+                label: 'Profile',
+                icon: 'person',
+                active: false,
+                data: null,
+                onClick: () => this.integratedProfileDialogVisible = true,
+            });
+        }
+        if (this.showLogoutLink) {
+            items.push({
+                label: this.logoutLinkTitle,
+                icon: 'logout',
+                active: false,
+                data: null,
+                onClick: () => this.logoutRedirect(),
+            });
+        }
+        return items;
+    }
+
     ////////////////
     //  METHODS  //
     //////////////
@@ -373,41 +393,6 @@ export default class HealthCheckPageComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.active-tab {
-    font-weight: 900 !important;
-    background-color: var(--color--accent-lighten1) !important;
-}
-.toolbar-prefix {
-    display: flex;
-    height: 100%;
-    align-items: stretch;
-    padding-left: 10px;
-    &_apptitle {
-        display: flex;
-        align-items: center;
-        font-size: 20px;
-        font-weight: 500;
-        letter-spacing: .02em;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        padding-left: 5px;
-        padding-right: 10px;
-        a {
-            color: var(--color--text);
-            text-decoration: inherit;
-        }
-    }
-}
-.toolbar-icon {
-    align-self: center;
-    border-radius: 50%;
-    transition: 0.2s all;
-    padding: 5px;
-    &:hover {
-        background-color: var(--color--accent-lighten1);
-    }
-}
 .module-root {
     display: flex;
     flex-direction: row;
@@ -491,6 +476,40 @@ export default class HealthCheckPageComponent extends Vue {
                 height: calc(100vh - 66px);
             }
         }
+    }
+}
+</style>
+
+<style scoped lang="scss">
+.toolbar-prefix {
+    display: flex;
+    height: 100%;
+    align-items: stretch;
+    padding-left: 10px;
+    &_apptitle {
+        display: flex;
+        align-items: center;
+        font-size: 20px;
+        font-weight: 500;
+        letter-spacing: .02em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-left: 5px;
+        padding-right: 10px;
+        a {
+            color: var(--color--text);
+            text-decoration: inherit;
+        }
+    }
+}
+.toolbar-icon {
+    align-self: center;
+    border-radius: 50%;
+    transition: 0.2s all;
+    padding: 5px;
+    &:hover {
+        background-color: var(--color--accent-lighten1);
     }
 }
 </style>
