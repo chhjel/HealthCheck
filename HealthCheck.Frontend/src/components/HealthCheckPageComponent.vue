@@ -429,12 +429,14 @@ export default class HealthCheckPageComponent extends Vue {
         overflow-y: auto;
         z-index: 10;
         height: calc(100% - 56px);
+        box-shadow: 0 0 15px 10px #56595ab8;
         &:not(:empty) {
             &.open {
                 left: 0;
             }
         }
         @media (min-width: 960px) {
+            box-shadow: none;
             height: calc(100% - 64px);
         }
     }
