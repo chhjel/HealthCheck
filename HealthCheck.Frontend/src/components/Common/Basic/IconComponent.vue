@@ -119,3 +119,13 @@ export default class IconComponent extends Vue {
     &.help { cursor: help; }
 }
 </style>
+
+<style lang="scss">
+.disabled {
+    .icon-component {
+        .material-icons {
+            opacity: 0.25;
+        }
+    }
+}
+</style>
