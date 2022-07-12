@@ -26,10 +26,10 @@ import ValueUtils from '@util/ValueUtils'
 import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
 
 @Options({
-    components: {}
+    components: {},
+    emits: ['close']
 })
 export default class DialogComponent extends Vue {
-
     @Prop({ required: true })
     value!: boolean;
 
