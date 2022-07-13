@@ -4,7 +4,6 @@
         <div class="dialog-component_modal_wrapper" @click.self.prevent="onClickOutside" ref="modalWrapper">
             <div class="dialog-component_modal" :style="dialogStyle">
                 <div class="dialog-component_modal_header" :class="headerColor">
-                    <div class="dialog-component_modal_cross" @click.self.stop.prevent="onClickClose">X</div>
                     <slot name="header"></slot>
                 </div>
                 <div class="dialog-component_modal_content" :style="contentStyle">
@@ -251,7 +250,7 @@ export default class DialogComponent extends Vue {
     &.full-width { }
     &:not(.has-color) {
         .dialog-component_modal_header {
-            background-color: var(--color--accent-lighten1);
+            /* background-color: var(--color--accent-lighten1); */
         }
     }
     
@@ -272,6 +271,8 @@ export default class DialogComponent extends Vue {
             margin-bottom: 40px;
             padding: 30px 0;
             background-color: #fff;
+            transition: all 0.2s;
+            box-shadow: 0 0 13px 9px #33333340;
             position: relative;
             max-width: 100%;
             overflow: hidden;
@@ -285,6 +286,13 @@ export default class DialogComponent extends Vue {
                 padding: 10px 30px;
                 font-size: 30px;
                 font-weight: 600;
+                min-height: 18px;
+                box-sizing: border-box;
+                border-bottom: 2px solid var(--color--accent-lighten1);
+
+                &:empty {
+                    display: none !important;
+                }
             }
             &_footer {
                 margin-bottom: -30px;
@@ -302,51 +310,38 @@ export default class DialogComponent extends Vue {
                 border-right: 2px solid #dfdfdf;
             }
         }
-        .dialog-component_modal_cross {
-            cursor: pointer;
-            position: absolute;
-            top: -1px;
-            right: -1px;
-            height: 19px;
-            width: 19px;
-            background-color: #dfdfdf;
-            border: 1px solid #dfdfdf;
-            font-weight: 600;
-            font-size: 17px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            &:hover {
-                background-color: #e8e8e8;
-            }
-        }
     }
 
     &.dark {
         .dialog-component_modal {
-            background: var(--color--background-dark);
+            background: var(--color--background-dark) !important;
             color: #fff;
+            margin: 0 !important;
+            border: none !important;
         }
         .dialog-component_modal_header {
             background: var(--color--background-dark) !important;
+            border: none !important;
         }
         .dialog-component_modal_content {
-            border: none;
-        }
-        .dialog-component_modal_cross {
-            // todo: style main dialog better first
+            border: none !important;
         }
         .dialog-component_modal_footer {
-            border: none;
+            border: none !important;
             border-top: 2px solid var(--color--accent-darken9);
         }
     }
 
     &.fullscreen {
         .dialog-component_modal {
-            margin-bottom: 0;
-            width: 100%;
+            width: calc(100% - 16px);
             height: 100%;
+            
+            background: #fff;
+            box-shadow: 0 0 4px 3px #33333321;
+            box-sizing: border-box;
+            margin: 8px;
+            border: 2px solid #dfdfdf;
         }
 
         .dialog-component_modal_wrapper {
@@ -360,7 +355,13 @@ export default class DialogComponent extends Vue {
 
             .dialog-component_modal {
                 &_content {
-                max-height: calc(100vh - 140px);
+                    border: none;
+                    max-height: inherit;
+                    /* max-height: calc(100vh - 140px); */
+                }
+                &_footer {
+                    border: none;
+                    border-top: 2px solid var(--color--accent-lighten1);
                 }
             }
         }

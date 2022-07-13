@@ -3,7 +3,7 @@
     <div>
         <btn-component @click="showDialog" :disabled="readonly">{{ buttonText }}</btn-component>
         
-        <dialog-component v-model:value="editorDialogVisible" fullscreen>
+        <dialog-component v-model:value="editorDialogVisible" fullscreen dark>
             <template #header>Edit value of parameter '{{ name }}' of type '{{ type}}'</template>
             <template #footer>
                 <btn-component color="error" @click="setValueToNull">Set value to null</btn-component>

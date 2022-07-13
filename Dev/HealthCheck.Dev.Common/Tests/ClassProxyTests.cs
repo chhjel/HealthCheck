@@ -197,7 +197,9 @@ namespace HealthCheck.Dev.Common.Tests
             {
                 new RuntimeTestReferenceParameterFactory(
                     typeof(SomeParameterType),
-                    (filter) => getUserChoices().Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Name)),
+                    (filter) => getUserChoices()
+                        .Where(x => x.Id.ToString().Contains(filter) || x.Name.Contains(filter))
+                        .Select(x => new RuntimeTestReferenceParameterChoice(x.Id.ToString(), x.Name)),
                     (id) => getUserChoices().FirstOrDefault(x => x.Id.ToString() == id)
                 )
             };
