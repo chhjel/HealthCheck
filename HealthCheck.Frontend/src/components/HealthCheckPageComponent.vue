@@ -415,6 +415,9 @@ export default class HealthCheckPageComponent extends Vue {
         z-index: 10;
         height: calc(100% - 56px);
         box-shadow: 0 0 15px 10px #56595ab8;
+        &:not(.open) {
+            box-shadow: none;
+        }
         &:not(:empty) {
             &.open {
                 left: 0;
