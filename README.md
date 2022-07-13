@@ -24,8 +24,8 @@ Available modules:
 * Downloads module where files can be made available for download, optionally protected by password, expiration date and download count limit.
 * Metrics module that outputs some simple metrics you can track manually.
 * Request log module that lists controllers and actions with their latest requests and errors.
-* Documentation module that shows generated sequence diagrams from code decorated with attributes.
 * Release notes module that can show release notes.
+* *[Not styled yet in 4.x+]* Documentation module that shows generated sequence diagrams from code decorated with attributes.
 * *[Deprecated in 4.x+]* Log searcher module for searching through logfiles on disk.
 
 ## Getting started
@@ -1711,7 +1711,7 @@ HCMetricsContext.AddError("etc", ex);
 
 ---------
 
-## Module: Documentation
+## Module: Documentation *[Not styled yet in 4.x+]*
 
 Work in progress. At the moment sequence diagrams and flowcharts generated from decorated code will be shown.
 

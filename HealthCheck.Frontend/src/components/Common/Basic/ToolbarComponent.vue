@@ -3,9 +3,11 @@
         <div class="toolbar-component__prefix">
             <slot name="prefix"></slot>
         </div>
-        <div class="toolbar-component__content" ref="mainToolbarContent" :style="contentStyle">
+        <div class="toolbar-component__content"
+            ref="mainToolbarContent"
+            :style="contentStyle">
             <btn-component flat
-                v-for="(item, index) in this.items"
+                v-for="(item, index) in items"
                 :key="`toolbar-component-item-${index}`"
                 :href="item.href"
                 :class="{ 'active-tab': item.active }"
@@ -15,9 +17,16 @@
                     {{ item.label }}
             </btn-component>
         </div>
-        <div class="toolbar-component__overflow" ref="overflowContainer">
+        <div class="toolbar-component__overflow-button hoverable-lift-light"
+            ref="overflowButton"
+            :style="overflowButtonStyle"
+            @click="showOverflow = !showOverflow">
+            <icon-component class="mr-1">more_horiz</icon-component>
+            +{{ overflowMenuItems.length }}
+        </div>
+        <div class="toolbar-component__overflow" ref="overflowContainer" v-show="showOverflow">
             <btn-component flat
-                v-for="(item, index) in this.overflowMenuItems"
+                v-for="(item, index) in overflowMenuItems"
                 :key="`toolbar-component-item-o-${index}`"
                 :href="item.href"
                 :class="{ 'active-tab': item.active }"
@@ -35,6 +44,7 @@ import { Vue, Prop, Ref, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import ValueUtils from "@util/ValueUtils";
 import { ToolbarComponentMenuItem } from './ToolbarComponent.vue.models';
+import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
 
 interface ItemData {
     item: ToolbarComponentMenuItem;
@@ -60,10 +70,13 @@ export default class ToolbarComponent extends Vue {
 
     @Ref() readonly mainToolbarContent!: HTMLElement;
     @Ref() readonly overflowContainer!: HTMLElement;
+    @Ref() readonly overflowButton!: HTMLElement;
     
+    callbacks: Array<CallbackUnregisterShortcut> = [];
     observer: IntersectionObserver;
     itemStates: Array<ItemData> = [];
     overflowWidth: number = 0;
+    showOverflow: boolean = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -77,6 +90,9 @@ export default class ToolbarComponent extends Vue {
             });
         });
 
+        this.callbacks = [
+            EventBus.on("onWindowClick", this.onWindowClick.bind(this))
+        ];
         this.initObserver();
     }
 
@@ -103,10 +119,20 @@ export default class ToolbarComponent extends Vue {
         return this.itemStates.filter(x => x.overflow).map(x => x.item);
     };
 
+    get isOverflowing(): boolean {
+        return this.itemStates.some(x => x.overflow);
+    }
+
     get contentStyle(): any {
         let style: any = {};
         style['padding-right'] = `${this.overflowWidth}px`;
         return style;
+    }
+
+    get overflowButtonStyle(): any {
+        return {
+            'display': this.isOverflowing ? '' : 'none'
+        };
     }
 
     ////////////////
@@ -154,6 +180,14 @@ export default class ToolbarComponent extends Vue {
             item.onClick(item);
         }
     }
+
+    onWindowClick(e: MouseEvent): void {
+        this.$nextTick(() => {
+            if (this.overflowContainer == null || this.overflowContainer == null || !(e.target instanceof Element)) return;
+            if (this.overflowContainer.contains(e.target) || this.overflowButton.contains(e.target)) return;
+            this.showOverflow = false;
+        });
+    }
 	
     /////////////////
     //  WATCHERS  //
@@ -197,29 +231,31 @@ export default class ToolbarComponent extends Vue {
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
-        overflow-y: hidden;
-        overflow-x: auto;
-        overflow: overlay hidden;
-        -ms-overflow-style: none;
-        height: 56px;
+        overflow: hidden;
 
-        &::-webkit-scrollbar {
-            display: none;
-        }
-         
-        @media (min-width: 960px) {
-            height: 64px;
-        }
+        height: 56px;
+        @media (min-width: 960px) { height: 64px; }
     }
 
     &__overflow {
         position: absolute;
-        top: 0;
         right: 0;
         background: var(--color--background-bright);
-        border: 1px solid #000;
+        box-shadow: 0 0 12px 2px rgb(0 0 0 / 21%);
         display: flex;
         flex-direction: column;
+
+        top: 56px;
+        @media (min-width: 960px) { top: 64px; }
+    }
+
+    &__overflow-button {
+        min-width: 100px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        font-size: 14px;
     }
 }
 </style>
