@@ -33,15 +33,15 @@
       
                 <div row wrap>
                     <div xs12>
-                        <checkbox-component v-model:value="visibleStates" label="Successes" :value="STATE_SUCCESS" style="display:inline-block" class="mr-2"></checkbox-component>
-                        <checkbox-component v-model:value="visibleStates" label="Errors" :value="STATE_ERROR" style="display:inline-block" class="mr-2"></checkbox-component>
-                        <checkbox-component v-model:value="visibleStates" label="Not Called" :value="STATE_UNDETERMINED" style="display:inline-block" class="mr-4"></checkbox-component>
+                        <checkbox-component v-model:value="visibleStates" label="Successes" :toggle="STATE_SUCCESS" inline class="mr-2"></checkbox-component>
+                        <checkbox-component v-model:value="visibleStates" label="Errors" :toggle="STATE_ERROR" inline class="mr-2"></checkbox-component>
+                        <checkbox-component v-model:value="visibleStates" label="Not Called" :toggle="STATE_UNDETERMINED" inline class="mr-4"></checkbox-component>
                         
                         <checkbox-component
                             v-for="(verb, index) in verbs"
                             :key="`verb-${index}`"
-                            v-model:value="visibleVerbs" :label="verb" :value="verb"
-                            style="display:inline-block" class="mr-2"></checkbox-component>
+                            v-model:value="visibleVerbs" :label="verb" :toggle="verb"
+                            inline class="mr-2"></checkbox-component>
                     </div>
                 </div>
 
@@ -56,7 +56,7 @@
                 </div>
                 <br />
 
-                <checkbox-component v-model:value="groupEntries" label="Enable grouping" style="display:inline-block" class="mr-4"></checkbox-component>
+                <checkbox-component v-model:value="groupEntries" label="Enable grouping" inline class="mr-4"></checkbox-component>
                 <a @click="clearFilteredIpAddress()" v-if="filteredIPAddress != null" class="filtere-address-filter mr-2">
                     Filtered to source IP: {{ filteredIPAddress }}
                     <icon-component size="20px">delete</icon-component>

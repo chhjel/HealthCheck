@@ -2,7 +2,7 @@
     <div class="checkbox-component" :class="rootClasses" tabindex="0" @click="onClick">
         <span class='checkbox-component__indicator color-f color-border' :class="colorClasses" :style="indicatorStyle">
             <div v-if="isChecked" class="checkbox-component__indicator_bg" :class="colorClasses"></div>
-            <icon-component v-if="localValue == true" :color="iconColor" :size="size" style="position:absolute">check</icon-component>
+            <icon-component v-if="isChecked" :color="iconColor" :size="size" style="position:absolute">check</icon-component>
             <icon-component v-if="currentValueIsIndeterminate" :color="iconColor" :size="size" style="position:absolute">horizontal_rule</icon-component>
         </span>
         <label v-if="label">{{ label }}</label>
@@ -34,6 +34,9 @@ export default class CheckboxComponent extends Vue {
 
     @Prop({ required: false, default: false })
     allowIndeterminate!: string | boolean;
+
+    @Prop({ required: false, default: false })
+    inline!: string | boolean;
     
     @Prop({ required: false, default: null })
     inputValue!: string;
@@ -41,11 +44,14 @@ export default class CheckboxComponent extends Vue {
     @Prop({ required: false, default: null })
     color!: string;
 
+    @Prop({ required: false, default: null })
+    toggle!: any;
+
     @Prop({ required: false, default: '18px' })
     size!: string;
 
     id: string = IdUtils.generateId();
-    localValue: boolean | null = false;
+    localValue: boolean | Array<any> | null = false;
 
     //////////////////
     //  LIFECYCLE  //
@@ -62,7 +68,8 @@ export default class CheckboxComponent extends Vue {
         return {
              'disabled': this.isDisabled,
              'indeterminate': this.currentValueIsIndeterminate,
-             'checked': this.localValue == true
+             'checked': this.isChecked,
+             'inline': this.isInline == true
         };
     }
 
@@ -91,9 +98,13 @@ export default class CheckboxComponent extends Vue {
         return !this.localValue && this.localValue !== false;
     }
 
-    get isChecked(): boolean { return this.localValue === true; }
+    get isChecked(): boolean {
+        return this.localValue === true 
+            || (Array.isArray(this.localValue) && this.localValue.includes(this.toggle));
+    }
     get isDisabled(): boolean { return ValueUtils.IsToggleTrue(this.disabled) || ValueUtils.IsToggleTrue(this.readonly); }
     get isReadOnly(): boolean { return ValueUtils.IsToggleTrue(this.readonly) || ValueUtils.IsToggleTrue(this.disabled); }
+    get isInline(): boolean { return ValueUtils.IsToggleTrue(this.inline); }
     get isAllowIndeterminate(): boolean { return ValueUtils.IsToggleTrue(this.allowIndeterminate); }
 
     ////////////////
@@ -109,6 +120,14 @@ export default class CheckboxComponent extends Vue {
     setNextState(): void {
         if (this.readonly)
         {
+            return;
+        }
+
+        if (Array.isArray(this.value) && this.toggle != null) {
+            let newArray = Array.from(this.value);
+            if (!newArray.includes(this.toggle)) newArray.push(this.toggle);
+            else newArray = newArray.filter(x => x != this.toggle);
+            this.localValue = newArray;
             return;
         }
         
@@ -194,5 +213,9 @@ export default class CheckboxComponent extends Vue {
 
     &.disabled { }
     &.indeterminate { }
+
+    &.inline {
+        display: inline-flex;
+    }
 }
 </style>
