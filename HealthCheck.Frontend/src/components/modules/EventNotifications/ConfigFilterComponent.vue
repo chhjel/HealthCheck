@@ -181,10 +181,10 @@ export default class ConfigFilterComponent extends Vue {
 
         div {
             margin-right: 10px;
-            
+/*             
             @media (max-width: 900px) {
                 width: 100%;
-            }
+            } */
         }
     }
 }

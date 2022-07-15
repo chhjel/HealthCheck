@@ -308,6 +308,10 @@ export default class DialogComponent extends Vue {
                 flex: 1;
                 border-left: 2px solid #dfdfdf;
                 border-right: 2px solid #dfdfdf;
+
+                @media (max-width: 961px) {
+                    padding: 5px;
+                }
             }
         }
     }

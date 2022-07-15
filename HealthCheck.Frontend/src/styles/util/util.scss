@@ -39,6 +39,42 @@ $util-margin-padding-list: (
 	.mr-#{$key} {
 		margin-right: ($val) + px !important;
 	}
+	
+	@media (min-width: 960px) {
+		.ma-#{$key}-d {
+			margin: ($val) + px !important;
+		}
+		.mt-#{$key}-d {
+			margin-top: ($val) + px !important;
+		}
+		.mb-#{$key}-d {
+			margin-bottom: ($val) + px !important;
+		}
+		.ml-#{$key}-d {
+			margin-left: ($val) + px !important;
+		}
+		.mr-#{$key}-d {
+			margin-right: ($val) + px !important;
+		}
+	}
+	
+	@media (max-width: 961px) {
+		.ma-#{$key}-m {
+			margin: ($val) + px !important;
+		}
+		.mt-#{$key}-m {
+			margin-top: ($val) + px !important;
+		}
+		.mb-#{$key}-m {
+			margin-bottom: ($val) + px !important;
+		}
+		.ml-#{$key}-m {
+			margin-left: ($val) + px !important;
+		}
+		.mr-#{$key}-m {
+			margin-right: ($val) + px !important;
+		}
+	}
 }
 
 .clickable {

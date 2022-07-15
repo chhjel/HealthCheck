@@ -70,7 +70,7 @@
               :testResult="testResult"
               :expandDataOnLoad="resultDataExpandedState"
               v-on:dataExpandedStateChanged="onDataExpandedStateChanged"
-              class="mt-1 mr-4"  />
+              class="mt-1 mr-4-d"  />
           </div>
       </div>
     </div>
@@ -394,7 +394,9 @@ export default class TestComponent extends Vue {
   text-transform: inherit !important;
 }
 .test-details {
-  padding: 0px 48px 24px 24px;
+	@media (min-width: 960px) {
+    padding: 0px 48px 24px 24px;
+  }
 }
 .test-name {
   flex-grow: 1;

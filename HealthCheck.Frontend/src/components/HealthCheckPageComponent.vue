@@ -8,7 +8,8 @@
                     <div class="toolbar-prefix">
                         <icon-component class="clickable toolbar-icon"
                             @click.stop="toggleNavMenu"
-                            v-if="showModuleMenuButton">menu</icon-component>
+                            v-if="showModuleMenuButton"
+                            title="Toggle menu">menu</icon-component>
                         <div class="toolbar-prefix_apptitle">
                             <a v-if="hasTitleLink" :href="titleLink">{{ globalOptions.ApplicationTitle }}</a>
                             <span v-else>{{ globalOptions.ApplicationTitle }}</span>
@@ -440,13 +441,13 @@ export default class HealthCheckPageComponent extends Vue {
         left: -300px;
         top: 0;
         width: 300px;
-        box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.02), 0 3px 2px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
         background-color: #292929;
         color: var(--color--text-light);
         overflow-y: auto;
         z-index: 10;
         height: calc(100% - 56px);
-        box-shadow: 0 0 15px 10px #56595ab8;
+        box-shadow: 0 0 15px 10px #282828b8;
+        
         &:not(.open) {
             box-shadow: none;
         }
