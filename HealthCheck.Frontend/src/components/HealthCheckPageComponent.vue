@@ -59,7 +59,7 @@ import AccessTokenKillswitchDialog from '@components/modules/AccessTokens/Access
 import { HCFrontEndOptions } from "@generated/Models/WebUI/HCFrontEndOptions";
 import { RouteLocationNormalized } from "vue-router";
 import UrlUtils from "@util/UrlUtils";
-import EventBus from "@util/EventBus";
+import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
 import { ModuleSpecificConfig } from "./HealthCheckPageComponent.vue.models";
 import { ToolbarComponentMenuItem } from "./Common/Basic/ToolbarComponent.vue.models";
 
@@ -99,11 +99,16 @@ export default class HealthCheckPageComponent extends Vue {
 
         this.moduleNavMenu = (<Element>this.$refs.moduleNavMenu);
         await this.setInitialPage();
+        this.bindEventBusEvents();
         this.bindRootEvents();
         this.$router.afterEach((t, f, err) => this.onRouteChanged(t, f));
         setInterval(() => this.hackyTimer++, 100);
 
         this.onLoadOrRouteChanged();
+    }
+
+    beforeUnmount(): void {
+        this.unbindEventBusEvents();
     }
 
     ////////////////
@@ -242,6 +247,25 @@ export default class HealthCheckPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    callbacks: Array<CallbackUnregisterShortcut> = [];
+    bindEventBusEvents(): void {
+        this.callbacks = [
+            EventBus.on("FilterableList.itemClicked", this.onFilterableListItemClicked.bind(this))
+        ];
+    }
+    unbindEventBusEvents(): void {
+      this.callbacks.forEach(x => x.unregister());
+    }
+
+    onFilterableListItemClicked(): void {
+        // Close sidemenu on item select if on mobile
+        const isSmallMenuMode = window.matchMedia('(max-width: 960px)')
+        console.log("isSmallMenuMode", isSmallMenuMode);
+        if (isSmallMenuMode.matches && this.showModuleMenuButton) {
+            this.moduleNavMenuState = false;
+        }
+    }
+
     bindRootEvents(): void {
         document.addEventListener('keyup', this.onDocumentKeyDownOrDown);
         document.addEventListener('keydown', this.onDocumentKeyDownOrDown);

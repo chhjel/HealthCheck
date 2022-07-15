@@ -87,6 +87,7 @@ import KeyValuePair from '@models/Common/KeyValuePair';
 import FilterInputComponent from '@components/Common/FilterInputComponent.vue';
 
 import { FilterableListGroup, FilterableListItem } from '@components/Common/FilterableListComponent.vue.models';
+import EventBus from "@util/EventBus";
 @Options({
     components: {
         FilterInputComponent
@@ -269,6 +270,7 @@ export default class FilterableListComponent extends Vue {
     {
         this.setSelectedItem(item.data);
         this.$emit('itemClicked', item);
+        EventBus.notify('FilterableList.itemClicked', item);
     }
 
     onItemClickedMiddle(item: FilterableListItem): void
