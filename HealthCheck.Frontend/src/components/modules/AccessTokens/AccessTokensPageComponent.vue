@@ -388,7 +388,7 @@ export default class AccessTokensPageComponent extends Vue {
             font-weight: 600;
         }
         .token-item--roles {
-            margin-bottom: 5px;
+            margin-top: 10px;
 
             .token-item--roles--item {
                 display: inline-block;
@@ -397,6 +397,7 @@ export default class AccessTokensPageComponent extends Vue {
                 box-shadow: 0 0 3px 0px #b5b5b5;
                 background-color: #f3f3f3;
                 margin-right: 10px;
+                margin-bottom: 10px;
             }
         }
         .token-item--modules {

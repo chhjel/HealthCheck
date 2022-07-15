@@ -89,6 +89,7 @@ export default class BlockComponent extends Vue
     padding: 24px;
     border: 1px solid #eee;
     box-sizing: border-box;
+    overflow: hidden;
 
     @media (max-width: 960px) {
         padding-left: 0;

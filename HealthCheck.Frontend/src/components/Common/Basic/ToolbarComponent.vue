@@ -179,6 +179,7 @@ export default class ToolbarComponent extends Vue {
         {
             item.onClick(item);
         }
+        this.showOverflow = false;
     }
 
     onWindowClick(e: MouseEvent): void {
@@ -244,9 +245,14 @@ export default class ToolbarComponent extends Vue {
         box-shadow: 0 0 12px 2px rgb(0 0 0 / 21%);
         display: flex;
         flex-direction: column;
+        overflow-y: auto;
 
         top: 56px;
-        @media (min-width: 960px) { top: 64px; }
+        max-height: calc(100vh - 56px - 10px);
+        @media (min-width: 960px) {
+            top: 64px;
+            max-height: calc(100vh - 64px - 10px);
+        }
     }
 
     &__overflow-button {

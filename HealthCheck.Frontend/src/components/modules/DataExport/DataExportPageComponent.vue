@@ -335,7 +335,7 @@
             </div>
         </dialog-component>
         <dialog-component v-model:value="columnConfigDialogVisible"
-            max-width="460" width="720">
+            max-width="460">
             <template #header>Customize columns</template>
             <template #footer>
                 <btn-component color="primary"
