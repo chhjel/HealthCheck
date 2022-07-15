@@ -55,7 +55,7 @@
                     {{ messageLoadStatus.errorMessage }}
                     </alert-component>
                     
-                    <div class="messages-list">
+                    <div class="messages-list ml-1">
                         <div class="messages-list__item header">
                             <div class="messages-list__item__detail" style="display:none"></div>
                             <div class="messages-list__item__detail">From</div>
@@ -209,6 +209,7 @@ import { ModuleFrontendOptions } from '@components/modules/EndpointControl/Endpo
 import { StoreUtil } from "@util/StoreUtil";
 import StringUtils from "@util/StringUtils";
 import UrlUtils from "@util/UrlUtils";
+import { ModuleSpecificConfig } from "@components/HealthCheckPageComponent.vue.models";
 @Options({
     components: {
         BlockComponent,
@@ -285,6 +286,14 @@ export default class MessagesPageComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    // public moduleSpecificConfig(): ModuleSpecificConfig {
+    //     return {
+    //         contentStyle: (s) => {
+    //             // s['padding-left'] = '10px'
+    //         }
+    //     };
+    // }
+    
     updateUrl(): void {
         let routeParams: any = {};
 
@@ -597,7 +606,7 @@ export default class MessagesPageComponent extends Vue {
         height: 300px;
     }
     &__error-note {
-        color: var(--v-error-darken3);
+        color: var(--color--error-darken2);
         font-weight: 600;
     }
 }
