@@ -296,7 +296,7 @@ export default class BackendInputComponent extends Vue {
 .parameter-feedback {
     font-size: small;
     font-weight: 600;
-    color: var(--v-error-darken1);
+    color: var(--color--error-darken1);
 }
 </style>
 

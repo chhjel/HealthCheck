@@ -29,7 +29,7 @@
                     :class="{ 'has-menu': isModuleNavOpen }"
                     @click.stop="hideNavMenu"></div>
                 
-                <div class="module-content" :class="moduleContentClasses">
+                <div class="module-content" :class="moduleContentClasses" :style="moduleContentStyle">
                     <router-view ref="routerView"></router-view>
                 </div>
             </div>
@@ -184,6 +184,14 @@ export default class HealthCheckPageComponent extends Vue {
             'dark': this.moduleSpecificConfig?.dark == true
         };
         return classes;
+    }
+
+    get moduleContentStyle(): any {
+        let style: any =  {};
+        if (this.moduleSpecificConfig?.contentStyle) {
+            this.moduleSpecificConfig.contentStyle(style);
+        }
+        return style;
     }
     
     get toolbarItems(): Array<ToolbarComponentMenuItem> {

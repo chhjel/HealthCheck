@@ -277,16 +277,16 @@ export default class LogEntryTableComponent extends Vue {
     border-left: 25px solid #edf7ff;
 }
 .log-entry-error {
-    border-left: 25px solid var(--v-error-lighten1);
+    border-left: 25px solid var(--color--error-lighten1);
 }
 .log-entry-error:hover {
-    border-left: 25px solid var(--v-error-lighten2);
+    border-left: 25px solid var(--color--error-lighten2);
 }
 .log-entry-warning {
-    border-left: 25px solid var(--v-warning-lighten1);
+    border-left: 25px solid var(--color--warning-lighten1);
 }
 .log-entry-warning:hover {
-    border-left: 25px solid var(--v-warning-lighten2);
+    border-left: 25px solid var(--color--warning-lighten2);
 }
 .log-entry-details-row {
     border-left-width: 50px !important;

@@ -548,7 +548,7 @@ type EntryGroup = KeyValuePair<string, Array<LoggedEndpointDefinitionViewModel>>
 
 .endpoint-group
 {
-    border-left: 5px solid var(--v-secondary-lighten5);
+    border-left: 5px solid var(--color--warning-lighten5);
     padding: 10px;
     margin-bottom: 40px;
     
@@ -559,7 +559,7 @@ type EntryGroup = KeyValuePair<string, Array<LoggedEndpointDefinitionViewModel>>
 
     .endpoint-subgroup
     {
-        border-left: 5px solid var(--v-accent-lighten4);
+        border-left: 5px solid var(--color--accent-lighten1);
         padding: 10px;
         margin-bottom: 30px;
     
@@ -575,7 +575,7 @@ type EntryGroup = KeyValuePair<string, Array<LoggedEndpointDefinitionViewModel>>
 }
 .endpoint
 {
-    border-left: 5px solid var(--v-success-lighten2);
+    border-left: 5px solid var(--color--success-lighten2);
     padding: 10px;
     margin-bottom: 20px;
 }
