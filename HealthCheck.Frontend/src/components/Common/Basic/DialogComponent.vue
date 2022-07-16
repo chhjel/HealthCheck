@@ -126,10 +126,10 @@ export default class DialogComponent extends Vue {
             widthValue = null;
         }
 
-        let style = {
-            maxWidth: maxWidthValue
+        let style: any = {
+            maxWidth: maxWidthValue ? `min(${maxWidthValue}, calc(100vw - 40px))` : null
         };
-        if (widthValue) style['width'] = widthValue;
+        if (widthValue) style['width'] = `min(${widthValue}, calc(100vw - 40px))`;
         return style;
     }
 
