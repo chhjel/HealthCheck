@@ -2,19 +2,16 @@
 <template>
     <div class="config-filter-component">
         <div class="field-list horizontal-layout">
-            
-            <div class="horizontal-layout">
-                <tooltip-component tooltip="Toggle between filtering on a <b>property</b> or the <b>whole stringified event payload</b> itself.">
-                    <btn-component
-                        dark icon small
-                        :color="!isMatchingOnStringified ? `primary` : 'secondary'"
-                        :class="{ 'lighten-5': isMatchingOnStringified }"
-                        @click="isMatchingOnStringified = !isMatchingOnStringified"
-                        :disabled="readonly">
-                        <icon-component>code</icon-component>
-                    </btn-component>
-                </tooltip-component>
-                
+            <div class="flex">
+                <btn-component
+                    dark icon small
+                    :color="!isMatchingOnStringified ? `primary` : 'secondary'"
+                    :class="{ 'lighten-5': isMatchingOnStringified }"
+                    @click="isMatchingOnStringified = !isMatchingOnStringified"
+                    :disabled="readonly">
+                    <icon-component title="Toggle between filtering on a property or the whole stringified event payload itself.">code</icon-component>
+                </btn-component>
+
                 <text-field-component type="text"
                     v-if="showPropertyName"
                     label="Property name"
@@ -22,17 +19,17 @@
                     v-on:change="onDataChanged"
                     :disabled="readonly"
                 ></text-field-component>
-
-                <select-component
-                    v-model:value="matchType"
-                    :items="matchTypeOptions"
-                    item-text="text" item-value="value"
-                    v-on:change="onDataChanged"
-                    :disabled="readonly"
-                    ensureLabelHeight
-                    >
-                </select-component>
             </div>
+
+            <select-component
+                v-model:value="matchType"
+                :items="matchTypeOptions"
+                item-text="text" item-value="value"
+                v-on:change="onDataChanged"
+                :disabled="readonly"
+                ensureLabelHeight
+                >
+            </select-component>
 
             <text-field-component type="text"
                 label="Value to search for"
@@ -40,26 +37,24 @@
                 v-on:change="onDataChanged"
                 :disabled="readonly"
             ></text-field-component>
-
-            <div class="horizontal-layout">
-                <switch-component
-                    v-model:value="caseSensitive" 
-                    label="Case sensitive"
-                    color="secondary"
-                    v-on:change="onDataChanged"
-                    :disabled="readonly"
-                    ensureLabelHeight
-                ></switch-component>
-                
-                <btn-component v-if="allowDelete"
-                    dark small flat
-                    color="error"
-                    @click="remove()"
-                    :disabled="readonly">
-                    Remove
-                    <!-- <icon-component>delete</icon-component> -->
-                </btn-component>
-            </div>
+        
+            <switch-component
+                v-model:value="caseSensitive" 
+                label="Case sensitive"
+                color="secondary"
+                v-on:change="onDataChanged"
+                :disabled="readonly"
+                ensureLabelHeight
+            ></switch-component>
+            
+            <btn-component v-if="allowDelete"
+                dark small flat
+                color="error"
+                class="remove-filter-button"
+                @click="remove()"
+                :disabled="readonly">
+                Remove
+            </btn-component>
         </div>
     </div>
 </template>
@@ -185,6 +180,21 @@ export default class ConfigFilterComponent extends Vue {
             @media (max-width: 900px) {
                 width: 100%;
             } */
+        }
+    }
+    .remove-filter-button {
+        position: relative;
+        top: 10px;
+    }
+}
+</style>
+
+<style lang="scss">
+.config-filter-component {
+    .field-list {
+        .btn-component.icon {
+            margin-left: 0;
+            width: 36px !important;
         }
     }
 }

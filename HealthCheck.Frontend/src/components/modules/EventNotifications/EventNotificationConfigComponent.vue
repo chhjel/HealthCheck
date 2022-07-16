@@ -814,9 +814,11 @@ export default class EventNotificationConfigComponent extends Vue {
     padding-top: 0;
 }
 .payload-filter {
-    border-bottom: solid 1px #ccc;
+    border-left: solid 2px var(--color--accent-base);
     padding-bottom: 8px;
     padding-top: 8px;
+    padding-left: 16px;
+    margin-bottom: 16px;
 }
 .config-summary {
     padding: 10px;
