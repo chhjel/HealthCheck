@@ -1,7 +1,7 @@
 <!-- src/components/modules/Overview/EventTimelineComponent.vue -->
 <template>
     <div class="root event-timeline-component">
-        <div v-if="timelineEventGroups.length == 0" class="mr-4 pa-3 info">
+        <div v-if="timelineEventGroups.length == 0" class="pa-3 info">
             <strong>No recent events</strong>
         </div>
 
