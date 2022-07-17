@@ -533,6 +533,7 @@ export default class HealthCheckPageComponent extends Vue {
         text-overflow: ellipsis;
         padding-left: 5px;
         padding-right: 10px;
+        max-width: calc(100vw - 140px);
         a {
             color: var(--color--text);
             text-decoration: inherit;
