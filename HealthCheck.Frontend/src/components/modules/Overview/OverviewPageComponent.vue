@@ -16,37 +16,38 @@
             
             <!-- SUMMARY -->
             <div v-if="showContent" class="mb-4" >
-                <div style="display: flex">
-                    <h1 class="mb-2" style="flex: 1">Current status</h1>
-                    
-                    <btn-component flat v-if="options.Options.ShowFilter && !showFilter" @click="showFilter = !showFilter">Filter data..</btn-component>
-                    <btn-component flat v-if="options.Options.ShowFilter && showFilter" @click="showFilter = !showFilter">Hide filter</btn-component>
+                <div class="header-layout">
+                    <h1 class="header-layout__title">Current status</h1>
+                    <div class="header-layout__actions">
+                        <btn-component flat v-if="options.Options.ShowFilter && !showFilter" @click="showFilter = !showFilter">Filter data..</btn-component>
+                        <btn-component flat v-if="options.Options.ShowFilter && showFilter" @click="showFilter = !showFilter">Hide filter</btn-component>
 
-                    <btn-component @click="toggleAutoRefresh"
-                        :loading="deleteStatus.inProgress"
-                        :disabled="deleteStatus.inProgress"
-                        color="secondary"
-                        flat class="mr-0">
-                        <icon-component class="mr-2" v-if="!autoRefreshEnabled">update_disabled</icon-component>
-                        <progress-circular-component
-                            v-if="autoRefreshEnabled"
-                            :size="20"
-                            :width="3"
-                            :value="autoRefreshValue"
-                            color="primary"
-                            style="margin-right: 10px;"
-                            ></progress-circular-component>
-                        Auto-refresh
-                    </btn-component>
-        
-                    <div v-if="canDeleteEvents">
-                        <btn-component @click="deleteAllDialogVisible = true"
+                        <btn-component @click="toggleAutoRefresh"
                             :loading="deleteStatus.inProgress"
-                            :disabled="deleteStatus.inProgress || !siteEvents || siteEvents.length == 0"
-                            flat color="error" class="mr-0">
-                            <icon-component class="mr-2">clear</icon-component>
-                            Delete all
+                            :disabled="deleteStatus.inProgress"
+                            color="secondary"
+                            flat class="mr-0">
+                            <icon-component class="mr-2" v-if="!autoRefreshEnabled">update_disabled</icon-component>
+                            <progress-circular-component
+                                v-if="autoRefreshEnabled"
+                                :size="20"
+                                :width="3"
+                                :value="autoRefreshValue"
+                                color="primary"
+                                style="margin-right: 10px;"
+                                ></progress-circular-component>
+                            Auto-refresh
                         </btn-component>
+            
+                        <div v-if="canDeleteEvents">
+                            <btn-component @click="deleteAllDialogVisible = true"
+                                :loading="deleteStatus.inProgress"
+                                :disabled="deleteStatus.inProgress || !siteEvents || siteEvents.length == 0"
+                                flat color="error" class="mr-0">
+                                <icon-component class="mr-2">clear</icon-component>
+                                Delete all
+                            </btn-component>
+                        </div>
                     </div>
                 </div>
             

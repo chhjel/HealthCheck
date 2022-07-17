@@ -19,12 +19,16 @@
         <btn-component @click="$emit('close')" v-if="itemNotFound">Close</btn-component>
         
         <div v-if="item" class="data-repeater-item">
-            <btn-component @click="$emit('close')" class="right">Close</btn-component>
-            <btn-component @click="loadData" class="right">
-                <icon-component size="20px" class="mr-2">refresh</icon-component>Refresh
-            </btn-component>
+            <div class="header-layout">
+                <h1 class="header-layout__title">{{ stream.ItemIdName }}: {{ item.ItemId }}</h1>
+                <div class="header-layout__actions">
+                    <btn-component @click="$emit('close')">Close</btn-component>
+                    <btn-component @click="loadData">
+                        <icon-component size="20px" class="mr-2">refresh</icon-component>Refresh
+                    </btn-component>
+                </div>
+            </div>
 
-            <h1>{{ stream.ItemIdName }}: {{ item.ItemId }}</h1>
             <p v-if="item.Summary">{{ item.Summary }}</p>
             <p v-if="details && details.Description" v-html="details.Description"></p>
 

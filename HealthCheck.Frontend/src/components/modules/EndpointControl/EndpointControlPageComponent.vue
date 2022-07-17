@@ -17,20 +17,20 @@
 
             <btn-component :disabled="!allowRuleChanges"
                 @click="onAddNewRuleClicked"
-                class="mb-3">
+                class="mb-1 mr-2">
                 <icon-component size="20px" class="mr-2">add</icon-component>
                 Add new
             </btn-component>
 
             <btn-component v-if="HasAccessToEditEndpointDefinitions"
                 @click="editDefinitionsDialogVisible = true"
-                class="mb-3 ml-2 right">
+                class="mb-1 mr-2">
                 Edit endpoint definitions
             </btn-component>
 
             <btn-component v-if="HasAccessToLatestRequestsDialog"
                 @click="showLatestRequestsDialog"
-                class="mb-3 ml-2 right">
+                class="mb-3">
                 Latest requests
             </btn-component>
             <div style="clear:both"></div>
