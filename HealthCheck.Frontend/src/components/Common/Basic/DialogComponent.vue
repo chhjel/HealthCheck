@@ -50,6 +50,9 @@ export default class DialogComponent extends Vue {
     @Prop({ required: false, default: false })
     dark!: string | boolean;
 
+    @Prop({ required: false, default: false })
+    scrollableX!: string | boolean;
+
     @Prop({ required: false, default: null })
     width!: number | null;
 
@@ -143,10 +146,11 @@ export default class DialogComponent extends Vue {
         //     widthValue = `${widthValue}px`;
         // }
 
-        let style = {
+        let style: any = {
             // maxWidth: maxWidthValue
         };
-        // if (widthValue) style['width'] = widthValue;
+        if (this.isScrollableX) style['overflow-x'] = 'auto';
+
         return style;
     }
 
@@ -155,6 +159,7 @@ export default class DialogComponent extends Vue {
     get isPersistent(): boolean { return ValueUtils.IsToggleTrue(this.persistent); }
     get isFullWidth(): boolean { return ValueUtils.IsToggleTrue(this.fullWidth); }
     get isDark(): boolean { return ValueUtils.IsToggleTrue(this.dark); }
+    get isScrollableX(): boolean { return ValueUtils.IsToggleTrue(this.scrollableX); }
 
     ////////////////
     //  METHODS  //

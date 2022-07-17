@@ -268,7 +268,7 @@
                     :disabled="dataLoadStatus.inProgress" />
 
                 <h4 v-if="showQuery && queryInput" class="mt-2">Query</h4>
-                <code v-if="showQuery">{{ queryInput }}</code>
+                <code v-if="showQuery && queryInput">{{ queryInput }}</code>
 
                 <div v-if="showCustomInputs && Object.keys(customParameters).length > 0">
                     <h4 class="mt-2">Filter</h4>
@@ -305,7 +305,8 @@
         </dialog-component>
         <dialog-component v-model:value="exportDialogVisible"
             max-width="480"
-            :persistent="exportLoadStatus.inProgress">
+            :persistent="exportLoadStatus.inProgress"
+            scrollableX>
             <template #header>Select export format</template>
             <template #footer>
                 <btn-component color="secondary"
@@ -314,7 +315,7 @@
                     @click="exportDialogVisible = false">Cancel</btn-component>
             </template>
             <div>
-                <ul>
+                <ul class="export-list">
                     <div v-for="(exporter, eIndex) in exporters"
                         :key="`item-d-${exporter.Id}-export-${eIndex}`">
                         <btn-component color="primary"
@@ -1374,6 +1375,9 @@ export default class DataExportPageComponent extends Vue {
             }
         }
     }
+    &-title {
+        white-space: pre-wrap;
+    }
 }
 .simple-export-buttons {
     display: flex;
@@ -1383,5 +1387,8 @@ export default class DataExportPageComponent extends Vue {
 }
 .possible-placeholder-list-item {
     padding: 2px 0;
+}
+.export-list {
+    padding: 0;
 }
 </style>
