@@ -282,8 +282,6 @@ export default class AuditLogPageComponent extends Vue {
 
         this.currentBlobTitle = name;
 
-        console.log(event);
-        console.log(blob);
         let detailParts = [
             { name: 'Timestamp', value: this.formatDateForTable(event.Timestamp) },
             { name: 'Action', value: event.Action },

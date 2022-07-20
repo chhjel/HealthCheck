@@ -261,7 +261,6 @@ export default class HealthCheckPageComponent extends Vue {
     onFilterableListItemClicked(): void {
         // Close sidemenu on item select if on mobile
         const isSmallMenuMode = window.matchMedia('(max-width: 960px)')
-        console.log("isSmallMenuMode", isSmallMenuMode);
         if (isSmallMenuMode.matches && this.showModuleMenuButton) {
             this.moduleNavMenuState = false;
         }

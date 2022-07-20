@@ -9,14 +9,16 @@
             :data-test-title-encoded="encodedTestTitle"
             @click="$emit('testClicked', test)">
 
-            <div class="test-status-label subheading font-weight-bold"
-              :class="statusClass"
-              v-if="hasStatus && allowShowStatusLabel">{{statusText}}</div>
-            <h4 class="test-name">
-              {{ test.Name }}
-              <!-- <icon-component>link</icon-component> -->
-            </h4>
-            <div class="test-duration" v-if="showTestDuration">{{ prettifyDuration(testResult.DurationInMilliseconds) }}</div>
+            <div class="flex flex-wrap spacer">
+              <div class="test-status-label subheading font-weight-bold"
+                :class="statusClass"
+                v-if="hasStatus && allowShowStatusLabel">{{statusText}}</div>
+              <h4 class="test-name">
+                {{ test.Name }}
+                <!-- <icon-component>link</icon-component> -->
+              </h4>
+              <div class="test-duration" v-if="showTestDuration">{{ prettifyDuration(testResult.DurationInMilliseconds) }}</div>
+            </div>
 
             <btn-component color="error"
               @click.stop.prevent="cancelTest()"
@@ -378,7 +380,11 @@ export default class TestComponent extends Vue {
 }
 .test-header {
   display: flex;
+  margin-bottom: 10px;
   padding-left: 24px;
+	@media (max-width: 961px) {
+    padding-left: 0;
+  }
   border-radius: 0 25px 0 0;
   cursor: pointer;
   align-items: center;
@@ -387,6 +393,7 @@ export default class TestComponent extends Vue {
   border-radius: 0 25px 0 25px;
 }
 .run-test-button {
+  align-self: flex-start;
   font-size: 20px !important;
   min-width: 120px !important;
   min-height: 53px !important;
@@ -401,13 +408,14 @@ export default class TestComponent extends Vue {
 .test-name {
   flex-grow: 1;
   font-size: 22px;
-  /* margin-top: 10px; */
+  padding-right: 5px;
 }
 .test-duration {
   padding-right: 10px;
   color: hsla(273, 40%, 80%, 1);
   display: flex;
   align-items: center;
+  white-space: nowrap;
 }
 .test-status-label {
   color: #fff;
