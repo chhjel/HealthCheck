@@ -99,7 +99,10 @@ $util-margin-padding-list: (
 
 .small-font { font-size: small; }
 
+.anywrap { overflow-wrap: anywhere; }
+
 .disabled { color: var(--color--text-disabled); }
+
 .right { float: right !important; }
 .left { float: left !important; }
 .absolute { position: absolute; }

@@ -17,11 +17,22 @@
 	&.flex-wrap { flex-wrap: wrap; }
 	&.flex-wrap-reverse { flex-wrap: wrap-reverse; }
 	&.flex-start { align-items: flex-start; }
+
+	&.flex-sm-col {
+		@media (max-width: 600px) {
+			flex-direction: column;
+		}
+	}
 }
 .flex-self-start { align-self: flex-start; }
 
 .spacer { flex: 1; }
 
+// 'xs': 0,
+// 'sm': 600,
+// 'md': 960,
+// 'lg': 1264,
+// 'xl': 1904
 // xs/sm/md/lg/xl 1-12
 $prev: 0;
 @each $key, $val in $breakpoints {

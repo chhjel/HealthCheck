@@ -101,6 +101,7 @@ export default class InputHeaderComponent extends Vue
             font-size: 16px;
             color: var(--color--secondary-base);
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .input-component--help-icon {

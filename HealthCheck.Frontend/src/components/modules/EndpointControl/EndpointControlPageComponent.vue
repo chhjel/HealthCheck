@@ -30,10 +30,10 @@
 
             <btn-component v-if="HasAccessToLatestRequestsDialog"
                 @click="showLatestRequestsDialog"
-                class="mb-3">
+                class="mb-1">
                 Latest requests
             </btn-component>
-            <div style="clear:both"></div>
+            <div style="clear:both" class="mb-2"></div>
 
             <block-component
                 v-for="(rule, cindex) in rules"
@@ -135,7 +135,7 @@
                     :key="`endpointdef-${dindex}-${def.EndpointId}`"
                     class="definition-list-item mb-2">
                     <div class="flex">
-                        <h3 style="flex:1">{{ getEndpointDisplayName(def.EndpointId) }}</h3>
+                        <h3 style="flex:1" class="anywrap">{{ getEndpointDisplayName(def.EndpointId) }}</h3>
                         <btn-component
                             :loading="loadStatus.inProgress"
                             :disabled="loadStatus.inProgress"
@@ -542,6 +542,10 @@ export default class EndpointControlPageComponent extends Vue {
         align-items: center;
         flex-direction: row;
         flex-wrap: nowrap;
+
+        @media (max-width: 600px) {
+            flex-direction: column;
+        }
 
         .rule-list-item--rule {
             flex: 1;

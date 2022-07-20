@@ -11,19 +11,21 @@
             v-if="loadStatus.inProgress"
             indeterminate color="success"></progress-linear-component>
 
-        <select-component style="display: inline-block" class="right"
-            v-if="graphs && chartEntries.length > 0"
-            v-model:value="barChartSortMode"
-            :items="barChartSortOptions"
-            @input="onBarChartSortModeChanged"
-            />
-        <btn-component :disabled="loadStatus.inProgress"
-            @click="onRefreshClicked"
-            class="mb-3">
-            <icon-component size="20px" class="mr-2">refresh</icon-component>
-            Refresh
-        </btn-component>
-        <div style="clear:both" class="mt-3"></div>
+        <div class="mb-3 flex flex-sm-col">
+            <btn-component :disabled="loadStatus.inProgress"
+                @click="onRefreshClicked"
+                class="mb-3">
+                <icon-component size="20px" class="mr-2">refresh</icon-component>
+                Refresh
+            </btn-component>
+            <div class="spacer"></div>
+            <select-component style="display: inline-block"
+                v-if="graphs && chartEntries.length > 0"
+                v-model:value="barChartSortMode"
+                :items="barChartSortOptions"
+                @input="onBarChartSortModeChanged"
+                />
+        </div>
 
         <div v-if="graphs && (chartEntries.length > 0 || iPChartBars.length > 0 || chartBars.length > 0)">
             <bar-chart-component

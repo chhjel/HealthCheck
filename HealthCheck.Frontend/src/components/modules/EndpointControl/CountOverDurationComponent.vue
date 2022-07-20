@@ -9,6 +9,7 @@
                 v-on:change="onDataChanged"
                 :disabled="readonly"
                 :clearable="false"
+                class="mb-2"
             ></input-component>
 
             <timespan-input-component
@@ -18,11 +19,13 @@
                 :allowClear="false"
                 :minimal="false"
                 :disabled="readonly"
+                class="mb-2"
                 />
 
             <btn-component
                 dark small flat
                 color="error"
+                class="mt-3"
                 @click="remove()"
                 :disabled="readonly">
                 Remove
@@ -92,7 +95,7 @@ export default class CountOverDurationComponent extends Vue {
     @media (max-width: 900px) {
         margin-left: 0;
         padding-left: 0;
-        margin-bottom: 40px;;
+        margin-bottom: 20px;;
     }
 
     .horizontal-layout {

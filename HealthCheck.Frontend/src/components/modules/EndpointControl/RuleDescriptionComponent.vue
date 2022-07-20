@@ -5,7 +5,8 @@
         <ul>
             <li v-if="description.filters.length == 0">Always</li>
             <li v-for="(filter, fltIndex) in description.filters"
-                :key="`rule-${rule.Id}-filter-${fltIndex}`">
+                :key="`rule-${rule.Id}-filter-${fltIndex}`"
+                class="anywrap">
                 {{ filter }}
             </li>
         </ul>

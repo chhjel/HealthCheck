@@ -4,50 +4,56 @@
         <input-header-component :name="name" :description="description" :showDescriptionOnStart="showDescriptionOnStart" />
         
         <div class="input-component--inputs" :style="style">
-            <div class="input-component--input-prefix" v-if="minimal">
-                <tooltip-component tooltip="Number of hours">
-                    <span>H:</span>
-                </tooltip-component>
+            <div class="timespan__segment">
+                <div class="input-component--input-prefix" v-if="minimal">
+                    <tooltip-component tooltip="Number of hours">
+                        <span>H:</span>
+                    </tooltip-component>
+                </div>
+                <text-field-component
+                    v-model:value="hourValue"
+                    @input="onInput()"
+                    :disabled="disabled"
+                    :placeholder="isNull ? 'null' : ''"
+                    type="number"
+                    class="spacer">
+                </text-field-component>
+                <div class="input-component--input-prefix" v-if="!minimal">hours, </div>
             </div>
-            <text-field-component
-                v-model:value="hourValue"
-                @input="onInput()"
-                :disabled="disabled"
-                :placeholder="isNull ? 'null' : ''"
-                type="number"
-                class="spacer">
-            </text-field-component>
-            <div class="input-component--input-prefix" v-if="!minimal">hours, </div>
-            
-            <div class="input-component--input-prefix" v-if="minimal">
-                <tooltip-component tooltip="Number of minutes">
-                    <span>M:</span>
-                </tooltip-component>
-            </div>
-            <text-field-component
-                v-model:value="minuteValue"
-                @input="onInput()"
-                :disabled="disabled"
-                :placeholder="isNull ? 'null' : ''"
-                type="number"
-                class="spacer">
-            </text-field-component>
-            <div class="input-component--input-prefix" v-if="!minimal">minutes, </div>
 
-            <div class="input-component--input-prefix" v-if="minimal">
-                <tooltip-component tooltip="Number of seconds">
-                    <span>S:</span>
-                </tooltip-component>
+            <div class="timespan__segment">
+                <div class="input-component--input-prefix" v-if="minimal">
+                    <tooltip-component tooltip="Number of minutes">
+                        <span>M:</span>
+                    </tooltip-component>
+                </div>
+                <text-field-component
+                    v-model:value="minuteValue"
+                    @input="onInput()"
+                    :disabled="disabled"
+                    :placeholder="isNull ? 'null' : ''"
+                    type="number"
+                    class="spacer">
+                </text-field-component>
+                <div class="input-component--input-prefix" v-if="!minimal">minutes, </div>
             </div>
-            <text-field-component
-                v-model:value="secondValue"
-                @input="onInput()"
-                :disabled="disabled"
-                :placeholder="isNull ? 'null' : ''"
-                type="number"
-                class="spacer">
-            </text-field-component>
-            <div class="input-component--input-prefix" v-if="!minimal">seconds.</div>
+
+            <div class="timespan__segment">
+                <div class="input-component--input-prefix" v-if="minimal">
+                    <tooltip-component tooltip="Number of seconds">
+                        <span>S:</span>
+                    </tooltip-component>
+                </div>
+                <text-field-component
+                    v-model:value="secondValue"
+                    @input="onInput()"
+                    :disabled="disabled"
+                    :placeholder="isNull ? 'null' : ''"
+                    type="number"
+                    class="spacer">
+                </text-field-component>
+                <div class="input-component--input-prefix" v-if="!minimal">seconds.</div>
+            </div>
 
             <btn-component 
                 v-if="allowClear"
@@ -195,6 +201,11 @@ export default class TimespanInputComponent extends Vue
         text-align: right;
     }
 
+    .timespan__segment {
+        display: flex;
+        align-items: baseline;
+    }
+
     .input-component--error {
         margin-top: -21px;
         margin-left: 2px;
@@ -207,11 +218,16 @@ export default class TimespanInputComponent extends Vue
         flex-direction: row;
         flex-wrap: nowrap;
         align-items: baseline;
+
+        @media (max-width: 400px) {
+            flex-direction: column;
+        }
     }
 
     .input-component--input-prefix {
         font-size: 18px;
         margin-right: 5px;
+        margin-left: 5px;
     }
 
     .clear-button {
