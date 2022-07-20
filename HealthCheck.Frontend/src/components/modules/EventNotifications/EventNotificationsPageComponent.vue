@@ -62,7 +62,7 @@
                             <br />
                             <span class="config-list-item--operator">THEN </span>
                             <span v-if="describeActions(config).length == 0">&lt;do nothing&gt;</span>
-                            <span v-else>notify using</span>
+                            <span v-else>notify using </span>
                             <span v-for="(action, actIndex) in describeActions(config)"
                                 :key="`action-${actIndex}`">
                                 <span class="config-list-item--action">

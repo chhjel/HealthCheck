@@ -494,6 +494,7 @@ export default class SelectComponent extends Vue
         background-color: var(--color--accent-base);
         border-radius: 2px;
         margin-bottom: 2px;
+        white-space: nowrap;
     }
     &__input-chip-value {
         padding-right: 5px;

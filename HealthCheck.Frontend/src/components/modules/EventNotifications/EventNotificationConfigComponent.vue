@@ -66,16 +66,6 @@
                 allowInput allowCustom
                 >
             </select-component>
-            <!-- label="Event id" -->
-            <!-- </div> -->
-            <!-- prepend-icon="mdi-city" -->
-            <!-- :hint="!isEditing ? 'Click the icon to edit' : 'Click the icon to save'" -->
-            <!-- <config-filter-component
-                :config="internalConfig.EventIdFilter"
-                :allow-property-name="false"
-                :readonly="!allowChanges"
-                @change="internalConfig.EventIdFilter = $event"
-                /> -->
             
             <!-- ###### PAYLOAD FILTERS ###### -->
             <h3 class="mt-4">Filters</h3>

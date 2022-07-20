@@ -2,24 +2,13 @@
 <template>
     <div class="config-filter-component">
         <div class="field-list horizontal-layout">
-            <div class="flex">
-                <btn-component
-                    dark icon small
-                    :color="!isMatchingOnStringified ? `primary` : 'secondary'"
-                    :class="{ 'lighten-5': isMatchingOnStringified }"
-                    @click="isMatchingOnStringified = !isMatchingOnStringified"
-                    :disabled="readonly">
-                    <icon-component title="Toggle between filtering on a property or the whole stringified event payload itself.">code</icon-component>
-                </btn-component>
-
-                <text-field-component type="text"
-                    v-if="showPropertyName"
-                    label="Property name"
-                    v-model:value="propertyName"
-                    v-on:change="onDataChanged"
-                    :disabled="readonly"
-                ></text-field-component>
-            </div>
+            <text-field-component type="text"
+                v-if="showPropertyName"
+                v-model:value="propertyName"
+                v-on:change="onDataChanged"
+                :disabled="readonly"
+                class="mb-2"
+            ></text-field-component>
 
             <select-component
                 v-model:value="matchType"
@@ -27,15 +16,15 @@
                 item-text="text" item-value="value"
                 v-on:change="onDataChanged"
                 :disabled="readonly"
-                ensureLabelHeight
+                class="spacer mb-2"
                 >
             </select-component>
 
             <text-field-component type="text"
-                label="Value to search for"
                 v-model:value="filter"
                 v-on:change="onDataChanged"
                 :disabled="readonly"
+                class="mb-2"
             ></text-field-component>
         
             <switch-component
@@ -44,16 +33,26 @@
                 color="secondary"
                 v-on:change="onDataChanged"
                 :disabled="readonly"
-                ensureLabelHeight
+                class="mb-2"
             ></switch-component>
             
             <btn-component v-if="allowDelete"
-                dark small flat
+                small flat
                 color="error"
-                class="remove-filter-button"
+                class="filter-action-button"
                 @click="remove()"
                 :disabled="readonly">
                 Remove
+            </btn-component>
+
+            <btn-component
+                small flat
+                color="secondary"
+                class="filter-action-button"
+                @click="isMatchingOnStringified = !isMatchingOnStringified"
+                :disabled="readonly"
+                title="Toggle between filtering on a property or the whole stringified event payload itself.">
+                Toggle mode
             </btn-component>
         </div>
     </div>
@@ -182,9 +181,9 @@ export default class ConfigFilterComponent extends Vue {
             } */
         }
     }
-    .remove-filter-button {
+    .filter-action-button {
         position: relative;
-        top: 10px;
+        top: -2px;
     }
 }
 </style>
