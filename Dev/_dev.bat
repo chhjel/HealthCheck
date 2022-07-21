@@ -14,3 +14,7 @@ start "" "C:\Program Files\Git\git-bash.exe"
 
 :: Start Visual Studio Code
 code .
+
+:: Start ngrok
+start D:\Programs\Ngrok\ngrok.exe http https://localhost:7241/ --host-header=localhost
+
