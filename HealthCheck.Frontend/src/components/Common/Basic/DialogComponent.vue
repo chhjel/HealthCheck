@@ -5,6 +5,10 @@
             <div class="dialog-component_modal" :style="dialogStyle">
                 <div class="dialog-component_modal_header" :class="headerColor">
                     <slot name="header"></slot>
+                    <div class="spacer"></div>
+                    <btn-component flat @click="onClickClose">
+                        <icon-component large class="dialog-component_modal_header__closer">close</icon-component>
+                    </btn-component>
                 </div>
                 <div class="dialog-component_modal_content" :style="contentStyle">
                     <slot></slot>
@@ -190,6 +194,7 @@ export default class DialogComponent extends Vue {
     onEscapeClicked(): void {
         if (this.isPersistent
             || document.activeElement?.classList?.contains('monaco-mouse-cursor-text') == true) {
+            this.shake();
             return;
         }
         this.close();
@@ -295,8 +300,15 @@ export default class DialogComponent extends Vue {
                 box-sizing: border-box;
                 border-bottom: 2px solid var(--color--accent-lighten1);
 
+                @media (max-width: 961px) {
+                    padding: 5px;
+                }
+
                 &:empty {
                     display: none !important;
+                }
+                &__closer {
+                    font-size: 30px;
                 }
             }
             &_footer {
