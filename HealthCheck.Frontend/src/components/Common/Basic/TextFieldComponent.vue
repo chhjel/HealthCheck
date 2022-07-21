@@ -21,7 +21,12 @@
                 @click="clear">clear</icon-component>
         </div>
 
-        <progress-linear-component v-if="isLoading" indeterminate height="3" />
+        <progress-linear-component
+            v-if="isLoading"
+            :indeterminate="loadingIsIndeterminate"
+            :value="loadingValue"
+            :color="loadingColor"
+            :height="loadingHeight" />
 
         <div class="input-error mt-1" v-if="errorMessages">
             {{ errorMessages }}
@@ -76,9 +81,6 @@ export default class TextFieldComponent extends Vue {
     placeholder!: string;
 
     @Prop({ required: false, default: false })
-    loading!: string | boolean;
-
-    @Prop({ required: false, default: false })
     readonly!: string | boolean;
 
     @Prop({ required: false, default: null })
@@ -104,6 +106,18 @@ export default class TextFieldComponent extends Vue {
 
     @Prop({ required: false, default: false })
     undefinedWhenEmpty!: string | boolean;
+
+    @Prop({ required: false, default: false })
+    loading!: string | boolean;
+
+    @Prop({ required: false, default: null })
+    loadingValue!: number | null;
+
+    @Prop({ required: false, default: null })
+    loadingColor!: string | null;
+
+    @Prop({ required: false, default: 3 })
+    loadingHeight!: number;
 
     @Ref() readonly inputElement!: HTMLInputElement;
 
@@ -143,6 +157,8 @@ export default class TextFieldComponent extends Vue {
     get isLoading(): boolean { return ValueUtils.IsToggleTrue(this.loading); }
     get isReadonly(): boolean { return ValueUtils.IsToggleTrue(this.readonly); }
     get isUndefinedWhenEmpty(): boolean { return ValueUtils.IsToggleTrue(this.undefinedWhenEmpty); }
+
+    get loadingIsIndeterminate(): boolean { return this.loadingValue == null; }
 
     get appendedIconClasses(): any {
         const hasAppendedIconClickListener = this.$attrs && this.$attrs["onClick:append"] != null;

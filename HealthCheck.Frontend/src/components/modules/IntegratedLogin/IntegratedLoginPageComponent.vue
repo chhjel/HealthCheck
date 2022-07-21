@@ -40,14 +40,10 @@
                                         placeholder=" "
                                         type="text"
                                         class="pt-0 mt-0"
-                                        :loading="show2FACodeExpirationTime">
-                                        <template v-slot:progress>
-                                            <progress-linear-component
-                                            :value="twoFactorInputProgress"
-                                            :color="twoFactorInputColor"
-                                            height="7"
-                                            ></progress-linear-component>
-                                        </template>
+                                        :loading="show2FACodeExpirationTime"
+                                        :loadingValue="twoFactorInputProgress"
+                                        :loadingColor="twoFactorInputColor"
+                                        loadingHeight="7">
                                     </text-field-component>
                                 </div>
                                 <div class="xs6" v-if="show2FASendCodeButton">
@@ -150,6 +146,7 @@ export default class IntegratedLoginPageComponent extends Vue {
     mounted(): void
     {
         this.twoFactorIntervalId = setInterval(this.update2FAProgress, 1000);
+        this.update2FAProgress();
     }
 
     beforeDestroy(): void {
