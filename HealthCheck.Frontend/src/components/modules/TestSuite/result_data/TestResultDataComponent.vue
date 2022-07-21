@@ -24,7 +24,7 @@
           <btn-component outline small color="accent" class="data-dump-action-button mt-2 mr-2" v-if="showFullscreenButton" @click="showFullscreen=true">Fullscreen</btn-component>
           <dialog-component v-model:value="showFullscreen" fullscreen hide-overlay :dark="isDialogDarkFor(resultData.Type)">
             <template #header>
-              {{resultData.Title}}
+              {{ fullscreenTitle }}
             </template>
             <template #footer>
                   <btn-component color="primary" @click="putDataOnClipboard">Put data on clipboard</btn-component>
@@ -137,6 +137,10 @@ export default class TestResultDataComponent extends Vue {
 
     get showDownloadButton(): boolean {
       return !!this.resultData.DownloadFileName;
+    }
+
+    get fullscreenTitle(): string {
+      return this.resultData.Title ?? 'Result data';
     }
     
     putDataOnClipboard(): void {

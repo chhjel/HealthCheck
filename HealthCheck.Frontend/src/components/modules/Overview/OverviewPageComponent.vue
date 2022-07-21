@@ -116,7 +116,7 @@
         </dialog-component>
         <!-- ##################### -->
         <dialog-component v-model:value="deleteAllDialogVisible" max-width="350">
-            <template #header></template>
+            <template #header>Confirm delete</template>
             <template #footer>
                 <btn-component color="secondary" @click="deleteAllDialogVisible = false">Cancel</btn-component>
                 <btn-component color="error" @click="clearAllEvents">Clear all</btn-component>
