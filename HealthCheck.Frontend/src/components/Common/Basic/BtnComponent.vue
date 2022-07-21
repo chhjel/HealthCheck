@@ -165,7 +165,8 @@ export default class BtnComponent extends Vue {
     &__contents {
         display: flex;
         align-content: center;
-        justify-content: center;
+        /* justify-content: center; */
+        justify-content: flex-start;
         align-items: center;
         flex-direction: row;
         white-space: nowrap;
