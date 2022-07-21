@@ -412,8 +412,8 @@ input.calendarInput {
 }
 @media (max-width: 600px) {
     .audit-table {
-        margin-left: -45px;
-        margin-right: -45px;
+        margin-left: -15px;
+        margin-right: -15px;
     }
 }
 </style>
