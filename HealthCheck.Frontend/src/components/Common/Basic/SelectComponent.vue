@@ -476,9 +476,6 @@ export default class SelectComponent extends Vue
 </script>
 
 <style scoped lang="scss">
-</style>
-
-<style lang="scss">
 .select-component {
     position: relative;
     &__input {
@@ -527,6 +524,9 @@ export default class SelectComponent extends Vue
         align-items: center;
         cursor: pointer;
         transition: all 0.2s;
+        @media (max-width: 600px) {
+            padding: 10px;
+        }
 
         &.selected {
             font-weight: 600;
