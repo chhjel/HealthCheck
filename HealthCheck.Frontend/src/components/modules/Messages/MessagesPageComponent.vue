@@ -160,7 +160,7 @@
             </div>
         </dialog-component>
         
-        <dialog-component v-model:value="deleteMessageDialogVisible" max-width="290">
+        <dialog-component v-model:value="deleteMessageDialogVisible" max-width="500">
             <template #header>Confirm deletion</template>
             <template #footer>
                 <btn-component color="error" @click="deleteMessage()">Delete it</btn-component>
@@ -171,7 +171,7 @@
             </div>
         </dialog-component>
         
-        <dialog-component v-model:value="deleteInboxDialogVisible" max-width="360">
+        <dialog-component v-model:value="deleteInboxDialogVisible" max-width="500">
             <template #header>Confirm deletion</template>
             <template #footer>
                 <btn-component color="error" @click="deleteInbox()">Delete whole inbox</btn-component>

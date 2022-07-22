@@ -269,6 +269,7 @@ export default class DialogComponent extends Vue {
         display: flex;
         flex-direction: column;
         justify-content: center;
+        align-items: center;
         padding: 20px;
         animation: dialog-open .15s ease-in-out;
 

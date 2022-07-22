@@ -162,7 +162,7 @@
         </block-component>
 
         <!-- ###### DIALOGS ###### -->
-        <dialog-component v-model:value="deleteDialogVisible" max-width="290">
+        <dialog-component v-model:value="deleteDialogVisible" max-width="500">
             <template #header>Confirm deletion</template>
             <template #footer>
                 <btn-component color="error" @click="deleteDownload()">Delete it</btn-component>

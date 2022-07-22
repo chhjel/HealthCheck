@@ -142,7 +142,7 @@
         
         <!-- ##################### -->
         <!-- ###### DIALOGS ######-->
-        <dialog-component v-model:value="deleteTokenDialogVisible" max-width="350">
+        <dialog-component v-model:value="deleteTokenDialogVisible" max-width="450">
             <template #header>Confirm deletion</template>
             <template #footer>
                 <btn-component color="error" @click="confirmDeleteToken(tokenToBeDeleted)">Delete it</btn-component>

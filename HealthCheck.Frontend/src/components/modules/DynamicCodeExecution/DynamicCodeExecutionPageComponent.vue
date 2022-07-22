@@ -128,7 +128,7 @@
             </div>
         </dialog-component>
         <!-- ##################### -->
-        <dialog-component v-model:value="saveScriptDialogVisible" max-width="400" dark>
+        <dialog-component v-model:value="saveScriptDialogVisible" max-width="500" dark>
             <template #header>Save new script</template>
             <template #footer>
                 <btn-component color="primary" @click="saveScript(currentScript, 'local')"

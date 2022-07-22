@@ -115,7 +115,7 @@
             </site-event-details-component>
         </dialog-component>
         <!-- ##################### -->
-        <dialog-component v-model:value="deleteAllDialogVisible" max-width="350">
+        <dialog-component v-model:value="deleteAllDialogVisible" max-width="500">
             <template #header>Confirm delete</template>
             <template #footer>
                 <btn-component color="error" @click="clearAllEvents">Clear all</btn-component>

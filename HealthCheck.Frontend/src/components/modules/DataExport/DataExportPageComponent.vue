@@ -214,7 +214,7 @@
 
         <!-- DIALOGS -->
         <dialog-component v-model:value="loadPresetDialogVisible"
-            max-width="480"
+            max-width="620"
             :persistent="dataLoadStatus.inProgress">
             <template #header>Select a query preset to load</template>
             <template #footer>

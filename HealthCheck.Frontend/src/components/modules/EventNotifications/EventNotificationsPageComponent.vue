@@ -121,7 +121,7 @@
             </div>
         </dialog-component>
 
-        <dialog-component v-model:value="deleteDefinitionDialogVisible" max-width="290">
+        <dialog-component v-model:value="deleteDefinitionDialogVisible" max-width="500">
             <template #header>Confirm deletion</template>
             <template #footer>
                 <btn-component color="error"
