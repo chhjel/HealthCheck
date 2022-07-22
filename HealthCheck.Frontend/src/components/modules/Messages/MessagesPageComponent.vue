@@ -163,8 +163,8 @@
         <dialog-component v-model:value="deleteMessageDialogVisible" max-width="290">
             <template #header>Confirm deletion</template>
             <template #footer>
-                <btn-component color="secondary" @click="deleteMessageDialogVisible = false">Cancel</btn-component>
                 <btn-component color="error" @click="deleteMessage()">Delete it</btn-component>
+                <btn-component color="secondary" @click="deleteMessageDialogVisible = false">Cancel</btn-component>
             </template>
             <div>
                 Are you sure you want to delete this message?
@@ -174,8 +174,8 @@
         <dialog-component v-model:value="deleteInboxDialogVisible" max-width="360">
             <template #header>Confirm deletion</template>
             <template #footer>
-                <btn-component color="secondary" @click="deleteInboxDialogVisible = false">Cancel</btn-component>
                 <btn-component color="error" @click="deleteInbox()">Delete whole inbox</btn-component>
+                <btn-component color="secondary" @click="deleteInboxDialogVisible = false">Cancel</btn-component>
             </template>
             <div>
                 Are you sure you want to delete all messages in the inbox?

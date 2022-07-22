@@ -152,14 +152,14 @@
             :persistent="dataLoadStatus.inProgress">
             <template #header>Confirm {{ (stream.RetryActionName || 'Retry') }}</template>
             <template #footer>
-                <btn-component color="secondary"
-                    :disabled="dataLoadStatus.inProgress"
-                    :loading="dataLoadStatus.inProgress"
-                    @click="confirmRetryDialogVisible = false">Cancel</btn-component>
                 <btn-component color="primary"
                     :disabled="!retryAllowed"
                     :loading="dataLoadStatus.inProgress"
                     @click="retry()">{{ (stream.RetryActionName || 'Retry') }}</btn-component>
+                <btn-component color="secondary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="confirmRetryDialogVisible = false">Cancel</btn-component>
             </template>
             <div>
                 Are you sure you want to {{ (stream.RetryActionName || 'Retry') }}?
@@ -170,14 +170,14 @@
             :persistent="dataLoadStatus.inProgress">
             <template #header>Confirm run analysis</template>
             <template #footer>
-                <btn-component color="secondary"
-                    :disabled="dataLoadStatus.inProgress"
-                    :loading="dataLoadStatus.inProgress"
-                    @click="confirmRunAnalysisDialogVisible = false">Cancel</btn-component>
                 <btn-component color="primary"
                     :disabled="!analyzeAllowed"
                     :loading="dataLoadStatus.inProgress"
                     @click="analyze()">Run analysis</btn-component>
+                <btn-component color="secondary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="confirmRunAnalysisDialogVisible = false">Cancel</btn-component>
             </template>
             <div>
                 Are you sure you want to run analysis?

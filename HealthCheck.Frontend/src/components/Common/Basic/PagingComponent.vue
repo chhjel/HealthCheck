@@ -17,10 +17,10 @@
         <dialog-component v-model:value="dialogVisible" max-width="480">
             <template #header>Jump to page</template>
             <template #footer>
-                <btn-component color="secondary"
-                    @click="dialogVisible = false">Cancel</btn-component>
                 <btn-component color="primary"
                     @click="navigateToPage(dialogNumber)">Go to page {{ dialogNumber }}</btn-component>
+                <btn-component color="secondary"
+                    @click="dialogVisible = false">Cancel</btn-component>
             </template>
 
             <div>

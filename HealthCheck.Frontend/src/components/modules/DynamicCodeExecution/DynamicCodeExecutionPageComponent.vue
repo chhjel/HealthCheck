@@ -105,8 +105,8 @@
         <dialog-component v-model:value="deleteScriptDialogVisible" max-width="350" dark>
             <template #header>Confirm deletion</template>
             <template #footer>
-                <btn-component color="secondary" @click="deleteScriptDialogVisible = false">Cancel</btn-component>
                 <btn-component color="error" @click="deleteScript(currentScript)">Delete it</btn-component>
+                <btn-component color="secondary" @click="deleteScriptDialogVisible = false">Cancel</btn-component>
             </template>
             <div>
                 {{ deleteScriptDialogText }}
@@ -116,12 +116,12 @@
         <dialog-component v-model:value="confirmUnchangedDialogVisible" max-width="350" dark>
             <template #header>Unsaved changes</template>
             <template #footer>
-                <btn-component color="secondary"
-                    @click="unsavedChangesDialogGoBack"
-                    >Go back</btn-component>
                 <btn-component color="error"
                     @click="unsavedChangesDialogConfirmed"
                     >Discard changes</btn-component>
+                <btn-component color="secondary"
+                    @click="unsavedChangesDialogGoBack"
+                    >Go back</btn-component>
             </template>
             <div>
                 It seems you have some unsaved changes.
@@ -131,7 +131,6 @@
         <dialog-component v-model:value="saveScriptDialogVisible" max-width="400" dark>
             <template #header>Save new script</template>
             <template #footer>
-                <btn-component color="secondary" @click="saveScriptDialogVisible = false">Cancel</btn-component>
                 <btn-component color="primary" @click="saveScript(currentScript, 'local')"
                     :disabled="loadStatus.inProgress"
                     :loading="loadStatus.inProgress"
@@ -140,6 +139,7 @@
                     :disabled="loadStatus.inProgress"
                     :loading="loadStatus.inProgress"
                     >Server</btn-component>
+                <btn-component color="secondary" @click="saveScriptDialogVisible = false">Cancel</btn-component>
             </template>
             <div>
                 Choose where to save this script.

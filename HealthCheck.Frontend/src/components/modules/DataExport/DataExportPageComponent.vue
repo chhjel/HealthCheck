@@ -250,14 +250,14 @@
             :persistent="true">
             <template #header>Save preset</template>
             <template #footer>
-                <btn-component color="secondary"
-                    :disabled="dataLoadStatus.inProgress"
-                    :loading="dataLoadStatus.inProgress"
-                    @click="savePresetDialogVisible = false">Cancel</btn-component>
                 <btn-component color="primary"
                     :disabled="dataLoadStatus.inProgress"
                     :loading="dataLoadStatus.inProgress"
                     @click="onSavePresetConfirmClicked()">Save</btn-component>
+                <btn-component color="secondary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="savePresetDialogVisible = false">Cancel</btn-component>
             </template>
             <div>
                 <h3>Save current query as a preset?</h3>
@@ -421,14 +421,14 @@
             :persistent="deleteLoadStatus.inProgress">
             <template #header>Delete preset?</template>
             <template #footer>
-                <btn-component color="secondary"
-                    :disabled="deleteLoadStatus.inProgress"
-                    :loading="deleteLoadStatus.inProgress"
-                    @click="deletePresetDialogVisible = false">Cancel</btn-component>
                 <btn-component color="error"
                     :disabled="deleteLoadStatus.inProgress"
                     :loading="deleteLoadStatus.inProgress"
                     @click="onDeletePresetConfirmed()">Delete</btn-component>
+                <btn-component color="secondary"
+                    :disabled="deleteLoadStatus.inProgress"
+                    :loading="deleteLoadStatus.inProgress"
+                    @click="deletePresetDialogVisible = false">Cancel</btn-component>
             </template>
             <div>
                 Delete preset <code v-if="presetToDelete">{{ presetToDelete.Name }}</code>?

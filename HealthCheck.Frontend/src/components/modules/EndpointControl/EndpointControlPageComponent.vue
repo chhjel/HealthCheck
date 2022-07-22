@@ -79,13 +79,14 @@
         <dialog-component v-model:value="ruleDialogVisible" max-width="1200" persistent @close="hideCurrentRule">
             <template #header>{{ currentDialogTitle }}</template>
             <template #footer>
+                <btn-component color="primary"
+                    :disabled="serverInteractionInProgress || !HasAccessToEditRules"
+                    @click="$refs.currentRuleComponent.saveRule()">Save</btn-component>
                 <btn-component color="error"
                     v-if="showDeleteRule"
                     :disabled="serverInteractionInProgress"
                     @click="$refs.currentRuleComponent.tryDeleteRule()">Delete</btn-component>
-                <btn-component color="primary"
-                    :disabled="serverInteractionInProgress || !HasAccessToEditRules"
-                    @click="$refs.currentRuleComponent.saveRule()">Save</btn-component>
+                <btn-component color="secondary" @click="hideCurrentRule">Cancel</btn-component>
             </template>
             <div v-if="currentRule != null">
                 <rule-component
@@ -105,11 +106,11 @@
         <dialog-component v-model:value="deleteDefinitionDialogVisible" max-width="290">
             <template #header>Confirm deletion</template>
             <template #footer>
-                <btn-component color="secondary" @click="deleteDefinitionDialogVisible = false">Cancel</btn-component>
                 <btn-component color="error"
                     :loading="loadStatus.inProgress"
                     :disabled="loadStatus.inProgress"
                     @click="confirmDeleteEndpointDefinition()">Delete</btn-component>
+                <btn-component color="secondary" @click="deleteDefinitionDialogVisible = false">Cancel</btn-component>
             </template>
             <div>
                 {{ deleteDefinitionDialogText }}

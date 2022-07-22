@@ -245,8 +245,8 @@
         <dialog-component v-model:value="deleteDialogVisible" max-width="290">
             <template #header>Confirm deletion</template>
             <template #footer>
-                <btn-component color="secondary" @click="deleteDialogVisible = false">Cancel</btn-component>
                 <btn-component color="error" @click="deleteConfig()">Delete it</btn-component>
+                <btn-component color="secondary" @click="deleteDialogVisible = false">Cancel</btn-component>
             </template>
             <div>
                 Are you sure you want to delete this configuration?

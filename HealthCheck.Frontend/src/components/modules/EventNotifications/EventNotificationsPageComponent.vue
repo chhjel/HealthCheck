@@ -96,13 +96,14 @@
         <dialog-component v-model:value="configDialogVisible" persistent max-width="1200" @close="hideCurrentConfig">
             <template #header>{{ currentDialogTitle }}</template>
             <template #footer>
+                <btn-component color="primary"
+                    :disabled="serverInteractionInProgress"
+                    @click="$refs.currentConfigComponent.saveConfig()">Save</btn-component>
                 <btn-component color="error"
                     v-if="showDeleteConfig"
                     :disabled="serverInteractionInProgress"
                     @click="$refs.currentConfigComponent.tryDeleteConfig()">Delete</btn-component>
-                <btn-component color="primary"
-                    :disabled="serverInteractionInProgress"
-                    @click="$refs.currentConfigComponent.saveConfig()">Save</btn-component>
+                <btn-component color="secondary" @click="hideCurrentConfig">Cancel</btn-component>
             </template>
             <div v-if="currentConfig != null">                 
                 <event-notification-config-component
@@ -123,11 +124,11 @@
         <dialog-component v-model:value="deleteDefinitionDialogVisible" max-width="290">
             <template #header>Confirm deletion</template>
             <template #footer>
-                <btn-component color="secondary" @click="deleteDefinitionDialogVisible = false">Cancel</btn-component>
                 <btn-component color="error"
                     :loading="loadStatus.inProgress"
                     :disabled="loadStatus.inProgress"
                     @click="confirmDeleteEventDefinition()">Delete</btn-component>
+                <btn-component color="secondary" @click="deleteDefinitionDialogVisible = false">Cancel</btn-component>
             </template>
             <div>
                 {{ deleteDefinitionDialogText }}

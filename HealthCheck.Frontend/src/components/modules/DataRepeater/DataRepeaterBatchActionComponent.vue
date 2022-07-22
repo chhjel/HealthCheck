@@ -38,14 +38,14 @@
             :persistent="dataLoadStatus.inProgress">
             <template #header>Confirm execute '{{ action.Name }}'</template>
             <template #footer>
-                <btn-component color="secondary"
-                    :disabled="dataLoadStatus.inProgress"
-                    :loading="dataLoadStatus.inProgress"
-                    @click="confirmExecuteDialogVisible = false">Cancel</btn-component>
                 <btn-component color="primary"
                     :disabled="!allowExecute"
                     :loading="dataLoadStatus.inProgress"
                     @click="executeAction()">Execute</btn-component>
+                <btn-component color="secondary"
+                    :disabled="dataLoadStatus.inProgress"
+                    :loading="dataLoadStatus.inProgress"
+                    @click="confirmExecuteDialogVisible = false">Cancel</btn-component>
             </template>
             <div>
                 Are you sure you want to execute the action '{{ action.Name }}'?

@@ -98,9 +98,6 @@
                 </div>
             </template>
             <template #footer>
-                <btn-component color="secondary" @click="eventDetailsDialogState = false">
-                    Close
-                </btn-component>
                 <btn-component @click="showDeleteSingleDialog(selectedEventForDetails)"
                     v-if="canDeleteEvents"
                     :loading="deleteStatus.inProgress"
@@ -108,6 +105,9 @@
                     color="error">
                     <icon-component size="20px" class="mr-2">clear</icon-component>
                     Delete
+                </btn-component>
+                <btn-component color="secondary" @click="eventDetailsDialogState = false">
+                    Close
                 </btn-component>
             </template>
 
@@ -118,8 +118,8 @@
         <dialog-component v-model:value="deleteAllDialogVisible" max-width="350">
             <template #header>Confirm delete</template>
             <template #footer>
-                <btn-component color="secondary" @click="deleteAllDialogVisible = false">Cancel</btn-component>
                 <btn-component color="error" @click="clearAllEvents">Clear all</btn-component>
+                <btn-component color="secondary" @click="deleteAllDialogVisible = false">Cancel</btn-component>
             </template>
             <div>
                 Clear all site events?
@@ -129,8 +129,8 @@
         <dialog-component v-model:value="deleteSingleDialogVisible" max-width="550">
             <template #header>{{ deleteSingleDialogTitle }}</template>
             <template #footer>
-                <btn-component color="secondary" @click="deleteSingleDialogVisible = false">Cancel</btn-component>
                 <btn-component color="error" @click="deleteSingleEvent">Delete</btn-component>
+                <btn-component color="secondary" @click="deleteSingleDialogVisible = false">Cancel</btn-component>
             </template>
             <div>
                 {{ deleteSingleDialogText }}
