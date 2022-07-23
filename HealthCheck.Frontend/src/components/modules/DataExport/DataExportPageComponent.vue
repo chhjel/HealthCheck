@@ -251,7 +251,7 @@
             <template #header>Save preset</template>
             <template #footer>
                 <btn-component color="primary"
-                    :disabled="dataLoadStatus.inProgress"
+                    :disabled="dataLoadStatus.inProgress || !newPresetName"
                     :loading="dataLoadStatus.inProgress"
                     @click="onSavePresetConfirmClicked()">Save</btn-component>
                 <btn-component color="secondary"
@@ -954,6 +954,7 @@ export default class DataExportPageComponent extends Vue {
         {
             onSuccess: (d) => {
                 this.savePresetDialogVisible = false;
+                this.newPresetName = '';
             }
         });
     }
