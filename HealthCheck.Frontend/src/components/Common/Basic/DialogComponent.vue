@@ -5,7 +5,8 @@
             <div class="dialog-component_modal" :style="dialogStyle">
                 <div class="dialog-component_modal_header" :class="headerColor">
                     <slot name="header"></slot>
-                    <div class="spacer"></div>
+                    <div class="spacer01"></div>
+                    <slot name="headerRight"></slot>
                     <btn-component flat @click="onClickClose">
                         <icon-component large class="dialog-component_modal_header__closer">close</icon-component>
                     </btn-component>
@@ -293,6 +294,7 @@ export default class DialogComponent extends Vue {
             &_header {
                 display: flex;
                 align-items: center;
+                justify-content: space-between;
                 margin-top: -30px;
                 padding: 10px 30px;
                 font-size: 30px;

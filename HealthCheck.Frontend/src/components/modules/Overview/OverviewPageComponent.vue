@@ -93,6 +93,8 @@
             <template #header v-if="selectedEventForDetails != null">
                 <icon-component>{{ getEventSeverityIcon(selectedEventForDetails.Severity) }}</icon-component>
                 <div class="details-title">{{ selectedEventForDetails.Title }}</div>
+            </template>
+            <template #headerRight v-if="selectedEventForDetails != null">
                 <div class="details-date">
                     {{ getEventTimeLine1(selectedEventForDetails) }}<br />{{ getEventTimeLine2(selectedEventForDetails) }}
                 </div>
@@ -550,7 +552,7 @@ export default class OverviewPageComponent extends Vue {
     }
 }
 .details-title {
-    flex: 1;
+    flex: 2;
     margin-left: 5px;
 }
 .details-date {
