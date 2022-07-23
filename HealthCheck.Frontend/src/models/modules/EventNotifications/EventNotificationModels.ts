@@ -61,7 +61,9 @@ export interface EventSinkNotificationConfigFilter {
 export enum FilterMatchType {
     Contains = 'Contains',
     Matches = 'Matches',
-    RegEx = 'RegEx'
+    RegEx = 'RegEx',
+    StartsWith = 'StartsWith',
+    EndsWith = 'EndsWith'
 }
 
 export interface KnownEventDefinition {

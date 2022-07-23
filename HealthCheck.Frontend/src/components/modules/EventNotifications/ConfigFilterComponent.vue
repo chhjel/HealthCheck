@@ -105,6 +105,8 @@ export default class ConfigFilterComponent extends Vue {
         let items = [
             { text: 'Contains', value: FilterMatchType.Contains},
             { text: 'Matches', value: FilterMatchType.Matches},
+            { text: 'Starts with', value: FilterMatchType.StartsWith},
+            { text: 'Ends with', value: FilterMatchType.EndsWith},
             { text: 'Matches RegEx', value: FilterMatchType.RegEx}
         ];
 

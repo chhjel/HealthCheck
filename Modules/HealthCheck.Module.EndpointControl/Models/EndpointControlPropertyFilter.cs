@@ -67,6 +67,14 @@ namespace HealthCheck.Module.EndpointControl.Models
             {
                 return value.Trim() == filter.Trim();
             }
+            else if (FilterMode == EndpointControlFilterMode.StartsWith)
+            {
+                return value.StartsWith(filter);
+            }
+            else if (FilterMode == EndpointControlFilterMode.EndsWith)
+            {
+                return value.EndsWith(filter);
+            }
             else if (FilterMode == EndpointControlFilterMode.RegEx)
             {
                 var regex = _regexCache.GetRegex(Filter, CaseSensitive);

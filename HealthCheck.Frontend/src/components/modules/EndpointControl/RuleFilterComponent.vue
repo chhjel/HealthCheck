@@ -98,6 +98,8 @@ export default class RuleFilterComponent extends Vue {
         let items = [
             { text: 'Contains', value: EndpointControlFilterMode.Contains},
             { text: 'Matches', value: EndpointControlFilterMode.Matches},
+            { text: 'Starts with', value: EndpointControlFilterMode.StartsWith},
+            { text: 'Ends with', value: EndpointControlFilterMode.EndsWith},
             { text: 'Matches RegEx', value: EndpointControlFilterMode.RegEx}
         ];
         return items;

@@ -124,11 +124,15 @@ export default class EndpointControlUtils
 
         let mode = 'contains';
         if (filter.FilterMode == EndpointControlFilterMode.Matches) mode = 'matches';
+        else if (filter.FilterMode == EndpointControlFilterMode.StartsWith) mode = 'starts with';
+        else if (filter.FilterMode == EndpointControlFilterMode.EndsWith) mode = 'ends with';
         else if (filter.FilterMode == EndpointControlFilterMode.RegEx) mode = 'matches regex';
 
         if (filter.Inverted) {
             mode = 'does not contain';
             if (filter.FilterMode == EndpointControlFilterMode.Matches) mode = 'does not match';
+            else if (filter.FilterMode == EndpointControlFilterMode.StartsWith) mode = 'does not start with';
+            else if (filter.FilterMode == EndpointControlFilterMode.EndsWith) mode = 'does not end with';
             else if (filter.FilterMode == EndpointControlFilterMode.RegEx) mode = 'does not match regex';
         }
 

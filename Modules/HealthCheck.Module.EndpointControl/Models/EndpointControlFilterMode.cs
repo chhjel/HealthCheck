@@ -18,6 +18,16 @@
         /// <summary>
         /// RegEx match.
         /// </summary>
-        RegEx
+        RegEx,
+
+        /// <summary>
+        /// Value starts with.
+        /// </summary>
+        StartsWith,
+
+        /// <summary>
+        /// Value ends with.
+        /// </summary>
+        EndsWith
     }
 }

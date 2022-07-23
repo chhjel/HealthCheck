@@ -125,6 +125,14 @@ export default class EventSinkNotificationConfigUtils
         {
             matchType = 'matches regex';
         }
+        else if (filter.MatchType == FilterMatchType.StartsWith)
+        {
+            matchType = 'starts with';
+        }
+        else if (filter.MatchType == FilterMatchType.EndsWith)
+        {
+            matchType = 'ends with';
+        }
 
         let caseSensitive = filter.CaseSensitive ? ' (case-sensitive)' : '';
 

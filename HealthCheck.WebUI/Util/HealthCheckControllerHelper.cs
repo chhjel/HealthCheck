@@ -813,6 +813,11 @@ namespace HealthCheck.WebUI.Util
     color: #516d87;
     text-align: center;
     margin-top: 12%;
+    animation: loaderFadeIn 1s;
+}
+@keyframes loaderFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 </style>
 ";

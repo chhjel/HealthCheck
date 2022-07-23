@@ -75,6 +75,14 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
             {
                 return value.Trim() == filter.Trim();
             }
+            else if (MatchType == FilterMatchType.StartsWith)
+            {
+                return value.Trim().StartsWith(filter.Trim());
+            }
+            else if (MatchType == FilterMatchType.EndsWith)
+            {
+                return value.Trim().EndsWith(filter.Trim());
+            }
             else if (MatchType == FilterMatchType.RegEx)
             {
                 var regex = _regexCache.GetRegex(Filter, CaseSensitive);
@@ -105,7 +113,17 @@ namespace HealthCheck.Core.Modules.EventNotifications.Models
             /// <summary>
             /// Checks if value matches filter as regex.
             /// </summary>
-            RegEx
+            RegEx,
+
+            /// <summary>
+            /// Value starts with.
+            /// </summary>
+            StartsWith,
+
+            /// <summary>
+            /// Value ends with.
+            /// </summary>
+            EndsWith
         }
     }
 }
