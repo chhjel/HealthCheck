@@ -1,7 +1,7 @@
 <template>
     <div class="checkbox-component" :class="rootClasses" tabindex="0" @click="onClick">
         <span class='checkbox-component__indicator color-f color-border' :class="colorClasses" :style="indicatorStyle">
-            <div v-if="isChecked" class="checkbox-component__indicator_bg" :class="colorClasses"></div>
+            <div v-if="isChecked || currentValueIsIndeterminate" class="checkbox-component__indicator_bg" :class="colorClasses"></div>
             <icon-component v-if="isChecked" :color="iconColor" :size="size" style="position:absolute">check</icon-component>
             <icon-component v-if="currentValueIsIndeterminate" :color="iconColor" :size="size" style="position:absolute">horizontal_rule</icon-component>
         </span>
