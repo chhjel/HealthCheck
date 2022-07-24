@@ -10,6 +10,7 @@
             <input :type="type" v-model="localValue"
                 :placeholder="placeholder" :disabled="isDisabled"
                 @input="onInput"
+                @blur="onBlur"
                 ref="inputElement"
                 class="text-field-component__input input" />
 
@@ -208,6 +209,9 @@ export default class TextFieldComponent extends Vue {
     onInput(): void {
 		this.$emit('update:value', this.localValue);
 		this.$emit('input', this.localValue);
+    }
+    onBlur(): void {
+		this.$emit('blur', this.localValue);
     }
 	
     /////////////////

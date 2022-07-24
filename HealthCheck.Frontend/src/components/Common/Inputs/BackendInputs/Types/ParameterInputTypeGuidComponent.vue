@@ -5,7 +5,16 @@
             class="pt-0 spacer"
             v-model:value="localValue"
             :placeholder="placeholderText"
-            :disabled="readonly" />
+            :disabled="readonly"
+            @blur="onBlur" />
+
+        <tooltip-component tooltip="Generate random guid">
+            <btn-component flat icon color="primary" class="ma-0 pa-0"
+                @click="generateRandomValue"
+                :disabled="readonly">
+                <icon-component>autorenew</icon-component>
+            </btn-component>
+        </tooltip-component>
 
         <div v-if="isNullable">
             <tooltip-component tooltip="Sets value to null">
@@ -23,6 +32,7 @@
 import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
+import IdUtils from "@util/IdUtils";
 
 @Options({
     components: {
@@ -51,8 +61,12 @@ export default class ParameterInputTypeGuidComponent extends Vue {
         this.localValue = null;
     }
 
+    generateRandomValue(): void {
+        this.localValue = IdUtils.generateId();
+    }
+
     validateValue(): void {
-        if (this.localValue == null) {
+        if (this.localValue == null && !this.isNullable) {
             this.localValue = "";
         }
     }
@@ -62,9 +76,9 @@ export default class ParameterInputTypeGuidComponent extends Vue {
     }
 
     get placeholderText(): string {
-        if (this.isNullable)
+        if (this.isNullable && this.localValue == null)
         {
-            return this.localValue == null || this.localValue.length == 0 ? this.nullName : "";
+            return this.nullName;
         }
         return (this.localValue == null || this.localValue.length == 0)
             ? "00000000-0000-0000-0000-000000000000" : "";
@@ -72,6 +86,11 @@ export default class ParameterInputTypeGuidComponent extends Vue {
 
     get nullName(): string {
         return this.config.NullName || 'null';
+    }
+
+    onBlur(): void {
+        // todo: validate
+        // console.log('blur', this.localValue);
     }
     
     /////////////////
