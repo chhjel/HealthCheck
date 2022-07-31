@@ -121,7 +121,7 @@ jobs:
       platform: $(BuildParameters.BuildPlatform)
       configuration: $(BuildParameters.BuildConfiguration)
 
-  - task: NodeTool@1 
+  - task: NodeTool@0 
     displayName: 'Use node version 16.x'
     inputs:
       versionSpec: '16.x'
