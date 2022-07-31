@@ -48,7 +48,7 @@ jobs:
 - job: BuildAndTestSolution
   displayName: Build and test solution
   pool:
-    vmImage: windows-2019
+    vmImage: windows-2022
 
   steps:
   - script: echo '##vso[task.setvariable variable=BuildParameters.AssemblyVersion]$(BuildParameters.AssemblyVersion)-$(BuildParameters.CleanSourceBranch)
