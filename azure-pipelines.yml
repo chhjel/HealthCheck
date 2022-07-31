@@ -122,9 +122,9 @@ jobs:
       configuration: $(BuildParameters.BuildConfiguration)
 
   - task: NodeTool@1 
-    displayName: 'Use node version 10.x'
+    displayName: 'Use node version 16.x'
     inputs:
-      versionSpec: '10.x'
+      versionSpec: '16.x'
 
   - script: cd HealthCheck.Frontend/ && yarn
     displayName: 'Yarn install'
