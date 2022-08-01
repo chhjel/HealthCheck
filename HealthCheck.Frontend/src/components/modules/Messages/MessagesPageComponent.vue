@@ -107,8 +107,10 @@
             
         <dialog-component v-model:value="showMessageDialog" v-if="currentlyShownMessage != null" width="90vw" max-width="1200">
             <template #header>
-                {{ currentlyShownMessage.Summary }}
-                <icon-component :color="getMessageIconColor(currentlyShownMessage)" class="ml-2">{{ getMessageIcon(currentlyShownMessage) }}</icon-component>
+                <div class="flex">
+                    {{ currentlyShownMessage.Summary }}
+                    <icon-component :color="getMessageIconColor(currentlyShownMessage)" class="ml-2">{{ getMessageIcon(currentlyShownMessage) }}</icon-component>
+                </div>
             </template>
 
             <template #footer>
