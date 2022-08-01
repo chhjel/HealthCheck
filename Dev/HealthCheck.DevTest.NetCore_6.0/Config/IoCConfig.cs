@@ -29,6 +29,7 @@ using HealthCheck.Dev.Common.Dataflow;
 using HealthCheck.Dev.Common.DataRepeater;
 using HealthCheck.Dev.Common.EventNotifier;
 using HealthCheck.Dev.Common.Settings;
+using HealthCheck.Dev.Common.Tests.Modules;
 using HealthCheck.Module.DataExport.Abstractions;
 using HealthCheck.Module.DataExport.Services;
 using HealthCheck.Module.DataExport.Storage;
@@ -131,7 +132,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Config
             return sink;
         }
 
-        public static readonly TestStreamA TestStreamA = new();
+        public static TestStreamA TestStreamA => DataflowTests.TestStreamA;
         public static readonly TestStreamB TestStreamB = new();
         public static readonly TestStreamC TestStreamC = new();
         private static readonly SimpleStream _simpleStream = new("Simple A");

@@ -1,6 +1,5 @@
 using Fido2NetLib;
 using HealthCheck.Core.Abstractions;
-using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.AccessTokens;
 using HealthCheck.Core.Modules.AccessTokens.Abstractions;
@@ -18,7 +17,6 @@ using HealthCheck.Core.Modules.EventNotifications.Abstractions;
 using HealthCheck.Core.Modules.LogViewer;
 using HealthCheck.Core.Modules.Messages;
 using HealthCheck.Core.Modules.Messages.Abstractions;
-using HealthCheck.Core.Modules.Messages.Models;
 using HealthCheck.Core.Modules.Metrics;
 using HealthCheck.Core.Modules.Metrics.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Context;
@@ -29,9 +27,6 @@ using HealthCheck.Core.Modules.Settings;
 using HealthCheck.Core.Modules.Settings.Abstractions;
 using HealthCheck.Core.Modules.SiteEvents;
 using HealthCheck.Core.Modules.SiteEvents.Abstractions;
-using HealthCheck.Core.Modules.SiteEvents.Enums;
-using HealthCheck.Core.Modules.SiteEvents.Models;
-using HealthCheck.Core.Modules.SiteEvents.Utils;
 using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Util;
@@ -78,10 +73,6 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
         private readonly IWebHostEnvironment _env;
         private readonly IEventDataSink _eventDataSink;
         private readonly IAuditEventStorage _auditEventStorage;
-        private readonly ISiteEventService _siteEventService;
-        private readonly IHCSettingsService _settingsService;
-        private readonly IHCDataRepeaterService _dataRepeaterService;
-        private readonly IHCMessageStorage _messageStore;
         private const string EndpointBase = "/";
         private static bool ForceLogout { get; set; }
         #endregion
@@ -110,12 +101,8 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             _env = env;
             _eventDataSink = eventDataSink;
             _auditEventStorage = auditEventStorage;
-            _siteEventService = siteEventService;
-            _settingsService = settingsService;
-            _dataRepeaterService = dataRepeaterService;
-            _messageStore = messageStore;
 
-            UseModule(new HCMessagesModule(new HCMessagesModuleOptions() { MessageStorage = _messageStore }
+            UseModule(new HCMessagesModule(new HCMessagesModuleOptions() { MessageStorage = messageStore }
                 .DefineInbox("mail", "Mail", "All sent email ends up here.")
                 .DefineInbox("sms", "SMS", "All sent sms ends up here.")
             ));
@@ -128,7 +115,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             ));
             UseModule(new HCDataRepeaterModule(new HCDataRepeaterModuleOptions
             {
-                Service = _dataRepeaterService
+                Service = dataRepeaterService
             }));
             UseModule(new HCEndpointControlModule(new HCEndpointControlModuleOptions()
             {
@@ -226,11 +213,6 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                     new CodeSuggestion("GetService<T>(id)", "Get a registered service", "GetService<${1:T}>(${2:x})")
                 }
             }));
-
-            if (!_hasInited)
-            {
-                InitOnce();
-            }
         }
 
         private List<RuntimeTestReferenceParameterFactory> CreateReferenceParameterFactories()
@@ -250,6 +232,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
                 )
             };
         }
+        
         #region Overrides
         protected override HCFrontEndOptions GetFrontEndOptions()
             => new(EndpointBase)
@@ -441,7 +424,6 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             };
         }
 
-        private static readonly DateTime _eventTime = DateTime.Now;
         protected override RequestInformation<RuntimeTestAccessRole> GetRequestInformation(HttpRequest request)
         {
             HCRequestData.IncrementCounter("GetRequestInformationCallCount");
@@ -472,125 +454,6 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             {
                 _auditEventStorage.StoreEvent(new AuditEvent(DateTimeOffset.Now, "DevArea", "Dev test title", "Subject", "UserX", "User X", new List<string>())
                     .AddBlob("Blob name", "Blob contents here."));
-            }
-            if (request.Query.ContainsKey("addmessages"))
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    var msg = new HCDefaultMessageItem($"Some summary here #{i}", $"{i}345678", $"841244{i}", $"Some test message #{i} here etc etc.", false);
-                    if (i % 4 == 0)
-                    {
-                        msg.SetError("Failed to send because of server error.")
-                            .AddNote("Mail not actually sent, devmode enabled etc.");
-                    }
-                    if (i % 2 == 0)
-                    {
-                        msg.AddNote("Mail not actually sent, devmode enabled etc.");
-                    }
-                    _messageStore.StoreMessage("sms", msg);
-                }
-                for (int i = 0; i < 13; i++)
-                {
-                    var msg = new HCDefaultMessageItem($"Subject #{i}, totally not spam", $"test_{i}@somewhe.re", $"to@{i}mail.com",
-                            $"<html>" +
-                            $"<body>" +
-                            $"<style>" +
-                            $"div {{" +
-                            $"display: inline-block;" +
-                            $"font-size: 40px !important;" +
-                            $"color: red !important;" +
-                            $"}}" +
-                            $"</style>" +
-                            $"<h3>Super fancy contents here!</h3>Now <b>this</b> is a mail! #{i} or <div>something</div> <img src=\"https://picsum.photos/200\" />.'" +
-                            $"</body>" +
-                            $"</html>", true);
-                    if (i % 5 == 0)
-                    {
-                        msg.SetError("Failed to send because of invalid email.");
-                    }
-                    _messageStore.StoreMessage("mail", msg);
-                }
-            }
-            if (request.Query.ContainsKey("siteEvents"))
-            {
-                for (int i = 0; i < 500; i++)
-                {
-                    HCSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Warning, $"pageError_{_eventTime.Ticks}", $"Slow page #{_eventTime.Ticks}",
-                        $"Pageload seems a bit slow currently on page #{_eventTime.Ticks}, we're working on it.",
-                        duration: 5,
-                        developerDetails: $"Duration: {i} ms");
-                }
-            }
-            if (request.Query.ContainsKey("siteEvent"))
-            {
-                HCSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Fatal, "debug1", "Debug 1", "With failing dev details", 5,
-                    "Failed to deserialize response: \n\r\n\r[InternalServerError] <html><head><title>500 - The request timed out.</title></head><body><font color =\"#aa0000\">         <h2>500 - The request timed out.</h2></font>  The web server failed to respond within the specified time.</body></html>");
-                HCSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Error, "api_z_error", "Oh no! API Z is broken!", "How could this happen to us!?",
-                    developerDetails: "Hmm this is probably why.",
-                    config: x => x.AddRelatedLink("Status page", "https://status.otherapi.com"));
-            }
-            if (request.Query.ContainsKey("siteEvent3"))
-            {
-                HCSiteEventUtils.TryRegisterNewEvent(SiteEventSeverity.Error, "api_AB_error", "Oh no! API AB is broken!", "How could this happen to us!?",
-                    developerDetails: "Hmm this is probably why.",
-                    config: x => x.AddRelatedLink("Status page", "https://status.otherapi.com").SetMinimumDurationRequiredToDisplay(2));
-            }
-            if (request.Query.ContainsKey("siteEvent4"))
-            {
-                HCSiteEventUtils.TryRegisterNewEvent(new SiteEvent(SiteEventSeverity.Information, "test_info", "Some info here", "Some more details etc.",
-                    developerDetails: "Hmm this is probably why.")
-                { Timestamp = DateTimeOffset.Now - TimeSpan.FromMinutes(5), Duration = 5 });
-                HCSiteEventUtils.TryRegisterNewEvent(new SiteEvent(SiteEventSeverity.Warning, "test_warn", "Some warning here", "Some more details etc.",
-                    developerDetails: "Hmm this is probably why.")
-                { Timestamp = DateTimeOffset.Now - TimeSpan.FromMinutes(500), Duration = 450 });
-                HCSiteEventUtils.TryRegisterNewEvent(new SiteEvent(SiteEventSeverity.Error, "test_error", "Some error here", "Some more details etc.",
-                    developerDetails: "Hmm this is probably why.")
-                { Timestamp = DateTimeOffset.Now - TimeSpan.FromMinutes(60), Duration = 60 });
-                HCSiteEventUtils.TryRegisterNewEvent(new SiteEvent(SiteEventSeverity.Fatal, "test_fatal", "Some fatal things here", "Some more details etc.",
-                    developerDetails: "Hmm this is probably why.")
-                { Timestamp = DateTimeOffset.Now - TimeSpan.FromMinutes(36), Duration = 30 });
-            }
-            if (request.Query.ContainsKey("siteEvent2"))
-            {
-                var now = DateTime.Now;
-                var times = new List<(string, DateTime)>
-                {
-                    ("aaa", new DateTime(now.Year, now.Month, now.Day - 2, 15, 38, 05)),
-                    ("ccc", new DateTime(now.Year, now.Month, now.Day - 1, 8, 11, 05)),
-                    ("ddd", new DateTime(now.Year, now.Month, now.Day - 1, 6, 09, 05))
-                };
-                var from = new DateTime(now.Year, now.Month, now.Day - 2, 12, 23, 05);
-                var to = new DateTime(now.Year, now.Month, now.Day - 1, 0, 12, 52);
-                for (var d = from; d <= to; d += TimeSpan.FromMinutes(1))
-                {
-                    times.Add(("bbb", d));
-                }
-
-                times.AddRange(new List<(string, DateTime)>
-                {
-                    ("aaa", new DateTime(now.Year, now.Month, now.Day - 2, 15, 38, 05)),
-                    ("ccc", new DateTime(now.Year, now.Month, now.Day - 1, 8, 11, 05)),
-                    ("ddd", new DateTime(now.Year, now.Month, now.Day - 1, 6, 09, 05))
-                });
-
-                foreach (var d in times)
-                {
-                    var e = new SiteEvent(SiteEventSeverity.Error, $"test_{d.Item1}", $"Oh no! API {d.Item1.ToUpper()} is broken!", "How could this happen to us!?",
-                        developerDetails: "Hmm this is probably why.")
-                    {
-                        Timestamp = d.Item2
-                    };
-                    HCSiteEventUtils.TryRegisterNewEvent(e);
-                }
-            }
-            if (request.Query.ContainsKey("siteEventResolved"))
-            {
-                HCSiteEventUtils.TryMarkLatestEventAsResolved("api_x_error", "Seems it fixed itself somehow.",
-                    config: x => x.AddRelatedLink("Another page", "https://www.google.com"));
-            }
-            if (request.Query.ContainsKey("simulateSiteEventResolveJob"))
-            {
-                SimulateSiteEventResolveJob();
             }
 
             if (request.Query.ContainsKey("noaccess"))
@@ -628,19 +491,6 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
         #endregion
 
         #region dev
-        private static void SimulateSiteEventResolveJob()
-        {
-            var unresolvedEvents = HCSiteEventUtils.TryGetAllUnresolvedEvents();
-            foreach (var unresolvedEvent in unresolvedEvents)
-            {
-                var timeSince = DateTimeOffset.Now - (unresolvedEvent.Timestamp + TimeSpan.FromMinutes(unresolvedEvent.Duration));
-                if (timeSince > TimeSpan.FromMinutes(15))
-                {
-                    HCSiteEventUtils.TryMarkEventAsResolved(unresolvedEvent.Id, "Seems to be fixed now.");
-                }
-            }
-        }
-
         private HCWebAuthnHelper CreateWebAuthnHelper()
             => new(new HCWebAuthnHelperOptions
             {
@@ -679,36 +529,6 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
 
         private string GetFilePath(string relativePath) => Path.GetFullPath(Path.Combine(_env.ContentRootPath, relativePath));
 
-        [Route("TestEvent")]
-        public ActionResult TestEvent(int v = 1)
-        {
-            object payload = v switch
-            {
-                3 => new
-                {
-                    Url = Request.GetDisplayUrl(),
-                    User = CurrentRequestInformation?.UserName,
-                    SettingValue = _settingsService.GetSettings<TestSettings>().IntProp,
-                    ExtraB = "BBBB"
-                },
-                2 => new
-                {
-                    Url = Request.GetDisplayUrl(),
-                    User = CurrentRequestInformation?.UserName,
-                    SettingValue = _settingsService.GetSettings<TestSettings>().IntProp,
-                    ExtraA = "AAAA"
-                },
-                _ => new
-                {
-                    Url = Request.GetDisplayUrl(),
-                    User = CurrentRequestInformation?.UserName,
-                    SettingValue = _settingsService.GetSettings<TestSettings>().IntProp
-                },
-            };
-            _eventDataSink.RegisterEvent("pageload", payload);
-            return Content($"Registered variant #{v}");
-        }
-
         [Route("Logout")]
         public ActionResult Logout()
         {
@@ -740,31 +560,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
             }
         }
 
-        private static bool _hasInited = false;
-        private static void InitOnce()
-        {
-            _hasInited = true;
-            //Task.Run(() => AddEvents());
-        }
-
         // New mock data
-        [Route("AddEvents")]
-        public async Task<ActionResult> AddEvents()
-        {
-            if ((await _siteEventService.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue)).Count == 0)
-            {
-                for (int i = 0; i < 20; i++)
-                {
-                    await AddEvent();
-                }
-                return Content("Mock events reset");
-            }
-            else
-            {
-                return Content("Already have some mock events in place");
-            }
-        }
-
         [Route("AddDataflow")]
         public ActionResult AddDataflow(int count = 10)
         {
@@ -780,78 +576,6 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
 
             return Content("OK :]");
         }
-
-        // New mock data
-        private static readonly Random _rand = new();
-        [Route("AddEvent")]
-        public async Task<ActionResult> AddEvent()
-        {
-            if (!Enabled || _siteEventService == null) return NotFound();
-
-            CreateSomeData(out string title, out string description);
-            var severity = SiteEventSeverity.Information;
-            if (_rand.Next(100) < 10)
-            {
-                severity = SiteEventSeverity.Fatal;
-            }
-            else if (_rand.Next(100) < 25)
-            {
-                severity = SiteEventSeverity.Error;
-            }
-            else if (_rand.Next(100) < 50)
-            {
-                severity = SiteEventSeverity.Warning;
-            }
-
-            var ev = new SiteEvent(
-                severity, $"Error type {_rand.Next(10000)}",
-                title, description,
-                duration: _rand.Next(1, 90)
-            )
-            {
-                Timestamp = DateTimeOffset.Now
-                    .AddDays(-7 + _rand.Next(7))
-                    .AddMinutes(_rand.Next(0, 24 * 60))
-            }
-            .AddRelatedLink("Page that failed", "https://www.google.com?etc")
-            .AddRelatedLink("Error log", "https://www.google.com?q=errorlog");
-
-            await _siteEventService.StoreEvent(ev);
-            return CreateJsonResult(ev);
-        }
-
-        private static string AddXFix(string subject, string xfix)
-        {
-            if (xfix.Contains('|'))
-            {
-                var parts = xfix.Split('|');
-                var prefix = parts[0];
-                var suffix = parts[1];
-                return $"{prefix} {subject}{suffix}";
-            }
-            else
-            {
-                return $"{xfix}{subject}";
-            }
-        }
-
-        private void CreateSomeData(out string title, out string description)
-        {
-            var subject = _subjects.RandomElement(_rand);
-            subject = AddXFix(subject, _subjectXFixes.RandomElement(_rand));
-            var accident = _accidents.RandomElement(_rand);
-            var reaction = _reactions.RandomElement(_rand);
-            var reactor = _subjects.RandomElement(_rand);
-            reactor = AddXFix(reactor, _subjectXFixes.RandomElement(_rand));
-
-            title = $"{subject} {accident}".CapitalizeFirst();
-            description = $"{subject} {accident} and {reactor} is {reaction}.".CapitalizeFirst();
-        }
-
-        private readonly string[] _subjectXFixes = new[] { "the ", "an unknown ", "most of the |s", "several of the |s", "one of the |s" };
-        private readonly string[] _subjects = new[] { "service", "server", "integration", "frontpage", "developer", "codebase", "project manager", "CEO" };
-        private readonly string[] _accidents = new[] { "is on fire", "exploded", "is slow", "decided to close", "is infected with ransomware", "is not happy", "don't know what to do" };
-        private readonly string[] _reactions = new[] { "on fire", "not pleased", "confused", "not happy", "leaving" };
         #endregion
     }
 }

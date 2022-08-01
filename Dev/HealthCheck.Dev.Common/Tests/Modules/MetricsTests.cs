@@ -5,7 +5,7 @@ using HealthCheck.Core.Util;
 using System;
 using System.Threading.Tasks;
 
-namespace HealthCheck.Dev.Common.Tests
+namespace HealthCheck.Dev.Common.Tests.Modules
 {
     [RuntimeTestClass(
         Name = "Metrics",

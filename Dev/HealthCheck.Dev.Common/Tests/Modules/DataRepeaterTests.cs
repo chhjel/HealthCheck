@@ -10,7 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace HealthCheck.Dev.Common.Tests
+namespace HealthCheck.Dev.Common.Tests.Modules
 {
     [RuntimeTestClass(
         Name = "Data Repeater",
@@ -57,15 +57,15 @@ namespace HealthCheck.Dev.Common.Tests
             {
                 var order = new DummyOrder
                 {
-                    OrderNumber = $"X{(80088888 + i)}",
-                    Amount = (888 + (i * 32.25m))
+                    OrderNumber = $"X{80088888 + i}",
+                    Amount = 888 + i * 32.25m
                 };
 
                 TestOrderStreamItem item1;
                 if (i % 2 == 0)
                 {
                     item1 = TestOrderStreamItem.CreateFrom(order, order.OrderNumber, $"{order.Amount}$ from \"Jimmy Smithy\"", error: "Capture failed", exception: dummyError,
-                        includeHCRequestErrors: (i % 3 == 0));
+                        includeHCRequestErrors: i % 3 == 0);
                 }
                 else
                 {
@@ -129,9 +129,9 @@ namespace HealthCheck.Dev.Common.Tests
         [RuntimeTest]
         public async Task<TestResult> GetItemThroughUtility(string itemId)
         {
-            var item = 
-                (await HCDataRepeaterUtils.GetItemByItemIdAsync<TestOrderDataRepeaterStream>(itemId))
-                ?? (await HCDataRepeaterUtils.GetItemByItemIdAsync<TestXDataRepeaterStream>(itemId));
+            var item =
+                await HCDataRepeaterUtils.GetItemByItemIdAsync<TestOrderDataRepeaterStream>(itemId)
+                ?? await HCDataRepeaterUtils.GetItemByItemIdAsync<TestXDataRepeaterStream>(itemId);
 
             return item != null
                 ? TestResult.CreateSuccess("Item found!").AddSerializedData(item)

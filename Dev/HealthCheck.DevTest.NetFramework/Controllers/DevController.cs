@@ -1,7 +1,6 @@
 ﻿using HealthCheck.Core.Abstractions;
 using HealthCheck.Core.Attributes;
 using HealthCheck.Core.Config;
-using HealthCheck.Core.Extensions;
 using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.AccessTokens;
 using HealthCheck.Core.Modules.AuditLog;
@@ -21,7 +20,6 @@ using HealthCheck.Core.Modules.LogViewer;
 using HealthCheck.Core.Modules.LogViewer.Services;
 using HealthCheck.Core.Modules.Messages;
 using HealthCheck.Core.Modules.Messages.Abstractions;
-using HealthCheck.Core.Modules.Messages.Models;
 using HealthCheck.Core.Modules.Metrics;
 using HealthCheck.Core.Modules.Metrics.Abstractions;
 using HealthCheck.Core.Modules.Metrics.Context;
@@ -30,14 +28,11 @@ using HealthCheck.Core.Modules.ReleaseNotes.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload;
 using HealthCheck.Core.Modules.SecureFileDownload.Abstractions;
 using HealthCheck.Core.Modules.SecureFileDownload.FileStorage;
-using HealthCheck.Core.Modules.SecureFileDownload.Models;
 using HealthCheck.Core.Modules.Settings;
 using HealthCheck.Core.Modules.Settings.Abstractions;
 using HealthCheck.Core.Modules.Settings.Services;
 using HealthCheck.Core.Modules.SiteEvents;
 using HealthCheck.Core.Modules.SiteEvents.Abstractions;
-using HealthCheck.Core.Modules.SiteEvents.Enums;
-using HealthCheck.Core.Modules.SiteEvents.Models;
 using HealthCheck.Core.Modules.SiteEvents.Services;
 using HealthCheck.Core.Modules.Tests;
 using HealthCheck.Core.Modules.Tests.Models;
@@ -49,6 +44,7 @@ using HealthCheck.Dev.Common.EventNotifier;
 using HealthCheck.Dev.Common.Metrics;
 using HealthCheck.Dev.Common.Settings;
 using HealthCheck.Dev.Common.Tests;
+using HealthCheck.Dev.Common.Tests.Modules;
 using HealthCheck.DevTest._TestImplementation.Modules;
 using HealthCheck.Module.DataExport;
 using HealthCheck.Module.DataExport.Abstractions;
@@ -86,7 +82,7 @@ namespace HealthCheck.DevTest.Controllers
         private const string EndpointBase = "/dev";
         private static ISiteEventService _siteEventService;
         private static IAuditEventStorage _auditEventService;
-        private static readonly TestStreamA testStreamA = new();
+        public static TestStreamA TestStreamA => DataflowTests.TestStreamA;
         private static readonly TestStreamB testStreamB = new();
         private static readonly TestStreamC testStreamC = new();
         private static readonly SimpleStream simpleStream = new("Simple A");
@@ -236,11 +232,6 @@ namespace HealthCheck.DevTest.Controllers
             UseModule(new HCRequestLogModule(new HCRequestLogModuleOptions() { RequestLogService = RequestLogServiceAccessor.Current }));
             UseModule(new HCSettingsModule(new HCSettingsModuleOptions() { Service = SettingsService, ModelType = typeof(TestSettings) }));
             UseModule(new TestModuleA());
-
-            if (!_hasInited)
-            {
-                InitOnce();
-            }
         }
 
         private List<RuntimeTestReferenceParameterFactory> CreateReferenceParameterFactories()
@@ -374,124 +365,6 @@ namespace HealthCheck.DevTest.Controllers
                 SettingValue = SettingsService.GetSettings<TestSettings>().IntProp
             });
 
-            if (Request.QueryString.AllKeys.Contains("addmessages"))
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    var msg = new HCDefaultMessageItem($"Some summary here #{i}", $"{i}345678", $"841244{i}", $"Some test message #{i} here etc etc.", false);
-                    if (i % 4 == 0)
-                    {
-                        msg.SetError("Failed to send because of server error.")
-                            .AddNote("Mail not actually sent, devmode enabled etc.");
-                    }
-                    if (i % 2 == 0)
-                    {
-                        msg.AddNote("Mail not actually sent, devmode enabled etc.");
-                    }
-                    _memoryMessageStore.StoreMessage("sms", msg);
-                }
-                for (int i = 0; i < 13; i++)
-                {
-                    var msg = new HCDefaultMessageItem($"Subject #{i}, totally not spam", $"test_{i}@somewhe.re", $"to@{i}mail.com",
-                            $"<html>" +
-                            $"<body>" +
-                            $"<style>" +
-                            $"div {{" +
-                            $"display: inline-block;" +
-                            $"font-size: 40px !important;" +
-                            $"color: red !important;" +
-                            $"}}" +
-                            $"</style>" +
-                            $"<h3>Super fancy contents here!</h3>Now <b>this</b> is a mail! #{i} or <div>something</div> <img src=\"https://picsum.photos/200\" />.'" +
-                            $"</body>" +
-                            $"</html>", true);
-                    if (i % 5 == 0)
-                    {
-                        msg.SetError("Failed to send because of invalid email.");
-                    }
-                    _memoryMessageStore.StoreMessage("mail", msg);
-                }
-            }
-
-            if (FlatFileSecureFileDownloadDefinitionStorage.GetDefinitionByUrlSegmentText("test") == null)
-            {
-                FlatFileSecureFileDownloadDefinitionStorage.CreateDefinition(new SecureFileDownloadDefinition
-                {
-                    CreatedAt = DateTimeOffset.Now,
-                    //DownloadCountLimit = 5,
-                    //ExpiresAt = 
-                    FileId = "testA.jpg",
-                    FileName = "Test File A.jpg",
-                    Id = Guid.NewGuid(),
-                    StorageId = "files_test",
-                    UrlSegmentText = "test"
-                });
-            }
-            if (FlatFileSecureFileDownloadDefinitionStorage.GetDefinitionByUrlSegmentText("test_url") == null)
-            {
-                FlatFileSecureFileDownloadDefinitionStorage.CreateDefinition(new SecureFileDownloadDefinition
-                {
-                    CreatedAt = DateTimeOffset.Now,
-                    //DownloadCountLimit = 5,
-                    //ExpiresAt = 
-                    FileId = "https://via.placeholder.com/500x400",
-                    FileName = "Test File B.jpg",
-                    Id = Guid.NewGuid(),
-                    StorageId = "urls_test",
-                    UrlSegmentText = "test_url"
-                });
-            }
-
-            if (Request.QueryString.AllKeys.Contains("eventsink"))
-            {
-                var count = 10;
-                if (int.TryParse(Request.QueryString["eventsink"], out int eventSinkCount))
-                {
-                    count = eventSinkCount;
-                }
-
-                Task.Run(() =>
-                {
-                    Parallel.ForEach(Enumerable.Range(1, count), (i) =>
-                    {
-                        EventSink.RegisterEvent("event_parallel_test", new
-                        {
-                            Number = i,
-                            TimeStamp = DateTimeOffset.Now,
-                            RandomValue = new Random().Next(1000),
-                            Guid = Guid.NewGuid()
-                        });
-                    });
-                });
-            }
-
-            if (Request.QueryString.AllKeys.Contains("stream"))
-            {
-                var someExternalItems = new[]
-                {
-                    new TestEntry() { Code = "6235235", Name = "Name A" },
-                    new TestEntry() { Code = "1234", Name = "Name B" },
-                    new TestEntry() { Code = "235235", Name = "Name C" }
-                };
-
-                simpleStream.InsertEntries(someExternalItems.Select(x => GenericDataflowStreamObject.Create(x)));
-                memoryStream.InsertEntry($"Test item @ {DateTimeOffset.Now}");
-                testStreamA.InsertEntries(someExternalItems);
-            }
-
-            if (Request.QueryString.AllKeys.Contains("events") && int.TryParse(Request.QueryString["events"], out int eventCount))
-            {
-                for (int i=0;i< eventCount; i++)
-                {
-                    EventSink.RegisterEvent("thing_imported", new
-                    {
-                        Code = 9999 + i,
-                        DisplayName = $"Some item #{9999 + i}",
-                        PublicUrl = $"/products/item_{i}"
-                    });
-                }
-            }
-
             var result = base.Index();
             HCMetricsContext.EndAllTimings();
             return result;
@@ -589,35 +462,6 @@ namespace HealthCheck.DevTest.Controllers
             if (!System.IO.File.Exists(filepath)) return Content("");
             return new FileStreamResult(System.IO.File.Open(filepath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), contentType);
         }
-
-        public ActionResult TestEvent(int v = 1)
-        {
-            object payload = v switch
-            {
-                3 => new
-                {
-                    Url = Request.RawUrl,
-                    User = CurrentRequestInformation?.UserName,
-                    SettingValue = SettingsService.GetSettings<TestSettings>().IntProp,
-                    ExtraB = "BBBB"
-                },
-                2 => new
-                {
-                    Url = Request.RawUrl,
-                    User = CurrentRequestInformation?.UserName,
-                    SettingValue = SettingsService.GetSettings<TestSettings>().IntProp,
-                    ExtraA = "AAAA"
-                },
-                _ => new
-                {
-                    Url = Request.RawUrl,
-                    User = CurrentRequestInformation?.UserName,
-                    SettingValue = SettingsService.GetSettings<TestSettings>().IntProp
-                },
-            };
-            EventSink.RegisterEvent("pageload", payload);
-            return Content($"Registered variant #{v}");
-        }
         
         public ActionResult Logout()
         {
@@ -683,13 +527,6 @@ namespace HealthCheck.DevTest.Controllers
                 maxEventAge: TimeSpan.FromDays(30), delayFirstCleanup: false, blobStorage: blobService);
         }
 
-        private static bool _hasInited = false;
-        private void InitOnce()
-        {
-            _hasInited = true;
-            Task.Run(() => AddEvents());
-        }
-
         private void InitServices()
         {
             if (_siteEventService == null)
@@ -702,7 +539,7 @@ namespace HealthCheck.DevTest.Controllers
             {
                 Streams = new IDataflowStream<RuntimeTestAccessRole>[]
                 {
-                    testStreamA,
+                    TestStreamA,
                     testStreamB,
                     testStreamC,
                     simpleStream,
@@ -719,107 +556,6 @@ namespace HealthCheck.DevTest.Controllers
                 .AddPlaceholder("ServerName", () => Environment.MachineName);
             (EventSink as DefaultEventDataSink).IsEnabled = () => SettingsService.GetSettings<TestSettings>().EnableEventRegistering;
         }
-
-        // New mock data
-        public async Task<ActionResult> AddEvents()
-        {
-            if ((await _siteEventService.GetEvents(DateTimeOffset.MinValue, DateTimeOffset.MaxValue)).Count == 0)
-            {
-                for (int i = 0; i < 20; i++)
-                {
-                    await AddEvent();
-                }
-                return Content("Mock events reset");
-            }
-            else
-            {
-                return Content("Already have some mock events in place");
-            }
-        }
-
-        public ActionResult AddDataflow(int count = 10)
-        {
-            var entriesToInsert = Enumerable.Range(1, count)
-                .Select(i => new TestEntry
-                {
-                    Code = $"000{i}-P",
-                    Name = $"Entry [{DateTimeOffset.Now}]"
-                })
-                .ToList();
-
-            testStreamA.InsertEntries(entriesToInsert);
-
-            return Content("OK :]");
-        }
-
-        // New mock data
-        private static readonly Random _rand = new();
-        public async Task<ActionResult> AddEvent()
-        {
-            if (!Enabled || _siteEventService == null) return HttpNotFound();
-
-            CreateSomeData(out string title, out string description);
-            var severity = SiteEventSeverity.Information;
-            if (_rand.Next(100) < 10)
-            {
-                severity = SiteEventSeverity.Fatal;
-            }
-            else if (_rand.Next(100) < 25)
-            {
-                severity = SiteEventSeverity.Error;
-            }
-            else if (_rand.Next(100) < 50)
-            {
-                severity = SiteEventSeverity.Warning;
-            }
-
-            var ev = new SiteEvent(
-                severity, $"Error type {_rand.Next(10000)}",
-                title, description,
-                duration: _rand.Next(1, 90)
-            ) {
-                Timestamp = DateTimeOffset.Now
-                    .AddDays(-7 + _rand.Next(7))
-                    .AddMinutes(_rand.Next(0, 24 * 60))
-            }
-            .AddRelatedLink("Page that failed", "https://www.google.com?etc")
-            .AddRelatedLink("Error log", "https://www.google.com?q=errorlog");
-
-            await _siteEventService.StoreEvent(ev);
-            return CreateJsonResult(ev);
-        }
-
-        private string AddXFix(string subject, string xfix)
-        {
-            if (xfix.Contains("|"))
-            {
-                var parts = xfix.Split('|');
-                var prefix = parts[0];
-                var suffix = parts[1];
-                return $"{prefix} {subject}{suffix}";
-            } else
-            {
-                return $"{xfix}{subject}";
-            }
-        }
-
-        private void CreateSomeData(out string title, out string description)
-        {
-            var subject = _subjects.RandomElement(_rand);
-            subject = AddXFix(subject, _subjectXFixes.RandomElement(_rand));
-            var accident = _accidents.RandomElement(_rand);
-            var reaction = _reactions.RandomElement(_rand);
-            var reactor = _subjects.RandomElement(_rand);
-            reactor = AddXFix(reactor, _subjectXFixes.RandomElement(_rand));
-
-            title = $"{subject} {accident}".CapitalizeFirst();
-            description = $"{subject} {accident} and {reactor} is {reaction}.".CapitalizeFirst();
-        }
-
-        private readonly string[] _subjectXFixes = new[] { "the ", "an unknown ", "most of the |s", "several of the |s", "one of the |s" };
-        private readonly string[] _subjects = new[] { "service", "server", "integration", "frontpage", "developer", "codebase", "project manager", "CEO" };
-        private readonly string[] _accidents = new[] { "is on fire", "exploded", "is slow", "decided to close", "is infected with ransomware", "is not happy", "don't know what to do" };
-        private readonly string[] _reactions = new[] { "on fire", "not pleased", "confused", "not happy", "leaving" };
         #endregion
     }
 }
