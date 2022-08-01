@@ -1,5 +1,5 @@
 <template>
-    <Teleport to="body">
+    <TeleportFix to="body">
     <div class="dialog-component" :class="rootClasses" :style="rootStyle" v-show="localValue">
         <div class="dialog-component_modal_wrapper" @click.self.prevent="onClickOutside" ref="modalWrapper">
             <div class="dialog-component_modal" :style="dialogStyle">
@@ -20,17 +20,23 @@
             </div>
         </div>
     </div>
-    </Teleport>
+    </TeleportFix>
 </template>
 
 <script lang="ts">
 import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
 import { Options } from "vue-class-component";
+import { Teleport as teleport_, TeleportProps, VNodeProps } from 'vue';
 import ValueUtils from '@util/ValueUtils'
 import EventBus, { CallbackUnregisterShortcut } from "@util/EventBus";
 
+const TeleportFix = teleport_ as {
+  new (): {
+    $props: VNodeProps & TeleportProps
+  }
+}
 @Options({
-    components: {},
+    components: { TeleportFix },
     emits: ['close']
 })
 export default class DialogComponent extends Vue {

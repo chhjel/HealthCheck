@@ -38,7 +38,7 @@
                     v-if="placeholderText && !showInput">{{ placeholderText }}</span>
             </div>
         </div>
-        <Teleport to="body">
+        <TeleportFix to="body">
             <div class="select-component__dropdown box-shadow" v-show="showDropdown" ref="dropdownElement">
                 <div class="select-component__dropdown__items">
                     <div v-for="(item, iIndex) in filteredOptionItems"
@@ -55,7 +55,7 @@
                 </div>                
                 <div v-if="noDataText && filteredOptionItems.length == 0" class="select-component__statusText">{{ noDataText }}</div>
             </div>
-        </Teleport>
+        </TeleportFix>
 
         <progress-linear-component v-if="isLoading" indeterminate height="3" />
 
@@ -66,6 +66,7 @@
 <script lang="ts">
 import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
 import { Options } from "vue-class-component";
+import { Teleport as teleport_, TeleportProps, VNodeProps } from 'vue';
 import IdUtils from "@util/IdUtils";
 import InputHeaderComponent from "./InputHeaderComponent.vue";
 import ValueUtils from "@util/ValueUtils";
@@ -77,6 +78,11 @@ interface Item {
     text: string;
 }
 
+const TeleportFix = teleport_ as {
+  new (): {
+    $props: VNodeProps & TeleportProps
+  }
+}
 @Options({
     components: { InputHeaderComponent }
 })
