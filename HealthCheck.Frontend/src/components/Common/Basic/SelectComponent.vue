@@ -84,7 +84,7 @@ const TeleportFix = teleport_ as {
   }
 }
 @Options({
-    components: { InputHeaderComponent }
+    components: { InputHeaderComponent, TeleportFix }
 })
 export default class SelectComponent extends Vue
 {
