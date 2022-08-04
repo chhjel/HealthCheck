@@ -1,4 +1,5 @@
-﻿using HealthCheck.Core.Modules.SiteEvents.Enums;
+﻿using HealthCheck.Core.Models;
+using HealthCheck.Core.Modules.SiteEvents.Enums;
 using HealthCheck.Core.Modules.SiteEvents.Models;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
@@ -42,8 +43,8 @@ namespace HealthCheck.Dev.Common.Tests
         }
 
         [RuntimeTest]
-        [RuntimeTestParameter(target: "textArea", "Text Area", "Testing a text area here", RuntimeTestParameterAttribute.UIHint.TextArea | RuntimeTestParameterAttribute.UIHint.FullWidth)]
-        [RuntimeTestParameter(target: "codeArea", "Code Area", "Testing a code area here", RuntimeTestParameterAttribute.UIHint.CodeArea)]
+        [RuntimeTestParameter(target: "textArea", "Text Area", "Testing a text area here", HCUIHint.TextArea | HCUIHint.FullWidth)]
+        [RuntimeTestParameter(target: "codeArea", "Code Area", "Testing a code area here", HCUIHint.CodeArea)]
         [RuntimeTestParameter(target: "nullableEnm", "Nullable Enum", "Some description", nullName: "<any>")]
         public TestResult TestParameterTypes(
             DateTime date, [RuntimeTestParameter(nullName: "<no date>")] DateTime? nullableDate = null,
@@ -196,9 +197,9 @@ namespace HealthCheck.Dev.Common.Tests
 
         [RuntimeTest]
         [RuntimeTestParameter("stringList", "A read only string list", "Fancy description 1", 
-            uiHints: RuntimeTestParameterAttribute.UIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListTest_Default))]
+            uiHints: HCUIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListTest_Default))]
         [RuntimeTestParameter("enumList", "A read only enum list", "Fancy description 2",
-            uiHints: RuntimeTestParameterAttribute.UIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListEnumTest_Default))]
+            uiHints: HCUIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListEnumTest_Default))]
         public TestResult ReadOnlyListTest(List<string> stringList, List<EnumTestType> enumList)
         {
             return TestResult.CreateSuccess($"Got lists")
@@ -283,7 +284,7 @@ namespace HealthCheck.Dev.Common.Tests
         )]
         [RuntimeTestParameter(target: "id", name: "Data id", description: "Id of the thing to get")]
         [RuntimeTestParameter(target: "orgName", name: "Organization name", description: "Name of the organization the data belongs to",
-            uiHints: RuntimeTestParameterAttribute.UIHint.NotNull)]
+            uiHints: HCUIHint.NotNull)]
         [RuntimeTestParameter(target: "latestOnly", name: "Only get the latest data", description: "If true only the latest data will be retrieved")]
         public async Task<TestResult> GetDataFromX(int id = 123, string orgName = "Test Organization", bool latestOnly = false, int someNumber = 42)
         {

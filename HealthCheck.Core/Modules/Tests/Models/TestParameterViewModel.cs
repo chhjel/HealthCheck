@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using HealthCheck.Core.Models;
+using System.Collections.Generic;
 
 namespace HealthCheck.Core.Modules.Tests.Models
 {
@@ -38,9 +39,9 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public List<string> PossibleValues { get; set; }
 
         /// <summary>
-        /// Do not allow null-values to be entered in the user interface. Does not affect nullable parameters.
+        /// Any UIHint flags configured for this parameter.
         /// </summary>
-        public bool NotNull { get; set; }
+        public List<HCUIHint> UIHints { get; set; }
 
         /// <summary>
         /// Use to override the label/placeholder/name displayed for any null-value.
@@ -48,29 +49,14 @@ namespace HealthCheck.Core.Modules.Tests.Models
         public string NullName { get; set; }
 
         /// <summary>
-        /// Only affects generic lists. Does not allow new entries to be added, or existing entries to be changed.
-        /// </summary>
-        public bool ReadOnlyList { get; set; }
-
-        /// <summary>
-        /// Show as text area if this is a string.
-        /// </summary>
-        public bool ShowTextArea { get; set; }
-
-        /// <summary>
-        /// Show as vscode text input if this is a string.
-        /// </summary>
-        public bool ShowCodeArea { get; set; }
-
-        /// <summary>
-        /// Make the input field full width in size.
-        /// </summary>
-        public bool FullWidth { get; set; }
-
-        /// <summary>
         /// True when a custom parameter factory has been defined for this type.
         /// </summary>
         public bool IsCustomReferenceType { get; set; }
+
+        /// <summary>
+        /// Used in frontend.
+        /// </summary>
+        public bool IsUnsupportedJson { get; set; }
 
         /// <summary>
         /// Config for ReferenceValueFactory if any.

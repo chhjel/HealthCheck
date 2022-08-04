@@ -5,5 +5,7 @@
 export enum EndpointControlFilterMode { 
 	Matches = "Matches", 
 	Contains = "Contains", 
-	RegEx = "RegEx"
+	RegEx = "RegEx", 
+	StartsWith = "StartsWith", 
+	EndsWith = "EndsWith"
 }

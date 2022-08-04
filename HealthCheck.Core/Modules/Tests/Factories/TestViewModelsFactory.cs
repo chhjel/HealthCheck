@@ -123,12 +123,8 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 DefaultValue = stringConverter.ConvertToString(testParameter.DefaultValue),
                 PossibleValues = testParameter?.PossibleValues?.Select(x => stringConverter.ConvertToString(x))?.ToList(),
                 Type = type,
-                NotNull = testParameter.NotNull,
+                UIHints = testParameter?.UIHints ?? new(),
                 NullName = testParameter.NullName,
-                ReadOnlyList = testParameter.ReadOnlyList,
-                ShowTextArea = testParameter.ShowTextArea,
-                ShowCodeArea = testParameter.ShowCodeArea,
-                FullWidth = testParameter.FullWidth,
                 IsCustomReferenceType = testParameter.IsCustomReferenceType,
                 Hidden = hidden,
                 ReferenceValueFactoryConfig = CreateReferenceValueFactoryConfig(testParameter.ReferenceFactory)

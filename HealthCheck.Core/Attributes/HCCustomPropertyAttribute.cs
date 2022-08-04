@@ -35,29 +35,6 @@ namespace HealthCheck.Core.Attributes
 
         private static readonly HCStringConverter _stringConverter = new();
 
-        /// <summary>
-        /// Create flags options for frontend consumption.
-        /// </summary>
-        protected virtual List<string> CreateFlags()
-        {
-            var flags = new List<string>();
-
-            if (UIHints.HasFlag(HCUIHint.ReadOnlyList))
-            {
-                flags.Add("ReadOnlyList");
-            }
-            if (UIHints.HasFlag(HCUIHint.TextArea))
-            {
-                flags.Add("TextArea");
-            }
-            if (UIHints.HasFlag(HCUIHint.CodeArea))
-            {
-                flags.Add("CodeArea");
-            }
-
-            return flags;
-        }
-
         /// <summary></summary>
         protected virtual Dictionary<string, string> GetExtraValues() => new();
 
@@ -113,11 +90,10 @@ namespace HealthCheck.Core.Attributes
                 Type = CreateParameterTypeName(type),
                 Description = attr?.Description ?? "",
                 Nullable = isNullable,
-                NotNull = attr?.UIHints.HasFlag(HCUIHint.NotNull) == true,
                 NullName = attr?.NullName,
-                FullWidth = attr?.UIHints.HasFlag(HCUIHint.FullWidth) == true,
                 DefaultValue = defaultValue,
-                Flags = attr?.CreateFlags() ?? new List<string>(),
+                Flags = new(),
+                UIHints = EnumUtils.GetFlaggedEnumValues<HCUIHint>(attr?.UIHints) ?? new(),
                 ParameterIndex = null,
                 PossibleValues = possibleValues,
                 ExtraValues = attr?.GetExtraValues() ?? new Dictionary<string, string>(),

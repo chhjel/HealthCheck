@@ -25,10 +25,11 @@
 <script lang="ts">
 import { Vue, Prop } from "vue-property-decorator";
 import { Options } from "vue-class-component";
-import TestViewModel from '@models/modules/TestSuite/TestViewModel';
-import TestParameterViewModel from '@models/modules/TestSuite/TestParameterViewModel';
 import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
 import BackendInputComponent from "@components/Common/Inputs/BackendInputs/BackendInputComponent.vue";
+import { TestViewModel } from "@generated/Models/Core/TestViewModel";
+import { TestParameterViewModel } from "@generated/Models/Core/TestParameterViewModel";
+import { HCUIHint } from "@generated/Enums/Core/HCUIHint";
 
 @Options({
     components: {
@@ -50,14 +51,14 @@ export default class TestParametersComponent extends Vue {
         'TimeSpan',
         'Nullable<TimeSpan>'
       ];
-      return !parameter.FullWidth
+      return !parameter.UIHints.includes(HCUIHint.FullWidth)
         && !largerParameters.some(x => parameter.Type == x)
-        && !(parameter.Type == 'String' && parameter.ShowTextArea && parameter.ShowCodeArea);
+        && !(parameter.Type == 'String' && parameter.UIHints.includes(HCUIHint.TextArea) && parameter.UIHints.includes(HCUIHint.CodeArea));
     }
 
     allowMediumSize(parameter: TestParameterViewModel): boolean
     {
-      return !parameter.FullWidth;
+      return !parameter.UIHints.includes(HCUIHint.FullWidth);
     }
 
     cleanType(type: string): string {
@@ -75,20 +76,16 @@ export default class TestParametersComponent extends Vue {
 
     createConfig(parameter: TestParameterViewModel, index: number): HCBackendInputConfig {
       let flags: Array<string> = [];
-      if (parameter.ShowTextArea) { flags.push('TextArea') };
-      if (parameter.ShowCodeArea) { flags.push('CodeArea') };
-      if (parameter.ReadOnlyList) { flags.push('ReadOnlyList') };
 
       return {
         Id: parameter.Name,
         Type: parameter.Type,
         Name: parameter.Name,
         Description: parameter.Description,
-        NotNull: parameter.NotNull,
         Nullable: parameter.Type.startsWith("Nullable"),
         DefaultValue: parameter.DefaultValue,
         Flags: flags,
-        FullWidth: parameter.FullWidth,
+        UIHints: parameter.UIHints,
         PossibleValues: parameter.PossibleValues,
         ParameterIndex: index,
         ExtraValues: {},

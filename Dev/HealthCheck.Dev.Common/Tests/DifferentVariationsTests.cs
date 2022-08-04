@@ -1,10 +1,8 @@
-﻿using HealthCheck.Core.Modules.SiteEvents.Enums;
-using HealthCheck.Core.Modules.SiteEvents.Models;
+﻿using HealthCheck.Core.Models;
 using HealthCheck.Core.Modules.Tests.Attributes;
 using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Modules.Tests.Utils.HtmlPresets;
 using HealthCheck.WebUI.Extensions;
-using HealthCheck.WebUI.Serializers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,8 +39,8 @@ namespace HealthCheck.Dev.Common.Tests
         }
 
         [RuntimeTest]
-        [RuntimeTestParameter(target: "textArea", "Text Area", "Testing a text area here", RuntimeTestParameterAttribute.UIHint.TextArea | RuntimeTestParameterAttribute.UIHint.FullWidth)]
-        [RuntimeTestParameter(target: "codeArea", "Code Area", "Testing a code area here", RuntimeTestParameterAttribute.UIHint.CodeArea)]
+        [RuntimeTestParameter(target: "textArea", "Text Area", "Testing a text area here", HCUIHint.TextArea | HCUIHint.FullWidth)]
+        [RuntimeTestParameter(target: "codeArea", "Code Area", "Testing a code area here", HCUIHint.CodeArea)]
         [RuntimeTestParameter(target: "nullableEnm", "Nullable Enum", "Some description", nullName: "<any>")]
         public TestResult TestParameterTypes(
             Guid guid, Guid? nullableGuid,
@@ -147,9 +145,9 @@ namespace HealthCheck.Dev.Common.Tests
 
         [RuntimeTest]
         [RuntimeTestParameter("stringList", "A read only string list", "Fancy description 1", 
-            uiHints: RuntimeTestParameterAttribute.UIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListTest_Default))]
+            uiHints: HCUIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListTest_Default))]
         [RuntimeTestParameter("enumList", "A read only enum list", "Fancy description 2",
-            uiHints: RuntimeTestParameterAttribute.UIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListEnumTest_Default))]
+            uiHints: HCUIHint.ReadOnlyList, DefaultValueFactoryMethod = nameof(ReadOnlyListEnumTest_Default))]
         public TestResult ReadOnlyListTest(List<string> stringList, List<EnumTestType> enumList)
         {
             return TestResult.CreateSuccess($"Got lists")

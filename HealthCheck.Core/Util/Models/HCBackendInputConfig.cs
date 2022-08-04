@@ -1,4 +1,5 @@
 ﻿using HealthCheck.Core.Attributes;
+using HealthCheck.Core.Models;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -20,13 +21,7 @@ namespace HealthCheck.Core.Util.Models
         public string Description { get; set; }
 
         /// <summary></summary>
-        public bool NotNull { get; set; }
-
-        /// <summary></summary>
         public bool Nullable { get; set; }
-
-        /// <summary></summary>
-        public bool FullWidth { get; set; }
 
         /// <summary></summary>)
         public string DefaultValue { get; set; }
@@ -36,6 +31,9 @@ namespace HealthCheck.Core.Util.Models
 
         /// <summary></summary>
         public List<string> Flags { get; set; }
+
+        /// <summary></summary>
+        public List<HCUIHint> UIHints { get; set; }
 
         /// <summary></summary>
         public List<string> PossibleValues { get; set; }

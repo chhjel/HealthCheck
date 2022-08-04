@@ -16,7 +16,7 @@ namespace HealthCheck.Dev.Common.Settings
         [HCSetting(GroupName = "Service X")]
         public bool EnableX { get; set; }
 
-        [HCSetting(GroupName = "Service X")]
+        [HCSetting(GroupName = "Service X", UIHints = Core.Models.HCUIHint.CodeArea)]
         public string ConnectionString { get; set; } = "This is default";
 
         [HCSetting(GroupName = "Service X")]

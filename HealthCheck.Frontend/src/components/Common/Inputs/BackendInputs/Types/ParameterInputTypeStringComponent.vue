@@ -41,6 +41,7 @@ import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
 import EditorComponent from '@components/Common/EditorComponent.vue'
+import { HCUIHint } from "@generated/Enums/Core/HCUIHint";
 
 @Options({
     components: {
@@ -85,11 +86,11 @@ export default class ParameterInputTypeStringComponent extends Vue {
     }
 
     get isTextArea(): boolean {
-        return this.config.Flags.includes('TextArea');
+        return this.config.UIHints.includes(HCUIHint.TextArea);
     }
 
     get isCodeArea(): boolean {
-        return this.config.Flags.includes('CodeArea');
+        return this.config.UIHints.includes(HCUIHint.CodeArea);
     }
 
     get isTextField(): boolean {
@@ -122,7 +123,7 @@ export default class ParameterInputTypeStringComponent extends Vue {
     }
 
     validateValue(): void {
-        if (this.localValue == null && this.config.NotNull) {
+        if (this.localValue == null && this.config.UIHints.includes(HCUIHint.NotNull)) {
             this.localValue = "";
         }
     }

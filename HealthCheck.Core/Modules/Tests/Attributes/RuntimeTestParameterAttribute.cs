@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthCheck.Core.Models;
+using System;
 
 namespace HealthCheck.Core.Modules.Tests.Attributes
 {
@@ -33,7 +34,7 @@ namespace HealthCheck.Core.Modules.Tests.Attributes
         /// <summary>
         /// Hint of how to display a parameter input.
         /// </summary>
-        public UIHint UIHints { get; set; }
+        public HCUIHint UIHints { get; set; }
 
         /// <summary>
         /// Use to override the label/placeholder/name displayed for any null-value.
@@ -48,7 +49,7 @@ namespace HealthCheck.Core.Modules.Tests.Attributes
         /// <param name="description">Description text that will be visible as a help text.</param>
         /// <param name="uiHints">Optional hints for display options.</param>
         /// <param name="nullName">Use to override the label/placeholder/name displayed for any null-value.</param>
-        public RuntimeTestParameterAttribute(string target, string name, string description, UIHint uiHints = UIHint.None, string nullName = null)
+        public RuntimeTestParameterAttribute(string target, string name, string description, HCUIHint uiHints = HCUIHint.None, string nullName = null)
         {
             Target = target;
             Name = name;
@@ -65,7 +66,7 @@ namespace HealthCheck.Core.Modules.Tests.Attributes
         /// <param name="description">Description text that will be visible as a help text.</param>
         /// <param name="uIHints">Optional hints for display options.</param>
         /// <param name="nullName">Use to override the label/placeholder/name displayed for any null-value.</param>
-        public RuntimeTestParameterAttribute(string name = null, string description = null, UIHint uIHints = UIHint.None, string nullName = null)
+        public RuntimeTestParameterAttribute(string name = null, string description = null, HCUIHint uIHints = HCUIHint.None, string nullName = null)
         {
             Name = name;
             Description = description;
@@ -73,42 +74,22 @@ namespace HealthCheck.Core.Modules.Tests.Attributes
             NullName = nullName;
         }
 
-        /// <summary>
-        /// Hint of how to display a parameter input.
-        /// </summary>
+        /// <summary>Deprecated, use HCUIHint instead.</summary>
         [Flags]
-        public enum UIHint
-        {
-            /// <summary>
-            /// Default.
-            /// </summary>
+        [Obsolete("Use HealthCheck.Core.Models.HCUIHint instead.")]
+        public enum UIHint {
+            /// <summary></summary>
             None = 0,
-
-            /// <summary>
-            /// Null-values will not be allowed to be entered in the user interface. Does not affect nullable parameters.
-            /// </summary>
+            /// <summary></summary>
             NotNull = 1,
-
-            /// <summary>
-            /// Only affects strings. Shows a multi-line text area instead of a small input field.
-            /// </summary>
+            /// <summary></summary>
             TextArea = 2,
-
-            /// <summary>
-            /// Only affects generic lists. Does not allow new entries to be added, or existing entries to be changed.
-            /// </summary>
+            /// <summary></summary>
             ReadOnlyList = 4,
-
-            /// <summary>
-            /// Make the input field full width in size.
-            /// </summary>
+            /// <summary></summary>
             FullWidth = 8,
-
-            /// <summary>
-            /// Make the input field a full width vscode editor.
-            /// </summary>
+            /// <summary></summary>
             CodeArea = 16
         }
-
     }
 }

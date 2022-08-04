@@ -58,6 +58,7 @@ import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfi
 import TestsUtils from "@util/TestsModule/TestsUtils";
 import { ReferenceValueFactoryConfigViewModel } from "@generated/Models/Core/ReferenceValueFactoryConfigViewModel";
 import { StoreUtil } from "@util/StoreUtil";
+import { HCUIHint } from "@generated/Enums/Core/HCUIHint";
 
 interface ListItem {
     id: string;
@@ -126,7 +127,7 @@ export default class ParameterInputTypeGenericListComponent extends Vue {
     }
 
     get isReadOnlyList(): boolean {
-        return this.config.Flags.includes("ReadOnlyList");
+        return this.config.UIHints.includes(HCUIHint.ReadOnlyList);
     }
 
     notifyIsAnyJson(): void {

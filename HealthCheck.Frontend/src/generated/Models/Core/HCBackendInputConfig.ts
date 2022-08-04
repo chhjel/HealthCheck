@@ -2,18 +2,19 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import { HCUIHint } from '../../Enums/Core/HCUIHint';
+
 export interface HCBackendInputConfig
 {
 	Type: string;
 	Id: string;
 	Name: string;
 	Description: string;
-	NotNull: boolean;
 	Nullable: boolean;
-	FullWidth: boolean;
 	DefaultValue: string;
 	NullName: string;
 	Flags: string[];
+	UIHints: HCUIHint[];
 	PossibleValues: string[];
 	ParameterIndex: number | null;
 	ExtraValues: { [key:string]: string };

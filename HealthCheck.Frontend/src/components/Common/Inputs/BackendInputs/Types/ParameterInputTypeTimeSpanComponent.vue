@@ -28,6 +28,7 @@ import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
 import TimespanInputComponent from '@components/Common/Basic/TimespanInputComponent.vue'
+import { HCUIHint } from "@generated/Enums/Core/HCUIHint";
 
 @Options({
     components: {
@@ -91,7 +92,7 @@ export default class ParameterInputTypeTimeSpanComponent extends Vue {
     }
 
     validateValue(): void {
-        if (this.localValue == null && this.config.NotNull) {
+        if (this.localValue == null && this.config.UIHints.includes(HCUIHint.NotNull)) {
             this.localValue = "0:0:0";
         }
         if (this.localValue != null && !this.localValue.includes(':'))

@@ -99,6 +99,28 @@ namespace HealthCheck.Core.Util
         }
 
         /// <summary>
+        /// Get all flagged values.
+        /// </summary>
+        public static List<T> GetFlaggedEnumValues<T>(object obj)
+            where T : Enum
+        {
+            var results = new List<T>();
+            if (!IsEnumFlag(obj))
+                return results;
+            var type = obj.GetType();
+
+            foreach (var flagToCheckFor in Enum.GetValues(type))
+            {
+                var isFlagged = IsFlagSet(obj, flagToCheckFor);
+                if (isFlagged)
+                {
+                    results.Add((T)flagToCheckFor);
+                }
+            }
+            return results;
+        }
+
+        /// <summary>
         /// Check if the given object has any of the given flags set.
         /// </summary>
         public static bool EnumFlagHasAnyFlagsSet<TEnum>(TEnum enm, TEnum flagsToCheckFor)
