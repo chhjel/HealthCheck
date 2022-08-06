@@ -53,6 +53,7 @@ export default class TestParametersComponent extends Vue {
       ];
       return !parameter.UIHints.includes(HCUIHint.FullWidth)
         && !largerParameters.some(x => parameter.Type == x)
+        && !((parameter.Type == 'DateTimeOffset[]' || parameter.Type == 'DateTime[]' || parameter.Type == 'Nullable<DateTimeOffset>[]' || parameter.Type == 'Nullable<DateTime>[]') && parameter.UIHints.includes(HCUIHint.DateRange))
         && !(parameter.Type == 'String' && parameter.UIHints.includes(HCUIHint.TextArea) && parameter.UIHints.includes(HCUIHint.CodeArea));
     }
 
@@ -65,7 +66,10 @@ export default class TestParametersComponent extends Vue {
       if (type.startsWith("Nullable<"))
       {
         type = type.substring("Nullable<".length);
-        type = type.substr(0, type.length - 1);
+        const lastIndexOfEndTag = type.lastIndexOf(">");
+        if (lastIndexOfEndTag > -1) {
+          type = type.slice(0, lastIndexOfEndTag) + type.slice(lastIndexOfEndTag + 1);
+        }
       }
       else if (type.startsWith("Nullable"))
       {

@@ -46,6 +46,10 @@ namespace HealthCheck.Dev.Common.Tests
             Guid guid, Guid? nullableGuid,
             DateTime date, [RuntimeTestParameter(nullName: "<no date>")] DateTime? nullableDate = null,
             DateTimeOffset dateOffset = default, [RuntimeTestParameter(nullName: "<no datetimeoffset>")] DateTimeOffset? nullableDateOffset = null,
+            /*[RuntimeTestParameter(UIHints = HCUIHint.DateRange)] */DateTime[] dateRange = default,
+            /*[RuntimeTestParameter(UIHints = HCUIHint.DateRange)] */DateTimeOffset[] dateOffsetRange = default,
+            /*[RuntimeTestParameter(UIHints = HCUIHint.DateRange)] */DateTime?[] nullableDateRange = default,
+            /*[RuntimeTestParameter(UIHints = HCUIHint.DateRange)] */DateTimeOffset?[] nullableDateOffsetRange = default,
             string text = "abc",
             string textArea = "abc\ndef",
             int number = 123, [RuntimeTestParameter(nullName: "<no number pls>")] int? nullableNumber = 321,
@@ -63,9 +67,43 @@ namespace HealthCheck.Dev.Common.Tests
         )
         {
             return TestResult
-                .CreateSuccess($"Ok - guid:{guid}, nullableGuid:{nullableGuid}, nullableBool:{(nullableBool?.ToString() ?? "null")}|enm:{enm}|nullableEnm:{nullableEnm}|nullableEnmDefNull:{nullableEnmDefNull}|Code:{codeArea}|date:{date}|nullableDate:{nullableDate}|dateOffset:{dateOffset}|nullableDateOffset:{nullableDateOffset}|")
+                .CreateSuccess($"Ok - |" +
+                $"dateRange:{Dump(dateRange)}|dateOffsetRange:{Dump(dateOffsetRange)}|" +
+                $"nullableDateRange:{Dump(nullableDateRange)}|nullableDateOffsetRange:{Dump(nullableDateOffsetRange)}|" +
+                $"guid:{guid}, nullableGuid:{nullableGuid}, nullableBool:{(nullableBool?.ToString() ?? "null")}|" +
+                $"enm:{enm}|nullableEnm:{nullableEnm}|nullableEnmDefNull:{nullableEnmDefNull}|Code:{codeArea}|" +
+                $"date:{date}|nullableDate:{nullableDate}|dateOffset:{dateOffset}|" +
+                $"nullableDateOffset:{nullableDateOffset}|")
                 .SetParametersFeedback(x => text == "all" ? "Some error here" : null)
                 .SetParameterFeedback(nameof(text), "Should not be empty pls", () => string.IsNullOrWhiteSpace(text));
+        }
+
+        private static string Dump(DateTime?[] dates)
+        {
+            var a = dates?.Length > 0 ? dates[0].ToString() ?? "null" : "null";
+            var b = dates?.Length > 1 ? dates[1].ToString() ?? "null" : "null";
+            return $"{a} => {b}";
+        }
+
+        private static string Dump(DateTime[] dates)
+        {
+            var a = dates?.Length > 0 ? dates[0].ToString() ?? "null" : "null";
+            var b = dates?.Length > 1 ? dates[1].ToString() ?? "null" : "null";
+            return $"{a} => {b}";
+        }
+
+        private static string Dump(DateTimeOffset[] dates)
+        {
+            var a = dates?.Length > 0 ? dates[0].ToString() ?? "null" : "null";
+            var b = dates?.Length > 1 ? dates[1].ToString() ?? "null" : "null";
+            return $"{a} => {b}";
+        }
+
+        private static string Dump(DateTimeOffset?[] dates)
+        {
+            var a = dates?.Length > 0 ? dates[0].ToString() ?? "null" : "null";
+            var b = dates?.Length > 1 ? dates[1].ToString() ?? "null" : "null";
+            return $"{a} => {b}";
         }
 
         [RuntimeTest]

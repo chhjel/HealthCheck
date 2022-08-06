@@ -54,6 +54,8 @@ namespace HealthCheck.Core.Modules.Tests.Utils
             typeof(bool), typeof(bool?),
             typeof(DateTime), typeof(DateTime?),
             typeof(DateTimeOffset), typeof(DateTimeOffset?),
+            typeof(DateTime[]), typeof(DateTime?[]),
+            typeof(DateTimeOffset[]), typeof(DateTimeOffset?[]),
             typeof(Enum),
             typeof(CancellationToken),
             typeof(Guid), typeof(Guid?)

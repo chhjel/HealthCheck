@@ -171,6 +171,11 @@ namespace HealthCheck.Core.Attributes
                 var innerType = EnumUtils.IsTypeEnumFlag(type.GetGenericArguments()[0]) ? "FlaggedEnum" : "Enum";
                 typeName = $"List<{innerType}>";
             }
+            else if (type.IsArray && type.GetElementType().IsNullable())
+            {
+                var innerType = CreateParameterTypeName(type.GetElementType());
+                typeName = $"{innerType}[]";
+            }
             return typeName;
         }
 

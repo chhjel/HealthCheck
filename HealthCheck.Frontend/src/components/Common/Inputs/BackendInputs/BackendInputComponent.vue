@@ -61,6 +61,7 @@ import IdUtils from '@util/IdUtils';
 import { ReferenceValueFactoryConfigViewModel } from "@generated/Models/Core/ReferenceValueFactoryConfigViewModel";
 import { TestModuleOptions } from "@components/modules/TestSuite/TestSuitesPageComponent.vue.models";
 import { StoreUtil } from "@util/StoreUtil";
+import { HCUIHint } from "@generated/Enums/Core/HCUIHint";
 
 @Options({
     name: "BackendInputComponent",
@@ -240,6 +241,14 @@ export default class BackendInputComponent extends Vue {
         else if (this.isCustomReferenceType)
         {
             return 'ParameterInputPickReferenceComponent';
+        }
+        else if (this.config.UIHints.includes(HCUIHint.DateRange)
+            && (this.config.Type == 'DateTimeOffset[]'
+             || this.config.Type == 'DateTime[]'
+             || this.config.Type == 'Nullable<DateTimeOffset>[]'
+             || this.config.Type == 'Nullable<DateTime>[]'))
+        {
+            return 'ParameterInputTypeDateTimeComponent';
         }
 
         typeName = typeName.replace('<', '').replace('>', '');

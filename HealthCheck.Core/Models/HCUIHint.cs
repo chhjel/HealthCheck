@@ -36,6 +36,13 @@ namespace HealthCheck.Core.Models
         /// <summary>
         /// Make the input field a full width vscode editor.
         /// </summary>
-        CodeArea = 16
+        CodeArea = 16,
+
+        /// <summary>
+        /// If used on DateTime[] or DateTimeOffset[] types, allows for selecting a daterange.
+        /// <para>Index 0 = start selection, index 1 = end selection.</para>
+        /// </summary>
+        [Obsolete("Currently bugged, don't use.")]
+        DateRange = 32,
     }
 }
