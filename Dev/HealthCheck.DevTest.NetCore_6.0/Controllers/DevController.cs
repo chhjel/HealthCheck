@@ -520,7 +520,7 @@ namespace HealthCheck.DevTest.NetCore_6._0.Controllers
         private ActionResult LoadFile(string filename, string contentType = "text/plain")
         {
             var filepath = GetFilePath($@"..\..\HealthCheck.Frontend\dist\{filename}");
-            if (!System.IO.File.Exists(filepath)) return Content("");
+            if (!System.IO.File.Exists(filepath)) return NotFound();
             return new FileStreamResult(new FileStream(filepath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), new MediaTypeHeaderValue(contentType))
             {
                 FileDownloadName = Path.GetFileName(filepath)
