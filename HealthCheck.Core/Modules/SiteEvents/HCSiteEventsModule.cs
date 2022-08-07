@@ -38,12 +38,12 @@ namespace HealthCheck.Core.Modules.SiteEvents
         /// <summary>
         /// Get frontend options for this module.
         /// </summary>
-        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => new
+        public override object GetFrontendOptionsObject(HealthCheckModuleContext context) => new HCSiteEventsModuleFrontendOptionsModel
         {
-            CurrentEventBufferMinutes = Options.CurrentEventBufferMinutes,
             FrontendAutoRefreshSecondsInterval = Options.FrontendAutoRefreshSecondsInterval,
             CustomHtml = Options.CustomHtml,
-            ShowFilter = Options.ShowFilter
+            ShowFilter = Options.ShowFilter,
+            Sections = Options.Sections
         };
 
         /// <summary>

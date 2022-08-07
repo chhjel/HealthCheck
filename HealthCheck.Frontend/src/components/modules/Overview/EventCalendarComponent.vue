@@ -2,7 +2,10 @@
 <template>
     <div>
         <!-- CALENDAR -->
-        <calendar-component :events="calendarEvents" @eventClicked="onEventClicked">
+        <calendar-component
+            :events="calendarEvents" @eventClicked="onEventClicked"
+            :initialMode="initialMode"
+            :allowedModes="allowedModes">
         </calendar-component>
     </div>
 </template>
@@ -24,6 +27,12 @@ import { CalendarComponentEvent } from "@components/Common/Basic/CalendarCompone
 export default class EventCalendarComponent extends Vue {
     @Prop({ required: true })
     events!: Array<SiteEventViewModel>;
+
+    @Prop({ required: false, default: '' })
+    initialMode: string;
+
+    @Prop({ required: false, default: null })
+    allowedModes: Array<string> | null;
 
     datepickerModal: boolean = false;
 

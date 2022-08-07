@@ -9,7 +9,7 @@
 import { Vue, Prop, Watch, Ref } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 // import '@fullcalendar/core/vdom' // solves problem with Vite
-import FullCalendar, { Calendar, CalendarOptions, DateRangeInput, DateSelectArg, EventApi, EventClickArg, EventInput } from '@fullcalendar/vue3';
+import FullCalendar, { Calendar, CalendarOptions, DateRangeInput, DateSelectArg, EventApi, EventClickArg, EventInput, ToolbarInput } from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
@@ -22,6 +22,12 @@ import { CalendarComponentEvent } from "./CalendarComponent.vue.models";
 export default class CalendarComponent extends Vue {
     @Prop({ required: true })
     events!: Array<CalendarComponentEvent<any>>;
+
+    @Prop({ required: false, default: '' })
+    initialMode: string;
+
+    @Prop({ required: false, default: null })
+    allowedModes: Array<string> | null;
 
     @Ref() readonly calendarElement!: Vue;
 
@@ -83,6 +89,13 @@ export default class CalendarComponent extends Vue {
     //////////////////
     //  LIFECYCLE  //
     ////////////////
+    created(): void {
+        let modes = (this.allowedModes != null && this.allowedModes.length > 0) ? this.allowedModes : [ 'dayGridMonth', 'timeGridWeek', 'timeGridDay', 'listWeek' ];
+        const modesString = modes.join(',');
+        (<ToolbarInput>this.calendarOptions.headerToolbar).right = modesString;
+        this.calendarOptions.initialView = this.initialMode || 'dayGridMonth';
+    }
+
     mounted(): void {
         this.updateCalendarEvents();
         this.updateValidRange();

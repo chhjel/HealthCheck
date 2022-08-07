@@ -59,16 +59,16 @@
                     <input-component v-if="showFilter" v-model:value="filterInternal" name="Filter" />
                 </div>
 
-                <status-component :type="summaryType" :text="summaryText" v-if="summaryText" />
+                <status-component :type="summaryType" :text="summaryText" v-if="summaryText && showTopStatus" />
 
                 <site-events-summary-component
-                    v-if="currentEvents.length > 0"
+                    v-if="currentEvents.length > 0 && showOngoingEvents"
                     :events="currentEvents"
                     v-on:eventClicked="showEventDetailsDialog" />
             </div>
 
             <!-- TIMELINE -->
-            <div v-if="showContent" class="mb-4">
+            <div v-if="showContent && showRecentEvents" class="mb-4">
                 <h2>Recent events</h2>
                 <event-timeline-component
                     :events="timelineEvents"
@@ -77,10 +77,12 @@
             </div>
 
             <!-- CALENDAR -->
-            <div v-if="showContent">
+            <div v-if="showContent && showCalendar">
                 <h2 class="mb-2">History</h2>
                 <event-calendar-component
                     :events="calendarEvents"
+                    :initialMode="initialCalendarMode"
+                    :allowedModes="allowedCalendarModes"
                     v-on:eventClicked="showEventDetailsDialog"
                     class="calendar" />
             </div>
@@ -160,16 +162,10 @@ import ModuleConfig from '@models/Common/ModuleConfig';
 import SiteEventViewModel from "@models/modules/SiteEvents/SiteEventViewModel";
 import { SiteEventSeverity } from "@models/modules/SiteEvents/SiteEventSeverity";
 import { SiteEvent } from "@generated/Models/Core/SiteEvent";
+import { HCSiteEventsModuleFrontendOptionsModel } from "@generated/Models/Core/HCSiteEventsModuleFrontendOptionsModel";
 import { StoreUtil } from "@util/StoreUtil";
 import InputComponent from "@components/Common/Basic/InputComponent.vue";
-
-interface OverviewPageOptions
-{
-    CurrentEventBufferMinutes: number;
-    FrontendAutoRefreshSecondsInterval: number;
-    CustomHtml: string;
-    ShowFilter: boolean;
-}
+import { HCSiteEventsModuleCalendarMode } from "@generated/Enums/Core/HCSiteEventsModuleCalendarMode";
 
 @Options({
     components: {
@@ -186,7 +182,7 @@ export default class OverviewPageComponent extends Vue {
     config!: ModuleConfig;
     
     @Prop({ required: true })
-    options!: ModuleOptions<OverviewPageOptions>;
+    options!: ModuleOptions<HCSiteEventsModuleFrontendOptionsModel>;
 
     // Dialogs
     eventDetailsDialogState: boolean = false;
@@ -210,18 +206,33 @@ export default class OverviewPageComponent extends Vue {
     nextAutoRefresh: Date | null = null;
     filterInternal: string = '';
     showFilter: boolean = false;
+    
+    initialCalendarMode: string = '';
+    allowedCalendarModes: Array<string> | null = null;
 
     //////////////////
     //  LIFECYCLE  //
     ////////////////
-    mounted(): void
-    {
+    created(): void {
         if (this.options.Options.FrontendAutoRefreshSecondsInterval < 5)
         {
             this.options.Options.FrontendAutoRefreshSecondsInterval = 5;
         }
-        setInterval(() => { this.autoRefreshValueCalc(); }, 1000);
+        this.initialCalendarMode = this.translateCalendarMode(this.options.Options?.Sections?.Calendar?.InitialMode);
+        this.allowedCalendarModes = (this.options.Options?.Sections?.Calendar?.AllowedModes || []).map(x => this.translateCalendarMode(x));
+    }
 
+    translateCalendarMode(mode: HCSiteEventsModuleCalendarMode | null | undefined): string {
+        if (mode == HCSiteEventsModuleCalendarMode.Month) return 'dayGridMonth';
+        else if (mode == HCSiteEventsModuleCalendarMode.Week) return 'timeGridWeek';
+        else if (mode == HCSiteEventsModuleCalendarMode.Day) return 'timeGridDay';
+        else if (mode == HCSiteEventsModuleCalendarMode.List) return 'listWeek';
+        else return '';
+    }
+
+    mounted(): void
+    {
+        setInterval(() => { this.autoRefreshValueCalc(); }, 1000);
         this.loadData();
     }
 
@@ -237,6 +248,22 @@ export default class OverviewPageComponent extends Vue {
         else return this.filterInternal || '';
     }
 
+    get showTopStatus(): boolean {
+        return this.options.Options.Sections?.Status?.Enabled == true;
+    }
+
+    get showOngoingEvents(): boolean {
+        return this.options.Options.Sections?.OngoingEvents?.Enabled == true;
+    }
+
+    get showRecentEvents(): boolean {
+        return this.options.Options.Sections?.RecentEvents?.Enabled == true;
+    }
+
+    get showCalendar(): boolean {
+        return this.options.Options.Sections?.Calendar?.Enabled == true;
+    }
+
     get performFiltering(): boolean { return this.filter != ''; }
     
     get calendarEvents(): Array<SiteEventViewModel> {
@@ -245,8 +272,9 @@ export default class OverviewPageComponent extends Vue {
     }
 
     get timelineEvents(): Array<SiteEventViewModel> {
+        const maxDays = this.options.Options.Sections?.RecentEvents?.MaxNumberOfDays || 3;
         let fromDate = new Date();
-        fromDate.setDate(fromDate.getDate() - 3);
+        fromDate.setDate(fromDate.getDate() - maxDays);
         fromDate.setHours(23);
         fromDate.setMinutes(59);
         
@@ -283,7 +311,7 @@ export default class OverviewPageComponent extends Vue {
         }
 
         let thresholdDate = new Date();
-        thresholdDate.setMinutes(thresholdDate.getMinutes() - this.options.Options.CurrentEventBufferMinutes);
+        thresholdDate.setMinutes(thresholdDate.getMinutes() - this.options.Options.Sections?.OngoingEvents?.BufferMinutes || 0);
         
         let eventEndDate = new Date(event.Timestamp);
         eventEndDate.setMinutes(eventEndDate.getMinutes() + event.Duration);

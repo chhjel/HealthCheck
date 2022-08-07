@@ -90,7 +90,7 @@ export default class ParameterInputTypeGuidComponent extends Vue {
 
     onBlur(): void {
         // todo: validate
-        // console.log('blur', this.localValue);
+        // this.localValue
     }
     
     /////////////////
