@@ -662,21 +662,25 @@ namespace HealthCheck.WebUI.Util
     <meta name={Q}viewport{Q} content={Q}width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui{Q}>
     <script>
         window.__hcLoadErrors = [];
-        window.addEventListener('error', (event) => {{
+        function showErrorsDelayed() {{
+            setTimeout(() => {{
+                var errors = window.__hcLoadErrors
+                    .filter(x => x.type == 'error' && (x.target.localName == 'script' || x.target.localName == 'link'))
+                    .map(x => {{
+                        var type = x.target.localName == 'script' ? 'code' : 'style';
+                        var url = x.target.localName == 'script' ? x.target.src : x.target.href;
+                        return `ERR: Failed to load ${{type}} from '${{url}}'`;
+                    }});
+                if (errors.length == 0) return;
+                var errContainer = document.getElementById('hc-load-errors');
+                errContainer.innerHTML = errors.join('\n');
+            }}, 2000);
+        }}
+
+        window.addEventListener('error', (x) => {{
             window.__hcLoadErrors.push(event);
+            showErrorsDelayed();
         }}, true);
-        setTimeout(() => {{
-            var errors = window.__hcLoadErrors
-                .filter(x => x.type == 'error' && (x.target.localName == 'script' || x.target.localName == 'link'))
-                .map(x => {{
-                    var type = x.target.localName == 'script' ? 'code' : 'style';
-                    var url = x.target.localName == 'script' ? x.target.src : x.target.href;
-                    return `ERR: Failed to load ${{type}} from '${{url}}'`;
-                }});
-            if (errors.length == 0) return;
-            var errContainer = document.getElementById('hc-load-errors');
-            errContainer.innerHTML = errors.join('\n');
-        }}, 2000);
     </script>
     {cssTagsHtml}
     {pageOptions.CustomHeadHtml}
