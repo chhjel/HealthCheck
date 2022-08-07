@@ -68,7 +68,8 @@ export default class DateUtils
 
     static FormatDate(date: Date, format: string): string
     {
-        if (typeof date === 'string')
+        if (!date) return '';
+        else if (typeof date === 'string')
         {
             date = new Date(date);
         }

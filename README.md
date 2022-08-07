@@ -254,6 +254,7 @@ Supported parameter types:
 * `decimal`, `decimal?`
 * `bool`, `bool?`
 * `DateTime`, `DateTime?`, `DateTimeOffset`, `DateTimeOffset?`
+* `DateTime[]`, `DateTime?[]`, `DateTimeOffset[]`, `DateTimeOffset?[]` (-> date range selection)
 * `TimeSpan`, `TimeSpan?`
 * `Enum`, `Enum?` (-> select)
 * `Enum` with `[Flags]` (-> multiselect)

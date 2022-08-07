@@ -3,7 +3,7 @@
         <datepicker 
             v-model="localValue"
             :range="isRange"
-            :partialRange="false"
+            :partialRange="partialRange"
             :disabled="isDisabled" 
             :clearable="isClearable"
             :presetRanges="internalRangePresets"
@@ -41,6 +41,9 @@ export default class DatePickerComponent extends Vue {
 
     @Prop({ required: false, default: false })
     clearable!: string | boolean;
+
+    @Prop({ required: false, default: false })
+    partialRange!: string | boolean;
 
     @Prop({ required: false, default: false })
     disabled!: string | boolean;

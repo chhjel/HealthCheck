@@ -7,6 +7,7 @@
             :disabled="readonly"
             :clearable="isNullable"
             :range="isRange"
+            :partialRange="isPartialRange"
         ></date-picker-component>
     </div>
 </template>
@@ -89,15 +90,17 @@ export default class ParameterInputTypeDateTimeComponent extends Vue {
         return this.config.UIHints.includes(HCUIHint.DateRange);
     }
 
+    get isPartialRange(): boolean {
+        return this.isRange && this.isNullable;
+    }
+
     setLocalValueFromDate(date: Date | Date[] | null): void {
         if (date == null) {
             this.clearValue();
         } else if (Array.isArray(date) && (date.length == 0 || date[0] == null)) {
             this.clearValue();
         } else if (Array.isArray(date) && date.length >=2 && this.isRange) {
-            // this.localValue = <any>date.map(x => x == null ? null : DateUtils.FormatDate(x, 'yyyy-MM-ddTHH:mm:ss'));
-            // todo: can't emitt non-string here
-            this.localValue = <any>date;
+            this.localValue = `${DateUtils.FormatDate(date[0], 'yyyy-MM-ddTHH:mm:ss')} - ${DateUtils.FormatDate(date[1], 'yyyy-MM-ddTHH:mm:ss')}`;
         } else if (Array.isArray(date) && date.length > 0) {
             this.localValue = DateUtils.FormatDate(date[0], 'yyyy-MM-ddTHH:mm:ss');
         } else if (!Array.isArray(date)) {
@@ -115,6 +118,12 @@ export default class ParameterInputTypeDateTimeComponent extends Vue {
         if (this.isRange && Array.isArray(this.localValue) && this.localValue.length >= 2)
         {
             this.localValueDates = this.localValue;
+        } else if (this.isRange && this.localValue && this.localValue.includes(' - '))
+        {
+            const parts = this.localValue.split(' - ');
+            const start = !!parts[0] ? new Date(parts[0]) : null;
+            const end = !!parts[1] ? new Date(parts[1]) : null;
+            this.localValueDates = [start, end];
         } else {
             this.localValueDates = !!this.localValue ? [new Date(this.localValue)] : null;
         }

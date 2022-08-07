@@ -40,9 +40,9 @@ namespace HealthCheck.Core.Models
 
         /// <summary>
         /// If used on DateTime[] or DateTimeOffset[] types, allows for selecting a daterange.
+        /// <para>DateTime?[] or DateTimeOffset?[] allows for omitting end.</para>
         /// <para>Index 0 = start selection, index 1 = end selection.</para>
         /// </summary>
-        [Obsolete("Currently bugged, don't use.")]
         DateRange = 32,
     }
 }
