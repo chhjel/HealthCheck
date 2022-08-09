@@ -24,11 +24,11 @@ variables:
 - name: BuildParameters.BuildReasonRevisionNumber
   value: $[counter(variables['BuildParameters.CleanSourceBranch'], 0)]
 - name: BuildParameters.AssemblyVersion
-  value: '3.2.$(BuildParameters.BuildReasonRevisionNumber)'
+  value: '4.0.$(BuildParameters.BuildReasonRevisionNumber)'
 - name: BuildParameters.Publish
   value: $[or(eq(variables['BuildParameters.IsMain'], 'true'), eq(variables['BuildParameters.IsExperimental'], 'true'))]
 
-name: 3.2.$(Rev:r)-$(Build.Reason)_$(SourceBranchName)
+name: 4.0.$(Rev:r)-$(Build.Reason)_$(SourceBranchName)
 
 # Trigger section does not support variables
 trigger:
