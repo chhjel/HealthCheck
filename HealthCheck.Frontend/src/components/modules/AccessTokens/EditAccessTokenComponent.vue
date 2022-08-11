@@ -261,7 +261,7 @@ export default class EditAccessTokenComponent extends Vue {
         else if (!enabled && this.moduleOptionIsEnabled(moduleId, option))
         {
             const index = module.Options.findIndex(x => x == option);
-            delete module.Options[index];
+            module.Options.splice(index, 1);
         }
         this.notifyChange();
     }
@@ -280,7 +280,7 @@ export default class EditAccessTokenComponent extends Vue {
         else if (!enabled && this.moduleCategoryIsEnabled(moduleId, category))
         {
             const index = module.Categories.findIndex(x => x == category);
-            delete module.Categories[index];
+            module.Categories.splice(index, 1);
         }
         this.notifyChange();
     }
