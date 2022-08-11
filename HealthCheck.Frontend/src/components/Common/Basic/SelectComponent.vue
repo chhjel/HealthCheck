@@ -88,7 +88,7 @@ const TeleportFix = teleport_ as {
 })
 export default class SelectComponent extends Vue
 {
-    @Prop({ required: true })
+    @Prop({ required: false })
     value!: string | Array<string>;
     
     @Prop({ required: false, default: '' })

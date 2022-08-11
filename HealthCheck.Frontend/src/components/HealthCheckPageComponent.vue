@@ -214,6 +214,8 @@ export default class HealthCheckPageComponent extends Vue {
             });
         });
 
+        items.push({ isSpacer: true });
+
         // Utils
         if (this.showTokenKillswitch) {
             items.push({

@@ -6,16 +6,21 @@
         <div class="toolbar-component__content"
             ref="mainToolbarContent"
             :style="contentStyle">
-            <btn-component flat
-                v-for="(item, index) in items"
-                :key="`toolbar-component-item-${index}`"
-                :href="item.href"
-                :class="{ 'active-tab': item.active }"
-                @click.left.prevent="onItemClick(item)"
-                :data-tindex="index">
-                    <icon-component class="mr-1" v-if="item.icon">{{ item.icon }}</icon-component>
-                    {{ item.label }}
-            </btn-component>
+            <template v-for="(item, index) in items"
+                    :key="`toolbar-component-item-${index}`">
+                <btn-component flat
+                    v-if="!item.isSpacer"
+                    :href="item.href"
+                    :class="{ 'active-tab': item.active }"
+                    @click.left.prevent="onItemClick(item)"
+                    :data-tindex="index">
+                        <icon-component class="mr-1" v-if="item.icon">{{ item.icon }}</icon-component>
+                        {{ item.label }}
+                </btn-component>
+                <div class="spacer"
+                    :data-tindex="index"
+                    v-if="item.isSpacer"></div>
+            </template>
         </div>
         <div class="toolbar-component__overflow-button hoverable-lift-light"
             ref="overflowButton"
@@ -233,6 +238,7 @@ export default class ToolbarComponent extends Vue {
         flex-direction: row;
         flex-wrap: nowrap;
         overflow: hidden;
+        width: 100%;
 
         height: 56px;
         @media (min-width: 960px) { height: 64px; }
