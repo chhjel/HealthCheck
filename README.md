@@ -1035,9 +1035,11 @@ Requires an additional nuget package installed [![Nuget](https://img.shields.io/
 The module allows for filtering and exporting data. The type of data source you have available determines how to filter it.
 
 * IQueryable: Lets the user enter a linq query to filter on.
-* IEnumerable&lt;T&gt;: Lets the user filter the data either using an entered linq query or custom parametet inputs depending on your stream implementation.
+* IEnumerable&lt;T&gt;: Lets the user filter the data either using an entered linq query or custom parameter inputs depending on your stream implementation.
 
 A default implementation `HCDataExportService` is provided that picks up any registered `IHCDataExportStream` streams.
+
+If the request only has access to load presets + export, a simplified version of the interface will be displayed.
 
 ### Setup
 
@@ -1080,8 +1082,8 @@ public class MyDataExportStreamA : HCDataExportStreamBase<MyModel>
     // - Enumerable uses GetEnumerableItemsAsync(int pageIndex, int pageSize, Func<MyModel, bool> predicate)
     // - EnumerableWithCustomFilter GetEnumerableWithCustomFilterAsync(..)
     public override IHCDataExportStream.QueryMethod Method => IHCDataExportStream.QueryMethod.Queryable;
-    // Optionally set any allowed column formatters. Any built-in ones can be found below the HealthCheck.Module.DataExport.Formatters namespace.
-    public override IEnumerable<IHCDataExportValueFormatter> ValueFormatters => new[] { new HCDataExportDateTimeValueFormatter() };
+    // Optionally set any allowed column formatters. Defaults to allowing all built-in implementations.
+    // public override IEnumerable<IHCDataExportValueFormatter> ValueFormatters => new[] { new HCDataExportDateTimeValueFormatter() };
     
     // Optional stream group name
     // public override string StreamGroupName => null;
