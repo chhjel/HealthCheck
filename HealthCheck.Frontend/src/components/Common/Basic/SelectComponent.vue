@@ -166,6 +166,7 @@ export default class SelectComponent extends Vue
 
     mounted(): void {
         this.callbacks = [
+            EventBus.on("onModuleSwitched", this.onModuleSwitched.bind(this)),
             EventBus.on("onWindowClick", this.onWindowClick.bind(this)),
             EventBus.on("onWindowScroll", this.onWindowScroll.bind(this)),
             EventBus.on("onWindowResize", this.onWindowResize.bind(this)),
@@ -173,6 +174,7 @@ export default class SelectComponent extends Vue
     }
 
     beforeUnmount(): void {
+      this.hideDropdown();
       this.callbacks.forEach(x => x.unregister());
     }
 
@@ -456,6 +458,11 @@ export default class SelectComponent extends Vue
                 this.filter = this.value;
             }
         }
+    }
+    
+    // Hack until vue fixes teleported kids being orphaned
+    onModuleSwitched(): void {
+        this.hideDropdown();
     }
 
     onWindowClick(e: MouseEvent): void {

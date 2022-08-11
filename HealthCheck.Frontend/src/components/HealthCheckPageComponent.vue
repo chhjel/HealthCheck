@@ -331,6 +331,7 @@ export default class HealthCheckPageComponent extends Vue {
             EventBus.notify("onNotAllowedModuleSwitch");
             return;
         }
+        EventBus.notify("onModuleSwitched");
 
         this.$store.commit('allowModuleSwitch', true);
         this.$store.commit('showMenuButton', false);
