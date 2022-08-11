@@ -106,7 +106,7 @@
                         multiple
                         clearable
                         allowInput
-                        class="filter-input"
+                        class="filter-input ml-2"
                         :readonly="readonly"
                         :input="getModuleAccessIds(module.ModuleId)"
                         @change="(v) => onModuleAccessIdChanged(module.ModuleId, v)"
