@@ -224,7 +224,7 @@ export default class EditAccessTokenComponent extends Vue {
         else if (!enabled && this.roleIsEnabled(roleId))
         {
             const index = this.datax.Roles.findIndex(x => x == roleId);
-            delete this.datax.Roles[index];
+            this.datax.Roles.splice(index, 1);
         }
         this.notifyChange();
     }
@@ -242,7 +242,7 @@ export default class EditAccessTokenComponent extends Vue {
         else if (!enabled && this.hasAccessToModule(moduleId))
         {
             const index = this.datax.Modules.findIndex(x => x.ModuleId == moduleId);
-            delete this.datax.Modules[index];
+            this.datax.Modules.splice(index, 1);
         }
         this.notifyChange();
     }

@@ -364,7 +364,7 @@ export default class AccessTokensPageComponent extends Vue {
     confirmDeleteToken(token: TokenData): void {
         this.service.DeleteToken(token.Id, this.loadStatus, { onSuccess: (data) => {
             const index = this.tokens.findIndex(x => x.Id == token.Id);
-            delete this.tokens[index];
+            this.tokens.splice(index, 1);
         }});
         this.deleteTokenDialogVisible = false;
     }
