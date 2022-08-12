@@ -8,7 +8,7 @@
             :disabled="readonly"
             @blur="onBlur" />
 
-        <tooltip-component tooltip="Generate random guid">
+        <tooltip-component tooltip="Generate random guid" v-if="showRngGen">
             <btn-component flat icon color="primary" class="ma-0 pa-0"
                 @click="generateRandomValue"
                 :disabled="readonly">
@@ -33,6 +33,7 @@ import { Vue, Prop, Watch } from "vue-property-decorator";
 import { Options } from "vue-class-component";
 import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
 import IdUtils from "@util/IdUtils";
+import { HCUIHint } from "@generated/Enums/Core/HCUIHint";
 
 @Options({
     components: {
@@ -73,6 +74,10 @@ export default class ParameterInputTypeGuidComponent extends Vue {
 
     get isNullable(): boolean {
         return this.config.Nullable;
+    }
+
+    get showRngGen(): boolean {
+        return this.config.UIHints.includes(HCUIHint.DisableRng);
     }
 
     get placeholderText(): string {

@@ -44,5 +44,10 @@ namespace HealthCheck.Core.Models
         /// <para>Index 0 = start selection, index 1 = end selection.</para>
         /// </summary>
         DateRange = 32,
+
+        /// <summary>
+        /// Removes the "Generate new guid" button on guid inputs.
+        /// </summary>
+        DisableRng = 64,
     }
 }

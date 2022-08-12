@@ -44,6 +44,8 @@ namespace HealthCheck.Dev.Common.Tests
         [RuntimeTestParameter(target: "nullableEnm", "Nullable Enum", "Some description", nullName: "<any>")]
         public TestResult TestParameterTypes(
             Guid guid, Guid? nullableGuid,
+            [RuntimeTestParameter(UIHints = HCUIHint.DisableRng)] Guid guidWithoutRng,
+            [RuntimeTestParameter(UIHints = HCUIHint.DisableRng)] Guid? nullableGuidWithoutRng,
             DateTime date, [RuntimeTestParameter(nullName: "<no date>")] DateTime? nullableDate = null,
             DateTimeOffset dateOffset = default, [RuntimeTestParameter(nullName: "<no datetimeoffset>")] DateTimeOffset? nullableDateOffset = null,
             [RuntimeTestParameter(UIHints = HCUIHint.DateRange)] DateTime[] dateRange = default,
