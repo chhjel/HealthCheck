@@ -42,6 +42,13 @@ namespace HealthCheck.Core.Modules.Tests.Attributes
         public string NullName { get; set; }
 
         /// <summary>
+        /// Can be used on text inputs to require the input to match the given regex pattern.
+        /// <para>Use JavaScript format. If not starting with a '/' one will be prepended and '/g' will be appended.</para>
+        /// <para>Example: O\-\d+ or /[abc]+/gi</para>
+        /// </summary>
+        public string TextPattern { get; set; }
+
+        /// <summary>
         /// Sets parameters options.
         /// </summary>
         /// <param name="target">Target parameter name.</param>

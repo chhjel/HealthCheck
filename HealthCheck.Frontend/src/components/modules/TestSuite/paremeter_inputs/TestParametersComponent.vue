@@ -94,7 +94,8 @@ export default class TestParametersComponent extends Vue {
         ParameterIndex: index,
         ExtraValues: {},
         PropertyInfo: {},
-        NullName: parameter.NullName
+        NullName: parameter.NullName,
+        TextPattern: parameter.TextPattern
       };
     }
 

@@ -947,7 +947,8 @@ Web -> Frontend: Confirmation is delivered
             PossibleValues: ['A', 'B', 'C'],
             ParameterIndex: 0,
             ExtraValues: { },
-            PropertyInfo: null
+            PropertyInfo: null,
+			TextPattern: ''
         };
     }
 

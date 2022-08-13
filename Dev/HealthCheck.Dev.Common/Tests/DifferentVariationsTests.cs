@@ -42,6 +42,8 @@ namespace HealthCheck.Dev.Common.Tests
         [RuntimeTestParameter(target: "textArea", "Text Area", "Testing a text area here", HCUIHint.TextArea | HCUIHint.FullWidth)]
         [RuntimeTestParameter(target: "codeArea", "Code Area", "Testing a code area here", HCUIHint.CodeArea)]
         [RuntimeTestParameter(target: "nullableEnm", "Nullable Enum", "Some description", nullName: "<any>")]
+        [RuntimeTestParameter(target: "textPattern1", "String with pattern A", "Testing some pattern validation.", TextPattern = @"^O\-\d+")]
+        [RuntimeTestParameter(target: "textPattern2", "String with pattern B", "Testing some pattern validation.", TextPattern = @"/^X\-\d+/gi")]
         public TestResult TestParameterTypes(
             Guid guid, Guid? nullableGuid,
             [RuntimeTestParameter(UIHints = HCUIHint.DisableRng)] Guid guidWithoutRng,
@@ -52,6 +54,8 @@ namespace HealthCheck.Dev.Common.Tests
             [RuntimeTestParameter(UIHints = HCUIHint.DateRange)] DateTimeOffset[] dateOffsetRange = default,
             [RuntimeTestParameter(UIHints = HCUIHint.DateRange)] DateTime?[] nullableDateRange = default,
             [RuntimeTestParameter(UIHints = HCUIHint.DateRange)] DateTimeOffset?[] nullableDateOffsetRange = default,
+            string textPattern1 = "O-1234",
+            string textPattern2 = "X1234",
             string text = "abc",
             string textArea = "abc\ndef",
             int number = 123, [RuntimeTestParameter(nullName: "<no number pls>")] int? nullableNumber = 321,

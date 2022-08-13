@@ -29,6 +29,9 @@ namespace HealthCheck.Core.Util.Models
         /// <summary></summary>)
         public string NullName { get; set; }
 
+        /// <summary></summary>)
+        public string TextPattern { get; set; }
+
         /// <summary></summary>
         public List<string> Flags { get; set; }
 
@@ -47,5 +50,12 @@ namespace HealthCheck.Core.Util.Models
 
         /// <summary></summary>
         internal PropertyInfo PropertyInfo { get; set; }
+
+        internal static string EnsureJsRegexIsWrappedIfNotEmpty(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return input;
+            else if (!input.StartsWith("/")) return @$"/{input}/g";
+            else return input;
+        }
     }
 }

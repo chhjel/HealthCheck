@@ -15,6 +15,7 @@ export interface TestParameterViewModel
 	PossibleValues: string[];
 	UIHints: HCUIHint[];
 	NullName: string;
+	TextPattern: string;
 	IsCustomReferenceType: boolean;
 	IsUnsupportedJson: boolean;
 	ReferenceValueFactoryConfig: ReferenceValueFactoryConfigViewModel;

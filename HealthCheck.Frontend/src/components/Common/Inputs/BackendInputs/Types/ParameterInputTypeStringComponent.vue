@@ -6,6 +6,7 @@
             v-if="isTextField"
             class="pt-0 spacer"
             v-model:value="localValue"
+            @blur="tryValidatePattern"
             :placeholder="placeholderText"
             :disabled="readonly" />
         <textarea-component
@@ -42,6 +43,8 @@ import { Options } from "vue-class-component";
 import { HCBackendInputConfig } from '@generated/Models/Core/HCBackendInputConfig';
 import EditorComponent from '@components/Common/EditorComponent.vue'
 import { HCUIHint } from "@generated/Enums/Core/HCUIHint";
+import RegexUtils from "@util/RegexUtils";
+import { nextTick } from "@vue/runtime-core";
 
 @Options({
     components: {
@@ -96,12 +99,39 @@ export default class ParameterInputTypeStringComponent extends Vue {
     get isTextField(): boolean {
         return !this.isTextArea && !this.isCodeArea;
     }
+
+    get hasPattern(): boolean {
+        return this.isTextField && !!this.config.TextPattern;
+    }
     
     refreshEditorSize(): void {
         const editor: EditorComponent = <EditorComponent>this.$refs.editor;
         if (editor)
         {
             editor.refreshSize();
+        }
+    }
+
+    tryValidatePattern(): void {
+        if (!!this.localValue && this.hasPattern) {
+            this.tryEnforcePattern();
+        }
+    }
+
+    tryEnforcePattern(): void {
+        try {
+            if (!this.config.TextPattern.startsWith('/')) return;
+
+            let pattern = this.config.TextPattern.substring(1);
+            pattern = pattern.substring(0, pattern.lastIndexOf('/'));
+            const flags = this.config.TextPattern.substring(this.config.TextPattern.lastIndexOf('/') + 1);
+            const regex = new RegExp(pattern, flags);
+            nextTick(() => {
+                this.localValue = RegexUtils.inverseReplaceRegex(regex, this.localValue, '');
+            });
+        } catch(e) {
+            console.warn(`[${this.config.Name}] Failed to enforce input pattern '${this.config.TextPattern}' with the following error:`);
+            console.warn(e);
         }
     }
     

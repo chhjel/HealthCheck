@@ -17,6 +17,7 @@ export interface TestParameter
 	IsOut: boolean;
 	IsRef: boolean;
 	NullName: string;
+	TextPattern: string;
 	IsCustomReferenceType: boolean;
 	ReferenceFactory: RuntimeTestReferenceParameterFactory;
 	UIHints: HCUIHint[];

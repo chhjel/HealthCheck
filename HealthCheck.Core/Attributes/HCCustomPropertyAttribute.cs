@@ -33,6 +33,13 @@ namespace HealthCheck.Core.Attributes
         /// </summary>)
         public string NullName { get; set; }
 
+        /// <summary>
+        /// Can be used on text inputs to require the input to match the given regex pattern.
+        /// <para>Use JavaScript format. If not starting with a '/' one will be prepended and '/g' will be appended.</para>
+        /// <para>Example: O\-\d+ or /[abc]+/gi</para>
+        /// </summary>
+        public string TextPattern { get; set; }
+
         private static readonly HCStringConverter _stringConverter = new();
 
         /// <summary></summary>
@@ -91,6 +98,7 @@ namespace HealthCheck.Core.Attributes
                 Description = attr?.Description ?? "",
                 Nullable = isNullable,
                 NullName = attr?.NullName,
+                TextPattern = HCBackendInputConfig.EnsureJsRegexIsWrappedIfNotEmpty(attr?.TextPattern),
                 DefaultValue = defaultValue,
                 Flags = new(),
                 UIHints = EnumUtils.GetFlaggedEnumValues<HCUIHint>(attr?.UIHints) ?? new(),

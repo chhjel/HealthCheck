@@ -217,6 +217,7 @@ namespace HealthCheck.Core.Modules.Tests.Models
                     ParameterType = type,
                     UIHints = uiHints,
                     NullName = parameterAttribute?.NullName,
+                    TextPattern = parameterAttribute?.TextPattern,
                     PossibleValues = HCCustomPropertyAttribute.GetPossibleValues(parameter.ParameterType),
                     IsCustomReferenceType = isCustomReferenceType,
                     ReferenceFactory = referenceFactory,

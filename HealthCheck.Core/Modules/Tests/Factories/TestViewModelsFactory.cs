@@ -4,6 +4,7 @@ using HealthCheck.Core.Modules.Tests.Models;
 using HealthCheck.Core.Modules.Tests.Services;
 using HealthCheck.Core.Modules.Tests.Utils;
 using HealthCheck.Core.Util;
+using HealthCheck.Core.Util.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -125,6 +126,7 @@ namespace HealthCheck.Core.Modules.Tests.Factories
                 Type = type,
                 UIHints = testParameter?.UIHints ?? new(),
                 NullName = testParameter.NullName,
+                TextPattern = HCBackendInputConfig.EnsureJsRegexIsWrappedIfNotEmpty(testParameter?.TextPattern),
                 IsCustomReferenceType = testParameter.IsCustomReferenceType,
                 Hidden = hidden,
                 ReferenceValueFactoryConfig = CreateReferenceValueFactoryConfig(testParameter.ReferenceFactory)
