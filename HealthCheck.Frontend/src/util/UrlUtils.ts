@@ -33,10 +33,15 @@ export default class UrlUtils
         UrlUtils.SetQueryStringParameter('h', window.location.hash);
     }
 
-    static SetQueryStringParameter(key: string, value: string): void {
+    static SetQueryStringParameter(key: string, value: string, reload?: boolean): void {
         const params = new URLSearchParams(location.search);
         params.set(key, value);
-        window.history.replaceState({}, '', `${location.pathname}?${params.toString()}${location.hash}`);
+        const newUrl = `${location.pathname}?${params.toString()}${location.hash}`;
+        if (reload === true) {
+            window.location.href = newUrl;
+        } else {
+            window.history.replaceState({}, '', newUrl);
+        }
     }
 
     static ClearQueryStringParameter(key: string): void {
@@ -47,7 +52,7 @@ export default class UrlUtils
 
     static RemoveQueryStringParameter(url: string, key: string): string {
         const urlObj = new URL(url);
-        urlObj.searchParams.delete('h');
+        urlObj.searchParams.delete(key);
         return urlObj.toString();
     }
 

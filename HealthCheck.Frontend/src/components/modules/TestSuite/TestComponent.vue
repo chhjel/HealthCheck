@@ -3,7 +3,10 @@
     <div>
       <div class="test-item pa-4">
           <!-- HEADER -->
-          <div class="test-categories" v-if="showCategories" v-html="categoriesString"></div>
+          <div class="test-header-right">
+            <a class="clickable mr-1" v-if="showSingleModeLink" @click="enableSingleMode">[Show only this one]</a>
+            <div class="test-categories" v-if="showCategories" v-html="categoriesString"></div>
+          </div>
           <div class="test-header" 
             :class="{'no-details': !showDetails}"
             :data-test-title-encoded="encodedTestTitle"
@@ -151,6 +154,11 @@ export default class TestComponent extends Vue {
         && StoreUtil.store.state.input.shiftIsHeldDown;
     }
 
+    get showSingleModeLink() : boolean {
+      return StoreUtil.store.state.input.ctrlIsHeldDown
+          && StoreUtil.store.state.input.shiftIsHeldDown;
+    }
+
     get categoriesString(): string {
       return 'Categories: <b>' + this.test.Categories.joinForSentence('</b>, <b>', '</b> and <b>') + '</b>';
     }
@@ -264,6 +272,10 @@ export default class TestComponent extends Vue {
     ////////////////
     //  METHODS  //
     //////////////
+    enableSingleMode(): void {
+      UrlUtils.SetQueryStringParameter('single', this.test.Id, true);
+    }
+
     getInputComponentNameFromType(typeName: string): string
     {
       let componentName = `ParameterInputType${typeName}Component`;
@@ -371,13 +383,15 @@ export default class TestComponent extends Vue {
   background-color: #fff;
   box-shadow: #d5d7d5 4px 4px 6px 0px;
 }
-.test-categories {
+.test-header-right {
     position: absolute;
     top: 5px;
     right: 25px;
     font-size: 11px;
+    display: flex;
     color: #838383;
 }
+/* .test-categories {} */
 .test-header {
   display: flex;
   margin-bottom: 10px;

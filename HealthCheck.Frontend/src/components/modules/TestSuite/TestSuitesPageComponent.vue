@@ -4,6 +4,7 @@
         <!-- NAVIGATION DRAWER -->
         <Teleport to="#module-nav-menu">
             <filterable-list-component
+                v-if="!isSingleTestMode"
                 :items="menuItems"
                 :groupOrders="menuGroupOrders"
                 :groupByKey="`GroupName`"
@@ -55,6 +56,11 @@
                 v-if="setSetsLoadStatus.inProgress"
                 indeterminate color="success"></progress-linear-component>
 
+            <!-- SINGLE MODE -->
+            <a v-if="isSingleTestMode" @click.prevent.stop="exitSingleMode" class="clickable mb-2" style="display: block;">
+                &lt;&lt; Back to all tests
+            </a>
+
             <!-- TESTS -->
             <test-set-component
                 v-if="activeSet != null"
@@ -87,6 +93,8 @@ import { FilterableListItem } from "@components/Common/FilterableListComponent.v
 import FilterableListComponent from "@components/Common/FilterableListComponent.vue";
 import { RouteLocationNormalized } from "vue-router";
 import GroupOptionsViewModel from "@models/modules/TestSuite/GroupOptionsViewModel";
+import { nextTick } from "@vue/runtime-core";
+import EventBus from "@util/EventBus";
 
 @Options({
     components: {
@@ -110,6 +118,7 @@ export default class TestSuitesPageComponent extends Vue {
     menuItems: Array<FilterableListItem> = [];
     activeSet: TestSetViewModel | null = null;
     invalidTests: Array<InvalidTestViewModel> = new Array<InvalidTestViewModel>();
+    isSingleTestMode: boolean = false;
 
     // Service
     service: TestService = new TestService(this.globalOptions.InvokeModuleMethodEndpoint, this.globalOptions.InludeQueryStringInApiCalls, this.config.Id);
@@ -199,6 +208,17 @@ export default class TestSuitesPageComponent extends Vue {
             }
         }
 
+        const singleTestId: string | null = UrlUtils.GetQueryStringParameter('single', null);
+        if (singleTestId) {
+            this.isSingleTestMode = true;
+            EventBus.notify("collapseMenu");
+            testsData.TestSets = testsData.TestSets.filter(s => s.Tests.some(t => t.Id == singleTestId));
+            if (testsData.TestSets && testsData.TestSets.length > 0) {
+                testsData.TestSets[0].AllowRunAll = false;
+                testsData.TestSets[0].Tests = testsData.TestSets[0].Tests.filter(t => t.Id == singleTestId);
+            }
+        }
+
         this.sets = testsData.TestSets;
         this.groupOptions = testsData.GroupOptions;
 
@@ -206,6 +226,12 @@ export default class TestSuitesPageComponent extends Vue {
         this.updateMenuItems();
         this.setMenuGroupOrders();
         this.updateSelectionFromUrl();
+    }
+
+    exitSingleMode(): void {
+        let url = window.location.href;
+        url = UrlUtils.RemoveQueryStringParameter(url, 'single');
+        window.location.href = url;
     }
 
     setActiveSet(set: TestSetViewModel, test: string | null = null, updateRoute: boolean = true): void

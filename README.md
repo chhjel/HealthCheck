@@ -188,6 +188,8 @@ HCAssetGlobalConfig.DefaultReleaseNotesSummaryJavascriptUrl = $"{hcController}/G
 
 Allows given backend methods to be executed in a UI to check the status of integrations, run utility methods and other things. Any exception thrown from a test will be included in full detail in the UI for easy debugging.
 
+Hold ctrl-shift to view any test categories and show links to open tests in single-mode.
+
 ### Setup
 
 ```csharp

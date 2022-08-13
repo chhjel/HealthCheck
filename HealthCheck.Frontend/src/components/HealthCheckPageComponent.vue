@@ -253,7 +253,8 @@ export default class HealthCheckPageComponent extends Vue {
     callbacks: Array<CallbackUnregisterShortcut> = [];
     bindEventBusEvents(): void {
         this.callbacks = [
-            EventBus.on("FilterableList.itemClicked", this.onFilterableListItemClicked.bind(this))
+            EventBus.on("FilterableList.itemClicked", this.onFilterableListItemClicked.bind(this)),
+            EventBus.on("collapseMenu", this.onCollapseMenuEmitted.bind(this))
         ];
     }
     unbindEventBusEvents(): void {
@@ -266,6 +267,10 @@ export default class HealthCheckPageComponent extends Vue {
         if (isSmallMenuMode.matches && this.showModuleMenuButton) {
             this.moduleNavMenuState = false;
         }
+    }
+
+    onCollapseMenuEmitted(): void {
+        this.hideNavMenu();
     }
 
     bindRootEvents(): void {
