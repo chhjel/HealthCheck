@@ -73,12 +73,16 @@ namespace HealthCheck.Core.Modules.Tests.Models
         /// </summary>
         public List<TestDefinition> Tests { get; set; } = new List<TestDefinition>();
 
+        private readonly RuntimeTestClassAttribute _testClassAttribute;
+
         /// <summary>
         /// Initialize a new <see cref="TestClassDefinition"/>.
         /// </summary>
         public TestClassDefinition(Type classType, RuntimeTestClassAttribute testClassAttribute)
         {
             ClassType = classType;
+            _testClassAttribute = testClassAttribute;
+
             Id = testClassAttribute.Id ?? ClassType.FullName;
             Name = testClassAttribute.Name ?? ClassType.Name.SpacifySentence();
             Description = testClassAttribute.Description;
@@ -93,6 +97,20 @@ namespace HealthCheck.Core.Modules.Tests.Models
                 .Union((testClassAttribute.DefaultCategory == null ? new string[0] : new[] { testClassAttribute.DefaultCategory }))
                 .Distinct()
                 .ToList();
+        }
+
+        /// <summary>
+        /// Creates a shallow copy of this def.
+        /// </summary>
+        /// <returns></returns>
+        public TestClassDefinition Clone(Func<TestDefinition, bool> testFilter)
+        {
+            var def = new TestClassDefinition(ClassType, _testClassAttribute)
+            {
+                DefaultCategories = DefaultCategories,
+                Tests = Tests.Where(testFilter).ToList()
+            };
+            return def;
         }
 
         /// <summary>
