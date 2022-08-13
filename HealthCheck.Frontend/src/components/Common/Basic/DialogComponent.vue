@@ -362,6 +362,19 @@ export default class DialogComponent extends Vue {
         }
     }
 
+    &.dark.fullscreen {
+        .dialog-component_modal {
+            width: 100%;
+            
+            &_content {
+                padding: 5px 30px;
+                @media (max-width: 961px) {
+                    padding: 5px;
+                }
+            }
+        }
+    }
+
     &.fullscreen {
         .dialog-component_modal {
             width: calc(100% - 16px);
