@@ -48,7 +48,7 @@ namespace HealthCheck.Dev.Common.Tests
             return new ProxyRuntimeTestConfig(typeof(SomeService))
                 .SetMethodFilter(x => !x.Name.StartsWith("FilteredOut"))
                 .SetCustomContext(
-                    contextFactory: () => new { MemoryLogger = HCLogTypeBuilder.CreateMemoryLoggerFor<ISomeLogger>() },
+                    contextFactory: () => new { MemoryLogger = HCLogTypeBuilder.CreateMemoryLoggerFor<ISomeLogger>(forwardTo: new SomeLogger()) },
                     instanceFactory: (context) => new SomeService(context.MemoryLogger),
                     resultAction: (result, context) =>
                     {
@@ -76,6 +76,13 @@ namespace HealthCheck.Dev.Common.Tests
         public interface ISomeLogger
         {
             void Error(string msg, Exception ex = null);
+        }
+        public class SomeLogger : ISomeLogger
+        {
+            public void Error(string msg, Exception ex = null)
+            {
+                Console.WriteLine($"From {nameof(SomeLogger)}: \"{msg}\" {ex}");
+            }
         }
         internal class SomeService
         {
