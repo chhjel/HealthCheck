@@ -398,10 +398,7 @@
 
 				<h3 class="ok">toolbar-component</h3>
 				<!-- ToolbarComponent -->
-				<toolbar-component>
-					<btn-component>Some button</btn-component>
-					<btn-component>Another button</btn-component>
-				</toolbar-component>
+				<!-- <toolbar-component></toolbar-component> -->
 				<hr />
 
 				<h3 class="ok">backend-input-component</h3>

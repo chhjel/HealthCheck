@@ -407,6 +407,15 @@ The following methods can be called on the testresult instance to tweak the outp
 |`DisallowDataExpansion()`|Always shows any dump data.|
 |`SetDataExpandedByDefault()`|Expands any dump data by default.|
 
+##### Validation
+
+If you want to display validation errors on input fields, you can use the following methods on the testresult instance.
+
+|Method|Effect|
+|-|-|
+|`SetParameterFeedback(..)`| Sets parameter feedback for a single parameter.|
+|`SetParametersFeedback(..)`|Sets parameter feedback conditionally for all parameters.|
+
 ##### FileDownloadHandler
 
 Example:
