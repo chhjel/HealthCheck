@@ -396,6 +396,7 @@ The `TestResult` class has a few static factory methods for quick creation of a 
 |AddTimingData|Creates timing metric display.|
 |AddTimelineData|Creates a timeline from the given steps. Each step can show a dialog with more info/links.|
 |AddFileDownload|Creates a download button that can download e.g. larger files by id. Requires `HCTestsModuleOptions.FileDownloadHandler` to be implemented, see further below.|
+|AddExceptionData|Creates a summary of a given exception to display.|
 
 ##### Cosmetics
 
