@@ -30,16 +30,19 @@
             +{{ overflowMenuItems.length }}
         </div>
         <div class="toolbar-component__overflow" ref="overflowContainer" v-show="showOverflow">
-            <btn-component flat
+            <template
                 v-for="(item, index) in overflowMenuItems"
-                :key="`toolbar-component-item-o-${index}`"
-                :href="item.href"
-                :class="{ 'active-tab': item.active }"
-                @click.left.prevent="onItemClick(item)"
-                :data-tindex="index">
-                    <icon-component class="mr-1" v-if="item.icon">{{ item.icon }}</icon-component>
-                    {{ item.label }}
-            </btn-component>
+                :key="`toolbar-component-item-o-${index}`">
+                <btn-component flat
+                    :href="item.href"
+                    v-if="!item.isSpacer"
+                    :class="{ 'active-tab': item.active }"
+                    @click.left.prevent="onItemClick(item)"
+                    :data-tindex="index">
+                        <icon-component class="mr-1" v-if="item.icon">{{ item.icon }}</icon-component>
+                        {{ item.label }}
+                </btn-component>
+            </template>
         </div>
     </div>
 </template>
