@@ -296,6 +296,10 @@ export default class ParameterInputPickReferenceComponent extends Vue {
     height: inherit;
     padding: 10px 10px;
     min-width: inherit;
+    .btn-component__contents {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
     
     .select-reference-item__name {
         max-width: 524px;
@@ -308,6 +312,7 @@ export default class ParameterInputPickReferenceComponent extends Vue {
         white-space: pre-wrap;
         max-width: 524px;
         text-align: left;
+        margin-top: 2px;
     }
 }
 </style>
